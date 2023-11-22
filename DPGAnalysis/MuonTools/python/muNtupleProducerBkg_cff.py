@@ -2,11 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
 
+from DPGAnalysis.MuonTools.nano_mu_global_cff import *
 from DPGAnalysis.MuonTools.nano_mu_digi_cff import *
 
-muNtupleProducerBkg = cms.Sequence(muDigiProducersBkg)
+muDPGNanoProducerBkg = cms.Sequence(lhcInfoTableProducer
+                                   + lumiTableProducer
+                                   + muDigiProducersBkg)
 
-def nanoAOD_customizeCommon(process) :
+def muDPGNanoBkgCustomize(process) :
 
      if hasattr(process, "NANOAODoutput"):
           process.NANOAODoutput.outputCommands.append("keep nanoaodFlatTable_*Table*_*_*")

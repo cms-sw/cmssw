@@ -139,12 +139,32 @@ steps['NANO_mc13.0']=merge([{'--era':'Run3',
 steps['MuonEG2023MINIAOD13.0'] = { 'INPUT':InputInfo(location='STD',ls=run3_lumis,
                                                      dataSet='/MuonEG/Run2023C-PromptReco-v4/MINIAOD')}
 
+steps['ZMuSkim2023DRAWRECO13.0'] = { 'INPUT':InputInfo(location='STD',ls={ 370775: [[1, 168]]},
+                                                     dataSet='/Muon0/Run2023D-ZMu-PromptReco-v2/RAW-RECO')}
+
+steps['ZeroBias2023DRAW13.0']={'INPUT':InputInfo(location='STD', ls={369978: [[1, 800]]},
+                                             dataSet='/ZeroBias/Run2023D-v1/RAW')}
+
 steps['NANO_data13.0']=merge([{'--era':'Run3',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
 
 steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
                                      steps['NANO_data13.0']])
+
+steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
+                                   '--conditions':'auto:run3_data',
+                                   '-n' : '100',
+                                   '--era' : 'Run3',
+                                   '--datatier':'NANOAOD',
+                                   '--eventcontent':'NANOAOD'}])
+
+steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
+                                   '--conditions':'auto:run3_data',
+                                   '-n' : '100',
+                                   '--era' : 'Run3',
+                                   '--datatier':'NANOAOD',
+                                   '--eventcontent':'NANOAOD'}])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -208,6 +228,8 @@ workflows[_wfn()] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
+workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
+workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
 
 _wfn.next()
 ################
