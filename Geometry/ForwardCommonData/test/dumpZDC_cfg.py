@@ -1,8 +1,40 @@
+###############################################################################
+# Way to use this:
+#   cmsRun dumpZDC_cfg.py type=ZDCV2
+#
+#   Options for type ZDCV2, ZDC
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("DUMP")
-process.load("Geometry.ForwardCommonData.testZDCXML_cfi")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "ZDCV2",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: ZDCV2, ZDC")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+geomFile = "Geometry.ForwardCommonData.test" + options.type + "XML_cfi"
+outFile = options.type + ".root"
+
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process("Dump",Run3_DDD)
+
+print("Geom file Name:   ", geomFile)
+print("Output file Name: ", outFile)
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load(geomFile)
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
@@ -22,6 +54,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('zdc.root'))
+                              outputFileName = cms.untracked.string(outFile))
 
 process.p = cms.Path(process.dump)
