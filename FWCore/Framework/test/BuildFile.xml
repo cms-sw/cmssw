@@ -379,6 +379,8 @@
 <test name="testFWCoreFrameworkGetByType_getterOfProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py"/>
 <test name="testFWCoreFrameworkGetByType_getterOfProduct_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py --useEDAlias"/>
 
+<test name="testFWCoreFrameworkConditionalTaskNonConsumed" command="test_conditionaltasks_nonconsumed.sh"/>
+
 <test name="testFWCoreFrameworkOptionsNumberOfThreadsType" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_wrongOptionsType_cfg.py --name=numberOfThreads --value='cms.untracked.uint32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfThreadsType" command="run_wrongOptionsType.sh numberOfThreads 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
