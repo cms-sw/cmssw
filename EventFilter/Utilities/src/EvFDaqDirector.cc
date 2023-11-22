@@ -272,6 +272,9 @@ namespace evf {
       auto waitForDir = [=](std::string const& bu_base_dir) -> void {
         int cnt = 0;
         while (!edm::shutdown_flag.load(std::memory_order_relaxed)) {
+          //stat should trigger autofs mount (mkdir could fail with access denied first time)
+          struct stat statbuf;
+          stat(bu_base_dir.c_str(), &statbuf);
           int retval = mkdir(bu_base_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
           if (retval != 0 && errno != EEXIST) {
             usleep(500000);
@@ -281,15 +284,17 @@ namespace evf {
             if (cnt > 120)
               throw cms::Exception("DaqDirector") << " Error checking for bu base dir after 1 minute -: " << bu_base_dir
                                                   << " mkdir error:" << strerror(errno);
+            continue;
           }
           break;
         }
       };
 
       if (!bu_base_dirs_all_.empty()) {
-        checkExists(bu_base_dirs_all_[0]);
-        bu_run_dir_ = bu_base_dirs_all_[0] + "/" + run_string_;
-        for (unsigned int i = 1; i < bu_base_dirs_all_.size(); i++)
+        std::string check_dir = bu_base_dir_.empty() ? bu_base_dirs_all_[0] : bu_base_dir_;
+        checkExists(check_dir);
+        bu_run_dir_ = check_dir + "/" + run_string_;
+        for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++)
           waitForDir(bu_base_dirs_all_[i]);
       } else {
         checkExists(bu_base_dir_);
