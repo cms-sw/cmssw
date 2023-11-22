@@ -201,6 +201,24 @@ private:
     double nPSStubsMin_;
     const TrackerTopology& tTopo_;
   };
+  struct TTTrackChi2MaxSelector {
+    TTTrackChi2MaxSelector(double reducedChi2Max) : reducedChi2Max_(reducedChi2Max) {}
+    TTTrackChi2MaxSelector(const edm::ParameterSet& cfg)
+      : reducedChi2Max_(cfg.template getParameter<double>("reducedChi2Max")) {}
+    bool operator()(const L1Track& t) const { return t.chi2Red() < reducedChi2Max_; }
+
+  private:
+    double reducedChi2Max_;
+  };
+  struct TTTrackWordChi2MaxSelector {
+    TTTrackWordChi2MaxSelector(double reducedChi2Max) : reducedChi2Max_(reducedChi2Max) {}
+    TTTrackWordChi2MaxSelector(const edm::ParameterSet& cfg)
+      : reducedChi2Max_(cfg.template getParameter<double>("reducedChi2Max")) {}
+    bool operator()(const L1Track& t) const { return t.chi2Red() < reducedChi2Max_; }
+
+  private:
+    double reducedChi2Max_;
+  };
   struct TTTrackBendChi2MaxSelector {
     TTTrackBendChi2MaxSelector(double bendChi2Max) : bendChi2Max_(bendChi2Max) {}
     TTTrackBendChi2MaxSelector(const edm::ParameterSet& cfg)
@@ -263,9 +281,9 @@ private:
                       TTTrackWordAbsZ0MaxSelector,
                       TTTrackWordNStubsMinSelector>
       TTTrackWordPtMinEtaMaxZ0MaxNStubsMinSelector;
-  typedef AndSelector<TTTrackBendChi2MaxSelector, TTTrackChi2RZMaxSelector, TTTrackChi2RPhiMaxSelector>
+  typedef AndSelector<TTTrackBendChi2MaxSelector, TTTrackChi2RZMaxSelector, TTTrackChi2RPhiMaxSelector, TTTrackChi2MaxSelector>
       TTTrackBendChi2Chi2RZChi2RPhiMaxSelector;
-  typedef AndSelector<TTTrackWordBendChi2MaxSelector, TTTrackWordChi2RZMaxSelector, TTTrackWordChi2RPhiMaxSelector>
+  typedef AndSelector<TTTrackWordBendChi2MaxSelector, TTTrackWordChi2RZMaxSelector, TTTrackWordChi2RPhiMaxSelector, TTTrackWordChi2MaxSelector>
       TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector;
 
   // ----------member data ---------------------------
@@ -273,7 +291,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const std::string outputCollectionName_;
   const edm::ParameterSet cutSet_;
-  const double ptMin_, absEtaMax_, absZ0Max_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
+  const double ptMin_, absEtaMax_, absZ0Max_, bendChi2Max_, reducedChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
   const int nStubsMin_, nPSStubsMin_;
   bool processSimulatedTracks_, processEmulatedTracks_;
   int debug_;
@@ -292,6 +310,7 @@ L1TrackSelectionProducer::L1TrackSelectionProducer(const edm::ParameterSet& iCon
       absEtaMax_(cutSet_.getParameter<double>("absEtaMax")),
       absZ0Max_(cutSet_.getParameter<double>("absZ0Max")),
       bendChi2Max_(cutSet_.getParameter<double>("reducedBendChi2Max")),
+  reducedChi2Max_(cutSet_.getParameter<double>("reducedChi2Max")),
       reducedChi2RZMax_(cutSet_.getParameter<double>("reducedChi2RZMax")),
       reducedChi2RPhiMax_(cutSet_.getParameter<double>("reducedChi2RPhiMax")),
       nStubsMin_(cutSet_.getParameter<int>("nStubsMin")),
@@ -414,8 +433,8 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
   TTTrackPtMinEtaMaxZ0MaxNStubsMinSelector kinSel(ptMin_, absEtaMax_, absZ0Max_, nStubsMin_);
   TTTrackWordPtMinEtaMaxZ0MaxNStubsMinSelector kinSelEmu(ptMin_, absEtaMax_, absZ0Max_, nStubsMin_);
-  TTTrackBendChi2Chi2RZChi2RPhiMaxSelector chi2Sel(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
-  TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector chi2SelEmu(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
+  TTTrackBendChi2Chi2RZChi2RPhiMaxSelector chi2Sel(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_, reducedChi2Max_);
+  TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector chi2SelEmu(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_, reducedChi2Max_);
   TTTrackNPSStubsMinSelector nPSStubsSel(nPSStubsMin_, tTopo);
 
   for (size_t i = 0; i < nOutputApproximate; i++) {
@@ -461,6 +480,7 @@ void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& 
         ->setComment("number of stubs in the PS Modules must be greater than or equal to this value");
 
     descCutSet.add<double>("reducedBendChi2Max", 2.25)->setComment("bend chi2 must be less than this value");
+    descCutSet.add<double>("reducedChi2Max", 9999.0)->setComment("chi2/dof must be less than this value");
     descCutSet.add<double>("reducedChi2RZMax", 5.0)->setComment("chi2rz/dof must be less than this value");
     descCutSet.add<double>("reducedChi2RPhiMax", 20.0)->setComment("chi2rphi/dof must be less than this value");
 

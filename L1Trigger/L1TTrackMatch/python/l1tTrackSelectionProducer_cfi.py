@@ -39,13 +39,14 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
 
 l1tTrackSelectionProducerForJets = l1tTrackSelectionProducer.clone(
   cutSet = dict(
-                    ptMin = 0.0, # pt must be greater than this value, [GeV]
-                    absEtaMax = 999.9, # absolute value of eta must be less than this value
-                    absZ0Max = 999.9, # z0 must be less than this value, [cm]
-                    nStubsMin = 0, # number of stubs must be greater than or equal to this value
+                    ptMin = 2.0, # pt must be greater than this value, [GeV]
+                    absEtaMax = 2.4, # absolute value of eta must be less than this value
+                    absZ0Max = 15.0, # z0 must be less than this value, [cm]
+                    nStubsMin = 4, # number of stubs must be greater than or equal to this value
                     nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
 
-                    reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
+                    reducedBendChi2Max = 2.2, # bend chi2 must be less than this value
+                    reducedChi2Max = cms.double(10.0),
                     reducedChi2RZMax = 999.9, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value
                     ),
