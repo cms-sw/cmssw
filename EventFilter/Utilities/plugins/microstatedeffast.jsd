@@ -5,7 +5,7 @@
          "operation" : "histo"
       },
       {
-         "name" : "Ministate",
+         "name" : "tMicrostate",
          "operation" : "histo"
       },
       {

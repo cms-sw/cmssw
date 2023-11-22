@@ -77,13 +77,12 @@ namespace jsoncollector {
     std::string getCSVString(int sid = -1);
 
     //fastpath file output
-    void outputCSV(std::string const& path, std::string const& csvString);
+    void outputCSV(std::string const& path, std::vector<std::string> const& csvString);
 
     //provide merged variable back to user
     JsonMonitorable* getMergedIntJForLumi(std::string const& name, unsigned int forLumi);
 
     // merges and outputs everything collected for the given stream to JSON file
-    bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi, bool output = true);
     bool outputFullJSON(std::string const& path, unsigned int lumi, bool output = true);
 
     //discard what was collected for a lumisection

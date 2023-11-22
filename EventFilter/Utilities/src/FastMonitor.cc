@@ -225,11 +225,12 @@ std::string FastMonitor::getCSVString(int sid) {
   return ss.str();
 }
 
-void FastMonitor::outputCSV(std::string const& path, std::string const& csvString) {
+void FastMonitor::outputCSV(std::string const& path, std::vector<std::string> const& csvs) {
   std::ofstream outputFile;
   outputFile.open(path.c_str(), std::fstream::out | std::fstream::trunc);
   outputFile << defPathFast_ << std::endl;
-  outputFile << csvString << std::endl;
+  for (const auto& csvString : csvs)
+    outputFile << csvString << std::endl;
   outputFile.close();
 }
 
@@ -238,31 +239,6 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name, unsi
   auto it = dpNameMap_.find(name);
   assert(it != dpNameMap_.end());
   return dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
-}
-
-bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi, bool output) {
-  LogDebug("FastMonitor") << "SNAP updates -: " << recentSnaps_ << " (by timer: " << recentSnapsTimer_
-                          << ") in lumisection ";
-
-  recentSnaps_ = recentSnapsTimer_ = 0;
-  for (unsigned int i = 0; i < nStreams_; i++) {
-    //merge even if no output
-    Json::Value serializeRoot;
-    for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
-      dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, true, i);
-    }
-    if (!output)
-      continue;
-    //get extension
-    std::stringstream tidext;
-    tidext << "_tid" << i;
-    std::string path = pathstem + tidext.str() + ext;
-
-    Json::StyledWriter writer;
-    std::string&& result = writer.write(serializeRoot);
-    FileIO::writeStringToFile(path, result);
-  }
-  return output;
 }
 
 bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, bool output) {

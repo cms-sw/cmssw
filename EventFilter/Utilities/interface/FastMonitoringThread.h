@@ -13,13 +13,9 @@
 
 namespace evf {
 
-  constexpr int nReservedModules = 128;
-  constexpr int nSpecialModules = 10;
-  constexpr int nReservedPaths = 1;
-
-  namespace FastMonState {
-    enum Macrostate;
-  }
+  //namespace FastMonState {
+  //  enum Macrostate;
+  //}
 
   class FastMonitoringService;
 
@@ -131,11 +127,10 @@ namespace evf {
       unsigned int varIndexThrougput_;
 
       //per stream
+      std::vector<unsigned int> tmicrostateEncoded_;
       std::vector<unsigned int> microstateEncoded_;
-      std::vector<unsigned int> ministateEncoded_;
       std::vector<jsoncollector::AtomicMonUInt*> processed_;
       jsoncollector::IntJ fastPathProcessedJ_;
-      std::vector<unsigned int> threadMicrostateEncoded_;
       std::vector<unsigned int> inputState_;
 
       //tracking luminosity of a stream
@@ -143,18 +138,11 @@ namespace evf {
 
       //N bins for histograms
       unsigned int macrostateBins_;
-      unsigned int ministateBins_;
       unsigned int microstateBins_;
       unsigned int inputstateBins_;
 
       //global state
       std::atomic<FastMonState::Macrostate> macrostate_;
-
-      //per stream
-      std::vector<ContainableAtomic<const std::string*>> ministate_;
-      std::vector<ContainableAtomic<const void*>> microstate_;
-      std::vector<ContainableAtomic<unsigned char>> microstateAcqFlag_;
-      std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
       FastMonEncoding encModule_;
       std::vector<FastMonEncoding> encPath_;
@@ -180,7 +168,10 @@ namespace evf {
       }
 
       //to be called after fast monitor is constructed
-      void registerVariables(jsoncollector::FastMonitor* fm, unsigned int nStreams, unsigned int nThreads) {
+      void registerVariables(jsoncollector::FastMonitor* fm,
+                             unsigned nMaxSlices,
+                             unsigned nMaxStreams,
+                             unsigned nMaxThreads) {
         //tell FM to track these global variables(for fast and slow monitoring)
         fm->registerGlobalMonitorable(&fastMacrostateJ_, true, &macrostateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_, false);
@@ -189,27 +180,30 @@ namespace evf {
         fm->registerGlobalMonitorable(&fastLockWaitJ_, false);
         fm->registerGlobalMonitorable(&fastLockCountJ_, false);
 
-        for (unsigned int i = 0; i < nStreams; i++) {
+        for (unsigned int i = 0; i < nMaxSlices; i++) {
           jsoncollector::AtomicMonUInt* p = new jsoncollector::AtomicMonUInt;
           *p = 0;
           processed_.push_back(p);
           streamLumi_.push_back(0);
         }
 
-        microstateEncoded_.resize(nStreams);
-        ministateEncoded_.resize(nStreams);
-        threadMicrostateEncoded_.resize(nThreads);
-        inputState_.resize(nStreams);
-        for (unsigned int j = 0; j < inputState_.size(); j++)
-          inputState_[j] = 0;
+        tmicrostateEncoded_.resize(nMaxSlices, FastMonState::mInvalid);
+        for (unsigned int i = nMaxThreads; i < nMaxSlices; i++) {
+          tmicrostateEncoded_[i] = FastMonState::mIgnore;
+        }
+        microstateEncoded_.resize(nMaxSlices, FastMonState::mInvalid);
+        inputState_.resize(nMaxSlices, FastMonState::inInit);
+        for (unsigned int i = nMaxStreams; i < nMaxSlices; i++) {
+          microstateEncoded_[i] = FastMonState::mIgnore;
+          inputState_[i] = FastMonState::inIgnore;
+        }
+        //for (unsigned int j = 0; j < nMaxStreams; j++)
+        //  inputState_[j] = 0;
 
         //tell FM to track these int vectors
-        fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_, true, &ministateBins_);
+        fm->registerStreamMonitorableUIntVec("tMicrostate", &tmicrostateEncoded_, true, &microstateBins_);
 
-        if (nThreads <= nStreams)  //no overlapping in module execution per stream
-          fm->registerStreamMonitorableUIntVec("Microstate", &microstateEncoded_, true, &microstateBins_);
-        else
-          fm->registerStreamMonitorableUIntVec("Microstate", &threadMicrostateEncoded_, true, &microstateBins_);
+        fm->registerStreamMonitorableUIntVec("Microstate", &microstateEncoded_, true, &microstateBins_);
 
         fm->registerStreamMonitorableUIntVecAtomic("Processed", &processed_, false, nullptr);
 
