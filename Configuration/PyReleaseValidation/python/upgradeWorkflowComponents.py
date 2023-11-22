@@ -477,13 +477,14 @@ class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return ('2021' in key or '2023' in key or '2024' in key)
 upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
     steps = [
         'Reco',
         'RecoFakeHLT',
         'RecoGlobal',
         'RecoNano',
+        'RecoNanoFakeHLT',
     ],
     PU = [],
     suffix = '_displacedRegional',
