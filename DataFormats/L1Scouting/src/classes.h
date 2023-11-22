@@ -6,9 +6,9 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 
 namespace scoutingRun3 { 
-  edm::Wrapper<scoutingRun3::ScMuonOrbitCollection>    ScMuonOrbitCollectionWrapper;
-  edm::Wrapper<scoutingRun3::ScJetOrbitCollection>     ScJetOrbitCollectionWrapper;
-  edm::Wrapper<scoutingRun3::ScEGammaOrbitCollection>  ScEGammaOrbitCollectionWrapper;
-  edm::Wrapper<scoutingRun3::ScTauOrbitCollection>     ScTauOrbitCollectionWrapper;
-  edm::Wrapper<scoutingRun3::ScEtSumOrbitCollection>   ScEtSumOrbitCollectionWrapper;
+  edm::Wrapper<ScMuonOrbitCollection>    ScMuonOrbitCollectionWrapper;
+  edm::Wrapper<ScJetOrbitCollection>     ScJetOrbitCollectionWrapper;
+  edm::Wrapper<ScEGammaOrbitCollection>  ScEGammaOrbitCollectionWrapper;
+  edm::Wrapper<ScTauOrbitCollection>     ScTauOrbitCollectionWrapper;
+  edm::Wrapper<ScEtSumOrbitCollection>   ScEtSumOrbitCollectionWrapper;
 }

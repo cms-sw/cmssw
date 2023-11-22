@@ -42,12 +42,10 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "No raw data for CALO source\n";  
   }
 
-  unpackOrbit(
-    // unpackedJets.get(), unpackedTaus.get(),
-    // unpackedEGammas.get(), unpackedEtSums.get(),
-    sourceRawData.data(), orbitSize
-  );
+  // unpack current orbit and store data into the orbitBufferr
+  unpackOrbit(sourceRawData.data(), orbitSize);
 
+  // fill orbit collection and clear the Bx buffer vector
   unpackedJets->fillAndClear(orbitBufferJets_, nJetsOrbit_);
   unpackedEGammas->fillAndClear(orbitBufferEGammas_, nEGammasOrbit_);
   unpackedTaus->fillAndClear(orbitBufferTaus_, nTausOrbit_);
@@ -61,9 +59,7 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void ScCaloRawToDigi::unpackOrbit(
-  // scoutingRun3::ScJetOrbitCollection* jets, scoutingRun3::ScTauOrbitCollection* taus,
-  // scoutingRun3::ScEGammaOrbitCollection* eGammas, scoutingRun3::ScEtSumOrbitCollection* etSums,
-  const unsigned char* buf, size_t len
+    const unsigned char* buf, size_t len
   ){
   using namespace scoutingRun3;
 
@@ -89,49 +85,36 @@ void ScCaloRawToDigi::unpackOrbit(
 
     // unpack jets from first link
     if (debug_) std::cout << "--- Jets link 1 ---\n";
-    //unpackLinkJets(jets, bl->jet1, bx);
     unpackLinkJets(bl->jet1, bx);
     
     // unpack jets from second link
     if (debug_) std::cout << "--- Jets link 2 ---\n";
-    //unpackLinkJets(jets, bl->jet2, bx);
     unpackLinkJets(bl->jet2, bx);
 
     // unpack eg from first link
     if (debug_) std::cout << "--- E/g link 1 ---\n";
-    // unpackLinkEGammas(eGammas, bl->egamma1, bx);
     unpackLinkEGammas(bl->egamma1, bx);
   
     // unpack eg from second link link
     if (debug_) std::cout << "--- E/g link 2 ---\n";
-    // unpackLinkEGammas(eGammas, bl->egamma2, bx);
     unpackLinkEGammas(bl->egamma2, bx);
 
     // unpack taus from first link
     if (debug_) std::cout << "--- Taus link 1 ---\n";
-    // unpackLinkTaus(taus, bl->tau1, bx);
     unpackLinkTaus(bl->tau1, bx);
     
     // unpack taus from second link
     if (debug_) std::cout << "--- Taus link 2 ---\n";
-    // unpackLinkTaus(taus, bl->tau2, bx);
     unpackLinkTaus(bl->tau2, bx);
 
     // unpack et sums
     if (debug_) std::cout << "--- Sums ---\n";
-    //unpackEtSums(etSums, bl->sum, bx);
     unpackEtSums(bl->sum, bx);
 
   } // end of orbit loop
-
-  // jets->flatten();
-  // eGammas->flatten();
-  // taus->flatten();
-  // etSums->flatten();
   
 }
  
-// void ScCaloRawToDigi::unpackLinkJets(scoutingRun3::ScJetOrbitCollection* jets, uint32_t* dataBlock, int bx){
 void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx){
   using namespace scoutingRun3;
 
@@ -146,7 +129,6 @@ void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx){
       if (Eta > 127) Eta = Eta - 256;
 
       ScJet jet(ET, Eta, Phi, 0);
-      //jets->addBxObject(bx, jet);
       orbitBufferJets_[bx].push_back(jet);
       nJetsOrbit_ ++;
 
@@ -161,7 +143,6 @@ void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx){
   } // end link jets unpacking loop 
 }
 
-// void ScCaloRawToDigi::unpackLinkEGammas(scoutingRun3::ScEGammaOrbitCollection* eGammas, uint32_t* dataBlock, int bx){
 void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx){
   using namespace scoutingRun3;
 
@@ -176,7 +157,6 @@ void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx){
       if (Eta > 127) Eta = Eta - 256;
 
       ScEGamma eGamma(ET, Eta, Phi, Iso);
-      //eGammas->addBxObject(bx, eGamma);
       orbitBufferEGammas_[bx].push_back(eGamma);
       nEGammasOrbit_ ++;
       
@@ -192,7 +172,6 @@ void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx){
   } // end link e/gammas unpacking loop
 }
 
-// void ScCaloRawToDigi::unpackLinkTaus(scoutingRun3::ScTauOrbitCollection* taus, uint32_t* dataBlock, int bx){
 void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx){
   using namespace scoutingRun3;
 
@@ -207,7 +186,6 @@ void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx){
       if (Eta > 127) Eta = Eta - 256;
 
       ScTau tau(ET, Eta, Phi, Iso);
-      //taus->addBxObject(bx, tau);
       orbitBufferTaus_[bx].push_back(tau);
       nTausOrbit_ ++;
       
@@ -223,7 +201,6 @@ void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx){
   } // end link taus unpacking loop
 }
 
-// void ScCaloRawToDigi::unpackEtSums(scoutingRun3::ScEtSumOrbitCollection* etSums, uint32_t* dataBlock, int bx){
 void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx){
   using namespace scoutingRun3;
 
@@ -233,14 +210,12 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx){
   ETEt = ((dataBlock[0] >> demux::shiftsESums::ETEt) & demux::masksESums::ETEt);
   
   ScEtSum sumTotEt(ETEt, 0, l1t::EtSum::EtSumType::kTotalEt);
-  //etSums->addBxObject(bx, sumTotEt);
   orbitBufferEtSums_[bx].push_back(sumTotEt);
 
   // HT
   HTEt = ((dataBlock[1] >> demux::shiftsESums::HTEt) & demux::masksESums::HTEt);
 
   ScEtSum sumTotHt(HTEt, 0, l1t::EtSum::EtSumType::kTotalHt);
-  //etSums->addBxObject(bx, sumTotHt);
   orbitBufferEtSums_[bx].push_back(sumTotHt);
 
   // ETMiss
@@ -248,7 +223,6 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx){
   ETmissPhi = ((dataBlock[2] >> demux::shiftsESums::ETmissPhi) & demux::masksESums::ETmissPhi);
 
   ScEtSum sumMissEt(ETmissEt, ETmissPhi, l1t::EtSum::EtSumType::kMissingEt);
-  //etSums->addBxObject(bx, sumMissEt);
   orbitBufferEtSums_[bx].push_back(sumMissEt);
   
   // HTMiss
@@ -256,7 +230,6 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx){
   HTmissPhi = ((dataBlock[3] >> demux::shiftsESums::HTmissPhi) & demux::masksESums::HTmissPhi);
 
   ScEtSum sumMissHt(HTmissEt, HTmissPhi, l1t::EtSum::EtSumType::kMissingHt);
-  //etSums->addBxObject(bx, sumMissHt);
   orbitBufferEtSums_[bx].push_back(sumMissHt);
 
   nEtSumsOrbit_ += 4;

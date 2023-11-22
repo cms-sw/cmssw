@@ -10,7 +10,6 @@
 #include "DataFormats/L1ScoutingRawData/interface/SDSRawDataCollection.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 
-#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 
 #include "EventFilter/L1ScoutingRawToDigi/interface/shifts.h"
@@ -33,12 +32,11 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void unpackOrbit(
-    //scoutingRun3::ScMuonOrbitCollection* muons,
     const unsigned char* buf, size_t len
   );
 
-  // vector holding data for every bunch crossing before 
-  // filling the orbit collection
+  // vector holding data for every bunch crossing
+  // before  filling the orbit collection
   std::vector<std::vector<scoutingRun3::ScMuon>> orbitBuffer_;
   int nMuonsOrbit_;
 

@@ -33,25 +33,17 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     std::cout << "No raw data for GMT FED\n";  
   }
 
-  // unpackOrbit(unpackedMuons.get(), sourceRawData.data(), orbitSize); 
+  // unpack current orbit and store data into the orbitBufferr
   unpackOrbit(sourceRawData.data(), orbitSize); 
 
-  // fill orbit collection with move:
-  // move every bx vector into the orbit collection
+  // fill orbit collection and clear the Bx buffer vector
   unpackedMuons->fillAndClear(orbitBuffer_, nMuonsOrbit_);
-
-  // int idx = 0;
-  // for (auto &bxVec: orbitBuffer_){
-  //   std::cout << "Bx = " << idx << ", size = "<< bxVec.size() <<std::endl;
-  //   idx += 1;
-  // }
 
   // store collection in the event
   iEvent.put( std::move(unpackedMuons) );
 }
 
 void ScGMTRawToDigi::unpackOrbit(
-  //scoutingRun3::ScMuonOrbitCollection* muons,
   const unsigned char* buf, size_t len
   ){
   
@@ -169,7 +161,6 @@ void ScGMTRawToDigi::unpackOrbit(
         idxy
       );
 
-      //muons->addBxObject(bx, muon);
       orbitBuffer_[bx].push_back(muon);
 
       if (debug_){

@@ -31,15 +31,8 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void unpackOrbit(
-    //scoutingRun3::ScJetOrbitCollection* jets, scoutingRun3::ScTauOrbitCollection* taus,
-    //scoutingRun3::ScEGammaOrbitCollection* eGammas, scoutingRun3::ScEtSumOrbitCollection* etSums,
     const unsigned char* buf, size_t len
   );
-
-  // void unpackLinkJets(scoutingRun3::ScJetOrbitCollection* jets, uint32_t* dataBlock, int bx);
-  // void unpackLinkEGammas(scoutingRun3::ScEGammaOrbitCollection* eGammas, uint32_t* dataBlock, int bx);
-  // void unpackLinkTaus(scoutingRun3::ScTauOrbitCollection* taus, uint32_t* dataBlock, int bx);
-  // void unpackEtSums(scoutingRun3::ScEtSumOrbitCollection* etSums, uint32_t* dataBlock, int bx);
 
   void unpackLinkJets(uint32_t* dataBlock, int bx);
   void unpackLinkEGammas(uint32_t* dataBlock, int bx);
