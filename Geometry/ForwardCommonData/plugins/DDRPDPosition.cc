@@ -19,7 +19,7 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class DDRPDPosition : public DDAlgorithm {
 public:
@@ -35,27 +35,29 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  std::vector<double> xpos_;    //Positions along x-axis
-  double ypos_;                 //Position along y-axis
-  double zpos_;                 //Position along z-axis
-  std::string childName_;       //Children name
+  std::vector<double> xpos_;  //Positions along x-axis
+  double ypos_;               //Position along y-axis
+  double zpos_;               //Position along z-axis
+  std::string childName_;     //Children name
 };
 
 DDRPDPosition::DDRPDPosition() { edm::LogVerbatim("ForwardGeom") << "DDRPDPosition test: Creating an instance"; }
 
 void DDRPDPosition::initialize(const DDNumericArguments& nArgs,
-                              const DDVectorArguments& vArgs,
-                              const DDMapArguments&,
-                              const DDStringArguments& sArgs,
-                              const DDStringVectorArguments&) {
+                               const DDVectorArguments& vArgs,
+                               const DDMapArguments&,
+                               const DDStringArguments& sArgs,
+                               const DDStringVectorArguments&) {
   xpos_ = vArgs["positionX"];
   ypos_ = nArgs["positionY"];
   zpos_ = nArgs["positionZ"];
   childName_ = sArgs["ChildName"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: Parameters for positioning-- " << xpos_.size() << " copies of " << childName_ << " to be positioned inside " << parent().name() << " at y = " << ypos_ << ", z = " << zpos_ << " and at x = (";
+  edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: Parameters for positioning-- " << xpos_.size() << " copies of "
+                                  << childName_ << " to be positioned inside " << parent().name() << " at y = " << ypos_
+                                  << ", z = " << zpos_ << " and at x = (";
   std::ostringstream st1;
-  for (const auto & x : xpos_)
+  for (const auto& x : xpos_)
     st1 << x << " ";
   edm::LogVerbatim("ForwardGeom") << st1.str() << ")";
 #endif
@@ -71,7 +73,8 @@ void DDRPDPosition::execute(DDCompactView& cpv) {
 
     cpv.position(child, parentName, jj + 1, tran, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: " << child << " number " << jj + 1 << " positioned in " << parentName << " at " << tran << " with no rotation";
+    edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: " << child << " number " << jj + 1 << " positioned in "
+                                    << parentName << " at " << tran << " with no rotation";
 #endif
   }
 }

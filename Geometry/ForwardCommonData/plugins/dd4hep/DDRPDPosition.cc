@@ -8,7 +8,7 @@
 #include <vector>
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -22,9 +22,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   dd4hep::Volume parent = ns.volume(args.parentName());
   dd4hep::Volume child = ns.volume(ns.prepend(childName));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: Parameters for positioning-- " << xpos.size() << " copies of " << child.name() << " to be positioned inside " << parent.name() << " at y = " << ypos << ", z = " << zpos << " and at x = (";
+  edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: Parameters for positioning-- " << xpos.size() << " copies of "
+                                  << child.name() << " to be positioned inside " << parent.name() << " at y = " << ypos
+                                  << ", z = " << zpos << " and at x = (";
   std::ostringstream st1;
-  for (const auto & x : xpos)
+  for (const auto& x : xpos)
     st1 << x << " ";
   edm::LogVerbatim("ForwardGeom") << st1.str() << ")";
 #endif
@@ -33,7 +35,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     dd4hep::Position tran(xpos[jj], ypos, zpos);
     parent.placeVolume(child, jj + 1, tran);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: " << child.name() << " number " << jj + 1 << " positioned in " << parent.name() << " at " << tran << " with no rotation";
+    edm::LogVerbatim("ForwardGeom") << "DDRPDPosition: " << child.name() << " number " << jj + 1 << " positioned in "
+                                    << parent.name() << " at " << tran << " with no rotation";
 #endif
   }
   return cms::s_executed;
