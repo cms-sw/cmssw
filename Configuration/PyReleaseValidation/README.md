@@ -52,6 +52,7 @@ The offsets currently in use are:
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
+* 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
 * 0.9: Vector hits
