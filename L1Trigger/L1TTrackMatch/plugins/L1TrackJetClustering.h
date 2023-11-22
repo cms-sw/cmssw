@@ -17,21 +17,21 @@ namespace l1ttrackjet {
   const unsigned int ETA_INTPART_BITS{3};
   const unsigned int kExtraGlobalPhiBit{4};
 
-  static constexpr int kEtaWordLength=15;
-  static constexpr int kPhiWordLength=12;
+  static constexpr int kEtaWordLength = 15;
+  static constexpr int kPhiWordLength = 12;
 
   //Constants used for jet clustering in eta direction
-  static constexpr int kThirteenBitMask=8191; // 0001111111111111 (bin) = 8191 (dec)
-  static constexpr int kEtaFineBinEdge1=1638;
-  static constexpr int kEtaFineBinEdge2=3276;
-  static constexpr int kEtaFineBinEdge3=4914;
-  static constexpr int kEtaFineBinEdge4=6552;
+  static constexpr int kThirteenBitMask = 8191;  // 0001111111111111 (bin) = 8191 (dec)
+  static constexpr int kEtaFineBinEdge1 = 1638;
+  static constexpr int kEtaFineBinEdge2 = 3276;
+  static constexpr int kEtaFineBinEdge3 = 4914;
+  static constexpr int kEtaFineBinEdge4 = 6552;
 
   //Constants used for jet clustering in phi direction
-  static constexpr int kTwelveBitMask=2047; // 00011111111111 (bin) = 2047 (dec)
-  static constexpr int kPhiBinHalfWidth=303;
-  static constexpr int kNumPhiBins=27;
-  static constexpr int kPhiBinZeroOffset=12; // phi bin zero offset between firmware and emulator
+  static constexpr int kTwelveBitMask = 2047;  // 00011111111111 (bin) = 2047 (dec)
+  static constexpr int kPhiBinHalfWidth = 303;
+  static constexpr int kNumPhiBins = 27;
+  static constexpr int kPhiBinZeroOffset = 12;  // phi bin zero offset between firmware and emulator
 
   typedef ap_ufixed<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1, PT_INTPART_BITS, AP_TRN, AP_SAT> pt_intern;
   typedef ap_fixed<TTTrack_TrackWord::TrackBitWidths::kTanlSize, ETA_INTPART_BITS, AP_TRN, AP_SAT> glbeta_intern;
@@ -140,9 +140,9 @@ namespace l1ttrackjet {
 
     if (eta_word & (1 << kEtaWordLength)) {  //If eta is negative (first/leftmost bit is 1)
       //Second and third bits contain information about which of four coarse bins
-      eta_coarse = 5 * ((eta_word & (3 << (kEtaWordLength-2))) >> (kEtaWordLength-2));
+      eta_coarse = 5 * ((eta_word & (3 << (kEtaWordLength - 2))) >> (kEtaWordLength - 2));
     } else {  //else eta is positive (first/leftmost bit is 0)
-      eta_coarse = 5 * (4 + ((eta_word & (3 << (kEtaWordLength-2))) >> (kEtaWordLength-2)));
+      eta_coarse = 5 * (4 + ((eta_word & (3 << (kEtaWordLength - 2))) >> (kEtaWordLength - 2)));
     }
 
     //Now get the fine bin index. The numbers correspond to the decimal representation of fine bin edges in binary
@@ -178,7 +178,7 @@ namespace l1ttrackjet {
 
     //The allowed range for phi goes further than the edges of bin 0 or 2 (bit value 909). There's an apparent risk of phi being > 909, however this will always mean the track is in the next link (i.e. track beyond bin 2 in this link means track is actually in bin 0 of adjacent link)
 
-    if (phi_word & (1 << (kPhiWordLength-1) )) {  //if phi is negative (first bit 1)
+    if (phi_word & (1 << (kPhiWordLength - 1))) {  //if phi is negative (first bit 1)
       //Since negative, we 'flip' the phi word, then check if it is in fine bin 0 or 1
       if ((kTwelveBitMask - (phi_word & kTwelveBitMask)) > kPhiBinHalfWidth) {
         phi_fine = 0;
