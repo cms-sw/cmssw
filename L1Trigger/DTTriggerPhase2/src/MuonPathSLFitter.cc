@@ -360,11 +360,12 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
         // fw-like calculation
         DTLayerId SL2_layer2Id(MuonPathSLId, 2);
         double z_shift = shiftthetainfo_[SL2_layer2Id.rawId()];
-        double pos_cm=pos/10/INCREASED_RES_POS_POW; // fixed to have z_shift and the position in the same units (MC)
+        double pos_cm =
+            pos / 10 / INCREASED_RES_POS_POW;  // fixed to have z_shift and the position in the same units (MC)
         double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift - pos_cm : z_shift + pos_cm;
 
         // Fixed sign of k (MC)
-        double k_fromfw=hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector())? slope_f: -slope_f;
+        double k_fromfw = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? slope_f : -slope_f;
         phiB = k_fromfw;
 
         // cmssw-like calculation
@@ -377,14 +378,14 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
                    .z();
         phi_cmssw = jm_y;
 
-	double x_cmssw = (dtGeo_->superLayer(MuonPathSLId)
-                    ->toGlobal(LocalPoint(double(pos) / (10 * pow(2, INCREASED_RES_POS)) + x_shift, 0., 0)))
-                   .x();
+        double x_cmssw = (dtGeo_->superLayer(MuonPathSLId)
+                              ->toGlobal(LocalPoint(double(pos) / (10 * pow(2, INCREASED_RES_POS)) + x_shift, 0., 0)))
+                             .x();
         double y_cmssw = (dtGeo_->superLayer(MuonPathSLId)
-                    ->toGlobal(LocalPoint(double(pos) / (10 * pow(2, INCREASED_RES_POS)) + x_shift, 0., 0)))
-                   .y();
-        double r_cmssw = sqrt(x_cmssw*x_cmssw+y_cmssw*y_cmssw);
-	double k_cmssw=jm_y/r_cmssw;
+                              ->toGlobal(LocalPoint(double(pos) / (10 * pow(2, INCREASED_RES_POS)) + x_shift, 0., 0)))
+                             .y();
+        double r_cmssw = sqrt(x_cmssw * x_cmssw + y_cmssw * y_cmssw);
+        double k_cmssw = jm_y / r_cmssw;
         phiB_cmssw = k_cmssw;
 
         metaPrimitives.emplace_back(metaPrimitive({MuonPathSLId.rawId(),

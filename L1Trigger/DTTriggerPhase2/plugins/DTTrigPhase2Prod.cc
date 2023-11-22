@@ -963,19 +963,19 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
           // thTP (extended DF)
           outExtP2Th.emplace_back(
               L1Phase2MuDTExtThDigi((int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back,
-                                    chId.wheel(),                                           // uwh   (m_wheel)
-                                    sectorTP,                                               // usc   (m_sector)
-                                    chId.station(),                                         // ust   (m_station)
-                                    (int)round(metaPrimitiveIt.phi * ZRES_CONV),            // uz    (m_zGlobal)
-                                    (int)round(metaPrimitiveIt.phiB * KRES_CONV),           // uk    (m_kSlope)
-                                    metaPrimitiveIt.quality,                                // uqua  (m_qualityCode)
-                                    metaPrimitiveIt.index,                                  // uind  (m_segmentIndex)
-                                    tp_t0,                                                  // ut0   (m_t0Segment)
-                                    (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),        // uchi2 (m_chi2Segment)
-                                    (int)round(metaPrimitiveIt.x * 1000),                   // ux    (m_yLocal)
-                                    (int)round(metaPrimitiveIt.phi_cmssw * ZRES_CONV),    // uphi  (m_zCMSSW)
+                                    chId.wheel(),                                        // uwh   (m_wheel)
+                                    sectorTP,                                            // usc   (m_sector)
+                                    chId.station(),                                      // ust   (m_station)
+                                    (int)round(metaPrimitiveIt.phi * ZRES_CONV),         // uz    (m_zGlobal)
+                                    (int)round(metaPrimitiveIt.phiB * KRES_CONV),        // uk    (m_kSlope)
+                                    metaPrimitiveIt.quality,                             // uqua  (m_qualityCode)
+                                    metaPrimitiveIt.index,                               // uind  (m_segmentIndex)
+                                    tp_t0,                                               // ut0   (m_t0Segment)
+                                    (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),     // uchi2 (m_chi2Segment)
+                                    (int)round(metaPrimitiveIt.x * 1000),                // ux    (m_yLocal)
+                                    (int)round(metaPrimitiveIt.phi_cmssw * ZRES_CONV),   // uphi  (m_zCMSSW)
                                     (int)round(metaPrimitiveIt.phiB_cmssw * KRES_CONV),  // uphib (m_kCMSSW)
-                                    metaPrimitiveIt.rpcFlag,                                // urpc  (m_rpcFlag)
+                                    metaPrimitiveIt.rpcFlag,                             // urpc  (m_rpcFlag)
                                     pathWireId,
                                     pathTDC,
                                     pathLat));
