@@ -36,10 +36,10 @@
     <Box name="FrontEndCard" dx="26.0*mm" dy="0.8*mm" dz="205.45*mm"/>
     <Box name="InnerCover" dx="92*mm" dy="1.5*mm" dz="206.5*mm"/>
 
-    <!-- Crystal modules (Left only 1) -->
-    <Box name="BTLModule" dx="27.61*mm" dy="25.6*mm" dz="1.885*mm"/>
+    <!-- Crystal modules (Left only 1) (Changed BTL crystal lenght from 55.2 to 54.7 mm. Module changed accordingly) -->
+    <Box name="BTLModule" dx="27.36*mm" dy="25.6*mm" dz="1.885*mm"/>
 
-    <Box name="BTLCrystal" dx="27.6*mm" dy="1.56*mm" dz="1.875*mm"/>
+    <Box name="BTLCrystal" dx="27.35*mm" dy="1.56*mm" dz="1.875*mm"/>
 
     <!-- SiPM package -->
     <Box name="SiPMPackage" dx="0.6*mm" dy="3.25*mm" dz="205.85*mm"/>
@@ -409,36 +409,36 @@
       </Vector>
     </Algorithm>
 
-    <!-- SiPM Packages (Left only 1)-->
+    <!-- SiPM Packages (Left only 1) , Coordinates change (89.25->89;32.75->33;28.25->28)-->
     <PosPart copyNumber="1">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="-89.25*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="-89.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="-32.75*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="-33.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="-28.25*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="-28.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     <PosPart copyNumber="4">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="28.25*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="28.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     <PosPart copyNumber="5">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="32.75*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="33.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     <PosPart copyNumber="6">
       <rParent name="btl:ReadoutUnit"/>
       <rChild name="btl:SiPMPackage"/>
-      <Translation x="89.25*mm" y="2.95*mm" z="0.0*mm"/>
+      <Translation x="89.0*mm" y="2.95*mm" z="0.0*mm"/>
     </PosPart>
     
 
