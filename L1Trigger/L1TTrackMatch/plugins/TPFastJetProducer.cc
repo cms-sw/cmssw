@@ -143,12 +143,9 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     int nStubLayerTP = 0;
-    int nStubLayerTP_g = 0;
     for (int isum : hasStubInLayer) {
       if (isum >= 1)
         nStubLayerTP += 1;
-      if (isum == 2)
-        nStubLayerTP_g += 1;
     }
 
     // tp quality cuts to match L1 tracks
