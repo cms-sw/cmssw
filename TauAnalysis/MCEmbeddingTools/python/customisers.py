@@ -228,11 +228,36 @@ to_bemanipulate.append(
 
 to_bemanipulate.append(
     module_manipulate(
+        module_name="dt4DSegments",
+        manipulator_name="DTRecSegment4D",
+        steps=["SELECT", "CLEAN"],
+    )
+)
+
+to_bemanipulate.append(
+    module_manipulate(
+        module_name="dt4DCosmicSegments",
+        manipulator_name="DTRecSegment4D",
+        steps=["SELECT", "CLEAN"],
+    )
+)
+
+to_bemanipulate.append(
+    module_manipulate(
         module_name="csc2DRecHits",
         manipulator_name="CSCRecHit",
         steps=["SELECT", "CLEAN"],
     )
 )
+
+to_bemanipulate.append(
+    module_manipulate(
+        module_name="cscSegments",
+        manipulator_name="CSCSegment",
+        steps=["SELECT", "CLEAN"],
+    )
+)
+
 to_bemanipulate.append(
     module_manipulate(
         module_name="rpcRecHits",
@@ -411,6 +436,9 @@ def customiseCleaning(process, changeProcessname=True, reselect=False):
                     MuonCollection=MuonImput,
                     TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
                     oldCollection=oldCollections_in,
+                    cscDigiCollectionLabel = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
+                    digiMaxDistanceX = cms.double(25.0),
+                    dtDigiCollectionLabel = cms.InputTag("muonDTDigis"),
                 ),
             )
     process.ecalPreshowerRecHit.TrackAssociatorParameters.usePreshower = cms.bool(True)

@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include <string>
 #include <iostream>
@@ -98,6 +99,11 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
           auto& thit = reinterpret_cast<BaseTrackerRecHit const&>(murechit);
           auto const& cluster = thit.firstClusterRef();
           vetodClusters[cluster.key()] = true;
+        }
+        auto &thit = reinterpret_cast<BaseTrackerRecHit const &>(murechit);
+        if (trackerHitRTTI::isMatched(thit))
+        {
+            vetodClusters[reinterpret_cast<SiStripMatchedRecHit2D const&>(murechit).stereoClusterRef().key()] = true;
         }
       }
     }

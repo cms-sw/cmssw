@@ -15,17 +15,26 @@
 #ifndef TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H
 #define TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 #include <string>
 #include <vector>
@@ -49,16 +58,34 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
 
   std::map<std::string, edm::EDGetTokenT<RecHitCollection> > inputs_;
+
+  TrackAssociatorParameters parameters_;
+  TrackDetectorAssociator trackAssociator_;
+  edm::EDGetTokenT<DTDigiCollection> m_dtDigisToken;
+  edm::EDGetTokenT<CSCStripDigiCollection> m_cscDigisToken;
+  edm::Handle<DTDigiCollection> m_dtDigis;
+  edm::Handle<CSCStripDigiCollection> m_cscDigis;
+
+  edm::ESHandle<DTGeometry> m_dtGeometry;
+  edm::ESHandle<CSCGeometry> m_cscGeometry;
+  double m_digiMaxDistanceX;
 };
 
 template <typename T1, typename T2>
-MuonDetCleaner<T1, T2>::MuonDetCleaner(const edm::ParameterSet& iConfig)
-    : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))) {
+MuonDetCleaner<T1, T2>::MuonDetCleaner(const edm::ParameterSet& iConfig):
+    mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection")),
+    m_dtDigisToken(consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("dtDigiCollectionLabel"))),
+    m_cscDigisToken(consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel"))),
+    m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX"))) {
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
   for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<RecHitCollection>(inCollection);
     produces<RecHitCollection>(inCollection.instance());
   }
+
+  edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters(parameters, iC);
 }
 
 template <typename T1, typename T2>
@@ -99,7 +126,127 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
         continue;                         // Check if the hit belongs to a specifc detector section
       fillVetoHits(murechit, &vetoHits);  // Go back to the very basic rechits
     }
+
+	sort(vetoHits.begin(), vetoHits.end());
+	vetoHits.erase(unique( vetoHits.begin(), vetoHits.end() ), vetoHits.end());
+	iEvent.getByToken(m_dtDigisToken, m_dtDigis);
+	iEvent.getByToken(m_cscDigisToken, m_cscDigis);
+	iSetup.get<MuonGeometryRecord>().get(m_dtGeometry);
+	iSetup.get<MuonGeometryRecord>().get(m_cscGeometry);
+	edm::ESHandle<Propagator> propagator;
+	iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
+	trackAssociator_.setPropagator(propagator.product());
+	TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, TrackDetectorAssociator::Any);
+
+  // inspired from Muon Identification algorithm: https://github.com/cms-sw/cmssw/blob/3b943c0dbbdf4494cd66064a5a147301f38af295/RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc#L911
+	for (const auto &chamber : info.chambers)
+	{
+		if (chamber.id.subdetId() == MuonSubdetId::RPC) //&& rpcHitHandle_.isValid())
+			continue;                                   // Skip RPC chambers, they are taken care of below)
+
+		reco::MuonChamberMatch matchedChamber;
+
+		const auto &lErr = chamber.tState.localError();
+		const auto &lPos = chamber.tState.localPosition();
+		const auto &lDir = chamber.tState.localDirection();
+		const auto &localError = lErr.positionError();
+
+		matchedChamber.x = lPos.x();
+		matchedChamber.y = lPos.y();
+		matchedChamber.xErr = sqrt(localError.xx());
+		matchedChamber.yErr = sqrt(localError.yy());
+		matchedChamber.dXdZ = lDir.z() != 0 ? lDir.x() / lDir.z() : 9999;
+		matchedChamber.dYdZ = lDir.z() != 0 ? lDir.y() / lDir.z() : 9999;
+
+		// DANGEROUS - compiler cannot guaranty parameters ordering
+		AlgebraicSymMatrix55 trajectoryCovMatrix = lErr.matrix();
+		matchedChamber.dXdZErr = trajectoryCovMatrix(1, 1) > 0 ? sqrt(trajectoryCovMatrix(1, 1)) : 0;
+		matchedChamber.dYdZErr = trajectoryCovMatrix(2, 2) > 0 ? sqrt(trajectoryCovMatrix(2, 2)) : 0;
+
+		matchedChamber.edgeX = chamber.localDistanceX;
+		matchedChamber.edgeY = chamber.localDistanceY;
+
+		matchedChamber.id = chamber.id;
+
+		// DT chamber
+		if (matchedChamber.detector() == MuonSubdetId::DT)
+		{
+			double xTrack = matchedChamber.x;
+
+			for (int sl = 1; sl <= DTChamberId::maxSuperLayerId; sl += 2)
+			{
+				for (int layer = 1; layer <= DTChamberId::maxLayerId; ++layer)
+				{
+					const DTLayerId layerId(DTChamberId(matchedChamber.id.rawId()), sl, layer);
+					auto range = m_dtDigis->get(layerId);
+
+					for (auto digiIt = range.first; digiIt != range.second; ++digiIt)
+					{
+						const auto topo = m_dtGeometry->layer(layerId)->specificTopology();
+						double xWire = topo.wirePosition((*digiIt).wire());
+						double dX = std::abs(xWire - xTrack);
+
+						if (dX < m_digiMaxDistanceX)
+						{
+							vetoHits.push_back(matchedChamber.id.rawId());
+						}
+					}
+				}
+			}
+		}
+
+		else if (matchedChamber.detector() == MuonSubdetId::CSC)
+		{
+			double xTrack = matchedChamber.x;
+			double yTrack = matchedChamber.y;
+
+			for (int iLayer = 1; iLayer <= CSCDetId::maxLayerId(); ++iLayer)
+			{
+				const CSCDetId chId(matchedChamber.id.rawId());
+				const CSCDetId layerId(chId.endcap(), chId.station(), chId.ring(), chId.chamber(), iLayer);
+				auto range = m_cscDigis->get(layerId);
+
+				for (auto digiIt = range.first; digiIt != range.second; ++digiIt)
+				{
+					std::vector<int> adcVals = digiIt->getADCCounts();
+					bool hasFired = false;
+					float pedestal = 0.5 * (float)(adcVals[0] + adcVals[1]);
+					float threshold = 13.3;
+					float diff = 0.;
+					for (const auto &adcVal : adcVals)
+					{
+						diff = (float)adcVal - pedestal;
+						if (diff > threshold)
+						{
+							hasFired = true;
+							break;
+						}
+					}
+
+					if (!hasFired)
+						continue;
+
+					const CSCLayerGeometry *layerGeom = m_cscGeometry->layer(layerId)->geometry();
+					Float_t xStrip = layerGeom->xOfStrip(digiIt->getStrip(), yTrack);
+					float dX = std::abs(xStrip - xTrack);
+
+					if (dX < m_digiMaxDistanceX)
+					{
+						vetoHits.push_back(matchedChamber.id.rawId());
+					}
+				}
+			}
+		}
+	}
+
+	// std::cout << "END CUSTOM MUON CLEANING" << std::endl;
+
+	//-----------------
   }
+}
+
+  sort( vetoHits.begin(), vetoHits.end() );
+  vetoHits.erase( unique( vetoHits.begin(), vetoHits.end() ), vetoHits.end() );
 
   // Now this can also handle different instance
   for (auto input_ : inputs_) {
