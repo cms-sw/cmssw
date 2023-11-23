@@ -278,7 +278,6 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
 
   vector<edm::Ptr<L1TTTrackType>> L1TrackAssocJet;
   for (unsigned int j = 0; j < mzb.clusters.size(); ++j) {
-
     l1t::TkJetWord::glbeta_t jetEta = DoubleToBit(double(mzb.clusters[j].eta),
                                                   TkJetWord::TkJetBitWidths::kGlbEtaSize,
                                                   TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));

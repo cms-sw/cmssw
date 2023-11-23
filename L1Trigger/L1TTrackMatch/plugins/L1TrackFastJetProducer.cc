@@ -66,8 +66,8 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // jet configurations
-  const double coneSize_;        // Use anti-kt with this cone size
-  const bool displaced_;  //use prompt/displaced tracks
+  const double coneSize_;  // Use anti-kt with this cone size
+  const bool displaced_;   //use prompt/displaced tracks
 
   const EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
 };
@@ -104,9 +104,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
                                  iterL1Track->momentum().y(),
                                  iterL1Track->momentum().z(),
                                  iterL1Track->momentum().mag());
-    JetInputs.push_back(psuedoJet);                     // input tracks for clustering
+    JetInputs.push_back(psuedoJet);                 // input tracks for clustering
     JetInputs.back().set_user_index(this_l1track);  // save track index in the collection
-  }                                                     // end loop over tracks
+  }                                                 // end loop over tracks
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =
@@ -142,7 +142,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 void L1TrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1PVertexInputTag", edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
+  desc.add<edm::InputTag>(
+      "L1PVertexInputTag",
+      edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
   desc.add<double>("coneSize", 0.5);
   desc.add<bool>("displaced", false);
 }

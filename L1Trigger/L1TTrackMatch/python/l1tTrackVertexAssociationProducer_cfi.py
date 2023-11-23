@@ -42,7 +42,7 @@ l1tTrackVertexAssociationProducerForJets = l1tTrackVertexAssociationProducer.clo
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     deltaZMaxEtaBounds = cms.vdouble(0.0, 2.4), # these values define the bin boundaries in |eta|
-                    deltaZMax = cms.vdouble(1.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
+                    deltaZMax = cms.vdouble(0.55), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     ),
 )
 

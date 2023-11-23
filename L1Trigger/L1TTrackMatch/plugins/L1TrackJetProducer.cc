@@ -212,8 +212,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
           else
             epbins[i][j].pTtot += trkPtMax_;
           if ((std::abs(trkd0) > d0CutNStubs5_ && trknstubs >= 5 && d0CutNStubs5_ >= 0) ||
-	      (trknstubs == 4 && std::abs(trkd0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
-	    epbins[i][j].nxtracks += 1;
+              (trknstubs == 4 && std::abs(trkd0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
+            epbins[i][j].nxtracks += 1;
           epbins[i][j].trackidx.push_back(k);
           ++epbins[i][j].ntracks;
         }  // for each etabin
@@ -273,8 +273,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     L1TrackJetProducer->push_back(trkJet);
   }
 
-  std::sort(
-      L1TrackJetProducer->begin(), L1TrackJetProducer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
+  std::sort(L1TrackJetProducer->begin(), L1TrackJetProducer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
   if (displaced_)
     iEvent.put(std::move(L1TrackJetProducer), "L1TrackJetsExtended");
   else
@@ -283,7 +282,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
 
 void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
   ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
+  desc.add<edm::InputTag>(
+      "L1TrackInputTag", edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
   desc.add<double>("trk_zMax", 15.0);
   desc.add<double>("trk_ptMax", 200.0);
   desc.add<double>("trk_etaMax", 2.4);
