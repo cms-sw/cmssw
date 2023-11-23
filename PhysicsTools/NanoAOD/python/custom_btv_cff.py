@@ -42,10 +42,6 @@ def update_jets_AK4(process):
         'pfJetBProbabilityBJetTags',
         'pfNegativeOnlyJetProbabilityBJetTags',
         'pfNegativeOnlyJetBProbabilityBJetTags',
-        'pfDeepCSVJetTags:probb',
-        'pfDeepCSVJetTags:probc',
-        'pfDeepCSVJetTags:probbb',
-        'pfDeepCSVJetTags:probudsg',       
         'pfDeepFlavourJetTags:probb',
         'pfDeepFlavourJetTags:probbb',
         'pfDeepFlavourJetTags:problepb',
@@ -69,17 +65,16 @@ def update_jets_AK4(process):
                             ['L1FastJet', 'L2Relative', 'L3Absolute',
                              'L2L3Residual']), 'None'),
         btagDiscriminators=_btagDiscriminators,
-        postfix='WithDeepInfo',
+        postfix='PuppiWithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsWithDeepInfo"
-    process.updatedJetsPuppi.jetSource = "selectedUpdatedPatJetsWithDeepInfo"
-    
-    process.updatedPatJetsTransientCorrectedWithDeepInfo.tagInfoSources.append(cms.InputTag("pfDeepCSVTagInfosWithDeepInfo"))
-    process.updatedPatJetsTransientCorrectedWithDeepInfo.tagInfoSources.append(cms.InputTag("pfDeepFlavourTagInfosWithDeepInfo"))
+    process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
+    process.updatedJetsPuppi.jetSource = "selectedUpdatedPatJetsPuppiWithDeepInfo"
     
     
-    process.updatedPatJetsTransientCorrectedWithDeepInfo.addTagInfos = cms.bool(True)
+    process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfDeepFlavourTagInfosPuppiWithDeepInfo"))
+    process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.addTagInfos = cms.bool(True)
+
     
     
     return process
@@ -89,14 +84,6 @@ def update_jets_AK8(process):
     # in https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/nano_cff.py
     # Care needs to be taken to make sure no discriminators from stock Nano are excluded -> would results in unfilled vars
     _btagDiscriminators = [
-        'pfJetProbabilityBJetTags',
-        'pfDeepCSVJetTags:probb',
-        'pfDeepCSVJetTags:probc',
-        'pfDeepCSVJetTags:probbb',
-        'pfDeepCSVJetTags:probudsg',
-        'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-        'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-        'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
         'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
@@ -462,44 +449,6 @@ def get_ParticleTransformerAK4_outputs():
 
     return ParticleTransformerAK4OutputVars
 
-def get_CommVars():
-    # store all nodes and negative tagger for BTV SFs
-    CommonVars = cms.PSet(
-        Proba=Var("bDiscriminator('pfJetProbabilityBJetTags')",
-                  float,
-                  doc="Jet Probability (Usage:BTV)",
-                  precision=10),
-        ProbaN=Var("bDiscriminator('pfNegativeOnlyJetProbabilityBJetTags')",
-                  float,
-                  doc="Negative-only Jet Probability (Usage:BTV)",
-                  precision=10),
-        Bprob=Var("bDiscriminator('pfJetBProbabilityBJetTags')",
-                  float,
-                  doc="Jet B Probability (Usage:BTV)",
-                  precision=10),
-        BprobN=Var("bDiscriminator('pfNegativeOnlyJetBProbabilityBJetTags')",
-                  float,
-                  doc="Negative-only Jet B Probability (Usage:BTV)",
-                  precision=10),
-        btagDeepB_b=Var("bDiscriminator('pfDeepCSVJetTags:probb')",
-                        float,
-                        doc="DeepCSV b tag discriminator",
-                        precision=10),
-        btagDeepB_bb=Var("bDiscriminator('pfDeepCSVJetTags:probbb')",
-                         float,
-                         doc="DeepCSV bb tag discriminator",
-                         precision=10),
-        btagDeepC=Var("bDiscriminator('pfDeepCSVJetTags:probc')",
-                      float,
-                      doc="DeepCSV c btag discriminator",
-                      precision=10),
-        btagDeepL=Var("bDiscriminator('pfDeepCSVJetTags:probudsg')",
-                      float,
-                      doc="DeepCSV light btag discriminator",
-                      precision=10),
-    )
-    return CommonVars
-
 def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
     if addAK4:
         process = update_jets_AK4(process)
@@ -527,22 +476,6 @@ def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
                   float,
                   doc="Negative-only Jet B Probability (Usage:BTV)",
                   precision=10),
-        btagDeepB_b=Var("bDiscriminator('pfDeepCSVJetTags:probb')",
-                        float,
-                        doc="DeepCSV b tag discriminator",
-                        precision=10),
-        btagDeepB_bb=Var("bDiscriminator('pfDeepCSVJetTags:probbb')",
-                         float,
-                         doc="DeepCSV bb tag discriminator",
-                         precision=10),
-        btagDeepC=Var("bDiscriminator('pfDeepCSVJetTags:probc')",
-                      float,
-                      doc="DeepCSV c btag discriminator",
-                      precision=10),
-        btagDeepL=Var("bDiscriminator('pfDeepCSVJetTags:probudsg')",
-                      float,
-                      doc="DeepCSV light btag discriminator",
-                      precision=10),
     )
     
     # decouple these from CommonVars, not relevant for data
@@ -650,7 +583,6 @@ def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
 
 #  From https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addPFCands_cff.py
 def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False):
-    print(allPF,addAK4,addAK8)
     process.customizedPFCandsTask = cms.Task( )
     process.schedule.associate(process.customizedPFCandsTask)
 
@@ -802,8 +734,8 @@ def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False
 # nanoAOD_addbtagAK4_switch, nanoAOD_addbtagAK8_switch True, nanoAOD_allPF_switch  False
 
 nanoAOD_allPF_switch = False  # Add all PF candidates, use for training
-nanoAOD_addbtagAK4_switch = True # AAK
-nanoAOD_addbtagAK8_switch = True
+nanoAOD_addbtagAK4_switch = True # AK4 SFs vars
+nanoAOD_addbtagAK8_switch = False # AK8 SFs vars
 
 def PrepBTVCustomNanoAOD_MC(process):    
     addPFCands(process, True, nanoAOD_allPF_switch,nanoAOD_addbtagAK4_switch,nanoAOD_addbtagAK8_switch)
