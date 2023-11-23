@@ -1,0 +1,5 @@
+<library file="L1TUtmTriggerMenu_PayloadInspector.cc" name="L1TUtmTriggerMenu_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/L1TObjects"/>
+</library>
