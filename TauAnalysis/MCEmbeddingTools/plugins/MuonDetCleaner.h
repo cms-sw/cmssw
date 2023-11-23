@@ -16,6 +16,7 @@
 #define TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +36,7 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-
+// #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -68,15 +69,21 @@ private:
 
   edm::ESHandle<DTGeometry> m_dtGeometry;
   edm::ESHandle<CSCGeometry> m_cscGeometry;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_dtGeometryToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeometryToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
   double m_digiMaxDistanceX;
 };
 
 template <typename T1, typename T2>
 MuonDetCleaner<T1, T2>::MuonDetCleaner(const edm::ParameterSet& iConfig):
-    mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection")),
+    mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))),
     m_dtDigisToken(consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("dtDigiCollectionLabel"))),
     m_cscDigisToken(consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel"))),
-    m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX"))) {
+    m_dtGeometryToken(esConsumes<edm::Transition::BeginRun>()),
+    m_cscGeometryToken(esConsumes<edm::Transition::BeginRun>()),
+    propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+    m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX")) {  
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
   for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<RecHitCollection>(inCollection);
@@ -94,7 +101,7 @@ MuonDetCleaner<T1, T2>::~MuonDetCleaner() {
 }
 
 template <typename T1, typename T2>
-void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& es) {
+void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   std::map<T1, std::vector<T2> > recHits_output;  // This data format is easyer to handle
   std::vector<uint32_t> vetoHits;
 
@@ -131,14 +138,14 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
 	vetoHits.erase(unique( vetoHits.begin(), vetoHits.end() ), vetoHits.end());
 	iEvent.getByToken(m_dtDigisToken, m_dtDigis);
 	iEvent.getByToken(m_cscDigisToken, m_cscDigis);
-	iSetup.get<MuonGeometryRecord>().get(m_dtGeometry);
-	iSetup.get<MuonGeometryRecord>().get(m_cscGeometry);
+  auto const& m_dtGeometry = iSetup.getData(m_dtGeometryToken);
+  auto const& m_cscGeometry = iSetup.getData(m_cscGeometryToken);
 	edm::ESHandle<Propagator> propagator;
-	iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-	trackAssociator_.setPropagator(propagator.product());
+	trackAssociator_.setPropagator(&iSetup.getData(propagatorToken_));
 	TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, TrackDetectorAssociator::Any);
 
   // inspired from Muon Identification algorithm: https://github.com/cms-sw/cmssw/blob/3b943c0dbbdf4494cd66064a5a147301f38af295/RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc#L911
+  // and the MuonShowerDigiFiller: https://github.com/cms-sw/cmssw/blob/29909891e150c9781f4ade2a6f7b5beb0bd67a6e/RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h & https://github.com/cms-sw/cmssw/blob/29909891e150c9781f4ade2a6f7b5beb0bd67a6e/RecoMuon/MuonIdentification/src/MuonShowerDigiFiller.cc
 	for (const auto &chamber : info.chambers)
 	{
 		if (chamber.id.subdetId() == MuonSubdetId::RPC) //&& rpcHitHandle_.isValid())
@@ -182,7 +189,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 					for (auto digiIt = range.first; digiIt != range.second; ++digiIt)
 					{
-						const auto topo = m_dtGeometry->layer(layerId)->specificTopology();
+						const auto topo = m_dtGeometry.layer(layerId)->specificTopology();
 						double xWire = topo.wirePosition((*digiIt).wire());
 						double dX = std::abs(xWire - xTrack);
 
@@ -226,7 +233,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
 					if (!hasFired)
 						continue;
 
-					const CSCLayerGeometry *layerGeom = m_cscGeometry->layer(layerId)->geometry();
+					const CSCLayerGeometry *layerGeom = m_cscGeometry.layer(layerId)->geometry();
 					Float_t xStrip = layerGeom->xOfStrip(digiIt->getStrip(), yTrack);
 					float dX = std::abs(xStrip - xTrack);
 
@@ -243,7 +250,6 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 	//-----------------
   }
-}
 
   sort( vetoHits.begin(), vetoHits.end() );
   vetoHits.erase( unique( vetoHits.begin(), vetoHits.end() ), vetoHits.end() );
