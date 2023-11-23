@@ -329,7 +329,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
   } else {
     // disactive not needed branches
     inputTree->SetBranchStatus("*", false);
-    for (TObject* obj: dataVars)
+    for (TObject* obj : dataVars)
       inputTree->SetBranchStatus(obj->GetName(), true);
   }
 
@@ -478,7 +478,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
     if (data_bin->numEntries() > 0) {
       //set the values of binnedVariables to the mean value in this data bin
       RooArgSet meanOfVariables;
-      for (const RooAbsArg* vv: binnedVariables) {
+      for (const RooAbsArg* vv : binnedVariables) {
         const RooRealVar* v = dynamic_cast<const RooRealVar*>(vv);
         meanOfVariables.addClone(*v);
         double mean = w->data("data")->mean(*v);
@@ -786,7 +786,7 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w) {
   RooAbsPdf& pdf = *w->pdf("simPdf");
   std::unique_ptr<RooArgSet> obs(pdf.getObservables(*dataAll));
   RooRealVar* mass = nullptr;
-  for (RooAbsArg* v: *obs) {
+  for (RooAbsArg* v : *obs) {
     if (!v->InheritsFrom("RooRealVar"))
       continue;
     mass = (RooRealVar*)v;
@@ -864,7 +864,7 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w) {
 
   const RooArgSet* vars = dataAll->get();
   vector<RooRealVar*> reals;
-  for (RooAbsArg* v: *vars) {
+  for (RooAbsArg* v : *vars) {
     if (!v->InheritsFrom("RooRealVar"))
       continue;
     reals.push_back((RooRealVar*)v);

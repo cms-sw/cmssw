@@ -430,7 +430,7 @@ int SideBandSubtract::doGlobalFit() {
 
   //need to grab sbs objects after each global fit, because they get reset
   resetSBSProducts();
-  for (const auto& variable: *Data->get()) {
+  for (const auto& variable : *Data->get()) {
     for (unsigned int i = 0; i < BaseHistos.size(); i++) {
       if ((string)variable->GetName() != (string)SeparationVariable->GetName() &&
           (string)variable->GetName() == (string)BaseHistos[i]->GetName())
