@@ -467,7 +467,6 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     }
     float ip_sign = flip_ip_sign_ ? -1.f : 1.f;
 
-
     fts.fill("jet_pfcand_pt_log", std::isnan(std::log(candP4.pt())) ? 0 : std::log(candP4.pt()));
     fts.fill("jet_pfcand_energy_log", std::isnan(std::log(candP4.energy())) ? 0 : std::log(candP4.energy()));
     fts.fill("jet_pfcand_eta", candP4.eta());
@@ -700,7 +699,7 @@ void ParticleNetFeatureEvaluator::fillSVFeatures(DeepBoostedJetFeatures &fts, co
     fts.reserve(name, jetSVs.size());
 
   GlobalVector jet_global_vec(jet.px(), jet.py(), jet.pz());
-  
+
   float ip_sign = flip_ip_sign_ ? -1.f : 1.f;
 
   for (const auto *sv : jetSVs) {
