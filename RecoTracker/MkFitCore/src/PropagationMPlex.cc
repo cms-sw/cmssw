@@ -488,19 +488,7 @@ namespace mkfit {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
-    //helixAtRFromIterativeCCS_impl_new(inPar, inChg, msRad, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags);
     helixAtRFromIterativeCCS_impl(inPar, inChg, msRad, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags);
-    /*
-    //float nv = errorProp(0,0,0);
-
-    outPar = inPar;
-    errorProp.setVal(0.f);
-    outFailFlag.setVal(0.f);
-
-    helixAtRFromIterativeCCS_impl(inPar, inChg, msRad, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags);
-    //float ov = errorProp(0,0,0);
-    assert(0);
-    */
   }
 
   void propagateHelixToRMPlex(const MPlexLS& inErr,
@@ -1244,33 +1232,6 @@ namespace mkfit {
       }
     }
     // }
-
-    // This dump is now out of its place as similarity is done with matriplex ops.
-    /*
-#ifdef DEBUG
-   {
-     dmutex_guard;
-     for (int kk = 0; kk < N_proc; ++kk)
-     {
-       dprintf("outErr %d\n", kk);
-       for (int i = 0; i < 6; ++i) { for (int j = 0; j < 6; ++j)
-           dprintf("%8f ", outErr.At(kk,i,j)); printf("\n");
-       } dprintf("\n");
-
-       dprintf("outPar %d\n", kk);
-       for (int i = 0; i < 6; ++i) {
-           dprintf("%8f ", outPar.At(kk,i,0)); printf("\n");
-       } dprintf("\n");
-       if (std::abs(outPar.At(kk,2,0) - msZ.constAt(kk, 0, 0)) > 0.0001) {
-         float pt = 1.0f / inPar.constAt(kk,3,0);
-	 dprint_np(kk, "DID NOT GET TO Z, dZ=" << std::abs(outPar.At(kk,2,0) - msZ.constAt(kk, 0, 0))
-		   << " z=" << msZ.constAt(kk, 0, 0) << " zin=" << inPar.constAt(kk,2,0) << " zout=" << outPar.At(kk,2,0) << std::endl
-		   << "pt=" << pt << " pz=" << pt/std::tan(inPar.constAt(kk,5,0)));
-       }
-     }
-   }
-#endif
-   */
   }
 
   //==============================================================================
