@@ -1,10 +1,10 @@
-#ifndef DF_S_SCALES_H
-#define DF_S_SCALES_H
+#ifndef L1ScoutingRawToDigi_scales_h
+#define L1ScoutingRawToDigi_scales_h
 
 #include <cstdint>
 #include <cmath>
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
 
     namespace ugmt {
         struct scales {
@@ -25,4 +25,4 @@ namespace scoutingRun3 {
     }
 
 }
-#endif
+#endif // L1ScoutingRawToDigi_scales_h

@@ -1,9 +1,9 @@
-#ifndef DF_S_SHIFTS_H
-#define DF_S_SHIFTS_H
+#ifndef L1ScoutingRawToDigi_shifts_h
+#define L1ScoutingRawToDigi_shifts_h
 
 #include <cstdint>
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
 
 namespace ugmt {
     // struct shifts{
@@ -97,4 +97,4 @@ struct header_shifts {
 };
 
 }
-#endif
+#endif // L1ScoutingRawToDigi_shifts_h

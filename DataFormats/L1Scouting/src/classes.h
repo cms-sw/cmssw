@@ -5,7 +5,8 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 
-namespace scoutingRun3 { 
+namespace l1ScoutingRun3 { 
+  
   edm::Wrapper<ScMuonOrbitCollection>    ScMuonOrbitCollectionWrapper;
   edm::Wrapper<ScJetOrbitCollection>     ScJetOrbitCollectionWrapper;
   edm::Wrapper<ScEGammaOrbitCollection>  ScEGammaOrbitCollectionWrapper;

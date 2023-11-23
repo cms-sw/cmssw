@@ -1,10 +1,10 @@
-#ifndef DF_S_MASKS_H
-#define DF_S_MASKS_H
+#ifndef L1ScoutingRawToDigi_masks_h
+#define L1ScoutingRawToDigi_masks_h
 
 #include <cstdint>
 #include "shifts.h"
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
 
 namespace ugmt {
     // struct masks{
@@ -103,4 +103,4 @@ struct header_masks {
 };
 
 }
-#endif
+#endif // L1ScoutingRawToDigi_masks_h

@@ -1,10 +1,19 @@
 #ifndef DataFormats_L1Scouting_L1ScoutingCalo_h
 #define DataFormats_L1Scouting_L1ScoutingCalo_h
 
+#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include <cmath>
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
+
+  class ScJet;
+  typedef OrbitCollection<ScJet>    ScJetOrbitCollection;
+  class ScEGamma;
+  typedef OrbitCollection<ScEGamma> ScEGammaOrbitCollection;
+  class ScTau;
+  typedef OrbitCollection<ScTau>    ScTauOrbitCollection;
+  class ScEtSum;
+  typedef OrbitCollection<ScEtSum>  ScEtSumOrbitCollection;
 
   class ScCaloObject {
   public:
@@ -47,27 +56,12 @@ namespace scoutingRun3 {
     inline int hwPhi() const {return hwPhi_;}
     inline int hwIso() const {return hwIso_;}
 
-    // inline float Et() const {
-    //   return et_scale_* hwEt_;
-    // }
-    // inline float eta()const {
-    //   return eta_scale_*hwEta_;
-    // }
-    // inline float phi() const {
-    //   float fPhi = phi_scale_*hwPhi_;
-    //   fPhi = fPhi>=M_PI ? fPhi-2.*M_PI : fPhi;
-    //   return fPhi;
-    // }
-
   private:
     int hwEt_;
     int hwEta_;
     int hwPhi_;
     int hwIso_;
 
-    // static constexpr float phi_scale_ = 2.*M_PI/144.;
-    // static constexpr float eta_scale_ = 0.0435;
-    // static constexpr float et_scale_  = 0.5;
   };
 
   class ScJet: public ScCaloObject {
@@ -161,5 +155,5 @@ namespace scoutingRun3 {
     // static constexpr float et_scale_  = 0.5; 
   };
 
-} // namespace scoutingRun3
+} // namespace l1ScoutingRun3
 #endif // DataFormats_L1Scouting_L1ScoutingCalo_h

@@ -6,13 +6,13 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
-  orbitBuffer_ = std::vector<std::vector<scoutingRun3::ScMuon>>(3565);
+  orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::ScMuon>>(3565);
   for (auto &bxVec: orbitBuffer_){
     bxVec.reserve(8);
   }
   nMuonsOrbit_ = 0;
 
-  produces<scoutingRun3::ScMuonOrbitCollection>().setBranchAlias( "ScMuonOrbitCollection" );
+  produces<l1ScoutingRun3::ScMuonOrbitCollection>().setBranchAlias( "ScMuonOrbitCollection" );
   rawToken = consumes<SRDCollection>(srcInputTag);
 }
 
@@ -27,7 +27,7 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(SDSNumbering::GmtSDSID);
   size_t orbitSize = sourceRawData.size();
 
-  std::unique_ptr<scoutingRun3::ScMuonOrbitCollection> unpackedMuons(new scoutingRun3::ScMuonOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::ScMuonOrbitCollection> unpackedMuons(new l1ScoutingRun3::ScMuonOrbitCollection);
 
   if((sourceRawData.size()==0) && debug_){
     std::cout << "No raw data for GMT FED\n";  
@@ -47,7 +47,7 @@ void ScGMTRawToDigi::unpackOrbit(
   const unsigned char* buf, size_t len
   ){
   
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   // reset counters
   nMuonsOrbit_ = 0;
@@ -146,7 +146,7 @@ void ScGMTRawToDigi::unpackOrbit(
       // increment muon counter
       nMuonsOrbit_ ++;
 
-      scoutingRun3::ScMuon muon(
+      l1ScoutingRun3::ScMuon muon(
         ipt,
         ieta,
         iphi,
@@ -175,7 +175,8 @@ void ScGMTRawToDigi::unpackOrbit(
         std::cout  <<  "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon.hwPhiAtVtx()) << "/" << muon.hwPhiAtVtx() << "\n";
         std::cout  <<  "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon.hwEtaAtVtx()) << "/" << muon.hwEtaAtVtx() << "\n";
         std::cout  <<  "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon.hwPtUnconstrained()) << "/" << muon.hwPtUnconstrained() << "\n";
-        std::cout  <<  "  Dxy: " << muon.hwDXY() << "\n";
+        std::cout  <<  "  Dxy:  " << muon.hwDXY() << "\n";
+        std::cout  <<  "  Qual: " << muon.hwQual() << "\n";
         std::cout  <<  "  TF index: " << muon.tfMuonIndex() << "\n";
       }
 

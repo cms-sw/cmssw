@@ -36,13 +36,13 @@ options.register ("fffBaseDir",
                   "FFF base directory")
 
 options.register ("numThreads",
-                  2,
+                  8,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,
                   "Number of CMSSW threads")
 
 options.register ("numFwkStreams",
-                  2,
+                  8,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,
                   "Number of CMSSW streams")
@@ -102,7 +102,7 @@ except Exception as ex:
 
 ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 flist = [
-   ram_dir_path + "run" + str(options.runNumber) + "_ls0340_index000001.raw"
+   ram_dir_path + "run" + str(options.runNumber) + "_ls0340_index000028.raw"
 ]
 
 process.source = cms.Source("DAQSource",

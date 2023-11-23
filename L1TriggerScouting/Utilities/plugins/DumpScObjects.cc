@@ -7,7 +7,6 @@
 #include <cmath>
 
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -23,7 +22,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/conversion.h"
 
-using namespace scoutingRun3;
+using namespace l1ScoutingRun3;
 
 // ----------------------------- CLASS DECLARATION  ----------------------------
 class DumpScObjects : public edm::stream::EDAnalyzer<> {
@@ -46,17 +45,17 @@ class DumpScObjects : public edm::stream::EDAnalyzer<> {
     void printBx(unsigned bx);
 
     // the tokens to access the data
-    edm::EDGetTokenT<scoutingRun3::ScMuonOrbitCollection>    gmtMuonsToken_;
-    edm::EDGetTokenT<scoutingRun3::ScJetOrbitCollection>     caloJetsToken_;
-    edm::EDGetTokenT<scoutingRun3::ScEGammaOrbitCollection>  caloEGammasToken_;
-    edm::EDGetTokenT<scoutingRun3::ScTauOrbitCollection>     caloTausToken_;
-    edm::EDGetTokenT<scoutingRun3::ScEtSumOrbitCollection>   caloEtSumsToken_;
+    edm::EDGetTokenT<ScMuonOrbitCollection>    gmtMuonsToken_;
+    edm::EDGetTokenT<ScJetOrbitCollection>     caloJetsToken_;
+    edm::EDGetTokenT<ScEGammaOrbitCollection>  caloEGammasToken_;
+    edm::EDGetTokenT<ScTauOrbitCollection>     caloTausToken_;
+    edm::EDGetTokenT<ScEtSumOrbitCollection>   caloEtSumsToken_;
 
-    edm::Handle<scoutingRun3::ScMuonOrbitCollection> muonHandle_;
-    edm::Handle<scoutingRun3::ScJetOrbitCollection> jetHandle_;
-    edm::Handle<scoutingRun3::ScEGammaOrbitCollection> eGammaHandle_;
-    edm::Handle<scoutingRun3::ScTauOrbitCollection> tauHandle_;
-    edm::Handle<scoutingRun3::ScEtSumOrbitCollection> etSumHandle_;
+    edm::Handle<ScMuonOrbitCollection> muonHandle_;
+    edm::Handle<ScJetOrbitCollection> jetHandle_;
+    edm::Handle<ScEGammaOrbitCollection> eGammaHandle_;
+    edm::Handle<ScTauOrbitCollection> tauHandle_;
+    edm::Handle<ScEtSumOrbitCollection> etSumHandle_;
 
     // the min and max BX to be analyzed
     unsigned minBx_;
@@ -188,7 +187,8 @@ void DumpScObjects::printMuon(const ScMuon* muon){
   std::cout  <<  "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon->hwPhiAtVtx()) << "/" << muon->hwPhiAtVtx() << "\n";
   std::cout  <<  "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon->hwEtaAtVtx()) << "/" << muon->hwEtaAtVtx() << "\n";
   std::cout  <<  "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon->hwPtUnconstrained()) << "/" << muon->hwPtUnconstrained() << "\n";
-  std::cout  <<  "  Dxy: " << muon->hwDXY() << "\n";
+  std::cout  <<  "  Dxy: "  << muon->hwDXY() << "\n";
+  std::cout  <<  "  Qual: " << muon->hwQual() << "\n";
   std::cout  <<  "  TF index: " << muon->tfMuonIndex() << "\n";
 }
 

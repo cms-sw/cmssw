@@ -3,7 +3,7 @@
 
 #include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
   
   namespace ugmt {
 
@@ -19,7 +19,7 @@ namespace scoutingRun3 {
       return fPhi_;
     };
     inline float fPtUnconstrained(int hwPtUnconstrained) {
-        return scales::ptunconstrained_scale*hwPtUnconstrained;
+        return scales::ptunconstrained_scale*(hwPtUnconstrained-1);
     };
     inline float fEtaAtVtx(int hwEtaAtVtx) {
       return scales::eta_scale*hwEtaAtVtx;
@@ -35,7 +35,7 @@ namespace scoutingRun3 {
   namespace demux {
 
     inline float fEt(int hwEt) {
-      return scales::et_scale*(hwEt-1);
+      return scales::et_scale*hwEt;
     };
     inline float fEta(int hwEta) {
       return scales::eta_scale*hwEta;
@@ -48,7 +48,7 @@ namespace scoutingRun3 {
 
   } // namespace demux
   
-} // namespace scoutingRun3
+} // namespace l1ScoutingRun3
 
 
 #endif

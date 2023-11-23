@@ -2,14 +2,14 @@
 
 ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
   using namespace edm;
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
   srcInputTag  = iConfig.getParameter<InputTag>("srcInputTag");
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
-  orbitBufferJets_    = std::vector<std::vector<scoutingRun3::ScJet>>(3565);
-  orbitBufferEGammas_ = std::vector<std::vector<scoutingRun3::ScEGamma>>(3565);
-  orbitBufferTaus_    = std::vector<std::vector<scoutingRun3::ScTau>>(3565);
-  orbitBufferEtSums_  = std::vector<std::vector<scoutingRun3::ScEtSum>>(3565);
+  orbitBufferJets_    = std::vector<std::vector<ScJet>>(3565);
+  orbitBufferEGammas_ = std::vector<std::vector<ScEGamma>>(3565);
+  orbitBufferTaus_    = std::vector<std::vector<ScTau>>(3565);
+  orbitBufferEtSums_  = std::vector<std::vector<ScEtSum>>(3565);
 
   nJetsOrbit_=0; nEGammasOrbit_=0; nTausOrbit_=0; nEtSumsOrbit_=0;
 
@@ -25,7 +25,7 @@ ScCaloRawToDigi::~ScCaloRawToDigi() {};
 
 void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   Handle<SRDCollection> ScoutingRawDataCollection;
   iEvent.getByToken( rawToken, ScoutingRawDataCollection );
@@ -61,7 +61,7 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void ScCaloRawToDigi::unpackOrbit(
     const unsigned char* buf, size_t len
   ){
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   // reset counters
   nJetsOrbit_=0; nEGammasOrbit_=0; nTausOrbit_=0; nEtSumsOrbit_=0;
@@ -116,7 +116,7 @@ void ScCaloRawToDigi::unpackOrbit(
 }
  
 void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx){
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0);
   for (uint32_t i=0; i<6; i++) {
@@ -144,7 +144,7 @@ void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx){
 }
 
 void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx){
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0), Iso(0);
   for (uint32_t i=0; i<6; i++) {
@@ -173,7 +173,7 @@ void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx){
 }
 
 void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx){
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   int32_t ET(0), Eta(0), Phi(0), Iso(0);
   for (uint32_t i=0; i<6; i++) {
@@ -202,7 +202,7 @@ void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx){
 }
 
 void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx){
-  using namespace scoutingRun3;
+  using namespace l1ScoutingRun3;
 
   int32_t ETEt(0), HTEt(0), ETmissEt(0), ETmissPhi(0), HTmissEt(0), HTmissPhi(0);
 

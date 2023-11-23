@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.dump = cms.EDAnalyzer("DumpScObjects",
-  #gmtMuonsTag      = cms.InputTag("GmtUnpacker", "", "SCPU"),
+  gmtMuonsTag      = cms.InputTag("GmtUnpacker", "", "SCPU"),
   caloJetsTag      = cms.InputTag("CaloUnpacker", "", "SCPU"),
   caloEGammasTag   = cms.InputTag("CaloUnpacker", "", "SCPU"),
   caloTausTag      = cms.InputTag("CaloUnpacker", "", "SCPU"),
@@ -39,14 +39,17 @@ process.dump = cms.EDAnalyzer("DumpScObjects",
   minBx            = cms.untracked.uint32(0),
   maxBx            = cms.untracked.uint32(3564),
 
-  skipEmptyBx      = cms.untracked.bool(False),
+  skipEmptyBx      = cms.untracked.bool(True), # don't show empty BX
 
-  checkMuons       = cms.untracked.bool(False),
+  #checkMuons       = cms.untracked.bool(False), # test removing a collection
 
-  #searchEvent      = cms.untracked.bool(True),
-  #orbitNumber      = cms.untracked.uint32(88870912),
-  #searchStartBx    = cms.untracked.uint32(3385),
-  #searchStopBx     = cms.untracked.uint32(3390),
+  searchEvent      = cms.untracked.bool(True),
+  orbitNumber      = cms.untracked.uint32(88985058),
+  searchStartBx    = cms.untracked.uint32(2395-2),
+  searchStopBx     = cms.untracked.uint32(2395+2),
+  #orbitNumber      = cms.untracked.uint32(88981531),
+  #searchStartBx    = cms.untracked.uint32(1027-2),
+  #searchStopBx     = cms.untracked.uint32(1027+2),
 )
 
 process.p = cms.Path(

@@ -1,9 +1,12 @@
 #ifndef DataFormats_L1Scouting_L1ScoutingMuon_h
 #define DataFormats_L1Scouting_L1ScoutingMuon_h
 
-#include <cmath>
+#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
+
+  class ScMuon;
+  typedef OrbitCollection<ScMuon> ScMuonOrbitCollection;
   class ScMuon {
   public:
 
@@ -94,25 +97,6 @@ namespace scoutingRun3 {
     inline int hwPtUnconstrained() const {return hwPtUnconstrained_;}
     inline int hwDXY() const {return hwDXY_;}
     inline int tfMuonIndex() const {return tfIndex_;}
-    
-    // inline float pt() const {
-    //   return pt_scale_*(hwPt_-1);
-    // }
-    // inline float eta()const {
-    //   return eta_scale_*hwEta_;
-    // }
-    // inline float phi() const {
-    //   return phi_scale_*hwPhi_;
-    // }
-    // inline float ptUnconstrained() const {
-    //   return pt_scale_*(hwPtUnconstrained_-1);
-    // }
-    // inline float etaAtVtx() const {
-    //   return eta_scale_*hwEtaAtVtx_;
-    // }
-    // inline float phiAtVtx() const {
-    //   return phi_scale_*hwPhiAtVtx_;
-    // }
 
   private:
     int hwPt_;
@@ -127,14 +111,8 @@ namespace scoutingRun3 {
     int hwPhiAtVtx_;
     int hwPtUnconstrained_;
     int hwDXY_;
-
-    // constants to convert from harware to physical quantities
-    // static constexpr float pt_scale_              = 0.5;
-    // static constexpr float ptunconstrained_scale_ = 1.0;
-    // static constexpr float phi_scale_             = 2.*M_PI/576.;
-    // static constexpr float eta_scale_             = 0.0870/8;
   };
 
-} // namespace scoutingRun3
+} // namespace l1ScoutingRun3
 
 #endif // DataFormats_L1Scouting_L1ScoutingMuon_h

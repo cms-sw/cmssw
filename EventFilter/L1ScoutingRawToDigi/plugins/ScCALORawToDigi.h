@@ -1,4 +1,3 @@
-#include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -20,6 +19,9 @@
 #include "EventFilter/L1ScoutingRawToDigi/interface/blocks.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/conversion.h"
 
+#include <iostream>
+#include <memory>
+
 class ScCaloRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit ScCaloRawToDigi(const edm::ParameterSet&);
@@ -40,10 +42,12 @@ private:
   void unpackEtSums(uint32_t* dataBlock, int bx);
 
   int nJetsOrbit_, nEGammasOrbit_, nTausOrbit_, nEtSumsOrbit_;
-  std::vector<std::vector<scoutingRun3::ScJet>> orbitBufferJets_;
-  std::vector<std::vector<scoutingRun3::ScEGamma>> orbitBufferEGammas_;
-  std::vector<std::vector<scoutingRun3::ScTau>> orbitBufferTaus_;
-  std::vector<std::vector<scoutingRun3::ScEtSum>> orbitBufferEtSums_;
+  // vectors holding data for every bunch crossing
+  // before  filling the orbit collection
+  std::vector<std::vector<l1ScoutingRun3::ScJet>> orbitBufferJets_;
+  std::vector<std::vector<l1ScoutingRun3::ScEGamma>> orbitBufferEGammas_;
+  std::vector<std::vector<l1ScoutingRun3::ScTau>> orbitBufferTaus_;
+  std::vector<std::vector<l1ScoutingRun3::ScEtSum>> orbitBufferEtSums_;
 
   bool debug_ = false;
   edm::InputTag srcInputTag;

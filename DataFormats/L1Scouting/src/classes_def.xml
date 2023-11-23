@@ -1,30 +1,30 @@
 <lcgdict>
-  <class name="scoutingRun3::ScMuon"/>
-  <class name="std::vector<scoutingRun3::ScMuon>"/>
-  <class name="scoutingRun3::ScMuonOrbitCollection"/>
-  <class name="edm::Wrapper<scoutingRun3::ScMuonOrbitCollection>"/>
+  <class name="l1ScoutingRun3::ScMuon"/>
+  <class name="std::vector<l1ScoutingRun3::ScMuon>"/>
+  <class name="l1ScoutingRun3::ScMuonOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScMuonOrbitCollection>"/>
 
-  <class name="scoutingRun3::ScCaloObject"/>
-  <class name="std::vector<scoutingRun3::ScCaloObject>"/>
+  <class name="l1ScoutingRun3::ScCaloObject"/>
+  <class name="std::vector<l1ScoutingRun3::ScCaloObject>"/>
 
-  <class name="scoutingRun3::ScJet"/>
-  <class name="std::vector<scoutingRun3::ScJet>"/>
-  <class name="scoutingRun3::ScJetOrbitCollection"/>
-  <class name="edm::Wrapper<scoutingRun3::ScJetOrbitCollection>"/>
+  <class name="l1ScoutingRun3::ScJet"/>
+  <class name="std::vector<l1ScoutingRun3::ScJet>"/>
+  <class name="l1ScoutingRun3::ScJetOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScJetOrbitCollection>"/>
 
-  <class name="scoutingRun3::ScEGamma"/>
-  <class name="std::vector<scoutingRun3::ScEGamma>"/>
-  <class name="scoutingRun3::ScEGammaOrbitCollection"/>
-  <class name="edm::Wrapper<scoutingRun3::ScEGammaOrbitCollection>"/>
+  <class name="l1ScoutingRun3::ScEGamma"/>
+  <class name="std::vector<l1ScoutingRun3::ScEGamma>"/>
+  <class name="l1ScoutingRun3::ScEGammaOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScEGammaOrbitCollection>"/>
 
-  <class name="scoutingRun3::ScTau"/>
-  <class name="std::vector<scoutingRun3::ScTau>"/>
-  <class name="scoutingRun3::ScTauOrbitCollection"/>
-  <class name="edm::Wrapper<scoutingRun3::ScTauOrbitCollection>"/>
+  <class name="l1ScoutingRun3::ScTau"/>
+  <class name="std::vector<l1ScoutingRun3::ScTau>"/>
+  <class name="l1ScoutingRun3::ScTauOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScTauOrbitCollection>"/>
 
-  <class name="scoutingRun3::ScEtSum"/>
-  <class name="std::vector<scoutingRun3::ScEtSum>"/>
-  <class name="scoutingRun3::ScEtSumOrbitCollection"/>
-  <class name="edm::Wrapper<scoutingRun3::ScEtSumOrbitCollection>"/>
+  <class name="l1ScoutingRun3::ScEtSum"/>
+  <class name="std::vector<l1ScoutingRun3::ScEtSum>"/>
+  <class name="l1ScoutingRun3::ScEtSumOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScEtSumOrbitCollection>"/>
   
 </lcgdict>

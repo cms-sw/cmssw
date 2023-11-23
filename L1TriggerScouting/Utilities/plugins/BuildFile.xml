@@ -1,4 +1,4 @@
-<library file="*.cc" name="L1TriggerScoutingPlugins">
+<library file="*.cc" name="L1TriggerScoutingUtilitiesPlugins">
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>

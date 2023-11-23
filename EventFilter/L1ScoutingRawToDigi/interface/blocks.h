@@ -1,12 +1,12 @@
-#ifndef DataFormats_Scouting_BLOCKS_H
-#define DataFormats_Scouting_BLOCKS_H
+#ifndef L1ScoutingRawToDigi_blocks_h
+#define L1ScoutingRawToDigi_blocks_h
 
 #include <cstdint>
 #include <vector>
 #include <string>
 #include "scales.h"
 
-namespace scoutingRun3 {
+namespace l1ScoutingRun3 {
 
 namespace ugmt {
 
@@ -50,4 +50,4 @@ namespace demux {
 }
 
 }
-#endif
+#endif // L1ScoutingRawToDigi_blocks_h

@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <vector>
+#include <iostream>
 
 class ScGMTRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -37,7 +38,7 @@ private:
 
   // vector holding data for every bunch crossing
   // before  filling the orbit collection
-  std::vector<std::vector<scoutingRun3::ScMuon>> orbitBuffer_;
+  std::vector<std::vector<l1ScoutingRun3::ScMuon>> orbitBuffer_;
   int nMuonsOrbit_;
 
   bool debug_ = false;
