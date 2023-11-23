@@ -7,35 +7,35 @@ l1tLayer2EG = cms.EDProducer(
     tkElectrons=cms.VPSet(
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1TkElePerBoard'),
-            channels=cms.vint32(3, 4)
+            regions=cms.vint32(3, 4)
         ),
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkElePerBoard'),
-            channels=cms.vint32(0, 1, 2)
+            regions=cms.vint32(0, 1, 2)
         ),
     ),
     tkEms=cms.VPSet(
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1TkEmPerBoard'),
-            channels=cms.vint32(3, 4)
+            regions=cms.vint32(3, 4)
         ),
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1TkEmPerBoard'),
-            channels=cms.vint32(-1)
+            regions=cms.vint32(-1)
         ),
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkEmPerBoard'),
-            channels=cms.vint32(0, 1, 2)
+            regions=cms.vint32(0, 1, 2)
         ),
     ),
     tkEgs=cms.VPSet(
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1HGCal", 'L1Eg'),
-            channels=cms.vint32(-1)
+            regions=cms.vint32(-1)
         ),
         cms.PSet(
             pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1Eg'),
-            channels=cms.vint32(-1)
+            regions=cms.vint32(-1)
         ),
     ),
     l1PFObjects = cms.InputTag("l1tLayer2Deregionizer", "Puppi"),
@@ -77,39 +77,40 @@ l1tLayer2EG = cms.EDProducer(
         outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
+        eventsPerFile=cms.uint32(12),
         channels=cms.VPSet(
             cms.PSet(
                 TMUX=cms.uint32(6),
                 nWords=cms.uint32(48),  # = 16*2words ele + 16words photons
-                interface=cms.string("eglayer1"),
+                interface=cms.string("eglayer1Barrel"),
                 id=cms.uint32(0),
                 channels=cms.vuint32(0)
                 ),
             cms.PSet(
                 TMUX=cms.uint32(6),
                 nWords=cms.uint32(48),
-                interface=cms.string("eglayer1"),
+                interface=cms.string("eglayer1Barrel"),
                 id=cms.uint32(1),
                 channels=cms.vuint32(1)
                 ),
             cms.PSet(
                 TMUX=cms.uint32(6),
                 nWords=cms.uint32(48),
-                interface=cms.string("eglayer1"),
+                interface=cms.string("eglayer1Barrel"),
                 id=cms.uint32(2),
                 channels=cms.vuint32(2)
                 ),
             cms.PSet(
                 TMUX=cms.uint32(6),
                 nWords=cms.uint32(48),
-                interface=cms.string("eglayer1"),
+                interface=cms.string("eglayer1Endcap"),
                 id=cms.uint32(3),
                 channels=cms.vuint32(3)
                 ),
             cms.PSet(
                 TMUX=cms.uint32(6),
                 nWords=cms.uint32(48),
-                interface=cms.string("eglayer1"),
+                interface=cms.string("eglayer1Endcap"),
                 id=cms.uint32(4),
                 channels=cms.vuint32(4)
                 ),
@@ -123,6 +124,7 @@ l1tLayer2EG = cms.EDProducer(
         outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
+        eventsPerFile=cms.uint32(12),
         channels=cms.VPSet(
             cms.PSet(
                 TMUX=cms.uint32(6),
@@ -189,6 +191,65 @@ l1tLayer2EGElliptic = l1tLayer2EG.clone(
         ),
     ),
 )
+
+# EG Layer2 with Layer1 @ TMUX18
+l1tLayer2EGTM18 = l1tLayer2EG.clone(
+    tkElectrons=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalTM18", 'L1TkElePerBoard'),
+            regions=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1BarrelSerenityTM18", 'L1TkElePerBoard'),
+            regions=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEms=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalTM18", 'L1TkEmPerBoard'),
+            regions=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTKTM18", 'L1TkEmPerBoard'),
+            regions=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1BarrelSerenityTM18", 'L1TkEmPerBoard'),
+            regions=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEgs=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalTM18", 'L1Eg'),
+            regions=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTKTM18", 'L1Eg'),
+            regions=cms.vint32(-1)
+        ),
+    ),
+)
+
+l1tLayer2EGTM18.inPatternFile.outputFilename = "L1TCTL2EG_TMUX18_InPattern"
+l1tLayer2EGTM18.inPatternFile.channels = cms.VPSet(
+    cms.PSet(
+        TMUX=cms.uint32(18),
+        nWords=cms.uint32(156),  # = (16*2words ele + 16words photons) * 3 (regions) every 6 BX (54 words) = 48+6(empty)+48+6(empty)+48 = 156
+        interface=cms.string("eglayer1Barrel"),
+        id=cms.uint32(0),
+        channels=cms.vuint32(0,2,4)
+        ),
+    cms.PSet(
+        TMUX=cms.uint32(18),
+        nWords=cms.uint32(129), # (16*2words ele + 16words photons) * 2 (regions) every 9 BX (81 words) = 48+33(empty)+48
+        interface=cms.string("eglayer1Endcap"),
+        id=cms.uint32(1),
+        channels=cms.vuint32(1,3,5)
+        ),
+)
+l1tLayer2EGTM18.outPatternFile.outputFilename = 'L1TCTL2EG_TMUX18_OutPattern'
+# FIXME: we need to schedule a new deregionizer for TM18
+# l1tLayer2EGTM18.l1PFObjects = cms.InputTag("l1tLayer2Deregionizer", "Puppi"),
 
 
 L1TLayer2EGTask = cms.Task(
