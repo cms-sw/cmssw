@@ -322,7 +322,7 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
   merge(tkEGInputs_, iEvent, constituents, outEgs);
   iEvent.put(std::move(outEgs), tkEGInstanceLabel_);
 
-  auto regions = std::make_unique<std::vector<l1ct::OutputBoard>>(l2egsorter.nInputBoards());
+  auto regions = std::make_unique<std::vector<l1ct::OutputBoard>>(l2egsorter.nInputRegions());
 
   merge(tkEleInputs_, iEvent, constituents, regions);
   merge(tkEmInputs_, iEvent, constituents, regions);
@@ -337,7 +337,7 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
 
       if (inData.has(linkData.linkId))
         data = inData.at(linkData.linkId);
-      encodeLayer1EgObjs(l2egsorter.nInputObjPerBoard(), data, (*regions)[ireg].egphoton, (*regions)[ireg].egelectron);
+      encodeLayer1EgObjs(l2egsorter.nInputObjPerRegion(), data, (*regions)[ireg].egphoton, (*regions)[ireg].egelectron);
       data.resize(data.size() + linkData.nTrailingWords, {0});
       inData.add(linkData.linkId, data);
     }

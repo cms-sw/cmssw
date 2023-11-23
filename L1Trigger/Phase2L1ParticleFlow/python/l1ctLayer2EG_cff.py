@@ -43,8 +43,8 @@ l1tLayer2EG = cms.EDProducer(
     tkEmInstanceLabel=cms.string("L1CtTkEm"),
     tkEleInstanceLabel=cms.string("L1CtTkElectron"),
     sorter=cms.PSet(
-        nBOARDS=cms.uint32(5),
-        nEGPerBoard=cms.uint32(16),
+        nREGIONS=cms.uint32(5),
+        nEGPerRegion=cms.uint32(16),
         nEGOut=cms.uint32(12),
         debug=cms.untracked.uint32(0),
     ),
