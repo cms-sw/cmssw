@@ -144,8 +144,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
     '''
-    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka',
-        ComponentName = cms.string(''),
+    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka', 
         CablingMapLabel = cms.string(''),
         UseQualityInfo = cms.bool(False),
         appendToDataLabel = cms.string(''),
@@ -161,8 +160,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         )
     )
 
-    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka',
-        ComponentName = cms.string('PixelCPEFastParams'),
+    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka', 
         appendToDataLabel = cms.string(''),
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string('')
@@ -237,7 +235,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     #  - DetIdCollection
     #  - DetIdCollection, 'UserErrorModules'
     #  - edmNew::DetSetVector<PixelFEDChannel>
-    process.hltSiPixelDigiErrorsLegacyFormat = cms.EDProducer('SiPixelDigiErrorsFromSoA',
+    process.hltSiPixelDigiErrorsLegacyFormat = cms.EDProducer('SiPixelDigiErrorsFromSoAAlpaka',
         digiErrorSoASrc = cms.InputTag('hltSiPixelClusters'),
         fmtErrorsSoASrc = cms.InputTag('hltSiPixelClusters'),
         CablingMapLabel = cms.string(''),
