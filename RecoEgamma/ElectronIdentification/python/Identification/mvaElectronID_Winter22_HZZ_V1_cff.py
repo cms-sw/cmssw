@@ -4,7 +4,7 @@ from os import path
 
 mvaTag = "Winter22HZZV1"
 
-weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Winter_22_ID_ISO"
+weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Winter22HZZV1"
 
 mvaWeightFiles = cms.vstring(
      path.join(weightFileDir, "EB1_5.weights.xml.gz"), # EB1_5
