@@ -47,6 +47,8 @@ public:
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
   int maxSeverityHB() const { return cfg_.maxSeverityHB; }
   int maxSeverityHE() const { return cfg_.maxSeverityHE; }
+  EgammaHcalIsolation::arrayHB eThresHB() const { return cfg_.eThresHB; }
+  EgammaHcalIsolation::arrayHE eThresHE() const { return cfg_.eThresHE; }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   bool hasActiveHcal(const reco::SuperCluster &sc) const;
