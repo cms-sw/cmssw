@@ -45,9 +45,6 @@ public:
   DTBtiId(const int wheel_id, const int station_id, const int sector_id, const int superlayer_id, const int bti_id)
       : _suplId(wheel_id, station_id, sector_id, superlayer_id), _bti(bti_id) {}
 
-  ///  Constructor
-  DTBtiId(const DTBtiId& btiId) : _suplId(btiId._suplId), _bti(btiId._bti) {}
-
   /// Destructor
   virtual ~DTBtiId() {}
 

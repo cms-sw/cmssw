@@ -34,10 +34,6 @@ DTChamberId::DTChamberId(int wheel, int station, int sector) : DetId(DetId::Muon
          (sector & sectorMask_) << sectorStartBit_;
 }
 
-DTChamberId::DTChamberId(const DTChamberId& chId)
-    // The mask is required for proper slicing, i.e. if chId is actually a derived class.
-    : DetId(chId.rawId() & chamberIdMask_) {}
-
 void DTChamberId::checkMuonId() {
   if (det() != DetId::Muon || subdetId() != MuonSubdetId::DT) {
     throw cms::Exception("InvalidDetId") << "DTChamberId ctor:"

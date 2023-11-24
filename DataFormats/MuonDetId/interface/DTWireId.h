@@ -26,9 +26,6 @@ public:
   /// exception is thrown.
   DTWireId(int wheel, int station, int sector, int superlayer, int layer, int wire);
 
-  /// Copy Constructor.
-  DTWireId(const DTWireId& wireId);
-
   /// Constructor from a CamberId and SL, layer and wire numbers
   DTWireId(const DTChamberId& chId, int superlayer, int layer, int wire);
 

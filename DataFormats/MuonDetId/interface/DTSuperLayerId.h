@@ -27,11 +27,6 @@ public:
   /// exception is thrown.
   DTSuperLayerId(int wheel, int station, int sector, int superlayer);
 
-  /// Copy Constructor.
-  /// Any bits outside the DTChamberId fields are zeroed; apart for
-  /// this, no check is done on the vaildity of the values.
-  DTSuperLayerId(const DTSuperLayerId& slId);
-
   /// Constructor from a DTChamberId and SL number.
   DTSuperLayerId(const DTChamberId& chId, int superlayer);
 

@@ -30,11 +30,6 @@ public:
   /// exception is thrown.
   DTChamberId(int wheel, int station, int sector);
 
-  /// Copy Constructor.
-  /// Any bits outside the DTChamberId fields are zeroed; apart for
-  /// this, no check is done on the vaildity of the values.
-  DTChamberId(const DTChamberId& chId);
-
   /// Return the wheel number
   int wheel() const { return int((id_ >> wheelStartBit_) & wheelMask_) + minWheelId - 1; }
 

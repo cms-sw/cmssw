@@ -18,13 +18,6 @@ DTLayerId::DTLayerId(uint32_t id) {
   checkMuonId();
 }
 
-// Copy Constructor.
-DTLayerId::DTLayerId(const DTLayerId& layerId) : DTSuperLayerId() {
-  // The mask is required for proper slicing, i.e. if layerId is
-  // actually a derived class.
-  id_ = (layerId.rawId() & layerIdMask_);
-}
-
 // Constructor from a camberId and SL and layer numbers
 DTLayerId::DTLayerId(const DTChamberId& chId, int superlayer, int layer) : DTSuperLayerId(chId, superlayer) {
   if (layer < minLayerId || layer > maxLayerId) {

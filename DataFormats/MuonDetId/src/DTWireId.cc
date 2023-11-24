@@ -28,9 +28,6 @@ DTWireId::DTWireId(int wheel, int station, int sector, int superlayer, int layer
   id_ |= (wire & wireMask_) << wireStartBit_;
 }
 
-// Copy Constructor.
-DTWireId::DTWireId(const DTWireId& wireId) : DTLayerId() { id_ = wireId.rawId(); }
-
 // Constructor from a CamberId and SL, layer and wire numbers
 DTWireId::DTWireId(const DTChamberId& chId, int superlayer, int layer, int wire) : DTLayerId(chId, superlayer, layer) {
   if (wire < minWireId || wire > maxWireId) {

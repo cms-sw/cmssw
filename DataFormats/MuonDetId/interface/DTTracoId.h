@@ -43,9 +43,6 @@ public:
   DTTracoId(const int wheel_id, const int station_id, const int sector_id, const int traco_id)
       : _statId(wheel_id, station_id, sector_id), _traco(traco_id) {}
 
-  ///  Constructor
-  DTTracoId(const DTTracoId& tracoId) : _statId(tracoId._statId), _traco(tracoId._traco) {}
-
   /// Destructor
   virtual ~DTTracoId() {}
 

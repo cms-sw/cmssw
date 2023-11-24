@@ -26,13 +26,6 @@ DTSuperLayerId::DTSuperLayerId(int wheel, int station, int sector, int superlaye
   id_ |= (superlayer & slMask_) << slayerStartBit_;
 }
 
-// Copy Constructor.
-DTSuperLayerId::DTSuperLayerId(const DTSuperLayerId& slId) : DTChamberId() {
-  // The mask is required for proper slicing, i.e. if slId is
-  // actually a derived class.
-  id_ = (slId.rawId() & slIdMask_);
-}
-
 // Constructor from a camberId and SL number
 DTSuperLayerId::DTSuperLayerId(const DTChamberId& chId, int superlayer) : DTChamberId(chId) {
   if (superlayer < minSuperLayerId || superlayer > maxSuperLayerId) {
