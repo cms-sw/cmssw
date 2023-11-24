@@ -7,11 +7,16 @@ process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring('file:test.root')
 )
 
-# enable logging for the TestAlpakaAnalyzer
+# enable logging for the analysers
 process.MessageLogger.TestAlpakaAnalyzer = cms.untracked.PSet()
+process.MessageLogger.TestAlpakaObjectAnalyzer = cms.untracked.PSet()
 
-# analyse the first product
+# analyse the first set of products
 process.testAnalyzer = cms.EDAnalyzer('TestAlpakaAnalyzer',
+    source = cms.InputTag('testProducer')
+)
+
+process.testObjectAnalyzer = cms.EDAnalyzer('TestAlpakaObjectAnalyzer',
     source = cms.InputTag('testProducer')
 )
 
@@ -21,8 +26,13 @@ process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',
     expectBackend = cms.string('SerialSync')
 )
 
-process.cuda_path = cms.Path(process.testAnalyzer)
+process.testObjectAnalyzerSerial = cms.EDAnalyzer('TestAlpakaObjectAnalyzer',
+    source = cms.InputTag('testProducerSerial'),
+    expectBackend = cms.string('SerialSync')
+)
 
-process.serial_path = cms.Path(process.testAnalyzerSerial)
+process.device_path = cms.Path(process.testAnalyzer + process.testObjectAnalyzer)
+
+process.serial_path = cms.Path(process.testAnalyzerSerial + process.testObjectAnalyzerSerial)
 
 process.maxEvents.input = 10

@@ -1,10 +1,13 @@
+<use name="clhep"/>
+<use name="rootcore"/>
+<use name="rootsmatrix"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Math"/>
-<use name="rootcore"/>
-<use name="rootsmatrix"/>
-<use name="clhep"/>
+<use name="DataFormats/Portable"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>

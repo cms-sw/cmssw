@@ -55,4 +55,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), collection->metadata().size(), xvalue);
   }
 
+  class TestAlgoStructKernel {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  portabletest::TestDeviceObject::Product* data,
+                                  double x,
+                                  double y,
+                                  double z,
+                                  int32_t id) const {
+      // run on a single thread
+      if (once_per_grid(acc)) {
+        data->x = x;
+        data->y = y;
+        data->z = z;
+        data->id = id;
+      }
+    }
+  };
+
+  void TestAlgo::fillObject(
+      Queue& queue, portabletest::TestDeviceObject& object, double x, double y, double z, int32_t id) const {
+    // run on a single thread
+    auto workDiv = make_workdiv<Acc1D>(1, 1);
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoStructKernel{}, object.data(), x, y, z, id);
+  }
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
