@@ -838,7 +838,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         TauProd = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
-                Count1D('_size', 40, -0.5, 5.5, 'tau decay products')
+                Count1D('_size', 40, -0.5, 5.5, 'tau decay products'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
