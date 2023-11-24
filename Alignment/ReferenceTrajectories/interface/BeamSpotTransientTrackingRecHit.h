@@ -59,9 +59,6 @@ protected:
   LocalError localError_;
 
 private:
-  // should not have assignment operator (?)
-  BeamSpotTransientTrackingRecHit &operator=(const BeamSpotTransientTrackingRecHit &t) { return *(this); }
-
   // hide the clone method for ReferenceCounted. Warning: this method is still
   // accessible via the bas class TrackingRecHit interface!
   BeamSpotTransientTrackingRecHit *clone() const override { return new BeamSpotTransientTrackingRecHit(*this); }
