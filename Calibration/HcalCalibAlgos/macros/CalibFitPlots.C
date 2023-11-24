@@ -153,7 +153,7 @@
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
 //      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
 //      with the plot either between -etaMax to etaMax if etaMax > 0 otherwise
-//      determined from data files; 
+//      determined from data files;
 //      doFit determines if a Pol0 fit is to be done
 //
 //  where:
@@ -4148,7 +4148,7 @@ void PlotHistCorrRatio(char* infile1,
       int npt(0);
       for (std::map<int, cfactors>::const_iterator itr = cfacs[ih].begin(); itr != cfacs[ih].end(); ++itr) {
         int ieta = (itr->second).ieta;
-	bool seleta = (etaMin > 0) ? (std::abs(ieta) > etaMin) : true;
+        bool seleta = (etaMin > 0) ? (std::abs(ieta) > etaMin) : true;
         if ((ieta >= etamin) && (ieta <= etamax) && seleta && ((itr->second).depth == depth1)) {
           ++npt;
           int bin = ieta - etamin + 1;
