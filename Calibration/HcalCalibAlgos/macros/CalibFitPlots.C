@@ -145,12 +145,16 @@
 //            give by infileX for 2 depths (depth1, depth2) as a function of
 //            ieta obaned from 2 sources of data (defined by text1 and text2)
 //  PlotHistCorrRatio(infile1, text1, infile2, text2, depth1, depth2, prefix,
-//                    text0, etaMax, doFit, dataMC, year, iformat, save)
-//      Defaults etaMax = -1, doFit = true, dataMC = true, year = 2022,
-//               iformat = 0, save = 0
+//                    text0, etaMin, etaMax, doFit, dataMC, year, iformat,
+//                    save)
+//      Defaults etaMin = -1, etaMax = -1, doFit = true, dataMC = true,
+//               year = 2022, iformat = 0, save = 0
 //      text0 is a general description common to both sets of corr factors
-//      etaMax > 0 will take ieta range from -etaMax to +etaMax; otherwise
-//      determine from data files; doFit determines if a Pol0 fit is to be done
+//      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
+//      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
+//      with the plot either between -etaMax to etaMax if etaMax > 0 otherwise
+//      determined from data files; 
+//      doFit determines if a Pol0 fit is to be done
 //
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
@@ -224,6 +228,7 @@
 #include <TFitResultPtr.h>
 #include <TH1D.h>
 #include <TLegend.h>
+#include <TLine.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
@@ -4086,6 +4091,7 @@ void PlotHistCorrRatio(char* infile1,
                        int depth2,
                        std::string prefixF,
                        std::string text0,
+                       int etaMin = -1,
                        int etaMax = -1,
                        bool doFit = true,
                        bool dataMC = true,
@@ -4142,7 +4148,8 @@ void PlotHistCorrRatio(char* infile1,
       int npt(0);
       for (std::map<int, cfactors>::const_iterator itr = cfacs[ih].begin(); itr != cfacs[ih].end(); ++itr) {
         int ieta = (itr->second).ieta;
-        if ((ieta >= etamin) && (ieta <= etamax) && ((itr->second).depth == depth1)) {
+	bool seleta = (etaMin > 0) ? (std::abs(ieta) > etaMin) : true;
+        if ((ieta >= etamin) && (ieta <= etamax) && seleta && ((itr->second).depth == depth1)) {
           ++npt;
           int bin = ieta - etamin + 1;
           for (std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin(); ktr != cfacs[ih].end(); ++ktr) {
