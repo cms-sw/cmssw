@@ -1285,9 +1285,9 @@ class Process(object):
               iFinalPath.resolve(self.__dict__)
               finalpathValidator.setLabel(finalpathname)
               iFinalPath.visit(finalpathValidator)
-              filtersOrProducers = finalpathValidator.filtersOnFinalpaths + finalpathValidator.producersOnFinalpaths
-              if filtersOrProducers:
-                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(filtersOrProducers)))
+              invalidModules = finalpathValidator.invalidModulesOnFinalpaths
+              if invalidModules:
+                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(invalidModules)))
               modulesOnFinalPath.extend(iFinalPath.moduleNames())
           for m in modulesOnFinalPath:
             mod = getattr(self, m)
@@ -3351,7 +3351,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p.anal = EDAnalyzer("MyAnalyzer")
             p.t = FinalPath(p.anal)
             pset = TestMakePSet()
-            p.fillProcessDesc(pset)
+            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
 
             p.prod = EDProducer("MyProducer")
             p.t = FinalPath(p.prod)
