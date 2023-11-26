@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # beam optics
 from CondCore.CondDB.CondDB_cfi import *
-from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import *
+from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cff import *
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cff import *
 ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 

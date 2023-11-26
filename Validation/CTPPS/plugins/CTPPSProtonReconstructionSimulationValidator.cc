@@ -12,8 +12,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -47,7 +46,7 @@ private:
                  const reco::ForwardProton &rec_pr,
                  const HepMC::FourVector &vtx,
                  const HepMC::FourVector &mom,
-                 const LHCInfo &lhcInfo);
+                 const double energy);
 
   edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCBeforeSmearing_;
   edm::EDGetTokenT<edm::HepMCProduct> tokenHepMCAfterSmearing_;
@@ -55,7 +54,10 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
 
   std::string outputFile_;
 
@@ -201,14 +203,18 @@ CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulatio
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
-      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
       outputFile_(iConfig.getParameter<string>("outputFile")) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get conditions
-  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
+  const LHCInfoCombined lhcInfoCombined(
+      iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCBeforeSmearing;
@@ -319,7 +325,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::multiRP)
         meth_idx = 1;
 
-      fillPlots(meth_idx, idx, rec_pr, vtx, mom, lhcInfo);
+      fillPlots(meth_idx, idx, rec_pr, vtx, mom, lhcInfoCombined.energy);
     }
   }
 
@@ -355,8 +361,8 @@ void CTPPSProtonReconstructionSimulationValidator::fillPlots(unsigned int meth_i
                                                              const reco::ForwardProton &rec_pr,
                                                              const HepMC::FourVector &vtx,
                                                              const HepMC::FourVector &mom,
-                                                             const LHCInfo &lhcInfo) {
-  const double p_nom = lhcInfo.energy();
+                                                             const double energy) {
+  const double p_nom = energy;
   const double xi_simu = (p_nom - mom.rho()) / p_nom;
   const double th_x_simu = mom.x() / mom.rho();
   const double th_y_simu = mom.y() / mom.rho();

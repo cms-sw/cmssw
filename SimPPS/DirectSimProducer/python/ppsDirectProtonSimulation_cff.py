@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import ctppsBeamParametersFromLHCInfoESSource as _esLHCinfo
+from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cff import ctppsBeamParametersFromLHCInfoESSource as _esLHCinfo
 from SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi import ppsDirectProtonSimulation as _dirProtonSim
 from IOMC.EventVertexGenerators.beamDivergenceVtxGenerator_cfi import beamDivergenceVtxGenerator as _vtxGen
 
