@@ -56,11 +56,6 @@ namespace Matriplex {
     T& operator()(idx_t n, idx_t i, idx_t j) { return fArray[(i * D2 + j) * N + n]; }
     const T& operator()(idx_t n, idx_t i, idx_t j) const { return fArray[(i * D2 + j) * N + n]; }
 
-    Matriplex& operator=(const Matriplex& m) {
-      memcpy(fArray, m.fArray, sizeof(T) * kTotSize);
-      return *this;
-    }
-
     Matriplex& operator=(T t) {
       for (idx_t i = 0; i < kTotSize; ++i)
         fArray[i] = t;
