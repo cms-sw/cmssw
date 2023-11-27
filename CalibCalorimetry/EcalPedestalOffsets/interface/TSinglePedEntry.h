@@ -12,13 +12,6 @@
 
 class TSinglePedEntry {
 public:
-  //! ctor
-  TSinglePedEntry();
-  //! copy ctor
-  TSinglePedEntry(const TSinglePedEntry &orig);
-  //! dtor
-  ~TSinglePedEntry();
-
   //! add a single value
   void insert(const int &pedestal);
   //! get the average of the inserted values

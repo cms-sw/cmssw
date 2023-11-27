@@ -27,13 +27,13 @@ public:
   SiStripHashedDetId(const std::vector<DetId> &);
 
   /** Copy constructor. */
-  SiStripHashedDetId(const SiStripHashedDetId &);
+  SiStripHashedDetId(const SiStripHashedDetId &) = default;
 
   /** Public default constructor. */
-  SiStripHashedDetId();
+  SiStripHashedDetId() = default;
 
   /** Default destructor. */
-  ~SiStripHashedDetId();
+  ~SiStripHashedDetId() = default;
 
   // ---------- typedefs ----------
 

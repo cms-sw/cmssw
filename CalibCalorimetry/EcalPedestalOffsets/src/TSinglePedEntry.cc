@@ -3,18 +3,6 @@
 #include <cmath>
 #include <iostream>
 
-TSinglePedEntry::TSinglePedEntry() : m_pedestalSqSum(0), m_pedestalSum(0), m_entries(0) {
-  //  std::cout << "[TSinglePedEntry][ctor]" << std::endl ;
-}
-
-TSinglePedEntry::~TSinglePedEntry() {}
-
-TSinglePedEntry::TSinglePedEntry(const TSinglePedEntry &orig) {
-  m_pedestalSqSum = orig.m_pedestalSqSum;
-  m_pedestalSum = orig.m_pedestalSum;
-  m_entries = orig.m_entries;
-}
-
 void TSinglePedEntry::insert(const int &pedestal) {
   m_pedestalSqSum += pedestal * pedestal;
   m_pedestalSum += pedestal;

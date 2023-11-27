@@ -33,30 +33,6 @@ SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids) : detI
 
 // -----------------------------------------------------------------------------
 //
-SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input) : detIds_(), id_(0), iter_(detIds_.begin()) {
-  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
-                       << " Constructing object...";
-  detIds_.reserve(input.end() - input.begin());
-  std::copy(input.begin(), input.end(), detIds_.begin());
-}
-
-// -----------------------------------------------------------------------------
-//
-SiStripHashedDetId::SiStripHashedDetId() : detIds_(), id_(0), iter_(detIds_.begin()) {
-  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
-                       << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-//
-SiStripHashedDetId::~SiStripHashedDetId() {
-  LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
-                       << " Destructing object...";
-  detIds_.clear();
-}
-
-// -----------------------------------------------------------------------------
-//
 void SiStripHashedDetId::init(const std::vector<uint32_t> &raw_ids) {
   detIds_.clear();
   detIds_.reserve(16000);
