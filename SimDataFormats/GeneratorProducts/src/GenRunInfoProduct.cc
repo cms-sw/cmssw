@@ -10,12 +10,6 @@ using namespace std;
 
 GenRunInfoProduct::GenRunInfoProduct() : externalFilterEfficiency_(-1.) {}
 
-GenRunInfoProduct::GenRunInfoProduct(GenRunInfoProduct const &other)
-    : internalXSec_(other.internalXSec_),
-      externalXSecLO_(other.externalXSecLO_),
-      externalXSecNLO_(other.externalXSecNLO_),
-      externalFilterEfficiency_(other.externalFilterEfficiency_) {}
-
 bool GenRunInfoProduct::isProductEqual(GenRunInfoProduct const &other) const {
   bool result = externalXSecLO_ == other.externalXSecLO_ && externalXSecNLO_ == other.externalXSecNLO_ &&
                 externalFilterEfficiency_ == other.externalFilterEfficiency_;

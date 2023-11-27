@@ -102,7 +102,6 @@
         <class name="gen::PdfInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="876888052"/>
  </class>
-        <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
 
 	<!-- GenRunInfoProduct -->
 
@@ -174,7 +173,7 @@
   <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
- <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+ <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "std::unique_ptr<gen::PdfInfo> pdf_;" target="pdf_">
    <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
  </ioread>
  <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
@@ -217,7 +216,7 @@
   <version ClassVersion="14" checksum="905719452"/>
   <version ClassVersion="15" checksum="898288635"/>
  </class>
- <ioread sourceClass = "LHEEventProduct" version="[13]" targetClass="LHEEventProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+ <ioread sourceClass = "LHEEventProduct" version="[13]" targetClass="LHEEventProduct" source = "std::unique_ptr<gen::PdfInfo> pdf_;" target="pdf_">
    <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
  </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">

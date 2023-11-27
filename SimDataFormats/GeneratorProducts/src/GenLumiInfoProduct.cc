@@ -71,9 +71,6 @@ GenLumiInfoProduct::GenLumiInfoProduct() : hepidwtup_(-1) { internalProcesses_.c
 
 GenLumiInfoProduct::GenLumiInfoProduct(const int id) : hepidwtup_(id) { internalProcesses_.clear(); }
 
-GenLumiInfoProduct::GenLumiInfoProduct(GenLumiInfoProduct const& other)
-    : hepidwtup_(other.hepidwtup_), internalProcesses_(other.internalProcesses_) {}
-
 GenLumiInfoProduct::~GenLumiInfoProduct() {}
 
 bool GenLumiInfoProduct::mergeProduct(GenLumiInfoProduct const& other) {
