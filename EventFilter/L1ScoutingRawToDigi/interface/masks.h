@@ -43,6 +43,8 @@ namespace demux {
         static constexpr uint32_t ET  = 0x07ff;
         static constexpr uint32_t eta = 0x00ff;
         static constexpr uint32_t phi = 0x00ff;
+        static constexpr uint32_t disp = 0x0001;
+        static constexpr uint32_t qual = 0x0003;
     };
 
     // struct masksCaloEGamma{
@@ -69,17 +71,17 @@ namespace demux {
 
         static constexpr uint32_t HTEt             = 0x0fff;    // Et of HT object
         static constexpr uint32_t HTtowerCount     = 0x1fff;
-        static constexpr uint32_t HTMinBiasHF      = 0x0003;
+        static constexpr uint32_t HTMinBiasHF      = 0x000f;
 
         static constexpr uint32_t ETmissEt         = 0x0fff;
         static constexpr uint32_t ETmissPhi        = 0x00ff;
         static constexpr uint32_t ETmissASYMET     = 0x00ff;
-        static constexpr uint32_t ETmissMinBiasHF  = 0x0003;
+        static constexpr uint32_t ETmissMinBiasHF  = 0x000f;
 
         static constexpr uint32_t HTmissEt         = 0x0fff;
         static constexpr uint32_t HTmissPhi        = 0x00ff;
         static constexpr uint32_t HTmissASYMHT     = 0x00ff;
-        static constexpr uint32_t HTmissMinBiasHF  = 0x0003;
+        static constexpr uint32_t HTmissMinBiasHF  = 0x000f;
 
         static constexpr uint32_t ETHFmissEt       = 0x0fff;
         static constexpr uint32_t ETHFmissPhi      = 0x00ff;

@@ -12,4 +12,5 @@ namespace l1ScoutingRun3 {
   edm::Wrapper<ScEGammaOrbitCollection>  ScEGammaOrbitCollectionWrapper;
   edm::Wrapper<ScTauOrbitCollection>     ScTauOrbitCollectionWrapper;
   edm::Wrapper<ScEtSumOrbitCollection>   ScEtSumOrbitCollectionWrapper;
+  edm::Wrapper<ScBxSumsOrbitCollection>  ScBxSumsOrbitCollectionWrapper;
 }

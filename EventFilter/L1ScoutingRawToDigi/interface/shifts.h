@@ -37,6 +37,8 @@ namespace demux {
         static constexpr uint32_t ET  =  0;
         static constexpr uint32_t eta = 11;
         static constexpr uint32_t phi = 19;
+        static constexpr uint32_t disp = 27;
+        static constexpr uint32_t qual = 28;
     };
 
     // struct shiftsCaloEGamma{

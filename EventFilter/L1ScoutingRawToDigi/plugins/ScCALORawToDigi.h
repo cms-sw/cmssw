@@ -47,7 +47,8 @@ private:
   std::vector<std::vector<l1ScoutingRun3::ScJet>> orbitBufferJets_;
   std::vector<std::vector<l1ScoutingRun3::ScEGamma>> orbitBufferEGammas_;
   std::vector<std::vector<l1ScoutingRun3::ScTau>> orbitBufferTaus_;
-  std::vector<std::vector<l1ScoutingRun3::ScEtSum>> orbitBufferEtSums_;
+  //std::vector<std::vector<l1ScoutingRun3::ScEtSum>> orbitBufferEtSums_;
+  std::vector<std::vector<l1ScoutingRun3::ScBxSums>> orbitBufferEtSums_;
 
   bool debug_ = false;
   edm::InputTag srcInputTag;

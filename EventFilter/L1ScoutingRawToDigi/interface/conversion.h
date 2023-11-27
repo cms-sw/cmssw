@@ -4,6 +4,11 @@
 #include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
 
 namespace l1ScoutingRun3 {
+
+  inline float _setPhiRange(float phi) {
+    phi = phi >= M_PI ? phi-2.*M_PI : phi;
+    return phi;
+  }
   
   namespace ugmt {
 
@@ -14,9 +19,8 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEta;
     };
     inline float fPhi(int hwPhi) {
-      float fPhi_ = scales::phi_scale*hwPhi;
-      fPhi_ = fPhi_>=M_PI ? fPhi_-2.*M_PI : fPhi_;
-      return fPhi_;
+      //float fPhi_ = scales::phi_scale*hwPhi;
+      return _setPhiRange(scales::phi_scale*hwPhi);
     };
     inline float fPtUnconstrained(int hwPtUnconstrained) {
         return scales::ptunconstrained_scale*(hwPtUnconstrained-1);
@@ -25,9 +29,8 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEtaAtVtx;
     };
     inline float fPhiAtVtx(int hwPhiAtVtx) {
-      float fPhi_ = scales::phi_scale*hwPhiAtVtx;
-      fPhi_ = fPhi_>=M_PI ? fPhi_-2.*M_PI : fPhi_;
-      return fPhi_;
+      //float fPhi_ = scales::phi_scale*hwPhiAtVtx;
+      return _setPhiRange(scales::phi_scale*hwPhiAtVtx);
     };
 
   } // namespace ugmt
@@ -41,9 +44,8 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEta;
     };
     inline float fPhi(int hwPhi) {
-      float fPhi_ = scales::phi_scale*hwPhi;
-      fPhi_ = fPhi_>= M_PI ? fPhi_-2.*M_PI : fPhi_;
-      return fPhi_;
+      //float fPhi_ = scales::phi_scale*hwPhi;
+      return _setPhiRange(scales::phi_scale*hwPhi);
     };
 
   } // namespace demux

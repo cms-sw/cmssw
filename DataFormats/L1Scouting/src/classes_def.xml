@@ -26,5 +26,10 @@
   <class name="std::vector<l1ScoutingRun3::ScEtSum>"/>
   <class name="l1ScoutingRun3::ScEtSumOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScEtSumOrbitCollection>"/>
+
+  <class name="l1ScoutingRun3::ScBxSums"/>
+  <class name="std::vector<l1ScoutingRun3::ScBxSums>"/>
+  <class name="l1ScoutingRun3::ScBxSumsOrbitCollection"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::ScBxSumsOrbitCollection>"/>
   
 </lcgdict>
