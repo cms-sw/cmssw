@@ -132,6 +132,7 @@ namespace PhysicsTools {
     inline Variable() {}
     inline Variable(const Variable &orig) : name(orig.name), flags(orig.flags) {}
     inline Variable(AtomicId name, Flags flags = FLAG_NONE) : name(name), flags(flags) {}
+    Variable &operator=(const Variable &other) = default;
 
     const AtomicId getName() const { return name; }
     Flags getFlags() const { return flags; }
