@@ -15,16 +15,20 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDIdealGeometry = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDNumbering = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPath = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPosition = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(

@@ -16,16 +16,20 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDIdealGeometry = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDNumbering = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDPath = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDPosition = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
