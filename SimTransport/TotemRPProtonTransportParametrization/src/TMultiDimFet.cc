@@ -84,7 +84,15 @@ const TMultiDimFet &TMultiDimFet::operator=(const TMultiDimFet &in) {
   if (this == &in) {
     return in;
   }
+  init(in);
+  return in;
+}
 
+TMultiDimFet::TMultiDimFet(const TMultiDimFet &in) : TNamed() {
+  init(in);
+}
+
+void TMultiDimFet::init(const TMultiDimFet &in) {
   fMeanQuantity = in.fMeanQuantity;  // Mean of dependent quantity
 
   fMaxQuantity = 0.0;       //! Max value of dependent quantity
@@ -152,7 +160,6 @@ const TMultiDimFet &TMultiDimFet::operator=(const TMultiDimFet &in) {
   fShowCorrelation = in.fShowCorrelation;  // print correlation matrix
   fIsUserFunction = in.fIsUserFunction;    // Flag for user defined function
   fIsVerbose = in.fIsVerbose;              //
-  return in;
 }
 
 //____________________________________________________________________

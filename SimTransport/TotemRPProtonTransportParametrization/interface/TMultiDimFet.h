@@ -126,10 +126,12 @@ protected:
   virtual void MakeRealCode(const char *filename, const char *classname, Option_t *option = "");
   virtual Bool_t Select(const Int_t *iv);
   virtual Bool_t TestFunction(Double_t squareResidual, Double_t dResidur);
+private:
+  void init(const TMultiDimFet &in);
 
 public:
   TMultiDimFet();
-  //   TMultiDimFet(const TMultiDimFet &in);
+  TMultiDimFet(const TMultiDimFet &in);
   const TMultiDimFet &operator=(const TMultiDimFet &in);
 
   TMultiDimFet(Int_t dimension, EMDFPolyType type = kMonomials, Option_t *option = "");
