@@ -2,65 +2,65 @@
  *
  * Clean collections of calorimeter recHits
  * (detectors supported at the moment: EB/EE, HB/HE and HO)
- * 
+ *
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * 
+ *
  *
  *  Clean Up from STefan Wayand, KIT
  */
 #ifndef TauAnalysis_MCEmbeddingTools_CaloCleaner_H
 #define TauAnalysis_MCEmbeddingTools_CaloCleaner_H
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
-#include <string>
 #include <iostream>
 #include <map>
+#include <string>
 
 template <typename T>
 class CaloCleaner : public edm::stream::EDProducer<> {
 public:
-  explicit CaloCleaner(const edm::ParameterSet&);
+  explicit CaloCleaner(const edm::ParameterSet &);
   ~CaloCleaner() override;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   typedef edm::SortedCollection<T> RecHitCollection;
 
-  const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
+  const edm::EDGetTokenT<edm::View<pat::Muon>> mu_input_;
 
-  std::map<std::string, edm::EDGetTokenT<RecHitCollection> > inputs_;
+  std::map<std::string, edm::EDGetTokenT<RecHitCollection>> inputs_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   TrackDetectorAssociator trackAssociator_;
   TrackAssociatorParameters parameters_;
 
   bool is_preshower_;
-  void fill_correction_map(TrackDetMatchInfo*, std::map<uint32_t, float>*);
+  void fill_correction_map(TrackDetMatchInfo *, std::map<uint32_t, float> *);
 };
 
 template <typename T>
-CaloCleaner<T>::CaloCleaner(const edm::ParameterSet& iConfig)
-    : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection"))),
+CaloCleaner<T>::CaloCleaner(const edm::ParameterSet &iConfig)
+    : mu_input_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("MuonCollection"))),
       propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
-  for (const auto& inCollection : inCollections) {
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("oldCollection");
+  for (const auto &inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<RecHitCollection>(inCollection);
     produces<RecHitCollection>(inCollection.instance());
   }
@@ -69,7 +69,7 @@ CaloCleaner<T>::CaloCleaner(const edm::ParameterSet& iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  //trackAssociator_.useDefaultPropagator();
+  // trackAssociator_.useDefaultPropagator();
 }
 
 template <typename T>
@@ -78,11 +78,11 @@ CaloCleaner<T>::~CaloCleaner() {
 }
 
 template <typename T>
-void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto const& propagator = iSetup.getData(propagatorToken_);
+void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  auto const &propagator = iSetup.getData(propagatorToken_);
   trackAssociator_.setPropagator(&propagator);
 
-  edm::Handle<edm::View<pat::Muon> > muonHandle;
+  edm::Handle<edm::View<pat::Muon>> muonHandle;
   iEvent.getByToken(mu_input_, muonHandle);
   edm::View<pat::Muon> muons = *muonHandle;
 
@@ -92,7 +92,7 @@ void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
     // get the basic informaiton like fill reco mouon does
     //     RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc
-    const reco::Track* track = nullptr;
+    const reco::Track *track = nullptr;
     if (iMuon->track().isNonnull())
       track = iMuon->track().get();
     else if (iMuon->standAloneMuon().isNonnull())
@@ -124,14 +124,14 @@ void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       } else {
         recHitCollection_output->push_back(*recHit);
       }
-      /* For the inveted collection   
-     if (correction_map[recHit->detid().rawId()] > 0){
-	float new_energy =   correction_map[recHit->detid().rawId()];
-	if (new_energy < 0) new_energy =0;
-	T newRecHit(*recHit);
-	newRecHit.setEnergy(new_energy); 
-	recHitCollection_output->push_back(newRecHit);
-      }*/
+      /* For the inveted collection
+           if (correction_map[recHit->detid().rawId()] > 0){
+          float new_energy =   correction_map[recHit->detid().rawId()];
+          if (new_energy < 0) new_energy =0;
+          T newRecHit(*recHit);
+          newRecHit.setEnergy(new_energy);
+          recHitCollection_output->push_back(newRecHit);
+            }*/
     }
     // Save the new collection
     recHitCollection_output->sort();

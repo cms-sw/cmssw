@@ -1,11 +1,11 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/CaloCleaner.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 
 typedef CaloCleaner<EcalRecHit> EcalRecHitColCleaner;
 typedef CaloCleaner<HBHERecHit> HBHERecHitColCleaner;

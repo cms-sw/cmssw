@@ -1,64 +1,64 @@
 /** \class TrackerCleaner
  *
- * 
+ *
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * 
  *
- * 
+ *
+ *
  *
  */
 
 #ifndef TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
 #define TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
-#include <string>
 #include <iostream>
 #include <map>
+#include <string>
 
 template <typename T>
 class TrackerCleaner : public edm::stream::EDProducer<> {
 public:
-  explicit TrackerCleaner(const edm::ParameterSet&);
+  explicit TrackerCleaner(const edm::ParameterSet &);
   ~TrackerCleaner() override;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-  const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
+  const edm::EDGetTokenT<edm::View<pat::Muon>> mu_input_;
   typedef edmNew::DetSetVector<T> TrackClusterCollection;
 
-  std::map<std::string, edm::EDGetTokenT<TrackClusterCollection> > inputs_;
+  std::map<std::string, edm::EDGetTokenT<TrackClusterCollection>> inputs_;
 
-  bool match_rechit_type(const TrackingRecHit& murechit);
+  bool match_rechit_type(const TrackingRecHit &murechit);
 };
 
 template <typename T>
-TrackerCleaner<T>::TrackerCleaner(const edm::ParameterSet& iConfig)
-    : mu_input_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonCollection")))
+TrackerCleaner<T>::TrackerCleaner(const edm::ParameterSet &iConfig)
+    : mu_input_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("MuonCollection")))
 
 {
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
-  for (const auto& inCollection : inCollections) {
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("oldCollection");
+  for (const auto &inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<TrackClusterCollection>(inCollection);
     produces<TrackClusterCollection>(inCollection.instance());
   }
@@ -70,10 +70,10 @@ TrackerCleaner<T>::~TrackerCleaner() {
 }
 
 template <typename T>
-void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TrackerCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  edm::Handle<edm::View<pat::Muon> > muonHandle;
+  edm::Handle<edm::View<pat::Muon>> muonHandle;
   iEvent.getByToken(mu_input_, muonHandle);
   edm::View<pat::Muon> muons = *muonHandle;
 
@@ -88,22 +88,21 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
       if (!iMuon->isGlobalMuon())
         continue;
-      const reco::Track* mutrack = iMuon->globalTrack().get();
+      const reco::Track *mutrack = iMuon->globalTrack().get();
       //  reco::Track *mutrack = new reco::Track(*(iMuon->innerTrack() ));
       for (trackingRecHit_iterator hitIt = mutrack->recHitsBegin(); hitIt != mutrack->recHitsEnd(); ++hitIt) {
-        const TrackingRecHit& murechit = **hitIt;
+        const TrackingRecHit &murechit = **hitIt;
         if (!(murechit).isValid())
           continue;
 
         if (match_rechit_type(murechit)) {
-          auto& thit = reinterpret_cast<BaseTrackerRecHit const&>(murechit);
-          auto const& cluster = thit.firstClusterRef();
+          auto &thit = reinterpret_cast<BaseTrackerRecHit const &>(murechit);
+          auto const &cluster = thit.firstClusterRef();
           vetodClusters[cluster.key()] = true;
         }
         auto &thit = reinterpret_cast<BaseTrackerRecHit const &>(murechit);
-        if (trackerHitRTTI::isMatched(thit))
-        {
-            vetodClusters[reinterpret_cast<SiStripMatchedRecHit2D const&>(murechit).stereoClusterRef().key()] = true;
+        if (trackerHitRTTI::isMatched(thit)) {
+          vetodClusters[reinterpret_cast<SiStripMatchedRecHit2D const &>(murechit).stereoClusterRef().key()] = true;
         }
       }
     }
@@ -120,7 +119,7 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         idx++;
         if (vetodClusters[idx - 1])
           continue;
-        //if (!vetodClusters[idx-1]) continue; for inverted selction
+        // if (!vetodClusters[idx-1]) continue; for inverted selction
         spc.push_back(*clustIt);
       }
     }

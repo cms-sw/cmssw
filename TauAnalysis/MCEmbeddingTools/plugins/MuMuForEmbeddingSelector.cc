@@ -32,12 +32,12 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 //
 // class declaration
@@ -47,7 +47,7 @@ class MuMuForEmbeddingSelector : public edm::stream::EDProducer<> {
 public:
   explicit MuMuForEmbeddingSelector(const edm::ParameterSet&);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -73,7 +73,7 @@ private:
 //
 // constructors and destructor
 //
-MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet& iConfig)
+MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iConfig)
     : ZmumuCandidates_(consumes<edm::View<reco::CompositeCandidate>>(
           iConfig.getParameter<edm::InputTag>("ZmumuCandidatesCollection"))) {
   use_zmass = iConfig.getParameter<bool>("use_zmass");
@@ -91,9 +91,9 @@ MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet& iCon
   produces<float>("initialPuppiMETphi");
   theVertexLabel_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputTagVertex"));
   theBeamSpotLabel_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("inputTagBeamSpot"));
-  theMETLabel_ = consumes< edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("Met"));
-  thePuppiMETLabel_ = consumes< edm::View<pat::MET> >(iConfig.getParameter<edm::InputTag>("PuppiMet"));
-  //now do what ever other initialization is needed
+  theMETLabel_ = consumes<edm::View<pat::MET>>(iConfig.getParameter<edm::InputTag>("Met"));
+  thePuppiMETLabel_ = consumes<edm::View<pat::MET>>(iConfig.getParameter<edm::InputTag>("PuppiMet"));
+  // now do what ever other initialization is needed
 }
 
 //
@@ -101,22 +101,22 @@ MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet& iCon
 //
 
 // ------------ method called to produce the data  ------------
-void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   edm::Handle<edm::View<reco::CompositeCandidate>> ZmumuCandidatesHandle;
   iEvent.getByToken(ZmumuCandidates_, ZmumuCandidatesHandle);
   edm::View<reco::CompositeCandidate> ZmumuCandidates = *ZmumuCandidatesHandle;
-  const reco::CompositeCandidate* chosenZCand = nullptr;
-  const reco::CompositeCandidate* chosenZCand_zmass = nullptr;
-  const reco::CompositeCandidate* chosenZCand_largest = nullptr;
+  const reco::CompositeCandidate *chosenZCand = nullptr;
+  const reco::CompositeCandidate *chosenZCand_zmass = nullptr;
+  const reco::CompositeCandidate *chosenZCand_largest = nullptr;
   double massDifference = -1.0;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
   edm::Handle<reco::VertexCollection> vertex;
   iEvent.getByToken(theVertexLabel_, vertex);
-  edm::Handle<edm::View<pat::MET> > met;
+  edm::Handle<edm::View<pat::MET>> met;
   iEvent.getByToken(theMETLabel_, met);
-  edm::Handle<edm::View<pat::MET> > puppimet;
+  edm::Handle<edm::View<pat::MET>> puppimet;
   iEvent.getByToken(thePuppiMETLabel_, puppimet);
   // get primary vertex
   reco::Vertex::Point posVtx;
@@ -125,13 +125,12 @@ void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<reco::Vertex>::const_iterator vertexEnd = vertex->end();
   for (; vertexIt != vertexEnd; ++vertexIt) {
     if (vertexIt->isValid() && !vertexIt->isFake()) {
-    posVtx = vertexIt->position();
-    errVtx = vertexIt->error();
-    break;
+      posVtx = vertexIt->position();
+      errVtx = vertexIt->error();
+      break;
     }
   }
   reco::Vertex primaryVertex(posVtx, errVtx);
-
 
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
@@ -141,25 +140,21 @@ void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup
       chosenZCand_zmass = &(*iZCand);
     }
   }
-  for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin(); iZCand != ZmumuCandidates.end(); ++iZCand)
-  {
-    if (chosenZCand_largest == nullptr)
-    {
+  for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
+       iZCand != ZmumuCandidates.end();
+       ++iZCand) {
+    if (chosenZCand_largest == nullptr) {
       chosenZCand_largest = &(*iZCand);
-    }
-    else
-    {
-      if (iZCand->mass() > chosenZCand_largest->mass())
-      {
+    } else {
+      if (iZCand->mass() > chosenZCand_largest->mass()) {
         chosenZCand_largest = &(*iZCand);
       }
     }
   }
-  if(use_zmass){
+  if (use_zmass) {
     // edm::LogDebug("MuMuForEmbeddingSelector") << "Using Z mass candidate" << chosenZCand_zmass->mass();
     chosenZCand = chosenZCand_zmass;
-  }
-  else {
+  } else {
     // edm::LogDebug("MuMuForEmbeddingSelector") << "Using largest mass candidate" << chosenZCand_largest->mass();
     chosenZCand = chosenZCand_largest;
   }
@@ -172,10 +167,16 @@ void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.put(std::make_unique<float>(chosenZCand_zmass->mass()), "oldMass");
   iEvent.put(std::make_unique<float>(chosenZCand_largest->mass()), "newMass");
   iEvent.put(std::make_unique<float>(ZmumuCandidates.size()), "nPairCandidates");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()), "isMediumLeadingMuon");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)), "isTightLeadingMuon");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()), "isMediumTrailingMuon");
-  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)), "isTightTrailingMuon");
+  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()),
+             "isMediumLeadingMuon");
+  iEvent.put(std::make_unique<bool>(
+                 chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)),
+             "isTightLeadingMuon");
+  iEvent.put(std::make_unique<bool>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()),
+             "isMediumTrailingMuon");
+  iEvent.put(std::make_unique<bool>(
+                 chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->isTightMuon(primaryVertex)),
+             "isTightTrailingMuon");
   iEvent.put(std::make_unique<float>(met->at(0).et()), "initialMETEt");
   iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
   iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");
@@ -185,13 +186,13 @@ void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void MuMuForEmbeddingSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+void MuMuForEmbeddingSelector::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  // The following says we do not know what parameters are allowed so do no validation
+  //  Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(MuMuForEmbeddingSelector);
