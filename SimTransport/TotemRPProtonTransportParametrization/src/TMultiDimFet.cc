@@ -88,9 +88,7 @@ const TMultiDimFet &TMultiDimFet::operator=(const TMultiDimFet &in) {
   return in;
 }
 
-TMultiDimFet::TMultiDimFet(const TMultiDimFet &in) : TNamed() {
-  init(in);
-}
+TMultiDimFet::TMultiDimFet(const TMultiDimFet &in) : TNamed() { init(in); }
 
 void TMultiDimFet::init(const TMultiDimFet &in) {
   fMeanQuantity = in.fMeanQuantity;  // Mean of dependent quantity

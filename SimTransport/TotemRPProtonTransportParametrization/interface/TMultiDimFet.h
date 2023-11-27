@@ -126,6 +126,7 @@ protected:
   virtual void MakeRealCode(const char *filename, const char *classname, Option_t *option = "");
   virtual Bool_t Select(const Int_t *iv);
   virtual Bool_t TestFunction(Double_t squareResidual, Double_t dResidur);
+
 private:
   void init(const TMultiDimFet &in);
 
