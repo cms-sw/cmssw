@@ -46,7 +46,6 @@ GenFilterInfo::GenFilterInfo(unsigned int passp,
       sumTotalWeights_(totalw),
       sumTotalWeights2_(totalw2) {}
 
-
 GenFilterInfo::~GenFilterInfo() {}
 
 bool GenFilterInfo::mergeProduct(GenFilterInfo const& other) {
