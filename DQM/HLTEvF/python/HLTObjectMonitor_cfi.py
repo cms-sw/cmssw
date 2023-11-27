@@ -19,8 +19,8 @@ electron_moduleName = "hltEle38noerWPTightGsfTrackIsoFilter" # "hltEle23WPLooseG
 caloMet_pathName = "HLT_MET60_IsoTrk35_Loose"
 caloMet_moduleName = "hltMET60"
 
-pfMet_pathName = "HLT_PFMET110_PFMHT110_IDTight" # "HLT_PFMET120_PFMHT120_IDTight"
-pfMet_moduleName = "hltPFMET110" # "hltPFMET120"
+pfMet_pathName = "HLT_PFMET120_PFMHT120_IDTight"
+pfMet_moduleName = "hltPFMET120"
 
 jetAk8_pathName = "HLT_AK8PFJet400_TrimMass30" # "HLT_AK8PFJet360_TrimMass30"
 jetAk8_moduleName = "hltAK8SinglePFJet400TrimModMass30" # "hltAK8SinglePFJet360TrimModMass30"
