@@ -28,7 +28,6 @@ namespace PhysicsTools {
 
     class BitSet {
     public:
-
       std::vector<unsigned char> store;
       unsigned int bitsInLast;
 
