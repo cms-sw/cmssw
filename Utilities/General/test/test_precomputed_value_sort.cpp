@@ -23,7 +23,6 @@ private:
 class Point {
 public:
   Point(float x = 0, float y = 0);
-  Point(const Point& p);
   float r() const { return sqrt(X * X + Y * Y); }
   Phi phi() const { return Phi(atan2(Y, X)); }
   float X, Y;
@@ -36,8 +35,6 @@ ostream& operator<<(ostream& o, const Point& p) {
 ostream& operator<<(ostream& o, const Point* p) { return o << *p; }
 
 Point::Point(float x, float y) : X(x), Y(y) { cout << "New Point" << *this << endl; }
-
-Point::Point(const Point& p) : X(p.X), Y(p.Y) { cout << "New Point (copy)" << *this << endl; }
 
 // A trivial operation on Point
 float extractR1(const Point& p) { return p.r(); }
