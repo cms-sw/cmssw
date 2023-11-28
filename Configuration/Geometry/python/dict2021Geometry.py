@@ -1484,7 +1484,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 2,
+    "default" : 3,
     "F1" : {
         2 : [
             'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
@@ -1546,6 +1546,39 @@ forwardDict = {
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
             'Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml',
             'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    },
+    "F3" : {
+        2 : [
+            'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
+            'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/bhm.xml',
+            'Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml',
+            'Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml',
+            'Geometry/ForwardCommonData/data/plt/2021/v1/plt.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml',
+            'Geometry/ForwardCommonData/data/rpd/2021/v1/rpd.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
+            'Geometry/ForwardCommonData/data/bhmsens.xml',
+            'Geometry/ForwardSimData/data/pltsens.xml',
+            'Geometry/ForwardSimData/data/bcm1fsens.xml',
+            'Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+            'Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml',
         ],
         "reco" :[
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
@@ -1666,7 +1699,7 @@ detectorVersionDict = {
     ("O5","T6","C1","M1","F1","P7") : "2021FlatMinus10Percent",
     ("O5","T7","C1","M1","F1","P7") : "2021FlatPlus05Percent",
     ("O5","T8","C1","M1","F1","P7") : "2021FlatPlus10Percent",
-    ("O6","T3","C1","M2","F2","P7") : "2023",
+    ("O6","T3","C1","M2","F3","P7") : "2023",
     ("O4","T4","C1","M2","F2","P7") : "2023ZeroMaterial",
     ("O5","T5","C1","M2","F2","P7") : "2023FlatMinus05Percent",
     ("O5","T6","C1","M2","F2","P7") : "2023FlatMinus10Percent",
