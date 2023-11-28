@@ -13,6 +13,7 @@ process = cms.Process('ReAlCa',Run3_2023)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100 # limit the output for the unit test
 process.load('Configuration.EventContent.EventContentCosmics_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -21,13 +22,13 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000),
+    input = cms.untracked.int32(1000), # 1000000
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning2023/Cosmics/ALCARECO/SiStripCalCosmics-PromptReco-v1/000/364/141/00000/062e670e-40e3-4950-b0bb-dd354844d16f.root'),
+    fileNames = cms.untracked.vstring('/store/data/Commissioning2023/Cosmics/ALCARECO/SiStripCalCosmics-PromptReco-v1/000/364/174/00000/59a465b4-6e25-4ea0-8fe3-2319bdea7fcb.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -104,11 +105,12 @@ process.schedule = cms.Schedule(process.pathALCARECOPromptCalibProdSiStripLorent
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
-#Setup FWK for multithreaded
+# Setup FWK for multithreaded
 process.options.numberOfThreads = 4
 process.options.numberOfStreams = 0
 
-
+# Save the per-histogram modules in order to test the SiStripHashedDetId
+process.ALCARECOSiStripLACalib.saveHistoMods = cms.bool(True)
 
 # Customisation from command line
 
