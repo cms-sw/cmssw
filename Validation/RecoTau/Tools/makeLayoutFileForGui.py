@@ -8,21 +8,23 @@ from string import Template
 stripDiscName = lambda x: (x.split('/')[-1]).split('Eff')[0]
 
 defaultPlots = [
-    ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/DecayModeFindingEff%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/LooseChargedIsolationEff%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/LooseCombinedIsolationDBSumPtCorrEff%s'],
-    ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr/MediumCombinedIsolationDBSumPtCorrEff%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr/TightCombinedIsolationDBSumPtCorrEff%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr/VLooseCombinedIsolationDBSumPtCorrEff%s'],
+    ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/DecayModeFindingEff%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/LooseChargedIsolationEff%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/LooseCombinedIsolationDBSumPtCorrEff%s'],
+    ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr/MediumCombinedIsolationDBSumPtCorrEff%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr/TightCombinedIsolationDBSumPtCorrEff%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr/VLooseCombinedIsolationDBSumPtCorrEff%s'],
     ]
 
-muonrejplots = ['RecoTauV/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByLooseMuonRejection/LooseMuonRejectionEff%s', 'RecoTauV/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByMediumMuonRejection/MediumMuonRejectionEff%s', 'RecoTauV/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByTightMuonRejection/TightMuonRejectionEff%s']
+muonrejplots = ['RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByLooseMuonRejection/LooseMuonRejectionEff%s',
+                'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByMediumMuonRejection/MediumMuonRejectionEff%s',
+                'RecoTauV/standardValidation/hpsPFTauProducerRealMuonsData_hpsPFTauDiscriminationByTightMuonRejection/TightMuonRejectionEff%s']
 
 elerejplots = [
-    ['RecoTauV/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByLooseElectronRejection/LooseElectronRejectionEff%s',
-     'RecoTauV/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByMVAElectronRejection/MVAElectronRejectionEff%s',],
-    ['RecoTauV/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByMediumElectronRejection/MediumElectronRejectionEff%s',
-     'RecoTauV/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByTightElectronRejection/TightElectronRejectionEff%s']
+    ['RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByLooseElectronRejection/LooseElectronRejectionEff%s',
+     'RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByMVAElectronRejection/MVAElectronRejectionEff%s',],
+    ['RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByMediumElectronRejection/MediumElectronRejectionEff%s',
+     'RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_hpsPFTauDiscriminationByTightElectronRejection/TightElectronRejectionEff%s']
      ]
 
 variables = {'a':'pt','b':'pileup','c':'eta','d':'phi'}
@@ -71,38 +73,38 @@ layout.close()
 ######################################################################################################################################################
 #                                 LAYOUTS
 ######################################################################################################################################################
-layoutString = 'def pftaulayout(i, p, *rows): i["RecoTauV/Layouts/" + p] = DQMItem(layout=rows)\n\n%s'
+layoutString = 'def pftaulayout(i, p, *rows): i["RecoTauV/standardValidation/Layouts/" + p] = DQMItem(layout=rows)\n\n%s'
 stdFill=Template('pftaulayout(\n\tdqmitems,\n\t"$locpath",\n\t$rows\n\t)')
 
 layoutDefaultPlots = [
     [
-        ['RecoTauV/hpsPFTauProducer%s_Matched/PFJetMatchingEff%s',
-        'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/DecayModeFindingEff%s'],
-        ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/LooseChargedIsolationEff%s',
-         'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/LooseCombinedIsolationDBSumPtCorrEff%s'],
+        ['RecoTauV/standardValidation/hpsPFTauProducer%s_Matched/PFJetMatchingEff%s',
+        'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/DecayModeFindingEff%s'],
+        ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/LooseChargedIsolationEff%s',
+         'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/LooseCombinedIsolationDBSumPtCorrEff%s'],
          ],
     [
-         ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseIsolation/LooseIsolationEff%s',
-         'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr/MediumCombinedIsolationDBSumPtCorrEff%s'],
-         ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr/TightCombinedIsolationDBSumPtCorrEff%s',
-         'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr/VLooseCombinedIsolationDBSumPtCorrEff%s'],
+         ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseIsolation/LooseIsolationEff%s',
+         'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr/MediumCombinedIsolationDBSumPtCorrEff%s'],
+         ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr/TightCombinedIsolationDBSumPtCorrEff%s',
+         'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr/VLooseCombinedIsolationDBSumPtCorrEff%s'],
          ]
     ]
 
 layoutscone = [
-    ['RecoTauV/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationUsingLeadingPionEff%s',
-     'RecoTauV/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff%s'],
-    ['RecoTauV/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff%s',
-     'RecoTauV/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationUsingLeadingPionEff%s']
+    ['RecoTauV/standardValidation/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationUsingLeadingPionEff%s',
+     'RecoTauV/standardValidation/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff%s'],
+    ['RecoTauV/standardValidation/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff%s',
+     'RecoTauV/standardValidation/shrinkingConePFTauProducerLeadingPion%s_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationUsingLeadingPionEff%s']
     ]
 
 layoutSizeSumpt = [
-    ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/hpsPFTauDiscriminationByDecayModeFinding_Size_%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/hpsPFTauDiscriminationByLooseChargedIsolation_Size_%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr_Size_%s'],
-    ['RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/hpsPFTauDiscriminationByDecayModeFinding_SumPt_%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/hpsPFTauDiscriminationByLooseChargedIsolation_SumPt_%s',
-    'RecoTauV/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr_SumPt_%s'],
+    ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/hpsPFTauDiscriminationByDecayModeFinding_Size_%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/hpsPFTauDiscriminationByLooseChargedIsolation_Size_%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr_Size_%s'],
+    ['RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByDecayModeFinding/hpsPFTauDiscriminationByDecayModeFinding_SumPt_%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseChargedIsolation/hpsPFTauDiscriminationByLooseChargedIsolation_SumPt_%s',
+    'RecoTauV/standardValidation/hpsPFTauProducer%s_hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr/hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr_SumPt_%s'],
     ]
 
 import string

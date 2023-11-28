@@ -119,7 +119,6 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetu
             << std::endl;
 
   int icount = 0;
-  int icountAll = 0;
 
   // Iterate over the DetUnits in the CSCGeometry
   for (const auto &it : pDD->detUnits()) {
@@ -127,8 +126,6 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetu
     auto layer = dynamic_cast<const CSCLayer *>(it);
 
     if (layer) {
-      ++icountAll;  // how many layers we see
-
       // Get DetId in various ways
 
       DetId detId = layer->geographicalId();

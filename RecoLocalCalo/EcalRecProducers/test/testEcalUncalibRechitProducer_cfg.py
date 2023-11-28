@@ -197,6 +197,6 @@ process.schedule = cms.Schedule(
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(8),
     numberOfStreams = cms.untracked.uint32(8),
-    SkipEvent = cms.untracked.vstring('ProductNotFound'),
+    TryToContinue = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)
 )

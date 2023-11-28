@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import *
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelSeeding.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoTracker.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
@@ -24,7 +24,7 @@ hiPixel3ProtoTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     produceSeedingHitSets = True,
 )
 
-import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
+import RecoTracker.PixelTrackFitting.pixelTracks_cfi as _mod
 
 # Pixel tracks
 hiPixel3ProtoTracks = _mod.pixelTracks.clone( 

@@ -14,7 +14,7 @@
 template <class C>
 class EcalUncalibRecHitMaxSampleAlgo : public EcalUncalibRecHitRecAbsAlgo<C> {
 public:
-  ~EcalUncalibRecHitMaxSampleAlgo<C>() override{};
+  ~EcalUncalibRecHitMaxSampleAlgo() override{};
   EcalUncalibratedRecHit makeRecHit(const C& dataFrame,
                                     const double* pedestals,
                                     const double* gainRatios,

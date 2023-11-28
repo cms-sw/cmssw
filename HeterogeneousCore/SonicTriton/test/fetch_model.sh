@@ -3,7 +3,7 @@
 # borrowed from https://github.com/triton-inference-server/server/tree/master/docs/examples
 
 TRITON_REPO="https://github.com/triton-inference-server/server"
-TRITON_VERSION=$(scram tool info triton-inference-server | grep "Version : " | cut -d' ' -f3 | cut -d'-' -f1)
+TRITON_VERSION=$(scram tool info triton-inference-client | grep "Version : " | cut -d' ' -f3 | cut -d'-' -f1)
 
 TEST_DIR=`pwd`
 

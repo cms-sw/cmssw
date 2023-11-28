@@ -55,14 +55,12 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (!h_BTL_digi->empty()) {
     std::cout << " ----------------------------------------" << std::endl;
-    std::cout << " BTL DIGI collection:" << std::endl;
+    std::cout << " BTL DIGI collection: \n" << std::endl;
 
     for (const auto& dataFrame : *h_BTL_digi) {
       // --- detector element ID:
-      std::cout << "   det ID:  det = " << dataFrame.id().det() << "  subdet = " << dataFrame.id().mtdSubDetector()
-                << "  side = " << dataFrame.id().mtdSide() << "  rod = " << dataFrame.id().mtdRR()
-                << "  mod = " << dataFrame.id().module() << "  type = " << dataFrame.id().modType()
-                << "  crystal = " << dataFrame.id().crystal() << std::endl;
+      std::cout << "\n BTL DIGI:  row = " << dataFrame.row() << " col = " << dataFrame.column()
+                << " BTLDetId = " << dataFrame.id();
 
       // --- loop over the dataFrame samples
       for (int isample = 0; isample < dataFrame.size(); ++isample) {
@@ -74,7 +72,8 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           continue;
         }
         std::cout << "  amplitude = " << sample.data() << "  time1 = " << sample.toa() << "  time2 = " << sample.toa2()
-                  << std::endl;
+                  << " r/c = " << (uint32_t)sample.row() << " / " << (uint32_t)sample.column()
+                  << " th = " << sample.threshold() << " mode = " << sample.mode() << std::endl;
 
       }  // isaple loop
 
@@ -85,14 +84,13 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // --- ETL DIGIs:
 
   if (!h_ETL_digi->empty()) {
-    std::cout << " ----------------------------------------" << std::endl;
-    std::cout << " ETL DIGI collection:" << std::endl;
+    std::cout << "\n ----------------------------------------" << std::endl;
+    std::cout << " ETL DIGI collection: \n" << std::endl;
 
     for (const auto& dataFrame : *h_ETL_digi) {
       // --- detector element ID:
-      std::cout << "   det ID:  det = " << dataFrame.id().det() << "  subdet = " << dataFrame.id().mtdSubDetector()
-                << "  side = " << dataFrame.id().mtdSide() << "  ring = " << dataFrame.id().mtdRR()
-                << "  mod = " << dataFrame.id().module() << "  type = " << dataFrame.id().modType() << std::endl;
+      std::cout << "\n ETL DIGI:  row = " << dataFrame.row() << " col = " << dataFrame.column()
+                << " ETLDetId = " << dataFrame.id();
 
       // --- loop over the dataFrame samples
       for (int isample = 0; isample < dataFrame.size(); ++isample) {
@@ -103,7 +101,9 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           std::cout << std::endl;
           continue;
         }
-        std::cout << "  amplitude = " << sample.data() << "  time = " << sample.toa() << std::endl;
+        std::cout << "  amplitude = " << sample.data() << "  time = " << sample.toa() << " r/c = " << sample.row()
+                  << " / " << sample.column() << " th = " << sample.threshold() << " mode = " << sample.mode()
+                  << std::endl;
 
       }  // isample loop
 

@@ -154,8 +154,6 @@ GeometryComparisonPlotter::GeometryComparisonPlotter(TString tree_file_name,
 #endif
 
   // style
-  gROOT->Reset();
-
   data->SetMarkerSize(0.5);
   data->SetMarkerStyle(6);
 

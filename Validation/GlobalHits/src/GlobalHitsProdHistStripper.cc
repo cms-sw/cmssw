@@ -6,6 +6,7 @@
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/GlobalHits/interface/GlobalHitsProdHistStripper.h"
 
 GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const edm::ParameterSet &iPSet)
@@ -122,7 +123,12 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun, const edm::EventSe
 
   edm::Handle<TH1F> histogram1D;
   std::vector<edm::Handle<TH1F>> allhistogram1D;
-  iRun.getManyByType(allhistogram1D);
+
+  //iRun.getManyByType(allhistogram1D);
+  throw cms::Exception("UnsupportedFunction") << "GlobalHitsProdHistStripper::endRun: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
 
   me.resize(allhistogram1D.size());
 

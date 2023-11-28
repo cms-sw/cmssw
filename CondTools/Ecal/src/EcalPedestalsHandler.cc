@@ -218,7 +218,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
         std::map<EcalLogicID, MonPedestalsDat> dataset_mon;
         econn->fetchDataSet(&dataset_mon, &mon_run_vec[kr]);
         edm::LogInfo("OMDS record for run ") << irun << " is made of " << dataset_mon.size();
-        int nEB = 0, nEE = 0, nEBbad = 0, nEEbad = 0;
+        int nEB = 0, nEE = 0;
         typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
         EcalLogicID ecid_xt;
         MonPedestalsDat rd_ped;
@@ -245,12 +245,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 	  */
           if (ecid_xt.getName() == "EB_crystal_number") {
             nEB++;
-            if (!checkPedestal(&item))
-              nEBbad++;
           } else {
             nEE++;
-            if (!checkPedestal(&item))
-              nEEbad++;
           }
 
           // here we check and count how many bad channels we have

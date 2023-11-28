@@ -583,7 +583,12 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
   if (std::abs(d0approx) > settings_.maxd0()) {
     if (settings_.debugTracklet())
-      edm::LogVerbatim("Tracklet") << "Failed tracklet d0 cut " << d0approx;
+      edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
+    success = false;
+  }
+  if (std::abs(d0) > settings_.maxd0()) {
+    if (settings_.debugTracklet())
+      edm::LogVerbatim("Tracklet") << "Failed tracklet exact d0 cut " << d0;
     success = false;
   }
 
@@ -999,7 +1004,12 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
   if (std::abs(d0approx) > settings_.maxd0()) {
     if (settings_.debugTracklet())
-      edm::LogVerbatim("Tracklet") << "Failed tracklet d0 cut " << d0approx;
+      edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
+    success = false;
+  }
+  if (std::abs(d0) > settings_.maxd0()) {
+    if (settings_.debugTracklet())
+      edm::LogVerbatim("Tracklet") << "Failed tracklet exact d0 cut " << d0;
     success = false;
   }
 
@@ -1395,7 +1405,12 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
   if (std::abs(d0approx) > settings_.maxd0()) {
     if (settings_.debugTracklet())
-      edm::LogVerbatim("Tracklet") << "Failed tracklet d0 cut " << d0approx;
+      edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
+    success = false;
+  }
+  if (std::abs(d0) > settings_.maxd0()) {
+    if (settings_.debugTracklet())
+      edm::LogVerbatim("Tracklet") << "Failed tracklet exact d0 cut " << d0;
     success = false;
   }
 
@@ -1662,12 +1677,12 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
                                                 double& d0,
                                                 double& t,
                                                 double& z0,
-                                                double phiproj[N_DISK],
-                                                double zproj[N_DISK],
+                                                double phiproj[N_LAYER - 2],
+                                                double zproj[N_LAYER - 2],
                                                 double phiprojdisk[N_DISK],
                                                 double rprojdisk[N_DISK],
-                                                double phider[N_DISK],
-                                                double zder[N_DISK],
+                                                double phider[N_LAYER - 2],
+                                                double zder[N_LAYER - 2],
                                                 double phiderdisk[N_DISK],
                                                 double rderdisk[N_DISK]) {
   //two lines perpendicular to the 1->2 and 2->3

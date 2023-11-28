@@ -44,9 +44,11 @@ vector<GeometricSearchDet::DetWithState> MTDDetTray::compatibleDets(const Trajec
                                                                     const Propagator& prop,
                                                                     const MeasurementEstimator& est) const {
   LogTrace("MTDDetLayers") << "MTDDetTray::compatibleDets, Surface at R,phi: " << surface().position().perp() << ","
-                           << surface().position().phi() << "     DetRod pos.";
-  // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
-  // 		    << startingState.position().phi()
+                           << surface().position().phi() << "     DetRod pos."
+                           << " TS at R,phi: " << startingState.globalPosition().perp() << ","
+                           << startingState.globalPosition().phi() << " TSOS dx/dy "
+                           << std::sqrt(startingState.localError().positionError().xx()) << " "
+                           << std::sqrt(startingState.localError().positionError().yy());
 
   vector<DetWithState> result;
 

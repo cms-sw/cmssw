@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
+#include <sstream>
 
 using boost::multi_index_container;
 using namespace boost::multi_index;
@@ -817,12 +818,13 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid,
   std::vector<DetId> xtals = dccTowerConstituents(DCCid, DCC_Channel);
 
   if (debug) {
-    std::cout << __FILE__ << ":" << __LINE__ << ": " << xtals.size() << " crystals read out by channel " << DCC_Channel
-              << " of DCC " << DCCid << ": ";
+    std::ostringstream st1;
+    st1 << __FILE__ << ":" << __LINE__ << ": " << xtals.size() << " crystals read out by channel " << DCC_Channel
+        << " of DCC " << DCCid << ": ";
     for (auto xtal : xtals) {
-      std::cout << EEDetId(xtal) << " ";
+      st1 << EEDetId(xtal) << " ";
     }
-    std::cout << "\n";
+    edm::LogVerbatim("EcalMapping") << st1.str() << "\n";
   }
 
   if (xtals.empty())
@@ -860,10 +862,10 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid,
     for (size_t iSc = 0; iSc < scDetIds.size(); /*NOOP*/) {
       if (nReadoutXtals[iSc] <= 1) {
         if (debug)
-          std::cout << "EcalElectronicsMapping::getEcalScDetId: Ignore SC " << scDetIds[iSc]
-                    << " whose only one channel is read out by "
-                       "the DCC channel (DCC "
-                    << DCCid << ", ch " << DCC_Channel << ").\n";
+          edm::LogVerbatim("EcalMapping") << "EcalElectronicsMapping::getEcalScDetId: Ignore SC " << scDetIds[iSc]
+                                          << " whose only one channel is read out by "
+                                             "the DCC channel (DCC "
+                                          << DCCid << ", ch " << DCC_Channel << ").\n";
         scDetIds.erase(scDetIds.begin() + iSc);
         nReadoutXtals.erase(nReadoutXtals.begin() + iSc);
       } else {
@@ -955,12 +957,12 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
   double etalow = region.etaLow();
   double philow = region.phiLow() * radTodeg;
   if (debug)
-    std::cout << " etalow philow " << etalow << " " << philow << std::endl;
+    edm::LogVerbatim("EcalMapping") << " etalow philow " << etalow << " " << philow;
   int FED_LB = GetFED(etalow, philow);  // left, bottom
 
   double phihigh = region.phiHigh() * radTodeg;
   if (debug)
-    std::cout << " etalow phihigh " << etalow << " " << phihigh << std::endl;
+    edm::LogVerbatim("EcalMapping") << " etalow phihigh " << etalow << " " << phihigh;
   int FED_LT = GetFED(etalow, phihigh);  // left, top
 
   int DCC_BoundaryL = DCCBoundary(FED_LB);
@@ -973,7 +975,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
     FED_LT = DCC_BoundaryL + deltaL - 1;
   }
   if (debug)
-    std::cout << " FED_LB FED_LT " << FED_LB << " " << FED_LT << std::endl;
+    edm::LogVerbatim("EcalMapping") << " FED_LB FED_LT " << FED_LB << " " << FED_LT;
 
   bool dummy = true;
   int idx = 0;
@@ -981,7 +983,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
     int iL = (FED_LB - DCC_BoundaryL + idx) % deltaL + DCC_BoundaryL;
     FEDs.emplace_back(iL);
     if (debug)
-      std::cout << "   add fed " << iL << std::endl;
+      edm::LogVerbatim("EcalMapping") << "   add fed " << iL;
     if (iL == FED_LT)
       break;
     idx++;
@@ -995,7 +997,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
   int FED_RT = GetFED(etahigh, phihigh);  // right, top
 
   if (debug)
-    std::cout << "etahigh philow phihigh " << etahigh << " " << philow << " " << phihigh << std::endl;
+    edm::LogVerbatim("EcalMapping") << "etahigh philow phihigh " << etahigh << " " << philow << " " << phihigh;
   int DCC_BoundaryR = DCCBoundary(FED_RB);
   int deltaR = 18;
   if (FED_RB < MIN_DCCID_EBM || FED_RB > MAX_DCCID_EBP)
@@ -1006,13 +1008,13 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
     FED_RT = DCC_BoundaryR + deltaR - 1;
   }
   if (debug)
-    std::cout << " FED_RB FED_RT " << FED_RB << " " << FED_RT << std::endl;
+    edm::LogVerbatim("EcalMapping") << " FED_RB FED_RT " << FED_RB << " " << FED_RT;
   idx = 0;
   while (dummy) {
     int iR = (FED_RB - DCC_BoundaryR + idx) % deltaR + DCC_BoundaryR;
     FEDs.emplace_back(iR);
     if (debug)
-      std::cout << "   add fed " << iR << std::endl;
+      edm::LogVerbatim("EcalMapping") << "   add fed " << iR;
     if (iR == FED_RT)
       break;
     idx++;
@@ -1026,7 +1028,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
       int iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
       FEDs.emplace_back(iR);
       if (debug)
-        std::cout << "   add fed " << iR << std::endl;
+        edm::LogVerbatim("EcalMapping") << "   add fed " << iR;
       if (iR == maxR)
         break;
       idx++;
@@ -1042,7 +1044,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
       int iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
       FEDs.emplace_back(iL);
       if (debug)
-        std::cout << "   add fed " << iL << std::endl;
+        edm::LogVerbatim("EcalMapping") << "   add fed " << iL;
       if (iL == maxL)
         break;
       idx++;
@@ -1062,7 +1064,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
       int iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
       FEDs.emplace_back(iL);
       if (debug)
-        std::cout << "   add fed " << iL << std::endl;
+        edm::LogVerbatim("EcalMapping") << "   add fed " << iL;
       if (iL == maxL)
         break;
       idx++;
@@ -1074,7 +1076,7 @@ void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region
       int iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
       FEDs.emplace_back(iR);
       if (debug)
-        std::cout << "   add fed " << iR << std::endl;
+        edm::LogVerbatim("EcalMapping") << "   add fed " << iR;
       if (iR == maxR)
         break;
       idx++;
@@ -1123,10 +1125,10 @@ int EcalElectronicsMapping::GetFED(double eta, double phi) const {
   else
     iphi = (int)(phi / 40.);
 
-  // std::cout << " in GetFED : phi iphi DCC0 " << phi << " " << iphi << " " << DCC_Phi0 << std::endl;
+  // edm::LogVerbatim("EcalMapping") << " in GetFED : phi iphi DCC0 " << phi << " " << iphi << " " << DCC_Phi0;
 
   int DCC = iphi + DCC_Phi0;
-  // std::cout << "  eta phi " << eta << " " << " " << phi << " is in FED " << DCC << std::endl;
+  // edm::LogVerbatim("EcalMapping") << "  eta phi " << eta << " " << " " << phi << " is in FED " << DCC;
   return DCC;
 }
 

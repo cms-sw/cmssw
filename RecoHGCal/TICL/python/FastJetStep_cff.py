@@ -10,7 +10,6 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 filteredLayerClustersFastJet = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 3, # inclusive
-    algo_number = 8,
     iteration_label = "FastJet"
 )
 

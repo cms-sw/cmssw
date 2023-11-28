@@ -151,7 +151,7 @@ bool HcalDcsMapAddons::Helper::mapGeomId2DcsId(HcalDetId fId, HcalDcsDetId fDcsI
                              fDcsId.subchannel());
   HcalDcsMap::Item target(fId, fDcsId_notype);
   auto iter = mItems.find(target);
-  if (iter != mItems.end() and iter->mId == fId) {
+  if (iter != mItems.end() and iter->mId == static_cast<uint32_t>(fId)) {
     edm::LogWarning("HCAL") << "HcalDcsMap::mapGeomId2DcsId-> Geom channel " << fId << " already mapped to DCS channel "
                             << fDcsId_notype;
     return false;  // element already exists

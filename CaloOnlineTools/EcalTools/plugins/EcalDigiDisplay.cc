@@ -125,17 +125,17 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps)
       }
     }
   } else  //if EE DCC is being picked up
-      if (ttDigi) {
-    //Check with Towers in Endcap
-    for (intIter = listTowers.begin(); intIter != listTowers.end(); intIter++) {
-      if ((*intIter) > 34) {
-        edm::LogError("EcalDigiDisplay") << " TT value: " << (*intIter) << " found in listTowers. "
-                                         << " Valid range for EE DCC is 1-34. Returning.";
-        inputIsOk = false;
-        return;
+    if (ttDigi) {
+      //Check with Towers in Endcap
+      for (intIter = listTowers.begin(); intIter != listTowers.end(); intIter++) {
+        if ((*intIter) > 34) {
+          edm::LogError("EcalDigiDisplay") << " TT value: " << (*intIter) << " found in listTowers. "
+                                           << " Valid range for EE DCC is 1-34. Returning.";
+          inputIsOk = false;
+          return;
+        }
       }
     }
-  }
 
   //PNs
   listPns = ps.getUntrackedParameter<std::vector<int> >("listPns", listDefaults);

@@ -31,6 +31,15 @@ namespace {
       throw cms::Exception("GrpcCompression")
           << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
   }
+
+  std::vector<std::shared_ptr<tc::InferResult>> convertToShared(const std::vector<tc::InferResult*>& tmp) {
+    std::vector<std::shared_ptr<tc::InferResult>> results;
+    results.reserve(tmp.size());
+    std::transform(tmp.begin(), tmp.end(), std::back_inserter(results), [](tc::InferResult* ptr) {
+      return std::shared_ptr<tc::InferResult>(ptr);
+    });
+    return results;
+  }
 }  // namespace
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
@@ -38,14 +47,16 @@ namespace {
 
 TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& debugName)
     : SonicClient(params, debugName, "TritonClient"),
+      batchMode_(TritonBatchMode::Rectangular),
+      manualBatchMode_(false),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
-      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))),
-      options_(params.getParameter<std::string>("modelName")) {
+      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))) {
+  options_.emplace_back(params.getParameter<std::string>("modelName"));
   //get appropriate server for this model
   edm::Service<TritonService> ts;
   const auto& server =
-      ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+      ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
   if (verbose_)
     edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
@@ -60,27 +71,29 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
       "TritonClient(): unable to create inference context");
 
   //set options
-  options_.model_version_ = params.getParameter<std::string>("modelVersion");
+  options_[0].model_version_ = params.getParameter<std::string>("modelVersion");
   //convert seconds to microseconds
-  options_.client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
+  options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
 
   //config needed for batch size
   inference::ModelConfigResponse modelConfigResponse;
-  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_.model_name_, options_.model_version_),
+  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
                         "TritonClient(): unable to get model config");
   inference::ModelConfig modelConfig(modelConfigResponse.config());
 
   //check batch size limitations (after i/o setup)
-  //triton uses max batch size = 0 to denote a model that does not support batching
-  //but for models that do support batching, a given event may set batch size 0 to indicate no valid input is present
-  //so set the local max to 1 and keep track of "no batch" case
-  maxBatchSize_ = modelConfig.max_batch_size();
-  noBatch_ = maxBatchSize_ == 0;
-  maxBatchSize_ = std::max(1u, maxBatchSize_);
+  //triton uses max batch size = 0 to denote a model that does not support native batching (using the outer dimension)
+  //but for models that do support batching (native or otherwise), a given event may set batch size 0 to indicate no valid input is present
+  //so set the local max to 1 and keep track of "no outer dim" case
+  maxOuterDim_ = modelConfig.max_batch_size();
+  noOuterDim_ = maxOuterDim_ == 0;
+  maxOuterDim_ = std::max(1u, maxOuterDim_);
+  //propagate batch size
+  setBatchSize(1);
 
   //get model info
   inference::ModelMetadataResponse modelMetadata;
-  TRITON_THROW_IF_ERROR(client_->ModelMetadata(&modelMetadata, options_.model_name_, options_.model_version_),
+  TRITON_THROW_IF_ERROR(client_->ModelMetadata(&modelMetadata, options_[0].model_name_, options_[0].model_version_),
                         "TritonClient(): unable to get model metadata");
 
   //get input and output (which know their sizes)
@@ -108,14 +121,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   if (verbose_)
     io_msg << "Model inputs: "
            << "\n";
-  inputsTriton_.reserve(nicInputs.size());
   for (const auto& nicInput : nicInputs) {
     const auto& iname = nicInput.name();
     auto [curr_itr, success] = input_.emplace(std::piecewise_construct,
                                               std::forward_as_tuple(iname),
                                               std::forward_as_tuple(iname, nicInput, this, ts->pid()));
     auto& curr_input = curr_itr->second;
-    inputsTriton_.push_back(curr_input.data());
     if (verbose_) {
       io_msg << "  " << iname << " (" << curr_input.dname() << ", " << curr_input.byteSize()
              << " b) : " << triton_utils::printColl(curr_input.shape()) << "\n";
@@ -130,7 +141,6 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   if (verbose_)
     io_msg << "Model outputs: "
            << "\n";
-  outputsTriton_.reserve(nicOutputs.size());
   for (const auto& nicOutput : nicOutputs) {
     const auto& oname = nicOutput.name();
     if (!s_outputs.empty() and s_outputs.find(oname) == s_outputs.end())
@@ -139,7 +149,6 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
                                                std::forward_as_tuple(oname),
                                                std::forward_as_tuple(oname, nicOutput, this, ts->pid()));
     auto& curr_output = curr_itr->second;
-    outputsTriton_.push_back(curr_output.data());
     if (verbose_) {
       io_msg << "  " << oname << " (" << curr_output.dname() << ", " << curr_output.byteSize()
              << " b) : " << triton_utils::printColl(curr_output.shape()) << "\n";
@@ -153,15 +162,12 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     throw cms::Exception("MissingOutput")
         << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
-  //propagate batch size to inputs and outputs
-  setBatchSize(1);
-
   //print model info
   std::stringstream model_msg;
   if (verbose_) {
-    model_msg << "Model name: " << options_.model_name_ << "\n"
-              << "Model version: " << options_.model_version_ << "\n"
-              << "Model max batch size: " << (noBatch_ ? 0 : maxBatchSize_) << "\n";
+    model_msg << "Model name: " << options_[0].model_name_ << "\n"
+              << "Model version: " << options_[0].model_version_ << "\n"
+              << "Model max outer dim: " << (noOuterDim_ ? 0 : maxOuterDim_) << "\n";
     edm::LogInfo(fullDebugName_) << model_msg.str() << io_msg.str();
   }
 }
@@ -175,25 +181,73 @@ TritonClient::~TritonClient() {
   output_.clear();
 }
 
+void TritonClient::setBatchMode(TritonBatchMode batchMode) {
+  unsigned oldBatchSize = batchSize();
+  batchMode_ = batchMode;
+  manualBatchMode_ = true;
+  //this allows calling setBatchSize() and setBatchMode() in either order consistently to change back and forth
+  //includes handling of change from ragged to rectangular if multiple entries already created
+  setBatchSize(oldBatchSize);
+}
+
+void TritonClient::resetBatchMode() {
+  batchMode_ = TritonBatchMode::Rectangular;
+  manualBatchMode_ = false;
+}
+
+unsigned TritonClient::nEntries() const { return !input_.empty() ? input_.begin()->second.entries_.size() : 0; }
+
+unsigned TritonClient::batchSize() const { return batchMode_ == TritonBatchMode::Rectangular ? outerDim_ : nEntries(); }
+
 bool TritonClient::setBatchSize(unsigned bsize) {
-  if (bsize > maxBatchSize_) {
-    edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
-                                    << maxBatchSize_ << ". Batch size will remain as" << batchSize_;
-    return false;
+  if (batchMode_ == TritonBatchMode::Rectangular) {
+    if (bsize > maxOuterDim_) {
+      edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
+                                      << maxOuterDim_ << ". Batch size will remain as " << outerDim_;
+      return false;
+    } else {
+      outerDim_ = bsize;
+      //take min to allow resizing to 0
+      resizeEntries(std::min(outerDim_, 1u));
+      return true;
+    }
   } else {
-    batchSize_ = bsize;
-    //set for input and output
-    for (auto& element : input_) {
-      element.second.setBatchSize(bsize);
-    }
-    for (auto& element : output_) {
-      element.second.setBatchSize(bsize);
-    }
+    resizeEntries(bsize);
+    outerDim_ = 1;
     return true;
   }
 }
 
+void TritonClient::resizeEntries(unsigned entry) {
+  if (entry > nEntries())
+    //addEntry(entry) extends the vector to size entry+1
+    addEntry(entry - 1);
+  else if (entry < nEntries()) {
+    for (auto& element : input_) {
+      element.second.entries_.resize(entry);
+    }
+    for (auto& element : output_) {
+      element.second.entries_.resize(entry);
+    }
+  }
+}
+
+void TritonClient::addEntry(unsigned entry) {
+  for (auto& element : input_) {
+    element.second.addEntryImpl(entry);
+  }
+  for (auto& element : output_) {
+    element.second.addEntryImpl(entry);
+  }
+  if (entry > 0) {
+    batchMode_ = TritonBatchMode::Ragged;
+    outerDim_ = 1;
+  }
+}
+
 void TritonClient::reset() {
+  if (!manualBatchMode_)
+    batchMode_ = TritonBatchMode::Rectangular;
   for (auto& element : input_) {
     element.second.reset();
   }
@@ -222,28 +276,61 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
-void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
-  for (auto& [oname, output] : output_) {
-    //set shape here before output becomes const
-    if (output.variableDims()) {
-      std::vector<int64_t> tmp_shape;
-      TRITON_THROW_IF_ERROR(results->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for " + oname);
-      if (!noBatch_)
-        tmp_shape.erase(tmp_shape.begin());
-      output.setShape(tmp_shape);
-      output.computeSizes();
+void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>>& results) {
+  for (unsigned i = 0; i < results.size(); ++i) {
+    const auto& result = results[i];
+    for (auto& [oname, output] : output_) {
+      //set shape here before output becomes const
+      if (output.variableDims()) {
+        std::vector<int64_t> tmp_shape;
+        TRITON_THROW_IF_ERROR(result->Shape(oname, &tmp_shape),
+                              "getResults(): unable to get output shape for " + oname);
+        if (!noOuterDim_)
+          tmp_shape.erase(tmp_shape.begin());
+        output.setShape(tmp_shape, i);
+      }
+      //extend lifetime
+      output.setResult(result, i);
+      //compute size after getting all result entries
+      if (i == results.size() - 1)
+        output.computeSizes();
     }
-    //extend lifetime
-    output.setResult(results);
   }
 }
 
 //default case for sync and pseudo async
 void TritonClient::evaluate() {
   //in case there is nothing to process
-  if (batchSize_ == 0) {
+  if (batchSize() == 0) {
+    //call getResults on an empty vector
+    std::vector<std::shared_ptr<tc::InferResult>> empty_results;
+    getResults(empty_results);
     finish(true);
     return;
+  }
+
+  //set up input pointers for triton (generalized for multi-request ragged batching case)
+  //one vector<InferInput*> per request
+  unsigned nEntriesVal = nEntries();
+  std::vector<std::vector<triton::client::InferInput*>> inputsTriton(nEntriesVal);
+  for (auto& inputTriton : inputsTriton) {
+    inputTriton.reserve(input_.size());
+  }
+  for (auto& [iname, input] : input_) {
+    for (unsigned i = 0; i < nEntriesVal; ++i) {
+      inputsTriton[i].push_back(input.data(i));
+    }
+  }
+
+  //set up output pointers similarly
+  std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton(nEntriesVal);
+  for (auto& outputTriton : outputsTriton) {
+    outputTriton.reserve(output_.size());
+  }
+  for (auto& [oname, output] : output_) {
+    for (unsigned i = 0; i < nEntriesVal; ++i) {
+      outputsTriton[i].push_back(output.data(i));
+    }
   }
 
   //set up shared memory for output
@@ -268,18 +355,21 @@ void TritonClient::evaluate() {
     //non-blocking call
     success = handle_exception([&]() {
       TRITON_THROW_IF_ERROR(
-          client_->AsyncInfer(
-              [start_status, this](tc::InferResult* results) {
-                //get results
-                std::shared_ptr<tc::InferResult> results_ptr(results);
-                auto success = handle_exception(
-                    [&]() { TRITON_THROW_IF_ERROR(results_ptr->RequestStatus(), "evaluate(): unable to get result"); });
-                if (!success)
-                  return;
+          client_->AsyncInferMulti(
+              [start_status, this](std::vector<tc::InferResult*> resultsTmp) {
+                //immediately convert to shared_ptr
+                const auto& results = convertToShared(resultsTmp);
+                //check results
+                for (auto ptr : results) {
+                  auto success = handle_exception(
+                      [&]() { TRITON_THROW_IF_ERROR(ptr->RequestStatus(), "evaluate(): unable to get result(s)"); });
+                  if (!success)
+                    return;
+                }
 
                 if (verbose()) {
                   inference::ModelStatistics end_status;
-                  success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                  auto success = handle_exception([&]() { end_status = getServerSideStatus(); });
                   if (!success)
                     return;
 
@@ -288,7 +378,7 @@ void TritonClient::evaluate() {
                 }
 
                 //check result
-                success = handle_exception([&]() { getResults(results_ptr); });
+                auto success = handle_exception([&]() { getResults(results); });
                 if (!success)
                   return;
 
@@ -296,8 +386,8 @@ void TritonClient::evaluate() {
                 finish(true);
               },
               options_,
-              inputsTriton_,
-              outputsTriton_,
+              inputsTriton,
+              outputsTriton,
               headers_,
               compressionAlgo_),
           "evaluate(): unable to launch async run");
@@ -306,12 +396,14 @@ void TritonClient::evaluate() {
       return;
   } else {
     //blocking call
-    tc::InferResult* results;
+    std::vector<tc::InferResult*> resultsTmp;
     success = handle_exception([&]() {
       TRITON_THROW_IF_ERROR(
-          client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
+          client_->InferMulti(&resultsTmp, options_, inputsTriton, outputsTriton, headers_, compressionAlgo_),
           "evaluate(): unable to run and/or get result");
     });
+    //immediately convert to shared_ptr
+    const auto& results = convertToShared(resultsTmp);
     if (!success)
       return;
 
@@ -325,8 +417,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-    std::shared_ptr<tc::InferResult> results_ptr(results);
-    success = handle_exception([&]() { getResults(results_ptr); });
+    success = handle_exception([&]() { getResults(results); });
     if (!success)
       return;
 
@@ -395,7 +486,7 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    TRITON_THROW_IF_ERROR(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+    TRITON_THROW_IF_ERROR(client_->ModelInferenceStatistics(&resp, options_[0].model_name_, options_[0].model_version_),
                           "getServerSideStatus(): unable to get model statistics");
     return *(resp.model_stats().begin());
   }

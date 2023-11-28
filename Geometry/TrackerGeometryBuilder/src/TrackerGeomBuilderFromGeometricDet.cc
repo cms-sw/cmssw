@@ -4,6 +4,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/DoubleSensGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
@@ -233,8 +234,9 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker) 
     string gduTypeName = gdu[i]->type().name();
 
     //this step is time consuming >> TO FIX with a MAP?
-    if ((gduTypeName.find("Ster") != std::string::npos || gduTypeName.find("Lower") != std::string::npos) &&
-        (theTopo->glued(gduId[i]) != 0 || theTopo->stack(gduId[i]) != 0)) {
+    if ((gduTypeName.find("Ster") != std::string::npos || gduTypeName.find("Lower") != std::string::npos ||
+         gduTypeName.find("One") != std::string::npos) &&
+        (theTopo->glued(gduId[i]) != 0 || theTopo->stack(gduId[i]) != 0 || theTopo->doubleSensor(gduId[i]))) {
       int partner_pos = -1;
       for (u_int32_t jj = 0; jj < gduId.size(); jj++) {
         if (theTopo->partnerDetId(gduId[i]) == gduId[jj]) {
@@ -266,6 +268,13 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker) 
         composedDetId = theTopo->stack(gduId[i]);
         StackGeomDet* stackDet = new StackGeomDet(&(*plane), dus, dum, composedDetId);
         tracker->addDet((GeomDet*)stackDet);
+        tracker->addDetId(composedDetId);
+      } else if (gduTypeName.find("One") != std::string::npos) {
+        //The plane is *not* built in the middle, but on the First surface
+        Plane* plane = new Plane(dus->surface());
+        composedDetId = theTopo->doubleSensor(gduId[i]);
+        DoubleSensGeomDet* doubleSensDet = new DoubleSensGeomDet(&(*plane), dus, dum, composedDetId);
+        tracker->addDet((GeomDet*)doubleSensDet);
         tracker->addDetId(composedDetId);
       }
     }

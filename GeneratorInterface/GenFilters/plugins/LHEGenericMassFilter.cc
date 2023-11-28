@@ -91,6 +91,7 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void LHEGenericMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("externalLHEProducer"));
   desc.add<int>("NumRequired", 1);
   desc.add<vector<int>>("ParticleID", std::vector<int>{1});
   desc.add<double>("MinMass", 0.0);

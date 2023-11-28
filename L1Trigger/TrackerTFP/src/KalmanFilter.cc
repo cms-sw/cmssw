@@ -72,7 +72,7 @@ namespace trackerTFP {
   // read in and organize input product (fill vector input_)
   void KalmanFilter::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
     auto valid = [](const auto& frame) { return frame.first.isNonnull(); };
-    auto acc = [](int& sum, const auto& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto acc = [](int sum, const auto& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     int nTracks(0);
     int nStubs(0);
     const int offset = region_ * dataFormats_->numChannel(Process::kf);
@@ -146,15 +146,17 @@ namespace trackerTFP {
         streamsStubs[offset + layer].reserve(states.size());
       for (State* state : states) {
         tracks.emplace_back(state->frame());
-        for (const StubKF& stub : state->stubs())
+        vector<StubKF> stubs;
+        state->fill(stubs);
+        for (const StubKF& stub : stubs)
           streamsStubs[offset + stub.layer()].emplace_back(stub.frame());
         // adding a gap to all layer without a stub
         for (int layer : state->hitPattern().ids(false))
           streamsStubs[offset + layer].emplace_back(FrameStub());
       }
     };
-    auto count = [this](int& sum, const State* state) {
-      return sum += state && state->hitPattern().count() >= setup_->kfMinLayers() ? 1 : 0;
+    auto count = [this](int sum, const State* state) {
+      return sum + ((state && state->hitPattern().count() >= setup_->kfMinLayers()) ? 1 : 0);
     };
     for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
       deque<State*> stream;
@@ -225,21 +227,19 @@ namespace trackerTFP {
         state = pop_front(stack);
       streamOutput.push_back(state);
       // The remainder of the code in this loop deals with combinatoric states.
-      if (state != nullptr)
+      if (state)
         // Assign next combinatoric stub to state
         comb(state);
       delay.push_back(state);
       state = pop_front(delay);
-      if (state != nullptr)
+      if (state)
         stack.push_back(state);
     }
     stream = streamOutput;
-    for (State*& state : stream) {
-      if (!state || !state->stub() || state->layer() != layer_)
-        continue;
-      // Update state with next stub using KF maths
-      update(state);
-    }
+    // Update state with next stub using KF maths
+    for (State*& state : stream)
+      if (state && state->stub() && state->layer() == layer_)
+        update(state);
   }
 
   // Assign next combinatoric (i.e. not first in layer) stub to state
@@ -249,18 +249,14 @@ namespace trackerTFP {
     const vector<StubKFin*>& stubs = track->layerStubs(layer_);
     const TTBV& hitPattern = state->hitPattern();
     StubKFin* stubNext = nullptr;
-    // Get first stub on this layer if state reached min layers
-    if (!stub) {
-      if (hitPattern.count() < setup_->kfMaxLayers() && track->hitPattern(layer_))
-        stubNext = track->layerStub(layer_);
-    } else if (stub->layer() == layer_) {
+    bool valid = state->stub() && state->layer() == layer_;
+    if (valid) {
       // Get next unused stub on this layer
       const int pos = distance(stubs.begin(), find(stubs.begin(), stubs.end(), stub)) + 1;
       if (pos != (int)stubs.size())
         stubNext = stubs[pos];
       // picks next stub on different layer, nullifies state if skipping layer is not valid
       else {
-        bool valid(true);
         // having already maximum number of added layers
         if (hitPattern.count() == setup_->kfMaxLayers())
           valid = false;
@@ -268,6 +264,7 @@ namespace trackerTFP {
         if (hitPattern.count() + track->hitPattern().count(stub->layer() + 1, setup_->numLayers()) <
             setup_->kfMinLayers())
           valid = false;
+        // not diffrent layers left
         if (layer_ == setup_->numLayers() - 1)
           valid = false;
         if (valid) {
@@ -281,7 +278,7 @@ namespace trackerTFP {
         }
       }
     }
-    if (stubNext) {
+    if (valid) {
       // create combinatoric state
       states_.emplace_back(state, stubNext);
       state = &states_.back();

@@ -5,7 +5,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -66,7 +66,7 @@ namespace sistrip {
     produces<edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
     produces<edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
     produces<edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
-    produces<DetIdCollection>();
+    produces<DetIdVector>();
     if (extractCm_)
       produces<edm::DetSetVector<SiStripRawDigi> >("CommonMode");
   }
@@ -106,7 +106,7 @@ namespace sistrip {
     edm::DetSetVector<SiStripRawDigi>* vr = new edm::DetSetVector<SiStripRawDigi>();
     edm::DetSetVector<SiStripRawDigi>* pr = new edm::DetSetVector<SiStripRawDigi>();
     edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
-    DetIdCollection* ids = new DetIdCollection();
+    DetIdVector* ids = new DetIdVector();
     edm::DetSetVector<SiStripRawDigi>* cm = new edm::DetSetVector<SiStripRawDigi>();
 
     // Create digis
@@ -119,7 +119,7 @@ namespace sistrip {
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > vr_dsv(vr);
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
     std::unique_ptr<edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
-    std::unique_ptr<DetIdCollection> det_ids(ids);
+    std::unique_ptr<DetIdVector> det_ids(ids);
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > cm_dsv(cm);
 
     // Add to event

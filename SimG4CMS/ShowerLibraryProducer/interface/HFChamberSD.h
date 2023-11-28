@@ -20,9 +20,7 @@ class G4HCofThisEvent;
 
 class HFChamberSD : public SensitiveCaloDetector {
 public:
-  explicit HFChamberSD(const std::string&,
-		       const SensitiveDetectorCatalog&,
-		       const SimTrackManager*);
+  explicit HFChamberSD(const std::string&, const SensitiveDetectorCatalog&, const SimTrackManager*);
   ~HFChamberSD() override;
 
   void Initialize(G4HCofThisEvent* HCE) override;

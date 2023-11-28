@@ -71,7 +71,7 @@ namespace sistrip {
 
     edm::RunningAverage localRA(10000);
 
-    void maskFED(DetIdCollection& maskedModules, SiStripFedCabling::ConnsConstIterRange fedConnections) {
+    void maskFED(DetIdVector& maskedModules, SiStripFedCabling::ConnsConstIterRange fedConnections) {
       maskedModules.reserve(maskedModules.size() + fedConnections.size());
       for (const auto& conn : fedConnections) {
         if (conn.detId() && (conn.detId() != sistrip::invalid32_)) {
@@ -88,7 +88,7 @@ namespace sistrip {
                                       RawDigis& virgin_raw,
                                       RawDigis& proc_raw,
                                       Digis& zero_suppr,
-                                      DetIdCollection& detids,
+                                      DetIdVector& detids,
                                       RawDigis& cm_values) {
     // Clear done at the end
     assert(zs_work_digis_.empty());
@@ -354,7 +354,7 @@ namespace sistrip {
               scope_work_registry_.push_back(regItem);
             }
           } else {  // Unknown readout mode! => assume scope mode
-            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", mode));
+            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", int(mode)));
             Registry regItem(key, 0, scope_work_digis_.size(), 0);
             st_ch = fedchannelunpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
             if (regItem.index != scope_work_digis_.size()) {

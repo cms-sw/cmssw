@@ -10,6 +10,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
+process.MessageLogger.CommonTopologies=dict()
 
 process.test = cms.EDAnalyzer('ValidateRadial',
                               Epsilon = cms.double(3e-1),

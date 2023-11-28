@@ -1,0 +1,10 @@
+<bin name="jeprof_warn_t" file="jeprof_t.cc">
+  <use name="jemalloc"/>
+  <use name="PerfTools/JeProf"/>
+  <flags TEST_RUNNER_CMD="jeprof_warn_t.sh"/>
+</bin>
+<bin name="jeprof_nowarn_t" file="jeprof_t.cc">
+  <use name="jemalloc-prof"/>
+  <use name="PerfTools/JeProf"/>
+  <flags TEST_RUNNER_CMD="jeprof_nowarn_t.sh"/>
+</bin>

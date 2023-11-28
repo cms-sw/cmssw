@@ -10,3 +10,5 @@
   <flags EDM_PLUGIN="1"/>
   <flags REM_CXXFLAGS="-Werror=unused-variable"/>
 </library>
+
+<test name="SimG4CMSForwardTestDriver" command="runTest.sh"/>

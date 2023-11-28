@@ -49,7 +49,7 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
     thresholdsByDetector = cms.VPSet(
     ),
     tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
-    clusterSrc = cms.InputTag("hgcalLayerClusters"),
+    clusterSrc = cms.InputTag("hgcalMergeLayerClusters"),
     filterByTracksterPID = cms.bool(True),
     pid_threshold = cms.double(0.8),
     filter_on_categories = cms.vint32([0, 1]),
@@ -60,6 +60,7 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
 particleFlowClusterHGCal = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
+    usePFThresholdsFromDB = cms.bool(False),
     recHitCleaners = cms.VPSet(),
     seedCleaners   = cms.VPSet(),
     seedFinder = _passThruSeeds_HGCal,

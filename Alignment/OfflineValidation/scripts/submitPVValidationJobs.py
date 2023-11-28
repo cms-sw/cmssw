@@ -443,7 +443,7 @@ class Job:
         self.outputCfgName=self.output_full_name+"_cfg.py"
         fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w')
 
-        template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
+        template_cfg_file = os.path.join(self.CMSSW_dir,"src/Alignment/OfflineValidation/test","PVValidation_T_cfg.py")
         file = open(template_cfg_file,'r')
 
         config_txt = '\n\n' + CopyRights + '\n\n'
@@ -622,8 +622,7 @@ def main():
 
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
-    AnalysisStep_dir = os.path.join(input_CMSSW_BASE,"src/Alignment/OfflineValidation/test")
-    lib_path = os.path.abspath(AnalysisStep_dir)
+    lib_path = os.path.abspath(os.path.join(input_CMSSW_BASE,"src/Alignment/OfflineValidation/test"))
     sys.path.append(lib_path)
 
     ## N.B.: this is dediced here once and for all
@@ -923,7 +922,7 @@ def main():
         ##  print "==========>",conditions
 
         # for hadd script
-        scripts_dir = os.path.join(AnalysisStep_dir,"scripts")
+        scripts_dir = "scripts"
         if not os.path.exists(scripts_dir):
             os.makedirs(scripts_dir)
         hadd_script_file = os.path.join(scripts_dir,jobName[iConf]+"_"+opts.taskname+".sh")
@@ -1055,7 +1054,7 @@ def main():
                        vertextype[iConf], tracktype[iConf],
                        refittertype[iConf], ttrhtype[iConf],
                        applyruncontrol[iConf],
-                       ptcut[iConf],input_CMSSW_BASE,AnalysisStep_dir)
+                       ptcut[iConf],input_CMSSW_BASE,'.')
             
             aJob.setEOSout(eosdir)
             aJob.createTheCfgFile(theSrcFiles)

@@ -1,5 +1,7 @@
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/PhysicsToolsObjects/test/SiStripDeDxMipBuilder.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include <iostream>

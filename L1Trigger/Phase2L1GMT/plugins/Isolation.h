@@ -66,7 +66,6 @@ namespace Phase2L1GMT {
         reliso_thrT(iConfig.getParameter<double>("RelIsoThresholdT")),
         verbose_(iConfig.getParameter<int>("verbose")),
         dumpForHLS_(iConfig.getParameter<int>("IsodumpForHLS")) {
-    dumpForHLS_ = true;
     if (dumpForHLS_) {
       dumpInput.open("Isolation_Mu_Track_infolist.txt", std::ofstream::out);
       dumpOutput.open("Isolation_Mu_Isolation.txt", std::ofstream::out);

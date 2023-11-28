@@ -16,16 +16,20 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDIdealGeometry = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDNumbering = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDPath = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.DD4hep_TestMTDPosition = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
@@ -50,12 +54,7 @@ process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryDD4hep_cff')
-process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D88.xml")
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('')
-)
+process.load('Configuration.Geometry.GeometryDD4hepExtended2026D98_cff')
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),

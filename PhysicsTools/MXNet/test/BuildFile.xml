@@ -1,8 +1,0 @@
-<test name="test_py_mxnet" command="test_mxnet.py">
-  <use name="mxnet-predict"/>
-</test>
-<bin name="testMXNetCppPredictor" file="testRunner.cpp, testMXNetCppPredictor.cc">
-  <use name="cppunit"/>
-  <use name="PhysicsTools/MXNet"/>
-  <use name="FWCore/ParameterSet"/>
-</bin>

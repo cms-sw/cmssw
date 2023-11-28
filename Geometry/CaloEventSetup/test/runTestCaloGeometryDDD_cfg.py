@@ -5,6 +5,8 @@ process = cms.Process("GeometryTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.Geometry.GeometryExtendedReco_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 

@@ -196,7 +196,6 @@ void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) 
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
 
-    int muHit = 0;
     int tkHit = 0;
 
     //LogTrace("Analyzer")<<"RecHits:"<<endl;
@@ -205,8 +204,6 @@ void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) 
       //      double r = geomDet->surface().position().perp();
       //      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
       //LogTrace("Analyzer")<<"r: "<< r <<" z: "<<z <<endl;
-      if ((*recHit)->geographicalId().det() == DetId::Muon)
-        ++muHit;
       if ((*recHit)->geographicalId().det() == DetId::Tracker)
         ++tkHit;
     }

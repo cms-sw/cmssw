@@ -3,7 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 
 F1=${LOCAL_TEST_DIR}/test_deepCall_unscheduled_cfg.py
 F2=${LOCAL_TEST_DIR}/test_deepCall_unscheduled_fail_cfg.py
@@ -22,6 +22,4 @@ diff ${LOCAL_TEST_DIR}/unit_test_outputs/test_deepCall_unscheduled.log test_deep
 diff ${LOCAL_TEST_DIR}/unit_test_outputs/test_onPath_unscheduled.log test_onPath_unscheduled.log || die "comparing test_onPath_unscheduled.log" $?
 
 !(cmsRun $F5 ) || die "Failure using $F5" $?
-
-popd
 

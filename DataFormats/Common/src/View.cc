@@ -18,8 +18,4 @@ namespace edm {
     return p;
   }
 
-  ViewBase::ViewBase() {}
-
-  ViewBase::ViewBase(ViewBase const&) {}
-
 }  // namespace edm

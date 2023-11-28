@@ -2,7 +2,11 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+<<<<<<< HEAD
 # with command line options: skims -s SKIM:TopMuEG --mc --dasquery=file dataset=/RelValTTbar_14TeV/CMSSW_13_0_0-130X_mcRun3_2022_realistic_v2-v1/GEN-SIM-RECO -n 100 --conditions auto:phase1_2022_realistic --eventcontent=FEVTDEBUGHLT --datatier=RAW-RECO --python_filename=test_TopMuEG_SKIM.py --processName=SKIMTopMuEG --no_exec --era=Run3
+=======
+# with command line options: skims -s SKIM:TopMuEG --mc --dasquery=file dataset=/RelValTTbar_14TeV/CMSSW_13_2_0_pre1-PU_131X_mcRun3_2022_realistic_v3-v1/GEN-SIM-RECO -n 100 --conditions auto:phase1_2022_realistic --eventcontent=FEVTDEBUGHLT --datatier=RAW-RECO --python_filename=test_TopMuEG_SKIM.py --processName=SKIMTopMuEG --no_exec --era=Run3
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -30,16 +34,24 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/130X_mcRun3_2022_realistic_v2-v1/00000/120127ad-f806-4494-8d98-f69ef0b2a85a.root',
     '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/130X_mcRun3_2022_realistic_v2-v1/00000/3be6dcf5-9b42-4bd4-b437-23c9753134e0.root',
+<<<<<<< HEAD
     '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/130X_mcRun3_2022_realistic_v2-v1/00000/545d64b5-2ee2-4cac-b3de-9123e4890b9f.root',
     ),
+=======
+    '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/130X_mcRun3_2022_realistic_v2-v1/00000/545d64b5-2ee2-4cac-b3de-9123e4890b9f.root',    
+   ),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     secondaryFileNames = cms.untracked.vstring()
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
+<<<<<<< HEAD
     SkipEvent = cms.untracked.vstring(),
+=======
+    TryToContinue = cms.untracked.vstring(),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -117,7 +129,7 @@ process.SKIMStreamTopMuEG = cms.OutputModule("PoolOutputModule",
         'keep *_hltScoutingPrimaryVertexPacker_*_*',
         'keep *_hltScoutingTrackPacker_*_*',
         'keep edmTriggerResults_*_*_*',
-        'keep DetIdedmEDCollection_siStripDigis_*_*',
+        'keep DetIds_siStripDigis_*_*',
         'keep DetIdedmEDCollection_siPixelDigis_*_*',
         'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*',
         'keep *_siPixelClusters_*_*',
@@ -534,6 +546,9 @@ process.SKIMStreamTopMuEG = cms.OutputModule("PoolOutputModule",
         'keep TotemRPRecHitedmDetSetVector_totemRPRecHitProducer_*_*',
         'keep TotemRPUVPatternedmDetSetVector_totemRPUVPatternFinder_*_*',
         'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*',
+        'keep TotemFEDInfos_totemT2Digis_*_*',
+        'keep TotemT2DigiedmNewDetSetVector_totemT2Digis_*_*',
+        'keep TotemVFATStatusedmDetSetVector_totemT2Digis_*_*',
         'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
         'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
         'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',

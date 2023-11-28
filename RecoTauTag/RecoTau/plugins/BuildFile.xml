@@ -20,8 +20,10 @@
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HcalTowerAlgo"/>
   <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
+  <use name="PhysicsTools/TensorFlow"/>
   <use name="RecoBTag/SecondaryVertex"/>
   <use name="RecoTauTag/RecoTau"/>
   <use name="RecoVertex/KalmanVertexFit"/>

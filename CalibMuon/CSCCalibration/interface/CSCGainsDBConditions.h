@@ -64,8 +64,6 @@ inline CSCDBGains *CSCGainsDBConditions::prefillDBGains() {
   std::vector<float> new_chi2;
 
   int counter;
-  int db_nrlines = 0;
-  int new_nrlines = 0;
 
   std::ifstream dbdata;
   dbdata.open("old_dbgains.dat", std::ios::in);
@@ -80,7 +78,6 @@ inline CSCDBGains *CSCGainsDBConditions::prefillDBGains() {
     db_slope.push_back(db_gainslope);
     // db_intercept.push_back(db_intercpt);
     // db_chi2.push_back(db_chisq);
-    db_nrlines++;
   }
   dbdata.close();
 
@@ -97,7 +94,6 @@ inline CSCDBGains *CSCGainsDBConditions::prefillDBGains() {
     new_slope.push_back(new_gainslope);
     new_intercept.push_back(new_intercpt);
     new_chi2.push_back(new_chisq);
-    new_nrlines++;
   }
   newdata.close();
 

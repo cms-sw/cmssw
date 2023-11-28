@@ -7,7 +7,7 @@ process = cms.Process("Test")
 process.source = cms.Source("EmptySource")
 
 
-mod = int(sys.argv[2])
+mod = int(sys.argv[1])
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.enable = False

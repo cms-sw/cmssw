@@ -25,15 +25,20 @@
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
+#include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <string>
 
@@ -44,6 +49,7 @@ public:
 
   void produce(edm::Event &, const edm::EventSetup &) override;
   void endStream() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   std::string subSystemName;
@@ -54,10 +60,11 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
   edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
-  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> analysisMaskToken;
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
+  CTPPSRawToDigiErrorSummary errSummary;
 
   template <typename DigiType>
   void run(edm::Event &, const edm::EventSetup &);
@@ -71,7 +78,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
       subSystem(ssUndefined),
       fedIds(conf.getParameter<vector<unsigned int>>("fedIds")),
       rawDataUnpacker(conf.getParameterSet("RawUnpacking")),
-      rawToDigiConverter(conf.getParameterSet("RawToDigi")) {
+      rawToDigiConverter(conf.getParameterSet("RawToDigi")),
+      errSummary("TotemVFATRawToDigi", "[TotemVFATRawToDigi]", false) {
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
@@ -126,16 +134,22 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     }
 
     else if (subSystem == ssTotemT2) {
-      for (int id = FEDNumbering::MINTotemT2FEDID; id < FEDNumbering::MAXTotemT2FEDID; ++id)
+      for (int id = FEDNumbering::MINTotemT2FEDID; id <= FEDNumbering::MAXTotemT2FEDID; ++id)
         fedIds.push_back(id);
     }
   }
+  LogDebug("TotemVFATRawToDigi").log([this](auto &log) {
+    log << "List of FEDs handled by this instance: ";
+    string sep;
+    for (const auto &fedId : fedIds)
+      log << sep << fedId, sep = ", ";
+  });
 
   // conversion status
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
 
   totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
-  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemAnalysisMaskRcd>(ESInputTag("", subSystemName));
 }
 
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
@@ -156,11 +170,10 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
-  // get DAQ mapping
-  ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
-
-  // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask = es.getHandle(analysisMaskToken);
+  // mapping and analysis mask
+  ESHandle<TotemDAQMapping> mapping;
+  ESHandle<TotemAnalysisMask> analysisMaskHandle;
+  TotemAnalysisMask analysisMask;
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;
@@ -172,15 +185,37 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   DetSetVector<TotemVFATStatus> conversionStatus;
 
   // raw-data unpacking
+  bool data_exist = false;
   SimpleVFATFrameCollection vfatCollection;
   for (const auto &fedId : fedIds) {
     const FEDRawData &data = rawData->FEDData(fedId);
-    if (data.size() > 0)
+    if (data.size() > 0) {
       rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
+      data_exist = true;
+    }
   }
 
-  // raw-to-digi conversion
-  rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  // get mapping records and do raw-to-digi conversion only if some data exists
+  if (data_exist) {
+    // get DAQ mapping
+    mapping = es.getHandle(totemMappingToken);
+    if (!mapping.isValid() || mapping.failedToGet()) {
+      throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
+          << "No DAQMapping found for " << subSystemName << "." << endl;
+    }
+
+    // get analysis mask to mask channels
+    analysisMaskHandle = es.getHandle(analysisMaskToken);
+    if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
+      analysisMask = *analysisMaskHandle;
+    } else {
+      errSummary.add(fmt::format("No AnalysisMask found for {0}", subSystemName), "");
+      analysisMask = TotemAnalysisMask();
+    }
+
+    // raw-to-digi conversion
+    rawToDigiConverter.run(vfatCollection, *mapping, analysisMask, digi, conversionStatus);
+  }
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);
@@ -188,6 +223,54 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystemName);
 }
 
-void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
+void TotemVFATRawToDigi::endStream() {
+  rawToDigiConverter.printSummaries();
+  errSummary.printSummary();
+}
+
+void TotemVFATRawToDigi::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  // totemVFATRawToDigi
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawDataTag", edm::InputTag(""));
+  desc.add<std::string>("subSystem", "")->setComment("options: RP");
+  desc.add<std::vector<unsigned int>>("fedIds", {})
+      ->setComment(
+          "IMPORTANT: leave empty to load the default configuration from "
+          "DataFormats/FEDRawData/interface/FEDNumbering.h");
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<unsigned int>("verbosity", 0);
+    desc.add<edm::ParameterSetDescription>("RawUnpacking", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<unsigned int>("verbosity", 0)
+        ->setComment(
+            "0-3: 1=one line/event with some corrupted VFAT frame, 2=list all corrupt VFAT frames/event, 3=all "
+            "problems with every corrupt frame");
+    psd0.add<unsigned int>("testFootprint", 2)->setComment("0=no test, 1=warn only, 2=warn and skip");
+    psd0.add<unsigned int>("testCRC", 2);
+    psd0.add<unsigned int>("testID", 2)->setComment("compare the ID from data and mapping");
+    psd0.add<unsigned int>("testECMostFrequent", 2)
+        ->setComment("compare frame EC with the most frequent value in the event");
+    psd0.add<unsigned int>("testBCMostFrequent", 2);
+    psd0.addUntracked<unsigned int>("EC_min", 10)
+        ->setComment("minimal number of frames to search for the most frequent counter value");
+    psd0.addUntracked<unsigned int>("BC_min", 10);
+    psd0.addUntracked<double>("EC_fraction", 0.6)
+        ->setComment(
+            "the most frequent counter value is accepted provided its relative occupancy is higher than this fraction");
+    psd0.addUntracked<double>("BC_fraction", 0.6);
+    psd0.add<bool>("useOlderT2TestFile", false)
+        ->setComment("treat hwID field as two separate 8-bit fields instead of one 16-bit");
+    psd0.addUntracked<bool>("printErrorSummary", false)->setComment("per-VFAT error summary at the end of the job");
+    psd0.addUntracked<bool>("printUnknownFrameSummary", false)
+        ->setComment("summary of frames found in data, but not in the mapping");
+    desc.add<edm::ParameterSetDescription>("RawToDigi", psd0);
+  }
+  descriptions.add("totemVFATRawToDigi", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
+}
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);

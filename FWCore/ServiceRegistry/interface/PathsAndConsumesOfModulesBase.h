@@ -57,7 +57,7 @@ namespace edm {
     // they produce (they might or might not really produce) at least one
     // product in the event (not run, not lumi) that the module corresponding
     // to the moduleID argument declares it consumes (includes declarations using
-    // consumes, maybeConsumes, or consumesMany). Note that if a module declares
+    // consumes or maybeConsumes). Note that if a module declares
     // it consumes a module label that is an EDAlias, the corresponding module
     // description will be included in the returned vector (but the label in the
     // module description is not the EDAlias label).

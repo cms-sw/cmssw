@@ -30,9 +30,9 @@ public:
 
   static const double k_ScaleFromDDDtoGeant;
 
-  CaloGeometryLoaderTest<T>();
+  CaloGeometryLoaderTest();
 
-  virtual ~CaloGeometryLoaderTest<T>() {}
+  virtual ~CaloGeometryLoaderTest() {}
 
   PtrType load(const DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
 

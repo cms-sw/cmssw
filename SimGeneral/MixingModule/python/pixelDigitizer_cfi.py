@@ -11,6 +11,9 @@ pixelDigitizer = cms.PSet(
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(pixelDigitizer, makeDigiSimLinks = False)
 
+# ESProducer for SiPixelQuality with "forDigitizer" label
+from CalibTracker.SiPixelESProducers.siPixelQualityForDigitizerESProducer_cfi import *
+
 # Customize here instead of SiPixelSimBlock as the latter is imported
 # also to DataMixer configuration, and the original version is needed
 # there in stage2. Customize before phase2_tracker because this

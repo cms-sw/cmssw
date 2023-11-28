@@ -506,8 +506,6 @@ void TrackClassifier::genPrimaryVertices() {
   const HepMC::GenEvent *event = mcInformation_->GetEvent();
 
   if (event) {
-    int idx = 0;
-
     // Loop over the different GenVertex
     for (HepMC::GenEvent::vertex_const_iterator ivertex = event->vertices_begin(); ivertex != event->vertices_end();
          ++ivertex) {
@@ -570,7 +568,6 @@ void TrackClassifier::genPrimaryVertices() {
               ientry->nGenTrk++;
           }
       }
-      idx++;
     }
   }
 

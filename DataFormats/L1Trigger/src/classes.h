@@ -36,3 +36,5 @@
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/L1Trigger/interface/TkJetWord.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
+#include "DataFormats/L1Trigger/interface/P2GTAlgoBlock.h"

@@ -17,6 +17,7 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
+#include "CondFormats/PPSObjects/interface/TotemT2FramePosition.h"
 
 namespace pps {
   /// \brief Collection of code for unpacking of TOTEM raw-data.

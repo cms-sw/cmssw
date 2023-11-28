@@ -1,5 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
-
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -19,13 +19,15 @@ typedef CaloCellGeometry::CCGFloat CCGFloat;
 #include <memory>
 
 std::unique_ptr<CaloSubdetectorGeometry> EcalTBHodoscopeGeometryLoaderFromDDD::load(const DDCompactView* cpv) {
-  std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope" << std::endl;
+  edm::LogVerbatim("EcalTBHodoscopeGeometry")
+      << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope";
 
   std::unique_ptr<CaloSubdetectorGeometry> ebg(new EcalTBHodoscopeGeometry());
 
   makeGeometry(cpv, ebg.get());
 
-  std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
+  edm::LogVerbatim("EcalTBHodoscopeGeometry")
+      << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry";
 
   return ebg;
 }

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
+  <Constant name="SensorSeparation"      value="0.10*mm"/>
+  <Constant name="SensorSizeOffset"      value="0.87*mm"/>
+  <Constant name="GuardRingOffset"       value="0.90*mm"/>
+  <Constant name="MouseBite"             value="5.00*mm"/>
+  <Constant name="UseOffset"             value="0"/>
+  <Constant name="ModuleThicknessEE"     value="10.20*mm"/>
+  <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
+  <Constant name="NumberOfCellsCoarse"   value="8"/>
+  <Constant name="LayerRotation"         value="30*deg"/>
+  <Constant name="rHGCal1"               value="0.0*mm"/>
+  <Constant name="rHGCal2"               value="520*mm"/>
+  <Constant name="rHGCalEE1"             value="0.0*mm"/>
+  <Constant name="rHGCalEE2"             value="250.0*mm"/>
+  <Constant name="zHGCalEE1"             value="0.0*mm"/>
+  <Constant name="zHGCalEE2"             value="610.0*mm"/>
+  <Constant name="WaferW"                value="200.0*mm"/>
+  <Constant name="tan30deg"              value="tan(30.0*deg)"/>
+</ConstantsSection>
+
+<SolidSection label="hgcal.xml" eval="true">
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCalEE1]"   rMin="[rHGCal1]"   rMax="[rHGCal2]"/>
+    <ZSection z="[zHGCalEE2]"   rMin="[rHGCal1]"   rMax="[rHGCal2]"/>
+  </Polycone>
+  <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCalEE1]"   rMin="[rHGCalEE1]" rMax="[rHGCalEE2]"/>
+    <ZSection z="[zHGCalEE2]"   rMin="[rHGCalEE1]" rMax="[rHGCalEE2]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCalService" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<RotationSection label="hgcal.xml">
+  <Rotation name="R1" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CALOECRear"/>
+    <rChild name="hgcal:HGCalService"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCalService"/>
+    <rChild name="hgcal:HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE"/>
+    <rRotation name="hgcal:R1"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

@@ -43,21 +43,10 @@ process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 # load both cpu plugins
 process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi")
+
 ##
 ## force HLT configuration for ecalMultiFitUncalibRecHit
 ##
-
-process.ecalMultiFitUncalibRecHit.algoPSet = cms.PSet( 
-      # for crossCorrelationMethod
-      timealgo = cms.string( "crossCorrelationMethod" ),
-    #   timealgo = cms.string( "RatioMethod" ),  
-    #   crossCorrelationStartTime = cms.double(-15),
-    #   crossCorrelationStopTime = cms.double(25),
-    #   crossCorrelationTargetTimePrecision = cms.double(0.01),
-    #   crossCorrelationTargetTimePrecisionForDelayedPulses = cms.double(0.05),
-)     
-      
-##    
     
 process.ecalDigis = process.ecalEBunpacker.clone()
 process.ecalDigis.InputLabel = cms.InputTag('rawDataCollector')
@@ -92,7 +81,7 @@ process.schedule = cms.Schedule(
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(8),
     numberOfStreams = cms.untracked.uint32(8),
-    SkipEvent = cms.untracked.vstring('ProductNotFound'),
+    TryToContinue = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)
 )
 

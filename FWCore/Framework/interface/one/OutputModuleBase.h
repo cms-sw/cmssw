@@ -79,8 +79,6 @@ namespace edm {
 
       std::string workerType() const { return "WorkerT<edm::one::OutputModuleBase>"; }
 
-      void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
-
       virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                 ModuleCallingContext const& iModuleCallingContext,
                                                 Principal const& iPrincipal) const {}

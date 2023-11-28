@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.csc2DRecHits_cfi import *
-from ..modules.cscSegments_cfi import *
+from ..modules.hltCsc2DRecHits_cfi import *
+from ..modules.hltCscSegments_cfi import *
 
 csclocalrecoTask = cms.Task(
-    csc2DRecHits,
-    cscSegments
+    hltCsc2DRecHits,
+    hltCscSegments
 )

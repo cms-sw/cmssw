@@ -26,18 +26,18 @@ namespace trklet {
     unique_ptr<ChannelAssignment> produce(const ChannelAssignmentRcd& rcd);
 
   private:
-    const ParameterSet* iConfig_;
+    const ParameterSet iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 
-  ProducerChannelAssignment::ProducerChannelAssignment(const ParameterSet& iConfig) : iConfig_(&iConfig) {
+  ProducerChannelAssignment::ProducerChannelAssignment(const ParameterSet& iConfig) : iConfig_(iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
   unique_ptr<ChannelAssignment> ProducerChannelAssignment::produce(const ChannelAssignmentRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<ChannelAssignment>(*iConfig_, setup);
+    return make_unique<ChannelAssignment>(iConfig_, setup);
   }
 
 }  // namespace trklet

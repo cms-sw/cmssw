@@ -29,7 +29,7 @@ process.CSCGeometryAlInputXML = cms.ESProducer("CSCGeometryESModule",
 
 process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
     input = cms.string("xml"),
-    fileName = cms.string(str(sys.argv[2])),
+    fileName = cms.string(str(sys.argv[1])),
     shiftErr = cms.double(1000.),
     angleErr = cms.double(6.28),
     output = cms.string("db"))
@@ -37,7 +37,7 @@ process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBSetup,
-    connect = cms.string("sqlite_file:"+str(sys.argv[2])[:-3]+"db"),
+    connect = cms.string("sqlite_file:"+str(sys.argv[1])[:-3]+"db"),
     toPut = cms.VPSet(
         cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
         cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),

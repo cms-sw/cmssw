@@ -15,14 +15,12 @@ public:
   typedef typename VecType::value_type value_type;
   typedef typename VecType::size_type size_type;
 
-  EZMgrFL<T>(size_type vecSize, size_type subSize) : m_vecSize(vecSize), m_subSize(subSize) {
+  EZMgrFL(size_type vecSize, size_type subSize) : m_vecSize(vecSize), m_subSize(subSize) {
     m_vec.resize(0);
     assert(subSize > 0);
     assert(vecSize > 0);
     assert(0 == m_vec.capacity());
   }
-
-  virtual ~EZMgrFL<T>() {}
 
   iterator reserve() { return assign(); }
   iterator resize() { return assign(); }

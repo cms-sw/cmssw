@@ -39,7 +39,6 @@ namespace reco {
       particleFlow = 5,
       hgcal_em = 6,
       hgcal_had = 7,
-      hgcal_mixed = 8,
       hfnose = 9,
       undefined = 1000
     };

@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 l1tPFClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
     src = cms.InputTag("l1tEGammaClusterEmuProducer",),
     etMin = cms.double(0.5),
+    etaBounds = cms.vdouble(-1.5,0.,1.5),
+    phiBounds = cms.vdouble([3.14159265359*(float(x)/9.) for x in range(-9,10)]),
+    maxClustersEtaPhi = cms.vuint32([8] * 36),
     corrector  = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
     resol = cms.PSet(
             etaBins = cms.vdouble( 0.700,  1.200,  1.600),

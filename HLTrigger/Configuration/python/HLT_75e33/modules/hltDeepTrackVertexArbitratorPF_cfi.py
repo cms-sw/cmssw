@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltDeepTrackVertexArbitratorPF = cms.EDProducer("CandidateVertexArbitrator",
-    beamSpot = cms.InputTag("offlineBeamSpot"),
+    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     dLenFraction = cms.double(0.333),
     dRCut = cms.double(0.4),
     distCut = cms.double(0.04),

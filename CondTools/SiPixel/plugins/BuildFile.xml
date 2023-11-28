@@ -4,6 +4,7 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/SiPixelTransient"/>
 <use name="CondTools/SiPixel"/>
+<use name="DataFormats/Luminosity"/>
 <use name="FWCore/Framework"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
@@ -11,6 +12,7 @@
 <use name="MagneticField/Records"/>
 <use name="boost"/>
 <use name="root"/>
+<use name="rootgraphics"/>
 <library name="CondToolsSiPixelPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

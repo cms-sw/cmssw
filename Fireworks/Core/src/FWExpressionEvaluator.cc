@@ -18,8 +18,8 @@
 // user include files
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
-#include "CommonTools/Utils/interface/Grammar.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Grammar.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
 

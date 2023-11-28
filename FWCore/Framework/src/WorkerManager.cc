@@ -91,7 +91,7 @@ namespace edm {
   }
 
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
-                               eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                               eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                                ProcessBlockHelperBase const& processBlockHelperBase) {
     auto const processBlockLookup = iRegistry.productLookup(InProcess);
     auto const runLookup = iRegistry.productLookup(InRun);

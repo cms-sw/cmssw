@@ -12,8 +12,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/NoProxyException.h"
-#include "FWCore/Framework/interface/NoRecordException.h"
 
 #include <memory>
 

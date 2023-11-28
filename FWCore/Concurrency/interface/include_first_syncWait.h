@@ -3,8 +3,6 @@
 //
 //  syncWait.h
 //
-//  This file must be included before any other file that include tbb headers
-//
 //  Created by Chris Jones on 2/24/21.
 //
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"

@@ -14,10 +14,10 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelFitter.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoTracker/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"

@@ -201,22 +201,22 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
         }
 
       } else
-          //m_gtMuonTemplate->print(std::cout);
+        //m_gtMuonTemplate->print(std::cout);
 
-          if (muonConditionTypes.at(i) == Type3s) {
-        // build eta
-        muonParameters["eta_3"] += (bm_.buildEtaMuon(op, 3, counter));
+        if (muonConditionTypes.at(i) == Type3s) {
+          // build eta
+          muonParameters["eta_3"] += (bm_.buildEtaMuon(op, 3, counter));
 
-        // add the parameters to parameter map
-        muonParameters["phi_h_3"] += bm_.buildPhiMuon(op, 3, counter, true);
-        muonParameters["phi_l_3"] += bm_.buildPhiMuon(op, 3, counter, false);
+          // add the parameters to parameter map
+          muonParameters["phi_h_3"] += bm_.buildPhiMuon(op, 3, counter, true);
+          muonParameters["phi_l_3"] += bm_.buildPhiMuon(op, 3, counter, false);
 
-        if (debugMode_) {
-          muonParameters["phi_l_3"] += ("--" + iterCond->first + "\n");
-          muonParameters["phi_h_3"] += ("--" + iterCond->first + "\n");
-          muonParameters["eta_3"] += ("--" + iterCond->first + "\n");
+          if (debugMode_) {
+            muonParameters["phi_l_3"] += ("--" + iterCond->first + "\n");
+            muonParameters["phi_h_3"] += ("--" + iterCond->first + "\n");
+            muonParameters["eta_3"] += ("--" + iterCond->first + "\n");
+          }
         }
-      }
 
       if (muonConditionTypes.at(i) == Type4s) {
         // build eta

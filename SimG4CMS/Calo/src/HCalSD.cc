@@ -339,8 +339,11 @@ bool HCalSD::getFromLibrary(const G4Step* aStep) {
   bool kill(false);
   isHF = isItHF(aStep);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "GetFromLibrary: isHF " << isHF << " darken " << (m_HFDarkening != nullptr)
-                              << " useParam " << useParam << " useShowerLibrary " << useShowerLibrary << " Muon? "
+  edm::LogVerbatim("HcalSim") << "GetFromLibrary: "
+                              << (aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetName())
+
+                              << " isHF " << isHF << " darken " << (m_HFDarkening != nullptr) << " useParam "
+                              << useParam << " useShowerLibrary " << useShowerLibrary << " Muon? "
                               << G4TrackToParticleID::isMuon(track) << " electron? "
                               << G4TrackToParticleID::isGammaElectronPositron(track) << " Stable Hadron? "
                               << G4TrackToParticleID::isStableHadronIon(track);
@@ -539,7 +542,28 @@ uint32_t HCalSD::setDetUnitId(const G4Step* aStep) {
   int lay = (touch->GetReplicaNumber(0) / 10) % 100 + 1;
   int det = (touch->GetReplicaNumber(1)) / 1000;
 
-  return setDetUnitId(det, hitPoint, depth, lay);
+  uint32_t idx = setDetUnitId(det, hitPoint, depth, lay);
+#ifdef EDM_ML_DEBUG
+  if (depth == 1) {
+    edm::LogVerbatim("HcalSim") << "HCalSD: Check for " << det << ":" << depth << ":" << lay << " ID " << std::hex
+                                << idx << std::dec;
+    int det0, z0, depth0, eta0, phi0, lay0(-1);
+    if (testNumber) {
+      HcalTestNumbering::unpackHcalIndex(idx, det0, z0, depth0, eta0, phi0, lay0);
+    } else {
+      HcalDetId hcid0(idx);
+      det0 = hcid0.subdetId();
+      eta0 = hcid0.ietaAbs();
+      phi0 = hcid0.iphi();
+      z0 = hcid0.zside();
+      depth0 = hcid0.depth();
+    }
+    edm::LogVerbatim("HcalSim") << "HCalSD: det|z|depth|eta|phi|lay " << det0 << ":" << z0 << ":" << depth0 << ":"
+                                << eta0 << ":" << phi0 << ":" << lay0;
+    printVolume(touch);
+  }
+#endif
+  return idx;
 }
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
@@ -747,7 +771,7 @@ void HCalSD::getFromHFLibrary(const G4Step* aStep, bool& isKilled) {
       int depth = hits[i].depth;
       double time = hits[i].time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+      currentID[0].setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
       plotProfile(aStep, hitPoint, 1.0 * GeV, time, depth);
       bool emType = G4TrackToParticleID::isGammaElectronPositron(theTrack->GetDefinition()->GetPDGEncoding());
@@ -789,7 +813,7 @@ void HCalSD::hitForFibre(const G4Step* aStep) {  // if not ParamShower
       int depth = hits[i].depth;
       double time = hits[i].time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+      currentID[0].setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
       plotProfile(aStep, hitPoint, edepositEM, time, depth);
       bool emType = (edepositEM > 0.) ? true : false;
@@ -820,7 +844,7 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
     int depth = hits[i].depth;
     double time = hits[i].time;
     unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-    currentID.setID(unitID, time, primaryID, 0);
+    currentID[0].setID(unitID, time, primaryID, 0);
     edepositEM = hits[i].edep * GeV;
     edepositHAD = 0.;
 #ifdef plotDebug
@@ -871,7 +895,7 @@ void HCalSD::getHitPMT(const G4Step* aStep) {
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, etaR, phi, depth, 1);
       unitID = setDetUnitId(tmp);
     }
-    currentID.setID(unitID, time, primaryID, 1);
+    currentID[0].setID(unitID, time, primaryID, 1);
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM = -edepositHAD + edep;
@@ -931,9 +955,9 @@ void HCalSD::getHitFibreBundle(const G4Step* aStep, bool type) {
       unitID = setDetUnitId(tmp);
     }
     if (type)
-      currentID.setID(unitID, time, primaryID, 3);
+      currentID[0].setID(unitID, time, primaryID, 3);
     else
-      currentID.setID(unitID, time, primaryID, 2);
+      currentID[0].setID(unitID, time, primaryID, 2);
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM = -edepositHAD + edep;
@@ -1095,4 +1119,22 @@ void HCalSD::endEvent() {
     edm::LogVerbatim("HcalSim") << "NullDets " << detNull_[0] << " " << detNull_[1] << " " << detNull_[2] << " "
                                 << detNull_[3] << " " << (static_cast<float>(sum) / (sum + detNull_[3]));
 #endif
+}
+
+void HCalSD::printVolume(const G4VTouchable* touch) const {
+  if (touch) {
+#ifdef EDM_ML_DEBUG
+    int level = ((touch->GetHistoryDepth()) + 1);
+    edm::LogVerbatim("CaloSimX") << "HCalSD::printVolume with " << level << " levels";
+    static const std::string unknown("Unknown");
+    //Get name and copy numbers
+    for (int ii = 0; ii < level; ii++) {
+      int i = level - ii - 1;
+      G4VPhysicalVolume* pv = touch->GetVolume(i);
+      G4String name = (pv != nullptr) ? pv->GetName() : unknown;
+      G4int copyno = touch->GetReplicaNumber(i);
+      edm::LogVerbatim("HcalSim") << "[" << ii << "] " << name << ":" << copyno;
+    }
+#endif
+  }
 }

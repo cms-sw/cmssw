@@ -19,7 +19,7 @@ from Configuration.Applications.ConfigBuilder import filesFromDASQuery
 #dataset = "/RelValZMM_13/CMSSW_9_0_0_pre2-PU25ns_90X_mcRun2_asymptotic_v0-v1/GEN-SIM-DIGI-RAW-HLTDEBUG"
 #dataset = "/SinglePhoton/Run2016C-v2/RAW"
 #read, sec = filesFromDASQuery("file dataset=%s" % dataset, option=" --limit 10000 ")
-read, sec = ["file:%s" % sys.argv[2]], []
+read, sec = ["file:%s" % sys.argv[1]], []
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(read),

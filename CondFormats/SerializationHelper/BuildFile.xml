@@ -1,0 +1,5 @@
+<use name="FWCore/PluginManager"/>
+<use name="CondFormats/Serialization"/>
+<export>
+  <lib name="1"/>
+</export>

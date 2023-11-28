@@ -249,7 +249,6 @@ namespace cscdqm {
 
     for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       MEStripClusters[i].localMax.clear();
-      int ilocal = 0;
       int iLS = MEStripClusters[i].LFTBNDStrip;
       int iRS = MEStripClusters[i].IRTBNDStrip;
       int iLT = MEStripClusters[i].LFTBNDTime;
@@ -272,7 +271,6 @@ namespace cscdqm {
             localMaxTMP.Strip = iS;
             localMaxTMP.Time = jT;
             MEStripClusters[i].localMax.push_back(localMaxTMP);
-            ilocal++;
           }
         }
       }

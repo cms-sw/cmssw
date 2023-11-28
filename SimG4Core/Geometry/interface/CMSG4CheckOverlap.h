@@ -16,7 +16,7 @@ public:
 private:
   void makeReportForMaterials(std::ofstream& fout);
   void makeReportForGeometry(std::ofstream& fout, G4VPhysicalVolume* world);
-  void makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet& p);
+  void makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet& p, G4VPhysicalVolume* world);
 };
 
 #endif

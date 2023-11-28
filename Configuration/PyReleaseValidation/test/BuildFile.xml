@@ -1,6 +1,4 @@
 <test name="test-das-selected-lumis" command="test-das-selected-lumis.sh">
-  <flags USE_UNITTEST_DIR="1"/>
 </test>
 <test name="test-runTheMatrix-interactive" command="test-runTheMatrix_interactive.sh">
-  <flags USE_UNITTEST_DIR="1"/>
 </test>

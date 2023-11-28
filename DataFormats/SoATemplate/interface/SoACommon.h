@@ -299,7 +299,7 @@ namespace cms::soa {
 
     SOA_HOST_DEVICE SOA_INLINE RefToConst operator()() const {
       // PtrToConst type will add the restrict qualifyer if needed
-      PtrToConst col = col_();
+      PtrToConst col = col_;
       return col[idx_];
     }
 

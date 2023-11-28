@@ -1,8 +1,9 @@
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
-#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 
 class SiStripApvSimulationParametersBuilder : public edm::one::EDAnalyzer<> {
 public:

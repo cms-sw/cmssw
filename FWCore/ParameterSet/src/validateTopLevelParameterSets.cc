@@ -84,9 +84,11 @@ namespace edm {
     std::vector<std::string> emptyVector;
 
     description.addUntracked<std::vector<std::string>>("Rethrow", emptyVector);
-    description.addUntracked<std::vector<std::string>>("SkipEvent", emptyVector);
-    description.addUntracked<std::vector<std::string>>("FailPath", emptyVector);
+    description.addUntracked<std::vector<std::string>>("TryToContinue", emptyVector);
     description.addUntracked<std::vector<std::string>>("IgnoreCompletely", emptyVector);
+
+    description.addUntracked<std::vector<std::string>>("modulesToCallForTryToContinue", emptyVector)
+        ->setComment("Labels of modules which should still be called when an exception in TryToContinue list happens.");
 
     description.addUntracked<std::vector<std::string>>("canDeleteEarly", emptyVector)
         ->setComment("Branch names of products that the Framework can try to delete before the end of the Event");

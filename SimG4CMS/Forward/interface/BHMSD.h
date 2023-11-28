@@ -9,7 +9,6 @@
 
 class SimTrackManager;
 class G4Step;
-class BHMNumberingScheme;
 
 //-------------------------------------------------------------------
 
@@ -20,9 +19,6 @@ public:
   ~BHMSD() override;
 
   uint32_t setDetUnitId(const G4Step *) override;
-
-private:
-  BHMNumberingScheme *numberingScheme;
 };
 
 #endif

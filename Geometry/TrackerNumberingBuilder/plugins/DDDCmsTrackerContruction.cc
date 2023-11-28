@@ -148,6 +148,8 @@ void DDDCmsTrackerContruction::printAllTrackerGeometricDets(const GeometricDet* 
     outputFile << "myDet->stereo() = " << myDet->stereo() << std::endl;
     outputFile << "myDet->isLowerSensor() = " << myDet->isLowerSensor() << std::endl;
     outputFile << "myDet->isUpperSensor() = " << myDet->isUpperSensor() << std::endl;
+    outputFile << "myDet->isFirstSensor() = " << myDet->isFirstSensor() << std::endl;
+    outputFile << "myDet->isSecondSensor() = " << myDet->isSecondSensor() << std::endl;
     outputFile << "myDet->siliconAPVNum() = " << myDet->siliconAPVNum() << std::endl;
   }
 }

@@ -9,11 +9,7 @@
   <lib name="NtupleHelper"/>
 </bin>
 
-<environment>
-  <bin file="testReadWriteBSFromDB.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash RecoVertex/BeamSpotProducer/test testReadWriteBSFromDB.sh"/>
-  </bin>
-</environment>
+<test name="testReadWriteBSFromDB" command="testReadWriteBSFromDB.sh"/>
 
 <bin file="testBeamSpotAnalyzer.cc">
   <use name="FWCore/TestProcessor"/>

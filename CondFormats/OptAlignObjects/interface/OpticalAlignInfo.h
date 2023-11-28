@@ -34,7 +34,6 @@ std::ostream &operator<<(std::ostream &, const OpticalAlignParam &);
 class OpticalAlignParam {
 public:
   OpticalAlignParam();
-  OpticalAlignParam(const OpticalAlignParam &rhs);
 
   std::string name() const { return name_; }
   double value() const { return value_; }

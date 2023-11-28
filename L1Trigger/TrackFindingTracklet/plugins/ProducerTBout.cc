@@ -139,7 +139,7 @@ namespace trklet {
       channelId = 0;
       for (const Stream& streamTrack : *handleTracks) {
         const int nTracks = accumulate(
-            streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const Frame& f) { return sum += f.any() ? 1 : 0; });
+            streamTrack.begin(), streamTrack.end(), 0, [](int sum, const Frame& f) { return sum + (f.any() ? 1 : 0); });
         StreamTrack& accepted = streamAcceptedTracks[channelId];
         StreamTrack& lost = streamLostTracks[channelId];
         auto limit = streamTrack.end();
@@ -181,10 +181,10 @@ namespace trklet {
       }
     }
     // store products
-    iEvent.emplace(edPutTokenAcceptedStubs_, move(streamAcceptedStubs));
-    iEvent.emplace(edPutTokenAcceptedTracks_, move(streamAcceptedTracks));
-    iEvent.emplace(edPutTokenLostStubs_, move(streamLostStubs));
-    iEvent.emplace(edPutTokenLostTracks_, move(streamLostTracks));
+    iEvent.emplace(edPutTokenAcceptedStubs_, std::move(streamAcceptedStubs));
+    iEvent.emplace(edPutTokenAcceptedTracks_, std::move(streamAcceptedTracks));
+    iEvent.emplace(edPutTokenLostStubs_, std::move(streamLostStubs));
+    iEvent.emplace(edPutTokenLostTracks_, std::move(streamLostTracks));
   }
 
 }  // namespace trklet

@@ -24,5 +24,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="test_PixelBaryCentreTool" command="pixelPositions.sh ${LOCALTOP}/tmp/PixelBaryCentreTool"/>
+<test name="test_PixelBaryCentreTool" command="pixelPositions.sh"/>
 <test name="test_ProduceSystematicMisalignment" command="testProduceAllMisalignments.sh"/>
+<test name="test_CreateRandomMisalignment" command="testCreateRandomMisalignment.sh"/>

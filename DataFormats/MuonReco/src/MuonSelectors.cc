@@ -63,7 +63,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   bool use_match_dist_penalty = true;
 
   int nr_of_stations_crossed = 0;
-  int nr_of_stations_with_segment = 0;
   std::vector<int> stations_w_track(8);
   std::vector<int> station_has_segmentmatch(8);
   std::vector<int> station_was_crossed(8);
@@ -88,7 +87,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       }
       //current "raw" info that a segment is matched to the current track
       if (muon.segmentX(i, 1, arbitrationType) < 999999) {
-        ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
     } else {  // this is the section for the CSCs
@@ -103,7 +101,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       }
       //current "raw" info that a segment is matched to the current track
       if (muon.segmentX(i - 4, 2, arbitrationType) < 999999) {
-        ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
     }

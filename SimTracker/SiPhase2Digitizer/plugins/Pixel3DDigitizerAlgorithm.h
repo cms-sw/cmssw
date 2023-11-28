@@ -31,14 +31,13 @@ public:
   Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~Pixel3DDigitizerAlgorithm() override;
 
-  bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const override;
   std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,
       const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const override;
   // overload drift
-  std::vector<digitizerUtility::SignalPoint> drift(
+  std::vector<digitizerUtility::SignalPoint> driftFor3DSensors(
       const PSimHit& hit,
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,

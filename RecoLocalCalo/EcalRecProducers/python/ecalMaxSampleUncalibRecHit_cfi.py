@@ -1,10 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+import  RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHitProducer_cfi as _mod
 
-ecalMaxSampleUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
-    EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
-    EEhitCollection = cms.string("EcalUncalibRecHitsEE"),
-    EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
-    EBhitCollection = cms.string("EcalUncalibRecHitsEB"),
-    algo = cms.string("EcalUncalibRecHitWorkerMaxSample"),
-    algoPSet = cms.PSet()
-)
+# producer of rechits starting from digis
+ecalMaxSampleUncalibRecHit = _mod.ecalMaxSampleUncalibRecHitProducer.clone()

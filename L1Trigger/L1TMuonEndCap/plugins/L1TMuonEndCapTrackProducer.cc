@@ -1,9 +1,7 @@
 #include "L1TMuonEndCapTrackProducer.h"
 
 L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& iConfig)
-    : track_finder_(new TrackFinder(iConfig, consumesCollector())),
-      uGMT_converter_(new MicroGMTConverter()),
-      config_(iConfig) {
+    : track_finder_(new TrackFinder(iConfig, consumesCollector())), uGMT_converter_(new MicroGMTConverter()) {
   // Make output products
   produces<EMTFHitCollection>("");                      // All CSC LCTs and RPC clusters received by EMTF
   produces<EMTFTrackCollection>("");                    // All output EMTF tracks, in same format as unpacked data

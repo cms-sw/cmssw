@@ -47,7 +47,6 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
 
   // keep track of bad crystals
   int nEBbad(0), nEEbad(0);
-  int nEBgood(0), nEEgood(0);
   std::vector<EBDetId> ebgood;
   std::vector<EEDetId> eegood;
 
@@ -76,7 +75,6 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
         if (!checkPulseShape(&item))
           nEBbad++;
         else {
-          nEBgood++;
           ebgood.push_back(ebdetid);
           pulseshapes->insert(std::make_pair(ebdetid.rawId(), item));
         }
@@ -85,7 +83,6 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
         if (!checkPulseShape(&item))
           nEEbad++;
         else {
-          nEEgood++;
           eegood.push_back(eedetid);
           pulseshapes->insert(std::make_pair(eedetid.rawId(), item));
         }

@@ -3,8 +3,6 @@
 
 #if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
 #include <ap_int.h>
@@ -39,6 +37,12 @@ namespace l1ct {
   typedef ap_uint<10> em2calo_dr_t;
   typedef ap_uint<13> tk2calo_dq_t;
   typedef ap_uint<4> egquality_t;
+  typedef ap_uint<3> stub_t;
+  typedef ap_ufixed<10, 1, AP_TRN, AP_SAT> srrtot_t;
+  typedef ap_uint<8> meanz_t;  // mean - MEANZ_OFFSET(= 320 cm)
+  typedef ap_ufixed<10, 5, AP_TRN, AP_SAT> hoe_t;
+  typedef ap_uint<4> redChi2Bin_t;
+
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
 
@@ -149,6 +153,11 @@ namespace l1ct {
     constexpr float Z0_LSB = 0.05;
     constexpr float DXY_LSB = 0.05;
     constexpr float PUPPIW_LSB = 1.0 / 256;
+    constexpr float MEANZ_OFFSET = 320.;
+    constexpr float SRRTOT_LSB = 0.0019531250;  // pow(2, -9)
+    constexpr unsigned int SRRTOT_SCALE = 64;   // pow(2, 6)
+    constexpr float HOE_LSB = 0.031250000;      // pow(2, -5)
+
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
     inline float floatPt(pt2_t pt2) { return pt2.to_float(); }
@@ -164,6 +173,9 @@ namespace l1ct {
     inline float floatDxy(dxy_t dxy) { return dxy.to_float() * DXY_LSB; }
     inline float floatPuppiW(puppiWgt_t puppiw) { return puppiw.to_float() * PUPPIW_LSB; }
     inline float floatIso(iso_t iso) { return iso.to_float(); }
+    inline float floatSrrTot(srrtot_t srrtot) { return srrtot.to_float() / SRRTOT_SCALE; };
+    inline float floatMeanZ(meanz_t meanz) { return meanz + MEANZ_OFFSET; };
+    inline float floatHoe(hoe_t hoe) { return hoe.to_float(); };
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
@@ -194,6 +206,9 @@ namespace l1ct {
     inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
+    inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var * SRRTOT_SCALE / SRRTOT_LSB)); };
+    inline meanz_t makeMeanZ(float var) { return round(var - MEANZ_OFFSET); };
+    inline hoe_t makeHoe(float var) { return hoe_t(HOE_LSB * round(var / HOE_LSB)); };
 
     inline float maxAbsEta() { return ((1 << (eta_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsPhi() { return ((1 << (phi_t::width - 1)) - 1) * ETAPHI_LSB; }

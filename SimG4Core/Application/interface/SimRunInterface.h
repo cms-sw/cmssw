@@ -12,7 +12,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
-class G4SimEvent;
+class TmpSimEvent;
 
 class SimRunInterface {
 public:
@@ -20,7 +20,7 @@ public:
 
   SimRunInterface(RunManagerMTWorker* run, bool master);
 
-  ~SimRunInterface();
+  ~SimRunInterface() = default;
 
   // Needed because for workers SumRunInterface sits in TLS, while
   // RunManagerMTWorkers are members of edm::stream OscarMTProducer
@@ -40,7 +40,7 @@ public:
 
   void abortRun(bool softAbort);
 
-  G4SimEvent* simEvent();
+  TmpSimEvent* simEvent();
 
 private:
   RunManagerMT* m_runManagerMT;

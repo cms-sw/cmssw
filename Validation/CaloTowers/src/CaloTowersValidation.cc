@@ -413,7 +413,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
     // MC particle with highest pt is taken as a direction reference
     double maxPt = -99999.;
-    int npart = 0;
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p) {
@@ -423,7 +422,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //    eta_MC = etap;
       double pt = (*p)->momentum().perp();
       if (pt > maxPt) {
-        npart++;
         maxPt = pt;
         phi_MC = phip;
         eta_MC = etap;

@@ -5,9 +5,8 @@
 // Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
-#include "SimG4CMS/Forward/interface/ForwardName.h"
-#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
@@ -19,20 +18,15 @@ ZdcNumberingScheme::ZdcNumberingScheme(int iv) {
     edm::LogVerbatim("ForwardSim") << "Creating ZDCNumberingScheme";
 }
 
-ZdcNumberingScheme::~ZdcNumberingScheme() {
-  if (verbosity > 0)
-    edm::LogVerbatim("ForwardSim") << " Deleting ZdcNumberingScheme";
-}
-
 void ZdcNumberingScheme::setVerbosity(const int iv) { verbosity = iv; }
 
-unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
+unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) {
   uint32_t index = 0;
   int level = detectorLevel(aStep);
 
   if (level > 0) {
-    int* copyno = new int[level];
-    G4String* name = new G4String[level];
+    std::vector<int> copyno;
+    std::vector<G4String> name;
 
     detectorLevel(aStep, level, copyno, name);
 
@@ -95,15 +89,12 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     intindex = packZdcIndex(section, layer, fiber, channel, zside);
 #endif
 
-    bool true_for_positive_eta = true;
-    if (zside == -1)
-      true_for_positive_eta = false;
+    bool true_for_positive_eta = (zside != -1);
 
     HcalZDCDetId zdcId(section, true_for_positive_eta, channel);
     index = zdcId.rawId();
-
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "DetectorId: " << zdcId;
+    edm::LogVerbatim("ForwardSim") << "DetectorId:\n" << zdcId;
 
     edm::LogVerbatim("ForwardSim") << "ZdcNumberingScheme:"
                                    << "  getUnitID - # of levels = " << level;
@@ -111,12 +102,9 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
       edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich]
                                      << "  section " << section << " zside " << zside << " layer " << layer << " fiber "
                                      << fiber << " channel " << channel << "packedIndex =" << intindex
-                                     << " detId raw: " << std::hex << index << std::dec;
+                                     << " detId raw: " << index;
 
 #endif
-
-    delete[] copyno;
-    delete[] name;
   }
 
   return index;
@@ -131,7 +119,7 @@ unsigned ZdcNumberingScheme::packZdcIndex(int section, int layer, int fiber, int
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber
-                                 << " channel " << channel << " zside " << z << "idx: " << std::hex << idx << std::dec;
+                                 << " channel " << channel << " zside " << z << "idx: " << idx;
   int newsubdet, newlayer, newfiber, newchannel, newz;
   unpackZdcIndex(idx, newsubdet, newlayer, newfiber, newchannel, newz);
 #endif
@@ -153,7 +141,7 @@ void ZdcNumberingScheme::unpackZdcIndex(
 #endif
 }
 
-int ZdcNumberingScheme::detectorLevel(const G4Step* aStep) const {
+int ZdcNumberingScheme::detectorLevel(const G4Step* aStep) {
   //Find number of levels
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int level = 0;
@@ -162,14 +150,17 @@ int ZdcNumberingScheme::detectorLevel(const G4Step* aStep) const {
   return level;
 }
 
-void ZdcNumberingScheme::detectorLevel(const G4Step* aStep, int& level, int* copyno, G4String* name) const {
+void ZdcNumberingScheme::detectorLevel(const G4Step* aStep,
+                                       int& level,
+                                       std::vector<int>& copyno,
+                                       std::vector<G4String>& name) {
   //Get name and copy numbers
   if (level > 0) {
     const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
     for (int ii = 0; ii < level; ii++) {
       int i = level - ii - 1;
-      name[ii] = ForwardName::getName(touch->GetVolume(i)->GetName());
-      copyno[ii] = touch->GetReplicaNumber(i);
+      name.emplace_back(touch->GetVolume(i)->GetName());
+      copyno.emplace_back(touch->GetReplicaNumber(i));
     }
   }
 }

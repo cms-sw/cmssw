@@ -38,8 +38,8 @@ public:
 private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackToken_;
-  edm::EDGetTokenT<SiPixelCluster> siPixelClustersToken_;
-  edm::EDGetTokenT<SiStripCluster> siStripClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> siPixelClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClustersToken_;
   edm::InputTag src_;
   edm::InputTag srcClust_;
   bool rejectBadMods_;

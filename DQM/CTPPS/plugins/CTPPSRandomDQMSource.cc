@@ -6,7 +6,6 @@
  *
  *******************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,13 +17,9 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
-#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <string>
 
@@ -196,7 +191,7 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 
 void CTPPSRandomDQMSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer"));
+  desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer", ""));
   desc.addUntracked<std::string>("folderName", "PPSRANDOM/RandomPixel");
   desc.addUntracked<unsigned int>("RPStatusWord", 0x8008);
   descriptions.add("ctppsRandomDQMSource", desc);

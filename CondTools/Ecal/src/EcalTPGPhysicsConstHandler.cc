@@ -211,7 +211,6 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
               }
             }
 
-            int icells = 0;
             for (CIfeLUT p1 = dataset_TpgPhysicsLut.begin(); p1 != dataset_TpgPhysicsLut.end(); p1++) {
               ecidLut_xt = p1->first;
               rd_physLut = p1->second;
@@ -241,7 +240,6 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
                   }
                 }
 
-                ++icells;
               } else if (ecid_nameLut == "EE") {
                 // Ecal endcap detector
 
@@ -265,13 +263,9 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
                       throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
                   }
                 }
-
-                ++icells;
               }
             }
 
-            int icellsEB = 0;
-            int icellsEE = 0;
             for (CIfeFgr p2 = dataset_TpgPhysicsFgr.begin(); p2 != dataset_TpgPhysicsFgr.end(); p2++) {
               ecidFgr_xt = p2->first;
               rd_physFgr = p2->second;
@@ -293,14 +287,11 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
                   }
                 }
 
-                ++icellsEB;
-
               } else if (ecid_nameFgr == "EE") {
                 // Ecal endcap detector
 
                 DetId ee(DetId::Ecal, EcalEndcap);
 
-                int countEE = 0;
                 for (iterEE itEE = temporaryMapEE.begin(); itEE != temporaryMapEE.end(); itEE++) {
                   if (itEE->first == (int)ee.rawId()) {
                     (itEE->second).FG_lowThreshold = rd_physFgr.getFGlowthresh();
@@ -311,11 +302,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
 
                     physC->setValue(ee.rawId(), itEE->second);
                   }
-
-                  countEE++;
                 }
-
-                ++icellsEE;
               }
             }
 

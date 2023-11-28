@@ -195,7 +195,7 @@ for i in range (0,options.nMP):
     offset = options.mpOffset + (options.skipEvents / options.nMP)
     if (i < options.skipEvents % options.nMP):
         offset = offset + 1    
-    mpOffsets.append(offset)
+    mpOffsets.append(int(offset))
 
 mpLatencies = cms.untracked.vint32()
 for i in range (0,options.nMP):

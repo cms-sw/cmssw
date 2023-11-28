@@ -81,6 +81,7 @@ process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(True)
+process.simCaloStage2Layer1Digis.useHCALFBLUT = cms.bool(False),
 process.simCaloStage2Layer1Digis.useLSB = cms.bool(True)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),

@@ -269,8 +269,9 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin, doubl
   double rr = 2.0 * dx * tan(30._deg);
   int ncol = (int)(2.0 * rout / ww) + 1;
   int nrow = (int)(rout / (ww * tan(30._deg))) + 1;
-  int incm(0), inrm(0), kount(0);
+  int incm(0), inrm(0);
 #ifdef EDM_ML_DEBUG
+  int kount(0);
   edm::LogVerbatim("HGCalGeom") << glog.ddname() << " rout " << rout << " Row " << nrow << " Column " << ncol;
 #endif
   for (int nr = -nrow; nr <= nrow; ++nr) {
@@ -293,7 +294,9 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin, doubl
             incm = inc;
           if (inr > inrm)
             inrm = inr;
+#ifdef EDM_ML_DEBUG
           kount++;
+#endif
           if (copies_.count(copy) == 0)
             copies_.insert(copy);
 #ifdef EDM_ML_DEBUG

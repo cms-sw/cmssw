@@ -1,5 +1,0 @@
-<use name="DataFormats/CaloTowers"/>
-<use name="FWCore/Framework"/>
-<library file="CaloTowersDump.cc" name="CaloTowersDump">
-  <flags EDM_PLUGIN="1"/>
-</library>

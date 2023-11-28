@@ -8,6 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "DQMFileSaverBase.h"
@@ -43,8 +45,12 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 111);
 
   // This makes sure a file saver runs in a very end
-  consumesMany<DQMToken, edm::InLumi>();
-  consumesMany<DQMToken, edm::InRun>();
+  lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
+  rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
+  callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+    this->lumigetter_(bd);
+    this->rungetter_(bd);
+  });
 }
 
 DQMFileSaverBase::~DQMFileSaverBase() = default;

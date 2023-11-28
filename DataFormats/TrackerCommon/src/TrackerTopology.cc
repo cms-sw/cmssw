@@ -119,6 +119,60 @@ uint32_t TrackerTopology::stack(const DetId &id) const {
   throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::stack";
 }
 
+uint32_t TrackerTopology::doubleSensor(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixDouble(id);
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return 0;
+  if (subdet == SiStripSubdetector::TIB)
+    return 0;
+  if (subdet == SiStripSubdetector::TID)
+    return 0;
+  if (subdet == SiStripSubdetector::TOB)
+    return 0;
+  if (subdet == SiStripSubdetector::TEC)
+    return 0;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::stack";
+}
+
+uint32_t TrackerTopology::first(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixFirst(id);
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return 0;
+  if (subdet == SiStripSubdetector::TIB)
+    return 0;
+  if (subdet == SiStripSubdetector::TID)
+    return 0;
+  if (subdet == SiStripSubdetector::TOB)
+    return 0;
+  if (subdet == SiStripSubdetector::TEC)
+    return 0;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::doubleSens";
+}
+
+uint32_t TrackerTopology::second(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixSecond(id);
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return 0;
+  if (subdet == SiStripSubdetector::TIB)
+    return 0;
+  if (subdet == SiStripSubdetector::TID)
+    return 0;
+  if (subdet == SiStripSubdetector::TOB)
+    return 0;
+  if (subdet == SiStripSubdetector::TEC)
+    return 0;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::doubleSensor";
+}
+
 uint32_t TrackerTopology::lower(const DetId &id) const {
   uint32_t subdet = id.subdetId();
   if (subdet == PixelSubdetector::PixelBarrel)
@@ -192,6 +246,26 @@ bool TrackerTopology::isRPhi(const DetId &id) const {
   throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isRPhi";
   return false;
 }
+
+bool TrackerTopology::isDoubleSens(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixDouble(id) != 0;
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return false;
+  if (subdet == SiStripSubdetector::TIB)
+    return false;
+  if (subdet == SiStripSubdetector::TID)
+    return false;
+  if (subdet == SiStripSubdetector::TOB)
+    return false;
+  if (subdet == SiStripSubdetector::TEC)
+    return false;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isDoubleSens";
+  return false;
+}
+
 bool TrackerTopology::isLower(const DetId &id) const {
   uint32_t subdet = id.subdetId();
   if (subdet == PixelSubdetector::PixelBarrel)
@@ -230,10 +304,48 @@ bool TrackerTopology::isUpper(const DetId &id) const {
   return false;
 }
 
+bool TrackerTopology::isFirst(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixFirst(id) != 0;
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return false;
+  if (subdet == SiStripSubdetector::TIB)
+    return false;
+  if (subdet == SiStripSubdetector::TID)
+    return false;
+  if (subdet == SiStripSubdetector::TOB)
+    return false;
+  if (subdet == SiStripSubdetector::TEC)
+    return false;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isFirst";
+  return false;
+}
+
+bool TrackerTopology::isSecond(const DetId &id) const {
+  uint32_t subdet = id.subdetId();
+  if (subdet == PixelSubdetector::PixelBarrel)
+    return pixSecond(id) != 0;
+  if (subdet == PixelSubdetector::PixelEndcap)
+    return false;
+  if (subdet == SiStripSubdetector::TIB)
+    return false;
+  if (subdet == SiStripSubdetector::TID)
+    return false;
+  if (subdet == SiStripSubdetector::TOB)
+    return false;
+  if (subdet == SiStripSubdetector::TEC)
+    return false;
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isSecond";
+  return false;
+}
+
 DetId TrackerTopology::partnerDetId(const DetId &id) const {
   uint32_t subdet = id.subdetId();
   if (subdet == PixelSubdetector::PixelBarrel)
-    return 0;
+    return pixPartnerDetId(id);
   if (subdet == PixelSubdetector::PixelEndcap)
     return 0;
   if (subdet == SiStripSubdetector::TIB)
@@ -257,8 +369,14 @@ std::string TrackerTopology::print(DetId id) const {
     unsigned int theLayer = pxbLayer(id);
     unsigned int theLadder = pxbLadder(id);
     unsigned int theModule = pxbModule(id);
+    std::string typeUpgrade;
+    typeUpgrade = (isFirst(id)) ? "first" : typeUpgrade;
+    typeUpgrade = (isSecond(id)) ? "second" : typeUpgrade;
+    typeUpgrade = (isFirst(id) || isSecond(id)) ? typeUpgrade + " double" : "module";
     strstr << "PixelBarrel"
-           << " Layer " << theLayer << " Ladder " << theLadder << " Module " << theModule;
+           << " Layer " << theLayer << " Ladder " << theLadder;
+    strstr << " Module for phase0 " << theModule;
+    strstr << " Module for phase2 " << theModule << " " << typeUpgrade;
     strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }

@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
@@ -16,6 +18,7 @@ class L1TEGMultiMerger : public edm::global::EDProducer<> {
 public:
   explicit L1TEGMultiMerger(const edm::ParameterSet&);
   ~L1TEGMultiMerger() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -118,6 +121,17 @@ void L1TEGMultiMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     eleMerger.produce(iEvent, refmapper);
   for (const auto& emMerger : tkEmMerger)
     emMerger.produce(iEvent, refmapper);
+}
+
+void L1TEGMultiMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription psetDesc;
+  psetDesc.add<std::string>("instance");
+  psetDesc.add<std::vector<edm::InputTag>>("pfProducers");
+  edm::ParameterSetDescription desc;
+  desc.addVPSet("tkElectrons", psetDesc);
+  desc.addVPSet("tkEms", psetDesc);
+  desc.addVPSet("tkEgs", psetDesc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

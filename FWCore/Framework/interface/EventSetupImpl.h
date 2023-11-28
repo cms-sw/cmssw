@@ -57,7 +57,7 @@ namespace edm {
 
     std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&,
                                                             unsigned int iTransitionID,
-                                                            ESProxyIndex const* getTokenIndices,
+                                                            ESResolverIndex const* getTokenIndices,
                                                             ESParentContext const& iParent) const;
 
     ///clears the oToFill vector and then fills it with the keys for all available records

@@ -54,14 +54,6 @@ std::ostream& operator<<(std::ostream& os, const OpticalAlignParam& r) {
   return os;
 }
 
-OpticalAlignParam::OpticalAlignParam(const OpticalAlignParam& rhs) {
-  value_ = rhs.value_;
-  error_ = rhs.error_;
-  quality_ = rhs.quality_;
-  name_ = rhs.name_;
-  dim_type_ = rhs.dim_type_;
-}
-
 OpticalAlignParam* OpticalAlignInfo::findExtraEntry(std::string& name) {
   OpticalAlignParam* param = nullptr;
   std::vector<OpticalAlignParam>::iterator ite;

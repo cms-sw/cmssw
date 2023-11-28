@@ -155,13 +155,11 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
       edm::Handle<vector<pat::MET> > metHandle;
       event.getByLabel(metTag_, metHandle);
 
-      int nElectrons = 0;
       for (std::vector<pat::Electron>::const_iterator electronBegin = electronHandle->begin(),
                                                       electronEnd = electronHandle->end(),
                                                       ielectron = electronBegin;
            ielectron != electronEnd;
            ++ielectron) {
-        ++nElectrons;
         // Tight cuts
         if (ielectron->et() > eleEtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && electronIdTight_(*ielectron) &&
             ielectron->electronID("eidRobustTight") > 0) {

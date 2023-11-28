@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# for parabolic magnetic field
+from Configuration.ProcessModifiers.trackingParabolicMf_cff import trackingParabolicMf
+
 # to resolve the refToPSet_
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import CkfBaseTrajectoryFilter_block
 
@@ -41,3 +44,8 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
     maxPtForLooperReconstruction = cms.double(0.),
     maxDPhiForLooperReconstruction = cms.double(2.),
 )
+
+GroupedCkfTrajectoryBuilderIterativeDefault = GroupedCkfTrajectoryBuilder.clone()
+trackingParabolicMf.toModify(GroupedCkfTrajectoryBuilderIterativeDefault,
+                             propagatorAlong='PropagatorWithMaterialParabolicMf',
+                             propagatorOpposite='PropagatorWithMaterialParabolicMfOpposite')

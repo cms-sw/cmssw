@@ -4,6 +4,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
+#include <memory>
+
 /**
  * Generic DetType for the MTD. 
  */

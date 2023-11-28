@@ -11,7 +11,7 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
-trackerGeometry.applyAlignment = False
+trackerGeometry.applyAlignment = True
 
 # calo
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *

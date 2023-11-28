@@ -1,6 +1,3 @@
-<ifrelease name="_ASAN_|_UBSAN_">
-  <flags NO_TEST_PREFIX="1"/>
-</ifrelease>
 <test name="TestHeterogeneousCoreSonicTritonProducerCPU" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/unittest.sh ${LOCALTOP} CPU"/>
 <test name="TestHeterogeneousCoreSonicTritonProducerGPU" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/unittest.sh ${LOCALTOP} GPU"/>
 <library file="*.cc" name="testHeterogenousCoreSonicTriton">

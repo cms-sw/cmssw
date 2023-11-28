@@ -22,7 +22,7 @@ BscSD::BscSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, clg, manager), numberingScheme(nullptr) {
+    : TimingSD(name, clg, manager) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
@@ -33,14 +33,11 @@ BscSD::BscSD(const std::string& name,
     if (verbn > 0) {
       edm::LogVerbatim("BscSim") << "name = BSCHits and  new BscNumberingSchem";
     }
-    numberingScheme = new BscNumberingScheme();
   } else {
     edm::LogWarning("BscSim") << "BscSD: ReadoutName " << name << " not supported";
   }
 }
 
-BscSD::~BscSD() { delete numberingScheme; }
+BscSD::~BscSD() {}
 
-uint32_t BscSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
-}
+uint32_t BscSD::setDetUnitId(const G4Step* aStep) { return BscNumberingScheme::getUnitID(aStep); }

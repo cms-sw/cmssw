@@ -5,8 +5,8 @@ from RecoHI.HiTracking.HIPixel3PrimTracks_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
 # pixel seeds
-import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-hiPixelTrackSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
+import RecoTracker.PixelLowPtUtilities.TrackSeeds_cfi
+hiPixelTrackSeeds = RecoTracker.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
 	InputCollection = 'hiPixel3PrimTracks'
   )
 

@@ -1,19 +1,11 @@
 // system include files
-#include <atomic>
 #include <cmath>
-#include <memory>
 #include <string>
 #include <vector>
 
 // Root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TDirectory.h"
-#include "TTree.h"
 #include "TLorentzVector.h"
-#include "TInterpreter.h"
+#include "TTree.h"
 
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
@@ -960,7 +952,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                                 const edm::Handle<reco::MuonCollection>& muonh) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   t_nTrk = trkCaloDirections.size();
   t_rhoh = (tower.isValid()) ? rhoh(tower) : 0;
   for (const auto& trkDetItr : trkCaloDirections) {
@@ -1025,7 +1017,6 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
     t_qltyFlag = (qltyFlag && trkDetItr.okECAL && trkDetItr.okHCAL);
     bool notMuon = (muonh.isValid()) ? notaMuon(pTrack, muonh) : true;
     if (t_qltyFlag && notMuon) {
-      nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId> eIds;

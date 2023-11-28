@@ -2,20 +2,6 @@
 
 namespace mkfit {
 
-  const PropagationConfig* PropagationConfig::s_default = nullptr;
-
-  void PropagationConfig::set_as_default(bool force) {
-    if (s_default != nullptr) {
-      if (force)
-        delete s_default;
-      else
-        return;
-    }
-    s_default = new PropagationConfig(*this);
-  }
-
-  //------------------------------------------------------------------------------
-
   namespace Config {
     // Multi threading configuration
 #if defined(MKFIT_STANDALONE)

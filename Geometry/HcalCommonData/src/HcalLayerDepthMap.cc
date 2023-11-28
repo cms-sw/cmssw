@@ -254,7 +254,7 @@ int HcalLayerDepthMap::getMaxDepthLastHE(const int subdet, const int iphi, const
 double HcalLayerDepthMap::getLayer0Wt(const int subdet, const int iphi, const int zside) const {
   double wt = isValid(subdet, iphi, zside) ? wtl0C_ : -1.0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Debug info -- getLayer0Wt::Input " << subdet << ":" << iphi << ":" << zside
+  edm::LogVerbatim("HCalGeom") << "HcalLayerDepthMap -- getLayer0Wt::Input " << subdet << ":" << iphi << ":" << zside
                                << " Output " << wt;
 #endif
   return wt;

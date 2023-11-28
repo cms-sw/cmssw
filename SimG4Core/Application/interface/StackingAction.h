@@ -2,7 +2,6 @@
 #define SimG4Core_StackingAction_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "G4UserStackingAction.hh"
 #include "G4Region.hh"
@@ -12,7 +11,6 @@
 #include <string>
 #include <vector>
 
-class NewTrackAction;
 class TrackingAction;
 class CMSSteppingVerbose;
 class G4VProcess;
@@ -21,7 +19,7 @@ class StackingAction : public G4UserStackingAction {
 public:
   explicit StackingAction(const TrackingAction*, const edm::ParameterSet& ps, const CMSSteppingVerbose*);
 
-  ~StackingAction() override;
+  ~StackingAction() override = default;
 
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) final;
 
@@ -74,8 +72,6 @@ private:
   const TrackingAction* trackAction;
   const CMSSteppingVerbose* steppingVerbose;
   const G4VProcess* m_Compton{nullptr};
-  NewTrackAction* newTA;
-  TrackInformationExtractor extractor;
 
   // Russian roulette regions
   const G4Region* regionEcal{nullptr};

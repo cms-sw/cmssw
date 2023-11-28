@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 
 namespace {
   l1ct::TrackInputEmulator::Region parseRegion(const std::string &str) {
@@ -37,7 +39,8 @@ namespace {
 l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
     : TrackInputEmulator(parseRegion(iConfig.getParameter<std::string>("region")),
                          parseEncoding(iConfig.getParameter<std::string>("trackWordEncoding")),
-                         iConfig.getParameter<bool>("bitwiseAccurate")) {
+                         iConfig.getParameter<bool>("bitwiseAccurate"),
+                         iConfig.getParameter<bool>("slimDataFormat")) {
   if (region_ != Region::Endcap && region_ != Region::Barrel) {
     edm::LogError("TrackInputEmulator") << "region '" << iConfig.getParameter<std::string>("region")
                                         << "' is not yet supported";
@@ -79,12 +82,59 @@ l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
   }
 }
 
+edm::ParameterSetDescription l1ct::TrackInputEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  // region-independent parameters and/or defaults
+  description.add<uint32_t>("ptLUTBits", 11u);
+  description.add<int32_t>("etaPreOffs", 0);
+  description.add<bool>("etaSigned", true);
+  description.add<uint32_t>("phiBits", 10u);
+  description.add<uint32_t>("z0Bits", 12u);
+  description.ifValue(edm::ParameterDescription<std::string>("trackWordEncoding", "biased", true),
+                      edm::allowedValues<std::string>("biased", "unbised", "stepping"));
+  description.add<bool>("bitwiseAccurate", true);
+  description.add<bool>("slimDataFormat", false);
+  description.addUntracked<bool>("debug", false);
+  // region-dependent parameters and/or defaults
+  auto barrelParamerers = edm::ParameterDescription<uint32_t>("etaLUTBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("etaShift", 15 - 10, true) and
+                          edm::ParameterDescription<int32_t>("etaPostOffs", 0, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelBits", 8, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelZ0PreShift", 2, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelZ0PostShift", 2, true) and
+                          edm::ParameterDescription<double>("dEtaBarrelFloatOffs", 0.0, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelBits", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelRInvPreShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelRInvPostShift", 4, true) and
+                          edm::ParameterDescription<double>("dPhiBarrelFloatOffs", 0.0, true);
+  auto endcapParameters = edm::ParameterDescription<uint32_t>("etaLUTBits", 11, true) and
+                          edm::ParameterDescription<uint32_t>("etaShift", 15 - 11, true) and
+                          edm::ParameterDescription<int32_t>("etaPostOffs", 150, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalZ0PreShift", 2, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalRInvPreShift", 6, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalLUTBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalLUTShift", 2, true) and
+                          edm::ParameterDescription<double>("dEtaHGCalFloatOffs", 0.0, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalBits", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalZ0PreShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalZ0PostShift", 6, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalRInvShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalTanlInvShift", 22, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalTanlLUTBits", 10, true) and
+                          edm::ParameterDescription<double>("dPhiHGCalFloatOffs", 0.0, true);
+  description.ifValue(edm::ParameterDescription<std::string>("region", "barrel", true),
+                      "barrel" >> std::move(barrelParamerers) or "endcap" >> std::move(endcapParameters));
+  return description;
+}
+
 #endif
 
-l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, bool bitwise)
+l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, bool bitwise, bool slim)
     : region_(region),
       encoding_(encoding),
       bitwise_(bitwise),
+      slim_(slim),
       rInvToPt_(31199.5),
       phiScale_(0.00038349520),
       z0Scale_(0.00999469),
@@ -100,7 +150,8 @@ l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, b
 
 std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96> tkword,
                                                                       const l1ct::PFRegionEmu &sector,
-                                                                      bool bitwise) const {
+                                                                      bool bitwise,
+                                                                      bool slim) const {
   l1ct::TkObjEmu ret;
   ret.clear();
   auto z0 = signedZ0(tkword);
@@ -162,13 +213,20 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
         fDEta = floatDEtaHGCal(z0, Rinv, tanl);
         fDPhi = floatDPhiHGCal(z0, Rinv, tanl);
       }
-
       ret.hwDPhi = std::round(fDPhi);
       ret.hwDEta = std::round(fDEta);
       ret.hwPhi = std::round(fvtxPhi - fDPhi * ret.intCharge());
       ret.hwEta = glbeta_t(std::round(fvtxEta)) - ret.hwDEta - sector.hwEtaCenter;
 
       ret.hwZ0 = l1ct::Scales::makeZ0(floatZ0(z0));
+    }
+
+    if (!slim) {
+      ap_uint<7> w_hitPattern = tkword(15, 9);
+      ret.hwStubs = countSetBits(w_hitPattern);
+      ret.hwRedChi2RZ = tkword(35, 32);
+      ret.hwRedChi2RPhi = tkword(67, 64);
+      ret.hwRedChi2Bend = tkword(18, 16);
     }
 
     oksel = ret.hwQuality != 0;

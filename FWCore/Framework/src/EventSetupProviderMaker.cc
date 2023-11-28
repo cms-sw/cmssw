@@ -35,7 +35,7 @@ namespace edm {
 
       //recordToData.insert(std::make_pair(std::string("DummyRecord"),
       //      std::make_pair(std::string("DummyData"), std::string())));
-      //preferInfo[ComponentDescription("DummyProxyProvider", "", false)]=
+      //preferInfo[ComponentDescription("DummyESProductResolverProvider", "", false)]=
       //      recordToData;
 
       for (std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end(); itName != itNameEnd;

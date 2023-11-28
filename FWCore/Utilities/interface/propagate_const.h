@@ -65,7 +65,7 @@ namespace edm {
     constexpr element_type const* operator->() const { return this->get(); }
     constexpr element_type const& operator*() const { return *m_value; }
 
-    constexpr operator element_type const *() const { return this->get(); }
+    constexpr operator element_type const*() const { return this->get(); }
 
     // ---------- member functions ---------------------------
     constexpr element_type* get() { return to_raw_pointer(m_value); }

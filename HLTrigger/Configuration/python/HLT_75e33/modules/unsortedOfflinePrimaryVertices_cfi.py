@@ -26,7 +26,7 @@ unsortedOfflinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
         trackQuality = cms.string('any')
     ),
     TrackLabel = cms.InputTag("generalTracks"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
+    beamSpotLabel = cms.InputTag("hltOnlineBeamSpot"),
     verbose = cms.untracked.bool(False),
     vertexCollections = cms.VPSet(
         cms.PSet(

@@ -79,7 +79,7 @@ namespace cms {
         what_(other.what_),
         context_(other.context_),
         additionalInfo_(other.additionalInfo_),
-        alreadyPrinted_(other.alreadyPrinted_) {
+        alreadyPrinted_(other.alreadyPrinted_.load()) {
     ost_ << other.ost_.str();
   }
 
@@ -91,7 +91,11 @@ namespace cms {
     what_.swap(other.what_);
     context_.swap(other.context_);
     additionalInfo_.swap(other.additionalInfo_);
-    std::swap(alreadyPrinted_, other.alreadyPrinted_);
+    // It is not possible to atomically swap atomics
+    // This should be good enough for current use cases.
+    bool temp = alreadyPrinted_.load();
+    alreadyPrinted_ = other.alreadyPrinted_.load();
+    other.alreadyPrinted_ = temp;
   }
 
   Exception& Exception::operator=(Exception const& other) {
@@ -174,9 +178,9 @@ namespace cms {
 
   void Exception::setAdditionalInfo(std::list<std::string> const& info) { additionalInfo_ = info; }
 
-  bool Exception::alreadyPrinted() const { return alreadyPrinted_; }
+  bool Exception::alreadyPrinted() const { return alreadyPrinted_.load(); }
 
-  void Exception::setAlreadyPrinted(bool value) { alreadyPrinted_ = value; }
+  void Exception::setAlreadyPrinted() { alreadyPrinted_.exchange(true); }
 
   Exception* Exception::clone() const { return new Exception(*this); }
 

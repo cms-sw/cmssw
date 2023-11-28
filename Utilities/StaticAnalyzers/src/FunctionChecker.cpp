@@ -104,7 +104,12 @@ namespace clangcms {
       std::string buf;
       llvm::raw_string_ostream os(buf);
       os << "function '" << dname << "' accesses or modifies non-const static local variable '" << svname << "'.\n";
-      //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+      BR.EmitBasicReport(D,
+                         Checker->getCheckerName(),
+                         "non-const static local variable accessed or modified",
+                         "ThreadSafety",
+                         os.str(),
+                         DLoc);
       std::string ostring = "function '" + sdname + "' static variable '" + vname + "'.\n";
       support::writeLog(ostring, tname);
       return;
@@ -115,7 +120,12 @@ namespace clangcms {
       llvm::raw_string_ostream os(buf);
       os << "function '" << dname << "' accesses or modifies non-const static member data variable '" << svname
          << "'.\n";
-      //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+      BR.EmitBasicReport(D,
+                         Checker->getCheckerName(),
+                         "non-const static local variable accessed or modified",
+                         "ThreadSafety",
+                         os.str(),
+                         DLoc);
       std::string ostring = "function '" + sdname + "' static variable '" + vname + "'.\n";
       support::writeLog(ostring, tname);
       return;
@@ -125,7 +135,12 @@ namespace clangcms {
       std::string buf;
       llvm::raw_string_ostream os(buf);
       os << "function '" << dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
-      //		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+      BR.EmitBasicReport(D,
+                         Checker->getCheckerName(),
+                         "non-const static local variable accessed or modified",
+                         "ThreadSafety",
+                         os.str(),
+                         DLoc);
       std::string ostring = "function '" + sdname + "' static variable '" + vname + "'.\n";
       support::writeLog(ostring, tname);
       return;
@@ -159,8 +174,10 @@ namespace clangcms {
         os << "function '" << dname
            << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a "
               "'COMMONBLOCK'.\n";
-        clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
-        //		BR.EmitBasicReport(FD, "COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
+        clang::ento::PathDiagnosticLocation FDLoc =
+            clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
+        BR.EmitBasicReport(
+            FD, this->getCheckerName(), "COMMONBLOCK variable accessed or modified", "ThreadSafety", os.str(), FDLoc);
         std::string ostring = "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
         std::string tname = "function-checker.txt.unsorted";
         support::writeLog(ostring, tname);

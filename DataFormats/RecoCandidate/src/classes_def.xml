@@ -25,7 +25,8 @@
    <version ClassVersion="11" checksum="2294254376"/>
    <version ClassVersion="10" checksum="4182970126"/>
   </class>
-  <class name="reco::CaloRecHitCandidate" ClassVersion="12">
+  <class name="reco::CaloRecHitCandidate" ClassVersion="13">
+   <version ClassVersion="13" checksum="1653614292"/>
    <version ClassVersion="12" checksum="878375709"/>
    <version ClassVersion="11" checksum="85197237"/>
    <version ClassVersion="10" checksum="1441861764"/>
@@ -112,7 +113,6 @@
   <class name="edm::reftobase::RefHolder<reco::RecoEcalCandidateRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoEcalCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector>" />
-
 
   <class name="reco::IsoDeposit" ClassVersion="10">
    <version ClassVersion="10" checksum="2477314412"/>

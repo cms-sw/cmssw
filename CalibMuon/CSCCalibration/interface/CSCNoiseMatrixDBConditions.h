@@ -84,8 +84,6 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
   CSCDBNoiseMatrix *cndbmatrix = new CSCDBNoiseMatrix();
 
   int counter;
-  int db_nrlines = 0;
-  int new_nrlines = 0;
 
   std::ifstream dbdata;
   dbdata.open("old_dbmatrix.dat", std::ios::in);
@@ -110,7 +108,6 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
     db_elem66.push_back(db_elm66);
     db_elem67.push_back(db_elm67);
     db_elem77.push_back(db_elm77);
-    db_nrlines++;
   }
   dbdata.close();
 
@@ -138,7 +135,6 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
     new_elem66.push_back(new_elm66);
     new_elem67.push_back(new_elm67);
     new_elem77.push_back(new_elm77);
-    new_nrlines++;
   }
   newdata.close();
 

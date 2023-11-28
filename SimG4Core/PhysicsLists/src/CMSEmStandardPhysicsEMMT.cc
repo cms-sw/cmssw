@@ -1,6 +1,3 @@
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMMT.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsTrackingManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -85,5 +82,3 @@ void CMSEmStandardPhysicsEMMT::ConstructProcess() {
   ph->RegisterProcess(muNucProcess, G4MuonPlus::MuonPlus());
   ph->RegisterProcess(muNucProcess, G4MuonMinus::MuonMinus());
 }
-
-#endif

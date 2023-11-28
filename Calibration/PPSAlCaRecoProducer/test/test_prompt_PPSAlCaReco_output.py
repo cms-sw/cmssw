@@ -6,7 +6,7 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 process = cms.Process( 'TEST',ctpps_2018)
 
 # LHCInfo plotter
-process.load("Validation.CTPPS.ctppsLHCInfoPlotter_cfi")
+process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cff')
 process.ctppsLHCInfoPlotter.outputFile = "alcareco_lhc_info_prompt.root"
 
 # Load geometry from DB

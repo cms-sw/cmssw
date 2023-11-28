@@ -31,10 +31,16 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
+<<<<<<< HEAD
     FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
     SkipEvent = cms.untracked.vstring(),
+=======
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),

@@ -39,7 +39,7 @@ namespace edm {
   namespace eventsetup {
     struct ComponentDescription;
     class DataKey;
-    class DataProxyProvider;
+    class ESProductResolverProvider;
     class EventSetupProvider;
     class EventSetupRecordImpl;
     class ParameterSetIDHolder;
@@ -72,8 +72,8 @@ namespace edm {
       ///Returns the list of Records the provided Record depends on (usually none)
       std::set<EventSetupRecordKey> dependentRecords() const;
 
-      ///return information on which DataProxyProviders are supplying information
-      std::set<ComponentDescription> proxyProviderDescriptions() const;
+      ///return information on which ESProductResolverProviders are supplying information
+      std::set<ComponentDescription> resolverProviderDescriptions() const;
 
       /// The available DataKeys in the Record. The order can be used to request the data by index
       std::vector<DataKey> registeredDataKeys() const;
@@ -81,15 +81,15 @@ namespace edm {
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
       // ---------- member functions ---------------------------
 
-      ///returns the first matching DataProxyProvider or a 'null' if not found
-      std::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&);
+      ///returns the first matching ESProductResolverProvider or a 'null' if not found
+      std::shared_ptr<ESProductResolverProvider> resolverProvider(ComponentDescription const&);
 
-      ///returns the first matching DataProxyProvider or a 'null' if not found
-      std::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&);
+      ///returns the first matching ESProductResolverProvider or a 'null' if not found
+      std::shared_ptr<ESProductResolverProvider> resolverProvider(ParameterSetIDHolder const&);
 
-      void resetProxyProvider(ParameterSetIDHolder const&, std::shared_ptr<DataProxyProvider> const&);
+      void resetProductResolverProvider(ParameterSetIDHolder const&, std::shared_ptr<ESProductResolverProvider> const&);
 
-      void add(std::shared_ptr<DataProxyProvider>);
+      void add(std::shared_ptr<ESProductResolverProvider>);
       ///For now, only use one finder
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
@@ -112,7 +112,7 @@ namespace edm {
       void continueIOV(bool newEventSetupImpl);
 
       /** The asynchronous task called when an IOV ends calls this function. It clears the caches
-       *  of the DataProxy's.
+       *  of the ESProductResolver's.
        */
       void endIOV(unsigned int iovIndex);
 
@@ -151,18 +151,18 @@ namespace edm {
 
       void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const;
 
-      void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
+      void resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap);
 
       void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
 
     protected:
-      void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<DataProxyProvider>>& dpp,
+      void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>& dpp,
                                     DataToPreferredProviderMap const& mp) {
         addProxiesToRecord(get_underlying_safe(dpp), mp);
       }
-      void addProxiesToRecord(std::shared_ptr<DataProxyProvider>, DataToPreferredProviderMap const&);
+      void addProxiesToRecord(std::shared_ptr<ESProductResolverProvider>, DataToPreferredProviderMap const&);
 
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());
@@ -184,7 +184,7 @@ namespace edm {
       EventSetupRecordImpl const* recordImpl_ = nullptr;
 
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
-      std::vector<edm::propagate_const<std::shared_ptr<DataProxyProvider>>> providers_;
+      std::vector<edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>> providers_;
       std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
           multipleFinders_;
 

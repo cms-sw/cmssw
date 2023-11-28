@@ -53,7 +53,7 @@ namespace edm::eventsetup::impl {
     ~MayConsumeChooserBase() override = default;
 
     // ---------- const member functions ---------------------
-    virtual ESProxyIndex makeChoice(RCD const& iRecord) const = 0;
+    virtual ESResolverIndex makeChoice(RCD const& iRecord) const = 0;
   };
 }  // namespace edm::eventsetup::impl
 

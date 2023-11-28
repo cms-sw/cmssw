@@ -95,7 +95,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //definition of the region
     //+++++++++++++++++++++++++
 
-    int nmuons = 0;
     for (reco::MuonCollection::const_iterator staMuon = muonsHandle->begin(); staMuon != muonsHandle->end();
          ++staMuon) {
       //select sta muons
@@ -109,7 +108,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
         continue;
 
       //debug
-      nmuons++;
       LogDebug("CosmicRegionalSeedGenerator") << "Muon stand alone found in the collection - in muons chambers: \n "
                                               << "Position = " << staMuon->standAloneMuon()->outerPosition() << "\n "
                                               << "Momentum = " << staMuon->standAloneMuon()->outerMomentum() << "\n "
@@ -237,15 +235,12 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //definition of the region
     //+++++++++++++++++++++++++
 
-    int nmuons = 0;
     for (reco::TrackCollection::const_iterator cosmicMuon = cosmicMuonsHandle->begin();
          cosmicMuon != cosmicMuonsHandle->end();
          ++cosmicMuon) {
       //bit 25 as a coverage -1.4 < eta < 1.4
       if (abs(cosmicMuon->eta()) > 1.5)
         continue;
-
-      nmuons++;
 
       //initial position, momentum, charge
       GlobalPoint initialRegionPosition(
@@ -364,7 +359,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //definition of the region
     //+++++++++++++++++++++++++
 
-    int nmuons = 0;
     for (reco::RecoChargedCandidateCollection::const_iterator L2Muon = L2MuonsHandle->begin();
          L2Muon != L2MuonsHandle->end();
          ++L2Muon) {
@@ -373,8 +367,6 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //bit 25 as a coverage -1.4 < eta < 1.4
       if (abs(tkL2Muon->eta()) > 1.5)
         continue;
-
-      nmuons++;
 
       //initial position, momentum, charge
       GlobalPoint initialRegionPosition(

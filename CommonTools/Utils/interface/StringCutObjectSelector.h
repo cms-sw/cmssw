@@ -7,8 +7,8 @@
  * $Id: StringCutObjectSelector.h,v 1.4 2012/06/26 21:09:37 wmtan Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "CommonTools/Utils/interface/SelectorPtr.h"
-#include "CommonTools/Utils/interface/SelectorBase.h"
+#include "CommonTools/Utils/interface/parser/SelectorPtr.h"
+#include "CommonTools/Utils/interface/parser/SelectorBase.h"
 #include "CommonTools/Utils/interface/cutParser.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 

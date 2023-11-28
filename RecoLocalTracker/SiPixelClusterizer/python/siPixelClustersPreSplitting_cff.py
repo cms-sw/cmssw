@@ -15,24 +15,37 @@ siPixelClustersPreSplittingTask = cms.Task(
 )
 
 # reconstruct the pixel digis and clusters on the gpu
-from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
+from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDAPhase1_cfi import siPixelRawToClusterCUDAPhase1 as _siPixelRawToClusterCUDA
+from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDAHIonPhase1_cfi import siPixelRawToClusterCUDAHIonPhase1 as _siPixelRawToClusterCUDAHIonPhase1
 siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
+
+# HIon Modifiers
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+# Phase 2 Tracker Modifier
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingCUDA, _siPixelRawToClusterCUDAHIonPhase1.clone())
 
 run3_common.toModify(siPixelClustersPreSplittingCUDA,
                      # use the pixel channel calibrations scheme for Run 3
-                     isRun2 = False,
-                     clusterThreshold_layer1 = 4000)
+                     clusterThreshold_layer1 = 4000,
+                     VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
+                     VCaltoElectronGain_L1   = 1,
+                     VCaltoElectronOffset    = 0,
+                     VCaltoElectronOffset_L1 = 0)
 
-# convert the pixel digis (except errors) and clusters to the legacy format
+
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase1_cfi import siPixelDigisClustersFromSoAPhase1 as _siPixelDigisClustersFromSoAPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase2_cfi import siPixelDigisClustersFromSoAPhase2 as _siPixelDigisClustersFromSoAPhase2
 
 siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoAPhase1.clone()
 
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAHIonPhase1_cfi import siPixelDigisClustersFromSoAHIonPhase1 as _siPixelDigisClustersFromSoAHIonPhase1
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting, _siPixelDigisClustersFromSoAHIonPhase1.clone())
+
+
 run3_common.toModify(siPixelDigisClustersPreSplitting,
                      clusterThreshold_layer1 = 4000)
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # conditions used *only* by the modules running on GPU
@@ -50,7 +63,14 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelPhase2DigiToClusterCUDA_cfi impo
 # for phase2 no pixel raw2digi is available at the moment
 # so we skip the raw2digi step and run on pixel digis copied to gpu
 
-phase2_tracker.toReplaceWith(siPixelClustersPreSplittingCUDA,_siPixelPhase2DigiToClusterCUDA.clone())
+from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import PixelDigitizerAlgorithmCommon
+
+phase2_tracker.toReplaceWith(siPixelClustersPreSplittingCUDA,_siPixelPhase2DigiToClusterCUDA.clone(
+  Phase2ReadoutMode = PixelDigitizerAlgorithmCommon.Phase2ReadoutMode.value(), # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
+  Phase2DigiBaseline = int(PixelDigitizerAlgorithmCommon.ThresholdInElectrons_Barrel.value()), #Same for barrel and endcap
+  Phase2KinkADC = 8,
+  ElectronPerADCGain = PixelDigitizerAlgorithmCommon.ElectronPerAdc.value()
+))
 
 from EventFilter.SiPixelRawToDigi.siPixelDigisSoAFromCUDA_cfi import siPixelDigisSoAFromCUDA as _siPixelDigisSoAFromCUDA
 siPixelDigisPhase2SoA = _siPixelDigisSoAFromCUDA.clone(

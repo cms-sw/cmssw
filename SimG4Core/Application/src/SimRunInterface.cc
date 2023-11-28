@@ -5,7 +5,7 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -15,11 +15,9 @@ SimRunInterface::SimRunInterface(RunManagerMT* runm, bool master)
 SimRunInterface::SimRunInterface(RunManagerMTWorker* runm, bool master)
     : m_runManagerMT(nullptr), m_runManagerMTWorker(runm), m_SimTrackManager(nullptr), m_isMaster(master) {
   if (m_runManagerMTWorker) {
-    m_SimTrackManager = m_runManagerMTWorker->GetSimTrackManager();
+    m_SimTrackManager = m_runManagerMTWorker->getSimTrackManager();
   }
 }
-
-SimRunInterface::~SimRunInterface() {}
 
 void SimRunInterface::setRunManagerMTWorker(RunManagerMTWorker* run) { m_runManagerMTWorker = run; }
 
@@ -63,8 +61,8 @@ void SimRunInterface::abortRun(bool softAbort) {
   }
 }
 
-G4SimEvent* SimRunInterface::simEvent() {
-  G4SimEvent* ptr = nullptr;
+TmpSimEvent* SimRunInterface::simEvent() {
+  TmpSimEvent* ptr = nullptr;
   if (m_runManagerMTWorker) {
     ptr = m_runManagerMTWorker->simEvent();
   }

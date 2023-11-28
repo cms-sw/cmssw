@@ -114,7 +114,7 @@ BTagMu_AK8Jet170_DoubleMu5 = hltBTVmonitoring.clone(
 )
 
 # PFJet AK4
-PFJet40 = hltBTVmonitoring.clone(
+BTagMonitor_PFJet40 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/PFJet40',
     nmuons = 0,
     nelectrons = 0,
@@ -126,7 +126,7 @@ PFJet40 = hltBTVmonitoring.clone(
 )
 
 # PFJet AK8
-AK8PFJet40 = hltBTVmonitoring.clone(
+BTagMonitor_AK8PFJet40 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/AK8PFJet40',
     nmuons = 0,
     nelectrons = 0,
@@ -139,7 +139,7 @@ AK8PFJet40 = hltBTVmonitoring.clone(
 )
 
 # PFJetFwd AK4
-PFJetFwd40 = hltBTVmonitoring.clone(
+BTagMonitor_PFJetFwd40 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/PFJetFwd40',
     nmuons = 0,
     nelectrons = 0,
@@ -156,7 +156,7 @@ PFJetFwd40 = hltBTVmonitoring.clone(
 )
 
 # PFJetFwd AK8
-AK8PFJetFwd40 = hltBTVmonitoring.clone(
+BTagMonitor_AK8PFJetFwd40 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/AK8PFJetFwd40',
     nmuons = 0,
     nelectrons = 0,
@@ -188,8 +188,8 @@ btagMonitorHLT = cms.Sequence(
 )
 
 btvHLTDQMSourceExtra = cms.Sequence(
-    PFJet40
-  + AK8PFJet40
-  + PFJetFwd40
-  + AK8PFJetFwd40
+    BTagMonitor_PFJet40
+  + BTagMonitor_AK8PFJet40
+  + BTagMonitor_PFJetFwd40
+  + BTagMonitor_AK8PFJetFwd40
 )

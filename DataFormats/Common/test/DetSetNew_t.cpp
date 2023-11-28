@@ -8,8 +8,8 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 struct B {
   virtual ~B() {}
@@ -381,7 +381,7 @@ namespace {
   struct Getter final : public DSTV::Getter {
     Getter(TestDetSet *itest) : ntot(0), test(*itest) {}
 
-    void fill(TSFF &ff) override {
+    void fill(TSFF &ff) const override {
       aborted = false;
       try {
         const int n = ff.id() - 20;
@@ -403,8 +403,8 @@ namespace {
       }
     }
 
-    unsigned int ntot;
-    bool aborted = false;
+    mutable unsigned int ntot;
+    mutable bool aborted = false;
     TestDetSet &test;
   };
 

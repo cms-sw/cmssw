@@ -9,7 +9,7 @@ from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks
+from RecoTracker.PixelTrackFitting.pixelTracks_cfi import pixelTracks
 from RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProducer_cfi import *
 pixelTTRHBuilderWithoutAngle = ttrhbwr.clone(
     StripCPE      = 'Fake',

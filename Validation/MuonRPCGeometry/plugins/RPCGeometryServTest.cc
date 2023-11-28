@@ -43,13 +43,11 @@ void RPCGeometryServTest::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
   std::cout << "iter " << dashedLine_ << std::endl;
 
-  int iRPCCHcount = 0;
   LocalPoint a(0., 0., 0.);
   for (TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     //----------------------- RPCCHAMBER TEST ---------------------------
 
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
-      ++iRPCCHcount;
       const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());

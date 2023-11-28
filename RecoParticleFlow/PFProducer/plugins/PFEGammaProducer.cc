@@ -192,11 +192,9 @@ void PFEGammaProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
   // single hcal and produce unbiased collection of EGamma Candidates
 
   //printf("loop over blocks\n");
-  unsigned nblcks = 0;
 
   // this auto is a const reco::PFBlockRef&
   for (const auto& blockref : otherBlockRefs) {
-    ++nblcks;
     // this auto is a: const edm::OwnVector< reco::PFBlockElement >&
     const auto& elements = blockref->elements();
     // make a copy of the link data, which will be edited.

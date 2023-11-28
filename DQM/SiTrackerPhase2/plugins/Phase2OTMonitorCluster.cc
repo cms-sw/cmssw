@@ -105,6 +105,12 @@ void Phase2OTMonitorCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Getting the clusters
   const auto& clusterHandle = iEvent.getHandle(clustersToken_);
+
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("Phase2OTMonitorCluster") << "No Phase2TrackerCluster1D Collection found in the event. Skipping!";
+    return;
+  }
+
   // Number of clusters
   std::map<std::string, unsigned int> nClustersCounter_P;  //map of detidkey vs #cls
   std::map<std::string, unsigned int> nClustersCounter_S;  //map of detidkey vs #cls

@@ -47,6 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSetDescription psetX;
       psetX.add<double>("alpaka_serial_sync", 0.);
       psetX.add<double>("alpaka_cuda_async", 0.);
+      psetX.add<double>("alpaka_rocm_async", 0.);
       desc.add("xvalue", psetX);
 
       descriptions.addWithDefaultLabel(desc);

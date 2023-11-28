@@ -6,7 +6,7 @@ template <typename T>
 class churn_allocator : public std::allocator<T> {
 public:
   using Base = std::allocator<T>;
-  using pointer = typename Base::pointer;
+  using pointer = typename std::allocator_traits<std::allocator<T>>::pointer;
   using size_type = typename Base::size_type;
 
   struct Cache {
@@ -24,10 +24,10 @@ public:
     typedef churn_allocator<_Tp1> other;
   };
 
-  pointer allocate(size_type n, const void *hint = nullptr) {
+  pointer allocate(size_type n) {
     Cache &c = cache();
     if (!c.gard)
-      c.cache = std::allocator<T>::allocate(n, hint);
+      c.cache = std::allocator<T>::allocate(n);
     c.gard = false;
     return c.cache;
   }

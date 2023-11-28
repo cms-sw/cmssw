@@ -8,7 +8,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimG4CMS/Calo/interface/HGCSD.h"
 
@@ -40,7 +40,7 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    const HGCalDDDConstants* hgc = nullptr;
+    const HGCalTBDDDConstants* hgc = nullptr;
     for (int k = 0; k < num_; ++k) {
       if (iname.find(name1_[k]) != std::string::npos) {
         if (hgcons_[k].isValid())
@@ -58,8 +58,8 @@ private:
   const std::string name0_[nameSize_] = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   const std::string name1_[nameSize_] = {"HitsEE", "HitsHEfront", "HitsHEback"};
   int num_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> hgcToken_;
-  std::vector<edm::ESHandle<HGCalDDDConstants>> hgcons_;
+  std::vector<edm::ESGetToken<HGCalTBDDDConstants, IdealGeometryRecord>> hgcToken_;
+  std::vector<edm::ESHandle<HGCalTBDDDConstants>> hgcons_;
 };
 
 typedef HGCSD HGCSensitiveDetector;

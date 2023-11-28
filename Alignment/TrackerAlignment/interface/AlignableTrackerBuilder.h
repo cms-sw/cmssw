@@ -49,6 +49,9 @@ private:  //==================================================================
   void buildStripDetectorAlignable(
       const GeomDet*, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update = false);
 
+  void buildOuterTrackerDetectorAlignable(
+      const GeomDet*, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update = false);
+
   /// Builds all composite Alignables for the tracker. The hierarchy and
   /// numbers of components are determined in TrackerAlignmentLevelBuilder.
   void buildAlignableComposites(bool update = false);
@@ -56,6 +59,8 @@ private:  //==================================================================
   void buildPixelDetector(AlignableTracker*);
   /// Builds the StripDetector by hand.
   void buildStripDetector(AlignableTracker*);
+  /// Builds the Phase-2 Outer Tracker Detector by hand.
+  void buildOuterTrackerDetector(AlignableTracker*);
 
   //========================== PRIVATE DATA ===================================
   //===========================================================================

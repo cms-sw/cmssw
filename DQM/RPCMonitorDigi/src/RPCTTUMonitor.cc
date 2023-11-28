@@ -57,28 +57,24 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //. RPC
     if (m_rpcTrigger) {
-      int ndec(0);
       const int bx1 = (bxX - m_GMTcandidatesBx[0]);
       for (const auto& dec : ttuDec) {
         if (dec.second) {
           const int bx2 = dec.first;
           const float bxdiffPacTT = 1.0 * (bx1 - bx2);
           m_bxDistDiffPac[k]->Fill(bxdiffPacTT);
-          ++ndec;
         }
       }
     }
 
     //.. DT
     if (m_dtTrigger) {
-      int ndec(0);
       const int bx1 = (bxX - m_DTcandidatesBx[0]);
       for (const auto& dec : ttuDec) {
         if (dec.second) {
           const int bx2 = dec.first;
           const float bxdiffDtTT = 1.0 * (bx1 - bx2);
           m_bxDistDiffDt[k]->Fill(bxdiffDtTT);
-          ++ndec;
         }
       }
     }

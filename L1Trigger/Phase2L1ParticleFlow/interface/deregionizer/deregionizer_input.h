@@ -2,46 +2,67 @@
 #define L1Trigger_Phase2L1ParticleFlow_deregionizer_input_h
 
 #include <vector>
+#include <algorithm>
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+
+namespace edm {
+  class ParameterSet;
+}
 
 namespace l1ct {
 
   class DeregionizerInput {
   public:
-    static const unsigned int nEtaRegions =
-        6 /*7 with HF*/;  // Fold ([-0.5,0.0] and [0.0,+0.5]) and ([+-0.5,+-1.0] and [+-1.0,+-1.5]) eta slices into phi
-    static const unsigned int nPhiRegions =
-        18;  // 9 phi slices * 2 to account for the barrel having x2 PF regions per eta slice in the barrel
+    // struct to represent how each correlator layer 1 board output is structured
+    struct BoardInfo {
+      uint nOutputFramesPerBX_;
+      uint nPuppiFramesPerRegion_;
+      uint nLinksPuppi_;
+      uint nPuppiPerRegion_;
+      uint order_;
+      std::vector<uint> regions_;
+    };
 
-    DeregionizerInput(std::vector<float> &regionEtaCenter,
-                      std::vector<float> &regionPhiCenter,
-                      const std::vector<l1ct::OutputRegion> &inputRegions);
+    // struct to represent how each puppi object is positioned in the input frame
+    struct LinkPlacementInfo {
+      uint board_;
+      uint link_;
+      uint clock_cycle_;
+      // for sorting
+      bool operator<(const LinkPlacementInfo &other) const {
+        bool cc_lt = this->clock_cycle_ < other.clock_cycle_;
+        bool cc_eq = this->clock_cycle_ == other.clock_cycle_;
+        bool board_lt = this->board_ < other.board_;
+        bool board_eq = this->board_ == other.board_;
+        bool link_lt = this->link_ < other.link_;
+        return cc_eq ? (board_eq ? link_lt : board_lt) : cc_lt;
+      }
+    };
+    typedef LinkPlacementInfo LPI;
+    typedef std::pair<l1ct::PuppiObjEmu, LPI> PlacedPuppi;
+
+    std::vector<BoardInfo> boardInfos_;
+
+    // note: this one for use in standalone testbench
+    DeregionizerInput(std::vector<BoardInfo> boardInfos) : boardInfos_(boardInfos) {}
+
+    // note: this one will work only in CMSSW
+    DeregionizerInput(const std::vector<edm::ParameterSet> linkConfigs);
+
+    ~DeregionizerInput(){};
+
+    std::vector<std::pair<l1ct::PuppiObjEmu, LPI>> inputOrderInfo(
+        const std::vector<l1ct::OutputRegion> &inputRegions) const;
+    std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> orderInputs(
+        const std::vector<l1ct::OutputRegion> &inputRegions) const;
 
     void setDebug(bool debug = true) { debug_ = debug; }
 
-    enum regionIndex {
-      centralBarl = 0,
-      negBarl = 1,
-      posBarl = 2,
-      negHGCal = 3,
-      posHGCal = 4,
-      forwardHGCal = 5 /*, HF = 6*/
-    };
-    void orderRegions(int order[nEtaRegions]);
-
-    const std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > > &orderedInRegionsPuppis() const {
-      return orderedInRegionsPuppis_;
-    };
-
   private:
-    std::vector<float> regionEtaCenter_;
-    std::vector<float> regionPhiCenter_;
-    std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > > orderedInRegionsPuppis_;
-
     bool debug_ = false;
-
-    unsigned int orderRegionsInPhi(const float eta, const float phi, const float etaComp) const;
-    void initRegions(const std::vector<l1ct::OutputRegion> &inputRegions);
+    // these are not configurable in current design
+    static constexpr uint nInputFramesPerBX_ = 9;
+    static constexpr uint tmuxFactor_ = 6;
   };
 
 }  // namespace l1ct

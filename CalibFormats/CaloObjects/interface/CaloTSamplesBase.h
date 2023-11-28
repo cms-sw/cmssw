@@ -8,13 +8,13 @@
 template <class Ttype>
 class CaloTSamplesBase {
 public:
-  CaloTSamplesBase<Ttype>(Ttype *mydata, uint32_t size);
+  CaloTSamplesBase(Ttype *mydata, uint32_t size);
 
-  CaloTSamplesBase<Ttype>(const CaloTSamplesBase<Ttype> &cs);
+  CaloTSamplesBase(const CaloTSamplesBase<Ttype> &cs);
 
-  CaloTSamplesBase<Ttype>(Ttype *mydata, uint32_t length, const DetId &id, uint32_t size, uint32_t pre);
+  CaloTSamplesBase(Ttype *mydata, uint32_t length, const DetId &id, uint32_t size, uint32_t pre);
 
-  virtual ~CaloTSamplesBase<Ttype>();
+  virtual ~CaloTSamplesBase();
 
   void setZero();
 

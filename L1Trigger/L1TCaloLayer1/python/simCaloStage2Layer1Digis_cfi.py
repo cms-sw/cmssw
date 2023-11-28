@@ -14,7 +14,8 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     useECALLUT = cms.bool(True),
     useHCALLUT = cms.bool(True),
     useHFLUT = cms.bool(True),
-    verbose = cms.bool(False),
+    useHCALFBLUT = cms.bool(False),
+    verbose = cms.untracked.bool(False),
     unpackEcalMask = cms.bool(False),
     unpackHcalMask = cms.bool(False),
     # See UCTLayer1.hh for firmware version

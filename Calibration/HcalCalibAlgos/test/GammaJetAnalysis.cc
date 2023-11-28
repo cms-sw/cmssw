@@ -1006,36 +1006,14 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     HERE("work");
 
-    int HBHE_n = 0;
     if (hbhereco.isValid()) {
       for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith =
                hbhereco->begin();
            ith != hbhereco->end();
            ++ith) {
-        HBHE_n++;
         if (iEvent.id().event() == debugEvent) {
           if (debug_ > 1)
             edm::LogVerbatim("GammaJetAnalysis") << (*ith).id().ieta() << " " << (*ith).id().iphi();
-        }
-      }
-    }
-    int HF_n = 0;
-    if (hfreco.isValid()) {
-      for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith = hfreco->begin();
-           ith != hfreco->end();
-           ++ith) {
-        HF_n++;
-        if (iEvent.id().event() == debugEvent) {
-        }
-      }
-    }
-    int HO_n = 0;
-    if (horeco.isValid()) {
-      for (edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>::const_iterator ith = horeco->begin();
-           ith != horeco->end();
-           ++ith) {
-        HO_n++;
-        if (iEvent.id().event() == debugEvent) {
         }
       }
     }
@@ -1128,8 +1106,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
 
       HERE("fill PF jet");
-
-      int ntypes = 0;
 
       /////////////////////////////////////////////
       // Get PF constituents and fill HCAL towers
@@ -1382,8 +1358,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
           float HFHAD_E = 0;
           float HFEM_E = 0;
-          int HFHAD_n_ = 0;
-          int HFEM_n_ = 0;
           int maxElement = (*it)->elementsInBlocks().size();
           if (debug_ > 1)
             edm::LogVerbatim("GammaJetAnalysis") << "maxElement=" << maxElement;
@@ -1490,9 +1464,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                   }                                                               // Loop over hits
                 }                                                                 // Test if element is from HCAL
                 else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
-                  ntypes++;
-                  HFHAD_n_++;
-
                   ////	h_etaHFHAD_->Fill((*it)->eta());
 
                   for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
@@ -1542,9 +1513,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HFEM) {  // Element is HF
-                  ntypes++;
-                  HFEM_n_++;
-
                   for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
                            hfreco->begin();
                        ith != hfreco->end();
@@ -1592,7 +1560,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HO) {  // Element is HO
-                  ntypes++;
                   reco::PFClusterRef clusterref = elements[iEle].clusterRef();
                   reco::PFCluster cluster = *clusterref;
                   double cluster_dR = deltaR(ppfjet_eta_, ppfjet_phi_, cluster.eta(), cluster.phi());

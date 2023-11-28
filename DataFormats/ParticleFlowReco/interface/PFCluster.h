@@ -97,8 +97,6 @@ namespace reco {
     /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false, bool isHadron = false);
 
-    PFCluster& operator=(const PFCluster&);
-
     /// some classes to make this fit into a template footprint
     /// for RecoPFClusterRefCandidate so we can make jets and MET
     /// out of PFClusters.

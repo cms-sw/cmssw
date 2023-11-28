@@ -228,6 +228,7 @@ private:
 
   edm::Handle<reco::TrackCollection> innerTrackCollectionHandle_;
   edm::Handle<reco::TrackCollection> outerTrackCollectionHandle_;
+  edm::Handle<reco::TrackCollection> outerTrackSecondaryCollectionHandle_;
   edm::Handle<reco::MuonCollection> muonCollectionHandle_;
   edm::Handle<reco::MuonTrackLinksCollection> linkCollectionHandle_;
   edm::Handle<reco::TrackToTrackMap> tpfmsCollectionHandle_;
@@ -237,6 +238,7 @@ private:
 
   edm::EDGetTokenT<reco::TrackCollection> innerTrackCollectionToken_;
   edm::EDGetTokenT<reco::TrackCollection> outerTrackCollectionToken_;
+  edm::EDGetTokenT<reco::TrackCollection> outerTrackSecondaryCollectionToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonCollectionToken_;
   edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkCollectionToken_;
   edm::EDGetTokenT<reco::TrackToTrackMap> tpfmsCollectionToken_;

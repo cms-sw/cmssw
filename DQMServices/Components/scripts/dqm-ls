@@ -22,9 +22,10 @@ from optparse import OptionParser
 from time import time, strptime, strftime, gmtime
 from calendar import timegm
 from datetime import datetime
-from urlparse import urlparse
+from urllib.parse import urlparse, quote
 from tempfile import mkstemp
 from traceback import print_exc
+from functools import cmp_to_key
 
 # Object types.
 DIR = 0
@@ -48,7 +49,7 @@ found = []
 def logme(msg, *args):
   """Generate agent log message."""
   procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
-  print datetime.now(), procid, msg % args
+  print(datetime.now(), procid, msg % args)
 
 def myumask():
   """Get the current process umask."""
@@ -65,7 +66,7 @@ def handle_init(c):
 def request_init(c, options, path, kind):
   """`RequestManager` callback to initialise directory contents request."""
 
-  c.setopt(pycurl.URL, options.server + urllib.quote(path) + ((path != "/" and "/") or ""))
+  c.setopt(pycurl.URL, options.server + quote(path) + ((path != "/" and "/") or ""))
   assert c.temp_file == None
   assert c.temp_path == None
   assert c.local_path == None
@@ -81,7 +82,7 @@ def request_init(c, options, path, kind):
       c.temp_path = tmp
       c.local_path = path.strip('/')
       c.buffer = None
-    except Exception, e:
+    except Exception as e:
       logme("ERROR: %s: %s", path, str(e))
       print_exc()
 
@@ -103,7 +104,7 @@ def cleanup(c):
 
 def report_error(c, task, errmsg, errno):
   """`RequestManager` callback to report directory contents request errors."""
-  print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
+  print("FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno), file=sys.stderr)
   global nfetched; nfetched += 1
 
 def parse_dir_and_files(c):
@@ -126,12 +127,12 @@ search progress, one dot for every ten directories retrieved."""
       c.temp_file.close()
       c.temp_file = None
 
-      os.chmod(c.temp_path, 0666 & ~UMASK)
+      os.chmod(c.temp_path, 0o0666 & ~UMASK)
       os.system('mv %s %s'  % (c.temp_path, c.local_path))
 
       c.local_path = None
       logme("INFO: downloaded %s", path)
-    except Exception, e:
+    except Exception as e:
       logme("ERROR: downloading %s into %s failed: %s",
             path, c.local_path, str(e))
       print_exc()
@@ -141,7 +142,7 @@ search progress, one dot for every ten directories retrieved."""
   elif kind == DIR:
     items = re.findall(r"<tr><td><a href='(.*?)'>(.*?)</a></td><td>(\d+|&nbsp;|-)</td>"
                        r"<td>(&nbsp;|\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d UTC)</td>",
-                       c.buffer.getvalue())
+                       c.buffer.getvalue().decode('utf-8'))
 
     for path, name, size, date in items:
       assert path.startswith(root_url)
@@ -193,7 +194,7 @@ search progress, one dot for every ten directories retrieved."""
         sys.stdout.write(".")
         sys.stdout.flush()
         if nfetched % 750 == 0:
-          print
+          print()
 
 def objcmp(a, b):
   diff = 0
@@ -228,10 +229,10 @@ op.add_option("-m", "--match_file", dest = "match_file",
               help = "Filter results based on exact file name matching.")
 options, args = op.parse_args()
 if args:
-  print >> sys.stderr, "Too many arguments"
+  print("Too many arguments", file=sys.stderr)
   sys.exit(1)
 if not options.server:
-  print >> sys.stderr, "Server contact string required"
+  print("Server contact string required", sys.stderr)
   sys.exit(1)
 
 UMASK = myumask()
@@ -246,9 +247,9 @@ if gr:
 # Get SSL X509 parametres.
 ssl_opts = SSLOptions()
 if options.verbose:
-  print "Using SSL cert dir", ssl_opts.ca_path
-  print "Using SSL private key", ssl_opts.key_file
-  print "Using SSL public key", ssl_opts.cert_file
+  print("Using SSL cert dir", ssl_opts.ca_path)
+  print("Using SSL private key", ssl_opts.key_file)
+  print("Using SSL public key", ssl_opts.cert_file)
 
 # Start a request manager for contents.
 reqman = RequestManager(num_connections = options.connections,
@@ -265,10 +266,10 @@ reqman.put((options, "/", DIR))
 reqman.process()
 end = time()
 
-for x in sorted(found, cmp=objcmp):
-  print "%20s\t%s\t%s" % (x['size'],
+for x in sorted(found, key=cmp_to_key(objcmp)):
+  print("%20s\t%s\t%s" % (x['size'],
                           strftime("%Y-%m-%d %H:%M:%S %Z", gmtime(x['date'])),
-                          ((options.recursive and x['path']) or x['name']))
+                          ((options.recursive and x['path']) or x['name'])))
 
 if options.verbose:
-  print "\nFound %d directories, %d objects in %.3f seconds" % (nfetched, len(found), end - start)
+  print("\nFound %d directories, %d objects in %.3f seconds" % (nfetched, len(found), end - start))

@@ -135,7 +135,7 @@ void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMarg
   txt.SetTextAngle(0);
 
   //# draw new-style title
-  txt.SetTextSize((topMargin == 0.02) ? 0.05 : 0.03);
+  txt.SetTextSize(0.03);
   txt.DrawLatex(0.5, ((index == 0) ? 0.95 : 0.93), (fmt::sprintf("Pixel Tracker Map: %s", m_title)).c_str());
   txt.SetTextSize(0.03);
 

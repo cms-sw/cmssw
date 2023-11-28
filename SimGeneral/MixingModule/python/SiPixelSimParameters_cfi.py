@@ -120,10 +120,8 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
 
 # use Label 'forDigitizer' for years >= 2018
-from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import siPixelQualityESProducer
 from Configuration.Eras.Modifier_run2_SiPixel_2018_cff import run2_SiPixel_2018
-run2_SiPixel_2018.toModify(siPixelQualityESProducer,siPixelQualityLabel = 'forDigitizer',)
-run2_SiPixel_2018.toModify(SiPixelSimBlock, SiPixelQualityLabel = 'forDigitizer',)
+run2_SiPixel_2018.toModify(SiPixelSimBlock, SiPixelQualityLabel = 'forDigitizer')
 
 # change the digitizer threshold for Run3
 # - new layer1 installed: expected improvement in timing alignment of L1 and L2

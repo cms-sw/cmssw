@@ -34,15 +34,6 @@ namespace edm::eventsetup {
     iTo = std::move(iFrom);
   }
 
-  template <typename FromT, typename ToT>
-  void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT& iTo) {
-    iTo = std::move(iFrom);
-  }
-  template <typename FromT, typename ToT>
-  void moveFromTo(std::optional<FromT>& iFrom, ToT& iTo) {
-    iTo = std::move(iFrom.value());
-  }
-
   namespace produce {
     struct Null {};
     template <typename T>

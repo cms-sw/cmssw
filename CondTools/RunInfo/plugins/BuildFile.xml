@@ -50,6 +50,7 @@
 <library file="L1TriggerScalerESAnalyzer.cc" name="CondToolsL1TriggerScalerESAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>  
+<<<<<<< HEAD
 
 <library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
   <flags EDM_PLUGIN="1"/>
@@ -74,6 +75,8 @@
 <library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
   <flags EDM_PLUGIN="1"/>
 </library>
+=======
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 
 <library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
   <flags EDM_PLUGIN="1"/>
@@ -83,7 +86,18 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-
 <library file="LHCInfoPerFillAnalyzer.cc" name="LHCInfoPerFillAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSPopConAnalyzer.cc" name="CondToolsLHCInfoPerLSPopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillPopConAnalyzer.cc" name="CondToolsLHCInfoPerFillPopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
   <flags EDM_PLUGIN="1"/>
 </library>

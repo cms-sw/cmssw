@@ -298,7 +298,18 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", "int16", doc="index of the first associated photon (-1 if none)"),
         svIdx = Var("?hasUserCand('vertex')?userCand('vertex').key():-1", "int16", doc="index of matching secondary vertex"),
+        fbrem = Var("fbrem()",float,doc="Fraction of brem",precision=10),                 
+        rawEnergy = Var("superCluster.rawEnergy",float,doc="raw energy of Supercluster",precision=10),
+        PreshowerEnergy = Var("superCluster.preshowerEnergy",float,doc="energy deposited in preshower",precision=10),                 
+        ecalEnergy = Var("ecalEnergy()",float,doc="energy after ECAL-only regression applied",precision=10),
+        ecalEnergyError = Var("ecalEnergyError",float,doc="ecalEnergy error",precision=10),
         energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
+        gsfTrkpMode = Var("gsfTrack().pMode()",float,doc="GSF track pMode",precision=10),
+        gsfTrkpModeErr = Var("abs(gsfTrack().qoverpModeError())*gsfTrack().pMode()*gsfTrack().pMode()",float,doc="GSF track pMode error",precision=8),
+        gsfTrketaMode = Var("gsfTrack().etaMode()",float,doc="GSF track etaMode",precision=10),
+        gsfTrkphiMode = Var("gsfTrack().phiMode()",float,doc="GSF track phiMode",precision=10),                 
+        isEcalDriven = Var("ecalDrivenSeed",bool,doc="is ECAL driven if true"),
+        isEB = Var("isEB",bool,doc="object in barrel if true derived from the seedCrystal and detID information"),                 
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
@@ -326,7 +337,11 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,doc="mini PF relative isolation, charged component"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU Winter22V1 corrections)"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component"),
+<<<<<<< HEAD
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU Winter22V1 corrections)"),
+=======
+        pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU Winter22V1 corrections)"),                
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
         jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8),        
         jetPtRelv2 = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0",float,doc="Relative momentum of the lepton with respect to the closest jet after subtracting the lepton",precision=8),
         dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
@@ -360,7 +375,11 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleDownNew')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
         dEsigmaUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
         dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaDownNew')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+<<<<<<< HEAD
         # Fall17V2 IDs and isolations are only for Run2. The names of these IDs and isolations are same as in Run3.                                                                
+=======
+        # Fall17V2 IDs and isolations are only for Run2. The names of these IDs and isolations are same as in Run3. 
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
         mvaIso = Var("userFloat('mvaIso_Fall17V2')",float,doc="MVA Iso ID score, Fall17V2"),
         mvaIso_WP80 = Var("userInt('mvaIso_Fall17V2_WP80')",bool,doc="MVA Iso ID WP80, Fall17V2"),
         mvaIso_WP90 = Var("userInt('mvaIso_Fall17V2_WP90')",bool,doc="MVA Iso ID WP90, Fall17V2"),
@@ -369,15 +388,23 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         mvaNoIso_WP80 = Var("userInt('mvaNoIso_Fall17V2_WP80')",bool,doc="MVA noIso ID WP80, Fall17V2"),
         mvaNoIso_WP90 = Var("userInt('mvaNoIso_Fall17V2_WP90')",bool,doc="MVA noIso ID WP90, Fall17V2"),
         mvaNoIso_WPL = Var("userInt('mvaNoIso_Fall17V2_WPL')",bool,doc="MVA noIso ID loose WP, Fall17V2"),
+<<<<<<< HEAD
         cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uin\
 t8", doc="cut-based ID Fall17V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+=======
+        cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uint8", doc="cut-based ID Fall17V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap_Fall17V2')", int, doc=_bitmapVIDForEleFall17V2_docstring),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg_Fall17V2')/pt",float,doc="mini PF relative isolation, charged component in Run2"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll_Fall17V2')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA Fall17V2 PU corrections) in Run2"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, charged component in Run2"),
         pfRelIso03_all = Var("userFloat('PFIsoAll_Fall17V2')/pt",float,doc="PF relative isolation dR=0.3 with 94 EffArea, total (with rho*EA Fall17V2 PU corrections) in Run2"),
+<<<<<<< HEAD
         jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04_Fall17V2')/pt",float,doc="Relative isolation in matched jet (\
 1/ptRatio-1, pfRelIso04_all if no matched jet in Run2)",precision=8),
+=======
+        jetRelIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:userFloat('PFIsoAll04_Fall17V2')/pt",float,doc="Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet in Run2)",precision=8),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 )
 
 #############electron Table END#####################

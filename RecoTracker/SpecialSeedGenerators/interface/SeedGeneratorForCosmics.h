@@ -21,7 +21,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
+#include "RecoTracker/PixelSeeding/interface/CosmicHitTripletGenerator.h"
 class PixelSeedLayerPairs;
 class GeometricSearchTracker;
 class TrackerRecoGeometryRecord;

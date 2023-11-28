@@ -189,7 +189,7 @@ namespace Rivet {
       Particles uncatV_decays;
       FourMomentum uncatV_p4(0, 0, 0, 0);
       FourVector uncatV_v4(0, 0, 0, 0);
-      int nWs = 0, nZs = 0, nTop = 0;
+      int nWs = 0, nZs = 0;
       if (isVH(prodMode)) {
         for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
           if (PID::isW(ptcl->pdg_id())) {
@@ -239,7 +239,6 @@ namespace Rivet {
         for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
           if (!PID::isTop(ptcl->pdg_id()))
             continue;
-          ++nTop;
           Particle top = getLastInstance(Particle(ptcl));
           if (top.genParticle()->end_vertex())
             for (const auto &child : top.children())

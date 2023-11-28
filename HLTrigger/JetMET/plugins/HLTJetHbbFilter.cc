@@ -113,8 +113,6 @@ bool HLTJetHbbFilter<T>::hltFilter(edm::Event& event,
   event.getByToken(m_theJetsToken, jets);
   Handle<JetTagCollection> jetTags;
 
-  unsigned int nJet = 0;
-
   event.getByToken(m_theJetTagsToken, jetTags);
 
   double tag1 = -99.;
@@ -140,7 +138,6 @@ bool HLTJetHbbFilter<T>::hltFilter(edm::Event& event,
   //looping through sets of jets
   for (auto jet1 = jets->begin(); (jet1 != jets->end()); ++jet1) {
     tag1 = findCSV(jet1, *jetTags);
-    ++nJet;
     for (auto jet2 = (jet1 + 1); (jet2 != jets->end()); ++jet2) {
       tag2 = findCSV(jet2, *jetTags);
 

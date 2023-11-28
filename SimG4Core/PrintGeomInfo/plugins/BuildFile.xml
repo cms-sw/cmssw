@@ -1,5 +1,6 @@
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/DDCMS"/>
+<use name="SimG4Core/Geometry"/>
 <use name="SimG4Core/Notification"/>
 <use name="SimG4Core/Watcher"/>
 <use name="FWCore/ParameterSet"/>

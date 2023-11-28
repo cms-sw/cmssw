@@ -20,7 +20,7 @@
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimTracker/TrackHistory"/>
 <use name="Validation/RecoTrack"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
+<use name="RecoTracker/PixelTrackFitting"/>
 <use name="DataFormats/VertexReco"/>
 <lib name="MathMore"/>
 <library file="*.cc" name="ValidationRecoTrackPlugins">

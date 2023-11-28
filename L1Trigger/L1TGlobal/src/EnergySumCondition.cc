@@ -223,6 +223,14 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       type = l1t::EtSum::EtSumType::kCentrality;
       MissingEnergy = false;
       break;
+    case gtZDCP:
+      type = l1t::EtSum::EtSumType::kZDCP;
+      MissingEnergy = false;
+      break;
+    case gtZDCM:
+      type = l1t::EtSum::EtSumType::kZDCM;
+      MissingEnergy = false;
+      break;
     default:
       edm::LogError("L1TGlobal")
           << "\n  Error: "
@@ -265,6 +273,8 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed Centrality bit" << std::endl;
       return false;
     }
+  } else if (type == l1t::EtSum::EtSumType::kZDCP || type == l1t::EtSum::EtSumType::kZDCM) {
+    return false;
   } else {
     // check energy threshold
     if (!checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal)) {

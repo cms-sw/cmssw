@@ -1,4 +1,1 @@
-<bin name="testRecoMETMETProducers" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash RecoMET/METProducers/test runtests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="testRecoMETMETProducers" command="runtests.sh"/>

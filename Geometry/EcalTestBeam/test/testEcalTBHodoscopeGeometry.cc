@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
@@ -9,13 +10,13 @@ int main() {
 
   for (int j = 0; j < theTestGeom.getNPlanes(); ++j) {
     for (int i = 0; i < 1000; ++i) {
-      std::cout << "Position " << -17. + 34. / 1000. * i << " Plane " << j << std::endl;
+      edm::LogVerbatim("EcalGeom") << "Position " << -17. + 34. / 1000. * i << " Plane " << j;
       std::vector<int> firedFibres = theTestGeom.getFiredFibresInPlane(-17. + 34. / 1000. * i, j);
       for (int firedFibre : firedFibres) {
-        std::cout << firedFibre << std::endl;
+        edm::LogVerbatim("EcalGeom") << firedFibre;
 
         HodoscopeDetId myDetId = HodoscopeDetId(j, (int)firedFibre);
-        std::cout << myDetId << std::endl;
+        edm::LogVerbatim("EcalGeom") << myDetId;
       }
     }
   }

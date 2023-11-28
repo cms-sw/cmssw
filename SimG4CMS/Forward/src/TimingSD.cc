@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 ///////////////////////////////////////////////////////////////////////////////
 // File: TimingSD.cc
 // Date: 02.2006
@@ -26,8 +28,6 @@
 
 #include <vector>
 #include <iostream>
-
-//#define EDM_ML_DEBUG
 
 static const float invgev = 1.0 / CLHEP::GeV;
 static const double invns = 1.0 / CLHEP::nanosecond;
@@ -153,14 +153,20 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
     TrackInformation* info = nullptr;
     if (incidentEnergy > energyCut) {
       info = cmsTrackInformation(theTrack);
-      info->storeTrack(true);
+      info->setStoreTrack();
     }
     if (incidentEnergy > energyHistoryCut) {
-      if (!info) {
+      if (nullptr == info) {
         info = cmsTrackInformation(theTrack);
       }
       info->putInHistory();
     }
+#ifdef EDM_ML_DEBUG
+    if (info != nullptr) {
+      LogDebug("TimingSim") << "TrackInformation for ID = " << theTrack->GetTrackID();
+      info->Print();
+    }
+#endif
   }
 
   edeposit *= invgev;
@@ -176,7 +182,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   tSliceID = (int)tSlice;
 
   unitID = setDetUnitId(aStep);
-  primaryID = theTrack->GetTrackID();
+  primaryID = getTrackID(theTrack);
 }
 
 bool TimingSD::hitExists(const G4Step* aStep) {
@@ -255,7 +261,7 @@ void TimingSD::createNewHit(const G4Step* aStep) {
   edm::LogVerbatim("TimingSim") << "TimingSD CreateNewHit for " << GetName() << " PV " << currentPV->GetName()
                                 << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary "
                                 << primaryID << " Tof(ns)= " << tof << " time slice " << tSliceID
-                                << " E(GeV)= " << incidentEnergy << " trackID " << theTrack->GetTrackID() << " "
+                                << " E(MeV)= " << incidentEnergy << " trackID " << theTrack->GetTrackID() << " "
                                 << theTrack->GetDefinition()->GetParticleName() << " parentID "
                                 << theTrack->GetParentID();
 
@@ -365,3 +371,8 @@ void TimingSD::update(const BeginOfEvent* i) {
 }
 
 void TimingSD::clearHits() { slave->Initialize(); }
+
+int TimingSD::getTrackID(const G4Track* aTrack) {
+  LogDebug("TimingSim") << "primary ID: " << aTrack->GetTrackID();
+  return aTrack->GetTrackID();
+}

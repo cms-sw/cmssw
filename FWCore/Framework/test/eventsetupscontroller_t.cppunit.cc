@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/test/DummyFinder.h"
-#include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/Framework/test/DummyESProductResolverProvider.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -71,28 +71,28 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
 
   edm::ParameterSet pset1;
   pset1.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider1 =
-      std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
+  std::shared_ptr<edm::eventsetup::test::DummyESProductResolverProvider> resolverProvider1 =
+      std::make_shared<edm::eventsetup::test::DummyESProductResolverProvider>();
 
   edm::ParameterSet pset2;
   pset2.addUntrackedParameter<int>("p1", 1);
   pset2.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider2 =
-      std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
+  std::shared_ptr<edm::eventsetup::test::DummyESProductResolverProvider> resolverProvider2 =
+      std::make_shared<edm::eventsetup::test::DummyESProductResolverProvider>();
   CPPUNIT_ASSERT(pset2.id() == pset1.id());
 
   edm::ParameterSet pset3;
   pset3.addUntrackedParameter<int>("p1", 2);
   pset3.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider3 =
-      std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
+  std::shared_ptr<edm::eventsetup::test::DummyESProductResolverProvider> resolverProvider3 =
+      std::make_shared<edm::eventsetup::test::DummyESProductResolverProvider>();
   CPPUNIT_ASSERT(pset3.id() == pset1.id());
 
   edm::ParameterSet pset4;
   pset4.addParameter<int>("p1", 1);
   pset4.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider4 =
-      std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
+  std::shared_ptr<edm::eventsetup::test::DummyESProductResolverProvider> resolverProvider4 =
+      std::make_shared<edm::eventsetup::test::DummyESProductResolverProvider>();
   CPPUNIT_ASSERT(pset4.id() != pset1.id());
 
   edm::eventsetup::ParameterSetIDHolder psetIDHolder1(pset1.id());
@@ -103,42 +103,42 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
   CPPUNIT_ASSERT(!(psetIDHolder1 == psetIDHolder4));
   CPPUNIT_ASSERT((pset1.id() < pset4.id()) == (psetIDHolder1 < psetIDHolder4));
 
-  std::shared_ptr<edm::eventsetup::DataProxyProvider> ptrFromGet =
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> ptrFromGet =
       esController.getESProducerAndRegisterProcess(pset1, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
-  esController.putESProducer(pset1, proxyProvider1, 0);
+  esController.putESProducer(pset1, resolverProvider1, 0);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset2, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
-  esController.putESProducer(pset2, proxyProvider2, 0);
+  esController.putESProducer(pset2, resolverProvider2, 0);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset3, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
-  esController.putESProducer(pset3, proxyProvider3, 0);
+  esController.putESProducer(pset3, resolverProvider3, 0);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset4, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
-  esController.putESProducer(pset4, proxyProvider4, 0);
+  esController.putESProducer(pset4, resolverProvider4, 0);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset1, 1);
   CPPUNIT_ASSERT(ptrFromGet);
-  CPPUNIT_ASSERT(ptrFromGet == proxyProvider1);
+  CPPUNIT_ASSERT(ptrFromGet == resolverProvider1);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset2, 2);
   CPPUNIT_ASSERT(ptrFromGet);
-  CPPUNIT_ASSERT(ptrFromGet == proxyProvider2);
+  CPPUNIT_ASSERT(ptrFromGet == resolverProvider2);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset3, 3);
   CPPUNIT_ASSERT(ptrFromGet);
-  CPPUNIT_ASSERT(ptrFromGet == proxyProvider3);
+  CPPUNIT_ASSERT(ptrFromGet == resolverProvider3);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset4, 4);
   CPPUNIT_ASSERT(ptrFromGet);
-  CPPUNIT_ASSERT(ptrFromGet == proxyProvider4);
+  CPPUNIT_ASSERT(ptrFromGet == resolverProvider4);
 
   ptrFromGet = esController.getESProducerAndRegisterProcess(pset4, 5);
   CPPUNIT_ASSERT(ptrFromGet);
-  CPPUNIT_ASSERT(ptrFromGet == proxyProvider4);
+  CPPUNIT_ASSERT(ptrFromGet == resolverProvider4);
 
   std::multimap<edm::ParameterSetID, edm::eventsetup::ESProducerInfo> const& esproducers = esController.esproducers();
   bool isPresent1 = false;
@@ -152,7 +152,7 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
       isPresent1 = true;
       CPPUNIT_ASSERT(esproducer.first == pset1.id());
       CPPUNIT_ASSERT(esproducer.second.providerGet() ==
-                     static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider1.get()));
+                     static_cast<edm::eventsetup::ESProductResolverProvider*>(resolverProvider1.get()));
       edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
@@ -162,7 +162,7 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
       isPresent2 = true;
       CPPUNIT_ASSERT(esproducer.first == pset1.id());
       CPPUNIT_ASSERT(esproducer.second.providerGet() ==
-                     static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider2.get()));
+                     static_cast<edm::eventsetup::ESProductResolverProvider*>(resolverProvider2.get()));
       edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
@@ -172,7 +172,7 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
       isPresent3 = true;
       CPPUNIT_ASSERT(esproducer.first == pset3.id());
       CPPUNIT_ASSERT(esproducer.second.providerGet() ==
-                     static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider3.get()));
+                     static_cast<edm::eventsetup::ESProductResolverProvider*>(resolverProvider3.get()));
       edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
@@ -182,7 +182,7 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
       isPresent4 = true;
       CPPUNIT_ASSERT(esproducer.first == pset4.id());
       CPPUNIT_ASSERT(esproducer.second.providerGet() ==
-                     static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider4.get()));
+                     static_cast<edm::eventsetup::ESProductResolverProvider*>(resolverProvider4.get()));
       edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 3);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);

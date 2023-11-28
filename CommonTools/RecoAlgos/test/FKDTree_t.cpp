@@ -45,7 +45,7 @@ void TestFKDTree::test2D() {
 
     for (unsigned int i = 0; i < numberOfPointsOutsideTheBox; ++i) {
       float x = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX));
-      float y;
+      float y = 1.f;
       if (x <= maxX && x >= minX) {
         y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(1.f - maxY));
         if (y == maxY)
@@ -95,7 +95,7 @@ void TestFKDTree::test3D() {
 
     for (unsigned int i = 0; i < numberOfPointsOutsideTheBox; ++i) {
       float x = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX));
-      float y;
+      float y = 1.f;
       if (x <= maxX && x >= minX) {
         y = maxY + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / std::fabs(1.f - maxY));
         if (y == maxY)

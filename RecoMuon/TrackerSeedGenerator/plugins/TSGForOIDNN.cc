@@ -639,15 +639,12 @@ void TSGForOIDNN::makeSeedsFromHitDoublets(const GeometricSearchDet& layer,
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
 
   unsigned int found = 0;
-  int hit_num = 0;
 
   // Loop over all valid measurements compatible with original TSOS
   //for (std::vector<TrajectoryMeasurement>::const_iterator mea = meas.begin(); mea != meas.end(); ++mea) {
   for (auto const& measurement : meas) {
     if (hitDoubletSeedsMade >= maxHitDoubletSeeds)
       return;  // abort if enough seeds created
-
-    hit_num++;
 
     // Update TSOS with measurement on first considered layer
     TrajectoryStateOnSurface updatedTSOS = updator_->update(measurement.forwardPredictedState(), *measurement.recHit());

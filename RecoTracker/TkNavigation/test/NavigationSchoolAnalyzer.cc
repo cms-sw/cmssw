@@ -228,8 +228,8 @@ void printOldStyle(std::ostream& os, const NavigationSchool& nav) {
 NavigationSchoolAnalyzer::NavigationSchoolAnalyzer(const edm::ParameterSet& iConfig)
     : theNavigationSchoolName_(iConfig.getParameter<std::string>("navigationSchoolName")),
       navSchoolToken_(esConsumes(edm::ESInputTag("", theNavigationSchoolName_))),
-      tTopoTokenBR_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", theNavigationSchoolName_))),
-      navSchoolTokenBR_(esConsumes<edm::Transition::BeginRun>()) {}
+      tTopoTokenBR_(esConsumes<edm::Transition::BeginRun>()),
+      navSchoolTokenBR_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", theNavigationSchoolName_))) {}
 
 #include <sstream>
 #include <fstream>

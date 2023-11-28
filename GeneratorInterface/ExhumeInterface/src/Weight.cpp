@@ -18,7 +18,7 @@ void Exhume::Weight::WeightInit(const double &min, const double &max) {
   double incr, y, x;
   double NewF, OldF, Oldx;
 
-  for (unsigned int jj = 1; jj10 < NPoints; jj++) {
+  while (jj10 < NPoints) {
     jj10 = jj10 * 10;
     LineShape = UNLineShape;
     UNLineShape.clear();

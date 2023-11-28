@@ -186,8 +186,8 @@ namespace trackerTFP {
         vector<vector<TTStubRef>> lost;
         formTracks(lostTracks, lostStubs, lost, offset + channel);
         nTracks += tracks.size();
-        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const vector<TTStubRef>& track) {
-          return sum += (int)track.size();
+        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
+          return sum + (int)track.size();
         });
         nLost += lost.size();
         allTracks += tracks.size();
@@ -262,8 +262,8 @@ namespace trackerTFP {
                                 int channel) const {
     const int offset = channel * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[channel];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& frame) {
-      return sum += (frame.first.isNonnull() ? 1 : 0);
+    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& frame) {
+      return sum + (frame.first.isNonnull() ? 1 : 0);
     });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
@@ -278,8 +278,8 @@ namespace trackerTFP {
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
         const StreamStub& stream = streamsStubs[offset + layer];
         numStubs +=
-            accumulate(stream.begin() + frame, stream.begin() + frame + size, 0, [](int& sum, const FrameStub& frame) {
-              return sum += (frame.first.isNonnull() ? 1 : 0);
+            accumulate(stream.begin() + frame, stream.begin() + frame + size, 0, [](int sum, const FrameStub& frame) {
+              return sum + (frame.first.isNonnull() ? 1 : 0);
             });
       }
       vector<TTStubRef> stubs;

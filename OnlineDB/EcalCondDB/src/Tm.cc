@@ -39,9 +39,7 @@ Tm::Tm(uint64_t micros) {
 // Destructor
 Tm::~Tm() {}
 
-struct tm Tm::c_tm() const {
-  return m_tm;
-}
+struct tm Tm::c_tm() const { return m_tm; }
 
 int Tm::isNull() const {
   if (m_tm.tm_year == 0 && m_tm.tm_mon == 0 && m_tm.tm_mday == 0) {

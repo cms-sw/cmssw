@@ -12,8 +12,8 @@
 //NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-    : current_(), isNull_(true) {
-}
+    : current_(),
+      isNull_(true){}
 #else
     : isArray_(true), isNull_(true) {
   iterator_.array_ = ValueInternalArray::IteratorState();
@@ -21,9 +21,10 @@ ValueIteratorBase::ValueIteratorBase()
 #endif
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-//NOLINTNEXTLINE(misc-definitions-in-headers)
-ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator &current)
-    : current_(current), isNull_(false) {}
+      //NOLINTNEXTLINE(misc-definitions-in-headers)
+      ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator &current)
+    : current_(current), isNull_(false) {
+}
 #else
 //NOLINTNEXTLINE(misc-definitions-in-headers)
 ValueIteratorBase::ValueIteratorBase(const ValueInternalArray::IteratorState &state) : isArray_(true) {

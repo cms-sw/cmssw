@@ -20,5 +20,5 @@ globalPixelLessSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsED
     ## whatever happens to the beam spot
     RegionFactoryPSet = dict(RegionPSet = dict(originHalfLength = 40)),
     ## safe against APV-induced noise
-    ClusterCheckPSet = dict(MaxNumberOfCosmicClusters = 5000)
+    ClusterCheckPSet = dict(MaxNumberOfStripClusters = 5000)
 )

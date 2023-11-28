@@ -1,14 +1,10 @@
-<environment>
-  <bin file="TestIntegration.cpp" name="TestFWCoreModules">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Modules/test FWCoreModulesTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+<test name="TestFWCoreModules" command="FWCoreModulesTest.sh"/>
 
-  <test name="TestFWCoreModulesEmptySourceLumiForRuns" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/emptysource_firstLuminosityBlockForEachRun_cfg.py"/>
-  <test name="TestFWCoreModulesEmptySourceRunsAndLumis" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/emptysource_RunsAndLumis_cfg.py"/>
-  <bin file="test_catch2_*.cc" name="TestFWCoreModulesTP">
-    <use name="FWCore/TestProcessor"/>
-    <use name="catch2"/>
-  </bin>
+<test name="TestFWCoreModulesEmptySourceLumiForRuns" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/emptysource_firstLuminosityBlockForEachRun_cfg.py"/>
 
-</environment>
+<test name="TestFWCoreModulesEmptySourceRunsAndLumis" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/emptysource_RunsAndLumis_cfg.py"/>
+
+<bin file="test_catch2_*.cc" name="TestFWCoreModulesTP">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>

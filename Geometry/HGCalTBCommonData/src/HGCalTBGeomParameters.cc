@@ -780,10 +780,11 @@ void HGCalTBGeomParameters::loadWaferHexagon(HGCalTBParameters& php) {
   int ncol = static_cast<int>(2.0 * rout / waferW) + 1;
   int nrow = static_cast<int>(rout / (waferW * tan(30._deg))) + 1;
   int ns2 = (2 * ncol + 1) * (2 * nrow + 1) * php.layer_.size();
-  int incm(0), inrm(0), kount(0), ntot(0);
+  int incm(0), inrm(0);
   HGCalTBParameters::layer_map copiesInLayers(php.layer_.size() + 1);
   HGCalTBParameters::waferT_map waferTypes(ns2 + 1);
 #ifdef EDM_ML_DEBUG
+  int kount(0), ntot(0);
   edm::LogVerbatim("HGCalGeom") << "Row " << nrow << " Column " << ncol;
 #endif
   for (int nr = -nrow; nr <= nrow; ++nr) {
@@ -803,15 +804,17 @@ void HGCalTBGeomParameters::loadWaferHexagon(HGCalTBParameters& php) {
             break;
           }
         }
+#ifdef EDM_ML_DEBUG
         ++ntot;
+#endif
         if (corner.first > 0) {
           int copy = HGCalTypes::packTypeUV(typel, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)
             inrm = inr;
-          kount++;
 #ifdef EDM_ML_DEBUG
+          kount++;
           edm::LogVerbatim("HGCalGeom") << kount << ":" << ntot << " Copy " << copy << " Type " << typel << ":" << typet
                                         << " Location " << corner.first << " Position " << xpos << ":" << ypos
                                         << " Layers " << php.layer_.size();

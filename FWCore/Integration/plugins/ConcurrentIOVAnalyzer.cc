@@ -16,8 +16,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Integration/interface/ESTestData.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
-#include "IOVTestInfo.h"
+#include "FWCore/Integration/interface/IOVTestInfo.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -25,6 +26,8 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <vector>
 
 namespace edmtest {
 
@@ -40,12 +43,31 @@ namespace edmtest {
     bool checkExpectedValues_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordI> const esTokenFromESSource_;
     edm::ESGetToken<IOVTestInfo, ESTestRecordI> const esTokenFromESProducer_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenFromAcquireIntESProducer_;
+    std::vector<int> expectedESAcquireTestResults_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenUniquePtrTestValue_;
+    int expectedUniquePtrTestValue_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenOptionalTestValue_;
+    int expectedOptionalTestValue_;
   };
 
   ConcurrentIOVAnalyzer::ConcurrentIOVAnalyzer(edm::ParameterSet const& pset)
       : checkExpectedValues_{pset.getUntrackedParameter<bool>("checkExpectedValues")},
         esTokenFromESSource_{esConsumes(pset.getUntrackedParameter<edm::ESInputTag>("fromSource"))},
-        esTokenFromESProducer_{esConsumes(edm::ESInputTag("", "fromESProducer"))} {}
+        esTokenFromESProducer_{esConsumes(edm::ESInputTag("", "fromESProducer"))},
+        expectedESAcquireTestResults_{pset.getUntrackedParameter<std::vector<int>>("expectedESAcquireTestResults")},
+        expectedUniquePtrTestValue_{pset.getUntrackedParameter<int>("expectedUniquePtrTestValue")},
+        expectedOptionalTestValue_{pset.getUntrackedParameter<int>("expectedOptionalTestValue")} {
+    if (!expectedESAcquireTestResults_.empty()) {
+      esTokenFromAcquireIntESProducer_ = esConsumes(edm::ESInputTag("", "fromAcquireIntESProducer"));
+    }
+    if (expectedUniquePtrTestValue_ != 0) {
+      esTokenUniquePtrTestValue_ = esConsumes(edm::ESInputTag("", "uniquePtr"));
+    }
+    if (expectedOptionalTestValue_ != 0) {
+      esTokenOptionalTestValue_ = esConsumes(edm::ESInputTag("", "optional"));
+    }
+  }
 
   void ConcurrentIOVAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& eventSetup) const {
     auto lumiNumber = event.eventAuxiliary().luminosityBlock();
@@ -70,6 +92,34 @@ namespace edmtest {
         iovTestInfoFromESProducer->cacheIdentifier_ != esTestRecordI.cacheIdentifier()) {
       throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
                                           << " values read from ESProducer do not agree with record";
+    }
+
+    // First cacheIdentifier in the test is actually 3 (0, 1, and 2 just are ignored)
+    unsigned int cacheIdentifier = esTestRecordI.cacheIdentifier();
+    if (cacheIdentifier < expectedESAcquireTestResults_.size()) {
+      int testResult = eventSetup.getData(esTokenFromAcquireIntESProducer_).value();
+      if (testResult != expectedESAcquireTestResults_[cacheIdentifier]) {
+        throw cms::Exception("TestFailure")
+            << "ConcurrentIOVAnalyzer::analyze,"
+            << " unexpected value for EventSetup acquire test.\n"
+            << "Expected = " << expectedESAcquireTestResults_[cacheIdentifier] << " result = " << testResult
+            << " cacheIdentifier = " << cacheIdentifier << "\n";
+      }
+    }
+
+    if (expectedUniquePtrTestValue_ != 0) {
+      if (eventSetup.getData(esTokenUniquePtrTestValue_).value() != expectedUniquePtrTestValue_) {
+        throw cms::Exception("TestFailure")
+            << "ConcurrentIOVAnalyzer::analyze,"
+            << " value for unique_ptr test from EventSetup does not match expected value";
+      }
+    }
+
+    if (expectedOptionalTestValue_ != 0) {
+      if (eventSetup.getData(esTokenOptionalTestValue_).value() != expectedOptionalTestValue_) {
+        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
+                                            << " value for optional test from EventSetup does not match expected value";
+      }
     }
 
     if (!checkExpectedValues_) {
@@ -139,6 +189,9 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.addUntracked<bool>("checkExpectedValues", true);
     desc.addUntracked<edm::ESInputTag>("fromSource", edm::ESInputTag("", ""));
+    desc.addUntracked<std::vector<int>>("expectedESAcquireTestResults", std::vector<int>());
+    desc.addUntracked<int>("expectedUniquePtrTestValue", 0);
+    desc.addUntracked<int>("expectedOptionalTestValue", 0);
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

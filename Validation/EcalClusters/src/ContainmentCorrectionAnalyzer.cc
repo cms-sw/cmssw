@@ -402,7 +402,6 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   int isAconversion = 0;
   if (ievflav == PHOTON_FLAV) {
     int nConv = 0;
-    int iConv = 0;
     iPho = 0;
     for (std::vector<SimTrack *>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk) {
       trkFromConversion.clear();
@@ -439,16 +438,6 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         SimVertex convVtx = theSimVertices[convVtxId];
         const math::XYZTLorentzVectorD &vtxPosition = convVtx.position();
         // math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum(); // UNUSED
-        if (nConv <= 10) {
-          if (trkFromConversion.size() > 1) {
-            // idTrk1_[iConv]= trkFromConversion[0]->trackId(); // UNUSED
-            // idTrk2_[iConv]= trkFromConversion[1]->trackId(); // UNUSED
-          } else {
-            // idTrk1_[iConv]=trkFromConversion[0]->trackId(); // UNUSED
-            // idTrk2_[iConv]=-1; // UNUSED
-          }
-        }
-        iConv++;
 
         result.push_back(EcalSimPhotonMCTruth(isAconversion,
                                               (*iPhoTk)->momentum(),

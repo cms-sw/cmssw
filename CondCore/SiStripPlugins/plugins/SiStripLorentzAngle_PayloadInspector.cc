@@ -209,9 +209,10 @@ namespace {
   /************************************************
     SiStripTkMaps of SiStrip Lorentz Angle
   *************************************************/
-  class SiStripLorentzAngleTkMap : public PlotImage<SiStripLorentzAngle, SINGLE_IOV> {
+  class SiStripLorentzAngleTH2PolyTkMap : public PlotImage<SiStripLorentzAngle, SINGLE_IOV> {
   public:
-    SiStripLorentzAngleTkMap() : PlotImage<SiStripLorentzAngle, SINGLE_IOV>("Tracker Map SiStrip Lorentz Angle") {}
+    SiStripLorentzAngleTH2PolyTkMap()
+        : PlotImage<SiStripLorentzAngle, SINGLE_IOV>("Tracker Map SiStrip Lorentz Angle") {}
 
     bool fill() override {
       //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
@@ -547,7 +548,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleValue);
-  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTkMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTH2PolyTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngle_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleCompareByRegion);

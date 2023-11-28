@@ -9,8 +9,10 @@
 
 class SensitiveCaloDetector : public SensitiveDetector {
 public:
-  explicit SensitiveCaloDetector(const std::string& iname, const SensitiveDetectorCatalog& clg)
-      : SensitiveDetector(iname, clg, true){};
+  explicit SensitiveCaloDetector(const std::string& iname,
+                                 const SensitiveDetectorCatalog& clg,
+                                 const std::string& newcollname = "")
+      : SensitiveDetector(iname, clg, true, newcollname){};
 
   virtual void fillHits(edm::PCaloHitContainer&, const std::string& hname) = 0;
   virtual void reset(){};

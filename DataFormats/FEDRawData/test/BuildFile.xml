@@ -1,4 +1,14 @@
 <use name="DataFormats/FEDRawData"/>
+
+<library name="testFEDRawDataCollection" file="TestReadFEDRawDataCollection.cc,TestWriteFEDRawDataCollection.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestFEDRawDataCollectionFormat" command="TestFEDRawDataCollectionFormat.sh"/>
+
 <bin name="testFEDRawData" file="FEDRawData_t.cpp,FEDRawDataProduct_t.cc, FEDNumbering_t.cpp">
   <use name="cppunit"/>
 </bin>

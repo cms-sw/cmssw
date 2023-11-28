@@ -1,9 +1,6 @@
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysicsEMMT_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysicsEMMT_h
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 #include "G4MscStepLimitType.hh"
@@ -21,7 +18,5 @@ public:
 private:
   const edm::ParameterSet& fParameterSet;
 };
-
-#endif
 
 #endif

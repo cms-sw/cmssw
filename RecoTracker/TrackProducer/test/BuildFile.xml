@@ -30,8 +30,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="testMuonTrackRefitting.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/TrackProducer/test testMuonTrackRefitting.sh"/>
-  </bin>
-</environment>
+<test name="testMuonTrackRefitting" command="testMuonTrackRefitting.sh"/>

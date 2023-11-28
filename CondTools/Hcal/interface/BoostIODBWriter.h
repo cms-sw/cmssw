@@ -24,24 +24,20 @@
 #include <memory>
 #include <cassert>
 
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
-
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // class declaration
 //
 template <class DataType>
-class BoostIODBWriter : public edm::one::EDAnalyzer<> {
+class BoostIODBWriter : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef DataType data_type;
 
@@ -57,7 +53,9 @@ private:
 
 template <class DataType>
 BoostIODBWriter<DataType>::BoostIODBWriter(const edm::ParameterSet& ps)
-    : inputFile_(ps.getParameter<std::string>("inputFile")), record_(ps.getParameter<std::string>("record")) {}
+    : inputFile_(ps.getParameter<std::string>("inputFile")), record_(ps.getParameter<std::string>("record")) {
+  usesResource(cond::service::PoolDBOutputService::kSharedResource);
+}
 
 template <class DataType>
 void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

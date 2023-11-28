@@ -1,9 +1,11 @@
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -38,6 +40,7 @@ namespace edmtest {
     void endJob() override;
 
   private:
+    edm::GetterOfProducts<edm::TriggerResults> getterOfTriggerResults_;
     int passed_;
     int failed_;
     std::string name_;
@@ -111,11 +114,12 @@ namespace edmtest {
   // -----------------------------------------------------------------
 
   TestResultAnalyzer::TestResultAnalyzer(edm::ParameterSet const& ps)
-      : passed_(),
+      : getterOfTriggerResults_(edm::TypeMatch(), this),
+        passed_(),
         failed_(),
         name_(ps.getUntrackedParameter<std::string>("name", "DEFAULT")),
         numbits_(ps.getUntrackedParameter<int>("numbits", -1)) {
-    consumesMany<edm::TriggerResults>();
+    callWhenNewProductsRegistered(getterOfTriggerResults_);
   }
 
   TestResultAnalyzer::~TestResultAnalyzer() {}
@@ -123,7 +127,7 @@ namespace edmtest {
   void TestResultAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
     Trig prod;
-    e.getManyByType(prod);
+    getterOfTriggerResults_.fillHandles(e, prod);
 
     if (prod.size() == 0)
       return;

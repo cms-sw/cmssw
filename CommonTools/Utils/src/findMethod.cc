@@ -1,7 +1,7 @@
 #include "CommonTools/Utils/src/findMethod.h"
 
 #include "CommonTools/Utils/src/ErrorCodes.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 #include "FWCore/Reflection/interface/BaseWithDict.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"

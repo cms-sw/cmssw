@@ -364,31 +364,33 @@ namespace edm {
     // cross-section into the generator run info
 
     const lhef::LHERunInfo* lheRunInfo = cache->hadronizer_.getLHERunInfo().get();
-    lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
+    if (lheRunInfo) {
+      lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
 
-    GenRunInfoProduct& genRunInfo = cache->hadronizer_.getGenRunInfo();
-    genRunInfo.setInternalXSec(GenRunInfoProduct::XSec(xsec.value(), xsec.error()));
+      GenRunInfoProduct& genRunInfo = cache->hadronizer_.getGenRunInfo();
+      genRunInfo.setInternalXSec(GenRunInfoProduct::XSec(xsec.value(), xsec.error()));
 
-    // If relevant, record the integrated luminosity for this run
-    // here.  To do so, we would need a standard function to invoke on
-    // the contained hadronizer that would report the integrated
-    // luminosity.
+      // If relevant, record the integrated luminosity for this run
+      // here.  To do so, we would need a standard function to invoke on
+      // the contained hadronizer that would report the integrated
+      // luminosity.
 
-    if (cache->initialized_) {
-      cache->hadronizer_.statistics();
-      if (cache->decayer_)
-        cache->decayer_->statistics();
-      if (cache->filter_)
-        cache->filter_->statistics();
-      lheRunInfo->statistics();
-    }
-    GenRunInfoProduct* expect = nullptr;
+      if (cache->initialized_) {
+        cache->hadronizer_.statistics();
+        if (cache->decayer_)
+          cache->decayer_->statistics();
+        if (cache->filter_)
+          cache->filter_->statistics();
+        lheRunInfo->statistics();
+      }
+      GenRunInfoProduct* expect = nullptr;
 
-    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
-    //All the GenRunInfoProducts for all streams shoule be identical, therefore we only
-    // need one
-    if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
-      griproduct.release();
+      std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
+      //All the GenRunInfoProducts for all streams shoule be identical, therefore we only
+      // need one
+      if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
+        griproduct.release();
+      }
     }
     if (cache == useInLumi_.load()) {
       streamEndRunComplete_ = true;
@@ -414,7 +416,10 @@ namespace edm {
 
   template <class HAD, class DEC>
   void ConcurrentHadronizerFilter<HAD, DEC>::globalEndRunProduce(Run& r, EventSetup const&) const {
-    r.put(this->runCache(r.index())->release());
+    auto c = this->runCache(r.index());
+    if (c) {
+      r.put(c->release());
+    }
   }
 
   template <class HAD, class DEC>

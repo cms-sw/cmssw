@@ -5,7 +5,7 @@ from ..modules.highPtTripletStepHitDoublets_cfi import *
 from ..modules.highPtTripletStepHitTriplets_cfi import *
 from ..modules.highPtTripletStepSeedLayers_cfi import *
 from ..modules.highPtTripletStepSeeds_cfi import *
-from ..modules.highPtTripletStepTrackingRegions_cfi import *
+from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import *
 
 highPtTripletStepSeedingTask = cms.Task(
     highPtTripletStepClusters,
@@ -13,5 +13,5 @@ highPtTripletStepSeedingTask = cms.Task(
     highPtTripletStepHitTriplets,
     highPtTripletStepSeedLayers,
     highPtTripletStepSeeds,
-    highPtTripletStepTrackingRegions
+    hltPhase2PixelTracksAndHighPtStepTrackingRegions
 )

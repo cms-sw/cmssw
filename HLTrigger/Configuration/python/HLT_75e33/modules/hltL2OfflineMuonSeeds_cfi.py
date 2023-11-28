@@ -201,7 +201,7 @@ hltL2OfflineMuonSeeds = cms.EDProducer("MuonSeedGenerator",
         -0.003, 0.005, 0.005, 0.608, 0.076,
         0.0
     ),
-    beamSpotTag = cms.InputTag("offlineBeamSpot"),
+    beamSpotTag = cms.InputTag("hltOnlineBeamSpot"),
     crackEtas = cms.vdouble(0.2, 1.6, 1.7),
     crackWindow = cms.double(0.04),
     deltaEtaCrackSearchWindow = cms.double(0.25),

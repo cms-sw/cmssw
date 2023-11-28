@@ -5,13 +5,13 @@
 
 CaloSimulationConstants::CaloSimulationConstants(const CaloSimulationParameters* csp) : calospar_(csp) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom")
-      << "CaloSimulationConstants::CaloSimulationConstants (const CaloSimulationParameters* csp) constructor\n";
+  edm::LogVerbatim("HCalGeom")
+      << "CaloSimulationConstants::CaloSimulationConstants (const CaloSimulationParameters* csp) constructor";
 #endif
 }
 
 CaloSimulationConstants::~CaloSimulationConstants() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "CaloSimulationConstants::destructed!!!\n";
+  edm::LogVerbatim("HCalGeom") << "CaloSimulationConstants::destructed!!!";
 #endif
 }

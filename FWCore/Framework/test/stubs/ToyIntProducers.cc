@@ -16,6 +16,8 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -300,14 +302,17 @@ namespace edmtest {
   class ConsumingIntProducer : public edm::stream::EDProducer<> {
   public:
     explicit ConsumingIntProducer(edm::ParameterSet const& p)
-        : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {
+        : getterOfTriggerResults_(edm::TypeMatch(), this),
+          token_{produces<IntProduct>()},
+          value_(p.getParameter<int>("ivalue")) {
       // not used, only exists to test PathAndConsumesOfModules
       consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
-      consumesMany<edm::TriggerResults>();
+      callWhenNewProductsRegistered(getterOfTriggerResults_);
     }
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
+    edm::GetterOfProducts<edm::TriggerResults> getterOfTriggerResults_;
     const edm::EDPutTokenT<IntProduct> token_;
     const int value_;
   };
@@ -485,7 +490,10 @@ namespace edmtest {
 
   class AddAllIntsProducer : public edm::global::EDProducer<> {
   public:
-    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} {
+      getter_ = edm::GetterOfProducts<IntProduct>(edm::TypeMatch(), this);
+      callWhenNewProductsRegistered(*getter_);
+    }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -495,11 +503,12 @@ namespace edmtest {
 
   private:
     const edm::EDPutTokenT<int> putToken_;
+    std::optional<edm::GetterOfProducts<IntProduct>> getter_;
   };
 
   void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     std::vector<edm::Handle<IntProduct>> ints;
-    e.getManyByType(ints);
+    getter_->fillHandles(e, ints);
 
     int value = 0;
     for (auto const& i : ints) {

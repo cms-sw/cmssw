@@ -52,7 +52,7 @@ namespace l1ct {
       sum.valid = (hwPt != 0) || (hwSumPt != 0);
       sum.vector_pt = CTtoGT_pt(hwPt);
       sum.vector_phi = CTtoGT_phi(hwPhi);
-      sum.scalar_pt = CTtoGT_phi(hwSumPt);
+      sum.scalar_pt = CTtoGT_pt(hwSumPt);
       return sum;
     }
   };

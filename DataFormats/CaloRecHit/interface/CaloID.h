@@ -58,11 +58,6 @@ namespace reco {
     /// and DET_NONE otherwise.
     Detectors detector() const;
 
-    CaloID& operator=(const CaloID& rhs) {
-      detectors_ = rhs.detectors_;
-      return *this;
-    }
-
     friend std::ostream& operator<<(std::ostream& out, const CaloID& id);
 
   private:

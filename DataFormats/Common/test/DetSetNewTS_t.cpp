@@ -123,17 +123,14 @@ TestDetSet::TestDetSet() : sv(10) {
 }
 
 void read(DSTV const& detsets, bool all = false) {
-  int i = 0;
   for (auto di = detsets.begin(false); di != detsets.end(false); ++di) {
     auto ds = *di;
     auto id = ds.id();
     std::cout << id << ' ';
-    // if (all) CPPUNIT_ASSERT(int(id)==20+i);
     if (ds.isValid()) {
       CPPUNIT_ASSERT(ds[0] == 100 * (id - 20) + 3);
       CPPUNIT_ASSERT(ds[1] == -(100 * (id - 20) + 3));
     }
-    ++i;
   }
   std::cout << std::endl;
 }
@@ -219,7 +216,7 @@ void TestDetSet::fillSeq() {
 struct Getter final : public DSTV::Getter {
   Getter(TestDetSet* itest) : ntot(0), test(*itest) {}
 
-  void fill(TSFF& ff) override {
+  void fill(TSFF& ff) const override {
     int n = ff.id() - 20;
     CPPUNIT_ASSERT(n >= 0);
     CPPUNIT_ASSERT(ff.size() == 0);
@@ -232,7 +229,7 @@ struct Getter final : public DSTV::Getter {
     ntot.fetch_add(1, std::memory_order_acq_rel);
   }
 
-  std::atomic<unsigned int> ntot;
+  mutable std::atomic<unsigned int> ntot;
   TestDetSet& test;
 };
 

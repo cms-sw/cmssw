@@ -32,11 +32,11 @@ hiLowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cf
 # SEEDS
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoTracker.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoTracker.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
@@ -61,15 +61,15 @@ hiLowPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 hiLowPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "hiLowPtTripletStepTracksHitDoublets",
     #maxElement = 5000000,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     produceSeedingHitSets = True,
 )
 
-from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+from RecoTracker.PixelSeeding.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
 hiLowPtTripletStepTracksHitDoubletsCA = hiLowPtTripletStepTracksHitDoublets.clone(
     layerPairs = [0,1]
 )
@@ -93,7 +93,7 @@ hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
     ptMin = 0.4,
 )
 
-import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
+import RecoTracker.PixelTrackFitting.pixelTracks_cfi as _mod
 
 hiLowPtTripletStepPixelTracks = _mod.pixelTracks.clone(
     passLabel  = 'Pixel primary tracks with vertex constraint',
@@ -112,8 +112,8 @@ trackingPhase1.toModify(hiLowPtTripletStepPixelTracks,
 )
 
 
-import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-hiLowPtTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
+import RecoTracker.PixelLowPtUtilities.TrackSeeds_cfi
+hiLowPtTripletStepSeeds = RecoTracker.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
         InputCollection = 'hiLowPtTripletStepPixelTracks'
 )
 

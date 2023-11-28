@@ -43,7 +43,6 @@ int EcalDAQTowerStatusXMLTranslator::readXML(const std::string& filename,
 
   DOMNode* cellnode = getChildNode(elementRoot, Cell_tag);
 
-  int chan = 0;
   while (cellnode) {
     int status = -1;
     DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
@@ -57,7 +56,6 @@ int EcalDAQTowerStatusXMLTranslator::readXML(const std::string& filename,
 
     while (cellnode && cellnode->getNodeType() != DOMNode::ELEMENT_NODE)
       cellnode = cellnode->getNextSibling();
-    chan++;
   }
 
   delete parser;

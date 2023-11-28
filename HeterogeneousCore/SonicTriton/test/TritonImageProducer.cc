@@ -76,7 +76,7 @@ private:
   void findTopN(const TritonOutputData& scores, unsigned n = 5) const {
     const auto& tmp = scores.fromServer<float>();
     auto dim = scores.sizeDims();
-    for (unsigned i0 = 0; i0 < scores.batchSize(); i0++) {
+    for (unsigned i0 = 0; i0 < client_->batchSize(); i0++) {
       //match score to type by index, then put in largest-first map
       std::map<float, std::string, std::greater<float>> score_map;
       for (unsigned i = 0; i < std::min((unsigned)dim, (unsigned)imageList_.size()); ++i) {

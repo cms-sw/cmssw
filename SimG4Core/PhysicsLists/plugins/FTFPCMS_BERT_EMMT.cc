@@ -1,6 +1,3 @@
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "FTFPCMS_BERT_EMMT.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMMT.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
@@ -46,5 +43,3 @@ FTFPCMS_BERT_EMMT::FTFPCMS_BERT_EMMT(const edm::ParameterSet& p) : PhysicsList(p
     RegisterPhysics(new G4IonPhysics(ver));
   }
 }
-
-#endif

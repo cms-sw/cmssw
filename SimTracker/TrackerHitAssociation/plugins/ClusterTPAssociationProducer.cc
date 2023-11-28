@@ -22,12 +22,12 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 namespace {

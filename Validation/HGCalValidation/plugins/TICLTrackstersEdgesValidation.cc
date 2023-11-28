@@ -319,7 +319,7 @@ void TICLTrackstersEdgesValidation::fillDescriptions(edm::ConfigurationDescripti
                                            edm::InputTag("ticlTrackstersHAD"),
                                            edm::InputTag("ticlTrackstersMerge")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
-  desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("ticlSeedingGlobal", edm::InputTag("ticlSeedingGlobal"));
   desc.add<edm::InputTag>("ticlSeedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<std::string>("folder", "HGCAL/");

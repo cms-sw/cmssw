@@ -55,6 +55,7 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
       jetsToken_(consumes<edm::View<l1t::PFJet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       fileWriterOutputToGT_(l1t::demo::parseFileFormat(iConfig.getParameter<std::string>("format")),
                             iConfig.getParameter<std::string>("outputFilename"),
+                            iConfig.getParameter<std::string>("outputFileExtension"),
                             nFramesPerBX_,
                             ctl2BoardTMUX_,
                             maxLinesPerFile_,
@@ -108,11 +109,12 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets");
   desc.add<std::string>("outputFilename");
+  desc.add<std::string>("outputFileExtension", "txt");
   desc.add<uint32_t>("nJets", 12);
   desc.add<uint32_t>("nFramesPerBX", 9);
   desc.add<uint32_t>("TMUX", 6);
   desc.add<uint32_t>("maxLinesPerFile", 1024);
-  desc.add<std::string>("format", "EMP");
+  desc.add<std::string>("format", "EMPv2");
   descriptions.addDefault(desc);
 }
 

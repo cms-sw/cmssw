@@ -12,9 +12,6 @@
     <use name="cppunit"/>
   </bin>
 
-  <bin file="TestRunnerPhysicsToolsCondLiteIO.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/CondLiteIO/test writeReadTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="TestRunnerPhysicsToolsCondLiteIO" command="writeReadTest.sh"/>
 
 </environment>

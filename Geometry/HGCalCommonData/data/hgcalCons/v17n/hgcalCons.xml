@@ -205,7 +205,10 @@
     <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
+    <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>
+    <Parameter name="GuardRingOffset"     value="[hgcal:GuardRingOffset]"/>
     <Parameter name="MouseBite"           value="[hgcal:MouseBite]"/>
+    <Parameter name="UseOffset"           value="0"/>
     <Parameter name="NumberOfCellsFine"   value="[hgcal:NumberOfCellsFine]"/>
     <Parameter name="NumberOfCellsCoarse" value="[hgcal:NumberOfCellsCoarse]"/>
   </SpecPar>

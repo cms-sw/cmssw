@@ -22,7 +22,7 @@ process.emptyESSourceK = cms.ESSource("EmptyESSource",
     iovIsRunNotTime = cms.bool(True)
 )
 
-process.testDataProxyProviderJ = cms.ESProducer("ESTestDataProxyProviderJ",
+process.testESProductResolverProviderJ = cms.ESProducer("ESTestESProductResolverProviderJ",
     expectedCacheIds = cms.untracked.vuint32(2, 3, 4, 5, 6, 7, 8)
 )
 

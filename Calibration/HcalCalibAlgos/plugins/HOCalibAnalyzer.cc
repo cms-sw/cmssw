@@ -12,7 +12,7 @@
      <Notes on implementation>
 
 April 2015
-// Addition of these variables, ilumi (analyser), inslumi (analyser), nprim
+// Addition of these variables, ilumi (analyser), pileup (analyser), nprim
 
 
 */
@@ -120,7 +120,7 @@ private:
   unsigned ievt, hoflag;
   int irun, ilumi, nprim, isect, isect2, ndof, nmuon;
 
-  float inslumi, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
+  float pileup, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
       hosig[9], hocorsig[18], hocro, hbhesig[9], caloen[3];
   float momatho, tkpt03, ecal03, hcal03;
   float tmphoang;
@@ -183,7 +183,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 
   T1->Branch("ilumi", &ilumi, "ilumi/I");
   if (!m_cosmic) {
-    T1->Branch("inslumi", &inslumi, "inslumi/F");
+    T1->Branch("pileup", &pileup, "pileup/F");
     T1->Branch("nprim", &nprim, "nprim/I");
     T1->Branch("tkpt03", &tkpt03, " tkpt03/F");
     T1->Branch("ecal03", &ecal03, " ecal03/F");
@@ -384,7 +384,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       if (!m_cosmic) {
         nprim = (*hoC).nprim;
-        inslumi = (*hoC).inslumi;
+        pileup = (*hoC).pileup;
         tkpt03 = (*hoC).tkpt03;
         ecal03 = (*hoC).ecal03;
         hcal03 = (*hoC).hcal03;

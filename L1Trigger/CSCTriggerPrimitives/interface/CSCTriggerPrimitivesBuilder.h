@@ -51,15 +51,14 @@ public:
 
   ~CSCTriggerPrimitivesBuilder();
 
-  /** Sets configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCDBL1TPParameters* conf);
-  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
-  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
-  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
-
-  /// set CSC and GEM geometries for the matching needs
-  void setCSCGeometry(const CSCGeometry* g) { csc_g = g; }
-  void setGEMGeometry(const GEMGeometry* g) { gem_g = g; }
+  struct BuildContext {
+    const CSCL1TPLookupTableCCLUT* cclut_;
+    const CSCL1TPLookupTableME11ILT* me11ilt_;
+    const CSCL1TPLookupTableME21ILT* me21ilt_;
+    const CSCGeometry* cscgeom_;
+    const GEMGeometry* gemgeom_;
+    const CSCDBL1TPParameters* parameters_;
+  };
 
   // Build anode, cathode, and correlated LCTs in each chamber and fill them
   // into output collections.  Pass collections of wire and comparator digis
@@ -74,6 +73,7 @@ public:
              const CSCWireDigiCollection* wiredc,
              const CSCComparatorDigiCollection* compdc,
              const GEMPadDigiClusterCollection* gemPadClusters,
+             const BuildContext& context,
              CSCALCTDigiCollection& oc_alct,
              CSCCLCTDigiCollection& oc_clct,
              CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
@@ -140,10 +140,6 @@ private:
 
   /** Pointer to MPC processors. */
   std::unique_ptr<CSCMuonPortCard> mpc_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS];
-
-  // pointers to the geometry
-  const CSCGeometry* csc_g;
-  const GEMGeometry* gem_g;
 };
 
 template <class T, class S>

@@ -379,14 +379,12 @@ namespace edmtest {
     sequence_t::const_iterator e_product = hproduct->end();
     view_t::const_iterator i_view = hview->begin();
     view_t::const_iterator e_view = hview->end();
-    size_t slot = 0;
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
       assert(product_item == view_item);
       ++i_product;
       ++i_view;
-      ++slot;
     }
   }
 
@@ -421,14 +419,12 @@ namespace edmtest {
     sequence_t::const_iterator e_product = hproduct->end();
     view_t::const_iterator i_view = hview->begin();
     view_t::const_iterator e_view = hview->end();
-    size_t slot = 0;
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
       assert(product_item == view_item);
       ++i_product;
       ++i_view;
-      ++slot;
     }
   }
 }  // namespace edmtest

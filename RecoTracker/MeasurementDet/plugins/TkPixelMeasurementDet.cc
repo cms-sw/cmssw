@@ -15,7 +15,7 @@ namespace {
 }  // namespace
 
 TkPixelMeasurementDet::TkPixelMeasurementDet(const GeomDet* gdet, PxMeasurementConditionSet& conditions)
-    : MeasurementDet(gdet), theDetConditions(&conditions) {
+    : MeasurementDet(gdet), index_(0), theDetConditions(&conditions) {
   if (dynamic_cast<const PixelGeomDetUnit*>(gdet) == nullptr) {
     throw MeasurementDetException("TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
   }

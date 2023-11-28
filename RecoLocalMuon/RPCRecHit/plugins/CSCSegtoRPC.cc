@@ -42,11 +42,8 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
     std::map<CSCDetId, int> CSCSegmentsCounter;
     CSCSegmentCollection::const_iterator segment;
 
-    int segmentsInThisEventInTheEndcap = 0;
-
     for (segment = allCSCSegments->begin(); segment != allCSCSegments->end(); ++segment) {
       CSCSegmentsCounter[segment->cscDetId()]++;
-      segmentsInThisEventInTheEndcap++;
     }
 
     float myTime = -9999.;

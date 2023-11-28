@@ -47,21 +47,7 @@ process.MessageLogger.files.mtdNumberingDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryDD4hep_cff')
-process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D88.xml")
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('')
-)
-
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('')
-)
-
-process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
-
-process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
-process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
+process.load("Configuration.Geometry.GeometryDD4hepExtended2026D98Reco_cff")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 

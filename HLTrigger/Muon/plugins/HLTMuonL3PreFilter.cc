@@ -212,10 +212,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
         MuonToL3s[i] = RecoChargedCandidateRef(cand);
       } else {
         check_l1match = true;
-        int nlink = 0;
         for (auto const& link : *links) {
-          nlink++;
-
           // Using the same method that was used to create the links between L3 and L2
           // ToDo: there should be a better way than dR,dPt matching
           const reco::Track& trackerTrack = *link.trackerTrack();

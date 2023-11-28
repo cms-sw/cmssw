@@ -29,6 +29,7 @@ using namespace std;
 using namespace geant_units;
 using namespace geant_units::operators;
 
+//#define EDM_ML_DEBUG
 /* ====================================================================== */
 
 /* Constructor */
@@ -39,9 +40,13 @@ DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {}
 
 /* Operations */
 void DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometry, const RecoIdealGeometry& rig) {
-  //  cout << "DTGeometryBuilderFromCondDB " << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "DTGeometryBuilderFromCondDB ";
+#endif
   const std::vector<DetId>& detids(rig.detIds());
-  //  cout << "size " << detids.size() << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "size " << detids.size();
+#endif
 
   size_t idt = 0;
   DTChamber* chamber(nullptr);
@@ -55,20 +60,26 @@ void DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGe
         theGeometry->add(chamber);
       // go for the actual one
       DTChamberId chid(detids[idt]);
-      //cout << "CH: " <<  chid << endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DTGeometry") << "CH: " << chid;
+#endif
       chamber = buildChamber(chid, rig, idt);
     } else if (int(*(rig.shapeStart(idt))) == 1) {  // a SL
       DTSuperLayerId slid(detids[idt]);
-      //cout << "  SL: " <<  slid << endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DTGeometry") << "  SL: " << slid;
+#endif
       sl = buildSuperLayer(chamber, slid, rig, idt);
       theGeometry->add(sl);
     } else if (int(*(rig.shapeStart(idt))) == 2) {  // a Layer
       DTLayerId lid(detids[idt]);
-      //cout << "    LAY: " <<  lid << endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DTGeometry") << "    LAY: " << lid;
+#endif
       DTLayer* lay = buildLayer(sl, lid, rig, idt);
       theGeometry->add(lay);
     } else {
-      cout << "What is this?" << endl;
+      edm::LogVerbatim("DTGeometry") << "What is this?";
     }
     ++idt;
   }
@@ -117,7 +128,9 @@ DTSuperLayer* DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
-  // cout << "adding slayer " << slayer->id() << " to chamber "<<  chamber->id() << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "adding slayer " << slayer->id() << " to chamber " << chamber->id();
+#endif
   assert(chamber);
   chamber->add(slayer);
   return slayer;
@@ -147,8 +160,9 @@ DTLayer* DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   DTLayerType layerType;
 
   DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
-  // cout << "adding layer " << layer->id() << " to sl "<<  sl->id() << endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "adding layer " << layer->id() << " to sl " << sl->id();
+#endif
   assert(sl);
   sl->add(layer);
   return layer;

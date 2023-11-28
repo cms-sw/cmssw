@@ -19,9 +19,7 @@ class G4HCofThisEvent;
 
 class HFWedgeSD : public SensitiveCaloDetector {
 public:
-  explicit HFWedgeSD(const std::string&,
-				    const SensitiveDetectorCatalog& clg,
-				    const SimTrackManager*);
+  explicit HFWedgeSD(const std::string&, const SensitiveDetectorCatalog& clg, const SimTrackManager*);
   ~HFWedgeSD() override;
 
   void Initialize(G4HCofThisEvent* HCE) override;

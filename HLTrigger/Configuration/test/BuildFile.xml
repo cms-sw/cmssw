@@ -1,2 +1,13 @@
 <!-- test access to EDM files used in HLT-AddOnTests and HLT-Validation tests -->
 <test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/>
+
+<!-- test script hltPrintMenuVersions
+     enabled only for the x86-64 architecture, because the python module cx_Oracle
+     does not fully work in CMSSW builds with non-x86-64 architectures
+-->
+<ifarch value="x86_64">
+  <test name="test_hltPrintMenuVersions" command="test_hltPrintMenuVersions.sh"/>
+</ifarch>
+
+<!-- test script hltMenuContentToCSVs -->
+<test name="test_hltMenuContentToCSVs" command="test_hltMenuContentToCSVs.sh"/>

@@ -97,7 +97,7 @@ namespace edm {
       }
       //copy constructor will do compact form conversion
       if (meCF) {
-        Hash<I> temp(iOther);
+        Hash<I> temp(iOther);  // NOLINT(performance-unnecessary-copy-initialization)
         return op(this->hash_, temp.hash_);
       }
       Hash<I> temp(*this);

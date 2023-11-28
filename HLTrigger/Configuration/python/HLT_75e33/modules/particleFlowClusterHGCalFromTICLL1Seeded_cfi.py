@@ -6,7 +6,7 @@ particleFlowClusterHGCalFromTICLL1Seeded = cms.EDProducer("PFClusterProducer",
     ),
     initialClusteringStep = cms.PSet(
         algoName = cms.string('PFClusterFromHGCalTrackster'),
-        clusterSrc = cms.InputTag("hgcalLayerClustersL1Seeded"),
+        clusterSrc = cms.InputTag("hgcalMergeLayerClustersL1Seeded"),
         filterByTracksterIteration = cms.bool(False),
         filterByTracksterPID = cms.bool(True),
         filter_on_categories = cms.vint32(0, 1),
@@ -25,6 +25,7 @@ particleFlowClusterHGCalFromTICLL1Seeded = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("particleFlowRecHitHGCL1Seeded"),
+    usePFThresholdsFromDB = cms.bool(False), # this needs to be True only for HBHE
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string('PassThruSeedFinder'),

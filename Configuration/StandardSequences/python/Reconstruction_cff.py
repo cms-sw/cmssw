@@ -9,7 +9,7 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 from RecoHGCal.Configuration.recoHGCAL_cff import *
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -26,7 +26,7 @@ from RecoMuon.Configuration.RecoMuon_cff import *
 # Higher level objects
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoEgamma.Configuration.RecoEgamma_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
+from RecoTracker.Configuration.RecoPixelVertexing_cff import *
 
 
 from RecoJets.Configuration.RecoJetsGlobal_cff import *

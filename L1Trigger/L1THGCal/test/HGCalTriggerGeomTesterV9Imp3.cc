@@ -713,7 +713,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       HGCalTriggerBackendDetId stage1(stage1_modules.first);
       HGCalTriggerGeometryBase::geom_set modules_geom;
       // Check consistency of modules going to Stage-1 FPGA
-      HGCalTriggerGeometryBase::geom_set lpgbts = triggerGeometry_->getLpgbtsFromStage1Fpga(stage1);
+      std::vector<unsigned> lpgbts = triggerGeometry_->getLpgbtsFromStage1Fpga(stage1);
       for (const auto& lpgbt : lpgbts) {
         HGCalTriggerGeometryBase::geom_set modules = triggerGeometry_->getModulesFromLpgbt(lpgbt);
         modules_geom.insert(modules.begin(), modules.end());

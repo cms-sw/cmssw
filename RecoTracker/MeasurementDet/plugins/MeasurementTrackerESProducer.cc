@@ -126,7 +126,6 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
   std::tie(pixelQualityFlags_, pixelQualityDebugFlags_) = pixelFlags(p);
   if (pixelQualityFlags_ != 0) {
     pixelQualityToken_ = c.consumes();
-    pixelCablingToken_ = c.consumes();
   }
 
   std::tie(stripQualityFlags_, stripQualityDebugFlags_) = stripFlags(p);
@@ -159,6 +158,9 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
     phase2TrackerCPEToken_ = c.consumes(edm::ESInputTag("", phase2));
   } else {
     stripCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("StripCPE")));
+    if (pixelQualityFlags_ != 0) {
+      pixelCablingToken_ = c.consumes();
+    }
   }
 }
 
@@ -171,7 +173,9 @@ std::unique_ptr<MeasurementTracker> MeasurementTrackerESProducer::produce(const 
 
   if (pixelQualityFlags_ != 0) {
     ptr_pixelQuality = &iRecord.get(pixelQualityToken_);
-    ptr_pixelCabling = &iRecord.get(pixelCablingToken_);
+    if (!usePhase2_) {
+      ptr_pixelCabling = &iRecord.get(pixelCablingToken_);
+    }
   }
 
   // ========= SiStripQuality related tasks =============

@@ -51,7 +51,7 @@ DDTBH4Algo::DDTBH4Algo()
       m_vecFibZPiv()
 
 {
-  std::cout << "creating an instance if DDTBH4Algo" << std::endl;
+  edm::LogVerbatim("EcalGeom") << "creating an instance if DDTBH4Algo";
   LogDebug("EcalGeom") << "DDTBH4Algo test: Creating an instance";
 }
 

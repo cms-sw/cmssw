@@ -36,6 +36,7 @@ namespace HGCalGeometryMode {
     TrapezoidModule = 9,
     Hexagon8Cassette = 10,
     TrapezoidCassette = 11,
+    Hexagon8CalibCell = 12,
   };
 
   enum WaferMode { Polyhedra = 0, ExtrudedPolygon = 1 };

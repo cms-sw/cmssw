@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
-#include "IOVTestInfo.h"
+#include "FWCore/Integration/interface/IOVTestInfo.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

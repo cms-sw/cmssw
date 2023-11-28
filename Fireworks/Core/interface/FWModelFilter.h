@@ -23,8 +23,8 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
-#include "CommonTools/Utils/interface/SelectorPtr.h"
-#include "CommonTools/Utils/interface/SelectorBase.h"
+#include "CommonTools/Utils/interface/parser/SelectorPtr.h"
+#include "CommonTools/Utils/interface/parser/SelectorBase.h"
 
 // forward declarations
 

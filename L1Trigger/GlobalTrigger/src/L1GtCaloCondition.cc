@@ -188,9 +188,6 @@ const bool L1GtCaloCondition::evaluateCondition() const {
   int jumpIndex = 1;
   int jump = factorial(numberObjects - nObjInCond);
 
-  int totalLoops = 0;
-  int passLoops = 0;
-
   // condition result condResult set to true if at least one permutation
   //     passes all requirements
   // all possible permutations are checked
@@ -209,7 +206,6 @@ const bool L1GtCaloCondition::evaluateCondition() const {
       continue;
 
     jumpIndex = jump;
-    totalLoops++;
 
     // clear the indices in the combination
     objectsInComb.clear();
@@ -322,18 +318,10 @@ const bool L1GtCaloCondition::evaluateCondition() const {
     // set the general result for evaluateCondition to "true"
 
     condResult = true;
-    passLoops++;
     combinationsInCond().push_back(objectsInComb);
 
     //    } while ( std::next_permutation(index, index + nObj) );
   } while (std::next_permutation(index.begin(), index.end()));
-
-  // LogTrace("L1GlobalTrigger")
-  //    << "\n  L1GtCaloCondition: total number of permutations found: " <<
-  //    totalLoops
-  //    << "\n  L1GtCaloCondition: number of permutations passing requirements:
-  //    " << passLoops
-  //    << "\n" << std::endl;
 
   return condResult;
 }

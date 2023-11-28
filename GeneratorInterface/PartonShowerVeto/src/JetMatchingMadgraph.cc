@@ -54,7 +54,9 @@ namespace gen {
     bool nosingrad, jetprocs;
   } memain_;
 
-  extern struct OUTTREE { int flag; } outtree_;
+  extern struct OUTTREE {
+    int flag;
+  } outtree_;
 
   extern struct MEMAEV {
     double ptclus[20];

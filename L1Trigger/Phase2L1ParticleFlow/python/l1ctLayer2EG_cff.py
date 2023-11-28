@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
+
 l1tLayer2EG = cms.EDProducer(
     "L1TCtL2EgProducer",
     tkElectrons=cms.VPSet(
@@ -36,6 +38,7 @@ l1tLayer2EG = cms.EDProducer(
             channels=cms.vint32(-1)
         ),
     ),
+    l1PFObjects = cms.InputTag("l1tLayer2Deregionizer", "Puppi"),
     egStaInstanceLabel=cms.string("L1CtEgEE"),
     tkEmInstanceLabel=cms.string("L1CtTkEm"),
     tkEleInstanceLabel=cms.string("L1CtTkElectron"),
@@ -49,12 +52,29 @@ l1tLayer2EG = cms.EDProducer(
         nTKELE_OUT=cms.uint32(12),
         nTKPHO_OUT=cms.uint32(12),
     ),
+    puppiIsoParametersTkEm = cms.PSet(
+        pfIsoType = cms.string("PUPPI"),
+        pfPtMin = cms.double(1.),
+        dZ = cms.double(0.6),
+        dRMin = cms.double(0.07),
+        dRMax = cms.double(0.3),
+        pfCandReuse = cms.bool(True)
+    ),
+    puppiIsoParametersTkEle = cms.PSet(
+        pfIsoType = cms.string("PUPPI"),
+        pfPtMin = cms.double(1.),
+        dZ = cms.double(0.6),
+        dRMin = cms.double(0.03),
+        dRMax = cms.double(0.2),
+        pfCandReuse = cms.bool(True)
+    ),
     writeInPattern=cms.bool(False),
     writeOutPattern=cms.bool(False),
     inPatternFile=cms.PSet(
         nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-        format=cms.string("EMP"),
+        format=cms.string("EMPv2"),
         outputFilename=cms.string("L1TCTL2EG_InPattern"),
+        outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
         channels=cms.VPSet(
@@ -98,14 +118,15 @@ l1tLayer2EG = cms.EDProducer(
     ),
     outPatternFile=cms.PSet(
         nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-        format=cms.string("EMP"),
-        outputFilename=cms.string("L1TCTL2EG_OuPattern"),
+        format=cms.string("EMPv2"),
+        outputFilename=cms.string("L1TCTL2EG_OutPattern"),
+        outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
         channels=cms.VPSet(
             cms.PSet(
                 TMUX=cms.uint32(6),
-                nWords=cms.uint32(36),  # 36 = 12*3/2words ele + 12*3/2words phhotons
+                nWords=cms.uint32(36),  # 36 = 12*3/2words ele + 12*3/2words photons
                 interface=cms.string("eglayer2"),
                 id=cms.uint32(0),
                 channels=cms.vuint32(0)
@@ -115,8 +136,9 @@ l1tLayer2EG = cms.EDProducer(
     # NOTE: to write out the GT input from 6TS 
     # outPatternFile=cms.PSet(
     #     nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-    #     format=cms.string("EMP"),
+    #     format=cms.string("EMPv2"),
     #     outputFilename=cms.string("L1TCTL2EG_ToGTPattern"),
+    #     outputFileExtension=cms.string("txt.gz"),
     #     TMUX=cms.uint32(1),
     #     maxLinesPerFile=cms.uint32(1024),
     #     channels=cms.VPSet(
@@ -131,7 +153,46 @@ l1tLayer2EG = cms.EDProducer(
     # )
 )
 
+l1tLayer2EGElliptic = l1tLayer2EG.clone(
+     tkElectrons=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1TkElePerBoard'),
+            channels=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkElePerBoard'),
+            channels=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEms=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1TkEmPerBoard'),
+            channels=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1TkEmPerBoard'),
+            channels=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkEmPerBoard'),
+            channels=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEgs=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1Eg'),
+            channels=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1Eg'),
+            channels=cms.vint32(-1)
+        ),
+    ),
+)
+
 
 L1TLayer2EGTask = cms.Task(
-     l1tLayer2EG
+     l1tLayer2Deregionizer,
+     l1tLayer2EG,
+     l1tLayer2EGElliptic
 )

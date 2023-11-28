@@ -10,9 +10,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="RunBUFU_t.cpp" name="BUFU_TEST">
-    <flags TEST_RUNNER_ARGS="/bin/bash EventFilter/Utilities/test RunBUFU.sh"/>
-  </bin>
-
-</environment>
+<test name="BUFU_TEST" command="RunBUFU.sh"/>

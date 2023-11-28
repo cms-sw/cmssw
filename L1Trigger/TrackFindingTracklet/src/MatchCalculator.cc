@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////
+// MatchCalculator
+// This class loads pairs for tracklet/stubs and looks for the
+// best possible match.
+// Variables such as `best_ideltaphi_barrel` store the "global"
+// best value for delta phi, r, z, and r*phi, for instances
+// where the same tracklet has multiple stub pairs. This allows
+// us to find the truly best match
+//////////////////////////////////////////////////////////////////
+
 #include "L1Trigger/TrackFindingTracklet/interface/MatchCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
@@ -26,7 +36,11 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
       rphicutPStable_(settings),
       rphicut2Stable_(settings),
       rcutPStable_(settings),
-      rcut2Stable_(settings) {
+      rcut2Stable_(settings),
+      alphainner_(settings),
+      alphaouter_(settings),
+      rSSinner_(settings),
+      rSSouter_(settings) {
   phiregion_ = name[8] - 'A';
   layerdisk_ = initLayerDisk(3);
 
@@ -61,6 +75,10 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
     rphicut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sphi, region);
     rcutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSr, region);
     rcut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sr, region);
+    alphainner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphainner, region);
+    alphaouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphaouter, region);
+    rSSinner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSinner, region);
+    rSSouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSouter, region);
   }
 
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
@@ -122,13 +140,22 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
 
   Tracklet* oldTracklet = nullptr;
 
+  // Get all tracklet/stub pairs
   std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > mergedMatches = mergeMatches(matches_);
 
   // Number of clock cycles the pipeline in HLS takes to process the projection merging to
-  // produce the first projectio
+  // produce the first projection
   unsigned int mergedepth = 3;
 
   unsigned int maxProc = std::min(settings_.maxStep("MC") - mergedepth, (unsigned int)mergedMatches.size());
+
+  // Pick some initial large values
+  int best_ideltaphi_barrel = 0xFFFF;
+  int best_ideltaz_barrel = 0xFFFF;
+  int best_ideltaphi_disk = 0xFFFF;
+  int best_ideltar_disk = 0xFFFF;
+  unsigned int curr_projid = -1;
+  unsigned int next_projid = -1;
 
   for (unsigned int j = 0; j < maxProc; j++) {
     if (settings_.debugTracklet() && j == 0) {
@@ -141,8 +168,8 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
     Tracklet* tracklet = mergedMatches[j].first.first;
     const L1TStub* stub = fpgastub->l1tstub();
 
-    //check that the matches are orderd correctly
-    //allow equal here since we can have more than one cadidate match per tracklet projection
+    //check that the matches are ordered correctly
+    //allow equal here since we can have more than one candidate match per tracklet projection
     if (oldTracklet != nullptr) {
       assert(oldTracklet->TCID() <= tracklet->TCID());
     }
@@ -194,6 +221,19 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
       double dzapprox = z - (proj.rzprojapprox() + dr * proj.rzprojderapprox());
 
       int seedindex = tracklet->getISeed();
+      unsigned int projindex = mergedMatches[j].first.second;  // Allproj index
+      curr_projid = next_projid;
+      next_projid = projindex;
+
+      // Do we have a new tracklet?
+      bool newtracklet = (j == 0 || projindex != curr_projid);
+      if (j == 0)
+        best_ideltar_disk = (1 << (fpgastub->r().nbits() - 1));  // Set to the maximum possible
+      // If so, replace the "best" values with the cut tables
+      if (newtracklet) {
+        best_ideltaphi_barrel = (int)phimatchcuttable_.lookup(seedindex);
+        best_ideltaz_barrel = (int)zmatchcuttable_.lookup(seedindex);
+      }
 
       assert(phimatchcuttable_.lookup(seedindex) > 0);
       assert(zmatchcuttable_.lookup(seedindex) > 0);
@@ -229,32 +269,23 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
             << zmatchcuttable_.lookup(seedindex) * settings_.kz() << endl;
       }
 
-      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcuttable_.lookup(seedindex)) &&
-                    (ideltaz * fact_ < (int)zmatchcuttable_.lookup(seedindex)) &&
-                    (ideltaz * fact_ >= -(int)zmatchcuttable_.lookup(seedindex));
-
-      bool keep = true;
-      if (!settings_.doKF() || !settings_.doMultipleMatches()) {
-        // Case of allowing only one stub per track per layer (or no KF which implies the same).
-        if (imatch && tracklet->match(layerdisk_)) {
-          // Veto match if is not the best one for this tracklet (in given layer)
-          auto res = tracklet->resid(layerdisk_);
-          keep = abs(ideltaphi) < abs(res.fpgaphiresid().value());
-          imatch = keep;
-        }
+      // integer match
+      bool imatch = (std::abs(ideltaphi) <= best_ideltaphi_barrel) && (ideltaz * fact_ < best_ideltaz_barrel) &&
+                    (ideltaz * fact_ >= -best_ideltaz_barrel);
+      // Update the "best" values
+      if (imatch) {
+        best_ideltaphi_barrel = std::abs(ideltaphi);
+        best_ideltaz_barrel = std::abs(ideltaz * fact_);
       }
 
       if (settings_.debugTracklet()) {
-        edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " keep = " << keep << " ideltaphi cut "
-                                     << ideltaphi << " " << phimatchcuttable_.lookup(seedindex) << " ideltaz*fact cut "
-                                     << ideltaz * fact_ << " " << zmatchcuttable_.lookup(seedindex);
+        edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
+                                     << phimatchcuttable_.lookup(seedindex) << " ideltaz*fact cut " << ideltaz * fact_
+                                     << " " << zmatchcuttable_.lookup(seedindex);
       }
 
       if (imatch) {
         countsel++;
-
-        // TO DO: storing the matches in both FullMatchMemory & Tracklet is ugly.
-        // Should clean this up, to avoid the need to store them in Tracklet.
 
         tracklet->addMatch(layerdisk_,
                            ideltaphi,
@@ -273,7 +304,6 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
         fullMatches_[seedindex]->addMatch(tracklet, mergedMatches[j].second);
       }
     } else {  //disk matches
-
       //check that stubs and projections in same half of detector
       assert(stub->z() * tracklet->t() > 0.0);
 
@@ -288,7 +318,7 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
       int iz = fpgastub->z().value();
       int iphi = proj.fpgaphiproj().value();
 
-      //TODO - need to express interms of constants
+      //TODO - need to express in terms of constants
       int shifttmp = 6;
       int iphicorr = (iz * proj.fpgaphiprojder().value()) >> shifttmp;
 
@@ -296,13 +326,14 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
 
       int ir = proj.fpgarzproj().value();
 
-      //TODO - need to express interms of constants
+      //TODO - need to express in terms of constants
       int shifttmp2 = 7;
       int ircorr = (iz * proj.fpgarzprojder().value()) >> shifttmp2;
 
       ir += ircorr;
 
       int ideltaphi = fpgastub->phi().value() * settings_.kphi() / settings_.kphi() - iphi;
+
       int irstub = fpgastub->r().value();
       int ialphafact = 0;
       if (!stub->isPSmodule()) {
@@ -384,6 +415,17 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
         idrcut = rcut2Stable_.lookup(seedindex);
       }
 
+      unsigned int projindex = mergedMatches[j].first.second;  // Allproj index
+      curr_projid = next_projid;
+      next_projid = projindex;
+      // Do we have a new tracklet?
+      bool newtracklet = (j == 0 || projindex != curr_projid);
+      // If so, replace the "best" values with the cut tables
+      if (newtracklet) {
+        best_ideltaphi_disk = idrphicut;
+        best_ideltar_disk = idrcut;
+      }
+
       double drphicut = idrphicut * settings_.kphi() * settings_.kr();
       double drcut = idrcut * settings_.krprojshiftdisk();
 
@@ -399,34 +441,26 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
               << ideltar * settings_.krprojshiftdisk() << " " << deltar << " " << drcut << " " << endl;
         }
 
+        // floating point match
         match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
 
-        imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
+        // integer match
+        imatch = (std::abs(ideltaphi) * irstub < best_ideltaphi_disk) && (std::abs(ideltar) < best_ideltar_disk);
+        // Update the "best" values
+        if (imatch) {
+          best_ideltaphi_disk = std::abs(ideltaphi) * irstub;
+          best_ideltar_disk = std::abs(ideltar);
+        }
       } else {
         edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
                                     << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed() << endl;
         match = false;
         imatch = false;
       }
-
-      bool keep = true;
-      if (!settings_.doKF() || !settings_.doMultipleMatches()) {
-        // Case of allowing only one stub per track per layer (or no KF which implies the same).
-        if (imatch && tracklet->match(layerdisk_)) {
-          // Veto match if is not the best one for this tracklet (in given layer)
-          auto res = tracklet->resid(layerdisk_);
-          keep = abs(ideltaphi) < abs(res.fpgaphiresid().value());
-          imatch = keep;
-        }
-      }
-      if (not keep)
-        match = false;  // FIX: should calc keep with float point here.
-
       if (settings_.debugTracklet()) {
-        edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " keep = " << keep << " "
-                                     << std::abs(ideltaphi) << " " << drphicut / (settings_.kphi() * stub->r()) << " "
-                                     << std::abs(ideltar) << " " << drcut / settings_.krprojshiftdisk()
-                                     << " r = " << stub->r();
+        edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " " << std::abs(ideltaphi)
+                                     << " " << drphicut / (settings_.kphi() * stub->r()) << " " << std::abs(ideltar)
+                                     << " " << drcut / settings_.krprojshiftdisk() << " r = " << stub->r();
       }
 
       if (imatch) {
@@ -462,6 +496,7 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
   }
 }
 
+// Combines all tracklet/stub pairs into a vector
 std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > MatchCalculator::mergeMatches(
     vector<CandidateMatchMemory*>& candmatch) {
   std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > tmp;

@@ -52,15 +52,15 @@ template <typename T>
 class L1TJetsMatching : public edm::global::EDProducer<> {
 public:
   explicit L1TJetsMatching(const edm::ParameterSet&);
-  ~L1TJetsMatching() override;
+  ~L1TJetsMatching() override = default;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   std::pair<std::vector<T>, std::vector<T>> categorise(
       const std::vector<T>& pfMatchedJets, double pt1, double pt2, double pt3, double Mjj) const;
   std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> categoriseVBFPlus2CentralJets(
       const std::vector<T>& pfMatchedJets, double pt1, double pt2, double pt3, double Mjj) const;
-
-private:
   const edm::EDGetTokenT<std::vector<T>> jetSrc_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> jetTrigger_;
   const std::string matchingMode_;
@@ -68,7 +68,6 @@ private:
   const double pt2Min_;
   const double pt3Min_;
   const double mjjMin_;
-  const double matchingR_;
   const double matchingR2_;
 };
 //
@@ -80,7 +79,7 @@ std::pair<std::vector<T>, std::vector<T>> L1TJetsMatching<T>::categorise(
   std::pair<std::vector<T>, std::vector<T>> output;
   unsigned int i1 = 0;
   unsigned int i2 = 0;
-  double mjj = 0;
+  double m2jj = 0;
   if (pfMatchedJets.size() > 1) {
     for (unsigned int i = 0; i < pfMatchedJets.size() - 1; i++) {
       const T& myJet1 = (pfMatchedJets)[i];
@@ -88,10 +87,10 @@ std::pair<std::vector<T>, std::vector<T>> L1TJetsMatching<T>::categorise(
       for (unsigned int j = i + 1; j < pfMatchedJets.size(); j++) {
         const T& myJet2 = (pfMatchedJets)[j];
 
-        const double mjj_test = (myJet1.p4() + myJet2.p4()).M();
+        const double m2jj_test = (myJet1.p4() + myJet2.p4()).M2();
 
-        if (mjj_test > mjj) {
-          mjj = mjj_test;
+        if (m2jj_test > m2jj) {
+          m2jj = m2jj_test;
           i1 = i;
           i2 = j;
         }
@@ -100,13 +99,14 @@ std::pair<std::vector<T>, std::vector<T>> L1TJetsMatching<T>::categorise(
 
     const T& myJet1 = (pfMatchedJets)[i1];
     const T& myJet2 = (pfMatchedJets)[i2];
+    const double M2jj = (Mjj >= 0. ? Mjj * Mjj : -1.);
 
-    if ((mjj > Mjj) && (myJet1.pt() >= pt1) && (myJet2.pt() > pt2)) {
+    if ((m2jj > M2jj) && (myJet1.pt() >= pt1) && (myJet2.pt() > pt2)) {
       output.first.push_back(myJet1);
       output.first.push_back(myJet2);
     }
 
-    if ((mjj > Mjj) && (myJet1.pt() < pt3) && (myJet1.pt() > pt2) && (myJet2.pt() > pt2)) {
+    if ((m2jj > M2jj) && (myJet1.pt() < pt3) && (myJet1.pt() > pt2) && (myJet2.pt() > pt2)) {
       const T& myJetTest = (pfMatchedJets)[0];
       if (myJetTest.pt() > pt3) {
         output.second.push_back(myJet1);
@@ -125,7 +125,7 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
   unsigned int i1 = 0;
   unsigned int i2 = 0;
 
-  double mjj = 0;
+  double m2jj = 0;
   if (pfMatchedJets.size() > 1) {
     for (unsigned int i = 0; i < pfMatchedJets.size() - 1; i++) {
       const T& myJet1 = (pfMatchedJets)[i];
@@ -133,10 +133,10 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
       for (unsigned int j = i + 1; j < pfMatchedJets.size(); j++) {
         const T& myJet2 = (pfMatchedJets)[j];
 
-        const double mjj_test = (myJet1.p4() + myJet2.p4()).M();
+        const double m2jj_test = (myJet1.p4() + myJet2.p4()).M2();
 
-        if (mjj_test > mjj) {
-          mjj = mjj_test;
+        if (m2jj_test > m2jj) {
+          m2jj = m2jj_test;
           i1 = i;
           i2 = j;
         }
@@ -145,6 +145,7 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
 
     const T& myJet1 = (pfMatchedJets)[i1];
     const T& myJet2 = (pfMatchedJets)[i2];
+    const double M2jj = (Mjj >= 0. ? Mjj * Mjj : -1.);
 
     std::vector<T> vec4jets;
     vec4jets.reserve(4);
@@ -153,7 +154,7 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
     std::vector<T> vec6jets;
     vec6jets.reserve(6);
     if (pfMatchedJets.size() > 3) {
-      if ((mjj > Mjj) && (myJet1.pt() >= pt3) && (myJet2.pt() > pt2)) {
+      if ((m2jj > M2jj) && (myJet1.pt() >= pt3) && (myJet2.pt() > pt2)) {
         vec4jets.push_back(myJet1);
         vec4jets.push_back(myJet2);
 
@@ -166,7 +167,7 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
         }
       }
 
-      if ((mjj > Mjj) && (myJet1.pt() < pt1) && (myJet1.pt() < pt3) && (myJet1.pt() > pt2) &&
+      if ((m2jj > M2jj) && (myJet1.pt() < pt1) && (myJet1.pt() < pt3) && (myJet1.pt() > pt2) &&
           (myJet2.pt() > pt2)) {  //60, 30, 50, 500
 
         std::vector<unsigned int> idx_jets;
@@ -212,8 +213,7 @@ L1TJetsMatching<T>::L1TJetsMatching(const edm::ParameterSet& iConfig)
       pt2Min_(iConfig.getParameter<double>("pt2Min")),
       pt3Min_(iConfig.getParameter<double>("pt3Min")),
       mjjMin_(iConfig.getParameter<double>("mjjMin")),
-      matchingR_(iConfig.getParameter<double>("matchingR")),
-      matchingR2_(matchingR_ * matchingR_) {
+      matchingR2_(iConfig.getParameter<double>("matchingR") * iConfig.getParameter<double>("matchingR")) {
   if (matchingMode_ == "VBF") {  // Default
     produces<std::vector<T>>("TwoJets");
     produces<std::vector<T>>("ThreeJets");
@@ -226,8 +226,6 @@ L1TJetsMatching<T>::L1TJetsMatching(const edm::ParameterSet& iConfig)
                                                  << " (valid values are \"VBF\" and \"VBFPlus2CentralJets\")";
   }
 }
-template <typename T>
-L1TJetsMatching<T>::~L1TJetsMatching() {}
 
 template <typename T>
 void L1TJetsMatching<T>::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {

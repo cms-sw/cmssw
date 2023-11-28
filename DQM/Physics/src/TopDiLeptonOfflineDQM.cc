@@ -781,8 +781,6 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
     if (!(*beamspotSelect_)(*beamspot))
       return;
   }
-  unsigned int passed = 0;
-
   unsigned int nJetSteps = -1;
 
   unsigned int nPFJetSteps = -1;
@@ -798,14 +796,12 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
       }
       if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
       if (type == "elecs" && ElectronStep != nullptr) {
         if (ElectronStep->select(event, "electron")) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -814,7 +810,6 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
         nJetSteps++;
         if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -825,7 +820,6 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
         nPFJetSteps++;
         if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -836,7 +830,6 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
         nCaloJetSteps++;
         if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -844,7 +837,6 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (type == "met" && METStep != nullptr) {
-        ++passed;
         if (METStep->select(event)) {
           selection_[key].second->fill(event, setup);
         } else

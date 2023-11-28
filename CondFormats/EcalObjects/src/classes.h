@@ -67,6 +67,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include "CondFormats/EcalObjects/interface/EcalSimComponentShape.h"
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 //ECAL PH2:

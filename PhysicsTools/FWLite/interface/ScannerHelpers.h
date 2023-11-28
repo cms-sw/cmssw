@@ -11,10 +11,10 @@
 // AFAIK These includes are needed to build the dictionary
 // but must be kept hidden if CINT sees this class
 #if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/interface/SelectorPtr.h"
-#include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/interface/SelectorBase.h"
+#include "CommonTools/Utils/interface/parser/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/parser/SelectorPtr.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/SelectorBase.h"
 #endif
 
 namespace helper {

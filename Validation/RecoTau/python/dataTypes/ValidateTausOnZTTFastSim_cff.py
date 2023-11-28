@@ -26,9 +26,9 @@ proc.efficienciesZTTFastSim.plots = Utils.SetPlotSequence(proc.TauValNumeratorAn
 proc.efficienciesZTTFastSimSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerZTTFastSim_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerZTTFastSim_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerZTTFastSim_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTTFastSim_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTTFastSim_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTTFastSim_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),

@@ -193,7 +193,6 @@ void popcon::EcalTPGOddWeightGroupHandler::getNewObjects() {
               typedef std::map<EcalLogicID, FEConfigOddWeightDat>::const_iterator CIfesli;
               EcalLogicID ecid_xt;
               int weightGroup;
-              int icells = 0;
 
               std::map<std::string, int> map;
               std::string str;
@@ -218,7 +217,6 @@ void popcon::EcalTPGOddWeightGroupHandler::getNewObjects() {
                   unsigned int stripEBId = 303176 + (tt - 1) * 64 + (strip - 1) * 8 + (tcc - 37) * 8192;
 
                   weightG->setValue(stripEBId, weightGroup);
-                  ++icells;
                 } else if (ecid_name == "ECAL_readout_strip") {
                   // EE data to add
                   int id1 = ecid_xt.getID1();
@@ -245,8 +243,6 @@ void popcon::EcalTPGOddWeightGroupHandler::getNewObjects() {
                   } else {
                     std::cout << " these may be the additional towers TCC/TT " << id1 << "/" << id2 << std::endl;
                   }
-
-                  ++icells;
                 }
               }
 

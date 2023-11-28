@@ -83,7 +83,7 @@
 //
 // .L CalibSort.C+g (for the o/p of isotrackRootTreeMaker.py)
 //  CalibFitPU c1(fname);
-//  c1.Loop(extractPUparams, fileName);
+//  c1.Loop(extractPUparams, fileName, dumpEntry);
 //
 //   fname        (const char*)= file name of the input ROOT tree which is
 //                               output of isotrackRootTreeMaker.py
@@ -93,6 +93,7 @@
 //                               will be names of files of parameters from
 //                               2D, profile, graphs; .root for storing all
 //                               histograms created)
+//   dumpEntry    (int)          Entries to be dumped.  Default (0)
 //
 // .L CalibSort.C+g (for merging information from PU and NoPU files)
 //  CalibMerge c1;
@@ -108,6 +109,42 @@
 //                               combined information is written
 //   dirnm        (std::string) = name of the directory where Tree resides
 //                               (default "HcalIsoTrkAnalyzer")
+//
+// .L CalibSort.C+g
+//  combineML(inputFileList, outfile);
+//
+//  Combines the ML values otained from the analysis of muon analysis to
+//  determine depth dependent correction factors
+//
+//   inputFileList (const char*) = file containing filenames having the ML
+//                                 values for a given depth
+//   outfile       (const char*) = name of the output file where the
+//                                 depth dependent correction factors
+//                                 will be stored
+//   Example of a inputFileList:
+//      depth Name of the file
+//          1 ml_values_depth1.txt
+//          2 ml_values_depth2.txt
+//          3 ml_values_depth3.txt
+//          4 ml_values_depth4.txt
+//   where each file conatins
+//   (4 quantities per line with no tab separating each item):
+//   #ieta depth  ml    uncertainity-in-ml
+//
+// .L CalibSort.C+g
+//  calCorrCombine(inFileCorr, inFileDepth, outFileCorr, truncateFlag, etaMax);
+//
+//  Combines the correction factors obtained from CalibTree and the depth
+//  dependent correction factors used in the CalibTree command
+//
+//   inputFileCorr  (const char*) = file containing correction factors obtained
+//                                  from the CalibTree
+//   inputFileDepth (const char*) = file containing depth dependent correction
+//                                  factors used in the CalibTree step
+//   outfileCorr    (const char*) = name of the output file where the combined
+//                                  correction factors
+//   truncateFlag   (int)         = Truncate flag used in the CalibTree step
+//   etaMax         (int)         = Maximum eta value
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -164,6 +201,13 @@ struct recordEventLess {
   bool operator()(const recordEvent &a, const recordEvent &b) {
     return ((a.run_ < b.run_) || ((a.run_ == b.run_) && (a.event_ < b.event_)));
   }
+};
+
+struct listML {
+  listML(int dep = 0, double ml = 0, double dml = 0) : depth_(dep), ml_(ml), dml_(dml) {}
+
+  int depth_;
+  double ml_, dml_;
 };
 
 class CalibSort {
@@ -1466,7 +1510,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TTree *tree);
-  virtual void Loop(bool extract_PU_parameters, std::string fileName);
+  virtual void Loop(bool extract_PU_parameters, std::string fileName, int dumpmax = 0);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
 };
@@ -1560,7 +1604,7 @@ Int_t CalibFitPU::Cut(Long64_t) {
   return 1;
 }
 
-void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
+void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName, int dumpmax) {
   //   In a ROOT session, you can do:
   //      root> .L CalibFitPU.C
   //      root> CalibFitPU t
@@ -1627,6 +1671,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
     int points[7] = {0, 0, 0, 0, 0, 0, 0};
     //=======================================Starting of event Loop=======================================================
+    std::cout << "Get " << nentries << " events from file\n";
 
     for (Long64_t jentry = 0; jentry < nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -1637,7 +1682,9 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
       double deltaOvP = t_delta_PU / t_p_PU;
       double diffEpuEnopuOvP = t_eHcal_noPU / t_eHcal_PU;
-
+      if (jentry < dumpmax)
+        std::cout << "Entry " << jentry << " ieta " << t_ieta << " p " << t_delta_PU << ":" << t_p_PU << ":" << deltaOvP
+                  << " ehcal " << t_eHcal_noPU << ":" << t_eHcal_PU << ":" << diffEpuEnopuOvP << std::endl;
       for (int k = 0; k < n; k++) {
         if (std::abs(t_ieta) < ieta_grid[k]) {
           points[k]++;
@@ -2303,4 +2350,206 @@ void CalibMerge::close() {
   }
   outputFile_ = nullptr;
   std::cout << "now doing return" << std::endl;
+}
+
+void combineML(const char *inputFileList, const char *outfile) {
+  std::map<int, std::string> files;
+  std::ifstream infile(inputFileList);
+  if (!infile.is_open()) {
+    std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
+  } else {
+    while (1) {
+      int depth;
+      std::string fname;
+      infile >> depth >> fname;
+      if (!infile.good())
+        break;
+      files[depth] = fname;
+    }
+    infile.close();
+  }
+  std::cout << "Gets a list of " << files.size() << " file names from " << inputFileList << std::endl;
+  if (files.size() > 0) {
+    std::map<int, std::vector<listML> > mlList;
+    for (std::map<int, std::string>::const_iterator itr = files.begin(); itr != files.end(); ++itr) {
+      int depth = itr->first;
+      std::string fname = itr->second;
+      std::ifstream fInput(fname.c_str());
+      if (!fInput.good()) {
+        std::cout << "Cannot open file " << fname << std::endl;
+      } else {
+        char buffer[1024];
+        unsigned int all(0), good1(0), good2(0);
+        while (fInput.getline(buffer, 1024)) {
+          ++all;
+          if (buffer[0] == '#')
+            continue;  //ignore comment
+          std::vector<std::string> items = splitString(std::string(buffer));
+          if (items.size() != 4) {
+            std::cout << "Ignore  line: " << buffer << std::endl;
+          } else {
+            ++good1;
+            int depth0 = std::atoi(items[1].c_str());
+            if (depth0 == depth) {
+              ++good2;
+              int ieta = std::atoi(items[0].c_str());
+              double ml = std::atoi(items[2].c_str());
+              double dml = std::atoi(items[3].c_str());
+              listML l0(depth, ml, dml);
+              if (mlList.find(ieta) == mlList.end()) {
+                std::vector<listML> l0v;
+                mlList[ieta] = l0v;
+              }
+              (mlList[ieta]).push_back(l0);
+            }
+          }
+        }
+        fInput.close();
+        std::cout << "Reads total of " << all << " and " << good1 << ":" << good2 << " good records for depth " << depth
+                  << std::endl;
+      }
+    }
+    if (mlList.size() > 0) {
+      std::ofstream fout(outfile);
+      for (std::map<int, std::vector<listML> >::const_iterator itr = mlList.begin(); itr != mlList.end(); ++itr) {
+        int ieta = itr->first;
+        std::vector<listML> l0v = itr->second;
+        double den(0), dden(0);
+        for (unsigned int k = 0; k < l0v.size(); ++k) {
+          if (l0v[k].depth_ == 2) {
+            den = l0v[k].ml_;
+            dden = l0v[k].dml_;
+          }
+        }
+        if (den > 0) {
+          fout << std::setw(4) << ieta << "   " << l0v.size();
+          for (unsigned int k = 0; k < l0v.size(); ++k) {
+            double ml = den / l0v[k].ml_;
+            double dml = l0v[k].dml_ * den / (l0v[k].ml_ * l0v[k].ml_);
+            fout << "  " << l0v[k].depth_ << "  " << std::setw(6) << ml << "  " << std::setw(6) << dml;
+          }
+          fout << std::endl;
+        }
+      }
+      fout.close();
+    }
+  }
+}
+
+void calCorrCombine(
+    const char *inFileCorr, const char *inFileDepth, const char *outFileCorr, int truncateFlag, int etaMax) {
+  const int neta = 58;
+  int ietas[neta] = {1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18, 19,  20,
+                     21,  22,  23,  24,  25,  26,  27,  28,  29,  -1,  -2,  -3,  -4,  -5,  -6,  -7,  -8,  -9, -10, -11,
+                     -12, -13, -14, -15, -16, -17, -18, -19, -20, -21, -22, -23, -24, -25, -26, -27, -28, -29};
+  int depthMin[neta] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  int depthMax[neta] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3,
+                        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
+
+  // Read the correction factors
+  std::map<unsigned int, std::pair<double, double> > cfactors;
+  if (std::string(inFileCorr) != "") {
+    std::ifstream fInput(inFileCorr);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << inFileCorr << std::endl;
+    } else {
+      char buffer[1024];
+      unsigned int all(0), good(0);
+      while (fInput.getline(buffer, 1024)) {
+        ++all;
+        if (buffer[0] == '#')
+          continue;  //ignore comment
+        std::vector<std::string> items = splitString(std::string(buffer));
+        if (items.size() != 5) {
+          std::cout << "Ignore  line: " << buffer << std::endl;
+        } else {
+          ++good;
+          std::istringstream converter(items[0].c_str());
+          unsigned int det;
+          converter >> std::hex >> det;
+          double corrf = std::atof(items[3].c_str());
+          double dcorr = std::atof(items[4].c_str());
+          cfactors[det] = std::pair<double, double>(corrf, dcorr);
+        }
+      }
+      fInput.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records" << std::endl;
+    }
+  }
+
+  // Read in the depth dependent correction factors
+  std::map<int, std::vector<double> > weights;
+  if (std::string(inFileDepth) != "") {
+    std::ifstream infile(inFileDepth);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open duplicate file " << inFileDepth << std::endl;
+    } else {
+      unsigned int all(0), good(0);
+      char buffer[1024];
+      while (infile.getline(buffer, 1024)) {
+        ++all;
+        std::string bufferString(buffer);
+        if (bufferString.substr(0, 1) == "#") {
+          continue;  //ignore other comments
+        } else {
+          std::vector<std::string> items = splitString(bufferString);
+          if (items.size() < 3) {
+            std::cout << "Ignore  line: " << buffer << " Size " << items.size() << std::endl;
+          } else {
+            ++good;
+            int ieta = std::atoi(items[0].c_str());
+            std::vector<double> weight;
+            for (unsigned int k = 1; k < items.size(); ++k) {
+              double corrf = std::atof(items[k].c_str());
+              weight.push_back(corrf);
+            }
+            weights[ieta] = weight;
+          }
+        }
+      }
+      infile.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+                << inFileDepth << std::endl;
+    }
+  }
+
+  // Now combine the two information
+  std::map<unsigned int, std::pair<double, double> > cfacFinal;
+  std::ofstream outfile(outFileCorr);
+  outfile << "#" << std::setprecision(4) << std::setw(10) << "detId" << std::setw(10) << "ieta" << std::setw(10)
+          << "depth" << std::setw(15) << "corrFactor" << std::endl;
+  for (int k = 0; k < neta; ++k) {
+    int ieta = ietas[k];
+    for (int depth = depthMin[k]; depth <= depthMax[k]; ++depth) {
+      int subdet = ifHB(ieta, depth) ? 1 : 2;
+      int d = truncateDepth(ieta, depth, truncateFlag);
+      unsigned int key = repackId(subdet, ieta, 0, d);
+      double c1(1), dc1(0), c2(1);
+      if (cfactors.find(key) != cfactors.end()) {
+        c1 = cfactors[key].first;
+        dc1 = cfactors[key].second;
+      }
+      if (weights.find(ieta) != weights.end()) {
+        if (static_cast<unsigned int>(depth) <= weights[ieta].size())
+          c2 = (weights[ieta])[depth - 1];
+      }
+      double cf = c1 * c2;
+      double dcf = dc1 * c2;
+      if (std::abs(ieta) > etaMax) {
+        int ieta0 = (ieta > 0) ? etaMax : -etaMax;
+        key = repackId(subdet, ieta0, 0, depth);
+        if (cfacFinal.find(key) != cfacFinal.end()) {
+          cf = cfacFinal[key].first;
+          dcf = cfacFinal[key].second;
+        }
+      }
+      key = repackId(subdet, ieta, 0, depth);
+      cfacFinal[key] = std::pair<double, double>(cf, dcf);
+      if (std::abs(ieta) <= etaMax)
+        outfile << std::setw(10) << std::hex << key << std::setw(10) << std::dec << ieta << std::setw(10) << depth
+                << std::setw(10) << cf << " " << std::setw(10) << dcf << std::endl;
+    }
+  }
+  outfile.close();
 }

@@ -61,14 +61,19 @@ class Reco(Scenario):
 
         miniAODStep = ''
         nanoAODStep = ''
+<<<<<<< HEAD
         if not 'customs' in args:
             args['customs']=[]
+=======
+        if not 'customs' in	args:
+            args['customs']= []
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 
         if 'outputs' in args:
-            print(args['outputs']) 
+            print(args['outputs'])
             for a in args['outputs']:
                 if a['dataTier'] == 'MINIAOD':
-                    miniAODStep = ',PAT' 
+                    miniAODStep = ',PAT'
                 if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
                     nanoAODStep = ',NANO'
                     args['customs'].append('PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize')

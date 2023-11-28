@@ -28,8 +28,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
@@ -42,7 +43,7 @@
 class MuonNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit MuonNumberingTester(const edm::ParameterSet&);
-  ~MuonNumberingTester() override;
+  ~MuonNumberingTester() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -57,20 +58,18 @@ MuonNumberingTester::MuonNumberingTester(const edm::ParameterSet& iConfig)
     : tokDDD_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})},
       tokMuon_{esConsumes<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{})} {}
 
-MuonNumberingTester::~MuonNumberingTester() {}
-
 // ------------ method called to produce the data  ------------
 void MuonNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::cout << "Here I am " << std::endl;
+  edm::LogVerbatim("MuonNumbering") << "Here I am ";
 
   const auto& pDD = iSetup.getData(tokDDD_);
   const auto& pMNDC = iSetup.getData(tokMuon_);
 
   try {
     DDExpandedView epv(pDD);
-    std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
+    edm::LogVerbatim("MuonNumbering") << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart();
   } catch (const DDLogicalPart& iException) {
     throw cms::Exception("Geometry") << "DDORAReader::readDB caught a DDLogicalPart exception: \"" << iException
                                      << "\"";
@@ -79,15 +78,15 @@ void MuonNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetu
   } catch (std::exception& e) {
     throw cms::Exception("Geometry") << "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";
   } catch (...) {
-    throw cms::Exception("Geometry") << "DDORAReader::readDB caught UNKNOWN!!! exception." << std::endl;
+    throw cms::Exception("Geometry") << "DDORAReader::readDB caught UNKNOWN!!! exception.";
   }
-  std::cout << "set the toFind string to \"level\"" << std::endl;
+  edm::LogVerbatim("MuonNumbering") << "set the toFind string to \"level\"";
   std::string toFind("level");
-  std::cout << "about to de-reference the edm::ESHandle<MuonDDDConstants> pMNDC" << std::endl;
+  edm::LogVerbatim("MuonNumbering") << "about to de-reference the edm::ESHandle<MuonDDDConstants> pMNDC";
   const MuonDDDConstants mdc(pMNDC);
-  std::cout << "about to getValue( toFind )" << std::endl;
+  edm::LogVerbatim("MuonNumbering") << "about to getValue( toFind )";
   int level = mdc.getValue(toFind);
-  std::cout << "level = " << level << std::endl;
+  edm::LogVerbatim("MuonNumbering") << "level = " << level;
 }
 
 //define this as a plug-in

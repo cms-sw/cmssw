@@ -3,7 +3,11 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="FWCore/MessageLogger"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>

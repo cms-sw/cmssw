@@ -1,7 +1,7 @@
 # SONIC TritonClient tests
 
-Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
-They generate arbitrary inputs for inference (with Inception/DenseNet or Graph Attention Network, respectively) and print the resulting output.
+Test modules `TritonImageProducer`, `TritonIdentityProducer`, and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
+They generate arbitrary inputs for inference (with Inception/DenseNet, a simple identity model that allows ragged batching, or Graph Attention Network, respectively) and print the resulting output.
 
 First, the relevant data for the image classification networks should be downloaded:
 ```
@@ -17,6 +17,11 @@ The local server will use Apptainer with CPU by default; if a local Nvidia GPU i
 Run the image test:
 ```
 cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer,TritonImageProducer models=inception_graphdef,densenet_onnx
+```
+
+Run the identity test with ragged batching:
+```
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonIdentityProducer models=ragged_io
 ```
 
 Run the graph test:

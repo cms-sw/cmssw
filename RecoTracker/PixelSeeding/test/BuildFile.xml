@@ -1,0 +1,30 @@
+<library file="HitTripletProducer.cc" name="HitTripletProducer">
+  <use name="boost"/>
+  <use name="root"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="RecoTracker/TkTrackingRegions"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="PixelTriplets_InvPrbl_t.cpp">
+  <use name="RecoTracker/PixelSeeding"/>
+</bin>
+
+<bin file="PixelTriplets_InvPrbl_prec.cpp">
+  <use name="RecoTracker/PixelSeeding"/>
+</bin>
+
+<bin file="fastDPHI_t.cpp">
+</bin>
+
+<bin file="CircleEq_t.cpp">
+</bin>
+
+<bin file="CAsizes_t.cpp">
+  <use name="cuda"/>
+  <use name="eigen"/>
+  <use name="boost"/>
+</bin>

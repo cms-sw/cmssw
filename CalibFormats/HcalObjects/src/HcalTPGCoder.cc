@@ -6,3 +6,10 @@ std::vector<unsigned short> HcalTPGCoder::getLinearizationLUT(HcalDetId id) cons
     lut[i] = adc2Linear(i, id);
   return lut;
 }
+
+std::vector<unsigned short> HcalTPGCoder::getLinearizationLUT(HcalZDCDetId id, bool ootpu_lut) const {
+  std::vector<unsigned short> lut(128);
+  for (unsigned char i = 0; i < 128; ++i)
+    lut[i] = adc2Linear(i, id);
+  return lut;
+}

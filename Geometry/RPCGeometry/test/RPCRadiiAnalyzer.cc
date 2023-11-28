@@ -10,6 +10,7 @@
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -24,8 +25,6 @@
 #include <vector>
 #include <iomanip>
 #include <set>
-
-using namespace std;
 
 class RPCRadiiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
@@ -53,29 +52,29 @@ RPCRadiiAnalyzer::RPCRadiiAnalyzer(const edm::ParameterSet& /*iConfig*/)
       dashedLine_(std::string(dashedLineWidth_, '-')),
       myName_("RPCRadiiAnalyzer") {
   ofos.open("MytestOutput.out");
-  std::cout << "======================== Opening output file" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "======================== Opening output file";
 }
 
 RPCRadiiAnalyzer::~RPCRadiiAnalyzer() {
   ofos.close();
-  std::cout << "======================== Closing output file" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "======================== Closing output file";
 }
 
 void RPCRadiiAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   const RPCGeometry* pDD = &iSetup.getData(tokRPC_);
 
-  std::cout << myName() << ": Analyzer..." << std::endl;
-  std::cout << "start " << dashedLine_ << std::endl;
+  ofos << myName() << ": Analyzer..." << std::endl;
+  ofos << "start " << dashedLine_ << std::endl;
 
-  std::cout << " Geometry node for RPCGeom is  " << &(*pDD) << std::endl;
-  cout << " I have " << pDD->detTypes().size() << " detTypes" << endl;
-  cout << " I have " << pDD->detUnits().size() << " detUnits" << endl;
-  cout << " I have " << pDD->dets().size() << " dets" << endl;
-  cout << " I have " << pDD->rolls().size() << " rolls" << endl;
-  cout << " I have " << pDD->chambers().size() << " chambers" << endl;
+  ofos << " Geometry node for RPCGeom is  " << &(*pDD) << std::endl;
+  ofos << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
+  ofos << " I have " << pDD->detUnits().size() << " detUnits" << std::endl;
+  ofos << " I have " << pDD->dets().size() << " dets" << std::endl;
+  ofos << " I have " << pDD->rolls().size() << " rolls" << std::endl;
+  ofos << " I have " << pDD->chambers().size() << " chambers" << std::endl;
 
-  std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
-  std::cout << "iter " << dashedLine_ << std::endl;
+  ofos << myName() << ": Begin iteration over geometry..." << std::endl;
+  ofos << "iter " << dashedLine_ << std::endl;
 
   const double dPi = 3.14159265358;
   const double radToDeg = 180. / dPi;  //@@ Where to get pi from?
@@ -93,19 +92,19 @@ void RPCRadiiAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSet
         if (roll->id().region() == -1 && roll->id().station() > 0)  // &&
                                                                     //	   (*r)->id().ring() == 2)
         {
-          //	    std::cout<<"RPCDetId = "<<(*r)->id()<<std::endl;
+          //	    ofos<<"RPCDetId = "<<(*r)->id()<<std::endl;
           RPCGeomServ geosvc(roll->id());
           LocalPoint centre(0., 0., 0.);
           GlobalPoint gc = roll->toGlobal(centre);
           double phic = double(gc.phi()) * radToDeg;
           double radii = double(gc.perp());
-          std::cout << geosvc.name() << " phi=" << phic << " r=" << radii << " detName " << roll->specs()->detName()
-                    << " s=" << roll->id().sector() << " subs=" << roll->id().subsector() << std::endl;
+          ofos << geosvc.name() << " phi=" << phic << " r=" << radii << " detName " << roll->specs()->detName()
+               << " s=" << roll->id().sector() << " subs=" << roll->id().subsector() << std::endl;
         }
       }
     }
   }
-  std::cout << dashedLine_ << " end" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << dashedLine_ << " end";
 }
 
 //define this as a plug-in

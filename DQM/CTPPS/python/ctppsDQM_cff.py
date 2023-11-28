@@ -11,6 +11,8 @@ from DQM.CTPPS.diamondSampicDQMSource_cfi import *
 
 from DQM.CTPPS.totemTimingDQMSource_cfi import *
 
+from DQM.CTPPS.totemT2DQMSource_cfi import *
+
 from DQM.CTPPS.ctppsPixelDQMSource_cfi import *
 
 from DQM.CTPPS.elasticPlotDQMSource_cfi import *
@@ -42,6 +44,7 @@ _ctppsDQMCalibrationSource = cms.Sequence(
   + diamondSampicDQMSourceOnline
   + ctppsCommonDQMSourceOnline
   + elasticPlotDQMSource
+  + totemT2DQMSource
 )
 
 _ctppsDQMCalibrationHarvest = cms.Sequence(
@@ -97,6 +100,7 @@ ctpps_2016.toReplaceWith(
     cms.Sequence(
     )
 )
+
 
 # the actually used sequences must be empty for pre-PPS data
 from Configuration.Eras.Modifier_ctpps_cff import ctpps

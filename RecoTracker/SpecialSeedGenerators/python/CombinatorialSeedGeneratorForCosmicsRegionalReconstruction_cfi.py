@@ -70,7 +70,7 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
     ), 
 
     ClusterCheckPSet = cms.PSet (
-      MaxNumberOfCosmicClusters = cms.uint32(10000),
+      MaxNumberOfStripClusters = cms.uint32(10000),
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
       MaxNumberOfPixelClusters = cms.uint32(10000),
       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),

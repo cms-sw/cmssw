@@ -30,7 +30,7 @@ public:
   using LoaderType = CaloGeometryLoaderTest<T>;
   using PtrType = typename LoaderType::PtrType;
 
-  CaloGeometryEPtest<T>(const edm::ParameterSet& ps) : m_applyAlignment(ps.getParameter<bool>("applyAlignment")) {
+  CaloGeometryEPtest(const edm::ParameterSet& ps) : m_applyAlignment(ps.getParameter<bool>("applyAlignment")) {
     auto cc = setWhatProduced(this, &CaloGeometryEPtest<T>::produceAligned, edm::es::Label(T::producerTag()));
     if (m_applyAlignment) {
       m_alignmentsToken = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
@@ -39,7 +39,7 @@ public:
     m_geometryToken = cc.template consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
   }
 
-  ~CaloGeometryEPtest<T>() override {}
+  ~CaloGeometryEPtest() override {}
   PtrType produceAligned(const typename T::AlignedRecord& iRecord) {
     const Alignments* alignPtr(nullptr);
     const Alignments* globalPtr(nullptr);

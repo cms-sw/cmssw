@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 
-process = cms.Process('DUMP',Run3)
+process = cms.Process('DUMP',Run3_DDD)
 
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.RPCGeometryBuilder.rpcGeometry_cfi")
@@ -13,6 +13,8 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.Geometry=dict()
     process.MessageLogger.RPCNumberingScheme=dict()
     process.MessageLogger.RPCGeometry=dict()
+    process.MessageLogger.RPCGeometryBuilder=dict()
+    process.MessageLogger.RPCGeometryParsFromDD=dict()
 
 process.source = cms.Source('EmptySource')
 

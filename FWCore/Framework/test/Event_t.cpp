@@ -105,7 +105,6 @@ class testEvent : public CppUnit::TestFixture {
   CPPUNIT_TEST(getByToken);
   CPPUNIT_TEST(getHandle);
   CPPUNIT_TEST(get_product);
-  CPPUNIT_TEST(getManyByType);
   CPPUNIT_TEST(printHistory);
   CPPUNIT_TEST(deleteProduct);
   CPPUNIT_TEST_SUITE_END();
@@ -130,7 +129,6 @@ public:
   void getByToken();
   void getHandle();
   void get_product();
-  void getManyByType();
   void printHistory();
   void deleteProduct();
 
@@ -971,44 +969,6 @@ void testEvent::get_product() {
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt2EarlyToken).value == 2);
 
   CPPUNIT_ASSERT(currentEvent_->get(modOneToken).value == 4);
-}
-
-void testEvent::getManyByType() {
-  typedef edmtest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
-
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
-  addProduct(std::move(one), "int1_tag", "int1");
-  addProduct(std::move(two), "int2_tag", "int2");
-  addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four), "nolabel_tag");
-
-  auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
-  addProduct(std::move(ap_vthing), "thing", "");
-
-  auto ap_vthing2 = std::make_unique<std::vector<edmtest::Thing>>();
-  addProduct(std::move(ap_vthing2), "thing2", "inst2");
-
-  ap_t oneHundred(new product_t(100));
-  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
-
-  auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
-  putProduct(std::move(twoHundred), "int1");
-
-  CPPUNIT_ASSERT(currentEvent_->size() == 8);
-
-  handle_vec handles;
-  currentEvent_->getManyByType(handles);
-  CPPUNIT_ASSERT(handles.size() == 6);
-  int sum = 0;
-  for (int k = 0; k < 6; ++k)
-    sum += handles[k]->value;
-  CPPUNIT_ASSERT(sum == 310);
 }
 
 void testEvent::printHistory() {

@@ -108,9 +108,7 @@ bool HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent,
   std::vector<l1t::TauRef> l1Taus;
   L1SeedOutput->getObjects(TriggerL1Tau, l1Taus);
 
-  int countCand = 0;
   for (auto recoecalcand = recoIsolecalcands->begin(); recoecalcand != recoIsolecalcands->end(); recoecalcand++) {
-    countCand++;
     if (std::abs(recoecalcand->eta()) < endcap_end_) {
       //SC should be inside the ECAL fiducial volume
 
@@ -140,8 +138,6 @@ bool HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent,
 
     for (auto recoecalcand = recoNonIsolecalcands->begin(); recoecalcand != recoNonIsolecalcands->end();
          recoecalcand++) {
-      countCand++;
-
       if (std::abs(recoecalcand->eta()) < endcap_end_) {
         bool matchedSCEG = matchedToL1Cand(l1EGs, recoecalcand->eta(), recoecalcand->phi());
         bool matchedSCJet = matchedToL1Cand(l1Jets, recoecalcand->eta(), recoecalcand->phi());

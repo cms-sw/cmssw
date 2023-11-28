@@ -282,8 +282,6 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
 
       set<pair<int, int>, ltfiber>::const_iterator kit = theSet.begin();
 
-      int ikchip = 0;
-
       while (kit != theSet.end()) {
         const pair<int, int>& kchip_fiber = (*kit);
 
@@ -313,7 +311,6 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
           }
         }
         ++kit;
-        ++ikchip;
       }
     }
   }

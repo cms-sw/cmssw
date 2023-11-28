@@ -5,4 +5,4 @@
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
 
 REGISTER_PLUGIN(MagFieldConfigRcd, MagFieldConfig);
-REGISTER_PLUGIN(MFGeometryFileRcd, FileBlob);
+REGISTER_PLUGIN_NO_SERIAL(MFGeometryFileRcd, FileBlob);

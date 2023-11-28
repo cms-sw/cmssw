@@ -81,43 +81,43 @@ namespace cscdqm {
 
           } else
 
-              ///
-              /// Load histogram
-              ///
-              if (nodeName == XML_BOOK_HISTOGRAM) {
-            CoHistoProps hp;
+            ///
+            /// Load histogram
+            ///
+            if (nodeName == XML_BOOK_HISTOGRAM) {
+              CoHistoProps hp;
 
-            DOMElement* el = dynamic_cast<DOMElement*>(node);
-            if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
-              std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
+              DOMElement* el = dynamic_cast<DOMElement*>(node);
+              if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
+                std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
 
-              CoHistoProps d = definitions[id];
-              for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
-                hp[it->first] = it->second;
+                CoHistoProps d = definitions[id];
+                for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
+                  hp[it->first] = it->second;
+                }
+              }
+
+              getNodeProperties(node, hp);
+
+              std::string name = hp[XML_BOOK_HISTO_NAME];
+              std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
+
+              // Check if this histogram is an ON DEMAND histogram?
+              hp[XML_BOOK_ONDEMAND] =
+                  (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE);
+
+              LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name
+                        << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND];
+
+              CoHistoMap::iterator it = collection.find(prefix);
+              if (it == collection.end()) {
+                CoHisto h;
+                h[name] = hp;
+                collection[prefix] = h;
+              } else {
+                it->second.insert(make_pair(name, hp));
               }
             }
-
-            getNodeProperties(node, hp);
-
-            std::string name = hp[XML_BOOK_HISTO_NAME];
-            std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
-
-            // Check if this histogram is an ON DEMAND histogram?
-            hp[XML_BOOK_ONDEMAND] =
-                (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE);
-
-            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name
-                      << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND];
-
-            CoHistoMap::iterator it = collection.find(prefix);
-            if (it == collection.end()) {
-              CoHisto h;
-              h[name] = hp;
-              collection[prefix] = h;
-            } else {
-              it->second.insert(make_pair(name, hp));
-            }
-          }
         }
       }
 

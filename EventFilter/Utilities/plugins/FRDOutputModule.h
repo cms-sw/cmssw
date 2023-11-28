@@ -29,7 +29,7 @@ private:
   void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
-  void finishFileWrite(int ls);
+  void finishFileWrite(unsigned int run, int ls);
   uint32_t adler32() const { return (adlerb_ << 16) | adlera_; }
 
   const edm::EDGetTokenT<FEDRawDataCollection> token_;

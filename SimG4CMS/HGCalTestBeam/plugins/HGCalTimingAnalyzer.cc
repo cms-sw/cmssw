@@ -22,8 +22,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
+#include "Geometry/HGCalGeometry/interface/HGCalTBGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -64,8 +64,8 @@ private:
   const double timeUnit_;
   const bool doTree_;
   const std::vector<int> idBeams_;
-  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDD_;
-  const HGCalDDDConstants* hgcons_;
+  const edm::ESGetToken<HGCalTBDDDConstants, IdealGeometryRecord> tokDDD_;
+  const HGCalTBDDDConstants* hgcons_;
   const edm::InputTag labelGen_;
   const std::string labelHitEE_, labelHitBeam_;
   const edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
@@ -88,7 +88,7 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
       idBeams_((iConfig.getParameter<std::vector<int>>("IDBeams")).empty()
                    ? idBeamDef_
                    : (iConfig.getParameter<std::vector<int>>("IDBeams"))),
-      tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+      tokDDD_(esConsumes<HGCalTBDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorEE_))),
       labelGen_(iConfig.getParameter<edm::InputTag>("GeneratorSrc")),
       labelHitEE_(iConfig.getParameter<std::string>("CaloHitSrcEE")),

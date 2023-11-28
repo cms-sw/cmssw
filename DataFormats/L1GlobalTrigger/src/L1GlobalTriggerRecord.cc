@@ -138,7 +138,6 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const {
   int sizeW64 = 64;  // 64 bits words
 
   int iBit = 0;
-  int jBit = m_gtDecisionWord.size();
   int nrDecWord = m_gtDecisionWord.size() / sizeW64;
 
   std::ostringstream stream64;
@@ -162,7 +161,6 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const {
     }
 
     iBit++;
-    jBit--;
   }
 
   int iWord = 0;

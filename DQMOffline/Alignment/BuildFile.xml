@@ -1,4 +1,5 @@
 <use name="Alignment/LaserAlignment"/>
+<use name="Alignment/OfflineValidation"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/TrackReco"/>

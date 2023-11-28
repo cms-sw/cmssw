@@ -8,12 +8,11 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedTauValDenominatorQCD = cms.EDFilter(
-   "GenJetSelector", #"GenJetSelector"
-   src = cms.InputTag('ak4GenJets'),
-   cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
-   filter = cms.bool(False)
+    "GenJetSelector",
+    src = cms.InputTag('slimmedGenJets'),
+    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
+    filter = cms.bool(False)
 )
-
 
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'QCD') #clones the sequence inside the process with QCD postfix
@@ -34,9 +33,9 @@ proc.efficienciesQCD.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenomi
 proc.efficienciesQCDSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerQCD_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerQCD_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -50,10 +49,9 @@ newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.fi
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-
 produceDenominatorQCD = cms.Sequence(
-    kinematicSelectedTauValDenominatorQCD
-    )
+    cms.ignore(kinematicSelectedTauValDenominatorQCD)
+)
 
 produceDenominator = cms.Sequence(produceDenominatorQCD)
 

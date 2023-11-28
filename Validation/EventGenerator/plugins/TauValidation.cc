@@ -758,7 +758,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
     TLorentzVector taup(0, 0, 0, 0);
     TLorentzVector rho_plus, rho_minus, pi_rhominus, pi0_rhominus, pi_rhoplus, pi0_rhoplus, pi_plus, pi_minus;
     bool hasrho_minus(false), hasrho_plus(false), haspi_minus(false), haspi_plus(false);
-    int nSinglePionDecays(0), nSingleMuonDecays(0), nSingleElectronDecays(0);
+    int nSinglePionDecays(0);
     double x1(0), x2(0);
     TLorentzVector Zboson(boson->px(), boson->py(), boson->pz(), boson->energy());
     for (unsigned int i = 0; i < boson->numberOfDaughters(); i++) {
@@ -772,10 +772,6 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
           if (jak_id == TauDecay::MODE_PION || jak_id == TauDecay::MODE_MUON || jak_id == TauDecay::MODE_ELECTRON) {
             if (jak_id == TauDecay::MODE_PION)
               nSinglePionDecays++;
-            if (jak_id == TauDecay::MODE_MUON)
-              nSingleMuonDecays++;
-            if (jak_id == TauDecay::MODE_ELECTRON)
-              nSingleElectronDecays++;
             TLorentzVector LVtau(dau->px(), dau->py(), dau->pz(), dau->energy());
             tautau += LVtau;
             TLorentzVector LVpi = leadingPionP4(dau);

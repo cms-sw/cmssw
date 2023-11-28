@@ -258,7 +258,7 @@ namespace trklet {
         formTracks(lostTracks, lostStubs, lost, offset + channel);
         nTracks += tracks.size();
         nStubs +=
-            accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const auto& v) { return sum += (int)v.size(); });
+            accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const auto& v) { return sum + (int)v.size(); });
         nLost += lost.size();
         allTracks += tracks.size();
         if (!useMCTruth_)
@@ -334,8 +334,8 @@ namespace trklet {
     const int seedType = channel % channelAssignment_->numChannelsTrack();
     const int offset = channelAssignment_->offsetStub(channel);
     const StreamTrack& streamTrack = streamsTrack[channel];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& frame) {
-      return sum += (frame.first.isNonnull() ? 1 : 0);
+    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& frame) {
+      return sum + (frame.first.isNonnull() ? 1 : 0);
     });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {

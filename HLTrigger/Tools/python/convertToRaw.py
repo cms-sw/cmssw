@@ -6,6 +6,7 @@
 #           [lumiNumber=NNNN] \
 #           [eventsPerFile=50] \
 #           [eventsPerLumi=11650] \
+#           [rawDataCollection=rawDataCollector] \
 #           [outputPath=output_directory]
 #
 # The output files will appear as output_directory/runNNNNNN/runNNNNNN_lumiNNNN_indexNNNNNN.raw .
@@ -41,7 +42,7 @@ process.EvFDaqDirector = cms.Service( "EvFDaqDirector",
 )
 
 process.writer = cms.OutputModule("RawStreamFileWriterForBU",
-    source = cms.InputTag('rawDataCollector'),
+    source = cms.InputTag('rawDataCollector'),                      # to be overwritten after parsing the command line options
     numEventsPerFile = cms.uint32(0)                                # to be overwritten after parsing the command line options
 )
 
@@ -91,6 +92,12 @@ options.register('eventsPerFile',
                  VarParsing.VarParsing.varType.int,
                  "Split the output into files with at most this number of events")
 
+options.register('rawDataCollection',
+                 'rawDataCollector',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "FEDRawDataCollection to be repacked into RAW format")
+
 options.register('outputPath',
                  os.getcwd(),
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -125,6 +132,7 @@ if options.lumiNumber is not None:
 process.EvFDaqDirector.runNumber = options.runNumber
 process.EvFDaqDirector.baseDir = options.outputPath
 process.EvFDaqDirector.buBaseDir = options.outputPath
+process.writer.source = options.rawDataCollection
 process.writer.numEventsPerFile = options.eventsPerFile
 process.MessageLogger.cerr.FwkReport.reportEvery = options.eventsPerFile
 

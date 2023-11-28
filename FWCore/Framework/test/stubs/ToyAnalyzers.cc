@@ -117,6 +117,50 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  class BuiltinIntTestAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    BuiltinIntTestAnalyzer(edm::ParameterSet const& iPSet)
+        : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))),
+          missing_(iPSet.getUntrackedParameter<bool>("valueMustBeMissing")) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("valueMustMatch");
+      desc.addUntracked<edm::InputTag>("moduleLabel");
+      desc.addUntracked<bool>("valueMustBeMissing", false);
+      descriptions.addDefault(desc);
+    }
+
+    void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+      auto const& prod = iEvent.getHandle(token_);
+      if (missing_) {
+        if (prod.isValid()) {
+          edm::ProductLabels labels;
+          labelsForToken(token_, labels);
+          throw cms::Exception("ValueNotMissing")
+              << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process
+              << "\" is being produced, which is not expected.";
+        }
+        return;
+      }
+      if (*prod != value_) {
+        edm::ProductLabels labels;
+        labelsForToken(token_, labels);
+        throw cms::Exception("ValueMismatch")
+            << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
+            << *prod << " but it was supposed to be " << value_;
+      }
+    }
+
+  private:
+    int const value_;
+    edm::EDGetTokenT<int> const token_;
+    bool const missing_;
+  };
+
+  //--------------------------------------------------------------------
+  //
   template <typename T>
   class GenericAnalyzerT : public edm::global::EDAnalyzer<> {
   public:
@@ -407,6 +451,7 @@ namespace edmtest {
   }
 }  // namespace edmtest
 
+using edmtest::BuiltinIntTestAnalyzer;
 using edmtest::ConsumingOneSharedResourceAnalyzer;
 using edmtest::ConsumingStreamAnalyzer;
 using edmtest::DSVAnalyzer;
@@ -428,3 +473,4 @@ DEFINE_FWK_MODULE(ConsumingOneSharedResourceAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(SimpleViewAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
+DEFINE_FWK_MODULE(BuiltinIntTestAnalyzer);

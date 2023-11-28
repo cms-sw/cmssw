@@ -9,9 +9,10 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+
 selectMuons = cms.EDProducer(
     "GenParticlePruner",
-    src = cms.InputTag("genParticles"),
+    src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 13",
@@ -19,7 +20,7 @@ selectMuons = cms.EDProducer(
     )
 )
 
-selectStableMuons = genParticlesForJets.clone(src = cms.InputTag("selectMuons"))
+selectStableMuons = genParticlesForJets.clone(src = "selectMuons")
 
 kinematicSelectedTauValDenominatorZMM = cms.EDFilter(
    "CandPtrSelector",
@@ -47,9 +48,9 @@ proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenomi
 proc.efficienciesZMMSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZMM_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -65,9 +66,8 @@ for newAttr in newProcAttributes:
 
 produceDenominatorZMM = cms.Sequence(
       selectMuons
-      +selectStableMuons
-#      +objectTypeSelectedTauValDenominatorModule
-      +kinematicSelectedTauValDenominatorZMM
+      +cms.ignore(selectStableMuons)
+      +cms.ignore(kinematicSelectedTauValDenominatorZMM)
       )
 
 produceDenominator = cms.Sequence(produceDenominatorZMM)
@@ -81,4 +81,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesZMM
       )
-

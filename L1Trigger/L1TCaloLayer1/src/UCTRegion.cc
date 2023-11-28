@@ -131,14 +131,12 @@ bool UCTRegion::process() {
     // Tower ET must be a decent fraction of RegionET
     bool activeTower[nEta][nPhi];
     uint32_t activityLevel = ((uint32_t)((float)regionET) * activityFraction);
-    uint32_t nActiveTowers = 0;
     uint32_t activeTowerET = 0;
     for (uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
       for (uint32_t iEta = 0; iEta < nEta; iEta++) {
         uint32_t towerET = towers[iEta * nPhi + iPhi]->et();
         if (towerET > activityLevel) {
           activeTower[iEta][iPhi] = true;
-          nActiveTowers++;
           activeTowerET += towers[iEta * nPhi + iPhi]->et();
         } else
           activeTower[iEta][iPhi] = false;

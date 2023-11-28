@@ -30,16 +30,6 @@ PFTrajectoryPoint::PFTrajectoryPoint(int detId,
   posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi());
 }
 
-PFTrajectoryPoint::PFTrajectoryPoint(const PFTrajectoryPoint& other)
-    : isTrackerLayer_(other.isTrackerLayer_),
-      detId_(other.detId_),
-      layer_(other.layer_),
-      posxyz_(other.posxyz_),
-      posrep_(other.posrep_),
-      momentum_(other.momentum_) {}
-
-PFTrajectoryPoint::~PFTrajectoryPoint() {}
-
 PFTrajectoryPoint::LayerType PFTrajectoryPoint::layerTypeByName(const std::string& name) {
   auto it = std::find(layerTypeNames.begin(), layerTypeNames.end(), name);
   if (it == layerTypeNames.end()) {
@@ -47,13 +37,6 @@ PFTrajectoryPoint::LayerType PFTrajectoryPoint::layerTypeByName(const std::strin
   }
   int index = std::distance(layerTypeNames.begin(), it);
   return LayerType(index);
-}
-
-bool PFTrajectoryPoint::operator==(const reco::PFTrajectoryPoint& other) const {
-  if (posxyz_ == other.posxyz_ && momentum_ == other.momentum_)
-    return true;
-  else
-    return false;
 }
 
 std::ostream& reco::operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint) {

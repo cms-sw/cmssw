@@ -14,6 +14,6 @@ hltPhase2L3MuonsEcalIsodR0p3dRVeto0p000 = cms.EDProducer("MuonHLTEcalPFClusterIs
     pfClusterProducer = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
     recoCandidateProducer = cms.InputTag("hltPhase2L3MuonCandidates"),
     rhoMax = cms.double(99999999.0),
-    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAllCaloForMuons"),
+    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAllCaloForEGamma"),
     rhoScale = cms.double(1.0)
 )

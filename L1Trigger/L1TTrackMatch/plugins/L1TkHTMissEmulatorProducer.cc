@@ -130,7 +130,6 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   // loop over jets
   int jetn = 0;
-  int jetnpasscuts = 0;
 
   for (jetIter = L1TkJetsHandle->begin(); jetIter != L1TkJetsHandle->end(); ++jetIter) {
     // floats used for debugging
@@ -205,8 +204,6 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
       continue;
     if (tmp_jet_nt < minNtracksHighPt_ && tmp_jet_pt > 400)
       continue;
-
-    jetnpasscuts++;
 
     if (debug_) {
       sumPx_ += tmp_jet_px_;

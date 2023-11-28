@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -123,22 +123,22 @@ namespace edm {
     template <>
     void EventSetupRecordImpl::getImplementation<fwliteeswriter::DummyType>(
         fwliteeswriter::DummyType const*& iData,
-        ESProxyIndex iProxyIndex,
+        ESResolverIndex iResolverIndex,
         bool iTransientAccessOnly,
         ComponentDescription const*& oDesc,
-        std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
-        EventSetupImpl const* iEventSetupImpl) const {
+        std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
       DataKey const* dataKey = nullptr;
 
-      if (iProxyIndex.value() == std::numeric_limits<int>::max()) {
-        throw cms::Exception("NoProxyException") << "No data of type \"" << iData->m_tag->name()
-                                                 << "\" with unknown label in record \"" << this->key().name() << "\"";
+      if (iResolverIndex.value() == std::numeric_limits<int>::max()) {
+        throw cms::Exception("NoProductResolverException")
+            << "No data of type \"" << iData->m_tag->name() << "\" with unknown label in record \""
+            << this->key().name() << "\"";
         iData->m_data = nullptr;
         return;
       }
-      assert(iProxyIndex.value() > -1 and
-             iProxyIndex.value() < static_cast<ESProxyIndex::Value_t>(keysForProxies_.size()));
-      void const* pValue = this->getFromProxyAfterPrefetch(iProxyIndex, iTransientAccessOnly, oDesc, dataKey);
+      assert(iResolverIndex.value() > -1 and
+             iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForProxies_.size()));
+      void const* pValue = this->getFromResolverAfterPrefetch(iResolverIndex, iTransientAccessOnly, oDesc, dataKey);
       if (nullptr == pValue) {
         throw cms::Exception("NoDataException")
             << "No data of type \"" << iData->m_tag->name() << "\" with label \"" << dataKey->name().value()
@@ -170,7 +170,7 @@ namespace edm {
       auto proxyIndex = getTokenIndices_[iToken.index().value()];
       if UNLIKELY (proxyIndex.value() == std::numeric_limits<int>::max()) {
         return TheHandle(makeESHandleExceptionFactory([iToken, key = this->key()] {
-          cms::Exception exc("NoProxyException");
+          cms::Exception exc("NoProductResolverException");
           exc << "No data of type \"" << iToken.dataInfo().m_tag.name() << "\" with label \"" << iToken.name()
               << "\" in record \"" << key.name() << "\"";
           return std::make_exception_ptr(exc);
@@ -182,7 +182,7 @@ namespace edm {
       ComponentDescription const* desc = nullptr;
       std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-      impl_->getImplementation(pValue, proxyIndex, false, desc, whyFailedFactory, eventSetupImpl_);
+      impl_->getImplementation(pValue, proxyIndex, false, desc, whyFailedFactory);
 
       if UNLIKELY (not value.m_data) {
         std::rethrow_exception(whyFailedFactory->make());
@@ -248,7 +248,7 @@ private:
 
   void update(const edm::EventSetup&, bool isRun);
 
-  void registerLateConsumes(edm::eventsetup::ESRecordsToProxyIndices const&) final;
+  void registerLateConsumes(edm::eventsetup::ESRecordsToProductResolverIndices const&) final;
 
   // ----------member data ---------------------------
   std::vector<std::shared_ptr<RecordHandler> > m_handlers;
@@ -287,7 +287,8 @@ FWLiteESRecordWriterAnalyzer::FWLiteESRecordWriterAnalyzer(const edm::ParameterS
   m_file = TFile::Open(iConfig.getUntrackedParameter<std::string>("fileName").c_str(), "NEW");
 }
 
-void FWLiteESRecordWriterAnalyzer::registerLateConsumes(edm::eventsetup::ESRecordsToProxyIndices const& iInfo) {
+void FWLiteESRecordWriterAnalyzer::registerLateConsumes(
+    edm::eventsetup::ESRecordsToProductResolverIndices const& iInfo) {
   using edm::eventsetup::heterocontainer::HCTypeTag;
 
   for (auto it = m_recordToDataNames.begin(), itEnd = m_recordToDataNames.end(); it != itEnd; ++it) {

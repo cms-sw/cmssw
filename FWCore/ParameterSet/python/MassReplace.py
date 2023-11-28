@@ -173,9 +173,12 @@ if __name__=="__main__":
                                        ),
             )
             p.op = cms.EDProducer("op", src = cms.optional.InputTag, unset = cms.optional.InputTag, vsrc = cms.optional.VInputTag, vunset = cms.optional.VInputTag)
+            p.op2 = cms.EDProducer("op2", src = cms.optional.InputTag, unset = cms.optional.InputTag, vsrc = cms.optional.VInputTag, vunset = cms.optional.VInputTag)
             p.op.src="b"
-            p.op.vsrc=cms.VInputTag("b")
-            p.s = cms.Sequence(p.a*p.b*p.c*p.sp*p.op)
+            p.op.vsrc = ["b"]
+            p.op2.src=cms.InputTag("b")
+            p.op2.vsrc = cms.VInputTag("b")
+            p.s = cms.Sequence(p.a*p.b*p.c*p.sp*p.op*p.op2)
             massSearchReplaceAnyInputTag(p.s, cms.InputTag("b"), cms.InputTag("new"))
             self.assertNotEqual(cms.InputTag("new"), p.b.src)
             self.assertEqual(cms.InputTag("new"), p.c.src)
@@ -210,6 +213,8 @@ if __name__=="__main__":
             self.assertEqual(cms.untracked.InputTag("new"), p.sp.test2.nested.usrc)
             self.assertEqual(cms.InputTag("new"), p.op.src)
             self.assertEqual(cms.InputTag("new"), p.op.vsrc[0])
+            self.assertEqual(cms.InputTag("new"), p.op2.src)
+            self.assertEqual(cms.InputTag("new"), p.op2.vsrc[0])
 
         def testMassReplaceInputTag(self):
             process1 = cms.Process("test")

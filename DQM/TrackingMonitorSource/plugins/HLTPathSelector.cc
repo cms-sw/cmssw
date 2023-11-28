@@ -1,12 +1,63 @@
+// system includes
 #include <cassert>
+#include <vector>
+#include <string>
+#include <map>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// user includes
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
-#include "DQM/TrackingMonitorSource/interface/HLTPathSelector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+// ROOT includes
+#include "TPRegexp.h"
+
+class HLTPathSelector : public edm::stream::EDFilter<> {
+public:
+  explicit HLTPathSelector(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endJob();
+
+private:
+  // module config parameters
+  const bool verbose_;
+  const std::string processName_;
+  const std::vector<std::string> hltPathsOfInterest_;
+  const edm::InputTag triggerResultsTag_;
+  const edm::InputTag triggerEventTag_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
+
+  HLTConfigProvider hltConfig_;
+
+  std::map<std::string, unsigned int> hltPathsMap_;
+  std::map<std::string, int> tmap_;
+};
 
 using namespace std;
 using namespace edm;
+
+void HLTPathSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<std::string>("processName", std::string(""));
+  desc.add<std::vector<std::string> >("hltPathsOfInterest", {});
+  desc.addUntracked<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.addUntracked<edm::InputTag>("triggerEvent", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 HLTPathSelector::HLTPathSelector(const edm::ParameterSet& ps)
     : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
@@ -18,6 +69,7 @@ HLTPathSelector::HLTPathSelector(const edm::ParameterSet& ps)
           ps.getUntrackedParameter<edm::InputTag>("triggerEvent", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"))),
       triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
       triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_)) {}
+
 void HLTPathSelector::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(true);
   if (hltConfig_.init(iRun, iSetup, processName_, changed)) {
@@ -47,6 +99,7 @@ void HLTPathSelector::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
   } else
     edm::LogError("HLTPathSelector") << " config extraction failure with process name " << processName_;
 }
+
 bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // get event products
   edm::Handle<edm::TriggerResults> triggerResultsHandle_;
@@ -90,6 +143,7 @@ bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) 
     return true;
   return false;
 }
+
 void HLTPathSelector::endJob() {
   edm::LogInfo("HLTPathSelector") << setw(32) << "HLT Path" << setw(9) << "ACCEPT";
   for (auto const& jt : tmap_)

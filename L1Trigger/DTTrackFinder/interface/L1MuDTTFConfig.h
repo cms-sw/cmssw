@@ -72,11 +72,9 @@ public:
   int getNbitsPhiPhib() const { return m_NbitsPhiPhib; }
 
 private:
-  void setDefaults();
+  void setDefaults(const edm::ParameterSet&);
 
 private:
-  const edm::ParameterSet* m_ps;
-
   edm::InputTag m_DTDigiInputTag;
   edm::InputTag m_CSCTrSInputTag;
 

@@ -11,7 +11,7 @@ function checkDiff {
     fi
 }
 
-TEST_DIR=src/Geometry/MTDNumberingBuilder/test
+TEST_DIR=$CMSSW_BASE/src/Geometry/MTDNumberingBuilder/test
 
 F1=${TEST_DIR}/mtd_cfg.py
 F2=${TEST_DIR}/dd4hep_mtd_cfg.py

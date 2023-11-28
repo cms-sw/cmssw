@@ -9,7 +9,7 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
   cd ${SCRAM_TEST_NAME}
 fi
 
-for entry in "${LOCAL_TEST_DIR}/"SiPixelCondObj*Reader_cfg.py
+for entry in "${SCRAM_TEST_PATH}/"SiPixelCondObj*Reader_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
@@ -18,6 +18,6 @@ done
 echo -e " Done with the readers \n\n"
 
 echo -e "TESTING Reject Noisy and Dead ...\n\n"
-cmsRun  ${LOCAL_TEST_DIR}/SiPixelGainCalibrationRejectNoisyAndDead_cfg.py || die "Failure running SiPixelGainCalibrationRejectNoisyAndDead_cfg.py" $?
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelGainCalibrationRejectNoisyAndDead_cfg.py || die "Failure running SiPixelGainCalibrationRejectNoisyAndDead_cfg.py" $?
 
 echo -e " Done with the test \n\n"

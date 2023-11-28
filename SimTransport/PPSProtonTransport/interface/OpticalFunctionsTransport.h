@@ -1,7 +1,7 @@
 #ifndef OPTICALFUNCTION_TRANSPORT
 #define OPTICALFUNCTION_TRANSPORT
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
@@ -29,12 +29,12 @@ private:
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsToken_;
-  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
+  edm::ESGetToken<SimBeamSpotObjects, SimBeamSpotObjectsRcd> beamspotToken_;
 
   const LHCInfo* lhcInfo_{nullptr};
   const CTPPSBeamParameters* beamParameters_{nullptr};
   const LHCInterpolatedOpticalFunctionsSetCollection* opticalFunctions_{nullptr};
-  const BeamSpotObjects* beamspot_{nullptr};
+  const SimBeamSpotObjects* beamspot_{nullptr};
 
   unsigned int optFunctionId45_{0};
   unsigned int optFunctionId56_{0};

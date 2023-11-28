@@ -37,8 +37,8 @@ if useOfflineGT:
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if unitTest:
-	process.load("DQM.Integration.config.unittestinputsource_cfi")
-	from DQM.Integration.config.unittestinputsource_cfi import options
+        process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+        from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 	from DQM.Integration.config.fileinputsource_cfi import options

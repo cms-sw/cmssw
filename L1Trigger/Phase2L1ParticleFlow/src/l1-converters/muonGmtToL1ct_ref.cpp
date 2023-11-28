@@ -2,9 +2,17 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::GMTMuonDecoderEmulator::GMTMuonDecoderEmulator(const edm::ParameterSet &iConfig)
     : z0Scale_(iConfig.getParameter<double>("z0Scale")), dxyScale_(iConfig.getParameter<double>("dxyScale")) {}
+
+edm::ParameterSetDescription l1ct::GMTMuonDecoderEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<double>("z0Scale", 1.875);
+  description.add<double>("dxyScale", 3.85);
+  return description;
+}
 
 #endif
 

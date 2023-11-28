@@ -13,7 +13,7 @@
 
 namespace evf {
 
-  constexpr int nReservedModules = 64;
+  constexpr int nReservedModules = 128;
   constexpr int nSpecialModules = 10;
   constexpr int nReservedPaths = 1;
 

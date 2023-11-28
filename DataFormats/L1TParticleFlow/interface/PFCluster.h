@@ -22,10 +22,14 @@ namespace l1t {
               float ptError = 0,
               int hwpt = 0,
               int hweta = 0,
-              int hwphi = 0)
+              int hwphi = 0,
+              float absZBarycenter = 0.,
+              float sigmaRR = 0.)
         : L1Candidate(PolarLorentzVector(pt, eta, phi, 0), hwpt, hweta, hwphi, /*hwQuality=*/isEM ? 1 : 0),
           hOverE_(hOverE),
-          ptError_(ptError) {
+          ptError_(ptError),
+          absZBarycenter_(absZBarycenter),
+          sigmaRR_(sigmaRR) {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
@@ -36,6 +40,12 @@ namespace l1t {
 
     float hOverE() const { return hOverE_; }
     void setHOverE(float hOverE) { hOverE_ = hOverE; }
+
+    void setSigmaRR(float sigmaRR) { sigmaRR_ = sigmaRR; }
+    float absZBarycenter() const { return absZBarycenter_; }
+
+    void setAbsZBarycenter(float absZBarycenter) { absZBarycenter_ = absZBarycenter; }
+    float sigmaRR() const { return sigmaRR_; }
 
     float emEt() const {
       if (hOverE_ == -1)
@@ -68,6 +78,9 @@ namespace l1t {
 
   private:
     float hOverE_, ptError_, egVsPionMVAOut_, egVsPUMVAOut_;
+    // HGC dedicated quantities (0ed by default)
+    float absZBarycenter_, sigmaRR_;
+
     ConstituentsAndFractions constituents_;
   };
 

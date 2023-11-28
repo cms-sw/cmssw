@@ -10,6 +10,7 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
 from RecoTracker.IterativeTracking.DisplacedGeneralStep_cff import *
+from RecoTracker.IterativeTracking.DisplacedRegionalStep_cff import *
 from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import *
 
 # Phase1 specific iterations
@@ -42,6 +43,10 @@ iterTrackingTask = cms.Task(InitialStepPreSplittingTask,
                             ConvStepTask,
                             conversionStepTracks
                             )
+
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.ProcessModifiers.displacedRegionalTracking_cff import displacedRegionalTracking
+(trackingPhase1 & displacedRegionalTracking).toModify(iterTrackingTask, lambda x: x.add(DisplacedRegionalStepTask))
 
 _iterTrackingTask_trackdnn = iterTrackingTask.copy()
 _iterTrackingTask_trackdnn.add(trackdnn_source)                       

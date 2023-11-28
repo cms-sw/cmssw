@@ -25,11 +25,10 @@ Implementation:
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <memory>
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
@@ -111,7 +110,7 @@ void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
         //booking all histograms
         RPCGeomServ rpcsrv(rpcId);
         std::string nameRoll = rpcsrv.name();
-        //std::cout<<"Booking for "<<nameRoll<<std::endl;
+        //edm::LogVerbatim("RPCGeometry") << "Booking for " << nameRoll;
 
         if (region != 0) {
           // 	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
@@ -124,7 +123,7 @@ void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
           int cscstation = station;
           RPCGeomServ rpcsrv(rpcId);
           int rpcsegment = rpcsrv.segment();  //This replace rpcsrv.segment();
-          //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
+          //edm::LogVerbatim("RPCGeometry") << "My segment=" << mySegment(rpcId) << " GeomServ=" << rpcsrv.segment();
           int cscchamber = rpcsegment;                        //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if ((station == 2 || station == 3) && ring == 3) {  //Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
@@ -206,13 +205,13 @@ void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
     int rpcStation = cscStation;
     int rpcSegment = CSCId.chamber();
 
-    //std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
+    //edm::LogVerbatim("RPCGeometry") << "CSC \t \t Getting chamber from Geometry";
     const CSCChamber* TheChamber = cscGeometry->chamber(CSCId);
-    //std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
+    //edm::LogVerbatim("RPCGeometry") << "CSC \t \t Getting ID from Chamber";
 
     std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion, rpcStation, rpcRing, rpcSegment)];
     if (CSCId.ring() != 1)
-      std::cout << "CSC for" << CSCId << " " << rollsForThisCSC.size() << " rolls." << std::endl;
+      edm::LogVerbatim("RPCGeometry") << "CSC for" << CSCId << " " << rollsForThisCSC.size() << " rolls.";
 
     for (auto iteraRoll : rollsForThisCSC) {
       const RPCRoll* rollasociated = rpcGeometry->roll(iteraRoll);
@@ -240,17 +239,18 @@ void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
       float diffz = CenterPointRollGlobal.z() - CenterPointCSCGlobal.z();
       float dfg = df * 180. / 3.14159265;
 
-      std::cout << "CSC \t " << rpcsrv.segment() << rpcsrv.name() << " dr=" << dr << " dz=" << diffz << " dfg=" << dfg
-                << std::endl;
+      edm::LogVerbatim("RPCGeometry") << "CSC \t " << rpcsrv.segment() << rpcsrv.name() << " dr=" << dr
+                                      << " dz=" << diffz << " dfg=" << dfg;
 
       bool print = false;
 
       if ((dr > 200. || fabs(diffz) > 55. || dfg > 1.) && print) {
-        std::cout << "\t \t problem CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
-                  << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
-                  << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring() << " segment =-> "
-                  << rpcsrv.segment() << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg << " dz=" << diffz
-                  << " dr=" << dr << std::endl;
+        edm::LogVerbatim("RPCGeometry") << "\t \t problem CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
+                                        << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
+                                        << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring()
+                                        << " segment =-> " << rpcsrv.segment()
+                                        << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg
+                                        << " dz=" << diffz << " dr=" << dr;
       }
     }
   }

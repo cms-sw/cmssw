@@ -234,12 +234,10 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
        ++srcLeptons_i) {
     edm::Handle<reco::CandidateView> leptons_i;
     evt.getByToken(*srcLeptons_i, leptons_i);
-    int leptonIdx = 0;
     for (reco::CandidateView::const_iterator lepton = leptons_i->begin(); lepton != leptons_i->end(); ++lepton) {
       leptons.push_back(lepton->p4());
       metSignObjectsLeptons.push_back(pfMEtSignInterface_->compResolution(&(*lepton)));
       sumLeptonP4s += lepton->p4();
-      ++leptonIdx;
     }
   }
   LogDebug("produce") << " sum(leptons): Pt = " << sumLeptonP4s.pt() << ", eta = " << sumLeptonP4s.eta()
@@ -348,7 +346,6 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto sumPUjets = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumPUjets);
   std::vector<metsig::SigInputObj> metSignObjectsPUjets;
-  int jetIdx = 0;
   for (reco::PUSubMETCandInfoCollection::const_iterator jet = jets_cleaned.begin(); jet != jets_cleaned.end(); ++jet) {
     if (jet->passesLooseJetId()) {
       if (jet->type() == reco::PUSubMETCandInfo::kHS) {
@@ -372,7 +369,6 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         metSignObjectsPUjets.push_back(jet->metSignObj());
       }
     }
-    ++jetIdx;
   }
 
   auto sumNoPUunclChargedCands = std::make_unique<CommonMETData>();
@@ -384,7 +380,6 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto sumUnclNeutralCands = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumUnclNeutralCands);
   std::vector<metsig::SigInputObj> metSignObjectsUnclNeutralCands;
-  int pfCandIdx = 0;
   for (reco::PUSubMETCandInfoCollection::const_iterator pfCandidate = pfCandidates_cleaned.begin();
        pfCandidate != pfCandidates_cleaned.end();
        ++pfCandidate) {
@@ -402,7 +397,6 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         }
       }
     }
-    ++pfCandIdx;
   }
 
   edm::Handle<CorrMETData> type0Correction_input;

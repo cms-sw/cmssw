@@ -19,6 +19,7 @@ particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet(
                   cms.PSet(
                   name = cms.string("PFRecHitQTestHCALThresholdVsDepth"),
+                  usePFThresholdsFromDB = cms.bool(False),
                   cuts = cms.VPSet(
                         cms.PSet(
                             depth=cms.vint32(1, 2, 3, 4),
@@ -61,6 +62,15 @@ run3_egamma_2023.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1_2023) } ) } ) },
 )
 
+<<<<<<< HEAD
+=======
+#--- Use DB conditions for cuts&seeds for Run3 and Phase2
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify( particleFlowRecHitHBHE,
+    producers = {0 : dict(qualityTests = {0 : dict(usePFThresholdsFromDB = True) } ) },
+)
+
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 # HCALonly WF
 particleFlowRecHitHBHEOnly = particleFlowRecHitHBHE.clone(
     producers = { 0: dict(src = "hbheprereco") }

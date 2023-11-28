@@ -17,12 +17,12 @@ public:
   typedef PeriodicBinFinderInPhi<float> BinFinderType;
 
   TBPLayer(std::vector<const PixelRod*>& inner, std::vector<const PixelRod*>& outer) __attribute__((cold))
-  : TBLayer(inner, outer, GeomDetEnumerators::PixelBarrel) {
+      : TBLayer(inner, outer, GeomDetEnumerators::PixelBarrel) {
     construct();
   }
 
   TBPLayer(std::vector<const TOBRod*>& inner, std::vector<const TOBRod*>& outer) __attribute__((cold))
-  : TBLayer(inner, outer, GeomDetEnumerators::TOB) {
+      : TBLayer(inner, outer, GeomDetEnumerators::TOB) {
     construct();
   }
 

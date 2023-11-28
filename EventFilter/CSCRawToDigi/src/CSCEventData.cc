@@ -137,16 +137,13 @@ void CSCEventData::unpack_data(const uint16_t* buf) {
           /// This is just to dump the actual ALCT payload ** end **
 
           /// Actual word counting and recovering the original ALCT payload
-          int alctZSErecoveredPos = 0;
           while (*posZSE != 0xDE0D) {
             if ((*posZSE == 0x1000) && (*posZSE != 0x3000)) {
               for (int j = 0; j < nWG_round_up; j++) {
                 alctZSErecoveredVector.push_back(0x0000);
               }
-              alctZSErecoveredPos += nWG_round_up;
             } else {
               alctZSErecoveredVector.push_back(*posZSE);
-              ++alctZSErecoveredPos;
             }
             posZSE++;
             sizeInWord_ZSE++;
@@ -175,7 +172,6 @@ void CSCEventData::unpack_data(const uint16_t* buf) {
                   */
           //delete [] alctZSErecovered;
           //std::cout << " ALCT SizeZSE : " << sizeInWord_ZSE << std::endl; ///to_rm
-          //std::cout << " ALCT SizeZSE Recovered: " << alctZSErecoveredPos << std::endl; ///to_rm
           //std::cout << " ALCT Size Expected: " << theAnodeData->sizeInWords() << std::endl; ///to_rm
           pos += sizeInWord_ZSE;
         } else {

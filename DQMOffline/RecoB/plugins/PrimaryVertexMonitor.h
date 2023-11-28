@@ -32,6 +32,17 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
+  struct IPMonitoring {
+    std::string varname_;
+    float pTcut_;
+    dqm::reco::MonitorElement *IP_, *IPErr_;
+    dqm::reco::MonitorElement *IPVsPhi_, *IPVsEta_;
+    dqm::reco::MonitorElement *IPErrVsPhi_, *IPErrVsEta_;
+    dqm::reco::MonitorElement *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
+
+    void bookIPMonitor(DQMStore::IBooker &, const edm::ParameterSet &);
+  };
+
 private:
   void pvTracksPlots(const reco::Vertex &v);
   void vertexPlots(const reco::Vertex &v, const reco::BeamSpot &beamSpot, int i);
@@ -66,15 +77,17 @@ private:
   MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
   MonitorElement *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
-  MonitorElement *dxy, *dxy2, *dz, *dxyErr, *dzErr;
   MonitorElement *phi_pt1, *eta_pt1;
   MonitorElement *phi_pt10, *eta_pt10;
-  MonitorElement *dxyVsPhi_pt1, *dzVsPhi_pt1;
-  MonitorElement *dxyVsEta_pt1, *dzVsEta_pt1;
-  MonitorElement *dxyVsEtaVsPhi_pt1, *dzVsEtaVsPhi_pt1;
-  MonitorElement *dxyVsPhi_pt10, *dzVsPhi_pt10;
-  MonitorElement *dxyVsEta_pt10, *dzVsEta_pt10;
-  MonitorElement *dxyVsEtaVsPhi_pt10, *dzVsEtaVsPhi_pt10;
+
+  MonitorElement *dxy2;
+
+  // IP monitoring structs
+  IPMonitoring dxy_pt1;
+  IPMonitoring dxy_pt10;
+
+  IPMonitoring dz_pt1;
+  IPMonitoring dz_pt10;
 };
 
 #endif

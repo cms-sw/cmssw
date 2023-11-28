@@ -69,6 +69,11 @@ namespace trackerTFP {
     numStreamsTracks_ = vector<int>(+Process::end, 0);
     numStreamsTracks_[+Process::kfin] = numStreams_[+Process::kf];
     numStreamsTracks_[+Process::kf] = numStreams_[+Process::kf];
+    // Print digi data format of all variables of any specified algo step
+    //for (const Variable v : tracks_[+Process::kf]) {
+    //  const DataFormat& f = format(v, Process::kf);
+    //  cout <<" KF "<< f.base() << " " << f.range() << " " << f.width() << endl;
+    //}
   }
 
   // constructs data formats of all unique used variables and flavours

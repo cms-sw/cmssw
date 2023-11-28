@@ -1,0 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+
+from RecoTracker.PixelTrackFitting.pixelFitterByHelixProjectionsDefault_cfi import pixelFitterByHelixProjectionsDefault
+
+pixelFitterByHelixProjections = pixelFitterByHelixProjectionsDefault.clone()
+
+phase1Pixel.toModify( pixelFitterByHelixProjections, scaleErrorsForBPix1 = True)

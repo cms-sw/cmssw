@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

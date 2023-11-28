@@ -6,8 +6,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="CommonTools/UtilAlgos"/>
 <use name="boost"/>
 <use name="geant4core"/>
 <use name="root"/>

@@ -1,19 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..tasks.ticlEMStepTask_cfi import *
-from ..tasks.ticlHADStepTask_cfi import *
 from ..tasks.ticlLayerTileTask_cfi import *
 from ..tasks.ticlPFTask_cfi import *
 from ..tasks.ticlTracksterMergeTask_cfi import *
-from ..tasks.ticlTrkEMStepTask_cfi import *
-from ..tasks.ticlTrkStepTask_cfi import *
+from ..tasks.ticlCLUE3DHighStepTask_cfi import *
 
 iterTICLTask = cms.Task(
-    ticlEMStepTask,
-    ticlHADStepTask,
     ticlLayerTileTask,
+    ticlTrackstersCLUE3DHighStepTask,
     ticlPFTask,
     ticlTracksterMergeTask,
-    ticlTrkEMStepTask,
-    ticlTrkStepTask
 )

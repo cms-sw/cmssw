@@ -35,15 +35,7 @@ FWTrackResidualDetailView::FWTrackResidualDetailView()
       m_stereoFill(3004),
       m_stereoCol(kCyan - 9),
       m_invalidFill(3001),
-      m_invalidCol(kRed) {
-  memset(m_det, 0, sizeof(m_det));
-  memset(res, 0, sizeof(res));
-  memset(hittype, 0, sizeof(hittype));
-  memset(stereo, 0, sizeof(stereo));
-  memset(substruct, 0, sizeof(substruct));
-  memset(subsubstruct, 0, sizeof(subsubstruct));
-  memset(m_detector, 0, sizeof(m_detector));
-}
+      m_invalidCol(kRed) {}
 
 FWTrackResidualDetailView::~FWTrackResidualDetailView() {}
 
@@ -55,21 +47,30 @@ void FWTrackResidualDetailView::prepareData(const FWModelId& id, const reco::Tra
 
   const HitPattern& hitpat = track->hitPattern();
   m_nhits = hitpat.numberOfAllHits(reco::HitPattern::TRACK_HITS);
+  hittype.reserve(m_nhits);
+  stereo.reserve(m_nhits);
+  subsubstruct.reserve(m_nhits);
+  substruct.reserve(m_nhits);
+  m_detector.reserve(m_nhits);
+  res[0].reserve(m_nhits);
+  res[1].reserve(m_nhits);
+
   for (int i = 0; i < m_nhits; ++i) {
     //printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
     //        m_nhits, track->recHitsEnd() - track->recHitsBegin(), (*(track->recHitsBegin() + i))->geographicalId().rawId());
     uint32_t pattern = hitpat.getHitPattern(reco::HitPattern::TRACK_HITS, i);
-    hittype[i] = HitPattern::getHitType(pattern);
-    stereo[i] = HitPattern::getSide(pattern);
-    subsubstruct[i] = HitPattern::getSubSubStructure(pattern);
-    substruct[i] = HitPattern::getSubStructure(pattern);
-    m_detector[i] = HitPattern::getSubDetector(pattern);
+    hittype.push_back(HitPattern::getHitType(pattern));
+    stereo.push_back(HitPattern::getSide(pattern));
+    subsubstruct.push_back(HitPattern::getSubSubStructure(pattern));
+    substruct.push_back(HitPattern::getSubStructure(pattern));
+    m_detector.push_back(HitPattern::getSubDetector(pattern));
     if ((*(track->recHitsBegin() + i))->isValid()) {
-      res[0][i] = getSignedResidual(geom, (*(track->recHitsBegin() + i))->geographicalId().rawId(), residuals.pullX(i));
+      res[0].push_back(
+          getSignedResidual(geom, (*(track->recHitsBegin() + i))->geographicalId().rawId(), residuals.pullX(i)));
     } else {
-      res[0][i] = 0;
+      res[0].push_back(0);
     }
-    res[1][i] = residuals.pullY(i);
+    res[1].push_back(residuals.pullY(i));
     // printf("%s, %i\n",m_det_tracker_str[substruct[i]-1],subsubstruct[i]);
   }
 

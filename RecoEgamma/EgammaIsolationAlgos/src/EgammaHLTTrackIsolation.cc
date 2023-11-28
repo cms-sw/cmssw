@@ -149,7 +149,6 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
                                                                        const reco::TrackCollection* isoTracks) {
   // Check that reconstructed tracks fit within cone boundaries,
   // (Note: tracks will not always stay within boundaries)
-  int iele = 0;
   int ntrack = 0;
   float ptSum = 0.;
   std::vector<float> etaele;
@@ -159,11 +158,9 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
 
   // Store ALL electrons eta and phi
   for (reco::ElectronCollection::const_iterator iElectron = allEle->begin(); iElectron != allEle->end(); iElectron++) {
-    iele++;
     reco::TrackRef anothereletrackref = iElectron->track();
     etaele.push_back(anothereletrackref->momentum().eta());
     phiele.push_back(anothereletrackref->momentum().phi());
-    // std::cout << "Electron " << iele << ": phi = " << anothereletrackref->momentum().phi() << ", eta = " << anothereletrackref->momentum().eta() << std::endl;
   }
 
   for (reco::TrackCollection::const_iterator trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {

@@ -388,7 +388,7 @@ namespace trklet {
       return FrameStub(stub->ttStubRef_, Frame("1" + r.str() + phi.str() + z.str() + dPhi.str() + dZ.str()));
     };
     auto invalid = [](Track* track) { return track && !track->valid_; };
-    auto acc = [invalid](int& sum, Track* track) { return sum += (invalid(track) ? 1 : 0); };
+    auto acc = [invalid](int sum, Track* track) { return sum + (invalid(track) ? 1 : 0); };
     const int offsetTrack = region_ * channelAssignment_->numChannelsTrack();
     for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
       const int channelTrack = offsetTrack + channel;

@@ -167,6 +167,7 @@ void pat::PATObjectUserDataEmbedder<T, ParentType>::produce(edm::Event &iEvent, 
   iEvent.getByToken(src_, src);
 
   std::vector<edm::Handle<edm::View<ParentType>>> parentSrcs;
+  parentSrcs.reserve(parentSrcs_.size());
   for (const auto &src : parentSrcs_) {
     parentSrcs.push_back(iEvent.getHandle(src));
   }

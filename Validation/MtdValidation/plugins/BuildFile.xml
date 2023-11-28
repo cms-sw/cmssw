@@ -3,6 +3,14 @@
 <use name="Geometry/MTDGeometryBuilder"/>
 <use name="RecoLocalFastTime/Records"/>
 <use name="RecoLocalFastTime/FTLClusterizer"/>
+<use name="RecoMTD/DetLayers"/>
+<use name="RecoMTD/Records"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="TrackPropagation/SteppingHelixPropagator"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/TrackReco"/>

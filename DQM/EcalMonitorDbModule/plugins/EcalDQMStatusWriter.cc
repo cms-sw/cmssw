@@ -5,7 +5,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CommonTools/Utils/interface/Exception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -18,7 +18,7 @@ namespace edm {
              "\" record.\n Perhaps no valid data exists for this IOV? Please check the data's interval of validity.\n";
     }
 
-    std::string NoDataExceptionBase::noProxyMessage() {
+    std::string NoDataExceptionBase::noProviderMessage() {
       return std::string("Please add an ESSource or ESProducer to your job which can deliver this data.\n");
     }
 

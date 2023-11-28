@@ -4,13 +4,22 @@ using namespace l1ct;
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::EGInputSelectorEmuConfig::EGInputSelectorEmuConfig(const edm::ParameterSet &pset)
     : idMask(pset.getParameter<uint32_t>("emIDMask")),
       nHADCALO_IN(pset.getParameter<uint32_t>("nHADCALO_IN")),
       nEMCALO_OUT(pset.getParameter<uint32_t>("nEMCALO_OUT")),
-      debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
+      debug(pset.getUntrackedParameter<uint32_t>("debug")) {}
 
+edm::ParameterSetDescription l1ct::EGInputSelectorEmuConfig::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("emIDMask", 30);
+  description.add<unsigned int>("nHADCALO_IN");
+  description.add<unsigned int>("nEMCALO_OUT");
+  description.addUntracked<uint32_t>("debug", 0);
+  return description;
+}
 #endif
 
 void EGInputSelectorEmulator::toFirmware(const PFInputRegion &in, HadCaloObj hadcalo[/*nCALO*/]) const {
@@ -31,6 +40,10 @@ void EGInputSelectorEmulator::select_eginput(const l1ct::HadCaloObjEmu &in,
   out.hwPtErr = 0;
   // shift to get rid of PFEM ID bit (more usable final EG quality)
   out.hwEmID = (in.hwEmID >> 1);
+
+  out.hwSrrTot = in.hwSrrTot;
+  out.hwMeanZ = in.hwMeanZ;
+  out.hwHoe = in.hwHoe;
   valid_out = (in.hwEmID & cfg.idMask) != 0;
 }
 

@@ -36,8 +36,6 @@ private:
 private:
   std::unique_ptr<TrackFinder> track_finder_;
   std::unique_ptr<MicroGMTConverter> uGMT_converter_;
-
-  const edm::ParameterSet& config_;
 };
 
 #endif

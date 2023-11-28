@@ -106,8 +106,8 @@ namespace tt {
       if (setup_->useForAlgEff(*p.first))
         selection.insert(p.first, p.second);
     }
-    iEvent.emplace(putTokenReconstructable_, move(reconstructable));
-    iEvent.emplace(putTokenSelection_, move(selection));
+    iEvent.emplace(putTokenReconstructable_, std::move(reconstructable));
+    iEvent.emplace(putTokenSelection_, std::move(selection));
   }
 
 }  // namespace tt

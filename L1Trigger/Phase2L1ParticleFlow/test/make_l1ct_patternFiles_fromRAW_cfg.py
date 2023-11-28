@@ -41,8 +41,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedC
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
 process.l1tLayer2Deregionizer = l1tDeregionizerProducer.clone()
-process.l1tLayer2SeedConeJets = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'))
-process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJets")
+process.l1tLayer2SeedConeJetsCorrected = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = ('l1tLayer2Deregionizer', 'Puppi'),
+                                                                                doCorrections = True,
+                                                                                correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
+                                                                                correctorDir = "L1PuppiSC4EmuJets")
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJetsCorrected")
 
 process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
 process.l1tLayer1Barrel9.puAlgo.nFinalSort = 32
@@ -56,14 +59,14 @@ process.l1tLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
-from L1Trigger.Phase2L1ParticleFlow.l1tLayer1_patternWriters_cff import *
+from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
 #process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
 process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
 process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
 process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
-process.L1TPFInputsTask = cms.Task(
+process.PFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
     process.TrackerDTCProducer,
@@ -78,12 +81,12 @@ process.runPF = cms.Path(
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
         process.l1tLayer1 +
-        process.l1tLayer2EG +
         process.l1tLayer2Deregionizer +
-        process.l1tLayer2SeedConeJets +
-        process.l1tLayer2SeedConeJetWriter
+        process.l1tLayer2SeedConeJetsCorrected +
+        process.l1tLayer2SeedConeJetWriter +
+        process.l1tLayer2EG
     )
-process.runPF.associate(process.L1TPFInputsTask)
+process.runPF.associate(process.PFInputsTask)
 process.schedule = cms.Schedule(process.runPF)
 
 

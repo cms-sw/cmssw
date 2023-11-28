@@ -103,7 +103,7 @@ namespace edm {
     constexpr element_type const* get() const { return &m_value[0]; }
     constexpr element_type const& operator[](std::ptrdiff_t pos) const { return m_value[pos]; }
 
-    constexpr operator element_type const *() const { return this->get(); }
+    constexpr operator element_type const*() const { return this->get(); }
 
     // ---------- member functions ---------------------------
     constexpr element_type* get() { return &m_value[0]; }

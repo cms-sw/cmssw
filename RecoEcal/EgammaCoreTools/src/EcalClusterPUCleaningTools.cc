@@ -48,7 +48,6 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi,
   // this should be replaced by the 5x5 around the seed; a good approx of how E_seed is defined
   float seedBCEnergy = (scluster.seed())->energy();
   float eSeed = 0.35;  // standard eSeed in EB ; see CMS IN-2010/008
-  int numBcRemoved = 0;
 
   double ClusterE = 0;  //Sum of cluster energies for supercluster.
   //Holders for position of this supercluster.
@@ -66,10 +65,6 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi,
         sqrt(eSeed * eSeed + xi * xi * seedBCEnergy * seedBCEnergy / cosh((*bcIt)->eta()) / cosh((*bcIt)->eta()))) {
       ;
     }  // the sum only of the BC's that pass the Esee selection
-    else {
-      numBcRemoved++;
-      continue;
-    }  // count how many basic cluster get removed by the cleaning
 
     // if BC passes dynamic selection, include it in the 'cleaned' supercluster
     thissc.push_back((*bcIt));

@@ -5,7 +5,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -15,6 +16,8 @@ namespace l1ct {
     RegionizerEmulator(const edm::ParameterSet& iConfig);
 
     virtual ~RegionizerEmulator();
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void setDebug(bool debug = true) { debug_ = debug; }
 

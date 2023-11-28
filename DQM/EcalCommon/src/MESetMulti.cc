@@ -30,7 +30,6 @@ namespace ecaldqm {
         });
 
     // [dim0 = 0, dim1 = 0] -> 0, [dim0 = 0, dim1 = 1] -> 1, ...
-    unsigned iM(0);
     while (true) {
       replacements.clear();
       typename ReplCandidates::const_iterator rItr(replCandidates_.begin());
@@ -38,7 +37,6 @@ namespace ecaldqm {
       sets_.push_back(_seed.clone(formPath(replacements)));
       if (last)
         break;
-      ++iM;
     }
 
     current_ = sets_[0];

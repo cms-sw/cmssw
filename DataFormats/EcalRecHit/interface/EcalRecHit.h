@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
 #include <vector>
 #include <cmath>
@@ -214,6 +215,16 @@ public:
 
     // no flag assigned, assume good
     return kGood;
+  }
+
+  // For CC Timing reco
+  float nonCorrectedTime() const {
+    uint8_t jitterErrorBits = getMasked(extra_, 24, 8);
+    float encBits = static_cast<float>(jitterErrorBits);
+    float decTimeDif = ecalcctiming::clockToNS * (ecalcctiming::encodingOffest - encBits / ecalcctiming::encodingValue);
+    float nonCorrectedTime =
+        (encBits > 1 && encBits < 254) ? ecalcctiming::nonCorrectedSlope * time_ + decTimeDif : -30.0;
+    return nonCorrectedTime;
   }
 
 private:

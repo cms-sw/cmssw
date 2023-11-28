@@ -11,7 +11,7 @@ function checkDiff {
     fi
 }
 
-TEST_DIR=src/RecoMTD/DetLayers/test
+TEST_DIR=$CMSSW_BASE/src/RecoMTD/DetLayers/test
 
 F1=${TEST_DIR}/mtd_cfg.py
 

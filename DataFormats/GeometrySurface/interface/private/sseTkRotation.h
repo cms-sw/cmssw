@@ -205,10 +205,10 @@ private:
 };
 
 template <>
-std::ostream& operator<<<float>(std::ostream& s, const TkRotation<float>& r);
+std::ostream& operator<< <float>(std::ostream& s, const TkRotation<float>& r);
 
 template <>
-std::ostream& operator<<<double>(std::ostream& s, const TkRotation<double>& r);
+std::ostream& operator<< <double>(std::ostream& s, const TkRotation<double>& r);
 
 template <class T, class U>
 inline Basic3DVector<U> operator*(const TkRotation<T>& r, const Basic3DVector<U>& v) {
@@ -270,9 +270,9 @@ private:
 };
 
 template <>
-std::ostream& operator<<<float>(std::ostream& s, const TkRotation2D<float>& r);
+std::ostream& operator<< <float>(std::ostream& s, const TkRotation2D<float>& r);
 
 template <>
-std::ostream& operator<<<double>(std::ostream& s, const TkRotation2D<double>& r);
+std::ostream& operator<< <double>(std::ostream& s, const TkRotation2D<double>& r);
 
 #endif

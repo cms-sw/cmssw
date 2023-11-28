@@ -52,6 +52,7 @@ L1TStub::L1TStub(std::string DTClink,
   detId_ = detId;
 
   allstubindex_ = 999;
+  uniqueindex_ = 99999;
 }
 
 void L1TStub::write(ofstream& out) {

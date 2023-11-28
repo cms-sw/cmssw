@@ -1084,15 +1084,14 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       }  //end switch on second leg
 
       if (m_verbosity) {
-        LogDebug("L1TGlobal") << "    Correlation pair [" << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
-                              << l1TGtObjectEnumToString(cndObjTypeVec[1]) << "] with collection indices [" << obj0Index
-                              << ", " << obj1Index << "] "
+        LogDebug("L1TGlobal") << "    Correlation pair [" << l1t::GlobalObjectEnumToString(cndObjTypeVec[0]) << ", "
+                              << l1t::GlobalObjectEnumToString(cndObjTypeVec[1]) << "] with collection indices ["
+                              << obj0Index << ", " << obj1Index << "] "
                               << " has: \n"
                               << "     Et  value   = [" << etIndex0 << ", " << etIndex1 << "]\n"
                               << "     phi indices = [" << phiIndex0 << ", " << phiIndex1 << "]\n"
                               << "     eta indices = [" << etaIndex0 << ", " << etaIndex1 << "]\n"
-                              << "     chrg        = [" << chrg0 << ", " << chrg1 << "]\n"
-                              << std::endl;
+                              << "     chrg        = [" << chrg0 << ", " << chrg1 << "]\n";
       }
 
       // Now perform the desired correlation on these two objects. Assume true until we find a contradition

@@ -15,7 +15,7 @@ from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
+from RecoTracker.Configuration.RecoPixelVertexing_cff import *
 recotrack = cms.Sequence(offlineBeamSpot + siPixelRecHitsPreSplitting + siStripMatchedRecHits + recopixelvertexing + ckftracks)
 recotrackP5 = cms.Sequence(offlineBeamSpot + siPixelRecHitsPreSplitting + siStripMatchedRecHits + recopixelvertexing + ctftracksP5)
 

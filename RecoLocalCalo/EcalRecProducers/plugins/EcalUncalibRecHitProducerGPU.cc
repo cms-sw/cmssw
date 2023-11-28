@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
@@ -70,6 +71,8 @@ void EcalUncalibRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("recHitsLabelEB", "EcalUncalibRecHitsEB");
   desc.add<std::string>("recHitsLabelEE", "EcalUncalibRecHitsEE");
 
+  desc.add<edm::ESInputTag>("timeCalibTag", edm::ESInputTag());
+  desc.add<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag());
   desc.add<double>("EBtimeFitLimits_Lower", 0.2);
   desc.add<double>("EBtimeFitLimits_Upper", 1.4);
   desc.add<double>("EEtimeFitLimits_Lower", 0.2);
@@ -104,9 +107,11 @@ EcalUncalibRecHitProducerGPU::EcalUncalibRecHitProducerGPU(const edm::ParameterS
       pulseCovariancesToken_{esConsumes<EcalPulseCovariancesGPU, EcalPulseCovariancesRcd>()},
       samplesCorrelationToken_{esConsumes<EcalSamplesCorrelationGPU, EcalSamplesCorrelationRcd>()},
       timeBiasCorrectionsToken_{esConsumes<EcalTimeBiasCorrectionsGPU, EcalTimeBiasCorrectionsRcd>()},
-      timeCalibConstantsToken_{esConsumes<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd>()},
+      timeCalibConstantsToken_{esConsumes<EcalTimeCalibConstantsGPU, EcalTimeCalibConstantsRcd>(
+          ps.getParameter<edm::ESInputTag>("timeCalibTag"))},
       sampleMaskToken_{esConsumes<EcalSampleMask, EcalSampleMaskRcd>()},
-      timeOffsetConstantToken_{esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>()},
+      timeOffsetConstantToken_{esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>(
+          ps.getParameter<edm::ESInputTag>("timeOffsetTag"))},
       multifitParametersToken_{esConsumes<EcalMultifitParametersGPU, JobConfigurationGPURecord>()} {
   std::pair<double, double> EBtimeFitLimits, EEtimeFitLimits;
   EBtimeFitLimits.first = ps.getParameter<double>("EBtimeFitLimits_Lower");

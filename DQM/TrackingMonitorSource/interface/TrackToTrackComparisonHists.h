@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -41,6 +43,7 @@ public:
     MonitorElement *h_tracks, *h_pt, *h_eta, *h_phi, *h_dxy, *h_dz, *h_dxyWRTpv, *h_dzWRTpv, *h_charge, *h_hits;
     MonitorElement *h_dRmin, *h_dRmin_l;
     MonitorElement* h_pt_vs_eta;
+    MonitorElement *h_onlinelumi, *h_PU, *h_ls;
   };
 
   struct matchingME {
@@ -69,8 +72,14 @@ protected:
   void book_generic_tracks_histos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
   void book_matching_tracks_histos(DQMStore::IBooker& ibooker, matchingME& mes, TString label, std::string& dir);
 
-  void fill_generic_tracks_histos(
-      generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, bool requirePlateau = true);
+  void fill_generic_tracks_histos(generalME& mes,
+                                  reco::Track* trk,
+                                  reco::BeamSpot* bs,
+                                  reco::Vertex* pv,
+                                  unsigned int ls,
+                                  double onlinelumi,
+                                  double PU,
+                                  bool requirePlateau = true);
   void fill_matching_tracks_histos(
       matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv);
 
@@ -86,6 +95,8 @@ protected:
   edm::EDGetTokenT<reco::BeamSpot> referenceBSToken_;
   edm::EDGetTokenT<reco::VertexCollection> monitoredPVToken_;
   edm::EDGetTokenT<reco::VertexCollection> referencePVToken_;
+  edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
 
 private:
   //  edm::ParameterSet conf_;
@@ -130,4 +141,10 @@ private:
   unsigned int dxyRes_nbin;
   double dzRes_rangeMin, dzRes_rangeMax;
   unsigned int dzRes_nbin;
+  unsigned int ls_rangeMin, ls_rangeMax;
+  unsigned int ls_nbin;
+  double PU_rangeMin, PU_rangeMax;
+  unsigned int PU_nbin;
+  double onlinelumi_rangeMin, onlinelumi_rangeMax;
+  unsigned int onlinelumi_nbin;
 };

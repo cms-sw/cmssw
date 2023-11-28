@@ -68,9 +68,9 @@ CrystalCenterDump::CrystalCenterDump(const edm::ParameterSet& iConfig) {
   B_ = iConfig.getUntrackedParameter<double>("Bfac", 5.7);
   beamEnergy_ = iConfig.getUntrackedParameter<double>("BeamEnergy", 120.);
 
-  edm::LogInfo("CrysInfo") << "Position computed according to the depth " << crystalDepth() << " based on:"
-                           << "\n A = " << A_ << " cm "
-                           << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
+  edm::LogVerbatim("CrysInfo") << "Position computed according to the depth " << crystalDepth() << " based on:"
+                               << "\n A = " << A_ << " cm "
+                               << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
 
   geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
@@ -84,10 +84,8 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
   std::fstream f(name, std::ios_base::out);
   const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det, subdetn));
 
-  int n = 0;
   const std::vector<DetId>& ids = geom->getValidDetIds(det, subdetn);
   for (auto id : ids) {
-    n++;
     auto cell = geom->getGeometry(id);
     if (det == DetId::Ecal) {
       if (subdetn == EcalBarrel) {
@@ -103,8 +101,8 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
           double crysTheta = crysPos.theta();
           double crysPhi = crysPos.phi();
 
-          edm::LogInfo("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n "
-                                  << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
+          edm::LogVerbatim("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n "
+                                      << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
           f << std::setw(4) << ebid.ic() << " " << std::setw(8) << std::setprecision(6) << crysEta << " "
             << std::setw(8) << std::setprecision(6) << crysPhi << " " << std::endl;
         }
@@ -120,7 +118,7 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 
 // ------------ method called to produce the data  ------------
 void CrystalCenterDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
+  edm::LogVerbatim("CrysPos") << "Writing the center (eta,phi) for crystals in barrel SM 1 ";
 
   const auto& pG = iSetup.getData(geometryToken_);
   //

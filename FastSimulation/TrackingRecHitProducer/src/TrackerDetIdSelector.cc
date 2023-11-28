@@ -11,7 +11,7 @@
 #define DETIDFCT(NAME) NAME, [](const TrackerTopology& trackerTopology, const DetId& detId) -> int
 
 #define TOPOFCT(NAME) \
-#NAME, [](const TrackerTopology& trackerTopology, const DetId& detId) -> int { return trackerTopology.NAME(detId); }
+  #NAME, [](const TrackerTopology& trackerTopology, const DetId& detId) -> int { return trackerTopology.NAME(detId); }
 
 const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTable = {
 

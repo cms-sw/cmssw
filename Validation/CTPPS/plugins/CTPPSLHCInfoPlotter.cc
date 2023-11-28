@@ -11,8 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -30,7 +29,10 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
 
   std::string outputFile_;
 
@@ -51,7 +53,10 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLHCInfoPlotter::CTPPSLHCInfoPlotter(const edm::ParameterSet &iConfig)
-    : lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+    : lhcInfoToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
       outputFile_(iConfig.getParameter<string>("outputFile")),
 
       h_beamEnergy_(new TH1D("h_beamEnergy", ";beam energy   (GeV)", 81, -50., 8050.)),
@@ -75,6 +80,10 @@ void CTPPSLHCInfoPlotter::fillDescriptions(edm::ConfigurationDescriptions &descr
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
+  desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
+  desc.add<bool>("useNewLHCInfo", false)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
+
   desc.add<std::string>("outputFile", "")->setComment("output file");
 
   descriptions.add("ctppsLHCInfoPlotter", desc);
@@ -83,14 +92,17 @@ void CTPPSLHCInfoPlotter::fillDescriptions(edm::ConfigurationDescriptions &descr
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSLHCInfoPlotter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
+  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
 
-  h_beamEnergy_->Fill(lhcInfo.energy());
-  h_xangle_->Fill(lhcInfo.crossingAngle());
-  h_betaStar_->Fill(lhcInfo.betaStar());
-  h2_betaStar_vs_xangle_->Fill(lhcInfo.crossingAngle(), lhcInfo.betaStar());
+  h_beamEnergy_->Fill(lhcInfoCombined.energy);
+  h_xangle_->Fill(lhcInfoCombined.crossingAngle());
+  h_betaStar_->Fill(lhcInfoCombined.betaStarX);  //adjust accordingly to run period
+  // h_betaStar_->Fill(lhcInfoCombined.betaStarY);
+  h2_betaStar_vs_xangle_->Fill(lhcInfoCombined.crossingAngle(),
+                               lhcInfoCombined.betaStarX);  //adjust accordingly to run period
+  // h2_betaStar_vs_xangle_->Fill(lhcInfoCombined.crossingAngle(), lhcInfoCombined.betaStarY);
 
-  h_fill_->Fill(lhcInfo.fillNumber());
+  h_fill_->Fill(lhcInfoCombined.fillNumber);
   h_run_->Fill(iEvent.id().run());
 }
 

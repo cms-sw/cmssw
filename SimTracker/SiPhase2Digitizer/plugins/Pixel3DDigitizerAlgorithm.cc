@@ -44,14 +44,6 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
 
 Pixel3DDigitizerAlgorithm::~Pixel3DDigitizerAlgorithm() {}
 
-//
-// -- Select the Hit for Digitization
-//
-bool Pixel3DDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
-  double time = hit.tof() - tCorr;
-  return (time >= theTofLowerCut_ && time < theTofUpperCut_);
-}
-
 const bool Pixel3DDigitizerAlgorithm::is_inside_n_column_(const LocalPoint& p, const float& sensor_thickness) const {
   // The insensitive volume of the column: sensor thickness - column gap distance
   return (p.perp() <= np_column_radius_ && p.z() <= (sensor_thickness - np_column_gap_));
@@ -177,9 +169,9 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
     const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const {
-  return drift(hit, pixdet, bfield, ionization_points, true);
+  return driftFor3DSensors(hit, pixdet, bfield, ionization_points, true);
 }
-std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
+std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::driftFor3DSensors(
     const PSimHit& hit,
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
@@ -294,7 +286,7 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
                                                      << "MIGRATING (super-)charges"
                                                      << "****************";
         // Drift this charges on the other pixel
-        auto mig_colpoints = drift(hit, pixdet, bfield, migrated_charges, false);
+        auto mig_colpoints = driftFor3DSensors(hit, pixdet, bfield, migrated_charges, false);
         collection_points.insert(std::end(collection_points), mig_colpoints.begin(), mig_colpoints.end());
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "*****************"
                                                      << "DOME MIGRATION"

@@ -181,7 +181,6 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
   int nHit = hits.size();
   double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0;
   double timetotHB = 0, timetotHE = 0, timetotHF = 0, timetotHO = 0;
-  int nHB = 0, nHE = 0, nHO = 0, nHF = 0;
 
   std::map<std::pair<HcalDetId, unsigned int>, energysum> map_try;
   map_try.clear();
@@ -201,19 +200,15 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
     if (subdet == static_cast<int>(HcalBarrel)) {
       entotHB += energy;
       timetotHB += time;
-      nHB++;
     } else if (subdet == static_cast<int>(HcalEndcap)) {
       entotHE += energy;
       timetotHE += time;
-      nHE++;
     } else if (subdet == static_cast<int>(HcalOuter)) {
       entotHO += energy;
       timetotHO += time;
-      nHO++;
     } else if (subdet == static_cast<int>(HcalForward)) {
       entotHF += energy;
       timetotHF += time;
-      nHF++;
     }
 
     std::pair<HcalDetId, unsigned int> id0(id, dep);

@@ -28,7 +28,7 @@ namespace trackerTFP {
 
   // read in and organize input product (fill vector input_)
   void ZHoughTransform::consume(const StreamsStub& streams) {
-    auto valid = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     const int offset = region_ * dataFormats_->numChannel(Process::mht);
     int nStubsMHT(0);
     for (int channel = 0; channel < dataFormats_->numChannel(Process::mht); channel++) {
@@ -249,7 +249,7 @@ namespace trackerTFP {
     // perform truncation if desired
     if (enableTruncation_ && (int)accepted.size() > setup_->numFrames()) {
       const auto limit = next(accepted.begin(), setup_->numFrames());
-      auto valid = [](int& sum, StubZHT* stub) { return sum += stub ? 1 : 0; };
+      auto valid = [](int sum, StubZHT* stub) { return sum + (stub ? 1 : 0); };
       const int nLost = accumulate(limit, accepted.end(), 0, valid);
       lost.reserve(nLost);
       for (auto it = limit; it != accepted.end(); it++)
@@ -299,8 +299,8 @@ namespace trackerTFP {
         track.push_back(stub.frame());
       }
     }
-    const int size = accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const deque<FrameStub>& stubs) {
-      return sum += (int)stubs.size();
+    const int size = accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const deque<FrameStub>& stubs) {
+      return sum + (int)stubs.size();
     });
     stream.reserve(size);
     for (deque<FrameStub>& track : tracks)

@@ -26,10 +26,9 @@ int main(int argc, char** argv) {
   descString += " [options]";
   descString += "\nAllowed options";
   options_description desc(descString);
-  desc.add_options()(kHelpCommandOpt, "produce help message")(
-      kFilesCommandOpt,
-      "list the file from which a plugin will come")(kAllFilesCommandOpt,
-                                                     "list all the files to which a plugin is registered")
+  desc.add_options()(kHelpCommandOpt, "produce help message")(kFilesCommandOpt,
+                                                              "list the file from which a plugin will come")(
+      kAllFilesCommandOpt, "list all the files to which a plugin is registered")
       //(kAllCommandOpt,"when no paths given, try to update caches for all known directories [default is to only scan the first directory]")
       ;
 

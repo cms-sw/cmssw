@@ -118,7 +118,6 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
       int numChargedPions = 0;
       int numNeutralPions = 0;
       int numPhotons = 0;
-      int numNeutrinos = 0;
       int numOtherParticles = 0;
 
       for (GenParticleRefVector::const_iterator pit = decayProducts.begin(); pit != decayProducts.end(); ++pit) {
@@ -132,7 +131,6 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
         else if (pdg_id == 111 || pdg_id == 130 || pdg_id == 310)
           numNeutralPions++;  // Count both pi0 and K0_L/S
         else if (pdg_id == 12 || pdg_id == 14 || pdg_id == 16) {
-          numNeutrinos++;
           if (pdg_id == 16) {
             Neutrino.SetPxPyPzE((*pit)->px(), (*pit)->py(), (*pit)->pz(), (*pit)->energy());
           }

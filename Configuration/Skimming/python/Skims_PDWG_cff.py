@@ -309,11 +309,19 @@ SKIMStreamEXODelayedJetMET = cms.FilteredStream(
 from Configuration.Skimming.PDWG_EXOLLPJetHCAL_cff import *
 EXOLLPJetHCALPath = cms.Path(EXOLLPJetHCALSkimSequence)
 SKIMStreamEXOLLPJetHCAL = cms.FilteredStream(
+<<<<<<< HEAD
     responsible = 'PDWG', 
     name = 'EXOLLPJetHCAL', 
     paths = (EXOLLPJetHCALPath),
     content = skimRawAODContent.outputCommands+['keep *_hbhereco__*'],
     selectEvents = cms.untracked.PSet(), 
+=======
+    responsible = 'PDWG',
+    name = 'EXOLLPJetHCAL',
+    paths = (EXOLLPJetHCALPath),
+    content = skimRawAODContent.outputCommands+['keep *_hbhereco__*'],
+    selectEvents = cms.untracked.PSet(),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     dataTier = cms.untracked.string('AOD')
     )
 

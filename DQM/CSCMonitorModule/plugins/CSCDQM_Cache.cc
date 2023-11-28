@@ -162,71 +162,71 @@ namespace cscdqm {
       data[id] = mo;
     } else
 
-        /** FED MO */
-        if (typeid(histo) == FEDHistoDefT) {
-      HwId fedId = histo.getFEDId();
+      /** FED MO */
+      if (typeid(histo) == FEDHistoDefT) {
+        HwId fedId = histo.getFEDId();
 
-      if (fedPointerValue != fedId) {
-        fedPointer = fedData.find(fedId);
-      }
+        if (fedPointerValue != fedId) {
+          fedPointer = fedData.find(fedId);
+        }
 
-      if (fedPointer == fedData.end()) {
-        MonitorObject** mos = new MonitorObject*[h::namesSize];
-        for (unsigned int i = 0; i < h::namesSize; i++)
-          mos[i] = nullptr;
-        fedPointer = fedData.insert(fedData.end(), std::make_pair(fedId, mos));
-      }
+        if (fedPointer == fedData.end()) {
+          MonitorObject** mos = new MonitorObject*[h::namesSize];
+          for (unsigned int i = 0; i < h::namesSize; i++)
+            mos[i] = nullptr;
+          fedPointer = fedData.insert(fedData.end(), std::make_pair(fedId, mos));
+        }
 
-      fedPointer->second[id] = mo;
-      fedPointerValue = fedId;
+        fedPointer->second[id] = mo;
+        fedPointerValue = fedId;
 
-    } else
+      } else
 
         /** DDU MO */
         if (typeid(histo) == DDUHistoDefT) {
-      HwId dduId = histo.getDDUId();
+          HwId dduId = histo.getDDUId();
 
-      if (dduPointerValue != dduId) {
-        dduPointer = dduData.find(dduId);
-      }
+          if (dduPointerValue != dduId) {
+            dduPointer = dduData.find(dduId);
+          }
 
-      if (dduPointer == dduData.end()) {
-        MonitorObject** mos = new MonitorObject*[h::namesSize];
-        for (unsigned int i = 0; i < h::namesSize; i++)
-          mos[i] = nullptr;
-        dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, mos));
-      }
+          if (dduPointer == dduData.end()) {
+            MonitorObject** mos = new MonitorObject*[h::namesSize];
+            for (unsigned int i = 0; i < h::namesSize; i++)
+              mos[i] = nullptr;
+            dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, mos));
+          }
 
-      dduPointer->second[id] = mo;
-      dduPointerValue = dduId;
+          dduPointer->second[id] = mo;
+          dduPointerValue = dduId;
 
-    } else
+        } else
 
-        /** CSC MO */
-        if (typeid(histo) == CSCHistoDefT) {
-      HwId crateId = histo.getCrateId();
-      HwId dmbId = histo.getDMBId();
-      HwId addId = histo.getAddId();
+          /** CSC MO */
+          if (typeid(histo) == CSCHistoDefT) {
+            HwId crateId = histo.getCrateId();
+            HwId dmbId = histo.getDMBId();
+            HwId addId = histo.getAddId();
 
-      CSCHistoKeyType histoKey(id, addId, mo);
+            CSCHistoKeyType histoKey(id, addId, mo);
 
-      if (cscPointer == cscData.end() || cscPointer->crateId != crateId || cscPointer->dmbId != dmbId) {
-        cscPointer = cscData.find(boost::make_tuple(crateId, dmbId));
-      }
+            if (cscPointer == cscData.end() || cscPointer->crateId != crateId || cscPointer->dmbId != dmbId) {
+              cscPointer = cscData.find(boost::make_tuple(crateId, dmbId));
+            }
 
-      if (cscPointer == cscData.end()) {
-        CSCKeyType cscKey(crateId, dmbId);
-        cscPointer = cscData.insert(cscData.end(), cscKey);
-      }
-      CSCHistoMapType* mos = const_cast<CSCHistoMapType*>(&cscPointer->mos);
-      mos->insert(histoKey);
+            if (cscPointer == cscData.end()) {
+              CSCKeyType cscKey(crateId, dmbId);
+              cscPointer = cscData.insert(cscData.end(), cscKey);
+            }
+            CSCHistoMapType* mos = const_cast<CSCHistoMapType*>(&cscPointer->mos);
+            mos->insert(histoKey);
 
-    } else
+          } else
 
-        /** Parameter MO */
-        if (typeid(histo) == ParHistoDefT) {
-      data[id] = mo;
-    }
+            /** Parameter MO */
+            if (typeid(histo) == ParHistoDefT) {
+              data[id] = mo;
+            }
 
     /** Add histo (if mo is not null!) into lookup list */
     if (mo) {

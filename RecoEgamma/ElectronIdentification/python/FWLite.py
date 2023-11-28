@@ -86,7 +86,7 @@ class WorkingPoints(object):
 # Import information needed to construct the e/gamma MVAs
 
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
-        import EleMVA_6CategoriesCuts, mvaVariablesFile, mvaVariablesFileRun3, EleMVA_3CategoriesCuts
+        import EleMVA_6CategoriesCuts, mvaVariablesFile, mvaVariablesFileRun3, mvaVariablesFileRun3NonIso, EleMVA_3CategoriesCuts
 
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff \
         import mvaWeightFiles as Fall17_iso_V2_weightFiles
@@ -120,7 +120,7 @@ electron_mvas = {
     "RunIIIWinter22IsoV1"   : ElectronMVAID("ElectronMVAEstimatorRun2","RunIIIWinter22IsoV1",
                                             EleMVA_6CategoriesCuts, RunIIIWinter22_iso_V1_weightFiles, mvaVariablesFileRun3),
     "RunIIIWinter22NoIsoV1" : ElectronMVAID("ElectronMVAEstimatorRun2","RunIIIWinter22NoIsoV1",
-                                            EleMVA_6CategoriesCuts, RunIIIWinter22_noIso_V1_weightFiles, mvaVariablesFileRun3),
+                                            EleMVA_6CategoriesCuts, RunIIIWinter22_noIso_V1_weightFiles, mvaVariablesFileRun3NonIso),
     "Fall17IsoV2"   : ElectronMVAID("ElectronMVAEstimatorRun2","Fall17IsoV2",
                                     EleMVA_6CategoriesCuts, Fall17_iso_V2_weightFiles, mvaVariablesFile),
     "Fall17NoIsoV2" : ElectronMVAID("ElectronMVAEstimatorRun2","Fall17NoIsoV2",

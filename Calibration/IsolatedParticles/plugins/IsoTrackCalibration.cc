@@ -295,7 +295,7 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
     spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
     //Loop over tracks
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-    unsigned int nTracks(0), nselTracks(0);
+    unsigned int nTracks(0);
     t_nTrk = trkCaloDirections.size();
 
     for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
@@ -335,7 +335,6 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
         edm::LogVerbatim("IsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/"
                                      << trkDetItr->okHCAL;
       if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
-        nselTracks++;
         int nRH_eMipDR(0), nNearTRKs(0);
         //------ ecal energy around track -------------------------------
         t_eMipDR = spr::eCone_ecal(geo,

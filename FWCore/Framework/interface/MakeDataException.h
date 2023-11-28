@@ -7,15 +7,15 @@
 //
 /**\class MakeDataException MakeDataException.h FWCore/Framework/interface/MakeDataException.h
 
-Description: An exception that is thrown whenever a Proxy had a problem with
+Description: An exception that is thrown whenever a Provider had a problem with
 its algorithm.
 
  Usage:
 This exception will be thrown automatically if a a class that inherits from
-DataProxyTemplate<> returns 0 from its make method.
+ESProductResolverTemplate<> returns 0 from its make method.
 
 If you wish to explain the reason for the error, you can throw a 
-MakeDataException from within your Proxy
+MakeDataException from within your Provider
 E.g.
 \code
 if(outOfBoundsValue) {

@@ -8,7 +8,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
+#include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 

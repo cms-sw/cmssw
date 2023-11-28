@@ -1,4 +1,6 @@
+<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="DetectorDescription/Core"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>

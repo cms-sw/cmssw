@@ -20,9 +20,9 @@ public:
   size_t size() const { return size_; }
   virtual void close() {}
   //used for input
-  virtual void copyInput(const void* values, size_t offset) {}
+  virtual void copyInput(const void* values, size_t offset, unsigned entry) {}
   //used for output
-  virtual const uint8_t* copyOutput() { return nullptr; }
+  virtual void copyOutput() {}
   virtual void set();
 
 protected:
@@ -39,8 +39,8 @@ class TritonHeapResource : public TritonMemResource<IO> {
 public:
   TritonHeapResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonHeapResource() override {}
-  void copyInput(const void* values, size_t offset) override {}
-  const uint8_t* copyOutput() override { return nullptr; }
+  void copyInput(const void* values, size_t offset, unsigned entry) override {}
+  void copyOutput() override {}
   void set() override {}
 };
 
@@ -50,8 +50,11 @@ public:
   TritonCpuShmResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonCpuShmResource() override;
   void close() override;
-  void copyInput(const void* values, size_t offset) override {}
-  const uint8_t* copyOutput() override { return nullptr; }
+  void copyInput(const void* values, size_t offset, unsigned entry) override {}
+  void copyOutput() override {}
+
+protected:
+  size_t sizeOrig_;
 };
 
 using TritonInputHeapResource = TritonHeapResource<triton::client::InferInput>;
@@ -61,13 +64,13 @@ using TritonOutputCpuShmResource = TritonCpuShmResource<triton::client::InferReq
 
 //avoid "explicit specialization after instantiation" error
 template <>
-void TritonInputHeapResource::copyInput(const void* values, size_t offset);
+void TritonInputHeapResource::copyInput(const void* values, size_t offset, unsigned entry);
 template <>
-void TritonInputCpuShmResource::copyInput(const void* values, size_t offset);
+void TritonInputCpuShmResource::copyInput(const void* values, size_t offset, unsigned entry);
 template <>
-const uint8_t* TritonOutputHeapResource::copyOutput();
+void TritonOutputHeapResource::copyOutput();
 template <>
-const uint8_t* TritonOutputCpuShmResource::copyOutput();
+void TritonOutputCpuShmResource::copyOutput();
 
 #ifdef TRITON_ENABLE_GPU
 #include "cuda_runtime_api.h"
@@ -78,8 +81,8 @@ public:
   TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonGpuShmResource() override;
   void close() override;
-  void copyInput(const void* values, size_t offset) override {}
-  const uint8_t* copyOutput() override { return nullptr; }
+  void copyInput(const void* values, size_t offset, unsigned entry) override {}
+  void copyOutput() override {}
 
 protected:
   int deviceId_;
@@ -91,9 +94,9 @@ using TritonOutputGpuShmResource = TritonGpuShmResource<triton::client::InferReq
 
 //avoid "explicit specialization after instantiation" error
 template <>
-void TritonInputGpuShmResource::copyInput(const void* values, size_t offset);
+void TritonInputGpuShmResource::copyInput(const void* values, size_t offset, unsigned entry);
 template <>
-const uint8_t* TritonOutputGpuShmResource::copyOutput();
+void TritonOutputGpuShmResource::copyOutput();
 #endif
 
 #endif

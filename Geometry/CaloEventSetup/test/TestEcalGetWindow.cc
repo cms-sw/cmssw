@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -173,7 +174,7 @@ void TestEcalGetWindow::build(
 }
 // ------------ method called to produce the data  ------------
 void TestEcalGetWindow::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  std::cout << "Here I am " << std::endl;
+  edm::LogVerbatim("CaloGeom") << "Here I am ";
 
   const auto& theCaloTopology = iSetup.getData(topologyToken_);
   const auto& pG = iSetup.getData(geometryToken_);

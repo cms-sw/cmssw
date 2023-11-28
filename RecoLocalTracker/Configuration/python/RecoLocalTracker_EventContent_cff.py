@@ -11,7 +11,7 @@ egamma_lowPt_exclusive.toModify( RecoLocalTrackerAOD,
 #RECO content
 RecoLocalTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'keep DetIdedmEDCollection_siStripDigis_*_*',
+    'keep DetIds_siStripDigis_*_*',
     'keep DetIdedmEDCollection_siPixelDigis_*_*',
     'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*',
     'keep *_siPixelClusters_*_*', 

@@ -1,13 +1,12 @@
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
-#include "CondCore/CondDB/interface/Time.h"
-
 #include "CondCore/BeamSpotPlugins/interface/BeamSpotPayloadInspectorHelper.h"
+#include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 namespace {
 
-  using namespace BeamSpotPI;
+  using namespace beamSpotPI;
 
   class BeamSpot_hx : public cond::payloadInspector::HistoryPlot<BeamSpotObjects, std::pair<double, double> > {
   public:

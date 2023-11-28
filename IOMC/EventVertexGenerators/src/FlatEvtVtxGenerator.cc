@@ -3,6 +3,7 @@
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -37,6 +38,9 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
     throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                           << "MinT is greater than MaxT";
   }
+  edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
+                                 << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t[" << fMinT
+                                 << ":" << fMaxT << "]";
 }
 
 FlatEvtVtxGenerator::~FlatEvtVtxGenerator() {}
@@ -48,6 +52,9 @@ HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine)
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
   aT = CLHEP::RandFlat::shoot(engine, fMinT, fMaxT);
+
+  edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Vertex at [" << aX << ", " << aY << ", " << aZ << ", " << aT
+                                 << "]";
 
   return HepMC::FourVector(aX, aY, aZ, aT);
 }

@@ -90,7 +90,6 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   const TrackerTopology* tt = tTopo.product();
 
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
-  int npxdets = 0;
 
   typedef std::vector<pair<PixelModuleName*, uint32_t> > UNITS;
   UNITS units;
@@ -99,7 +98,6 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
     const PixelGeomDetUnit* pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
     if (pxUnit == nullptr)
       continue;
-    npxdets++;
     DetId geomid = pxUnit->geographicalId();
     PixelModuleName* name = nullptr;
     if (1 == geomid.subdetId()) {  // bpix

@@ -53,7 +53,7 @@ void HcalParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Ev
   st1 << "\nrhoxHB: ";
   for (const auto& it : pars->rhoxHB)
     st1 << it << ", ";
-  std::cout << "\nzxHB: ";
+  st1 << "\nzxHB: ";
   for (const auto& it : pars->zxHB)
     st1 << it << ", ";
   st1 << "\ndyHB: ";
@@ -70,7 +70,7 @@ void HcalParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Ev
     st1 << it << ", ";
   st1 << "\ndyHE: ";
   for (const auto& it : pars->dyHE)
-    std::cout << it << ", ";
+    st1 << it << ", ";
   st1 << "\ndx1HE: ";
   for (const auto& it : pars->dx1HE)
     st1 << it << ", ";

@@ -112,13 +112,17 @@ def customisePixelGainForRun2Input(process):
     """
     # revert the Pixel parameters to be compatible with the Run 2 conditions
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
-        producer.VCaltoElectronGain      =   47
-        producer.VCaltoElectronGain_L1   =   50
-        producer.VCaltoElectronOffset    =  -60
+        producer.VCaltoElectronGain = 47
+        producer.VCaltoElectronGain_L1 = 50
+        producer.VCaltoElectronOffset = -60
         producer.VCaltoElectronOffset_L1 = -670
 
-    for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
-        producer.isRun2 = True
+    for pluginType in ["SiPixelRawToClusterCUDA", "SiPixelRawToClusterCUDAPhase1", "SiPixelRawToClusterCUDAHIonPhase1"]:
+        for producer in producers_by_type(process, pluginType):
+            producer.VCaltoElectronGain = 47
+            producer.VCaltoElectronGain_L1 = 50
+            producer.VCaltoElectronOffset = -60
+            producer.VCaltoElectronOffset_L1 = -670
 
     return process
 
@@ -127,9 +131,10 @@ def customisePixelL1ClusterThresholdForRun2Input(process):
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
         if hasattr(producer,"ClusterThreshold_L1"):
             producer.ClusterThreshold_L1 = 2000
-    for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
-        if hasattr(producer,"clusterThreshold_layer1"):
-            producer.clusterThreshold_layer1 = 2000
+    for pluginType in ["SiPixelRawToClusterCUDA", "SiPixelRawToClusterCUDAPhase1", "SiPixelRawToClusterCUDAHIonPhase1"]:
+        for producer in producers_by_type(process, pluginType):
+            if hasattr(producer,"clusterThreshold_layer1"):
+                producer.clusterThreshold_layer1 = 2000
     for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
         if hasattr(producer,"clusterThreshold_layer1"):
             producer.clusterThreshold_layer1 = 2000
@@ -162,6 +167,24 @@ def customiseBeamSpotFor2018Input(process):
     onlineBeamSpotESPLabels = [prod.label_() for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer')]
     for espLabel in onlineBeamSpotESPLabels:
         delattr(process, espLabel)
+
+    # re-introduce SCAL digis, if missing
+    if not hasattr(process, 'hltScalersRawToDigi') and hasattr(process, 'HLTBeamSpot') and isinstance(process.HLTBeamSpot, cms.Sequence):
+
+        if hasattr(process, 'hltOnlineBeamSpot'):
+            process.hltOnlineBeamSpot.src = 'hltScalersRawToDigi'
+
+        if hasattr(process, 'hltPixelTrackerHVOn'):
+            process.hltPixelTrackerHVOn.DcsStatusLabel = 'hltScalersRawToDigi'
+
+        if hasattr(process, 'hltStripTrackerHVOn'):
+            process.hltStripTrackerHVOn.DcsStatusLabel = 'hltScalersRawToDigi'
+
+        process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
+            scalersInputTag = cms.InputTag( "rawDataCollector" )
+        )
+
+        process.HLTBeamSpot.insert(0, process.hltScalersRawToDigi)
 
     return process
 
@@ -211,12 +234,22 @@ def customiseForOffline(process):
     return process
 
 
-def customizeHLTfor42514(process):
-    for p in esproducers_by_type(process, 'SiPixelTemplateDBObjectESProducer'):
-        process.load('RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi')
-        break
+def customizeHLTfor43025(process):
+
+    for producer in producers_by_type(process, "PFClusterProducer"):
+        producer.usePFThresholdsFromDB = cms.bool(True)
+
+    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
+        producer.usePFThresholdsFromDB = cms.bool(True)
+
+    for producer in producers_by_type(process, "PFRecHitProducer"):
+        if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
+            producer.producers[0].qualityTests[0].usePFThresholdsFromDB = cms.bool(True)        
+        if producer.producers[0].name.value() == 'PFHFRecHitCreator':
+            producer.producers[0].qualityTests[1].usePFThresholdsFromDB = cms.bool(False)
 
     return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -225,6 +258,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor42514(process)
 
+    process = customizeHLTfor43025(process)
+    
     return process

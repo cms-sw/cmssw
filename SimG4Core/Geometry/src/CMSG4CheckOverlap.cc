@@ -6,6 +6,7 @@
 
 #include "G4GDMLParser.hh"
 #include "G4GeomTestVolume.hh"
+#include "G4RunManagerKernel.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
@@ -76,6 +77,19 @@ CMSG4CheckOverlap::CMSG4CheckOverlap(const edm::ParameterSet& p,
       fout.close();
     }
   }
+
+  bool gdmlFlag = p.getParameter<bool>("gdmlFlag");
+  if (gdmlFlag) {
+    std::string PVname = p.getParameter<std::string>("PVname");
+    if (PVname.empty() || PVname == "world" || PVname == "World") {
+      G4GDMLParser gdml = nullptr;
+      gdml.SetRegionExport(true);
+      gdml.SetEnergyCutsExport(true);
+      gdml.SetSDExport(true);
+      gdml.Write(ss + ".gdml", world, true);
+    }
+  }
+
   bool oFlag = p.getParameter<bool>("OverlapFlag");
   if (oFlag) {
     const std::string sss = "Overlaps_" + ss + ".txt";
@@ -86,7 +100,7 @@ CMSG4CheckOverlap::CMSG4CheckOverlap(const edm::ParameterSet& p,
     } else {
       edm::LogVerbatim("SimG4CoreGeometry") << "CMSG4CheckOverlap: output file <" << ss << "> is opened";
       session->sendToFile(&fout);
-      makeReportForOverlaps(fout, p);
+      makeReportForOverlaps(fout, p, world);
       session->stopSendToFile();
       fout.close();
     }
@@ -169,7 +183,9 @@ void CMSG4CheckOverlap::makeReportForGeometry(std::ofstream& fout, G4VPhysicalVo
        << "\n";
 }
 
-void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet& p) {
+void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout,
+                                              const edm::ParameterSet& p,
+                                              G4VPhysicalVolume* world) {
   std::vector<std::string> nodeNames = p.getParameter<std::vector<std::string>>("NodeNames");
   std::string PVname = p.getParameter<std::string>("PVname");
   std::string LVname = p.getParameter<std::string>("LVname");
@@ -200,14 +216,20 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
   fout << "====================================================================="
        << "\n";
 
+  G4GDMLParser* gdml = nullptr;
+  if (gdmlFlag) {
+    gdml = new G4GDMLParser();
+    gdml->SetRegionExport(true);
+    gdml->SetEnergyCutsExport(true);
+    gdml->SetSDExport(true);
+  }
   if (0 < nn) {
     for (unsigned int ii = 0; ii < nn; ++ii) {
       if (nodeNames[ii].empty() || "world" == nodeNames[ii] || "World" == nodeNames[ii]) {
-        nodeNames[ii] = "DDDWorld";
-        fout << "### Check overlaps for DDDWorld "
+        nodeNames[ii] = world->GetName();
+        fout << "### Check overlaps for World "
              << "\n";
-        G4VPhysicalVolume* pv = pvs->GetVolume("DDDWorld");
-        G4GeomTestVolume test(pv, tolerance, nPoints, verbose);
+        G4GeomTestVolume test(world, tolerance, nPoints, verbose);
         test.SetErrorsThreshold(nPrints);
         test.TestOverlapInTree();
       } else if (regionFlag) {
@@ -248,8 +270,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
               fout << "### Check overlaps for PhysVolume  " << pvname << "\n";
               // gdml dump only for 1 volume
               if (gdmlFlag) {
-                G4GDMLParser gdml;
-                gdml.Write(pvname + ".gdml", (*pvs)[i], true);
+                gdml->Write(pvname + ".gdml", (*pvs)[i], true);
               }
               G4GeomTestVolume test(((*pvs)[i]), tolerance, nPoints, verbose);
               test.SetErrorsThreshold(nPrints);
@@ -270,7 +291,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
     fout << "----------- List of PhysVolumes by name -----------------"
          << "\n";
     for (unsigned int i = 0; i < numPV; ++i) {
-      if (PVname == ((*pvs)[i])->GetName()) {
+      if (PVname == (*pvs)[i]->GetName()) {
         fout << " ##### PhysVolume " << PVname << " [" << ((*pvs)[i])->GetCopyNo()
              << "]  LV: " << ((*pvs)[i])->GetLogicalVolume()->GetName()
              << " Mother LV: " << ((*pvs)[i])->GetMotherLogical()->GetName()
@@ -278,8 +299,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
         fout << "       Translation: " << ((*pvs)[i])->GetObjectTranslation() << "\n";
         fout << "       Rotation:    " << ((*pvs)[i])->GetObjectRotationValue() << "\n";
         if (gdmlFlag) {
-          G4GDMLParser gdml;
-          gdml.Write(PVname + ".gdml", (*pvs)[i], true);
+          gdml->Write(PVname + ".gdml", (*pvs)[i], true);
         }
       }
     }
@@ -309,4 +329,5 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
   }
   fout << "---------------- End of overlap checks ---------------------"
        << "\n";
+  delete gdml;
 }

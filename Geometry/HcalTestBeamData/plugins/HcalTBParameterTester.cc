@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/HcalTestBeamData/interface/HcalTB02Parameters.h"
 #include "Geometry/HcalTestBeamData/interface/HcalTB06BeamParameters.h"
@@ -13,7 +14,7 @@
 class HcalTBParameterTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalTBParameterTester(const edm::ParameterSet&);
-  ~HcalTBParameterTester() override {}
+  ~HcalTBParameterTester() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -36,19 +37,19 @@ void HcalTBParameterTester::analyze(const edm::Event& iEvent, const edm::EventSe
   if (mode_ == 0) {
     const auto& hcp = iSetup.getData(token1_);
     const auto* php = &hcp;
-    std::cout << "TB02Parameters for " << name_ << "\n";
-    std::cout << "Length map with " << php->lengthMap_.size() << " elements\n";
+    edm::LogVerbatim("HCalGeom") << "TB02Parameters for " << name_;
+    edm::LogVerbatim("HCalGeom") << "Length map with " << php->lengthMap_.size() << " elements";
     std::map<std::string, double>::const_iterator itr = php->lengthMap_.begin();
     int i(0);
     for (; itr != php->lengthMap_.end(); ++itr, ++i)
-      std::cout << "[" << i << "] " << itr->first << " " << itr->second << " mm\n";
+      edm::LogVerbatim("HCalGeom") << "[" << i << "] " << itr->first << " " << itr->second << " mm";
   } else {
     const auto& hcp = iSetup.getData(token2_);
     const auto* php = &hcp;
-    std::cout << "TB06BeamParameters:: Material " << php->material_ << "\n";
-    std::cout << "TB06BeamParameters:: " << php->wchambers_.size() << " wire chambers:\n";
+    edm::LogVerbatim("HCalGeom") << "TB06BeamParameters:: Material " << php->material_;
+    edm::LogVerbatim("HCalGeom") << "TB06BeamParameters:: " << php->wchambers_.size() << " wire chambers:";
     for (unsigned int k = 0; k < php->wchambers_.size(); ++k)
-      std::cout << "[" << k << "] " << php->wchambers_[k] << "\n";
+      edm::LogVerbatim("HCalGeom") << "[" << k << "] " << php->wchambers_[k];
   }
 }
 

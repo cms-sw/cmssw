@@ -33,7 +33,7 @@ namespace trackerTFP {
 
   // read in and organize input product (fill vector input_)
   void MiniHoughTransform::consume(const StreamsStub& streams) {
-    auto valid = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     int nStubsHT(0);
     for (int binInv2R = 0; binInv2R < numBinsInv2R_; binInv2R++) {
       const StreamStub& stream = streams[region_ * numBinsInv2R_ + binInv2R];
@@ -216,7 +216,7 @@ namespace trackerTFP {
   void MiniHoughTransform::slb(vector<deque<StubMHT*>>& inputs, vector<StubMHT*>& accepted, StreamStub& lost) const {
     if (all_of(inputs.begin(), inputs.end(), [](const deque<StubMHT*>& stubs) { return stubs.empty(); }))
       return;
-    auto size = [](int& sum, const deque<StubMHT*>& stubs) { return sum += stubs.size(); };
+    auto size = [](int sum, const deque<StubMHT*>& stubs) { return sum = stubs.size(); };
     const int nFrames = accumulate(inputs.begin(), inputs.end(), 0, size);
     accepted.reserve(nFrames);
     // input fifos
@@ -255,7 +255,7 @@ namespace trackerTFP {
     // perform truncation if desired
     if (enableTruncation_ && (int)accepted.size() > setup_->numFrames()) {
       const auto limit = next(accepted.begin(), setup_->numFrames());
-      auto valid = [](int& sum, StubMHT* stub) { return sum += stub ? 1 : 0; };
+      auto valid = [](int sum, StubMHT* stub) { return sum + (stub ? 1 : 0); };
       const int nLost = accumulate(limit, accepted.end(), 0, valid);
       lost.reserve(nLost);
       for (auto it = limit; it != accepted.end(); it++)
@@ -272,7 +272,7 @@ namespace trackerTFP {
   void MiniHoughTransform::dlb(vector<vector<StubMHT*>>& streams) const {
     if (all_of(streams.begin(), streams.end(), [](const vector<StubMHT*>& stubs) { return stubs.empty(); }))
       return;
-    auto maxSize = [](int& size, const vector<StubMHT*>& stream) { return size = max(size, (int)stream.size()); };
+    auto maxSize = [](int size, const vector<StubMHT*>& stream) { return size = max(size, (int)stream.size()); };
     const int nMax = accumulate(streams.begin(), streams.end(), 0, maxSize);
     for (vector<StubMHT*>& stream : streams)
       stream.resize(nMax, nullptr);

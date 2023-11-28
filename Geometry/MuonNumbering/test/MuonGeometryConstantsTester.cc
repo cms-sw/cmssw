@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -29,13 +29,13 @@ void MuonGeometryConstantsTester::analyze(const edm::Event&, const edm::EventSet
   const auto& par = iS.getData(token_);
   const MuonGeometryConstants* parMuon = &par;
   if (parMuon != nullptr) {
-    std::cout << "\n\nMuonDDDConstants found with " << parMuon->size() << " contents\n";
+    edm::LogVerbatim("MuonNumbering") << "\n\nMuonDDDConstants found with " << parMuon->size() << " contents";
     for (unsigned int k = 0; k < parMuon->size(); ++k) {
       auto entry = parMuon->getEntry(k);
-      std::cout << " [" << k << "] " << entry.first << " = " << entry.second << std::endl;
+      edm::LogVerbatim("MuonNumbering") << " [" << k << "] " << entry.first << " = " << entry.second;
     }
   } else {
-    std::cout << "\n\nMuonDDDConstants not found in Event Setup\n";
+    edm::LogVerbatim("MuonNumbering") << "\n\nMuonDDDConstants not found in Event Setup";
   }
 }
 

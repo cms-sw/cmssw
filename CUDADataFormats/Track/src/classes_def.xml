@@ -12,4 +12,10 @@
   <class name="cms::cuda::Product<pixelTrack::TrackSoADevicePhase2>" persistent="false"/>
   <class name="edm::Wrapper<cms::cuda::Product<pixelTrack::TrackSoADevicePhase2>>" persistent="false"/>
 
+  <class name="pixelTrack::TrackSoAHostHIonPhase1" persistent="false"/>
+  <class name="edm::Wrapper<pixelTrack::TrackSoAHostHIonPhase1>" persistent="false"/>
+  <class name="pixelTrack::TrackSoADeviceHIonPhase1" persistent="false"/>
+  <class name="cms::cuda::Product<pixelTrack::TrackSoADeviceHIonPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<pixelTrack::TrackSoADeviceHIonPhase1>>" persistent="false"/>
+
 </lcgdict>

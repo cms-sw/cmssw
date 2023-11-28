@@ -33,7 +33,7 @@ class SystemBounds;
 class GlobalContext;
 class StreamID;
 
-struct InputFile;
+class InputFile;
 struct InputChunk;
 
 namespace edm {
@@ -73,6 +73,7 @@ namespace evf {
     void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
     void overrideRunNumber(unsigned int run) { run_ = run; }
+    std::string const& runString() const { return run_string_; }
     std::string& baseRunDir() { return run_dir_; }
     std::string& buBaseRunDir() { return bu_run_dir_; }
     std::string& buBaseRunOpenDir() { return bu_run_open_dir_; }
@@ -102,11 +103,11 @@ namespace evf {
     std::string getEoLSFilePathOnFU(const unsigned int ls) const;
     std::string getBoLSFilePathOnFU(const unsigned int ls) const;
     std::string getEoRFilePath() const;
+    std::string getEoRFileName() const;
     std::string getEoRFilePathOnFU() const;
     std::string getFFFParamsFilePathOnBU() const;
     std::string getRunOpenDirPath() const { return run_dir_ + "/open"; }
     bool outputAdler32Recheck() const { return outputAdler32Recheck_; }
-    void removeFile(unsigned int ls, unsigned int index);
     void removeFile(std::string);
 
     FileStatus updateFuLock(unsigned int& ls,
@@ -134,6 +135,7 @@ namespace evf {
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   int& rawFd,
                                   uint16_t& rawHeaderSize,
+                                  uint16_t& rawDataType,
                                   uint32_t& lsFromHeader,
                                   int32_t& eventsFromHeader,
                                   int64_t& fileSizeFromHeader,
@@ -147,7 +149,8 @@ namespace evf {
                             int64_t& fileSizeFromHeader,
                             bool& fileFound,
                             uint32_t serverLS,
-                            bool closeFile);
+                            bool closeFile,
+                            bool requireHeader = true);
     int grabNextJsonFile(std::string const& jsonSourcePath,
                          std::string const& rawSourcePath,
                          int64_t& fileSizeFromJson,
@@ -170,7 +173,8 @@ namespace evf {
                                      uint16_t& rawHeaderSize,
                                      int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,
-                                     uint64_t& thisLockWaitTimeUs);
+                                     uint64_t& thisLockWaitTimeUs,
+                                     bool requireHeader = true);
     void createRunOpendirMaybe();
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
@@ -181,6 +185,7 @@ namespace evf {
       fileDeleteLockPtr_ = fileDeleteLock;
       filesToDeletePtr_ = filesToDelete;
     }
+
     void checkTransferSystemPSet(edm::ProcessContext const& pc);
     void checkMergeTypePSet(edm::ProcessContext const& pc);
     std::string getStreamDestinations(std::string const& stream) const;
@@ -188,6 +193,7 @@ namespace evf {
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
     bool inputThrottled();
     bool lumisectionDiscarded(unsigned int ls);
+    std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -198,6 +204,7 @@ namespace evf {
                   int maxLS,
                   bool& setExceptionState);
     void openFULockfileStream(bool create);
+    static bool checkFileRead(char* buf, int infile, std::size_t buf_sz, std::string const& path);
     std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
     std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
     std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -208,6 +215,7 @@ namespace evf {
 
     std::string base_dir_;
     std::string bu_base_dir_;
+    std::vector<std::string> bu_base_dirs_all_;
     unsigned int run_;
     bool useFileBroker_;
     bool fileBrokerHostFromCfg_;

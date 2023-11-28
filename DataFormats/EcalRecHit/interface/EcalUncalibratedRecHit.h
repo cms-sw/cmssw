@@ -55,6 +55,10 @@ public:
   bool isJitterValid() const;
   bool isJitterErrorValid() const;
 
+  // For CC Timing reco
+  float nonCorrectedTime() const;
+  void setNonCorrectedTime(const float correctedJittter, const float nonCorrectedJitter);
+
 private:
   float amplitude_;       //< Reconstructed amplitude
   float amplitudeError_;  //< Reconstructed amplitude uncertainty

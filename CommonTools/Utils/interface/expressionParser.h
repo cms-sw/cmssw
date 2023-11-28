@@ -1,7 +1,7 @@
 #ifndef CommonTools_Utils_expressionParset_h
 #define CommonTools_Utils_expressionParset_h
-#include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <string>
 

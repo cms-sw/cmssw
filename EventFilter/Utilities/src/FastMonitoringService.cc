@@ -9,6 +9,7 @@
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
@@ -132,7 +133,8 @@ namespace evf {
         fastName_("fastmoni"),
         slowName_("slowmoni"),
         filePerFwkStream_(iPS.getUntrackedParameter<bool>("filePerFwkStream", false)),
-        totalEventsProcessed_(0) {
+        totalEventsProcessed_(0),
+        verbose_(iPS.getUntrackedParameter<bool>("verbose")) {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);  //receiving information on number of threads
     reg.watchJobFailure(this, &FastMonitoringService::jobFailure);    //global
 
@@ -193,6 +195,7 @@ namespace evf {
         ->setComment("Modulo of sleepTime intervals on which fastmon file is written out");
     desc.addUntracked<bool>("filePerFwkStream", false)
         ->setComment("Switches on monitoring output per framework stream");
+    desc.addUntracked<bool>("verbose", false)->setComment("Set to use LogInfo messages from the monitoring thread");
     desc.setAllowAnything();
     descriptions.add("FastMonitoringService", desc);
   }
@@ -546,8 +549,9 @@ namespace evf {
       return;
     }
 
-    if (inputSource_) {
-      auto sourceReport = inputSource_->getEventReport(lumi, true);
+    if (inputSource_ || daqInputSource_) {
+      auto sourceReport =
+          inputSource_ ? inputSource_->getEventReport(lumi, true) : daqInputSource_->getEventReport(lumi, true);
       if (sourceReport.first) {
         if (sourceReport.second != processedEventsPerLumi_[lumi].first) {
           throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: " << lumi
@@ -556,6 +560,7 @@ namespace evf {
         }
       }
     }
+
     edm::LogInfo("FastMonitoringService")
         << "Statistics for lumisection -: lumi = " << lumi << " events = " << lumiProcessedJptr->value()
         << " time = " << usecondsForLumi / 1000000 << " size = " << accuSize << " thr = " << throughput;
@@ -814,7 +819,7 @@ namespace evf {
         snapCounter_++;
       }
 
-      {
+      if (verbose_) {
         edm::LogInfo msg("FastMonitoringService");
         auto f = [&](std::vector<unsigned int> const& p) {
           for (unsigned int i = 0; i < nStreams_; i++) {

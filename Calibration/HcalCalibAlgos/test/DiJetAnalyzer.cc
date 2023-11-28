@@ -258,25 +258,6 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   const CaloSubdetectorGeometry* HOGeom = geo->getSubdetectorGeometry(DetId::Hcal, 3);
   const CaloSubdetectorGeometry* HFGeom = geo->getSubdetectorGeometry(DetId::Hcal, 4);
 
-  int HBHE_n = 0;
-  for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith = hbhereco->begin();
-       ith != hbhereco->end();
-       ++ith) {
-    HBHE_n++;
-  }
-  int HF_n = 0;
-  for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith = hfreco->begin();
-       ith != hfreco->end();
-       ++ith) {
-    HF_n++;
-  }
-  int HO_n = 0;
-  for (edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>::const_iterator ith = horeco->begin();
-       ith != horeco->end();
-       ++ith) {
-    HO_n++;
-  }
-
   // Get primary vertices
   const edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_Vertex_);
   if (!pv.isValid()) {

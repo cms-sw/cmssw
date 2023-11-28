@@ -207,10 +207,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
 void CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts) {
   const auto& anode_ids = cscDigiMatcher_->chamberIdsWire(0);
-  int n_minLayers = 0;
   for (const auto& id : anode_ids) {
-    if (cscDigiMatcher_->nLayersWithWireInChamber(id) >= minNHitsChamberALCT_)
-      ++n_minLayers;
     CSCDetId ch_id(id);
 
     // fill 1 WG wide gaps
@@ -278,8 +275,6 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
                  std::inserter(cathode_and_anode_ids, cathode_and_anode_ids.end()));
 
   for (const auto& id : cathode_and_anode_ids) {
-    int iLct = -1;
-
     CSCDetId ch_id(id);
 
     //use ME1b id to get LCTs
@@ -312,8 +307,6 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
     }
 
     for (const auto& lct : lcts_tmp) {
-      iLct++;
-
       bool lct_clct_match(false);
       bool lct_alct_match(false);
       bool lct_gem1_match(false);

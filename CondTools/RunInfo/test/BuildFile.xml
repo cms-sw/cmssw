@@ -5,4 +5,10 @@
 </ifarch>
 <test name="CondToolsRunInfoTest" command="test_runinfo.sh"/>
 <test name="CondToolsLHCInfoTest" command="test_lhcInfo.sh"/>
+<<<<<<< HEAD
 <test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
+=======
+<ifarch value="x86_64">
+<test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
+</ifarch>
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704

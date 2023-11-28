@@ -5,6 +5,8 @@ l1t::PFCandidate::PFCandidate(
     : L1Candidate(p, hwpt, hweta, hwphi, /*hwQuality=*/int(kind)),
       dxy_(0),
       puppiWeight_(puppiWeight),
+      caloEta_(0),
+      caloPhi_(0),
       hwZ0_(0),
       hwDxy_(0),
       hwTkQuality_(0),

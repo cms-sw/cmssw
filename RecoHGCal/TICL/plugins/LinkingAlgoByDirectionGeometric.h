@@ -20,6 +20,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
 
 namespace ticl {
   class LinkingAlgoByDirectionGeometric final : public LinkingAlgoBase {
@@ -33,25 +34,26 @@ namespace ticl {
                     const edm::ESHandle<Propagator> propH) override;
 
     void linkTracksters(const edm::Handle<std::vector<reco::Track>>,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
-    typedef math::XYZVector Vector;
+    using Vector = ticl::Trackster::Vector;
 
     void buildLayers();
 
-    math::XYZVector propagateTrackster(const Trackster &t,
-                                       const unsigned idx,
-                                       float zVal,
-                                       std::array<TICLLayerTile, 2> &tracksterTiles);
+    Vector propagateTrackster(const Trackster &t,
+                              const unsigned idx,
+                              float zVal,
+                              std::array<TICLLayerTile, 2> &tracksterTiles);
 
     void findTrackstersInWindow(const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                 const std::array<TICLLayerTile, 2> &tracksterTiles,
@@ -66,7 +68,8 @@ namespace ticl {
                                  const Trackster &trackster,
                                  const float &tkTime,
                                  const float &tkTimeErr,
-                                 const float &tkTimeQual);
+                                 const float &tkTimeQual,
+                                 bool useMTDTiming);
 
     void recordTrackster(const unsigned ts,  // trackster index
                          const std::vector<Trackster> &tracksters,

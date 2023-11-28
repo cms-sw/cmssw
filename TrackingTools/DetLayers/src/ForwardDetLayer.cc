@@ -98,8 +98,25 @@ pair<bool, TrajectoryStateOnSurface> ForwardDetLayer::compatible(const Trajector
 
   // check r
   auto r2 = myState.localPosition().perp2();
+
+  // Disable bitwise-instead-of-logical warning, see discussion in
+  // https://github.com/cms-sw/cmssw/issues/39105
+
+#if defined(__clang__) && defined(__has_warning)
+#if __has_warning("-Wbitwise-instead-of-logical")
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbitwise-instead-of-logical"
+#endif
+#endif
+
   if ((r2 > rmin() * rmin()) & (r2 < rmax() * rmax()))
     return make_pair(true, myState);
+
+#if defined(__clang__) && defined(__has_warning)
+#if __has_warning("-Wbitwise-instead-of-logical")
+#pragma clang diagnostic pop
+#endif
+#endif
 
   // take into account the thickness of the layer
   float deltaR = 0.5f * bounds().thickness() * myState.localDirection().perp() / std::abs(myState.localDirection().z());

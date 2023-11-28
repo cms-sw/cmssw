@@ -59,7 +59,9 @@ extern struct {
   int iofsusy;
 } onshell_;
 
-extern struct { int nfgg; } oldfash_;
+extern struct {
+  int nfgg;
+} oldfash_;
 
 extern struct {
   int ihiggs;
@@ -119,7 +121,9 @@ extern struct {
   double a;
 } coup_;
 
-extern struct { double amsb; } strange_;
+extern struct {
+  double amsb;
+} strange_;
 
 double xitla_(int*, double*, double*);
 void bernini_(int*);

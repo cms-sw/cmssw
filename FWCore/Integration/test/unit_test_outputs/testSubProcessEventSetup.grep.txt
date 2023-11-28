@@ -32,9 +32,9 @@ Sharing ESSource: class=EmptyESSource label='emptyESSourceZ'
 Sharing ESSource: class=EmptyESSource label='emptyESSourceA'
 Sharing ESSource: class=EmptyESSource label='emptyESSourceA1'
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 1 and 0
-Sharing ESProducer: class=ESTestProducerAZ label='esTestProducerAZ'
 Sharing ESProducer: class=ESTestProducerA label='esTestProducerA'
 Sharing ESProducer: class=ESTestProducerA label='esTestProducerA1'
+Sharing ESProducer: class=ESTestProducerAZ label='esTestProducerAZ'
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 2 and 0
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 2 and 1
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 3 and 0
@@ -49,10 +49,10 @@ EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess I
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 5 and 2
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 5 and 3
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 5 and 4
-Sharing ESProducer: class=ESTestProducerAZ label='esTestProducerAZ'
+Sharing ESProducer: class=ESTestProducerA label='esTestProducerA2'
 Sharing ESProducer: class=ESTestProducerA label='esTestProducerA'
 Sharing ESProducer: class=ESTestProducerA label='esTestProducerA1'
-Sharing ESProducer: class=ESTestProducerA label='esTestProducerA2'
+Sharing ESProducer: class=ESTestProducerAZ label='esTestProducerAZ'
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 6 and 0
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 6 and 1
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 6 and 2
@@ -107,8 +107,8 @@ EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess I
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 0
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 1
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 2
-Sharing ESProducer: class=ESTestProducerA label='esTestProducerA1'
 Sharing ESProducer: class=ESTestProducerA label='esTestProducerA'
+Sharing ESProducer: class=ESTestProducerA label='esTestProducerA1'
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 3
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 4
 EventSetupProvider::checkESProducerSharing: Checking processes with SubProcess Indexes 12 and 5

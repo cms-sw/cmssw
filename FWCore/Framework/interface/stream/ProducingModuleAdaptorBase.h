@@ -63,7 +63,7 @@ namespace edm {
   }
 
   namespace eventsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
 
   namespace stream {
@@ -102,11 +102,11 @@ namespace edm {
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
 
-      std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
+      std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
       std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
-      void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
+      void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
       void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,

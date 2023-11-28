@@ -32,6 +32,7 @@
    };
 **/
 
+#include <atomic>
 #include <list>
 #include <sstream>
 #include <string>
@@ -118,7 +119,7 @@ namespace cms {
     void setAdditionalInfo(std::list<std::string> const& info);
 
     bool alreadyPrinted() const;
-    void setAlreadyPrinted(bool value);
+    void setAlreadyPrinted();
 
     virtual Exception* clone() const;
 
@@ -187,7 +188,7 @@ namespace cms {
     CMS_SA_ALLOW mutable std::string what_;
     std::list<std::string> context_;
     std::list<std::string> additionalInfo_;
-    bool alreadyPrinted_;
+    std::atomic<bool> alreadyPrinted_;
   };
 
   inline std::ostream& operator<<(std::ostream& ost, Exception const& e) {

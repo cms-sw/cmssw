@@ -1,9 +1,27 @@
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 
 #include <cassert>
 #include <cstring>
 
 namespace mkfit {
+
+  //==============================================================================
+  // PropagationConfig
+  //==============================================================================
+
+  void PropagationConfig::apply_tracker_info(const TrackerInfo* ti) {
+    finding_inter_layer_pflags.tracker_info = ti;
+    finding_intra_layer_pflags.tracker_info = ti;
+    backward_fit_pflags.tracker_info = ti;
+    forward_fit_pflags.tracker_info = ti;
+    seed_fit_pflags.tracker_info = ti;
+    pca_prop_pflags.tracker_info = ti;
+  }
+
+  //==============================================================================
+  // LayerInfo
+  //==============================================================================
 
   void LayerInfo::set_limits(float r1, float r2, float z1, float z2) {
     m_rin = r1;
@@ -95,6 +113,18 @@ namespace mkfit {
   }
 
   //==============================================================================
+  // Material
+
+  void TrackerInfo::create_material(int nBinZ, float rngZ, int nBinR, float rngR) {
+    m_mat_range_z = rngZ;
+    m_mat_range_r = rngR;
+    m_mat_fac_z = nBinZ / m_mat_range_z;
+    m_mat_fac_r = nBinR / m_mat_range_r;
+
+    m_mat_vec.rerect(nBinZ, nBinR);
+  }
+
+  //==============================================================================
 
   namespace {
     struct GeomFileHeader {
@@ -108,7 +138,7 @@ namespace mkfit {
       GeomFileHeader() = default;
 
       constexpr static int s_magic = 0xB00F;
-      constexpr static int s_version = 1;
+      constexpr static int s_version = 2;
     };
 
     template <typename T>
@@ -161,6 +191,10 @@ namespace mkfit {
     for (int l = 0; l < fh.f_n_layers; ++l) {
       write_std_vec(fp, m_layers[l].m_modules);
     }
+
+    fwrite(&m_mat_range_z, 4 * sizeof(float), 1, fp);
+    fwrite(&m_mat_vec, 2 * sizeof(int), 1, fp);
+    write_std_vec(fp, m_mat_vec.vector());
 
     fclose(fp);
   }
@@ -230,6 +264,10 @@ namespace mkfit {
         li.m_detid2sid.insert({li.m_modules[m].detid, m});
       }
     }
+
+    fread(&m_mat_range_z, 4 * sizeof(float), 1, fp);
+    fread(&m_mat_vec, 2 * sizeof(int), 1, fp);
+    read_std_vec(fp, m_mat_vec.vector());
 
     fclose(fp);
   }

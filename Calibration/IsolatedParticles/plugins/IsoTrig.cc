@@ -1712,7 +1712,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                      << hit->energy();
       }
     }
-    unsigned int nTracks = 0, ngoodTk = 0, nselTk = 0;
+    unsigned int nTracks = 0;
     int ieta = 999;
     for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++, nTracks++) {
       bool l3Track = (std::find(goodTks.begin(), goodTks.end(), trkDetItr->trkItr) != goodTks.end());
@@ -1733,7 +1733,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
         edm::LogVerbatim("IsoTrack") << "Track ECAL " << trkDetItr->okECAL << " HCAL " << trkDetItr->okHCAL << " Flag "
                                      << selectTk;
       if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
-        ngoodTk++;
         int nRH_eMipDR = 0, nNearTRKs = 0;
         double e1 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
@@ -1779,8 +1778,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                 iphiHotCell,
                                 gposHotCell,
                                 -1);
-        if (eMipDR < 1.0)
-          nselTk++;
       }
       if (l3Track) {
         fillHist(10, v4);
@@ -1822,7 +1819,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
         }
       }
     }
-    //   edm::LogVerbatim("IsoTrack") << "Number of tracks selected offline " << nselTk;
   }
 }
 

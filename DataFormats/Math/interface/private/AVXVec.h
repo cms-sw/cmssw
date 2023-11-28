@@ -29,10 +29,7 @@ namespace mathSSE {
       arr[3] = f4;
     }
 
-    Vec4(Vec2<double> ivec0, Vec2<double> ivec1) {
-      vec = _mm256_insertf128_pd(vec, ivec0.vec, 0);
-      vec = _mm256_insertf128_pd(vec, ivec1.vec, 1);
-    }
+    Vec4(Vec2<double> ivec0, Vec2<double> ivec1) { vec = _mm256_set_m128d(ivec1.vec, ivec0.vec); }
 
     Vec4(Vec2<double> ivec0, double f3, double f4 = 0) {
       vec = _mm256_insertf128_pd(vec, ivec0.vec, 0);

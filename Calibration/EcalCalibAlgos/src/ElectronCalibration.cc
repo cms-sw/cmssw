@@ -410,7 +410,6 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection>& phits) 
 
   EcalRecHitCollection ecrh = *phits;
   EcalRecHitCollection::iterator it;
-  int count = 0;
   EBDetId save;
   float en_save = 0;
   for (it = ecrh.begin(); it != ecrh.end(); it++) {
@@ -419,7 +418,6 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection>& phits) 
       en_save = it->energy();
       save = p;
     }
-    count++;
   }
   return save;
 }

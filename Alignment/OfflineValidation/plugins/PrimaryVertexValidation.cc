@@ -282,11 +282,10 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
 
   //edm::Handle<VertexCollection> vertices;
   edm::Handle<std::vector<Vertex>> vertices;
-
-  try {
-    vertices = iEvent.getHandle(theVertexCollectionToken_);
-  } catch (cms::Exception& er) {
-    LogTrace("PrimaryVertexValidation") << "caught std::exception " << er.what() << std::endl;
+  vertices = iEvent.getHandle(theVertexCollectionToken_);
+  if (!vertices.isValid()) {
+    edm::LogError("PrimaryVertexValidation") << "Vertex collection handle is not valid. Aborting!" << std::endl;
+    return;
   }
 
   std::vector<Vertex> vsorted = *(vertices);
@@ -295,7 +294,6 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   std::sort(vsorted.begin(), vsorted.end(), PrimaryVertexValidation::vtxSort);
 
   // skip events with no PV, this should not happen
-
   if (vsorted.empty())
     return;
 

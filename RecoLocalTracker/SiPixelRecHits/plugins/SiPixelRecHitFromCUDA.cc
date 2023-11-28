@@ -119,7 +119,7 @@ void SiPixelRecHitFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
   edm::Handle<SiPixelClusterCollectionNew> hclusters = iEvent.getHandle(clusterToken_);
   auto const& input = *hclusters;
 
-  constexpr uint32_t maxHitsInModule = gpuClustering::maxHitsInModule();
+  constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
 
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
@@ -198,3 +198,6 @@ DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase1);
 
 using SiPixelRecHitFromCUDAPhase2 = SiPixelRecHitFromCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase2);
+
+using SiPixelRecHitFromCUDAHIonPhase1 = SiPixelRecHitFromCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAHIonPhase1);

@@ -200,8 +200,8 @@ namespace trklet {
         vector<vector<TTStubRef>> lost;
         formTracks(lostTracks, lostStubs, lost, offset + channel);
         nTracks += tracks.size();
-        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const vector<TTStubRef>& track) {
-          return sum += (int)track.size();
+        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
+          return sum + (int)track.size();
         });
         nLost += lost.size();
         allTracks += tracks.size();
@@ -283,8 +283,8 @@ namespace trklet {
                                 int channel) const {
     const int offset = channel * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[channel];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& frame) {
-      return sum += (frame.first.isNonnull() ? 1 : 0);
+    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& frame) {
+      return sum + (frame.first.isNonnull() ? 1 : 0);
     });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {

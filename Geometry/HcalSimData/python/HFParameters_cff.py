@@ -32,7 +32,7 @@ from Configuration.ProcessModifiers.applyHFLibraryFix_cff import applyHFLibraryF
 (~applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
 #
 #--- Alternative: to use Run3 library with applyHFLibraryFix modifier
-(applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v6.root', FileVersion = 2 )
+(applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v7.root', FileVersion = 3 )
 (applyHFLibraryFix & run2_common).toModify( HFShowerBlock, EqualizeTimeShift = True )
 #
 run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
@@ -41,5 +41,5 @@ run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
 ## Change for the latest HFShowerLibrary file for Run 3
 ##
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
-run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v6.root', FileVersion = 2 )
+run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v7.root', FileVersion = 3 )
 run3_HFSL.toModify( HFShowerBlock, EqualizeTimeShift = True )

@@ -255,10 +255,12 @@ elif (theRefitter == RefitType.STANDARD):
      ####################################################################
      # Sequence
      ####################################################################
+     process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
      process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
                                              # in case NavigatioSchool is set !=''
                                              #process.MeasurementTrackerEvent*
-                                             process.FinalTrackRefitter)
+                                             process.FinalTrackRefitter,
+                                             cms.Task(process.SiPixelTemplateStoreESProducer))
 
 ####################################################################
 # Output file

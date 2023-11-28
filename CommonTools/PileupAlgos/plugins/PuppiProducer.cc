@@ -349,7 +349,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     lWeights = fPuppiContainer->puppiWeights();
   } else {
     //Use the existing weights
-    int lPackCtr = 0;
     lWeights.reserve(pfCol->size());
     for (auto const& aPF : *pfCol) {
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
@@ -370,7 +369,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           (std::abs(lPack->eta()) < fEtaMaxPhotons) && (lPack->pt() > fPtMaxPhotons))
         curpupweight = 1;
       lWeights.push_back(curpupweight);
-      lPackCtr++;
     }
   }
 

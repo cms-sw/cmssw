@@ -286,9 +286,3 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelROCName& pixelroc) {
 
   return s;
 }
-
-const PixelROCName& PixelROCName::operator=(const PixelROCName& aROC) {
-  id_ = aROC.id_;
-
-  return *this;
-}

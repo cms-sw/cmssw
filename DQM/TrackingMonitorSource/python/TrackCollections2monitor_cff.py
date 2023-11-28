@@ -7,6 +7,8 @@ sequenceName = {}
 trackPtN   = {}
 trackPtMin = {}
 trackPtMax = {}
+pcaZtoPVMax = {}
+pcaZtoPVMin = {}
 doPlotsPCA = {}
 numCutString = {}
 denCutString = {}
@@ -37,6 +39,8 @@ vertexfolderName['generalTracks'] = 'Tracking/PrimaryVertices/generalTracks'
 trackPtN        ['generalTracks'] = cms.int32(100)
 trackPtMin      ['generalTracks'] = cms.double(0.)
 trackPtMax      ['generalTracks'] = cms.double(100.)
+pcaZtoPVMax     ['generalTracks'] = cms.double(30.)
+pcaZtoPVMin     ['generalTracks'] = cms.double(-30.)
 doPlotsPCA      ['generalTracks'] = cms.bool(False)
 numCutString    ['generalTracks'] = cms.string("quality('highPurity')") # num := den + quality('highPurity')
 denCutString    ['generalTracks'] = cms.string("") # den := kinematics cuts
@@ -76,6 +80,8 @@ vertexfolderName['highPurityPtRange0to1'] = 'Tracking/PrimaryVertices/highPurity
 trackPtN        ['highPurityPtRange0to1'] = cms.int32(10)
 trackPtMin      ['highPurityPtRange0to1'] = cms.double(0.)
 trackPtMax      ['highPurityPtRange0to1'] = cms.double(1.)
+pcaZtoPVMax     ['highPurityPtRange0to1'] = cms.double(30.)
+pcaZtoPVMin     ['highPurityPtRange0to1'] = cms.double(-30.)
 numCutString    ['highPurityPtRange0to1'] = cms.string(" pt >= 0 & pt < 1 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
 denCutString    ['highPurityPtRange0to1'] = cms.string(" pt >= 0 & pt < 1 ") # den := kinematics cut
 doPlotsPCA      ['highPurityPtRange0to1'] = cms.bool(False)
@@ -109,6 +115,8 @@ vertexfolderName['highPurityPtRange1to10'] = 'Tracking/PrimaryVertices/highPurit
 trackPtN        ['highPurityPtRange1to10'] = cms.int32(10)
 trackPtMin      ['highPurityPtRange1to10'] = cms.double(1.)
 trackPtMax      ['highPurityPtRange1to10'] = cms.double(10.)
+pcaZtoPVMax     ['highPurityPtRange1to10'] = cms.double(30.)
+pcaZtoPVMin     ['highPurityPtRange1to10'] = cms.double(-30.)
 numCutString    ['highPurityPtRange1to10'] = cms.string(" pt >= 1 & pt < 10 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
 denCutString    ['highPurityPtRange1to10'] = cms.string(" pt >= 1 & pt < 10 ") # den := kinematics cuts
 doGoodTracksPlots                   ['highPurityPtRange1to10'] = cms.bool(True)
@@ -141,6 +149,8 @@ vertexfolderName['highPurityPt10'] = 'Tracking/PrimaryVertices/highPurityTracks/
 trackPtN        ['highPurityPt10'] = cms.int32(100)
 trackPtMin      ['highPurityPt10'] = cms.double(10.)
 trackPtMax      ['highPurityPt10'] = cms.double(110.)
+pcaZtoPVMax     ['highPurityPt10'] = cms.double(30.)
+pcaZtoPVMin     ['highPurityPt10'] = cms.double(-30.)
 numCutString    ['highPurityPt10'] = cms.string(" pt >= 10 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
 denCutString    ['highPurityPt10'] = cms.string(" pt >= 10 ") # den := kinematics cuts
 doGoodTracksPlots                   ['highPurityPt10'] = cms.bool(True)
@@ -174,6 +184,8 @@ vertexfolderName['highPurityPt1'] = 'Tracking/PrimaryVertices/highPurityTracks/p
 trackPtN        ['highPurityPt1'] = cms.int32(100)
 trackPtMin      ['highPurityPt1'] = cms.double(0.)
 trackPtMax      ['highPurityPt1'] = cms.double(100.)
+pcaZtoPVMax     ['highPurityPt1'] = cms.double(30.)
+pcaZtoPVMin     ['highPurityPt1'] = cms.double(-30.)
 doPlotsPCA      ['highPurityPt1'] = cms.bool(True)
 numCutString    ['highPurityPt1'] = cms.string(" pt >= 1 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
 denCutString    ['highPurityPt1'] = cms.string(" pt >= 1 ") # den := kinematics cut
@@ -208,6 +220,8 @@ vertexfolderName['highPurityPt1Eta2p5to3p0'] = 'Tracking/PrimaryVertices/highPur
 trackPtN        ['highPurityPt1Eta2p5to3p0'] = cms.int32(100)
 trackPtMin	['highPurityPt1Eta2p5to3p0'] = cms.double(0.)
 trackPtMax	['highPurityPt1Eta2p5to3p0'] = cms.double(100.)
+pcaZtoPVMax     ['highPurityPt1Eta2p5to3p0'] = cms.double(30.)
+pcaZtoPVMin     ['highPurityPt1Eta2p5to3p0'] = cms.double(-30.)
 doPlotsPCA	['highPurityPt1Eta2p5to3p0'] = cms.bool(True)
 numCutString    ['highPurityPt1Eta2p5to3p0'] = cms.string(" pt >= 1 & abs(eta) > 2.5 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
 denCutString    ['highPurityPt1Eta2p5to3p0'] = cms.string(" pt >= 1 & abs(eta) > 2.5") # den := kinematics cut
@@ -289,6 +303,8 @@ vertexfolderName['highPurityPV0p1'] = 'Tracking/PrimaryVertices/highPurityTracks
 trackPtN        ['highPurityPV0p1'] = cms.int32(100)
 trackPtMin      ['highPurityPV0p1'] = cms.double(0.)
 trackPtMax      ['highPurityPV0p1'] = cms.double(100.)
+pcaZtoPVMax     ['highPurityPV0p1'] = cms.double(0.15)
+pcaZtoPVMin     ['highPurityPV0p1'] = cms.double(-0.15)
 doPlotsPCA      ['highPurityPV0p1'] = cms.bool(True)
 numCutString    ['highPurityPV0p1'] = cms.string("quality('highPurity')") # num := den + quality('highPurity')
 denCutString    ['highPurityPV0p1'] = cms.string("") # den := kinematic cuts
@@ -324,6 +340,8 @@ vertexfolderName['hiConformalPixelTracksQA'] = 'Tracking/PrimaryVertices/hiConfo
 trackPtN        ['hiConformalPixelTracksQA'] = cms.int32(100)
 trackPtMin      ['hiConformalPixelTracksQA'] = cms.double(0.)
 trackPtMax      ['hiConformalPixelTracksQA'] = cms.double(10.)
+pcaZtoPVMax     ['hiConformalPixelTracksQA'] = cms.double(30.)
+pcaZtoPVMin     ['hiConformalPixelTracksQA'] = cms.double(-30.)
 numCutString    ['hiConformalPixelTracksQA'] = cms.string(" pt >= 0 ") 
 denCutString    ['hiConformalPixelTracksQA'] = cms.string(" pt >= 0 ") 
 doPlotsPCA      ['hiConformalPixelTracksQA'] = cms.bool(False)

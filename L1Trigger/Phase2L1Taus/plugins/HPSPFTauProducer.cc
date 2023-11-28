@@ -230,7 +230,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedChargedPFCandEta", 2.4);
   desc.add<bool>("applyPreselection", false);
   desc.add<double>("isolationConeSize", 0.4);
-  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
+  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<double>("maxChargedIso", 1000.0);
   {
     edm::ParameterSetDescription psd0;

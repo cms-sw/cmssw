@@ -15,16 +15,20 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDIdealGeometry = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDNumbering = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPath = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.cerr.TestMTDPosition = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
+    # limit = cms.untracked.int32(-1)
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
@@ -49,7 +53,7 @@ process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D98_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
                                ddTopNodeName = cms.untracked.string('BarrelTimingLayer')

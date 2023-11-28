@@ -87,7 +87,6 @@ void ApvTimingAlgorithm::analyse() {
   }
 
   // Transfer histogram contents/errors/stats to containers
-  uint16_t non_zero = 0;
   float max = -1. * sistrip::invalid_;
   float min = 1. * sistrip::invalid_;
   uint16_t nbins = static_cast<uint16_t>(histo->GetNbinsX());
@@ -108,7 +107,6 @@ void ApvTimingAlgorithm::analyse() {
       if (bin_contents[ibin] < min) {
         min = bin_contents[ibin];
       }
-      non_zero++;
     }
   }
   if (bin_contents.size() < 100) {

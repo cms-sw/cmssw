@@ -1,4 +1,1 @@
-<bin name="testMakeTrackValidationPlots" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash Validation/RecoTrack/test test_makeTrackValidationPlots.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="testMakeTrackValidationPlots" command="test_makeTrackValidationPlots.sh"/>

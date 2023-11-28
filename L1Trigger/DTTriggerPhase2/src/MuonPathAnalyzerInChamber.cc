@@ -717,10 +717,9 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
 void MuonPathAnalyzerInChamber::evaluateQuality(MuonPathPtr &mPath) {
   mPath->setQuality(NOPATH);
 
-  int validHits(0), nPrimsUp(0), nPrimsDown(0);
+  int nPrimsUp(0), nPrimsDown(0);
   for (int i = 0; i < NUM_LAYERS_2SL; i++) {
     if (mPath->primitive(i)->isValidTime()) {
-      validHits++;
       if (i < 4)
         nPrimsDown++;
       else if (i >= 4)

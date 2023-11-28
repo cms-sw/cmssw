@@ -3408,7 +3408,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   // charge mis-ID
   //===============================================
 
-  int mcNum = 0, gamNum = 0, eleNum = 0;
+  int mcNum = 0, eleNum = 0;
   bool matchingID, matchingMotherID;
 
   reco::GenParticleCollection::const_iterator mcIter;
@@ -3487,11 +3487,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   for (mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
     // number of mc particles
     mcNum++;
-
-    // counts photons
-    if (mcIter->pdgId() == 22) {
-      gamNum++;
-    }
 
     // select requested matching gen particle
     matchingID = false;
@@ -3659,8 +3654,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     h2_scl_EoEtrueVsrecOfflineVertices->Fill((*vertexCollectionHandle).size(),
                                              bestGsfElectron.ecalEnergy() / mcIter->p());
-    h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
-                                                      bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag)
       h2_scl_EoEtrueVsrecOfflineVertices_barrel->Fill((*vertexCollectionHandle).size(),
                                                       bestGsfElectron.ecalEnergy() / mcIter->p());

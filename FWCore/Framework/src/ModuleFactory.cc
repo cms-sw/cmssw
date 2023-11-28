@@ -30,14 +30,14 @@ namespace edm {
     std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
     std::string const& ModuleMakerTraits::baseType() { return ParameterSetDescriptionFillerBase::kBaseForESProducer; }
     void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
-                                  std::shared_ptr<DataProxyProvider> iComponent,
+                                  std::shared_ptr<ESProductResolverProvider> iComponent,
                                   ParameterSet const&,
                                   bool) {
       iProvider.add(iComponent);
     }
 
     void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider,
-                                            std::shared_ptr<DataProxyProvider> iComponent) {
+                                            std::shared_ptr<ESProductResolverProvider> iComponent) {
       iProvider.replaceExisting(iComponent);
     }
 

@@ -37,9 +37,9 @@ lowPtBarrelTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplet
 )
 lowPtBarrelTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtBarrelTripletStepSeedLayers'
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-lowPtBarrelTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+lowPtBarrelTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -118,7 +118,7 @@ lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSm
 )
 
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'lowPtBarrelTripletStepTrackCandidates',
     AlgorithmName = 'lowPtTripletStep',
     Fitter        = 'lowPtBarrelTripletStepKFFittingSmoother',

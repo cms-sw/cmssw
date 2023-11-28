@@ -26,13 +26,13 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 options.register ('era',
-                  '2017', # default value
+                  '2022', # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "CMS running era")
 
 options.register ('GlobalTag',
-                  '113X_mc2017_realistic_v4', # default value
+                  'auto:phase1_2022_realistic', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "seed number")
@@ -56,7 +56,7 @@ options.register ('myseed',
                   "seed number")
 
 options.register ('myfile',
-                  'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_6_1/RelValZEE_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/B3F7544E-F34D-9D42-B897-21820FDE0331.root',
+                  '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4a1ae43b-f4b3-4ad9-b86e-a7d9f6fc5c40.root',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "file name")
@@ -95,6 +95,15 @@ elif options.era=='2017':
 elif options.era=='2018':
     print("===> running era 2018")
     process = cms.Process('Analysis',eras.Run2_2018)
+elif options.era=='2022':
+    print("===> running era 2022")
+    process = cms.Process('Analysis',eras.Run3)
+elif options.era=='2023':
+    print("===> running era 2023")
+    process = cms.Process('Analysis',eras.Run3_2023)
+else:
+    print("unrecognized era %s" % options.era)
+    sys.exit(1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -227,11 +236,13 @@ process.GsfTrackRefitter.AlgorithmName = cms.string('gsf')
 ####################################################################
 # Sequence
 ####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
 process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
                                         # in case NavigatioSchool is set !=''
                                         #process.MeasurementTrackerEvent*
                                         process.TrackRefitter*
-                                        process.GsfTrackRefitter)
+                                        process.GsfTrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
 
 ####################################################################
 # Re-do vertices

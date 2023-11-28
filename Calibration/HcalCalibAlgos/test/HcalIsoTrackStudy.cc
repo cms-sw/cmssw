@@ -940,7 +940,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   t_nTrk = trkCaloDirections.size();
   t_rhoh = (tower.isValid()) ? rhoh(tower) : 0;
   for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
@@ -997,7 +997,6 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
 #endif
     t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
     if (t_qltyFlag) {
-      nselTracks++;
       int nNearTRKs(0);
       std::vector<DetId> eIds;
       std::vector<double> eHit;

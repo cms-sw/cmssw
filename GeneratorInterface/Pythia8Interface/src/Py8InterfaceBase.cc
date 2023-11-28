@@ -69,10 +69,20 @@ namespace gen {
     }
   }
 
+<<<<<<< HEAD
   bool Py8InterfaceBase::readSettings(int) {   
+=======
+  bool Py8InterfaceBase::readSettings(int) {
+    //Pythia 8's default value for first argument to constructor
+    const string xmlDir = "../share/Pythia8/xmldoc";
+    bool printBanner = true;
+    if (fParameters.exists("printBanner")) {
+      printBanner = fParameters.getUntrackedParameter<bool>("printBanner");
+    }
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     if (!fMasterGen.get())
-      fMasterGen = std::make_unique<Pythia>();
-    fDecayer = std::make_unique<Pythia>();
+      fMasterGen = std::make_unique<Pythia>(xmlDir, printBanner);
+    fDecayer = std::make_unique<Pythia>(xmlDir, printBanner);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);

@@ -113,9 +113,10 @@ namespace cmsutil {
     value_iterator values(K const &key);
 
   private:
-    typedef typename Alloc::template rebind<KeyItem>::other KeyItemAllocator;
-    typedef typename Alloc::template rebind<KeyItem *>::other KeyItemPtrAllocator;
-    typedef typename Alloc::template rebind<ValueItem>::other ValueItemAllocator;
+    using AllocTraits = std::allocator_traits<Alloc>;
+    using KeyItemAllocator = typename AllocTraits::template rebind_alloc<KeyItem>;
+    using KeyItemPtrAllocator = typename AllocTraits::template rebind_alloc<KeyItem *>;
+    using ValueItemAllocator = typename AllocTraits::template rebind_alloc<ValueItem>;
 
     // --- buckets ---
     size_t bucketSize_, bucketCapacity_;
@@ -256,7 +257,7 @@ namespace cmsutil {
       nextKeyItem_ = *currentKeyRow_;
       keyEndMarker_ = nextKeyItem_ + keyRowSize_;
     }
-    keyAlloc_.construct(nextKeyItem_, KeyItem(next, key, nullptr));
+    std::allocator_traits<KeyItemAllocator>::construct(keyAlloc_, nextKeyItem_, KeyItem(next, key, nullptr));
     nextKeyItem_++;
     return (nextKeyItem_ - 1);
   }
@@ -273,7 +274,7 @@ namespace cmsutil {
       nextValueItem_ = *currentValueRow_;
       valueEndMarker_ = nextValueItem_ + valueRowSize_;
     }
-    valueAlloc_.construct(nextValueItem_, ValueItem(next, value));
+    std::allocator_traits<ValueItemAllocator>::construct(valueAlloc_, nextValueItem_, ValueItem(next, value));
     nextValueItem_++;
     return (nextValueItem_ - 1);
   }

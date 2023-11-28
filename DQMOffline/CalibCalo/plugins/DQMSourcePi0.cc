@@ -850,7 +850,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
       // Selection, based on Simple clustering
       // pi0 candidates
-      int npi0_s = 0;
 
       //      if (nClus <= 1) return;
       for (Int_t i = 0; i < nClus; i++) {
@@ -920,15 +919,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 // pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<"
                 //"<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<"
                 //"<<m_inv<<" "<<i<<" "<<j<<" "<<endl;
-
-                npi0_s++;
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
-      //      cout<<"  (Simple Clustering) EB Pi0 candidates #: "<<npi0_s<<endl;
 
     }  // rhEBpi0.valid() ends
 
@@ -1159,7 +1154,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
       // Selection, based on Simple clustering
       // eta candidates
-      int npi0_s = 0;
 
       //      if (nClus <= 1) return;
       for (Int_t i = 0; i < nClus; i++) {
@@ -1229,15 +1223,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 // pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<"
                 //"<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<"
                 //"<<m_inv<<" "<<i<<" "<<j<<" "<<endl;
-
-                npi0_s++;
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
-      //      cout<<"  (Simple Clustering) EB Eta candidates #: "<<npi0_s<<endl;
 
     }  // rhEBeta.valid() ends
 
@@ -1426,7 +1416,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
       // Selection, based on Simple clustering
       // pi0 candidates
-      int npi0_se = 0;
 
       for (Int_t i = 0; i < nClusEndCap; i++) {
         for (Int_t j = i + 1; j < nClusEndCap; j++) {
@@ -1483,16 +1472,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 hIsoPi0EE_->Fill(Iso / pt_pair);
                 hS4S91Pi0EE_->Fill(s4s9ClusEndCap[i]);
                 hS4S92Pi0EE_->Fill(s4s9ClusEndCap[j]);
-
-                npi0_se++;
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
-      //      cout<<"  (Simple Clustering) EE Pi0 candidates #:
-      //      "<<npi0_se<<endl;
 
     }  // rhEEpi0
   }    // isMonEEpi0
@@ -1678,7 +1662,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
       // Selection, based on Simple clustering
       // pi0 candidates
-      int npi0_se = 0;
 
       for (Int_t i = 0; i < nClusEndCap; i++) {
         for (Int_t j = i + 1; j < nClusEndCap; j++) {
@@ -1735,16 +1718,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 hIsoEtaEE_->Fill(Iso / pt_pair);
                 hS4S91EtaEE_->Fill(s4s9ClusEndCap[i]);
                 hS4S92EtaEE_->Fill(s4s9ClusEndCap[j]);
-
-                npi0_se++;
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
-      //      cout<<"  (Simple Clustering) EE Eta candidates #:
-      //      "<<npi0_se<<endl;
 
     }  // rhEEeta
   }    // isMonEEeta

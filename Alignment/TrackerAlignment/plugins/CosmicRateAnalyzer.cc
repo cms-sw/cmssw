@@ -327,7 +327,6 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int nhitinTECplus = 0;
     int nhitinTIDminus = 0;
     int nhitinTIDplus = 0;
-    int countHit = 0;
 
     for (auto const& hit1 : itTrack1->recHits()) {
       const DetId detId1(hit1->geographicalId());
@@ -441,7 +440,6 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
 
-      countHit++;
     }  // for Loop over Hits
 
     nh_PIXEL.push_back(nHits_PIXEL);

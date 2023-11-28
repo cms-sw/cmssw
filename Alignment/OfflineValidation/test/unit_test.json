@@ -1,5 +1,5 @@
 {    
-    "LFS": "$CMSSW_BASE/src/UnitTest",
+    "LFS": "$CMSSW_BASE/tmp/UnitTest",
     "name": "test_json",
 
     "alignments": {

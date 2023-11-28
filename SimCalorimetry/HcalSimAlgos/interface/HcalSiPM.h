@@ -19,17 +19,17 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class HcalSiPM {
+class HcalSiPM final {
 public:
   HcalSiPM(int nCells = 1, double tau = 15.);
 
-  virtual ~HcalSiPM();
+  ~HcalSiPM();
 
-  void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.); }
-  virtual double hitCells(CLHEP::HepRandomEngine*, unsigned int pes, double tempDiff = 0., double photonTime = 0.);
+  void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.f); }
+  double hitCells(CLHEP::HepRandomEngine*, unsigned int pes, double tempDiff = 0., double photonTime = 0.);
 
-  virtual double totalCharge() const { return totalCharge(theLastHitTime); }
-  virtual double totalCharge(double time) const;
+  double totalCharge() const { return totalCharge(theLastHitTime); }
+  double totalCharge(double time) const;
 
   int getNCells() const { return theCellCount; }
   double getTau() const { return theTau; }
@@ -52,11 +52,10 @@ protected:
   unsigned int addCrossTalkCells(CLHEP::HepRandomEngine* engine, unsigned int in_pes);
 
   //numerical random generation from Borel-Tanner distribution
-  double Borel(unsigned int n, double lambda, unsigned int k);
   const cdfpair& BorelCDF(unsigned int k);
 
   unsigned int theCellCount;
-  std::vector<double> theSiPM;
+  std::vector<float> theSiPM;
   double theTau;
   double theTauInv;
   double theCrossTalk;

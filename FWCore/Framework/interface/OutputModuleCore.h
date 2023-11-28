@@ -20,6 +20,7 @@
 
 // system include files
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -28,6 +29,7 @@
 #include <set>
 
 // user include files
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -112,6 +114,10 @@ namespace edm {
 
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
+      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+        callWhenNewProductsRegistered_ = func;
+      }
+
     protected:
       ModuleDescription const& description() const;
 
@@ -190,6 +196,8 @@ namespace edm {
 
       OutputProcessBlockHelper outputProcessBlockHelper_;
 
+      std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
@@ -207,7 +215,7 @@ namespace edm {
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
 
-      void registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry const*) {}
+      void registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry*);
 
       bool needToRunSelection() const;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;

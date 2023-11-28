@@ -1,7 +1,7 @@
 #ifndef _HIPixelTrackFilter_h_
 #define _HIPixelTrackFilter_h_
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
+#include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 

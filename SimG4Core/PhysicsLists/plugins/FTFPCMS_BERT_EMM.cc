@@ -8,11 +8,7 @@
 #include "G4IonPhysics.hh"
 #include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
-
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1110
 #include "G4HadronicParameters.hh"
-#endif
 
 FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
@@ -33,18 +29,15 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
     RegisterPhysics(gn);
-#if G4VERSION_NUMBER >= 1110
     bool mu = p.getParameter<bool>("G4MuonPairProductionByMuon");
     gn->MuonToMuMu(mu);
     edm::LogVerbatim("PhysicsList") << " Muon pair production by muons: " << mu;
-#endif
   }
 
   // Decays
   this->RegisterPhysics(new G4DecayPhysics(ver));
 
   if (hadPhys) {
-#if G4VERSION_NUMBER >= 1110
     bool ngen = p.getParameter<bool>("G4NeutronGeneralProcess");
     bool bc = p.getParameter<bool>("G4BCHadronicProcess");
     bool hn = p.getParameter<bool>("G4LightHyperNucleiTracking");
@@ -55,7 +48,6 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
     edm::LogVerbatim("PhysicsList") << " Eneble neutron general process: " << ngen
                                     << "\n Enable b- and c- hadron physics: " << bc
                                     << "\n Enable light hyper-nuclei physics: " << hn;
-#endif
 
     // Hadron Elastic scattering
     RegisterPhysics(new G4HadronElasticPhysics(ver));

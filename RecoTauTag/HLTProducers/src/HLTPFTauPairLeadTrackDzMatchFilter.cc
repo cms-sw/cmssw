@@ -61,7 +61,7 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev,
   const size_t n_taus = taus.size();
 
   // Combine taus into pairs and check the dz matching
-  size_t npairs = 0, nfail_dz = 0;
+  size_t npairs = 0;
   if (n_taus > 1)
     for (size_t t1 = 0; t1 < n_taus; ++t1) {
       if (taus[t1].leadPFChargedHadrCand().isNull() || taus[t1].leadPFChargedHadrCand()->trackRef().isNull() ||
@@ -88,7 +88,6 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev,
 
         // do not form a pair if dz is too large
         if (std::abs(dz) > tauLeadTrackMaxDZ_) {
-          ++nfail_dz;
           continue;
         }
 

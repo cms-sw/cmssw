@@ -419,7 +419,7 @@ void TrackingManagerHelper::TrackNeutralParticle(G4Track* aTrack, PhysicsImpl& p
 
     G4double MakeStep(G4Track& track, G4Step& step, G4double physicalStep) override {
       G4ThreeVector pos = track.GetPosition();
-      G4ThreeVector dir = track.GetMomentumDirection();
+      const G4ThreeVector& dir = track.GetMomentumDirection();
       G4StepPoint& postStepPoint = *step.GetPostStepPoint();
 
       G4double safety = 0.0;

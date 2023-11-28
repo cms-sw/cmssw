@@ -1,5 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
+def customize_ecalclustering_caloparticle(process):
+    process.load('SimGeneral.MixingModule.caloTruthProducer_cfi')
+    process.caloParticles.simHitCollections = cms.PSet(
+        #hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
+        ecal = cms.VInputTag(
+            cms.InputTag('g4SimHits','EcalHitsEE'),
+            cms.InputTag('g4SimHits','EcalHitsEB'),
+            cms.InputTag('g4SimHits','EcalHitsES'),
+        )
+    )
+    process.caloParticles.doHGCAL = False
+    process.caloParticles.allowDifferentSimHitProcesses = False
+    process.mix.digitizers.caloParticles = process.caloParticles
+    process.mix.digitizers.mergedtruth.ignoreTracksOutsideVolume = False
+    process.mix.digitizers.mergedtruth.allowDifferentSimHitProcesses = False
+    process.mix.digitizers.mergedtruth.select.signalOnlyTP = True
+
+    process.PREMIXRAWoutput.outputCommands.append('keep *_*_MergedCaloTruth_*')
+    return process
+
 def customize_step2(process):
     process.load('SimGeneral.MixingModule.caloTruthProducer_cfi')
     process.caloParticles.simHitCollections = cms.PSet(

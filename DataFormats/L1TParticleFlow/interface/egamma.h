@@ -162,7 +162,7 @@ namespace l1ct {
       ele.v3.eta = CTtoGT_eta(hwEta);
       ele.quality = hwQual;
       ele.charge = hwCharge;
-      ele.z0 = hwZ0;
+      ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       ele.isolation = hwIso;
       return ele;
     }

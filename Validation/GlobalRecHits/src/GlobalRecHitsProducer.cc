@@ -5,6 +5,7 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -529,7 +530,13 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   // get HBHE information
   ///////////////////////
   std::vector<edm::Handle<HBHERecHitCollection>> hbhe;
-  iEvent.getManyByType(hbhe);
+
+  //iEvent.getManyByType(hbhe);
+  throw cms::Exception("UnsupportedFunction") << "GlobalRecHitsProducer::fillHCal: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (!hbhe[0].isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find any HBHERecHitCollections in event!";
     return;
@@ -636,7 +643,13 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   // get HF information
   ///////////////////////
   std::vector<edm::Handle<HFRecHitCollection>> hf;
-  iEvent.getManyByType(hf);
+
+  //iEvent.getManyByType(hf);
+  throw cms::Exception("UnsupportedFunction") << "GlobalRecHitsProducer::fillHCal: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (!hf[0].isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find any HFRecHitCollections in event!";
     return;
@@ -697,7 +710,13 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   // get HO information
   ///////////////////////
   std::vector<edm::Handle<HORecHitCollection>> ho;
-  iEvent.getManyByType(ho);
+
+  //iEvent.getManyByType(ho);
+  throw cms::Exception("UnsupportedFunction") << "GlobalRecHitsProducer::fillHCal: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (!ho[0].isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find any HORecHitCollections in event!";
     return;

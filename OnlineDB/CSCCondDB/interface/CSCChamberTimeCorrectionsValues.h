@@ -225,7 +225,8 @@ inline CSCChamberTimeCorrections *CSCChamberTimeCorrectionsValues::prefill(bool 
   //Read in the cfeb_cable_delay values (0 or 1) and don't use a precision correction factor
   FILE *fdelay =
       fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/cfeb_cable_delay_20100423_both.txt", "r");
-  char label[1024];
+  //must add space for null terminator
+  char label[1024 + 1];
   int delay;
   CSCIndexer indexer;
   while (!feof(fdelay)) {

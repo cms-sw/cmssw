@@ -287,6 +287,8 @@ namespace {
       // deal with last IOV
       const char *path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
+      edm::LogPrint("SiPixelLorentzAngleValuesComparisonPerRegion") << l_phaseInfo;
+
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 

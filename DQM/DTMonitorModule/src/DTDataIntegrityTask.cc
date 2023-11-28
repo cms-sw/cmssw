@@ -11,10 +11,6 @@
  */
 
 #include "DQM/DTMonitorModule/interface/DTDataIntegrityTask.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,15 +26,16 @@
 using namespace std;
 using namespace edm;
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) {
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps)
+    : nevents(0), FEDIDmin(FEDNumbering::MINDTUROSFEDID), FEDIDmax(FEDNumbering::MAXDTUROSFEDID) {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: Constructor" << endl;
 
   fedToken = consumes<DTuROSFEDDataCollection>(ps.getUntrackedParameter<InputTag>("dtFEDlabel"));
-  FEDIDmin = FEDNumbering::MINDTUROSFEDID;
-  FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
 
+#ifdef EDM_ML_DEBUG
   neventsFED = 0;
   neventsuROS = 0;
+#endif
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
   nLinksForFatal = ps.getUntrackedParameter<int>("nLinksForFatal", 15);  //per wheel
@@ -61,10 +58,12 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 }
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
+#ifdef EDM_ML_DEBUG
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: Destructor. Analyzed " << neventsFED << " events" << endl;
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: postEndJob called!" << endl;
+#endif
 }
 
 /*
@@ -526,10 +525,12 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker& ibooker, const int f
 }
 
 void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
+#ifdef EDM_ML_DEBUG
   neventsuROS++;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: " << neventsuROS << " events analyzed by processuROS" << endl;
+#endif
 
   if (mode == 3)  // || mode == 1)
     return;       //Avoid duplication of Info in FEDIntegrity_EvF
@@ -581,37 +582,32 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
       for (unsigned int link = 0; link < 72; ++link) {
         for (unsigned int flag = 0; flag < 5; ++flag) {
           if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
-            int value = flag;
 
-            if (flag == 0)
-              value = 5;  //move it to the 5th bin
-
-            if (value > 0) {
-              if (link < 24) {
-                errorX[value - 1][ros - 1][wheel + 2] += 1;
-                if (mode != 1)
-                  uROSError0->Fill(value - 1, link);  //bins start at 0 despite labeling
-              } else if (link < 48) {
+            int value = flag != 0 ? flag : 5;  //if flag = 0 move it to the 5th bin
+            if (link < 24) {
+              errorX[value - 1][ros - 1][wheel + 2] += 1;
+              if (mode != 1)
+                uROSError0->Fill(value - 1, link);  //bins start at 0 despite labeling
+            } else if (link < 48) {
+              if ((link == 46 || link == 57) && ros == 10)
+                errorX[value - 1][sector4][wheel + 2] += 1;
+              else
+                errorX[value - 1][ros][wheel + 2] += 1;
+              if (mode != 1) {
                 if ((link == 46 || link == 57) && ros == 10)
-                  errorX[value - 1][sector4][wheel + 2] += 1;
+                  uROSErrorS4->Fill(value - 1, link - 24);
                 else
-                  errorX[value - 1][ros][wheel + 2] += 1;
-                if (mode != 1) {
-                  if ((link == 46 || link == 57) && ros == 10)
-                    uROSErrorS4->Fill(value - 1, link - 24);
-                  else
-                    uROSError1->Fill(value - 1, link - 24);
-                }
-              } else if (link < 72) {
-                errorX[value - 1][ros + 1][wheel + 2] += 1;
-                if (mode != 1)
-                  uROSError2->Fill(value - 1, link - 48);
+                  uROSError1->Fill(value - 1, link - 24);
               }
-            }  //value>0
-          }    //flag value
-        }      //loop on flags
-      }        //loop on links
-    }          //uROS>2
+            } else if (link < 72) {
+              errorX[value - 1][ros + 1][wheel + 2] += 1;
+              if (mode != 1)
+                uROSError2->Fill(value - 1, link - 48);
+            }
+          }  //flag value
+        }    //loop on flags
+      }      //loop on links
+    }        //uROS>2
 
     else {  //uRos<3  25th Channel slot
 
@@ -646,6 +642,16 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
       }      //loop on links
     }        //else uRos<3
 
+    if (mode != 1) {
+      // Global Errors for uROS
+      for (unsigned int flag = 4; flag < 16; ++flag) {
+        if ((data.getuserWord() >> flag) & 0x1) {
+          uROSSummary->Fill(flag - 4, uRos);
+          uROSStatus->Fill(flag - 4, uRos);  //duplicated info?
+        }
+      }
+    }
+
   }  //mode<=2
 
   if (mode != 1) {
@@ -655,14 +661,6 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         if (errorX[bin][iros][wheel + 2] != 0) {
           ROSSummary->Fill(bin, iros + 1, errorX[bin][iros][wheel + 2]);  //bins start at 1
         }
-      }
-    }
-
-    // Global Errors for uROS
-    for (unsigned int flag = 4; flag < 16; ++flag) {
-      if ((data.getuserWord() >> flag) & 0x1) {
-        uROSSummary->Fill(flag - 4, uRos);
-        uROSStatus->Fill(flag - 4, uRos);  //duplicated info?
       }
     }
   }
@@ -834,10 +832,12 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
 }
 
 void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
+#ifdef EDM_ML_DEBUG
   neventsFED++;
   if (neventsFED % 1000 == 0)
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
         << "[DTDataIntegrityTask]: " << neventsFED << " events analyzed by processFED" << endl;
+#endif
 
   if (fed < FEDIDmin || fed > FEDIDmax)
     return;
@@ -941,14 +941,14 @@ std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
   return folder;
 }
 
-std::shared_ptr<dtdi::Void> DTDataIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
-                                                                            const edm::EventSetup& es) const {
-  nEventsLS = 0;
-  return std::shared_ptr<dtdi::Void>();
+std::shared_ptr<dtdi::LumiCache> DTDataIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
+                                                                                 const edm::EventSetup& es) const {
+  return std::make_shared<dtdi::LumiCache>();
 }
 
 void DTDataIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
   int lumiBlock = ls.id().luminosityBlock();
+  const auto nEventsLS = luminosityBlockCache(ls.index())->nEventsLS;
 
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedIt = fedTimeHistos.begin();
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedEnd = fedTimeHistos.end();
@@ -970,7 +970,7 @@ void DTDataIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& l
 void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   nevents++;
   nEventMonitor->Fill(nevents);
-  nEventsLS++;
+  luminosityBlockCache(e.getLuminosityBlock().index())->nEventsLS++;
 
   //errorX[6][12][5] = {0};  //5th is notOK flag and 6th is TDC Fatal; ros; wheel
   fill(&errorX[0][0][0], &errorX[0][0][0] + 360, 0);
@@ -1046,8 +1046,3 @@ int DTDataIntegrityTask::theROS(int slot, int link) {
   int ros = (link / 24) + 3 * (slot % 6) - 2;
   return ros;
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

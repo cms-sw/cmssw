@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3MuonHighPtTripletStepTrackingRegions = cms.EDProducer("CandidateSeededTrackingRegionsEDProducer",
     RegionPSet = cms.PSet(
-        beamSpot = cms.InputTag("offlineBeamSpot"),
+        beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         deltaEta = cms.double(0.4),
         deltaPhi = cms.double(0.4),
         input = cms.InputTag("hltPhase2L3MuonCandidates"),

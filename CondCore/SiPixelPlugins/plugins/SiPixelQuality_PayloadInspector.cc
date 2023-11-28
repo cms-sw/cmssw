@@ -22,6 +22,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
 
 #include <memory>
 #include <sstream>
@@ -67,6 +68,49 @@ namespace {
                 BadRocCount++;
             }
             COUT << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount << std::endl;
+          }
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  /************************************************
+    Debugging class, to not be displayed
+  *************************************************/
+
+  class SiPixelQualityDebugger : public Histogram1D<SiPixelQuality, SINGLE_IOV> {
+  public:
+    SiPixelQualityDebugger()
+        : Histogram1D<SiPixelQuality, SINGLE_IOV>("SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiPixelQuality> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          fillWithValue(1.);
+
+          SiPixelPI::topolInfo t_info_fromXML;
+          t_info_fromXML.init();
+
+          auto theDisabledModules = payload->getBadComponentList();
+          for (const auto& mod : theDisabledModules) {
+            DetId detid(mod.DetID);
+            auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
+            const char* path_toTopologyXML = PhInfo.pathToTopoXML();
+            auto tTopo =
+                StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+            t_info_fromXML.fillGeometryInfo(detid, tTopo, PhInfo.phase());
+            std::stringstream ss;
+            t_info_fromXML.printAll(ss);
+            std::bitset<16> bad_rocs(mod.BadRocs);
+
+            if (t_info_fromXML.subDetId() == 1 && t_info_fromXML.layer() == 1) {
+              std::cout << ss.str() << " s_module: " << SiPixelPI::signed_module(mod.DetID, tTopo, true)
+                        << " s_ladder: " << SiPixelPI::signed_ladder(mod.DetID, tTopo, true)
+                        << " error type:" << mod.errorType << " BadRocs: " << bad_rocs.to_string('O', 'X') << std::endl;
+            }
           }
         }  // payload
       }    // iovs
@@ -405,6 +449,89 @@ namespace {
   using SiPixelFPixQualityMapCompareTwoTags = SiPixelQualityMapComparisonBase<SiPixelPI::t_forward, SINGLE_IOV, 2>;
   using SiPixelFullQualityMapCompareTwoTags = SiPixelQualityMapComparisonBase<SiPixelPI::t_all, SINGLE_IOV, 2>;
 
+  /************************************************
+   Full Pixel Tracker Map class
+  *************************************************/
+  class SiPixelQualityBadFractionMap : public PlotImage<SiPixelQuality, SINGLE_IOV> {
+  public:
+    SiPixelQualityBadFractionMap() : PlotImage<SiPixelQuality, SINGLE_IOV>("SiPixelQuality Map") {
+      label_ = "SiPixelQualityFullPixelMap";
+      payloadString = "Quality";
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(1);
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+      std::shared_ptr<SiPixelQuality> payload = this->fetchPayload(std::get<1>(iov));
+
+      if (payload.get()) {
+        Phase1PixelSummaryMap fullMap(
+            "", fmt::sprintf("%s", payloadString), fmt::sprintf("bad %s fraction [%%]", payloadString));
+        fullMap.createTrackerBaseMap();
+
+        auto theDisabledModules = payload->getBadComponentList();
+        if (this->isPhase0(theDisabledModules)) {
+          edm::LogError("SiPixelQuality_PayloadInspector")
+              << "SiPixelQuality maps are not supported for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, 0);
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
+        for (const auto& mod : theDisabledModules) {
+          std::bitset<16> bad_rocs(mod.BadRocs);
+          fullMap.fillTrackerMap(mod.DetID, (bad_rocs.count() / 16.) * 100);  // 16 ROCs in a Pixel Phase-1 module!
+        }
+
+        TCanvas canvas("Canv", "Canv", 3000, 2000);
+        fullMap.printTrackerMap(canvas);
+
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextSize(0.025);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                         gPad->GetBottomMargin() + 0.01,
+                         ("#color[4]{" + tag.name + "}, IOV: #color[4]{" + std::to_string(unpacked.first) + "," +
+                          std::to_string(unpacked.second) + " }")
+                             .c_str());
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+
+  private:
+    //_________________________________________________
+    bool isPhase0(std::vector<SiPixelQuality::disabledModuleType> mods) {
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
+      const auto& p0detIds = reader.getAllDetIds();
+
+      std::vector<uint32_t> ownDetIds;
+      std::transform(mods.begin(),
+                     mods.end(),
+                     std::back_inserter(ownDetIds),
+                     [](SiPixelQuality::disabledModuleType d) -> uint32_t { return d.DetID; });
+
+      for (const auto& det : ownDetIds) {
+        // if found at least one phase-0 detId early return
+        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
+          return true;
+        }
+      }
+      return false;
+    }
+  };
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -412,9 +539,11 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsSummary);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
+  //PAYLOAD_INSPECTOR_CLASS(SiPixelQualityDebugger);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadFractionMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMapCompareSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMapCompareSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMapCompareSingleTag);

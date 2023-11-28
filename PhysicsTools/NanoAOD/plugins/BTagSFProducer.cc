@@ -234,7 +234,7 @@ void BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
   }
 
-  iEvent.put(move(out));
+  iEvent.put(std::move(out));
 }
 
 //define this as a plug-in

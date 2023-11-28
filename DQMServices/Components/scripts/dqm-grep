@@ -51,7 +51,8 @@ key rather than a proxy, it will prompt for the key password.
 
 from DQMServices.Components.HTTP import RequestManager
 from DQMServices.Components.X509 import SSLOptions
-import sys, re, cjson, pycurl, urllib
+import sys, re, json, pycurl
+from urllib.parse import quote
 from optparse import OptionParser
 from time import time
 
@@ -170,12 +171,13 @@ match the requested predicate expression."""
   all_samples = {}
 
   def req_error(c, url, errmsg, errno):
-    print >> sys.stderr, "%s: failed to retrieve samples: %s (%d)" \
-      % (options.server, errmsg, errno)
+    print("%s: failed to retrieve samples: %s (%d)" \
+      % (options.server, errmsg, errno), file=sys.stderr)
     sys.exit(1)
 
   def req_done(c):
-    all_samples['result'] = cjson.decode(c.buffer.getvalue())
+    json_decoder = json.decoder.JSONDecoder()
+    all_samples['result'] = json_decoder.decode(c.buffer.getvalue().decode('utf-8'))
 
   reqman = RequestManager(ssl_opts = ssl_opts,
                           user_agent = ident,
@@ -185,7 +187,7 @@ match the requested predicate expression."""
   reqman.process()
 
   if not all_samples:
-    print >> sys.stderr, "%s: no samples" % options.server
+    print("%s: no samples" % options.server, file=sys.stderr)
     sys.exit(1)
 
   for sample_type in all_samples['result']['samples']:
@@ -196,14 +198,14 @@ match the requested predicate expression."""
 def request_init(c, options, sample, filters, pos, path):
   """`RequestManager` callback to initialise JSON contents request."""
   sample.update(path = path)
-  c.url = options.server + urllib.quote(url_content % sample)
+  c.url = options.server + quote(url_content % sample)
   c.setopt(pycurl.URL, c.url)
   if False and options.verbose:
-    print c.url
+    print(c.url)
 
 def report_error(c, task, errmsg, errno):
   """`RequestManager` callback to report JSON contents request errors."""
-  print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
+  print("FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno), file=sys.stderr)
 
 def match_filters(item, filters, poslist):
   """Match filter list created by `pattern_to_filter` against an object.
@@ -272,18 +274,19 @@ If verbosity has been requested, also shows simple progress bar on the
 search progress, one dot for every ten directories retrieved."""
   global found, nreq
   options, sample, filters, pos, path = c.task
+  json_decoder = json.decoder.JSONDecoder()
 
   nreq += 1
   if options.verbose and nreq % 10 == 0:
     sys.stdout.write(".")
     sys.stdout.flush()
     if nreq % 750 == 0:
-      print
+      print()
 
-  reply = c.buffer.getvalue()
+  reply = c.buffer.getvalue().decode('utf-8')
   reply = re.sub(r'("value": ")"([A-Za-z0-9_]+")"', r'\1\2', reply)
   reply = re.sub(r'("(?:mean|rms|min|max)":) nan,', r'\1 "NaN",', reply)
-  reply = cjson.decode(reply)
+  reply = json_decoder.decode(reply)
 
   seen = set()
   for item in reply['contents']:
@@ -314,24 +317,24 @@ op.add_option("-v", "--verbose", dest = "verbose",
               help = "Show verbose scan information")
 options, args = op.parse_args()
 if args:
-  print >> sys.stderr, "Too many arguments"
+  print("Too many arguments", file=sys.stderr)
   sys.exit(1)
 if not options.sample_expr:
-  print >> sys.stderr, "Sample predicate expression required"
+  print("Sample predicate expression required", file=sys.stderr)
   sys.exit(1)
 if not options.glob:
-  print >> sys.stderr, "Monitor element filter expression required"
+  print("Monitor element filter expression required", file=sys.stderr)
   sys.exit(1)
 if not options.server:
-  print >> sys.stderr, "Server contact string required"
+  print("Server contact string required", file=sys.stderr)
   sys.exit(1)
 
 # Get SSL X509 parametres.
 ssl_opts = SSLOptions()
 if options.verbose:
-  print "Using SSL cert dir", ssl_opts.ca_path
-  print "Using SSL private key", ssl_opts.key_file
-  print "Using SSL public key", ssl_opts.cert_file
+  print("Using SSL cert dir", ssl_opts.ca_path)
+  print("Using SSL private key", ssl_opts.key_file)
+  print("Using SSL public key", ssl_opts.cert_file)
 
 # Convert glob pattern into a filter expression.
 filters = pattern_to_filter(options.glob)
@@ -353,26 +356,26 @@ for sample in find_matching_samples(options):
   found = []
   sample['section'] = 'archive'
   if options.verbose:
-    print "Scanning %s" % sample
+    print("Scanning %s" % sample)
   reqman.put((options, sample, filters, [0], "/"))
   reqman.process()
   if options.verbose:
-    print
+    print()
   if found:
-    print "%(section)s/%(run)d%(dataset)s:" % sample
+    print("%(section)s/%(run)d%(dataset)s:" % sample)
     found.sort()
     for path, item in found:
       if 'subdir' in item:
-        print " %s/" % path
+        print(" %s/" % path)
       elif 'value' in item:
-        print " %s = %s" % (path, item['value'])
+        print(" %s = %s" % (path, item['value']))
       else:
-        print " %s = [%s # %d]" % (path, item['properties']['type'], item['nentries'])
+        print(" %s = [%s # %d]" % (path, item['properties']['type'], item['nentries']))
   nfound += len(found)
   ntotreq += nreq
 end = time()
 
 # Provide final summary.
 if options.verbose:
-  print "\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start)
+  print("\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start))
 

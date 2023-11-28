@@ -31,3 +31,5 @@ ecalOnly_dqm_source_offline = cms.Sequence(
 )
 
 ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = False
+ecalMonitorTaskEcalOnly.workerParameters.TrigPrimTask.params.runOnEmul = False
+ecalMonitorTaskEcalOnly.workerParameters.RecoSummaryTask.params.fillRecoFlagReduced = False

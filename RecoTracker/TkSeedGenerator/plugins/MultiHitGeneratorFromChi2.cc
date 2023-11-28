@@ -1,8 +1,8 @@
 #include "RecoTracker/TkSeedGenerator/plugins/MultiHitGeneratorFromChi2.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
+#include "RecoTracker/PixelSeeding/interface/ThirdHitPredictionFromCircle.h"
+#include "RecoTracker/PixelSeeding/interface/ThirdHitRZPrediction.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -12,7 +12,7 @@
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
+#include "RecoTracker/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -173,13 +173,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
   auto const& doublets = thePairGenerator->doublets(region, ev, es, pairLayers);
   LogTrace("MultiHitGeneratorFromChi2") << "";
-  if (doublets.empty()) {
+  if (not doublets or doublets->empty()) {
     //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";
     return;
   }
 
   assert(theLayerCache);
-  hitSets(region, result, doublets, thirdLayers, *theLayerCache, cache);
+  hitSets(region, result, *doublets, thirdLayers, *theLayerCache, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,

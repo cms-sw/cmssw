@@ -129,9 +129,9 @@ proc.efficienciesRealElectronsData.plots = Utils.SetPlotSequence(proc.TauValNume
 proc.efficienciesRealElectronsDataSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),

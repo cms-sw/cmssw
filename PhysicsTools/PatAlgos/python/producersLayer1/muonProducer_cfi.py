@@ -77,7 +77,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(True),
-    genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
+    genParticleMatch = cms.required.allowed(cms.InputTag, cms.VInputTag, default = cms.InputTag("muonMatch")), ## particles source to be used for the matching
 
     # efficiencies
     addEfficiencies = cms.bool(False),
@@ -111,6 +111,11 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Don't forget to set flags properly in miniAOD_tools.py                      
     computeMuonIDMVA = cms.bool(False),
     mvaIDTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"),
+<<<<<<< HEAD
+=======
+    mvaIDwpMedium = cms.double(0.08),
+    mvaIDwpTight = cms.double(0.20),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     recomputeBasicSelectors = cms.bool(True),
     useJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),

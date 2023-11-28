@@ -10,12 +10,15 @@ from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecH
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters, hgcalLayerClustersHFNose
+from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci, hgcalMergeLayerClusters
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        HGCalRecHit,
                                        hgcalRecHitMapProducer,
-                                       hgcalLayerClusters,
+                                       hgcalLayerClustersEE,
+                                       hgcalLayerClustersHSi,
+                                       hgcalLayerClustersHSci,
+                                       hgcalMergeLayerClusters,
                                        hgcalMultiClusters,
                                        particleFlowRecHitHGC,
                                        particleFlowClusterHGCal )

@@ -4,7 +4,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PluginManager"/>
   <use name="Geometry/HGCalTBCommonData"/>
   <use name="Geometry/HGCalCommonData"/>
   <use name="Geometry/Records"/>

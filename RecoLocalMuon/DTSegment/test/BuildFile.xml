@@ -24,7 +24,3 @@
 <library file="DTClusAnalyzer.cc" name="DTClusAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<library file="STAnalyzer.cc" name="STAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>

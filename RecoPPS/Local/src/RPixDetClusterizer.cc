@@ -13,7 +13,7 @@ namespace {
   constexpr int rocOffset = 13;
 }  // namespace
 
-RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const &conf) : params_(conf), SeedVector_(0) {
+RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const &conf) : SeedVector_(0) {
   verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
   SeedADCThreshold_ = conf.getParameter<int>("SeedADCThreshold");
   ADCThreshold_ = conf.getParameter<int>("ADCThreshold");

@@ -4,7 +4,6 @@
  <use name="root"/>
  <use name="DataFormats/JetReco"/>
  <use name="DataFormats/L1TParticleFlow"/>
- <use name="DataFormats/L1TCorrelator"/>
  <use name="FWCore/Utilities"/>
  <use name="FWCore/Framework"/>
  <use name="FWCore/ParameterSet"/>

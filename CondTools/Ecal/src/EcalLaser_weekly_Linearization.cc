@@ -22,8 +22,6 @@ popcon::EcalLaser_weekly_Linearization::~EcalLaser_weekly_Linearization() {
 void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
   //  int file[1] = {190708};
 
-  int iIov = 0;
-
   std::cout << "------- Ecal -> getNewObjects\n";
 
   unsigned long long max_since = 1;
@@ -139,7 +137,6 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
     //    m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, file[week]));
     m_to_transfer.push_back(std::make_pair(linC, fileIOV));
     // end special
-    iIov++;
   }  // end loop over week
   std::cout << "Ecal -> end of getNewObjects -----------\n";
 }

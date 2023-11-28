@@ -535,7 +535,6 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
   float jet_et = -8.0;
   float jet_eta = -8.0;
-  int jet_count = 0;
   float jet2_et = -9.0;
   unsigned int jetCollectionSize = jetCollection->size();
   int njets = 0;
@@ -556,7 +555,6 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
     if (jet.et() > eJetMin_) {
       njets++;
-      jet_count++;
     }
     if (jet_current_et > jet_et) {
       jet2_et = jet_et;   // 2nd highest jet get's et from current highest

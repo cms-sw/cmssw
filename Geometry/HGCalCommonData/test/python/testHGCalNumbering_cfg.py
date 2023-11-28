@@ -2,11 +2,11 @@
 # Way to use this:
 #   cmsRun testHGCalNumbering_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n
+#   Options for type V16, V17, V17n, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n")
+                  "type of operations: V16, V17, V17n, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()

@@ -89,7 +89,7 @@ result_t TauNNIdHW::compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCa
     return (pt_t(i.pt()) > pt_t(j.pt()));
   });
   for (unsigned int i0 = 0; i0 < iParts.size(); i0++) {
-    if (i0 > fNParticles_)
+    if (i0 >= fNParticles_)
       break;
     fPt_.get()[i0] = pt_t(iParts[i0].pt());
     fEta_.get()[i0] = etaphi_t(iSeed.eta() - iParts[i0].eta());

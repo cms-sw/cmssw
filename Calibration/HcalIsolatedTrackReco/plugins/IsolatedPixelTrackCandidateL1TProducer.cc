@@ -224,7 +224,9 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
                                << ":" << etaTriggered << ":" << phiTriggered;
 #endif
   double drMaxL1Track_ = tauAssocCone_;
+#ifdef EDM_ML_DEBUG
   int ntr = 0;
+#endif
   std::vector<seedAtEC> VecSeedsatEC;
   //loop to select isolated tracks
   for (unsigned iS = 0; iS < pixelTrackRefs.size(); iS++) {
@@ -349,7 +351,9 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
           pixelTrackRefs[iSeed], l1t::TauRef(l1eTauJets, selj - l1eTauJets->begin()), maxP, sumP);
       newCandidate.setEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
       trackCollection->push_back(newCandidate);
+#ifdef EDM_ML_DEBUG
       ntr++;
+#endif
     }
   }
 #ifdef EDM_ML_DEBUG

@@ -21,7 +21,7 @@ template <class C>
 class HGCalUncalibRecHitRecWeightsAlgo {
 public:
   // destructor
-  virtual ~HGCalUncalibRecHitRecWeightsAlgo<C>(){};
+  virtual ~HGCalUncalibRecHitRecWeightsAlgo(){};
 
   void set_isSiFESim(const bool isSiFE) { isSiFESim_ = isSiFE; }
   bool isSiFESim() const { return isSiFESim_; }

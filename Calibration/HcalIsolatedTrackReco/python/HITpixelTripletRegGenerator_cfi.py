@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.PixelSeeding.PixelTripletHLTGenerator_cfi import *
 HITpixelTripletRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),

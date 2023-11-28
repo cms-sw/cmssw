@@ -15,10 +15,10 @@ TEST_PATH=${LOCALTOP}/src/FWCore/Integration/test
 cmsRun ${TEST_PATH}/testGetByLabelStep1_cfg.py || die "Failed cmsRun testGetByLabel_step1_cfg.py" $1
 
 cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py || die "Failed cmsRun testGetByLabel_step2_cfg.py" $1
-cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py -- --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --noConsumes" $1
-cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py -- --thing || die "Failed cmsRun testGetByLabel_step2_cfg.py --thing" $1
-cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py -- --thing --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --thing --noConsumes" $1
-cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py -- --otherInt || die "Failed cmsRun testGetByLabel_step2_cfg.py --otherInt" $1
-cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py -- --otherInt --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --otherInt --noConsumes" $1
+cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --noConsumes" $1
+cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py --thing || die "Failed cmsRun testGetByLabel_step2_cfg.py --thing" $1
+cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py --thing --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --thing --noConsumes" $1
+cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py --otherInt || die "Failed cmsRun testGetByLabel_step2_cfg.py --otherInt" $1
+cmsRun ${TEST_PATH}/testGetByLabelStep2_cfg.py --otherInt --noConsumes || die "Failed cmsRun testGetByLabel_step2_cfg.py --otherInt --noConsumes" $1
 
 popd

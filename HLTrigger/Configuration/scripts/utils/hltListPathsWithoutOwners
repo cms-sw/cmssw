@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+import os
+import json
+import argparse
+import subprocess
+
+import FWCore.ParameterSet.Config as cms
+
+import HLTrigger.Configuration.Tools.options as options
+from HLTrigger.Configuration.extend_argparse import *
+
+def getHLTProcess(config):
+    if config.menu.run:
+        configline = f'--runNumber {config.menu.run}'
+    else:
+        configline = f'--{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
+
+    # cmd to download HLT configuration
+    cmdline = f'hltConfigFromDB {configline} --noedsources --noes --nooutput'
+    if config.proxy:
+        cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
+
+    # download HLT configuration
+    proc = subprocess.Popen(cmdline, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = None)
+    (out, err) = proc.communicate()
+
+    # load HLT configuration
+    try:
+        foo = {'process': None}
+        exec(out, foo)
+        process = foo['process']
+    except:
+        raise Exception(f'query did not return a valid python file:\n query="{cmdline}"')
+
+    if not isinstance(process, cms.Process):
+        raise Exception(f'query did not return a valid HLT menu:\n query="{cmdline}"')
+
+    return process
+
+def main():
+    # define an argparse parser to parse our options
+    textwidth = int( 80 )
+    try:
+        textwidth = int( os.popen("stty size", "r").read().split()[1] )
+    except:
+        pass
+    formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
+
+    # read defaults
+    defaults = options.HLTProcessOptions()
+
+    parser = argparse.ArgumentParser(
+        description = 'Create outputs to announce the release of a new HLT menu.',
+        argument_default = argparse.SUPPRESS,
+        formatter_class = formatter,
+        add_help = False
+    )
+
+    # required argument
+    parser.add_argument('menu',
+                        action  = 'store',
+                        type    = options.ConnectionHLTMenu,
+                        metavar = 'MENU',
+                        help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
+
+    # options
+    parser.add_argument('--dbproxy',
+                        dest    = 'proxy',
+                        action  = 'store_true',
+                        default = defaults.proxy,
+                        help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
+    parser.add_argument('--dbproxyport',
+                        dest    = 'proxy_port',
+                        action  = 'store',
+                        metavar = 'PROXYPORT',
+                        default = defaults.proxy_port,
+                        help    = 'Port of the socks proxy (default: 8080)' )
+    parser.add_argument('--dbproxyhost',
+                        dest    = 'proxy_host',
+                        action  = 'store',
+                        metavar = 'PROXYHOST',
+                        default = defaults.proxy_host,
+                        help    = 'Host of the socks proxy (default: "localhost")' )
+
+    parser.add_argument('--metadata-json',
+                        dest    = 'metadata_json',
+                        action  = 'store',
+                        default = 'hltPathOwners.json',
+                        help    = 'Path to .json file with metadata on HLT Paths (online?, group-owners)' )
+
+    # redefine "--help" to be the last option, and use a customized message 
+    parser.add_argument('-h', '--help', 
+                        action  = 'help', 
+                        help    = 'Show this help message and exit' )
+
+    # parse command line arguments and options
+    config = parser.parse_args()
+
+    if not os.path.isfile(config.metadata_json):
+        raise RuntimeError(f'invalid path to metadata JSON file [--metadata-json]: {config.metadata_json}')
+
+    metadataDict = json.load(open(config.metadata_json))
+
+    process = getHLTProcess(config)
+
+    pathNames = sorted([pathName if '_v' not in pathName else pathName[:pathName.rfind('_v')]+'_v' for pathName, path in process.paths_().items() if not pathName.startswith('Dataset_')])
+
+    for pathName in pathNames:
+        if pathName not in metadataDict:
+            print(pathName)
+
+###
+### main
+###
+if __name__ == '__main__':
+    main()

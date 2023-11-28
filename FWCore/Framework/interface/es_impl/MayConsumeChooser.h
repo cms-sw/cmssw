@@ -39,7 +39,7 @@ namespace edm::eventsetup::impl {
     MayConsumeChooser(FUNC&& iFunc) : func_(std::forward<FUNC>(iFunc)) {}
 
     // ---------- const member functions ---------------------
-    ESProxyIndex makeChoice(RECBASE const& iRecord) const final {
+    ESResolverIndex makeChoice(RECBASE const& iRecord) const final {
       return func_(this->tagGetter(), iRecord.getTransientHandle(token_));
     }
 

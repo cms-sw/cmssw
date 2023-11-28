@@ -1,15 +1,9 @@
 <environment>
-  <bin name="testSSTGainPCL_fromRECO" file="testSSTGain_PCL_FromRECO.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripChannelGain/test testSSTGain_PCL_FromRECO.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="testSSTGainPCL_fromRECO" command="testSSTGain_PCL_FromRECO.sh"/>
   <bin name="checkMultiRunHarvestingOutput" file="checkMultiRunHarvesting.cpp">
     <flags PRE_TEST="testSSTGainPCL_fromRECO"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
   </bin>
-  <bin name="testSSTGainPCL_fromCalibTree" file="testSSTGain_PCL_FromCalibTree.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripChannelGain/test testSSTGain_PCL_FromCalibTree.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="testSSTGainPCL_fromCalibTree" command="testSSTGain_PCL_FromCalibTree.sh"/>
 </environment>

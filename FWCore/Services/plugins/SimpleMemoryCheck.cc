@@ -758,10 +758,14 @@ namespace edm {
     }
 
     void SimpleMemoryCheck::updateMax() {
-      if ((*current_ > max_) || oncePerEventMode_) {
-        if (count_ >= num_to_skip_) {
+      auto v = *current_;
+      if ((v > max_) || oncePerEventMode_) {
+        if (max_.vsize < v.vsize) {
+          max_.vsize = v.vsize;
         }
-        max_ = *current_;
+        if (max_.rss < v.rss) {
+          max_.rss = v.rss;
+        }
       }
     }
 

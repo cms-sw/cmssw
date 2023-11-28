@@ -36,7 +36,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Transportation.hh"
 #include "G4UAtomicDeexcitation.hh"
-#include "G4Version.hh"
 #include <memory>
 
 #include <string>
@@ -78,10 +77,9 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   param->SetGeneralProcessActive(genp);
 
   bool pe = p.getParameter<bool>("PhotoeffectBelowKShell");
-  int type = p.getParameter<int>("G4TransportWithMSC");
-
-#if G4VERSION_NUMBER >= 1110
   param->SetPhotoeffectBelowKShell(pe);
+
+  int type = p.getParameter<int>("G4TransportWithMSC");
   G4TransportationWithMscType trtype = G4TransportationWithMscType::fDisabled;
   if (type == 1) {
     trtype = G4TransportationWithMscType::fEnabled;
@@ -89,7 +87,6 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
     trtype = G4TransportationWithMscType::fMultipleSteps;
   }
   param->SetTransportationWithMsc(trtype);
-#endif
 
   bool mudat = theParSet.getParameter<bool>("ReadMuonData");
   param->SetRetrieveMuDataFromFile(mudat);

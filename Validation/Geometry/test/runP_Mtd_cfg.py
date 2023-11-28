@@ -7,7 +7,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95Reco_cff")
 
 #Magnetic Field
 #
@@ -34,6 +34,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         FwkJob = cms.untracked.PSet( ## but FwkJob category - those unlimitted
             limit = cms.untracked.int32(-1)
         ),
+        FwkReport = cms.untracked.PSet(
+            reportEvery = cms.untracked.int32(1000),
+            limit = cms.untracked.int32(0)
+        ),
         MaterialBudget = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
@@ -44,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
     ),
-    categories = cms.untracked.vstring('FwkJob','MaterialBudget','G4cout','G4cerr'),
+    categories = cms.untracked.vstring('FwkJob','FwkReport','MaterialBudget','G4cout','G4cerr'),
     debugModules = cms.untracked.vstring('g4SimHits'),
     destinations = cms.untracked.vstring('cout')
 )

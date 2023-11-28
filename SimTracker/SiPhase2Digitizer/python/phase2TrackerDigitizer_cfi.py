@@ -13,8 +13,8 @@ PixelDigitizerAlgorithmCommon = cms.PSet(
     NoiseInElectrons = cms.double(0.0),
     Phase2ReadoutMode = cms.int32(3), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
     AdcFullScale = cms.int32(15),
-    TofUpperCut = cms.double(12.5),
-    TofLowerCut = cms.double(-12.5),
+    TofUpperCut = cms.double(20.),
+    TofLowerCut = cms.double(-5.),
     AddNoisyPixels = cms.bool(False),
     Alpha2Order = cms.bool(True),			#D.B.: second order effect, does not switch off magnetic field as described
     AddNoise = cms.bool(False),
@@ -75,6 +75,7 @@ phase2TrackerDigitizer = cms.PSet(
     GeometryType = cms.string('idealForDigi'),
     isOTreadoutAnalog = cms.bool(False),#set this to true if you want analog readout for OT
 # Common for Algos
+    usePseudoPixel3DAlgo = cms.bool(False),
     premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
@@ -220,10 +221,15 @@ phase2TrackerDigitizer = cms.PSet(
 # - do not add noisy pixels (to be done in stage2)
 # - do not apply inefficiency (to be done in stage2)
 # - disable threshold smearing
+# - disable x-talk simulatiom
 #
-# For outer tracker
-# - force analog readout to get the ADCs
-#
+# For both Inner and Outer tracker
+# - force analog readout to get Full Charge  ADCs 
+# - for Inner Tracker Dual Slope signal scaling NOT used here to avoid any singal loss.
+#   At step 2 Dual Slope signal scaling is used as default. To keep the full precision
+#   ADCFull scaling is also changed to 255 for Inner Tracker
+# 
+# - 
 # NOTE: It is currently assumed that all sub-digitizers have the same ElectronPerAdc.
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 _premixStage1ModifyDict = dict(
@@ -232,27 +238,38 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
     ),
     Pixel3DDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
     ),
     PSPDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
     ),
     PSSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
         Phase2ReadoutMode = -1,
     ),
     SSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
     ),
 )
 

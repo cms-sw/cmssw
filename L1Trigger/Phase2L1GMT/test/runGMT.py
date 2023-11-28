@@ -44,10 +44,9 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     emptyRunLumiMode = cms.obsolete.untracked.string,
@@ -115,30 +114,10 @@ process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
 process.load("L1Trigger.Phase2L1GMT.gmt_cff")
-process.l1tGMTMuons.trackMatching.verbose=1
-process.l1tGMTMuons.verbose=0
-process.l1tGMTMuons.trackConverter.verbose=0
-
-
-
-#process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.pL1TMuonTPS,process.endjob_step,process.e) # Adding MuonTPS
-
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
-#process.pL1TkPhotonsCrystal = cms.Path(process.L1TkPhotonsCrystal)
-#process.pL1TkIsoElectronsCrystal = cms.Path(process.L1TkIsoElectronsCrystal)
-#process.pL1TkElectronsLooseCrystal = cms.Path(process.L1TkElectronsLooseCrystal)
-#process.pL1TkElectronsLooseHGC = cms.Path(process.L1TkElectronsLooseHGC)
-#process.pL1TkElectronsHGC = cms.Path(process.L1TkElectronsHGC)
-process.pL1TkMuon = cms.Path(process.L1TkMuons+process.L1TkMuonsTP)
-#process.pL1TkElectronsEllipticMatchHGC = cms.Path(process.L1TkElectronsEllipticMatchHGC)
-#process.pL1TkElectronsCrystal = cms.Path(process.L1TkElectronsCrystal)
-#process.pL1TkPhotonsHGC = cms.Path(process.L1TkPhotonsHGC)
-#process.pL1TkIsoElectronsHGC = cms.Path(process.L1TkIsoElectronsHGC)
-#process.pL1TkElectronsEllipticMatchCrystal = cms.Path(process.L1TkElectronsEllipticMatchCrystal)
-#process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.testpath=cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis*process.phase2GMT)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)

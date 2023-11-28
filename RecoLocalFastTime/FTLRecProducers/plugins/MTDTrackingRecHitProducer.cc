@@ -19,6 +19,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+
 class MTDTrackingRecHitProducer : public edm::global::EDProducer<> {
 public:
   explicit MTDTrackingRecHitProducer(const edm::ParameterSet& ps);
@@ -92,6 +95,16 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
       MTDTrackingDetSetVector::FastFiller recHitsOnDet(theoutputhits, detid);
 
       LogDebug("MTDTrackingRecHitProducer") << "MTD cluster DetId " << detid << " # cluster " << DSVit.size();
+#ifdef EDM_ML_DEBUG
+      const auto& Hit = MTDDetId(detid);
+      if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1)) {
+        const auto& btlHit = BTLDetId(detid);
+        LogDebug("MTDTrackingRecHitProducer") << btlHit;
+      } else if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2)) {
+        const auto& etlHit = ETLDetId(detid);
+        LogDebug("MTDTrackingRecHitProducer") << etlHit;
+      }
+#endif
 
       for (const auto& clustIt : DSVit) {
         LogDebug("MTDTrackingRecHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","

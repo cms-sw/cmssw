@@ -7,8 +7,8 @@
  * $Id: StringObjectFunction.h,v 1.4 2012/06/26 21:09:37 wmtan Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/interface/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
 #include "CommonTools/Utils/interface/expressionParser.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 

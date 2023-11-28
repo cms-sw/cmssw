@@ -13,6 +13,13 @@ preDuplicateMergingGeneralTracks = TrackCollectionMerger.clone(
     lostHitPenalty   = 1.0
 )
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.ProcessModifiers.displacedRegionalTracking_cff import displacedRegionalTracking
+def _extend_displacedRegional(x):
+     x.trackProducers += ['displacedRegionalStepTracks']
+     x.inputClassifiers += ['displacedRegionalStep']
+(trackingPhase1 & displacedRegionalTracking).toModify(preDuplicateMergingGeneralTracks, _extend_displacedRegional)
+
 # For Phase2PU140
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger

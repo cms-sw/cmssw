@@ -3,11 +3,7 @@
 
 #include <type_traits>
 
-#ifdef __clang__
-#define VECTOR_EXT(N) __attribute__((ext_vector_type(N)))
-#else
 #define VECTOR_EXT(N) __attribute__((vector_size(N)))
-#endif
 
 typedef float VECTOR_EXT(8) cms_float32x2_t;
 typedef float VECTOR_EXT(16) cms_float32x4_t;

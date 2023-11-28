@@ -360,9 +360,11 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
 
   //Convert to vfloat for picky TH1F constructor
   vector<float> f_ptbins;
+  f_ptbins.reserve(ptbins_.size());
   for (double ptbin : ptbins_)
     f_ptbins.push_back(static_cast<float>(ptbin));
   vector<float> f_htbins;
+  f_htbins.reserve(htbins_.size());
   for (double htbin : htbins_)
     f_htbins.push_back(static_cast<float>(htbin));
 

@@ -8,9 +8,9 @@ LCTQualityControl::LCTQualityControl(unsigned endcap,
                                      unsigned sector,
                                      unsigned subsector,
                                      unsigned chamber,
-                                     const edm::ParameterSet& conf)
+                                     CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
-  nplanes_clct_hit_pattern = clctParams_.getParameter<unsigned int>("clctNplanesHitPattern");
+  nplanes_clct_hit_pattern = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPattern");
 }
 
 // Check if the ALCT is valid

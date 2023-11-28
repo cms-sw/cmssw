@@ -40,6 +40,9 @@ def printGeomInfo(process):
     process.g4SimHits.LHCTransport = False
 
     process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+        dd4hep         = cms.untracked.bool(False),
+        dumpVolumes    = cms.untracked.vstring(),
+        dumpShapes     = cms.untracked.vstring(),
         type           = cms.string('PrintG4Solids')
     ))
 

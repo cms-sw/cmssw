@@ -55,6 +55,14 @@ public:
     Ph2SS
   };
 
+  // deleted copy constructor and copy assignment operators
+  TrackerGeometry(TrackerGeometry const&) = delete;
+  TrackerGeometry& operator=(TrackerGeometry const&) = delete;
+
+  // defaulted move constructor and move assignment operators
+  TrackerGeometry(TrackerGeometry&&) = default;
+  TrackerGeometry& operator=(TrackerGeometry&&) = default;
+
   ~TrackerGeometry() override;
 
   const DetTypeContainer& detTypes() const override { return theDetTypes; }

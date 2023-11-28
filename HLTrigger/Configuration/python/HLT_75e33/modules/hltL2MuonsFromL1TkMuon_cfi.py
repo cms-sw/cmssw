@@ -94,6 +94,6 @@ hltL2MuonsFromL1TkMuon = cms.EDProducer("L2MuonProducer",
         Smoother = cms.string('hltESPKFTrajectorySmootherForMuonTrackLoader'),
         TTRHBuilder = cms.string('WithTrackAngle'),
         VertexConstraint = cms.bool(True),
-        beamSpot = cms.InputTag("offlineBeamSpot")
+        beamSpot = cms.InputTag("hltOnlineBeamSpot")
     )
 )

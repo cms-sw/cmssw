@@ -1,14 +1,14 @@
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
-#include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/BeamSpotPlugins/interface/BeamSpotPayloadInspectorHelper.h"
+#include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 
 #include <TStyle.h>
 
 namespace {
 
-  using namespace BeamSpotPI;
+  using namespace beamSpotPI;
 
   /************************************************
     history plots

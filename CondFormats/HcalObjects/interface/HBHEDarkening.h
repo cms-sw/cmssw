@@ -40,8 +40,8 @@ public:
   HBHEDarkening(int ieta_shift,
                 float drdA,
                 float drdB,
-                const std::map<int, std::vector<std::vector<float>>>& dosemaps,
-                const std::vector<LumiYear>& years);
+                std::map<int, std::vector<std::vector<float>>> dosemaps,
+                std::vector<LumiYear> years);
   ~HBHEDarkening() {}
 
   //public accessors

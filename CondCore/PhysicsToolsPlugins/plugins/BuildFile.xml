@@ -2,3 +2,9 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
 </library>
+
+<library file="PfCalibration_PayloadInspector.cc" name="PerformancePayloadFromTFormula_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/PhysicsToolsObjects"/>
+</library>

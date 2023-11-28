@@ -88,14 +88,14 @@ TEST_CASE("Test cms::Exception", "[cms::Exception]") {
   SECTION("alreadyPrinted") {
     cms::Exception e1("ABC");
     REQUIRE(not e1.alreadyPrinted());
-    e1.setAlreadyPrinted(true);
+    e1.setAlreadyPrinted();
     REQUIRE(e1.alreadyPrinted());
     SECTION("copy constructor") {
       cms::Exception e("ABC");
       cms::Exception e2(e);
       REQUIRE(not e2.alreadyPrinted());
 
-      e.setAlreadyPrinted(true);
+      e.setAlreadyPrinted();
       cms::Exception e3(e);
       REQUIRE(e3.alreadyPrinted());
     }

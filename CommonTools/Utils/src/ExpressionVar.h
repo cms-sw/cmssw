@@ -10,11 +10,12 @@
  *
  */
 
-#include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 #include "CommonTools/Utils/interface/TypeCode.h"
 
 #include <vector>
+#include <oneapi/tbb/concurrent_queue.h>
 
 namespace reco {
   namespace parser {
@@ -23,12 +24,15 @@ namespace reco {
     class ExpressionVar : public ExpressionBase {
     private:  // Private Data Members
       std::vector<MethodInvoker> methods_;
-      mutable std::vector<edm::ObjectWithDict> objects_;
-      mutable std::vector<bool> needsDestructor_;
+      using Objects = std::vector<std::pair<edm::ObjectWithDict, bool>>;
+      mutable oneapi::tbb::concurrent_queue<Objects> objectsCache_;
       method::TypeCode retType_;
 
     private:  // Private Methods
-      void initObjects_();
+      [[nodiscard]] Objects initObjects_() const;
+
+      Objects borrowObjects() const;
+      void returnObjects(Objects&&) const;
 
     public:  // Public Static Methods
       static bool isValidReturnType(method::TypeCode);
@@ -58,7 +62,6 @@ namespace reco {
     class ExpressionLazyVar : public ExpressionBase {
     private:  // Private Data Members
       std::vector<LazyInvoker> methods_;
-      mutable std::vector<edm::ObjectWithDict> objects_;
 
     public:
       ExpressionLazyVar(const std::vector<LazyInvoker>& methods);

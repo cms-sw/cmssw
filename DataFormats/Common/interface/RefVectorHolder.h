@@ -18,9 +18,7 @@ namespace edm {
       RefVectorHolder() : RefVectorHolderBase() {}
       RefVectorHolder(REFV const& refs) : RefVectorHolderBase(), refs_(refs) {}
       explicit RefVectorHolder(ProductID const& iId) : RefVectorHolderBase(), refs_(iId) {}
-      ~RefVectorHolder() override {}
       void swap(RefVectorHolder& other);
-      RefVectorHolder& operator=(RefVectorHolder const& rhs);
       bool empty() const override;
       size_type size() const override;
       void clear() override;
@@ -93,13 +91,6 @@ namespace edm {
     inline void RefVectorHolder<REFV>::swap(RefVectorHolder<REFV>& other) {
       this->RefVectorHolderBase::swap(other);
       refs_.swap(other.refs_);
-    }
-
-    template <typename REFV>
-    inline RefVectorHolder<REFV>& RefVectorHolder<REFV>::operator=(RefVectorHolder<REFV> const& rhs) {
-      RefVectorHolder<REFV> temp(rhs);
-      this->swap(temp);
-      return *this;
     }
 
     template <typename REFV>

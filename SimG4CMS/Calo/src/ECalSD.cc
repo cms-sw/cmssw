@@ -431,7 +431,7 @@ double ECalSD::curve_LY(const G4LogicalVolume* lv) {
   if (ageingWithSlopeLY) {
     //position along the crystal in mm from 0 to 230 (in EB)
     if (crystalDepth >= -0.1 || crystalDepth <= crystalLength + 0.1)
-      weight = ageing.calcLightCollectionEfficiencyWeighted(currentID.unitID(), crystalDepth / crystalLength);
+      weight = ageing.calcLightCollectionEfficiencyWeighted(currentID[0].unitID(), crystalDepth / crystalLength);
   } else {
     double dapd = crystalLength - crystalDepth;
     if (dapd >= -0.1 || dapd <= crystalLength + 0.1) {

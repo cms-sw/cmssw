@@ -5,6 +5,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <array>
 
 namespace cms {
 
@@ -15,7 +16,7 @@ namespace cms {
     MD5Result();
 
     // This is the MD5 digest.
-    unsigned char bytes[16];
+    std::array<unsigned char, 16> bytes;
 
     // Convert the digest to a printable string (the 'hexdigest')
     std::string toString() const;

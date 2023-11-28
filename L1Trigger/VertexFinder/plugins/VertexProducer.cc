@@ -16,7 +16,7 @@ using namespace l1tVertexFinder;
 using namespace std;
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
-    : l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+    : l1TracksToken_(consumes<TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       tTopoToken(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       outputCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
       settings_(AlgoSettings(iConfig)) {
@@ -67,7 +67,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
 }
 
 void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<TTTrackCollectionView> l1TracksHandle;
+  edm::Handle<TTTrackRefCollectionType> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
   std::vector<l1tVertexFinder::L1Track> l1Tracks;
@@ -75,11 +75,8 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   if (settings_.debug() > 1) {
     edm::LogInfo("VertexProducer") << "produce::Processing " << l1TracksHandle->size() << " tracks";
   }
-  for (const auto& track : l1TracksHandle->ptrs()) {
-    auto l1track = L1Track(track);
-    // Check the minimum pT of the tracks
-    // This is left here because it represents the smallest pT to be sent by the track finding boards
-    // This has less to do with the algorithms than the constraints of what will be sent to the vertexing algorithm
+  for (const auto& track : *l1TracksHandle) {
+    auto l1track = L1Track(edm::refToPtr(track));
     if (l1track.pt() >= settings_.vx_TrackMinPt()) {
       l1Tracks.push_back(l1track);
     } else {
@@ -89,6 +86,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       }
     }
   }
+
   if (settings_.debug() > 1) {
     edm::LogInfo("VertexProducer") << "produce::Processing " << l1Tracks.size() << " tracks after minimum pt cut of"
                                    << settings_.vx_TrackMinPt() << " GeV";

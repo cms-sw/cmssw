@@ -3,7 +3,7 @@
 #include "FWCore/Reflection/interface/FunctionWithDict.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <string>
-#include "CommonTools/Utils/interface/AnyMethodArgument.h"
+#include "CommonTools/Utils/interface/parser/AnyMethodArgument.h"
 
 namespace reco {
   // second pair member is true if a reference is found

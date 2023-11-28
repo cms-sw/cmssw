@@ -124,7 +124,6 @@ namespace edm {
                               TypeID const& productType,
                               std::string const& moduleLabel,
                               std::string const& productInstanceName);
-    void throwOnPrematureRead(char const* principalType, TypeID const& productType);
 
     void throwOnPrematureRead(char const* principalType, TypeID const& productType, EDGetToken);
 
@@ -156,9 +155,6 @@ namespace edm {
     bool checkIfComplete() const;
 
     Transition transition() const;
-
-    template <typename PROD>
-    void getManyByType(std::vector<Handle<PROD> >& results, ModuleCallingContext const* mcc) const;
 
     ProcessHistory const& processHistory() const;
 
@@ -209,8 +205,6 @@ namespace edm {
                                             std::string const& instance,
                                             std::string const& process,
                                             ModuleCallingContext const* mcc) const;
-
-    void getManyByType_(TypeID const& tid, BasicHandleVec& results, ModuleCallingContext const* mcc) const;
 
     // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
@@ -315,34 +309,5 @@ namespace edm {
     return isComplete() || !detail::has_mergeProduct_function<PROD>::value;
   }
 
-  template <typename PROD>
-  inline void PrincipalGetAdapter::getManyByType(std::vector<Handle<PROD> >& results,
-                                                 ModuleCallingContext const* mcc) const {
-    BasicHandleVec bhv;
-    this->getManyByType_(TypeID(typeid(PROD)), bhv, mcc);
-
-    // Go through the returned handles; for each element,
-    //   1. create a Handle<PROD> and
-    //
-    // This function presents an exception safety difficulty. If an
-    // exception is thrown when converting a handle, the "got
-    // products" record will be wrong.
-    //
-    // Since EDProducers are not allowed to use this function,
-    // the problem does not seem too severe.
-    //
-    // Question: do we even need to keep track of the "got products"
-    // for this function, since it is *not* to be used by EDProducers?
-    std::vector<Handle<PROD> > products;
-
-    typename BasicHandleVec::iterator it = bhv.begin();
-    typename BasicHandleVec::iterator end = bhv.end();
-
-    while (it != end) {
-      products.push_back(convert_handle<PROD>(std::move(*it)));
-      ++it;
-    }
-    results.swap(products);
-  }
 }  // namespace edm
 #endif

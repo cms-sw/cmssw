@@ -98,15 +98,14 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable,
   //out how to do this in one shot to avoid a loop
   //O(N_vars*N_events)...
 
-  TIterator* iter = (TIterator*)Data->get()->createIterator();
-  RooAbsArg* var = nullptr;
   RooRealVar* sep_var = nullptr;
-  while ((var = (RooAbsArg*)iter->Next())) {
+  for (const auto& var : *Data->get()) {
     if ((string)var->GetName() == (string)SeparationVariable->GetName()) {
       sep_var = (RooRealVar*)var;
       break;
     }
   }
+
   for (int i = 0; i < Data->numEntries(); i++) {
     Data->get(i);
     Double_t value = variable->getVal();
@@ -431,9 +430,7 @@ int SideBandSubtract::doGlobalFit() {
 
   //need to grab sbs objects after each global fit, because they get reset
   resetSBSProducts();
-  TIterator* iter = (TIterator*)Data->get()->createIterator();
-  RooAbsArg* variable;
-  while ((variable = (RooAbsArg*)iter->Next())) {
+  for (const auto& variable : *Data->get()) {
     for (unsigned int i = 0; i < BaseHistos.size(); i++) {
       if ((string)variable->GetName() != (string)SeparationVariable->GetName() &&
           (string)variable->GetName() == (string)BaseHistos[i]->GetName())
@@ -441,11 +438,6 @@ int SideBandSubtract::doGlobalFit() {
     }
   }
 
-  //  clean up our memory...
-  if (variable)
-    delete variable;
-  if (iter)
-    delete iter;
   return 0;
 }
 void SideBandSubtract::doFastSubtraction(TH1F& Total, TH1F& Result, SbsRegion& leftRegion, SbsRegion& rightRegion) {

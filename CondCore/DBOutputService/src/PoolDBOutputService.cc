@@ -12,6 +12,8 @@
 #include <memory>
 #include <cassert>
 
+const std::string cond::service::PoolDBOutputService::kSharedResource = "PoolDBOutputService";
+
 //In order to make PoolDBOutputService::currentTime() to work we have to keep track
 // of which stream is presently being processed on a given thread during the call of
 // a module which calls that method.

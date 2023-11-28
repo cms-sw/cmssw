@@ -20,7 +20,8 @@ public:
   void tearDown();
   std::string cmsswPath(std::string path);
 
-  virtual void checkAll() = 0;
+  virtual void test() = 0;
+
   virtual std::string pyScript() const = 0;
 };
 

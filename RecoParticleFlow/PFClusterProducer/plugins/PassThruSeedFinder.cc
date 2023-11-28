@@ -10,7 +10,8 @@ public:
 
   void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                  const std::vector<bool>& mask,
-                 std::vector<bool>& seedable) override;
+                 std::vector<bool>& seedable,
+                 const HcalPFCuts*) override;
 
 private:
 };
@@ -22,6 +23,7 @@ PassThruSeedFinder::PassThruSeedFinder(const edm::ParameterSet& conf) : SeedFind
 // the starting state of seedable is all false!
 void PassThruSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                                    const std::vector<bool>& mask,
-                                   std::vector<bool>& seedable) {
+                                   std::vector<bool>& seedable,
+                                   const HcalPFCuts*) {
   seedable = std::vector<bool>(input->size(), true);
 }

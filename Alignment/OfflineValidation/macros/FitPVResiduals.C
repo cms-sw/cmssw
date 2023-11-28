@@ -132,18 +132,26 @@ struct Limits {
         _m_dzPhiMax(80.),
         _m_dxyEtaMax(80.),
         _m_dzEtaMax(80.),
+        _m_dxyPtMax(80.),
+        _m_dzPtMax(80.),
         _m_dxyPhiNormMax(0.5),
         _m_dzPhiNormMax(0.5),
         _m_dxyEtaNormMax(0.5),
         _m_dzEtaNormMax(0.5),
+        _m_dxyPtNormMax(0.5),
+        _m_dzPtNormMax(0.5),
         _w_dxyPhiMax(120.),
         _w_dzPhiMax(180.),
         _w_dxyEtaMax(120.),
         _w_dzEtaMax(1000.),
+        _w_dxyPtMax(120.),
+        _w_dzPtMax(180.),
         _w_dxyPhiNormMax(2.0),
         _w_dzPhiNormMax(2.0),
         _w_dxyEtaNormMax(2.0),
-        _w_dzEtaNormMax(2.0) {}
+        _w_dzEtaNormMax(2.0),
+        _w_dxyPtNormMax(2.0),
+        _w_dzPtNormMax(2.0) {}
 
   // getter methods
 
@@ -167,6 +175,10 @@ struct Limits {
     return res;
   }
 
+  std::pair<float, float> get_dxyPtMax() const { return std::make_pair(_m_dxyPtMax, _w_dxyPtMax); }
+
+  std::pair<float, float> get_dzPtMax() const { return std::make_pair(_m_dzPtMax, _w_dzPtMax); }
+
   std::pair<float, float> get_dxyPhiNormMax() const {
     std::pair<float, float> res(_m_dxyPhiNormMax, _w_dxyPhiNormMax);
     return res;
@@ -187,40 +199,60 @@ struct Limits {
     return res;
   }
 
+  std::pair<float, float> get_dxyPtNormMax() const { return std::make_pair(_m_dxyPtNormMax, _w_dxyPtNormMax); }
+
+  std::pair<float, float> get_dzPtNormMax() const { return std::make_pair(_m_dzPtNormMax, _w_dzPtNormMax); }
+
   // initializes to different values, if needed
 
   void init(float m_dxyPhiMax,
             float m_dzPhiMax,
             float m_dxyEtaMax,
             float m_dzEtaMax,
+            float m_dxyPtMax,
+            float m_dzPtMax,
             float m_dxyPhiNormMax,
             float m_dzPhiNormMax,
             float m_dxyEtaNormMax,
             float m_dzEtaNormMax,
+            float m_dxyPtNormMax,
+            float m_dzPtNormMax,
             float w_dxyPhiMax,
             float w_dzPhiMax,
             float w_dxyEtaMax,
             float w_dzEtaMax,
+            float w_dxyPtMax,
+            float w_dzPtMax,
             float w_dxyPhiNormMax,
             float w_dzPhiNormMax,
             float w_dxyEtaNormMax,
-            float w_dzEtaNormMax) {
+            float w_dzEtaNormMax,
+            float w_dxyPtNormMax,
+            float w_dzPtNormMax) {
     _m_dxyPhiMax = m_dxyPhiMax;
     _m_dzPhiMax = m_dzPhiMax;
     _m_dxyEtaMax = m_dxyEtaMax;
     _m_dzEtaMax = m_dzEtaMax;
+    _m_dxyPtMax = m_dxyPtMax;
+    _m_dzPtMax = m_dzPtMax;
     _m_dxyPhiNormMax = m_dxyPhiNormMax;
     _m_dzPhiNormMax = m_dzPhiNormMax;
     _m_dxyEtaNormMax = m_dxyEtaNormMax;
     _m_dzEtaNormMax = m_dzEtaNormMax;
+    _m_dxyPtNormMax = m_dxyPtNormMax;
+    _m_dzPtNormMax = m_dzPtNormMax;
     _w_dxyPhiMax = w_dxyPhiMax;
     _w_dzPhiMax = w_dzPhiMax;
     _w_dxyEtaMax = w_dxyEtaMax;
     _w_dzEtaMax = w_dzEtaMax;
+    _w_dxyPtMax = w_dxyPtMax;
+    _w_dzPtMax = w_dzPtMax;
     _w_dxyPhiNormMax = w_dxyPhiNormMax;
     _w_dzPhiNormMax = w_dzPhiNormMax;
     _w_dxyEtaNormMax = w_dxyEtaNormMax;
     _w_dzEtaNormMax = w_dzEtaNormMax;
+    _w_dxyPtNormMax = w_dxyPtNormMax;
+    _w_dzPtNormMax = w_dzPtNormMax;
   }
 
   void printAll() {
@@ -231,21 +263,29 @@ struct Limits {
     std::cout << "  mean of dz  vs Phi:         " << _m_dzPhiMax << std::endl;
     std::cout << "  mean of dxy vs Eta:         " << _m_dxyEtaMax << std::endl;
     std::cout << "  mean of dz  vs Eta:         " << _m_dzEtaMax << std::endl;
+    std::cout << "  mean of dxy vs Pt :         " << _m_dxyPtMax << std::endl;
+    std::cout << "  mean of dz  vs Pt :         " << _m_dzPtMax << std::endl;
 
     std::cout << "  mean of dxy vs Phi (norm):  " << _m_dxyPhiNormMax << std::endl;
     std::cout << "  mean of dz  vs Phi (norm):  " << _m_dzPhiNormMax << std::endl;
     std::cout << "  mean of dxy vs Eta (norm):  " << _m_dxyEtaNormMax << std::endl;
     std::cout << "  mean of dz  vs Eta (norm):  " << _m_dzEtaNormMax << std::endl;
+    std::cout << "  mean of dxy vs Pt  (norm):  " << _m_dxyPtNormMax << std::endl;
+    std::cout << "  mean of dz  vs Pt  (norm):  " << _m_dzPtNormMax << std::endl;
 
     std::cout << "  width of dxy vs Phi:        " << _w_dxyPhiMax << std::endl;
     std::cout << "  width of dz  vs Phi:        " << _w_dzPhiMax << std::endl;
     std::cout << "  width of dxy vs Eta:        " << _w_dxyEtaMax << std::endl;
     std::cout << "  width of dz  vs Eta:        " << _w_dzEtaMax << std::endl;
+    std::cout << "  width of dxy vs Pt :        " << _w_dxyPtMax << std::endl;
+    std::cout << "  width of dz  vs Pt :        " << _w_dzPtMax << std::endl;
 
     std::cout << "  width of dxy vs Phi (norm): " << _w_dxyPhiNormMax << std::endl;
     std::cout << "  width of dz  vs Phi (norm): " << _w_dzPhiNormMax << std::endl;
     std::cout << "  width of dxy vs Eta (norm): " << _w_dxyEtaNormMax << std::endl;
     std::cout << "  width of dz  vs Eta (norm): " << _w_dzEtaNormMax << std::endl;
+    std::cout << "  width of dxy vs Pt  (norm): " << _w_dxyPtNormMax << std::endl;
+    std::cout << "  width of dz  vs Pt  (norm): " << _w_dzPtNormMax << std::endl;
 
     std::cout << "======================================================" << std::endl;
   }
@@ -255,19 +295,27 @@ private:
   float _m_dzPhiMax;
   float _m_dxyEtaMax;
   float _m_dzEtaMax;
+  float _m_dxyPtMax;
+  float _m_dzPtMax;
   float _m_dxyPhiNormMax;
   float _m_dzPhiNormMax;
   float _m_dxyEtaNormMax;
   float _m_dzEtaNormMax;
+  float _m_dxyPtNormMax;
+  float _m_dzPtNormMax;
 
   float _w_dxyPhiMax;
   float _w_dzPhiMax;
   float _w_dxyEtaMax;
   float _w_dzEtaMax;
+  float _w_dxyPtMax;
+  float _w_dzPtMax;
   float _w_dxyPhiNormMax;
   float _w_dzPhiNormMax;
   float _w_dxyEtaNormMax;
   float _w_dzEtaNormMax;
+  float _w_dxyPtNormMax;
+  float _w_dzPtNormMax;
 };
 
 Limits *thePlotLimits = new Limits();
@@ -4217,21 +4265,29 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
     Double_t m_dzPhiMax      = 40;
     Double_t m_dxyEtaMax     = 40;
     Double_t m_dzEtaMax      = 40;
+    Double_t m_dxyPtMax      = 40;
+    Double_t m_dzPtMax       = 40;
     
     Double_t m_dxyPhiNormMax = 0.5;
     Double_t m_dzPhiNormMax  = 0.5;
     Double_t m_dxyEtaNormMax = 0.5;
     Double_t m_dzEtaNormMax  = 0.5;
+    Double_t m_dxyPtNormMax  = 0.5;
+    Double_t m_dzPtNormMax   = 0.5;
     
     Double_t w_dxyPhiMax     = 150;
     Double_t w_dzPhiMax      = 150;
     Double_t w_dxyEtaMax     = 150;
     Double_t w_dzEtaMax      = 1000;
+    Double_t w_dxyPtMax      = 150;
+    Double_t w_dzPtMax       = 150;
     
     Double_t w_dxyPhiNormMax = 1.8;
     Double_t w_dzPhiNormMax  = 1.8;
     Double_t w_dxyEtaNormMax = 1.8;
     Double_t w_dzEtaNormMax  = 1.8;   
+    Double_t w_dxyPtNormMax  = 1.8;
+    Double_t w_dzPtNormMax   = 1.8;
   */
 
   params::measurement result;
@@ -4239,18 +4295,22 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   if (theTitle.Contains("norm")) {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiNormMax().first, lims->get_dxyPhiNormMax().first);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaNormMax().first, lims->get_dxyEtaNormMax().first);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(-lims->get_dxyPtNormMax().first, lims->get_dxyPtNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiNormMax().first, lims->get_dzPhiNormMax().first);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaNormMax().first, lims->get_dzEtaNormMax().first);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(-lims->get_dzPtNormMax().first, lims->get_dzPtNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
         }
@@ -4261,6 +4321,8 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
           result = std::make_pair(0., lims->get_dxyPhiNormMax().second);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaNormMax().second);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(0., lims->get_dxyPtNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
         }
@@ -4269,6 +4331,8 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
           result = std::make_pair(0., lims->get_dzPhiNormMax().second);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaNormMax().second);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(0., lims->get_dzPtNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
         }
@@ -4277,18 +4341,22 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   } else {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiMax().first, lims->get_dxyPhiMax().first);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaMax().first, lims->get_dxyEtaMax().first);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(-lims->get_dxyPtMax().first, lims->get_dxyPtMax().first);
         } else {
           result = std::make_pair(-40., 40.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiMax().first, lims->get_dzPhiMax().first);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaMax().first, lims->get_dzEtaMax().first);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(-lims->get_dzPtMax().first, lims->get_dzPtMax().first);
         } else {
           result = std::make_pair(-80., 80.);
         }
@@ -4299,6 +4367,8 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
           result = std::make_pair(0., lims->get_dxyPhiMax().second);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaMax().second);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(0., lims->get_dxyPtMax().second);
         } else {
           result = std::make_pair(0., 150.);
         }
@@ -4307,6 +4377,8 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
           result = std::make_pair(0., lims->get_dzPhiMax().second);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaMax().second);
+        } else if (theTitle.Contains("pt")) {
+          result = std::make_pair(0., lims->get_dzPtMax().second);
         } else {
           result = std::make_pair(0., 300.);
         }

@@ -7,9 +7,14 @@
 #include <algorithm>                               // std::max(), std::sort()
 #include <cmath>                                   // std::fabs
 
+namespace {
+  std::string getSignalConeSizeFormula(const edm::ParameterSet& cfg) {
+    return std::regex_replace(cfg.getParameter<std::string>("signalConeSize"), std::regex("pt"), "x");
+  }
+}  // namespace
+
 L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
-    : signalConeSizeFormula_(
-          std::regex_replace(cfg.getParameter<std::string>("signalConeSize"), std::regex("pt"), "x")),
+    : signalConeSizeFormula_(getSignalConeSizeFormula(cfg)),
       minSignalConeSize_(cfg.getParameter<double>("minSignalConeSize")),
       maxSignalConeSize_(cfg.getParameter<double>("maxSignalConeSize")),
       useStrips_(cfg.getParameter<bool>("useStrips")),

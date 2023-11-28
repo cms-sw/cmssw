@@ -33,7 +33,11 @@ namespace Pythia8 {
     }
 
     // Destructor prints histogram.
+<<<<<<< HEAD
      ~TopRecoilHook() override { delete wtCorr; }
+=======
+    ~TopRecoilHook() override { delete wtCorr; }
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 
     // Initialise. Only use hook for simple showers with recoilToColoured = off.
     bool initAfterBeams() override {
@@ -117,8 +121,12 @@ namespace Pythia8 {
         partonSystemsPtr->list();
         event.list();
       }
+<<<<<<< HEAD
       //std::cout << "BEGIN TOP TEST: "  << (wtT / wtW) << " | END TOP TEST" << endl;
       
+=======
+
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
       // Accept/reject emission. Smooth suppression or step function.
       return (wtT < wtW * rndmPtr->flat());
     }

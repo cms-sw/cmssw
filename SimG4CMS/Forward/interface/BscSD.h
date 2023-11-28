@@ -8,7 +8,6 @@
 #include <string>
 
 class SimTrackManager;
-class BscNumberingScheme;
 
 //-------------------------------------------------------------------
 
@@ -19,9 +18,6 @@ public:
   ~BscSD() override;
 
   uint32_t setDetUnitId(const G4Step *) override;
-
-private:
-  BscNumberingScheme *numberingScheme;
 };
 
 #endif  // BscSD_h

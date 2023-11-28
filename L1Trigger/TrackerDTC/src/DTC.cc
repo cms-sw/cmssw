@@ -24,7 +24,7 @@ namespace trackerDTC {
         input_(setup->dtcNumRoutingBlocks(), Stubss(setup->dtcNumModulesPerRoutingBlock())),
         lost_(setup->numOverlappingRegions()) {
     // count number of stubs on this dtc
-    auto acc = [](int& sum, const vector<TTStubRef>& stubsModule) { return sum += stubsModule.size(); };
+    auto acc = [](int sum, const vector<TTStubRef>& stubsModule) { return sum + stubsModule.size(); };
     const int nStubs = accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);
     stubs_.reserve(nStubs);
     // convert and assign Stubs to DTC routing block channel

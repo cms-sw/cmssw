@@ -344,10 +344,18 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   std::shared_ptr<LUT> q2LUT(new LUT(q2LUTStream));
   m_params_helper.setQ2LUT(*q2LUT);
 
+  // HI ZDC calibration LUT for trigger
+  edm::FileInPath zdcLUTFile = conf.getParameter<edm::FileInPath>("zdcLUTFile");
+  std::ifstream zdcLUTStream(zdcLUTFile.fullPath());
+  std::shared_ptr<LUT> zdcLUT(new LUT(zdcLUTStream));
+  m_params_helper.setZDCLUT(*zdcLUT);
+
   // Layer 1 LUT specification
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
   m_params_helper.setLayer1HFScaleFactors(conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
+  m_params_helper.setLayer1HCalFBLUTUpper(conf.getParameter<std::vector<unsigned>>("layer1HCalFBLUTUpper"));
+  m_params_helper.setLayer1HCalFBLUTLower(conf.getParameter<std::vector<unsigned>>("layer1HCalFBLUTLower"));
 
   m_params_helper.setLayer1ECalScaleETBins(conf.getParameter<std::vector<int>>("layer1ECalScaleETBins"));
   m_params_helper.setLayer1HCalScaleETBins(conf.getParameter<std::vector<int>>("layer1HCalScaleETBins"));

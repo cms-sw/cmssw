@@ -34,6 +34,8 @@ namespace cond {
     public:
       PoolDBOutputService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iAR);
 
+      static const std::string kSharedResource;
+
       virtual ~PoolDBOutputService();
 
       //use these to control connections

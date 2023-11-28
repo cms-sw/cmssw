@@ -7,12 +7,12 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
 fi
 
 echo -e "Testing SiStripHitEfficencyWorker \n\n"
-cmsRun ${LOCAL_TEST_DIR}/testHitEffWorker.py isUnitTest=True || die 'failed running testHitEffWorker.py' $?
+cmsRun ${SCRAM_TEST_PATH}/testHitEffWorker.py isUnitTest=True || die 'failed running testHitEffWorker.py' $?
 
 echo -e "Testing SiStripHitEfficencyHarvester \n\n"
-cmsRun ${LOCAL_TEST_DIR}/testHitEffHarvester.py isUnitTest=True || die 'failed running testHitEffHarvester.py' $?
+cmsRun ${SCRAM_TEST_PATH}/testHitEffHarvester.py isUnitTest=True || die 'failed running testHitEffHarvester.py' $?
 
 echo -e " testing tSiStripHitEffFromCalibTree \n\n"
-cmsRun ${LOCAL_TEST_DIR}/testSiStripHitEffFromCalibTree_cfg.py inputFiles=HitEffTree.root runNumber=325172 || die 'failed running testSiStripHitEffFromCalibTree_cfg.py' $?
+cmsRun ${SCRAM_TEST_PATH}/testSiStripHitEffFromCalibTree_cfg.py inputFiles=HitEffTree.root runNumber=325172 || die 'failed running testSiStripHitEffFromCalibTree_cfg.py' $?
 
 echo -e "Done with the tests!"

@@ -1,6 +1,6 @@
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,13 +25,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripApproximateCluster>> clusterToken_;
+  edm::EDGetTokenT<SiStripApproximateClusterCollection> clusterToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 };
 
 SiStripApprox2Clusters::SiStripApprox2Clusters(const edm::ParameterSet& conf) {
-  clusterToken_ = consumes<edmNew::DetSetVector<SiStripApproximateCluster>>(
-      conf.getParameter<edm::InputTag>("inputApproxClusters"));
+  clusterToken_ = consumes(conf.getParameter<edm::InputTag>("inputApproxClusters"));
   tkGeomToken_ = esConsumes();
   produces<edmNew::DetSetVector<SiStripCluster>>();
 }

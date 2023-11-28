@@ -20,7 +20,7 @@ workflows[1002]=['RRD',['RunMinBias2011A','RECODR1','COPYPASTE']]
 workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
 workflows[1004] = [ '',['RunHI2011','TIER0EXPHI','ALCAEXPHI','ALCAHARVD1HI','ALCAHARVD2HI','ALCAHARVD3HI','ALCAHARVD5HI']]
 
-workflows[1005] = ['',['RunCosmics2022F','TIER0EXPCOSMICSRUN3','ALCAEXPCOSMICSRUN3','ALCAHARVD2COS']]
+workflows[1005] = ['',['RunCosmics2022F','TIER0EXPCOSMICSRUN3','ALCAEXPCOSMICSRUN3','ALCAHARVD2COS','ALCAHARVD3COS']]
 
 workflows[1010] =  ['',['TestEnableEcalHCAL2017B','TIER0EXPTE', 'ALCAEXPTE', 'ALCAHARVDTE']]
 workflows[1020] =  ['',['AlCaLumiPixels2021','TIER0EXPLP','ALCAEXPLP','ALCAHARVLP', 'TIER0PROMPTLP']]
@@ -37,6 +37,9 @@ workflows[1045] = ['',['RunRawPPS2022B','TIER0EXPPPSCALRUN3','ALCASPLITPPSALIGRU
 
 workflows[1052] = ['',['RunCosmics2022F','TIER0EXPCOSMICSRUN3','ALCAEXPCOSMICSRUN3','ALCAHARVDSIPIXELLAMCS']]
 workflows[1052.1] = ['',['RunSiPixelCalCosmics2022F','ALCASPLITSIPIXELLAMCS','ALCAHARVDSIPIXELLAMCS']]
+
+workflows[1060.1] = ['',['RunZeroBias2022D', 'HcalNano']]
+workflows[1060.2] = ['',['TestEnablesEcalHcal2023C', 'HcalNanoCalibGap']]
 
 ## MC production test
 #workflows[1100] = [ '',[]]

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
-#for dnn classifier
+# for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
@@ -73,7 +73,7 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStep
 )
 
 # Triplet seeding
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 tobTecStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName    = 'tobTecStepClusterShapeHitFilter',
     doStripShapeCut  = cms.bool(False),
@@ -93,6 +93,7 @@ tobTecStepHitTripletsTripl = _multiHitFromChi2EDProducer.clone(
     extraPhiKDBox = 0.01,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 _tobTecStepSeedComparitorPSet = dict(
     ComponentName = 'CombinedSeedComparitor',
     mode          = cms.string('and'),
@@ -104,7 +105,8 @@ _tobTecStepSeedComparitorPSet = dict(
             FilterStripHits    = cms.bool(True),
             ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
             ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-        )
+        ),
+        _StripSubClusterShapeSeedFilter.clone()
     )
 )
 
@@ -112,10 +114,6 @@ tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduce
     seedingHitSets     = 'tobTecStepHitTripletsTripl',
     SeedComparitorPSet = _tobTecStepSeedComparitorPSet,
 )
-
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
-from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
-(~approxSiStripClusters).toModify(tobTecStepSeedsTripl.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
 
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -245,7 +243,7 @@ trackingLowPU.toModify(tobTecStepChi2Est,
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilderIterativeDefault.clone(
     trajectoryFilter       = dict(refToPSet_ = 'tobTecStepTrajectoryFilter'),
     inOutTrajectoryFilter  = dict(refToPSet_ = 'tobTecStepInOutTrajectoryFilter'),
     useSameTrajFilter      = False,
@@ -273,7 +271,7 @@ trackingNoLoopers.toModify(tobTecStepTrajectoryBuilder,
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
-_tobTecStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+_tobTecStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidatesIterativeDefault.clone(
     src = 'tobTecStepSeeds',
     clustersToSkip              = 'tobTecStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
@@ -380,7 +378,7 @@ tobTecFlexibleKFFittingSmoother = TrackingTools.TrackFitters.FlexibleKFFittingSm
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-tobTecStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+tobTecStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'tobTecStepTrackCandidates',
     AlgorithmName = 'tobTecStep',
     #Fitter = 'tobTecStepFitterSmoother',

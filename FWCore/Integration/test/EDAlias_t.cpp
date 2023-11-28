@@ -175,7 +175,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 }
 
 TEST_CASE("Configuration with all products of a module with a given product instance name", s_tag) {
-  const std::string baseConfig{
+  constexpr const std::string_view baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 
@@ -313,7 +313,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod, process.intprod2))
 
 ////////////////////////////////////////
 TEST_CASE("No products found with wildcards", s_tag) {
-  const std::string baseConfig{
+  constexpr const std::string_view baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 

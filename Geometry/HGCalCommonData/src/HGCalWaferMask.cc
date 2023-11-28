@@ -510,10 +510,20 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& rout,
                                                 const int& wType,
                                                 const int& mode,
-                                                bool debug) {
+                                                const bool& v17OrLess,
+                                                const bool& debug) {
   // No need to extend this for V17 -- use flat file information only
   int ncor(0), iok(0);
   int type(HGCalTypes::WaferFull), rotn(HGCalTypes::WaferCorner0);
+  double c22(HGCalTypes::c22), c27(HGCalTypes::c27), c61(HGCalTypes::c61);
+  double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
+  if (v17OrLess) {
+    c22 = HGCalTypes::c22O;
+    c27 = HGCalTypes::c27O;
+    c61 = HGCalTypes::c61O;
+    c77 = HGCalTypes::c77O;
+    c88 = HGCalTypes::c88O;
+  }
 
   static constexpr int corners = 6;
   static constexpr int base = 10;
@@ -575,30 +585,12 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                          -HGCalTypes::c75 * delY,
                          -HGCalTypes::c75 * delY,
                          HGCalTypes::c00 * delY};
-  double dx3[corners] = {HGCalTypes::c22 * delX,
-                         HGCalTypes::c10 * delX,
-                         HGCalTypes::c77 * delX,
-                         -HGCalTypes::c22 * delX,
-                         -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c77 * delX};
-  double dy3[corners] = {-HGCalTypes::c88 * delY,
-                         -HGCalTypes::c27 * delY,
-                         HGCalTypes::c61 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c27 * delY,
-                         -HGCalTypes::c61 * delY};
-  double dx4[corners] = {HGCalTypes::c22 * delX,
-                         -HGCalTypes::c77 * delX,
-                         -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c22 * delX,
-                         HGCalTypes::c77 * delX,
-                         HGCalTypes::c10 * delX};
-  double dy4[corners] = {HGCalTypes::c88 * delY,
-                         HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY,
-                         -HGCalTypes::c88 * delY,
-                         -HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY};
+  double dx3[corners] = {
+      c22 * delX, HGCalTypes::c10 * delX, c77 * delX, -c22 * delX, -HGCalTypes::c10 * delX, -c77 * delX};
+  double dy3[corners] = {-c88 * delY, -c27 * delY, c61 * delY, c88 * delY, c27 * delY, -c61 * delY};
+  double dx4[corners] = {
+      c22 * delX, -c77 * delX, -HGCalTypes::c10 * delX, -c22 * delX, c77 * delX, HGCalTypes::c10 * delX};
+  double dy4[corners] = {c88 * delY, c61 * delY, -c27 * delY, -c88 * delY, -c61 * delY, c27 * delY};
   double dx5[corners] = {-HGCalTypes::c50 * delX,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c50 * delX,
@@ -611,54 +603,18 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                          -HGCalTypes::c75 * delY,
                          HGCalTypes::c00 * delY,
                          HGCalTypes::c75 * delY};
-  double dx6[corners] = {-HGCalTypes::c77 * delX,
-                         -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c22 * delX,
-                         HGCalTypes::c77 * delX,
-                         HGCalTypes::c10 * delX,
-                         HGCalTypes::c22 * delX};
-  double dy6[corners] = {HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY,
-                         -HGCalTypes::c88 * delY,
-                         -HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY,
-                         HGCalTypes::c88 * delY};
-  double dx7[corners] = {-HGCalTypes::c22 * delX,
-                         -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c77 * delX,
-                         HGCalTypes::c22 * delX,
-                         HGCalTypes::c10 * delX,
-                         HGCalTypes::c77 * delX};
-  double dy7[corners] = {HGCalTypes::c88 * delY,
-                         HGCalTypes::c27 * delY,
-                         -HGCalTypes::c61 * delY,
-                         -HGCalTypes::c88 * delY,
-                         -HGCalTypes::c27 * delY,
-                         HGCalTypes::c61 * delY};
-  double dx8[corners] = {HGCalTypes::c77 * delX,
-                         HGCalTypes::c10 * delX,
-                         HGCalTypes::c22 * delX,
-                         -HGCalTypes::c77 * delX,
-                         -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c22 * delX};
-  double dy8[corners] = {-HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY,
-                         -HGCalTypes::c88 * delY};
-  double dx9[corners] = {-HGCalTypes::c22 * delX,
-                         HGCalTypes::c77 * delX,
-                         HGCalTypes::c10 * delX,
-                         HGCalTypes::c22 * delX,
-                         -HGCalTypes::c77 * delX,
-                         -HGCalTypes::c10 * delX};
-  double dy9[corners] = {-HGCalTypes::c88 * delY,
-                         -HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY};
+  double dx6[corners] = {
+      -c77 * delX, -HGCalTypes::c10 * delX, -c22 * delX, c77 * delX, HGCalTypes::c10 * delX, c22 * delX};
+  double dy6[corners] = {c61 * delY, -c27 * delY, -c88 * delY, -c61 * delY, c27 * delY, c88 * delY};
+  double dx7[corners] = {
+      -c22 * delX, -HGCalTypes::c10 * delX, -c77 * delX, c22 * delX, HGCalTypes::c10 * delX, c77 * delX};
+  double dy7[corners] = {c88 * delY, c27 * delY, -c61 * delY, -c88 * delY, -c27 * delY, c61 * delY};
+  double dx8[corners] = {
+      c77 * delX, HGCalTypes::c10 * delX, c22 * delX, -c77 * delX, -HGCalTypes::c10 * delX, -c22 * delX};
+  double dy8[corners] = {-c61 * delY, c27 * delY, c88 * delY, c61 * delY, -c27 * delY, -c88 * delY};
+  double dx9[corners] = {
+      -c22 * delX, c77 * delX, HGCalTypes::c10 * delX, c22 * delX, -c77 * delX, -HGCalTypes::c10 * delX};
+  double dy9[corners] = {-c88 * delY, -c61 * delY, c27 * delY, c88 * delY, c61 * delY, -c27 * delY};
 
   if (ncor == HGCalGeomTools::k_allCorners) {
   } else if (ncor == HGCalGeomTools::k_fiveCorners) {
@@ -749,9 +705,27 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalTypes::k_OffsetRotation)));
 }
 
-bool HGCalWaferMask::goodTypeMode(
-    double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug) {
-  // Needs extension for V17
+bool HGCalWaferMask::goodTypeMode(const double& xpos,
+                                  const double& ypos,
+                                  const double& delX,
+                                  const double& delY,
+                                  const double& rin,
+                                  const double& rout,
+                                  const int& part,
+                                  const int& rotn,
+                                  const bool& v17OrLess,
+                                  const bool& debug) {
+  // Needs extension for V17 or above
+  double c22(HGCalTypes::c22), c27(HGCalTypes::c27), c61(HGCalTypes::c61);
+  double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
+  if (v17OrLess) {
+    c22 = HGCalTypes::c22O;
+    c27 = HGCalTypes::c27O;
+    c61 = HGCalTypes::c61O;
+    c77 = HGCalTypes::c77O;
+    c88 = HGCalTypes::c88O;
+  }
+
   if (part < 0 || part > HGCalTypes::WaferSizeMax)
     return false;
   if (rotn < 0 || rotn > HGCalTypes::WaferCornerMax)
@@ -787,30 +761,30 @@ bool HGCalWaferMask::goodTypeMode(
                          HGCalTypes::c75 * delY,
                          HGCalTypes::c00 * delY,
                          -HGCalTypes::c75 * delY};
-  double dx2[corner2] = {HGCalTypes::c22 * delX,
-                         HGCalTypes::c77 * delX,
+  double dx2[corner2] = {c22 * delX,
+                         c77 * delX,
                          HGCalTypes::c10 * delX,
                          HGCalTypes::c10 * delX,
-                         HGCalTypes::c77 * delX,
-                         HGCalTypes::c22 * delX,
-                         -HGCalTypes::c22 * delX,
-                         -HGCalTypes::c77 * delX,
+                         c77 * delX,
+                         c22 * delX,
+                         -c22 * delX,
+                         -c77 * delX,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c77 * delX,
-                         -HGCalTypes::c22 * delX};
-  double dy2[corner2] = {-HGCalTypes::c88 * delY,
-                         -HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY,
-                         HGCalTypes::c27 * delY,
-                         HGCalTypes::c61 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY,
-                         -HGCalTypes::c27 * delY,
-                         -HGCalTypes::c61 * delY,
-                         -HGCalTypes::c88 * delY};
+                         -c77 * delX,
+                         -c22 * delX};
+  double dy2[corner2] = {-c88 * delY,
+                         -c61 * delY,
+                         -c27 * delY,
+                         c27 * delY,
+                         c61 * delY,
+                         c88 * delY,
+                         c88 * delY,
+                         c61 * delY,
+                         c27 * delY,
+                         -c27 * delY,
+                         -c61 * delY,
+                         -c88 * delY};
   bool ok(true);
   int ncf(-1);
   switch (part) {
@@ -1072,14 +1046,29 @@ bool HGCalWaferMask::goodTypeMode(
   return ok;
 }
 
-std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
-    int part, int ori, int zside, double waferSize, double offset, double xpos, double ypos) {
+std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
+                                                                const int& ori,
+                                                                const int& zside,
+                                                                const double& waferSize,
+                                                                const double& offset,
+                                                                const double& xpos,
+                                                                const double& ypos,
+                                                                const bool& v17OrLess) {
   // Good for V15 and V16 versions
   std::vector<std::pair<double, double> > xy;
   int orient = getRotation(-zside, part, ori);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Part " << part << " zSide " << zside << " Orient " << ori << ":" << orient;
 #endif
+  double c22(HGCalTypes::c22), c27(HGCalTypes::c27), c61(HGCalTypes::c61);
+  double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
+  if (v17OrLess) {
+    c22 = HGCalTypes::c22O;
+    c27 = HGCalTypes::c27O;
+    c61 = HGCalTypes::c61O;
+    c77 = HGCalTypes::c77O;
+    c88 = HGCalTypes::c88O;
+  }
   /*
     The exact contour of partial wafers are obtained by joining points on
     the circumference of a full wafer.
@@ -1105,30 +1094,102 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
   */
   double delX = 0.5 * waferSize;
   double delY = delX / sin_60_;
-  double dx[48] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
-                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
-                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
-  double dy[48] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
-                   HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
-                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
-                   -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
-                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
+  double dx[48] = {HGCalTypes::c00 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c00 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,
+                   -HGCalTypes::c50 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -HGCalTypes::c50 * delX,
+                   c22 * delX,
+                   HGCalTypes::c10 * delX,
+                   c77 * delX,
+                   -c22 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -c77 * delX,
+                   c22 * delX,
+                   -c77 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -c22 * delX,
+                   c77 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,
+                   -HGCalTypes::c50 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -HGCalTypes::c50 * delX,
+                   HGCalTypes::c50 * delX,
+                   HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,
+                   -HGCalTypes::c50 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -HGCalTypes::c50 * delX,
+                   c22 * delX,
+                   HGCalTypes::c10 * delX,
+                   c77 * delX,
+                   -c22 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -c77 * delX,
+                   c22 * delX,
+                   -c77 * delX,
+                   -HGCalTypes::c10 * delX,
+                   -c22 * delX,
+                   c77 * delX,
+                   HGCalTypes::c10 * delX};
+  double dy[48] = {-HGCalTypes::c10 * delY,
+                   -HGCalTypes::c50 * delY,
+                   HGCalTypes::c50 * delY,
+                   HGCalTypes::c10 * delY,
+                   HGCalTypes::c50 * delY,
+                   -HGCalTypes::c50 * delY,
+                   -HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   -HGCalTypes::c75 * delY,
+                   -c88 * delY,
+                   -c27 * delY,
+                   c61 * delY,
+                   c88 * delY,
+                   c27 * delY,
+                   -c61 * delY,
+                   c88 * delY,
+                   c61 * delY,
+                   -c27 * delY,
+                   -c88 * delY,
+                   -c61 * delY,
+                   c27 * delY,
+                   -HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   -HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   -HGCalTypes::c75 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c75 * delY,
+                   HGCalTypes::c00 * delY,
+                   -HGCalTypes::c75 * delY,
+                   -c88 * delY,
+                   -c27 * delY,
+                   c61 * delY,
+                   c88 * delY,
+                   c27 * delY,
+                   -c61 * delY,
+                   c88 * delY,
+                   c61 * delY,
+                   -c27 * delY,
+                   -c88 * delY,
+                   -c61 * delY,
+                   c27 * delY};
 
   double offsetx[48] = {0.0,
                         -offset,
@@ -1369,13 +1430,27 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
   return xy;
 }
 
-std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
-    int part, int place, double waferSize, double offset, double xpos, double ypos) {
+std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
+                                                                const int& place,
+                                                                const double& waferSize,
+                                                                const double& offset,
+                                                                const double& xpos,
+                                                                const double& ypos,
+                                                                const bool& v17OrLess) {
   std::vector<std::pair<double, double> > xy;
   // Good for V17 version and uses partial wafer type & placement index
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Part " << part << " Placement Index " << place;
 #endif
+  double c22(HGCalTypes::c22), c27(HGCalTypes::c27), c61(HGCalTypes::c61);
+  double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
+  if (v17OrLess) {
+    c22 = HGCalTypes::c22O;
+    c27 = HGCalTypes::c27O;
+    c61 = HGCalTypes::c61O;
+    c77 = HGCalTypes::c77O;
+    c88 = HGCalTypes::c88O;
+  }
   /*
     The exact contour of partial wafers are obtained by joining points on
     the circumference of a full wafer.
@@ -1401,38 +1476,128 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
   double delX = 0.5 * waferSize;
   double delY = delX / sin_60_;
   double dx[60] = {
-      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
-      HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
-      HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
-      HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
-      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,
-      HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,  -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX,
-      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
-      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,
-      HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,  -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c10 * delX,
+      HGCalTypes::c50 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c50 * delX,
+      -HGCalTypes::c50 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c50 * delX,
+      c22 * delX,
+      HGCalTypes::c10 * delX,
+      c77 * delX,
+      -c22 * delX,
+      -HGCalTypes::c10 * delX,
+      -c77 * delX,
+      c22 * delX,
+      -c77 * delX,
+      -HGCalTypes::c10 * delX,
+      -c22 * delX,
+      c77 * delX,
+      HGCalTypes::c10 * delX,
+      c22 * delX,
+      HGCalTypes::c10 * delX,
+      c77 * delX,
+      -c22 * delX,
+      -HGCalTypes::c10 * delX,
+      -c77 * delX,
+      c22 * delX,
+      -c77 * delX,
+      -HGCalTypes::c10 * delX,
+      -c22 * delX,
+      c77 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX,
+      -HGCalTypes::c10 * delX,
   };
   double dy[60] = {
-      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
-      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
-      HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-      -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-      HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-      -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
-      -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-      HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-      -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
-      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
-      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY,
-      HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,  HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY,
-      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
-      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY,
-      HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,  HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY,
+      -HGCalTypes::c10 * delY,
+      -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,
+      HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,
+      -HGCalTypes::c50 * delY,
+      -HGCalTypes::c75 * delY,
+      HGCalTypes::c00 * delY,
+      HGCalTypes::c75 * delY,
+      HGCalTypes::c75 * delY,
+      HGCalTypes::c00 * delY,
+      -HGCalTypes::c75 * delY,
+      -c88 * delY,
+      -c27 * delY,
+      c61 * delY,
+      c88 * delY,
+      c27 * delY,
+      -c61 * delY,
+      c88 * delY,
+      c61 * delY,
+      -c27 * delY,
+      -c88 * delY,
+      -c61 * delY,
+      c27 * delY,
+      -c88 * delY,
+      -c27 * delY,
+      c61 * delY,
+      c88 * delY,
+      c27 * delY,
+      -c61 * delY,
+      c88 * delY,
+      c61 * delY,
+      -c27 * delY,
+      -c88 * delY,
+      -c61 * delY,
+      c27 * delY,
+      -HGCalTypes::c10 * delY,
+      -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,
+      HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,
+      -HGCalTypes::c50 * delY,
+      -HGCalTypes::c10 * delY,
+      -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,
+      HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,
+      -HGCalTypes::c50 * delY,
+      -HGCalTypes::c10 * delY,
+      -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,
+      HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,
+      -HGCalTypes::c50 * delY,
+      -HGCalTypes::c10 * delY,
+      -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,
+      HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,
+      -HGCalTypes::c50 * delY,
   };
 
   double offsetx[60] = {0.0,

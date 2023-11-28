@@ -32,8 +32,6 @@ public:
 
   bool isBTLV2(FilteredView&);
 
-  bool isETLtdr(FilteredView&);
-
 protected:
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 

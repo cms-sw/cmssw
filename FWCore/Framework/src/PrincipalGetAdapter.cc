@@ -64,13 +64,6 @@ namespace edm {
                              << "'.\n";
   }
 
-  void principal_get_adapter_detail::throwOnPrematureRead(char const* principalType, TypeID const& productType) {
-    //throw Exception(errors::LogicError)
-    LogWarning("LogicError") << "::getManyByType: An attempt was made to read a " << principalType
-                             << " product before end" << principalType << "() was called.\n"
-                             << "The product is of type '" << productType << "'.\n";
-  }
-
   void principal_get_adapter_detail::throwOnPrematureRead(char const* principalType,
                                                           TypeID const& productType,
                                                           EDGetToken token) {
@@ -186,12 +179,6 @@ namespace edm {
                                                                ModuleCallingContext const* mcc) const {
     auto h = principal_.getByLabel(ELEMENT_TYPE, typeID, label, instance, process, consumer_, resourcesAcquirer_, mcc);
     return h;
-  }
-
-  void PrincipalGetAdapter::getManyByType_(TypeID const& tid,
-                                           BasicHandleVec& results,
-                                           ModuleCallingContext const* mcc) const {
-    principal_.getManyByType(tid, results, consumer_, resourcesAcquirer_, mcc);
   }
 
   ProcessHistory const& PrincipalGetAdapter::processHistory() const { return principal_.processHistory(); }

@@ -1,12 +1,13 @@
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/interface/MethodSetter.h"
+#include "CommonTools/Utils/interface/parser/MethodSetter.h"
 #include "CommonTools/Utils/src/findMethod.h"
 #include "CommonTools/Utils/interface/returnType.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
+//#include <iostream>
 using namespace reco::parser;
 using namespace std;
 
@@ -159,7 +160,7 @@ const SingleInvoker& LazyInvoker::invoker(const edm::TypeWithDict& type) const {
   return *(emplace_result.first->second);
 }
 
-edm::ObjectWithDict LazyInvoker::invoke(const edm::ObjectWithDict& o, std::vector<edm::ObjectWithDict>& v) const {
+edm::ObjectWithDict LazyInvoker::invoke(const edm::ObjectWithDict& o, std::vector<StorageManager>& v) const {
   pair<edm::ObjectWithDict, bool> ret(o, false);
   do {
     edm::TypeWithDict type = ret.first.typeOf();
@@ -171,7 +172,7 @@ edm::ObjectWithDict LazyInvoker::invoke(const edm::ObjectWithDict& o, std::vecto
   return ret.first;
 }
 
-double LazyInvoker::invokeLast(const edm::ObjectWithDict& o, std::vector<edm::ObjectWithDict>& v) const {
+double LazyInvoker::invokeLast(const edm::ObjectWithDict& o, std::vector<StorageManager>& v) const {
   pair<edm::ObjectWithDict, bool> ret(o, false);
   const SingleInvoker* i = nullptr;
   do {
@@ -196,34 +197,59 @@ SingleInvoker::SingleInvoker(const edm::TypeWithDict& type,
   //std::cerr  << "SingleInvoker on type " <<  type.qualifiedName() <<
   //  ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") <<
   //  std::endl;
-  if (invokers_.front().isFunction()) {
-    edm::TypeWithDict retType = invokers_.front().method().finalReturnType();
-    storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, retType);
-  } else {
-    storage_ = edm::ObjectWithDict();
-    storageNeedsDestructor_ = false;
-  }
+  returnStorage(createStorage(storageNeedsDestructor_));
   // typeStack[0] = type of self
   // typeStack[1] = type of ret
   retType_ = reco::typeCode(typeStack[1]);
 }
 
-SingleInvoker::~SingleInvoker() { ExpressionVar::delStorage(storage_); }
+SingleInvoker::~SingleInvoker() {
+  edm::ObjectWithDict stored;
+  while (storage_.try_pop(stored)) {
+    //std::cout <<"deleting "<<stored.address()<<" from "<<this<<std::endl;
+    ExpressionVar::delStorage(stored);
+  }
+}
+
+edm::ObjectWithDict SingleInvoker::createStorage(bool& needsDestructor) const {
+  if (invokers_.front().isFunction()) {
+    edm::TypeWithDict retType = invokers_.front().method().finalReturnType();
+    edm::ObjectWithDict stored;
+    needsDestructor = ExpressionVar::makeStorage(stored, retType);
+    return stored;
+  }
+  needsDestructor = false;
+  return edm::ObjectWithDict();
+}
+
+edm::ObjectWithDict SingleInvoker::borrowStorage() const {
+  edm::ObjectWithDict o;
+  if (storage_.try_pop(o)) {
+    //std::cout <<"borrowed "<<o.address()<<" from "<<this<<std::endl;
+    return o;
+  }
+  bool dummy;
+  o = createStorage(dummy);
+  //std::cout <<"borrowed new "<<o.address()<<std::endl;
+  return o;
+}
+
+void SingleInvoker::returnStorage(edm::ObjectWithDict&& o) const {
+  //std::cout <<"returned "<<o.address()<<" to "<<this<<std::endl;
+  storage_.push(std::move(o));
+}
 
 pair<edm::ObjectWithDict, bool> SingleInvoker::invoke(const edm::ObjectWithDict& o,
-                                                      std::vector<edm::ObjectWithDict>& v) const {
+                                                      std::vector<StorageManager>& v) const {
   // std::cerr << "[SingleInvoker::invoke] member " <<
   //   invokers_.front().method().qualifiedName() <<
   //   " of type " <<
   //   o.typeOf().qualifiedName() <<
   //   (!isRefGet_ ? " is one shot" : " needs another round") <<
   //   std::endl;
-  pair<edm::ObjectWithDict, bool> ret(invokers_.front().invoke(o, storage_), !isRefGet_);
-  if (storageNeedsDestructor_) {
-    //std::cerr << "Storage type: " << storage_.typeOf().qualifiedName() <<
-    //  ", I have to call the destructor." << std::endl;
-    v.push_back(storage_);
-  }
+  auto storage = borrowStorage();
+  pair<edm::ObjectWithDict, bool> ret(invokers_.front().invoke(o, storage), !isRefGet_);
+  v.emplace_back(storage, this, storageNeedsDestructor_);
   return ret;
 }
 
@@ -238,4 +264,13 @@ void SingleInvoker::throwFailedConversion(const edm::ObjectWithDict& o) const {
   throw edm::Exception(edm::errors::Configuration)
       << "member \"" << invokers_.back().methodName() << "\" return type is \"" << invokers_.back().returnTypeName()
       << "\" retured a \"" << o.typeOf().qualifiedName() << "\" which is not convertible to double.";
+}
+
+StorageManager::~StorageManager() {
+  if (needsDestructor_) {
+    object_.destruct(false);
+  }
+  if (invoker_) {
+    invoker_->returnStorage(std::move(object_));
+  }
 }

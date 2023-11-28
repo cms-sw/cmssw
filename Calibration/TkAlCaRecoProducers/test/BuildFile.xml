@@ -1,13 +1,5 @@
-<environment>
-  <bin file="testCalibrationTkAlCaRecoProducers.cpp" name="testAlCaHarvesting">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Calibration/TkAlCaRecoProducers/test testAlCaHarvesting.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
- <bin file="testCalibrationTkAlCaRecoProducers.cpp" name="testBeamSpotWorkflow">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Calibration/TkAlCaRecoProducers/test testBeamSpotWorkflow.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<test name="testAlCaHarvesting" command="testAlCaHarvesting.sh"/>
+<test name="testBeamSpotWorkflow" command="testBeamSpotWorkflow.sh"/>
 
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>

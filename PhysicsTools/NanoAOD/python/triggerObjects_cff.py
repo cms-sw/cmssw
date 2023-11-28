@@ -54,7 +54,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
         Electron = cms.PSet(
             doc = cms.string("PixelMatched e/gamma"), # this may also select photons!
             id = cms.int32(11),
-            sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"),
+            sel = cms.string("type(92) && pt > 7 && (coll('hltEgammaCandidates') || coll('hltEgammaCandidatesUnseeded')) && (filter('*PixelMatchFilter') || filter('*PixelMatchUnseededFilter'))"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
             skipObjectsNotPassingQualityBits = cms.bool(True),
@@ -63,7 +63,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight)"),
                 mksel("filter('hltEle*WPLoose*TrackIsoFilter')","1e (WPLoose)"),
                 mksel("filter('*OverlapFilter*IsoEle*PFTau*')","OverlapFilter PFTau"),
-                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVL*Filter')","2e"),
+                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter')","2e (Leg 1)"),
+                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter')","2e (Leg 2)"),
                 mksel("filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*')","1e-1mu"),
                 mksel("filter('hlt*OverlapFilterIsoEle*PFTau*')","1e-1tau"),
                 mksel("filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter')","3e"),
@@ -73,6 +74,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEle*CaloIdVTGsfTrkIdTGsfDphiFilter')","1e (CaloIdVT_GsfTrkIdT)"),
                 mksel("path('HLT_Ele*PFJet*')","1e (PFJet)"),
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
+                mksel("filter('hltEle*CaloIdLMWPMS2Filter')","2e (CaloIdL_MW seeded)"),
+                mksel("filter('hltDiEle*CaloIdLMWPMS2UnseededFilter')","2e (CaloIdL_MW unseeded)")
                 )
         ),
         Photon = cms.PSet(
@@ -88,7 +91,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEG90HEFilter')","hltEG90HEFilter"),
                 mksel("filter('hltEG120HEFilter')","hltEG120HEFilter"),
                 mksel("filter('hltEG150HEFilter')","hltEG150HEFilter"),
-                mksel("filter('hltEG175HEFilter')","hltEG150HEFilter"),
+                mksel("filter('hltEG175HEFilter')","hltEG175HEFilter"),
                 mksel("filter('hltEG200HEFilter')","hltEG200HEFilter"),
                 mksel("filter('hltHtEcal800')","hltHtEcal800"),
                 mksel("filter('hltEG110EBTightIDTightIsoTrackIsoFilter')","hltEG110EBTightIDTightIsoTrackIsoFilter"),
@@ -202,6 +205,10 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hlt2PFCentralJetTightIDPt30","hltPF2CentralJetTightIDPt30"]), # 28
                 mksel(["hlt1PFCentralJetTightIDPt60"]), # 29
                 mksel(["hltPF2CentralJetPt30PNet2BTagMean0p50"]), # 30
+<<<<<<< HEAD
+=======
+
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
             ),
         ),
         FatJet = cms.PSet(
@@ -373,7 +380,7 @@ l1PreFiringEventWeightTable = globalVariablesTableProducer.clone(
 l1bits=cms.EDProducer("L1TriggerResultsConverter",
                        src=cms.InputTag("gtStage2Digis"),
                        legacyL1=cms.bool(False),
-                       storeUnprefireableBit=cms.bool(True),
+                       storeUnprefireableBits=cms.bool(True),
                        src_ext=cms.InputTag("simGtExtUnprefireable"))
 
 triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits)

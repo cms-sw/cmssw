@@ -12,6 +12,7 @@ from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import *
 from Configuration.ProcessModifiers.trackingMkFitMixedTripletStep_cff import *
 from Configuration.ProcessModifiers.trackingMkFitPixelLessStep_cff import *
 from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import *
+from Configuration.ProcessModifiers.trackingMkFitDisplacedRegionalStep_cff import *
 
 # Use mkFit in selected iterations
 trackingMkFitDevel = cms.ModifierChain(
@@ -26,5 +27,6 @@ trackingMkFitDevel = cms.ModifierChain(
     trackingMkFitPixelPairStep,       
     trackingMkFitMixedTripletStep,    
     trackingMkFitPixelLessStep,       
-    trackingMkFitTobTecStep
+    trackingMkFitTobTecStep,
+    trackingMkFitDisplacedRegionalStep
 )

@@ -175,7 +175,6 @@ void popcon::EcalTPGBadXTHandler::getNewObjects() {
             typedef std::vector<FEConfigBadXTDat>::const_iterator CIfeped;
             EcalLogicID ecid_xt;
             FEConfigBadXTDat rd_badXt;
-            int icells = 0;
 
             for (CIfeped p = dataset_TpgBadXT.begin(); p != dataset_TpgBadXT.end(); p++) {
               rd_badXt = *p;
@@ -216,7 +215,6 @@ void popcon::EcalTPGBadXTHandler::getNewObjects() {
                 EBDetId ebdetid(sm_num, xt_num, EBDetId::SMCRYSTALMODE);
 
                 badXt->setValue(ebdetid.rawId(), rd_badXt.getStatus());
-                ++icells;
               } else {
                 // EE data
 
@@ -246,7 +244,6 @@ void popcon::EcalTPGBadXTHandler::getNewObjects() {
                 }
                 EEDetId eedetid(x, y, z);
                 badXt->setValue(eedetid.rawId(), rd_badXt.getStatus());
-                ++icells;
               }
             }  //end for over data
 

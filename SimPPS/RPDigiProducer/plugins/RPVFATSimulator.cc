@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 
-RPVFATSimulator::RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id) : params_(params), det_id_(det_id) {
+RPVFATSimulator::RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id) : det_id_(det_id) {
   threshold_ = params.getParameter<double>("RPVFATThreshold");
   dead_strip_probability_ = params.getParameter<double>("RPDeadStripProbability");
   dead_strips_simulation_on_ = params.getParameter<bool>("RPDeadStripSimulationOn");

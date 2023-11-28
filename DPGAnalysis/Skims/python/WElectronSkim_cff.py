@@ -119,6 +119,10 @@ stage2L1Trigger.toModify(PassingHLT,
     l1GtRecordInputTag = None,
     l1GtReadoutRecordInputTag = None,
 )
+<<<<<<< HEAD
+=======
+
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 ##    _____             ____        __ _       _ _   _             
 ##   |_   _|_ _  __ _  |  _ \  ___ / _(_)_ __ (_) |_(_) ___  _ __  
 ##     | |/ _` |/ _` | | | | |/ _ \ |_| | '_ \| | __| |/ _ \| '_ \ 

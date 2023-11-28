@@ -11,7 +11,7 @@ COMMMAND=`xrdfs cms-xrd-global.cern.ch locate $INPUTFILE`
 STATUS=$?
 echo "xrdfs command status = "$STATUS
 if [ $STATUS -eq 0 ]; then
-    echo "Using file ${INPUTFILE}. Running in ${LOCAL_TEST_DIR}."
+    echo "Using file ${INPUTFILE}. Running in ${SCRAM_TEST_PATH}."
     (cmsDriver.py testExpressPPSAlCaRecoProducer -s ALCAPRODUCER:PPSCalMaxTracks,ENDJOB \
     --process ALCARECO \
     --scenario pp \

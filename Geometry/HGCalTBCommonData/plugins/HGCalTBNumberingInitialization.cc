@@ -26,7 +26,7 @@
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBParameters.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HGCalTBNumberingInitialization : public edm::ESProducer {
 public:
@@ -44,9 +44,7 @@ private:
 
 HGCalTBNumberingInitialization::HGCalTBNumberingInitialization(const edm::ParameterSet& iConfig) {
   name_ = iConfig.getUntrackedParameter<std::string>("name");
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTBNumberingInitialization for " << name_;
-#endif
   auto cc = setWhatProduced(this, name_);
   hgParToken_ = cc.consumes<HGCalTBParameters>(edm::ESInputTag{"", name_});
 }

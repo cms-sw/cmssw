@@ -59,7 +59,7 @@ void HGCalGeometryMouseBiteTester::analyze(const edm::Event&, const edm::EventSe
   int zside(1), layer(1), waferU(1), waferV(1);
   int types[] = {0, 1};
   for (int type : types) {
-    int ncell = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+    int ncell = (type == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
     edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV
                                    << " type " << type << " cells " << ncell;
     for (int u = 0; u < 2 * ncell; ++u) {

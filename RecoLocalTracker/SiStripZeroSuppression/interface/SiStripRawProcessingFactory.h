@@ -3,6 +3,7 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
   class ConsumesCollector;
 }  // namespace edm
 class SiStripRawProcessingAlgorithms;
@@ -22,5 +23,6 @@ public:
   static std::unique_ptr<SiStripCommonModeNoiseSubtractor> create_SubtractorCMN(const edm::ParameterSet&,
                                                                                 edm::ConsumesCollector);
   static std::unique_ptr<SiStripAPVRestorer> create_Restorer(const edm::ParameterSet&, edm::ConsumesCollector);
+  static void fillDescriptions(edm::ParameterSetDescription& algorithms);
 };
 #endif

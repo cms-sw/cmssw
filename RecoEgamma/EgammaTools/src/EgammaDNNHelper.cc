@@ -28,6 +28,7 @@ void EgammaDNNHelper::initTensorFlowGraphs() {
 std::vector<tensorflow::Session*> EgammaDNNHelper::getSessions() const {
   std::vector<tensorflow::Session*> sessions;
   LogDebug("EgammaDNNHelper") << "Starting " << nModels_ << " TF sessions";
+  sessions.reserve(graphDefs_.size());
   for (const auto& graphDef : graphDefs_) {
     sessions.push_back(tensorflow::createSession(graphDef.get()));
   }

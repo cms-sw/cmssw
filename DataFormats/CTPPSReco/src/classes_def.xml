@@ -60,8 +60,11 @@
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
+  <class name="TotemRPLocalTrack::FittedRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="839012906"/>
+  </class>
+  <class name="edm::DetSet<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
 
@@ -187,8 +190,11 @@
   <class name="edm::DetSetVector<CTPPSPixelFittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>>"/>
   <class name="std::vector<edm::DetSet<CTPPSPixelFittedRecHit> >"/>
+  <class name="edm::DetSet<CTPPSPixelFittedRecHit>"/>
   <class name="std::vector<CTPPSPixelFittedRecHit>"/>
-  <class name="CTPPSPixelFittedRecHit"/>
+  <class name="CTPPSPixelFittedRecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="2285724696"/>
+  </class>
 
 <!-- common objects -->
 

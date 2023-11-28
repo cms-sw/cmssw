@@ -67,8 +67,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   if (hits.front()->isValid()) {
     auto const& ihit = hits.front();
     //update
-    assert((!(ihit)->canImproveWithTrack()) | (nullptr != theHitCloner));
-    assert((!(ihit)->canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
+    assert((!(ihit)->canImproveWithTrack()) || (nullptr != theHitCloner));
+    assert((!(ihit)->canImproveWithTrack()) || (nullptr != dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
     auto preciseHit = theHitCloner->makeShared(ihit, predTsos);
     dump(*preciseHit, 1, "GsfTrackFitters");
     { currTsos = updator()->update(predTsos, *preciseHit); }
@@ -119,8 +119,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     if ((**ihit).isValid()) {
       //update
-      assert((!(*ihit)->canImproveWithTrack()) | (nullptr != theHitCloner));
-      assert((!(*ihit)->canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+      assert((!(*ihit)->canImproveWithTrack()) || (nullptr != theHitCloner));
+      assert((!(*ihit)->canImproveWithTrack()) || (nullptr != dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
       if (!predTsos.isValid()) {
         return Trajectory();
       }

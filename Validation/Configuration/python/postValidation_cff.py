@@ -46,6 +46,8 @@ postValidation = cms.Sequence(
     + bdHadronTrackPostProcessor
     + MuonCSCDigisPostProcessors
 )
+
+effPlotting = cms.Sequence(runTauEff + makeBetterPlots) #test
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 postValidation_preprod = cms.Sequence(

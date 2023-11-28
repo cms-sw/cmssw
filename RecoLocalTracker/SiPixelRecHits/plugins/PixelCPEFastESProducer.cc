@@ -106,3 +106,5 @@ using PixelCPEFastESProducerPhase1 = PixelCPEFastESProducerT<pixelTopology::Phas
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase1);
 using PixelCPEFastESProducerPhase2 = PixelCPEFastESProducerT<pixelTopology::Phase2>;
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase2);
+using PixelCPEFastESProducerHIonPhase1 = PixelCPEFastESProducerT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerHIonPhase1);

@@ -1436,6 +1436,7 @@ private:
       return;
 
     vector<int> theRuns_;
+    theRuns_.reserve(conditionsMap_.size());
     for (const auto &it : conditionsMap_) {
       theRuns_.push_back(it.first);
     }

@@ -232,7 +232,7 @@ bool ComphepSingletopFilterPy8::filter(edm::StreamID, edm::Event &iEvent, const 
 
   //##Correction for GV vertex, because of additional gluons in ISR
   bool WeFoundAdditional_b_quark = false;
-  int loopCount = 0, gv_loopCount = 0;
+  int loopCount = 0;
   while (WeFoundAdditional_b_quark != true) {
     ////we go through b or B quark (not from top, top parent) production vertex
     for (GenVertex::particle_iterator it = gv->particles_begin(children); it != gv->particles_end(children); ++it) {
@@ -275,7 +275,6 @@ bool ComphepSingletopFilterPy8::filter(edm::StreamID, edm::Event &iEvent, const 
     } else {
       gv = nullptr;  //exits the "while" loop
     }
-    gv_loopCount++;
   }
 
   if (vgp_bsec.empty()) {

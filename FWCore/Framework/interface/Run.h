@@ -101,9 +101,6 @@ namespace edm {
     template <typename PROD>
     PROD const& get(EDGetTokenT<PROD> token) const noexcept(false);
 
-    template <typename PROD>
-    void getManyByType(std::vector<Handle<PROD>>& results) const;
-
     ///Put a new product.
     template <typename PROD>
     void put(std::unique_ptr<PROD> product) {
@@ -358,14 +355,6 @@ namespace edm {
     }
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     return *convert_handle<PROD>(std::move(bh));
-  }
-
-  template <typename PROD>
-  void Run::getManyByType(std::vector<Handle<PROD>>& results) const {
-    if (!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)));
-    }
-    return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
   // Free functions to retrieve a collection from the Run.

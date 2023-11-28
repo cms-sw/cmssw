@@ -10,7 +10,7 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoTracker/TkHitPairs"/>
-<use name="RecoPixelVertexing/PixelTriplets"/>
+<use name="RecoTracker/PixelSeeding"/>
 <use name="RecoTracker/MeasurementDet"/>
 <export>
   <lib name="1"/>

@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<DDDefinition>
-
-<ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="WaferW"      value="123.7*mm"/>
-</ConstantsSection>
-
-</DDDefinition>

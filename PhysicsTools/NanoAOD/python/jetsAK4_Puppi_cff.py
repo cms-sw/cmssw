@@ -41,6 +41,24 @@ tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     src = cms.InputTag("updatedJetsPuppi")
 )
 
+run2_jme_2016.toModify(
+    tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
+)
+
+(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    tightJetPuppiId.filterParams, version = "RUN2ULPUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2ULPUPPI"
+)
+
+run3_jme_Winter22runsBCDEprompt.toModify(
+    tightJetPuppiId.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+)
+
 #HF shower shape recomputation
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetPuppiShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJetsPuppi",vertices="offlineSlimmedPrimaryVertices")
@@ -103,11 +121,15 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
         hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
         hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
+        chMultiplicity = Var("chargedMultiplicity()","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("neutralMultiplicity()","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
         neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
         chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
+        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
+        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
     )
 )
@@ -121,8 +143,8 @@ run2_nanoAOD_ANY.toModify(
 )
 
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    # New ParticleNet and ParticleTransformer trainings are not available in MiniAOD until Run3 13X
     jetPuppiTable.variables,
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     btagPNetB = None,
     btagPNetCvL = None,
     btagPNetCvB = None,
@@ -131,6 +153,11 @@ run2_nanoAOD_ANY.toModify(
     PNetRegPtRawCorr = None,
     PNetRegPtRawCorrNeutrino = None,
     PNetRegPtRawRes = None,
+    # Remove for V11 and earlier Run3 versions
+    chMultiplicity = None,
+    neMultiplicity = None,
+    hfHEF = None,
+    hfEmEF = None
 )
 
 #jets are not as precise as muons
@@ -153,7 +180,6 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False):
         print("Updating process to run RobustParTAK4")
         from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
         _btagDiscriminators += pfParticleTransformerAK4JetTagsAll
-
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -178,7 +204,7 @@ nanoAOD_addDeepInfoAK4_switch = cms.PSet(
 #################################################
 
 ################################################################################
-# JETS FOR MET type1 
+# JETS FOR MET type1
 ################################################################################
 basicJetsPuppiForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
     src = updatedJetsPuppiWithUserData.src,

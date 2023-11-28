@@ -36,7 +36,7 @@ process.source = cms.Source("EmptyIOVSource",
 ###################################################################
 # Input data
 ###################################################################
-tag = 'SiPhase2OuterTrackerLorentzAngle_T15'
+tag = 'SiPhase2OuterTrackerLorentzAngle_T21'
 suffix = 'v0'
 inFile = tag+'_'+suffix+'.db'
 inDB = 'sqlite_file:'+inFile

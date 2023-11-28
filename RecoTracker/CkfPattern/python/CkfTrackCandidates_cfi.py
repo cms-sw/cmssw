@@ -5,3 +5,7 @@ ckfTrackCandidates = _mod.ckfTrackCandidateMaker.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilder')),
     maxSeedsBeforeCleaning = 5000,
 )
+
+ckfTrackCandidatesIterativeDefault = ckfTrackCandidates.clone(
+    TrajectoryBuilderPSet = dict(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilderIterativeDefault')),
+)

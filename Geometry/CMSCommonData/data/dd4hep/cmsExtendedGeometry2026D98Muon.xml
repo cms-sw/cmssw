@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2026/v5/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v7/caloBase.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/muonBase/2026/v5/muonBase.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/beampipe/2026/v3/beampipe.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonYoke/2026/v3/muonYoke.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mf/2026/v8/mf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gem21/TDR_Eta16/gem21.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mfshield/2026/v6/mfshield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/ge0/TDR_Dev/v4/ge0.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/ge0shield/2026/v1/ge0shield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
+    <Include ref='Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml'/>
+    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
+    <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
+    <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecs.xml'/>
+    <Include ref='Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml'/>
+    <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecsFilter.xml'/>
+    <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecs.xml'/>
+    <Include ref='Geometry/MuonSimData/data/muonProdCuts/2026/v2/muonProdCuts.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
+  </IncludeSection>
+</DDDefinition>

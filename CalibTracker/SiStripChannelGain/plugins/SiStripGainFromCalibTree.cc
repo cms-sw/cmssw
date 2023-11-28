@@ -358,8 +358,8 @@ void SiStripGainFromCalibTree::merge(TH2* A, TH2* B) {
 
 SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripApvGain>(iConfig) {
+  usesResource(TFileService::kSharedResource);
   OutputGains = iConfig.getParameter<std::string>("OutputGains");
-
   AlgoMode = iConfig.getUntrackedParameter<std::string>("AlgoMode", "CalibTree");
   MagFieldCurrentTh = iConfig.getUntrackedParameter<double>("MagFieldCurrentTh", 2000.);
   MinNrEntries = iConfig.getUntrackedParameter<double>("minNrEntries", 20);

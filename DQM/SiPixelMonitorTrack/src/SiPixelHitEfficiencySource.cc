@@ -375,10 +375,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
     int L1hits = 0;
     int L2hits = 0;
     int L3hits = 0;
-    int L4hits = 0;
     int D1hits = 0;
     int D2hits = 0;
-    int D3hits = 0;
     std::vector<TrajectoryMeasurement> tmeasColl = traj_iterator->measurements();
     std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
     // loop on measurements to find out what kind of hits there are
@@ -408,8 +406,6 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
           L2hits++;
         if (hit_layer == 3)
           L3hits++;
-        if (hit_layer == 4)
-          L4hits++;
       }
       if (testSubDetID == PixelSubdetector::PixelEndcap) {
         isFpixtrack = true;
@@ -419,8 +415,6 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
           D1hits++;
         if (hit_disk == 2)
           D2hits++;
-        if (hit_disk == 3)
-          D3hits++;
       }
       if (testSubDetID == StripSubdetector::TIB)
         nStripHits++;

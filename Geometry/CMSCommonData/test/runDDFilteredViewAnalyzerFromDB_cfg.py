@@ -6,6 +6,8 @@ process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.CMSGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

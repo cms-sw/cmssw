@@ -164,7 +164,7 @@ PYBIND11_MODULE(libFWCorePythonParameterSet, m) {
 
   pybind11::class_<PyBind11ProcessDesc>(m, "ProcessDesc")  //, pybind11::init<>())
       .def(pybind11::init<>())
-      .def(pybind11::init<std::string>())
+      .def(pybind11::init<std::string, bool>())
       .def("newPSet", &PyBind11ProcessDesc::newPSet)
       .def("pset", &PyBind11ProcessDesc::pset, pybind11::return_value_policy::reference)
       .def("dump", &PyBind11ProcessDesc::dump);

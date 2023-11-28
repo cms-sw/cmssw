@@ -138,7 +138,6 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory(const FreeTrajectorySta
 std::set<DetId> HDetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction, const int idR) {
   std::set<DetId> set;
   check_setup();
-  int nDets = 0;
   if (!theMap_)
     buildMap();
   LogTrace("MatchPoint") << "point (eta,phi): " << direction.eta() << "," << direction.phi() << "\n";
@@ -149,7 +148,6 @@ std::set<DetId> HDetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& dire
 
   if (ieta >= 0 && ieta < nEta_ && iphi >= 0 && iphi < nPhi_) {
     set = (*theMap_)[ieta][iphi];
-    nDets++;
     if (idR > 0) {
       LogTrace("MatchPoint") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi << "\n";
       //add neighbors
@@ -172,7 +170,6 @@ std::set<DetId> HDetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& dire
           if (i == ieta && j == iphi)
             continue;  // already in the set
           set.insert((*theMap_)[i][j % nPhi_].begin(), (*theMap_)[i][j % nPhi_].end());
-          nDets++;
         }
     }
   }

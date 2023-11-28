@@ -15,7 +15,7 @@ def applySubstructure( process, postfix="" ) :
     # Configure the RECO jets
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents
     setattr(process,'ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone())
-    setattr(process,'ak8PFJetsPuppiConstituents'+postfix, ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ))
+    setattr(process,'ak8PFJetsPuppiConstituents'+postfix, ak8PFJetsPuppiConstituents.clone())
     setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = 'ak8PFJetsPuppiConstituents'+postfix+':constituents' ))
     from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
     setattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone())
@@ -34,7 +34,11 @@ def applySubstructure( process, postfix="" ) :
                                 getattr(process,'ak8PFJetsPuppiSoftDropMass'))
       (_run2_miniAOD_ANY | pA_2016 | run3_miniAOD_12X ).toReplaceWith(task, _rerun_puppijets_task)
       (_run2_miniAOD_ANY | pA_2016 | run3_miniAOD_12X ).toModify(getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
+<<<<<<< HEAD
                                                                  cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4'))
+=======
+        cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4'))
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     else:
       task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
                getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
@@ -98,9 +102,8 @@ def applySubstructure( process, postfix="" ) :
 
     #too slow now ==> disable
     from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
-    for e in [pp_on_XeXe_2017, phase2_common]:
+    for e in [pp_on_XeXe_2017]:
         e.toModify(getattr(process,'nb1AK8PuppiSoftDrop'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
         e.toModify(getattr(process,'nb2AK8PuppiSoftDrop'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
 
@@ -115,7 +118,7 @@ def applySubstructure( process, postfix="" ) :
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3','NjettinessAK8Subjets'+postfix+':tau4']
 
-    for e in [pp_on_XeXe_2017, phase2_common]:
+    for e in [pp_on_XeXe_2017]:
         e.toModify(getattr(process,'nb1AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
         e.toModify(getattr(process,'nb2AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
 

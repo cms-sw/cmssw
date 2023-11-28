@@ -74,7 +74,7 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev,
 
   // *** Combine jets into pairs and check the dz matching ***
 
-  size_t npairs = 0, nfail_dz = 0;
+  size_t npairs = 0;
   if (n_jets > 1)
     for (size_t j1 = 0; j1 < n_jets; ++j1) {
       if (jets[j1].pt() < m_jetMinPt || std::abs(jets[j1].eta()) > m_jetMaxEta)
@@ -100,7 +100,6 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev,
 
         // do not form a pair if dz is too large
         if (std::abs(dz) > m_jetMaxDZ) {
-          ++nfail_dz;
           continue;
         }
 

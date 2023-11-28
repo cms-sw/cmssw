@@ -56,6 +56,7 @@ private:
   // --- histograms declaration
 
   MonitorElement* meNhits_[4];
+  MonitorElement* meNhitsPerLGAD_[4];
 
   MonitorElement* meHitCharge_[4];
   MonitorElement* meHitTime_[4];
@@ -77,6 +78,8 @@ private:
   MonitorElement* meHitQvsEta_[4];
   MonitorElement* meHitTvsPhi_[4];
   MonitorElement* meHitTvsEta_[4];
+
+  std::array<std::unordered_map<uint32_t, uint32_t>, 4> ndigiPerLGAD_;
 };
 
 // ------------ constructor and destructor --------------
@@ -97,22 +100,16 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  const MTDTopology* topology = topologyHandle.product();
-
-  bool topo1Dis = false;
-  bool topo2Dis = false;
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topology->getMTDTopologyMode()) == ETLDetId::EtlLayout::tp) {
-    topo1Dis = true;
-  } else {
-    topo2Dis = true;
-  }
-
   auto etlDigiHitsHandle = makeValid(iEvent.getHandle(etlDigiHitsToken_));
 
   // --- Loop over the ETL DIGI hits
 
   unsigned int n_digi_etl[4] = {0, 0, 0, 0};
+  for (size_t i = 0; i < 4; i++) {
+    ndigiPerLGAD_[i].clear();
+  }
+
+  size_t index(0);
 
   for (const auto& dataFrame : *etlDigiHitsHandle) {
     // --- Get the on-time sample
@@ -134,33 +131,24 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     // --- Fill the histograms
 
     int idet = 999;
-
-    if (topo1Dis) {
-      if (detId.zside() == -1) {
-        idet = 0;
-      } else if (detId.zside() == 1) {
-        idet = 2;
-      } else {
-        continue;
-      }
+    if (detId.discSide() == 1) {
+      weight = -weight;
+    }
+    if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
+      idet = 0;
+    } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
+      idet = 1;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
+      idet = 2;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
+      idet = 3;
+    } else {
+      edm::LogWarning("EtlDigiHitsValidation") << "Unknown ETL DetId configuration: " << detId;
+      continue;
     }
 
-    if (topo2Dis) {
-      if (detId.discSide() == 1) {
-        weight = -weight;
-      }
-      if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
-        idet = 0;
-      } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
-        idet = 1;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
-        idet = 2;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
-        idet = 3;
-      } else {
-        continue;
-      }
-    }
+    index++;
+    LogDebug("EtlDigiHitsValidation") << "Digi # " << index << " DetId " << detId.rawId() << " idet " << idet;
 
     meHitCharge_[idet]->Fill(sample.data());
     meHitTime_[idet]->Fill(sample.toa());
@@ -192,17 +180,16 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitTvsEta_[idet]->Fill(global_point.eta(), sample.toa());
 
     n_digi_etl[idet]++;
+    size_t ncount(0);
+    ndigiPerLGAD_[idet].emplace(detId.rawId(), ncount);
+    ndigiPerLGAD_[idet].at(detId.rawId())++;
 
   }  // dataFrame loop
 
-  if (topo1Dis) {
-    meNhits_[0]->Fill(n_digi_etl[0]);
-    meNhits_[2]->Fill(n_digi_etl[2]);
-  }
-
-  if (topo2Dis) {
-    for (int i = 0; i < 4; i++) {
-      meNhits_[i]->Fill(n_digi_etl[i]);
+  for (int i = 0; i < 4; i++) {
+    meNhits_[i]->Fill(log10(n_digi_etl[i]));
+    for (const auto& thisNdigi : ndigiPerLGAD_[i]) {
+      meNhitsPerLGAD_[i]->Fill(thisNdigi.second);
     }
   }
 }
@@ -219,16 +206,31 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                              "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
                              100,
                              0.,
-                             5000.);
+                             5.25);
   meNhits_[1] =
-      ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+      ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5.25);
   meNhits_[2] = ibook.book1D("EtlNhitsZposD1",
                              "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
                              100,
                              0.,
-                             5000.);
+                             5.25);
   meNhits_[3] =
-      ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+      ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5.25);
+
+  meNhitsPerLGAD_[0] = ibook.book1D("EtlNhitsPerLGADZnegD1",
+                                    "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
+                                    50,
+                                    0.,
+                                    50.);
+  meNhitsPerLGAD_[1] =
+      ibook.book1D("EtlNhitsPerLGADZnegD2", "Number of ETL DIGI hits (-Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
+  meNhitsPerLGAD_[2] = ibook.book1D("EtlNhitsPerLGADZposD1",
+                                    "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
+                                    50,
+                                    0.,
+                                    50.);
+  meNhitsPerLGAD_[3] =
+      ibook.book1D("EtlNhitsPerLGADZposD2", "Number of ETL DIGI hits (+Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
 
   meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1",
                                  "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",

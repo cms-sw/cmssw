@@ -48,9 +48,13 @@ namespace l1t {
 
     void setZ0(float z0) { setVertex(reco::Particle::Point(0, 0, z0)); }
     void setDxy(float dxy) { dxy_ = dxy; }
+    void setCaloEta(float caloeta) { caloEta_ = caloeta; }
+    void setCaloPhi(float calophi) { caloPhi_ = calophi; }
 
     float z0() const { return vz(); }
     float dxy() const { return dxy_; }
+    float caloEta() const { return caloEta_; }
+    float caloPhi() const { return caloPhi_; }
 
     int16_t hwZ0() const { return hwZ0_; }
     int16_t hwDxy() const { return hwDxy_; }
@@ -70,7 +74,7 @@ namespace l1t {
     PFClusterRef clusterRef_;
     PFTrackRef trackRef_;
     MuonRef muonRef_;
-    float dxy_, puppiWeight_;
+    float dxy_, puppiWeight_, caloEta_, caloPhi_;
 
     int16_t hwZ0_, hwDxy_;
     uint16_t hwTkQuality_, hwPuppiWeight_, hwEmID_;

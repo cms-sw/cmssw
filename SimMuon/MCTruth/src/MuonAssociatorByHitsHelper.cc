@@ -1296,11 +1296,8 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
 
             SimTrackIds.clear();
             std::vector<SimHitIdpr> i_SimTrackIds;
-            int i_compHit = 0;
 
             for (auto const &ithit : componentHits) {
-              i_compHit++;
-
               const GEMRecHit *gemrechitseg = dynamic_cast<const GEMRecHit *>(ithit);
 
               i_SimTrackIds.clear();

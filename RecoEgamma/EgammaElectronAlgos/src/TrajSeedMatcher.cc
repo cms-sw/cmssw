@@ -323,18 +323,14 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const Traject
   const auto outLayers = navSchool_.compatibleLayers(*detLayer, hitFreeState, alongMomentum);
 
   int nrValidLayers = 1;  //because our current hit is also valid and wont be included in the count otherwise
-  int nrPixInLayers = 0;
-  int nrPixOutLayers = 0;
   for (auto layer : inLayers) {
     if (GeomDetEnumerators::isTrackerPixel(layer->subDetector())) {
-      nrPixInLayers++;
       if (layerHasValidHits(*layer, hitTrajState, backwardPropagator_))
         nrValidLayers++;
     }
   }
   for (auto layer : outLayers) {
     if (GeomDetEnumerators::isTrackerPixel(layer->subDetector())) {
-      nrPixOutLayers++;
       if (layerHasValidHits(*layer, hitTrajState, forwardPropagator_))
         nrValidLayers++;
     }

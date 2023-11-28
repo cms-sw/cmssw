@@ -36,7 +36,6 @@ public:
   CPPUNIT_TEST_SUITE(TestEDConsumerBase);
   CPPUNIT_TEST(testRegularType);
   CPPUNIT_TEST(testViewType);
-  CPPUNIT_TEST(testMany);
   CPPUNIT_TEST(testMay);
   CPPUNIT_TEST_SUITE_END();
 
@@ -46,7 +45,6 @@ public:
 
   void testRegularType();
   void testViewType();
-  void testMany();
   void testMay();
 };
 
@@ -428,57 +426,6 @@ void TestEDConsumerBase::testViewType() {
 
       CPPUNIT_ASSERT(0 == indices.size());
     }
-  }
-}
-
-namespace {
-  class ManyEventIDConsumer : public edm::EDConsumerBase {
-  public:
-    ManyEventIDConsumer() { consumesMany<edm::EventID>(); }
-  };
-}  // namespace
-
-void TestEDConsumerBase::testMany() {
-  edm::ProductResolverIndexHelper helper;
-
-  edm::TypeID typeIDProductID(typeid(edm::ProductID));
-  edm::TypeID typeIDEventID(typeid(edm::EventID));
-  edm::TypeID typeIDVectorInt(typeid(std::vector<int>));
-  edm::TypeID typeIDSetInt(typeid(std::set<int>));
-  edm::TypeID typeIDVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
-
-  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC");       // 0, 1, 2
-  helper.insert(typeIDVectorInt, "label", "instance", "process");          // 3, 4, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");         // 6, 7
-  helper.insert(typeIDEventID, "label", "instanceB", "processB");          // 8, 9
-  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");         // 10, 11
-  helper.insert(typeIDEventID, "labelB", "instance", "processB");          // 12, 13
-  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");         // 14, 15
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");        // 16, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");        // 17, 5
-  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");        // 18, 5
-  helper.insert(typeIDProductID, "label", "instance", "process");          // 19, 20
-  helper.insert(typeIDEventID, "label", "instance", "process");            // 21, 22
-  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");       // 23, 24
-  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
-  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
-
-  helper.setFrozen();
-
-  edm::TypeID typeID_EventID(typeid(edm::EventID));
-
-  const auto productIndex = helper.index(edm::PRODUCT_TYPE, typeID_EventID, "labelB", "instanceB", "processB");
-
-  {
-    ManyEventIDConsumer consumer{};
-    consumer.updateLookup(edm::InEvent, helper, false);
-
-    std::vector<edm::ProductResolverIndexAndSkipBit> indices;
-    consumer.itemsToGet(edm::InEvent, indices);
-
-    CPPUNIT_ASSERT(9 == indices.size());
-    CPPUNIT_ASSERT(indices.end() !=
-                   std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(productIndex, false)));
   }
 }
 

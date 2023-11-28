@@ -7,3 +7,7 @@
   <flags TEST_RUNNER_ARGS=" 200000000"/>
   <use name="DataFormats/HGCalDigi"/>
 </bin>
+
+<bin file="HGCalRawDataEmulatorInfoTest.cc" name="HGCalRawDataEmulatorInfoTest">
+  <use name="DataFormats/HGCalDigi"/>
+</bin>

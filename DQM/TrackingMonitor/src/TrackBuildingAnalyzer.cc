@@ -329,7 +329,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker& ibooker, const edm::Par
 
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-    size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName) / sizeof(std::string);
+    size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
 
     histname = "StoppingSource_" + seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(

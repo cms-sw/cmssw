@@ -27,11 +27,14 @@
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
 
+#include <boost/range/adaptor/indexed.hpp>
+#include <iomanip>  // std::setprecision
+#include <iostream>
 #include <memory>
 #include <sstream>
-#include <iostream>
-#include <iomanip>  // std::setprecision
 
 // include ROOT
 #include "TH2F.h"
@@ -66,7 +69,7 @@ namespace {
   // one at a time
   //******************************************//
 
-  template <int ntags, IOVMultiplicity nIOVs>
+  template <int ntags, IOVMultiplicity nIOVs, bool doOnlyPixel>
   class TrackerAlignmentCompareAll : public PlotImage<Alignments, nIOVs, ntags> {
   public:
     TrackerAlignmentCompareAll()
@@ -102,6 +105,24 @@ namespace {
       std::vector<AlignTransform> ref_ali = first_payload->m_align;
       std::vector<AlignTransform> target_ali = last_payload->m_align;
 
+      // Use remove_if along with a lambda expression to remove elements based on the condition (subid > 2)
+      if (doOnlyPixel) {
+        ref_ali.erase(std::remove_if(ref_ali.begin(),
+                                     ref_ali.end(),
+                                     [](const AlignTransform &transform) {
+                                       int subid = DetId(transform.rawId()).subdetId();
+                                       return subid > 2;
+                                     }),
+                      ref_ali.end());
+
+        target_ali.erase(std::remove_if(target_ali.begin(),
+                                        target_ali.end(),
+                                        [](const AlignTransform &transform) {
+                                          int subid = DetId(transform.rawId()).subdetId();
+                                          return subid > 2;
+                                        }),
+                         target_ali.end());
+      }
       TCanvas canvas("Alignment Comparison", "Alignment Comparison", 2000, 1200);
       canvas.Divide(3, 2);
 
@@ -113,10 +134,18 @@ namespace {
         return false;
       }
 
+      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+
       // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = nullptr;
+      if (ph2) {
+        path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+      } else {
+        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      }
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -154,7 +183,8 @@ namespace {
       }
 
       // fill all the histograms together
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs);
 
       unsigned int subpad{1};
@@ -208,7 +238,7 @@ namespace {
         tSubdet[i].SetTextColor(kRed);
         tSubdet[i].SetNDC();
         tSubdet[i].SetTextAlign(21);
-        tSubdet[i].SetTextSize(0.03);
+        tSubdet[i].SetTextSize(doOnlyPixel ? 0.05 : 0.03);
         tSubdet[i].SetTextAngle(90);
       }
 
@@ -216,25 +246,31 @@ namespace {
       for (const auto &coord : coords) {
         auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
         canvas.cd(subpad + 1);
-
-        unsigned int i = 0;
-        for (const auto &line : boundaries) {
-          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line),
-                               canvas.cd(subpad + 1)->GetUymin(),
-                               diffs[coord]->GetBinLowEdge(line),
-                               canvas.cd(subpad + 1)->GetUymax() * 0.84);
-          l[subpad][i].SetLineWidth(1);
-          l[subpad][i].SetLineStyle(9);
-          l[subpad][i].SetLineColor(2);
-          l[subpad][i].Draw("same");
-          i++;
+        for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+          const auto &index = line.index();
+          const auto value = line.value();
+          l[subpad][index] = TLine(diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymin(),
+                                   diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymax() * 0.84);
+          l[subpad][index].SetLineWidth(1);
+          l[subpad][index].SetLineStyle(9);
+          l[subpad][index].SetLineColor(2);
+          l[subpad][index].Draw("same");
         }
 
-        const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
-        for (unsigned int j = 1; j <= 7; j++) {
-          auto thePart = static_cast<AlignmentPI::partitions>(j);
+        for (const auto &elem : boundaries | boost::adaptors::indexed(0)) {
+          const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
+          const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
+          const auto &frac = float(elem.value().first) / ref_ali.size();
+
+          LogDebug("TrackerAlignmentCompareAll")
+              << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
+
+          float theX_ = lm + (rm - lm) * frac + ((elem.index() > 0 || doOnlyPixel) ? 0.025 : 0.01);
+
           tSubdet[subpad].DrawLatex(
-              theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+              theX_, 0.23, Form("%s", AlignmentPI::getStringFromPart(elem.value().second, /*is phase2?*/ ph2).c_str()));
         }
 
         auto ltx = TLatex();
@@ -256,8 +292,11 @@ namespace {
     }
   };
 
-  typedef TrackerAlignmentCompareAll<1, MULTI_IOV> TrackerAlignmentComparatorSingleTag;
-  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV> TrackerAlignmentComparatorTwoTags;
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, false> TrackerAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, false> TrackerAlignmentComparatorTwoTags;
+
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, true> PixelAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, true> PixelAlignmentComparatorTwoTags;
 
   //*******************************************//
   // Size of the movement over all partitions,
@@ -342,7 +381,8 @@ namespace {
                                  ref_ali.size() - 0.5);
 
       // fill the histograms
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistogram(coord, boundaries, ref_ali, target_ali, compare);
 
       canvas.cd();
@@ -369,17 +409,17 @@ namespace {
       canvas.cd();
 
       TLine l[boundaries.size()];
-      unsigned int i = 0;
-      for (const auto &line : boundaries) {
-        l[i] = TLine(compare->GetBinLowEdge(line),
-                     canvas.cd()->GetUymin(),
-                     compare->GetBinLowEdge(line),
-                     canvas.cd()->GetUymax());
-        l[i].SetLineWidth(1);
-        l[i].SetLineStyle(9);
-        l[i].SetLineColor(2);
-        l[i].Draw("same");
-        i++;
+      for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+        const auto &index = line.index();
+        const auto value = line.value();
+        l[index] = TLine(compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymin(),
+                         compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymax());
+        l[index].SetLineWidth(1);
+        l[index].SetLineStyle(9);
+        l[index].SetLineColor(2);
+        l[index].Draw("same");
       }
 
       TLatex tSubdet;
@@ -387,13 +427,13 @@ namespace {
       tSubdet.SetTextAlign(21);
       tSubdet.SetTextSize(0.027);
       tSubdet.SetTextAngle(90);
-      for (unsigned int j = 1; j <= 6; j++) {
-        auto thePart = static_cast<AlignmentPI::partitions>(j);
+
+      for (const auto &elem : boundaries) {
         tSubdet.SetTextColor(kRed);
-        auto myPair = (j > 1) ? AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(boundaries[j - 2]))
-                              : AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(0));
-        float theX_ = myPair.first + 0.025;
-        tSubdet.DrawLatex(theX_, 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+        auto myPair = AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(elem.first));
+        float theX_ = elem.first != 0 ? myPair.first + 0.025 : myPair.first + 0.01;
+        const bool isPhase2 = (ref_ali.size() > AlignmentPI::phase1size);
+        tSubdet.DrawLatex(theX_, 0.20, Form("%s", AlignmentPI::getStringFromPart(elem.second, isPhase2).c_str()));
       }
 
       TLegend legend = TLegend(0.17, 0.86, 0.95, 0.94);
@@ -532,27 +572,36 @@ namespace {
 
         diffs[coord] = std::make_unique<TH1F>(Form("hDiff_%s", s_coord.c_str()),
                                               Form(";#Delta%s %s;n. of modules", s_coord.c_str(), unit.c_str()),
-                                              1000,
-                                              -500.,
-                                              500.);
+                                              1001,
+                                              -500.5,
+                                              500.5);
       }
 
       // fill the comparison histograms
-      std::vector<int> boundaries{};
+      std::map<int, AlignmentPI::partitions> boundaries;
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs, true, q);
 
       int c_index = 1;
 
-      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
-      legend->AddEntry(
-          diffs[AlignmentPI::t_x].get(),
-          ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
-          "L");
-      legend->SetTextSize(0.03);
+      //TLegend (Double_t x1, Double_t y1, Double_t x2, Double_t y2, const char *header="", Option_t *option="brNDC")
+      auto legend = std::make_unique<TLegend>(0.14, 0.88, 0.96, 0.99);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend->AddEntry(
+            diffs[AlignmentPI::t_x].get(),
+            ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}").c_str(),
+            "PL");
+      } else {
+        legend->SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend->AddEntry(diffs[AlignmentPI::t_x].get(),
+                         ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                         "PL");
+      }
+      legend->SetTextSize(0.025);
 
       for (const auto &coord : coords) {
         canvas.cd(c_index)->SetLogy();
-        canvas.cd(c_index)->SetTopMargin(0.02);
+        canvas.cd(c_index)->SetTopMargin(0.01);
         canvas.cd(c_index)->SetBottomMargin(0.15);
         canvas.cd(c_index)->SetLeftMargin(0.14);
         canvas.cd(c_index)->SetRightMargin(0.04);
@@ -567,6 +616,7 @@ namespace {
         int i_max = diffs[coord]->FindLastBinAbove(0.);
         int i_min = diffs[coord]->FindFirstBinAbove(0.);
         diffs[coord]->GetXaxis()->SetRange(std::max(1, i_min - 10), std::min(i_max + 10, diffs[coord]->GetNbinsX()));
+        diffs[coord]->SetMaximum(diffs[coord]->GetMaximum() * 5);
         diffs[coord]->Draw("HIST");
         AlignmentPI::makeNiceStats(diffs[coord].get(), q, kBlack);
 
@@ -597,6 +647,218 @@ namespace {
   typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TID> TrackerAlignmentSummaryTIDTwoTags;
   typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TOB> TrackerAlignmentSummaryTOBTwoTags;
   typedef TrackerAlignmentSummaryBase<2, SINGLE_IOV, AlignmentPI::TEC> TrackerAlignmentSummaryTECTwoTags;
+
+  /************************************************
+   Full Pixel Tracker Map Comparison of coordinates
+  *************************************************/
+  template <AlignmentPI::coordinate coord, int ntags, IOVMultiplicity nIOVs>
+  class PixelAlignmentComparisonMapBase : public PlotImage<Alignments, nIOVs, ntags> {
+  public:
+    PixelAlignmentComparisonMapBase()
+        : PlotImage<Alignments, nIOVs, ntags>("SiPixel Comparison Map of " +
+                                              AlignmentPI::getStringFromCoordinate(coord)) {
+      label_ = "PixelAlignmentComparisonMap" + AlignmentPI::getStringFromCoordinate(coord);
+      payloadString = "Tracker Alignment";
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(1);
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      const std::vector<AlignTransform> &ref_ali = first_payload->m_align;
+      const std::vector<AlignTransform> &target_ali = last_payload->m_align;
+
+      if (last_payload.get() && first_payload.get()) {
+        Phase1PixelSummaryMap fullMap(
+            "",
+            fmt::sprintf("%s %s", payloadString, AlignmentPI::getStringFromCoordinate(coord)),
+            fmt::sprintf(
+                "#Delta %s [%s]", AlignmentPI::getStringFromCoordinate(coord), (coord <= 3) ? "#mum" : "mrad"));
+        fullMap.createTrackerBaseMap();
+
+        if (this->isPhase0(ref_ali) || this->isPhase0(target_ali)) {
+          edm::LogError(label_) << "Pixel Tracker Alignment maps are not supported for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          AlignmentPI::displayNotSupported(canvas, 0);
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
+        // fill the map of differences
+        std::map<uint32_t, double> diffPerDetid;
+        this->fillPerDetIdDiff(coord, ref_ali, target_ali, diffPerDetid);
+
+        // now fill the tracker map
+        for (const auto &elem : diffPerDetid) {
+          // reject Strips
+          int subid = DetId(elem.first).subdetId();
+          if (subid > 2) {
+            continue;
+          }
+          fullMap.fillTrackerMap(elem.first, elem.second);
+        }
+
+        // limit the axis range (in case of need)
+        //fullMap.setZAxisRange(-50.f,50.f);
+
+        TCanvas canvas("Canv", "Canv", 3000, 2000);
+        fullMap.printTrackerMap(canvas);
+
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextSize(0.025);
+        ltx.SetTextAlign(11);
+
+        ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                         gPad->GetBottomMargin() + 0.01,
+                         ("#color[4]{" + tagname1 + "}, IOV: #color[4]{" + firstIOVsince + "} vs #color[4]{" +
+                          tagname2 + "}, IOV: #color[4]{" + lastIOVsince + "}")
+                             .c_str());
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+
+  private:
+    //_________________________________________________
+    bool isPhase0(std::vector<AlignTransform> theAlis) {
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
+      const auto &p0detIds = reader.getAllDetIds();
+
+      std::vector<uint32_t> ownDetIds;
+      std::transform(theAlis.begin(), theAlis.end(), std::back_inserter(ownDetIds), [](AlignTransform ali) -> uint32_t {
+        return ali.rawId();
+      });
+
+      for (const auto &det : ownDetIds) {
+        // if found at least one phase-0 detId early return
+        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /*--------------------------------------------------------------------*/
+    void fillPerDetIdDiff(const AlignmentPI::coordinate &myCoord,
+                          const std::vector<AlignTransform> &ref_ali,
+                          const std::vector<AlignTransform> &target_ali,
+                          std::map<uint32_t, double> &diff)
+    /*--------------------------------------------------------------------*/
+    {
+      for (unsigned int i = 0; i < ref_ali.size(); i++) {
+        uint32_t detid = ref_ali[i].rawId();
+        if (ref_ali[i].rawId() == target_ali[i].rawId()) {
+          CLHEP::HepRotation target_rot(target_ali[i].rotation());
+          CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
+
+          align::RotationType target_ROT(target_rot.xx(),
+                                         target_rot.xy(),
+                                         target_rot.xz(),
+                                         target_rot.yx(),
+                                         target_rot.yy(),
+                                         target_rot.yz(),
+                                         target_rot.zx(),
+                                         target_rot.zy(),
+                                         target_rot.zz());
+
+          align::RotationType ref_ROT(ref_rot.xx(),
+                                      ref_rot.xy(),
+                                      ref_rot.xz(),
+                                      ref_rot.yx(),
+                                      ref_rot.yy(),
+                                      ref_rot.yz(),
+                                      ref_rot.zx(),
+                                      ref_rot.zy(),
+                                      ref_rot.zz());
+
+          const std::vector<double> deltaRot = {
+              ::deltaPhi(align::toAngles(target_ROT)[0], align::toAngles(ref_ROT)[0]),
+              ::deltaPhi(align::toAngles(target_ROT)[1], align::toAngles(ref_ROT)[1]),
+              ::deltaPhi(align::toAngles(target_ROT)[2], align::toAngles(ref_ROT)[2])};
+
+          const auto &deltaTrans = target_ali[i].translation() - ref_ali[i].translation();
+
+          switch (myCoord) {
+            case AlignmentPI::t_x:
+              diff.insert({detid, deltaTrans.x() * AlignmentPI::cmToUm});
+              break;
+            case AlignmentPI::t_y:
+              diff.insert({detid, deltaTrans.y() * AlignmentPI::cmToUm});
+              break;
+            case AlignmentPI::t_z:
+              diff.insert({detid, deltaTrans.z() * AlignmentPI::cmToUm});
+              break;
+            case AlignmentPI::rot_alpha:
+              diff.insert({detid, deltaRot[0] * AlignmentPI::tomRad});
+              break;
+            case AlignmentPI::rot_beta:
+              diff.insert({detid, deltaRot[1] * AlignmentPI::tomRad});
+              break;
+            case AlignmentPI::rot_gamma:
+              diff.insert({detid, deltaRot[2] * AlignmentPI::tomRad});
+              break;
+            default:
+              edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << myCoord << std::endl;
+              break;
+          }  // switch on the coordinate
+        }    // check on the same detID
+      }      // loop on the components
+    }
+  };
+
+  template <AlignmentPI::coordinate coord>
+  using PixelAlignmentCompareMap = PixelAlignmentComparisonMapBase<coord, 1, MULTI_IOV>;
+
+  template <AlignmentPI::coordinate coord>
+  using PixelAlignmentCompareMapTwoTags = PixelAlignmentComparisonMapBase<coord, 2, SINGLE_IOV>;
+
+  typedef PixelAlignmentCompareMap<AlignmentPI::t_x> PixelAlignmentCompareMapX;
+  typedef PixelAlignmentCompareMap<AlignmentPI::t_y> PixelAlignmentCompareMapY;
+  typedef PixelAlignmentCompareMap<AlignmentPI::t_z> PixelAlignmentCompareMapZ;
+
+  typedef PixelAlignmentCompareMap<AlignmentPI::rot_alpha> PixelAlignmentCompareMapAlpha;
+  typedef PixelAlignmentCompareMap<AlignmentPI::rot_beta> PixelAlignmentCompareMapBeta;
+  typedef PixelAlignmentCompareMap<AlignmentPI::rot_gamma> PixelAlignmentCompareMapGamma;
+
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::t_x> PixelAlignmentCompareMapXTwoTags;
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::t_y> PixelAlignmentCompareMapYTwoTags;
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::t_z> PixelAlignmentCompareMapZTwoTags;
+
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::rot_alpha> PixelAlignmentCompareMapAlphaTwoTags;
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::rot_beta> PixelAlignmentCompareMapBetaTwoTags;
+  typedef PixelAlignmentCompareMapTwoTags<AlignmentPI::rot_gamma> PixelAlignmentCompareMapGammaTwoTags;
 
   //*******************************************//
   // History of the position of the BPix Barycenter
@@ -673,6 +935,7 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto &tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
 
@@ -774,8 +1037,8 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters, IOV %i", run));
+      t1.SetTextSize(0.045);
+      t1.DrawLatex(0.5, 0.96, Form("TkAl Barycenters, Tag: #color[4]{%s}, IOV #color[4]{%i}", tagname.c_str(), run));
       t1.SetTextSize(0.025);
 
       std::string fileName(m_imageFileName);
@@ -1157,6 +1420,8 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorSingleTag);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareX);
@@ -1171,6 +1436,18 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareAlphaTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareBetaTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareGammaTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapX);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapY);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapZ);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapAlpha);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapBeta);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapGamma);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapXTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapYTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapZTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapAlphaTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapBetaTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentCompareMapGammaTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryBPix);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryFPix);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTIB);

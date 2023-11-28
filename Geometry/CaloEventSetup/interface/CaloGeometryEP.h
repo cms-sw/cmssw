@@ -18,7 +18,7 @@ public:
   using LoaderType = CaloGeometryLoader<T>;
   using PtrType = typename LoaderType::PtrType;
 
-  CaloGeometryEP<T, D>(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
+  CaloGeometryEP(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
     auto cc = setWhatProduced(this, &CaloGeometryEP<T, D>::produceAligned, edm::es::Label(T::producerTag()));
 
     if (applyAlignment_) {
@@ -28,7 +28,7 @@ public:
     cpvToken_ = cc.template consumesFrom<D, IdealGeometryRecord>(edm::ESInputTag{});
   }
 
-  ~CaloGeometryEP<T, D>() override {}
+  ~CaloGeometryEP() override {}
   PtrType produceAligned(const typename T::AlignedRecord& iRecord) {
     const Alignments* alignPtr(nullptr);
     const Alignments* globalPtr(nullptr);

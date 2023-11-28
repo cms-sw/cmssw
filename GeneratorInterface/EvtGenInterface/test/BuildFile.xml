@@ -1,6 +1,3 @@
-<bin name="GeneratorInterfaceEvtGenInterfaceTest" file="TestEvtGenInterface.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash GeneratorInterface/EvtGenInterface/test runevtgentests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="GeneratorInterfaceEvtGenInterfaceTest" command="runevtgentests.sh"/>
 <test name="TestGeneratorInterfaceEvtGenInterface_bplus" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/EvtGenInterface/test/Py8_bplus_evtgen1_cfg.py"/>
 <test name="TestGeneratorInterfaceEvtGenInterface_external_bplus" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/EvtGenInterface/test/external_Py8_bplus_evtgen1_cfg.py"/>

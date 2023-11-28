@@ -128,7 +128,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
     process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-    process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
+    process.load("RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -185,8 +185,8 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
         
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
-    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
-    process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 450
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 450
 
     
 
@@ -227,7 +227,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
     process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 

@@ -115,21 +115,23 @@ private:
 
   std::unique_ptr<l1t::GlobalBoard> m_uGtBrd;
 
-  /// input tag for muon collection from GMT
+  /// input tag for muon collection from the Global Muon Trigger (GMT)
   edm::InputTag m_muInputTag;
   edm::InputTag m_muShowerInputTag;
   edm::EDGetTokenT<BXVector<l1t::Muon>> m_muInputToken;
   edm::EDGetTokenT<BXVector<l1t::MuonShower>> m_muShowerInputToken;
 
-  /// input tag for calorimeter collections from GCT
+  /// input tag for calorimeter collections from Calo Layer 2 (GCT) or Zero Degree Calorimeter (ZDC)
   edm::InputTag m_egInputTag;
   edm::InputTag m_tauInputTag;
   edm::InputTag m_jetInputTag;
   edm::InputTag m_sumInputTag;
+  edm::InputTag m_sumZdcInputTag;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
   edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
   edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
+  edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumZdcInputToken;
 
   /// input tag for external conditions
   edm::InputTag m_extInputTag;
@@ -192,6 +194,9 @@ private:
   // initialise prescale counters with a semi-random value in the range [0, prescale*10^precision - 1];
   // if false, the prescale counters are initialised to zero
   bool m_semiRandomInitialPSCounters;
+
+  //string to store AXOL1TL model version
+  std::string m_AXOL1TLModelVersion;
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;

@@ -40,7 +40,7 @@ namespace edm {
           : index_(std::forward<I>(iIndex)),
             productLabel_(std::forward<P>(iProduct)),
             moduleLabel_(std::forward<M>(iModule)) {}
-      ESProxyIndex index_;
+      ESResolverIndex index_;
       std::string productLabel_;
       std::string_view moduleLabel_;
     };
@@ -55,9 +55,9 @@ namespace edm {
     ESTagGetter& operator=(ESTagGetter&&) = default;
 
     // ---------- const member functions ---------------------
-    ESProxyIndex operator()(std::string_view iModuleLabel, std::string_view iProductLabel) const;
+    ESResolverIndex operator()(std::string_view iModuleLabel, std::string_view iProductLabel) const;
 
-    ESProxyIndex nothing() const { return ESProxyIndex(); }
+    ESResolverIndex nothing() const { return ESResolverIndex(); }
 
     ///Returns true if the Record being searched contains no products of the proper type
     bool hasNothingToGet() const { return lookup_.empty(); }

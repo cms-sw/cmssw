@@ -151,19 +151,16 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
                                      << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs < 1.7) {
-      int nin(0), nout(0);
       for (auto eItr : *(ecalEB.product())) {
         const GlobalPoint& pos = geo->getPosition(eItr.detid());
         double R = reco::deltaR(pos.eta(), pos.phi(), etaPhi.first, etaPhi.second);
         if (R < coneSize_) {
           nhitIn++;
           inEnergy += (eItr.energy());
-          ++nin;
           if (eItr.energy() > hitCountEthrEB_)
             nhitOut++;
           if (eItr.energy() > hitEthrEB_) {
             outEnergy += (eItr.energy());
-            ++nout;
           }
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalIsoTrack") << "EBRechit close to the track has E " << eItr.energy()
@@ -173,7 +170,6 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
       }
     }
     if (etaAbs > 1.25) {
-      int nin(0), nout(0);
       for (auto eItr : *(ecalEE.product())) {
         const GlobalPoint& pos = geo->getPosition(eItr.detid());
         double R = reco::deltaR(pos.eta(), pos.phi(), etaPhi.first, etaPhi.second);
@@ -184,12 +180,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
             hitEthr = hitEthrEB_;
           nhitIn++;
           inEnergy += (eItr.energy());
-          ++nin;
           if (eItr.energy() > fachitCountEE_ * hitEthr)
             nhitOut++;
           if (eItr.energy() > hitEthr) {
             outEnergy += (eItr.energy());
-            ++nout;
           }
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalIsoTrack") << "EERechit close to the track has E " << eItr.energy()

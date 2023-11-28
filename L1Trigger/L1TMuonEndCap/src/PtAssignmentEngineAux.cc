@@ -25,11 +25,11 @@ int PtAssignmentEngineAux::getGMTPtDxy(float pt) const {
 
 int PtAssignmentEngineAux::getGMTDxy(float dxy) const {
   int gmt_dxy = 0;
-  if (std::abs(dxy) < 25.) {
+  if (std::abs(dxy) < 32.) {
     gmt_dxy = 0;
-  } else if (std::abs(dxy) < 50.) {
+  } else if (std::abs(dxy) < 64.) {
     gmt_dxy = 1;
-  } else if (std::abs(dxy) < 75.) {
+  } else if (std::abs(dxy) < 96.) {
     gmt_dxy = 2;
   } else {
     gmt_dxy = 3;

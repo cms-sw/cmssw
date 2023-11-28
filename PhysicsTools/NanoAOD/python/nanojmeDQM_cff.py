@@ -20,13 +20,13 @@ for plot in nanojmeDQM.vplots.Jet.plots:
     _ak4puppiplots.append(plot)
 
 _ak4puppiplots.extend([
-    Plot1D('nConstChHads','nConstChHads', 10,  0, 40,'number of charged hadrons in the jet'),
-    Plot1D('nConstNeuHads','nConstNeuHads', 10,  0, 40,'number of neutral hadrons in the jet'),
-    Plot1D('nConstPhotons','nConstPhotons', 10,  0, 40,'number of photons in the jet'),
-    Plot1D('nConstElecs','nConstElecs', 5, 0, 10,'number of electrons in the jet'),
-    Plot1D('nConstMuons','nConstMuons', 5, 0, 10,'number of muons in the jet'),
-    Plot1D('nConstHFEMs','nConstHFEMs', 5, 0, 10,'number of HF EMs in the jet'),
-    Plot1D('nConstHFHads','nConstHFHads', 5,  0, 10,'number of HF Hadrons in the jet'),
+    Plot1D('chHadMultiplicity','chHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of charged hadrons in the jet'),
+    Plot1D('neHadMultiplicity','neHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of neutral hadrons in the jet'),
+    Plot1D('phoMultiplicity','phoMultiplicity', 10,  0, 40,'(Puppi-weighted) number of photons in the jet'),
+    Plot1D('elMultiplicity','elMultiplicity', 5, 0, 10,'(Puppi-weighted) number of electrons in the jet'),
+    Plot1D('muMultiplicity','muMultiplicity', 5, 0, 10,'(Puppi-weighted) number of muons in the jet'),
+    Plot1D('hfEMMultiplicity','hfEMMultiplicity', 5, 0, 10,'(Puppi-weighted) number of HF EMs in the jet'),
+    Plot1D('hfHadMultiplicity','hfHadMultiplicity', 5,  0, 10,'(Puppi-weighted) number of HF hadrons in the jet'),
     Plot1D('puId_dR2Mean','puId_dR2Mean',20, 0, 0.2,"pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)"),
     Plot1D('puId_majW','puId_majW',10, 0, 0.5, "major axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)"),
     Plot1D('puId_minW','puId_minW',10, 0, 0.5, "minor axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)"),
@@ -51,8 +51,6 @@ _ak4puppiplots.extend([
     Plot1D('particleNetAK4_QvsG','particleNetAK4_QvsG',20, -1, 1,"ParticleNetAK4 tagger uds vs g discriminator"),
     Plot1D('particleNetAK4_G','particleNetAK4_G',20, -1, 1, "ParticleNetAK4 tagger g raw score"),
     Plot1D('particleNetAK4_puIdDisc','particleNetAK4_puIdDisc',20, -1, 1,"ParticleNetAK4 tagger pileup jet discriminator"),
-    Plot1D('hfEmEF','hfEmEF', 20, 0, 1,'electromagnetic energy fraction in HF'),
-    Plot1D('hfHEF','hfHEF', 20, 0, 1,'hadronic energy fraction in HF'),
 ])
 
 #============================================
@@ -96,13 +94,13 @@ nanojmeDQM.vplots.JetCHS = cms.PSet( # This is for the Run-3 extra "JetCHS" coll
 #
 #============================================
 nanojmeDQM.vplots.FatJet.plots.extend([
-    Plot1D('nConstChHads','nConstChHads',10,0,40,'number of charged hadrons in the jet'),
-    Plot1D('nConstNeuHads','nConstNeuHads',10,0,40,'number of neutral hadrons in the jet'),
-    Plot1D('nConstPhotons','nConstPhotons',10,0,40,'number of photons in the jet'),
-    Plot1D('nConstElecs','nConstElecs',5,0,10,'number of electrons in the jet'),
-    Plot1D('nConstMuons','nConstMuons',5,0,10,'number of muons in the jet'),
-    Plot1D('nConstHFEMs','nConstHFEMs',5,0,10,'number of HF EMs in the jet'),
-    Plot1D('nConstHFHads','nConstHFHads',5,0,10,'number of HF Hadrons in the jet'),
+    Plot1D('chHadMultiplicity','chHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of charged hadrons in the jet'),
+    Plot1D('neHadMultiplicity','neHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of neutral hadrons in the jet'),
+    Plot1D('phoMultiplicity','phoMultiplicity', 10,  0, 40,'(Puppi-weighted) number of photons in the jet'),
+    Plot1D('elMultiplicity','elMultiplicity', 5, 0, 10,'(Puppi-weighted) number of electrons in the jet'),
+    Plot1D('muMultiplicity','muMultiplicity', 5, 0, 10,'(Puppi-weighted) number of muons in the jet'),
+    Plot1D('hfEMMultiplicity','hfEMMultiplicity', 5, 0, 10,'(Puppi-weighted) number of HF EMs in the jet'),
+    Plot1D('hfHadMultiplicity','hfHadMultiplicity', 5,  0, 10,'(Puppi-weighted) number of HF hadrons in the jet'),
     Plot1D('neEmEF','neEmEF',20, 0, 1,'neutral Electromagnetic Energy Fraction'),
     Plot1D('neHEF','neHEF',20, 0, 1,'neutral Hadron Energy Fraction'),
 ])
@@ -126,13 +124,13 @@ nanojmeDQM.vplots.FatJetForJEC = cms.PSet(
         Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
         Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
         Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
-        Plot1D('nConstChHads','nConstChHads', 10,  0, 40,'number of charged hadrons in the jet'),
-        Plot1D('nConstNeuHads','nConstNeuHads', 10,  0, 40,'number of neutral hadrons in the jet'),
-        Plot1D('nConstPhotons','nConstPhotons', 10,  0, 40,'number of photons in the jet'),
-        Plot1D('nConstElecs','nConstElecs', 5, 0, 10,'number of electrons in the jet'),
-        Plot1D('nConstMuons','nConstMuons', 5, 0, 10,'number of muons in the jet'),
-        Plot1D('nConstHFEMs','nConstHFEMs', 5, 0, 10,'number of HF EMs in the jet'),
-        Plot1D('nConstHFHads','nConstHFHads', 5,  0, 10,'number of HF Hadrons in the jet'),
+        Plot1D('chHadMultiplicity','chHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of charged hadrons in the jet'),
+        Plot1D('neHadMultiplicity','neHadMultiplicity', 10,  0, 40,'(Puppi-weighted) number of neutral hadrons in the jet'),
+        Plot1D('phoMultiplicity','phoMultiplicity', 10,  0, 40,'(Puppi-weighted) number of photons in the jet'),
+        Plot1D('elMultiplicity','elMultiplicity', 5, 0, 10,'(Puppi-weighted) number of electrons in the jet'),
+        Plot1D('muMultiplicity','muMultiplicity', 5, 0, 10,'(Puppi-weighted) number of muons in the jet'),
+        Plot1D('hfEMMultiplicity','hfEMMultiplicity', 5, 0, 10,'(Puppi-weighted) number of HF EMs in the jet'),
+        Plot1D('hfHadMultiplicity','hfHadMultiplicity', 5,  0, 10,'(Puppi-weighted) number of HF hadrons in the jet'),
         Plot1D('nElectrons', 'nElectrons', 5, -0.5, 4.5, 'number of electrons in the jet'),
         Plot1D('nMuons', 'nMuons', 4, -0.5, 3.5, 'number of muons in the jet'),
         Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
@@ -146,23 +144,6 @@ nanojmeDQM.vplots.FatJetForJEC = cms.PSet(
         Plot1D('muEF', 'muEF', 20, -1, 1, 'muon Energy Fraction'),
         NoPlot('genJetIdx'),
     ),
-)
-
-#============================================
-#
-# Setup for AK8 CHS jets
-#
-#============================================
-_ak8chsplots = cms.VPSet(
-    Count1D('_size', 20, -0.5, 19.5, 'AK8 CHS jets with JECs applied.')
-)
-for plot in nanojmeDQM.vplots.FatJetForJEC.plots:
-    if plot.name.value()=="_size": continue
-    _ak8chsplots.append(plot)
-
-nanojmeDQM.vplots.FatJetCHS = cms.PSet(
-    sels = nanojmeDQM.vplots.FatJetForJEC.sels,
-    plots = _ak8chsplots,
 )
 
 #============================================
@@ -209,10 +190,10 @@ nanojmeDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavo
 # Run 3
 #
 (~run2_nanoAOD_ANY).toModify(
-    nanojmeDQM.vplots.Jet, 
+    nanojmeDQM.vplots.Jet,
     plots = _ak4puppiplots,
 ).toModify(
-    nanojmeDQM.vplots, 
+    nanojmeDQM.vplots,
     JetPuppi = None # Remove "JetPuppi" from DQM
 )
 (~run2_nanoAOD_ANY).toModify(
@@ -224,14 +205,14 @@ nanojmeDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavo
 # Run 2
 #
 run2_nanoAOD_ANY.toModify(
-    nanojmeDQM.vplots.Jet, 
+    nanojmeDQM.vplots.Jet,
     plots = _ak4chsplots, #
 ).toModify(
-    nanojmeDQM.vplots, 
+    nanojmeDQM.vplots,
     JetCHS = None # Remove "JetCHS" from DQM
 )
 run2_nanoAOD_ANY.toModify(
-    nanojmeDQMMC.vplots.JetPuppi.sels, 
+    nanojmeDQMMC.vplots.JetPuppi.sels,
     Prompt = nanojmeDQMMC.vplots.Jet.sels.Prompt,
     PromptB = nanojmeDQMMC.vplots.Jet.sels.PromptB
 )
@@ -239,7 +220,7 @@ run2_nanoAOD_ANY.toModify(
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 nanoDQMQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),
-    prescaleFactor = cms.untracked.int32(1),                               
+    prescaleFactor = cms.untracked.int32(1),
     testInEventloop = cms.untracked.bool(False),
     qtestOnEndLumi = cms.untracked.bool(False),
     verboseQT =  cms.untracked.bool(True)

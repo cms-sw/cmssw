@@ -99,6 +99,7 @@ public:
       latencyToken_ = esConsumes<edm::Transition::BeginRun>();
     }
 
+    coord_ = std::nullopt;
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -165,7 +166,7 @@ private:
 
   edm::ESHandle<MagneticField> magneticField_;
 
-  SiPixelCoordinates coord_;
+  std::optional<SiPixelCoordinates> coord_;
 
   edm::Service<TFileService> fs;
 
@@ -391,11 +392,11 @@ private:
               continue;
             auto const &cluster = *clustp;
             int row = cluster.x() - 0.5, col = cluster.y() - 0.5;
-            int rocId = coord_.roc(detId, std::make_pair(row, col));
 
             if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
             } else if (phase_ == SiPixelPI::phase::one) {
+              int rocId = coord_->roc(detId, std::make_pair(row, col));
               rocsToMask.set(rocId);
               pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
 
@@ -775,12 +776,17 @@ private:
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
 
+    // if phase-2 return, there is no phase-2 implementation of SiPixelCoordinates
+    if (phase_ > SiPixelPI::phase::one)
+      return;
+
     // init the sipixel coordinates
     const TrackerTopology *trackerTopology = &setup.getData(trackerTopologyTokenBR_);
     const SiPixelFedCablingMap *siPixelFedCablingMap = &setup.getData(siPixelFedCablingMapTokenBR_);
 
+    coord_ = coord_.value_or(SiPixelCoordinates());
     // Pixel Phase-1 helper class
-    coord_.init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
+    coord_->init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
   }
 
   //*************************************************************
@@ -1032,8 +1038,8 @@ private:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    int nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
+    int nFiringTriggers = !triggerMap_.empty() ? triggerMap_.size() : 1;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << triggerMap_.size() << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     tksByTrigger_ =
@@ -1065,8 +1071,18 @@ private:
     }
 
     int nRuns = conditionsMap_.size();
+    if (nRuns < 1) {
+      edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                   << "\n"
+                                                   << " no run was processed! "
+                                                   << "\n"
+                                                   << "*******************************";
+
+      return;
+    }
 
     std::vector<int> theRuns_;
+    theRuns_.reserve(conditionsMap_.size());
     for (const auto &it : conditionsMap_) {
       theRuns_.push_back(it.first);
     }
@@ -1074,11 +1090,12 @@ private:
     sort(theRuns_.begin(), theRuns_.end());
     int runRange = theRuns_.back() - theRuns_.front() + 1;
 
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_.front() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "last run:  " << theRuns_.back() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "considered runs: " << nRuns << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                 << "\n"
+                                                 << "first run: " << theRuns_.front() << "\n"
+                                                 << "last run:  " << theRuns_.back() << "\n"
+                                                 << "considered runs: " << nRuns << "\n"
+                                                 << "*******************************";
 
     modeByRun_ = book<TH1D>("modeByRun",
                             "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
@@ -1091,6 +1108,8 @@ private:
                              runRange,
                              theRuns_.front() - 0.5,
                              theRuns_.back() + 0.5);
+
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " line: " << __LINE__ << std::endl;
 
     for (const auto &the_r : theRuns_) {
       if (conditionsMap_.find(the_r)->second.first != 0) {

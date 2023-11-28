@@ -500,11 +500,9 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
   //int numOfPixelsPerLay3 = 0;
 
   int numOfClusPerTrk4 = 0;
-  int numOfClustersPerLay4 = 0;
   //int numOfPixelsPerLay4 = 0;
 
   int numOfClusPerTrk5 = 0;
-  int numOfClustersPerLay5 = 0;
   //int numOfPixelsPerLay5 = 0;
 
   int numOfClustersPerDisk1 = 0;
@@ -1085,7 +1083,6 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         } else if (disk == 1) {
           numOfClusPerTrk4++;
-          numOfClustersPerLay4++;
           //numOfPixelsPerLay4 += size;
 
           hcharge4->Fill(charge);
@@ -1102,7 +1099,6 @@ void TestWithTracks::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
         } else if (disk == 2) {
           numOfClusPerTrk5++;
-          numOfClustersPerLay5++;
           //numOfPixelsPerLay5 += size;
 
           hcharge5->Fill(charge);

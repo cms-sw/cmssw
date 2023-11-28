@@ -73,7 +73,6 @@ void RPCDBPerformanceHandler::getNewObjects() {
 
   RPCStripNoises::NoiseItem tipoprova;
 
-  int i = 0;
   for (std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin();
        it != (theRPCSimSetUp->_mapDetIdNoise).end();
        it++) {
@@ -87,8 +86,6 @@ void RPCDBPerformanceHandler::getNewObjects() {
     }
 
     edm::LogError("RPCStripNoisesBuilder") << "[RPCStripNoisesBuilder::analyze] detid already exists" << std::endl;
-
-    i++;
   }
 
   // prepare for transfer:

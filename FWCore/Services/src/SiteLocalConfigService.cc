@@ -310,9 +310,7 @@ namespace edm {
       return m_nativeProtocolsPtr;
     }
 
-    struct addrinfo const *SiteLocalConfigService::statisticsDestination() const {
-      return m_statisticsAddrInfo;
-    }
+    struct addrinfo const *SiteLocalConfigService::statisticsDestination() const { return m_statisticsAddrInfo; }
 
     std::set<std::string> const *SiteLocalConfigService::statisticsInfo() const {
       return m_statisticsInfoAvail ? &m_statisticsInfo : nullptr;

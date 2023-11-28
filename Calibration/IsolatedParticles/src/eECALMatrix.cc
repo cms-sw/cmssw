@@ -201,4 +201,66 @@ namespace spr {
     double etot = (!idEBEE.empty()) ? spr::energyECAL(idEBEE, hitsEB, hitsEE, ebThr, eeThr, tMin, tMax, debug) : 0;
     return std::pair<double, bool>(etot, flag);
   }
+
+  std::pair<double, bool> eECALmatrix(const DetId& detId,
+                                      edm::Handle<EcalRecHitCollection>& hitsEB,
+                                      edm::Handle<EcalRecHitCollection>& hitsEE,
+                                      const EcalChannelStatus& chStatus,
+                                      const CaloGeometry* geo,
+                                      const CaloTopology* caloTopology,
+                                      const EcalSeverityLevelAlgo* sevlv,
+                                      const EcalPFRecHitThresholds* eThresholds,
+                                      int ieta,
+                                      int iphi,
+                                      bool debug) {
+    std::vector<DetId> vdets;
+    spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
+    if (debug)
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
+    bool flag(true);
+    for (const auto& id : vdets) {
+      if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalBarrel)) {
+        if (sevlv->severityLevel(id, (*hitsEB)) == EcalSeverityLevel::kWeird)
+          flag = false;
+      } else if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalEndcap)) {
+        if (sevlv->severityLevel(id, (*hitsEE)) == EcalSeverityLevel::kWeird)
+          flag = false;
+      }
+    }
+    double energySum = 0.0;
+    for (unsigned int i1 = 0; i1 < vdets.size(); i1++) {
+      if (vdets[i1] != DetId(0)) {
+        std::vector<EcalRecHitCollection::const_iterator> hit;
+        if (vdets[i1].subdetId() == EcalBarrel) {
+          spr::findHit(hitsEB, vdets[i1], hit, debug);
+        } else if (vdets[i1].subdetId() == EcalEndcap) {
+          spr::findHit(hitsEE, vdets[i1], hit, debug);
+        }
+        std::ostringstream st1;
+        if (debug)
+          st1 << "Crystal 0x" << std::hex << vdets[i1]() << std::dec;
+        double ener = 0, ethr = static_cast<double>((*eThresholds)[vdets[i1]]);
+        for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
+          double en = 0;
+          if (vdets[i1].subdetId() == EcalBarrel) {
+            if (hit[ihit] != hitsEB->end())
+              en = hit[ihit]->energy();
+          } else if (vdets[i1].subdetId() == EcalEndcap) {
+            if (hit[ihit] != hitsEE->end())
+              en = hit[ihit]->energy();
+          }
+          if (debug)
+            st1 << " " << ihit << " " << en << " Thr " << ethr;
+          ener += en;
+        }
+        if (debug)
+          edm::LogVerbatim("IsoTrack") << st1.str();
+        if (ener > ethr)
+          energySum += ener;
+      }
+    }
+    return std::pair<double, bool>(energySum, flag);
+  }
+
 }  // namespace spr

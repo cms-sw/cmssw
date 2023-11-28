@@ -24,6 +24,7 @@ Photon::Photon(const Photon& rhs)
       eCorrections_(rhs.eCorrections_),
       mipVariableBlock_(rhs.mipVariableBlock_),
       pfIsolation_(rhs.pfIsolation_),
+      pfID_(rhs.pfID_),
       haloTaggerMVAVal_(rhs.haloTaggerMVAVal_) {}
 
 Photon::~Photon() {}

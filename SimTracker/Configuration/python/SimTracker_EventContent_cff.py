@@ -15,7 +15,8 @@ SimTrackerFEVTDEBUG = cms.PSet(
         'keep *_assocOutInConversionTracks_*_*', 
         'keep *_assocInOutConversionTracks_*_*',
         'keep *_TTClusterAssociatorFromPixelDigis_*_*',
-        'keep *_TTStubAssociatorFromPixelDigis_*_*')
+        'keep *_TTStubAssociatorFromPixelDigis_*_*',
+        'keep *_simHitTPAssocProducer_*_*')
 
 )
 # For phase2 premixing switch the sim digi collections to the ones including pileup

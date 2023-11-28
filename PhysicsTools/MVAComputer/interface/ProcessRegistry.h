@@ -97,8 +97,7 @@ namespace PhysicsTools {
   template <class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t>
   class ProcessRegistryImpl : public ProcessRegistry<Base_t, CalibBase_t, Parent_t> {
   public:
-    ProcessRegistryImpl<Base_t, CalibBase_t, Parent_t, Instance_t, Calibration_t>(const char *name)
-        : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name) {}
+    ProcessRegistryImpl(const char *name) : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name) {}
 
   protected:
     Base_t *instance(const char *name, const CalibBase_t *calib, Parent_t *parent) const override {

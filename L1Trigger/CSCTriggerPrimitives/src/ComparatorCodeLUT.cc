@@ -5,9 +5,9 @@ ComparatorCodeLUT::ComparatorCodeLUT(const edm::ParameterSet& conf) {
   clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
 }
 
-void ComparatorCodeLUT::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { lookupTableCCLUT_ = conf; }
-
-void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
+void ComparatorCodeLUT::run(CSCCLCTDigi& digi,
+                            unsigned numCFEBs,
+                            const CSCL1TPLookupTableCCLUT* lookupTableCCLUT) const {
   // print out the old CLCT for debugging
   if (infoV_ > 2) {
     std::ostringstream strm;
@@ -59,8 +59,8 @@ void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
   digi.setRun3Pattern(pattern);
 
   // look-up the unsigned values
-  const unsigned positionCC(lookupTableCCLUT_->cclutPosition(pattern, comparatorCode));
-  const unsigned slopeCC(lookupTableCCLUT_->cclutSlope(pattern, comparatorCode));
+  const unsigned positionCC(lookupTableCCLUT->cclutPosition(pattern, comparatorCode));
+  const unsigned slopeCC(lookupTableCCLUT->cclutSlope(pattern, comparatorCode));
   const unsigned run2PatternCC(convertSlopeToRun2Pattern(slopeCC));
 
   // if the slope is negative, set bending to 0

@@ -29,7 +29,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"

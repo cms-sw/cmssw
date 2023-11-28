@@ -505,14 +505,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
                                 << " ZHalf " << pillarDz;
     Position pillarTran;
     Rotation3D pillarRota;
-    int pillarReplica = 0;
     for (unsigned int i = 0; i < pillarZ.size(); i++) {
       if (pillarPhi[i] > 0.) {
         pillarTran = Position(0., 0., pillarZ[i]);
         pillarRota = makeRotation3D(90._deg, pillarPhi[i], 90._deg, 90._deg + pillarPhi[i], 0., 0.);
         pv = layer.placeVolume(Pillar, i, Transform3D(pillarRota, pillarTran));
         LogPosition(pv);
-        pillarReplica++;
       }
     }
   }

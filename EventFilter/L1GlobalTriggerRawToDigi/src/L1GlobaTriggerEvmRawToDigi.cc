@@ -313,12 +313,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
   // loop over other blocks in the raw record, count them if they are active
 
-  int numberGtfeBoards = 0;
   int numberFdlBoards = 0;
-  int numberPsbBoards = 0;
-  int numberGmtBoards = 0;
-  int numberTcsBoards = 0;
-  int numberTimBoards = 0;
 
   for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iActiveBit = itBoard->gtBitEvmActiveBoards();
@@ -333,36 +328,21 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
     if (activeBoardToUnpack) {
       switch (itBoard->gtBoardType()) {
-        case GTFE: {
-          numberGtfeBoards++;
-        }
-
-        break;
+        case GTFE:
+          break;
         case FDL: {
           numberFdlBoards++;
         }
 
         break;
-        case PSB: {
-          numberPsbBoards++;
-        }
-
-        break;
-        case GMT: {
-          numberGmtBoards++;
-        }
-
-        break;
-        case TCS: {
-          numberTcsBoards++;
-        }
-
-        break;
-        case TIM: {
-          numberTimBoards++;
-        }
-
-        break;
+        case PSB:
+          break;
+        case GMT:
+          break;
+        case TCS:
+          break;
+        case TIM:
+          break;
         default: {
           // do nothing, all blocks are given in GtBoardType enum
           if (m_verbosity) {

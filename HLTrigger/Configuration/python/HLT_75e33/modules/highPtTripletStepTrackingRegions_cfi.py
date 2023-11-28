@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 highPtTripletStepTrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamSpotEDProducer",
     RegionPSet = cms.PSet(
-        beamSpot = cms.InputTag("offlineBeamSpot"),
+        beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         nSigmaZ = cms.double(4),
         originHalfLength = cms.double(0),
         originRadius = cms.double(0.02),

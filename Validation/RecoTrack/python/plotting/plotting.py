@@ -1243,16 +1243,7 @@ class Frame:
         self._frame = _drawFrame(pad, bounds, zmax, xbinlabels, xbinlabelsize, xbinlabeloption, ybinlabels)
 
         yoffsetFactor = 1
-        xoffsetFactor = 1
-        if nrows == 2:
-            yoffsetFactor *= 2
-            xoffsetFactor *= 2
-        elif nrows >= 5:
-            yoffsetFactor *= 1.5
-            xoffsetFactor *= 1.5
-        elif nrows >= 3:
-            yoffsetFactor *= 4
-            xoffsetFactor *= 3
+        xoffsetFactor = 0
 
         self._frame.GetYaxis().SetTitleOffset(self._frame.GetYaxis().GetTitleOffset()*yoffsetFactor)
         self._frame.GetXaxis().SetTitleOffset(self._frame.GetXaxis().GetTitleOffset()*xoffsetFactor)
@@ -1325,20 +1316,7 @@ class FrameRatio:
         self._frame.GetXaxis().SetTitleSize(0)
 
         yoffsetFactor = ratioFactor
-        divisionPoint = 1-1/ratioFactor
-        xoffsetFactor = 1/divisionPoint #* 0.6
-
-        if nrows == 1:
-            xoffsetFactor *= 0.6
-        elif nrows == 2:
-            yoffsetFactor *= 2
-            xoffsetFactor *= 1.5
-        elif nrows == 3:
-            yoffsetFactor *= 4
-            xoffsetFactor *= 2.3
-        elif nrows >= 4:
-            yoffsetFactor *= 5
-            xoffsetFactor *= 3
+        xoffsetFactor = 0
 
         self._frame.GetYaxis().SetTitleOffset(self._frameRatio.GetYaxis().GetTitleOffset()*yoffsetFactor)
         self._frameRatio.GetYaxis().SetLabelSize(int(self._frameRatio.GetYaxis().GetLabelSize()*0.8))

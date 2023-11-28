@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
@@ -196,6 +197,16 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
     addType(mgr, "^root:", 1);  // See comments in addType
   if (!native("root"))
     addType(mgr, "^[x]?root:", 1);  // See comments in addType
+
+  // Make sure the TStorageFactoryFile can be loaded regardless of the header auto-parsing setting
+  {
+    edm::SetClassParsing guard(true);
+    if (auto cl = TClass::GetClass("TStorageFactoryFile")) {
+      cl->GetClassInfo();
+    } else {
+      throw cms::Exception("TFileAdaptor") << "Unable to obtain TClass for TStorageFactoryFile";
+    }
+  }
 }
 
 void TFileAdaptor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

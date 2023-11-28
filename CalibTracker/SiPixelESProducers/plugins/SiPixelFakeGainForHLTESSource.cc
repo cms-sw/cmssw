@@ -43,15 +43,12 @@ SiPixelFakeGainForHLTESSource::~SiPixelFakeGainForHLTESSource() {
 std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(
     const SiPixelGainCalibrationForHLTRcd&) {
   using namespace edm::es;
-  unsigned int nmodules = 0;
-  uint32_t nchannels = 0;
   SiPixelGainCalibrationForHLT* obj = new SiPixelGainCalibrationForHLT(25., 30., 2., 3.);
   SiPixelDetInfoFileReader reader(fp_.fullPath());
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
   for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
-    nmodules++;
     std::vector<char> theSiPixelGainCalibration;
     const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(*detit);
 
@@ -62,7 +59,6 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
       float totalPed = 0.0;
       float totalEntries = 0.0;
       for (int j = 0; j < detUnitDimensions.second; j++) {
-        nchannels++;
         totalGain += 2.8;
         totalPed += 28.2;
         totalEntries++;
@@ -86,8 +82,6 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
       edm::LogError("SiPixelFakeGainForHLTESSource")
           << "[SiPixelFakeGainForHLTESSource::produce] detid already exists" << std::endl;
   }
-
-  //std::cout << "Modules = " << nmodules << " Channels " << nchannels << std::endl;
 
   //
   return std::unique_ptr<SiPixelGainCalibrationForHLT>(obj);

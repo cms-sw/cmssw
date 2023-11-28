@@ -13,6 +13,7 @@ int main() {
     testSerialization<HcalCondObjectContainer<HcalFlagHFDigiTimeParam>>();
     testSerialization<HcalCondObjectContainer<HcalGain>>();
     testSerialization<HcalCondObjectContainer<HcalGainWidth>>();
+    testSerialization<HcalCondObjectContainer<HcalPFCut>>();
     testSerialization<HcalCondObjectContainer<HcalL1TriggerObject>>();
     testSerialization<HcalCondObjectContainer<HcalLUTCorr>>();
     testSerialization<HcalCondObjectContainer<HcalLongRecoParam>>();
@@ -44,6 +45,8 @@ int main() {
   testSerialization<HcalGainWidth>();
   testSerialization<HcalGainWidths>();
   testSerialization<HcalGains>();
+  testSerialization<HcalPFCut>();
+  testSerialization<HcalPFCuts>();
   testSerialization<HcalL1TriggerObject>();
   testSerialization<HcalL1TriggerObjects>();
   testSerialization<HcalLUTCorr>();
@@ -84,6 +87,7 @@ int main() {
   testSerialization<std::pair<std::string, std::vector<HcalFlagHFDigiTimeParam>>>();
   testSerialization<std::pair<std::string, std::vector<HcalGain>>>();
   testSerialization<std::pair<std::string, std::vector<HcalGainWidth>>>();
+  testSerialization<std::pair<std::string, std::vector<HcalPFCut>>>();
   testSerialization<std::pair<std::string, std::vector<HcalL1TriggerObject>>>();
   testSerialization<std::pair<std::string, std::vector<HcalLUTCorr>>>();
   testSerialization<std::pair<std::string, std::vector<HcalLongRecoParam>>>();
@@ -109,6 +113,7 @@ int main() {
   testSerialization<std::vector<HcalFlagHFDigiTimeParam>>();
   testSerialization<std::vector<HcalGain>>();
   testSerialization<std::vector<HcalGainWidth>>();
+  testSerialization<std::vector<HcalPFCut>>();
   testSerialization<std::vector<HcalL1TriggerObject>>();
   testSerialization<std::vector<HcalLUTCorr>>();
   testSerialization<std::vector<HcalLongRecoParam>>();
@@ -131,6 +136,7 @@ int main() {
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalFlagHFDigiTimeParam>>>>();
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalGain>>>>();
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalGainWidth>>>>();
+  testSerialization<std::vector<std::pair<std::string, std::vector<HcalPFCut>>>>();
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalL1TriggerObject>>>>();
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalLUTCorr>>>>();
   testSerialization<std::vector<std::pair<std::string, std::vector<HcalLongRecoParam>>>>();

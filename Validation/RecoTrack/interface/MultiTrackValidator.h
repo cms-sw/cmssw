@@ -90,6 +90,7 @@ protected:
   const bool doPVAssociationPlots_;
   const bool doSeedPlots_;
   const bool doMVAPlots_;
+  const bool applyTPSelToSimMatch_;
 
   std::vector<bool> doResolutionPlots_;
 

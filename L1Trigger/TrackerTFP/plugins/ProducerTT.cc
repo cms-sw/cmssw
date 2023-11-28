@@ -94,8 +94,8 @@ namespace trackerTFP {
       const StreamsStub& streamsStubs = *handleStubs.product();
       int nTracks(0);
       for (const StreamTrack& stream : streamsTracks)
-        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame) {
-          return sum += frame.first.isNonnull() ? 1 : 0;
+        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
         });
       ttTracks.reserve(nTracks);
       for (int channel = 0; channel < dataFormats_->numStreamsTracks(Process::kf); channel++) {
@@ -116,7 +116,7 @@ namespace trackerTFP {
       }
     }
     // store products
-    iEvent.emplace(edPutToken_, move(ttTracks));
+    iEvent.emplace(edPutToken_, std::move(ttTracks));
   }
 
 }  // namespace trackerTFP

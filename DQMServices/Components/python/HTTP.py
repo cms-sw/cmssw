@@ -1,5 +1,6 @@
 from builtins import range
 from io import StringIO
+from io import BytesIO
 from pycurl import *
 
 class RequestManager:
@@ -103,7 +104,7 @@ processed before returning."""
       while self.queue and self.free:
         c = self.free.pop()
         c.task = self.queue.pop(0)
-        c.buffer = b = StringIO()
+        c.buffer = b = BytesIO()
         c.setopt(WRITEFUNCTION, b.write)
         self.request_init(c, *c.task)
         self.cm.add_handle(c)

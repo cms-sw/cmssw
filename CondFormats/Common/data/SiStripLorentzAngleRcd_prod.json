@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiStripLorentzAngle_byPCL_v0_prompt": {}
+    }, 
+    "inputTag": "SiStripLA_pcl", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for SiStripLorentzAngle"
+}

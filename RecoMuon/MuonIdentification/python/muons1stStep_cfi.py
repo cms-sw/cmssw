@@ -6,6 +6,9 @@ from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
 from RecoMuon.MuonIdentification.MuonShowerDigiFiller_cfi import *
 from RecoMuon.MuonIdentification.TrackerKinkFinder_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
+
+TrackAssociatorParameterBlock.TrackAssociatorParameters.preselectMuonTracks = True
+
 muons1stStep = cms.EDProducer("MuonIdProducer",
     # MuonCaloCompatibility
     MuonCaloCompatibilityBlock,
@@ -32,6 +35,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     inputCollectionTypes = cms.vstring('inner tracks', 
                                        'links', 
                                        'outer tracks',
+                                       'outer tracks',
                                        'tev firstHit',
                                        'tev picky',
                                        'tev dyt'),
@@ -41,7 +45,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     # internal
     debugWithTruthMatching = cms.bool(False),
     # input tracks
-    inputCollectionLabels = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("globalMuons"), cms.InputTag("standAloneMuons","UpdatedAtVtx"),
+    inputCollectionLabels = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("globalMuons"), cms.InputTag("standAloneMuons","UpdatedAtVtx"), cms.InputTag("standAloneMuons"),
                                           cms.InputTag("tevMuons","firstHit"),cms.InputTag("tevMuons","picky"),cms.InputTag("tevMuons","dyt")),
     fillCaloCompatibility = cms.bool(True),
     # OR

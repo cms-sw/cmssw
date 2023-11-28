@@ -88,6 +88,8 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
       fastjet::PseudoJet p(d->px(), d->py(), d->pz(), d->energy());
       lClusterParticles.emplace_back(p);
     }
+    int ele_pfmatch_index = -1;
+    int mu_pfmatch_index = -1;
 
     int ele_pfmatch_index = -1;
     int mu_pfmatch_index = -1;

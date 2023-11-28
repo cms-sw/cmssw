@@ -13,6 +13,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include "tmEventSetup/esScale.hh"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -24,7 +26,49 @@ class L1TUtmScale {
 public:
   L1TUtmScale() : name_(), object_(), type_(), minimum_(), maximum_(), step_(), n_bits_(), bins_(), version(0){};
 
+  L1TUtmScale(std::string name,
+              int object,
+              int type,
+              double minimum,
+              double maximum,
+              double step,
+              unsigned int n_bits,
+              std::vector<L1TUtmBin> bins,
+              unsigned int vers)
+      : name_(name),
+        object_(object),
+        type_(type),
+        minimum_(minimum),
+        maximum_(maximum),
+        step_(step),
+        n_bits_(n_bits),
+        bins_(bins),
+        version(vers){};
+
+  L1TUtmScale(const tmeventsetup::esScale& esSc)
+      : name_(esSc.getName()),
+        object_(esSc.getObjectType()),
+        type_(esSc.getScaleType()),
+        minimum_(esSc.getMinimum()),
+        maximum_(esSc.getMaximum()),
+        step_(esSc.getStep()),
+        n_bits_(esSc.getNbits()),
+        version(0) {
+    bins_.reserve(esSc.getBins().size());
+    for (auto it = esSc.getBins().begin(); it != esSc.getBins().end(); ++it)
+      bins_.emplace_back(L1TUtmBin(*it));
+  };
+
   virtual ~L1TUtmScale() = default;
+
+  operator tmeventsetup::esScale() const {
+    std::vector<tmeventsetup::esBin> bins;
+    bins.reserve(getBins().size());
+    for (const auto& it : getBins())
+      bins.emplace_back(tmeventsetup::esBin(it.hw_index, it.minimum, it.maximum));
+    return tmeventsetup::esScale(
+        getName(), getObjectType(), getScaleType(), getMinimum(), getMaximum(), getStep(), getNbits(), bins);
+  }
 
   /** get scale name */
   const std::string& getName() const { return name_; };

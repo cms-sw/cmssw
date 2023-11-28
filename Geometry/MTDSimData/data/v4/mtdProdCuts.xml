@@ -3,11 +3,18 @@
 <DDDefinition>
 
   <SpecParSection label="mtdProdCuts.xml" eval="true">
-    <SpecPar name="fasttime">
+    <SpecPar name="fasttime-btl">
       <PartSelector path="//BarrelTimingLayer"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionBTL" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="0.1*mm"/>
+    </SpecPar>
+    <SpecPar name="fasttime-etl">
       <PartSelector path="//EndcapTimingLayer"/>
       <PartSelector path="//CALOECTSFront"/>
-      <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>
+      <Parameter name="CMSCutsRegion" value="FastTimerRegionETL" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.1*mm"/>

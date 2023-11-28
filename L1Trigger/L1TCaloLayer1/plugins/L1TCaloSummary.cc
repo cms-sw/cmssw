@@ -57,6 +57,10 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 #include <bitset>
 
+//Anomaly detection includes
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
+
 using namespace l1tcalo;
 using namespace l1extra;
 using namespace std;
@@ -65,10 +69,11 @@ using namespace std;
 // class declaration
 //
 
+template <class INPUT, class OUTPUT>
 class L1TCaloSummary : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloSummary(const edm::ParameterSet&);
-  ~L1TCaloSummary() override;
+  ~L1TCaloSummary() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -77,7 +82,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   //void endJob() override;
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override{};
 
   void print();
 
@@ -102,7 +107,9 @@ private:
   edm::EDGetTokenT<L1CaloRegionCollection> regionToken;
 
   UCTLayer1* layer1;
-  UCTSummaryCard* summaryCard;
+
+  hls4mlEmulator::ModelLoader loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
 };
 
 //
@@ -116,7 +123,8 @@ private:
 //
 // constructors and destructor
 //
-L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
+template <class INPUT, class OUTPUT>
+L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
     : nPumBins(iConfig.getParameter<unsigned int>("nPumBins")),
       pumLUT(nPumBins, std::vector<std::vector<uint32_t>>(2, std::vector<uint32_t>(13))),
       caloScaleFactor(iConfig.getParameter<double>("caloScaleFactor")),
@@ -128,7 +136,8 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
       boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
-      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))) {
+      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))) {
   std::vector<double> pumLUTData;
   char pumLUTString[10];
   for (uint32_t pumBin = 0; pumBin < nPumBins; pumBin++) {
@@ -148,12 +157,10 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
     }
   }
   produces<L1JetParticleCollection>("Boosted");
-  summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
-}
 
-L1TCaloSummary::~L1TCaloSummary() {
-  if (summaryCard != nullptr)
-    delete summaryCard;
+  //anomaly trigger loading
+  model = loader.load_model();
+  produces<float>("CICADAScore");
 }
 
 //
@@ -161,10 +168,13 @@ L1TCaloSummary::~L1TCaloSummary() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <class INPUT, class OUTPUT>
+void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
+
+  std::unique_ptr<float> CICADAScore = std::make_unique<float>();
 
   UCTGeometry g;
 
@@ -172,13 +182,18 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // independently creating regions from TPGs for processing by the summary card. This results
   // in a single region vector of size 252 whereas from independent creation we had 3*6 vectors
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
-  summaryCard->clearRegions();
+  UCTSummaryCard summaryCard =
+      UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
   std::vector<UCTRegion*> inputRegions;
   inputRegions.clear();
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
+  //Model input
+  //This is done as a flat vector input, but future versions may involve 2D input
+  //This will have to be handled later
+  INPUT modelInput[252];
   for (const L1CaloRegion& i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
     UCTTowerIndex t = g.getUCTTowerIndexFromL1CaloRegion(r, i.raw());
@@ -193,10 +208,25 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
     test->setRegionSummary(i.raw());
     inputRegions.push_back(test);
+    //This *should* fill the tensor in the proper order to be fed to the anomaly model
+    //We take 4 off of the GCT eta/iEta.
+    //iEta taken from this ranges from 4-17, (I assume reserving lower and higher for forward regions)
+    //So our first index, index 0, is technically iEta=4, and so-on.
+    //CICADA reads this as a flat vector
+    modelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
-  summaryCard->setRegionData(inputRegions);
+  //Extract model output
+  OUTPUT modelResult[1] = {
+      OUTPUT("0.0", 10)};  //the 10 here refers to the fact that we read in "0.0" as a decimal number
+  model->prepare_input(modelInput);
+  model->predict();
+  model->read_result(modelResult);
 
-  if (!summaryCard->process()) {
+  *CICADAScore = modelResult[0].to_float();
+
+  summaryCard.setRegionData(inputRegions);
+
+  if (!summaryCard.process()) {
     edm::LogError("L1TCaloSummary") << "UCT: Failed to process summary card" << std::endl;
     exit(1);
   }
@@ -206,7 +236,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard->getBoostedJetObjs();
+  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
   for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
     const UCTObject* object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
@@ -257,46 +287,13 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   iEvent.put(std::move(bJetCands), "Boosted");
+  //Write out anomaly score
+  iEvent.put(std::move(CICADAScore), "CICADAScore");
 }
 
-void L1TCaloSummary::print() {}
-
-// ------------ method called once each job just before starting event loop  ------------
-//void L1TCaloSummary::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-//void L1TCaloSummary::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-
-void L1TCaloSummary::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  L1TCaloSummary::endRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  L1TCaloSummary::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  L1TCaloSummary::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void L1TCaloSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <class INPUT, class OUTPUT>
+void L1TCaloSummary<INPUT, OUTPUT>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -304,5 +301,8 @@ void L1TCaloSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TCaloSummary);
+typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummaryCICADAv1;
+typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummaryCICADAv2;
+//define type version plugins
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv1);
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv2);

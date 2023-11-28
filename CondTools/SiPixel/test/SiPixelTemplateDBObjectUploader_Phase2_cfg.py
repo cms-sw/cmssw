@@ -46,7 +46,7 @@ options.register('TemplateFilePath',
     			 opts.VarParsing.varType.string,
     			 'Location of template files')
 options.register('GlobalTag',
-    			 'auto:phase2_realistic',
+                         'auto:phase2_realistic',
     			 opts.VarParsing.multiplicity.singleton,
     			 opts.VarParsing.varType.string,
     			 'Global tag for this run')

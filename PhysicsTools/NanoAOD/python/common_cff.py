@@ -11,8 +11,8 @@ def OVar(valtype, doc=None, precision=-1):
     return cms.PSet(
                 type = cms.string(valtype),
                 doc = cms.string(doc if doc else expr),
-	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision)
-           )
+	        precision=cms.optional.allowed(cms.string, cms.int32, default = (cms.string(precision) if type(precision)==str else cms.int32(precision)
+           )))
 def Var(expr, valtype, doc=None, precision=-1):
     """Create a PSet for a variable computed with the string parser
 

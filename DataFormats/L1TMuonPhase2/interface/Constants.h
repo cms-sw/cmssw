@@ -54,7 +54,7 @@ namespace Phase2L1GMT {
   // Bitwidth for standalone muons to CL1 and GT
   const int BITSSAZ0 = 5;
   const int BITSSAD0 = 7;
-  const int BITSSAQUALITY = 4;
+  const int BITSSAQUAL = 4;
 
   // Bitwidth for dataformat to GT
   const int BITSGTPT = 16;
@@ -62,14 +62,24 @@ namespace Phase2L1GMT {
   const int BITSGTETA = 14;
   const int BITSGTZ0 = 10;
   const int BITSGTD0 = 10;
-  const int BITSGTQUALITY = 8;
+  const int BITSGTQUAL = 8;
   const int BITSGTISO = 4;
+  const int BITSGTBETA = 4;
+
+  // Bitwidth for Tau->3mu object
+  const int BITSTMPT = 8;
+  const int BITSTMPHI = 8;
+  const int BITSTMETA = 8;
+  const int BITSTMMASS2 = 8;
+  const int BITSTMTYPE = 6;
+  const int BITSTMIDX = 4;
+  const int BITSTMQUAL = 4;
 
   const float maxCurv_ = 0.00855;  // 2 GeV pT Rinv is in cm
   const float maxPhi_ = 1.026;     // relative to the center of the sector
   const float maxTanl_ = 8.0;
-  const float maxZ0_ = 30.;
-  const float maxD0_ = 15.4;
+  const float maxZ0_ = 25.6;
+  const float maxD0_ = 15.36;
   // Updated barrelLimit according to Karol, https://indico.cern.ch/event/1113802/#1-phase2-gmt-performance-and-i
   const int barrelLimit0_ = 1.4 / 0.00076699039 / 8;
   const int barrelLimit1_ = 1.1 / 0.00076699039 / 8;
@@ -81,12 +91,32 @@ namespace Phase2L1GMT {
   const float LSBpt = 0.03125;
   const float LSBphi = 2. * M_PI / pow(2, BITSPHI);
   const float LSBeta = 2. * M_PI / pow(2, BITSETA);
-  const float LSBGTz0 = 2. * maxZ0_ / pow(2, BITSZ0);
-  const float LSBGTd0 = 2. * maxD0_ / pow(2, BITSD0);
-  const float LSBSAz0 = 1.875;
-  const float LSBSAd0 = 3.85;
+  const float LSBGTz0 = 0.05;  // 0.5mm, in sync with GTT and Correlator
+  const float LSBGTd0 = 0.03;  // from GT interface doc
+  const float LSBSAz0 = 1.6;   // 0.05 * 32 cm, with range +- 25.6
+  const float LSBSAd0 = 3.84;  // 0.03 * 128 cm, with range +- 245.76
 
   typedef ap_uint<64> wordtype;
+  typedef ap_uint<1> valid_gt_t;          //valid
+  typedef ap_uint<1> q_gt_t;              //charge
+  typedef ap_uint<BITSGTPT> pt_gt_t;      //pt        of tracker muon
+  typedef ap_int<BITSGTPHI> phi_gt_t;     //phi       of tracker muon
+  typedef ap_int<BITSGTETA> eta_gt_t;     //eta       of tracker muon
+  typedef ap_int<BITSGTZ0> z0_gt_t;       //z0        of tracker muon
+  typedef ap_int<BITSGTD0> d0_gt_t;       //d0        of tracker muon
+  typedef ap_uint<BITSGTISO> iso_gt_t;    //isolation of tracker muon
+  typedef ap_uint<BITSGTBETA> beta_gt_t;  //beta      of tracker muon
+  typedef ap_uint<BITSGTQUAL> qual_gt_t;  //quality   of tracker muon
+
+  //Standalone muon datatype
+  typedef ap_uint<1> valid_sa_t;          //valid
+  typedef ap_uint<BITSGTPT> pt_sa_t;      //pt      of standalone muon
+  typedef ap_int<BITSGTPHI> phi_sa_t;     //phi     of standalone muon
+  typedef ap_int<BITSGTETA> eta_sa_t;     //eta     of standalone muon
+  typedef ap_int<BITSSAZ0> z0_sa_t;       //z0      of standalone muon
+  typedef ap_int<BITSSAD0> d0_sa_t;       //d0      of standalone muon
+  typedef ap_uint<1> q_sa_t;              //charge  of standalone muon
+  typedef ap_uint<BITSSAQUAL> qual_sa_t;  //quality of standalone muon
 
   inline uint64_t twos_complement(long long int v, uint bits) {
     uint64_t mask = (1 << bits) - 1;

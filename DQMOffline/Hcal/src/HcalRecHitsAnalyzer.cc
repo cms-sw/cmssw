@@ -550,10 +550,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
   // cuts for each subdet_ector mimiking  "Scheme B"
   //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8;
 
-  // Total numbet of RecHits in HCAL, in the cone, above 1 GeV theshold
-  int nrechits = 0;
-  int nrechitsThresh = 0;
-
   // energy in ECAL
   double eEcalCone = 0.;
 
@@ -845,11 +841,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
         clusPhi = phi12(clusPhi, clusEn, phi, en);
         clusEn += en;
       }
-
-      nrechits++;
-
-      if (en > 1.)
-        nrechitsThresh++;
 
       // The energy and overall timing histos are drawn while
       // the ones split by depth are not

@@ -540,6 +540,17 @@ namespace edm {
     }
   }
 
+  void JobReport::reportShutdownSignal() {
+    if (impl_->ost_) {
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        std::ostream& msg = *(impl_->ost_);
+        msg << "<ShutdownSignal/>\n";
+        temporarilyCloseXML();
+      }
+    }
+  }
+
   void JobReport::reportSkippedFile(std::string const& pfn, std::string const& lfn) {
     if (impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);

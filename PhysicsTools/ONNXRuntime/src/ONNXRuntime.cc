@@ -39,16 +39,15 @@ namespace cms::Ort {
 
     for (size_t i = 0; i < num_input_nodes; i++) {
       // get input node names
-      std::string input_name(session_->GetInputName(i, allocator));
+      std::string input_name(session_->GetInputNameAllocated(i, allocator).get());
       input_node_strings_[i] = input_name;
       input_node_names_[i] = input_node_strings_[i].c_str();
 
       // get input shapes
       auto type_info = session_->GetInputTypeInfo(i);
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-      size_t num_dims = tensor_info.GetDimensionsCount();
-      input_node_dims_[input_name].resize(num_dims);
-      tensor_info.GetDimensions(input_node_dims_[input_name].data(), num_dims);
+
+      input_node_dims_[input_name] = tensor_info.GetShape();
     }
 
     size_t num_output_nodes = session_->GetOutputCount();
@@ -58,16 +57,14 @@ namespace cms::Ort {
 
     for (size_t i = 0; i < num_output_nodes; i++) {
       // get output node names
-      std::string output_name(session_->GetOutputName(i, allocator));
+      std::string output_name(session_->GetOutputNameAllocated(i, allocator).get());
       output_node_strings_[i] = output_name;
       output_node_names_[i] = output_node_strings_[i].c_str();
 
       // get output node types
       auto type_info = session_->GetOutputTypeInfo(i);
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-      size_t num_dims = tensor_info.GetDimensionsCount();
-      output_node_dims_[output_name].resize(num_dims);
-      tensor_info.GetDimensions(output_node_dims_[output_name].data(), num_dims);
+      output_node_dims_[output_name] = tensor_info.GetShape();
 
       // the 0th dim depends on the batch size
       output_node_dims_[output_name].at(0) = -1;

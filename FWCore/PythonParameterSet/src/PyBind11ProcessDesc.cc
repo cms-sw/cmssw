@@ -25,39 +25,33 @@ PyBind11InterpreterSentry::~PyBind11InterpreterSentry() {
 
 PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theInterpreter(false) {}
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) : theProcessPSet(), theInterpreter(true) {
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile)
+    : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
-  read(config);
+  read(config, isFile);
 }
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[])
-    : theProcessPSet(),
-      theInterpreter(true)
-
-{
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args)
+    : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
   {
-#if PY_MAJOR_VERSION >= 3
     typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
     std::vector<WArgUPtr> v_argv;
     std::vector<wchar_t*> vp_argv;
-    v_argv.reserve(argc);
-    vp_argv.reserve(argc);
-    for (int i = 0; i < argc; i++) {
-      v_argv.emplace_back(Py_DecodeLocale(argv[i], nullptr), &PyMem_RawFree);
+    v_argv.reserve(args.size());
+    vp_argv.reserve(args.size());
+    for (size_t i = 0; i < args.size(); i++) {
+      v_argv.emplace_back(Py_DecodeLocale(args[i].c_str(), nullptr), &PyMem_RawFree);
       vp_argv.emplace_back(v_argv.back().get());
     }
 
     wchar_t** argvt = vp_argv.data();
-#else
-    char** argvt = argv;
-#endif
 
-    PySys_SetArgv(argc, argvt);
+    PySys_SetArgv(args.size(), argvt);
   }
-  read(config);
+  read(config, isFile);
 }
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() = default;
@@ -69,14 +63,12 @@ void PyBind11ProcessDesc::prepareToRead() {
   theInterpreter.mainModule.attr("processPSet") = &theProcessPSet;
 }
 
-void PyBind11ProcessDesc::read(std::string const& config) {
+void PyBind11ProcessDesc::read(std::string const& config, bool isFile) {
   try {
-    // if it ends with py, it's a file
-    if (config.substr(config.size() - 3) == ".py") {
+    if (isFile)
       readFile(config);
-    } else {
+    else
       readString(config);
-    }
   } catch (pybind11::error_already_set const& e) {
     edm::pythonToCppException("Configuration", e.what());
   }

@@ -38,10 +38,16 @@ class Eras (object):
                  'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
                  'Run3_pp_on_PbPb_approxSiStripClusters',
+                 'Run3_pp_on_PbPb_2023',
+                 'Run3_pp_on_PbPb_approxSiStripClusters_2023',
                  'Run3_dd4hep',
                  'Run3_DDD',
                  'Run3_FastSim',
                  'Run3_2023_FastSim',
+<<<<<<< HEAD
+=======
+                 'Run3_2023_ZDC',
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -83,6 +89,7 @@ class Eras (object):
                            'run3_miniAOD_12X',
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
+                           'run3_ecal_devel',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']

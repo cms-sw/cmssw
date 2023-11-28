@@ -108,7 +108,7 @@ namespace {
       // Actual coverage for tracks with z = 3cm is 2.4
       float full_eta = 2.5;
       float full_eta_pix_0 = 2.55;  // To account for BS z-spread
-      float full_eta_ec_in[] = {0, 2.525, 2.515};
+      float full_eta_ec_in[] = {0, 2.525, 2.515, 2.505};
 
       float pix_0 = 4, pix_sep = 6;
       float pix_z0 = 24, pix_zgrow = 6;
@@ -147,7 +147,7 @@ namespace {
   //============================================================================
 
   void Create_CylCowWLids(TrackerInfo& ti, IterationsInfo& ii, bool verbose) {
-    PropagationConfig pconf;
+    PropagationConfig& pconf = ti.prop_config_nc();
     pconf.backward_fit_to_pca = Config::includePCA;
     pconf.finding_requires_propagation_to_hit_pos = false;
     pconf.finding_inter_layer_pflags = PropagationFlags(PF_none);
@@ -156,7 +156,7 @@ namespace {
     pconf.forward_fit_pflags = PropagationFlags(PF_use_param_b_field);
     pconf.seed_fit_pflags = PropagationFlags(PF_none);
     pconf.pca_prop_pflags = PropagationFlags(PF_use_param_b_field);
-    pconf.set_as_default();
+    pconf.apply_tracker_info(&ti);
 
     CylCowWLidsCreator creator(ti);
 

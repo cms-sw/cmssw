@@ -11,16 +11,16 @@ function checkDiff {
     fi
 }
 
-F1=${LOCAL_TEST_DIR}/python/validateDTGeometry_cfg.py
-F2=${LOCAL_TEST_DIR}/python/testDTGeometry.py
-FILE1=${LOCAL_TEST_DIR}/dtGeometry.log.org
+F1=${SCRAM_TEST_PATH}/python/validateDTGeometry_cfg.py
+F2=${SCRAM_TEST_PATH}/python/testDTGeometry.py
+FILE1=${SCRAM_TEST_PATH}/dtGeometry.log.org
 FILE2=dtGeometry.log
 FILE3=diff.log
 FILE4=dtGeometryFiltered.log
 
 echo " testing Geometry/DTGeometryBuilder"
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export tmpdir=${PWD}
 # The following test does not work with DD4hep with Geant4 units
 # echo "===== Test \"cmsRun validateDTGeometry_cfg.py\" ===="
 # (cmsRun $F1) || die "Failure using cmsRun $F1" $?

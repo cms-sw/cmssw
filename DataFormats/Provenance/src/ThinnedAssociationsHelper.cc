@@ -176,6 +176,7 @@ namespace edm {
   std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> ThinnedAssociationsHelper::associationToBranches()
       const {
     std::vector<std::pair<BranchID, ThinnedAssociationBranches const*>> temp;
+    temp.reserve(vThinnedAssociationBranches_.size());
     for (auto const& item : vThinnedAssociationBranches_) {
       temp.push_back(std::make_pair(item.association(), &item));
     }

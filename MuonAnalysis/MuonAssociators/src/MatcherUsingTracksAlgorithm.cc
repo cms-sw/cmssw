@@ -511,53 +511,53 @@ bool MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectorySt
                                                           float &lastDeltaLocalPos,
                                                           float &lastGlobalDPtRel,
                                                           float &lastChi2) const {
-  if ((start.momentum().mag() == 0) || target.momentum().mag() == 0)
-    return false;
-
-  bool isBest = false;
-  float thisLocalPosDiff = (start.position() - target.position()).mag();
-  float thisGlobalMomDeltaR = deltaR(start.momentum(), target.momentum());
-  float thisGlobalMomDeltaPhi = fabs(deltaPhi(start.momentum().barePhi(), target.momentum().barePhi()));
-  float thisGlobalMomDeltaEta = fabs(start.momentum().eta() - target.momentum().eta());
-  float thisGlobalDPtRel = (start.momentum().perp() - target.momentum().perp()) / target.momentum().perp();
-
-  if ((thisLocalPosDiff < maxLocalPosDiff_) && (thisGlobalMomDeltaR < maxGlobalMomDeltaR_) &&
-      (thisGlobalMomDeltaEta < maxGlobalMomDeltaEta_) && (thisGlobalMomDeltaPhi < maxGlobalMomDeltaPhi_) &&
-      (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
-    float thisChi2 = useChi2_ ? getChi2(start, target, chi2DiagonalOnly_, chi2UseVertex_, chi2FirstMomentum_) : 0;
-    if (thisChi2 >= maxChi2_)
+    if ((start.momentum().mag() == 0) || target.momentum().mag() == 0)
       return false;
-    switch (sortBy_) {
-      case LocalPosDiff:
-        isBest = (thisLocalPosDiff < lastDeltaLocalPos);
-        break;
-      case GlobalMomDeltaR:
-        isBest = (thisGlobalMomDeltaR < lastDeltaR);
-        break;
-      case GlobalMomDeltaEta:
-        isBest = (thisGlobalMomDeltaEta < lastDeltaEta);
-        break;
-      case GlobalMomDeltaPhi:
-        isBest = (thisGlobalMomDeltaPhi < lastDeltaPhi);
-        break;
-      case GlobalDPtRel:
-        isBest = (thisGlobalDPtRel < lastGlobalDPtRel);
-        break;
-      case Chi2:
-        isBest = (thisChi2 < lastChi2);
-        break;
-    }
-    if (isBest) {
-      lastDeltaLocalPos = thisLocalPosDiff;
-      lastDeltaR = thisGlobalMomDeltaR;
-      lastDeltaEta = thisGlobalMomDeltaEta;
-      lastDeltaPhi = thisGlobalMomDeltaPhi;
-      lastGlobalDPtRel = thisGlobalDPtRel;
-      lastChi2 = thisChi2;
-    }
-  }  // if match
 
-  return isBest;
+    bool isBest = false;
+    float thisLocalPosDiff = (start.position() - target.position()).mag();
+    float thisGlobalMomDeltaR = deltaR(start.momentum(), target.momentum());
+    float thisGlobalMomDeltaPhi = fabs(deltaPhi(start.momentum().barePhi(), target.momentum().barePhi()));
+    float thisGlobalMomDeltaEta = fabs(start.momentum().eta() - target.momentum().eta());
+    float thisGlobalDPtRel = (start.momentum().perp() - target.momentum().perp()) / target.momentum().perp();
+
+    if ((thisLocalPosDiff < maxLocalPosDiff_) && (thisGlobalMomDeltaR < maxGlobalMomDeltaR_) &&
+        (thisGlobalMomDeltaEta < maxGlobalMomDeltaEta_) && (thisGlobalMomDeltaPhi < maxGlobalMomDeltaPhi_) &&
+        (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
+      float thisChi2 = useChi2_ ? getChi2(start, target, chi2DiagonalOnly_, chi2UseVertex_, chi2FirstMomentum_) : 0;
+      if (thisChi2 >= maxChi2_)
+        return false;
+      switch (sortBy_) {
+        case LocalPosDiff:
+          isBest = (thisLocalPosDiff < lastDeltaLocalPos);
+          break;
+        case GlobalMomDeltaR:
+          isBest = (thisGlobalMomDeltaR < lastDeltaR);
+          break;
+        case GlobalMomDeltaEta:
+          isBest = (thisGlobalMomDeltaEta < lastDeltaEta);
+          break;
+        case GlobalMomDeltaPhi:
+          isBest = (thisGlobalMomDeltaPhi < lastDeltaPhi);
+          break;
+        case GlobalDPtRel:
+          isBest = (thisGlobalDPtRel < lastGlobalDPtRel);
+          break;
+        case Chi2:
+          isBest = (thisChi2 < lastChi2);
+          break;
+      }
+      if (isBest) {
+        lastDeltaLocalPos = thisLocalPosDiff;
+        lastDeltaR = thisGlobalMomDeltaR;
+        lastDeltaEta = thisGlobalMomDeltaEta;
+        lastDeltaPhi = thisGlobalMomDeltaPhi;
+        lastGlobalDPtRel = thisGlobalDPtRel;
+        lastChi2 = thisChi2;
+      }
+    }  // if match
+
+    return isBest;
 }
 
 double MatcherUsingTracksAlgorithm::getChi2(const FreeTrajectoryState &start,
@@ -565,90 +565,91 @@ double MatcherUsingTracksAlgorithm::getChi2(const FreeTrajectoryState &start,
                                             bool diagonalOnly,
                                             bool useVertex,
                                             bool useFirstMomentum) {
-  if (!start.hasError() && !other.hasError())
-    throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
-  AlgebraicSymMatrix55 cov;
-  if (start.hasError())
-    cov += start.curvilinearError().matrix();
-  if (other.hasError())
-    cov += other.curvilinearError().matrix();
-  cropAndInvert(cov, diagonalOnly, !useVertex);
-  GlobalVector p1 = start.momentum(), p2 = other.momentum();
-  GlobalPoint x1 = start.position(), x2 = other.position();
-  GlobalVector p = useFirstMomentum ? p1 : p2;
-  double pt = p.perp(), pm = p.mag();
-  double dsz = (x1.z() - x2.z()) * pt / pm - ((x1.x() - x2.x()) * p.x() + (x1.y() - x2.y()) * p.y()) / pt * p.z() / pm;
-  double dxy = (-(x1.x() - x2.x()) * p.y() + (x1.y() - x2.y()) * p.x()) / pt;
-  AlgebraicVector5 diff(start.charge() / p1.mag() - other.charge() / p2.mag(),
-                        p1.theta() - p2.theta(),
-                        (p1.phi() - p2.phi()).value(),
-                        dxy,
-                        dsz);
-  return ROOT::Math::Similarity(diff, cov);
+    if (!start.hasError() && !other.hasError())
+      throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError())
+      cov += start.curvilinearError().matrix();
+    if (other.hasError())
+      cov += other.curvilinearError().matrix();
+    cropAndInvert(cov, diagonalOnly, !useVertex);
+    GlobalVector p1 = start.momentum(), p2 = other.momentum();
+    GlobalPoint x1 = start.position(), x2 = other.position();
+    GlobalVector p = useFirstMomentum ? p1 : p2;
+    double pt = p.perp(), pm = p.mag();
+    double dsz =
+        (x1.z() - x2.z()) * pt / pm - ((x1.x() - x2.x()) * p.x() + (x1.y() - x2.y()) * p.y()) / pt * p.z() / pm;
+    double dxy = (-(x1.x() - x2.x()) * p.y() + (x1.y() - x2.y()) * p.x()) / pt;
+    AlgebraicVector5 diff(start.charge() / p1.mag() - other.charge() / p2.mag(),
+                          p1.theta() - p2.theta(),
+                          (p1.phi() - p2.phi()).value(),
+                          dxy,
+                          dsz);
+    return ROOT::Math::Similarity(diff, cov);
 }
 
 double MatcherUsingTracksAlgorithm::getChi2(const FreeTrajectoryState &start,
                                             const TrajectoryStateClosestToPoint &other,
                                             bool diagonalOnly,
                                             bool useVertex) {
-  if (!start.hasError() && !other.hasError())
-    throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
-  double pt;  // needed by pgconvert
-  AlgebraicSymMatrix55 cov;
-  if (start.hasError())
-    cov += PerigeeConversions::ftsToPerigeeError(start).covarianceMatrix();
-  if (other.hasError())
-    cov += other.perigeeError().covarianceMatrix();
-  cropAndInvert(cov, diagonalOnly, !useVertex);
-  AlgebraicVector5 pgpar1 = PerigeeConversions::ftsToPerigeeParameters(start, other.referencePoint(), pt).vector();
-  AlgebraicVector5 pgpar2 = other.perigeeParameters().vector();
-  AlgebraicVector5 diff(pgpar1 - pgpar2);
-  return ROOT::Math::Similarity(diff, cov);
+    if (!start.hasError() && !other.hasError())
+      throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
+    double pt;  // needed by pgconvert
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError())
+      cov += PerigeeConversions::ftsToPerigeeError(start).covarianceMatrix();
+    if (other.hasError())
+      cov += other.perigeeError().covarianceMatrix();
+    cropAndInvert(cov, diagonalOnly, !useVertex);
+    AlgebraicVector5 pgpar1 = PerigeeConversions::ftsToPerigeeParameters(start, other.referencePoint(), pt).vector();
+    AlgebraicVector5 pgpar2 = other.perigeeParameters().vector();
+    AlgebraicVector5 diff(pgpar1 - pgpar2);
+    return ROOT::Math::Similarity(diff, cov);
 }
 
 double MatcherUsingTracksAlgorithm::getChi2(const TrajectoryStateOnSurface &start,
                                             const TrajectoryStateOnSurface &other,
                                             bool diagonalOnly,
                                             bool usePosition) {
-  if (!start.hasError() && !other.hasError())
-    throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
-  AlgebraicSymMatrix55 cov;
-  if (start.hasError())
-    cov += start.localError().matrix();
-  if (other.hasError())
-    cov += other.localError().matrix();
-  cropAndInvert(cov, diagonalOnly, !usePosition);
-  AlgebraicVector5 diff(start.localParameters().mixedFormatVector() - other.localParameters().mixedFormatVector());
-  return ROOT::Math::Similarity(diff, cov);
+    if (!start.hasError() && !other.hasError())
+      throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError())
+      cov += start.localError().matrix();
+    if (other.hasError())
+      cov += other.localError().matrix();
+    cropAndInvert(cov, diagonalOnly, !usePosition);
+    AlgebraicVector5 diff(start.localParameters().mixedFormatVector() - other.localParameters().mixedFormatVector());
+    return ROOT::Math::Similarity(diff, cov);
 }
 
 void MatcherUsingTracksAlgorithm::cropAndInvert(AlgebraicSymMatrix55 &cov, bool diagonalOnly, bool top3by3only) {
-  if (!top3by3only) {
-    if (diagonalOnly) {
-      for (size_t i = 0; i < 5; ++i) {
-        for (size_t j = i + 1; j < 5; ++j) {
+    if (!top3by3only) {
+      if (diagonalOnly) {
+        for (size_t i = 0; i < 5; ++i) {
+          for (size_t j = i + 1; j < 5; ++j) {
+            cov(i, j) = 0;
+          }
+        }
+      }
+      cov.Invert();
+    } else {
+      // get 3x3 covariance
+      AlgebraicSymMatrix33 momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
+      if (diagonalOnly) {
+        momCov(0, 1) = 0;
+        momCov(0, 2) = 0;
+        momCov(1, 2) = 0;
+      }
+      // invert
+      momCov.Invert();
+      // place it
+      cov.Place_at(momCov, 0, 0);
+      // zero the rest
+      for (size_t i = 3; i < 5; ++i) {
+        for (size_t j = i; j < 5; ++j) {
           cov(i, j) = 0;
         }
       }
     }
-    cov.Invert();
-  } else {
-    // get 3x3 covariance
-    AlgebraicSymMatrix33 momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
-    if (diagonalOnly) {
-      momCov(0, 1) = 0;
-      momCov(0, 2) = 0;
-      momCov(1, 2) = 0;
-    }
-    // invert
-    momCov.Invert();
-    // place it
-    cov.Place_at(momCov, 0, 0);
-    // zero the rest
-    for (size_t i = 3; i < 5; ++i) {
-      for (size_t j = i; j < 5; ++j) {
-        cov(i, j) = 0;
-      }
-    }
-  }
 }

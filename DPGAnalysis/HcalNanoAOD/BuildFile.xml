@@ -1,0 +1,7 @@
+<use name="DataFormats/HcalDetId"/>
+<use name="DQM/HcalCommon"/>
+<use name="boost"/>
+<export>
+  <lib name="1"/>
+</export>
+

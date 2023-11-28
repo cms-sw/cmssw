@@ -199,14 +199,8 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   double eHcalConeHFL = 0.;
   double eHcalConeHFS = 0.;
 
-  // Total numbet of RecHits in HCAL, in the cone, above 1 GeV theshold
-  int nrechits = 0;
-  int nrechitsCone = 0;
-  int nrechitsThresh = 0;
-
   // energy in ECAL
   double eEcalCone = 0.;
-  int numrechitsEcal = 0;
 
   // MC info
   double phi_MC = -999999.;  // phi of initial particle from HepMC
@@ -227,7 +221,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
     // MC particle with highest pt is taken as a direction reference
     double maxPt = -99999.;
-    int npart = 0;
     const HepMC::GenEvent *myGenEvent = evtMC->GetEvent();
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p) {
@@ -237,7 +230,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       //    eta_MC = etap;
       double pt = (*p)->momentum().perp();
       if (pt > maxPt) {
-        npart++;
         maxPt = pt;
         phi_MC = phip;
         eta_MC = etap;
@@ -287,7 +279,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         double r = dR(eta_MC, phi_MC, eta, phi);
         if (r < partR) {
           eEcalCone += en;
-          numrechitsEcal++;
         }
       }
     }
@@ -309,7 +300,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         double r = dR(eta_MC, phi_MC, eta, phi);
         if (r < partR) {
           eEcalCone += en;
-          numrechitsEcal++;
         }
       }
     }
@@ -349,10 +339,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       if (chi2 > 0.)
         chi2_log10 = log10(chi2);
 
-      nrechits++;
-      if (en > 1.)
-        nrechitsThresh++;
-
       double r = dR(eta_MC, phi_MC, eta, phi);
       if (r < partR) {
         if (sub == 1)
@@ -368,7 +354,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
           else
             eHcalConeHFS += en;
         }
-        nrechitsCone++;
 
         HcalCone += en;
         // alternative: ietamax -> closest to MC eta  !!!

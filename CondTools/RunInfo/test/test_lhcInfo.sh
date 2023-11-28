@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LOCAL_TEST_DIR=src/CondTools/RunInfo/test
+LOCAL_TEST_DIR=$CMSSW_BASE/src/CondTools/RunInfo/test
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 

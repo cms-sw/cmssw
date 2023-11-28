@@ -22,7 +22,7 @@ namespace l1t {
 
     const HGCalTowerMap& operator+=(const HGCalTowerMap& map);
 
-    bool addEt(short bin_id, float etEm, float etHad);
+    bool addEt(const std::unordered_map<unsigned short, float>& towerIDandShares, float etEm, float etHad);
 
     unsigned nTowers() const { return towerMap_.size(); }
     const std::unordered_map<unsigned short, l1t::HGCalTower>& towers() const { return towerMap_; }

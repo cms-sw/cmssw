@@ -1764,7 +1764,6 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits(
   double inertia00 = 0.;
   double inertia01 = 0.;  // = inertia10 b/c matrix should be symmetric
   double inertia11 = 0.;
-  int i = 0;
   for (std::vector<std::pair<const EcalRecHit *, float>>::const_iterator rhf_ptr = RH_ptrs_fracs.begin();
        rhf_ptr != RH_ptrs_fracs.end();
        rhf_ptr++) {
@@ -1792,7 +1791,6 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits(
     inertia00 += weight * iphi_rh_to_center * iphi_rh_to_center;
     inertia01 -= weight * iphi_rh_to_center * ieta_rh_to_center;
     inertia11 += weight * ieta_rh_to_center * ieta_rh_to_center;
-    i++;
   }
 
   inertia[0][0] = inertia00;

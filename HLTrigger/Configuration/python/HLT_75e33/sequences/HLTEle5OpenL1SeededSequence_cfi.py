@@ -39,29 +39,29 @@ HLTEle5OpenL1SeededSequence = cms.Sequence(
     HLTHgcalTiclPFClusteringForEgammaL1Seeded +
     hltEgammaCandidatesWrapperL1Seeded +
     hltEG5EtL1SeededFilter +
-    hltEle5WPTightClusterShapeL1SeededFilter +
-    hltEle5WPTightClusterShapeSigmavvL1SeededFilter +
-    hltEle5WPTightClusterShapeSigmawwL1SeededFilter +
-    hltEle5WPTightHgcalHEL1SeededFilter +
+    cms.ignore(hltEle5WPTightClusterShapeL1SeededFilter) +
+    cms.ignore(hltEle5WPTightClusterShapeSigmavvL1SeededFilter) +
+    cms.ignore(hltEle5WPTightClusterShapeSigmawwL1SeededFilter) +
+    cms.ignore(hltEle5WPTightHgcalHEL1SeededFilter) +
     HLTDoLocalHcalSequence +
     HLTFastJetForEgamma +
-    hltEle5WPTightHEL1SeededFilter +
-    hltEle5WPTightEcalIsoL1SeededFilter +
-    hltEle5WPTightHgcalIsoL1SeededFilter +
+    cms.ignore(hltEle5WPTightHEL1SeededFilter) +
+    cms.ignore(hltEle5WPTightEcalIsoL1SeededFilter) +
+    cms.ignore(hltEle5WPTightHgcalIsoL1SeededFilter) +
     HLTPFHcalClusteringForEgamma +
-    hltEle5WPTightHcalIsoL1SeededFilter +
+    cms.ignore(hltEle5WPTightHcalIsoL1SeededFilter) +
     HLTElePixelMatchL1SeededSequence +
-    hltEle5WPTightPixelMatchL1SeededFilter +
-    hltEle5WPTightPMS2L1SeededFilter +
+    cms.ignore(hltEle5WPTightPixelMatchL1SeededFilter) +
+    cms.ignore(hltEle5WPTightPMS2L1SeededFilter) +
     HLTGsfElectronL1SeededSequence +
-    hltEle5WPTightGsfOneOEMinusOneOPL1SeededFilter +
-    hltEle5WPTightGsfDetaL1SeededFilter +
-    hltEle5WPTightGsfDphiL1SeededFilter +
-    hltEle5WPTightBestGsfNLayerITL1SeededFilter +
-    hltEle5WPTightBestGsfChi2L1SeededFilter +
+    cms.ignore(hltEle5WPTightGsfOneOEMinusOneOPL1SeededFilter) +
+    cms.ignore(hltEle5WPTightGsfDetaL1SeededFilter) +
+    cms.ignore(hltEle5WPTightGsfDphiL1SeededFilter) +
+    cms.ignore(hltEle5WPTightBestGsfNLayerITL1SeededFilter) +
+    cms.ignore(hltEle5WPTightBestGsfChi2L1SeededFilter) +
     hltEle5DphiL1SeededFilter +
-    hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter +
+    cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter) +
     HLTTrackingV61Sequence +
-    hltEle5WPTightGsfTrackIsoL1SeededFilter,
+    cms.ignore(hltEle5WPTightGsfTrackIsoL1SeededFilter),
     HLTEle5OpenL1SeededTask
 )

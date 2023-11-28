@@ -155,9 +155,7 @@ namespace lumi {
     q1->setCondition("RUNNUMBER=:runnumber", bindVariableList);
     q1->defineOutput(hltpathid);
     coral::ICursor& c = q1->execute();
-    unsigned int npc = 0;
     while (c.next()) {
-      npc++;
       unsigned int hid = c.currentRow()["hltpathid"].data<unsigned int>();
       hltpathmap.insert(std::make_pair(hid, ""));
     }

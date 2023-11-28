@@ -24,10 +24,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="TestCondCoreESSources.cpp" name="UnitTestConcurrentIOVsCondCore">
-  <flags TEST_RUNNER_ARGS=" /bin/bash CondCore/ESSources/test TestConcurrentIOVsCondCore.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="UnitTestConcurrentIOVsCondCore" command="TestConcurrentIOVsCondCore.sh"/>
 
 <library file="stubs/LumiTestReadAnalyzer.cc" name="LumiTestReadAnalyzer">
   <flags EDM_PLUGIN="1"/>

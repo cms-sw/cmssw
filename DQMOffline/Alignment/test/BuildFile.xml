@@ -1,4 +1,1 @@
-<bin file="TestDriver.cpp" name="testDiMuonVertexMonitor">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash DQMOffline/Alignment/test testDiMuonVertexMonitor.sh"/>
-</bin>
+<test name="testDiMuonVertexMonitor" command="testDiMuonVertexMonitor.sh"/>

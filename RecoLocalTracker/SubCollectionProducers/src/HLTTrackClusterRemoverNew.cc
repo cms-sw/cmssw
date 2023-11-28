@@ -227,9 +227,6 @@ std::unique_ptr<edmNew::DetSetVector<T> > HLTTrackClusterRemoverNew::cleanup(
   auto output = std::make_unique<DSV>();
   output->reserve(oldClusters.size(), oldClusters.dataSize());
 
-  unsigned int countOld = 0;
-  unsigned int countNew = 0;
-
   // cluster removal loop
   const T *firstOffset = &oldClusters.data().front();
   for (typename DSV::const_iterator itdet = oldClusters.begin(), enddet = oldClusters.end(); itdet != enddet; ++itdet) {
@@ -243,10 +240,8 @@ std::unique_ptr<edmNew::DetSetVector<T> > HLTTrackClusterRemoverNew::cleanup(
 
     for (typename DS::const_iterator it = oldDS.begin(), ed = oldDS.end(); it != ed; ++it) {
       uint32_t index = ((&*it) - firstOffset);
-      countOld++;
       if (isGood[index]) {
         outds.push_back(*it);
-        countNew++;
         refs.push_back(index);
         //std::cout << "HLTTrackClusterRemoverNew::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
       }
@@ -254,7 +249,6 @@ std::unique_ptr<edmNew::DetSetVector<T> > HLTTrackClusterRemoverNew::cleanup(
     if (outds.empty())
       outds.abort();  // not write in an empty DSV
   }
-  //    double fraction = countNew  / (double) countOld;
   //    std::cout<<"fraction: "<<fraction<<std::endl;
   if (oldRefs != nullptr)
     mergeOld(refs, *oldRefs);

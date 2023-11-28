@@ -13,7 +13,7 @@
 <use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Engine"/>
-<use name="RecoPixelVertexing/PixelTriplets"/>
+<use name="RecoTracker/PixelSeeding"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/TkHitPairs"/>
 <use name="RecoTracker/TkSeedGenerator"/>

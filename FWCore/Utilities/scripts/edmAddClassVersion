@@ -1,6 +1,5 @@
 #!  /usr/bin/env python3
 import string, os
-from optparse import OptionParser
 
 class ClassesDefXmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that do not contain
@@ -36,9 +35,9 @@ class ClassesDefXmlParser(object):
             if c == '"' : q1 = not q1
             if c == "'" : q2 = not q2
         try : p.Parse(nxml)
-        except xml.parsers.expat.ExpatError, e :
-            print '--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file
-            print '--->> edmCheckClassVersion: ERROR: Error is:', e
+        except xml.parsers.expat.ExpatError as e :
+            print('--->> edmAddClassVersion: ERROR: parsing selection file ',self._file)
+            print('--->> edmAddClassVersion: ERROR: Error is:', e)
             raise
         f.close()
     def start_element(self,name,attrs):
@@ -101,9 +100,9 @@ class GccXmlOutputParser(object):
         p.EndElementHandler = self.end_element
         f = open(self._fileName)
         try : p.Parse(f.read())
-        except xml.parsers.expat.ExpatError, e :
-            print '--->> edmAddClassVersion: ERROR: parsing selection file ',self._file
-            print '--->> edmAddClassVersion: ERROR: Error is:', e
+        except xml.parsers.expat.ExpatError as e :
+            print('--->> edmAddClassVersion: ERROR: parsing selection file ',self._file)
+            print('--->> edmAddClassVersion: ERROR: Error is:', e)
             raise
         f.close()
     def start_element(self,name,attrs):
@@ -166,7 +165,7 @@ def getNameTreeFromGccXml(headerFileName,gccxml,gccxmlopt,cppopt):
     cmd  = '%s %s "%s" -fxml=%s %s -D__REFLEX__' %(gccxml, gccxmlopt, headerFileName, xmlfile, cppopt)
     status = os.system(cmd)
     if status :
-      print '\n--->> edmAddClassVersion: ERROR: processing file with gccxml.  Command failed.'
+      print('\n--->> edmAddClassVersion: ERROR: processing file with gccxml.  Command failed.')
       exit(1)
     import subprocess, sys
 
@@ -180,8 +179,8 @@ def getNameTreeFromGccXml(headerFileName,gccxml,gccxmlopt,cppopt):
     sout = out.read()
     serr = err.read()
     if serr :
-      print '--->> genreflex: WARNING: Could not invoke %s --print' % self.gccxml
-      print '--->> genreflex: WARNING: %s' % serr
+      print('--->> genreflex: WARNING: Could not invoke %s --print' % self.gccxml)
+      print('--->> genreflex: WARNING: %s' % serr)
       return s
     try:
         p = GccXmlOutputParser(xmlfile)
@@ -212,16 +211,16 @@ def checkIfTypedefOfTemplate(nameList,nameTree):
 
 if __name__ == '__main__':
     #Setup the options
-    from optparse import OptionParser
-    oparser = OptionParser()
-    oparser.add_option("-l","--lib", dest="library",
-                       help="specify the library to load. If not set classes are found using the PluginManager")
-    oparser.add_option("-d","--dir", dest="filedir",default=".",
-                                          help="the directory holding both the classes_def.xml and classes.h files to read")
-    oparser.add_option("-c","--cppopt",dest="cppopt", default="",
-                        help="specify the C++ compiler options to pass to gccxml")
+    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    oparser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    oparser.add_argument("-l","--lib", dest="library", type=str,
+                         help="specify the library to load. If not set classes are found using the PluginManager")
+    oparser.add_argument("-d","--dir", dest="filedir",default=".", type=str,
+                         help="the directory holding both the classes_def.xml and classes.h files to read")
+    oparser.add_argument("-c","--cppopt",dest="cppopt", default="", type=str,
+                         help="specify the C++ compiler options to pass to gccxml")
 
-    (options,args)=oparser.parse_args()
+    options=oparser.parse_args()
 
     #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
     import ROOT
@@ -245,7 +244,7 @@ if __name__ == '__main__':
     sout = out.read()
     serr = err.read()
     if serr :
-      print '--->> edmAddClassVerion: WARNING: Could not invoke "scram tool info gccxml"'
+      print('--->> edmAddClassVersion: WARNING: Could not invoke "scram tool info gccxml"')
       exit(1)
     gccxmlpath = ''
     for l in sout.split("\n"):
@@ -254,7 +253,7 @@ if __name__ == '__main__':
             gccxmlpath = name_value[1]
             break
     if not gccxmlpath:
-        print '--->> edmAddClassVerion: WARNING: Could not find path to gccxml executable'
+        print('--->> edmAddClassVersion: WARNING: Could not find path to gccxml executable')
         exit(1)
         
 
@@ -276,22 +275,22 @@ if __name__ == '__main__':
     #' -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/src -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/src -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/boost/1.44.0-cms3/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/uuid/1.38-cms2/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/cint -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/pcre/4.4-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/zlib/1.2.3-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/include'
     incfile = options.filedir+"/classes.h"
     nameTree = getNameTreeFromGccXml(incfile,gccxml,gccxmlopt,cppopt)
-    #print typedefToClasses
+    #print(typedefToClasses)
     #exit(0)
 
     xmlfile = options.filedir+"/classes_def.xml"
     p = ClassesDefXmlParser(xmlfile)
-    #print p.classes
+    #print(p.classes)
     classesToModify = [x[0] for x in p.classes.items() if not checkIfTypedefOfTemplate([y for y in x[0].split(':') if y != ''],nameTree)]
     
     classesWithChecksum = dict([(x,checksumForClass(x)) for x in classesToModify])
-    print 'Found the following non-templated classes which will be assigned a ClassVersion and the following checksum'
+    print('Found the following non-templated classes which will be assigned a ClassVersion and the following checksum')
     for name,checksum in classesWithChecksum.items():
-        print name,checksum
+        print(name,checksum)
     #exit(0)
     
     #Now create the updated classes_def.xml file
-    print "creating a './classes_def.xml.generated' file which you should use to replace",xmlfile
+    print("creating a './classes_def.xml.generated' file which you should use to replace",xmlfile)
     f = open(xmlfile)
     outFile = open('classes_def.xml.generated','w')
     out = ''

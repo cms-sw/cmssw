@@ -70,12 +70,14 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  const reco::Vertex* findClosestVertex(const TransientVertex aTransVtx, const reco::VertexCollection* vertices) const;
   void endJob() override;
 
   // ----------member data ---------------------------
   DiLeptonHelp::Counts myCounts;
 
-  bool useReco_;
+  const bool useReco_;
+  const bool useClosestVertex_;
   std::vector<double> pTthresholds_;
   float maxSVdist_;
 
@@ -146,6 +148,7 @@ static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (
 //
 DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
     : useReco_(iConfig.getParameter<bool>("useReco")),
+      useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
       pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
       CosPhiConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhiConfig")),
@@ -269,6 +272,14 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     }
   }
 
+#ifdef EDM_ML_DEBUG
+  for (const auto& track : myTracks) {
+    edm::LogVerbatim("DiMuonVertexValidation") << __PRETTY_FUNCTION__ << " pT: " << track->pt() << " GeV"
+                                               << " , pT error: " << track->ptError() << " GeV"
+                                               << " , eta: " << track->eta() << " , phi: " << track->phi() << std::endl;
+  }
+#endif
+
   LogDebug("DiMuonVertexValidation") << "selected tracks: " << myTracks.size() << std::endl;
 
   const TransientTrackBuilder* theB = &iSetup.getData(ttbESToken_);
@@ -287,6 +298,17 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mumass2));
   TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mumass2));
+
+#ifdef EDM_ML_DEBUG
+  // Define a lambda function to convert TLorentzVector to a string
+  auto tLorentzVectorToString = [](const TLorentzVector& vector) {
+    return std::to_string(vector.Px()) + " " + std::to_string(vector.Py()) + " " + std::to_string(vector.Pz()) + " " +
+           std::to_string(vector.E());
+  };
+
+  edm::LogVerbatim("DiMuonVertexValidation") << "mu+" << tLorentzVectorToString(p4_tplus) << std::endl;
+  edm::LogVerbatim("DiMuonVertexValidation") << "mu-" << tLorentzVectorToString(p4_tminus) << std::endl;
+#endif
 
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
@@ -323,24 +345,40 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // fill the VtxProb plots
   VtxProbPlots.fillPlots(SVProb, tktk_p4);
 
+  math::XYZPoint MainVertex(0, 0, 0);
+  const reco::Vertex* theClosestVertex = nullptr;
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
-
-  math::XYZPoint MainVertex(0, 0, 0);
-  reco::Vertex TheMainVertex = vertexHandle.product()->front();
-
   if (vertexHandle.isValid()) {
     const reco::VertexCollection* vertices = vertexHandle.product();
-    if ((*vertices).at(0).isValid()) {
-      auto theMainVtx = (*vertices).at(0);
-      MainVertex.SetXYZ(theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
-    }
+    theClosestVertex = this->findClosestVertex(aTransientVertex, vertices);
+  } else {
+    edm::LogWarning("DiMuonVertexMonitor") << "invalid vertex collection encountered Skipping event!";
+    return;
   }
 
+  reco::Vertex TheMainVertex;
+  if (!useClosestVertex_ || theClosestVertex == nullptr) {
+    // if the closest vertex is not available, or explicitly not chosen
+    TheMainVertex = vertexHandle.product()->front();
+  } else {
+    TheMainVertex = *theClosestVertex;
+  }
+
+  MainVertex.SetXYZ(TheMainVertex.position().x(), TheMainVertex.position().y(), TheMainVertex.position().z());
   const math::XYZPoint myVertex(
       aTransientVertex.position().x(), aTransientVertex.position().y(), aTransientVertex.position().z());
   const math::XYZPoint deltaVtx(
       MainVertex.x() - myVertex.x(), MainVertex.y() - myVertex.y(), MainVertex.z() - myVertex.z());
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DiMuonVertexValidation")
+      << "mm vertex position:" << aTransientVertex.position().x() << "," << aTransientVertex.position().y() << ","
+      << aTransientVertex.position().z();
+
+  edm::LogVerbatim("DiMuonVertexValidation") << "main vertex position:" << TheMainVertex.position().x() << ","
+                                             << TheMainVertex.position().y() << "," << TheMainVertex.position().z();
+#endif
 
   if (TheMainVertex.isValid()) {
     // Z Vertex distance in the xy plane
@@ -390,6 +428,11 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       hCosPhi_->Fill(cosphi);
       hCosPhi3D_->Fill(cosphi3D);
+
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DiMuonVertexValidation")
+          << "distance " << distance * cmToum << " cosphi3D:" << cosphi3D << std::endl;
+#endif
 
       // fill the cosphi plots
       CosPhiPlots.fillPlots(cosphi, tktk_p4);
@@ -489,6 +532,35 @@ void DiMuonVertexValidation::endJob() {
   }
 }
 
+// compute the closest vertex to di-lepton ------------------------------------
+const reco::Vertex* DiMuonVertexValidation::findClosestVertex(const TransientVertex aTransVtx,
+                                                              const reco::VertexCollection* vertices) const {
+  reco::Vertex* defaultVtx = nullptr;
+
+  if (!aTransVtx.isValid())
+    return defaultVtx;
+
+  // find the closest vertex to the secondary vertex in 3D
+  VertexDistance3D vertTool3D;
+  float minD = 9999.;
+  int closestVtxIndex = 0;
+  int counter = 0;
+  for (const auto& vtx : *vertices) {
+    double dist3D = vertTool3D.distance(aTransVtx, vtx).value();
+    if (dist3D < minD) {
+      minD = dist3D;
+      closestVtxIndex = counter;
+    }
+    counter++;
+  }
+
+  if ((*vertices).at(closestVtxIndex).isValid()) {
+    return &(vertices->at(closestVtxIndex));
+  } else {
+    return defaultVtx;
+  }
+}
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -503,6 +575,7 @@ void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
+  desc.add<bool>("useClosestVertex", true);
   desc.add<double>("maxSVdist", 50.);
 
   {

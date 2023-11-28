@@ -8,7 +8,7 @@ class G4Track;
 class KillSecondariesStackingAction : public G4UserStackingAction {
 public:
   KillSecondariesStackingAction() {}
-  ~KillSecondariesStackingAction() override {}
+  ~KillSecondariesStackingAction() override = default;
   G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *) override;
 };
 

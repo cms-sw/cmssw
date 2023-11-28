@@ -303,6 +303,11 @@ hltSiPixelPhase1ClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1Clusters',
         triggerflag = hltSiPixelPhase1ClustersTriggers,
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1ClustersAnalyzer,
+                         pixelSrc = "hltSiPixelClustersAfterSplittingPPOnAA",
+                         stripSrc = "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression")
+
 hltSiPixelPhase1ClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1ClustersConf,
         geometry   = hltSiPixelPhase1Geometry

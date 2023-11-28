@@ -12,6 +12,10 @@ collisionParameters2760GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/t
                                    comEnergy = cms.double(2760.0)
                                    )
 
+collisionParameters5362GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                      comEnergy = cms.double(5362.0)
+                                  )
+
 collisionParameters = collisionParameters2760GeV.clone()
 
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;

@@ -119,4 +119,29 @@ namespace tt {
     }
   }
 
+  unsigned int SensorModule::ringId(const Setup* setup) const {
+    // In barrel PS: Tilted module ring no. (Increasing 1 to 12 as |z| increases)
+    // In barrel 2S: 0
+    // In disk: Endcap module ring number (1-15) in endcap disks
+
+    // See  https://github.com/cms-sw/cmssw/tree/master/Geometry/TrackerNumberingBuilder
+    const TrackerTopology* trackerTopology = setup->trackerTopology();
+    enum TypeBarrel { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
+    const TypeBarrel type = static_cast<TypeBarrel>(trackerTopology->tobSide(detId_));
+    bool tiltedBarrel = barrel_ && (type == tiltedMinus || type == tiltedPlus);
+    unsigned int ringId = 0;
+    // Tilted module ring no. (Increasing 1 to 12 as |z| increases).
+    if (tiltedBarrel) {
+      ringId = trackerTopology->tobRod(detId_);
+      if (type == tiltedMinus) {
+        unsigned int layp1 = trackerTopology->layer(detId_);
+        unsigned int nTilted = setup->numTiltedLayerRing(layp1);
+        ringId = 1 + nTilted - ringId;
+      }
+    } else {
+      ringId = barrel_ ? 0 : trackerTopology->tidRing(detId_);
+    }
+    return ringId;
+  }
+
 }  // namespace tt

@@ -1,4 +1,4 @@
-#include "CommonTools/Utils/interface/LogicalBinaryOperator.h"
+#include "CommonTools/Utils/interface/parser/LogicalBinaryOperator.h"
 
 using namespace reco::parser;
 template <>

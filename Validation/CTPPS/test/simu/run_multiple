@@ -7,9 +7,9 @@ then
 fi
 
 inputDir="."
-if [ -n "$LOCAL_TEST_DIR" ]
+if [ -n "$SCRAM_TEST_PATH" ]
 then
-	inputDir="$LOCAL_TEST_DIR"
+	inputDir="$SCRAM_TEST_PATH/simu"
 	n_events="1E2"
 fi
 

@@ -13,11 +13,9 @@ namespace edm {
         std::array<char const*, LastCode> table{};
         table[IgnoreCompletely] = "IgnoreCompletely";
         table[Rethrow] = "Rethrow";
-        table[SkipEvent] = "SkipEvent";
-        table[FailPath] = "FailPath";
+        table[TryToContinue] = "TryToContinue";
         return table;
-      }
-      ();
+      }();
       return static_cast<unsigned int>(code) < tab.size() ? tab[code] : "UnknownAction";
     }
   }  // namespace exception_actions
@@ -51,10 +49,9 @@ namespace edm {
   ExceptionToActionTable::ExceptionToActionTable(ParameterSet const& pset) : map_() {
     addDefaults();
 
-    install(exception_actions::SkipEvent, map_, pset);
+    install(exception_actions::TryToContinue, map_, pset);
     install(exception_actions::Rethrow, map_, pset);
     install(exception_actions::IgnoreCompletely, map_, pset);
-    install(exception_actions::FailPath, map_, pset);
   }
 
   void ExceptionToActionTable::addDefaults() {

@@ -289,10 +289,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F* histo, const DTChamberId& chId, floa
       int totalDeadCells = 0;
       int nDeadCellsInARow = 1;
       int nDeadCellsInARowMax = 0;
-      int nCellsZeroCount = 0;
       bool previousIsDead = false;
-
-      int interDeadCells = 0;
 
       totCell += nWires;
 
@@ -302,23 +299,18 @@ int DTOccupancyTest::runOccupancyTest(TH2F* histo, const DTChamberId& chId, floa
         totOccup += cellOccup;
 
         if (cellOccup == 0) {
-          nCellsZeroCount++;
           totalDeadCells++;
           if (previousIsDead) {
             nDeadCellsInARow++;
           } else {
-            //	    if(interDeadCells > 3) {
             if (nDeadCellsInARow > nDeadCellsInARowMax)
               nDeadCellsInARowMax = nDeadCellsInARow;
             nDeadCellsInARow = 1;
-            //	    }
           }
           previousIsDead = true;
-          interDeadCells = 0;
           LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       below reference" << endl;
         } else {
           previousIsDead = false;
-          interDeadCells++;
         }
         //   // 3 cells not dead between a group of dead cells don't break the count
         if (nDeadCellsInARow > nDeadCellsInARowMax)

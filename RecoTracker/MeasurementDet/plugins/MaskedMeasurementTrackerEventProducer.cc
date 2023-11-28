@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 
 class dso_hidden MaskedMeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:

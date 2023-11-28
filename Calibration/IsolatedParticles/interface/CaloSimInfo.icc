@@ -602,8 +602,6 @@ namespace spr {
     std::set<int> uniqueIds_rest;
 
     // Counters for SimHits
-    int nMatched = 0, nRest = 0, nGamma = 0, nNeutralHad = 0, nChargedHad = 0;
-
     double energySum = 0.0;
     double energyGamma = 0.0, energyNeutral = 0.0, energyCharged = 0.0, energyRest = 0.0;
 
@@ -629,7 +627,6 @@ namespace spr {
           energySum += spr::getEnergy(hit[ihit]);
           uniqueIds_matched.insert(uniqueId);
           uniqueIds_total.insert(uniqueId);
-          nMatched++;
         } else {
           bool found = false;
           for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
@@ -640,7 +637,6 @@ namespace spr {
                 energySum += spr::getEnergy(hit[ihit]);
                 uniqueIds_matched.insert(uniqueId);
                 uniqueIds_total.insert(uniqueId);
-                nMatched++;
               } else {
                 edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                 if (debug) {
@@ -657,22 +653,18 @@ namespace spr {
                   energyRest += spr::getEnergy(hit[ihit]);
                   uniqueIds_rest.insert(uniqueId);
                   uniqueIds_total.insert(uniqueId);
-                  nRest++;
                 } else if (parentItr->type() == 22) {
                   energyGamma += spr::getEnergy(hit[ihit]);
                   uniqueIds_gamma.insert(uniqueId);
                   uniqueIds_total.insert(uniqueId);
-                  nGamma++;
                 } else if ((int)parentItr->charge() == 0) {
                   energyNeutral += spr::getEnergy(hit[ihit]);
                   uniqueIds_neut.insert(uniqueId);
                   uniqueIds_total.insert(uniqueId);
-                  nNeutralHad++;
                 } else {
                   energyCharged += spr::getEnergy(hit[ihit]);
                   uniqueIds_char.insert(uniqueId);
                   uniqueIds_total.insert(uniqueId);
-                  nChargedHad++;
                 }
               }
               break;
@@ -683,7 +675,6 @@ namespace spr {
             energyRest += spr::getEnergy(hit[ihit]);
             uniqueIds_rest.insert(uniqueId);
             uniqueIds_total.insert(uniqueId);
-            nRest++;
           }
 
           if (debug)

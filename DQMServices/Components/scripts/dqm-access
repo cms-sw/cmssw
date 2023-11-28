@@ -4,7 +4,8 @@ from DQMServices.Components.HTTP import RequestManager
 from DQMServices.Components.X509 import SSLOptions
 from optparse import OptionParser
 from time import strptime, time
-import sys, re, cjson, pycurl, urllib
+import sys, re, json, pycurl
+from urllib.parse import quote
 
 DIR = 0
 FILE = 1
@@ -89,8 +90,6 @@ def pattern_to_filter(pattern):
   if last.type == FILE and not last.recurse and last.pattern == "^$":
     filters.pop()
 
-  print filters
-
   return filters
 
 #-------------------------------------------------------------------------------
@@ -113,23 +112,25 @@ def find_matching_samples(options):
   all_samples = {}
 
   def req_error(c, url, errmsg, errno):
-    print >> sys.stderr, "%s: failed to retrieve samples: %s (%d)" \
-      % (options.server, errmsg, errno)
+    print("%s: failed to retrieve samples: %s (%d)" \
+      % (options.server, errmsg, errno), file=sys.stderr)
     sys.exit(1)
 
   def req_done(c):
-    all_samples['result'] = cjson.decode(c.buffer.getvalue())
+    json_decoder = json.decoder.JSONDecoder()
+    samples = c.buffer.getvalue().decode('utf-8')
+    all_samples['result'] = json_decoder.decode(samples)
 
   reqman = RequestManager(ssl_opts = ssl_opts,
                           user_agent = ident,
                           request_respond = req_done,
                           request_error = req_error)
-  print options.server + "/samples"
+  print(options.server + "/samples")
   reqman.put((options.server + "/samples",))
   reqman.process()
 
   if not all_samples:
-    print >> sys.stderr, "%s: no samples" % options.server
+    print("%s: no samples" % options.server, file=sys.stderr)
     sys.exit(1)
 
   for sample_type in all_samples['result']['samples']:
@@ -142,12 +143,13 @@ def fetch_tstreamerinfo(options, dataset):
   topdir = {}
 
   def req_error(c, url, errmsg, errno):
-    print >> sys.stderr, "%s: failed to retrieve TStreamerInfo: %s (%d)" \
-      % (options.server, errmsg, errno)
+    print("%s: failed to retrieve TStreamerInfo: %s (%d)" \
+      % (options.server, errmsg, errno), file=sys.stderr)
     sys.exit(1)
 
   def req_done(c):
-    topdir["contents"] = cjson.decode(c.buffer.getvalue())['contents']
+    json_decoder = json.decoder.JSONDecoder()
+    topdir["contents"] = json_decoder.decode(c.buffer.getvalue().decode('utf-8'))['contents']
 
   reqman = RequestManager(ssl_opts = ssl_opts,
                           user_agent = ident,
@@ -162,16 +164,16 @@ def fetch_tstreamerinfo(options, dataset):
 #-------------------------------------------------------------------------------
 def request_init(c, options, sample, path, filterspec):
   sample.update(path = path)
-  c.url = options.server + urllib.quote(url_content % sample)
+  c.url = options.server + quote(url_content % sample)
   if options.fetch_root:
     c.url+="?rootcontent=1"
   c.setopt(pycurl.URL, c.url)
   if False and options.verbose:
-    print c.url
+    print(c.url)
 
 #-------------------------------------------------------------------------------
 def report_error(c, task, errmsg, errno):
-  print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
+  print("FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno), file=sys.stderr)
 
 #-------------------------------------------------------------------------------
 def match_filters(item, filters, poslist):
@@ -209,20 +211,21 @@ def match_filters(item, filters, poslist):
 def process(c):
   global found, nreq
   options, sample, path, filterspec = c.task
+  json_decoder = json.decoder.JSONDecoder()
 
   nreq += 1
   if options.verbose and nreq % 10 == 0:
     sys.stdout.write(".")
     sys.stdout.flush()
     if nreq % 750 == 0:
-      print
+      print()
 
-  reply = c.buffer.getvalue()
+  reply = c.buffer.getvalue().decode('utf-8')
   reply = re.sub(r'("value": ")"([A-Za-z0-9_]+")"', r'\1\2', reply)
   reply = re.sub(r'("(?:mean|rms|min|max)":) nan,', r'\1 "NaN",', reply)
   reply = re.sub(r'("(?:mean|rms|min|max|nentries)":) inf,', r'\1 "float(\'inf\')",', reply)
   reply = re.sub(r'("(?:mean|rms|min|max|nentries)":) -inf,', r'\1 "-float(\'inf\')",', reply)
-  reply = cjson.decode(reply)
+  reply = json_decoder.decode(reply)
 
   newreq = {}
   for item in reply['contents']:
@@ -236,7 +239,7 @@ def process(c):
           newreq[newpath] = []
         newreq[newpath].append((filters, newpos))
 
-  for path, filterspec in newreq.iteritems():
+  for path, filterspec in iter(newreq.items()):
     reqman.put((options, sample, path, filterspec))
 
 #-------------------------------------------------------------------------------
@@ -277,16 +280,16 @@ op.add_option("-f", "--filter", dest = "glob",
               help = "Filter monitor elements matching GLOB pattern")
 options, args = op.parse_args()
 if args:
-  print >> sys.stderr, "Too many arguments"
+  print("Too many arguments", file=sys.stderr)
   sys.exit(1)
 if not options.sample_expr:
-  print >> sys.stderr, "Sample predicate expression required"
+  print("Sample predicate expression required", file=sys.stderr)
   sys.exit(1)
 if not options.glob:
-  print >> sys.stderr, "Monitor element filter expression(s) required"
+  print("Monitor element filter expression(s) required", file=sys.stderr)
   sys.exit(1)
 if not options.server:
-  print >> sys.stderr, "Server contact string required"
+  print("Server contact string required", file=sys.stderr)
   sys.exit(1)
 
 # Adjust options
@@ -300,9 +303,9 @@ if options.write:
 
 ssl_opts = SSLOptions()
 if options.verbose:
-  print "Using SSL cert dir", ssl_opts.ca_path
-  print "Using SSL private key", ssl_opts.key_file
-  print "Using SSL public key", ssl_opts.cert_file
+  print("Using SSL cert dir", ssl_opts.ca_path)
+  print("Using SSL private key", ssl_opts.key_file)
+  print("Using SSL public key", ssl_opts.cert_file)
 
 # Convert each glob pattern into a filter expression.
 filter_sets = map(lambda glob: pattern_to_filter(glob), options.glob)
@@ -329,13 +332,13 @@ for sample in find_matching_samples(options):
   found = []
   sample['section'] = 'archive'
   if options.verbose:
-    print "Scanning %s" % sample
-  reqman.put((options, sample, "/", map(lambda f: (f, [0]), filter_sets)))
+    print("Scanning %s" % sample)
+  reqman.put((options, sample, "/", list(map(lambda f: (f, [0]), filter_sets))))
   reqman.process()
   if options.verbose:
-    print
+    print()
   if found:
-    print "%(section)s/%(run)d%(dataset)s:" % sample
+    print("%(section)s/%(run)d%(dataset)s:" % sample)
     found.sort()
     cwd = None
 
@@ -360,13 +363,13 @@ for sample in find_matching_samples(options):
 
       # We are treating a directory
       if 'subdir' in item:
-        print " %s/%s" % (path, (options.long_listing and " = directory") or "")
+        print(" %s/%s" % (path, (options.long_listing and " = directory") or ""))
         if options.write:
           tfile_cd(path,ofile)
 
       # We are treating an int/double/string
       elif 'value' in item:
-        print " %s%s" % (path, (options.long_listing and " = %s" % item['value']) or "")
+        print(" %s%s" % (path, (options.long_listing and " = %s" % item['value']) or ""))
 
       # We have a TObject: histo, graph, profile...; maybe write to a file.
       else:
@@ -375,7 +378,7 @@ for sample in find_matching_samples(options):
           message += " = [%s # %d]" % (item['properties']['type'], item['nentries'])
         if options.debug:
           message += " %s" % item['rootobj']
-        print message
+        print(message)
         if options.write:
           indir = path.rsplit("/", 1)[0]
           if cwd != indir:
@@ -392,4 +395,4 @@ for sample in find_matching_samples(options):
 end = time()
 
 if options.verbose:
-  print "\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start)
+  print("\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start))

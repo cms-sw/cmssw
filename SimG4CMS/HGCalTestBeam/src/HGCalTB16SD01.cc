@@ -9,7 +9,6 @@
 
 //#define EDM_ML_DEBUG
 
-
 HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
                              const SensitiveDetectorCatalog& clg,
                              edm::ParameterSet const& p,

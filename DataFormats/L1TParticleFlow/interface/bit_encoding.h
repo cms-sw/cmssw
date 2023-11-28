@@ -58,4 +58,34 @@ inline void l1pf_pattern_unpack(const ap_uint<NB> data[], T objs[N]) {
   }
 }
 
+template <unsigned int N, unsigned int OFFS = 0, typename T, int NB>
+inline void l1pf_pattern_pack_slim(const T objs[N], ap_uint<NB> data[]) {
+#ifdef __SYNTHESIS__
+#pragma HLS inline
+#pragma HLS inline region recursive
+#endif
+  assert(T::BITWIDTH_SLIM <= NB);
+  for (unsigned int i = 0; i < N; ++i) {
+#ifdef __SYNTHESIS__
+#pragma HLS unroll
+#endif
+    data[i + OFFS] = objs[i].pack_slim();
+  }
+}
+
+template <unsigned int N, unsigned int OFFS = 0, typename T, int NB>
+inline void l1pf_pattern_unpack_slim(const ap_uint<NB> data[], T objs[N]) {
+#ifdef __SYNTHESIS__
+#pragma HLS inline
+#pragma HLS inline region recursive
+#endif
+  assert(T::BITWIDTH_SLIM <= NB);
+  for (unsigned int i = 0; i < N; ++i) {
+#ifdef __SYNTHESIS__
+#pragma HLS unroll
+#endif
+    objs[i] = T::unpack(data[i + OFFS]);
+  }
+}
+
 #endif

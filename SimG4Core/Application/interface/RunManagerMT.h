@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
-
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
@@ -77,6 +76,8 @@ public:
   // need a non-const pointer. Thread-safety is handled inside Geant4.
   inline PhysicsList* physicsListForWorker() const { return m_physicsList.get(); }
 
+  inline bool isPhase2() const { return m_isPhase2; }
+
 private:
   void terminateRun();
 
@@ -84,14 +85,16 @@ private:
 
   void setupVoxels();
 
+  void runForPhase2();
+
   G4MTRunManagerKernel* m_kernel;
 
   CustomUIsession* m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
-  bool m_managerInitialized;
-  bool m_runTerminated;
-  RunAction* m_userRunAction;
-  G4Run* m_currentRun;
+  bool m_managerInitialized{false};
+  bool m_runTerminated{false};
+  RunAction* m_userRunAction{nullptr};
+  G4Run* m_currentRun{nullptr};
   G4StateManager* m_stateManager;
 
   std::unique_ptr<SimRunInterface> m_runInterface;
@@ -100,11 +103,16 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
+  bool m_geoFromDD4hep;
+  bool m_score;
+  bool m_isPhase2{false};
+  int m_stepverb;
+  std::string m_regionFile{""};
   edm::ParameterSet m_pPhysics;
   edm::ParameterSet m_pRunAction;
-  edm::ParameterSet m_g4overlap;
+  edm::ParameterSet m_CheckOverlap;
+  edm::ParameterSet m_Init;
   std::vector<std::string> m_G4Commands;
-  edm::ParameterSet m_p;
 
   std::unique_ptr<DDDWorld> m_world;
   SimActivityRegistry m_registry;

@@ -37,7 +37,7 @@ namespace edm {
 
     void setupPileUpEvent(EventPrincipal& ep, const EventSetupImpl& setup, StreamContext& sContext);
 
-    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProductResolverIndices const&);
     void endJob() { workerManager_.endJob(); }
 
     void beginStream(edm::StreamID iID, StreamContext& sContext);

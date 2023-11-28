@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <string>
 
@@ -27,9 +29,9 @@ public:
   virtual void update(const edm::EventSetup&) {}
 
   // here we transform one PFCluster to use the new position calculation
-  virtual void calculateAndSetPosition(reco::PFCluster&) = 0;
+  virtual void calculateAndSetPosition(reco::PFCluster&, const HcalPFCuts*) = 0;
   // here you call a loop inside to transform the whole vector
-  virtual void calculateAndSetPositions(reco::PFClusterCollection&) = 0;
+  virtual void calculateAndSetPositions(reco::PFClusterCollection&, const HcalPFCuts*) = 0;
 
   const std::string& name() const { return _algoName; }
 

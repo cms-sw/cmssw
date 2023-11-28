@@ -108,6 +108,7 @@ namespace JME {
     static const bimap<Binning, std::string> binning_to_string;
 
     std::vector<float> createVector(const std::vector<Binning>& binning) const;
+    std::vector<float> createVector(const std::vector<std::string>& binname) const;
 
   private:
     value_type m_values;
@@ -155,7 +156,7 @@ namespace JME {
 
       std::string getVariableName(size_t variable) const { return m_variables_name[variable]; }
 
-      size_t nVariables() const { return m_variables.size(); }
+      size_t nVariables() const { return m_variables_name.size(); }
 
       const std::vector<std::string>& getParametersName() const { return m_parameters_name; }
 

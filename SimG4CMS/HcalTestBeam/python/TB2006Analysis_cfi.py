@@ -40,7 +40,7 @@ def testbeam2006(process):
 
     process.common_maximum_time.MaxTrackTime = cms.double(1000.0)
     process.common_maximum_time.MaxTimeNames = cms.vstring()
-    process.common_maximum_time.MaxTrackTimes = cms.vstring()
+    process.common_maximum_time.MaxTrackTimes = cms.vdouble()
     process.common_maximum_time.DeadRegions = cms.vstring()
 
     process.g4SimHits.NonBeamEvent = True

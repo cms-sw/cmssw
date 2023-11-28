@@ -3,10 +3,12 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 class APDSimParameters;
+class ComponentSimParameterMap;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -26,8 +28,11 @@ public:
   EBHitResponseImpl(const CaloVSimParameterMap* parameterMap,
                     const CaloVShape* shape,
                     bool apdOnly,
+                    bool doComponent,
                     const APDSimParameters* apdPars = nullptr,
-                    const CaloVShape* apdShape = nullptr);
+                    const CaloVShape* apdShape = nullptr,
+                    const ComponentSimParameterMap* componentPars = nullptr,
+                    const ComponentShapeCollection* componentShapes = nullptr);
 
   ~EBHitResponseImpl() override;
 
@@ -62,6 +67,8 @@ protected:
 
   void putAPDSignal(const DetId& detId, double npe, double time);
 
+  void putComponentSignal(const DetId& detId, double npe, double time);
+
   void putAnalogSignal(const PCaloHit& inputHit, CLHEP::HepRandomEngine*) override;
 
 private:
@@ -81,13 +88,19 @@ private:
   const APDSimParameters* apdParameters() const;
   const CaloVShape* apdShape() const;
 
+  const ComponentSimParameterMap* componentParameters() const;
+  const ComponentShapeCollection* shapes() const;
+
   double apdSignalAmplitude(const PCaloHit& hit, CLHEP::HepRandomEngine*) const;
 
   void findIntercalibConstant(const DetId& detId, double& icalconst) const;
 
   const bool m_apdOnly;
+  const bool m_isComponentShapeBased;
   const APDSimParameters* m_apdPars;
   const CaloVShape* m_apdShape;
+  const ComponentSimParameterMap* m_componentPars;
+  const ComponentShapeCollection* m_componentShapes;
   const EcalIntercalibConstantsMC* m_intercal;
 
   std::vector<double> m_timeOffVec;

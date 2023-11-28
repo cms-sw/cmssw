@@ -42,6 +42,12 @@ public:
 private:
   float sigma2_pe(const float& Q, const float& R) const;
 
+  float sigma_stochastic(const float& npe) const;
+
+  float sigma2_DCR(const float& npe) const;
+
+  float sigma2_electronics(const float npe) const;
+
   const bool debug_;
 
   const float bxTime_;
@@ -63,6 +69,7 @@ private:
   const bool smearTimeForOOTtails_;
   const float Npe_to_pC_;
   const float Npe_to_V_;
+  const std::vector<double> sigmaRelTOFHIRenergy_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_;

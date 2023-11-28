@@ -63,7 +63,7 @@ bool SeedExtensionTrajectoryFilter::looseTBC(const T& traj) const {
   } else {
     nhits = traj.measurements().size();
   }
-  return (nhits > int(traj.seedNHits()) + theExtension) | (0 == traj.lostHits());
+  return (nhits > int(traj.seedNHits()) + theExtension) || (0 == traj.lostHits());
 }
 
 // strict case as a real seeding: do not allow even inactive

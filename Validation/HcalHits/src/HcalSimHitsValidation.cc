@@ -296,7 +296,6 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   // MC particle with highest pt is taken as a direction reference
   double maxPt = -99999.;
-  int npart = 0;
 
   const HepMC::GenEvent *myGenEvent = evtMC->GetEvent();
   for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
@@ -305,7 +304,6 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     double etap = (*p)->momentum().eta();
     double pt = (*p)->momentum().perp();
     if (pt > maxPt) {
-      npart++;
       maxPt = pt;
       phi_MC = phip;
       eta_MC = etap;

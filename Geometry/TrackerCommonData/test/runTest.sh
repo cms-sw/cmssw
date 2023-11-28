@@ -2,15 +2,15 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
-F1=${LOCAL_TEST_DIR}/python/testDDCutTubsFromPointsAlgorithm.py
-F2=${LOCAL_TEST_DIR}/python/testDDPixBarLayerUpgradeAlgorithm.py
-F3=${LOCAL_TEST_DIR}/python/testDDPixFwdDiskAlgo.py
-F4=${LOCAL_TEST_DIR}/python/testDDPixPhase1FwdDiskAlgorithm.py
-F5=${LOCAL_TEST_DIR}/python/testDDTIDAxialCableAlgorithm.py
+F1=${SCRAM_TEST_PATH}/python/testDDCutTubsFromPointsAlgorithm.py
+F2=${SCRAM_TEST_PATH}/python/testDDPixBarLayerUpgradeAlgorithm.py
+F3=${SCRAM_TEST_PATH}/python/testDDPixFwdDiskAlgo.py
+F4=${SCRAM_TEST_PATH}/python/testDDPixPhase1FwdDiskAlgorithm.py
+F5=${SCRAM_TEST_PATH}/python/testDDTIDAxialCableAlgorithm.py
 
 echo " testing Geometry/TrackerCommonData"
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export tmpdir=${PWD}
 echo "===== Test \"cmsRun testDDCutTubsFromPointsAlgorithm.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun testDDPixBarLayerUpgradeAlgorithm.py\" ===="

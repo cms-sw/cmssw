@@ -3,8 +3,8 @@ process = cms.Process("GeometryInfo")
 
 import sys
 
-if len(sys.argv) >2:
-    runno = int(sys.argv[2])
+if len(sys.argv) >1:
+    runno = int(sys.argv[1])
 else:
     runno = 1
 

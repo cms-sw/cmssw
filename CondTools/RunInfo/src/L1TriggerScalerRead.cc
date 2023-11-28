@@ -315,14 +315,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTAlgoCounts.push_back(v);
-            // std::cout<< " m_GTAlgoCounts["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -338,14 +335,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_FLOAT.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             float v = (float)row["VALUE"].data<double>();
             Itemp.m_GTAlgoRates.push_back(v);
-            // std::cout<< " m_GTAlgoRates["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -362,14 +356,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTAlgoPrescaling.push_back(v);
-            // std::cout<< " m_GTAlgoPrescaling["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -385,14 +376,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTTechCounts.push_back(v);
-            // std::cout<< " m_GTTechCounts["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -408,14 +396,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_FLOAT.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             float v = (float)row["VALUE"].data<double>();
             Itemp.m_GTTechRates.push_back(v);
-            // std::cout<< " m_GTTechRates["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -431,14 +416,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTTechPrescaling.push_back(v);
-            //  std::cout<< " m_GTTechPrescaling["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -454,14 +436,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTPartition0TriggerCounts.push_back(v);
-            //   std::cout<< " m_GTPartition0TriggerCounts"<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -477,14 +456,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_FLOAT.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             float v = (float)row["VALUE"].data<double>();
             Itemp.m_GTPartition0TriggerRates.push_back(v);
-            // std::cout<< " m_GTPartition0TriggerRates["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -500,14 +476,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_INTEGER.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             int v = (int)row["VALUE"].data<long long>();
             Itemp.m_GTPartition0DeadTime.push_back(v);
-            // std::cout<< "  m_GTPartition0DeadTime"<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;
@@ -523,14 +496,11 @@ select string_value from runsession_parameter where string_value like '%[51384]'
           std::string condition3 = "RUNSESSION_FLOAT.PARENT_ID=:n_vid_val";
           queryIII->setCondition(condition3, conditionData3);
           coral::ICursor& cursorIII = queryIII->execute();
-          int i = 0;
           while (cursorIII.next() != 0) {
             const coral::AttributeList& row = cursorIII.currentRow();
             std::cout << " entering the queryIII  " << std::endl;
             float v = (float)row["VALUE"].data<double>();
             Itemp.m_GTPartition0DeadTimeRatio.push_back(v);
-            // std::cout<< " m_GTPartition0DeadTimeRatio["<< i << "]" << " extracted == " << v << std::endl;
-            i++;
           }
 
           delete queryIII;

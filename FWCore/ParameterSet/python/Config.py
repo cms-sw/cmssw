@@ -150,8 +150,8 @@ class Process(object):
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
         self.__dict__['_Process__accelerators'] = {}
-        self.options = Process.defaultOptions_()
-        self.maxEvents = Process.defaultMaxEvents_()
+        self.__injectValidValue('options', Process.defaultOptions_())
+        self.__injectValidValue('maxEvents', Process.defaultMaxEvents_())
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
         # intentionally not cloned to ensure that everyone taking
         # MessageLogger still via
@@ -258,9 +258,9 @@ class Process(object):
                               deleteNonConsumedUnscheduledModules = untracked.bool(True),
                               sizeOfStackForThreadsInKB = optional.untracked.uint32,
                               Rethrow = untracked.vstring(),
-                              SkipEvent = untracked.vstring(),
-                              FailPath = untracked.vstring(),
+                              TryToContinue = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
+                              modulesToCallForTryToContinue = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
                               holdsReferencesToDeleteEarly = untracked.VPSet(),
                               modulesToIgnoreForDeleteEarly = untracked.vstring(),
@@ -557,6 +557,10 @@ class Process(object):
                 self._replaceInScheduleDirectly(name, newValue)
 
             self._delattrFromSetattr(name)
+        self.__injectValidValue(name, value, newValue)
+    def __injectValidValue(self, name, value, newValue = None):
+        if newValue is None:
+            newValue = value
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             self.__setObjectLabel(newValue, name)
@@ -1461,6 +1465,14 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
+        if hasattr(self.options,"modulesToCallForTryToContinue") :
+            shouldTryToContinue = set(self.options.modulesToCallForTryToContinue)
+            for m in all_modules:
+                if m in shouldTryToContinue:
+                    setattr(getattr(self,m),"@shouldTryToContinue",untracked.bool(True))
+            missing = shouldTryToContinue.difference(all_modules)
+            if missing:
+                print("Warning: The following modules appear in options.modulesToCallForTryToContinue but are not in the Process: {} ".format(",".join(missing)))
         adaptor = TopLevelPSetAcessorAdaptor(processPSet,self)
         self._insertInto(adaptor, self.psets_())
         self._insertInto(adaptor, self.vpsets_())
@@ -2450,10 +2462,9 @@ process.maxLuminosityBlocks = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -2470,6 +2481,7 @@ process.options = cms.untracked.PSet(
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
@@ -3600,6 +3612,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
                              numberOfThreads =2)
             self.assertEqual(p.options.numberOfThreads.value(),2)
             self.assertEqual(p.options.numberOfStreams.value(),2)
+            del p.options
+            self.assertRaises(TypeError, setattr, p, 'options', untracked.PSet(numberOfThreads = int32(-1)))
+            p.options = untracked.PSet(numberOfThreads = untracked.uint32(4))
+            self.assertEqual(p.options.numberOfThreads.value(), 4)
 
         def testMaxEvents(self):
             p = Process("Test")
@@ -3614,7 +3630,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p = Process("Test")
             p.maxEvents = untracked.PSet(input = untracked.int32(5))
             self.assertEqual(p.maxEvents.input.value(), 5)
-
+            del p.maxEvents
+            self.assertRaises(TypeError, setattr, p, 'maxEvents', untracked.PSet(input = untracked.uint32(1)))
+            p.maxEvents = untracked.PSet(input = untracked.int32(1))
+            self.assertEqual(p.maxEvents.input.value(), 1)
         
         def testExamples(self):
             p = Process("Test")
@@ -4636,10 +4655,9 @@ process.maxLuminosityBlocks = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -4656,6 +4674,7 @@ process.options = cms.untracked.PSet(
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),

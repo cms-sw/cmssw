@@ -164,6 +164,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
       etMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("etmiss"))),
       fileWriterInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("inputFilename"),
+                             iConfig.getUntrackedParameter<std::string>("fileExtension"),
                              kFramesPerTMUXPeriod,
                              kGTTBoardTMUX,
                              kMaxLinesPerFile,
@@ -171,6 +172,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                              kChannelSpecsInput),
       fileWriterConvertedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                  iConfig.getUntrackedParameter<std::string>("inputConvertedFilename"),
+                                 iConfig.getUntrackedParameter<std::string>("fileExtension"),
                                  kFramesPerTMUXPeriod,
                                  kGTTBoardTMUX,
                                  kMaxLinesPerFile,
@@ -178,6 +180,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
                                  kChannelSpecsInput),
       fileWriterSelectedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                 iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
+                                iConfig.getUntrackedParameter<std::string>("fileExtension"),
                                 kFramesPerTMUXPeriod,
                                 kGTTBoardTMUX,
                                 kMaxLinesPerFile,
@@ -186,6 +189,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
       fileWriterVertexAssociatedTracks_(
           l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
           iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
+          iConfig.getUntrackedParameter<std::string>("fileExtension"),
           kFramesPerTMUXPeriod,
           kGTTBoardTMUX,
           kMaxLinesPerFile,
@@ -193,12 +197,14 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
           kChannelSpecsInput),
       fileWriterOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                     iConfig.getUntrackedParameter<std::string>("outputCorrelatorFilename"),
+                                    iConfig.getUntrackedParameter<std::string>("fileExtension"),
                                     kFramesPerTMUXPeriod,
                                     kGTTBoardTMUX,
                                     kMaxLinesPerFile,
                                     kChannelSpecsOutputToCorrelator),
       fileWriterOutputToGlobalTrigger_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                        iConfig.getUntrackedParameter<std::string>("outputGlobalTriggerFilename"),
+                                       iConfig.getUntrackedParameter<std::string>("fileExtension"),
                                        kFramesPerTMUXPeriod,
                                        kGTTBoardTMUX,
                                        kMaxLinesPerFile,
@@ -299,7 +305,7 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<edm::InputTag>(
       "vertexAssociatedTracks",
       edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedAssociatedEmulation"));
-  desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "l1verticesEmulation"));
+  desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "L1VerticesEmulation"));
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
   desc.addUntracked<edm::InputTag>("etmiss", edm::InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss"));
@@ -310,6 +316,7 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::string>("outputCorrelatorFilename", "L1GTTOutputToCorrelatorFile");
   desc.addUntracked<std::string>("outputGlobalTriggerFilename", "L1GTTOutputToGlobalTriggerFile");
   desc.addUntracked<std::string>("format", "APx");
+  desc.addUntracked<std::string>("fileExtension", "txt");
   descriptions.add("GTTFileWriter", desc);
 }
 

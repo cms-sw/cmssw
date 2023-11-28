@@ -52,7 +52,7 @@ Implementation:
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
-#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -83,7 +83,7 @@ private:
   edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tCTPPSPixelDAQMapping_;
   std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
   CTPPSPixelFramePosition fPos_;
-  CTPPSPixelErrorSummary eSummary_;
+  CTPPSRawToDigiErrorSummary eSummary_;
   bool isRun3_;
 };
 

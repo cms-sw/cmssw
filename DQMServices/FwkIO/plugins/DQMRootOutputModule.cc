@@ -30,13 +30,16 @@
 #include "oneapi/tbb/task_arena.h"
 
 // user include files
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
@@ -235,6 +238,9 @@ private:
   std::vector<edm::ProcessHistoryID> m_seenHistories;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
+
+  edm::GetterOfProducts<DQMToken> m_getterOfProductsLumi;
+  edm::GetterOfProducts<DQMToken> m_getterOfProductsRun;
 };
 
 //
@@ -293,14 +299,20 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
       m_fullNameBufferPtr(&m_fullNameBuffer),
-      m_indicesTree(nullptr) {
+      m_indicesTree(nullptr),
+      m_getterOfProductsLumi(edm::TypeMatch(), this, edm::InLumi),
+      m_getterOfProductsRun(edm::TypeMatch(), this, edm::InRun) {
   // Declare dependencies for all Lumi and Run tokens here. In
   // principle could use the keep statements, but then DQMToken would
   // have to be made persistent (transient products are ignored),
   // which would lead to a need to (finally) remove underscores from
   // DQM module labels.
-  consumesMany<DQMToken, edm::InLumi>();
-  consumesMany<DQMToken, edm::InRun>();
+  // This is needed to support unscheduled DQM modules now that
+  // non-consumed EDProducers are deleted from the job at beginJob.
+  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    m_getterOfProductsLumi(bd);
+    m_getterOfProductsRun(bd);
+  });
 }
 
 // DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)

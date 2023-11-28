@@ -2,6 +2,7 @@
   <lib name="1"/>
 </export>
 <use name="SimDataFormats/Forward"/>
+<use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="DataFormats/Math"/>

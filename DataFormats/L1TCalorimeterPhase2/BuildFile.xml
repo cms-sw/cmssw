@@ -3,6 +3,7 @@
 <use name="DataFormats/DetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="rootrflx"/>
+<use name="hls"/>
 <export>
   <lib name="1"/>
 </export>

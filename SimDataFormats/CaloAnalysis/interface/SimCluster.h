@@ -218,7 +218,7 @@ public:
     ++nsimhits_;
   }
 
-private:
+protected:
   uint64_t nsimhits_{0};
   EncodedEventId event_;
 

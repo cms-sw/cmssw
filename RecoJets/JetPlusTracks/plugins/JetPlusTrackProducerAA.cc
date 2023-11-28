@@ -381,14 +381,11 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
   }  //tracks
 
   //=====> Propagate BG tracks to calo
-  int nValid = 0;
   for (std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = extrapolations_h->begin(),
                                                              xtrpEnd = extrapolations_h->end(),
                                                              ixtrp = xtrpBegin;
        ixtrp != xtrpEnd;
        ++ixtrp) {
-    nValid++;
-
     reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(), trBgOutOfVertex.end(), (*ixtrp).track());
 
     if (it != trBgOutOfVertex.end()) {

@@ -14,8 +14,8 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  const edm::ParameterSet &conf_;
-  edm::ConsumesCollector consumeCollector_;
+
+  MuonTruth theTruth_;
   const edm::EDGetTokenT<CSCRecHit2DCollection> cscRecHitToken_;
 };
 

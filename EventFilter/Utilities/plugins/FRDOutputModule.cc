@@ -134,7 +134,7 @@ void FRDOutputModule::beginLuminosityBlock(edm::LuminosityBlockForOutput const& 
   int ls = lumiBlock.id().luminosityBlock();
 
   if (outfd_ != -1)
-    finishFileWrite(ls);
+    finishFileWrite(lumiBlock.run(), ls);
 
   if (fileWritten_)
     throw cms::Exception("RawEventFileWriterForBU", "beginLuminosityBlock")
@@ -166,31 +166,38 @@ void FRDOutputModule::beginLuminosityBlock(edm::LuminosityBlockForOutput const& 
   adlera_ = 1;
   adlerb_ = 0;
 
-  if (frdFileVersion_ > 0) {
-    assert(frdFileVersion_ == 1);
+  if (frdFileVersion_ == 1) {
     //reserve space for file header
     ftruncate(outfd_, sizeof(FRDFileHeader_v1));
     lseek(outfd_, sizeof(FRDFileHeader_v1), SEEK_SET);
     perFileSize_ = sizeof(FRDFileHeader_v1);
-  }
+  } else if (frdFileVersion_ == 2) {
+    ftruncate(outfd_, sizeof(FRDFileHeader_v2));
+    lseek(outfd_, sizeof(FRDFileHeader_v2), SEEK_SET);
+    perFileSize_ = sizeof(FRDFileHeader_v2);
+  } else
+    throw cms::Exception("RawEventFileWriterForBU", "beginLuminosityBlock")
+        << "Unsupported FRD version " << frdFileVersion_;
 }
 
 void FRDOutputModule::endLuminosityBlock(edm::LuminosityBlockForOutput const& lumiBlock) {
-  int ls = lumiBlock.id().luminosityBlock();
-  finishFileWrite(ls);
+  finishFileWrite(lumiBlock.run(), lumiBlock.id().luminosityBlock());
 }
 
-void FRDOutputModule::finishFileWrite(int ls) {
+void FRDOutputModule::finishFileWrite(unsigned int run, int ls) {
   if (outfd_ == -1)
     return;
 
-  if (frdFileVersion_ > 0) {
+  if (frdFileVersion_ == 1) {
     //rewind
     lseek(outfd_, 0, SEEK_SET);
     FRDFileHeader_v1 frdFileHeader(perFileEventCount_, (uint32_t)ls, perFileSize_);
     ::write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
+  } else if (frdFileVersion_ == 2) {
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v2 frdFileHeader(0, perFileEventCount_, (uint32_t)run, (uint32_t)ls, perFileSize_);
+    ::write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v2));
   }
-
   close(outfd_);
   outfd_ = -1;
   if (!fileName_.empty())

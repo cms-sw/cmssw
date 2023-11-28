@@ -10,9 +10,6 @@
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testJupyter" command="testJupyter.sh"/>
-<test name="testDownhill" command="testTheano.sh testDownhill.py"/>
-<test name="testTheano" command="testTheano.sh testTheano.py"/>
-<test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
 <test name="testCorrectionlib" command="test_correctionlib.py"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
@@ -21,16 +18,8 @@
 <test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .; root -n -b -l -q test_PyMVA.cpp+">
   <use name="rootpymva"/>
 </test>
-<iftool name="py2-numba">
-  <test name="testNumba" command="testNumba.py"/>
-</iftool>
-<iftool name="py2-llvmlite">
-  <test name="testLLVMLite" command="python3 -c 'import llvmlite'"/>
-</iftool>
-<iftool name="py2-numpy">
-  <test name="testNumPy" command="python3 -c 'import numpy'"/>
-</iftool>
-<iftool name="py2-cx-oracle">
+<test name="testNumPy" command="python3 -c 'import numpy'"/>
+<iftool name="py3-cx-oracle">
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>
 </iftool>
 
@@ -53,7 +42,6 @@
 <test name="import-cython" command="python3 -c 'import cython'"/>
 <test name="import-decorator" command="python3 -c 'import decorator'"/>
 <test name="import-docopt" command="python3 -c 'import docopt'"/>
-<test name="import-downhill" command="python3 -c 'import downhill'"/>
 <test name="dxr-build"  command="dxr-build.py --help"/>
 <test name="import-enum" command="python3 -c 'import enum'"/>
 <test name="import-flake8" command="python3 -c 'import flake8'"/>
@@ -61,7 +49,6 @@
 <test name="import-future" command="python3 -c 'import future'"/>
 <test name="import-concurrent.futures" command="python3 -c 'import concurrent.futures'"/>
 <test name="import-h5py" command="python3 -c 'import h5py'"/>
-<test name="import-hep_ml" command="python3 -c 'import hep_ml'"/>
 <test name="import-histbook" command="python3 -c 'import histbook'"/>
 <test name="import-html5lib" command="python3 -c 'import html5lib'"/>
 <test name="import-idna" command="python3 -c 'import idna'"/>

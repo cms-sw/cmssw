@@ -14,9 +14,6 @@ namespace edm {
 typedef edm::Ref<edm::PSimHitContainer> TrackPSimHitRef;
 typedef edm::RefProd<edm::PSimHitContainer> TrackPSimHitRefProd;
 
-typedef std::vector<edm::RefToBase<PSimHit> > TrackPSimHitRefToBaseVector;
-typedef edm::RefToBase<PSimHit> TrackPSimHitRefToBase;
-typedef std::vector<edm::RefToBase<PSimHit> > TrackPSimHitRefToBaseVector;
 typedef edm::reftobase::Holder<PSimHit, TrackPSimHitRef> TrackPSimHitRefToBaseHolder;
 
 #endif

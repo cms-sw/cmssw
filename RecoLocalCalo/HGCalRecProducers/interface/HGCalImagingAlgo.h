@@ -30,11 +30,10 @@ using Density = hgcal_clustering::Density;
 
 class HGCalImagingAlgo : public HGCalClusteringAlgoBase {
 public:
-  HGCalImagingAlgo(const edm::ParameterSet &ps, edm::ConsumesCollector iC)
+  HGCalImagingAlgo(const edm::ParameterSet &ps)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined,
-            iC),
+            reco::CaloCluster::undefined),
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
         positionDeltaRho_c_(ps.getParameter<std::vector<double>>("positionDeltaRho_c")),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),

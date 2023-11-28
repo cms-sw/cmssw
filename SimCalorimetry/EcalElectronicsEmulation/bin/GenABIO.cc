@@ -389,7 +389,7 @@ void fillABTTFFiles(const char ttFlags[nTTInEta][nTTInPhi], ofstream files[]) {
 
 void fillABSRPFiles(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
                     const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-                    ofstream files[nAB]) {
+                    ofstream files[]) {
   // event headers:
   for (int iAB = 0; iAB < nAB; ++iAB) {
     files[iAB] << "# Event " << iEvent << "\n";

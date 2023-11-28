@@ -25,5 +25,30 @@
   <class name="l1tp2::CaloJetsCollection" />
   <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
 
+  <class name="l1tp2::DigitizedClusterCorrelator"  ClassVersion="3">
+     <version ClassVersion="3" checksum="1943292648"/>
+  </class>
+  <class name="l1tp2::DigitizedClusterCorrelatorCollection" />
+  <class name="edm::Wrapper<l1tp2::DigitizedClusterCorrelatorCollection>" />
+
+  <class name="l1tp2::DigitizedTowerCorrelator"  ClassVersion="3">
+       <version ClassVersion="3" checksum="3734711406"/>
+  </class>
+  <class name="l1tp2::DigitizedTowerCorrelatorCollection" />
+  <class name="edm::Wrapper<l1tp2::DigitizedTowerCorrelatorCollection>" />
+
+  <class name="l1tp2::DigitizedClusterGT"  ClassVersion="3">
+       <version ClassVersion="3" checksum="3611926846"/>
+  </class>
+  <class name="l1tp2::DigitizedClusterGTCollection" />
+  <class name="edm::Wrapper<l1tp2::DigitizedClusterGTCollection>" /> 
+
+  <class name="l1tp2::CaloPFCluster"  ClassVersion="3">
+         <version ClassVersion="3" checksum="4176166177"/>
+  </class>
+  <class name="std::vector<l1tp2::CaloPFCluster>" />
+  <class name="l1tp2::CaloPFClusterCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloPFClusterCollection>" />
+
 </lcgdict>
 

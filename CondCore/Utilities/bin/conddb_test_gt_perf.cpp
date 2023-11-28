@@ -471,9 +471,7 @@ int cond::TestGTPerf::execute() {
   std::cout << "Loading " << gt.size() << " tags..." << std::endl;
   std::vector<UntypedPayloadProxy*> proxies;
   std::map<std::string, size_t> requests;
-  size_t nt = 0;
   for (const auto& t : gt) {
-    nt++;
     UntypedPayloadProxy* p = new UntypedPayloadProxy;
     p->init(session);
     try {

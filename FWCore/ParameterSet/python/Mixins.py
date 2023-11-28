@@ -85,6 +85,11 @@ class _ParameterTypeBase(object):
         self._isFrozen = True
     def isCompatibleCMSType(self,aType):
         return isinstance(self,aType)
+    def _checkAndReturnValueWithType(self, valueWithType):
+        if isinstance(valueWithType, type(self)):
+            return valueWithType
+        raise TypeError("Attempted to assign type {from_} to type {to}".format(from_ = str(type(valueWithType)), to = str(type(self))) )
+
  
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
@@ -277,7 +282,7 @@ class _Parameterizable(object):
         else:
             # handle the case where users just replace with a value, a = 12, rather than a = cms.int32(12)
             if isinstance(value,_ParameterTypeBase):
-                self.__dict__[name] = value
+                self.__dict__[name] = self.__dict__[name]._checkAndReturnValueWithType(value)
             else:
                 self.__dict__[name].setValue(value)
             self._isModified = True
@@ -579,7 +584,7 @@ class _ValidatingListBase(list):
         super(_ValidatingListBase,self).__init__(arg)
         if 0 != len(args):
             raise SyntaxError("named arguments ("+','.join([x for x in args])+") passsed to "+str(type(self)))
-        if not self._isValid(iter(self)):
+        if not type(self)._isValid(iter(self)):
             raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
                             ") added to "+str(type(self)))
     def __setitem__(self,key,value):
@@ -590,12 +595,13 @@ class _ValidatingListBase(list):
             if not self._itemIsValid(value):
                 raise TypeError("can not insert the type "+str(type(value))+" in container "+self._labelIfAny())
         super(_ValidatingListBase,self).__setitem__(key,value)
-    def _isValid(self,seq):
+    @classmethod
+    def _isValid(cls,seq):
         # see if strings get reinterpreted as lists
         if isinstance(seq, str):
             return False
         for item in seq:
-            if not self._itemIsValid(item):
+            if not cls._itemIsValid(item):
                 return False
         return True
     def _itemFromArgument(self, x):
@@ -753,7 +759,8 @@ if __name__ == "__main__":
 
     import unittest
     class TestList(_ValidatingParameterListBase):
-        def _itemIsValid(self,item):
+        @classmethod
+        def _itemIsValid(cls,item):
             return True
     class testMixins(unittest.TestCase):
         def testListConstruction(self):
@@ -938,5 +945,19 @@ if __name__ == "__main__":
             self.assertEqual(reg.getSpecialImports(), ["import foo"])
             reg.registerUse("a")
             self.assertEqual(reg.getSpecialImports(), ["import bar", "import foo"])
+        def testInvalidTypeChange(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestTypeA(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __TestTypeB(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+                pass
+            a = __Test("MyType",
+                       t=__TestTypeA(1))
+            self.assertRaises(TypeError, lambda : setattr(a,'t',__TestTypeB(2)))
+
 
     unittest.main()

@@ -35,14 +35,12 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(
   std::vector<reco::HGCalMultiCluster> thePreClusters;
   std::vector<size_t> es = sorted_indices(thecls);
   std::vector<int> vused(es.size(), 0);
-  unsigned int used = 0;
 
   for (unsigned int i = 0; i < es.size(); ++i) {
     if (vused[i] == 0) {
       reco::HGCalMultiCluster temp;
       temp.push_back(thecls[es[i]]);
       vused[i] = (thecls[es[i]]->z() > 0) ? 1 : -1;
-      ++used;
       for (unsigned int j = i + 1; j < es.size(); ++j) {
         if (vused[j] == 0) {
           float distanceCheck = 9999.;
@@ -61,7 +59,6 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(
           if (distanceCheck<radius2 &&int(thecls[es[j]]->z() * vused[i])> 0) {
             temp.push_back(thecls[es[j]]);
             vused[j] = vused[i];
-            ++used;
           }
         }
       }

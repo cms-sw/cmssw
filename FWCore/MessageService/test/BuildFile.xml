@@ -206,54 +206,33 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<bin file="testRunner.cpp" name="standAloneWithMessageLoggerRunner">
+<test name="standAloneWithMessageLoggerRunner" command="standAlone_1.sh">
   <flags PRE_TEST="standAloneWithMessageLogger"/>
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test standAlone_1.sh"/>
-</bin>
+</test>
 
 <bin file="trivial_main.cpp">
   <use name="FWCore/MessageLogger"/>
 </bin>
 
-<bin file="testLoggerInCmsRun.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test testLoggerInCmsRun.sh"/>
-</bin>
+<test name="testLoggerInCmsRun" command="testLoggerInCmsRun.sh"/>
 
-<bin file="unitTestsGroup_d.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1d.sh u13d.sh u16.sh u19d.sh u33d.sh"/>
-</bin>
+<test name="unitTestsGroup_d" command="${value}.sh" foreach="u1d,u13d,u16,u19d,u33d"/>
 
-<bin file="unitTestsGroup_1.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1.sh u2.sh u6.sh u21.sh"/>
-</bin>
+<test name="unitTestsGroup_1" command="${value}.sh" foreach="u1,u2,u6,u21"/>
 
-<bin file="unitTestsStatistics.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u3.sh u4.sh u5.sh u28.sh"/>
-</bin>
+<test name="unitTestsStatistics" command="${value}.sh" foreach="u3,u4,u5,u28"/>
 
-<bin file="unitTestsLimits.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u7.sh u8.sh u11.sh u36.sh"/>
-</bin>
+<test name="unitTestsLimits" command="${value}.sh" foreach="u7,u8,u11,u36"/>
 
-<bin file="unitTestsGroup_2.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u9.sh u12.sh u13.sh u14.sh u15.sh"/>
-</bin>
+<test name="unitTestsGroup_2" command="${value}.sh" foreach="u9,u12,u13,u14,u15"/>
 
-<bin file="unitTestsGroup_3.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u10.sh u17.sh u34.sh u35.sh"/>
-</bin>
+<test name="unitTestsGroup_3" command="${value}.sh" foreach="u10,u17,u34,u35"/>
 
-<bin file="unitTestsGroup_4.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u18.sh u19.sh u20.sh"/>
-</bin>
+<test name="unitTestsGroup_4" command="${value}.sh" foreach="u18,u19,u20"/>
 
-<bin file="unitTestsGroup_5.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u22.sh u24.sh u25.sh"/>
-</bin>
+<test name="unitTestsGroup_5" command="${value}.sh" foreach="u22,u24,u25"/>
 
-<bin file="unitTestsGroup_6.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u23.sh u27.sh u30.sh u31.sh u33.sh"/>
-</bin>
+<test name="unitTestsGroup_6" command="${value}.sh" foreach="u23,u27,u30,u31,u33"/>
 
 <bin name="makeJobReport" file="makeJobReport.cpp">
   <use name="boost_program_options"/>

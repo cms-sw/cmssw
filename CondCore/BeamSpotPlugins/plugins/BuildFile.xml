@@ -9,3 +9,9 @@
   <use name="CondCore/CondDB"/>
   <use name="boost_python"/>
 </library>
+
+<library file="SimBeamSpot_PayloadInspector.cc" name="SimBeamSpot_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>

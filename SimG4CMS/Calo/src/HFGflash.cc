@@ -233,8 +233,11 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, boo
   z1 *= 9.76972e-01 - 3.85026e-01 * std::tanh(1.82790e+00 * std::log(energy) - 3.66237e+00);
   p1 *= 0.96;
 
+#ifdef EDM_ML_DEBUG
+  G4int nSpots_sd = 0;  // count total number of spots in SD
+#endif
+
   G4double stepLengthLeft = 10000;
-  G4int nSpots_sd = 0;                // count total number of spots in SD
   G4double zInX0 = 0.0;               // shower depth in X0 unit
   G4double deltaZInX0 = 0.0;          // segment of depth in X0 unit
   G4double deltaZ = 0.0;              // segment of depth in cm
@@ -440,7 +443,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, boo
       oneHit.time = timeGlobal;
       oneHit.edep = emSpotEnergy * invgev;
       hit.push_back(oneHit);
+#ifdef EDM_ML_DEBUG
       nSpots_sd++;
+#endif
 
     }  // end of for spot iteration
 

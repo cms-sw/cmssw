@@ -34,14 +34,14 @@ bool l1ct::EmCaloObjEmu::write(std::fstream& to) const { return writeObj<EmCaloO
 
 bool l1ct::TkObjEmu::read(std::fstream& from) {
   src = nullptr;  // not persistent
-  return readObj<TkObj>(from, *this) && readVar(from, hwChi2) && readVar(from, hwStubs) && readVar(from, simPt) &&
-         readVar(from, simCaloEta) && readVar(from, simCaloPhi) && readVar(from, simVtxEta) &&
-         readVar(from, simVtxPhi) && readVar(from, simZ0) && readVar(from, simD0);
+  return readObj<TkObj>(from, *this) && readVar(from, hwChi2) && readVar(from, simPt) && readVar(from, simCaloEta) &&
+         readVar(from, simCaloPhi) && readVar(from, simVtxEta) && readVar(from, simVtxPhi) && readVar(from, simZ0) &&
+         readVar(from, simD0);
 }
 bool l1ct::TkObjEmu::write(std::fstream& to) const {
-  return writeObj<TkObj>(*this, to) && writeVar(hwChi2, to) && writeVar(hwStubs, to) && writeVar(simPt, to) &&
-         writeVar(simCaloEta, to) && writeVar(simCaloPhi, to) && writeVar(simVtxEta, to) && writeVar(simVtxPhi, to) &&
-         writeVar(simZ0, to) && writeVar(simD0, to);
+  return writeObj<TkObj>(*this, to) && writeVar(hwChi2, to) && writeVar(simPt, to) && writeVar(simCaloEta, to) &&
+         writeVar(simCaloPhi, to) && writeVar(simVtxEta, to) && writeVar(simVtxPhi, to) && writeVar(simZ0, to) &&
+         writeVar(simD0, to);
 }
 
 bool l1ct::MuObjEmu::read(std::fstream& from) {

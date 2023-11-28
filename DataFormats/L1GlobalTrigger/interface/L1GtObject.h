@@ -25,7 +25,7 @@
 
 /// L1 GT objects
 ///    ObjNull catch all errors
-enum L1GtObject {
+enum L1GtObject : unsigned int {
   Mu,
   NoIsoEG,
   IsoEG,

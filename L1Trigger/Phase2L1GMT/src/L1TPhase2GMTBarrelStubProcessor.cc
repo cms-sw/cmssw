@@ -104,7 +104,7 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
 
   eta = eta * sign;
   l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiB, tag, bx, quality, eta, 0, 0, 1);
-  stub.setOfflineQuantities(globalPhi, float(phiB), eta* etaLSB_, 0.0);
+  stub.setOfflineQuantities(globalPhi, float(phiB), eta * etaLSB_, 0.0);
   return stub;
 }
 

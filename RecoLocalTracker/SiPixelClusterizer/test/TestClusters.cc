@@ -2263,7 +2263,6 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   //---------------------------------------
 
   countEvents++;
-  int numberOfDetUnits = 0;
   int numberOfClusters = 0;
   int numberOfPixels = 0;
   int numberOfNoneEdgePixels = 0;
@@ -2333,7 +2332,6 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
     if (detType != 1)
       continue;  // look only at pixels
-    ++numberOfDetUnits;
 
     //const GeomDetUnit * genericDet = geom->idToDet(detId);
     //const PixelGeomDetUnit * pixDet =

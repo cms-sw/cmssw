@@ -1273,7 +1273,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
       (dir_name.find("Shell") == 0) || (dir_name.find("Layer") == 0) || (dir_name.find("Ladder") == 0))
     return;
   vector<string> subdirs = iGetter.getSubdirs();
-  int iDir = 0;
   int nbin = 0;
   int nbin_i = 0;
   int nbin_subdir = 0;
@@ -1568,7 +1567,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
       }
     }
 
-    iDir++;
     first_subdir = false;  // We are done processing the first directory, we
                            // don't add any new MEs in the future passes.
   }                        // end for it (subdirs)

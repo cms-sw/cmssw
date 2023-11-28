@@ -1,33 +1,136 @@
-#include "Alignment/CommonAlignmentMonitor/plugins/AlignmentStats.h"
+// system includes
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
 
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+// user includes
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Utilities/General/interface/ClassName.h"
+
+// ROOT includes
+#include "TFile.h"
+#include "TTree.h"
+
+namespace aliStats {
+  struct GeoInfo {
+  public:
+    void printAll() const {
+      edm::LogInfo("GeoInfo") << "DetId: " << id_ << " subdet: " << subdet_ << " layer:" << layer_
+                              << " (pox,posy,posz) = (" << posX_ << "," << posY_ << "," << posZ_ << ")"
+                              << " posEta: " << posEta_ << " posPhi: " << posPhi_ << " posR: " << posR_
+                              << " is2D:" << is2D_ << " isStereo:" << isStereo_;
+    }
+    unsigned int id_;
+    float posX_;
+    float posY_;
+    float posZ_;
+    float posEta_;
+    float posPhi_;
+    float posR_;
+    int subdet_;
+    unsigned int layer_;
+    bool is2D_;
+    bool isStereo_;
+  };
+}  // namespace aliStats
+
+class AlignmentStats : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  AlignmentStats(const edm::ParameterSet &iConfig);
+  ~AlignmentStats() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+  void beginRun(edm::Run const &, edm::EventSetup const &) override{};
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void endRun(edm::Run const &iRun, edm::EventSetup const &iSetup) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  std::vector<aliStats::GeoInfo> geomInfoList_;
+
+  // esToken
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTTopoER_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenTkGeoER_;
+
+  //////inputs from config file
+  const edm::InputTag src_;
+  const edm::InputTag overlapAM_;
+  const bool keepTrackStats_;
+  const bool keepHitPopulation_;
+  const std::string statsTreeName_;
+  const std::string hitsTreeName_;
+  const uint32_t prescale_;
+
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDGetTokenT<AliClusterValueMap> mapToken_;
+
+  //////
+  uint32_t tmpPresc_;
+
+  //Track stats
+  TFile *treefile_;
+  TTree *outtree_;
+  static const int MAXTRKS_ = 200;
+  int run_, event_;
+  unsigned int ntracks;
+  float P[MAXTRKS_], Pt[MAXTRKS_], Eta[MAXTRKS_], Phi[MAXTRKS_], Chi2n[MAXTRKS_];
+  int Nhits[MAXTRKS_][7];  //0=total, 1-6=Subdets
+
+  //Hit Population
+  TFile *hitsfile_;
+  TTree *hitstree_;
+  unsigned int id_, nhits_, noverlaps_;
+  float posX_, posY_, posZ_;
+  float posEta_, posPhi_, posR_;
+  int subdet_;
+  unsigned int layer_;
+  bool is2D_, isStereo_;
+
+  typedef std::map<uint32_t, uint32_t> DetHitMap;
+  DetHitMap hitmap_;
+  DetHitMap overlapmap_;
+
+  std::unique_ptr<TrackerTopology> trackerTopology_;
+};
 
 using namespace std;
 
 AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
-    : esTokenTTopo_(esConsumes()),
-      esTokenTkGeo_(esConsumes()),
+    : esTokenTTopoER_(esConsumes<edm::Transition::EndRun>()),
+      esTokenTkGeoER_(esConsumes<edm::Transition::EndRun>()),
       src_(iConfig.getParameter<edm::InputTag>("src")),
       overlapAM_(iConfig.getParameter<edm::InputTag>("OverlapAssoMap")),
       keepTrackStats_(iConfig.getParameter<bool>("keepTrackStats")),
@@ -83,18 +186,96 @@ void AlignmentStats::beginJob() {  // const edm::EventSetup &iSetup
   */
 
   tmpPresc_ = prescale_;
+
+  // create tree with hit maps (hitstree)
+  // book hits stats tree
+  hitsfile_ = new TFile(hitsTreeName_.c_str(), "RECREATE");
+  hitsfile_->cd();
+  hitstree_ = new TTree("AlignmentHitMap", "Maps of Hits used for Alignment");
+  hitstree_->Branch("DetId", &id_, "DetId/i");
+  hitstree_->Branch("Nhits", &nhits_, "Nhits/i");
+  hitstree_->Branch("Noverlaps", &noverlaps_, "Noverlaps/i");
+  hitstree_->Branch("SubDet", &subdet_, "SubDet/I");
+  hitstree_->Branch("Layer", &layer_, "Layer/i");
+  hitstree_->Branch("is2D", &is2D_, "is2D/B");
+  hitstree_->Branch("isStereo", &isStereo_, "isStereo/B");
+  hitstree_->Branch("posX", &posX_, "posX/F");
+  hitstree_->Branch("posY", &posY_, "posY/F");
+  hitstree_->Branch("posZ", &posZ_, "posZ/F");
+  hitstree_->Branch("posR", &posR_, "posR/F");
+  hitstree_->Branch("posEta", &posEta_, "posEta/F");
+  hitstree_->Branch("posPhi", &posPhi_, "posPhi/F");
 }  //end beginJob
 
-void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  //load list of detunits needed then in endJob
-  if (!trackerGeometry_) {
-    trackerGeometry_ = std::make_unique<TrackerGeometry>(iSetup.getData(esTokenTkGeo_));
-  }
-
+// ------------ method called once every run before doing the event loop ----------------
+void AlignmentStats::endRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   if (!trackerTopology_) {
-    trackerTopology_ = std::make_unique<TrackerTopology>(iSetup.getData(esTokenTTopo_));
-  }
+    trackerTopology_ = std::make_unique<TrackerTopology>(iSetup.getData(esTokenTTopoER_));
+    const TrackerGeometry *trackerGeometry_ = &iSetup.getData(esTokenTkGeoER_);
+    auto theAliTracker = std::make_unique<AlignableTracker>(trackerGeometry_, trackerTopology_.get());
 
+    hitsfile_->cd();
+    for (const auto &detUnit : theAliTracker->deepComponents()) {
+      aliStats::GeoInfo detUnitInfo;
+      detUnitInfo.id_ = static_cast<uint32_t>(detUnit->id());
+      DetId detid(detUnitInfo.id_);
+      detUnitInfo.subdet_ = detid.subdetId();
+
+      //take other geometrical infos from the det
+      detUnitInfo.posX_ = detUnit->globalPosition().x();
+      detUnitInfo.posY_ = detUnit->globalPosition().y();
+      detUnitInfo.posZ_ = detUnit->globalPosition().z();
+
+      align::GlobalVector vec(detUnitInfo.posX_, detUnitInfo.posY_, detUnitInfo.posZ_);
+      detUnitInfo.posR_ = vec.perp();
+      detUnitInfo.posPhi_ = vec.phi();
+      detUnitInfo.posEta_ = vec.eta();
+      // detUnitInfo.posPhi_ = atan2(posY_,posX_);
+
+      //get layers, petals, etc...
+      if (detUnitInfo.subdet_ == PixelSubdetector::PixelBarrel) {  //PXB
+        detUnitInfo.layer_ = trackerTopology_->pxbLayer(detUnitInfo.id_);
+        detUnitInfo.is2D_ = true;
+        detUnitInfo.isStereo_ = false;
+      } else if (detUnitInfo.subdet_ == PixelSubdetector::PixelEndcap) {
+        detUnitInfo.layer_ = trackerTopology_->pxfDisk(detUnitInfo.id_);
+        detUnitInfo.is2D_ = true;
+        detUnitInfo.isStereo_ = false;
+      } else if (detUnitInfo.subdet_ == SiStripDetId::TIB) {
+        detUnitInfo.layer_ = trackerTopology_->tibLayer(detUnitInfo.id_);
+        detUnitInfo.is2D_ = trackerTopology_->tibIsDoubleSide(detUnitInfo.id_);
+        detUnitInfo.isStereo_ = trackerTopology_->tibIsStereo(detUnitInfo.id_);
+      } else if (detUnitInfo.subdet_ == SiStripDetId::TID) {
+        detUnitInfo.layer_ = trackerTopology_->tidWheel(detUnitInfo.id_);
+        detUnitInfo.is2D_ = trackerTopology_->tidIsDoubleSide(detUnitInfo.id_);
+        detUnitInfo.isStereo_ = trackerTopology_->tidIsStereo(detUnitInfo.id_);
+      } else if (detUnitInfo.subdet_ == SiStripDetId::TOB) {
+        detUnitInfo.layer_ = trackerTopology_->tobLayer(detUnitInfo.id_);
+        detUnitInfo.is2D_ = trackerTopology_->tobIsDoubleSide(detUnitInfo.id_);
+        detUnitInfo.isStereo_ = trackerTopology_->tobIsStereo(detUnitInfo.id_);
+      } else if (detUnitInfo.subdet_ == SiStripDetId::TEC) {
+        detUnitInfo.layer_ = trackerTopology_->tecWheel(detUnitInfo.id_);
+        detUnitInfo.is2D_ = trackerTopology_->tecIsDoubleSide(detUnitInfo.id_);
+        detUnitInfo.isStereo_ = trackerTopology_->tecIsStereo(detUnitInfo.id_);
+      } else {
+        edm::LogError("AlignmentStats")
+            << "Detector not belonging neither to pixels nor to strips! Skipping it. SubDet= " << detUnitInfo.subdet_;
+      }
+
+      LogDebug("AlignmentStats") << "id " << detUnitInfo.id_ << " detid.rawId()" << detid.rawId() << " subdet "
+                                 << detUnitInfo.subdet_;
+
+      // push back in the list
+      geomInfoList_.push_back(detUnitInfo);
+    }  // end loop over detunits
+
+    int ndetunits = geomInfoList_.size();
+    edm::LogInfo("AlignmentStats") << __PRETTY_FUNCTION__
+                                   << " Number of DetUnits in the AlignableTracker: " << ndetunits;
+  }
+}
+
+void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
   const edm::Handle<reco::TrackCollection> &Tracks = iEvent.getHandle(trackToken_);
@@ -129,24 +310,22 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   // int npxbhits=0;
 
   //loop on tracks
-  for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
-       ++ittrk) {
-    Eta[trk_cnt] = ittrk->eta();
-    Phi[trk_cnt] = ittrk->phi();
-    Chi2n[trk_cnt] = ittrk->normalizedChi2();
-    P[trk_cnt] = ittrk->p();
-    Pt[trk_cnt] = ittrk->pt();
-    Nhits[trk_cnt][0] = ittrk->numberOfValidHits();
+  for (const auto &ittrk : *Tracks) {
+    Eta[trk_cnt] = ittrk.eta();
+    Phi[trk_cnt] = ittrk.phi();
+    Chi2n[trk_cnt] = ittrk.normalizedChi2();
+    P[trk_cnt] = ittrk.p();
+    Pt[trk_cnt] = ittrk.pt();
+    Nhits[trk_cnt][0] = ittrk.numberOfValidHits();
 
     if (ntracks > 1)
       edm::LogVerbatim("AlignmenStats") << "Track #" << trk_cnt + 1 << " params:    Eta=" << Eta[trk_cnt]
                                         << "  Phi=" << Phi[trk_cnt] << "  P=" << P[trk_cnt]
                                         << "   Nhits=" << Nhits[trk_cnt][0];
 
-    int nhit = 0;
     //loop on tracking rechits
     //edm::LogVerbatim("AlignmenStats") << "   loop on hits of track #" << (itt - tracks->begin());
-    for (auto const &hit : ittrk->recHits()) {
+    for (auto const &hit : ittrk.recHits()) {
       if (!hit->isValid())
         continue;
       DetId detid = hit->geographicalId();
@@ -242,7 +421,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       if (ntracks > 1)
         edm::LogVerbatim("AlignmenStats") << "Hit in SubDet=" << subdethit;
       Nhits[trk_cnt][subdethit] = Nhits[trk_cnt][subdethit] + 1;
-      nhit++;
     }  //end loop on trackingrechits
     trk_cnt++;
 
@@ -267,147 +445,55 @@ void AlignmentStats::endJob() {
   outtree_->Write();
   delete outtree_;
 
-  //create tree with hit maps (hitstree)
-  //book track stats tree
-  TFile *hitsfile = new TFile(hitsTreeName_.c_str(), "RECREATE");
-  hitsfile->cd();
-  TTree *hitstree = new TTree("AlignmentHitMap", "Maps of Hits used for Alignment");
+  int ndetunits = geomInfoList_.size();
+  edm::LogInfo("AlignmentStats") << __PRETTY_FUNCTION__ << "Number of DetUnits in the AlignableTracker: " << ndetunits
+                                 << std::endl;
 
-  unsigned int id = 0, nhits = 0, noverlaps = 0;
-  float posX(-99999.0), posY(-77777.0), posZ(-88888.0);
-  float posEta(-6666.0), posPhi(-5555.0), posR(-4444.0);
-  int subdet = 0;
-  unsigned int layer = 0;
-  bool is2D = false, isStereo = false;
-  hitstree->Branch("DetId", &id, "DetId/i");
-  hitstree->Branch("Nhits", &nhits, "Nhits/i");
-  hitstree->Branch("Noverlaps", &noverlaps, "Noverlaps/i");
-  hitstree->Branch("SubDet", &subdet, "SubDet/I");
-  hitstree->Branch("Layer", &layer, "Layer/i");
-  hitstree->Branch("is2D", &is2D, "is2D/B");
-  hitstree->Branch("isStereo", &isStereo, "isStereo/B");
-  hitstree->Branch("posX", &posX, "posX/F");
-  hitstree->Branch("posY", &posY, "posY/F");
-  hitstree->Branch("posZ", &posZ, "posZ/F");
-  hitstree->Branch("posR", &posR, "posR/F");
-  hitstree->Branch("posEta", &posEta, "posEta/F");
-  hitstree->Branch("posPhi", &posPhi, "posPhi/F");
+  hitsfile_->cd();
+  // save the information on hits and overlaps
+  for (const auto &detUnitInfo : geomInfoList_) {
+    detUnitInfo.printAll();
 
-  /*
-  TTree *overlapstree=new TTree("OverlapHitMap","Maps of Overlaps used for Alignment");
-  hitstree->Branch("DetId",   &id ,     "DetId/i");
-  hitstree->Branch("NOverlaps",   &nhits ,  "Nhits/i");
-  hitstree->Branch("SubDet",  &subdet,  "SubDet/I");
-  hitstree->Branch("Layer",   &layer,   "Layer/i");
-  hitstree->Branch("is2D" ,   &is2D,    "is2D/B");
-  hitstree->Branch("isStereo",&isStereo,"isStereo/B");
-  hitstree->Branch("posX",    &posX,    "posX/F");
-  hitstree->Branch("posY",    &posY,    "posY/F");
-  hitstree->Branch("posZ",    &posZ,    "posZ/F");
-  hitstree->Branch("posR",    &posR,    "posR/F");
-  hitstree->Branch("posEta",  &posEta,  "posEta/F");
-  hitstree->Branch("posPhi",  &posPhi,  "posPhi/F");
-  */
+    // copy the values from the struct to the TTree
+    id_ = detUnitInfo.id_;
+    posX_ = detUnitInfo.posX_;
+    posY_ = detUnitInfo.posY_;
+    posZ_ = detUnitInfo.posZ_;
+    posEta_ = detUnitInfo.posEta_;
+    posPhi_ = detUnitInfo.posPhi_;
+    posR_ = detUnitInfo.posR_;
+    subdet_ = detUnitInfo.subdet_;
+    layer_ = detUnitInfo.layer_;
+    is2D_ = detUnitInfo.is2D_;
+    isStereo_ = detUnitInfo.isStereo_;
 
-  std::unique_ptr<AlignableTracker> theAliTracker =
-      std::make_unique<AlignableTracker>(trackerGeometry_.get(), trackerTopology_.get());
-  const auto &Detunitslist = theAliTracker->deepComponents();
-  int ndetunits = Detunitslist.size();
-  edm::LogInfo("AlignmentStats") << "Number of DetUnits in the AlignableTracker: " << ndetunits;
-
-  for (int det_cnt = 0; det_cnt < ndetunits; ++det_cnt) {
-    //re-initialize for safety
-    id = 0;
-    nhits = 0;
-    noverlaps = 0;
-    posX = -99999.0;
-    posY = -77777.0;
-    posZ = -88888.0;
-    posEta = -6666.0;
-    posPhi = -5555.0;
-    posR = -4444.0;
-    subdet = 0;
-    layer = 0;
-    is2D = false;
-    isStereo = false;
-
-    //if detunit in vector is found also in the map, look for how many hits were collected
-    //and save in the tree this number
-    id = static_cast<uint32_t>(Detunitslist[det_cnt]->id());
-    if (hitmap_.find(id) != hitmap_.end()) {
-      nhits = hitmap_[id];
+    if (hitmap_.find(id_) != hitmap_.end()) {
+      nhits_ = hitmap_[id_];
     }
     //if not, save nhits=0
     else {
-      nhits = 0;
-      hitmap_.insert(pair<uint32_t, uint32_t>(id, 0));
+      nhits_ = 0;
+      hitmap_.insert(pair<uint32_t, uint32_t>(id_, 0));
     }
 
-    if (overlapmap_.find(id) != overlapmap_.end()) {
-      noverlaps = overlapmap_[id];
+    if (overlapmap_.find(id_) != overlapmap_.end()) {
+      noverlaps_ = overlapmap_[id_];
     }
     //if not, save nhits=0
     else {
-      noverlaps = 0;
-      overlapmap_.insert(pair<uint32_t, uint32_t>(id, 0));
+      noverlaps_ = 0;
+      overlapmap_.insert(pair<uint32_t, uint32_t>(id_, 0));
     }
-
-    //take other geometrical infos from the det
-    posX = Detunitslist[det_cnt]->globalPosition().x();
-    posY = Detunitslist[det_cnt]->globalPosition().y();
-    posZ = Detunitslist[det_cnt]->globalPosition().z();
-
-    align::GlobalVector vec(posX, posY, posZ);
-    posR = vec.perp();
-    posPhi = vec.phi();
-    posEta = vec.eta();
-    //   posPhi = atan2(posY,posX);
-
-    DetId detid(id);
-    subdet = detid.subdetId();
-
-    //get layers, petals, etc...
-    if (subdet == PixelSubdetector::PixelBarrel) {  //PXB
-
-      layer = trackerTopology_->pxbLayer(id);
-      is2D = true;
-      isStereo = false;
-    } else if (subdet == PixelSubdetector::PixelEndcap) {
-      layer = trackerTopology_->pxfDisk(id);
-      is2D = true;
-      isStereo = false;
-    } else if (subdet == SiStripDetId::TIB) {
-      layer = trackerTopology_->tibLayer(id);
-      is2D = trackerTopology_->tibIsDoubleSide(id);
-      isStereo = trackerTopology_->tibIsStereo(id);
-    } else if (subdet == SiStripDetId::TID) {
-      layer = trackerTopology_->tidWheel(id);
-      is2D = trackerTopology_->tidIsDoubleSide(id);
-      isStereo = trackerTopology_->tidIsStereo(id);
-    } else if (subdet == SiStripDetId::TOB) {
-      layer = trackerTopology_->tobLayer(id);
-      is2D = trackerTopology_->tobIsDoubleSide(id);
-      isStereo = trackerTopology_->tobIsStereo(id);
-    } else if (subdet == SiStripDetId::TEC) {
-      layer = trackerTopology_->tecWheel(id);
-      is2D = trackerTopology_->tecIsDoubleSide(id);
-      isStereo = trackerTopology_->tecIsStereo(id);
-    } else {
-      edm::LogError("AlignmentStats") << "Detector not belonging neither to pixels nor to strips! Skipping it. SubDet= "
-                                      << subdet;
-    }
-
     //write in the hitstree
-    hitstree->Fill();
+    hitstree_->Fill();
   }  //end loop over detunits
 
   //save hitstree
-  hitstree->Write();
-  delete hitstree;
-  //delete Detunitslist;
+  hitstree_->Write();
+  delete hitstree_;
   hitmap_.clear();
   overlapmap_.clear();
-  delete hitsfile;
+  delete hitsfile_;
 }
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"

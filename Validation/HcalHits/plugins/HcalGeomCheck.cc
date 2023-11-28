@@ -115,7 +115,6 @@ void HcalGeomCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //Merge hits for the same DetID
     std::map<HcalDetId, hitsinfo> map_hits;
-    unsigned int nused(0);
     for (auto const& hit : *(theCaloHitContainer.product())) {
       unsigned int id = hit.id();
       HcalDetId detId = HcalHitRelabeller::relabel(id, hcons_);
@@ -133,7 +132,6 @@ void HcalGeomCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       HepGeom::Point3D<float> gcoord = HepGeom::Point3D<float>(rz * cos(etaphi.second) / cosh(etaphi.first),
                                                                rz * sin(etaphi.second) / cosh(etaphi.first),
                                                                rz * tanh(etaphi.first));
-      nused++;
       double tof = (gcoord.mag() * CLHEP::mm) / CLHEP::c_light;
       if (verbosity_ > 1)
         edm::LogVerbatim("HcalValidation")

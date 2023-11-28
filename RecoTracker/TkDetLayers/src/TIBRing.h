@@ -5,6 +5,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
+#include <optional>
+
 /** A concrete implementation for TIB rings 
  */
 
@@ -49,10 +51,8 @@ private:
 
   // methods for groupedCompatibleDets implementation
   struct SubRingCrossings {
-    SubRingCrossings() : isValid_(false){};
-    SubRingCrossings(int ci, int ni, float nd) : isValid_(true), closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
+    SubRingCrossings(int ci, int ni, float nd) : closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
 
-    bool isValid_;
     int closestIndex;
     int nextIndex;
     float nextDistance;
@@ -65,8 +65,8 @@ private:
                        float window,
                        std::vector<DetGroup>& result) const __attribute__((hot));
 
-  SubRingCrossings computeCrossings(const TrajectoryStateOnSurface& startingState, PropagationDirection propDir) const
-      __attribute__((hot));
+  std::optional<SubRingCrossings> computeCrossings(const TrajectoryStateOnSurface& startingState,
+                                                   PropagationDirection propDir) const __attribute__((hot));
 
   float computeWindowSize(const GeomDet* det,
                           const TrajectoryStateOnSurface& tsos,

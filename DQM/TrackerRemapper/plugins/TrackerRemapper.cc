@@ -104,7 +104,6 @@ private:
   const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   edm::Service<TFileService> fs;
-  const edm::ParameterSet& iConfig;
 
   int m_opMode;
   int m_analyzeMode;
@@ -166,7 +165,6 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       topoToken_(esConsumes()),
       tkDetMapToken_(esConsumes()),
-      iConfig(iConfig),
       m_opMode(iConfig.getParameter<int>("opMode")),
       m_analyzeMode(iConfig.getParameter<int>("analyzeMode")) {
   usesResource("TFileService");
@@ -422,8 +420,6 @@ void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, dou
   // TPolyline vertices stored at https://github.com/cms-data/DQM-SiStripMonitorClient
   in.open(edm::FileInPath("DQM/SiStripMonitorClient/data/Geometry/tracker_map_bare").fullPath().c_str());
 
-  unsigned count = 0;
-
   if (!in.good()) {
     throw cms::Exception("TrackerRemapper") << "Error Reading File" << std::endl;
   }
@@ -433,7 +429,6 @@ void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, dou
 
     std::string line;
     std::getline(in, line);
-    ++count;
 
     TString string(line);
     TObjArray* array = string.Tokenize(" ");

@@ -141,7 +141,6 @@ std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> DA
   LogDebug("DAFTrackProducerAlgorithm") << "Calling DAFTrackProducerAlgorithm::collectHits";
 
   //getting the traj measurements from the MeasurementCollector
-  int nHits = 0;
   TransientTrackingRecHit::RecHitContainer hits;
   std::vector<TrajectoryMeasurement> collectedmeas = measurementCollector->recHits(vtraj, measTk);
 
@@ -152,7 +151,6 @@ std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> DA
 
   for (std::vector<TrajectoryMeasurement>::const_iterator iter = collectedmeas.begin(); iter != collectedmeas.end();
        iter++) {
-    nHits++;
     hits.push_back(iter->recHit());
   }
 

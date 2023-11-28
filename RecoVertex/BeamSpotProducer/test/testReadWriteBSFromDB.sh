@@ -10,6 +10,6 @@ if test -f "EarlyCollision.db"; then
 fi
 
 # test write
-cmsRun ${LOCAL_TEST_DIR}/write2DB.py inputFile=${LOCAL_TEST_DIR}/EarlyCollision.txt || die "Failure running write2DB.py" $? 
+cmsRun ${SCRAM_TEST_PATH}/write2DB.py inputFile=${SCRAM_TEST_PATH}/EarlyCollision.txt || die "Failure running write2DB.py" $?
 # test read
-cmsRun ${LOCAL_TEST_DIR}/readDB.py unitTest=True inputFile=${PWD}/EarlyCollision.db || die "Failure running readDB.py" $? 
+cmsRun ${SCRAM_TEST_PATH}/readDB.py unitTest=True inputFile=${PWD}/EarlyCollision.db || die "Failure running readDB.py" $?

@@ -62,7 +62,7 @@ public:
                        unsigned sector,
                        unsigned subsector,
                        unsigned chamber,
-                       const edm::ParameterSet& conf);
+                       CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~LCTQualityAssignment() override {}

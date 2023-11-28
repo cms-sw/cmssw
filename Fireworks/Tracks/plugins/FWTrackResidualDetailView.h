@@ -32,6 +32,8 @@
 //      bad      = there were many bad strips within the ellipse = 3
 //
 
+#include <array>
+#include <vector>
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWDetailViewCanvas.h"
 
@@ -64,13 +66,13 @@ private:
 
   int m_ndet;
   int m_nhits;
-  int m_det[64];
-  float res[2][64];
-  int hittype[64];
-  int stereo[64];
-  int substruct[64];
-  int subsubstruct[64];
-  int m_detector[64];
+  std::vector<int> m_det;
+  std::array<std::vector<float>, 2> res;
+  std::vector<int> hittype;
+  std::vector<int> stereo;
+  std::vector<int> substruct;
+  std::vector<int> subsubstruct;
+  std::vector<int> m_detector;
 
   Int_t m_resXFill;
   Color_t m_resXCol;

@@ -135,10 +135,16 @@ namespace hcaldqm {
 
     //	summary flags
     std::vector<flag::Flag> sumflags;
-    int icrate = 0;
     for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
       flag::Flag fSum("RECO");
       HcalElectronicsId eid(*it);
+
+      // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring settings.
+      if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
+        sumflags.push_back(fSum);
+        continue;
+      }
+
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       //	registered @cDAQ
@@ -164,7 +170,6 @@ namespace hcaldqm {
         ft->reset();
       }
       sumflags.push_back(fSum);
-      icrate++;
     }
 
     return sumflags;

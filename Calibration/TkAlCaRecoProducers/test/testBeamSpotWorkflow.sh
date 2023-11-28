@@ -6,7 +6,7 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
 fi
 
 echo "TESTING  AlcaBeamSpotProducer ..."
-cmsRun ${LOCAL_TEST_DIR}/Alca_BeamFit_Workflow.py || die "Failure running Alca_BeamFit_Workflow.py" $?
+cmsRun ${SCRAM_TEST_PATH}/Alca_BeamFit_Workflow.py || die "Failure running Alca_BeamFit_Workflow.py" $?
 
 echo "TESTING AlcaBeamSpotHarvester ..."
-cmsRun ${LOCAL_TEST_DIR}/Alca_BeamSpot_Harvester.py || die "Failure running Alca_BeamSpot_Harvester.py" $?
+cmsRun ${SCRAM_TEST_PATH}/Alca_BeamSpot_Harvester.py || die "Failure running Alca_BeamSpot_Harvester.py" $?

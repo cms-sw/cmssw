@@ -28,11 +28,11 @@ INPUTFILE="/store/express/Commissioning2020/ExpressCosmics/FEVT/Express-v1/000/3
 
 # test Pixel
 printf "TESTING Pixels ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/test_DetectorStateFilter_cfg.py maxEvents=10 isStrip=False inputFiles=$INPUTFILE outputFile=outPixels.root || die "Failure filtering on pixels" $?
+cmsRun ${SCRAM_TEST_PATH}/test_DetectorStateFilter_cfg.py maxEvents=10 isStrip=False inputFiles=$INPUTFILE outputFile=outPixels.root || die "Failure filtering on pixels" $?
 
 # test Strips
 printf "TESTING Strips ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/test_DetectorStateFilter_cfg.py maxEvents=10 isStrip=True inputFiles=$INPUTFILE outputFile=outStrips.root || die "Failure filtering on strips" $?
+cmsRun ${SCRAM_TEST_PATH}/test_DetectorStateFilter_cfg.py maxEvents=10 isStrip=True inputFiles=$INPUTFILE outputFile=outStrips.root || die "Failure filtering on strips" $?
 
 # count events
 pixelCounts=`countEvents outPixels_numEvent10.root`

@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalWaferID_cfg.py type=V17
 #
-#   Options for type V16, V17, V17Shift
+#   Options for type V16, V17, V17Shift, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift")
+                  "type of operations: V16, V17, V17Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -43,6 +43,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeomW=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

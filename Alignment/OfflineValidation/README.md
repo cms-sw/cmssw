@@ -1,4 +1,4 @@
-# Validation
+# Aligment/OfflineValidation
 
 We use the Boost library (Program Options, Filesystem & Property Trees) to deal with the treatment of the config file.
 Basic idea:
@@ -89,10 +89,10 @@ The python file returns a list of jobs to the `validateAligments.py` which final
  - unification of local configuration style based on DMR/PV example
  - plotting style options to be implemented
    - change marker size for trends
-   - accept ROOT pre-defined encoding in config (kRed, kDotted, etc.)
+   - accept ROOT pre-defined encoding in config (`kRed`, `kDotted`, etc.)
  - validations to implement:
    - PV (only average is missing) 
-   - Zµµ (single + merge)
+   - Zµµ (trend)
    - MTS (single + merge)
    - overlap (single + merge + trend)
    - ...
@@ -106,13 +106,13 @@ The python file returns a list of jobs to the `validateAligments.py` which final
 (list from October 2022)
 
 ## DMR validation
-For details read `README_DMR.md`
+For details read [`README_DMR.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_DMR.md)
 
 ## PV validation
-For details read `README_PV.md`
+For details read [`README_PV.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_PV.md)
 
 ## JetHT validation
-For details read `README_JetHT.md`
+For details read [`README_JetHT.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_JetHT.md)
 
 ## General info about IOV/run arguments
-For details read `README_IOV.md`
+For details read [`README_IOV.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_IOV.md)

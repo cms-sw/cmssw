@@ -282,6 +282,12 @@
   <use name="CondFormats/EcalObjects"/>
 </library>
 
+<library file="EcalSimComponentShape_PayloadInspector.cc" name="EcalSimComponentShape_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
+</library>
+
 <library file="EcalTPGCrystalStatus_PayloadInspector.cc" name="EcalTPGCrystalStatus_PayloadInspector">
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>

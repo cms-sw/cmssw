@@ -11,7 +11,7 @@ namespace {
     ok &= grid.inRange(i);
 
     ok &= (8 == i);
-    ok &= (0.6 == f);
+    ok &= (0.6f == f);
 
     return ok;
   }

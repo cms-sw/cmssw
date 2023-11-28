@@ -1,6 +1,6 @@
 #include "CommonTools/Utils/interface/cutParser.h"
 #include "CommonTools/Utils/src/AnyObjSelector.h"
-#include "CommonTools/Utils/interface/Grammar.h"
+#include "CommonTools/Utils/interface/parser/Grammar.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace reco::parser;

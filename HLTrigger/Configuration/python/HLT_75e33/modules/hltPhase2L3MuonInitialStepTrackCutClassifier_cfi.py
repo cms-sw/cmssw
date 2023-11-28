@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3MuonInitialStepTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
-    beamspot = cms.InputTag("offlineBeamSpot"),
+    beamspot = cms.InputTag("hltOnlineBeamSpot"),
     ignoreVertices = cms.bool(False),
     mva = cms.PSet(
         dr_par = cms.PSet(

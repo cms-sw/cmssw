@@ -734,7 +734,7 @@ namespace edm {
   }
 
   template <typename T>
-  void WorkerT<T>::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  void WorkerT<T>::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
     module_->updateLookup(iPI);
   }
 

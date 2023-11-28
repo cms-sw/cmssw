@@ -1,7 +1,1 @@
-<environment>
-  <bin file="runtestTqafTopSkimming.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopSkimming/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="runtestTqafTopSkimming" command="runtests.sh"/>

@@ -49,6 +49,7 @@ private:
 
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
+  edm::ESWatcher<PPSTimingCalibrationLUTRcd> lutWatcher_;
 
   bool applyCalib_;
   CTPPSDiamondRecHitProducerAlgorithm algo_;
@@ -74,7 +75,7 @@ void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSet
   const auto& digis = iEvent.get(digiToken_);
 
   if (!digis.empty()) {
-    if (applyCalib_ && calibWatcher_.check(iSetup))
+    if (applyCalib_ && (calibWatcher_.check(iSetup) or lutWatcher_.check(iSetup)))
       algo_.setCalibration(iSetup.getData(timingCalibrationToken_), iSetup.getData(timingCalibrationLUTToken_));
 
     // produce the rechits collection
@@ -89,7 +90,7 @@ void CTPPSDiamondRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions
 
   desc.add<edm::InputTag>("digiTag", edm::InputTag("ctppsDiamondRawToDigi", "TimingDiamond"))
       ->setComment("input digis collection to retrieve");
-  desc.add<std::string>("timingCalibrationTag", "GlobalTag:PPSDiamondTimingCalibration")
+  desc.add<std::string>("timingCalibrationTag", ":PPSDiamondTimingCalibration")
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<double>("timeSliceNs", 25.0 / 1024.0)
       ->setComment("conversion constant between HPTDC timing bin size and nanoseconds");

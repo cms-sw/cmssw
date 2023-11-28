@@ -183,7 +183,7 @@ if "_phase2" in NewRelease:
     doPhase2PU = True
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','displacedGeneralStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
+Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','displacedGeneralStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn','displacedRegionalStep',
         'ak4PFJets','btvLike'
 ]
 #Algos= ['ootb']

@@ -102,9 +102,7 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg)
   if (_weightById) {
     std::ifstream inFile;
     inFile.open(_weightByIdFile.c_str());
-    int ctr = 0;
     while (!inFile.eof()) {
-      ctr++;
       unsigned int listId;
       inFile >> listId;
       inFile.ignore(256, '\n');

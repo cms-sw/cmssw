@@ -70,16 +70,11 @@ std::vector<std::pair<LinkBoardElectronicIndex, LinkBoardPackedStrip> > RPCReadO
           eleIndex.lbNumInLink = board.linkBoardNumInLink();
 
           const std::vector<FebConnectorSpec> &febs = board.febs();
-          int febCheck = 0;
           for (std::vector<FebConnectorSpec>::const_iterator ifc = febs.begin(); ifc != febs.end(); ifc++) {
             const FebConnectorSpec &febConnector = (*ifc);
-            febCheck++;
             if (febConnector.rawId() != rawDetId)
               continue;
             int febInLB = febConnector.linkBoardInputNum();
-            /* if (febInLB != febCheck) {
-              edm::LogError("rawDataFrame") << " problem with febInLB: " <<febInLB<<" "<<febCheck;
-	      } */
             for (int istrip = 0; istrip < febConnector.nstrips(); istrip++) {
               int stripPinInFeb = febConnector.cablePinNum(istrip);
               if (febConnector.chamberStripNum(istrip) == stripInDU) {

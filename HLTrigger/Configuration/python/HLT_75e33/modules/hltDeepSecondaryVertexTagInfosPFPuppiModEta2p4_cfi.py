@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltDeepSecondaryVertexTagInfosPFPuppiModEta2p4 = cms.EDProducer("CandSecondaryVertexProducer",
-    beamSpotTag = cms.InputTag("offlineBeamSpot"),
+    beamSpotTag = cms.InputTag("hltOnlineBeamSpot"),
     constraint = cms.string('BeamSpot'),
     extSVCollection = cms.InputTag("hltDeepInclusiveMergedVerticesPF"),
     extSVDeltaRToJet = cms.double(0.3),

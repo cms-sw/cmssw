@@ -35,7 +35,9 @@ public:
   typedef std::unordered_map<int32_t, tileInfo> tileInfo_map;
 
   static constexpr double k_ScaleFromDDD = 0.1;
+  static constexpr double k_ScaleFromDDD2 = 0.01;
   static constexpr double k_ScaleToDDD = 10.0;
+  static constexpr double k_ScaleToDDD2 = 100.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
   static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
@@ -153,7 +155,10 @@ public:
   double waferSize_;
   double waferThick_;
   double sensorSeparation_;
+  double sensorSizeOffset_;
+  double guardRingOffset_;
   double mouseBite_;
+  int useOffset_;
   int waferUVMax_;
   std::vector<int> waferUVMaxLayer_;
   bool defineFull_;
@@ -193,6 +198,12 @@ public:
   int nphiCassette_;
   int phiOffset_;
   std::vector<double> cassetteShift_;
+  double calibCellRHD_;
+  std::vector<int> calibCellFullHD_;
+  std::vector<int> calibCellPartHD_;
+  double calibCellRLD_;
+  std::vector<int> calibCellFullLD_;
+  std::vector<int> calibCellPartLD_;
 
   COND_SERIALIZABLE;
 

@@ -80,10 +80,10 @@ namespace ecaldqm {
         if (!xaxis_)
           throw_("No xaxis found for MESetNonObject");
 
-        if (xaxis_->edges)
-          me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->edges);
-        else
+        if (xaxis_->edges.empty())
           me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
+        else
+          me = _ibooker.book1D(name, name, xaxis_->nbins, &(xaxis_->edges[0]));
       } break;
 
       case MonitorElement::Kind::TPROFILE: {
@@ -98,32 +98,33 @@ namespace ecaldqm {
           ylow = yaxis_->low;
           yhigh = yaxis_->high;
         }
-        if (xaxis_->edges) {
+        if (xaxis_->edges.empty()) {
+          me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
+        } else {
           // DQMStore bookProfile interface uses double* for bin edges
           double *edges(new double[xaxis_->nbins + 1]);
-          std::copy(xaxis_->edges, xaxis_->edges + xaxis_->nbins + 1, edges);
+          std::copy(xaxis_->edges.begin(), xaxis_->edges.end(), edges);
           me = _ibooker.bookProfile(name, name, xaxis_->nbins, edges, ylow, yhigh, "");
           delete[] edges;
-        } else
-          me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
+        }
       } break;
 
       case MonitorElement::Kind::TH2F: {
         if (!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
 
-        if (!xaxis_->edges || !yaxis_->edges)  // unlike MESetEcal, if either of X or Y is not set as
-                                               // variable, binning will be fixed
+        if (xaxis_->edges.empty() && yaxis_->edges.empty())  // unlike MESetEcal, if either of X or Y is not set as
+                                                             // variable, binning will be fixed
           me = _ibooker.book2D(
               name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
         else
-          me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->edges, yaxis_->nbins, yaxis_->edges);
+          me = _ibooker.book2D(name, name, xaxis_->nbins, &(xaxis_->edges[0]), yaxis_->nbins, &(yaxis_->edges[0]));
       } break;
 
       case MonitorElement::Kind::TPROFILE2D: {
         if (!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
-        if (xaxis_->edges || yaxis_->edges)
+        if (!(xaxis_->edges.empty() && yaxis_->edges.empty()))
           throw_("Variable bin size for 2D profile not implemented");
 
         double high(0.), low(0.);
@@ -154,21 +155,21 @@ namespace ecaldqm {
 
     if (xaxis_) {
       me->setAxisTitle(xaxis_->title, 1);
-      if (xaxis_->labels) {
+      if (!xaxis_->labels.empty()) {
         for (int iBin(1); iBin <= xaxis_->nbins; ++iBin)
           me->setBinLabel(iBin, xaxis_->labels[iBin - 1], 1);
       }
     }
     if (yaxis_) {
       me->setAxisTitle(yaxis_->title, 2);
-      if (yaxis_->labels) {
+      if (!yaxis_->labels.empty()) {
         for (int iBin(1); iBin <= yaxis_->nbins; ++iBin)
           me->setBinLabel(iBin, yaxis_->labels[iBin - 1], 2);
       }
     }
     if (zaxis_) {
       me->setAxisTitle(zaxis_->title, 3);
-      if (zaxis_->labels) {
+      if (!zaxis_->labels.empty()) {
         for (int iBin(1); iBin <= zaxis_->nbins; ++iBin)
           me->setBinLabel(iBin, zaxis_->labels[iBin - 1], 3);
       }
@@ -319,6 +320,7 @@ namespace ecaldqm {
   }
 
   bool MESetNonObject::isVariableBinning() const {
-    return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
+    return (xaxis_ && (!xaxis_->edges.empty())) || (yaxis_ && (!yaxis_->edges.empty())) ||
+           (zaxis_ && (!zaxis_->edges.empty()));
   }
 }  // namespace ecaldqm

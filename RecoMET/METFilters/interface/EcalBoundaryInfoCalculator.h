@@ -519,11 +519,9 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const Ecal
 
   double gapEnergy = 0;
   double gapET = 0;
-  int gapCellCounter = 0;
   bool nextToBorder = false;
 
   gapRecHits.push_back(*hit);
-  ++gapCellCounter;
   gapEnergy += hit->energy();
   EcalDetId hitdetid = (EcalDetId)hit->id();
   gapDetIds.push_back(hitdetid);
@@ -636,7 +634,6 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const Ecal
       gapDetIds.push_back(next);
       if (RecHits.find(next) != RecHits.end()) {
         EcalRecHit nexthit = *RecHits.find(next);
-        ++gapCellCounter;
         gapRecHits.push_back(nexthit);
         gapEnergy += nexthit.energy();
         cellGeom = subGeom->getGeometry(next);
@@ -708,7 +705,6 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const Ecal
         gapDetIds.push_back(next);
         if (RecHits.find(next) != RecHits.end()) {
           EcalRecHit nexthit = *RecHits.find(next);
-          ++gapCellCounter;
           gapRecHits.push_back(nexthit);
           gapEnergy += nexthit.energy();
           cellGeom = subGeom->getGeometry(next);

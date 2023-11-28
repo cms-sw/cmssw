@@ -48,7 +48,7 @@
 class BeamSpotRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit BeamSpotRcdReader(const edm::ParameterSet&);
-  ~BeamSpotRcdReader() override;
+  ~BeamSpotRcdReader() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -94,8 +94,6 @@ BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig)
     }
   }
 }
-
-BeamSpotRcdReader::~BeamSpotRcdReader() = default;
 
 //
 // member functions
@@ -150,7 +148,7 @@ void BeamSpotRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (output_.get())
     *output_ << output.str();
   else
-    edm::LogInfo("") << output.str();
+    edm::LogInfo("BeamSpotRcdReader") << output.str();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -171,11 +169,9 @@ void BeamSpotRcdReader::beginJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BeamSpotRcdReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>("rawFileName", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

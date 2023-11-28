@@ -2,6 +2,7 @@
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/PPSObjects"/>
+<use name="CondTools/RunInfo"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="RecoPPS/ProtonReconstruction"/>

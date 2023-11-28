@@ -106,12 +106,10 @@ void PrintGeomSummary::beginRun(edm::EventSetup const& es) {
   using Graph = DDCompactView::Graph;
   using adjl_iterator = Graph::const_adj_iterator;
 
-  Graph::index_type i = 0;
   solidMap_.clear();
   for (adjl_iterator git = gra.begin(); git != gra.end(); ++git) {
     const DDLogicalPart& ddLP = gra.nodeData(git);
     addSolid(ddLP);
-    ++i;
     if (!git->empty()) {
       // ask for children of ddLP
       for (Graph::edge_list::const_iterator cit = git->begin(); cit != git->end(); ++cit) {

@@ -7,7 +7,7 @@ namespace edm {
 
   std::unique_ptr<edm::ParameterSet> getPSetFromConfig(const std::string& config);
 
-  std::unique_ptr<edm::ParameterSet> readConfig(std::string const& config, int argc, char* argv[]);
+  std::unique_ptr<edm::ParameterSet> readConfig(std::string const& config, const std::vector<std::string>& args);
 
   std::unique_ptr<edm::ParameterSet> readConfig(std::string const& config);
 

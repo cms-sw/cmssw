@@ -2,12 +2,12 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
-F1=${LOCAL_TEST_DIR}/python/dumpMFGeometry.py
-F2=${LOCAL_TEST_DIR}/python/testMFGeometry.py
+F1=${SCRAM_TEST_PATH}/python/dumpMFGeometry.py
+F2=${SCRAM_TEST_PATH}/python/testMFGeometry.py
 
 echo " testing MagneticField/GeomBuilder"
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export tmpdir=${PWD}
 echo "===== Test \"cmsRun dumpMFGeometry.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun testMFGeometry.py\" ===="

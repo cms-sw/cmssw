@@ -94,7 +94,7 @@ public:
   typedef CaloSubdetectorGeometry::DimVec DimVec;
   typedef CaloSubdetectorGeometry::IVec IVec;
 
-  CaloGeometryDBEP<T, U>(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
+  CaloGeometryDBEP(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
     auto cc = setWhatProduced(this,
                               &CaloGeometryDBEP<T, U>::produceAligned,
                               edm::es::Label(T::producerTag()));  //+std::string("TEST") ) ) ;
@@ -111,7 +111,7 @@ public:
     additionalTokens_.makeTokens(cc);
   }
 
-  ~CaloGeometryDBEP<T, U>() override {}
+  ~CaloGeometryDBEP() override {}
 
   PtrType produceAligned(const typename T::AlignedRecord& iRecord) {
     const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);

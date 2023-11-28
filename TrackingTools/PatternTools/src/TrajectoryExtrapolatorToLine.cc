@@ -17,14 +17,12 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
   GlobalPoint T0 = fastFts.position();
   double distance = 9999999.9;
   double old_distance;
-  int n_iter = 0;
   bool refining = true;
 
   LogDebug("TrajectoryExtrapolatorToLine") << "START REFINING";
   while (refining) {
     LogDebug("TrajectoryExtrapolatorToLine") << "Refining cycle...";
     // describe orientation of target surface on basis of track parameters
-    n_iter++;
     Line T(T0, T1);
     GlobalPoint B = T.closerPointToLine(L);
     old_distance = distance;

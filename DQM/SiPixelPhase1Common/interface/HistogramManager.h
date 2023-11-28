@@ -59,7 +59,6 @@ public:
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
 
 private:
-  const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
 
   std::vector<SummationSpecification> specs;

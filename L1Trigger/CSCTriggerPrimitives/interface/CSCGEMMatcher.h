@@ -32,11 +32,11 @@ public:
                 const edm::ParameterSet& tmbParams,
                 const edm::ParameterSet& luts);
 
-  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
-  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
-
   // calculate the bending angle
-  int calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
+  int calculateGEMCSCBending(const CSCCLCTDigi& clct,
+                             const GEMInternalCluster& cluster,
+                             const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                             const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
 
   // match by location
 
@@ -49,18 +49,24 @@ public:
   void matchingClustersLoc(const CSCCLCTDigi& clct,
                            const GEMInternalClusters& clusters,
                            GEMInternalClusters& output,
-                           bool ignoreALCTGEMmatch) const;
+                           bool ignoreALCTGEMmatch,
+                           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
 
   // matching candidate distance in 1/8 strip, always the total without extrapolation correction, if ForceTotal is true
   int matchedClusterDistES(const CSCCLCTDigi& clct,
                            const GEMInternalCluster& cluster,
                            const bool isLayer2,
-                           const bool ForceTotal) const;
+                           const bool ForceTotal,
+                           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
 
   // ALCT-CLCT-GEM
   void matchingClustersLoc(const CSCALCTDigi& alct,
                            const CSCCLCTDigi& clct,
                            const GEMInternalClusters& clusters,
+                           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                            GEMInternalClusters& output) const;
 
   // best matching clusters by location
@@ -69,24 +75,32 @@ public:
   void bestClusterLoc(const CSCALCTDigi& alct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
 
   // CLCT-GEM
-  void bestClusterLoc(const CSCCLCTDigi& clct, const GEMInternalClusters& clusters, GEMInternalCluster& best) const;
+  void bestClusterLoc(const CSCCLCTDigi& clct,
+                      const GEMInternalClusters& clusters,
+                      const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                      const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
+                      GEMInternalCluster& best) const;
 
   // ALCT-CLCT-GEM
   void bestClusterLoc(const CSCALCTDigi& alct,
                       const CSCCLCTDigi& clct,
                       const GEMInternalClusters& clusters,
+                      const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                      const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                       GEMInternalCluster& best) const;
 
 private:
-  // access to lookup tables via eventsetup
-  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
-  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
-
   //mitigate slope by consistency of slope indicator, if necessary
-  uint16_t mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) const;
+  uint16_t mitigatedSlopeByConsistency(const CSCCLCTDigi& clct,
+                                       const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                       const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
 
   // calculate slope correction
-  int CSCGEMSlopeCorrector(const bool isME1a, const int cscSlope, bool isLayer2) const;
+  int CSCGEMSlopeCorrector(const bool isME1a,
+                           const int cscSlope,
+                           bool isLayer2,
+                           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
 
   unsigned endcap_;
   unsigned station_;

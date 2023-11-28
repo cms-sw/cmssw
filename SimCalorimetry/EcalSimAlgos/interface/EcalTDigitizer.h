@@ -27,9 +27,9 @@ public:
   typedef typename Traits::DigiCollection DigiCollection;
   typedef typename Traits::EcalSamples EcalSamples;
 
-  EcalTDigitizer<Traits>(EcalHitResponse* hitResponse, ElectronicsSim* electronicsSim, bool addNoise);
+  EcalTDigitizer(EcalHitResponse* hitResponse, ElectronicsSim* electronicsSim, bool addNoise);
 
-  virtual ~EcalTDigitizer<Traits>();
+  virtual ~EcalTDigitizer();
 
   void add(const std::vector<PCaloHit>& hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 

@@ -46,7 +46,7 @@ namespace edm {
     /**Default destructor*/
     ~BMixingModule() override;
 
-    void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) override;
+    void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) override;
 
     /**Cumulates the pileup events onto this event*/
     void produce(edm::Event& e1, const edm::EventSetup& c) override;

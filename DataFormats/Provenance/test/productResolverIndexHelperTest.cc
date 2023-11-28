@@ -161,14 +161,12 @@ int main() {
   unsigned sum = 0;
 
   for (unsigned j = 0; j < 100; ++j) {
-    unsigned int iCount = 0;
     for (auto& n : vNames) {
       unsigned temp = 1;
       // if (n.className == "trigger::TriggerFilterObjectWithRefs") continue;
       temp = phih.index(PRODUCT_TYPE, n.typeID, n.label.c_str(), n.instance.c_str(), n.process.c_str());
 
       sum += temp;
-      ++iCount;
     }
   }
   timer.stop();

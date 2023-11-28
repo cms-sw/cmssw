@@ -7,6 +7,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="RunThis_t.cpp" name="DQMServicesStreamerIORunStreamer">
-  <flags TEST_RUNNER_ARGS="/bin/bash DQMServices/StreamerIO/test RunStreamer.sh"/>
-</bin>
+<test name="DQMServicesStreamerIORunStreamer" command="RunStreamer.sh"/>

@@ -27,6 +27,8 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include <memory>
+
 class Plane;
 
 class ProxyStripTopology final : public StripTopology {

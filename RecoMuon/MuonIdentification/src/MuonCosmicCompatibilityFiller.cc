@@ -294,41 +294,14 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
       reco::TrackRef outertrack = muon.outerTrack();
       reco::TrackRef costrack = cosmicMuon->outerTrack();
 
-      bool isUp = false;
-      if (outertrack->phi() > 0)
-        isUp = true;
-
       // shared hits
       int RecHitsMuon = outertrack->numberOfValidHits();
-      int RecHitsCosmicMuon = 0;
       int shared = 0;
-      // count hits for same hemisphere
       if (costrack.isNonnull()) {
-        int nhitsUp = 0;
-        int nhitsDown = 0;
         // unused
         //	bool isCosmic1Leg = false;
         //	bool isCloseIP = false;
         //	bool isCloseRef = false;
-
-        for (trackingRecHit_iterator coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++) {
-          if ((*coshit)->isValid()) {
-            DetId id((*coshit)->geographicalId());
-            double hity = trackingGeometry->idToDet(id)->position().y();
-            if (hity > 0)
-              nhitsUp++;
-            if (hity < 0)
-              nhitsDown++;
-
-            if (isUp && hity > 0)
-              RecHitsCosmicMuon++;
-            if (!isUp && hity < 0)
-              RecHitsCosmicMuon++;
-          }
-        }
-        // step1
-        //UNUSED:	if( nhitsUp > 0 && nhitsDown > 0 ) isCosmic1Leg = true;
-        //if( !isCosmic1Leg ) continue;
 
         if (outertrack.isNonnull()) {
           // step2
@@ -338,8 +311,8 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
           //if( !isCloseIP ) continue;
 
           // step3
-          GlobalPoint muonRefVtx(outertrack->vx(), outertrack->vy(), outertrack->vz());
-          GlobalPoint cosmicRefVtx(costrack->vx(), costrack->vy(), costrack->vz());
+          //GlobalPoint muonRefVtx(outertrack->vx(), outertrack->vy(), outertrack->vz());
+          //GlobalPoint cosmicRefVtx(costrack->vx(), costrack->vy(), costrack->vz());
           //UNUSED:	  float dist = (muonRefVtx - cosmicRefVtx).mag();
           //UNUSED:	  if( dist < 0.1 ) isCloseRef = true;
           //if( !isCloseRef ) continue;
@@ -364,7 +337,6 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
       double fraction = -1;
       if (RecHitsMuon != 0)
         fraction = shared / (double)RecHitsMuon;
-      // 	     std::cout << "shared = " << shared << " " << fraction << " " << RecHitsMuon << " " << RecHitsCosmicMuon << std::endl;
       if (shared > sharedHits_ && fraction > sharedFrac_) {
         overlappingMuon = true;
         break;

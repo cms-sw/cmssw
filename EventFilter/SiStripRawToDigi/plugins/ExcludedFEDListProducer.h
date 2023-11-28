@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -41,7 +41,7 @@ namespace sistrip {
     const edm::EDGetTokenT<FEDRawDataCollection> token_;
     edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> cablingToken_;
 
-    DetIdCollection detids_;
+    DetIdVector detids_;
   };
 }  // namespace sistrip
 #endif  // EventFilter_SiStripRawToDigi_ExcludedFEDListProducer_H

@@ -3,6 +3,8 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
@@ -12,6 +14,7 @@ class L1TPFCandMultiMerger : public edm::global::EDProducer<> {
 public:
   explicit L1TPFCandMultiMerger(const edm::ParameterSet&);
   ~L1TPFCandMultiMerger() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -89,6 +92,30 @@ void L1TPFCandMultiMerger::produce(edm::StreamID, edm::Event& iEvent, const edm:
       iEvent.put(std::move(regout), instances_[ii] + "Regional");
     }
   }
+}
+
+void L1TPFCandMultiMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // l1tLayer1
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("pfProducers",
+                                       {
+                                           edm::InputTag("l1tLayer1Barrel"),
+                                           edm::InputTag("l1tLayer1HGCal"),
+                                           edm::InputTag("l1tLayer1HGCalNoTK"),
+                                           edm::InputTag("l1tLayer1HF"),
+                                       });
+  desc.add<std::vector<std::string>>("labelsToMerge",
+                                     {
+                                         "PF",
+                                         "Puppi",
+                                         "Calo",
+                                         "TK",
+                                     });
+  desc.add<std::vector<std::string>>("regionalLabelsToMerge",
+                                     {
+                                         "Puppi",
+                                     });
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

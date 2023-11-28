@@ -24,11 +24,11 @@
 
 namespace evf {
 
-  EvFOutputJSONWriter::EvFOutputJSONWriter(edm::ParameterSet const& ps,
+  EvFOutputJSONWriter::EvFOutputJSONWriter(edm::StreamerOutputModuleCommon::Parameters const& commonParameters,
                                            edm::SelectedProducts const* selections,
                                            std::string const& streamLabel,
                                            std::string const& moduleLabel)
-      : streamerCommon_(ps, selections, moduleLabel),
+      : streamerCommon_(commonParameters, selections, moduleLabel),
         processed_(0),
         accepted_(0),
         errorEvents_(0),
@@ -109,7 +109,7 @@ namespace evf {
   EvFOutputModule::EvFOutputModule(edm::ParameterSet const& ps)
       : edm::one::OutputModuleBase(ps),
         EvFOutputModuleType(ps),
-        ps_(ps),
+        commonParameters_(edm::StreamerOutputModuleCommon::parameters(ps)),
         streamLabel_(ps.getParameter<std::string>("@module_label")),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
         psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
@@ -150,7 +150,7 @@ namespace evf {
   void EvFOutputModule::beginRun(edm::RunForOutput const& run) {
     //create run Cache holding JSON file writer and variables
     jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(
-        ps_, &keptProducts()[edm::InEvent], streamLabel_, description().moduleLabel());
+        commonParameters_, &keptProducts()[edm::InEvent], streamLabel_, description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);

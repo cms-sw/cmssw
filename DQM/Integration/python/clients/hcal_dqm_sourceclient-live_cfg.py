@@ -151,6 +151,7 @@ process.load('DQM.HcalTasks.ZDCTask')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load('DQM.HcalTasks.HcalQualityTests')
+process.load('DQM.HcalTasks.hcalMLTask_cfi')
 
 #-------------------------------------
 #	For Debugginb
@@ -192,6 +193,7 @@ process.tasksPath = cms.Path(
 		#+process.qie11Task
 		#ZDC to be removed after 2018 PbPb run
 		+process.zdcQIE10Task
+		+process.hcalMLTask
 )
 
 if isHeavyIon:

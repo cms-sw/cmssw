@@ -5,7 +5,7 @@ from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
-tauGenJetsForVal = tauGenJets.clone()
+tauGenJetsForVal = tauGenJets.clone(GenParticles = 'prunedGenParticles')
 
 # require generated tau to decay hadronically
 objectTypeSelectedTauValDenominatorModuleZTT = cms.EDFilter("TauGenJetDecayModeSelector",
@@ -42,9 +42,9 @@ proc.efficienciesZTT.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenomi
 proc.efficienciesZTTSummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTT_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTT_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZTT_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -60,8 +60,8 @@ for newAttr in newProcAttributes:
 
 produceDenominatorZTT = cms.Sequence(
       tauGenJetsForVal
-      +objectTypeSelectedTauValDenominatorModuleZTT
-      +kinematicSelectedTauValDenominatorZTT
+      +cms.ignore(objectTypeSelectedTauValDenominatorModuleZTT)
+      +cms.ignore(kinematicSelectedTauValDenominatorZTT)
       )
 
 produceDenominator = cms.Sequence(produceDenominatorZTT)
@@ -75,4 +75,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesZTT
       )
-

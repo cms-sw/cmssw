@@ -42,25 +42,40 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
   }
   //look for FRD header at beginning of the file and skip it
   if (fin_.tellg() == 0) {
-    constexpr size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
-    FRDFileHeader_v1 fileHead;
-    fin_.read((char*)&fileHead, buf_sz);
+    constexpr size_t buf_sz = sizeof(FRDFileHeaderIdentifier);
+    char hdr[sizeof(FRDFileHeader_v2)];
+    fin_.read(hdr, buf_sz);
 
     if (fin_.gcount() == 0)
       throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
           << "Unable to read file or empty file" << *itFileName_;
-    else if (fin_.gcount() < (ssize_t)buf_sz)
+    else if (fin_.gcount() < (ssize_t)buf_sz) {
+      //no header, very small file, go to event parsing
       fin_.seekg(0);
-    else {
-      uint16_t frd_version = getFRDFileHeaderVersion(fileHead.id_, fileHead.version_);
-      if (frd_version >= 1) {
-        if (fileHead.headerSize_ < buf_sz)
+    } else {
+      FRDFileHeaderIdentifier* fileId = (FRDFileHeaderIdentifier*)hdr;
+      uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
+
+      if (frd_version == 1) {
+        constexpr size_t buf_sz_cont = sizeof(FRDFileHeaderContent_v1);
+        fin_.read(hdr, buf_sz_cont);
+        FRDFileHeaderContent_v1* fhContent = (FRDFileHeaderContent_v1*)hdr;
+        if (fin_.gcount() != buf_sz_cont || fhContent->headerSize_ != sizeof(FRDFileHeader_v1))
           throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
               << "Invalid FRD file header (size mismatch) in file " << *itFileName_;
-        else if (fileHead.headerSize_ > buf_sz)
-          fin_.seekg(fileHead.headerSize_, fin_.beg);
-      } else
+      } else if (frd_version == 2) {
+        constexpr size_t buf_sz_cont = sizeof(FRDFileHeaderContent_v2);
+        fin_.read(hdr, buf_sz_cont);
+        FRDFileHeaderContent_v2* fhContent = (FRDFileHeaderContent_v2*)hdr;
+        if (fin_.gcount() != buf_sz_cont || fhContent->headerSize_ != sizeof(FRDFileHeader_v2))
+          throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
+              << "Invalid FRD file header (size mismatch) in file " << *itFileName_;
+      } else if (frd_version > 2) {
+        throw cms::Exception("FRDStreamSource::setRunAndEventInfo") << "Unknown header version " << frd_version;
+      } else {
+        //no header
         fin_.seekg(0, fin_.beg);
+      }
     }
   }
 

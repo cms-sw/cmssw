@@ -193,13 +193,14 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", "int16", doc="index of the associated electron (-1 if none)"),
         energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
         energyRaw = Var("superCluster().rawEnergy()",float,doc="raw energy of photon supercluster", precision=10),
-        r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=8),
-        sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=8),
-        sipip = Var("showerShapeVariables().sigmaIphiIphi", float, doc="sigmaIphiIphi of the supercluster", precision=8),
-        sieip = Var("full5x5_showerShapeVariables().sigmaIetaIphi",float,doc="sigma_IetaIphi of the supercluster, calculated with full 5x5 region",precision=8),
-        s4 = Var("full5x5_showerShapeVariables().e2x2/full5x5_showerShapeVariables().e5x5",float,doc="e2x2/e5x5 of the supercluster, calculated with full 5x5 region",precision=8),
-        etaWidth = Var("superCluster().etaWidth()",float,doc="Width of the photon supercluster in eta", precision=8),
-        phiWidth = Var("superCluster().phiWidth()",float,doc="Width of the photon supercluster in phi", precision=8),
+        superclusterEta  = Var("superCluster().eta()",float,doc="supercluster eta",precision=10),
+        r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=10),
+        sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=10),
+        sipip = Var("showerShapeVariables().sigmaIphiIphi", float, doc="sigmaIphiIphi of the supercluster", precision=10),
+        sieip = Var("full5x5_showerShapeVariables().sigmaIetaIphi",float,doc="sigma_IetaIphi of the supercluster, calculated with full 5x5 region",precision=10),
+        s4 = Var("full5x5_showerShapeVariables().e2x2/full5x5_showerShapeVariables().e5x5",float,doc="e2x2/e5x5 of the supercluster, calculated with full 5x5 region",precision=10),
+        etaWidth = Var("superCluster().etaWidth()",float,doc="Width of the photon supercluster in eta", precision=10),
+        phiWidth = Var("superCluster().phiWidth()",float,doc="Width of the photon supercluster in phi", precision=10),
         cutBased = Var(
             "userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",
             "uint8",
@@ -217,11 +218,19 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Winter22V1"),
         mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Winter22V1"),
         trkSumPtHollowConeDR03 = Var("trkSumPtHollowConeDR03()",float,doc="Sum of track pT in a hollow cone of outer radius, inner radius", precision=8),
+<<<<<<< HEAD
         trkSumPtSolidConeDR04 = Var("trkSumPtSolidConeDR04()",float,doc="Sum of track pT in a cone of dR=0.4", precision=8),
         ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=8),
         hcalPFClusterIso = Var("hcalPFClusterIso()",float,doc="sum pt of hcal clusters, vetoing clusters part of photon", precision=8),
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
         pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=8),
+=======
+        trkSumPtSolidConeDR04 = Var("trkSumPtSolidConeDR04()",float,doc="Sum of track pT in a cone of dR=0.4", precision=8),                 
+        ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=8),
+        hcalPFClusterIso = Var("hcalPFClusterIso()",float,doc="sum pt of hcal clusters, vetoing clusters part of photon", precision=8), 
+        pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
+        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=8),        
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
         pfChargedIsoPFPV = Var("chargedHadronPFPVIso()",float,doc="PF absolute isolation dR=0.3, charged component (PF PV only)"),
         pfChargedIsoWorstVtx = Var("chargedHadronWorstVtxIso()",float,doc="PF absolute isolation dR=0.3, charged component (Vertex with largest isolation)"),
         pfRelIso03_chg_quadratic = Var("userFloat('PFIsoChgQuadratic')/pt",float,doc="PF relative isolation dR=0.3, charged hadron component (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
@@ -245,7 +254,11 @@ photonTable = simpleCandidateFlatTableProducer.clone(
 )
 
 
+<<<<<<< HEAD
 #these eras need to make the energy correction, hence the "New". Also save only Fall17V2 IDS in Run2, No Run3 Winter22V1 and quadratic iso in Run2
+=======
+#these eras need to make the energy correction, hence the "New". Also save only Fall17V2 IDS in Run2, No Run3 Winter22V1 and quadratic iso in Run2 
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 run2_egamma.toModify(
     photonTable.variables,
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
@@ -265,12 +278,19 @@ run2_egamma.toModify(
     mvaID = Var("userFloat('mvaID_Fall17V2')",float,doc="MVA ID score, Fall17V2",precision=10),
     mvaID_WP90 = Var("userInt('mvaID_Fall17V2_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
     mvaID_WP80 = Var("userInt('mvaID_Fall17V2_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
+<<<<<<< HEAD
     pfRelIso03_chg = Var("userFloat('PFIsoChgFall17V2')/pt",float,doc="PF relative isolation dR=0.3, charged component (with Fall17V2rho*EA PUcorrections)"),
+=======
+    pfRelIso03_chg = Var("userFloat('PFIsoChgFall17V2')/pt",float,doc="PF relative isolation dR=0.3, charged component (with Fall17V2rho*EA PU corrections)"),
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
     pfRelIso03_all = Var("userFloat('PFIsoAllFall17V2')/pt",float,doc="PF relative isolation dR=0.3, total (with Fall17V2 rho*EA PU corrections)"),
     pfRelIso03_chg_quadratic=None,
     pfRelIso03_all_quadratic=None,
     hoe_PUcorr=None
+<<<<<<< HEAD
 
+=======
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
 )
 
 photonsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR

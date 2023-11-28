@@ -3,6 +3,7 @@
 #include "Geometry/CommonTopologies/interface/DetSorting.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <iterator>
@@ -29,8 +30,8 @@ public:
 // A simple helper for printing the object
 struct dump {
   void operator()(const GeomDet& o) {
-    cout << o.position() << " R  : " << o.position().perp() << " Phi: " << o.position().phi()
-         << " Z  : " << o.position().z() << endl;
+    edm::LogVerbatim("CommonTopologies") << o.position() << " R  : " << o.position().perp()
+                                         << " Phi: " << o.position().phi() << " Z  : " << o.position().z();
   }
   void operator()(const GeomDet* o) { operator()(*o); }
 };
@@ -41,26 +42,26 @@ int main() {
   //
 
   // Fill the vector to be sorted
-  vector<MyDet> v;
+  std::vector<MyDet> v;
   v.emplace_back(MyDet(PositionType(2, 1, 1)));
   v.emplace_back(MyDet(PositionType(1, 1, 2)));
   v.emplace_back(MyDet(PositionType(1, 2, 3)));
   v.emplace_back(MyDet(PositionType(2, 2, 4)));
 
-  cout << "Original  vector: " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Original  vector: ";
   for_each(v.begin(), v.end(), dump());
 
-  cout << "Sort in R       : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in R       : ";
   // Here we sort in R
   precomputed_value_sort(v.begin(), v.end(), DetR());
   for_each(v.begin(), v.end(), dump());
 
-  cout << "Sort in phi     : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in phi     : ";
   // Here we sort in phi
   precomputed_value_sort(v.begin(), v.end(), DetPhi());
   for_each(v.begin(), v.end(), dump());
 
-  cout << "Sort in z       : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in z       : ";
   // Here we sort in Z
   precomputed_value_sort(v.begin(), v.end(), DetZ());
   for_each(v.begin(), v.end(), dump());
@@ -68,24 +69,24 @@ int main() {
   //
   // Now do the same with a vector of pointers
   //
-  cout << endl << "Again with pointers" << endl;
+  edm::LogVerbatim("CommonTopologies") << std::endl << "Again with pointers";
 
-  vector<const MyDet*> vp;
-  for (vector<MyDet>::const_iterator i = v.begin(); i != v.end(); i++) {
+  std::vector<const MyDet*> vp;
+  for (std::vector<MyDet>::const_iterator i = v.begin(); i != v.end(); i++) {
     vp.emplace_back(&(*i));
   }
 
-  cout << "Sort in R       : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in R       : ";
   // Here we sort in R
   precomputed_value_sort(vp.begin(), vp.end(), DetR());
   for_each(vp.begin(), vp.end(), dump());
 
-  cout << "Sort in phi     : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in phi     : ";
   // Here we sort in phi
   precomputed_value_sort(vp.begin(), vp.end(), DetPhi());
   for_each(vp.begin(), vp.end(), dump());
 
-  cout << "Sort in z       : " << endl;
+  edm::LogVerbatim("CommonTopologies") << "Sort in z       : ";
   // Here we sort in Z
   precomputed_value_sort(vp.begin(), vp.end(), DetZ());
   for_each(vp.begin(), vp.end(), dump());

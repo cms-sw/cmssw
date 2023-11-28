@@ -1,10 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
+from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
+
 tauValidationMiniAOD = DQMEDAnalyzer("TauValidationMiniAOD",
   tauCollection = cms.InputTag("slimmedTaus"),
   RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZTT"),
   ExtensionName = cms.string('ZTT'),
+  PVCollection  = cms.InputTag("offlineSlimmedPrimaryVertices"),
+  GenCollection = cms.InputTag("prunedGenParticles"),
   discriminators = cms.VPSet(
     cms.PSet(discriminator = cms.string("decayModeFinding"),selectionCut = cms.double(0.5)),
     cms.PSet(discriminator = cms.string("decayModeFindingNewDMs"),selectionCut = cms.double(0.5)),
@@ -76,6 +80,30 @@ tauValidationMiniAOD = DQMEDAnalyzer("TauValidationMiniAOD",
     cms.PSet(discriminator = cms.string("byVLooseDeepTau2017v2p1VSmu"),selectionCut = cms.double(0.5)),
     cms.PSet(discriminator = cms.string("byLooseDeepTau2017v2p1VSmu"),selectionCut = cms.double(0.5)),
     cms.PSet(discriminator = cms.string("byMediumDeepTau2017v2p1VSmu"),selectionCut = cms.double(0.5)),
-    cms.PSet(discriminator = cms.string("byTightDeepTau2017v2p1VSmu"),selectionCut = cms.double(0.5))
+    cms.PSet(discriminator = cms.string("byTightDeepTau2017v2p1VSmu"),selectionCut = cms.double(0.5)),
+    #New
+    #DeepTauID vs jet
+    cms.PSet(discriminator = cms.string("byVVVLooseDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVVLooseDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVLooseDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byLooseDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byMediumDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byTightDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVTightDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVVTightDeepTau2018v2p5VSjet"),selectionCut = cms.double(0.5)),
+    #DeepTauID vs e
+    cms.PSet(discriminator = cms.string("byVVVLooseDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVVLooseDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVLooseDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byLooseDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byMediumDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byTightDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVTightDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byVVTightDeepTau2018v2p5VSe"),selectionCut = cms.double(0.5)),
+    #DeepTauID vs mu
+    cms.PSet(discriminator = cms.string("byVLooseDeepTau2018v2p5VSmu"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byLooseDeepTau2018v2p5VSmu"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byMediumDeepTau2018v2p5VSmu"),selectionCut = cms.double(0.5)),
+    cms.PSet(discriminator = cms.string("byTightDeepTau2018v2p5VSmu"),selectionCut = cms.double(0.5)),
   ),
 )

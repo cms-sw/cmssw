@@ -167,7 +167,6 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   for (const auto& id : definedMaskCapIds_) {
     evtGood[id] = true;
   }
-  unsigned valid_count = 0;
   for (const auto& fedId : fedIds_) {
     const FEDRawData& l1tRcd = feds->FEDData(fedId);
 
@@ -193,8 +192,6 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
                                 << fedId << ".";
       }
       continue;
-    } else {
-      valid_count++;
     }
 
     const unsigned char* data = l1tRcd.data();

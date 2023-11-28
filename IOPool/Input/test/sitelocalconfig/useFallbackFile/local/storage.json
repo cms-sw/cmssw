@@ -11,7 +11,11 @@
       "volume": "DummyVolume2",
       "protocols": [
          {  "protocol": "protocolThatDoesNotExist2",
+<<<<<<< HEAD
             "prefix": "abc"
+=======
+            "prefix": "def"
+>>>>>>> 895df58e36cff1d7dc27b1bf37aee7f604adc704
          }
       ]
    }

@@ -190,6 +190,8 @@ void SiPixelMonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions&
 
 using SiPixelPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase1>;
 using SiPixelPhase2MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase2>;
+using SiPixelHIonPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::HIonPhase1>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2MonitorTrackSoA);
+DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorTrackSoA);

@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -21,8 +24,10 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/tkinput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/muonGmtToL1ct_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/hgcalinput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
@@ -31,6 +36,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegalgo_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo_common_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegsorter_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegsorter_barrel_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TCorrelatorLayer1PatternFileWriter.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
@@ -44,6 +50,8 @@ class L1TCorrelatorLayer1Producer : public edm::stream::EDProducer<> {
 public:
   explicit L1TCorrelatorLayer1Producer(const edm::ParameterSet &);
   ~L1TCorrelatorLayer1Producer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ParameterSet config_;
@@ -66,18 +74,18 @@ private:
   l1ct::Event event_;
   std::unique_ptr<l1ct::TrackInputEmulator> trackInput_;
   std::unique_ptr<l1ct::GMTMuonDecoderEmulator> muonInput_;
+  std::unique_ptr<l1ct::HgcalClusterDecoderEmulator> hgcalInput_;
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
   std::unique_ptr<l1ct::LinPuppiEmulator> l1pualgo_;
   std::unique_ptr<l1ct::PFTkEGAlgoEmulator> l1tkegalgo_;
   std::unique_ptr<l1ct::PFTkEGSorterEmulator> l1tkegsorter_;
 
-  bool writeEgSta_;
   // Region dump
   const std::string regionDumpName_;
   bool writeRawHgcalCluster_;
   std::fstream fRegionDump_;
-  const std::vector<edm::ParameterSet> patternWriterConfigs_;
+  const edm::VParameterSet patternWriterConfigs_;
   std::vector<std::unique_ptr<L1TCorrelatorLayer1PatternFileWriter>> patternWriters_;
 
   // region of interest debugging
@@ -109,11 +117,44 @@ private:
 
   void addRawHgcalCluster(l1ct::DetectorSector<ap_uint<256>> &sec, const l1t::PFCluster &c);
 
+  template <class T>
+  void rawHgcalClusterEncode(ap_uint<256> &cwrd, const l1ct::DetectorSector<T> &sec, const l1t::PFCluster &c) const {
+    cwrd = 0;
+    ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c.pt();
+    ap_uint<14> w_empt = round(c.emEt() / 0.25);
+    constexpr float ETAPHI_LSB = M_PI / 720;
+    ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
+    ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
+    ap_uint<10> w_qual = c.hwQual();
+    // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
+    ap_uint<13> w_srrtot = round(c.sigmaRR() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
+    ap_uint<12> w_meanz = round(c.absZBarycenter());
+    // NOTE: the calibration can actually make hoe become negative....we add a small protection for now
+    // We use ap_ufixed to handle saturation and rounding
+    ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = c.hOverE();
+
+    cwrd(13, 0) = w_pt.range();
+    cwrd(27, 14) = w_empt;
+    cwrd(72, 64) = w_eta;
+    cwrd(81, 73) = w_phi;
+    cwrd(115, 106) = w_qual;
+
+    // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the
+    // hgc format is better defined. For now we use
+    // hwMeanZ = word 1 bits 30-19
+    // hwSrrTot = word 3 bits 21 - 9
+    // hoe = word 1 bits 63-52 (currently spare in the interface)
+    cwrd(213, 201) = w_srrtot;
+    cwrd(94, 83) = w_meanz;
+    cwrd(127, 116) = w_hoe.range();
+  }
+
   // fetching outputs
   std::unique_ptr<l1t::PFCandidateCollection> fetchHadCalo() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchEmCalo() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
+  std::unique_ptr<std::vector<l1t::PFTrack>> fetchDecodedTracks() const;
   void putPuppi(edm::Event &iEvent) const;
 
   void putEgStaObjects(edm::Event &iEvent,
@@ -139,6 +180,13 @@ private:
   typedef l1ct::OutputRegion::ObjType OutputType;
   std::unique_ptr<std::vector<unsigned>> vecOutput(OutputType i, bool usePuppi) const;
   std::pair<unsigned int, unsigned int> totAndMax(const std::vector<unsigned> &perRegion) const;
+
+  // utilities
+  template <typename T>
+  static edm::ParameterDescription<edm::ParameterSetDescription> getParDesc(const std::string &name) {
+    return edm::ParameterDescription<edm::ParameterSetDescription>(
+        name + "Parameters", T::getParameterSetDescription(), true);
+  }
 };
 
 //
@@ -158,13 +206,12 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       l1pualgo_(nullptr),
       l1tkegalgo_(nullptr),
       l1tkegsorter_(nullptr),
-      regionDumpName_(iConfig.getUntrackedParameter<std::string>("dumpFileName", "")),
-      writeRawHgcalCluster_(iConfig.getUntrackedParameter<bool>("writeRawHgcalCluster", false)),
-      patternWriterConfigs_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>(
-          "patternWriters", std::vector<edm::ParameterSet>())),
-      debugEta_(iConfig.getUntrackedParameter<double>("debugEta", 0)),
-      debugPhi_(iConfig.getUntrackedParameter<double>("debugPhi", 0)),
-      debugR_(iConfig.getUntrackedParameter<double>("debugR", -1)) {
+      regionDumpName_(iConfig.getUntrackedParameter<std::string>("dumpFileName")),
+      writeRawHgcalCluster_(iConfig.getUntrackedParameter<bool>("writeRawHgcalCluster")),
+      patternWriterConfigs_(iConfig.getUntrackedParameter<edm::VParameterSet>("patternWriters")),
+      debugEta_(iConfig.getUntrackedParameter<double>("debugEta")),
+      debugPhi_(iConfig.getUntrackedParameter<double>("debugPhi")),
+      debugR_(iConfig.getUntrackedParameter<double>("debugR")) {
   produces<l1t::PFCandidateCollection>("PF");
   produces<l1t::PFCandidateCollection>("Puppi");
   produces<l1t::PFCandidateRegionalOutput>("PuppiRegional");
@@ -175,6 +222,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 #if 0  // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
+  produces<std::vector<l1t::PFTrack>>("DecodedTK");
 
   for (const auto &tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
     emCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
@@ -199,6 +247,13 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   } else if (muInAlgo != "Ideal")
     throw cms::Exception("Configuration", "Unsupported muonInputConversionAlgo");
 
+  const std::string &hgcalInAlgo = iConfig.getParameter<std::string>("hgcalInputConversionAlgo");
+  if (hgcalInAlgo == "Emulator") {
+    hgcalInput_ = std::make_unique<l1ct::HgcalClusterDecoderEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("hgcalInputConversionParameters"));
+  } else if (hgcalInAlgo != "Ideal")
+    throw cms::Exception("Configuration", "Unsupported hgcalInputConversionAlgo");
+
   const std::string &regalgo = iConfig.getParameter<std::string>("regionizerAlgo");
   if (regalgo == "Ideal") {
     regionizer_ =
@@ -206,6 +261,13 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   } else if (regalgo == "Multififo") {
     regionizer_ = std::make_unique<l1ct::MultififoRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
+  } else if (regalgo == "BufferedFoldedMultififo") {
+    regionizer_ = std::make_unique<l1ct::BufferedFoldedMultififoRegionizerEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
+  } else if (regalgo == "MultififoBarrel") {
+    const auto &pset = iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters");
+    regionizer_ =
+        std::make_unique<l1ct::MultififoRegionizerEmulator>(pset.getParameter<std::string>("barrelSetup"), pset);
   } else if (regalgo == "TDR") {
     regionizer_ = std::make_unique<l1ct::TDRRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
@@ -232,8 +294,15 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   l1tkegalgo_ = std::make_unique<l1ct::PFTkEGAlgoEmulator>(
       l1ct::PFTkEGAlgoEmuConfig(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoParameters")));
 
-  l1tkegsorter_ =
-      std::make_unique<l1ct::PFTkEGSorterEmulator>(iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  const std::string &egsortalgo = iConfig.getParameter<std::string>("tkEgSorterAlgo");
+  if (egsortalgo == "Barrel") {
+    l1tkegsorter_ = std::make_unique<l1ct::PFTkEGSorterBarrelEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  } else if (egsortalgo == "Endcap") {
+    l1tkegsorter_ =
+        std::make_unique<l1ct::PFTkEGSorterEmulator>(iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  } else
+    throw cms::Exception("Configuration", "Unsupported tkEgSorterAlgo");
 
   if (l1tkegalgo_->writeEgSta())
     produces<BXVector<l1t::EGamma>>("L1Eg");
@@ -271,6 +340,82 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 }
 
 L1TCorrelatorLayer1Producer::~L1TCorrelatorLayer1Producer() {}
+
+void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  // Inputs and cuts
+  desc.add<edm::InputTag>("tracks", edm::InputTag(""));
+  desc.add<edm::InputTag>("muons", edm::InputTag("l1tSAMuonsGmt", "promptSAMuons"));
+  desc.add<std::vector<edm::InputTag>>("emClusters", std::vector<edm::InputTag>());
+  desc.add<std::vector<edm::InputTag>>("hadClusters", std::vector<edm::InputTag>());
+  desc.add<edm::InputTag>("vtxCollection", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
+  desc.add<bool>("vtxCollectionEmulation", true);
+  desc.add<double>("emPtCut", 0.0);
+  desc.add<double>("hadPtCut", 0.0);
+  desc.add<double>("trkPtCut", 0.0);
+  desc.add<int32_t>("nVtx");
+  // Input conversion
+  edm::EmptyGroupDescription emptyGroup;
+  desc.ifValue(edm::ParameterDescription<std::string>("trackInputConversionAlgo", "Ideal", true),
+               "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::TrackInputEmulator>("trackInputConversion"));
+  desc.ifValue(edm::ParameterDescription<std::string>("muonInputConversionAlgo", "Ideal", true),
+               "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GMTMuonDecoderEmulator>("muonInputConversion"));
+  desc.ifValue(
+      edm::ParameterDescription<std::string>("hgcalInputConversionAlgo", "Ideal", true),
+      "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::HgcalClusterDecoderEmulator>("hgcalInputConversion"));
+  // Regionizer
+  auto idealRegPD = getParDesc<l1ct::RegionizerEmulator>("regionizerAlgo");
+  auto tdrRegPD = getParDesc<l1ct::TDRRegionizerEmulator>("regionizerAlgo");
+  auto multififoRegPD = getParDesc<l1ct::MultififoRegionizerEmulator>("regionizerAlgo");
+  auto bfMultififoRegPD = getParDesc<l1ct::BufferedFoldedMultififoRegionizerEmulator>("regionizerAlgo");
+  auto multififoBarrelRegPD = edm::ParameterDescription<edm::ParameterSetDescription>(
+      "regionizerAlgoParameters", l1ct::MultififoRegionizerEmulator::getParameterSetDescriptionBarrel(), true);
+  desc.ifValue(edm::ParameterDescription<std::string>("regionizerAlgo", "Ideal", true),
+               "Ideal" >> idealRegPD or "TDR" >> tdrRegPD or "Multififo" >> multififoRegPD or
+                   "BufferedFoldedMultififo" >> bfMultififoRegPD or "MultififoBarrel" >> multififoBarrelRegPD);
+  // PF
+  desc.ifValue(edm::ParameterDescription<std::string>("pfAlgo", "PFAlgo3", true),
+               "PFAlgo3" >> getParDesc<l1ct::PFAlgo3Emulator>("pfAlgo") or
+                   "PFAlgo2HGC" >> getParDesc<l1ct::PFAlgo2HGCEmulator>("pfAlgo") or
+                   "PFAlgoDummy" >> getParDesc<l1ct::PFAlgoDummyEmulator>("pfAlgo"));
+  // Puppi
+  desc.ifValue(edm::ParameterDescription<std::string>("puAlgo", "LinearizedPuppi", true),
+               "LinearizedPuppi" >> getParDesc<l1ct::LinPuppiEmulator>("puAlgo"));
+  // EGamma
+  desc.add<edm::ParameterSetDescription>("tkEgAlgoParameters", l1ct::PFTkEGAlgoEmuConfig::getParameterSetDescription());
+  // EGamma sort
+  desc.ifValue(edm::ParameterDescription<std::string>("tkEgSorterAlgo", "Barrel", true),
+               "Barrel" >> getParDesc<l1ct::PFTkEGSorterBarrelEmulator>("tkEgSorter") or
+                   "Endcap" >> getParDesc<l1ct::PFTkEGSorterEmulator>("tkEgSorter"));
+  // geometry: calo sectors
+  edm::ParameterSetDescription caloSectorPSD;
+  caloSectorPSD.add<std::vector<double>>("etaBoundaries");
+  caloSectorPSD.add<uint32_t>("phiSlices", 3);
+  caloSectorPSD.add<double>("phiZero", 0.);
+  desc.addVPSet("caloSectors", caloSectorPSD);
+  // geometry: regions
+  edm::ParameterSetDescription regionPSD;
+  regionPSD.add<std::vector<double>>("etaBoundaries");
+  regionPSD.add<uint32_t>("phiSlices", 9);
+  regionPSD.add<double>("etaExtra", 0.25);
+  regionPSD.add<double>("phiExtra", 0.25);
+  desc.addVPSet("regions", regionPSD);
+  // geometry: boards
+  edm::ParameterSetDescription boardPSD;
+  boardPSD.add<std::vector<unsigned int>>("regions");
+  desc.addVPSet("boards", boardPSD);
+  // dump files
+  desc.addUntracked<std::string>("dumpFileName", "");
+  desc.addUntracked<bool>("writeRawHgcalCluster", false);
+  // pattern files
+  desc.addVPSetUntracked(
+      "patternWriters", L1TCorrelatorLayer1PatternFileWriter::getParameterSetDescription(), edm::VParameterSet());
+  // debug
+  desc.addUntracked<double>("debugEta", 0.);
+  desc.addUntracked<double>("debugPhi", 0.);
+  desc.addUntracked<double>("debugR", -1.);
+  descriptions.add("l1tCorrelatorLayer1", desc);
+}
 
 void L1TCorrelatorLayer1Producer::beginStream(edm::StreamID id) {
   if (!regionDumpName_.empty()) {
@@ -360,6 +505,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.put(fetchEmCalo(), "EmCalo");
   iEvent.put(fetchHadCalo(), "Calo");
   iEvent.put(fetchTracks(), "TK");
+  iEvent.put(fetchDecodedTracks(), "DecodedTK");
 
   // Then do the vertexing, and save it out
   std::vector<float> z0s;
@@ -394,7 +540,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   hwpv.hwZ0 = l1ct::Scales::makeZ0(pvwd.z0());
   event_.pvs.push_back(hwpv);
   event_.pvs_emu.push_back(pvwd.vertexWord());
-  //Do a quick histogram vertexing to get multiple vertices (Hack for the taus)
+  //get additional vertices if requested
   if (nVtx_ > 1) {
     std::stable_sort(ptsums.begin(), ptsums.end(), [](const auto &a, const auto &b) { return a.first > b.first; });
     for (int i0 = 0; i0 < std::min(int(ptsums.size()), int(nVtx_)); i0++) {
@@ -435,8 +581,8 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
 
   // l1tkegsorter_->setDebug(true);
   for (auto &board : event_.board_out) {
-    l1tkegsorter_->run(event_.pfinputs, event_.out, board.region_index, board.egphoton);
-    l1tkegsorter_->run(event_.pfinputs, event_.out, board.region_index, board.egelectron);
+    l1tkegsorter_->runPho(event_.pfinputs, event_.out, board.region_index, board.egphoton);
+    l1tkegsorter_->runEle(event_.pfinputs, event_.out, board.region_index, board.egelectron);
   }
 
   // save PF into the event
@@ -508,7 +654,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   event_.decoded.hadcalo.clear();
   event_.raw.hgcalcluster.clear();
 
-  for (const edm::ParameterSet &preg : iConfig.getParameter<std::vector<edm::ParameterSet>>("caloSectors")) {
+  for (const edm::ParameterSet &preg : iConfig.getParameter<edm::VParameterSet>("caloSectors")) {
     std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
     if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
       throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
@@ -534,7 +680,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   event_.raw.muon.region = l1ct::PFRegionEmu(0., 0.);      // centered at (0,0)
 
   event_.pfinputs.clear();
-  for (const edm::ParameterSet &preg : iConfig.getParameter<std::vector<edm::ParameterSet>>("regions")) {
+  for (const edm::ParameterSet &preg : iConfig.getParameter<edm::VParameterSet>("regions")) {
     std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
     if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
       throw cms::Exception("Configuration", "regions.etaBoundaries not sorted\n");
@@ -552,7 +698,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
   }
 
   event_.board_out.clear();
-  const std::vector<edm::ParameterSet> &board_params = iConfig.getParameter<std::vector<edm::ParameterSet>>("boards");
+  const edm::VParameterSet &board_params = iConfig.getParameter<edm::VParameterSet>("boards");
   event_.board_out.resize(board_params.size());
   for (unsigned int bidx = 0; bidx < board_params.size(); bidx++) {
     event_.board_out[bidx].region_index = board_params[bidx].getParameter<std::vector<unsigned int>>("regions");
@@ -632,7 +778,6 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
   }
   // CMSSW-only extra info
   tkAndSel.first.hwChi2 = round(t.chi2() * 10);
-  tkAndSel.first.hwStubs = t.nStubs();
   tkAndSel.first.simPt = t.pt();
   tkAndSel.first.simCaloEta = t.caloEta();
   tkAndSel.first.simCaloPhi = t.caloPhi();
@@ -641,6 +786,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
   tkAndSel.first.simZ0 = t.vertex().Z();
   tkAndSel.first.simD0 = t.vertex().Rho();
   tkAndSel.first.src = &t;
+
   // If the track fails, we set its pT to zero, so that the decoded tracks are still aligned with the raw tracks
   // Downstream, the regionizer will just ignore zero-momentum tracks
   if (!tkAndSel.second)
@@ -670,37 +816,36 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(l1ct::DetectorSector<l1ct::MuOb
 void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec,
                                                     const l1t::PFCluster &c) {
   l1ct::HadCaloObjEmu calo;
-  calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
-  calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
-               sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
-  calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
-  calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
-  calo.hwEmID = c.hwEmID();
+  ap_uint<256> word = 0;
+  rawHgcalClusterEncode(word, sec, c);
+  if (hgcalInput_) {
+    calo = hgcalInput_->decode(word);
+  } else {
+    calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
+    calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
+                 sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
+    calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
+    calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
+    calo.hwEmID = c.hwEmID();
+    calo.hwSrrTot = l1ct::Scales::makeSrrTot(c.sigmaRR());
+    calo.hwMeanZ = c.absZBarycenter() < 320. ? l1ct::meanz_t(0) : l1ct::Scales::makeMeanZ(c.absZBarycenter());
+    calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
+  }
   calo.src = &c;
   sec.obj.push_back(calo);
 }
 
 void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uint<256>> &sec, const l1t::PFCluster &c) {
   ap_uint<256> cwrd = 0;
-  ap_uint<14> w_pt = round(c.pt() / 0.25);
-  ap_uint<14> w_empt = round(c.emEt() / 0.25);
-  constexpr float ETAPHI_LSB = M_PI / 720;
-  ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
-  ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
-  ap_uint<10> w_qual = c.hwQual();
-
-  cwrd(13, 0) = w_pt;
-  cwrd(27, 14) = w_empt;
-  cwrd(72, 64) = w_eta;
-  cwrd(81, 73) = w_phi;
-  cwrd(115, 106) = w_qual;
-
+  rawHgcalClusterEncode(cwrd, sec, c);
   sec.obj.push_back(cwrd);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
                                                    const l1t::PFCluster &c) {
   l1ct::EmCaloObjEmu calo;
+  // set the endcap-sepcific variables to default value:
+  calo.clear();
   calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
   calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
                sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
@@ -837,6 +982,37 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchTr
   return ret;
 }
 
+std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDecodedTracks() const {
+  auto ret = std::make_unique<std::vector<l1t::PFTrack>>();
+  for (const auto &r : event_.decoded.track) {
+    const auto &reg = r.region;
+    for (const auto &p : r.obj) {
+      if (p.hwPt == 0 || !reg.isFiducial(p))
+        continue;
+      reco::Particle::PolarLorentzVector p4(
+          p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0);
+
+      reco::Particle::Point vtx(0, 0, p.floatZ0());
+
+      ret->emplace_back(l1t::PFTrack(p.intCharge(),
+                                     reco::Particle::LorentzVector(p4),
+                                     vtx,
+                                     p.src->track(),
+                                     0,
+                                     reg.floatGlbEta(p.hwEta),
+                                     reg.floatGlbPhi(p.hwPhi),
+                                     -1,
+                                     -1,
+                                     p.hwQuality.to_int(),
+                                     false,
+                                     p.intPt(),
+                                     p.intEta(),
+                                     p.intPhi()));
+    }
+  }
+  return ret;
+}
+
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF() const {
   auto ret = std::make_unique<l1t::PFCandidateCollection>();
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
@@ -857,6 +1033,9 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
       ret->back().setHwZ0(p.hwZ0);
       ret->back().setHwDxy(p.hwDxy);
       ret->back().setHwTkQuality(p.hwTkQuality);
+      ret->back().setCaloEta(reg.floatGlbEtaOf(p));
+      ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
+
       setRefs_(ret->back(), p);
     }
     for (const auto &p : event_.out[ir].pfneutral) {
@@ -867,6 +1046,8 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
           p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
       ret->emplace_back(type, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
       ret->back().setHwEmID(p.hwEmID);
+      ret->back().setCaloEta(reg.floatGlbEtaOf(p));
+      ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
       setRefs_(ret->back(), p);
     }
   }
@@ -1038,6 +1219,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkele.setEgBinaryWord(egele.pack());
+      tkele.setIdScore(egele.idScore);
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
     }

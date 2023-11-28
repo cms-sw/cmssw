@@ -512,6 +512,9 @@ namespace tt {
     // internal memory depth
     int drDepthMemory() const { return drDepthMemory_; }
 
+    //getBendCut
+    const StubAlgorithmOfficial* stubAlgorithm() const { return stubAlgorithm_; }
+
   private:
     // checks consitency between history and current configuration for a specific module
     void checkHistory(const edm::ProcessHistory&,

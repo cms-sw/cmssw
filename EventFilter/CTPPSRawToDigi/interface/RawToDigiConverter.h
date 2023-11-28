@@ -69,27 +69,28 @@ private:
     TotemVFATStatus status;
   };
 
-  unsigned char verbosity;
+  const unsigned char verbosity;
 
-  unsigned int printErrorSummary;
-  unsigned int printUnknownFrameSummary;
+  const bool printErrorSummary;
+  const bool printUnknownFrameSummary;
 
   enum TestFlag { tfNoTest, tfWarn, tfErr };
 
   /// flags for which tests to run
-  unsigned int testFootprint;
-  unsigned int testCRC;
-  unsigned int testID;
-  unsigned int testECRaw;
-  unsigned int testECDAQ;
-  unsigned int testECMostFrequent;
-  unsigned int testBCMostFrequent;
+  const unsigned int testFootprint;
+  const unsigned int testCRC;
+  const unsigned int testID;
+  const unsigned int testECMostFrequent;
+  const unsigned int testBCMostFrequent;
 
   /// the minimal required number of frames to determine the most frequent counter value
-  unsigned int EC_min, BC_min;
+  const unsigned int EC_min, BC_min;
 
   /// the minimal required (relative) occupancy of the most frequent counter value to be accepted
-  double EC_fraction, BC_fraction;
+  const double EC_fraction, BC_fraction;
+
+  //Test file with two 8-bit hwID fields
+  const bool olderTotemT2FileTest;
 
   /// error summaries
   std::map<TotemFramePosition, std::map<TotemVFATStatus, unsigned int> > errorSummary;

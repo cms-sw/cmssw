@@ -16,7 +16,6 @@ from ..modules.hltPFPuppi_cfi import *
 from ..modules.hltPFPuppiMET_cfi import *
 from ..modules.hltPFPuppiMETTypeOne_cfi import *
 from ..modules.hltPFPuppiMETTypeOneCorrector_cfi import *
-from ..modules.hltPFPuppiMETv0_cfi import *
 from ..modules.hltPFPuppiNoLep_cfi import *
 from ..modules.hltPixelClustersMultiplicity_cfi import *
 
@@ -26,7 +25,6 @@ HLTPFPuppiJMEReconstruction = cms.Sequence(
     hltPFPuppiMET +
     hltPixelClustersMultiplicity +
     hltPFPuppi +
-    hltPFPuppiMETv0 +
     hltAK4PFPuppiJets +
     hltAK4PFPuppiJetCorrectorL1 +
     hltAK4PFPuppiJetCorrectorL2 +

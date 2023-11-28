@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <SpecParSection label="hf.xml" eval="true">
+  <SpecPar name="hf">
+   <PartSelector path="//HVQX"/>
+   <Parameter name="Volume" value="HF" eval="false"/>
+   <Parameter name="Levels" value="4"/>
+   <Parameter name="Levels" value="5"/>
+   <Parameter name="attl" value="0.8096535E-03/cm"/>
+   <Parameter name="attl" value="0.7130018E-03/cm"/>
+   <Parameter name="attl" value="0.6549183E-03/cm"/>
+   <Parameter name="attl" value="0.6027666E-03/cm"/>
+   <Parameter name="attl" value="0.5662951E-03/cm"/>
+   <Parameter name="attl" value="0.5416475E-03/cm"/>
+   <Parameter name="attl" value="0.5161745E-03/cm"/>
+   <Parameter name="attl" value="0.5025120E-03/cm"/>
+   <Parameter name="attl" value="0.5042249E-03/cm"/>
+   <Parameter name="attl" value="0.5062117E-03/cm"/>
+   <Parameter name="attl" value="0.5062750E-03/cm"/>
+   <Parameter name="attl" value="0.4876212E-03/cm"/>
+   <Parameter name="attl" value="0.4730343E-03/cm"/>
+   <Parameter name="attl" value="0.4540021E-03/cm"/>
+   <Parameter name="attl" value="0.4423832E-03/cm"/>
+   <Parameter name="attl" value="0.4410428E-03/cm"/>
+   <Parameter name="attl" value="0.4436095E-03/cm"/>
+   <Parameter name="attl" value="0.4331241E-03/cm"/>
+   <Parameter name="attl" value="0.4401879E-03/cm"/>
+   <Parameter name="attl" value="0.4352570E-03/cm"/>
+   <Parameter name="attl" value="0.4392237E-03/cm"/>
+   <Parameter name="attl" value="0.4313847E-03/cm"/>
+   <Parameter name="attl" value="0.4170704E-03/cm"/>
+   <Parameter name="attl" value="0.4156771E-03/cm"/>
+   <Parameter name="attl" value="0.4083890E-03/cm"/>
+   <Parameter name="attl" value="0.4002930E-03/cm"/>
+   <Parameter name="attl" value="0.4009888E-03/cm"/>
+   <Parameter name="attl" value="0.3954170E-03/cm"/>
+   <Parameter name="attl" value="0.3893599E-03/cm"/>
+   <Parameter name="attl" value="0.3839422E-03/cm"/>
+   <Parameter name="lambLim" value="300.0"/>
+   <Parameter name="lambLim" value="600.0"/>
+   <Parameter name="LongFL" value="227.9925651*cm"/>
+   <Parameter name="LongFL" value="237.1215213*cm"/>
+   <Parameter name="LongFL" value="241.7005445*cm"/>
+   <Parameter name="LongFL" value="256.47981*cm"/>
+   <Parameter name="LongFL" value="266.7540042*cm"/>
+   <Parameter name="LongFL" value="275.987715*cm"/>
+   <Parameter name="LongFL" value="276.9823529*cm"/>
+   <Parameter name="LongFL" value="284.9889299*cm"/>
+   <Parameter name="LongFL" value="286.3065327*cm"/>
+   <Parameter name="LongFL" value="290.4779412*cm"/>
+   <Parameter name="LongFL" value="290.5*cm"/>
+   <Parameter name="LongFL" value="292.0*cm"/>
+   <Parameter name="LongFL" value="295.5*cm"/>
+   <Parameter name="ShortFL" value="206.0*cm"/>
+   <Parameter name="ShortFL" value="211.8810861*cm"/>
+   <Parameter name="ShortFL" value="220.3822464*cm"/>
+   <Parameter name="ShortFL" value="235.5520581*cm"/>
+   <Parameter name="ShortFL" value="245.6204691*cm"/>
+   <Parameter name="ShortFL" value="253.9086538*cm"/>
+   <Parameter name="ShortFL" value="255.0117647*cm"/>
+   <Parameter name="ShortFL" value="263.0073529*cm"/>
+   <Parameter name="ShortFL" value="264.3480392*cm"/>
+   <Parameter name="ShortFL" value="268.5*cm"/>
+   <Parameter name="ShortFL" value="268.5*cm"/>
+   <Parameter name="ShortFL" value="270.0*cm"/>
+   <Parameter name="ShortFL" value="273.5*cm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

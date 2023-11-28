@@ -186,8 +186,6 @@ public:
   void setGMTChanMask(const L1MuGMTChannelMask* gmtchanmask) { m_GMTChanMask = gmtchanmask; }
   static const L1MuGMTChannelMask* getGMTChanMask() { return m_GMTChanMask; }
 
-  static const edm::ParameterSet* getParameterSet() { return m_ps; }
-
   void createLUTsRegs();
   void clearLUTsRegs();
   void dumpLUTs(std::string dir);
@@ -196,7 +194,6 @@ public:
   void setDefaults();
 
 private:
-  static const edm::ParameterSet* m_ps;
   static const L1MuGMTParameters* m_GMTParams;
   static const L1MuGMTChannelMask* m_GMTChanMask;
 

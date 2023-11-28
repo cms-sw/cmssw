@@ -50,8 +50,11 @@ namespace edmtest {
     class StreamIntAnalyzer : public edm::global::EDAnalyzer<edm::StreamCache<UnsafeCache>> {
     public:
       explicit StreamIntAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
-        callWhenNewProductsRegistered([](edm::BranchDescription const& desc) {
-          std::cout << "global::StreamIntAnalyzer " << desc.moduleLabel() << std::endl;
+        bool verbose = p.getUntrackedParameter<bool>("verbose", true);
+        callWhenNewProductsRegistered([verbose](edm::BranchDescription const& desc) {
+          if (verbose) {
+            std::cout << "global::StreamIntAnalyzer " << desc.moduleLabel() << std::endl;
+          }
         });
       }
       const unsigned int trans_;
@@ -116,7 +119,7 @@ namespace edmtest {
         }
       }
 
-      ~StreamIntAnalyzer() {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "StreamIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -150,7 +153,7 @@ namespace edmtest {
         }
       }
 
-      ~RunIntAnalyzer() {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -192,7 +195,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiIntAnalyzer() {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -241,7 +244,7 @@ namespace edmtest {
         }
       }
 
-      ~RunSummaryIntAnalyzer() {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "RunSummaryIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
@@ -302,7 +305,7 @@ namespace edmtest {
         }
       }
 
-      ~LumiSummaryIntAnalyzer() {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiSummaryIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
