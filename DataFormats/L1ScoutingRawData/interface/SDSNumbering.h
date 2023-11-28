@@ -9,18 +9,18 @@
   */
 
 class SDSNumbering {
-  public:
-    static constexpr int lastSDSId() { return MAXSDSID; }
+public:
+  static constexpr int lastSDSId() { return MAXSDSID; }
 
-    enum {
-      NOT_A_SDSID = -1,
-      MAXSDSID = 32,
-      GmtSDSID = 1,
-      CaloSDSID = 2,
-      GtSDSID = 4,
-      BmtfMinSDSID = 10,
-      BmtfMaxSDSID = 21
-    };
+  enum {
+    NOT_A_SDSID = -1,
+    MAXSDSID = 32,
+    GmtSDSID = 1,
+    CaloSDSID = 2,
+    GtSDSID = 4,
+    BmtfMinSDSID = 10,
+    BmtfMaxSDSID = 21
+  };
 };
 
-#endif // L1ScoutingRawData_SDSNumbering_h
+#endif  // L1ScoutingRawData_SDSNumbering_h

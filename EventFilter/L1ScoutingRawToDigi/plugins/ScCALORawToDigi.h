@@ -31,9 +31,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void unpackOrbit(
-    const unsigned char* buf, size_t len
-  );
+  void unpackOrbit(const unsigned char* buf, size_t len);
 
   void unpackLinkJets(uint32_t* dataBlock, int bx);
   void unpackLinkEGammas(uint32_t* dataBlock, int bx);

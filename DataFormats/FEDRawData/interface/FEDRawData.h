@@ -27,7 +27,7 @@ public:
   /// Ctor specifying the size to be preallocated, in bytes.
   /// It is required that the size is a multiple of the size of a FED
   /// word (8 bytes default)
-  FEDRawData(size_t newsize, size_t wordsize=8);
+  FEDRawData(size_t newsize, size_t wordsize = 8);
 
   /// Copy constructor
   FEDRawData(const FEDRawData &);
@@ -46,7 +46,7 @@ public:
 
   /// Resize to the specified size in bytes. It is required that
   /// the size is a multiple of the size of a FED word (8 bytes default)
-  void resize(size_t newsize, size_t wordsize=8);
+  void resize(size_t newsize, size_t wordsize = 8);
 
 private:
   Data data_;

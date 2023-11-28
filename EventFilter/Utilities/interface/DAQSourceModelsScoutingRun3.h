@@ -23,8 +23,8 @@ public:
   ~DataModeScoutingRun3() override{};
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
-  
-  void fillSRDCollection( SRDCollection& rawData, char* buff, size_t len);
+
+  void fillSRDCollection(SRDCollection& rawData, char* buff, size_t len);
 
   //reuse FRD file and event headers
   int dataVersion() const override { return detectedFRDversion_; }
@@ -45,11 +45,11 @@ public:
                          size_t fileHeaderSize) override {
     fileHeaderSize_ = fileHeaderSize;
     numFiles_ = fileSizes.size();
-    
+
     // initalize vectors keeping tracks of valid orbits and completed blocks
     sourceValidOrbitPair_.clear();
     completedBlocks_.clear();
-    for (unsigned int i=0; i<fileSizes.size(); i++){
+    for (unsigned int i = 0; i < fileSizes.size(); i++) {
       completedBlocks_.push_back(false);
     }
 
@@ -132,4 +132,4 @@ private:
   std::vector<bool> completedBlocks_;
 };
 
-#endif // EventFilter_Utilities_DAQSourceModelsScoutingRun3_h
+#endif  // EventFilter_Utilities_DAQSourceModelsScoutingRun3_h

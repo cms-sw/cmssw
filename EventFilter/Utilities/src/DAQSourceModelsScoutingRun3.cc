@@ -19,8 +19,8 @@ std::pair<bool, std::vector<std::string>> DataModeScoutingRun3::defineAdditional
 
   if (fileListMode) {
     // Expected file naming when working in file list mode
-    for (int j=1; j<buNumSources_[0]; j++){
-	    additionalFiles.push_back(primaryName+"_"+std::to_string(j));
+    for (int j = 1; j < buNumSources_[0]; j++) {
+      additionalFiles.push_back(primaryName + "_" + std::to_string(j));
     }
     return std::make_pair(true, additionalFiles);
   }
@@ -31,14 +31,14 @@ std::pair<bool, std::vector<std::string>> DataModeScoutingRun3::defineAdditional
   for (size_t i = 0; i < buPaths_.size(); i++) {
     std::filesystem::path newPath = buPaths_[i] / fullname;
 
-    if (i!=0){
+    if (i != 0) {
       // secondary files from other ramdisks
       additionalFiles.push_back(newPath.generic_string());
     }
-    
+
     // add extra sources from the same ramdisk
-    for (int j=1; j<buNumSources_[i]; j++){
-    	additionalFiles.push_back(newPath.generic_string()+"_"+std::to_string(j));
+    for (int j = 1; j < buNumSources_[i]; j++) {
+      additionalFiles.push_back(newPath.generic_string() + "_" + std::to_string(j));
     }
   }
   return std::make_pair(true, additionalFiles);
@@ -57,7 +57,8 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
   // set provenance helpers
   uint32_t hdrEventID = currOrbit_;
   edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), hdrEventID);
-  edm::EventAuxiliary aux(eventID, daqSource_->processGUID(), tstamp, events_[0]->isRealData(), edm::EventAuxiliary::PhysicsTrigger);
+  edm::EventAuxiliary aux(
+      eventID, daqSource_->processGUID(), tstamp, events_[0]->isRealData(), edm::EventAuxiliary::PhysicsTrigger);
 
   aux.setProcessHistoryID(daqSource_->processHistoryID());
   daqSource_->makeEventWrapper(eventPrincipal, aux);
@@ -66,28 +67,26 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
   std::unique_ptr<SRDCollection> rawData(new SRDCollection);
 
   // Fill the ScoutingRawDataCollection with valid orbit data from the multiple sources
-  for (const auto& pair: sourceValidOrbitPair_){
+  for (const auto& pair : sourceValidOrbitPair_) {
     fillSRDCollection(*rawData, (char*)events_[pair.second]->payload(), events_[pair.second]->eventSize());
-  }  
+  }
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<SRDCollection>(std::move(rawData)));
-  eventPrincipal.put(daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
- 
+  eventPrincipal.put(
+      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+
   eventCached_ = false;
 }
 
-void DataModeScoutingRun3::fillSRDCollection(
-    SRDCollection& rawData, char* buff, size_t len
-  ){
-  
+void DataModeScoutingRun3::fillSRDCollection(SRDCollection& rawData, char* buff, size_t len) {
   size_t pos = 0;
 
   // get the source ID
-  int sourceId  = *((uint32_t*)(buff + pos));
+  int sourceId = *((uint32_t*)(buff + pos));
   pos += 4;
 
   // size of the orbit paylod
-  size_t orbitSize = len-pos;
+  size_t orbitSize = len - pos;
 
   // set the size (=orbit size) in the SRDColletion of the current source.
   // FRD size is expecting 8 bytes words, while scouting is using 4 bytes
@@ -95,7 +94,7 @@ void DataModeScoutingRun3::fillSRDCollection(
   FEDRawData& fedData = rawData.FEDData(sourceId);
   fedData.resize(orbitSize, 4);
 
-  memcpy(fedData.data(), buff+pos, orbitSize);
+  memcpy(fedData.data(), buff + pos, orbitSize);
 
   return;
 }
@@ -115,7 +114,7 @@ bool DataModeScoutingRun3::nextEventView() {
 
   // move the data block address only for the sources processed
   // un the previous event by adding the last event size
-  for (const auto& pair: sourceValidOrbitPair_){
+  for (const auto& pair : sourceValidOrbitPair_) {
     dataBlockAddrs_[pair.first] += events_[pair.second]->size();
   }
 
@@ -126,7 +125,7 @@ bool DataModeScoutingRun3::makeEvents() {
   // clear events and reset current orbit
   events_.clear();
   sourceValidOrbitPair_.clear();
-  currOrbit_ = 0xFFFFFFFF; // max uint
+  currOrbit_ = 0xFFFFFFFF;  // max uint
   assert(!blockCompleted_);
 
   // create current "events" (= orbits) list from each data source,
@@ -135,17 +134,18 @@ bool DataModeScoutingRun3::makeEvents() {
     if (dataBlockAddrs_[i] >= dataBlockMaxAddrs_[i]) {
       completedBlocks_[i] = true;
       continue;
-    } 
+    }
 
     // event contains data, add it to the events list
     events_.emplace_back(std::make_unique<FRDEventMsgView>(dataBlockAddrs_[i]));
     if (dataBlockAddrs_[i] + events_.back()->size() > dataBlockMaxAddrs_[i])
       throw cms::Exception("DAQSource::getNextEvent")
-          << " event id:" << events_.back()->event() << " lumi:" << events_.back()->lumi() << " run:" << events_.back()->run()
-          << " of size:" << events_.back()->size() << " bytes does not fit into the buffer or has corrupted header";
-   
+          << " event id:" << events_.back()->event() << " lumi:" << events_.back()->lumi()
+          << " run:" << events_.back()->run() << " of size:" << events_.back()->size()
+          << " bytes does not fit into the buffer or has corrupted header";
+
     // find the minimum orbit for the current event between all files
-    if ((events_.back()->event()<currOrbit_) && (!completedBlocks_[i])){
+    if ((events_.back()->event() < currOrbit_) && (!completedBlocks_[i])) {
       currOrbit_ = events_.back()->event();
     }
   }
@@ -154,13 +154,13 @@ bool DataModeScoutingRun3::makeEvents() {
   // e.g. find when orbit is missing from one source
   bool allBlocksCompleted = true;
   int evt_idx = 0;
-  for (int i=0; i < numFiles_; i++){
+  for (int i = 0; i < numFiles_; i++) {
     if (completedBlocks_[i]) {
       continue;
     }
 
-    if(events_[evt_idx]->event() != currOrbit_){
-      // current source (=i-th source) doesn't contain the expected orbit. 
+    if (events_[evt_idx]->event() != currOrbit_) {
+      // current source (=i-th source) doesn't contain the expected orbit.
       // skip it, and move to the next orbit
     } else {
       // add a pair <current surce index, event index>
@@ -173,7 +173,7 @@ bool DataModeScoutingRun3::makeEvents() {
     evt_idx++;
   }
 
-  if (allBlocksCompleted){
+  if (allBlocksCompleted) {
     blockCompleted_ = true;
   }
   return !allBlocksCompleted;

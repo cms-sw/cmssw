@@ -2,38 +2,33 @@
 
 namespace l1ScoutingRun3 {
 
-  void printScMuon(const ScMuon& muon,  std::ostream &outs){
-    outs <<  "  Pt  [GeV/Hw]: " << ugmt::fPt(muon.hwPt())  << "/" << muon.hwPt() << "\n"
-         <<  "  Eta [rad/Hw]: " << ugmt::fEta(muon.hwEta()) << "/" << muon.hwEta() << "\n"
-         <<  "  Phi [rad/Hw]: " << ugmt::fPhi(muon.hwPhi()) << "/" << muon.hwPhi() << "\n"
-         <<  "  Charge/valid: " << muon.hwCharge() << "/" << muon.hwChargeValid() << "\n"
-         <<  "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon.hwPhiAtVtx()) << "/" << muon.hwPhiAtVtx() << "\n"
-         <<  "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon.hwEtaAtVtx()) << "/" << muon.hwEtaAtVtx() << "\n"
-         <<  "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon.hwPtUnconstrained()) << "/" << muon.hwPtUnconstrained() << "\n"
-         <<  "  Dxy: "  << muon.hwDXY() << "\n"
-         <<  "  Qual: " << muon.hwQual() << "\n"
-         <<  "  TF index: " << muon.tfMuonIndex() << "\n";
+  void printScMuon(const ScMuon& muon, std::ostream& outs) {
+    outs << "  Pt  [GeV/Hw]: " << ugmt::fPt(muon.hwPt()) << "/" << muon.hwPt() << "\n"
+         << "  Eta [rad/Hw]: " << ugmt::fEta(muon.hwEta()) << "/" << muon.hwEta() << "\n"
+         << "  Phi [rad/Hw]: " << ugmt::fPhi(muon.hwPhi()) << "/" << muon.hwPhi() << "\n"
+         << "  Charge/valid: " << muon.hwCharge() << "/" << muon.hwChargeValid() << "\n"
+         << "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon.hwPhiAtVtx()) << "/" << muon.hwPhiAtVtx() << "\n"
+         << "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon.hwEtaAtVtx()) << "/" << muon.hwEtaAtVtx() << "\n"
+         << "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon.hwPtUnconstrained()) << "/"
+         << muon.hwPtUnconstrained() << "\n"
+         << "  Dxy: " << muon.hwDXY() << "\n"
+         << "  Qual: " << muon.hwQual() << "\n"
+         << "  TF index: " << muon.tfMuonIndex() << "\n";
   }
 
   template <typename T>
-  void printScCaloObject(const T& obj, std::ostream &outs){
-    outs << "  Et  [GeV/Hw]: " << demux::fEt(obj.hwEt())   << "/" << obj.hwEt()  << "\n"
+  void printScCaloObject(const T& obj, std::ostream& outs) {
+    outs << "  Et  [GeV/Hw]: " << demux::fEt(obj.hwEt()) << "/" << obj.hwEt() << "\n"
          << "  Eta [rad/Hw]: " << demux::fEta(obj.hwEta()) << "/" << obj.hwEta() << "\n"
          << "  Phi [rad/Hw]: " << demux::fPhi(obj.hwPhi()) << "/" << obj.hwPhi() << "\n"
          << "  Iso [Hw]: " << obj.hwIso() << "\n";
   }
 
-  void printScJet(const ScJet& jet, std::ostream &outs){
-    printScCaloObject<ScJet>(jet, outs);
-  }
-  void printScEGamma(const ScEGamma& eGamma, std::ostream &outs){
-    printScCaloObject<ScEGamma>(eGamma, outs);
-  }
-  void printScTau(const ScTau& tau, std::ostream &outs){
-    printScCaloObject<ScTau>(tau, outs);
-  }
+  void printScJet(const ScJet& jet, std::ostream& outs) { printScCaloObject<ScJet>(jet, outs); }
+  void printScEGamma(const ScEGamma& eGamma, std::ostream& outs) { printScCaloObject<ScEGamma>(eGamma, outs); }
+  void printScTau(const ScTau& tau, std::ostream& outs) { printScCaloObject<ScTau>(tau, outs); }
 
-  void printScBxSums(const ScBxSums& sums, std::ostream &outs){
+  void printScBxSums(const ScBxSums& sums, std::ostream& outs) {
     outs << "Total ET\n"
          << "  Et [GeV/Hw]: " << demux::fEt(sums.hwTotalEt()) << "/" << sums.hwTotalEt() << "\n"
          << "Total ETEm\n"
@@ -73,4 +68,4 @@ namespace l1ScoutingRun3 {
          << "Tower Count\n"
          << "  Hw: " << sums.towerCount() << "\n";
   }
-}
+}  // namespace l1ScoutingRun3

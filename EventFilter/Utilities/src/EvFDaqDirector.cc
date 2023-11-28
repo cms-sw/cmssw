@@ -148,16 +148,16 @@ namespace evf {
     }
 
     // set number of streams in each BU's ramdisk
-    if (!bu_base_dirs_nSources_.size()){
+    if (bu_base_dirs_nSources_.empty()) {
       // default is 1 stream per ramdisk
-      for(unsigned int i=0; i<bu_base_dirs_all_.size(); i++){
+      for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++) {
         bu_base_dirs_nSources_.push_back(1);
       }
-    } else if (bu_base_dirs_nSources_.size() != bu_base_dirs_all_.size()){
+    } else if (bu_base_dirs_nSources_.size() != bu_base_dirs_all_.size()) {
       throw cms::Exception("DaqDirector")
-          << " Error while setting number of sources: size mismatch with BU base directory vector"; 
+          << " Error while setting number of sources: size mismatch with BU base directory vector";
     } else {
-      for(unsigned int i=0; i<bu_base_dirs_all_.size(); i++){
+      for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++) {
         bu_base_dirs_nSources_.push_back(bu_base_dirs_nSources_[i]);
         edm::LogInfo("EvFDaqDirector") << "Setting " << bu_base_dirs_nSources_[i] << " sources"
                                        << " for ramdisk " << bu_base_dirs_all_[i];
