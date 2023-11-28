@@ -6,13 +6,6 @@
 #include <iomanip>
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
-SiStripNoises::SiStripNoises(const SiStripNoises& input) {
-  v_noises.clear();
-  indexes.clear();
-  v_noises.insert(v_noises.end(), input.v_noises.begin(), input.v_noises.end());
-  indexes.insert(indexes.end(), input.indexes.begin(), input.indexes.end());
-}
-
 bool SiStripNoises::put(const uint32_t& DetId, const InputVector& input) {
   std::vector<unsigned char> Vo_CHAR;
   encode(input, Vo_CHAR);
