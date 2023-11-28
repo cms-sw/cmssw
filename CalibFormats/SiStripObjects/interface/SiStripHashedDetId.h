@@ -29,6 +29,9 @@ public:
   /** Copy constructor. */
   SiStripHashedDetId(const SiStripHashedDetId &);
 
+  /** Assignment operator. */
+  SiStripHashedDetId &operator=(const SiStripHashedDetId &) = default;
+
   /** Public default constructor. */
   SiStripHashedDetId();
 
