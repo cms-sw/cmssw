@@ -18,10 +18,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
   const size_t kInputDim = 1;
   const size_t kHiddenDim = 5;
   const size_t kOuputDim = 1;
-  auto time_serie_detector = torch::nn::LSTM(torch::nn::LSTMOptions(kInputDim, kHiddenDim)
-                                                 .dropout(0.2)
-                                                 .layers(kSequenceLen)
-                                                 .bidirectional(false));
+  auto time_serie_detector = torch::nn::LSTM(
+      torch::nn::LSTMOptions(kInputDim, kHiddenDim).dropout(0.2).layers(kSequenceLen).bidirectional(false));
   time_serie_detector->to(device);
   std::cout << time_serie_detector << std::endl;
 
