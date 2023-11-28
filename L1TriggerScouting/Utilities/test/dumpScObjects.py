@@ -44,9 +44,9 @@ process.dump = cms.EDAnalyzer("DumpScObjects",
   #checkMuons       = cms.untracked.bool(False), # test removing a collection
 
   searchEvent      = cms.untracked.bool(True),
-  orbitNumber      = cms.untracked.uint32(88982581),
-  searchStartBx    = cms.untracked.uint32(1484-2),
-  searchStopBx     = cms.untracked.uint32(1484+2),
+  orbitNumber      = cms.untracked.uint32(88981531),
+  searchStartBx    = cms.untracked.uint32(1027-2),
+  searchStopBx     = cms.untracked.uint32(1027+2),
 )
 
 process.p = cms.Path(

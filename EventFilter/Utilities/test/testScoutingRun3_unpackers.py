@@ -53,7 +53,7 @@ cmsswbase = os.path.expandvars("$CMSSW_BASE/")
 
 process = cms.Process("SCPU")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
@@ -102,7 +102,7 @@ except Exception as ex:
 
 ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 flist = [
-   ram_dir_path + "run" + str(options.runNumber) + "_ls0340_index000001.raw"#"_ls0340_index000028.raw"
+   ram_dir_path + "run" + str(options.runNumber) + "_ls0340_index000028.raw"
 ]
 
 process.source = cms.Source("DAQSource",
@@ -129,19 +129,19 @@ os.system("touch " + buDir + "/" + "fu.lock")
 
 process.GmtUnpacker = cms.EDProducer('ScGMTRawToDigi',
   srcInputTag = cms.InputTag('rawDataCollector'),
-  debug=cms.untracked.bool(False)
+  debug = cms.untracked.bool(False)
 )
 
 process.CaloUnpacker = cms.EDProducer('ScCaloRawToDigi',
   srcInputTag = cms.InputTag('rawDataCollector'),
-  debug=cms.untracked.bool(False)
+  enableAllSums = cms.untracked.bool(True),
+  debug = cms.untracked.bool(False)
 )
 
 process.outputZB = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:/dev/shm/PoolOutputTest.root'),
     outputCommands = cms.untracked.vstring(
         "drop *",
-        #"keep *_rawDataCollector_*_*",
         "keep *_GmtUnpacker_*_*",
         "keep *_CaloUnpacker_*_*"
     ),

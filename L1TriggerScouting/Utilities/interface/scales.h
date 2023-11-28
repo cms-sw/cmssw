@@ -1,10 +1,12 @@
-#ifndef L1ScoutingRawToDigi_scales_h
-#define L1ScoutingRawToDigi_scales_h
+#ifndef L1TriggerScouting_Utilities_scales_h
+#define L1TriggerScouting_Utilities_scales_h
 
 #include <cstdint>
 #include <cmath>
 
 namespace l1ScoutingRun3 {
+
+    // Scaled used to convert scouting hw values to physical quantities
 
     namespace ugmt {
         struct scales {
@@ -25,4 +27,4 @@ namespace l1ScoutingRun3 {
     }
 
 }
-#endif // L1ScoutingRawToDigi_scales_h
+#endif // L1TriggerScouting_Utilities_scales_h

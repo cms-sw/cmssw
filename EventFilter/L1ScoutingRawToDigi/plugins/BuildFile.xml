@@ -1,11 +1,10 @@
-<library file="*.cc" name="EventFilterSCRawToDigiPlugins">
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/Utilities"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="EventFilter/Utilities"/>
-  <use name="DataFormats/FEDRawData"/>
-  <use name="DataFormats/L1ScoutingRawData"/>
-  <use name="DataFormats/L1Scouting"/>
-  <use name="DataFormats/L1Trigger"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="EventFilter/Utilities"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1ScoutingRawData"/>
+<use name="DataFormats/L1Scouting"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="L1TriggerScouting/Utilities"/>
+<flags EDM_PLUGIN="1"/>

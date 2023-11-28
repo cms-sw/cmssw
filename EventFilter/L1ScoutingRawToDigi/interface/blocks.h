@@ -2,9 +2,6 @@
 #define L1ScoutingRawToDigi_blocks_h
 
 #include <cstdint>
-#include <vector>
-#include <string>
-#include "scales.h"
 
 namespace l1ScoutingRun3 {
 
@@ -31,21 +28,21 @@ namespace demux {
           uint32_t bx;
           uint32_t orbit;
           uint32_t link0;
-          uint32_t jet1[6];
-          uint32_t link1;
           uint32_t jet2[6];
+          uint32_t link1;
+          uint32_t jet1[6];
           uint32_t link2;
-          uint32_t egamma1[6];
-          uint32_t link3;
           uint32_t egamma2[6];
+          uint32_t link3;
+          uint32_t egamma1[6];
           uint32_t link4;
           uint32_t empty[6];
           uint32_t link5;
           uint32_t sum[6];
           uint32_t link6;
-          uint32_t tau1[6];
-          uint32_t link7;
           uint32_t tau2[6];
+          uint32_t link7;
+          uint32_t tau1[6];
       };
 }
 

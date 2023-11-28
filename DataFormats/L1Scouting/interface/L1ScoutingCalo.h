@@ -48,15 +48,15 @@ namespace l1ScoutingRun3 {
       swap(hwIso_, other.hwIso_);
     }
 
-    inline void setHwEt(int hwEt) { hwEt_= hwEt;}
-    inline void setHwEta(int hwEta) { hwEta_= hwEta;}
-    inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
-    inline void setHwIso(int hwIso) { hwIso_= hwIso;}
+    void setHwEt(int hwEt) { hwEt_= hwEt;}
+    void setHwEta(int hwEta) { hwEta_= hwEta;}
+    void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
+    void setHwIso(int hwIso) { hwIso_= hwIso;}
 
-    inline int hwEt() const {return hwEt_;}
-    inline int hwEta() const {return hwEta_;}
-    inline int hwPhi() const {return hwPhi_;}
-    inline int hwIso() const {return hwIso_;}
+    int hwEt() const {return hwEt_;}
+    int hwEta() const {return hwEta_;}
+    int hwPhi() const {return hwPhi_;}
+    int hwIso() const {return hwIso_;}
 
   private:
     int hwEt_;
@@ -78,8 +78,8 @@ namespace l1ScoutingRun3 {
     : ScCaloObject(hwEt, hwEta ,hwPhi , hwQual) {}
 
     // store quality instead of iso
-    inline void setHwQual(int hwQual) { setHwIso(hwQual);}
-    inline int hwQual() const {return hwIso();}
+    void setHwQual(int hwQual) { setHwIso(hwQual);}
+    int hwQual() const {return hwIso();}
 
   };
 
@@ -135,13 +135,13 @@ namespace l1ScoutingRun3 {
       swap(type_, other.type_);
     }
 
-    inline void setHwEt(int hwEt) { hwEt_= hwEt;}
-    inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
-    inline void setType(l1t::EtSum::EtSumType type) { type_= type;}
+    void setHwEt(int hwEt) { hwEt_= hwEt;}
+    void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
+    void setType(l1t::EtSum::EtSumType type) { type_= type;}
 
-    inline int hwEt() const {return hwEt_;}
-    inline int hwPhi() const {return hwPhi_;}
-    inline l1t::EtSum::EtSumType type() const {return type_;}
+    int hwEt() const {return hwEt_;}
+    int hwPhi() const {return hwPhi_;}
+    l1t::EtSum::EtSumType type() const {return type_;}
 
   private:
     int hwEt_;
@@ -153,29 +153,73 @@ namespace l1ScoutingRun3 {
 
   public:
     ScBxSums()
-    : hwTotalEt_(0), hwTotalEtEm_(0), minBiasHFP0_(0),
-      hwTotalHt_(0), towerCount_(0), minBiasHFM0_(0),
-      hwMissEt_(0), hwMissEtPhi_(0), hwAsymEt_(0), minBiasHFP1_(0),
-      hwMissHt_(0), hwMissHtPhi_(0), hwAsymHt_(0), minBiasHFM1_(0),
-      hwMissEtHF_(0), hwMissEtHFPhi_(0), hwAsymEtHF_(0),
-      hwMissHtHF_(0), hwMissHtHFPhi_(0), hwAsymHtHF_(0), centrality_(0)
+    : hwTotalEt_(0),
+      hwTotalEtEm_(0),
+      hwTotalHt_(0),
+      hwMissEt_(0),
+      hwMissEtPhi_(0),
+      hwMissHt_(0),
+      hwMissHtPhi_(0),
+      hwMissEtHF_(0),
+      hwMissEtHFPhi_(0),
+      hwMissHtHF_(0),
+      hwMissHtHFPhi_(0),
+      hwAsymEt_(0),
+      hwAsymHt_(0),
+      hwAsymEtHF_(0),
+      hwAsymHtHF_(0),
+      minBiasHFP0_(0),
+      minBiasHFM0_(0),
+      minBiasHFP1_(0),
+      minBiasHFM1_(0),
+      towerCount_(0),
+      centrality_(0)
     {}
 
     ScBxSums(
-      int hwTotalEt, int hwTotalEtEm, int minBiasHFP0,
-      int hwTotalHt, int towerCount, int minBiasHFM0,
-      int hwMissEt, int hwMissEtPhi, int hwAsymEt, int minBiasHFP1,
-      int hwMissHt, int hwMissHtPhi, int hwAsymHt, int minBiasHFM1,
-      int hwMissEtHF, int hwMissEtHFPhi, int hwAsymEtHF,
-      int hwMissHtHF, int hwMissHtHFPhi, int hwAsymHtHF, int centrality
+      int hwTotalEt,
+      int hwTotalEtEm,
+      int hwTotalHt,
+      int hwMissEt,
+      int hwMissEtPhi,
+      int hwMissHt,
+      int hwMissHtPhi,
+      int hwMissEtHF,
+      int hwMissEtHFPhi,
+      int hwMissHtHF,
+      int hwMissHtHFPhi,
+      int hwAsymEt,
+      int hwAsymHt,
+      int hwAsymEtHF,
+      int hwAsymHtHF,
+      int minBiasHFP0,
+      int minBiasHFM0,
+      int minBiasHFP1,
+      int minBiasHFM1,
+      int towerCount,
+      int centrality
     )
-    : hwTotalEt_(hwTotalEt), hwTotalEtEm_(hwTotalEtEm), minBiasHFP0_(minBiasHFP0),
-      hwTotalHt_(hwTotalHt), towerCount_(towerCount), minBiasHFM0_(minBiasHFM0),
-      hwMissEt_(hwMissEt), hwMissEtPhi_(hwMissEtPhi), hwAsymEt_(hwAsymEt),
-      minBiasHFP1_(minBiasHFP1), hwMissHt_(hwMissHt), hwMissHtPhi_(hwMissHtPhi),
-      hwAsymHt_(hwAsymHt), minBiasHFM1_(minBiasHFM1), hwMissEtHF_(hwMissEtHF),
-      hwMissEtHFPhi_(hwMissEtHFPhi), hwAsymEtHF_(hwAsymEtHF), hwMissHtHF_(hwMissHtHF),
-      hwMissHtHFPhi_(hwMissHtHFPhi), hwAsymHtHF_(hwAsymHtHF), centrality_(centrality)
+    : hwTotalEt_(hwTotalEt),
+      hwTotalEtEm_(hwTotalEtEm),
+      hwTotalHt_(hwTotalHt),
+      hwMissEt_(hwMissEt),
+      hwMissEtPhi_(hwMissEtPhi),
+      hwMissHt_(hwMissHt),
+      hwMissHtPhi_(hwMissHtPhi),
+      hwMissEtHF_(hwMissEtHF),
+      hwMissEtHFPhi_(hwMissEtHFPhi),
+      hwMissHtHF_(hwMissHtHF),
+      hwMissHtHFPhi_(hwMissHtHFPhi),
+      hwAsymEt_(hwAsymEt),
+      hwAsymHt_(hwAsymHt),
+      hwAsymEtHF_(hwAsymEtHF),
+      hwAsymHtHF_(hwAsymHtHF),
+      minBiasHFP0_(minBiasHFP0),
+      minBiasHFM0_(minBiasHFM0),
+      minBiasHFP1_(minBiasHFP1),
+      minBiasHFM1_(minBiasHFM1),
+      towerCount_(towerCount),
+      centrality_(centrality)
     {}
 
     ScBxSums(const ScBxSums& other) = default;
@@ -187,79 +231,93 @@ namespace l1ScoutingRun3 {
       using std::swap;
       swap(hwTotalEt_, other.hwTotalEt_);
       swap(hwTotalEtEm_, other.hwTotalEtEm_);
-      swap(minBiasHFP0_, other.minBiasHFP0_);
       swap(hwTotalHt_, other.hwTotalHt_);
-      swap(towerCount_, other.towerCount_);
-      swap(minBiasHFM0_, other.minBiasHFM0_);
       swap(hwMissEt_, other.hwMissEt_);
       swap(hwMissEtPhi_, other.hwMissEtPhi_);
-      swap(hwAsymEt_, other.hwAsymEt_);
-      swap(minBiasHFP1_, other.minBiasHFP1_);
       swap(hwMissHt_, other.hwMissHt_);
       swap(hwMissHtPhi_, other.hwMissHtPhi_);
-      swap(hwAsymHt_, other.hwAsymHt_);
-      swap(minBiasHFM1_, other.minBiasHFM1_);
       swap(hwMissEtHF_, other.hwMissEtHF_);
       swap(hwMissEtHFPhi_, other.hwMissEtHFPhi_);
-      swap(hwAsymEtHF_, other.hwAsymEtHF_);
       swap(hwMissHtHF_, other.hwMissHtHF_);
       swap(hwMissHtHFPhi_, other.hwMissHtHFPhi_);
+      swap(hwAsymEt_, other.hwAsymEt_);
+      swap(hwAsymHt_, other.hwAsymHt_);
+      swap(hwAsymEtHF_, other.hwAsymEtHF_);
       swap(hwAsymHtHF_, other.hwAsymHtHF_);
+      swap(minBiasHFP0_, other.minBiasHFP0_);
+      swap(minBiasHFM0_, other.minBiasHFM0_);
+      swap(minBiasHFP1_, other.minBiasHFP1_);
+      swap(minBiasHFM1_, other.minBiasHFM1_);
+      swap(towerCount_, other.towerCount_);
       swap(centrality_, other.centrality_);
-      
     }
 
-    inline void setHwTotalEt(int hwTotalEt) {hwTotalEt_ = hwTotalEt;}
-    inline void setHwTotalEtEm(int hwTotalEtEm) {hwTotalEtEm_ = hwTotalEtEm;}
-    inline void setMinBiasHFP0(int minBiasHFP0) {minBiasHFP0_ = minBiasHFP0;}
-    inline void setHwTotalHt(int hwTotalHt) {hwTotalHt_ = hwTotalHt;}
-    inline void setTowerCount(int towerCount) {towerCount_ = towerCount;}
-    inline void setMinBiasHFM0(int minBiasHFM0) {minBiasHFM0_ = minBiasHFM0;}
-    inline void setHwMissEt(int hwMissEt) {hwMissEt_ = hwMissEt;}
-    inline void setHwMissEtPhi(int hwMissEtPhi) {hwMissEtPhi_ = hwMissEtPhi;}
-    inline void setHwAsymEt(int hwAsymEt) {hwAsymEt_ = hwAsymEt;}
-    inline void setMinBiasHFP1(int minBiasHFP1) {minBiasHFP1_ = minBiasHFP1;}
-    inline void setHwMissHt(int hwMissHt) {hwMissHt_ = hwMissHt;}
-    inline void setHwMissHtPhi(int hwMissHtPhi) {hwMissHtPhi_ = hwMissHtPhi;}
-    inline void setHwAsymHt(int hwAsymHt) {hwAsymHt_ = hwAsymHt;}
-    inline void setMinBiasHFM1(int minBiasHFM1) {minBiasHFM1_ = minBiasHFM1;}
-    inline void setHwMissEtHF(int hwMissEtHF) {hwMissEtHF_ = hwMissEtHF;}
-    inline void setHwMissEtHFPhi(int hwMissEtHFPhi) {hwMissEtHFPhi_ = hwMissEtHFPhi;}
-    inline void setHwAsymEtHF(int hwAsymEtHF) {hwAsymEtHF_ = hwAsymEtHF;}
-    inline void setHwMissHtHF(int hwMissHtHF) {hwMissHtHF_ = hwMissHtHF;}
-    inline void setHwMissHtHFPhi(int hwMissHtHFPhi) {hwMissHtHFPhi_ = hwMissHtHFPhi;}
-    inline void setHwAsymHtHF(int hwAsymHtHF) {hwAsymHtHF_ = hwAsymHtHF;}
-    inline void setCentrality(int centrality) {centrality_ = centrality;}
+    void setHwTotalEt(int hwTotalEt) {hwTotalEt_ = hwTotalEt;}
+    void setHwTotalEtEm(int hwTotalEtEm) {hwTotalEtEm_ = hwTotalEtEm;}
+    void setMinBiasHFP0(int minBiasHFP0) {minBiasHFP0_ = minBiasHFP0;}
+    void setHwTotalHt(int hwTotalHt) {hwTotalHt_ = hwTotalHt;}
+    void setTowerCount(int towerCount) {towerCount_ = towerCount;}
+    void setMinBiasHFM0(int minBiasHFM0) {minBiasHFM0_ = minBiasHFM0;}
+    void setHwMissEt(int hwMissEt) {hwMissEt_ = hwMissEt;}
+    void setHwMissEtPhi(int hwMissEtPhi) {hwMissEtPhi_ = hwMissEtPhi;}
+    void setHwAsymEt(int hwAsymEt) {hwAsymEt_ = hwAsymEt;}
+    void setMinBiasHFP1(int minBiasHFP1) {minBiasHFP1_ = minBiasHFP1;}
+    void setHwMissHt(int hwMissHt) {hwMissHt_ = hwMissHt;}
+    void setHwMissHtPhi(int hwMissHtPhi) {hwMissHtPhi_ = hwMissHtPhi;}
+    void setHwAsymHt(int hwAsymHt) {hwAsymHt_ = hwAsymHt;}
+    void setMinBiasHFM1(int minBiasHFM1) {minBiasHFM1_ = minBiasHFM1;}
+    void setHwMissEtHF(int hwMissEtHF) {hwMissEtHF_ = hwMissEtHF;}
+    void setHwMissEtHFPhi(int hwMissEtHFPhi) {hwMissEtHFPhi_ = hwMissEtHFPhi;}
+    void setHwAsymEtHF(int hwAsymEtHF) {hwAsymEtHF_ = hwAsymEtHF;}
+    void setHwMissHtHF(int hwMissHtHF) {hwMissHtHF_ = hwMissHtHF;}
+    void setHwMissHtHFPhi(int hwMissHtHFPhi) {hwMissHtHFPhi_ = hwMissHtHFPhi;}
+    void setHwAsymHtHF(int hwAsymHtHF) {hwAsymHtHF_ = hwAsymHtHF;}
+    void setCentrality(int centrality) {centrality_ = centrality;}
 
-    const int hwTotalEt() { return hwTotalEt_;}
-    const int hwTotalEtEm() { return hwTotalEtEm_;}
-    const int minBiasHFP0() { return minBiasHFP0_;}
-    const int hwTotalHt() { return hwTotalHt_;}
-    const int towerCount() { return towerCount_;}
-    const int minBiasHFM0() { return minBiasHFM0_;}
-    const int hwMissEt() { return hwMissEt_;}
-    const int hwMissEtPhi() { return hwMissEtPhi_;}
-    const int hwAsymEt() { return hwAsymEt_;}
-    const int minBiasHFP1() { return minBiasHFP1_;}
-    const int hwMissHt() { return hwMissHt_;}
-    const int hwMissHtPhi() { return hwMissHtPhi_;}
-    const int hwAsymHt() { return hwAsymHt_;}
-    const int minBiasHFM1() { return minBiasHFM1_;}
-    const int hwMissEtHF() { return hwMissEtHF_;}
-    const int hwMissEtHFPhi() { return hwMissEtHFPhi_;}
-    const int hwAsymEtHF() { return hwAsymEtHF_;}
-    const int hwMissHtHF() { return hwMissHtHF_;}
-    const int hwMissHtHFPhi() { return hwMissHtHFPhi_;}
-    const int hwAsymHtHF() { return hwAsymHtHF_;}
-    const int centrality() { return centrality_;}
+    const int hwTotalEt() const { return hwTotalEt_;}
+    const int hwTotalEtEm() const { return hwTotalEtEm_;}
+    const int minBiasHFP0() const { return minBiasHFP0_;}
+    const int hwTotalHt() const { return hwTotalHt_;}
+    const int towerCount() const { return towerCount_;}
+    const int minBiasHFM0() const { return minBiasHFM0_;}
+    const int hwMissEt() const { return hwMissEt_;}
+    const int hwMissEtPhi() const { return hwMissEtPhi_;}
+    const int hwAsymEt() const { return hwAsymEt_;}
+    const int minBiasHFP1() const { return minBiasHFP1_;}
+    const int hwMissHt() const { return hwMissHt_;}
+    const int hwMissHtPhi() const { return hwMissHtPhi_;}
+    const int hwAsymHt() const { return hwAsymHt_;}
+    const int minBiasHFM1() const { return minBiasHFM1_;}
+    const int hwMissEtHF() const { return hwMissEtHF_;}
+    const int hwMissEtHFPhi() const { return hwMissEtHFPhi_;}
+    const int hwAsymEtHF() const { return hwAsymEtHF_;}
+    const int hwMissHtHF() const { return hwMissHtHF_;}
+    const int hwMissHtHFPhi() const { return hwMissHtHFPhi_;}
+    const int hwAsymHtHF() const { return hwAsymHtHF_;}
+    const int centrality() const { return centrality_;}
 
   private:
-    int hwTotalEt_, hwTotalEtEm_, minBiasHFP0_; // sums from ET block
-    int hwTotalHt_, towerCount_, minBiasHFM0_; // sums from HT block
-    int hwMissEt_, hwMissEtPhi_, hwAsymEt_, minBiasHFP1_; // sums from EtMiss block
-    int hwMissHt_, hwMissHtPhi_, hwAsymHt_, minBiasHFM1_; // sums from HTMiss block
-    int hwMissEtHF_, hwMissEtHFPhi_, hwAsymEtHF_; // sums from ETHFMiss block
-    int hwMissHtHF_, hwMissHtHFPhi_, hwAsymHtHF_, centrality_; // sums from HTHFMiss block
+    int hwTotalEt_;
+    int hwTotalEtEm_;
+    int hwTotalHt_;
+    int hwMissEt_;
+    int hwMissEtPhi_;
+    int hwMissHt_;
+    int hwMissHtPhi_;
+    int hwMissEtHF_;
+    int hwMissEtHFPhi_;
+    int hwMissHtHF_;
+    int hwMissHtHFPhi_;
+    int hwAsymEt_;
+    int hwAsymHt_;
+    int hwAsymEtHF_;
+    int hwAsymHtHF_;
+    int minBiasHFP0_;
+    int minBiasHFM0_;
+    int minBiasHFP1_;
+    int minBiasHFM1_;
+    int towerCount_;
+    int centrality_;
   };
 
 } // namespace l1ScoutingRun3

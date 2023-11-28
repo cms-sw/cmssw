@@ -13,10 +13,9 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 
 #include "EventFilter/L1ScoutingRawToDigi/interface/shifts.h"
-#include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/masks.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/blocks.h"
-#include "EventFilter/L1ScoutingRawToDigi/interface/conversion.h"
+#include "L1TriggerScouting/Utilities/interface/printScObjects.h"
 
 #include <memory>
 #include <vector>

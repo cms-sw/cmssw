@@ -71,32 +71,32 @@ namespace l1ScoutingRun3 {
       swap(hwDXY_, other.hwDXY_);
     }
 
-    inline void setHwPt(int hwPt) { hwPt_= hwPt;}
-    inline void setHwEta(int hwEta) { hwEta_= hwEta;}
-    inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
-    inline void setHwQual(int hwQual) { hwQual_= hwQual;}
-    inline void setHwChrg(int hwChrg) { hwChrg_= hwChrg;}
-    inline void setHwChrgv(int hwChrgv) { hwChrgv_= hwChrgv;}
-    inline void setHwIso(int hwIso) { hwIso_= hwIso;}
-    inline void setTfIndex(int tfIndex) { tfIndex_= tfIndex;}
-    inline void setHwEtaAtVtx(int hwEtaAtVtx) { hwEtaAtVtx_= hwEtaAtVtx;}
-    inline void setHwPhiAtVtx(int hwPhiAtVtx) { hwPhiAtVtx_= hwPhiAtVtx;}
-    inline void setHwPtUnconstrained(int hwPtUnconstrained) { hwPtUnconstrained_= hwPtUnconstrained;}
-    inline void setHwDXY(int hwDXY) { hwDXY_= hwDXY;}
+    void setHwPt(int hwPt) { hwPt_= hwPt;}
+    void setHwEta(int hwEta) { hwEta_= hwEta;}
+    void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
+    void setHwQual(int hwQual) { hwQual_= hwQual;}
+    void setHwChrg(int hwChrg) { hwChrg_= hwChrg;}
+    void setHwChrgv(int hwChrgv) { hwChrgv_= hwChrgv;}
+    void setHwIso(int hwIso) { hwIso_= hwIso;}
+    void setTfIndex(int tfIndex) { tfIndex_= tfIndex;}
+    void setHwEtaAtVtx(int hwEtaAtVtx) { hwEtaAtVtx_= hwEtaAtVtx;}
+    void setHwPhiAtVtx(int hwPhiAtVtx) { hwPhiAtVtx_= hwPhiAtVtx;}
+    void setHwPtUnconstrained(int hwPtUnconstrained) { hwPtUnconstrained_= hwPtUnconstrained;}
+    void setHwDXY(int hwDXY) { hwDXY_= hwDXY;}
 
-    inline int hwPt() const {return hwPt_;}
-    inline int hwEta() const {return hwEta_;}
-    inline int hwPhi() const {return hwPhi_;}
-    inline int hwQual() const {return hwQual_;}
-    inline int hwCharge() const {return hwChrg_;}
-    inline int hwChargeValid() const {return hwChrgv_;}
-    inline int hwIso() const {return hwIso_;}
-    inline int hwIndex() const {return tfIndex_;}
-    inline int hwEtaAtVtx() const {return hwEtaAtVtx_;}
-    inline int hwPhiAtVtx() const {return hwPhiAtVtx_;}
-    inline int hwPtUnconstrained() const {return hwPtUnconstrained_;}
-    inline int hwDXY() const {return hwDXY_;}
-    inline int tfMuonIndex() const {return tfIndex_;}
+    int hwPt() const {return hwPt_;}
+    int hwEta() const {return hwEta_;}
+    int hwPhi() const {return hwPhi_;}
+    int hwQual() const {return hwQual_;}
+    int hwCharge() const {return hwChrg_;}
+    int hwChargeValid() const {return hwChrgv_;}
+    int hwIso() const {return hwIso_;}
+    int hwIndex() const {return tfIndex_;}
+    int hwEtaAtVtx() const {return hwEtaAtVtx_;}
+    int hwPhiAtVtx() const {return hwPhiAtVtx_;}
+    int hwPtUnconstrained() const {return hwPtUnconstrained_;}
+    int hwDXY() const {return hwDXY_;}
+    int tfMuonIndex() const {return tfIndex_;}
 
   private:
     int hwPt_;

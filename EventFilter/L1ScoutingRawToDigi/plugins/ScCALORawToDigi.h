@@ -14,10 +14,9 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 
 #include "EventFilter/L1ScoutingRawToDigi/interface/shifts.h"
-#include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/masks.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/blocks.h"
-#include "EventFilter/L1ScoutingRawToDigi/interface/conversion.h"
+#include "L1TriggerScouting/Utilities/interface/printScObjects.h"
 
 #include <iostream>
 #include <memory>
@@ -47,10 +46,10 @@ private:
   std::vector<std::vector<l1ScoutingRun3::ScJet>> orbitBufferJets_;
   std::vector<std::vector<l1ScoutingRun3::ScEGamma>> orbitBufferEGammas_;
   std::vector<std::vector<l1ScoutingRun3::ScTau>> orbitBufferTaus_;
-  //std::vector<std::vector<l1ScoutingRun3::ScEtSum>> orbitBufferEtSums_;
   std::vector<std::vector<l1ScoutingRun3::ScBxSums>> orbitBufferEtSums_;
 
   bool debug_ = false;
+  bool enableAllSums_ = false;
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;
 };

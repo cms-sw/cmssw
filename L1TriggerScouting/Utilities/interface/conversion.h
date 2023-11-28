@@ -1,7 +1,8 @@
-#ifndef L1ScoutingRawToDigi_conversion_h
-#define L1ScoutingRawToDigi_conversion_h
+#ifndef L1TriggerScouting_Utilities_conversion_h
+#define L1TriggerScouting_Utilities_conversion_h
 
-#include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
+#include "L1TriggerScouting/Utilities/interface/scales.h"
+#include <cmath>
 
 namespace l1ScoutingRun3 {
 
@@ -19,7 +20,6 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEta;
     };
     inline float fPhi(int hwPhi) {
-      //float fPhi_ = scales::phi_scale*hwPhi;
       return _setPhiRange(scales::phi_scale*hwPhi);
     };
     inline float fPtUnconstrained(int hwPtUnconstrained) {
@@ -29,7 +29,6 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEtaAtVtx;
     };
     inline float fPhiAtVtx(int hwPhiAtVtx) {
-      //float fPhi_ = scales::phi_scale*hwPhiAtVtx;
       return _setPhiRange(scales::phi_scale*hwPhiAtVtx);
     };
 
@@ -44,7 +43,6 @@ namespace l1ScoutingRun3 {
       return scales::eta_scale*hwEta;
     };
     inline float fPhi(int hwPhi) {
-      //float fPhi_ = scales::phi_scale*hwPhi;
       return _setPhiRange(scales::phi_scale*hwPhi);
     };
 

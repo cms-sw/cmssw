@@ -168,16 +168,7 @@ void ScGMTRawToDigi::unpackOrbit(
         std::cout  <<  "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n";
         std::cout  <<  "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n";
         std::cout  <<  "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
-        std::cout  <<  "  Pt  [GeV/Hw]: " << ugmt::fPt(muon.hwPt())  << "/" << muon.hwPt() << "\n";
-        std::cout  <<  "  Eta [rad/Hw]: " << ugmt::fEta(muon.hwEta()) << "/" << muon.hwEta() << "\n";
-        std::cout  <<  "  Phi [rad/Hw]: " << ugmt::fPhi(muon.hwPhi()) << "/" << muon.hwPhi() << "\n";
-        std::cout  <<  "  Charge/valid: " << muon.hwCharge() << "/" << muon.hwChargeValid() << "\n";
-        std::cout  <<  "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon.hwPhiAtVtx()) << "/" << muon.hwPhiAtVtx() << "\n";
-        std::cout  <<  "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon.hwEtaAtVtx()) << "/" << muon.hwEtaAtVtx() << "\n";
-        std::cout  <<  "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon.hwPtUnconstrained()) << "/" << muon.hwPtUnconstrained() << "\n";
-        std::cout  <<  "  Dxy:  " << muon.hwDXY() << "\n";
-        std::cout  <<  "  Qual: " << muon.hwQual() << "\n";
-        std::cout  <<  "  TF index: " << muon.tfMuonIndex() << "\n";
+        printScMuon(muon);
       }
 
     } // end of bx

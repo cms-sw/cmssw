@@ -136,13 +136,12 @@ class OrbitCollection {
     T& operator[](std::size_t i) { return data_[i]; }
     const T& operator[](std::size_t i) const { return data_[i]; }
 
-    // edm::View support
     void fillView(edm::ProductID const& id,
                   std::vector<void const*>& pointers,
                   edm::FillViewHelperVector& helpers) const {
       edm::detail::reallyFillView(*this, id, pointers, helpers);
     }
-    // edm::Ptr support
+
     void setPtr(std::type_info const& toType, unsigned long index, void const*& ptr) const {
       edm::detail::reallySetPtr<OrbitCollection<T> >(*this, toType, index, ptr);
     }
@@ -160,7 +159,6 @@ class OrbitCollection {
     std::vector<T> data_;
 };
 
-// edm::View support
 namespace edm {
   template <class T>
   inline void fillView(OrbitCollection<T> const& obj,
@@ -174,7 +172,6 @@ namespace edm {
     static bool const value = true;
   };
 }  // namespace edm
-// edm::Ptr support
 template <class T>
 inline void setPtr(OrbitCollection<T> const& obj, std::type_info const& toType, unsigned long index, void const*& ptr) {
   obj.setPtr(toType, index, ptr);
@@ -191,6 +188,6 @@ namespace edm {
   struct has_setPtr<OrbitCollection<T> > {
     static bool const value = true;
   };
-}
+} // namespace edm
 
 #endif // DataFormats_L1Scouting_OrbitCollection_h
