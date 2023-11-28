@@ -50,6 +50,34 @@ typedef TrackMergeremb<reco::PhotonCollection> PhotonColMerger;
 typedef TrackMergeremb<reco::ConversionCollection> ConversionColMerger;
 typedef TrackMergeremb<reco::PFCandidateCollection> PFColMerger;
 
+template <typename T1>
+TrackMergeremb<T1>::TrackMergeremb(const edm::ParameterSet &iConfig) {
+  alias = iConfig.getParameter<std::string>("@module_label");
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
+  globalGeomToken_ = esConsumes();
+  for (const auto &inCollection : inCollections) {
+    inputs_[inCollection.instance()].push_back(consumes<TrackCollectionemb>(inCollection));
+  }
+  willconsume(iConfig);
+  for (const auto &toproduce : inputs_) {
+    willproduce(toproduce.first, alias);
+  }
+}
+
+template <typename T1>
+TrackMergeremb<T1>::~TrackMergeremb() {
+  // nothing to be done yet...
+}
+
+template <typename T1>
+void TrackMergeremb<T1>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  geometry_ = &iSetup.getData(globalGeomToken_);
+  for (auto input_ : inputs_) {
+    merg_and_put(iEvent, input_.first, input_.second);
+
+  }  // end instance
+}
+
 // Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1>
 void TrackMergeremb<T1>::willproduce(std::string instance, std::string alias) {

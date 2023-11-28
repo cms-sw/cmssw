@@ -17,6 +17,62 @@ typedef DoubleCollectionMerger<edm::SortedCollection<EESrFlag>, EESrFlag, edm::S
 typedef DoubleCollectionMerger<HBHEDigiCollection, HBHEDataFrame, HcalCalibDigiCollection, HcalCalibDataFrame>
     HcalDigiColMerger;
 
+template <typename T1, typename T2, typename T3, typename T4>
+DoubleCollectionMerger<T1, T2, T3, T4>::DoubleCollectionMerger(const edm::ParameterSet &iConfig) {
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
+  for (auto const &inCollection : inCollections) {
+    inputs1_[inCollection.instance()].push_back(consumes<MergeCollection1>(inCollection));
+    inputs2_[inCollection.instance()].push_back(consumes<MergeCollection2>(inCollection));
+  }
+  for (auto toproduce : inputs1_) {
+    // std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
+    produces<MergeCollection1>(toproduce.first);
+  }
+  for (auto toproduce : inputs2_) {
+    // std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
+    produces<MergeCollection2>(toproduce.first);
+  }
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+DoubleCollectionMerger<T1, T2, T3, T4>::~DoubleCollectionMerger() {
+  // nothing to be done yet...
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+void DoubleCollectionMerger<T1, T2, T3, T4>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  // std::cout << "DoubleCollectionMerger<T1,T2,T3,T4>::produce" << std::endl;
+  for (auto input_ : inputs1_) {
+    // std::cout << "input_.first()=" << input_.first << std::endl;
+    // std::cout << "input_.second.size()=" << input_.second.size() << std::endl;
+    std::unique_ptr<MergeCollection1> output(new MergeCollection1());
+    std::vector<edm::Handle<MergeCollection1>> inputCollections;
+    inputCollections.resize(input_.second.size());
+    for (unsigned id = 0; id < input_.second.size(); id++) {
+      // std::cout << "input_.second[id]=" << input_.second[id] << std::endl;
+      // std::cout << "input_.second[id]=" << id << std::endl;
+      iEvent.getByToken(input_.second[id], inputCollections[id]);
+    }
+    fill_output_obj(output, inputCollections);
+    iEvent.put(std::move(output), input_.first);
+  }
+
+  for (auto input_ : inputs2_) {
+    // std::cout << "input_.first()=" << input_.first << std::endl;
+    // std::cout << "input_.second.size()=" << input_.second.size() << std::endl;
+    std::unique_ptr<MergeCollection2> output(new MergeCollection2());
+    std::vector<edm::Handle<MergeCollection2>> inputCollections;
+    inputCollections.resize(input_.second.size());
+    for (unsigned id = 0; id < input_.second.size(); id++) {
+      // std::cout << "input_.second[id]=" << input_.second[id] << std::endl;
+      // std::cout << "input_.second[id]=" << id << std::endl;
+      iEvent.getByToken(input_.second[id], inputCollections[id]);
+    }
+    fill_output_obj(output, inputCollections);
+    iEvent.put(std::move(output), input_.first);
+  }
+}
+
 // Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1, typename T2, typename T3, typename T4>
 void DoubleCollectionMerger<T1, T2, T3, T4>::fill_output_obj(

@@ -1,12 +1,7 @@
 /** \class CollectionMerger
  *
- *
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
- *
- *
- *
- *
  *
  */
 #ifndef TauAnalysis_MCEmbeddingTools_CollectionMerger_H
@@ -83,36 +78,4 @@ private:
   void willconsume(const edm::ParameterSet &iConfig);
 };
 
-template <typename T1, typename T2>
-CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
-  for (auto const &inCollection : inCollections) {
-    inputs_[inCollection.instance()].push_back(consumes<MergeCollection>(inCollection));
-  }
-  willconsume(iConfig);
-  for (const auto &toproduce : inputs_) {
-    std::string alias(iConfig.getParameter<std::string>("@module_label"));
-    //  std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
-    willproduce(toproduce.first, alias);
-  }
-}
-
-template <typename T1, typename T2>
-CollectionMerger<T1, T2>::~CollectionMerger() {
-  // nothing to be done yet...
-}
-
-template <typename T1, typename T2>
-void CollectionMerger<T1, T2>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  for (auto input_ : inputs_) {
-    std::unique_ptr<MergeCollection> output(new MergeCollection());
-    std::vector<edm::Handle<MergeCollection>> inputCollections;
-    inputCollections.resize(input_.second.size());
-    for (unsigned id = 0; id < input_.second.size(); id++) {
-      iEvent.getByToken(input_.second[id], inputCollections[id]);
-    }
-    fill_output_obj(iEvent, output, inputCollections);
-    iEvent.put(std::move(output), input_.first);
-  }
-}
 #endif
