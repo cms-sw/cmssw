@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
@@ -36,6 +37,8 @@ public:
   /** Copy assignment operator */
   BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
   ~BetafuncEvtVtxGenerator() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
