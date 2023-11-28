@@ -12,7 +12,7 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 trackingMonitoringHLTsequence = cms.Sequence(
     pixelTracksMonitoringHLT # hltPixel tracks monitoring
     * iter2MergedTracksMonitoringHLT # hltIter2Merged tracks monitoring    
-    * iterHLTTracksMonitoringHLT # hltTracksMerged tracks monitoring
+    * iterHLTTracksMonitoringHLT # hltMergedTracks tracks monitoring
 )
 
 egmTrackingMonitorHLTsequence = cms.Sequence(
