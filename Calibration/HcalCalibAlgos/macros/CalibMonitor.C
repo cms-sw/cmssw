@@ -319,6 +319,7 @@ private:
   std::vector<TProfile *> h_etaX[npbin];
   std::vector<TH1D *> h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::vector<TH1D *> h_pp[npbin];
+  std::vector<TH1D *> h_p;
 };
 
 CalibMonitor::CalibMonitor(const char *fname,
@@ -822,6 +823,12 @@ void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFi
       h_rbx[j - 1]->Sumw2();
     }
   }
+  for (unsigned int j = 1; j < npbin; ++j) {
+    sprintf(name, "%sp%d", prefix_.c_str(), j);
+    sprintf(title, "Momentum (GeV) of selected track (p = %d:%d GeV)", ipbin[j], ipbin[j+1]);
+    h_p.push_back(new TH1D(name, title, 100, ipbin[j], ipbin[j+1]));
+    h_p[j - 1]->Sumw2();
+  }
 }
 
 Bool_t CalibMonitor::Notify() {
@@ -1320,6 +1327,10 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
         }
       }
       if (rat > rcut) {
+	if (debug)
+	  std::cout << "kp " << kp << " " <<  h_p[kp-1]->GetName() << " p " << pmom << " wt " << t_EventWeight << std::endl;
+	if (kp > 0) 
+	  h_p[kp-1]->Fill(pmom, t_EventWeight);
         if (p4060)
           ++kount50[15];
         if (kp == 0) {
@@ -1693,6 +1704,12 @@ void CalibMonitor::savePlot(const std::string &theName, bool append, bool all) {
         TH1D *h1 = (TH1D *)h_rbx[k]->Clone();
         h1->Write();
       }
+    }
+  }
+  for (unsigned int k = 0; k < h_p.size(); ++k) {
+    if (h_p[k] != 0) {
+      TH1D *h1 = (TH1D *)h_p[k]->Clone();
+      h1->Write();
     }
   }
   std::cout << "All done" << std::endl;
