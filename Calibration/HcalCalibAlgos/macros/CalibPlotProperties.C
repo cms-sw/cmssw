@@ -1646,12 +1646,12 @@ void PlotHist(const char *hisFileName,
 }
 
 void PlotPHist(const char *hisFileName,
-	       const std::string &prefix = "",
-	       const std::string &text = "",
-	       int pLow = 1,
-	       int pHigh = 5,
-	       bool dataMC = true,
-	       int save = 0) {
+               const std::string &prefix = "",
+               const std::string &text = "",
+               int pLow = 1,
+               int pHigh = 5,
+               bool dataMC = true,
+               int save = 0) {
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);
@@ -1664,12 +1664,12 @@ void PlotPHist(const char *hisFileName,
   TH1D *hist;
   if (file != nullptr) {
     for (int ip = pLow; ip <= pHigh; ++ip) {
-      sprintf (name, "%sp%d", prefix.c_str(), ip);
+      sprintf(name, "%sp%d", prefix.c_str(), ip);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
-	hist->GetXaxis()->SetTitle(hist->GetTitle());
-	hist->GetYaxis()->SetTitle("Tracks");
-	PlotThisHist(hist, text, dataMC, save);
+        hist->GetXaxis()->SetTitle(hist->GetTitle());
+        hist->GetYaxis()->SetTitle("Tracks");
+        PlotThisHist(hist, text, dataMC, save);
       }
     }
   }

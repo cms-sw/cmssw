@@ -825,8 +825,8 @@ void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFi
   }
   for (unsigned int j = 1; j < npbin; ++j) {
     sprintf(name, "%sp%d", prefix_.c_str(), j);
-    sprintf(title, "Momentum (GeV) of selected track (p = %d:%d GeV)", ipbin[j], ipbin[j+1]);
-    h_p.push_back(new TH1D(name, title, 100, ipbin[j], ipbin[j+1]));
+    sprintf(title, "Momentum (GeV) of selected track (p = %d:%d GeV)", ipbin[j], ipbin[j + 1]);
+    h_p.push_back(new TH1D(name, title, 100, ipbin[j], ipbin[j + 1]));
     h_p[j - 1]->Sumw2();
   }
 }
@@ -1327,10 +1327,11 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
         }
       }
       if (rat > rcut) {
-	if (debug)
-	  std::cout << "kp " << kp << " " <<  h_p[kp-1]->GetName() << " p " << pmom << " wt " << t_EventWeight << std::endl;
-	if (kp > 0) 
-	  h_p[kp-1]->Fill(pmom, t_EventWeight);
+        if (debug)
+          std::cout << "kp " << kp << " " << h_p[kp - 1]->GetName() << " p " << pmom << " wt " << t_EventWeight
+                    << std::endl;
+        if (kp > 0)
+          h_p[kp - 1]->Fill(pmom, t_EventWeight);
         if (p4060)
           ++kount50[15];
         if (kp == 0) {
