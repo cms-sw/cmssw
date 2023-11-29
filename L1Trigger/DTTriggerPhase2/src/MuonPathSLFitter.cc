@@ -364,6 +364,8 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
             pos / 10 / INCREASED_RES_POS_POW;  // fixed to have z_shift and the position in the same units (MC)
         double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift - pos_cm : z_shift + pos_cm;
 
+        phi=jm_y;
+        
         // Fixed sign of k (MC)
         double k_fromfw = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? slope_f : -slope_f;
         phiB = k_fromfw;
