@@ -36,7 +36,7 @@ LCToSCAssociatorByEnergyScoreProducer::LCToSCAssociatorByEnergyScoreProducer(con
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
-  produces<hgcal::LayerClusterToSimClusterAssociator>();
+  produces<ticl::LayerClusterToSimClusterAssociator>();
 }
 
 LCToSCAssociatorByEnergyScoreProducer::~LCToSCAssociatorByEnergyScoreProducer() {}
@@ -51,7 +51,7 @@ void LCToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
   auto impl =
       std::make_unique<LCToSCAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  auto toPut = std::make_unique<hgcal::LayerClusterToSimClusterAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::LayerClusterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 

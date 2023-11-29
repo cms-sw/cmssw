@@ -44,8 +44,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
   }
 
-  associatorMapSimtR = consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorSim_);
-  associatorMapRtSim = consumes<hgcal::RecoToSimCollectionWithSimClusters>(associatorSim_);
+  associatorMapSimtR = consumes<ticl::SimToRecoCollectionWithSimClusters>(associatorSim_);
+  associatorMapRtSim = consumes<ticl::RecoToSimCollectionWithSimClusters>(associatorSim_);
 
   simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(edm::InputTag("ticlSimTracksters"));
 
@@ -62,8 +62,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   simTracksters_ = consumes<ticl::TracksterCollection>(label_simTS);
   simTracksters_fromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
-  associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
-  associatorMapStR = consumes<hgcal::SimToRecoCollection>(associator_);
+  associatorMapRtS = consumes<ticl::RecoToSimCollection>(associator_);
+  associatorMapStR = consumes<ticl::SimToRecoCollection>(associator_);
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
@@ -280,10 +280,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
-  edm::Handle<hgcal::SimToRecoCollection> simtorecoCollectionH;
+  edm::Handle<ticl::SimToRecoCollection> simtorecoCollectionH;
   event.getByToken(associatorMapStR, simtorecoCollectionH);
   auto simRecColl = *simtorecoCollectionH;
-  edm::Handle<hgcal::RecoToSimCollection> recotosimCollectionH;
+  edm::Handle<ticl::RecoToSimCollection> recotosimCollectionH;
   event.getByToken(associatorMapRtS, recotosimCollectionH);
   auto recSimColl = *recotosimCollectionH;
 
@@ -346,10 +346,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
 
-      edm::Handle<hgcal::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
+      edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
       event.getByToken(associatorMapSimtR, simtorecoCollectionH);
       auto simRecColl = *simtorecoCollectionH;
-      edm::Handle<hgcal::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
+      edm::Handle<ticl::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
       event.getByToken(associatorMapRtSim, recotosimCollectionH);
       auto recSimColl = *recotosimCollectionH;
 
