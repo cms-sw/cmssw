@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/SourceCommon.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
@@ -28,21 +28,6 @@
 #include "EventFilter/Utilities/interface/reader.h"
 
 using namespace evf::FastMonState;
-
-class IdleSourceSentry {
-public:
-  IdleSourceSentry(evf::FastMonitoringService* fms) : fms_(fms) {
-    if (fms_)
-      fms_->setTMicrostate(mIdleSource);
-  }
-  ~IdleSourceSentry() {
-    if (fms_)
-      fms_->setTMicrostate(mIdle);
-  }
-
-private:
-  evf::FastMonitoringService* fms_;
-};
 
 DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : edm::RawInputSource(pset, desc),
