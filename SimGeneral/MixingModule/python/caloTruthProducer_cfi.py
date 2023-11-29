@@ -18,12 +18,6 @@ caloParticles = cms.PSet(
                 cms.InputTag('g4SimHits','HGCHitsHEfront'),
                 cms.InputTag('g4SimHits','HGCHitsHEback')
             ),
-#            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
-#            ecal = cms.VInputTag(
-#                cms.InputTag('g4SimHits','EcalHitsEE'),
-#                cms.InputTag('g4SimHits','EcalHitsEB'),
-#                cms.InputTag('g4SimHits','EcalHitsES')
-#            )
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),
 	simVertexCollection = cms.InputTag('g4SimHits'),
@@ -59,3 +53,20 @@ run3_ecalclustering.toModify(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    caloParticles, 
+    simHitCollections = cms.PSet(
+        hgc = cms.VInputTag(
+            cms.InputTag('g4SimHits', 'HGCHitsEE'),
+            cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
+            cms.InputTag('g4SimHits', 'HGCHitsHEback'),
+        ),
+        hcal = cms.VInputTag(cms.InputTag('g4SimHits', 'HcalHits')),
+        ecal = cms.VInputTag(
+            cms.InputTag('g4SimHits', 'EcalHitsEB')
+        )
+    )
+)
+
+        
