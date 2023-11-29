@@ -103,8 +103,8 @@ if __name__ == '__main__':
                      23234.0, #2026D94 ttbar (exercise with HFNose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
-                     141.044 # 2023D JetMET PD
-                     141.042 # 2023D ZeroBias PD
+                     141.044, # 2023D JetMET PD
+                     141.042, # 2023D ZeroBias PD
                      141.046 # 2023D EGamma PD
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
