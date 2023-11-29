@@ -98,9 +98,47 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
     pixelVerticesTask.copy()
 ))
 
+### Alpaka
+
+## Alpaka Vertices
+
+from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase1_cfi import pixelVertexProducerAlpakaPhase1 as _pixelVerticesAlpakaPhase1
+from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase2_cfi import pixelVertexProducerAlpakaPhase2 as _pixelVerticesAlpakaPhase2
+pixelVerticesAlpaka = _pixelVerticesAlpakaPhase1.clone()
+phase2_tracker.toReplaceWith(pixelVerticesAlpaka,_pixelVerticesAlpakaPhase2.clone())
+
+from RecoTracker.PixelVertexFinding.pixelVertexFromSoAAlpaka_cfi import pixelVertexFromSoAAlpaka as _pixelVertexFromSoAAlpaka
+alpaka.toReplaceWith(pixelVertices, _pixelVertexFromSoAAlpaka.clone())
+
+alpaka.toReplaceWith(pixelVerticesTask, cms.Task(
+    # Build the pixel vertices in SoA format on Device
+    pixelVerticesAlpaka,
+    # Convert the pixel vertices from Portable SoA (on Host) to legacy format
+    pixelVertices
+))
+
+### Alpaka Device vs Host validation
+
+from Configuration.ProcessModifiers.alpakaValidationPixel_cff import alpakaValidationPixel
+
+# Hit SoA producer on serial backend
+pixelVerticesAlpakaSerial = pixelVerticesAlpaka.clone(
+    pixelTrackSrc = 'pixelTracksAlpakaSerial',
+    alpaka = dict( backend = 'serial_sync' )
+)
+
+alpakaValidationPixel.toReplaceWith(pixelVerticesTask, cms.Task(
+                        # Reconstruct and convert the pixel tracks with alpaka on device
+                        pixelVerticesTask.copy(),
+                        # SoA serial counterpart
+                        pixelVerticesAlpakaSerial))
+
+
 # Tasks and Sequences
 recopixelvertexingTask = cms.Task(
     pixelTracksTask,
     pixelVerticesTask
 )
 recopixelvertexing = cms.Sequence(recopixelvertexingTask)
+
+

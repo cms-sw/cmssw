@@ -1,3 +1,6 @@
+<use name="CUDADataFormats/SiPixelCluster"/>
+<use name="CUDADataFormats/Track"/>
+<use name="CUDADataFormats/Vertex"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/Common"/>
@@ -13,9 +16,9 @@
 <use name="DataFormats/HLTReco"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoTracker/TkTrackingRegions"/>
-<use name="CUDADataFormats/SiPixelCluster"/>
-<use name="CUDADataFormats/Track"/>
-<use name="CUDADataFormats/Vertex"/>
+<use name="DataFormats/SiPixelClusterSoA"/>
+<use name="DataFormats/TrackSoA"/>
+<use name="DataFormats/Vertex"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

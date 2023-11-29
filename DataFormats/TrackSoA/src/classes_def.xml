@@ -1,0 +1,63 @@
+<lcgdict>
+
+  <class name="TrackSoA<pixelTopology::Phase1>"/>
+  <class name="TrackSoA<pixelTopology::Phase1>::TrackSoAHeterogeneousLayout<>"/>
+  <class name="TrackLayout<pixelTopology::Phase1>"/>
+  <class name="TrackSoAView<pixelTopology::Phase1>"/>
+
+  <class name="TrackSoA<pixelTopology::Phase2>"/>
+  <class name="TrackSoA<pixelTopology::Phase2>::TrackSoAHeterogeneousLayout<>"/>
+  <class name="TrackLayout<pixelTopology::Phase2>"/>
+  <class name="TrackSoAView<pixelTopology::Phase2>"/>
+
+  <class name="TrackSoA<pixelTopology::HIonPhase1>"/>
+  <class name="TrackSoA<pixelTopology::HIonPhase1>::TrackSoAHeterogeneousLayout<>"/>
+  <class name="TrackLayout<pixelTopology::HIonPhase1>"/>
+  <class name="TrackSoAView<pixelTopology::HIonPhase1>"/>
+
+    <class name="PortableHostCollection<TrackLayout<pixelTopology::Phase1>>"/>
+  <read
+    sourceClass="PortableHostCollection<TrackLayout<pixelTopology::Phase1>>"
+    targetClass="PortableHostCollection<TrackLayout<pixelTopology::Phase1>>"
+    version="[1-]"
+    source="TrackLayout<pixelTopology::Phase1> layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<TrackLayout<pixelTopology::Phase1>>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="TrackSoAHostPhase1"/>
+  <class name="edm::Wrapper<TrackSoAHostPhase1>" splitLevel="0"/>
+
+  <class name="PortableHostCollection<TrackLayout<pixelTopology::Phase2>>"/>
+  <read
+    sourceClass="PortableHostCollection<TrackLayout<pixelTopology::Phase2>>"
+    targetClass="PortableHostCollection<TrackLayout<pixelTopology::Phase2>>"
+    version="[1-]"
+    source="TrackLayout<pixelTopology::Phase2> layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<TrackLayout<pixelTopology::Phase2>>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="TrackSoAHostPhase2"/>
+  <class name="edm::Wrapper<TrackSoAHostPhase2>" splitLevel="0"/>
+
+  <class name="PortableHostCollection<TrackLayout<pixelTopology::HIonPhase1>>"/>
+  <read
+    sourceClass="PortableHostCollection<TrackLayout<pixelTopology::HIonPhase1>>"
+    targetClass="PortableHostCollection<TrackLayout<pixelTopology::HIonPhase1>>"
+    version="[1-]"
+    source="TrackLayout<pixelTopology::HIonPhase1> layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<TrackLayout<pixelTopology::HIonPhase1>>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="TrackSoAHostHIonPhase1"/>
+  <class name="edm::Wrapper<TrackSoAHostHIonPhase1>" splitLevel="0"/>
+
+</lcgdict>

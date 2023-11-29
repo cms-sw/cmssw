@@ -16,6 +16,7 @@
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackSoA"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="RecoTracker/PixelTrackFitting"/>

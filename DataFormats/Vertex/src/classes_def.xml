@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="zVertex::ZVertexSoALayout"/>
+  <class name="PortableHostCollection<ZVertexSoAHeterogeneousLayout<>>"/>
+  <read
+    sourceClass="PortableHostCollection<ZVertexSoAHeterogeneousLayout<>>"
+    targetClass="PortableHostCollection<ZVertexSoAHeterogeneousLayout<>>"
+    version="[1-]"
+    source="zVertex::ZVertexSoALayout layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<ZVertexSoAHeterogeneousLayout<>>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+
+  <class name="ZVertexHost"/>
+  <class name="edm::Wrapper<ZVertexHost>" splitLevel="0"/>
+</lcgdict>

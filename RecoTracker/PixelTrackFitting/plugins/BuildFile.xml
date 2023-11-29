@@ -1,8 +1,25 @@
-<use name="cuda"/>
-<use name="CUDADataFormats/Track"/>
-<use name="Geometry/Records"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="RecoTracker/PixelTrackFitting"/>
 <library file="*.cc" name="RecoPixelVertexingPixelTrackFittingPlugins">
+  <use name="cuda"/>
+  <use name="CUDADataFormats/Track"/>
+  <use name="DataFormats/TrackSoA"/>
+  <use name="DataFormats/TrackingRecHit"/>
+  <use name="Geometry/Records"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="RecoPixelVertexingPixelTrackFittingPluginsPortable">
+  <use name="alpaka"/>
+  <use name="DataFormats/TrackSoA"/>
+  <use name="DataFormats/TrackingRecHit"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="Geometry/Records"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <!-- Some modules have only been alpakified for compatibility, we only need their
+   CPU serial version -->
+  <flags ALPAKA_BACKENDS="serial"/>
   <flags EDM_PLUGIN="1"/>
 </library>

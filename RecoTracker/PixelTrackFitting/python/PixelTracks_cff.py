@@ -203,3 +203,50 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
 (pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelTracksSoA.cpu,
     pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA@cpu"
     )
+
+######################################################################
+
+### Alpaka Pixel Track Reco
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1_cfi import caHitNtupletAlpakaPhase1 as _pixelTracksAlpakaPhase1
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2_cfi import caHitNtupletAlpakaPhase2 as _pixelTracksAlpakaPhase2
+
+pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone()
+phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
+
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1_cfi import pixelTrackProducerFromSoAAlpakaPhase1 as _pixelTrackProducerFromSoAAlpakaPhase1
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase2_cfi import pixelTrackProducerFromSoAAlpakaPhase2 as _pixelTrackProducerFromSoAAlpakaPhase2
+
+(alpaka & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase1.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+(alpaka & phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase2.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+alpaka.toReplaceWith(pixelTracksTask, cms.Task(
+                         # Build the pixel ntuplets and the pixel tracks in SoA format on the Device
+                        pixelTracksAlpaka,
+                         # Convert the pixel tracks from SoA to legacy format
+                        pixelTracks))
+
+### Alpaka Device vs Host validation
+
+from Configuration.ProcessModifiers.alpakaValidationPixel_cff import alpakaValidationPixel
+
+# Hit SoA producer on serial backend
+pixelTracksAlpakaSerial = pixelTracksAlpaka.clone(
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial',
+    alpaka = dict( backend = 'serial_sync' )
+)
+
+alpakaValidationPixel.toReplaceWith(pixelTracksTask, cms.Task(
+                        # Reconstruct and convert the pixel tracks with alpaka on device
+                        pixelTracksTask.copy(),
+                        # SoA serial counterpart
+                        pixelTracksAlpakaSerial))
+
+

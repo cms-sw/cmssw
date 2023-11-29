@@ -14,7 +14,13 @@
  <class name="edm::Wrapper< edm::DetSet<SiPixelRawDataError> >"/>
  <class name="edm::Wrapper< std::vector<edm::DetSet<SiPixelRawDataError> > >"/>
  <class name="edm::Wrapper< edm::DetSetVector<SiPixelRawDataError> >"/>
+ <class name="std::pair<const unsigned int,std::vector<SiPixelRawDataError> >"/>
 
  <class name="SiPixelErrorsSoA" persistent="false"/>
  <class name="edm::Wrapper<SiPixelErrorsSoA>" persistent="false"/>
+
+ <class name="SiPixelFormatterErrors" persistent="false"/>
+ <class name="edm::Wrapper<SiPixelFormatterErrors>" persistent="false"/>
+
+ <class name="SiPixelErrorCompact"/>
 </lcgdict>

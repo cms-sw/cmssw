@@ -1,0 +1,38 @@
+<lcgdict>
+  <class name="SiPixelDigisSoAv2"/>
+  <class name="SiPixelDigisSoAv2::View"/>
+  <class name="PortableHostCollection<SiPixelDigisSoAv2>"/>
+  <read
+    sourceClass="PortableHostCollection<SiPixelDigisSoAv2>"
+    targetClass="PortableHostCollection<SiPixelDigisSoAv2>"
+    version="[1-]"
+    source="SiPixelDigisSoAv2 layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<SiPixelDigisSoAv2>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+
+  <class name="SiPixelDigisHost"/>
+  <class name="edm::Wrapper<SiPixelDigisHost>" splitLevel="0"/>
+
+  <!-- SiPixelDigiErrors-related collections -->
+  <class name="SiPixelDigiErrorsSoA"/>
+  <class name="SiPixelDigiErrorsSoA::View"/>
+  <class name="PortableHostCollection<SiPixelDigiErrorsSoA>"/>
+  <read
+    sourceClass="PortableHostCollection<SiPixelDigiErrorsSoA>"
+    targetClass="PortableHostCollection<SiPixelDigiErrorsSoA>"
+    version="[1-]"
+    source="SiPixelDigiErrorsSoA layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    PortableHostCollection<SiPixelDigiErrorsSoA>::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read> 
+  <!-- SiPixelDigiErrorsHost inherits from PortableHostCollection<SiPixelDigiErrorsSoA> -->
+  <class name="SiPixelDigiErrorsHost"/>
+  <class name="edm::Wrapper<SiPixelDigiErrorsHost>" splitLevel="0"/>
+</lcgdict>
