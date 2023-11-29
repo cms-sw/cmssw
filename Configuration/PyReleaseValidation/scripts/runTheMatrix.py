@@ -74,8 +74,6 @@ if __name__ == '__main__':
                      136.88811,#2018D JetHT reMINIAOD from UL processing
                      136.793, #2017C DoubleEG
                      136.874, #2018C EGamma
-                     138.4, #2021 MinimumBias prompt reco
-                     138.5, #2021 MinimumBias express
                      139.001, #2021 MinimumBias offline with HLT step
                      140.53, #2011 HI data
                      140.56, #2018 HI data
@@ -89,11 +87,10 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10824.0, #2018 ttbar
                      2018.1, #2018 ttbar fastsim
-                     11634.911, #2021 DD4hep ttbar reading geometry from XML
-                     11634.914, #2021 DDD ttbar reading geometry from the DB
-                     11634.0, #2021 ttbar (switching to DD4hep by default)
+                     11634.0, #2021 ttbar (switched to DD4hep by default)
                      13234.0, #2021 ttbar fastsim
                      12434.0, #2023 ttbar
+                     12425.0, #2023 ZEE
                      12634.0, #2023 ttbar PU
                      12434.7, #2023 ttbar mkFit
                      14034.0, #2023 ttbar fastsim
@@ -107,6 +104,8 @@ if __name__ == '__main__':
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      141.044 # 2023D JetMET PD
+                     141.042 # 2023D ZeroBias PD
+                     141.046 # 2023D EGamma PD
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
