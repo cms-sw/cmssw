@@ -59,6 +59,8 @@ public:
 
   inline const_iterator end() const;
 
+  inline const size_t size() const { return detIds_.size(); }
+
 private:
   void init(const std::vector<uint32_t> &);
 
