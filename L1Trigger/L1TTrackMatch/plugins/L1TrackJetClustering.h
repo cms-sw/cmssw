@@ -21,15 +21,15 @@ namespace l1ttrackjet {
   static constexpr int kPhiWordLength = 12;
 
   //Constants used for jet clustering in eta direction
-  static constexpr int kThirteenBitMask = 8191;  // 0001111111111111 (bin) = 8191 (dec)
-  static constexpr int kEtaFineBinEdge1 = 1638;
-  static constexpr int kEtaFineBinEdge2 = 3276;
-  static constexpr int kEtaFineBinEdge3 = 4914;
-  static constexpr int kEtaFineBinEdge4 = 6552;
+  static constexpr int kThirteenBitMask = 0b1111111111111;
+  static constexpr int kEtaFineBinEdge1 = 0b0011001100110;
+  static constexpr int kEtaFineBinEdge2 = 0b0110011001100;
+  static constexpr int kEtaFineBinEdge3 = 0b1001100110010;
+  static constexpr int kEtaFineBinEdge4 = 0b1100110011000;
 
   //Constants used for jet clustering in phi direction
-  static constexpr int kTwelveBitMask = 2047;  // 00011111111111 (bin) = 2047 (dec)
-  static constexpr int kPhiBinHalfWidth = 303;
+  static constexpr int kTwelveBitMask = 0b011111111111;
+  static constexpr int kPhiBinHalfWidth = 0b000100101111;
   static constexpr int kNumPhiBins = 27;
   static constexpr int kPhiBinZeroOffset = 12;  // phi bin zero offset between firmware and emulator
 
