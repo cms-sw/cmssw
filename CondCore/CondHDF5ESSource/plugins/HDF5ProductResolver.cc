@@ -78,8 +78,10 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
       [this, iov = iRecord.validityInterval(), iParent, &iRecord](auto& iGroup, auto iActivity) {
         queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov, iParent, &iRecord] {
           CMS_SA_ALLOW try {
-            edm::ESModuleCallingContext context(
-                providerDescription(), edm::ESModuleCallingContext::State::kRunning, iParent);
+            edm::ESModuleCallingContext context(providerDescription(),
+                                                reinterpret_cast<std::uintptr_t>(this),
+                                                edm::ESModuleCallingContext::State::kRunning,
+                                                iParent);
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
             struct EndGuard {
               EndGuard(edm::eventsetup::EventSetupRecordImpl const& iRecord,
