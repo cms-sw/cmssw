@@ -80,6 +80,7 @@ namespace edm {
       virtual void transformAsync_(WaitingTaskHolder iTask,
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
+                                   edm::ActivityRegistry* iAct,
                                    ServiceWeakToken const& iToken) const;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }

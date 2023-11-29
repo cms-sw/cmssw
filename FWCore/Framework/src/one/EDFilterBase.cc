@@ -83,11 +83,11 @@ namespace edm {
     void EDFilterBase::doTransformAsync(WaitingTaskHolder iTask,
                                         size_t iTransformIndex,
                                         EventPrincipal const& iEvent,
-                                        ActivityRegistry*,
-                                        ModuleCallingContext const* iMCC,
+                                        ActivityRegistry* iAct,
+                                        ModuleCallingContext iMCC,
                                         ServiceWeakToken const& iToken) {
       EventForTransformer ev(iEvent, iMCC);
-      transformAsync_(iTask, iTransformIndex, ev, iToken);
+      transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
     size_t EDFilterBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
@@ -95,6 +95,7 @@ namespace edm {
     void EDFilterBase::transformAsync_(WaitingTaskHolder iTask,
                                        std::size_t iIndex,
                                        edm::EventForTransformer& iEvent,
+                                       edm::ActivityRegistry* iAct,
                                        ServiceWeakToken const& iToken) const {}
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {

@@ -566,7 +566,8 @@ namespace edm {
 
       //This gives a lifetime greater than this call
       ParentContext parent(mcc);
-      mcc_ = ModuleCallingContext(worker_->description(), ModuleCallingContext::State::kPrefetching, parent, nullptr);
+      mcc_ = ModuleCallingContext(
+          worker_->description(), index_, ModuleCallingContext::State::kPrefetching, parent, nullptr);
 
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
       worker_->doTransformAsync(WaitingTaskHolder(*waitTask.group(), t),

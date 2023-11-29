@@ -161,6 +161,12 @@ namespace edm {
       void postModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
+      void preModuleTransformPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void postModuleTransformPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void preModuleTransform(StreamContext const&, ModuleCallingContext const&);
+      void postModuleTransform(StreamContext const&, ModuleCallingContext const&);
+      void preModuleTransformAcquiring(StreamContext const&, ModuleCallingContext const&);
+      void postModuleTransformAcquiring(StreamContext const&, ModuleCallingContext const&);
 
       void preModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
       void postModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
@@ -359,6 +365,12 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostModuleEventDelayedGet(this, &Tracer::postModuleEventDelayedGet);
   iRegistry.watchPreEventReadFromSource(this, &Tracer::preEventReadFromSource);
   iRegistry.watchPostEventReadFromSource(this, &Tracer::postEventReadFromSource);
+  iRegistry.watchPreModuleTransformPrefetching(this, &Tracer::preModuleTransformPrefetching);
+  iRegistry.watchPostModuleTransformPrefetching(this, &Tracer::postModuleTransformPrefetching);
+  iRegistry.watchPreModuleTransform(this, &Tracer::preModuleTransform);
+  iRegistry.watchPostModuleTransform(this, &Tracer::postModuleTransform);
+  iRegistry.watchPreModuleTransformAcquiring(this, &Tracer::preModuleTransformAcquiring);
+  iRegistry.watchPostModuleTransformAcquiring(this, &Tracer::postModuleTransformAcquiring);
 
   iRegistry.watchPreModuleStreamPrefetching(this, &Tracer::preModuleStreamPrefetching);
   iRegistry.watchPostModuleStreamPrefetching(this, &Tracer::postModuleStreamPrefetching);
@@ -1228,6 +1240,93 @@ void Tracer::postEventReadFromSource(StreamContext const& sc, ModuleCallingConte
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
 }
 
+void Tracer::preModuleTransformPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before transform in event for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleTransformPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before transform in event for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleTransform(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: transform in event for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleTransform(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: transform in event for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleTransformAcquiring(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: acquiring before transform in event for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+}
+
+void Tracer::postModuleTransformAcquiring(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: acquiring before transform in event acquire for module: stream = " << sc.streamID() << " label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id()
+      << " callID = " << mcc.callID();
+}
 void Tracer::preModuleStreamPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
