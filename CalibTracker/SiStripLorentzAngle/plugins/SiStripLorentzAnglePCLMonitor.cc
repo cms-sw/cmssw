@@ -187,13 +187,15 @@ void SiStripLorentzAnglePCLMonitor::dqmBeginRun(edm::Run const& run, edm::EventS
   m_hash = SiStripHashedDetId(c_rawid);
 
   //reserve the size of the vector
-  iHists_.h2_ct_w_m_.reserve(c_rawid.size());
-  iHists_.h2_ct_var2_m_.reserve(c_rawid.size());
-  iHists_.h2_ct_var3_m_.reserve(c_rawid.size());
+  if (saveHistosMods_) {
+    iHists_.h2_ct_w_m_.reserve(c_rawid.size());
+    iHists_.h2_ct_var2_m_.reserve(c_rawid.size());
+    iHists_.h2_ct_var3_m_.reserve(c_rawid.size());
 
-  iHists_.h2_t_w_m_.reserve(c_rawid.size());
-  iHists_.h2_t_var2_m_.reserve(c_rawid.size());
-  iHists_.h2_t_var3_m_.reserve(c_rawid.size());
+    iHists_.h2_t_w_m_.reserve(c_rawid.size());
+    iHists_.h2_t_var2_m_.reserve(c_rawid.size());
+    iHists_.h2_t_var3_m_.reserve(c_rawid.size());
+  }
 }
 
 std::string SiStripLorentzAnglePCLMonitor::moduleLocationType(const uint32_t& mod, const TrackerTopology* tTopo) {
@@ -310,6 +312,11 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
 
     const auto& hashedIndex = m_hash.hashedIndex(mod);
 
+    if (saveHistosMods_) {
+      LogDebug("SiStripLorentzAnglePCLMonitor") << "module ID: " << mod << " hashedIndex: " << hashedIndex;
+      iHists_.h1_["occupancyPerIndex"]->Fill(hashedIndex);
+    }
+
     TVector3 localdir(c_localdirx, c_localdiry, c_localdirz);
     int sign = iHists_.orientation_[mod];
     float tantheta = TMath::Tan(localdir.Theta());
@@ -348,6 +355,7 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
         iHists_.h2_t_var3_m_[hashedIndex]->Fill(sign * cosphi * theta, c_variance);
       }
     }
+
     // not in PCL
     if (saveHistosMods_) {
       iHists_.h2_ct_w_m_[hashedIndex]->Fill(sign * cosphi * tantheta, c_nstrips);
@@ -391,6 +399,14 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
   iHists_.h2_["track_etaxchi2"] = ibook.book2D(
       "track_etaxchi2_2d", "track #chi^{2}/ndf vs track #eta;track #eta;track #chi^{2};tracks", 60, -3, 3, 100, 0, 5);
   // clang-format on
+
+  if (saveHistosMods_) {
+    iHists_.h1_["occupancyPerIndex"] = ibook.book1D("ClusterOccupancyPerHashedIndex",
+                                                    "cluster occupancy;hashed index;# clusters per module",
+                                                    m_hash.size(),
+                                                    -0.5,
+                                                    m_hash.size() - 0.5);
+  }
 
   // fill in the module types
   iHists_.nlayers_["TIB"] = 4;

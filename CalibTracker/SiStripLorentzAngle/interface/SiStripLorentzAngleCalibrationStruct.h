@@ -28,7 +28,7 @@ public:
   std::map<std::string, dqm::reco::MonitorElement*> p_;
 
   // These are vectors since std:map::find is expensive
-  // we're going to profi of the dense indexing offered by
+  // we're going to profit of the dense indexing offered by
   // SiStripHashedDetId and index the histogram position
   // with the natural booking order
   std::vector<dqm::reco::MonitorElement*> h2_ct_w_m_;
