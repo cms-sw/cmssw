@@ -1705,8 +1705,8 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
     const std::vector<float>& mask,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
     unsigned int layers,
-    const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
+    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1745,8 +1745,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           std::vector<size_t> const& cPSelectedIndices,
                                                           std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
                                                           unsigned int layers,
-                                                          const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-                                                          const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+                                                          const ticl::RecoToSimCollection& cpsInLayerClusterMap,
+                                                          const ticl::SimToRecoCollection& cPOnLayerMap) const {
   const auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -2005,8 +2005,8 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     const std::vector<float>& mask,
     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
     unsigned int layers,
-    const hgcal::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const hgcal::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
+    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*
   // restrict only to the selected SimClusters.
@@ -2185,8 +2185,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        std::map<double, double> cummatbudg,
                                                        unsigned int layers,
                                                        std::vector<int> thicknesses,
-                                                       const hgcal::RecoToSimCollection& cpsInLayerClusterMap,
-                                                       const hgcal::SimToRecoCollection& cPOnLayerMap) const {
+                                                       const ticl::RecoToSimCollection& cpsInLayerClusterMap,
+                                                       const ticl::SimToRecoCollection& cPOnLayerMap) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :

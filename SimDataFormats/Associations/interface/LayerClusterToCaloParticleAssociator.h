@@ -11,11 +11,11 @@
 
 // forward declarations
 
-namespace hgcal {
+namespace ticl {
 
   class LayerClusterToCaloParticleAssociator {
   public:
-    LayerClusterToCaloParticleAssociator(std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl>);
+    LayerClusterToCaloParticleAssociator(std::unique_ptr<ticl::LayerClusterToCaloParticleAssociatorBaseImpl>);
     LayerClusterToCaloParticleAssociator() = default;
     LayerClusterToCaloParticleAssociator(LayerClusterToCaloParticleAssociator &&) = default;
     LayerClusterToCaloParticleAssociator &operator=(LayerClusterToCaloParticleAssociator &&) = default;
@@ -27,14 +27,14 @@ namespace hgcal {
 
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to CaloParticles
-    hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<CaloParticleCollection> &cPCH) const {
+    ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                 const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateRecoToSim(cCCH, cPCH);
     };
 
     /// Associate a CaloParticle to LayerClusters
-    hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<CaloParticleCollection> &cPCH) const {
+    ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                 const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateSimToReco(cCCH, cPCH);
     }
 
@@ -42,6 +42,6 @@ namespace hgcal {
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToCaloParticleAssociatorBaseImpl> m_impl;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

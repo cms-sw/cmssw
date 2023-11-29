@@ -2,6 +2,6 @@
 
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 
-hgcal::LayerClusterToCaloParticleAssociator::LayerClusterToCaloParticleAssociator(
-    std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl> ptr)
+ticl::LayerClusterToCaloParticleAssociator::LayerClusterToCaloParticleAssociator(
+    std::unique_ptr<ticl::LayerClusterToCaloParticleAssociatorBaseImpl> ptr)
     : m_impl(std::move(ptr)) {}
