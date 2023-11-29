@@ -2074,10 +2074,12 @@ steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--con
 hltKey2022='relval2022'
 steps['HLTDR3_2022']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
-hltKey2023='relval2023'
-steps['HLTDR3_2023']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2023'},steps['HLTD'] ] )
+hltKey2023='relval2023' # currently points to Fake2
 
-steps['HLTDR3_2023B']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
+hltKey2024='relval2024' # currently points to GRUN (hacky solution to keep running GRun on real data)
+steps['HLTDR3_2023']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2023'},steps['HLTD'] ] )
+
+steps['HLTDR3_2023B']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
 steps['HLTDR3_HI2023ARawprime']=merge([{'-s':'L1REPACK:Full,HLT:HIon'},
                                        {'--conditions':'auto:run3_hlt_HIon'},
