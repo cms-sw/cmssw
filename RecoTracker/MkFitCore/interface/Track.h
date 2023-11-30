@@ -393,8 +393,6 @@ namespace mkfit {
     Track(int charge, const SVector3& position, const SVector3& momentum, const SMatrixSym66& errors, float chi2)
         : TrackBase(charge, position, momentum, errors, chi2) {}
 
-    Track(const Track& t) : TrackBase(t), hitsOnTrk_(t.hitsOnTrk_) {}
-
     // This function is very inefficient, use only for debug and validation!
     HitVec hitsVector(const std::vector<HitVec>& globalHitVec) const {
       HitVec hitsVec;
