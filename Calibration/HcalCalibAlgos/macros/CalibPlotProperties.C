@@ -2,7 +2,7 @@
 // Usage:
 // .L CalibPlotProperties.C+g
 //  CalibPlotProperties c1(fname, dirname, dupFileName, prefix, corrFileName,
-//	                   rcorFileName, puCorr, flag, isRealData, 
+//	                   rcorFileName, puCorr, flag, isRealData,
 //                         truncateFlag, useGen, scale, useScale, etalo, etahi,
 //                         runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi,
 //                         rbxFile, exclude, etamax);
