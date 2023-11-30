@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/SourceCommon.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
@@ -373,11 +373,14 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   if (!currentFile_.get()) {
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
     setMonState(inWaitInput);
-    if (!fileQueue_.try_pop(currentFile_)) {
-      //sleep until wakeup (only in single-buffer mode) or timeout
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout || !currentFile_.get())
-        return evf::EvFDaqDirector::noFile;
+    {
+      IdleSourceSentry ids(fms_);
+      if (!fileQueue_.try_pop(currentFile_)) {
+        //sleep until wakeup (only in single-buffer mode) or timeout
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout || !currentFile_.get())
+          return evf::EvFDaqDirector::noFile;
+      }
     }
     status = currentFile_->status_;
     if (status == evf::EvFDaqDirector::runEnded) {
@@ -468,10 +471,13 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //multibuffer mode
   //wait for the current chunk to become added to the vector
   setMonState(inWaitChunk);
-  while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-    usleep(10000);
-    if (setExceptionState_)
-      threadError();
+  {
+    IdleSourceSentry ids(fms_);
+    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+      usleep(10000);
+      if (setExceptionState_)
+        threadError();
+    }
   }
   setMonState(inChunkReceived);
 
@@ -508,13 +514,14 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     currentFile_->rewindChunk(dataMode_->headerSize());
 
     setMonState(inWaitChunk);
-
-    //do the copy to the beginning of the starting chunk. move pointers for next event in the next chunk
-    chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize() + msgSize);
-    assert(chunkEnd);
-    //mark to release old chunk
-    chunkIsFree_ = true;
-
+    {
+      IdleSourceSentry ids(fms_);
+      //do the copy to the beginning of the starting chunk. move pointers for next event in the next chunk
+      chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize() + msgSize);
+      assert(chunkEnd);
+      //mark to release old chunk
+      chunkIsFree_ = true;
+    }
     setMonState(inChunkReceived);
     //header and payload is moved, update view
     dataMode_->makeDataBlockView(
