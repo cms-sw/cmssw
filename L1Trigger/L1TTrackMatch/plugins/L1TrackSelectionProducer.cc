@@ -206,7 +206,7 @@ private:
     TTTrackPromptMVAMinSelector(double promptMVAMin) : promptMVAMin_(promptMVAMin) {}
     TTTrackPromptMVAMinSelector(const edm::ParameterSet& cfg)
         : promptMVAMin_(cfg.template getParameter<double>("promptMVAMin")) {}
-    bool operator()(const L1Track& t) const { return t.trkMVA1() > promptMVAMin_; }
+    bool operator()(const L1Track& t) const { return t.trkMVA1() >= promptMVAMin_; }
 
   private:
     double promptMVAMin_;
@@ -216,7 +216,7 @@ private:
     TTTrackWordPromptMVAMinSelector(const edm::ParameterSet& cfg)
         : promptMVAMin_(cfg.template getParameter<double>("promptMVAMin")) {}
     bool operator()(const L1Track& t) const {
-      return t.trkMVA1() > promptMVAMin_;
+      return t.trkMVA1() >= promptMVAMin_;
     }  //change when mva bins in word are set
 
   private:
