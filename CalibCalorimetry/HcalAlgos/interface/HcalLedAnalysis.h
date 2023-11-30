@@ -83,7 +83,6 @@ private:
   std::string m_outputFileText;
   std::string m_outputFileX;
   std::ofstream m_outFile;
-  std::ofstream m_logFile;
   std::ofstream m_outputFileXML;
 
   int m_startTS;

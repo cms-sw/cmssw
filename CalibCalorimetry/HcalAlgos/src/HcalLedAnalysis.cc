@@ -1,8 +1,7 @@
-
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLedAnalysis.h"
 #include "TFile.h"
 #include <cmath>
@@ -23,12 +22,12 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps) {
   m_outputFileText = ps.getUntrackedParameter<string>("outputFileText", "");
   m_outputFileX = ps.getUntrackedParameter<string>("outputFileXML", "");
   if (!m_outputFileText.empty()) {
-    cout << "Hcal LED results will be saved to " << m_outputFileText.c_str() << endl;
+    edm::LogInfo("HcalLedAnalysis") << "Hcal LED results will be saved to " << m_outputFileText.c_str() << endl;
     m_outFile.open(m_outputFileText.c_str());
   }
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
   if (!m_outputFileROOT.empty()) {
-    cout << "Hcal LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
+    edm::LogInfo("HcalLedAnalysis") << "Hcal LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   }
 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample", 9999999);
@@ -49,7 +48,6 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps) {
     m_startTS = 0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
   m_usecalib = ps.getUntrackedParameter<bool>("usecalib", false);
-  m_logFile.open("HcalLedAnalysis.log");
 
   int runNum = ps.getUntrackedParameter<int>("runNumber", 999999);
 
@@ -555,7 +553,7 @@ void HcalLedAnalysis::LedDone() {
   // Write the histo file and close it
   //  m_file->Write();
   m_file->Close();
-  cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
+  edm::LogInfo("HcalLedAnalysis") << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -573,73 +571,65 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   // Calib
 
   if (m_usecalib) {
-    try {
-      if (calib.empty())
-        throw (int)calib.size();
-      // this is effectively a loop over electronic channels
-      for (HcalCalibDigiCollection::const_iterator j = calib.begin(); j != calib.end(); ++j) {
-        const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);
-        HcalElectronicsId elecId = digi.elecId();
-        HcalCalibDetId calibId = digi.id();
-        ProcessCalibEvent(elecId.fiberChanId(),
-                          calibId,
-                          digi);  //Shouldn't depend on anything in elecId but not sure how else to do it
-      }
-    } catch (int i) {
-      //  m_logFile<< "Event with " << i<<" Calib Digis passed." << std::endl;
+    if (calib.empty()) {
+      edm::LogError("HcalLedAnalysis") << "Event with " << (int)calib.size() << " Calib Digis passed.";
+      return;
+    }
+    // this is effectively a loop over electronic channels
+    for (HcalCalibDigiCollection::const_iterator j = calib.begin(); j != calib.end(); ++j) {
+      const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);
+      HcalElectronicsId elecId = digi.elecId();
+      HcalCalibDetId calibId = digi.id();
+      ProcessCalibEvent(elecId.fiberChanId(),
+                        calibId,
+                        digi);  //Shouldn't depend on anything in elecId but not sure how else to do it
     }
   }
 
   // HB + HE
-  try {
-    if (hbhe.empty())
-      throw (int)hbhe.size();
-    // this is effectively a loop over electronic channels
-    for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      for (int k = 0; k < (int)state.size(); k++)
-        state[k] = true;
-      // See if histos exist for this channel, and if not, create them
-      _meol = hbHists.LEDTRENDS.find(digi.id());
-      if (_meol == hbHists.LEDTRENDS.end()) {
-        SetupLEDHists(0, digi.id(), hbHists.LEDTRENDS);
-      }
-      LedHBHEHists(digi.id(), digi, hbHists.LEDTRENDS, cond);
+  if (hbhe.empty()) {
+    edm::LogError("HcalLedAnalysis") << "Event with " << (int)hbhe.size() << " HBHE Digis passed.";
+    return;
+  }
+  // this is effectively a loop over electronic channels
+  for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
+    const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+    for (int k = 0; k < (int)state.size(); k++)
+      state[k] = true;
+    // See if histos exist for this channel, and if not, create them
+    _meol = hbHists.LEDTRENDS.find(digi.id());
+    if (_meol == hbHists.LEDTRENDS.end()) {
+      SetupLEDHists(0, digi.id(), hbHists.LEDTRENDS);
     }
-  } catch (int i) {
-    //    m_logFile<< "Event with " << i<<" HBHE Digis passed." << std::endl;
+    LedHBHEHists(digi.id(), digi, hbHists.LEDTRENDS, cond);
   }
 
   // HO
-  try {
-    if (ho.empty())
-      throw (int)ho.size();
-    for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
-      const HODataFrame digi = (const HODataFrame)(*j);
-      _meol = hoHists.LEDTRENDS.find(digi.id());
-      if (_meol == hoHists.LEDTRENDS.end()) {
-        SetupLEDHists(1, digi.id(), hoHists.LEDTRENDS);
-      }
-      LedHOHists(digi.id(), digi, hoHists.LEDTRENDS, cond);
+  if (ho.empty()) {
+    edm::LogError("HcalLedAnalysis") << "Event with " << (int)ho.size() << " HO Digis passed.";
+    return;
+  }
+  for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
+    const HODataFrame digi = (const HODataFrame)(*j);
+    _meol = hoHists.LEDTRENDS.find(digi.id());
+    if (_meol == hoHists.LEDTRENDS.end()) {
+      SetupLEDHists(1, digi.id(), hoHists.LEDTRENDS);
     }
-  } catch (int i) {
-    //    m_logFile << "Event with " << i<<" HO Digis passed." << std::endl;
+    LedHOHists(digi.id(), digi, hoHists.LEDTRENDS, cond);
   }
 
   // HF
-  try {
-    if (hf.empty())
-      throw (int)hf.size();
-    for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
-      const HFDataFrame digi = (const HFDataFrame)(*j);
-      _meol = hfHists.LEDTRENDS.find(digi.id());
-      if (_meol == hfHists.LEDTRENDS.end()) {
-        SetupLEDHists(2, digi.id(), hfHists.LEDTRENDS);
-      }
-      LedHFHists(digi.id(), digi, hfHists.LEDTRENDS, cond);
+  if (hf.empty()) {
+    edm::LogError("HcalLedAnalysis") << "Event with " << (int)hf.size() << " HF Digis passed.";
+    return;
+  }
+  for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
+    const HFDataFrame digi = (const HFDataFrame)(*j);
+    _meol = hfHists.LEDTRENDS.find(digi.id());
+    if (_meol == hfHists.LEDTRENDS.end()) {
+      SetupLEDHists(2, digi.id(), hfHists.LEDTRENDS);
     }
-  } catch (int i) {
-    //    m_logFile << "Event with " << i<<" HF Digis passed." << std::endl;
+    LedHFHists(digi.id(), digi, hfHists.LEDTRENDS, cond);
   }
 
   // Call the function every m_nevtsample events
