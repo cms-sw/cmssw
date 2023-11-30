@@ -25,7 +25,7 @@ HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
 
 bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV) {
   bool check(false);
-  if ((modeUV_ == HGCalGeometryMode::Hexagon8Module) || (modeUV_ == HGCalGeometryMode::Hexagon8Cassette)) {
+  if (hgcons_.waferHexagon8Module()) {
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     if (partial == HGCalTypes::WaferFull) {

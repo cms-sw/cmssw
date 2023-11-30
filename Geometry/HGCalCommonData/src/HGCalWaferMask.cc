@@ -2,8 +2,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 
 #include <algorithm>
+#include <array> 
 #include <sstream>
 
 //#define EDM_ML_DEBUG
@@ -1966,4 +1968,64 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
   edm::LogVerbatim("HGCalGeom") << st1.str();
 #endif
   return xy;
+}
+
+std::array<double, 4> HGCalWaferMask::maskCut(const int& part, const int& placement, const double& waferSize, const double& offset, const bool& v17OrLess) {
+  double c22(HGCalTypes::c22), c27(HGCalTypes::c27);
+  if (v17OrLess) {
+    c22 = HGCalTypes::c22O;
+    c27 = HGCalTypes::c27O;
+  }
+  double delX = 0.5 * waferSize;
+  double delY = 2 * delX / sqrt3_;
+  double tresh = std::abs(offset/ cos_1[placement]);
+  std::array<double, 4> criterion;
+  switch (part) {
+	  case (HGCalTypes::WaferLDTop): {
+      criterion[0] = tan_1[placement]; criterion[1] = 1.0; criterion[2] = 0.0; criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferLDBottom): {
+      criterion[0] = -tan_1[placement]; criterion[1] = -1.0; criterion[2] = 0.0; criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferLDLeft): {
+      criterion[0] = 1.0; criterion[1] = -tan_1[placement]; criterion[2] = 0.0; criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferLDRight): {
+      criterion[0] = -1.0; criterion[1] = tan_1[placement]; criterion[2] = 0.0; criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferLDFive): {
+      criterion[0] = 1; criterion[1] = -tan_1[placement]; criterion[2] = ((HGCalTypes::c50 * delY) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferLDThree): {
+      criterion[0] = -1; criterion[1] = tan_1[placement]; criterion[2] = -((HGCalTypes::c50 * delY) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferHDTop): {
+      criterion[0] = tan_1[placement]; criterion[1] = 1; criterion[2] = ((c22 * delX) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferHDBottom): {
+      criterion[0] = -tan_1[placement]; criterion[1] = -1; criterion[2] = -((c22 * delX) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferHDLeft): {
+      criterion[0] = 1.0; criterion[1] = -tan_1[placement]; criterion[2] = ((c27 * delY) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferHDRight): {
+      criterion[0] = -1.0; criterion[1] = tan_1[placement]; criterion[2] = -((c27 * delY) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+	  case (HGCalTypes::WaferHDFive): {
+      criterion[0] = -1.0; criterion[1] = tan_1[placement]; criterion[2] = ((c27 * delY) / cos_1[placement]); criterion[3] = tresh;
+      break;
+    }
+  }
+  criterion[1] = (placement > HGCalCell::cellPlacementExtra) ? criterion[1] : -criterion[1];
+  return criterion;
 }

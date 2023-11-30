@@ -56,6 +56,8 @@ public:
   static constexpr int32_t WaferOut = 99;
   static constexpr int32_t WaferPartLDOffset = 11;
   static constexpr int32_t WaferPartHDOffset = 21;
+  static constexpr int32_t WaferPartLDCount = 6;
+  static constexpr int32_t WaferPartHDCount = 5;
   static constexpr int32_t WaferTypeOffset[3] = {0, 5, 11};
 
   static constexpr int32_t WaferOrient0 = 0;
