@@ -6,9 +6,8 @@
 #include <vector>
 
 #include <hip/hip_runtime.h>
-/*
-#include <nvml.h>
-*/
+#include <rocm_version.h>
+#include <rocm_smi/rocm_smi.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -18,9 +17,7 @@
 #include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 #include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
-/*
-#include "HeterogeneousCore/ROCmUtilities/interface/nvmlCheck.h"
-*/
+#include "HeterogeneousCore/ROCmUtilities/interface/rsmiCheck.h"
 
 class ROCmService : public ROCmInterface {
 public:
@@ -73,7 +70,9 @@ void setHipLimit(hipLimit_t limit, const char* name, size_t request) {
 }
 
 std::string decodeVersion(int version) {
-  return std::to_string(version / 1000) + '.' + std::to_string(version % 1000 / 10);
+  // decode 50631061 as 5.6.31061
+  return std::to_string(version / 10000000) + '.' + std::to_string(version / 100000 % 100) + '.' +
+         std::to_string(version % 100000);
 }
 
 /// Constructor
@@ -91,13 +90,11 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
   }
   computeCapabilities_.reserve(numberOfDevices_);
 
-  /*
-  // AMD system driver version, e.g. 470.57.02
-  char systemDriverVersion[NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE];
-  nvmlCheck(nvmlInitWithFlags(NVML_INIT_FLAG_NO_GPUS | NVML_INIT_FLAG_NO_ATTACH));
-  nvmlCheck(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
-  nvmlCheck(nvmlShutdown());
-  */
+  // AMD system driver version, e.g. 5.16.9.22.20 or 6.1.5
+  char systemDriverVersion[256];
+  rsmiCheck(rsmi_init(0x00));
+  rsmiCheck(rsmi_version_str_get(RSMI_SW_COMP_DRIVER, systemDriverVersion, sizeof(systemDriverVersion) - 1));
+  rsmiCheck(rsmi_shut_down());
 
   // ROCm driver version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.100, is not reported
@@ -111,24 +108,21 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
 
   edm::LogInfo log("ROCmService");
   if (verbose_) {
-    /*
-    log << "AMD driver:       " << systemDriverVersion << '\n';
-    */
-    log << "ROCm driver API:  " << decodeVersion(driverVersion) << /*" (compiled with " << decodeVersion(ROCm_VERSION)
-        << ")" */
-        "\n";
-    log << "ROCm runtime API: " << decodeVersion(runtimeVersion)
-        << /*" (compiled with " << decodeVersion(ROCmRT_VERSION)
-        << ")" */
-        "\n";
+    log << "AMD kernel driver: " << systemDriverVersion << '\n';
+    log << "ROCm driver API:   " << decodeVersion(driverVersion) << " (compiled with ROCm " <<
+#ifdef ROCM_BUILD_INFO
+        // ROCM_BUILD_INFO has been introduced in ROCm 5.5.0
+        ROCM_BUILD_INFO
+#else
+        ROCM_VERSION_MAJOR << '.' << ROCM_VERSION_MINOR << '.' << ROCM_VERSION_PATCH
+#endif
+        << ")\n";
+    log << "ROCm runtime API:  " << decodeVersion(runtimeVersion) << " (compiled with HIP " << HIP_VERSION_MAJOR << '.'
+        << HIP_VERSION_MINOR << '.' << HIP_VERSION_PATCH << ")\n";
     log << "ROCm runtime successfully initialised, found " << numberOfDevices_ << " compute devices.\n";
   } else {
     log << "ROCm runtime version " << decodeVersion(runtimeVersion) << ", driver version "
-        << decodeVersion(driverVersion)
-        /*
-        << ", AMD driver version " << systemDriverVersion
-        */
-        ;
+        << decodeVersion(driverVersion) << ", AMD driver version " << systemDriverVersion;
   }
 
   auto const& limits = config.getUntrackedParameter<edm::ParameterSet>("limits");
@@ -158,9 +152,10 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     // compute capabilities
     computeCapabilities_.emplace_back(properties.major, properties.minor);
     if (verbose_) {
-      log << "  compute capability:          " << properties.major << "." << properties.minor;
+      log << "  compute capability:          " << properties.gcnArchName;
+    } else {
+      log << " (" << properties.gcnArchName << ")";
     }
-    log << " (sm_" << properties.major << properties.minor << ")";
     if (verbose_) {
       log << '\n';
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
@@ -192,12 +187,13 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     // read the free and total amount of memory available for allocation by the device, in bytes.
     // see the documentation of hipMemGetInfo() for more information.
     if (verbose_) {
-      size_t freeMemory, totalMemory;
+      size_t freeMemory = 0;
+      size_t totalMemory = 0;
       hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
       log << "  memory: " << std::setw(6) << freeMemory / (1 << 20) << " MB free / " << std::setw(6)
           << totalMemory / (1 << 20) << " MB total\n";
-      log << "  constant memory:               " << std::setw(6) << properties.totalConstMem / (1 << 10) << " kB\n";
-      log << "  L2 cache size:                 " << std::setw(6) << properties.l2CacheSize / (1 << 10) << " kB\n";
+      log << "  constant memory:             " << std::setw(8) << properties.totalConstMem / (1 << 10) << " kB\n";
+      log << "  L2 cache size:               " << std::setw(8) << properties.l2CacheSize / (1 << 10) << " kB\n";
     }
 
     // L1 cache behaviour
