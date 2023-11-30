@@ -69,7 +69,8 @@ public:
                                                          const double& ypos,
                                                          const bool& v17);
 
-  static std::array<double, 4> maskCut(const int& part, const int& place, const double& waferSize, const double& offset, const bool& v17OrLess); 
+  static std::array<double, 4> maskCut(
+      const int& part, const int& place, const double& waferSize, const double& offset, const bool& v17OrLess);
 
 private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision

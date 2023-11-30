@@ -18,8 +18,14 @@ public:
   std::pair<int32_t, int32_t> cellUVFromXY2(
       double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const;
 
-std::pair<int32_t, int32_t> cellUVFromXY2( // for v18
-      double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const;
+  std::pair<int32_t, int32_t> cellUVFromXY2(  // for v18
+      double xloc,
+      double yloc,
+      int32_t placement,
+      int32_t type,
+      int32_t partial,
+      bool extend,
+      bool debug) const;
 
   std::pair<int32_t, int32_t> cellUVFromXY3(
       double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const;

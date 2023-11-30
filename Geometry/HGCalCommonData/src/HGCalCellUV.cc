@@ -278,9 +278,14 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
   return uv;
 }
 
-
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(  // for v17
-    double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const {
+    double xloc,
+    double yloc,
+    int32_t placement,
+    int32_t type,
+    int32_t partial,
+    bool extend,
+    bool debug) const {
   if (type != 0)
     type = 1;
   double cellX = (extend) ? cellXTotal_[type] : cellX_[type];
@@ -333,34 +338,47 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(  // for v17
   return std::make_pair(u, v);
 }
 
-
-std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2( // for v18
-    double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const {
+std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(  // for v18
+    double xloc,
+    double yloc,
+    int32_t placement,
+    int32_t type,
+    int32_t partial,
+    bool extend,
+    bool debug) const {
   if (type != 0)
     type = 1;
   std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
   int u = uv.first;
   int v = uv.second;
   if ((partial != HGCalTypes::WaferFull) && (type == 1)) {
-    if (u == 1 && v == 8){
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferLDThree, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
+    if (u == 1 && v == 8) {
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferLDThree, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
         ++u;
-	++v;
+        ++v;
       }
     }
-    if (u == 15 && v == 15){
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferLDThree, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
+    if (u == 15 && v == 15) {
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferLDThree, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
         --u;
       }
     }
     if (u * HGCalTypes::edgeWaferLDTop[0] + v * HGCalTypes::edgeWaferLDTop[1] == HGCalTypes::edgeWaferLDTop[2] + 1) {
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferLDTop, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
-        std::pair<double, double>xy1 = hgcalcell_->cellUV2XY1(u, v, placement, 1);
-        std::pair<double, double>xy2 = hgcalcell_->cellUV2XY1(u-2, v-1, placement, 1);
-        if (((placement >= HGCalCell::cellPlacementExtra) && ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) > 0.0)) || ((placement < HGCalCell::cellPlacementExtra) && ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) < 0.0))){
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferLDTop, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
+        std::pair<double, double> xy1 = hgcalcell_->cellUV2XY1(u, v, placement, 1);
+        std::pair<double, double> xy2 = hgcalcell_->cellUV2XY1(u - 2, v - 1, placement, 1);
+        if (((placement >= HGCalCell::cellPlacementExtra) &&
+             ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) >
+              0.0)) ||
+            ((placement < HGCalCell::cellPlacementExtra) &&
+             ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) <
+              0.0))) {
           --u;
           if ((v - u) >= ncell_[1])
             --v;
@@ -372,26 +390,34 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2( // for v18
       }
     }
   } else if ((partial != HGCalTypes::WaferFull) && (type == 0)) {
-    if (u == 10 && v == 0){
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferHDTop, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
+    if (u == 10 && v == 0) {
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferHDTop, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
         --u;
       }
     }
-    if (u == 10 && v == 21){
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferHDTop, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
+    if (u == 10 && v == 21) {
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferHDTop, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
         --u;
-	--v;
+        --v;
       }
     }
     if (u * HGCalTypes::edgeWaferHDBottom[0] + v * HGCalTypes::edgeWaferHDBottom[1] ==
         HGCalTypes::edgeWaferHDBottom[2] + 1) {
-      std::array<double, 4> criterion = HGCalWaferMask::maskCut(HGCalTypes::WaferHDBottom, placement, waferSize_, 0.0, 0);
-      if ((criterion[0]*yloc) + (criterion[1]*xloc) < -criterion[2]){
-        std::pair<double, double>xy1 = hgcalcell_->cellUV2XY1(u, v, placement, 0);
-        std::pair<double, double>xy2 = hgcalcell_->cellUV2XY1(u-2, v-1, placement, 0);
-        if (((placement >= HGCalCell::cellPlacementExtra) && ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) > 0.0)) || ((placement < HGCalCell::cellPlacementExtra) && ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) < 0.0))) {
+      std::array<double, 4> criterion =
+          HGCalWaferMask::maskCut(HGCalTypes::WaferHDBottom, placement, waferSize_, 0.0, false);
+      if ((criterion[0] * yloc) + (criterion[1] * xloc) < -criterion[2]) {
+        std::pair<double, double> xy1 = hgcalcell_->cellUV2XY1(u, v, placement, 0);
+        std::pair<double, double> xy2 = hgcalcell_->cellUV2XY1(u - 2, v - 1, placement, 0);
+        if (((placement >= HGCalCell::cellPlacementExtra) &&
+             ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) >
+              0.0)) ||
+            ((placement < HGCalCell::cellPlacementExtra) &&
+             ((((xloc - xy1.first) / (xy2.first - xy1.first)) - ((yloc - xy1.second) / (xy2.second - xy1.second))) <
+              0.0))) {
           ++u;
           ++v;
         } else {
