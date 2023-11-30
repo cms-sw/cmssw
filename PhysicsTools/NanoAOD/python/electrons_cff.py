@@ -219,6 +219,7 @@ run2_egamma.toModify(slimmedElectronsWithUserData.userFloats,
                      PFIsoAll = None,
                      PFIsoAll04 = None).\
         toModify(slimmedElectronsWithUserData.userIntFromBools,
+                 mvaIso_WPHZZ = None,
                  mvaIso_WP90 = None,
                  mvaIso_WP80 = None,
                  mvaNoIso_WP90 = None,
@@ -249,10 +250,7 @@ run2_egamma.toModify(
     slimmedElectronsWithUserData.userFloats,
     mvaHZZIso = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer17ULIdIsoValues"
 )
-(run2_egamma_2018).toModify(
-    slimmedElectronsWithUserData.userFloats,
-    mvaHZZIso = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoValues"
-)
+
 #################################################END slimmedElectrons with user data#####################
 
 #################################################finalElectrons#####################
