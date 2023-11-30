@@ -40,9 +40,9 @@
 #include "Randomize.hh"
 
 // for some reason void doesn't compile
-class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int> > {
+class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>> {
 public:
-  typedef std::vector<std::shared_ptr<SimProducer> > Producers;
+  typedef std::vector<std::shared_ptr<SimProducer>> Producers;
 
   explicit OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*);
   ~OscarMTProducer() override;
@@ -127,10 +127,14 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
 
   auto trackHits = p.getParameter<std::vector<std::string>>("TrackHits");
-  for (auto const& ss : trackHits) { produces<edm::PSimHitContainer>(ss); }
-   
+  for (auto const& ss : trackHits) {
+    produces<edm::PSimHitContainer>(ss);
+  }
+
   auto caloHits = p.getParameter<std::vector<std::string>>("CaloHits");
-  for (auto const& ss : caloHits) { produces<edm::PCaloHitContainer>(ss); } 
+  for (auto const& ss : caloHits) {
+    produces<edm::PCaloHitContainer>(ss);
+  }
 
   //register any products
   auto& producers = m_runManagerWorker->producers();
@@ -138,9 +142,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
     ptr->registerProducts(producesCollector());
   }
   edm::LogVerbatim("SimG4CoreApplication")
-      << "OscarMTProducer is constructed with hit collections:"
-      << trackHits.size() << " tracking type; " << caloHits.size() << " calo type; "
-      << producers.size() << " watcher type.";
+      << "OscarMTProducer is constructed with hit collections:" << trackHits.size() << " tracking type; "
+      << caloHits.size() << " calo type; " << producers.size() << " watcher type.";
 }
 
 OscarMTProducer::~OscarMTProducer() {
