@@ -158,11 +158,11 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   auto seeds = std::make_unique<ElectronSeedCollection>();
-  auto const& beamSportPosition = e.get(beamSpotTag_).position();
+  auto const& beamSpotPosition = e.get(beamSpotTag_).position();
 
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
-    auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
+    auto clusterRefs = filterClusters(beamSpotPosition, e.getHandle(superClusters_[i]));
     matcher_->run(e, clusterRefs, initialSeedCollections, *seeds);
   }
 
