@@ -134,33 +134,36 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('*Loose*')","Loose"),
-                mksel("filter('*Medium*')","Medium"),
-                mksel("filter('*Tight*')","Tight"),
-                mksel("filter('*DeepTau*')","DeepTau no spec WP"),
-                mksel("filter('*ChargedIso*')","ChargedIso"),
-                mksel("filter('*Hps*')","HPS"),
-                mksel("filter('*ETau*')","e-tau inside filter"),
-                mksel("filter('*MuTau*')","mu-tau inside filter"),
-                mksel("filter('*SingleTau*')","single-tau inside filter"),
-                mksel("filter('hltMatchedVBFIsoTau*')","VBF matching"),
-                mksel("filter('hlt*DoublePFTau*L1HLTMatched')","di-tau"),
-                mksel("filter('hltHpsOverlapFilterIsoEle*WPTightGsf*PFTau*')","e-tau"),
-                mksel("filter('hltHpsOverlapFilterIsoMu*PFTau*')","mu-tau"),
-                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","di-tau + PFJet"),
-                mksel("filter('hltHpsOverlapFilterDisplacedEle*DisplPFTau*')","e-tau displaced"),
-                mksel("filter('hltHpsOverlapFilterDisplacedMu*DisplPFTau*')","mu-tau displaced"),
-                mksel("filter('hlt*Double*ChargedIsoDisplPFTau*')","di-tau displaced"),
-                mksel("filter('*Monitoring')","Monitoring"),
-                mksel("filter('*MonitoringForVBFIsoTau')","MonitoringForVBFIsoTau"),
-                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","'Monitoring di-tau + PFJet"),
-                mksel("filter('hltHpsOverlapFilterIsoMu*MediumChargedIsoDisplTau*')","'Monitoring muTau displaced"),
-                mksel("filter('*OneProng*')","OneProng"),
-                mksel("filter('*2*DiJetCorr*')","DiJetCorr"),
-                mksel("filter('*OverlapFilter*')","OverlapFilter"),
-                mksel("filter('*Dxy*')","Dxy"),
-                mksel("filter('*L1HLTMatched')","MatchL1HLT"),
-                mksel("filter('*L1Seeded')","MatchL1HLT"),
+                mksel("filter('*Loose*')","Loose"), # 0
+                mksel("filter('*Medium*')","Medium"), # 1
+                mksel("filter('*Tight*')","Tight"), # 2
+                mksel("filter('*DeepTau*')","DeepTau no spec WP"), #3
+                mksel("filter('*ChargedIso*')","ChargedIso"), # 4
+                mksel("filter('*Hps*')","HPS"), # 5
+                mksel("filter('*ETau*')","e-tau inside filter"), # 6
+                mksel("filter('*MuTau*')","mu-tau inside filter"), # 7
+                mksel("filter('*SingleTau*')","single-tau inside filter"), # 8
+                mksel("filter('hltMatchedVBFIsoTau*')","VBF matching"), # 9
+                mksel("filter('hlt*DoublePFTau*L1HLTMatched')","di-tau"), # 10
+                mksel("filter('hltHpsOverlapFilterIsoEle*WPTightGsf*PFTau*')","e-tau"), # 11
+                mksel("filter('hltHpsOverlapFilterIsoMu*PFTau*')","mu-tau"), # 12
+                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","di-tau + PFJet"), # 13
+                mksel("filter('hltHpsOverlapFilterDisplacedEle*DisplPFTau*')","e-tau displaced"), # 14
+                mksel("filter('hltHpsOverlapFilterDisplacedMu*DisplPFTau*')","mu-tau displaced"), # 15
+                mksel("filter('hlt*Double*ChargedIsoDisplPFTau*')","di-tau displaced"), # 16
+                mksel("filter('*Monitoring')","Monitoring"), # 17
+                mksel("filter('*MonitoringForVBFIsoTau')","MonitoringForVBFIsoTau"), # 18
+                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","'Monitoring di-tau + PFJet"), # 19
+                mksel("filter('hltHpsOverlapFilterIsoMu*MediumChargedIsoDisplTau*')","'Monitoring muTau displaced"), # 20
+                mksel("filter('*OneProng*')","OneProng"), # 21
+                mksel("filter('*2*DiJetCorr*')","DiJetCorr"), # 22
+                mksel("filter('*OverlapFilter*')","OverlapFilter"), # 23
+                mksel("filter('*Dxy*')","Dxy"), # 24
+                mksel("filter('*L1HLTMatched*')","MatchL1HLT"), # 25
+                mksel("filter('*L1Seeded')","MatchL1HLT"), # 26
+                mksel("filter('hltHpsOverlapFilterIsoMu27MediumDeepTauDitauWPPFTau20')","VBF + DoubleTau Monitoring"), # 27
+                mksel("filter('hltHpsOverlapFilterIsoMu24MediumDeepTauPFTau20')","For matching to monitoring trigger for 20 GeV tau leg of VBF triggers"), # 28
+                mksel("filter('*SinglePFTau*')","single PF-tau inside filter"), # 29
             )
         ),
         BoostedTau = cms.PSet(
