@@ -24,12 +24,7 @@ private:
   bool isFromHadron(const reco::Candidate* p) const;
   bool isBHadron(const reco::Candidate* p) const;
   bool isBHadron(const unsigned int pdgId) const;
-  void insertAllDaughters(const reco::Candidate* p, std::set<const reco::Candidate*>& list) const;
 
-  const reco::Candidate* getLast(const reco::Candidate* p);
-  reco::GenParticleRef buildGenParticle(const reco::Candidate* p,
-                                        reco::GenParticleRefProd& refHandle,
-                                        std::auto_ptr<reco::GenParticleCollection>& outColl) const;
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:
@@ -531,15 +526,6 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   event.put(std::move(pseudoTop));
 }
 
-const reco::Candidate* PseudoTopProducer::getLast(const reco::Candidate* p) {
-  for (size_t i = 0, n = p->numberOfDaughters(); i < n; ++i) {
-    const reco::Candidate* dau = p->daughter(i);
-    if (p->pdgId() == dau->pdgId())
-      return getLast(dau);
-  }
-  return p;
-}
-
 bool PseudoTopProducer::isFromHadron(const reco::Candidate* p) const {
   for (size_t i = 0, n = p->numberOfMothers(); i < n; ++i) {
     const reco::Candidate* mother = p->mother(i);
@@ -594,20 +580,6 @@ bool PseudoTopProducer::isBHadron(const unsigned int absPdgId) const {
     return true;  // B baryons
 
   return false;
-}
-
-reco::GenParticleRef PseudoTopProducer::buildGenParticle(const reco::Candidate* p,
-                                                         reco::GenParticleRefProd& refHandle,
-                                                         std::auto_ptr<reco::GenParticleCollection>& outColl) const {
-  reco::GenParticle pOut(*dynamic_cast<const reco::GenParticle*>(p));
-  pOut.clearMothers();
-  pOut.clearDaughters();
-  pOut.resetMothers(refHandle.id());
-  pOut.resetDaughters(refHandle.id());
-
-  outColl->push_back(pOut);
-
-  return reco::GenParticleRef(refHandle, outColl->size() - 1);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
