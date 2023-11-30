@@ -48,6 +48,7 @@ private:
 };
 
 void setHipLimit(hipLimit_t limit, const char* name, size_t request) {
+#if HIP_VERSION >= 50400000
   // read the current device
   int device;
   hipCheck(hipGetDevice(&device));
@@ -67,6 +68,9 @@ void setHipLimit(hipLimit_t limit, const char* name, size_t request) {
     edm::LogWarning("ROCmService") << "ROCm device " << device << ": limit \"" << name << "\" set to " << value
                                    << " instead of requested " << request;
   }
+#else
+  edm::LogWarning("ROCmService") << "ROCm versions below 5.4.0 do not support setting device limits.";
+#endif
 }
 
 std::string decodeVersion(int version) {
@@ -125,16 +129,11 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
         << decodeVersion(driverVersion) << ", AMD driver version " << systemDriverVersion;
   }
 
+#if HIP_VERSION >= 50400000
   auto const& limits = config.getUntrackedParameter<edm::ParameterSet>("limits");
-  /*
-  auto printfFifoSize = limits.getUntrackedParameter<int>("hipLimitPrintfFifoSize");
-  */
   auto stackSize = limits.getUntrackedParameter<int>("hipLimitStackSize");
   auto mallocHeapSize = limits.getUntrackedParameter<int>("hipLimitMallocHeapSize");
-  /*
-  auto devRuntimeSyncDepth = limits.getUntrackedParameter<int>("hipLimitDevRuntimeSyncDepth");
-  auto devRuntimePendingLaunchCount = limits.getUntrackedParameter<int>("hipLimitDevRuntimePendingLaunchCount");
-  */
+#endif
 
   std::set<std::string> models;
 
@@ -160,10 +159,7 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
       log << '\n';
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
       log << "  ROCm cores: " << std::setw(28) << "not yet implemented" << '\n';
-      /*
-      log << "  single to double performance: " << std::setw(8) << properties.singleToDoublePrecisionPerfRatio
-          << ":1\n";
-      */
+      // ROCm does not provide single to double performance ratio
     }
 
     // compute mode
@@ -184,9 +180,9 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     hipCheck(hipSetDevice(i));
     hipCheck(hipSetDeviceFlags(hipDeviceScheduleAuto | hipDeviceMapHost));
 
-    // read the free and total amount of memory available for allocation by the device, in bytes.
-    // see the documentation of hipMemGetInfo() for more information.
     if (verbose_) {
+      // read the free and total amount of memory available for allocation by the device, in bytes.
+      // see the documentation of hipMemGetInfo() for more information.
       size_t freeMemory = 0;
       size_t totalMemory = 0;
       hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
@@ -194,18 +190,10 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
           << totalMemory / (1 << 20) << " MB total\n";
       log << "  constant memory:             " << std::setw(8) << properties.totalConstMem / (1 << 10) << " kB\n";
       log << "  L2 cache size:               " << std::setw(8) << properties.l2CacheSize / (1 << 10) << " kB\n";
-    }
 
-    // L1 cache behaviour
-    if (verbose_) {
-      /*
-      static constexpr const char* l1CacheModeDescription[] = {
-          "unknown", "local memory", "global memory", "local and global memory"};
-      int l1CacheMode = properties.localL1CacheSupported + 2 * properties.globalL1CacheSupported;
-      log << "  L1 cache mode:" << std::setw(26) << std::right << l1CacheModeDescription[l1CacheMode] << '\n';
       log << '\n';
-      */
 
+      // other capabilities
       log << "Other capabilities\n";
       log << "  " << (properties.canMapHostMemory ? "can" : "cannot")
           << " map host memory into the ROCm address space for use with hipHostAlloc()/hipHostGetDevicePointer()\n";
@@ -213,12 +201,6 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
           << " coherently accessing pageable memory without calling hipHostRegister() on it\n";
       log << "  " << (properties.pageableMemoryAccessUsesHostPageTables ? "can" : "cannot")
           << " access pageable memory via the host's page tables\n";
-      /*
-      log << "  " << (properties.canUseHostPointerForRegisteredMem ? "can" : "cannot")
-          << " access host registered memory at the same virtual address as the host\n";
-      log << "  " << (properties.unifiedAddressing ? "shares" : "does not share")
-          << " a unified address space with the host\n";
-      */
       log << "  " << (properties.managedMemory ? "supports" : "does not support")
           << " allocating managed memory on this system\n";
       log << "  " << (properties.concurrentManagedAccess ? "can" : "cannot")
@@ -271,13 +253,7 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     // set and read the ROCm resource limits.
     // see the documentation of hipDeviceSetLimit() for more information.
 
-    /*
-    // hipLimitPrintfFifoSize controls the size in bytes of the shared FIFO used by the
-    // printf() device system call.
-    if (printfFifoSize >= 0) {
-      setHipLimit(hipLimitPrintfFifoSize, "hipLimitPrintfFifoSize", printfFifoSize);
-    }
-    */
+#if HIP_VERSION >= 50400000
     // hipLimitStackSize controls the stack size in bytes of each GPU thread.
     if (stackSize >= 0) {
       setHipLimit(hipLimitStackSize, "hipLimitStackSize", stackSize);
@@ -287,41 +263,17 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     if (mallocHeapSize >= 0) {
       setHipLimit(hipLimitMallocHeapSize, "hipLimitMallocHeapSize", mallocHeapSize);
     }
-    /*
-    if ((properties.major > 3) or (properties.major == 3 and properties.minor >= 5)) {
-      // hipLimitDevRuntimeSyncDepth controls the maximum nesting depth of a grid at which
-      // a thread can safely call hipDeviceSynchronize().
-      if (devRuntimeSyncDepth >= 0) {
-        setHipLimit(hipLimitDevRuntimeSyncDepth, "hipLimitDevRuntimeSyncDepth", devRuntimeSyncDepth);
-      }
-      // hipLimitDevRuntimePendingLaunchCount controls the maximum number of outstanding
-      // device runtime launches that can be made from the current device.
-      if (devRuntimePendingLaunchCount >= 0) {
-        setHipLimit(
-            hipLimitDevRuntimePendingLaunchCount, "hipLimitDevRuntimePendingLaunchCount", devRuntimePendingLaunchCount);
-      }
-    }
-    */
+#endif
 
     if (verbose_) {
       size_t value;
       log << "ROCm limits\n";
-      /*
-      hipCheck(hipDeviceGetLimit(&value, hipLimitPrintfFifoSize));
-      log << "  printf buffer size:        " << std::setw(10) << value / (1 << 20) << " MB\n";
-      */
+#if HIP_VERSION >= 50400000
       hipCheck(hipDeviceGetLimit(&value, hipLimitStackSize));
       log << "  stack size:                " << std::setw(10) << value / (1 << 10) << " kB\n";
+#endif
       hipCheck(hipDeviceGetLimit(&value, hipLimitMallocHeapSize));
       log << "  malloc heap size:          " << std::setw(10) << value / (1 << 20) << " MB\n";
-      /*
-      if ((properties.major > 3) or (properties.major == 3 and properties.minor >= 5)) {
-        hipCheck(hipDeviceGetLimit(&value, hipLimitDevRuntimeSyncDepth));
-        log << "  runtime sync depth:           " << std::setw(10) << value << '\n';
-        hipCheck(hipDeviceGetLimit(&value, hipLimitDevRuntimePendingLaunchCount));
-        log << "  runtime pending launch count: " << std::setw(10) << value << '\n';
-      }
-      */
     }
   }
 
@@ -361,22 +313,16 @@ void ROCmService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.addUntracked<bool>("enabled", true);
   desc.addUntracked<bool>("verbose", false);
 
+#if HIP_VERSION >= 50400000
   edm::ParameterSetDescription limits;
-  /*
-  limits.addUntracked<int>("hipLimitPrintfFifoSize", -1)
-      ->setComment("Size in bytes of the shared FIFO used by the printf() device system call.");
-  */
   limits.addUntracked<int>("hipLimitStackSize", -1)->setComment("Stack size in bytes of each GPU thread.");
   limits.addUntracked<int>("hipLimitMallocHeapSize", -1)
       ->setComment("Size in bytes of the heap used by the malloc() and free() device system calls.");
-  limits.addUntracked<int>("hipLimitDevRuntimeSyncDepth", -1)
-      ->setComment("Maximum nesting depth of a grid at which a thread can safely call hipDeviceSynchronize().");
-  limits.addUntracked<int>("hipLimitDevRuntimePendingLaunchCount", -1)
-      ->setComment("Maximum number of outstanding device runtime launches that can be made from the current device.");
   desc.addUntracked<edm::ParameterSetDescription>("limits", limits)
       ->setComment(
           "See the documentation of hipDeviceSetLimit for more information.\nSetting any of these options to -1 keeps "
           "the default value.");
+#endif
 
   descriptions.add("ROCmService", desc);
 }
