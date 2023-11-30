@@ -22,6 +22,7 @@ namespace hcaldqm {
     ContainerXXX() {}
     ContainerXXX(hashfunctions::HashType ht) : _hashmap(ht) {}
     ContainerXXX(ContainerXXX const &x);
+    ContainerXXX &operator=(const ContainerXXX &other) = default;
     virtual ~ContainerXXX() { _cmap.clear(); }
 
     //  initialize, booking. booking is done from Electronicsmap.
