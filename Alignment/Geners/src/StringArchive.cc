@@ -57,12 +57,12 @@ namespace gs {
     read_pod(in, &nam);
     if (in.fail())
       throw IOReadFailure("In gs::StringArchive::read: input stream failure");
-    CPP11_auto_ptr<StringArchive> archive(new StringArchive(nam.c_str()));
+    std::unique_ptr<StringArchive> archive(new StringArchive(nam.c_str()));
     archive->lastpos_ = lastpos;
     ClassId streamId(in, 1);
     CharBuffer::restore(streamId, in, &archive->stream_);
     ClassId catId(in, 1);
-    CPP11_auto_ptr<ContiguousCatalog> p(ContiguousCatalog::read(catId, in));
+    std::unique_ptr<ContiguousCatalog> p(ContiguousCatalog::read(catId, in));
     assert(p.get());
     archive->catalog_ = *p;
     return archive.release();

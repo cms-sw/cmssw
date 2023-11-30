@@ -57,7 +57,7 @@ static void buildLookupTables(const FFTJetCorrectorParameters& tablePars,
                               const bool verbose,
                               FFTJetLookupTableSequence* ptr) {
   // Load the archive stored in the FFTJetCorrectorParameters object
-  CPP11_auto_ptr<gs::StringArchive> ar;
+  std::unique_ptr<gs::StringArchive> ar;
   {
     std::istringstream is(tablePars.str());
     if (isArchiveCompressed)
@@ -82,7 +82,7 @@ static void buildLookupTables(const FFTJetCorrectorParameters& tablePars,
     for (unsigned long item = 0; item < nItems; ++item) {
       const unsigned long long id = ref.id(item);
       if (loadedSet.insert(id).second) {
-        CPP11_auto_ptr<npstat::StorableMultivariateFunctor> p(ref.get(item));
+        std::unique_ptr<npstat::StorableMultivariateFunctor> p(ref.get(item));
         StorableFunctorPtr fptr(p.release());
         std::shared_ptr<const gs::CatalogEntry> e = ar->catalogEntry(id);
         insertLUTItem(*ptr, fptr, e->name(), e->category());

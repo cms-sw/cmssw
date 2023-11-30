@@ -25,7 +25,7 @@ namespace gs {
   void restore_compressed_item(std::istream &in, Item *item);
 
   template <class Item>
-  CPP11_auto_ptr<Item> read_compressed_item(std::istream &in);
+  std::unique_ptr<Item> read_compressed_item(std::istream &in);
 }  // namespace gs
 
 namespace gs {
@@ -77,7 +77,7 @@ namespace gs {
   }
 
   template <class Item>
-  inline CPP11_auto_ptr<Item> read_compressed_item(std::istream &is) {
+  inline std::unique_ptr<Item> read_compressed_item(std::istream &is) {
     long long len;
     read_pod(is, &len);
     unsigned compressionCode;

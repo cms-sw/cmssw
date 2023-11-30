@@ -8,7 +8,6 @@
 // statements already present in this program.
 //
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/MultiFileArchive.hh"
 #include "Alignment/Geners/interface/Reference.hh"

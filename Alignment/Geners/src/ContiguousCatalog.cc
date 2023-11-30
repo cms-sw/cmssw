@@ -2,7 +2,6 @@
 #include <cassert>
 #include <utility>
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
@@ -113,7 +112,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    CPP11_auto_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
+    std::unique_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
     bool firstEntry = true;
     for (long long recnum = 0; recnum < nRecords; ++recnum) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);
@@ -146,7 +145,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    CPP11_auto_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
+    std::unique_ptr<ContiguousCatalog> catalog(new ContiguousCatalog());
     bool firstEntry = true;
     for (in.peek(); !in.eof(); in.peek()) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);

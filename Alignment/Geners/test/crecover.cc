@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include "Alignment/Geners/interface/BinaryArchiveBase.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
 #include "Alignment/Geners/interface/CatalogIO.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"

@@ -2,7 +2,6 @@
 
 #include "Alignment/Geners/interface/binaryIO.hh"
 #include "Alignment/Geners/interface/IOException.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
 
 namespace npstat {
   bool DualAxis::write(std::ostream& of) const {
@@ -26,10 +25,10 @@ namespace npstat {
           "In npstat::DualAxis::read: "
           "input stream failure");
     if (c) {
-      CPP11_auto_ptr<UniformAxis> axis(UniformAxis::read(clid, in));
+      std::unique_ptr<UniformAxis> axis(UniformAxis::read(clid, in));
       return new DualAxis(*axis);
     } else {
-      CPP11_auto_ptr<GridAxis> axis(GridAxis::read(clid, in));
+      std::unique_ptr<GridAxis> axis(GridAxis::read(clid, in));
       return new DualAxis(*axis);
     }
   }
