@@ -138,7 +138,8 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     gGeoIdentity = new TGeoIdentity("Identity");
   }
 
-  edm::LogVerbatim("TGeoMgrFromDdd") << "about to initialize the DDCompactView walker with a root node " << viewH->root() << std::endl;
+  edm::LogVerbatim("TGeoMgrFromDdd") << "about to initialize the DDCompactView walker with a root node "
+                                     << viewH->root() << std::endl;
 
   auto walker = viewH->walker();
   auto info = walker.current();
@@ -171,7 +172,8 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     if (m_verbose) {
       edm::LogVerbatim("TGeoMgrFromDdd") << "parentStack of size " << parentStack.size();
       auto num = (info.second != nullptr) ? info.second->copyno() : 0;
-      edm::LogVerbatim("TGeoMgrFromDdd") << info.first.name() << " " << num << " " << DDSolidShapesName::name(info.first.solid().shape());
+      edm::LogVerbatim("TGeoMgrFromDdd") << info.first.name() << " " << num << " "
+                                         << DDSolidShapesName::name(info.first.solid().shape());
     }
 
     std::string name = m_fullname ? info.first.name().fullname() : info.first.name().name();
