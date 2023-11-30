@@ -15,6 +15,8 @@
 #include <vector>
 #include <utility>
 
+#include <memory>
+
 #include "JetMETCorrections/InterpolationTables/interface/ArrayND.h"
 #include "JetMETCorrections/InterpolationTables/interface/UniformAxis.h"
 

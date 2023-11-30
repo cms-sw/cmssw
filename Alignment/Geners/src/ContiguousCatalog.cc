@@ -2,6 +2,7 @@
 #include <cassert>
 #include <utility>
 
+#include <memory>
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"

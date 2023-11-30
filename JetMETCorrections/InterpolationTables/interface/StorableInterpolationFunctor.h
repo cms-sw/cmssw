@@ -183,6 +183,7 @@ namespace npstat {
 }  // namespace npstat
 
 #include "Alignment/Geners/interface/binaryIO.hh"
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 
 namespace npstat {

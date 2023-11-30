@@ -1002,6 +1002,7 @@ namespace npstat {
 #include <climits>
 #include <algorithm>
 
+#include <memory>
 #include "Alignment/Geners/interface/binaryIO.hh"
 
 namespace npstat {

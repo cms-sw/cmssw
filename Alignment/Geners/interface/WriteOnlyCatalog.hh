@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Alignment/Geners/interface/AbsCatalog.hh"
+#include <memory>
 
 namespace gs {
   class WriteOnlyCatalog : public AbsCatalog {

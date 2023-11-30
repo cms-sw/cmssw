@@ -15,6 +15,7 @@
 #ifndef GENERS_BINARYIO_HH_
 #define GENERS_BINARYIO_HH_
 
+#include <memory>
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 

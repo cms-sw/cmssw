@@ -118,6 +118,7 @@ namespace npstat {
 #include "JetMETCorrections/InterpolationTables/interface/NpstatException.h"
 
 #include "Alignment/Geners/interface/binaryIO.hh"
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 
 #include "JetMETCorrections/InterpolationTables/interface/interpolateHistoND.h"

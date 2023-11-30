@@ -2,6 +2,7 @@
 
 #include "Alignment/Geners/interface/binaryIO.hh"
 #include "Alignment/Geners/interface/IOException.hh"
+#include <memory>
 
 namespace npstat {
   bool DualAxis::write(std::ostream& of) const {

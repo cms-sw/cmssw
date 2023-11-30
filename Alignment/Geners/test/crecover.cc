@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "Alignment/Geners/interface/BinaryArchiveBase.hh"
+#include <memory>
 #include "Alignment/Geners/interface/CatalogIO.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include <memory>
 #include "Alignment/Geners/interface/CatalogIO.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
 #include "Alignment/Geners/interface/uriUtils.hh"

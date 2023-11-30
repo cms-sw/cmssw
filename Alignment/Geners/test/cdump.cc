@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 
+#include <memory>
 #include "Alignment/Geners/interface/CStringStream.hh"
 #include "Alignment/Geners/interface/CatalogIO.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"

@@ -1,5 +1,6 @@
 #include "Alignment/Geners/interface/IOException.hh"
 
+#include <memory>
 #include "Alignment/Geners/interface/CatalogEntry.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
 

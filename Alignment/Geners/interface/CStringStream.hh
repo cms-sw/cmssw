@@ -18,6 +18,7 @@
 #include <iostream>
 #include <vector>
 
+#include <memory>
 #include "Alignment/Geners/interface/CStringBuf.hh"
 #include "Alignment/Geners/interface/ZlibHandle.hh"
 

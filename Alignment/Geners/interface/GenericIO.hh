@@ -5,6 +5,8 @@
 #ifndef GENERS_GENERICIO_HH_
 #define GENERS_GENERICIO_HH_
 
+#include <memory>
+
 #include "Alignment/Geners/interface/IOPointeeType.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
 
@@ -501,7 +503,7 @@ namespace gs {
     inline static bool readIntoPtr(std::string *&ptr, Stream &is, State *, const bool processClassId) {
       std::unique_ptr<std::string> myptr;
       if (ptr == nullptr)
-        myptr = std::unique_ptr<std::string>(new std::string());
+        myptr = std::make_unique<std::string>();
       if (processClassId) {
         static const ClassId current(ClassId::makeId<std::string>());
         ClassId id(is, 1);

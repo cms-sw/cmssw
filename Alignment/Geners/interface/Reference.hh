@@ -2,6 +2,7 @@
 #define GENERS_REFERENCE_HH_
 
 #include "Alignment/Geners/interface/AbsReference.hh"
+#include <memory>
 
 #include <memory>
 

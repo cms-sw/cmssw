@@ -1,3 +1,4 @@
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/WriteOnlyCatalog.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
