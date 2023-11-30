@@ -78,10 +78,12 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
 from Configuration.Eras.Modifier_run3_ecal_cff import run3_ecal
 run3_ecal.toModify(ecalMultiFitUncalibRecHit,
     algoPSet = dict(timealgo = 'crossCorrelationMethod',
-        outOfTimeThresholdGain12pEB = 2.5,
-        outOfTimeThresholdGain12mEB = 2.5,
-        outOfTimeThresholdGain61pEB = 2.5,
-        outOfTimeThresholdGain61mEB = 2.5,
+        EBtimeNconst = 25.5,
+        EBtimeConstantTerm = 0.85,
+        outOfTimeThresholdGain12pEB = 3.0,
+        outOfTimeThresholdGain12mEB = 3.0,
+        outOfTimeThresholdGain61pEB = 3.0,
+        outOfTimeThresholdGain61mEB = 3.0,
         timeCalibTag = cms.ESInputTag('', 'CC'),
         timeOffsetTag = cms.ESInputTag('', 'CC')
     )
