@@ -39,13 +39,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  int event_type_;
-  int minBunch_;
-  int maxBunch_;
-  edm::EDGetTokenT<GEMDigiCollection> digi_token;
+  const int event_type_;
+  const int minBunch_;
+  const int maxBunch_;
+  const edm::EDGetTokenT<GEMDigiCollection> digiToken_;
   edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
-  bool useDBEMap_;
-  bool simulatePulseStretching_;
+  const bool useDBEMap_;
+  const bool simulatePulseStretching_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,7 +55,7 @@ GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
       minBunch_(pset.getParameter<int>("minBunch")),
       maxBunch_(pset.getParameter<int>("maxBunch")),
-      digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      digiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       simulatePulseStretching_(pset.getParameter<bool>("simulatePulseStretching")) {
   produces<FEDRawDataCollection>();
@@ -95,7 +95,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<GEMDigiCollection> gemDigis;
-  iEvent.getByToken(digi_token, gemDigis);
+  iEvent.getByToken(digiToken_, gemDigis);
   if (!gemDigis.isValid()) {
     iEvent.put(std::move(fedRawDataCol));
     return;
