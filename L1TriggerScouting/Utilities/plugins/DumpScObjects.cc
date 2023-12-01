@@ -219,11 +219,9 @@ void DumpScObjects::printBx(unsigned bx) {
   }
 
   if (checkEtSums_ && etSumHandle_.isValid()) {
-    int i = 0;
     for (auto sum = etSumHandle_->begin(bx); sum != etSumHandle_->end(bx); sum++) {
       std::cout << "--- Calo Sums ---\n";
       printScBxSums(*sum);
-      i++;
     }
   }
 }
