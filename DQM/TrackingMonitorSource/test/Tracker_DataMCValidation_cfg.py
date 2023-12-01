@@ -19,6 +19,11 @@ options.register('sequenceType',
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "type of sequence to run")
+options.register('isRECO',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is the input sample RECO or AOD, assume AOD")
 options.parseArguments()
 
 # import of standard configurations
@@ -73,6 +78,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 
 # Tracker Data MC validation suite
 process.load('DQM.TrackingMonitorSource.TrackingDataMCValidation_Standalone_cff')
+
+# Set the flag is this is AOD or RECO analysis
+process.standaloneTrackMonitor.isRECO = options.isRECO
+process.standaloneTrackMonitorElec.isRECO = options.isRECO
+process.standaloneTrackMonitorMuon.isRECO = options.isRECO
+process.standaloneTrackMonitorTTbar.isRECO = options.isRECO
 
 minbias_analysis_step = cms.Path(process.standaloneValidationMinbias)
 zee_analysis_step = cms.Path(process.standaloneValidationElec)
