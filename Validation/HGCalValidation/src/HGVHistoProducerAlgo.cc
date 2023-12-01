@@ -1612,49 +1612,47 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simCluster_histos(const Hi
     for (const auto& hAndF : sc.hits_and_fractions()) {
       const DetId sh_detid = hAndF.first;
 
-      //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
-      int layerid =
-          recHitTools_->getLayerWithOffset(sh_detid) + layers * ((recHitTools_->zside(sh_detid) + 1) >> 1) - 1;
-      //zside that the current cluster belongs to.
-      int zside = recHitTools_->zside(sh_detid);
+      if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi ||
+          sh_detid.det() == DetId::HGCalHSc) {
+        //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+        int layerid =
+            recHitTools_->getLayerWithOffset(sh_detid) + layers * ((recHitTools_->zside(sh_detid) + 1) >> 1) - 1;
+        //zside that the current cluster belongs to.
+        int zside = recHitTools_->zside(sh_detid);
 
-      //add the simCluster to the relevant layer. A SimCluster may give contribution to several layers.
-      if (occurenceSCinlayer[layerid] == 0) {
-        tnscpl[layerid]++;
+        //add the simCluster to the relevant layer. A SimCluster may give contribution to several layers.
+        if (occurenceSCinlayer[layerid] == 0) {
+          tnscpl[layerid]++;
+        }
+        occurenceSCinlayer[layerid]++;
+
+        if (sh_detid.det() == DetId::HGCalHSc)
+          thickness = -1;
+        else
+          thickness = recHitTools_->getSiThickness(sh_detid);
+
+        if ((thickness == 120.) && (zside > 0.)) {
+          nthhits120p++;
+        } else if ((thickness == 120.) && (zside < 0.)) {
+          nthhits120m++;
+        } else if ((thickness == 200.) && (zside > 0.)) {
+          nthhits200p++;
+        } else if ((thickness == 200.) && (zside < 0.)) {
+          nthhits200m++;
+        } else if ((thickness == 300.) && (zside > 0.)) {
+          nthhits300p++;
+        } else if ((thickness == 300.) && (zside < 0.)) {
+          nthhits300m++;
+        } else if ((thickness == -1) && (zside > 0.)) {
+          nthhitsscintp++;
+        } else if ((thickness == -1) && (zside < 0.)) {
+          nthhitsscintm++;
+        } else {  //assert(0);
+          LogDebug("HGCalValidator")
+              << " You are running a geometry that contains thicknesses different than the normal ones. "
+              << "\n";
+        }
       }
-      occurenceSCinlayer[layerid]++;
-
-      if (sh_detid.det() == DetId::Forward || sh_detid.det() == DetId::HGCalEE || sh_detid.det() == DetId::HGCalHSi) {
-        thickness = recHitTools_->getSiThickness(sh_detid);
-      } else if (sh_detid.det() == DetId::HGCalHSc) {
-        thickness = -1;
-      } else {
-        LogDebug("HGCalValidator") << "These are HGCal simClusters, you shouldn't be here !!! " << layerid << "\n";
-        continue;
-      }
-
-      if ((thickness == 120.) && (zside > 0.)) {
-        nthhits120p++;
-      } else if ((thickness == 120.) && (zside < 0.)) {
-        nthhits120m++;
-      } else if ((thickness == 200.) && (zside > 0.)) {
-        nthhits200p++;
-      } else if ((thickness == 200.) && (zside < 0.)) {
-        nthhits200m++;
-      } else if ((thickness == 300.) && (zside > 0.)) {
-        nthhits300p++;
-      } else if ((thickness == 300.) && (zside < 0.)) {
-        nthhits300m++;
-      } else if ((thickness == -1) && (zside > 0.)) {
-        nthhitsscintp++;
-      } else if ((thickness == -1) && (zside < 0.)) {
-        nthhitsscintm++;
-      } else {  //assert(0);
-        LogDebug("HGCalValidator")
-            << " You are running a geometry that contains thicknesses different than the normal ones. "
-            << "\n";
-      }
-
     }  //end of loop through hits
 
     //Check for simultaneously having hits of different kind. Checking at least two combinations is sufficient.
@@ -1674,7 +1672,6 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simCluster_histos(const Hi
       //This is a cluster with hits of one kind
       tnscpthminus[std::to_string((int)thickness)]++;
     }
-
   }  //end of loop through SimClusters of the event
 
   //Per layer : Loop 0->99
