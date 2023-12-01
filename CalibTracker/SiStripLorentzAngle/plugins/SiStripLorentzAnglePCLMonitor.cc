@@ -22,7 +22,6 @@
 #include <fmt/printf.h>
 
 // user include files
-#include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleCalibrationHelpers.h"
@@ -74,7 +73,6 @@ private:
   // ------------ member data ------------
   SiStripClusterInfo m_clusterInfo;
   SiStripLorentzAngleCalibrationHistograms iHists_;
-  SiStripHashedDetId m_hash;
 
   // for magnetic field conversion
   static constexpr float teslaToInverseGeV_ = 2.99792458e-3f;
@@ -183,8 +181,11 @@ void SiStripLorentzAnglePCLMonitor::dqmBeginRun(edm::Run const& run, edm::EventS
   // Sorted DetId list gives max performance, anything else is worse
   std::sort(c_rawid.begin(), c_rawid.end());
 
-  // initialized the hash map
-  m_hash = SiStripHashedDetId(c_rawid);
+  // initialize the hash map
+  // in case it's not already initialized
+  if (iHists_.hash_.size() == 0) {
+    iHists_.hash_ = SiStripHashedDetId(c_rawid);
+  }
 
   //reserve the size of the vector
   if (saveHistosMods_) {
@@ -310,7 +311,8 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
     if (locationtype.empty())
       return;
 
-    const auto& hashedIndex = m_hash.hashedIndex(mod);
+    // retrive the hashed index
+    const auto& hashedIndex = iHists_.hash_.hashedIndex(mod);
 
     if (saveHistosMods_) {
       LogDebug("SiStripLorentzAnglePCLMonitor") << "module ID: " << mod << " hashedIndex: " << hashedIndex;
@@ -331,6 +333,12 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
     iHists_.h2_[Form("%s_tanthcosphtrk_nstrip", locationtype.c_str())]->Fill(sign * cosphi * tantheta, c_nstrips);
     iHists_.h2_[Form("%s_thetatrk_nstrip", locationtype.c_str())]->Fill(sign * theta * cosphi, c_nstrips);
 
+    if (saveHistosMods_) {
+      iHists_.h1_[Form("%s_%d_nstrips", locationtype.c_str(), mod)]->Fill(c_nstrips);
+      iHists_.h1_[Form("%s_%d_tanthetatrk", locationtype.c_str(), mod)]->Fill(sign * tantheta);
+      iHists_.h1_[Form("%s_%d_cosphitrk", locationtype.c_str(), mod)]->Fill(cosphi);
+    }
+
     // variance for width == 2
     if (c_nstrips == 2) {
       iHists_.h1_[Form("%s_variance_w2", locationtype.c_str())]->Fill(c_variance);
@@ -339,6 +347,8 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
 
       // not in PCL
       if (saveHistosMods_) {
+        LogDebug("SiStripLorentzAnglePCLMonitor") << iHists_.h2_ct_var2_m_[hashedIndex]->getName();
+        iHists_.h1_[Form("%s_%d_variance_w2", locationtype.c_str(), mod)]->Fill(c_variance);
         iHists_.h2_ct_var2_m_[hashedIndex]->Fill(sign * cosphi * tantheta, c_variance);
         iHists_.h2_t_var2_m_[hashedIndex]->Fill(sign * cosphi * theta, c_variance);
       }
@@ -351,6 +361,7 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
 
       // not in PCL
       if (saveHistosMods_) {
+        iHists_.h1_[Form("%s_%d_variance_w3", locationtype.c_str(), mod)]->Fill(c_variance);
         iHists_.h2_ct_var3_m_[hashedIndex]->Fill(sign * cosphi * tantheta, c_variance);
         iHists_.h2_t_var3_m_[hashedIndex]->Fill(sign * cosphi * theta, c_variance);
       }
@@ -403,9 +414,9 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
   if (saveHistosMods_) {
     iHists_.h1_["occupancyPerIndex"] = ibook.book1D("ClusterOccupancyPerHashedIndex",
                                                     "cluster occupancy;hashed index;# clusters per module",
-                                                    m_hash.size(),
+                                                    iHists_.hash_.size(),
                                                     -0.5,
-                                                    m_hash.size() - 0.5);
+                                                    iHists_.hash_.size() - 0.5);
   }
 
   // fill in the module types
@@ -467,6 +478,7 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
   if (saveHistosMods_) {
     ibook.setCurrentFolder(folderToBook + "/modules");
     for (const auto& [mod, locationType] : iHists_.moduleLocationType_) {
+      ibook.setCurrentFolder(folderToBook + "/modules" + Form("/%s", locationType.c_str()));
       // histograms for each module
       iHists_.h1_[Form("%s_%d_nstrips", locationType.c_str(), mod)] =
           ibook.book1D(Form("%s_%d_nstrips", locationType.c_str(), mod), "", 10, 0, 10);
@@ -481,9 +493,12 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
     }
 
     int counter{0};
-    SiStripHashedDetId::const_iterator iter = m_hash.begin();
-    for (; iter != m_hash.end(); ++iter) {
+    SiStripHashedDetId::const_iterator iter = iHists_.hash_.begin();
+    for (; iter != iHists_.hash_.end(); ++iter) {
+      LogDebug("SiStripLorentzAnglePCLMonitor")
+          << "detId: " << (*iter) << " hashed index: " << iHists_.hash_.hashedIndex((*iter));
       const auto& locationType = iHists_.moduleLocationType_[(*iter)];
+      ibook.setCurrentFolder(folderToBook + "/modules" + Form("/%s", locationType.c_str()));
       iHists_.h2_ct_w_m_.push_back(
           ibook.book2D(Form("ct_w_m_%s_%d", locationType.c_str(), *iter), "", 90, -0.9, 0.9, 10, 0, 10));
       iHists_.h2_t_w_m_.push_back(

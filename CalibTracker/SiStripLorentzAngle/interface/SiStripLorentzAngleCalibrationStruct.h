@@ -7,6 +7,7 @@
 
 // user includes
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 
 struct SiStripLorentzAngleCalibrationHistograms {
 public:
@@ -31,6 +32,8 @@ public:
   // we're going to profit of the dense indexing offered by
   // SiStripHashedDetId and index the histogram position
   // with the natural booking order
+  SiStripHashedDetId hash_;
+
   std::vector<dqm::reco::MonitorElement*> h2_ct_w_m_;
   std::vector<dqm::reco::MonitorElement*> h2_ct_var2_m_;
   std::vector<dqm::reco::MonitorElement*> h2_ct_var3_m_;
