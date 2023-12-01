@@ -731,7 +731,7 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = ['BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','EcalSensitiveDetector','HFNoseSensitiveDetector','HGCScintillatorSensitiveDetector','HGCalSensitiveDetector','HcalSensitiveDetector','MtdSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','ZdcSensitiveDetector'],
                        TrackHits = ['BCM1FHits','BHMHits','CTPPSPixelHits','CTPPSTimingHits','FastTimerHitsBarrel','FastTimerHitsEndcap','HFNoseHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'],
-                       CaloHits = ["CalibrationHGCHitsEE",'CalibrationHGCHitsHEback',"CalibrationHGCHitsHEfront",'CaloHitsTk','EcalHitsEB',"HGCHitsEE","HGCHitsHEback","HGCHitsHEfront",'HcalHits','ZDCHITS'],
+                       CaloHits = ["CalibrationHGCHitsEE",'CalibrationHGCHitsHEback',"CalibrationHGCHitsHEfront",'CaloHitsTk','EcalHitsEB','HFNoseHits',"HGCHitsEE","HGCHitsHEback","HGCHitsHEfront",'HcalHits','ZDCHITS'],
                        LHCTransport = False, 
                        MuonSD = dict( 
                        HaveDemoChambers = False ) 
@@ -739,7 +739,7 @@ phase2_common.toModify(g4SimHits,
 
 from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 hgcaltb.toModify(g4SimHits,
-                 OnlySDs = ['AHcalSensitiveDetector','CaloTrkProcessing','FP420SensitiveDetector','HGCSensitiveDetector','HGCalSensitiveDetector','HGCalTB1601SensitiveDetector','HcalTB06BeamDetector'],
+                 OnlySDs = ['AHcalSensitiveDetector','CaloTrkProcessing','FP420SensitiveDetector','HFNoseSensitiveDetector','HGCSensitiveDetector','HGCalSensitiveDetector','HGCalTB1601SensitiveDetector','HcalTB06BeamDetector'],
                  TrackHits = ['FP420SI'],
                  CaloHits = ['CalibrationHGCHitsEE','CalibrationHGCHitsHEback','CalibrationHGCHitsHEfront','CaloHitsTk','ChamberHits','EcalHitsEB','EcalHitsEE','EcalHitsES','EcalTBH4BeamHits','FibreHits','HFNoseHits','HcalSensitiveDetector','HGCHitsEE','HGCHitsHEback','HGCHitsHEfront','HcalHits','HcalTB06BeamHits','WedgeHits'],
                  NonBeamEvent = True,
