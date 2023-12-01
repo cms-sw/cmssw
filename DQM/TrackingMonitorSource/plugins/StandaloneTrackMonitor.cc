@@ -1853,8 +1853,10 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
     }
   }
 
-  // off track cluster properties
-  processClusters(iEvent, iSetup, tkGeom, wfac);
+  // off track cluster properties (only on RECO data-tier)
+  if (isRECO_) {
+    processClusters(iEvent, iSetup, tkGeom, wfac);
+  }
 
   if (verbose_)
     edm::LogInfo("StandaloneTrackMonitor") << "Ends StandaloneTrackMonitor successfully";
