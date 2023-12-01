@@ -35,6 +35,9 @@ public:
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector(const Basic2DVector<T>& p) : theX(p.x()), theY(p.y()), theZ(0), theW(0) {}
 
+  /// Assignment operator
+  Basic3DVector& operator=(const Basic3DVector&) = default;
+
   /** Explicit constructor from other (possibly unrelated) vector classes 
    *  The only constraint on the argument type is that it has methods
    *  x(), y() and z(), and that these methods return a type convertible to T.
