@@ -60,6 +60,9 @@ public:
                        int eta2 = 0,
                        int qeta1 = -1,
                        int qeta2 = -1);
+  /// copy constructor
+  L1MuKBMTCombinedStub(const L1MuKBMTCombinedStub&) = default;
+  //destructor
   ~L1MuKBMTCombinedStub();
   /// return wheel
   inline int whNum() const { return whNum_; }
