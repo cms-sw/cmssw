@@ -6,5 +6,6 @@ conversionTrackCandidates = _convTrkCand.conversionTrackCandidatesDefault.clone(
     hbheRecHits = egammaHBHERecHit.hbheRecHits,
     recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
     recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    usePFThresholdsFromDB = egammaHBHERecHit.usePFThresholdsFromDB,
     maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity
 )

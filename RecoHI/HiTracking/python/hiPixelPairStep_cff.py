@@ -66,7 +66,7 @@ hiPixelPairSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_
     ),
     ClusterCheckPSet = dict(
         MaxNumberOfPixelClusters = 5000000,
-        MaxNumberOfCosmicClusters = 50000000,
+        MaxNumberOfStripClusters = 50000000,
         cut = ""
     ),
     SeedComparitorPSet = cms.PSet(

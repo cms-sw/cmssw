@@ -15,7 +15,7 @@ expectedStreams=(1 4 4 4 1)
 expectedConcurrentLumis=(1 3 2 4 1)
 expectedConcurrentIOVs=(1 2 2 4 1)
 
-cmsRun -p ${LOCAL_TEST_DIR}/${configFiles[$1]} >& ${configFiles[$1]}.log || die "cmsRun ${configFiles[$1]}" $?
+cmsRun ${LOCAL_TEST_DIR}/${configFiles[$1]} >& ${configFiles[$1]}.log || die "cmsRun ${configFiles[$1]}" $?
 grep "Number of Streams = ${expectedStreams[$1]}" ${configFiles[$1]}.log || die "Failed number of streams test" $?
 grep "Number of Concurrent Lumis = ${expectedConcurrentLumis[$1]}" ${configFiles[$1]}.log  || die "Failed number of concurrent lumis test" $?
 grep "Number of Concurrent IOVs = ${expectedConcurrentIOVs[$1]}" ${configFiles[$1]}.log || die "Failed number of concurrent IOVs test" $?

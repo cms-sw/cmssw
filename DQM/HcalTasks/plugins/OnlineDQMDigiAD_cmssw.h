@@ -92,7 +92,10 @@ public:
     @return ad_model_output_vectors: the vectors of multidimensional arrays: output_data_0, output_data_1, ...
     */
   std::vector<std::vector<std::vector<float>>> ONNXOutputToDQMHistMap(
-      const std::vector<std::vector<float>> &ad_model_output_vectors, const int selOutputIdx = 7);
+      const std::vector<std::vector<float>> &ad_model_output_vectors,
+      const int numDepth,
+      const int numDIeta = 64,
+      const int selOutputIdx = 7);
 
 private:
   // onnx session

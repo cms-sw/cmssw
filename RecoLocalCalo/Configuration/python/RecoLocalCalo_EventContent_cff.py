@@ -19,6 +19,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.ProcessModifiers.storeZDCDigis_cff import storeZDCDigis
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
 phase2_hgcal.toModify( RecoLocalCaloAOD, 
     outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*',
@@ -35,6 +36,8 @@ phase2_hfnose.toModify( RecoLocalCaloAOD,
                                                            'keep ZDCDataFramesSorted_castorDigis_*_*',
                                                            'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
         )
+storeZDCDigis.toModify( RecoLocalCaloAOD,
+                        outputCommands = RecoLocalCaloAOD.outputCommands + ['keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify( RecoLocalCaloAOD, 
     outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_towerMaker_*_*',

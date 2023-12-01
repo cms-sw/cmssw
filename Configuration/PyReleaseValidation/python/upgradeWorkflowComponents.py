@@ -65,6 +65,10 @@ upgradeKeys[2026] = [
     '2026D100PU',
     '2026D101',
     '2026D101PU',
+    '2026D102',
+    '2026D102PU',
+    '2026D103',
+    '2026D103PU',
 ]
 
 # pre-generation of WF numbers
@@ -473,13 +477,14 @@ class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return ('2021' in key or '2023' in key or '2024' in key)
 upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
     steps = [
         'Reco',
         'RecoFakeHLT',
         'RecoGlobal',
         'RecoNano',
+        'RecoNanoFakeHLT',
     ],
     PU = [],
     suffix = '_displacedRegional',
@@ -1740,6 +1745,24 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
     offset = 0.76,
 )
 
+class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relval2026'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2026' in key
+
+upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
+    steps = [
+        'DigiTrigger',
+    ],
+    PU = [
+        'DigiTrigger',
+    ],
+    suffix = '_L1Complete',
+    offset = 0.78
+)
+
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
@@ -2562,7 +2585,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_design',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'BeamSpot': 'GaussSigmaZ4cm',
+        'BeamSpot': 'DBdesign',
         'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT'],
     },
     '2018' : {
@@ -2570,7 +2593,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2018_realistic',
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
-        'BeamSpot': 'Realistic25ns13TeVEarly2018Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT','ALCA','Nano'],
     },
     '2018Design' : {
@@ -2578,7 +2601,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2018_design',
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
-        'BeamSpot': 'GaussSigmaZ4cm',
+        'BeamSpot': 'DBdesign',
         'ScenToRun' : ['GenSim','Digi','RecoFakeHLT','HARVESTFakeHLT'],
     },
     '2021' : {
@@ -2586,7 +2609,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Realistic25ns13p6TeVEOY2022Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2021Design' : {
@@ -2594,7 +2617,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_design',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'GaussSigmaZ4cm',
+        'BeamSpot': 'DBdesign',
         'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT'],
     },
     '2023' : {
@@ -2602,15 +2625,15 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
         'Era' : 'Run3_2023',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2023Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2024' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
-        'HLTmenu': '@relval2023',
+        'HLTmenu': '@relval2024',
         'Era' : 'Run3',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2021FS' : {
@@ -2618,7 +2641,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_FastSim',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
     '2021postEE' : {
@@ -2626,7 +2649,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic_postEE',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2023FS' : {
@@ -2634,7 +2657,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
         'Era' : 'Run3_2023_FastSim',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2023Collision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
     '2022HI' : {
@@ -2642,7 +2665,7 @@ upgradeProperties[2017] = {
         'GT':'auto:phase1_2022_realistic_hi', 
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb',
-        'BeamSpot': 'Realistic2022PbPbCollision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2022HIRP' : {
@@ -2650,7 +2673,7 @@ upgradeProperties[2017] = {
         'GT':'auto:phase1_2022_realistic_hi', 
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
-        'BeamSpot': 'Realistic2022PbPbCollision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2023HI' : {
@@ -2658,7 +2681,7 @@ upgradeProperties[2017] = {
         'GT':'auto:phase1_2023_realistic_hi', 
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb',
-        'BeamSpot': 'Realistic2022PbPbCollision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2023HIRP' : {
@@ -2666,7 +2689,7 @@ upgradeProperties[2017] = {
         'GT':'auto:phase1_2023_realistic_hi', 
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
-        'BeamSpot': 'Realistic2022PbPbCollision',
+        'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     }
 }
@@ -2765,13 +2788,27 @@ upgradeProperties[2026] = {
     },
     '2026D100' : {
         'Geom' : 'Extended2026D100',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T33',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     '2026D101' : {
         'Geom' : 'Extended2026D101',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D102' : {
+        'Geom' : 'Extended2026D102',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D103' : {
+        'Geom' : 'Extended2026D103',
         'HLTmenu': '@relval2026',
         'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',

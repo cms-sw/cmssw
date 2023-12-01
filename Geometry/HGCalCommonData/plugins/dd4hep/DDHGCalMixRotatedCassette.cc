@@ -528,7 +528,6 @@ struct HGCalMixRotatedCassette {
 #endif
       }
       ++copyNumberCoverTop_;
-      zpos += hthickl;
     }
 
     // Make the bottom part next

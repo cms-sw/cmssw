@@ -508,6 +508,10 @@ workflows[140.111] = ['',['RunHLTPhysics2022D','HLTDR3_2022','SKIMHLTPHYSICSRUN3
 workflows[140.112] = ['',['RunCommissioning2022D','HLTDR3_2022','SKIMCOMMISSIONINGRUN3_reHLT_2022','HARVESTRUN3_2022']]
 workflows[140.113] = ['',['RunCosmics2022D','HLTDR3_2022','SKIMCOSMICSRUN3_reHLT_2022','HARVESTRUN3_COS_2022']]
 
+### run3 (2022) reMINIAOD+NANO ###
+workflows[140.201] = ['',['RunJetMET2022D_reMINI', 'REMINIAOD_data2022']]
+workflows[140.202] = ['',['RunJetMET2022D_reMINI', 'REMININANO_data2022']]
+
 ### run3 (2023) ###
 workflows[141.001] = ['',['RunMuon2023B','HLTDR3_2023B','RECONANORUN3_reHLT_2023B','HARVESTRUN3_2023B']]
 workflows[141.002] = ['',['RunZeroBias2023B','HLTDR3_2023B','RECONANORUN3_ZB_reHLT_2023B','HARVESTRUN3_ZB_2023B']]
@@ -563,6 +567,9 @@ workflows[141.114] = ['',['RunParkingDoubleMuonLowMass2023C','HLTDR3_2023','SKIM
 workflows[141.008505] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsCPU','HARVESTRUN3_pixelTrackingOnly']]
 workflows[141.008511] = ['Run3-2023_JetMET2023B_RecoECALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
 workflows[141.008521] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
+
+### run3-2023 (2023 HI data RawPrime with re-HLT)
+workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RECOHIRUN3_reHLT_2023','HARVESTRUN3_HI2023A']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbarFS', ['TTbarFS','HARVESTFS']]

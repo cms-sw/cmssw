@@ -53,6 +53,10 @@ namespace mkfit {
   typedef Matriplex::Matriplex<float, HH, 1, NN> MPlexHV;
   typedef Matriplex::MatriplexSym<float, HH, NN> MPlexHS;
 
+  typedef Matriplex::Matriplex<float, 5, 5, NN> MPlex55;
+  typedef Matriplex::Matriplex<float, 5, 6, NN> MPlex56;
+  typedef Matriplex::Matriplex<float, 6, 5, NN> MPlex65;
+
   typedef Matriplex::Matriplex<float, 2, 2, NN> MPlex22;
   typedef Matriplex::Matriplex<float, 2, 1, NN> MPlex2V;
   typedef Matriplex::MatriplexSym<float, 2, NN> MPlex2S;
@@ -61,10 +65,14 @@ namespace mkfit {
   typedef Matriplex::Matriplex<float, HH, LL, NN> MPlexHL;
 
   typedef Matriplex::Matriplex<float, LL, 2, NN> MPlexL2;
+  typedef Matriplex::Matriplex<float, HH, 2, NN> MPlexH2;
+  typedef Matriplex::Matriplex<float, 2, HH, NN> MPlex2H;
 
   typedef Matriplex::Matriplex<float, 1, 1, NN> MPlexQF;
   typedef Matriplex::Matriplex<int, 1, 1, NN> MPlexQI;
   typedef Matriplex::Matriplex<unsigned int, 1, 1, NN> MPlexQUI;
+  typedef Matriplex::Matriplex<short, 1, 1, NN> MPlexQH;
+  typedef Matriplex::Matriplex<unsigned short, 1, 1, NN> MPlexQUH;
 
   typedef Matriplex::Matriplex<bool, 1, 1, NN> MPlexQB;
 

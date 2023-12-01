@@ -178,9 +178,39 @@ HcalGainWidth HcalDbHardcode::makeGainWidth(HcalGenericDetId fId) const {  // Ge
   return result;
 }
 
-HcalPFCut HcalDbHardcode::makePFCut(HcalGenericDetId fId) const {  // GeV
+HcalPFCut HcalDbHardcode::makePFCut(HcalGenericDetId fId, double intLumi, bool noHE) const {  // GeV
+
+  // assign default dummy parameters
   float value0 = getParameters(fId).noiseThreshold();
   float value1 = getParameters(fId).seedThreshold();
+
+  if (noHE && fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {  // HB Phase2
+
+    // aging-independent (lumi=0) intialization for Phase2 using "HBphase1" numbers
+    const float cuts_Phase1[] = {0.1, 0.2, 0.3, 0.3};
+    const float seeds_Phase1[] = {0.125, 0.25, 0.35, 0.35};
+
+    HcalDetId hid(fId);
+    int depth_m1 = hid.depth() - 1;
+    value0 = cuts_Phase1[depth_m1];
+    value1 = seeds_Phase1[depth_m1];
+
+    // lumi-dependent stuff for Phase2 from SLHCUpgradeSimulations/Configuration/python/aging.py
+    const double lumis[] = {300, 1000, 3000, 4500};  // integrated lumi points
+    // row by row initialization
+    const float cuts[4][4] = {{0.4, 0.5, 0.6, 0.6}, {0.8, 1.2, 1.2, 1.2}, {1.0, 2.0, 2.0, 2.0}, {1.25, 2.5, 2.5, 2.5}};
+    const float seeds[4][4] = {
+        {0.5, 0.625, 0.75, 0.75}, {1.0, 1.5, 1.5, 1.5}, {1.25, 2.5, 2.5, 2.5}, {1.5, 3.0, 3.0, 3.0}};
+    const double eps = 1.e-6;
+
+    for (int i = 0; i < 4; i++) {
+      if (std::abs(intLumi - lumis[i]) < eps) {
+        value0 = cuts[i][depth_m1];
+        value1 = seeds[i][depth_m1];
+      }
+    }
+  }
+
   HcalPFCut result(fId.rawId(), value0, value1);
   return result;
 }

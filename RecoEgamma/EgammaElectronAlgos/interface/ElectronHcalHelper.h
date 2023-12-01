@@ -12,6 +12,8 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class ConsumesCollector;
 class EgammaHadTower;
@@ -43,10 +45,12 @@ public:
   void beginEvent(const edm::Event &evt, const edm::EventSetup &eventSetup);
 
   inline auto hcalTowersBehindClusters(const reco::SuperCluster &sc) const { return egamma::towersOf(sc, *towerMap_); }
-  double hcalESum(const reco::SuperCluster &, int depth) const;
+  double hcalESum(const reco::SuperCluster &, int depth, const HcalPFCuts *hcalCuts) const;
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
   int maxSeverityHB() const { return cfg_.maxSeverityHB; }
   int maxSeverityHE() const { return cfg_.maxSeverityHE; }
+  EgammaHcalIsolation::arrayHB eThresHB() const { return cfg_.eThresHB; }
+  EgammaHcalIsolation::arrayHE eThresHE() const { return cfg_.eThresHE; }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   bool hasActiveHcal(const reco::SuperCluster &sc) const;

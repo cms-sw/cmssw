@@ -26,6 +26,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // global index of the thread within the grid
       const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
+      const portabletest::Array flags = {{6, 4, 2, 0}};
 
       // set this only once in the whole kernel grid
       if (thread == 0) {
@@ -34,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : elements_with_stride(acc, size)) {
-        view[i] = {xvalue, 0., 0., i, matrix * i};
+        view[i] = {xvalue, 0., 0., i, flags, matrix * i};
       }
     }
   };
@@ -52,6 +53,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), collection->metadata().size(), xvalue);
+  }
+
+  class TestAlgoStructKernel {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  portabletest::TestDeviceObject::Product* data,
+                                  double x,
+                                  double y,
+                                  double z,
+                                  int32_t id) const {
+      // run on a single thread
+      if (once_per_grid(acc)) {
+        data->x = x;
+        data->y = y;
+        data->z = z;
+        data->id = id;
+      }
+    }
+  };
+
+  void TestAlgo::fillObject(
+      Queue& queue, portabletest::TestDeviceObject& object, double x, double y, double z, int32_t id) const {
+    // run on a single thread
+    auto workDiv = make_workdiv<Acc1D>(1, 1);
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoStructKernel{}, object.data(), x, y, z, id);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

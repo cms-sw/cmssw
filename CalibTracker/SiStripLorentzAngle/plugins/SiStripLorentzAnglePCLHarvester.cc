@@ -226,6 +226,8 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   for (const auto& ME : iHists_.h2_) {
     if (!ME.second)
       continue;
+    // draw colored 2D plots
+    ME.second->setOption("colz");
     TProfile* hp = (TProfile*)ME.second->getTH2F()->ProfileX();
     iBooker.setCurrentFolder(folderToHarvest + "/" + getStem(ME.first, /* isFolder = */ true));
     iHists_.p_[hp->GetName()] = iBooker.bookProfile(hp->GetName(), hp);

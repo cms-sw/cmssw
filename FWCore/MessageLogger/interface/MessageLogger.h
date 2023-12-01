@@ -103,7 +103,7 @@ namespace edm {
 
     ThisLog& vformat(std::string_view fmt, fmt::format_args args) {
       if (ap.valid())
-        ap.vformat(fmt, std::move(args));
+        ap.vformat(fmt, args);
       return *this;
     }
 

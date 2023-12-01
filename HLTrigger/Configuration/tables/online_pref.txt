@@ -36,6 +36,7 @@ HLT_HIL1NotBptxORForPPRef_v*                # CMSHLT-1673
 HLT_HIHT80_Beamspot_ppRef5TeV_v*            # CMSHLT-1676
 
 HLT_PPRefZeroBias_v*             # CMSHLT-2883
+HLT_PPRefZeroBiasRawPrime_v*     # CMSHLT-2907
 HLT_ZDCCommissioning_v*          # CMSHLT-2883
 
 HLT_AK4CaloJet40_v*              # CMSHLT-2883
@@ -132,18 +133,28 @@ ExpressOutput
 ExpressAlignmentOutput
 HLTMonitorOutput
 PhysicsCommissioningOutput
-PhysicsPPRefHardProbesOutput      # CMSHLT-2883
-PhysicsPPRefMuonsOutput           # CMSHLT-2883
-PhysicsPPRefZeroBias0Output       # CMSHLT-2883
-PhysicsPPRefZeroBias1Output       # CMSHLT-2883
-PhysicsPPRefZeroBias2Output       # CMSHLT-2883
-PhysicsPPRefZeroBias3Output       # CMSHLT-2883
-PhysicsPPRefZeroBias4Output       # CMSHLT-2883
-PhysicsPPRefZeroBias5Output       # CMSHLT-2883
-PhysicsPPRefZeroBias6Output       # CMSHLT-2883
-PhysicsPPRefZeroBias7Output       # CMSHLT-2883
-PhysicsPPRefZeroBias8Output       # CMSHLT-2883
-PhysicsPPRefZeroBias9Output       # CMSHLT-2883
+PhysicsCommissioningRawPrimeOutput # CMSHLT-2907
+PhysicsPPRefDoubleMuon0Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefDoubleMuon1Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefDoubleMuon2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefDoubleMuon3Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefExoticaOutput      # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefHardProbes0Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefHardProbes1Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefHardProbes2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefSingleMuon0Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefSingleMuon1Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefSingleMuon2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefZeroBias0Output    # CMSHLT-2883
+PhysicsPPRefZeroBias1Output    # CMSHLT-2883
+PhysicsPPRefZeroBias2Output    # CMSHLT-2883
+PhysicsPPRefZeroBias3Output    # CMSHLT-2883
+PhysicsPPRefZeroBias4Output    # CMSHLT-2883
+PhysicsPPRefZeroBias5Output    # CMSHLT-2883
+PhysicsPPRefZeroBias6Output    # CMSHLT-2883
+PhysicsPPRefZeroBias7Output    # CMSHLT-2883
+PhysicsPPRefZeroBias8Output    # CMSHLT-2883
+PhysicsPPRefZeroBias9Output    # CMSHLT-2883
 NanoDSTOutput
 RPCMONOutput
 

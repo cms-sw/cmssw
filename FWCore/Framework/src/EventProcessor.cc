@@ -695,8 +695,6 @@ namespace edm {
       schedule_->initializeEarlyDelete(branchesToDeleteEarly, referencesToBranches, modulesToSkip, *preg_);
     }
 
-    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
       throwAboutModulesRequiringLuminosityBlockSynchronization();
     }
@@ -719,13 +717,16 @@ namespace edm {
     //if(looper_) {
     //   looper_->beginOfJob(es);
     //}
+    espController_->finishConfiguration();
+    actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     try {
       convertException::wrap([&]() { input_->doBeginJob(); });
     } catch (cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
       throw;
     }
-    espController_->finishConfiguration();
+
     schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     if (looper_) {
       constexpr bool mustPrefetchMayGet = true;
@@ -859,14 +860,23 @@ namespace edm {
     return returnValue;
   }
 
+  namespace {
+    struct SourceNextGuard {
+      SourceNextGuard(edm::ActivityRegistry& iReg) : act_(iReg) { iReg.preSourceNextTransitionSignal_.emit(); }
+      ~SourceNextGuard() { act_.postSourceNextTransitionSignal_.emit(); }
+      edm::ActivityRegistry& act_;
+    };
+  }  // namespace
   InputSource::ItemType EventProcessor::nextTransitionType() {
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     InputSource::ItemType itemType;
-    //For now, do nothing with InputSource::IsSynchronize
-    do {
-      itemType = input_->nextItemType();
-    } while (itemType == InputSource::IsSynchronize);
-
+    {
+      SourceNextGuard guard(*actReg_.get());
+      //For now, do nothing with InputSource::IsSynchronize
+      do {
+        itemType = input_->nextItemType();
+      } while (itemType == InputSource::IsSynchronize);
+    }
     lastSourceTransition_ = itemType;
     sentry.completedSuccessfully();
 
@@ -2202,6 +2212,10 @@ namespace edm {
   }
 
   void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask, unsigned int iStreamIndex) {
+    if (streamLumiStatus_[iStreamIndex]->haveStartedNextLumiOrEndedRun()) {
+      streamEndLumiAsync(iTask, iStreamIndex);
+      return;
+    }
     auto group = iTask.group();
     sourceResourcesAcquirer_.serialQueueChain().push(*group, [this, iTask = std::move(iTask), iStreamIndex]() mutable {
       CMS_SA_ALLOW try {
@@ -2281,6 +2295,18 @@ namespace edm {
     iHolder.group()->run([this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
   }
 
+  namespace {
+    struct ClearEventGuard {
+      ClearEventGuard(edm::ActivityRegistry& iReg, edm::StreamContext const& iContext)
+          : act_(iReg), context_(iContext) {
+        iReg.preClearEventSignal_.emit(iContext);
+      }
+      ~ClearEventGuard() { act_.postClearEventSignal_.emit(context_); }
+      edm::ActivityRegistry& act_;
+      edm::StreamContext const& context_;
+    };
+  }  // namespace
+
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
 
@@ -2304,8 +2330,16 @@ namespace edm {
       //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
       ServiceRegistry::Operate operateLooper(serviceToken_);
       processEventWithLooper(*pep, iStreamIndex);
-    }) | then([pep](auto nextTask) {
+    }) | then([this, pep](auto nextTask) {
       FDEBUG(1) << "\tprocessEvent\n";
+      StreamContext streamContext(pep->streamID(),
+                                  StreamContext::Transition::kEvent,
+                                  pep->id(),
+                                  pep->runPrincipal().index(),
+                                  pep->luminosityBlockPrincipal().index(),
+                                  pep->time(),
+                                  &processContext_);
+      ClearEventGuard guard(*this->actReg_.get(), streamContext);
       pep->clearEventPrincipal();
     }) | runLast(iHolder);
   }

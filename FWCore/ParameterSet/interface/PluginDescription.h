@@ -90,6 +90,8 @@ Each user plugin must define a static member function:
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
+#include <ostream>
+#include <sstream>
 #include <string>
 
 // forward declarations
@@ -150,32 +152,66 @@ namespace edm {
       using CreatedType = PluginDescriptionAdaptorBase<typename T::CreatedType>;
       using Factory = edmplugin::PluginFactory<CreatedType*()>;
 
-      {
-        std::stringstream ss;
-        ss << dfh.section() << "." << dfh.counter();
-        std::string newSection = ss.str();
+      std::string const& pluginCategory = Factory::get()->category();
 
-        printSpaces(os, indentation);
-        os << "Section " << newSection << " " << Factory::get()->category() << " Plugins description:\n";
-        if (!dfh.brief())
-          os << "\n";
+      printSpaces(os, indentation);
+      os << "There are multiple possible different descriptions for this ParameterSet\n";
+      printSpaces(os, indentation);
+      os << "because it will be used by a helper plugin object contained inside the top level\n";
+      printSpaces(os, indentation);
+      os << "module plugin object and the type of the helper plugin object is configurable.\n";
+      printSpaces(os, indentation);
+      os << "Or if it is in a vector of ParameterSets it might be used by multiple\n";
+      printSpaces(os, indentation);
+      os << "helper plugin objects and each could be configured with a different plugin type.\n";
+      printSpaces(os, indentation);
+      os << "Each plugin type could allow a different set of configuration parameters.\n";
+      printSpaces(os, indentation);
+      os << "Each subsection of this section has one of the possible descriptions.\n";
+      printSpaces(os, indentation);
+      os << "All of these plugins are from the category \"" << pluginCategory << "\".\n";
+      printSpaces(os, indentation);
+      os << "The plugin type is specified by the parameter named \"" << typeLabel_ << "\".\n";
+
+      if (!dfh.brief()) {
+        os << "\n";
       }
+      std::string section = dfh.sectionOfCategoryAlreadyPrinted(pluginCategory);
+      if (!section.empty()) {
+        printSpaces(os, indentation);
+        os << "*** The descriptions for this plugin category already started printing above (see Section " << section
+           << ")! ***\n";
+        printSpaces(os, indentation);
+        os << "*** We might still be in the middle of that printout at this point because it might be recursive. ***\n";
+        printSpaces(os, indentation);
+        os << "*** We'll not duplicate that printout and skip it. ***\n";
+        printSpaces(os, indentation);
+        os << "*** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***\n";
+
+        if (!dfh.brief()) {
+          os << "\n";
+        }
+        return;
+      }
+      dfh.addCategory(pluginCategory, dfh.section());
+
+      indentation -= DocFormatHelper::offsetSectionContent();
 
       //loop over all possible plugins
-      unsigned int pluginCount = 0;
+      unsigned int pluginCount = 1;
       std::string previousName;
-      for (auto const& info :
-           edmplugin::PluginManager::get()->categoryToInfos().find(Factory::get()->category())->second) {
+      for (auto const& info : edmplugin::PluginManager::get()->categoryToInfos().find(pluginCategory)->second) {
         // We only want to print the first instance of each plugin name
         if (previousName == info.name_) {
           continue;
         }
 
         std::stringstream ss;
-        ss << dfh.section() << "." << dfh.counter();
+        ss << dfh.section() << "." << pluginCount;
+        ++pluginCount;
         std::string newSection = ss.str();
         printSpaces(os, indentation);
-        os << "Section " << newSection << "." << ++pluginCount << " " << info.name_ << " Plugin description:\n";
+        os << "Section " << newSection << " ParameterSet description for plugin named \"" << info.name_ << "\"\n";
         if (!dfh.brief())
           os << "\n";
 
@@ -190,7 +226,7 @@ namespace edm {
     }
 
     bool exists_(ParameterSet const& pset) const final {
-      return pset.existsAs<std::string>(typeLabel_, typeLabelIsTracked_);
+      CMS_SA_ALLOW return pset.existsAs<std::string>(typeLabel_, typeLabelIsTracked_);
     }
 
     bool partiallyExists_(ParameterSet const& pset) const final { return exists_(pset); }
@@ -200,9 +236,10 @@ namespace edm {
   private:
     std::string findType(edm::ParameterSet const& iPSet) const {
       if (typeLabelIsTracked_) {
-        if (iPSet.existsAs<std::string>(typeLabel_) || defaultType_.empty()) {
+        CMS_SA_ALLOW if (iPSet.existsAs<std::string>(typeLabel_) || defaultType_.empty()) {
           return iPSet.getParameter<std::string>(typeLabel_);
-        } else {
+        }
+        else {
           return defaultType_;
         }
       }

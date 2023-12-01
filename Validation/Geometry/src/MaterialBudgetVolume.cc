@@ -63,11 +63,13 @@ private:
   void endOfEvent(edm::MaterialInformationContainer& matbg);
   bool loadLV();
   int findLV(const G4VTouchable*);
+  bool stopAfter(const G4Step*);
 
 private:
   std::vector<std::string> lvNames_;
   std::vector<int> lvLevel_;
   int iaddLevel_;
+  double rMax_, zMax_;
   bool init_;
   std::map<int, std::pair<G4LogicalVolume*, int> > mapLV_;
   std::vector<MatInfo> lengths_;
@@ -80,9 +82,12 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
   lvNames_ = m_p.getParameter<std::vector<std::string> >("lvNames");
   lvLevel_ = m_p.getParameter<std::vector<int> >("lvLevels");
   iaddLevel_ = (m_p.getParameter<bool>("useDD4hep")) ? 1 : 0;
+  rMax_ = m_p.getParameter<double>("rMax") * CLHEP::m;
+  zMax_ = m_p.getParameter<double>("zMax") * CLHEP::m;
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
-                                     << " volumes with addLevel " << iaddLevel_;
+                                     << " volumes with addLevel " << iaddLevel_ << " and with rMax " << rMax_
+                                     << " mm; zMax " << zMax_ << " mm";
   std::ostringstream st1;
   for (unsigned int k = 0; k < lvNames_.size(); ++k)
     st1 << " [" << k << "] " << lvNames_[k] << " at " << lvLevel_[k];
@@ -151,6 +156,12 @@ void MaterialBudgetVolume::update(const G4Step* aStep) {
                                      << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index " << index
                                      << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
 #endif
+
+  //----- Stop tracking after selected position
+  if (stopAfter(aStep)) {
+    G4Track* track = aStep->GetTrack();
+    track->SetTrackStatus(fStopAndKill);
+  }
 }
 
 void MaterialBudgetVolume::update(const EndOfTrack* trk) {
@@ -240,6 +251,23 @@ int MaterialBudgetVolume::findLV(const G4VTouchable* touch) {
   }
 #endif
   return level;
+}
+
+bool MaterialBudgetVolume::stopAfter(const G4Step* aStep) {
+  bool flag(false);
+  if ((rMax_ > 0.0) && (zMax_ > 0.0)) {
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    double rr = hitPoint.perp();
+    double zz = std::abs(hitPoint.z());
+
+    if (rr > rMax_ || zz > zMax_) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MaterialBudget") << " MaterialBudgetHcal::StopAfter R = " << rr << " and Z = " << zz;
+#endif
+      flag = true;
+    }
+  }
+  return flag;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

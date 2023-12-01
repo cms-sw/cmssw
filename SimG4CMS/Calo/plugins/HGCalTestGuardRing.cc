@@ -131,8 +131,10 @@ void HGCalTestGuardRing::analyze(const edm::Event& e, const edm::EventSetup& iS)
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
   double waferSize = hgc.waferSize(false);
   HGCalCell wafer(waferSize, hgc.getUVMax(0), hgc.getUVMax(1));
+  const bool v17OrLess = hgc.v17OrLess();
+
   // get the hit collection
-  edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing: Wafer Szie " << waferSize;
+  edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing: Wafer Szie " << waferSize << " v17OrLess " << v17OrLess;
 
   // Loop over all IDs
   int all(0), allSi(0), good(0);
@@ -157,7 +159,7 @@ void HGCalTestGuardRing::analyze(const edm::Event& e, const edm::EventSetup& iS)
                 int placeIndex = wafer.cellPlacementIndex(1, HGCalTypes::waferFrontBack(0), orient);
                 std::pair<double, double> xy = wafer.cellUV2XY1(u, v, placeIndex, type);
                 std::vector<std::pair<double, double> > wxy1 =
-                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, 0.0, 0.0, 0.0);
+                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, 0.0, 0.0, 0.0, v17OrLess);
                 bool check1 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy1);
                 std::ostringstream st1;
                 for (unsigned int k1 = 0; k1 < wxy1.size(); ++k1)
@@ -168,7 +170,7 @@ void HGCalTestGuardRing::analyze(const edm::Event& e, const edm::EventSetup& iS)
                     << check1 << " for (" << xy.first << ", " << xy.second << ")";
 
                 std::vector<std::pair<double, double> > wxy2 =
-                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, guardRingOffset_, 0.0, 0.0);
+                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, guardRingOffset_, 0.0, 0.0, v17OrLess);
                 bool check2 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy2);
                 std::ostringstream st2;
                 for (unsigned int k1 = 0; k1 < wxy2.size(); ++k1)

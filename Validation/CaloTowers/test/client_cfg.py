@@ -9,7 +9,7 @@ import re
 readFiles = cms.untracked.vstring()
 
 matchRootFile = re.compile("\S*\.root$")
-for argument in sys.argv[2:]:
+for argument in sys.argv[1:]:
    if matchRootFile.search(argument):
       fileToRead = "file:"+argument
       readFiles.append(fileToRead)

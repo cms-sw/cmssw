@@ -139,12 +139,32 @@ steps['NANO_mc13.0']=merge([{'--era':'Run3',
 steps['MuonEG2023MINIAOD13.0'] = { 'INPUT':InputInfo(location='STD',ls=run3_lumis,
                                                      dataSet='/MuonEG/Run2023C-PromptReco-v4/MINIAOD')}
 
+steps['ZMuSkim2023DRAWRECO13.0'] = { 'INPUT':InputInfo(location='STD',ls={ 370775: [[1, 168]]},
+                                                     dataSet='/Muon0/Run2023D-ZMu-PromptReco-v2/RAW-RECO')}
+
+steps['ZeroBias2023DRAW13.0']={'INPUT':InputInfo(location='STD', ls={369978: [[1, 800]]},
+                                             dataSet='/ZeroBias/Run2023D-v1/RAW')}
+
 steps['NANO_data13.0']=merge([{'--era':'Run3',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
 
 steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
                                      steps['NANO_data13.0']])
+
+steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
+                                   '--conditions':'auto:run3_data',
+                                   '-n' : '100',
+                                   '--era' : 'Run3',
+                                   '--datatier':'NANOAOD',
+                                   '--eventcontent':'NANOAOD'}])
+
+steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
+                                   '--conditions':'auto:run3_data',
+                                   '-n' : '100',
+                                   '--era' : 'Run3',
+                                   '--datatier':'NANOAOD',
+                                   '--eventcontent':'NANOAOD'}])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -154,6 +174,28 @@ steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
 steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
+
+##13.X INPUT
+steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+
+steps['NANO_dataRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff',
+                         '--conditions':'auto:run3_data',
+                         '-n':'10',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD'}])
+
+steps['NANO_mcRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff.nanoSequenceMC',
+                         '--conditions':'auto:phase1_2022_realistic',
+                         '-n':'10',
+                         '--mc':'',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD',
+                         '--filein':'/store/mc/Run3Summer22MiniAODv3/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/MINIAODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/f9cdd76c-faac-4f24-bf0c-2496c8fffe54.root',
+                         '--secondfilein':'/store/mc/Run3Summer22DRPremix/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/AODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/ab09fc5d-859c-407f-b7ce-74b0bae9bb96.root'}])
 
 _wfn=WFN(2500)
 ################
@@ -186,8 +228,19 @@ workflows[_wfn()] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
+workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
+workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
 
 _wfn.next()
 ################
 #13.2 workflows
 workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO_mc']]
+
+_wfn.next()
+################
+#13.X workflows
+workflows[_wfn()] = ['ScoutingNanodata13X',['RunScoutingPFRun32022D13.X', 'NANO_dataRun3ScoutingPF13.X']]
+_wfn.subnext()
+workflows[_wfn()] = ['ScoutingNanomc13X',['NANO_mcRun3ScoutingPF13.X']]
+
+################

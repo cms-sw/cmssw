@@ -81,11 +81,8 @@
   
   <class name="std::vector<reco::PhotonCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::PhotonCore>"/>
-  <class name="edm::RefToBase<reco::PhotonCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::PhotonCore>" />
   <class name="edm::RefToBaseProd<reco::PhotonCore>" />
-  <class name="edm::RefToBaseVector<reco::PhotonCore>" />
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::PhotonCore> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::PhotonCore>" />
   <class name="edm::Wrapper<std::vector<reco::PhotonCore> >"/>
   <class name="edm::Ref<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
@@ -144,11 +141,8 @@
 
   <class name="std::vector<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
-  <class name="edm::RefToBase<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectronCore>" />
   <class name="edm::RefToBaseProd<reco::GsfElectronCore>" />
-  <class name="edm::RefToBaseVector<reco::GsfElectronCore>" />
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::GsfElectronCore> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::GsfElectronCore>" />
   <class name="edm::Wrapper<std::vector<reco::GsfElectronCore> >"/>
   <class name="edm::Ref<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>

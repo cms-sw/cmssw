@@ -5,7 +5,7 @@ ecalCommonParams = cms.untracked.PSet(
     willConvertToEDM = cms.untracked.bool(True)
 )
 
-ecaldqmLaserWavelengths = cms.untracked.vint32(1, 2, 3)
+ecaldqmLaserWavelengths = cms.untracked.vint32(1, 2, 3, 4)
 ecaldqmLedWavelengths = cms.untracked.vint32(1, 2)
 ecaldqmMGPAGains = cms.untracked.vint32(12)
 ecaldqmMGPAGainsPN = cms.untracked.vint32(16)

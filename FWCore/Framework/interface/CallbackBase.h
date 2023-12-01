@@ -70,7 +70,7 @@ namespace edm {
       CallbackBase(T* iProd, std::shared_ptr<TProduceFunc> iProduceFunc, unsigned int iID, const TDecorator& iDec)
           : proxyData_{},
             producer_(iProd),
-            callingContext_(&iProd->description()),
+            callingContext_(&iProd->description(), iID),
             produceFunction_(std::move(iProduceFunc)),
             id_(iID),
             wasCalledForThisRecord_(false),

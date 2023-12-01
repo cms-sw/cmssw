@@ -24,14 +24,17 @@ public:
 
   ReturnType produce(const ZDCGeometryRecord&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   // ----------member data ---------------------------
 
-  ZdcHardcodeGeometryLoader* m_loader;
+  std::unique_ptr<ZdcHardcodeGeometryLoader> m_loader;
 
   ZdcTopology m_topology;
 
   bool m_applyAlignment;
+  bool m_zdcAddRPD;
 };
 
 #endif

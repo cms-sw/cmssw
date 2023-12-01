@@ -5,6 +5,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class SeedFinderBase {
 public:
@@ -15,7 +17,8 @@ public:
 
   virtual void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                          const std::vector<bool>& mask,
-                         std::vector<bool>& seedable) = 0;
+                         std::vector<bool>& seedable,
+                         const HcalPFCuts*) = 0;
 
   const std::string& name() const { return _algoName; }
 

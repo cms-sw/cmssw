@@ -11,6 +11,7 @@
 #include <TPaveStats.h>
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 //#include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 
 #define CREATE_HIST_1D(varname, nbins, first, last) auto varname = new TH1D(#varname, #varname, nbins, first, last)

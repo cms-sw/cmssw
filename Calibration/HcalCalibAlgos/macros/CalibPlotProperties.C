@@ -152,13 +152,13 @@ void unpackDetId(unsigned int, int &, int &, int &, int &, int &);
 #include "CalibCorr.C"
 
 namespace CalibPlots {
-  static const int npbin = 4;
+  static const int npbin = 5;
   static const int netabin = 4;
   static const int ndepth = 7;
   static const int ntitles = 5;
   static const int npbin0 = (npbin + 1);
   int getP(int k) {
-    const int ipbin[npbin0] = {20, 30, 40, 60, 100};
+    const int ipbin[npbin0] = {20, 30, 40, 60, 100, 500};
     return ((k >= 0 && k < npbin0) ? ipbin[k] : 0);
   }
   double getMomentum(int k) { return (double)(getP(k)); }

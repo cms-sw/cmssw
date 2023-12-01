@@ -7,7 +7,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re, random
+import os, sys, importlib, re, random
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################

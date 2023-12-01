@@ -112,7 +112,7 @@ groupsPh2 = cms.vstring(
     "TrackerRecMaterialPhase2OTForwardDisk5"
 )
 
-optPh = str(sys.argv[2])
+optPh = str(sys.argv[1])
 
 groups = None
 if( optPh.lower() == "phasei"):

@@ -91,7 +91,7 @@ void HGCalValidHexTester::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::LogVerbatim("HGCalGeom") << nameDetector_ << " Layers = " << hgdc.layers(true) << " Sectors = " << hgdc.sectors()
                                 << "\n";
   for (unsigned int k = 0; k < layers_.size(); ++k) {
-    int nCells = (types_[k] == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+    int nCells = (types_[k] == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
     int ncell(0);
     for (int u = 0; u < 2 * nCells; ++u) {
       for (int v = 0; v < 2 * nCells; ++v) {

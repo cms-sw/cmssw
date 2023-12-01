@@ -15,11 +15,7 @@ parser.add_argument("--addTracer", help="add Tracer service", action="store_true
 parser.add_argument("--async_", help="use asynchronous module", action="store_true")
 parser.add_argument("--exception", help="Make module consumed by transformer to throw an exception", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
-
+args = parser.parse_args()
 
 process = cms.Process("TEST")
 

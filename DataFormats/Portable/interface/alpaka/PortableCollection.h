@@ -1,7 +1,5 @@
-#ifndef DataFormats_Portable_interface_alpaka_PortableDeviceCollection_h
-#define DataFormats_Portable_interface_alpaka_PortableDeviceCollection_h
-
-#include <optional>
+#ifndef DataFormats_Portable_interface_alpaka_PortableCollection_h
+#define DataFormats_Portable_interface_alpaka_PortableCollection_h
 
 #include <alpaka/alpaka.hpp>
 
@@ -11,6 +9,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+
+// This header is not used by PortableCollection, but is included here to automatically
+// provide its content to users of ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection.
+#include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -64,4 +66,4 @@ namespace cms::alpakatools {
   };
 }  // namespace cms::alpakatools
 
-#endif  // DataFormats_Portable_interface_alpaka_PortableDeviceCollection_h
+#endif  // DataFormats_Portable_interface_alpaka_PortableCollection_h

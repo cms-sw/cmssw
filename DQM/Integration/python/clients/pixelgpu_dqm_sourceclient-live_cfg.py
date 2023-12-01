@@ -85,9 +85,12 @@ process.load('DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff')
 #-------------------------------------
 #	Some Settings before Finishing up
 #-------------------------------------
-process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = cms.InputTag('hltSiPixelDigisFromSoA')
-process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = cms.InputTag('hltSiPixelDigisLegacy')
-
+if process.runType.getRunType() == process.runType.hi_run:
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = 'hltSiPixelDigisFromSoAPPOnAA'
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = 'hltSiPixelDigisLegacyPPOnAA'
+else:
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = 'hltSiPixelDigisFromSoA'
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = 'hltSiPixelDigisLegacy'
 #-------------------------------------
 #       Some Debug
 #-------------------------------------

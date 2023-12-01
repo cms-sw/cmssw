@@ -9,6 +9,7 @@
 #include "CondCore/SiPixelPlugins/plugins/SiPixelVCal_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelQualityProbabilities_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelDynamicInefficiency_PayloadInspector.cc"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelFEDChannelContainer_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -240,6 +241,26 @@ int main(int argc, char** argv) {
   SiPixelDynamicInefficiencyPUParamComparisonTwoTags histo30;
   histo30.process(connectionString, PI::mk_input(tag, start, end, tag2, start2, start2));
   edm::LogPrint("testSiPixelPayloadInspector") << histo30.data() << std::endl;
+
+  // SiPixelFEDChannelContainer
+  tag = "SiPixelStatusScenarios_StuckTBMandOther_2023_v2_mc";
+  tag2 = "SiPixelQualityProbabilities_2023_v2_mc";
+  start = static_cast<unsigned long long>(1);
+  end = static_cast<unsigned long long>(1);
+
+  edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelFEDChannelContainer plots " << std::endl;
+
+  inputs["SiPixelQualityProbabilitiesTag"] = tag2;  // Quality Probabilities tag to use
+  SiPixelBPixFEDChannelContainerWeightedMap histo31;
+  histo31.setInputParamValues(inputs);
+  histo31.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo31.data() << std::endl;
+
+  inputs["Scenarios"] = "370097_302";
+  SiPixelBPixFEDChannelContainerMap histo32;
+  histo32.setInputParamValues(inputs);
+  histo32.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo32.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

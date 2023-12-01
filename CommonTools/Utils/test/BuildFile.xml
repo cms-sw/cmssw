@@ -15,7 +15,7 @@
 </bin>
 
 <bin name="testExpressionEvaluator" file="testExpressionEvaluator.cc,testRunner.cpp">
-  <ifrelease name="_ASAN_">
+  <ifrelease name="ASAN">
     <flags NO_TEST_PREFIX="1"/>
   </ifrelease>
   <use name="Geometry/CommonDetUnit"/>
@@ -32,7 +32,7 @@
 </bin>
 
 <bin file="ExpressionEvaluatorUnitTest.cpp">
-  <ifrelease name="_ASAN_">
+  <ifrelease name="ASAN">
     <flags NO_TEST_PREFIX="1"/>
   </ifrelease>
   <flags CXXFLAGS="-fopenmp"/>

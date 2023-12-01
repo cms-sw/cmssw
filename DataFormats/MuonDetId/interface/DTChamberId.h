@@ -35,6 +35,9 @@ public:
   /// this, no check is done on the vaildity of the values.
   DTChamberId(const DTChamberId& chId);
 
+  /// Assignment Operator.
+  DTChamberId& operator=(const DTChamberId& chId) = default;
+
   /// Return the wheel number
   int wheel() const { return int((id_ >> wheelStartBit_) & wheelMask_) + minWheelId - 1; }
 

@@ -48,12 +48,15 @@ namespace edm {
   };
 
   template <typename T>
-  class PtrVectorItr : public std::iterator<std::random_access_iterator_tag, Ptr<T> > {
+  class PtrVectorItr {
   public:
-    typedef Ptr<T> const reference;  // otherwise boost::range does not work
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = Ptr<T>;
+    using pointer = Ptr<T>*;
+    using reference = Ptr<T> const;  // otherwise boost::range does not work
                                      // const, because this is a const_iterator
-    typedef PtrVectorItr<T> iterator;
-    typedef typename std::iterator<std::random_access_iterator_tag, Ptr<T> >::difference_type difference_type;
+    using iterator = PtrVectorItr<T>;
+    using difference_type = std::ptrdiff_t;
 
     PtrVectorItr(std::vector<void const*>::const_iterator const& iItr, PtrVector<T> const* iBase)
         : iter_(iItr), base_(iBase) {}
@@ -121,11 +124,11 @@ namespace edm {
   template <typename T>
   class PtrVector : public PtrVectorBase {
   public:
-    typedef PtrVectorItr<T> const_iterator;
-    typedef PtrVectorItr<T> iterator;  // make boost::sub_range happy (std allows this)
-    typedef Ptr<T> value_type;
-    typedef T member_type;
-    typedef void collection_type;
+    using const_iterator = PtrVectorItr<T>;
+    using iterator = PtrVectorItr<T>;  // make boost::sub_range happy (std allows this)
+    using value_type = Ptr<T>;
+    using member_type = T;
+    using collection_type = void;
 
     friend class PtrVectorItr<T>;
     PtrVector() : PtrVectorBase() {}

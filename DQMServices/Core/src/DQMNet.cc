@@ -1,14 +1,10 @@
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "classlib/iobase/InetServerSocket.h"
 #include "classlib/iobase/LocalServerSocket.h"
-#include "classlib/iobase/Filename.h"
 #include "classlib/sysapi/InetSocket.h"  // for completing InetAddress
-#include "classlib/utils/TimeInfo.h"
-#include "classlib/utils/StringList.h"
-#include "classlib/utils/StringFormat.h"
-#include "classlib/utils/StringOps.h"
 #include "classlib/utils/SystemError.h"
 #include "classlib/utils/Regexp.h"
+#include <fmt/format.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -832,8 +828,8 @@ bool DQMNet::onPeerConnect(IOSelectEvent *ev) {
   if (auto *inet = dynamic_cast<InetSocket *>(s)) {
     InetAddress peeraddr = inet->peername();
     InetAddress myaddr = inet->sockname();
-    p->peeraddr = StringFormat("%1:%2").arg(peeraddr.hostname()).arg(peeraddr.port()).value();
-    localaddr = StringFormat("%1:%2").arg(myaddr.hostname()).arg(myaddr.port()).value();
+    p->peeraddr = fmt::format("{}:{}", peeraddr.hostname(), peeraddr.port());
+    localaddr = fmt::format("{}:{}", myaddr.hostname(), myaddr.port());
   } else if (auto *local = dynamic_cast<LocalSocket *>(s)) {
     p->peeraddr = local->peername().path();
     localaddr = local->sockname().path();
@@ -1130,7 +1126,7 @@ void DQMNet::run() {
 
           InetAddress peeraddr = ((InetSocket *)s)->peername();
           InetAddress myaddr = ((InetSocket *)s)->sockname();
-          p->peeraddr = StringFormat("%1:%2").arg(peeraddr.hostname()).arg(peeraddr.port()).value();
+          p->peeraddr = fmt::format("{}:{}", peeraddr.hostname(), peeraddr.port());
           p->mask = IORead | IOWrite | IOUrgent;
           p->update = ap->update;
           p->automatic = ap;
@@ -1213,7 +1209,7 @@ DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */) : DQMImplNet<DQM
 }
 
 /// Give a hint of how much capacity to allocate for local objects.
-void DQMBasicNet::reserveLocalSpace(uint32_t size) { local_->objs.resize(size); }
+void DQMBasicNet::reserveLocalSpace(uint32_t size) { local_->objs.reserve(size); }
 
 /// Update the network cache for an object.  The caller must call
 /// sendLocalChanges() later to push out the changes.

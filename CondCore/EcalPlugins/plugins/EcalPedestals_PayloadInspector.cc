@@ -35,9 +35,9 @@ namespace {
       TH1F** barrel_r = new TH1F*[kGains];
       TH1F** endcap_r = new TH1F*[kGains];
       float bmin[kGains] = {0.7, 0.5, 0.4};
-      float bmax[kGains] = {3.3, 2.0, 1.0};  //  11/01/2023
+      float bmax[kGains] = {3.6, 2.0, 1.0};  //  11/11/2023
       float emin[kGains] = {1.5, 0.8, 0.4};
-      float emax[kGains] = {3.0, 2.0, 1.0};  //  11/01/2023
+      float emax[kGains] = {3.0, 2.0, 1.0};  //  11/11/2023
       for (int gainId = 0; gainId < kGains; gainId++) {
         barrel_m[gainId] = new TH1F(Form("EBm%i", gainId), Form("mean %i EB", gainValues[gainId]), 100, 150., 250.);
         endcap_m[gainId] = new TH1F(Form("EEm%i", gainId), Form("mean %i EE", gainValues[gainId]), 100, 150., 250.);
@@ -372,15 +372,15 @@ namespace {
       //      l->SetLineWidth(1);
       for (int gId = 0; gId < kGains; gId++) {
         pad[gId][0]->cd();
-        DrawEE(endc_m_m[gId], 185., 235.);  //   11/01/2023
+        DrawEE(endc_m_m[gId], 180., 300.);  //   11/11/2023
         pad[gId + kGains][0]->cd();
         DrawEE(endc_m_r[gId], pEEmin[gId], pEEmax[gId]);
         pad[gId][1]->cd();
-        DrawEB(barrel_m[gId], 185., 235.);  //   11/01/2023
+        DrawEB(barrel_m[gId], 180., 240.);  //   11/11/2023
         pad[gId + kGains][1]->cd();
         DrawEB(barrel_r[gId], pEBmin[gId], pEBmax[gId]);
         pad[gId][2]->cd();
-        DrawEE(endc_p_m[gId], 185., 235.);  //   11/01/2023
+        DrawEE(endc_p_m[gId], 180., 300.);  //   11/11/2023
         pad[gId + kGains][2]->cd();
         DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
@@ -858,6 +858,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -907,6 +910,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -952,6 +958,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1153,6 +1162,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 2 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 2);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1168,8 +1180,8 @@ namespace {
             //	    fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta()+0.5+delta, (*payload)[rawid].mean_x12 );
             // set max on noise 2d plots
             float valrms = (*payload)[rawid].rms_x12;
-            if (valrms > 2.2)
-              valrms = 2.2;
+            if (valrms > 4.0)
+              valrms = 4.0;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
         }    // if payload.get()
@@ -1201,6 +1213,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 1 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 1);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1212,8 +1227,8 @@ namespace {
 
             // set max on noise 2d plots
             float valrms = (*payload)[rawid].rms_x6;
-            if (valrms > 1.5)
-              valrms = 1.5;
+            if (valrms > 2.5)
+              valrms = 2.5;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
         }    // if payload.get()
@@ -1245,6 +1260,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 0.5 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 0.5);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1256,8 +1274,8 @@ namespace {
 
             // set max on noise 2d plots
             float valrms = (*payload)[rawid].rms_x1;
-            if (valrms > 1.0)
-              valrms = 1.0;
+            if (valrms > 1.2)
+              valrms = 1.2;
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valrms);
           }  // loop over cellid
         }    // if payload.get()
@@ -1304,8 +1322,8 @@ namespace {
                     continue;
                   // set max on noise 2d plots
                   float valrms = (*payload)[rawid].rms_x12;
-                  if (valrms > 3.5)
-                    valrms = 3.5;
+                  if (valrms > 4.0)
+                    valrms = 4.0;
                   if (iz == -1)
                     fillWithValue(ix, iy, valrms);
                   else
@@ -1355,8 +1373,8 @@ namespace {
                     continue;
                   // set max on noise 2d plots
                   float valrms = (*payload)[rawid].rms_x6;
-                  if (valrms > 2.0)
-                    valrms = 2.0;
+                  if (valrms > 2.5)
+                    valrms = 2.5;
                   if (iz == -1)
                     fillWithValue(ix, iy, valrms);
                   else
@@ -1405,8 +1423,8 @@ namespace {
                     continue;
                   // set max on noise 2d plots
                   float valrms = (*payload)[rawid].rms_x1;
-                  if (valrms > 1.5)
-                    valrms = 1.5;
+                  if (valrms > 1.2)
+                    valrms = 1.2;
                   if (iz == -1)
                     fillWithValue(ix, iy, valrms);
                   else

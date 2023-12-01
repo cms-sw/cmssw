@@ -5,7 +5,7 @@ process = cms.Process('RERECO')
 # this is to avoid the postpathendrun probem with same process name (only with http reader)
 process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring('Configuration')
-#    SkipEvent = cms.untracked.vstring('Configuration')
+#    TryToContinue = cms.untracked.vstring('Configuration')
 )
 
 

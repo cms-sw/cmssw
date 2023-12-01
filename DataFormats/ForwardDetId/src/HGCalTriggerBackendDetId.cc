@@ -8,7 +8,7 @@ HGCalTriggerBackendDetId::HGCalTriggerBackendDetId(uint32_t rawid) : DetId(rawid
 
 HGCalTriggerBackendDetId::HGCalTriggerBackendDetId(int zp, int type, int sector, int label)
     : DetId(Forward, HGCTrigger) {
-  int classid = HGCalTriggerClassIdentifier::ModuleDetId;
+  int classid = HGCalTriggerClassIdentifier::BackendDetId;
   int zside = (zp < 0) ? 1 : 0;
   id_ |= (((label & kHGCalLabelMask) << kHGCalLabelOffset) | ((sector & kHGCalSectorMask) << kHGCalSectorOffset) |
           ((zside & kHGCalZsideMask) << kHGCalZsideOffset) | ((type & kHGCalTypeMask) << kHGCalTypeOffset) |

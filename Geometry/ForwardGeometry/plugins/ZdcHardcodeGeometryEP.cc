@@ -20,7 +20,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps)
-    : m_loader(nullptr), m_topology(), m_applyAlignment(ps.getUntrackedParameter<bool>("applyAlignment", false)) {
+    : m_loader(nullptr),
+      m_topology(),
+      m_applyAlignment(ps.getParameter<bool>("applyAlignment")),
+      m_zdcAddRPD(ps.getParameter<bool>("zdcAddRPD")) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this, ZdcGeometry::producerTag());
@@ -31,7 +34,7 @@ ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps)
   //		    edm::es::Label( "ZDC" ) );
 }
 
-ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() { delete m_loader; }
+ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() {}
 
 //
 // member functions
@@ -41,7 +44,14 @@ ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() { delete m_loader; }
 
 ZdcHardcodeGeometryEP::ReturnType ZdcHardcodeGeometryEP::produce(const ZDCGeometryRecord& iRecord) {
   //   ZdcHardcodeGeometryLoader loader ( m_topology ) ;
-  m_loader = new ZdcHardcodeGeometryLoader(m_topology);
-
+  m_loader = std::make_unique<ZdcHardcodeGeometryLoader>(m_topology);
+  m_loader->setAddRPD(m_zdcAddRPD);
   return ReturnType(m_loader->load());
+}
+
+void ZdcHardcodeGeometryEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("applyAlignment", false);
+  desc.add<bool>("zdcAddRPD", false);
+  descriptions.addWithDefaultLabel(desc);
 }

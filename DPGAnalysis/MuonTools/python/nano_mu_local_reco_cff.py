@@ -82,6 +82,85 @@ rpcRecHitFlatTableProducer.detIdVariables = cms.PSet(
         rawId = DetIdVar("rawId()", "uint", doc = "unique detector unit ID")
 )
 
+dtrpcPointFlatTableProducer = rpcRecHitFlatTableProducer.clone(name = 'dtrpcPointProducer', src = cms.InputTag('rpcPointProducer','RPCDTExtrapolatedPoints'), doc = "DT extrapolated point on RPC")
+
+dtrpcPointFlatTableProducer.variables = cms.PSet(
+        coordX = Var("localPosition().x()", float, doc = "position x in local coordinates - cm"),
+        coordY = Var("localPosition().y()", float, doc = "position y in local coordinates - cm"),
+        coordZ = Var("localPosition().z()", float, doc = "position z in local coordinates - cm"),
+)
+
+dtrpcPointFlatTableProducer.detIdVariables = cms.PSet(
+        region = DetIdVar("region()", "int8", doc = "0: barrel, +-1: endcap"),
+        ring = DetIdVar("ring()", "int8", doc = "ring id:"
+                                        "<br />wheel number in barrel (from -2 to +2)"
+                                        "<br />ring number in endcap (from 1 to 3)"),
+        station = DetIdVar("station()", "int8", doc = "chambers at same R in barrel, chambers at same Z ion endcap"),
+        layer = DetIdVar("layer()", "int8", doc = "layer id:"
+                                          "<br />in station 1 and 2 for barrel, we have two layers of chambers:"
+                                          "<br />layer 1 is the inner chamber and layer 2 is the outer chamber"),
+        sector = DetIdVar("sector()", "int8", doc = "group of chambers at same phi"),
+        subsector = DetIdVar("subsector()", "int8", doc = "Some sectors are divided along the phi direction in subsectors "
+                                                  "(from 1 to 4 in Barrel, from 1 to 6 in Endcap)"),
+        roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition):"
+                                        "<br />each chamber is divided along the strip direction"),
+        rawId = DetIdVar("rawId()", "uint", doc = "unique detector unit ID")
+)
+cscrpcPointFlatTableProducer = rpcRecHitFlatTableProducer.clone(name = 'cscToRpc',
+                                                                src = cms.InputTag('rpcPointProducer','RPCCSCExtrapolatedPoints'),
+                                                                doc = "CSC segment extrapolated on RPC")
+
+cscrpcPointFlatTableProducer.variables = cms.PSet(
+        coordX = Var("localPosition().x()", float, doc = "position x in local coordinates - cm"),
+        coordY = Var("localPosition().y()", float, doc = "position y in local coordinates - cm"),
+        coordZ = Var("localPosition().z()", float, doc = "position z in local coordinates - cm"),
+)
+
+cscrpcPointFlatTableProducer.detIdVariables = cms.PSet(
+        region = DetIdVar("region()", "int8", doc = "0: barrel, +-1: endcap"),
+        ring = DetIdVar("ring()", "int8", doc = "ring id:"
+                                        "<br />wheel number in barrel (from -2 to +2)"
+                                        "<br />ring number in endcap (from 1 to 3)"),
+        station = DetIdVar("station()", "int8", doc = "chambers at same R in barrel, chambers at same Z ion endcap"),
+        layer = DetIdVar("layer()", "int8", doc = "layer id:"
+                                          "<br />in station 1 and 2 for barrel, we have two layers of chambers:"
+                                          "<br />layer 1 is the inner chamber and layer 2 is the outer chamber"),
+        sector = DetIdVar("sector()", "int8", doc = "group of chambers at same phi"),
+        subsector = DetIdVar("subsector()", "int8", doc = "Some sectors are divided along the phi direction in subsectors "
+                                                  "(from 1 to 4 in Barrel, from 1 to 6 in Endcap)"),
+        roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition):"
+                                        "<br />each chamber is divided along the strip direction"),
+        rawId = DetIdVar("rawId()", "uint", doc = "unique detector unit ID")
+)
+
+dtrpcPointFlatTableProducer = rpcRecHitFlatTableProducer.clone(name = 'dtToRpc',
+                                                               src = cms.InputTag('rpcPointProducer','RPCDTExtrapolatedPoints'),
+                                                               doc = "DT segment extrapolated on RPC")
+
+dtrpcPointFlatTableProducer.variables = cms.PSet(
+        coordX = Var("localPosition().x()", float, doc = "position x in local coordinates - cm"),
+        coordY = Var("localPosition().y()", float, doc = "position y in local coordinates - cm"),
+        coordZ = Var("localPosition().z()", float, doc = "position z in local coordinates - cm"),
+)
+
+dtrpcPointFlatTableProducer.detIdVariables = cms.PSet(
+        region = DetIdVar("region()", "int8", doc = "0: barrel, +-1: endcap"),
+        ring = DetIdVar("ring()", "int8", doc = "ring id:"
+                                        "<br />wheel number in barrel (from -2 to +2)"
+                                        "<br />ring number in endcap (from 1 to 3)"),
+        station = DetIdVar("station()", "int8", doc = "chambers at same R in barrel, chambers at same Z ion endcap"),
+        layer = DetIdVar("layer()", "int8", doc = "layer id:"
+                                          "<br />in station 1 and 2 for barrel, we have two layers of chambers:"
+                                          "<br />layer 1 is the inner chamber and layer 2 is the outer chamber"),
+        sector = DetIdVar("sector()", "int8", doc = "group of chambers at same phi"),
+        subsector = DetIdVar("subsector()", "int8", doc = "Some sectors are divided along the phi direction in subsectors "
+                                                  "(from 1 to 4 in Barrel, from 1 to 6 in Endcap)"),
+        roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition):"
+                                        "<br />each chamber is divided along the strip direction"),
+        rawId = DetIdVar("rawId()", "uint", doc = "unique detector unit ID")
+)
+
+
 from DPGAnalysis.MuonTools.gemRecHitFlatTableProducer_cfi import gemRecHitFlatTableProducer
 
 gemRecHitFlatTableProducer.name = "gemRecHit"
@@ -156,6 +235,8 @@ gemSegmentFlatTableProducer.globalDirVariables = cms.PSet(
 )
 
 muLocalRecoProducers = cms.Sequence(rpcRecHitFlatTableProducer
+                                    + dtrpcPointFlatTableProducer
+                                    + cscrpcPointFlatTableProducer
                                     + gemRecHitFlatTableProducer
                                     + dtSegmentFlatTableProducer
                                     + muDTSegmentExtTableProducer

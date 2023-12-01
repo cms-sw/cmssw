@@ -1,5 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
 public:
@@ -10,7 +12,8 @@ public:
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection&) override;
+                     reco::PFClusterCollection&,
+                     const HcalPFCuts*) override;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DClusterForEachSeed, "Basic2DClusterForEachSeed");
@@ -18,7 +21,8 @@ DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DClusterForEachSeed, "Basi
 void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                               const std::vector<bool>& rechitMask,
                                               const std::vector<bool>& seedable,
-                                              reco::PFClusterCollection& output) {
+                                              reco::PFClusterCollection& output,
+                                              const HcalPFCuts*) {
   auto const& hits = *input;
 
   // loop over seeds and make clusters

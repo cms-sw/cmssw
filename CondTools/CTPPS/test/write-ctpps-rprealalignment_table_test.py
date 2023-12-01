@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('test')
 
 # import sys
-# if len(sys.argv) > 3:
-#     startrun = sys.argv[2]
-#     path = sys.argv[3]+"/"
+# if len(sys.argv) > 2:
+#     startrun = sys.argv[1]
+#     path = sys.argv[2]+"/"
 # else:
 #     print("not able to run")
 #     exit()

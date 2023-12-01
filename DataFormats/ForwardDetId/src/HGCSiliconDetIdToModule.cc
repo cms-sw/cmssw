@@ -4,7 +4,7 @@ HGCSiliconDetIdToModule::HGCSiliconDetIdToModule() {}
 
 std::vector<HGCSiliconDetId> HGCSiliconDetIdToModule::getDetIds(HGCSiliconDetId const& id) const {
   std::vector<HGCSiliconDetId> ids;
-  int nCells = (id.type() == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+  int nCells = (id.type() == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
   for (int u = 0; u < 2 * nCells; ++u) {
     for (int v = 0; v < 2 * nCells; ++v) {
       if (((v - u) < nCells) && (u - v) <= nCells) {
@@ -18,7 +18,7 @@ std::vector<HGCSiliconDetId> HGCSiliconDetIdToModule::getDetIds(HGCSiliconDetId 
 
 std::vector<HGCalTriggerDetId> HGCSiliconDetIdToModule::getDetTriggerIds(HGCSiliconDetId const& id) const {
   std::vector<HGCalTriggerDetId> ids;
-  int nCells = HGCSiliconDetId::HGCalFineN / HGCSiliconDetId::HGCalFineTrigger;
+  int nCells = HGCSiliconDetId::HGCalHighDensityN / HGCSiliconDetId::HGCalFineTrigger;
   int subdet = (id.det() == DetId::HGCalEE) ? HGCalEETrigger : HGCalHSiTrigger;
   for (int u = 0; u < 2 * nCells; ++u) {
     for (int v = 0; v < 2 * nCells; ++v) {

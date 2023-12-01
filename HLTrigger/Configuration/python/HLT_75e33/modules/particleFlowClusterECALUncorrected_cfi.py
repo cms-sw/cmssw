@@ -111,6 +111,7 @@ particleFlowClusterECALUncorrected = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
+    usePFThresholdsFromDB = cms.bool(False), # this needs to be True only for HBHE
     seedCleaners = cms.VPSet(cms.PSet(
         RecHitFlagsToBeExcluded = cms.vstring(),
         algoName = cms.string('FlagsCleanerECAL')

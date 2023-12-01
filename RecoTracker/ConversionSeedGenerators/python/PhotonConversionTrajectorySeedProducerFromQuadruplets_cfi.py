@@ -21,7 +21,7 @@ photonConvTrajSeedFromQuadruplets  = cms.EDProducer("PhotonConversionTrajectoryS
                                                       ),
                                                   ClusterCheckPSet = cms.PSet(
                                                       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
-                                                      MaxNumberOfCosmicClusters = cms.uint32(50000),
+                                                      MaxNumberOfStripClusters = cms.uint32(50000),
                                                       doClusterCheck = cms.bool(True),
                                                       ClusterCollectionLabel = cms.InputTag("siStripClusters"),
                                                       MaxNumberOfPixelClusters = cms.uint32(10000)

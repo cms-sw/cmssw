@@ -31,13 +31,17 @@ namespace ecaldqm {
 
   void GpuTask::addDependencies(DependencySet& dependencies) {
     // Ensure we run on CPU objects before GPU objects
-    if (runGpuTask_) {
+    if (enableDigi_) {
       dependencies.push_back(Dependency(kEBGpuDigi, kEBCpuDigi));
       dependencies.push_back(Dependency(kEEGpuDigi, kEECpuDigi));
+    }
 
+    if (enableUncalib_) {
       dependencies.push_back(Dependency(kEBGpuUncalibRecHit, kEBCpuUncalibRecHit));
       dependencies.push_back(Dependency(kEEGpuUncalibRecHit, kEECpuUncalibRecHit));
+    }
 
+    if (enableRecHit_) {
       dependencies.push_back(Dependency(kEBGpuRecHit, kEBCpuRecHit));
       dependencies.push_back(Dependency(kEEGpuRecHit, kEECpuRecHit));
     }

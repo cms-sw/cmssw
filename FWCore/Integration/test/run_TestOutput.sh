@@ -7,7 +7,7 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testOutput1"
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}1_cfg.py 2> testOutput1.log || die "cmsRun ${test}1_cfg.py" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py 2> testOutput1.log || die "cmsRun ${test}1_cfg.py" $?
 
   # Check that all the transitions that were supposed to occur
   # in a global output module actually did occur
@@ -40,7 +40,7 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   # Above we tested using EmptySource. Repeat reading a file using PoolSource
   echo "testOutput2"
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}2_cfg.py 2> testOutput2.log || die "cmsRun ${test}2_cfg.py" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}2_cfg.py 2> testOutput2.log || die "cmsRun ${test}2_cfg.py" $?
 
   grep "global write event" testOutput2.log > /dev/null || die "grep failed to find 'global write event'" $?
   grep "global writeLuminosityBlock" testOutput2.log > /dev/null || die "grep failed to find 'global writeLuminosityBlock'" $?

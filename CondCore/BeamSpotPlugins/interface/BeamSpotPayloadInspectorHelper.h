@@ -63,7 +63,7 @@ namespace beamSpotPI {
 
   /************************************************/
   // Function to convert cond::Time_t (in microseconds) to human-readable date string
-  std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
+  inline std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
     // Convert microseconds to seconds
     std::time_t unixTime = static_cast<std::time_t>(hasMicros ? timeValue / 1000000 : timeValue);
 
@@ -715,17 +715,21 @@ namespace beamSpotPI {
 namespace simBeamSpotPI {
 
   enum parameters {
-    X = 0,              // 0  - Positions
-    Y = 1,              // 1
-    Z = 2,              // 2
-    sigmaZ = 3,         // 3  - Widths
-    betaStar = 4,       // 4
-    emittance = 5,      // 5
-    expTransWidth = 6,  // 6  - from LPC-like calculation
-    phi = 7,            // 7  - Additional parameters
-    alpha = 8,          // 8
-    timeOffset = 9,     // 9
-    END_OF_TYPES = 10,
+    X = 0,            // 0  - Positions
+    Y = 1,            // 1
+    Z = 2,            // 2
+    meanX = 3,        // 3
+    meanY = 4,        // 4
+    meanZ = 5,        // 5
+    sigmaX = 6,       // 6  - Widths
+    sigmaY = 7,       // 7
+    sigmaZ = 8,       // 8
+    betaStar = 9,     // 9
+    emittance = 10,   // 10
+    phi = 11,         // 11  - Additional parameters
+    alpha = 12,       // 12
+    timeOffset = 13,  // 13
+    END_OF_TYPES = 14,
   };
 
   /************************************************/
@@ -737,14 +741,22 @@ namespace simBeamSpotPI {
         return (addUnits ? "Y [cm]" : "Y");
       case Z:
         return (addUnits ? "Z [cm]" : "Z");
+      case meanX:
+        return (addUnits ? "MeanX [cm]" : "meanX");
+      case meanY:
+        return (addUnits ? "MeanY [cm]" : "meanY");
+      case meanZ:
+        return (addUnits ? "MeanZ [cm]" : "meanZ");
+      case sigmaX:
+        return (addUnits ? "#sigma_{X} [#mum]" : "sigmaX");
+      case sigmaY:
+        return (addUnits ? "#sigma_{Y} [#mum]" : "sigmaY");
       case sigmaZ:
         return (addUnits ? "#sigma_{Z} [cm]" : "sigmaZ");
       case betaStar:
         return (addUnits ? "#beta* [cm]" : "BetaStar");
       case emittance:
         return (addUnits ? "Emittance [cm]" : "Emittance");
-      case expTransWidth:
-        return (addUnits ? "#sigma^{trans}_{xy} [#mum]" : "Exp. trans width");
       case phi:
         return (addUnits ? "Phi [rad]" : "Phi");
       case alpha:
@@ -769,9 +781,12 @@ namespace simBeamSpotPI {
     SimBSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
       // fill in the values
       m_values[parameters::X] = bs->x(), m_values[parameters::Y] = bs->y(), m_values[parameters::Z] = bs->z();
-      m_values[parameters::sigmaZ] = bs->sigmaZ(), m_values[parameters::betaStar] = bs->betaStar(),
-      m_values[parameters::emittance] = bs->emittance();
-      m_values[parameters::expTransWidth] = (1 / std::sqrt(2)) * std::sqrt(bs->emittance() * bs->betaStar()) * 10000.f;
+      m_values[parameters::meanX] = bs->meanX(), m_values[parameters::meanY] = bs->meanY();
+      m_values[parameters::meanZ] = bs->meanZ();
+      m_values[parameters::sigmaX] = bs->sigmaX() * 10000.f;
+      m_values[parameters::sigmaY] = bs->sigmaY() * 10000.f;
+      m_values[parameters::sigmaZ] = bs->sigmaZ();
+      m_values[parameters::betaStar] = bs->betaStar(), m_values[parameters::emittance] = bs->emittance();
       m_values[parameters::phi] = bs->phi(), m_values[parameters::alpha] = bs->alpha(),
       m_values[parameters::timeOffset] = bs->timeOffset();
     }
@@ -842,6 +857,16 @@ namespace simBeamSpotPI {
             return m_payload->y();
           case Z:
             return m_payload->z();
+          case meanX:
+            return m_payload->meanX();
+          case meanY:
+            return m_payload->meanY();
+          case meanZ:
+            return m_payload->meanZ();
+          case sigmaX:
+            return m_payload->sigmaX() * cmToUm;
+          case sigmaY:
+            return m_payload->sigmaY() * cmToUm;
           case sigmaZ:
             return m_payload->sigmaZ();
           case betaStar:
@@ -854,8 +879,6 @@ namespace simBeamSpotPI {
             return m_payload->alpha();
           case timeOffset:
             return m_payload->timeOffset();
-          case expTransWidth:
-            return (1 / std::sqrt(2)) * std::sqrt(m_payload->emittance() * m_payload->betaStar()) * cmToUm;
           case END_OF_TYPES:
             return ret;
           default:

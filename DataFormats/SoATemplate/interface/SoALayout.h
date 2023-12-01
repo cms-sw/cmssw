@@ -34,7 +34,7 @@
  *   SOA_COLUMN(uint32_t, anotherCount),
  *
  *   // scalars: one value for the whole structure
- *   SOA_SCALAR(const char *, description),
+ *   SOA_SCALAR(const char *, description), 
  *   SOA_SCALAR(uint32_t, someNumber)
  * );
  *
@@ -63,20 +63,21 @@
   _SWITCH_ON_TYPE(                                                                                                     \
       VALUE_TYPE,                                                                                                      \
       /* Dump scalar */                                                                                                \
-      os << " Scalar " BOOST_PP_STRINGIZE(NAME) " at offset " << offset << " has size " << sizeof(CPP_TYPE)            \
+      _soa_impl_os << " Scalar " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset                            \
+         << " has size " << sizeof(CPP_TYPE)                                                                           \
          << " and padding " << ((sizeof(CPP_TYPE) - 1) / alignment + 1) * alignment - sizeof(CPP_TYPE)                 \
          << std::endl;                                                                                                 \
-      offset += ((sizeof(CPP_TYPE) - 1) / alignment + 1) * alignment;                                                  \
+      _soa_impl_offset += ((sizeof(CPP_TYPE) - 1) / alignment + 1) * alignment;                                        \
       ,                                                                                                                \
       /* Dump column */                                                                                                \
-      os << " Column " BOOST_PP_STRINGIZE(NAME) " at offset " << offset << " has size "                                \
+      _soa_impl_os << " Column " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset << " has size "            \
          << sizeof(CPP_TYPE) * elements_ << " and padding "                                                            \
          << cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment) - (elements_ * sizeof(CPP_TYPE))              \
          << std::endl;                                                                                                 \
-      offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                          \
+      _soa_impl_offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
       ,                                                                                                                \
       /* Dump Eigen column */                                                                                          \
-      os << " Eigen value " BOOST_PP_STRINGIZE(NAME) " at offset " << offset << " has dimension "                      \
+      _soa_impl_os << " Eigen value " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset << " has dimension "  \
          << "(" << CPP_TYPE::RowsAtCompileTime << " x " << CPP_TYPE::ColsAtCompileTime << ")"                          \
          << " and per column size "                                                                                    \
          << sizeof(CPP_TYPE::Scalar) * elements_                                                                       \
@@ -84,7 +85,7 @@
          << cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                                       \
             - (elements_ * sizeof(CPP_TYPE::Scalar))                                                                   \
          << std::endl;                                                                                                 \
-      offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                                   \
+      _soa_impl_offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
                 * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                           \
   )
 // clang-format on
@@ -187,13 +188,13 @@
 #define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                             \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)}),                                                            \
+      (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
       /* Column */                                                                                                     \
-      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)}),                                                            \
+      (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
       /* Eigen column */                                                                                               \
-      (BOOST_PP_CAT(NAME, ElementsWithPadding_){other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})                       \
-      (BOOST_PP_CAT(NAME, _){other.BOOST_PP_CAT(NAME, _)})                                                             \
-      (BOOST_PP_CAT(NAME, Stride_){other.BOOST_PP_CAT(NAME, Stride_)})                                                 \
+      (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
+      (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
+      (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
   )
 // clang-format on
 
@@ -204,13 +205,13 @@
 #define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                    \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);,                                                            \
+      BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);,                                                  \
       /* Column */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);,                                                            \
+      BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);,                                                  \
       /* Eigen column */                                                                                               \
-      BOOST_PP_CAT(NAME, ElementsWithPadding_) = other.BOOST_PP_CAT(NAME, ElementsWithPadding_);                       \
-      BOOST_PP_CAT(NAME, _) = other.BOOST_PP_CAT(NAME, _);                                                             \
-      BOOST_PP_CAT(NAME, Stride_) = other.BOOST_PP_CAT(NAME, Stride_);                                                 \
+      BOOST_PP_CAT(NAME, ElementsWithPadding_) = _soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_);             \
+      BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);                                                   \
+      BOOST_PP_CAT(NAME, Stride_) = _soa_impl_other.BOOST_PP_CAT(NAME, Stride_);                                       \
   )
 // clang-format on
 
@@ -286,21 +287,21 @@
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                                     \
-      curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                                      \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      _soa_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                            \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                                     \
-      curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                          \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       BOOST_PP_CAT(NAME, Stride_) = cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)               \
         / sizeof(CPP_TYPE::Scalar);                                                                                    \
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = BOOST_PP_CAT(NAME, Stride_)                                           \
         *  CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                  \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(curMem);                                             \
-      curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment) * CPP_TYPE::RowsAtCompileTime     \
-        * CPP_TYPE::ColsAtCompileTime;                                                                                 \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(_soa_impl_curMem);                                   \
+      _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
+        * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                   \
   )                                                                                                                    \
   if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                                \
     if (reinterpret_cast<intptr_t>(BOOST_PP_CAT(NAME, _)) % alignment)                                                 \
@@ -316,14 +317,14 @@
 #define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                       \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                                         \
+      _soa_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                               \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE), alignment);                                              \
+      _soa_impl_ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE), alignment);                                    \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE::Scalar), alignment) * CPP_TYPE::RowsAtCompileTime         \
-             * CPP_TYPE::ColsAtCompileTime;                                                                            \
+      _soa_impl_ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE::Scalar), alignment)                             \
+             * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                              \
   )
 // clang-format on
 
@@ -340,7 +341,9 @@
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE* NAME() { return BOOST_PP_CAT(NAME, _); }                                    \
-      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME(size_type index) { return BOOST_PP_CAT(NAME, _)[index]; }              \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME(size_type _soa_impl_index) {                                           \
+        return BOOST_PP_CAT(NAME, _)[_soa_impl_index];                                                                 \
+      }                                                                                                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       /* TODO: implement*/                                                                                             \
@@ -361,7 +364,9 @@
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE const* NAME() const { return BOOST_PP_CAT(NAME, _); }                        \
-      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE NAME(size_type index) const { return *(BOOST_PP_CAT(NAME, _) + index); }     \
+      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE NAME(size_type _soa_impl_index) const {                                      \
+        return *(BOOST_PP_CAT(NAME, _) + _soa_impl_index);                                                             \
+      }                                                                                                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE::Scalar const* NAME() const { return BOOST_PP_CAT(NAME, _); }                \
@@ -457,22 +462,22 @@
                                                                                                                        \
     /* dump the SoA internal structure */                                                                              \
     SOA_HOST_ONLY                                                                                                      \
-    void soaToStreamInternal(std::ostream & os) const {                                                                \
-      os << #CLASS "(" << elements_ << " elements, byte alignement= " << alignment << ", @"<< mem_ <<"): "             \
+    void soaToStreamInternal(std::ostream & _soa_impl_os) const {                                                      \
+      _soa_impl_os << #CLASS "(" << elements_ << " elements, byte alignement= " << alignment << ", @"<< mem_ <<"): "   \
          << std::endl;                                                                                                 \
-      os << "  sizeof(" #CLASS "): " << sizeof(CLASS) << std::endl;                                                    \
-      byte_size_type offset = 0;                                                                                       \
+      _soa_impl_os << "  sizeof(" #CLASS "): " << sizeof(CLASS) << std::endl;                                          \
+      byte_size_type _soa_impl_offset = 0;                                                                             \
       _ITERATE_ON_ALL(_DECLARE_SOA_STREAM_INFO, ~, __VA_ARGS__)                                                        \
-      os << "Final offset = " << offset << " computeDataSize(...): " << computeDataSize(elements_)                     \
+      _soa_impl_os << "Final offset = " << _soa_impl_offset << " computeDataSize(...): " << computeDataSize(elements_) \
               << std::endl;                                                                                            \
-      os << std::endl;                                                                                                 \
+      _soa_impl_os << std::endl;                                                                                       \
     }                                                                                                                  \
                                                                                                                        \
     /* Helper function used by caller to externally allocate the storage */                                            \
     static constexpr byte_size_type computeDataSize(size_type elements) {                                              \
-      byte_size_type ret = 0;                                                                                          \
+      byte_size_type _soa_impl_ret = 0;                                                                                \
       _ITERATE_ON_ALL(_ACCUMULATE_SOA_ELEMENT, ~, __VA_ARGS__)                                                         \
-      return ret;                                                                                                      \
+      return _soa_impl_ret;                                                                                            \
     }                                                                                                                  \
                                                                                                                        \
     /**                                                                                                                \
@@ -486,8 +491,8 @@
       SOA_HOST_DEVICE SOA_INLINE std::byte* data() { return parent_.mem_; }                                            \
       SOA_HOST_DEVICE SOA_INLINE const std::byte* data() const { return parent_.mem_; }                                \
       SOA_HOST_DEVICE SOA_INLINE std::byte* nextByte() const { return parent_.mem_ + parent_.byteSize_; }              \
-      SOA_HOST_DEVICE SOA_INLINE CLASS cloneToNewAddress(std::byte* addr) const {                                      \
-        return CLASS(addr, parent_.elements_);                                                                         \
+      SOA_HOST_DEVICE SOA_INLINE CLASS cloneToNewAddress(std::byte* _soa_impl_addr) const {                            \
+        return CLASS(_soa_impl_addr, parent_.elements_);                                                               \
       }                                                                                                                \
                                                                                                                        \
       _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                        \
@@ -513,7 +518,7 @@
       Metadata(const Metadata&) = delete;                                                                              \
                                                                                                                        \
     private:                                                                                                           \
-      SOA_HOST_DEVICE SOA_INLINE Metadata(const CLASS& parent) : parent_(parent) {}                                    \
+      SOA_HOST_DEVICE SOA_INLINE Metadata(const CLASS& _soa_impl_parent) : parent_(_soa_impl_parent) {}                \
       const CLASS& parent_;                                                                                            \
       using ParentClass = CLASS;                                                                                       \
     };                                                                                                                 \
@@ -562,16 +567,16 @@
     }                                                                                                                  \
                                                                                                                        \
     /* Explicit copy constructor and assignment operator */                                                            \
-    SOA_HOST_ONLY CLASS(CLASS const& other)                                                                            \
-        : mem_(other.mem_),                                                                                            \
-          elements_(other.elements_),                                                                                  \
-          byteSize_(other.byteSize_),                                                                                  \
+    SOA_HOST_ONLY CLASS(CLASS const& _soa_impl_other)                                                                  \
+        : mem_(_soa_impl_other.mem_),                                                                                  \
+          elements_(_soa_impl_other.elements_),                                                                        \
+          byteSize_(_soa_impl_other.byteSize_),                                                                        \
           _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_COPY_CONSTRUCTION, ~, __VA_ARGS__) {}                                  \
                                                                                                                        \
-    SOA_HOST_ONLY CLASS& operator=(CLASS const& other) {                                                               \
-        mem_ = other.mem_;                                                                                             \
-        elements_ = other.elements_;                                                                                   \
-        byteSize_ = other.byteSize_;                                                                                   \
+    SOA_HOST_ONLY CLASS& operator=(CLASS const& _soa_impl_other) {                                                     \
+        mem_ = _soa_impl_other.mem_;                                                                                   \
+        elements_ = _soa_impl_other.elements_;                                                                         \
+        byteSize_ = _soa_impl_other.byteSize_;                                                                         \
         _ITERATE_ON_ALL(_DECLARE_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                                    \
         return *this;                                                                                                  \
     }                                                                                                                  \
@@ -579,7 +584,6 @@
     /* ROOT read streamer */                                                                                           \
     template <typename T>                                                                                              \
     void ROOTReadStreamer(T & onfile) {                                                                                \
-      auto size = onfile.metadata().size();                                                                            \
       _ITERATE_ON_ALL(_STREAMER_READ_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
     }                                                                                                                  \
                                                                                                                        \
@@ -599,11 +603,11 @@
       if constexpr (alignmentEnforcement == cms::soa::AlignmentEnforcement::enforced)                                  \
         if (reinterpret_cast<intptr_t>(mem_) % alignment)                                                              \
           throw std::runtime_error("In " #CLASS "::" #CLASS ": misaligned buffer");                                    \
-      auto curMem = mem_;                                                                                              \
+      auto _soa_impl_curMem = mem_;                                                                                    \
       _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                    \
       /* Sanity check: we should have reached the computed size, only on host code */                                  \
       byteSize_ = computeDataSize(elements_);                                                                          \
-      if (mem_ + byteSize_ != curMem)                                                                                  \
+      if (mem_ + byteSize_ != _soa_impl_curMem)                                                                        \
         throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
     }                                                                                                                  \
                                                                                                                        \

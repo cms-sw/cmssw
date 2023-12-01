@@ -2,6 +2,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -17,7 +19,8 @@ public:
 
   void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                  const std::vector<bool>& mask,
-                 std::vector<bool>& seedable) override;
+                 std::vector<bool>& seedable,
+                 const HcalPFCuts*) override;
 
 private:
   const int _nNeighbours;
@@ -57,7 +60,6 @@ LocalMaximumSeedFinder::LocalMaximumSeedFinder(const edm::ParameterSet& conf)
   const std::vector<edm::ParameterSet>& thresholds = conf.getParameterSetVector("thresholdsByDetector");
   for (const auto& pset : thresholds) {
     const std::string& det = pset.getParameter<std::string>("detector");
-
     std::vector<int> depths;
     std::vector<double> thresh_E;
     std::vector<double> thresh_pT;
@@ -93,7 +95,8 @@ LocalMaximumSeedFinder::LocalMaximumSeedFinder(const edm::ParameterSet& conf)
 // the starting state of seedable is all false!
 void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                                        const std::vector<bool>& mask,
-                                       std::vector<bool>& seedable) {
+                                       std::vector<bool>& seedable,
+                                       const HcalPFCuts* hcalCuts) {
   auto nhits = input->size();
   initDynArray(bool, nhits, usable, true);
   //need to run over energy sorted rechits
@@ -123,6 +126,14 @@ void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollectio
           (seedlayer != PFLayer::HCAL_BARREL1 && seedlayer != PFLayer::HCAL_ENDCAP)) {
         thresholdE = std::get<1>(thresholds)[j];
         thresholdPT2 = std::get<2>(thresholds)[j];
+      }
+    }
+
+    if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in PFClusterProducer.cc
+      if ((seedlayer == PFLayer::HCAL_BARREL1) || (seedlayer == PFLayer::HCAL_ENDCAP)) {
+        HcalDetId thisId = maybeseed.detId();
+        const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+        thresholdE = item->seedThreshold();
       }
     }
 

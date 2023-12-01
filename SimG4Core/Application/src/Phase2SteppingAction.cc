@@ -13,8 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-//#define DebugLog
-
 Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
@@ -168,13 +166,13 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
                                          << " IdAtBTLentrance = " << trkinfo->mcTruthID();
 #endif
       } else {
         trkinfo->setBTLlooper();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
 #endif
       }
@@ -183,7 +181,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromBTLtoT()) {
         trkinfo->setFromBTLtoT();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
 #endif
       }
@@ -193,21 +191,33 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
       }
-    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == cmse) {
+    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() != calo) {
+      bool backscattering(false);
+      if (postStep->GetPhysicalVolume() == tracker) {
+        backscattering = true;
+      } else if (postStep->GetPhysicalVolume() == cmse) {
+        // simple protection to avoid possible steps from calo towards the outer part of the detector, if allowed by geometry
+        // to be removed as soon as tracker-calo boundary becomes again the default
+        if (preStep->GetPosition().mag2() > postStep->GetPosition().mag2()) {
+          backscattering = true;
+        }
+      }
       // store transition calo -> cmse to tag backscattering
-      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->isInTrkFromBackscattering()) {
-        trkinfo->setInTrkFromBackscattering();
-#ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for backscattering from CALO "
-                                         << trkinfo->isInTrkFromBackscattering();
+      if (backscattering) {
+        TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+        if (!trkinfo->isInTrkFromBackscattering()) {
+          trkinfo->setInTrkFromBackscattering();
+#ifdef EDM_ML_DEBUG
+          LogDebug("SimG4CoreApplication")
+              << "Setting flag for backscattering from CALO " << trkinfo->isInTrkFromBackscattering();
 #endif
+        }
       }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
     isKilled = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     PrintKilledTrack(theTrack, tstat);
 #endif
   }

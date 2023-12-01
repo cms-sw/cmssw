@@ -114,7 +114,7 @@ namespace l1ct {
       t.v3.eta = CTtoGT_eta(hwEta);
 
       t.seed_pt = hwSeedPt;
-      t.seed_z0 = hwSeedZ0;
+      t.seed_z0(l1ct::z0_t::width - 1, 0) = hwSeedZ0(l1ct::z0_t::width - 1, 0);
       t.charge = hwCharge;
 
       t.type = hwType;

@@ -20,7 +20,7 @@ process.source = cms.Source("EmptyIOVSource",
 # load a mapping from XML
 process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = "TimingDiamond"
-process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(6)
+process.totemDAQMappingESSourceXML.sampicSubDetId = 6
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
     validityRange = cms.EventRange("340000:min - 362925:max"),

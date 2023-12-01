@@ -13,7 +13,8 @@ hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                     cms.PSet(
                         depth = cms.vint32(1, 2, 3, 4),
                         detectorEnum = cms.int32(1),
-                        threshold = cms.vdouble(0.8, 1.2, 1.2, 1.2)
+                        #Run3 thresholds. Will be overwritten with valid aging customisation 
+                        threshold = cms.vdouble(0.1, 0.2, 0.3, 0.3) 
                     ),
                     cms.PSet(
                         depth = cms.vint32(
@@ -27,7 +28,8 @@ hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                         )
                     )
                 ),
-                name = cms.string('PFRecHitQTestHCALThresholdVsDepth')
+                name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
+                usePFThresholdsFromDB = cms.bool(True)
             ),
             cms.PSet(
                 cleaningThresholds = cms.vdouble(0.0),

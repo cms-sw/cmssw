@@ -106,4 +106,8 @@ EOF
 cmsRun temp_pfcuts_from_db.py
 rm temp_pfcuts_from_db.py
 
-diff DumpPFCuts_Run1.txt $inputfile
+# Ingnore raw channel ids in the comparison
+rm -f db_reference.txt db_dump.txt
+awk '{print $1, $2, $3, $4, $5, $6}' $inputfile > db_reference.txt
+awk '{print $1, $2, $3, $4, $5, $6}' DumpPFCuts_Run1.txt > db_dump.txt
+diff db_dump.txt db_reference.txt

@@ -7,7 +7,7 @@ status=0
   
 rm -f u31_infos.log 
 
-cmsRun -p ${SCRAM_TEST_PATH}/u31_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u31_cfg.py || exit $?
  
 for file in u31_infos.log 
 do

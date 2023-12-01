@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import Validation.RecoParticleFlow.defaults_cfi as default
-from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name,jetResponseDir,genjetDir
+from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name, recojet_distribution_name, jetResponseDir, genjetDir, offsetDir
 
 #----- ----- ----- ----- ----- ----- ----- -----
 #
@@ -34,7 +34,7 @@ def createResponsePlots(ptbins, etabins):
 
             response_plots += [make_response_plot_pset(
                 response_distribution_name(iptbin, ietabin),
-                "Jet response (pT/pTgen) in {0} <= pt < {1}, {2} <= |eta| < {3}".format(ptbins[iptbin], ptbins[iptbin+1], etabins[ietabin], etabins[ietabin+1]),
+                "Jet response (pT/pTgen) in {0} <= pt < {1}, {2} <= |eta| < {3})".format(ptbins[iptbin], ptbins[iptbin+1], etabins[ietabin], etabins[ietabin+1]),
                 100, 0.0, 3.0, ptbins[iptbin], ptbins[iptbin+1], etabins[ietabin], etabins[ietabin+1]
             )]
     return response_plots
@@ -47,7 +47,22 @@ def createGenJetPlots(ptbins, etabins):
         plots += [
             cms.PSet(
             name = cms.string(genjet_distribution_name(ietabin)),
-            title = cms.string("GenJet pT ({0} <= |eta| <= {1}".format(eta_low, eta_high)),
+            title = cms.string("GenJet pT ({0} <= |eta| <= {1})".format(eta_low, eta_high)),
+            ptBins = cms.vdouble(ptbins),
+            etaBinLow = cms.double(eta_low),
+            etaBinHigh = cms.double(eta_high),
+        )]
+    return plots
+
+def createRecoJetPlots(ptbins, etabins):
+    plots = []
+    for ietabin in range(len(etabins)-1):
+        eta_low = etabins[ietabin]
+        eta_high = etabins[ietabin + 1]
+        plots += [
+            cms.PSet(
+            name = cms.string(recojet_distribution_name(ietabin)),
+            title = cms.string("RecoJet ({0} <= |eta| <= {1})".format(eta_low, eta_high)),
             ptBins = cms.vdouble(ptbins),
             etaBinLow = cms.double(eta_low),
             etaBinHigh = cms.double(eta_high),
@@ -70,10 +85,10 @@ pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
 
     # turn gen jets on or off
     genJetsOn = cms.bool(True),
-
+    recoJetsOn = cms.bool(True),
     responsePlots = cms.VPSet(createResponsePlots(ptbins, etabins)),
-    genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins))
-
+    genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins)),
+    recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
 )
 
 pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
@@ -90,10 +105,10 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
     jetResponseDir = cms.vstring( vjetResponseDir ),
     genjetDir = cms.string( genjetDir ),
+    offsetDir = cms.string( offsetDir ),
     ptBins = cms.vdouble( ptbins ),
     etaBins = cms.vdouble( etabins ),
-    recoPtCut = cms.double( 15. )
-
+    recoPtCut = cms.double(10. )
 )
 
 

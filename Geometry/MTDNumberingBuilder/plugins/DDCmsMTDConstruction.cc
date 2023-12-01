@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -28,12 +26,13 @@ public:
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
+    std::string currentName(ev.logicalPart().name().fullname());
     for (const auto& test : veto_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return false;
     }
     for (const auto& test : allowed_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return true;
     }
     return false;
@@ -51,52 +50,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   filter.add("btl:");
   filter.add("etl:");
 
-  std::vector<std::string> volnames = {"service",
-                                       "support",
-                                       "FSide",
-                                       "BSide",
-                                       "LSide",
-                                       "RSide",
-                                       "Between",
-                                       "SupportPlate",
-                                       "Shield",
-                                       "ThermalScreen",
-                                       "Aluminium_Disc",
-                                       "MIC6_Aluminium_Disc",
-                                       "ThermalPad",
-                                       "AlN",
-                                       "LairdFilm",
-                                       "ETROC",
-                                       "SensorModule",
-                                       "SensorModule_Front_Left",
-                                       "SensorModule_Front_Right",
-                                       "SensorModule_Back_Left",
-                                       "SensorModule_Back_Right",
-                                       "DiscSector",
-                                       "LGAD_Substrate",
-                                       "ConcentratorCard",
-                                       "PowerControlCard",
-                                       "CoolingPlate",
-                                       "FrontEndCard",
-                                       "FrontModerator",
-                                       "Cables",
-                                       "Cables1",
-                                       "Cables2",
-                                       "Cables3",
-                                       "Cables4",
-                                       "Cables5",
-                                       "Cables6",
-                                       "Cables7",
-                                       "PatchPanel",
-                                       "Notich_cables",
-                                       "ServicesExtVolume1",
-                                       "ServicesExtVolume2",
-                                       "glueLGAD",
-                                       "BumpBonds",
-                                       "ModulePCB",
-                                       "connectorsGap",
-                                       "ReadoutBoard",
-                                       "LGAD"};
+  std::vector<std::string> volnames = {"FSide", "SupportPlate"};
   for (auto const& theVol : volnames) {
     filter.veto(theVol);
   }

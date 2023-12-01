@@ -545,6 +545,14 @@ generated for each configuration with a module label.
                         type: VPSet 
                         see Section 1.1.25
 
+    plugin4
+                        type: PSet 
+                        see Section 1.1.26
+
+    plugin5
+                        type: VPSet 
+                        see Section 1.1.27
+
     mightGet
                         type: untracked vstring optional
                         default: none
@@ -2002,15 +2010,54 @@ generated for each configuration with a module label.
 
     Section 1.1.22 plugin PSet description:
 
-        Section 1.1.22.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
 
-        Section 1.1.22.1.1 edmtestAnotherOneMaker Plugin description:
+    Section 1.1.22.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.22.1.1
 
         type
                         type: string 
                         default: 'edmtestAnotherValueMaker'
 
-        Section 1.1.22.1.2 edmtestAnotherValueMaker Plugin description:
+    Section 1.1.22.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.22)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.22.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherValueMaker'
+
+    Section 1.1.22.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
 
         value
                         type: int32 
@@ -2022,15 +2069,54 @@ generated for each configuration with a module label.
 
     Section 1.1.23 plugin1 PSet description:
 
-        Section 1.1.23.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
 
-        Section 1.1.23.1.1 edmtestAnotherOneMaker Plugin description:
+    Section 1.1.23.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.23.1.1
 
         type
                         type: string 
                         default: none
 
-        Section 1.1.23.1.2 edmtestAnotherValueMaker Plugin description:
+    Section 1.1.23.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.23)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.23.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: none
+
+    Section 1.1.23.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
 
         value
                         type: int32 
@@ -2046,15 +2132,54 @@ generated for each configuration with a module label.
 
     Section 1.1.24.1 description of PSet used to validate elements of VPSet:
 
-        Section 1.1.24.1.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
 
-        Section 1.1.24.1.1.1 edmtestAnotherOneMaker Plugin description:
+    Section 1.1.24.1.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.24.1.1.1
 
         type
                         type: string 
                         default: none
 
-        Section 1.1.24.1.1.2 edmtestAnotherValueMaker Plugin description:
+    Section 1.1.24.1.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.24.1)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.24.1.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: none
+
+    Section 1.1.24.1.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
 
         value
                         type: int32 
@@ -2072,15 +2197,54 @@ generated for each configuration with a module label.
 
     Section 1.1.25.1 description of PSet used to validate elements of VPSet:
 
-        Section 1.1.25.1.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
 
-        Section 1.1.25.1.1.1 edmtestAnotherOneMaker Plugin description:
+    Section 1.1.25.1.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.25.1.1.1
 
         type
                         type: string 
                         default: none
 
-        Section 1.1.25.1.1.2 edmtestAnotherValueMaker Plugin description:
+    Section 1.1.25.1.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.25.1)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.25.1.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: none
+
+    Section 1.1.25.1.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
 
         value
                         type: int32 
@@ -2101,6 +2265,146 @@ generated for each configuration with a module label.
         type
                         type: string 
                         default: 'edmtestAnotherValueMaker'
+
+        value
+                        type: int32 
+                        default: 11
+
+    Section 1.1.26 plugin4 PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+    Section 1.1.26.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.26.1.1
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.26.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.26)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.26.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.26.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.27 plugin5 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.27.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.27.2
+        [1]: see Section 1.1.27.3
+
+    Section 1.1.27.1 description of PSet used to validate elements of VPSet:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+    Section 1.1.27.1.1 ParameterSet description for plugin named "edmtestAnotherMakerWithRecursivePlugin"
+
+        value
+                        type: int32 
+                        default: 5
+
+        pluginRecursive
+                        type: PSet 
+                        see Section 1.1.27.1.1.1
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.27.1.1.1 pluginRecursive PSet description:
+
+        There are multiple possible different descriptions for this ParameterSet
+        because it will be used by a helper plugin object contained inside the top level
+        module plugin object and the type of the helper plugin object is configurable.
+        Or if it is in a vector of ParameterSets it might be used by multiple
+        helper plugin objects and each could be configured with a different plugin type.
+        Each plugin type could allow a different set of configuration parameters.
+        Each subsection of this section has one of the possible descriptions.
+        All of these plugins are from the category "PluginDescriptoredmtestAnotherIntFactory".
+        The plugin type is specified by the parameter named "type".
+
+        *** The descriptions for this plugin category already started printing above (see Section 1.1.27.1)! ***
+        *** We might still be in the middle of that printout at this point because it might be recursive. ***
+        *** We'll not duplicate that printout and skip it. ***
+        *** (N.B. If we tried to print it again, we might fall into an infinite recursion.) ***
+
+    Section 1.1.27.1.2 ParameterSet description for plugin named "edmtestAnotherOneMaker"
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.27.1.3 ParameterSet description for plugin named "edmtestAnotherValueMaker"
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
+
+    Section 1.1.27.2 PSet description of default VPSet element [0]
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherOneMaker'
+
+    Section 1.1.27.3 PSet description of default VPSet element [1]
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherMakerWithRecursivePlugin'
 
         value
                         type: int32 

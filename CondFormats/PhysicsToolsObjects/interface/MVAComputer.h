@@ -28,13 +28,6 @@ namespace PhysicsTools {
 
     class BitSet {
     public:
-      // help that poor ROOT to copy bitsets... (workaround)
-      BitSet &operator=(const BitSet &other) {
-        store = other.store;
-        bitsInLast = other.bitsInLast;
-        return *this;
-      }
-
       std::vector<unsigned char> store;
       unsigned int bitsInLast;
 

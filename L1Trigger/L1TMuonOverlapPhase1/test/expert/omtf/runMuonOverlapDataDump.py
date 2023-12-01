@@ -70,7 +70,7 @@ path = '/eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/' #new sample, but 
 onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 #print onlyfiles
 
-filesNameLike = sys.argv[2]
+filesNameLike = sys.argv[1]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if (('_p_10_' in f) or ('_m_10_' in f))]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if (('_10_p_10_' in f))]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if (re.match('.*_._p_10.*', f))]

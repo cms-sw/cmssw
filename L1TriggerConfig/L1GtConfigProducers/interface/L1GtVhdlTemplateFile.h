@@ -37,10 +37,6 @@ public:
   L1GtVhdlTemplateFile();
   /// constructor with filename
   L1GtVhdlTemplateFile(const std::string &filename);
-  /// copy constructor
-  L1GtVhdlTemplateFile(const L1GtVhdlTemplateFile &rhs);
-  /// destructor
-  ~L1GtVhdlTemplateFile();
   /// replaces searchString with replaceString at it's first occurance in string
   static const bool findAndReplaceString(std::string &paramString,
                                          const std::string &searchString,

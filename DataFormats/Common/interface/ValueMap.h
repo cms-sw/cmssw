@@ -120,12 +120,6 @@ namespace edm {
       ids_.swap(other.ids_);
     }
 
-    ValueMap& operator=(ValueMap const& rhs) {
-      ValueMap temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
-
     template <typename RefKey>
     const_reference_type operator[](const RefKey& r) const {
       return get(r.id(), r.key());

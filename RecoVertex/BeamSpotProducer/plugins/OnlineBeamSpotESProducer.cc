@@ -177,11 +177,10 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   }
   if (best) {
     return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
-  } else {
-    return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
-    edm::LogWarning("OnlineBeamSpotESProducer")
-        << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one(fallback to PCL).";
   }
-};
+  edm::LogWarning("OnlineBeamSpotESProducer")
+      << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one(fallback to PCL).";
+  return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
+}
 
 DEFINE_FWK_EVENTSETUP_MODULE(OnlineBeamSpotESProducer);

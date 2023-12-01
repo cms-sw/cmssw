@@ -1,8 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
-#define EDM_ML_DEBUG
-
 #include <iostream>
 
 void SensitiveDetectorCatalog::insert(const std::string &cN, const std::string &rN, const std::string &lvN) {

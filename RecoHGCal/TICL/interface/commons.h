@@ -4,12 +4,14 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticl {
 
   //constants
   constexpr double mpion = 0.13957;
   constexpr float mpion2 = mpion * mpion;
+  typedef math::XYZVectorF Vector;
 
   inline Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {
     if (pdgId == 111) {

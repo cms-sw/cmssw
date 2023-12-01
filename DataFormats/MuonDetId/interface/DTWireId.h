@@ -29,6 +29,9 @@ public:
   /// Copy Constructor.
   DTWireId(const DTWireId& wireId);
 
+  /// Assignment Operator.
+  DTWireId& operator=(const DTWireId& wireId) = default;
+
   /// Constructor from a CamberId and SL, layer and wire numbers
   DTWireId(const DTChamberId& chId, int superlayer, int layer, int wire);
 

@@ -4,11 +4,7 @@ import sys
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description="Test FileOpenErrorExitCode")
 parser.add_argument("--input", type=str, default=[], nargs="*", help="Optional list of input files")
-
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("TEST")
 

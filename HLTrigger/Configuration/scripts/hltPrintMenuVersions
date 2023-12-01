@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""hltPrintMenuVersions: print to stdout metadata on the history of an HLT configuration in ConfDB
+"""
+import argparse
+import os
+import cx_Oracle
+
+def getHLTMenuVersions(configName, connect_string, add_hyperlinks = True, do_twiki_edits = True):
+    # connect to ConfDB
+    conn = cx_Oracle.connect(connect_string)
+    curs = conn.cursor()
+
+    ret = []
+    # loop on the different versions of the target configuration
+    version = 0
+    while True:
+        version += 1
+        configuration = f'{configName}/V{version}'
+        # get only Config description and "release template"
+        query = 'SELECT u_confversions.description, u_softreleases.releaseTag FROM u_confversions, u_softreleases'
+        query += f" WHERE u_confversions.id_release = u_softreleases.id AND u_confversions.name='{configuration}'"
+        curs.execute(query)
+        rows = curs.fetchall()
+        if len(rows) == 0:
+            break
+        for rows in rows:
+            ## get description, if it is not empty
+            try:
+                description = rows[0].read()
+            except:
+                description = ''
+
+            ## get release template, if it is not empty
+            try:
+                releaseTemplate = rows[1]
+            except:
+                releaseTemplate = ''
+
+            ## add link to JIRA tickets
+            if add_hyperlinks:
+                posInit = description.find('CMSHLT-')
+                if posInit >= 0:
+                    posFinal = posInit+7
+                    while (posFinal < len(description) and description[posFinal].isdigit()):
+                        posFinal += 1
+                    cmshlt = description[posInit:posFinal]
+                    description = description.replace(cmshlt, f'[[https://its.cern.ch/jira/browse/{cmshlt}][{cmshlt}]]')
+
+            ## add '!' in front of capital letters (Twiki syntax)
+            if do_twiki_edits:
+                for i in range(len(description)):
+                    if description[i].isupper() and (i == 0 or description[i-1] == ' '):
+                        description = description[:i] + '!' + description[i:]
+
+            ret.append((f'{configuration} ({releaseTemplate})', description))
+
+    # anti-chronological order
+    ret.reverse()
+
+    return ret
+
+###
+### main
+###
+if __name__ == '__main__':
+
+    ### args
+    parser = argparse.ArgumentParser(
+        prog = './'+os.path.basename(__file__),
+        formatter_class = argparse.RawDescriptionHelpFormatter,
+        description = __doc__
+    )
+
+    parser.add_argument('config',
+                        type = str,
+                        help = 'Name of HLT configuration in ConfDB (without specifying its version number)')
+
+    parser.add_argument('-d', '--db',
+                        dest = 'db',
+                        action = 'store',
+                        default = 'run3',
+                        choices = ['run3', 'run2', 'dev', 'adg'],
+                        help = 'Keyword to identify the target database (must be "run3", "run2", "dev", or "adg") [default: "run3"]')
+
+    parser.add_argument('-c', '--connect-string',
+                        dest = 'connect_string',
+                        action = 'store',
+                        default = None,
+                        help = 'Argument of cx_Oracle.connect (argument of "--db" will be ignored) [default: None]')
+
+    parser.add_argument('--no-hyperlinks',
+                        dest = 'add_hyperlinks',
+                        action = 'store_false',
+                        default = True,
+                        help = 'Do not include hyperlinks [default: False]')
+
+    parser.add_argument('--no-twiki',
+                        dest = 'do_twiki_edits',
+                        action = 'store_false',
+                        default = True,
+                        help = 'Do not adapt to Twiki syntax [default: False]')
+
+    opts, opts_unknown = parser.parse_known_args()
+    ### ----
+
+    if len(opts_unknown) > 0:
+        raise RuntimeError('unsupported command-line arguments: '+str(opts_unknown))
+
+    connect_string = opts.connect_string
+
+    if connect_string != None:
+        print(f'HLT Configuration: {opts.config} (connect = "{opts.connect_string}")\n')
+    else:
+        print(f'HLT Configuration: {opts.config} (database = "{opts.db}")\n')
+        if opts.db == 'run3':
+            # Run-3 (offline) db
+            connect_string = 'cms_hlt_v3_r/convertMe!@cmsr'
+        elif opts.db == 'run2':
+            # Run-2 (offline) db
+            connect_string = 'cms_hlt_gdr_r/convertMe!@cmsr'
+        elif opts.db == 'dev':
+            # dev db
+            connect_string = 'cms_hlt_gdrdev_r/convertMe1!@cmsr'
+        elif opts.db == 'adg':
+            # ADG (read-only copy of online db)
+            connect_string = 'cms_hlt_gdr_r/convertMe!@cms_orcon_adg'
+        else:
+            raise RuntimeError(f'invalid keyword for target database: "{opts.db}"')
+
+    hltMenuVersions = getHLTMenuVersions(
+        configName = opts.config,
+        connect_string = connect_string,
+        add_hyperlinks = opts.add_hyperlinks,
+        do_twiki_edits = opts.do_twiki_edits
+    )
+
+    if len(hltMenuVersions) == 0:
+        print('No Configuration Found !!\n')
+        raise SystemExit(1)
+
+    for (configuration, description) in hltMenuVersions:
+        print(f'   * ={configuration}=: {description}')
+    print()

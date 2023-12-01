@@ -19,13 +19,13 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoTau.ValidationOptions_cff import allowedOptions
 
-if len(sys.argv) < 5:
+if len(sys.argv) < 4:
    print("Error. Expected at least 3 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py dataType OutputFile InputFileGlob")
    sys.exit()
 
-dataType   = sys.argv[2]
-OutputFile = sys.argv[3]
-Inputs     = sys.argv[4:]
+dataType   = sys.argv[1]
+OutputFile = sys.argv[2]
+Inputs     = sys.argv[3:]
 
 if not dataType in allowedOptions['eventType']:
    print("Error. The first argument must be the dataType. Types availables are:")

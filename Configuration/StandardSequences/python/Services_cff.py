@@ -15,7 +15,9 @@ def _addProcessAccelerators(process):
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
-modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit).makeProcessModifier(_addProcessAccelerators)
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
+modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit | alpaka).makeProcessModifier(_addProcessAccelerators)
 
 # load TritonService when SONIC workflow is enabled
 def _addTritonService(process):

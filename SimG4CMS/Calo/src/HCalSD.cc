@@ -771,7 +771,7 @@ void HCalSD::getFromHFLibrary(const G4Step* aStep, bool& isKilled) {
       int depth = hits[i].depth;
       double time = hits[i].time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+      currentID[0].setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
       plotProfile(aStep, hitPoint, 1.0 * GeV, time, depth);
       bool emType = G4TrackToParticleID::isGammaElectronPositron(theTrack->GetDefinition()->GetPDGEncoding());
@@ -813,7 +813,7 @@ void HCalSD::hitForFibre(const G4Step* aStep) {  // if not ParamShower
       int depth = hits[i].depth;
       double time = hits[i].time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+      currentID[0].setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
       plotProfile(aStep, hitPoint, edepositEM, time, depth);
       bool emType = (edepositEM > 0.) ? true : false;
@@ -844,7 +844,7 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
     int depth = hits[i].depth;
     double time = hits[i].time;
     unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-    currentID.setID(unitID, time, primaryID, 0);
+    currentID[0].setID(unitID, time, primaryID, 0);
     edepositEM = hits[i].edep * GeV;
     edepositHAD = 0.;
 #ifdef plotDebug
@@ -895,7 +895,7 @@ void HCalSD::getHitPMT(const G4Step* aStep) {
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, etaR, phi, depth, 1);
       unitID = setDetUnitId(tmp);
     }
-    currentID.setID(unitID, time, primaryID, 1);
+    currentID[0].setID(unitID, time, primaryID, 1);
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM = -edepositHAD + edep;
@@ -955,9 +955,9 @@ void HCalSD::getHitFibreBundle(const G4Step* aStep, bool type) {
       unitID = setDetUnitId(tmp);
     }
     if (type)
-      currentID.setID(unitID, time, primaryID, 3);
+      currentID[0].setID(unitID, time, primaryID, 3);
     else
-      currentID.setID(unitID, time, primaryID, 2);
+      currentID[0].setID(unitID, time, primaryID, 2);
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM = -edepositHAD + edep;

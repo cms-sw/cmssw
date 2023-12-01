@@ -22,7 +22,8 @@ void CSCTriggerMappingFromFile::fill(void) {
       if (line[0] != commentFlag[0]) {
         int i1, i2, i3, i4, i5, i6, i7, i8, i9, i10;
         std::istringstream is(line);
-        is >> i1 >> i2 >> i3 >> i4 >> i5 >> i6 >> i7 >> i8 >> i9 >> i10;
+        if (!(is >> i1 >> i2 >> i3 >> i4 >> i5 >> i6 >> i7 >> i8 >> i9 >> i10))
+          continue;
         if (debugV())
           std::cout << i1 << " " << i2 << " " << i3 << " " << i4 << " " << i5 << " " << i6 << " " << i7 << " " << i8
                     << " " << i9 << " " << i10 << std::endl;

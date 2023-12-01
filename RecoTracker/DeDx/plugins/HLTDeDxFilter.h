@@ -32,6 +32,7 @@ private:
   double minDEDx_;
   double minPT_;
   double minNOM_;
+  double minETA_;
   double maxETA_;
   double minNumValidHits_;
   double maxNHitMissIn_;

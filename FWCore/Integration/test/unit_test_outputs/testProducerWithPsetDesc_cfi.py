@@ -355,5 +355,20 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
       value = cms.int32(11)
     )
   ),
+  plugin4 = cms.PSet(
+    value = cms.int32(5),
+    pluginRecursive = cms.PSet(),
+    type = cms.string('edmtestAnotherMakerWithRecursivePlugin')
+  
+  ),
+  plugin5 = cms.VPSet(
+    cms.PSet(
+      type = cms.string('edmtestAnotherOneMaker')
+    ),
+    cms.PSet(
+      type = cms.string('edmtestAnotherMakerWithRecursivePlugin'),
+      value = cms.int32(11)
+    )
+  ),
   mightGet = cms.optional.untracked.vstring
 )

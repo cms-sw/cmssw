@@ -1,4 +1,6 @@
 VtxSmeared = {
+    'DBdesign':                      'IOMC.EventVertexGenerators.VtxSmearedDesign_cfi',
+    'DBrealistic':                   'IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi',
     'NoSmear':                       'Configuration.StandardSequences.VtxSmearedNoSmear_cff',              
     'BetafuncEarlyCollision':        'IOMC.EventVertexGenerators.VtxSmearedBetafuncEarlyCollision_cfi',    
     'BeamProfile':                   'IOMC.EventVertexGenerators.VtxSmearedBeamProfile_cfi',               
@@ -71,6 +73,7 @@ VtxSmeared = {
     'Realistic25ns13p6TeVEarly2023Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEarly2023Collision_cfi',
     'Nominal2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedNominal2022PbPbCollision_cfi',
     'Realistic2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2022PbPbCollision_cfi',
+    'Realistic2023PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2023PbPbCollision_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
 VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'

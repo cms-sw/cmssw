@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --patternFilesOFF
-# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --dumpFilesOFF --serenity
+# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py --patternFilesOFF
+# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py --dumpFilesOFF --serenity
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Optional parameters')
 
@@ -11,10 +11,7 @@ parser.add_argument("--patternFilesOFF", help="switch on Layer-1 pattern file pr
 parser.add_argument("--serenity", help="use Serenity settigns as default everwhere, i.e. also for barrel", action="store_true", default=False)
 parser.add_argument("--tm18", help="Add TM18 emulators for the endcaps", action="store_true", default=False)
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 if args.dumpFilesOFF:
     print(f'Switching off dump file creation: dumpFilesOFF is {args.dumpFilesOFF}')

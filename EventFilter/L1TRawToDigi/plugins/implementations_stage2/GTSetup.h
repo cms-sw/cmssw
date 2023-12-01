@@ -12,6 +12,11 @@
 
 namespace l1t {
   namespace stage2 {
+
+    namespace zdc {
+      extern const unsigned int nOutputFramePerBX;
+    }  // namespace zdc
+
     class GTSetup : public PackingSetup {
     public:
       ~GTSetup() override{};

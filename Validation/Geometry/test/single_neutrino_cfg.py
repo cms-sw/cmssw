@@ -1,4 +1,4 @@
-# cmsRun single_neutrino_cfg.py nEvents=100000
+# cmsRun single_neutrino_cfg.py nEvents=100000 etaMin=-6.0 etaMax=6.0 antiPart=0
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -19,8 +19,33 @@ options.register('nEvents',
                  VarParsing.varType.int,
                  "Maximum number of events"
 )
+options.register('etaMin',
+                 -6.0,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.float,
+                 "Minimum Eta for the neutrinos"
+)
+options.register('etaMax',
+                 6.0,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.float,
+                 "Maximum Eta for the neutrinos"
+)
+options.register('antiPart',
+                 0,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.int,
+                 "Choice of AntiParticle"
+)
 
 options.parseArguments()
+print(options)
+
+if (options.antiPart == 0):
+    antiPart = False
+else:
+    antiPart = True
+print("antiPart: ", antiPart)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.nEvents)
@@ -39,14 +64,14 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
-        MinEta = cms.double(-6.0),
-        MaxEta = cms.double(6.0),
+        MinEta = cms.double(options.etaMin),
+        MaxEta = cms.double(options.etaMax),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
         MinE   = cms.double(10.0),
         MaxE   = cms.double(10.0)
     ),
-    AddAntiParticle = cms.bool(False),
+    AddAntiParticle = cms.bool(antiPart),
     Verbosity       = cms.untracked.int32(0)
 )
 

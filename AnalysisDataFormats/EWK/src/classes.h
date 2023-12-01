@@ -3,8 +3,6 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "AnalysisDataFormats/EWK/interface/WMuNuCandidatePtr.h"
-#include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"

@@ -10,12 +10,16 @@
 HGCGuardRingPartial::HGCGuardRingPartial(const HGCalDDDConstants& hgc)
     : hgcons_(hgc),
       modeUV_(hgcons_.geomMode()),
+      v17OrLess_(hgcons_.v17OrLess()),
       waferSize_(hgcons_.waferSize(false)),
       guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
   offset_ = guardRingOffset_;
+  c22_ = (v17OrLess_) ? HGCalTypes::c22O : HGCalTypes::c22;
+  c27_ = (v17OrLess_) ? HGCalTypes::c27O : HGCalTypes::c27;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCGuardRingPartial with wafer size " << waferSize_ << ", Offsets "
-                             << ":" << guardRingOffset_ << ":" << offset_ << ", and mode " << modeUV_;
+                             << ":" << guardRingOffset_ << ":" << offset_ << ", and mode " << modeUV_
+                             << " coefficients " << c22_ << ":" << c27_;
 #endif
 }
 
@@ -40,9 +44,9 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
         check |= std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5) / cos_1[placement])) < tresh;
         check |= std::abs(dy * cot_1[placement] - (dx)) < tresh;
       } else {
-        check |= std::abs((dy * cot_1[placement]) - dx + ((HGCalTypes::c22 * delX) / cos_1[placement])) < tresh;
-        check |= std::abs(dy - (dx * tan_1[placement]) - ((HGCalTypes::c27 * delY) / cos_1[placement])) < tresh;
-        check |= std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c27 * delY) / cos_1[placement])) < tresh;
+        check |= std::abs((dy * cot_1[placement]) - dx + ((c22_ * delX) / cos_1[placement])) < tresh;
+        check |= std::abs(dy - (dx * tan_1[placement]) - ((c27_ * delY) / cos_1[placement])) < tresh;
+        check |= std::abs(dy - (dx * tan_1[placement]) + ((c27_ * delY) / cos_1[placement])) < tresh;
       }
     }
 #ifdef EDM_ML_DEBUG

@@ -27,18 +27,6 @@ TotemTimingEventInfo::TotemTimingEventInfo(const uint8_t hwId,
       offsetOfSamples_(offsetOfSamples),
       pllInfo_(pllInfo) {}
 
-TotemTimingEventInfo::TotemTimingEventInfo(const TotemTimingEventInfo& eventInfo)
-    : hwId_(eventInfo.hwId_),
-      l1ATimestamp_(eventInfo.l1ATimestamp_),
-      bunchNumber_(eventInfo.bunchNumber_),
-      orbitNumber_(eventInfo.orbitNumber_),
-      eventNumber_(eventInfo.eventNumber_),
-      channelMap_(eventInfo.channelMap_),
-      l1ALatency_(eventInfo.l1ALatency_),
-      numberOfSamples_(eventInfo.numberOfSamples_),
-      offsetOfSamples_(eventInfo.offsetOfSamples_),
-      pllInfo_(eventInfo.pllInfo_) {}
-
 TotemTimingEventInfo::TotemTimingEventInfo()
     : hwId_(0),
       l1ATimestamp_(0),

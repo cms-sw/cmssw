@@ -112,6 +112,12 @@ def parse_args():
         JetFolderDirs = ["JetResponse/slimmedJets/JEC", "JetResponse/slimmedJets/noJEC", "JetResponse/slimmedJetsPuppi/JEC", "JetResponse/slimmedJetsPuppi/noJEC"]
 
         for JetFolderDir in JetFolderDirs:
+            plots += [(JetFolderDir, "efficiency_pt", ["efficiency_eta05", "efficiency_eta13",
+                                                  "efficiency_eta21","efficiency_eta25","efficiency_eta30","efficiency_eta50"])]
+            plots += [(JetFolderDir, "purity_pt", ["purity_eta05", "purity_eta13",
+                                                  "purity_eta21","purity_eta25","purity_eta30","purity_eta50"])]
+            plots += [(JetFolderDir, "ratePUJet_pt", ["ratePUJet_eta05", "ratePUJet_eta13",
+                                                  "ratePUJet_eta21","ratePUJet_eta25","ratePUJet_eta30","ratePUJet_eta50"])]
             plots += [(JetFolderDir, "reso_pt", ["preso_eta05", "preso_eta13",
                                                   "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
             plots += [(JetFolderDir, "reso_pt_rms", ["preso_eta05_rms",
@@ -120,6 +126,13 @@ def parse_args():
             plots += [(JetFolderDir, "response_pt", ["presponse_eta05",
                                                       "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
                                                       "presponse_eta50"])]
+            plots += [(JetFolderDir, "response_pt_mean", ["presponse_eta05_mean",
+                                                          "presponse_eta13_mean", "presponse_eta21_mean",
+                                                          "presponse_eta25_mean", "presponse_eta30_mean",
+                                                          "presponse_eta50_mean"])]
+            plots += [(JetFolderDir, "response_pt_median", ["presponse_eta05_median",
+                                                            "presponse_eta13_median", "presponse_eta21_median", "presponse_eta25_median",
+                                                            "presponse_eta30_median", "presponse_eta50_median"])]
             for iptbin in range(len(ptbins)-1):
                 pthistograms = []
                 for ietabin in range(len(etabins)-1):
@@ -189,42 +202,43 @@ def doPFCandPlots(files, plots):
 
 
 def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
-	folders = [folder]
+    folders = [folder]
     #plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
     #KH print plots
-	if Offset :
-		plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
-		plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
-	elif "JetResponse" in folder :
-		plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
-		plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
-		for plot in plots:
-			plot.setProperties(ncols=3)
-			plot.setProperties(legendDw=-0.68)
-			plot.setProperties(legendDh=0.005)
-			plot.setProperties(legendDy=0.24)
-			plot.setProperties(legendDx=0.05)
-	elif "JetMET" in folder:
-		for h in histograms:
-			plots = [PlotGroup(h, [Plot(h, **opts)])]
-		for plot in plots:
-			plot.setProperties(legendDw=-0.5)
-			plot.setProperties(legendDh=0.01)
-			plot.setProperties(legendDy=0.24)
-			plot.setProperties(legendDx=0.05)
-		plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
-	if "PackedCandidates" in folder:
-		for h in histograms:
-			if ("PtMid" in h or "PtHigh" in h):
-				plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True)])]
-			else:
-				plots = [PlotGroup(h, [Plot(h, **opts)])]
-		for plot in plots:
-			plot.setProperties(legendDw=-0.5)
-			plot.setProperties(legendDh=0.01)
-			plot.setProperties(legendDy=0.24)
-			plot.setProperties(legendDx=0.05)
-		plotter.append("ParticleFlow/PackedCandidates/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="PackedCandidates", section= section))
+    if Offset :
+        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+        plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
+    elif "JetResponse" in folder :
+        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+        plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
+        for plot in plots:
+            plot.setProperties(ncols=3)
+            plot.setProperties(legendDw=-0.68)
+            plot.setProperties(legendDh=0.005)
+            plot.setProperties(legendDy=0.24)
+            plot.setProperties(legendDx=0.05)
+    elif "JetMET" in folder:
+        for h in histograms:
+            plots = [PlotGroup(h, [Plot(h, **opts)])]
+        for plot in plots:
+            plot.setProperties(ncols=1)
+            plot.setProperties(legendDw=-0.5)
+            plot.setProperties(legendDh=0.01)
+            plot.setProperties(legendDy=0.24)
+            plot.setProperties(legendDx=0.05)
+        plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
+    if "PackedCandidates" in folder:
+        for h in histograms:
+            if ("PtMid" in h or "PtHigh" in h):
+                plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True)])]
+            else:
+                plots = [PlotGroup(h, [Plot(h, **opts)])]
+        for plot in plots:
+            plot.setProperties(legendDw=-0.5)
+            plot.setProperties(legendDh=0.01)
+            plot.setProperties(legendDy=0.24)
+            plot.setProperties(legendDx=0.05)
+        plotter.append("ParticleFlow/PackedCandidates/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="PackedCandidates", section= section))
 
 
 def main():
@@ -238,10 +252,28 @@ def main():
     styledict_response = {"xlog": True, "xgrid":False, "ygrid":False,
         "xtitle":"GenJet pT (GeV)", "ytitle":"Jet response",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
+
+    styledict_rate = {"xlog": True, "xgrid":False, "ygrid":False,
+        "xtitle":"RecoJet pT (GeV)", "ytitle":"PU Jet rate (#PUJets/event)",
+        "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
+
+    styledict_efficiency = {"xlog": True, "xgrid":False, "ygrid":False,
+        "xtitle":"GenJet pT (GeV)", "ytitle":"Efficiency",
+        "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
+
+    styledict_purity = {"xlog": True, "xgrid":False, "ygrid":False,
+        "xtitle":"RecoJet pT (GeV)", "ytitle":"Purity",
+        "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
+
     plot_opts = {
+        "efficiency_pt": styledict_efficiency,
+        "purity_pt": styledict_purity,
+        "ratePUJet_pt": styledict_rate,
         "reso_pt": styledict_resolution,
         "reso_pt_rms": styledict_resolution,
-        "response_pt": styledict_response
+        "response_pt": styledict_response,
+        "response_pt_mean": styledict_response,
+        "response_pt_median": styledict_response,
     }
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
@@ -276,6 +308,7 @@ def main():
     plotterDrawArgs = dict(
         separate=False, # Set to true if you want each plot in it's own canvas
     #    ratio=False,   # Uncomment to disable ratio pad
+        saveFormat=".png",
     )
 
 

@@ -70,8 +70,8 @@ bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
              : true;
 }
 
-double ElectronHcalHelper::hcalESum(const SuperCluster& sc, int depth) const {
-  return (cfg_.onlyBehindCluster)     ? hcalIso_->getHcalESumBc(&sc, depth)
-         : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth)
+double ElectronHcalHelper::hcalESum(const SuperCluster& sc, int depth, const HcalPFCuts* hcalCuts) const {
+  return (cfg_.onlyBehindCluster)     ? hcalIso_->getHcalESumBc(&sc, depth, hcalCuts)
+         : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth, hcalCuts)
                                       : 0.;
 }

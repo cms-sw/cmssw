@@ -277,6 +277,8 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"

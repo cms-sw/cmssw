@@ -227,7 +227,7 @@ int main(int argc, char* argv[]) {
 
   cout << "Getting parameters" << endl;
   // Get the python configuration
-  ProcessDescImpl builder(argv[1]);
+  ProcessDescImpl builder(argv[1], true);
   std::shared_ptr<edm::ProcessDesc> b = builder.processDesc();
   std::shared_ptr<edm::ParameterSet> parameters = b->getProcessPSet();
   parameters->registerIt();

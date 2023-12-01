@@ -12,11 +12,10 @@ DQMInfoPPSAlignment = DQMEDHarvester('DQMHarvestingMetadata',
                                      subSystemFolder=cms.untracked.string('AlCaReco')
                                      )
 
-ppsAlignmentHarvester = ppsAlignmentHarvester_.clone()
-ppsAlignmentHarvester.text_results_path = cms.string("")
-ppsAlignmentHarvester.write_sqlite_results = cms.bool(True)
-ppsAlignmentHarvester.x_ali_rel_final_slope_fixed = cms.bool(False)
-ppsAlignmentHarvester.y_ali_final_slope_fixed = cms.bool(False)
+ppsAlignmentHarvester = ppsAlignmentHarvester_.clone( 
+                            text_results_path = "",
+                            write_sqlite_results = True
+                        )
 
 ALCAHARVESTPPSAlignment = cms.Task(
     EDMtoMEConvertPPSAlignment,

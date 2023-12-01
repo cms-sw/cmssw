@@ -6,13 +6,17 @@
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EGammaUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EtSumUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/ZDCUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/JetUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/TauUnpacker.h"
 
 #include "GTSetup.h"
 
+const unsigned int l1t::stage2::zdc::nOutputFramePerBX = 6;
+
 namespace l1t {
   namespace stage2 {
+
     std::unique_ptr<PackerTokens> GTSetup::registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) {
       return std::unique_ptr<PackerTokens>(new GTTokens(cfg, cc));
     }
@@ -55,6 +59,7 @@ namespace l1t {
       prod.produces<MuonShowerBxCollection>("MuonShower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");
+      prod.produces<EtSumBxCollection>("EtSumZDC");
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
       prod.produces<GlobalAlgBlkBxCollection>();
@@ -64,6 +69,7 @@ namespace l1t {
         prod.produces<MuonShowerBxCollection>("MuonShower" + std::to_string(i));
         prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
         prod.produces<EtSumBxCollection>("EtSum" + std::to_string(i));
+        prod.produces<EtSumBxCollection>("EtSumZDC" + std::to_string(i));
         prod.produces<JetBxCollection>("Jet" + std::to_string(i));
         prod.produces<TauBxCollection>("Tau" + std::to_string(i));
       }
@@ -80,6 +86,7 @@ namespace l1t {
           static_pointer_cast<l1t::stage2::EGammaUnpacker>(UnpackerFactory::get()->make("stage2::EGammaUnpacker"));
       auto etsum_unp =
           static_pointer_cast<l1t::stage2::EtSumUnpacker>(UnpackerFactory::get()->make("stage2::EtSumUnpacker"));
+      auto zdc_unp = static_pointer_cast<l1t::stage2::ZDCUnpacker>(UnpackerFactory::get()->make("stage2::ZDCUnpacker"));
       auto jet_unp = static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
       auto tau_unp = static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
 
@@ -97,6 +104,7 @@ namespace l1t {
       muon_unp->setMuonCopy(amc - 1);
       egamma_unp->setEGammaCopy(amc - 1);
       etsum_unp->setEtSumCopy(amc - 1);
+      zdc_unp->setEtSumZDCCopy(amc - 1);
       jet_unp->setJetCopy(amc - 1);
       tau_unp->setTauCopy(amc - 1);
 
@@ -135,6 +143,8 @@ namespace l1t {
         res[45] = alg_unp;
         res[47] = alg_unp;
         res[49] = alg_unp;
+
+        res[142] = zdc_unp;
       }
 
       return res;

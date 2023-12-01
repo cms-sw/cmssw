@@ -85,17 +85,6 @@ struct Point {
      */
   Point(float Run, float ScaleFactor, TH1 *histo) : Point(Run, ScaleFactor, histo->GetMean(), histo->GetMeanError()) {}
 
-  Point &operator=(const Point &p) {
-    run = p.run;
-    mu = p.mu;
-    muplus = p.muplus;
-    muminus = p.muminus;
-    sigma = p.sigma;
-    sigmaplus = p.sigmaplus;
-    sigmaminus = p.sigmaminus;
-    return *this;
-  }
-
   inline float GetRun() const { return run; }
   inline float GetMu() const { return scale * mu; }
   inline float GetMuPlus() const { return scale * muplus; }
@@ -142,11 +131,7 @@ public:
   TString title;
   Geometry() : title("") {}
   Geometry(TString Title) : title(Title) {}
-  Geometry &operator=(const Geometry &geom) {
-    title = geom.title;
-    points = geom.points;
-    return *this;
-  }
+
   inline void SetTitle(TString Title) { title = Title; }
   inline TString GetTitle() { return title; }
   inline std::vector<float> Run() const { return GetQuantity(&Point::GetRun); }

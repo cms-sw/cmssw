@@ -10,6 +10,7 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/SiPixelObjects"/>
+<use name="CondCore/SiPixelPlugins"/>
 <use name="CalibTracker/SiStripCommon"/>
 <use name="DQM/TrackerRemapper"/>
 <use name="DQM/SiPixelPhase1Common"/>

@@ -75,7 +75,7 @@ set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
 set EraRun3pp      = " --era=Run3_2023 "
-set EraRun3HI      = " --era=Run3_pp_on_PbPb "
+set EraRun3HI      = " --era=Run3_pp_on_PbPb_2023 "
 
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"

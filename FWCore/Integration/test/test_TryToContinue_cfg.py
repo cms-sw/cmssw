@@ -9,10 +9,7 @@ parser.add_argument("--useTask", help="Put failing module in a Task", action="st
 parser.add_argument("--inRun", help="throw exception in begin run", action="store_true")
 parser.add_argument("--inLumi", help="throw exception in begin lumi", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("TEST")
 

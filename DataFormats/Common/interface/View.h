@@ -46,9 +46,11 @@ namespace edm {
     std::unique_ptr<ViewBase> clone() const;
 
   protected:
-    ViewBase();
-    ViewBase(ViewBase const&);
-    ViewBase& operator=(ViewBase const&);
+    ViewBase() = default;
+    ViewBase(ViewBase const&) = default;
+    ViewBase(ViewBase&&) = default;
+    ViewBase& operator=(ViewBase const&) = default;
+    ViewBase& operator=(ViewBase&&) = default;
     virtual std::unique_ptr<ViewBase> doClone() const = 0;
     void swap(ViewBase&) {}  // Nothing to swap
   };
@@ -101,11 +103,7 @@ namespace edm {
     // infrastructure code.
     View(std::vector<void const*> const& pointers, FillViewHelperVector const& helpers, EDProductGetter const* getter);
 
-    ~View() override;
-
     void swap(View& other);
-
-    View& operator=(View const& rhs);
 
     size_type capacity() const;
 
@@ -190,9 +188,6 @@ namespace edm {
       }
     }
   }
-
-  template <typename T>
-  View<T>::~View() {}
 
   template <typename T>
   inline void View<T>::swap(View& other) {
@@ -292,13 +287,6 @@ namespace edm {
   template <typename T>
   std::unique_ptr<ViewBase> View<T>::doClone() const {
     return std::unique_ptr<ViewBase>{new View(*this)};
-  }
-
-  template <typename T>
-  inline View<T>& View<T>::operator=(View<T> const& rhs) {
-    View<T> temp(rhs);
-    this->swap(temp);
-    return *this;
   }
 
   template <typename T>

@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHepEmTrackingManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SystemOfUnits.hh"
@@ -10,35 +11,25 @@
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
-#include "G4RayleighScattering.hh"
-#include "G4PEEffectFluoModel.hh"
-#include "G4KleinNishinaModel.hh"
-#include "G4LowEPComptonModel.hh"
-#include "G4BetheHeitler5DModel.hh"
-#include "G4LivermorePhotoElectricModel.hh"
+
+#include "G4MscStepLimitType.hh"
 
 #include "G4eMultipleScattering.hh"
 #include "G4hMultipleScattering.hh"
-#include "G4MscStepLimitType.hh"
+#include "G4eCoulombScatteringModel.hh"
+#include "G4CoulombScattering.hh"
+#include "G4WentzelVIModel.hh"
 #include "G4UrbanMscModel.hh"
 #include "G4GoudsmitSaundersonMscModel.hh"
-#include "G4DummyModel.hh"
-#include "G4WentzelVIModel.hh"
-#include "G4CoulombScattering.hh"
-#include "G4eCoulombScatteringModel.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
-#include "G4Generator2BS.hh"
-#include "G4SeltzerBergerModel.hh"
-#include "G4ePairProduction.hh"
-#include "G4UniversalFluctuation.hh"
-
 #include "G4eplusAnnihilation.hh"
 
 #include "G4hIonisation.hh"
 #include "G4ionIonisation.hh"
 
+#include "G4ParticleTable.hh"
 #include "G4Gamma.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -53,9 +44,6 @@
 
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
-#include "G4GammaGeneralProcess.hh"
-
-#include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emn") {
@@ -65,12 +53,10 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   param->SetDefaults();
   param->SetVerbose(ver);
   param->SetApplyCuts(true);
-  param->SetMinEnergy(100 * CLHEP::eV);
-  param->SetNumberOfBinsPerDecade(20);
   param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
-  param->SetFluo(true);
+  param->SetFluo(false);
   param->SetUseMottCorrection(true);  // use Mott-correction for e-/e+ msc gs
   SetPhysicsType(bElectromagnetic);
   fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
@@ -88,6 +74,16 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
+  fG4HepEmActive = p.getParameter<bool>("G4HepEmActive");
+  if (fG4HepEmActive) {
+    // At the moment, G4HepEm supports only one configuration of MSC, so use
+    // the most generic parameters everywhere.
+    param->SetMscRangeFactor(fRangeFactor);
+    param->SetMscGeomFactor(fGeomFactor);
+    param->SetMscSafetyFactor(fSafetyFactor);
+    param->SetMscLambdaLimit(fLambdaLimit);
+    param->SetMscStepLimitType(fStepLimitType);
+  }
 }
 
 void CMSEmStandardPhysicsXS::ConstructParticle() {
@@ -112,40 +108,29 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4NuclearStopping* pnuc(nullptr);
 
   // high energy limit for e+- scattering models
-  G4double highEnergyLimit = G4EmParameters::Instance()->MscEnergyLimit();
+  auto param = G4EmParameters::Instance();
+  G4double highEnergyLimit = param->MscEnergyLimit();
+
   const G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   const G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
 
   // Add gamma EM Processes
   G4ParticleDefinition* particle = G4Gamma::Gamma();
 
-  // Photoelectric
-  G4PhotoElectricEffect* pe = new G4PhotoElectricEffect();
-  G4VEmModel* theLivermorePEModel = new G4LivermorePhotoElectricModel();
-  pe->SetEmModel(theLivermorePEModel);
+  G4PhotoElectricEffect* pee = new G4PhotoElectricEffect();
 
-  // Compton scattering
-  G4ComptonScattering* cs = new G4ComptonScattering;
-  cs->SetEmModel(new G4KleinNishinaModel());
-
-  // Gamma conversion
-  G4GammaConversion* gc = new G4GammaConversion();
-  G4VEmModel* conv = new G4BetheHeitler5DModel();
-  gc->SetEmModel(conv);
-
-  if (G4EmParameters::Instance()->GeneralProcessActive()) {
+  if (param->GeneralProcessActive()) {
     G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
-    sp->AddEmProcess(pe);
-    sp->AddEmProcess(cs);
-    sp->AddEmProcess(gc);
-    sp->AddEmProcess(new G4RayleighScattering());
+    sp->AddEmProcess(pee);
+    sp->AddEmProcess(new G4ComptonScattering());
+    sp->AddEmProcess(new G4GammaConversion());
     G4LossTableManager::Instance()->SetGammaGeneralProcess(sp);
     ph->RegisterProcess(sp, particle);
+
   } else {
-    ph->RegisterProcess(pe, particle);
-    ph->RegisterProcess(cs, particle);
-    ph->RegisterProcess(gc, particle);
-    ph->RegisterProcess(new G4RayleighScattering(), particle);
+    ph->RegisterProcess(pee, particle);
+    ph->RegisterProcess(new G4ComptonScattering(), particle);
+    ph->RegisterProcess(new G4GammaConversion(), particle);
   }
 
   // e-
@@ -228,29 +213,15 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
 
-  // ionisation
-  G4eIonisation* eioni = new G4eIonisation();
-
-  // bremsstrahlung
-  G4eBremsstrahlung* brem = new G4eBremsstrahlung();
-  G4SeltzerBergerModel* br1 = new G4SeltzerBergerModel();
-  G4eBremsstrahlungRelModel* br2 = new G4eBremsstrahlungRelModel();
-  br1->SetAngularDistribution(new G4Generator2BS());
-  br2->SetAngularDistribution(new G4Generator2BS());
-  brem->SetEmModel(br1);
-  brem->SetEmModel(br2);
-  br1->SetHighEnergyLimit(CLHEP::GeV);
-
-  G4ePairProduction* ee = new G4ePairProduction();
-
   // register processes
-  ph->RegisterProcess(eioni, particle);
-  ph->RegisterProcess(brem, particle);
-  ph->RegisterProcess(ee, particle);
+  ph->RegisterProcess(new G4eIonisation(), particle);
+  ph->RegisterProcess(new G4eBremsstrahlung(), particle);
   ph->RegisterProcess(ss, particle);
 
   // e+
   particle = G4Positron::Positron();
+  msc3 = nullptr;
+  msc4 = nullptr;
 
   // multiple scattering
   msc1 = new G4UrbanMscModel();
@@ -326,25 +297,17 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
 
-  // ionisation
-  eioni = new G4eIonisation();
-
-  // bremsstrahlung
-  brem = new G4eBremsstrahlung();
-  br1 = new G4SeltzerBergerModel();
-  br2 = new G4eBremsstrahlungRelModel();
-  br1->SetAngularDistribution(new G4Generator2BS());
-  br2->SetAngularDistribution(new G4Generator2BS());
-  brem->SetEmModel(br1);
-  brem->SetEmModel(br2);
-  br1->SetHighEnergyLimit(CLHEP::GeV);
-
   // register processes
-  ph->RegisterProcess(eioni, particle);
-  ph->RegisterProcess(brem, particle);
-  ph->RegisterProcess(ee, particle);
+  ph->RegisterProcess(new G4eIonisation(), particle);
+  ph->RegisterProcess(new G4eBremsstrahlung(), particle);
   ph->RegisterProcess(new G4eplusAnnihilation(), particle);
   ph->RegisterProcess(ss, particle);
+
+  if (fG4HepEmActive) {
+    auto* hepEmTM = new CMSHepEmTrackingManager(highEnergyLimit);
+    G4Electron::Electron()->SetTrackingManager(hepEmTM);
+    G4Positron::Positron()->SetTrackingManager(hepEmTM);
+  }
 
   // generic ion
   particle = G4GenericIon::GenericIon();

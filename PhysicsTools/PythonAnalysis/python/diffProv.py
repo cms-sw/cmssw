@@ -4,7 +4,7 @@ from builtins import range
 class difference :
     
     def __init__(self,v):
-        self.verbose = v
+        self.verbose = int(v)
         self._diffprocess=[]
         self._sameprocess=()
     def list_diff(self,aList1, aList2, string1, string2):
@@ -14,7 +14,7 @@ class difference :
             for j in range(2,len(aList2)):
                 if (i==j) and (aList1[i]!=aList2[j]):
                     if aList1[i][:(aList1[i].index('=')+1)] == aList2[j][:(aList2[j].index('=')+1)]:
-                        if self.verbose==str(2) or self.verbose==str(1):
+                        if self.verbose==2 or self.verbose==1:
                             str1 = aList1[i][2:aList1[i].index('=')+1] + aList1[i][aList1[i].index('=')+1:]+'  ['+ string1+']'
                             str2 = len(aList1[i][2:aList1[i].index('=')+1])*' '+aList2[j][aList2[j].index('=')+1:]+'  ['+string2+']'
                             print(str1,'\n',str2,'\n')
@@ -80,7 +80,7 @@ class difference :
                 for name, value in module1[i] :
                     if (name not in labelList2):
                         print('Process: '+'"'+i+'"'+'\n'+'Module: '+'"'+name+'"')
-                        if  self.verbose==str(2):
+                        if  self.verbose==2:
                             for k in value[1:]:
                                 print(k)
                                 

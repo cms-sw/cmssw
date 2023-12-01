@@ -438,7 +438,7 @@ std::unique_ptr<HcalPFCuts> HcalHardcodeCalibrations::producePFCuts(const HcalPF
   for (auto cell : cells) {
     // Use only standard Hcal channels for now, no TrigPrims
     if (!cell.isHcalTrigTowerDetId()) {
-      HcalPFCut item = dbHardcode.makePFCut(cell);
+      HcalPFCut item = dbHardcode.makePFCut(cell, iLumi, dbHardcode.killHE());
       result->addValues(item);
     }
   }

@@ -7,7 +7,7 @@ status=0
   
 rm -f  u7_log.log u7_restrict.log u7_job_report.mxml
 
-cmsRun -j u7_job_report.mxml -p ${SCRAM_TEST_PATH}/u7_cfg.py  || exit $?
+cmsRun -j u7_job_report.mxml ${SCRAM_TEST_PATH}/u7_cfg.py  || exit $?
  
 for file in  u7_log.log u7_restrict.log u7_job_report.mxml
 do

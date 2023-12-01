@@ -8,3 +8,8 @@
 </library>
 
 <test name="TestGlobalObjectMapRecordFormat" command="TestGlobalObjectMapRecordFormat.sh"/>
+
+<bin file="test_catch2_l1tGlobalObject.cc" name="test_l1tGlobalObjectCatch2">
+  <use name="FWCore/MessageLogger"/>
+  <use name="catch2"/>
+</bin>

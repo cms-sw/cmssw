@@ -19,11 +19,13 @@
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
+#include <fmt/format.h>
 #include <memory>
 #include <sstream>
-#include <TCanvas.h>
-#include <TH2D.h>
-#include <TLatex.h>
+
+#include "TCanvas.h"
+#include "TH2D.h"
+#include "TLatex.h"
 
 namespace {
 
@@ -66,11 +68,237 @@ namespace {
       }
 
       std::string fileName(m_imageFileName);
-      tmap->save(true, 0., 6., fileName);
+      tmap->save(true, 0., 6., fileName, 4500, 2400);  // max 6 APVs per module
 
       return true;
     }
   };
+
+  /************************************************
+    TrackerMap of uncabled modules
+  *************************************************/
+  class SiStripUncabledChannels_TrackerMap : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
+  public:
+    SiStripUncabledChannels_TrackerMap()
+        : PlotImage<SiStripFedCabling, SINGLE_IOV>("Tracker Map SiStrip Fed Cabling") {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling");
+      tmap->setPalette(1);
+      std::string titleMap =
+          "TrackerMap of SiStrip Fraction of uncabled channels per module, IOV : " + std::to_string(std::get<0>(iov));
+      tmap->setTitle(titleMap);
+
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+          edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
+
+      std::vector<uint32_t> activeDetIds;
+      detCabling_->addActiveDetectorsRawIds(activeDetIds);
+
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
+
+      // first add the fully unconnected modules
+      for (const auto& detId : all_detids) {
+        if (!detCabling_->IsConnected(detId)) {
+          tmap->fill(detId, 1);
+        }
+      }
+
+      // then add the partially unconnected ones
+      for (const auto& detId : activeDetIds) {
+        float frac = calculateConnectedFraction(detCabling_.get(), detId);
+        if (frac != 1.f) {
+          tmap->fill(detId, frac);
+        }
+      }
+
+      std::string fileName(m_imageFileName);
+      tmap->save(true, 0., 1., fileName, 4500, 2400);
+
+      return true;
+    }
+
+  private:
+    // Function to calculate the number of connections for a given detId
+    int32_t calculateConnectedFraction(const SiStripDetCabling* detCabling, const uint32_t detId) {
+      float totAPVs = detCabling->nApvPairs(detId);
+      float n_conn{0};
+      for (uint32_t connDet_i = 0; connDet_i < detCabling->getConnections(detId).size(); connDet_i++) {
+        if (detCabling->getConnections(detId)[connDet_i] != nullptr &&
+            detCabling->getConnections(detId)[connDet_i]->isConnected() != 0) {
+          n_conn++;
+        }
+      }
+      return n_conn / totAPVs;
+    }
+  };
+
+  /************************************************
+    TrackerMap of SiStrip FED Cabling difference between 2 payloads
+  *************************************************/
+
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripFedCablingComparisonTrackerMapBase : public PlotImage<SiStripFedCabling, nIOVs, ntags> {
+  public:
+    SiStripFedCablingComparisonTrackerMapBase()
+        : PlotImage<SiStripFedCabling, nIOVs, ntags>("Tracker Map SiStrip Fed Cabling difference") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripFedCabling> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripFedCabling> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling Difference");
+      tmap->setPalette(1);
+
+      std::string titleMap{};
+      std::string commonPart = "SiStrip Fed Cabling Map: #Delta connections per module";
+      if (this->m_plotAnnotations.ntags == 2) {
+        titleMap = fmt::format("{}: {} - {}", commonPart, tagname2, tagname1);
+      } else {
+        titleMap = fmt::format("{}: IOV : {} - {}", commonPart, std::get<0>(lastiov), std::get<0>(firstiov));
+      }
+      tmap->setTitle(titleMap);
+
+      const std::string k_TrackerParams =
+          edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath();
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(k_TrackerParams);
+
+      std::unique_ptr<SiStripDetCabling> l_detCabling =
+          std::make_unique<SiStripDetCabling>(*(last_payload.get()), &tTopo);
+      std::unique_ptr<SiStripDetCabling> f_detCabling =
+          std::make_unique<SiStripDetCabling>(*(first_payload.get()), &tTopo);
+
+      std::vector<uint32_t> f_activeDetIds;
+      f_detCabling->addActiveDetectorsRawIds(f_activeDetIds);
+
+      std::vector<uint32_t> l_activeDetIds;
+      l_detCabling->addActiveDetectorsRawIds(l_activeDetIds);
+
+      const auto& setsToPlot = prepareSets(f_activeDetIds, l_activeDetIds);
+
+      edm::LogPrint("SiStripFedCablingComparisonTrackerMapBase")
+          << "Common Detids: " << setsToPlot.commonElements.size()
+          << " | only in last payload: " << setsToPlot.lExclusiveElements.size()
+          << " | only in first payload: " << setsToPlot.fExclusiveElements.size() << std::endl;
+
+      // Process common elements
+      for (const auto& detId : setsToPlot.commonElements) {
+        int32_t f_n_conn = calculateConnections(f_detCabling.get(), detId);
+        int32_t l_n_conn = calculateConnections(l_detCabling.get(), detId);
+
+        if (l_n_conn != f_n_conn) {
+          tmap->fill(detId, (l_n_conn - f_n_conn) * 2);  // 2 APVs per channel
+        }
+      }
+
+      // Process elements only in the last
+      for (const auto& detId : setsToPlot.lExclusiveElements) {
+        int32_t l_n_conn = calculateConnections(l_detCabling.get(), detId);
+
+        if (l_n_conn != 0) {
+          tmap->fill(detId, l_n_conn * 2);  // 2 APVs per channel
+        }
+      }
+
+      // Process elements only in the first
+      for (const auto& detId : setsToPlot.fExclusiveElements) {
+        int32_t f_n_conn = calculateConnections(f_detCabling.get(), detId);
+
+        if (f_n_conn != 0) {
+          tmap->fill(detId, -f_n_conn * 2);  // 2 APVs per channel
+        }
+      }
+
+      std::string fileName(this->m_imageFileName);
+      tmap->save(true, -6., 6., fileName, 4500, 2400);  // max 6 APVs per module
+
+      return true;
+    }
+
+  private:
+    struct setsOfDetids {
+      std::vector<uint32_t> commonElements;
+      std::vector<uint32_t> fExclusiveElements;
+      std::vector<uint32_t> lExclusiveElements;
+    };
+
+    // Function to calculate the number of connections for a given detId
+    int32_t calculateConnections(const SiStripDetCabling* detCabling, const uint32_t detId) {
+      int32_t n_conn = 0;
+      for (uint32_t connDet_i = 0; connDet_i < detCabling->getConnections(detId).size(); connDet_i++) {
+        if (detCabling->getConnections(detId)[connDet_i] != nullptr &&
+            detCabling->getConnections(detId)[connDet_i]->isConnected() != 0) {
+          n_conn++;
+        }
+      }
+      return n_conn;
+    }
+
+    // Function to calculate the interesection and exclusive elements out of two vectors of DetIds
+    setsOfDetids prepareSets(std::vector<uint32_t> f_activeDetIds, std::vector<uint32_t> l_activeDetIds) {
+      setsOfDetids output;
+      // Sort the input vectors if they are not already sorted
+      std::sort(f_activeDetIds.begin(), f_activeDetIds.end());
+      std::sort(l_activeDetIds.begin(), l_activeDetIds.end());
+
+      // Common elements
+      output.commonElements.reserve(std::min(f_activeDetIds.size(), l_activeDetIds.size()));
+      std::set_intersection(f_activeDetIds.begin(),
+                            f_activeDetIds.end(),
+                            l_activeDetIds.begin(),
+                            l_activeDetIds.end(),
+                            std::back_inserter(output.commonElements));
+
+      // Elements only in f_activeDetIds
+      output.fExclusiveElements.reserve(f_activeDetIds.size() - output.commonElements.size());
+      std::set_difference(f_activeDetIds.begin(),
+                          f_activeDetIds.end(),
+                          l_activeDetIds.begin(),
+                          l_activeDetIds.end(),
+                          std::back_inserter(output.fExclusiveElements));
+
+      // Elements only in l_activeDetIds
+      output.lExclusiveElements.reserve(l_activeDetIds.size() - output.commonElements.size());
+      std::set_difference(l_activeDetIds.begin(),
+                          l_activeDetIds.end(),
+                          f_activeDetIds.begin(),
+                          f_activeDetIds.end(),
+                          std::back_inserter(output.lExclusiveElements));
+
+      return output;
+    }
+  };
+
+  using SiStripFedCablingComparisonTrackerMapSingleTag = SiStripFedCablingComparisonTrackerMapBase<1, MULTI_IOV>;
+  using SiStripFedCablingComparisonTrackerMapTwoTags = SiStripFedCablingComparisonTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
     Summary Plot of SiStrip FED Cabling
@@ -217,5 +445,8 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripFedCabling) {
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCabling_TrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripUncabledChannels_TrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripFedCablingComparisonTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripFedCablingComparisonTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCabling_Summary);
 }

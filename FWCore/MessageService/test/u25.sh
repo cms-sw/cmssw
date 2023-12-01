@@ -7,7 +7,7 @@ status=0
   
 rm -f u25_only.log 
 
-cmsRun -p ${SCRAM_TEST_PATH}/u25_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u25_cfg.py || exit $?
  
 for file in u25_only.log   
 do

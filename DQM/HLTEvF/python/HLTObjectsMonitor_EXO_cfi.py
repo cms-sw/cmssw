@@ -80,8 +80,8 @@ exoObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(False),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight"),
-           moduleNAME = cms.string("hltPFMHTNoMuTightID110"),
+           pathNAME = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"),
+           moduleNAME = cms.string("hltPFMHTNoMuTightID120"),
            label  = cms.string("PF HT (no mu)"),
            xTITLE = cms.string("PF HT (no mu)"),
            etaBINNING  = cms.vdouble(),
@@ -119,8 +119,8 @@ exoObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(False),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight"),
-           moduleNAME = cms.string("hltPFMETNoMu110"),
+           pathNAME = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"),
+           moduleNAME = cms.string("hltPFMETNoMu120"),
            label  = cms.string("MET (no mu)"),
            xTITLE = cms.string("MET (no mu)"),
            etaBINNING  = cms.vdouble(),
@@ -158,8 +158,8 @@ exoObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(False),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
-           moduleNAME = cms.string("hltPFMET110"),
+           pathNAME = cms.string("HLT_PFMET120_PFMHT120_IDTight"),
+           moduleNAME = cms.string("hltPFMET120"),
            label  = cms.string("PF MET"),
            xTITLE = cms.string("PF MET"),
            etaBINNING  = cms.vdouble(),
@@ -197,8 +197,8 @@ exoObjects = cms.VPSet(
            doPlotDiMass = cms.untracked.bool(False),
        ),
        cms.PSet(
-           pathNAME = cms.string("HLT_PFMET110_PFMHT110_IDTight"),
-           moduleNAME = cms.string("hltPFMHTTightID110"),
+           pathNAME = cms.string("HLT_PFMET120_PFMHT120_IDTight"),
+           moduleNAME = cms.string("hltPFMHTTightID120"),
            label  = cms.string("PF MHT"),
            xTITLE = cms.string("PF MHT"),
            etaBINNING  = cms.vdouble(),

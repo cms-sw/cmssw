@@ -1,16 +1,144 @@
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/Common/interface/Handle.h"
+// user includes
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
-#include "DQM/TrackingMonitorSource/interface/ttbarEventSelector.h"
+// ROOT includes
+#include "TLorentzVector.h"
+
+class ttbarEventSelector : public edm::stream::EDFilter<> {
+public:
+  explicit ttbarEventSelector(const edm::ParameterSet&);
+
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  // module config parameters
+  const edm::InputTag electronTag_;
+  const edm::InputTag jetsTag_;
+  const edm::InputTag bjetsTag_;
+  const edm::InputTag pfmetTag_;
+  const edm::InputTag muonTag_;
+  const edm::InputTag bsTag_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::PFJetCollection> jetsToken_;
+  const edm::EDGetTokenT<reco::JetTagCollection> bjetsToken_;
+  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
+  const double maxEtaEle_;
+  const double maxEtaMu_;
+  const double minPt_;
+  const double maxDeltaPhiInEB_;
+  const double maxDeltaEtaInEB_;
+  const double maxHOEEB_;
+  const double maxSigmaiEiEEB_;
+  const double maxDeltaPhiInEE_;
+  const double maxDeltaEtaInEE_;
+  const double maxHOEEE_;
+  const double maxSigmaiEiEEE_;
+
+  const double minChambers_;
+  const double minMatches_;
+  const double minMatchedStations_;
+
+  const double maxEtaHighest_Jets_;
+  const double maxEta_Jets_;
+
+  const double btagFactor_;
+
+  const double maxNormChi2_;
+  const double maxD0_;
+  const double maxDz_;
+  const int minPixelHits_;
+  const int minStripHits_;
+  const double maxIsoEle_;
+  const double maxIsoMu_;
+  const double minPtHighestMu_;
+  const double minPtHighestEle_;
+  const double minPtHighest_Jets_;
+  const double minPt_Jets_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const double minMet_;
+  const double maxMet_;
+  const double minWmass_;
+  const double maxWmass_;
+  double getMt(const TLorentzVector& vlep, const reco::PFMET& obj);
+  int EventCategory(int& nEle, int& nMu, int& nJets, int& nbJets);
+};
 
 using namespace std;
 using namespace edm;
+
+void ttbarEventSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"));
+  desc.addUntracked<edm::InputTag>("bjetsInputTag", edm::InputTag("pfDeepCSVJetTags", "probb"));
+  desc.addUntracked<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"));
+  desc.addUntracked<edm::InputTag>("muonInputTag", edm::InputTag("muons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<double>("maxEtaEle", 2.4);
+  desc.addUntracked<double>("maxEtaMu", 2.4);
+  desc.addUntracked<double>("minPt", 5);
+  desc.addUntracked<double>("maxDeltaPhiInEB", .15);
+  desc.addUntracked<double>("maxDeltaEtaInEB", .007);
+  desc.addUntracked<double>("maxHOEEB", .12);
+  desc.addUntracked<double>("maxSigmaiEiEEB", .01);
+  desc.addUntracked<double>("maxDeltaPhiInEE", .1);
+  desc.addUntracked<double>("maxDeltaEtaInEE", .009);
+  desc.addUntracked<double>("maxHOEEB_", .10);
+  desc.addUntracked<double>("maxSigmaiEiEEE", .03);
+  desc.addUntracked<uint32_t>("minChambers", 2);
+  desc.addUntracked<uint32_t>("minMatches", 2);
+  desc.addUntracked<double>("minMatchedStations", 2);
+  desc.addUntracked<double>("maxEtaHighest_Jets", 2.4);
+  desc.addUntracked<double>("maxEta_Jets", 3.0);
+  desc.addUntracked<double>("btagFactor", 0.6);
+  desc.addUntracked<double>("maxNormChi2", 10);
+  desc.addUntracked<double>("maxD0", 0.02);
+  desc.addUntracked<double>("maxDz", 20.);
+  desc.addUntracked<uint32_t>("minPixelHits", 1);
+  desc.addUntracked<uint32_t>("minStripHits", 8);
+  desc.addUntracked<double>("maxIsoEle", 0.5);
+  desc.addUntracked<double>("maxIsoMu", 0.3);
+  desc.addUntracked<double>("minPtHighestMu", 24);
+  desc.addUntracked<double>("minPtHighestEle", 32);
+  desc.addUntracked<double>("minPtHighest_Jets", 30);
+  desc.addUntracked<double>("minPt_Jets", 20);
+  desc.addUntracked<double>("minInvMass", 140);
+  desc.addUntracked<double>("maxInvMass", 200);
+  desc.addUntracked<double>("minMet", 50);
+  desc.addUntracked<double>("maxMet", 80);
+  desc.addUntracked<double>("minWmass", 50);
+  desc.addUntracked<double>("maxWmass", 130);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 ttbarEventSelector::ttbarEventSelector(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
@@ -25,8 +153,8 @@ ttbarEventSelector::ttbarEventSelector(const edm::ParameterSet& ps)
       pfmetToken_(consumes<reco::PFMETCollection>(pfmetTag_)),
       muonToken_(consumes<reco::MuonCollection>(muonTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
-      maxEtaEle_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
-      maxEtaMu_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
+      maxEtaEle_(ps.getUntrackedParameter<double>("maxEtaEle", 2.4)),
+      maxEtaMu_(ps.getUntrackedParameter<double>("maxEtaMu", 2.4)),
       minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
 
       // for Electron only
@@ -56,8 +184,8 @@ ttbarEventSelector::ttbarEventSelector(const edm::ParameterSet& ps)
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
       minStripHits_(ps.getUntrackedParameter<uint32_t>("minStripHits", 8)),
-      maxIsoEle_(ps.getUntrackedParameter<double>("maxIso", 0.5)),
-      maxIsoMu_(ps.getUntrackedParameter<double>("maxIso", 0.3)),
+      maxIsoEle_(ps.getUntrackedParameter<double>("maxIsoEle", 0.5)),
+      maxIsoMu_(ps.getUntrackedParameter<double>("maxIsoMu", 0.3)),
       minPtHighestMu_(ps.getUntrackedParameter<double>("minPtHighestMu", 24)),
       minPtHighestEle_(ps.getUntrackedParameter<double>("minPtHighestEle", 32)),
       minPtHighest_Jets_(ps.getUntrackedParameter<double>("minPtHighest_Jets", 30)),

@@ -2053,8 +2053,9 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
 #endif
           int wl = HGCalWaferIndex::waferIndex(lay, u, v);
           if (php.waferMaskMode_ > 0) {
+            bool v17OrLess = (php.mode_ < HGCalGeometryMode::Hexagon8CalibCell);
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
-                xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
+                xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_, v17OrLess);
             if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
                 (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
                 (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {

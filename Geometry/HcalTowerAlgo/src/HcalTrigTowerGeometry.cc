@@ -1,5 +1,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
 #include <iostream>
@@ -77,6 +78,21 @@ std::vector<HcalTrigTowerDetId> HcalTrigTowerGeometry::towerIds(const HcalDetId&
       results.emplace_back(HcalTrigTowerDetId(ieta, iphi1 + 1));
     }
   }
+
+  return results;
+}
+
+std::vector<HcalTrigTowerDetId> HcalTrigTowerGeometry::towerIds_ZDC(const HcalZDCDetId& cellId) const {
+  std::vector<HcalTrigTowerDetId> results;
+
+  int ieta = cellId.zside() > 0 ? 42 : -42;
+  int iphi = 99;
+  int channelId = cellId.channel();
+  if (cellId.depth() != 1)
+    channelId += 5;
+
+  results.emplace_back(HcalTrigTowerDetId(ieta, channelId));
+  results.emplace_back(HcalTrigTowerDetId(ieta, iphi));
 
   return results;
 }

@@ -8,6 +8,11 @@
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -20,7 +25,11 @@ public:
   GaussEvtVtxGenerator(const GaussEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
   GaussEvtVtxGenerator& operator=(const GaussEvtVtxGenerator& rhs) = delete;
-  ~GaussEvtVtxGenerator() override;
+  ~GaussEvtVtxGenerator() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
@@ -43,9 +52,15 @@ public:
   void meanZ(double m = 0) { fMeanZ = m; }
 
 private:
+  bool readDB_;
+
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX, fMeanY, fMeanZ;
   double fTimeOffset;
+
+  void update(const edm::EventSetup& iEventSetup);
+  edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
+  edm::ESGetToken<SimBeamSpotObjects, SimBeamSpotObjectsRcd> beamToken_;
 };
 
 #endif

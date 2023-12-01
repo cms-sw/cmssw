@@ -56,7 +56,7 @@ public:
       : m_tau(tau), m_regTau(regTau), m_eta(999.), m_phi_bar(999.), m_phi_end(999.){};
 
   TauL1TPair(const TauL1TPair& tauL1tPair);
-
+  TauL1TPair& operator=(const TauL1TPair& tauL1tPair) = default;
   ~TauL1TPair(){};
 
   double dR();

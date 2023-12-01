@@ -1,8 +1,8 @@
 #ifndef HECTOR_TRANSPORT
 #define HECTOR_TRANSPORT
 #include "SimTransport/PPSProtonTransport/interface/BaseProtonTransport.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 
@@ -57,9 +57,9 @@ private:
   std::unique_ptr<H_BeamLine> m_beamline56;
 
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
-  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
+  edm::ESGetToken<SimBeamSpotObjects, SimBeamSpotObjectsRcd> beamspotToken_;
 
   const CTPPSBeamParameters* beamParameters_{nullptr};
-  const BeamSpotObjects* beamspot_{nullptr};
+  const SimBeamSpotObjects* beamspot_{nullptr};
 };
 #endif

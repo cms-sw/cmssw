@@ -534,6 +534,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RejectMouseBite  = cms.bool(False),
         RotatedWafer     = cms.bool(False),
         CornerMinMask    = cms.int32(0),
+        HitCollection    = cms.int32(1),
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
@@ -652,6 +653,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
 ## Change the HFShowerLibrary file from Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( g4SimHits, ZdcSD = dict(
+    UseShowerLibrary = False,
+    UseShowerHits = True,
+    ZdcHitEnergyCut = 1.0 ) )
 
 ##
 ## Change HCAL numbering scheme in 2017
@@ -677,9 +682,8 @@ pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
 ##
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits, ECalSD = dict(
-                             StoreLayerTimeSim = True,
-                             TimeSliceUnit = 0.001 )
-)
+    StoreLayerTimeSim = True,
+    TimeSliceUnit = 0.001 ) )
 
 ##
 ## For ECAL component study
@@ -694,6 +698,8 @@ from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff 
 from Configuration.Eras.Modifier_h2tb_cff import h2tb
 h2tb.toModify(g4SimHits,
               OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalTB06BeamDetector', 'HcalSensitiveDetector'],
+              ECalSD = dict(
+                  TestBeam = True ),
               CaloSD = dict(
                   EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
                   TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
@@ -723,5 +729,20 @@ phase2_common.toModify(g4SimHits,
 
 from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 hgcaltb.toModify(g4SimHits,
-                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector'],
+                 NonBeamEvent = True,
+                 UseMagneticField = False,
+                 CaloSD = dict(
+                     EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
+                     TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
+                 CaloTrkProcessing = dict(
+                     TestBeam = True ),
+                 HCalSD = dict(
+                     ForTBHCAL = True)
+)
+
+from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
+phase2_hgcalV18.toModify(g4SimHits,
+                 HGCSD = dict(
+                     HitCollection = 2)
 )

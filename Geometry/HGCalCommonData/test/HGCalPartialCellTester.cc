@@ -60,6 +60,7 @@ private:
   const int placeIndex_;
   const int partialType_;
   const int nTrials_;
+  const bool v17OrLess_;
   const int modeUV_;
 };
 
@@ -69,10 +70,12 @@ HGCalPartialCellTester::HGCalPartialCellTester(const edm::ParameterSet& iC)
       placeIndex_(iC.getParameter<int>("cellPlacementIndex")),
       partialType_(iC.getParameter<int>("partialType")),
       nTrials_(iC.getParameter<int>("numbberOfTrials")),
+      v17OrLess_(iC.getParameter<bool>("v17OrLess")),
       modeUV_(iC.getParameter<int>("modeUV")) {
   edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
                                 << " Partial Type " << partialType_ << " Placement Index " << placeIndex_ << " mode "
-                                << modeUV_ << " with " << nTrials_ << " trials";
+                                << modeUV_ << " with " << nTrials_ << " trials"
+                                << " v17OrLess " << v17OrLess_;
 }
 
 void HGCalPartialCellTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -82,6 +85,7 @@ void HGCalPartialCellTester::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<int>("cellPlacementIndex", 3);
   desc.add<int>("partialType", 25);
   desc.add<int>("numbberOfTrials", 1000);
+  desc.add<bool>("v17OrLess", false);
   desc.add<int>("modeUV", 0);
   descriptions.add("hgcalPartialCellTester", desc);
 }
@@ -116,7 +120,7 @@ void HGCalPartialCellTester::analyze(const edm::Event&, const edm::EventSetup&) 
       }
       std::pair<double, double> xyg = wafer2.cellUV2XY2(ug, vg, placeIndex_, waferType_);
       std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialType_, placeIndex_, waferSize_, 0.0, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialType_, placeIndex_, waferSize_, 0.0, 0.0, 0.0, v17OrLess_);
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         double xp1 = wxy[i].first;
         double yp1 = wxy[i].second;

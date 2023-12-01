@@ -10,6 +10,7 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
@@ -47,6 +48,8 @@ namespace edm {
       void postOpenFile(std::string const &);
 
       void postCloseFile(std::string const &);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     private:
       void makeDump(const std::string &format, std::string_view moduleLabel = "");

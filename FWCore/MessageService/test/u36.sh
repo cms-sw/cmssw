@@ -7,7 +7,7 @@ status=0
   
 rm -f u36_only.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u36_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u36_cfg.py || exit $?
  
 for file in u36_only.log
 do

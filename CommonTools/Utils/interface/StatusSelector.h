@@ -17,6 +17,7 @@ struct StatusSelector {
     end_ = status_.end();
   }
   StatusSelector(const StatusSelector& o) : status_(o.status_), begin_(status_.begin()), end_(status_.end()) {}
+  StatusSelector& operator=(const StatusSelector& o) = default;
   StatusSelector& operator==(const StatusSelector& o) {
     *this = o;
     return *this;

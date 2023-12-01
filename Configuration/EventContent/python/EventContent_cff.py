@@ -640,11 +640,17 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+
 approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
+phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
+                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltPhase2PixelTracks_*_*',
+                            'keep *_hltPhase2PixelVertices_*_*'
+                        ])
 phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + ['keep recoMuons_muons1stStep_*_*'])
 
@@ -873,6 +879,7 @@ MINIAODEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+MINIAODEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
 
 MINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -881,6 +888,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

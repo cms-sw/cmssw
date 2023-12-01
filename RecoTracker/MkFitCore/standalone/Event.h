@@ -49,8 +49,21 @@ namespace mkfit {
 
     Validation &validation_;
 
+    // For seed access in deep data dumpers.
+    struct SimLabelFromHits {
+      int n_hits = 0, n_match = 0, label = -1;
+      float good_frac() const { return (float)n_match / n_hits; }
+      bool is_set() const { return label >= 0; }
+    };
+    void setCurrentSeedTracks(const TrackVec &seeds);
+    const Track &currentSeed(int i) const;
+    SimLabelFromHits simLabelForCurrentSeed(int i) const;
+    void resetCurrentSeedTracks();
+
   private:
     int evtID_;
+    const TrackVec *currentSeedTracks_ = nullptr;
+    mutable std::vector<SimLabelFromHits> currentSeedSimFromHits_;
 
   public:
     BeamSpot beamSpot_;  // XXXX Read/Write of BeamSpot + file-version bump or extra-section to be added.

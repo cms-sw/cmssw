@@ -453,6 +453,7 @@ from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
 trackdnn.toReplaceWith(displacedRegionalStep, trackTfClassifier.clone(
+     mva         = dict(tfDnnLabel  = 'trackSelectionTfDisplacedRegional'),
      src         = 'displacedRegionalStepTracks',
      qualityCuts = qualityCutDictionary.DisplacedRegionalStep.value()
 ))

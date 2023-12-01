@@ -4,8 +4,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <G4VTouchable.hh>
 
-class G4VTouchable;
 class G4VPhysicalVolume;
 class GeometricDet;
 

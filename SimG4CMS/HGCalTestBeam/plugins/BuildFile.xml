@@ -4,7 +4,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/CaloTest"/>

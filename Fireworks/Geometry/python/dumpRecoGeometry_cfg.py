@@ -79,7 +79,7 @@ def recoGeoLoad(score):
        versionCheck(options.version)
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
        process.load('Configuration.Geometry.GeometryExtended2026'+options.version+'Reco_cff')
        
     elif score == "MaPSA":

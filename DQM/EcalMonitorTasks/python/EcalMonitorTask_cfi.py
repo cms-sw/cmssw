@@ -48,6 +48,7 @@ ecalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
     ),
     commonParameters = ecalCommonParams,
     collectionTags = ecalDQMCollectionTags,
+    skipCollections = cms.untracked.vstring(),
     allowMissingCollections = cms.untracked.bool(True),
     verbosity = cms.untracked.int32(0),
     resetInterval = cms.untracked.double(2.)

@@ -47,7 +47,7 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
   if (frame.id().det() == DetId::Hcal && ((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
                                           (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap))) {
     const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
-    if (params.delayQIE() > 0)
+    if (abs(params.delayQIE()) <= 25)
       applyQIEdelay(frame, params.delayQIE());
   }
 
@@ -78,10 +78,13 @@ void HcalAmplifier::applyQIEdelay(CaloSamples& cs, int delayQIE) const {
   data.resetPrecise();
 
   for (int i = 0; i < precisebin; i++) {
-    if (i < 2 * delayQIE)
-      data.preciseAtMod(i) += 0.;
-    else
-      data.preciseAtMod(i) += cs.preciseAt(i - 2 * delayQIE);
+    int j = i + 2 * delayQIE;
+    data.preciseAtMod(i) +=
+        // value positive (signal moves earlier in time)
+        delayQIE > 0 ? (j < precisebin ? cs.preciseAt(j) : 0.) :
+                     //  value = 0 or negative (signal gets delayed)
+            (j < 0 ? 0. : cs.preciseAt(j));
+
     int samplebin = (int)i * maxbin / precisebin;
     data[samplebin] += data.preciseAt(i);
   }

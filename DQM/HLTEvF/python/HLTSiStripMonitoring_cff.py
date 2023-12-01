@@ -215,26 +215,24 @@ hltESPFittingSmootherIT = cms.ESProducer( "KFFittingSmootherESProducer",
   RejectTracks = cms.bool( True )
 )
 
-
-
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
-hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
-hltTrackRefitterForSiStripMonitorTrack.Propagator              = cms.string('hltESPRungeKuttaTrackerPropagator')
-hltTrackRefitterForSiStripMonitorTrack.Fitter                  = cms.string('hltESPFittingSmootherIT')
-hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('hltMeasurementTrackerEvent')
-hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = cms.string('navigationSchoolESProducer')
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltTracksMerged") # hltIter2Merged
+hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = 'hltESPTTRHBWithTrackAngle'
+hltTrackRefitterForSiStripMonitorTrack.Propagator              = 'hltESPRungeKuttaTrackerPropagator'
+hltTrackRefitterForSiStripMonitorTrack.Fitter                  = 'hltESPFittingSmootherIT'
+hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = 'hltMeasurementTrackerEvent'
+hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = 'navigationSchoolESProducer'
+hltTrackRefitterForSiStripMonitorTrack.src                     = 'hltMergedTracks' # hltIter2Merged
 
-HLTSiStripMonitorTrack.TopFolderName = cms.string('HLT/SiStrip')
+HLTSiStripMonitorTrack.TopFolderName = 'HLT/SiStrip'
 HLTSiStripMonitorTrack.TrackProducer = 'hltTrackRefitterForSiStripMonitorTrack'
 HLTSiStripMonitorTrack.TrackLabel    = ''
-HLTSiStripMonitorTrack.Cluster_src   = cms.InputTag('hltSiStripRawToClustersFacility')
-HLTSiStripMonitorTrack.AlgoName      = cms.string("HLT")
-HLTSiStripMonitorTrack.Trend_On      = cms.bool(True)
-HLTSiStripMonitorTrack.Mod_On        = cms.bool(False)
-HLTSiStripMonitorTrack.OffHisto_On   = cms.bool(True)
-HLTSiStripMonitorTrack.HistoFlag_On  = cms.bool(False)
-HLTSiStripMonitorTrack.TkHistoMap_On = cms.bool(False)
+HLTSiStripMonitorTrack.Cluster_src   = 'hltSiStripRawToClustersFacility'
+HLTSiStripMonitorTrack.AlgoName      = 'HLT'
+HLTSiStripMonitorTrack.Trend_On      = True
+HLTSiStripMonitorTrack.Mod_On        = False
+HLTSiStripMonitorTrack.OffHisto_On   = True
+HLTSiStripMonitorTrack.HistoFlag_On  = False
+HLTSiStripMonitorTrack.TkHistoMap_On = False
 
 HLTSiStripMonitorClusterAPVgainCalibration = HLTSiStripMonitorCluster.clone()
 from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *

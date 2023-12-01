@@ -163,6 +163,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int npv = 0;
   for (unsigned int i = 0; i < nPVall; i++) {
     const auto& pv = vertexHandle->at(i);
+    th1dPlots["pv_z"].fill(pv.z());
 
     if (!pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0) {
       npv++;

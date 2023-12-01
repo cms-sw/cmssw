@@ -11,6 +11,9 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 
+#include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -26,6 +29,7 @@ class HcalChannelPropertiesEP : public edm::ESProducer {
 public:
   typedef std::unique_ptr<HcalRecoParams> ReturnType1;
   typedef std::unique_ptr<HcalChannelPropertiesVec> ReturnType2;
+  typedef std::unique_ptr<HcalPFCuts> ReturnType3;
 
   inline HcalChannelPropertiesEP(const edm::ParameterSet&) {
     auto cc1 = setWhatProduced(this, &HcalChannelPropertiesEP::produce1);
@@ -39,13 +43,16 @@ public:
     sevToken_ = cc2.consumes();
     qualToken_ = cc2.consumes(qTag);
     geomToken_ = cc2.consumes();
+
+    edm::es::Label productLabel("withTopo");
+    auto cc3 = setWhatProduced(this, &HcalChannelPropertiesEP::produce3, productLabel);
+    topoToken3_ = cc3.consumes();
+    pfcutsToken_ = cc3.consumes();
   }
 
   inline ~HcalChannelPropertiesEP() override {}
 
   ReturnType1 produce1(const HcalChannelPropertiesAuxRecord& rcd) {
-    using namespace edm;
-
     const HcalTopology& htopo = rcd.getRecord<HcalRecNumberingRecord>().get(topoToken_);
     const HcalRecoParams& params = rcd.getRecord<HcalRecoParamsRcd>().get(paramsToken_);
 
@@ -61,8 +68,7 @@ public:
     // This means that we are sometimes going to rebuild the
     // whole table on the lumi block boundaries instead of
     // just updating the list of bad channels.
-    using namespace edm;
-
+    //
     // Retrieve various event setup records and data products
     const HcalDbRecord& dbRecord = rcd.getRecord<HcalDbRecord>();
     const HcalDbService& cond = dbRecord.get(condToken_);
@@ -118,18 +124,28 @@ public:
     return prod;
   }
 
+  ReturnType3 produce3(const HcalPFCutsRcd& rcd) {
+    const HcalTopology& htopo = rcd.get(topoToken3_);
+    const HcalPFCuts& cuts = rcd.get(pfcutsToken_);
+
+    ReturnType3 prod = std::make_unique<HcalPFCuts>(cuts);
+    prod->setTopo(&htopo);
+    return prod;
+  }
+
   HcalChannelPropertiesEP() = delete;
   HcalChannelPropertiesEP(const HcalChannelPropertiesEP&) = delete;
   HcalChannelPropertiesEP& operator=(const HcalChannelPropertiesEP&) = delete;
 
 private:
   edm::ESGetToken<HcalDbService, HcalDbRecord> condToken_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_, topoToken3_;
   edm::ESGetToken<HcalRecoParams, HcalRecoParamsRcd> paramsToken_;
   edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
   edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   edm::ESGetToken<HcalRecoParams, HcalChannelPropertiesAuxRecord> myParamsToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> pfcutsToken_;
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(HcalChannelPropertiesEP);
