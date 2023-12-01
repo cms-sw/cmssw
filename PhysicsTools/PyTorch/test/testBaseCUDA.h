@@ -34,7 +34,6 @@ public:
   std::string cmsswPath(std::string path);
 
   virtual void test() = 0;
-
 };
 
 void testBasePyTorchCUDA::setUp() {
