@@ -195,6 +195,7 @@ namespace reco {
   public:
     TaggingVariableList() : m_list() {}
     TaggingVariableList(const TaggingVariableList& list) : m_list(list.m_list) {}
+    TaggingVariableList& operator=(const TaggingVariableList&) = default;
 
     // [begin, end) must identify a valid range of iterators to TaggingVariableList
     template <typename InputIterator>

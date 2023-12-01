@@ -68,6 +68,8 @@ namespace reco {
 
     PFTrack(const PFTrack& other);
 
+    PFTrack& operator=(const PFTrack& other) = default;
+
     /// add a trajectory measurement
     /// \todo throw an exception if the number of points is too large
     void addPoint(const reco::PFTrajectoryPoint& trajPt);
