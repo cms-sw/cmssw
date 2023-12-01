@@ -97,7 +97,7 @@ if __name__ == '__main__':
                      12434.0, #2023 ttbar
                      12634.0, #2023 ttbar PU
                      12434.7, #2023 ttbar mkFit
-                     12434.701 #2023 ttbar displacedRegional; Temporary
+                     12434.701, #2023 ttbar displacedRegional; Temporary
                      14034.0, #2023 ttbar fastsim
                      14234.0, #2023 ttbar PU fastsim
                      24834.0, #2026D98 ttbar (Phase-2 baseline)
