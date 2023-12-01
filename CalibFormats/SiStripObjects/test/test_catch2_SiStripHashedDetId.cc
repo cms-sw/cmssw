@@ -102,6 +102,49 @@ TEST_CASE("SiStripHashedDetId testing", "[SiStripHashedDetId]") {
   }
 
   //_____________________________________________________________
+  SECTION("Check SiStripHashedDetId assignment operator") {
+    const auto& detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+    const auto& dets = detInfo.getAllDetIds();
+
+    SiStripHashedDetId hash(dets);
+    SiStripHashedDetId hash2;
+
+    // Retrieve hashed indices
+    std::vector<uint32_t> hashes;
+    hashes.clear();
+    hashes.reserve(dets.size());
+    for (const auto& idet : dets) {
+      hashes.push_back(hash.hashedIndex(idet));
+    }
+
+    std::sort(hashes.begin(), hashes.end());
+
+    // assign hash to hash2
+    hash2 = hash;
+
+    // Retrieve hashed indices
+    std::vector<uint32_t> hashes2;
+    hashes2.clear();
+    hashes2.reserve(dets.size());
+    for (const auto& idet : dets) {
+      hashes2.push_back(hash2.hashedIndex(idet));
+    }
+
+    std::sort(hashes2.begin(), hashes2.end());
+
+    if (hashes == hashes2) {
+      std::cout << "[testSiStripHashedDetId::" << __func__ << "]"
+                << " Assigned SiStripHashedDetId matches original one!" << std::endl;
+    } else {
+      std::cout << "[testSiStripHashedDetId::" << __func__ << "]"
+                << " Assigned SiStripHashedDetId does not match the original one!" << std::endl;
+    }
+
+    REQUIRE(hashes == hashes2);
+  }
+
+  //_____________________________________________________________
   SECTION("Check manipulating SiStripHashedDetId") {
     const auto& detInfo =
         SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
