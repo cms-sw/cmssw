@@ -35,6 +35,7 @@ public:
   ETLSample() : value_(0) {}
   ETLSample(uint32_t value) : value_(value) {}
   ETLSample(const ETLSample& o) : value_(o.value_) {}
+  ETLSample& operator=(const ETLSample&) = default;
 
   /**
      @short setters
