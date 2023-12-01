@@ -92,10 +92,12 @@ if __name__ == '__main__':
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.914, #2021 DDD ttbar reading geometry from the DB
                      11634.0, #2021 ttbar (switching to DD4hep by default)
+                     11723.17, #2021 QCD Pt_1800_2400 seedingDeepCore; Temporary
                      13234.0, #2021 ttbar fastsim
                      12434.0, #2023 ttbar
                      12634.0, #2023 ttbar PU
                      12434.7, #2023 ttbar mkFit
+                     12434.701 #2023 ttbar displacedRegional; Temporary
                      14034.0, #2023 ttbar fastsim
                      14234.0, #2023 ttbar PU fastsim
                      24834.0, #2026D98 ttbar (Phase-2 baseline)
