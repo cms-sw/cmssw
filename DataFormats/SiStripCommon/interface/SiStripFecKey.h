@@ -73,6 +73,9 @@ public:
   /** Default constructor */
   SiStripFecKey();
 
+  /** Assignment operator */
+  SiStripFecKey& operator=(const SiStripFecKey&) = default;
+
   // ---------- Control structure ----------
 
   /** Returns VME crate. */

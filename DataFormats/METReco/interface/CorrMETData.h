@@ -21,6 +21,8 @@ struct CorrMETData {
 
   CorrMETData(const CorrMETData& corr) : mex(corr.mex), mey(corr.mey), sumet(corr.sumet) {}
 
+  CorrMETData& operator=(const CorrMETData&) = default;
+
   CorrMETData& operator+=(const CorrMETData& rhs) {
     mex += rhs.mex;
     mey += rhs.mey;
