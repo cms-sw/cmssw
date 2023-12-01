@@ -43,7 +43,7 @@ public:
   static constexpr uint32_t kCrystalsBTL =
       kCrystalsPerModuleV2 * kModulesPerRUV2 * kRUPerTypeV2 * kCrystalTypes * HALF_ROD * 2;
 
-  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, v2 = 5 };
+  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, v2 = 5, v3 = 6 };
 
   // ---------- Constructors, enumerated types ----------
 
@@ -88,6 +88,18 @@ public:
 
   /** Returns BTL readout unit number per type. */
   inline int runit() const { return (id_ >> kBTLRUOffset) & kBTLRUMask; }
+
+  /** Returns BTL global readout unit number. */
+  inline int globalRunit() const {
+    if (runit() == 0) {
+      // pre-V2: build a RU identifier from available information
+      return (module() - 1) / kModulePerTypeBarPhiFlat / kRUPerTypeV2 + 1;
+    } else if (runit() > 0 && modType() > 0) {
+      // V2/V3: build global RU identifier from RU per type and type
+      return (modType() - 1) * kRUPerTypeV2 + runit();
+    }
+    return 0;
+  }
 
   /** return the row in GeomDet language **/
   inline int row(unsigned nrows = kCrystalsPerModuleV2) const {

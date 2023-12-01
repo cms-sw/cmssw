@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -337,7 +335,7 @@ void DD4hep_TestBTLPixelTopology::theBaseNumber(cms::DDFilteredView& fv) {
     size_t ipos = name.rfind('_');
     thisN_.addLevel(name.substr(0, ipos), fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
+    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << ii << " " << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }
