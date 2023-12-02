@@ -3,9 +3,9 @@
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, comFileName, outFileName,
 //                  prefix, corrFileName, rcorFileName, puCorr, flag, numb,
-//                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbxFile,
-//                  exclude, etamax);
+//                  isRealData, truncateFlag, useGen, scale, useScale, etalo,
+//                  etahi, runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi,
+//                  rbxFile, exclude, etamax);
 //  c1.Loop(nmax, debug);
 //  c1.savePlot(histFileName,append,all);
 //
@@ -70,14 +70,19 @@
 //                               o = 0/1/2 for tight / loose / flexible
 //                               selection). Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
-//   dataMC (bool)             = true/false for data/MC (default true)
-//   truncateFlag    (int)     = Flag to treat different depths differently (0)
-//                               both depths of ieta 15, 16 of HB as depth 1 (1)
-//                               all depths as depth 1 (2), all depths in HE
-//                               with values > 1 as depth 2 (3), all depths in
-//                               HB with values > 1 as depth 2 (4), all depths
-//                               in HB and HE with values > 1 as depth 2 (5)
-//                               (default = 0)
+//   isRealData (bool)         = true/false for data/MC (default true)
+//   truncateFlag    (int)     = A two digit flag (dr) with the default value 0.
+//                               The digit *r* is used to treat depth values:
+//                               (0) treat each depth independently; (1) all 
+//                               depths of ieta 15, 16 of HB as depth 1; (2)
+//                               all depths in HB and HE as depth 1; (3) all
+//                               depths in HE with values > 1 as depth 2; (4) 
+//                               all depths in HB with values > 1 as depth 2;
+//                               (5) all depths in HB and HE with values > 1 
+//                               as depth 2.
+//                               The digit *d* is used if zside is to be
+//                               ignored (1) or not (0)
+//                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum
 //                               (default = false)
@@ -300,7 +305,7 @@ private:
   CalibDuplicate *cDuplicate_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_, numb_;
-  const bool dataMC_, useGen_;
+  const bool isRealData_, useGen_;
   const int truncateFlag_;
   const int etalo_, etahi_;
   int runlo_, runhi_;
@@ -333,7 +338,7 @@ CalibMonitor::CalibMonitor(const char *fname,
                            int puCorr,
                            int flag,
                            int numb,
-                           bool dataMC,
+                           bool isRealData,
                            int truncate,
                            bool useGen,
                            double scale,
@@ -361,7 +366,7 @@ CalibMonitor::CalibMonitor(const char *fname,
       corrPU_(puCorr),
       flag_(flag),
       numb_(numb),
-      dataMC_(dataMC),
+      isRealData_(isRealData),
       useGen_(useGen),
       truncateFlag_(truncate),
       etalo_(etalo),
@@ -1381,7 +1386,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
             runSum[t_Run] = knt;
           }
         }
-        if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
+        if ((!isRealData_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
           if (p4060)
             ++kount50[16];
           if (kp == 0) {
