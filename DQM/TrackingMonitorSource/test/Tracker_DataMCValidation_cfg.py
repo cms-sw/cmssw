@@ -81,11 +81,15 @@ process.load('DQM.TrackingMonitorSource.TrackingDataMCValidation_Standalone_cff'
 
 # Set the flag is this is AOD or RECO analysis
 process.standaloneTrackMonitor.isRECO = options.isRECO
+process.standaloneTrackMonitorK0.isRECO = options.isRECO
+process.standaloneTrackMonitorLambda.isRECO = options.isRECO
 process.standaloneTrackMonitorElec.isRECO = options.isRECO
 process.standaloneTrackMonitorMuon.isRECO = options.isRECO
 process.standaloneTrackMonitorTTbar.isRECO = options.isRECO
 
 minbias_analysis_step = cms.Path(process.standaloneValidationMinbias)
+k0_analysis_step =  cms.Path(process.standaloneValidationK0s)
+lambda_analysis_step =  cms.Path(process.standaloneValidationLambdas)
 zee_analysis_step = cms.Path(process.standaloneValidationElec)
 zmm_analysis_step = cms.Path(process.standaloneValidationMuon)
 ttbar_analysis_step = cms.Path(process.standaloneValidationTTbar)
@@ -98,6 +102,9 @@ elif (options.sequenceType == "ttbar") :
     process.analysis_step = ttbar_analysis_step
 elif (options.sequenceType == "minbias") :
     process.analysis_step = minbias_analysis_step
+elif (options.sequenceType == "V0s") :
+    process.analysis_1_step = k0_analysis_step
+    process.analysis_2_step = lambda_analysis_step
 else :
     raise RuntimeError("Unrecognized sequenceType given option: %. Exiting" % options.sequenceType)
 
@@ -106,7 +113,10 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.analysis_step, process.endjob_step, process.DQMoutput_step)
+if (options.sequenceType == "V0s"):
+    process.schedule = cms.Schedule(process.analysis_1_step, process.analysis_2_step, process.endjob_step, process.DQMoutput_step)
+else:
+    process.schedule = cms.Schedule(process.analysis_step, process.endjob_step, process.DQMoutput_step)
 
 ###################################################################
 # Set the process to run multi-threaded

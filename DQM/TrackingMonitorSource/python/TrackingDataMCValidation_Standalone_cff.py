@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.TrackingMonitorSource.StandaloneTrackMonitor_cfi import *
 from DQM.TrackingMonitorSource.ZEEDetails_cfi import *
+from DQM.TrackingMonitorSource.V0Selections_cfi import *
 from DQM.TrackingMonitor.V0Monitor_cfi import *
 
 # Primary Vertex Selector
@@ -107,7 +108,9 @@ LambdaMonitor.v0 = "generalV0Candidates:Lambda"
 LambdaMonitor.histoPSet.massPSet = cms.PSet(nbins = cms.int32(100),
                                             xmin  = cms.double(1.050),
                                             xmax  = cms.double(1.250))
+##################
 # For MinBias
+##################
 standaloneTrackMonitorMC = standaloneTrackMonitor.clone(
     puScaleFactorFile = "PileupScaleFactor_316060_wrt_nVertex_ZeroBias.root",
     doPUCorrection    = True,
@@ -133,7 +136,70 @@ standaloneValidationMinbiasMC = cms.Sequence(
     * KshortMonitor
     * LambdaMonitor)
 
+##################
+# For V0s in MinBias
+##################
+standaloneTrackMonitorK0 = standaloneTrackMonitor.clone(
+    folderName = "K0Tracks",
+    trackInputTag = 'KshortTracks',
+    )
+
+standaloneTrackMonitorK0MC = standaloneTrackMonitor.clone(
+    folderName = "K0Tracks",
+    trackInputTag = 'KshortTracks',
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
+    )
+
+standaloneTrackMonitorLambda = standaloneTrackMonitor.clone(
+    folderName = "LambdaTracks",
+    trackInputTag = 'LambdaTracks',
+    )
+
+standaloneTrackMonitorLambdaMC = standaloneTrackMonitor.clone(
+    folderName = "LambdaTracks",
+    trackInputTag = 'LambdaTracks',
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
+    )
+
+standaloneValidationK0s = cms.Sequence(
+    hltPathFilter
+    * selectedPrimaryVertices
+    * KShortEventSelector
+    * KshortTracks
+    * standaloneTrackMonitorK0
+    * KshortMonitor)
+
+standaloneValidationK0sMC = cms.Sequence(
+    hltPathFilter
+    * selectedPrimaryVertices
+    * KShortEventSelector
+    * KshortTracks
+    * standaloneTrackMonitorK0
+    * KshortMonitor)
+
+standaloneValidationLambdas = cms.Sequence(
+    hltPathFilter
+    * selectedPrimaryVertices
+    * LambdaEventSelector
+    * LambdaTracks
+    * standaloneTrackMonitorLambda
+    * LambdaMonitor)
+
+standaloneValidationLambdasMC = cms.Sequence(
+    hltPathFilter
+    * selectedPrimaryVertices
+    * LambdaEventSelector
+    * LambdaTracks
+    * standaloneTrackMonitorLambdaMC
+    * LambdaMonitor)
+
+##################
 # For ZtoEE
+##################
 standaloneTrackMonitorElec = standaloneTrackMonitor.clone(
     folderName = "ElectronTracks",
     trackInputTag = 'electronTracks',
@@ -171,7 +237,10 @@ standaloneValidationElecMC = cms.Sequence(
     * standaloneTrackMonitorElecMC   
     * standaloneTrackMonitorMC
     * ZEEDetailsMC)
+
+##################
 # For ZtoMM
+##################
 standaloneTrackMonitorMuon = standaloneTrackMonitor.clone(
     folderName = "MuonTracks",
     trackInputTag = 'muonTracks',
@@ -202,7 +271,9 @@ standaloneValidationMuonMC = cms.Sequence(
     * standaloneTrackMonitorMuonMC 
     * standaloneTrackMonitorMC)
 
+##################
 # For ttbar
+##################
 standaloneTrackMonitorTTbar = standaloneTrackMonitor.clone(
     folderName = "TTbarTracks",
     trackInputTag = 'ttbarTracks',
