@@ -151,13 +151,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   }
 
   // check G4Region
-  if (sAlive == tstat) {
+  if (sAlive == tstat || sVeryForward == tstat) {
     // next logical volume and next region
     const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
     const G4Region* theRegion = lv->GetRegion();
 
     // kill in dead regions
-    if (isInsideDeadRegion(theRegion))
+    if (lv != m_CMStoZDC && isInsideDeadRegion(theRegion))
       tstat = sDeadRegion;
 
     // kill out of time
@@ -245,6 +245,9 @@ bool SteppingAction::initPointer() {
     ekinVolumes.resize(numberEkins, nullptr);
     for (auto const& lvcite : *lvs) {
       const G4String& lvname = lvcite->GetName();
+      if (lvname == "CMStoZDC") {
+	m_CMStoZDC = lvcite;
+      }
       for (unsigned int i = 0; i < numberEkins; ++i) {
         if (lvname == (G4String)(ekinNames[i])) {
           ekinVolumes[i] = lvcite;

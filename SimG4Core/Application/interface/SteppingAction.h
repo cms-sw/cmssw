@@ -50,6 +50,7 @@ private:
   EventAction* eventAction_;
   const G4VPhysicalVolume *tracker, *calo;
   const CMSSteppingVerbose* steppingVerbose;
+  const G4LogicalVolume* m_CMStoZDC{nullptr};
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
