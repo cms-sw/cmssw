@@ -55,6 +55,7 @@ void GEMSegmentBuilder::fillDescription(edm::ParameterSetDescription& desc) {
   desc.add<edm::ParameterSetDescription>("ge0_pset", ge0AlgoConfigDesc);
 
   edm::ParameterSetDescription recAlgoConfigDesc;
+  recAlgoConfigDesc.addUntracked<bool>("GEMDebug", false);
   recAlgoConfigDesc.add<unsigned int>("minHitsPerSegment", 2);
   recAlgoConfigDesc.add<bool>("preClustering", true)
       ->setComment("False => all hits in chamber are given to the fitter");
