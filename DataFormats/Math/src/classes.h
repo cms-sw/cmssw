@@ -15,6 +15,7 @@
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -227,4 +228,5 @@ namespace DataFormats_Math {
     edm::ValueMap<math::XYZTLorentzVector> vmp4;
     edm::Wrapper<edm::ValueMap<math::XYZTLorentzVector> > wvmp4;
   };
+  MiniFloatConverter::ReduceMantissaToNbitsRounding red(12);
 }  // namespace DataFormats_Math
