@@ -1,0 +1,857 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ 
+<ConstantsSection label="rpd.xml" eval="true">
+  <Constant name="rpdDxBy2"            value="5.01*cm"/>
+  <Constant name="rpdDyBy2"            value="6.26*cm"/>
+  <Constant name="rpdDzBy2"            value="0.85*cm"/>
+  <Constant name="rpdZ"                value="-39.25*cm"/>
+  <Constant name="photonDetDxBy2"      value="0.999*cm"/>
+  <Constant name="photonDetDyBy2"      value="0.25*cm"/>
+  <Constant name="photonDetDzBy2"      value="0.05*cm"/>
+  <Constant name="photonDetX1"         value="-3.0*cm"/>
+  <Constant name="photonDetX2"         value="-1.0*cm"/>
+  <Constant name="photonDetX3"         value="1.0*cm"/>
+  <Constant name="photonDetX4"         value="3.0*cm"/>
+  <Constant name="photonDetY"          value="5.25*cm"/>
+  <Constant name="photonDetZ1"         value="0.245*cm"/>
+  <Constant name="photonDetZ2"         value="0.360*cm"/>
+  <Constant name="photonDetZ3"         value="0.475*cm"/>
+  <Constant name="photonDetZ4"         value="0.590*cm"/>
+  <Constant name="rpdXYsize"           value="0.9999*cm"/>
+  <Constant name="rpdZsize"            value="0.50*cm"/>
+  <Constant name="rpdXInitial"         value="-3.0*cm"/>
+  <Constant name="rpdYInitial"         value="3.0*cm"/>
+  <Constant name="rpdXYDelta"          value="2.1*cm"/>
+  <Constant name="rpdDxzCut"           value="0.55*mm"/>
+  <Constant name="rpdChannelZ1"        value="-0.20*cm"/>
+  <Constant name="rpdChannelZ2"        value="-0.10*cm"/>
+  <Constant name="rpdChannelZ3"        value="0.0*cm"/>
+  <Constant name="rpdChannelZ4"        value="0.10*cm"/>
+  <Constant name="rpdAlTopBottomDxBy2" value="(4*[rpdXYsize]+0.10*cm)"/>
+  <Constant name="rpdAlTopBottomDyBy2" value="0.04999*mm"/>
+  <Constant name="rpdAlTopBottomCutDx" value="0.55*mm"/>
+  <Constant name="rpdAlTopBottomCutDy" value="0.50*mm"/>
+  <Constant name="rpdAlTopBottomCutDz" value="0.55*mm"/>
+  <Constant name="rpdAlTopBottomCutZ"  value="0.4475*mm"/>
+  <Constant name="rpdAlSideDxBy2"      value="0.04999*mm"/>
+  <Constant name="rpdAlSideDyBy2"      value="([rpdXYsize]+0.10*mm)"/>
+  <Constant name="rpdAlSideDzBy2"      value="([rpdZsize]+0.10*mm)"/>
+  <Constant name="rpdAlDxBy2"          value="([rpdXYsize]+0.0425*cm)"/>
+  <Constant name="rpdAlZ1"             value="0.305*cm"/>
+  <Constant name="rpdAlZ2"             value="0.420*cm"/>
+  <Constant name="rpdAlZ3"             value="0.530*cm"/>
+  <Constant name="rpdAlZ4"             value="0.650*cm"/>
+  <Constant name="wlsBoxDx"            value="0.540*mm"/>
+  <Constant name="wlsBoxDy"            value="1.501*cm"/>
+  <Constant name="wlsBoxDz"            value="0.50*mm"/>
+  <Constant name="cladRadius"          value="0.499*mm"/>
+  <Constant name="fiberRadius"         value="(0.97*[cladRadius])"/>
+  <Constant name="fiberLengthBy2"      value="1.50*cm"/>
+  <Constant name="rpdWLXInitial"       value="([rpdXInitial]-0.6*cm)"/>
+  <Constant name="rpdWLDelta"          value="0.4*cm"/>
+  <Constant name="rpdWLY1"             value="3.499*cm"/>
+  <Constant name="rpdWLY2"             value="2.499*cm"/>
+  <Constant name="rpdWLY3"             value="1.499*cm"/>
+  <Constant name="rpdWLY4"             value="0.499*cm"/>
+  <Constant name="rpdWLZ1"             value="0.2475*cm"/>
+  <Constant name="rpdWLZ2"             value="0.3600*cm"/>
+  <Constant name="rpdWLZ3"             value="0.4750*cm"/>
+  <Constant name="rpdWLZ4"             value="0.5900*cm"/>
+</ConstantsSection>
+ 
+<SolidSection label="rpd.xml">
+  <Box name="RPD" dx="[rpdDxBy2]" dy="[rpdDyBy2]" dz="[rpdDzBy2]"/>
+  <Box name="RPDPhotonDet" dx="[photonDetDxBy2]" dy="[photonDetDyBy2]" dz="[photonDetDzBy2]"/>
+  <Box name="RPDChannelA" dx="[rpdXYsize]" dy="[rpdXYsize]" dz="[rpdZsize]"/>
+  <Box name="RPDChannelCut" dx="[rpdDxzCut]" dy="([rpdXYsize]+0.1*mm)" dz="[rpdDxzCut]"/>
+  <SubtractionSolid name="RPDChannelB">
+    <rSolid name="RPDChannelA"/>
+    <rSolid name="RPDChannelCut"/>
+    <Translation x="2.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDChannelC">
+    <rSolid name="RPDChannelB"/>
+    <rSolid name="RPDChannelCut"/>
+    <Translation x="6.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDChannelD">
+    <rSolid name="RPDChannelC"/>
+    <rSolid name="RPDChannelCut"/>
+    <Translation x="-2.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDChannel">
+    <rSolid name="RPDChannelD"/>
+    <rSolid name="RPDChannelCut"/>
+    <Translation x="-6.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <Box name="RPDAlBottom" dx="[rpdAlTopBottomDxBy2]" dy="[rpdAlTopBottomDyBy2]" dz="[rpdZsize]"/>
+  <Box name="RPDAlTopCut" dx="[rpdAlTopBottomCutDx]" dy="[rpdAlTopBottomCutDy]" dz="[rpdAlTopBottomCutDz]"/>
+  <SubtractionSolid name="RPDAlTopA">
+    <rSolid name="RPDAlBottom"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="6.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopB">
+    <rSolid name="RPDAlTopA"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="10.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopC">
+    <rSolid name="RPDAlTopB"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="14.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopD">
+    <rSolid name="RPDAlTopC"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="18.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopE">
+    <rSolid name="RPDAlTopD"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="27.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopF">
+    <rSolid name="RPDAlTopE"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="31.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopG">
+    <rSolid name="RPDAlTopF"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="35.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopH">
+    <rSolid name="RPDAlTopG"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="39.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopI">
+    <rSolid name="RPDAlTopH"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-3.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopJ">
+    <rSolid name="RPDAlTopI"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-7.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopK">
+    <rSolid name="RPDAlTopJ"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-11.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopL">
+    <rSolid name="RPDAlTopK"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-15.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopM">
+    <rSolid name="RPDAlTopL"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-24.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopN">
+    <rSolid name="RPDAlTopM"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-28.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTopO">
+    <rSolid name="RPDAlTopN"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-32.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="RPDAlTop">
+    <rSolid name="RPDAlTopO"/>
+    <rSolid name="RPDAlTopCut"/>
+    <Translation x="-36.0*mm" y="0.*mm" z="0.45*cm"/>
+  </SubtractionSolid>
+  <Box name="RPDAlSide" dx="[rpdAlSideDxBy2]" dy="[rpdAlSideDyBy2]" dz="[rpdAlSideDzBy2]"/>
+  <Box name="RPDAlCov"  dx="4.61*cm" dy="0.99999*cm" dz="0.099*mm"/>
+  <Box name="RPDAl1"    dx="[rpdAlDxBy2]" dy="1.52*cm" dz="0.025*mm"/>
+  <Box name="RPDAl2"    dx="[rpdAlDxBy2]" dy="1.50*cm" dz="0.005*mm"/>
+  <Box name="RPDAl5"    dx="[rpdAlDxBy2]" dy="2.70*cm" dz="0.025*mm"/>
+  <Box name="RPDAl9"    dx="[rpdAlDxBy2]" dy="3.75*cm" dz="0.025*mm"/>
+  <Box name="RPDAl13"   dx="[rpdAlDxBy2]" dy="4.51*cm" dz="0.025*mm"/>
+  <Box name="RPDWLSBox" dx="[wlsBoxDx]" dy="[wlsBoxDy]" dz="[wlsBoxDz]"/>
+  <Tubs name="RPDClad" rMin="0.0*mm" rMax="[cladRadius]" dz="[fiberLengthBy2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RPDFiber" rMin="0.0*mm" rMax="[fiberRadius]" dz="[fiberLengthBy2]" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="rpd.xml">
+  <LogicalPart name="RPD" category="unspecified">
+    <rSolid name="RPD"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="RPDPhotonDet" category="unspecified">
+    <rSolid name="RPDPhotonDet"/>
+    <rMaterial name="materials:Lead"/>
+  </LogicalPart>
+  <LogicalPart name="RPDChannel" category="unspecified">
+    <rSolid name="RPDChannel"/>
+    <rMaterial name="materials:Quartz"/>
+  </LogicalPart>
+  <LogicalPart name="RPDChannelCut" category="unspecified">
+    <rSolid name="RPDChannelCut"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAlTop" category="unspecified">
+    <rSolid name="RPDAlTop"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAlBottom" category="unspecified">
+    <rSolid name="RPDAlBottom"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAlTopCut" category="unspecified">
+    <rSolid name="RPDAlTopCut"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAlSide" category="unspecified">
+    <rSolid name="RPDAlSide"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAlCov" category="unspecified">
+    <rSolid name="RPDAlCov"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAl1" category="unspecified">
+    <rSolid name="RPDAl1"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAl2" category="unspecified">
+    <rSolid name="RPDAl2"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAl5" category="unspecified">
+    <rSolid name="RPDAl5"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAl9" category="unspecified">
+    <rSolid name="RPDAl9"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDAl13" category="unspecified">
+    <rSolid name="RPDAl13"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="RPDWLSBox" category="unspecified">
+    <rSolid name="RPDWLSBox"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="RPDClad" category="unspecified">
+    <rSolid name="RPDClad"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+  <LogicalPart name="RPDFiber" category="unspecified">
+    <rSolid name="RPDFiber"/>
+    <rMaterial name="materials:Polyethylene"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="rpd.xml">
+  <PosPart copyNumber="1">
+    <rParent name="zdc:ZDC"/>
+    <rChild name="rpd:RPD"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="0*mm" z="[rpdZ]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPDWLSBox"/>
+    <rChild name="rpd:RPDClad"/>
+    <rRotation name="rotations:RM876"/>
+    <Translation x="0*mm" y="0*mm" z="0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPDClad"/>
+    <rChild name="rpd:RPDFiber"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="0*mm" z="0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX1]" y="[photonDetY]" z="[photonDetZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX2]" y="[photonDetY]" z="[photonDetZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX3]" y="[photonDetY]" z="[photonDetZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX4]" y="[photonDetY]" z="[photonDetZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX1]" y="[photonDetY]" z="[photonDetZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX2]" y="[photonDetY]" z="[photonDetZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX3]" y="[photonDetY]" z="[photonDetZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX4]" y="[photonDetY]" z="[photonDetZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX1]" y="[photonDetY]" z="[photonDetZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX2]" y="[photonDetY]" z="[photonDetZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX3]" y="[photonDetY]" z="[photonDetZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX4]" y="[photonDetY]" z="[photonDetZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX1]" y="[photonDetY]" z="[photonDetZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX2]" y="[photonDetY]" z="[photonDetZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="15">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX3]" y="[photonDetY]" z="[photonDetZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="16">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDPhotonDet"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="[photonDetX4]" y="[photonDetY]" z="[photonDetZ4]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="([rpdYInitial]-0*[rpdXYDelta])" z="[rpdChannelZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="([rpdYInitial]-0*[rpdXYDelta])" z="[rpdChannelZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="([rpdYInitial]-0*[rpdXYDelta])" z="[rpdChannelZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="([rpdYInitial]-0*[rpdXYDelta])" z="[rpdChannelZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="([rpdYInitial]-1*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="([rpdYInitial]-1*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="([rpdYInitial]-1*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="([rpdYInitial]-1*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="([rpdYInitial]-2*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="([rpdYInitial]-2*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="([rpdYInitial]-2*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="([rpdYInitial]-2*[rpdXYDelta])" z="[rpdChannelZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="([rpdYInitial]-3*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="([rpdYInitial]-3*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="15">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="([rpdYInitial]-3*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="16">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDChannel"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="([rpdYInitial]-3*[rpdXYDelta])" z="[rpdChannelZ3]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlTop"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]+1*[rpdXYsize]+0.5*mm)" z="-0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlBottom"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-1*[rpdXYsize]-0.25*mm)" z="-0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlTop"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-1*[rpdXYsize]-0.55*mm)" z="-0.0999*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlBottom"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-3*[rpdXYsize]-1.20*mm)" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlTop"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-3*[rpdXYsize]-1.65*mm)" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlBottom"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-5*[rpdXYsize]-2.25*mm)" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlTop"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-5*[rpdXYsize]-2.75*mm)" z="0.0999*cm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlBottom"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([rpdYInitial]-7*[rpdXYsize]-3.15*mm)" z="0.0*cm"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*([rpdXYsize]+0.5*mm))" y="0.9*cm" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*([rpdXYsize]+0.5*mm))" y="0.9*cm" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*([rpdXYsize]+0.5*mm))" y="3.0*cm" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*([rpdXYsize]+0.5*mm))" y="3.0*cm" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*([rpdXYsize]+0.5*mm))" y="-1.2*cm" z="0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*([rpdXYsize]+0.5*mm))" y="-1.2*cm" z="0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*([rpdXYsize]+0.5*mm))" y="-3.3*cm" z="0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*([rpdXYsize]+0.5*mm))" y="-3.3*cm" z="0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+5*([rpdXYsize]+0.5*mm))" y="3.0*cm" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+5*([rpdXYsize]+0.5*mm))" y="-1.2*cm" z="0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+5*([rpdXYsize]+0.5*mm))" y="0.9*cm" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+5*([rpdXYsize]+0.5*mm))" y="-3.3*cm" z="0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+7*([rpdXYsize]+0.5*mm))" y="3.0*cm" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+7*([rpdXYsize]+0.5*mm))" y="-1.2*cm" z="0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="15">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+7*([rpdXYsize]+0.5*mm))" y="0.9*cm" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="16">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+7*([rpdXYsize]+0.5*mm))" y="-3.3*cm" z="0.2*cm"/>
+  </PosPart>
+  <PosPart copyNumber="17">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]-1*([rpdXYsize]+0.5*mm))" y="3.0*cm" z="-0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="18">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]-1*([rpdXYsize]+0.5*mm))" y="-1.2*cm" z="0.1*cm"/>
+  </PosPart>
+  <PosPart copyNumber="19">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]-1*([rpdXYsize]+0.5*mm))" y="0.9*cm" z="0.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="20">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlSide"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]-1*([rpdXYsize]+0.5*mm))" y="-3.3*cm" z="0.2*cm"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlCov"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0.0*mm" y="([rpdYInitial]-0*[rpdXYDelta])" z="-0.725*cm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlCov"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0.0*mm" y="([rpdYInitial]-1*[rpdXYDelta])" z="-0.725*cm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlCov"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0.0*mm" y="([rpdYInitial]-2*[rpdXYDelta])" z="-0.725*cm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAlCov"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0.0*mm" y="([rpdYInitial]-3*[rpdXYDelta])" z="-0.725*cm"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="3.50*cm" z="[rpdAlZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl2"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="3.51*cm" z="[rpdAlZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl2"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="3.51*cm" z="[rpdAlZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl2"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="3.51*cm" z="[rpdAlZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl5"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="2.55*cm" z="[rpdAlZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl5"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="2.55*cm" z="[rpdAlZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl5"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="2.55*cm" z="[rpdAlZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl5"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="2.55*cm" z="[rpdAlZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl9"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="1.50*cm" z="[rpdAlZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl9"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="1.50*cm" z="[rpdAlZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl9"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="1.50*cm" z="[rpdAlZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl9"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="1.50*cm" z="[rpdAlZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl13"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+0*[rpdXYDelta])" y="0.50*cm" z="[rpdAlZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl13"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+1*[rpdXYDelta])" y="0.50*cm" z="[rpdAlZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="15">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl13"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+2*[rpdXYDelta])" y="0.50*cm" z="[rpdAlZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="16">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDAl13"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdXInitial]+3*[rpdXYDelta])" y="0.50*cm" z="[rpdAlZ4]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+0*[rpdWLDelta]+0*[rpdXYDelta])" y="[rpdWLY1]" z="[rpdWLZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+1*[rpdWLDelta]+0*[rpdXYDelta])" y="[rpdWLY1]" z="[rpdWLZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+2*[rpdWLDelta]+0*[rpdXYDelta])" y="[rpdWLY1]" z="[rpdWLZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+3*[rpdWLDelta]+0*[rpdXYDelta])" y="[rpdWLY1]" z="[rpdWLZ1]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+0*[rpdWLDelta]+1*[rpdXYDelta])" y="[rpdWLY2]" z="[rpdWLZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+1*[rpdWLDelta]+1*[rpdXYDelta])" y="[rpdWLY2]" z="[rpdWLZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+2*[rpdWLDelta]+1*[rpdXYDelta])" y="[rpdWLY2]" z="[rpdWLZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+3*[rpdWLDelta]+1*[rpdXYDelta])" y="[rpdWLY2]" z="[rpdWLZ2]"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+0*[rpdWLDelta]+2*[rpdXYDelta])" y="[rpdWLY3]" z="[rpdWLZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+1*[rpdWLDelta]+2*[rpdXYDelta])" y="[rpdWLY3]" z="[rpdWLZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+2*[rpdWLDelta]+2*[rpdXYDelta])" y="[rpdWLY3]" z="[rpdWLZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+3*[rpdWLDelta]+2*[rpdXYDelta])" y="[rpdWLY3]" z="[rpdWLZ3]"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+0*[rpdWLDelta]+3*[rpdXYDelta])" y="[rpdWLY4]" z="[rpdWLZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+1*[rpdWLDelta]+3*[rpdXYDelta])" y="[rpdWLY4]" z="[rpdWLZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="15">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+2*[rpdWLDelta]+3*[rpdXYDelta])" y="[rpdWLY4]" z="[rpdWLZ4]"/>
+  </PosPart>
+  <PosPart copyNumber="16">
+    <rParent name="rpd:RPD"/>
+    <rChild name="rpd:RPDWLSBox"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="([rpdWLXInitial]+3*[rpdWLDelta]+3*[rpdXYDelta])" y="[rpdWLY4]" z="[rpdWLZ4]"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
