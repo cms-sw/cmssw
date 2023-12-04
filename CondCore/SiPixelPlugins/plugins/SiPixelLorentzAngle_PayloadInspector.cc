@@ -74,7 +74,9 @@ namespace {
       gStyle->SetOptStat("emr");
 
       auto tag = PlotBase::getTag<0>();
+      auto tagname = PlotBase::getTag<0>().name;
       auto iov = tag.iovs.front();
+      std::string IOVsince = std::to_string(std::get<0>(iov));
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
       auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
@@ -84,8 +86,8 @@ namespace {
       auto h1 = std::make_unique<TH1F>("value",
                                        "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                                        50,
-                                       extrema.first * 0.9,
-                                       extrema.second * 1.1);
+                                       (extrema.first * 0.9),
+                                       (extrema.second * 1.1));
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
@@ -106,26 +108,25 @@ namespace {
 
       canvas.Update();
 
-      TLegend legend = TLegend(0.40, 0.88, 0.94, 0.93);
-      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+      TLegend legend = TLegend(0.35, 0.88, 0.94, 0.93);
+      legend.SetHeader(("#splitline{Payload hash: #bf{" + (std::get<1>(iov)) + "}}{Tag,IOV: #bf{#color[2]{" + tagname +
+                        "}," + IOVsince + "}}")
+                           .c_str(),
                        "C");  // option "C" allows to center the header
-      //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
-      legend.SetTextSize(0.025);
+      legend.SetTextSize(0.023);
       legend.SetLineColor(10);
       legend.Draw("same");
 
       TPaveStats *st = (TPaveStats *)h1->FindObject("stats");
       st->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
+      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.34, 0.93);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       //ltx.SetTextColor(kBlue);
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, "SiPixel Lorentz Angle Value");
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
