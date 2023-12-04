@@ -85,17 +85,18 @@ namespace l1ct {
     // WARNING: for whatever reason, maybe connected with datamember alignment,
     //          in 2019.2 synthesis fails if DEta & DPhi are put before Z0 & Dxy
     z0_t hwZ0;
-    tkdeta_t hwDEta;  // relative to the region center, at calo
-    tkdphi_t hwDPhi;  // relative to the region center, at calo
+    tkdeta_t hwDEta;
+    tkdphi_t hwDPhi;
+    id_score_t hwIDScore;
     bool hwCharge;
 
-    phi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
-    eta_t hwVtxEta() const { return hwEta + hwDEta; }
+    glbphi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
+    glbeta_t hwVtxEta() const { return hwEta + hwDEta; }
 
     inline bool operator==(const EGIsoEleObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual &&
              hwIso == other.hwIso && hwDEta == other.hwDEta && hwDPhi == other.hwDPhi && hwZ0 == other.hwZ0 &&
-             hwCharge == other.hwCharge;
+             hwIDScore == other.hwIDScore && hwCharge == other.hwCharge;
     }
 
     inline bool operator>(const EGIsoEleObj &other) const { return hwPt > other.hwPt; }
@@ -110,6 +111,7 @@ namespace l1ct {
       hwDEta = 0;
       hwDPhi = 0;
       hwZ0 = 0;
+      hwIDScore = 0;
       hwCharge = false;
     }
 
@@ -119,8 +121,10 @@ namespace l1ct {
     float floatVtxEta() const { return Scales::floatEta(hwVtxEta()); }
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
+    float floatIDScore() const { return Scales::floatIDScore(hwIDScore); }
 
-    static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + 1;
+    static const int BITWIDTH =
+        EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + id_score_t::width + 1;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -133,6 +137,7 @@ namespace l1ct {
       pack_into_bits(ret, start, hwDPhi);
       pack_into_bits(ret, start, hwZ0);
       pack_bool_into_bits(ret, start, hwCharge);
+      pack_into_bits(ret, start, hwIDScore);
       return ret;
     }
     inline static EGIsoEleObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -152,16 +157,18 @@ namespace l1ct {
       unpack_from_bits(src, start, hwDPhi);
       unpack_from_bits(src, start, hwZ0);
       unpack_bool_from_bits(src, start, hwCharge);
+      unpack_from_bits(src, start, hwIDScore);
     }
 
     l1gt::Electron toGT() const {
       l1gt::Electron ele;
       ele.valid = hwPt != 0;
       ele.v3.pt = CTtoGT_pt(hwPt);
-      ele.v3.phi = CTtoGT_phi(hwPhi);
-      ele.v3.eta = CTtoGT_eta(hwEta);
+      ele.v3.phi = CTtoGT_phi(hwVtxPhi());
+      ele.v3.eta = CTtoGT_eta(hwVtxEta());
       ele.quality = hwQual;
-      ele.charge = hwCharge;
+      // NOTE: GT:  0 = positive, 1 = negative, CT: 0 = negative, 1 = positive
+      ele.charge = !hwCharge;
       ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       ele.isolation = hwIso;
       return ele;
