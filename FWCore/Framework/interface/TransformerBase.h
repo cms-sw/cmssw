@@ -28,6 +28,7 @@ namespace edm {
   class ModuleDescription;
   class WaitingTaskWithArenaHolder;
   class WaitingTaskHolder;
+  class ActivityRegistry;
 
   class TransformerBase {
   public:
@@ -48,6 +49,7 @@ namespace edm {
     ProductResolverIndex prefetchImp(std::size_t iIndex) const { return transformInfo_.get<kResolverIndex>(iIndex); }
     void transformImpAsync(WaitingTaskHolder iTask,
                            std::size_t iIndex,
+                           edm::ActivityRegistry* iAct,
                            ProducerBase const& iBase,
                            edm::EventForTransformer&) const;
 
