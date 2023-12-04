@@ -1285,10 +1285,9 @@ class Process(object):
               iFinalPath.resolve(self.__dict__)
               finalpathValidator.setLabel(finalpathname)
               iFinalPath.visit(finalpathValidator)
-              if finalpathValidator.filtersOnFinalpaths or finalpathValidator.producersOnFinalpaths:
-                  names = [p.label_ for p in finalpathValidator.filtersOnFinalpaths]
-                  names.extend( [p.label_ for p in finalpathValidator.producersOnFinalpaths])
-                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(names)))
+              invalidModules = finalpathValidator.invalidModulesOnFinalpaths
+              if invalidModules:
+                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(invalidModules)))
               modulesOnFinalPath.extend(iFinalPath.moduleNames())
           for m in modulesOnFinalPath:
             mod = getattr(self, m)
@@ -3326,7 +3325,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             path = FinalPath(p.a*(p.b+p.c))
             self.assertEqual(str(path),'a+b+c')
             p.es = ESProducer("AnESProducer")
-            self.assertRaises(TypeError,FinalPath,p.es)
+            self.assertRaises(TypeError,FinalPath, p.es)
 
             t = FinalPath()
             self.assertEqual(t.dumpPython(PrintOptions()), 'cms.FinalPath()\n')
@@ -3348,7 +3347,27 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p.t = FinalPath(p.a)
             p.a = OutputModule("ReplacedOutputModule")
             self.assertEqual(p.t.dumpPython(PrintOptions()), 'cms.FinalPath(process.a)\n')
-            
+
+            p.anal = EDAnalyzer("MyAnalyzer")
+            p.t = FinalPath(p.anal)
+            pset = TestMakePSet()
+            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
+
+            p.prod = EDProducer("MyProducer")
+            p.t = FinalPath(p.prod)
+            pset = TestMakePSet()
+            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
+
+            p.filt = EDFilter("MyFilter")
+            p.t = FinalPath(p.filt)
+            pset = TestMakePSet()
+            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
+
+            p.outp = OutputModule("MyOutputModule")
+            p.t = FinalPath(p.outp)
+            pset = TestMakePSet()
+            p.fillProcessDesc(pset)
+
         def testCloneSequence(self):
             p = Process("test")
             a = EDAnalyzer("MyAnalyzer")
