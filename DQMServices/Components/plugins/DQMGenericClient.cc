@@ -1162,7 +1162,7 @@ void DQMGenericClient::limitedFit(MonitorElement* srcME, MonitorElement* meanME,
       //To avoid DQMGenericClient maintains state between fit calls
       fitFcn->SetParameters(histoY->Integral(), histoY->GetMean(), histoY->GetRMS());
 
-      histoY->Fit(fitFcn, "QR0 SERIAL", "", x1, x2);
+      histoY->Fit(fitFcn, "QR0L SERIAL", "", x1, x2);
 
       //      histoY->Fit(fitFcn->GetName(),"RME");
       double* par = fitFcn->GetParameters();
