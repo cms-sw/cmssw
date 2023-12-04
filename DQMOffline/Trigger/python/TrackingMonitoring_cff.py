@@ -29,6 +29,7 @@ pixelTracksMonitoringHLT = trackingMonHLT.clone(
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(pixelTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
                          TrackProducer    = 'hltPixelTracksPPOnAA',
                          allTrackProducer = 'hltPixelTracksPPOnAA')
 
@@ -102,6 +103,7 @@ iterHLTTracksMonitoringHLT = trackingMonHLT.clone(
 )
 
 pp_on_PbPb_run3.toModify(iterHLTTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
                          TrackProducer    = 'hltMergedTracksPPOnAA',
                          allTrackProducer = 'hltMergedTracksPPOnAA')
 
@@ -148,6 +150,7 @@ doubletRecoveryHPTracksMonitoringHLT = trackingMonHLT.clone(
 )
 
 pp_on_PbPb_run3.toModify(doubletRecoveryHPTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
                          TrackProducer    = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA',
                          allTrackProducer = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA')
 
