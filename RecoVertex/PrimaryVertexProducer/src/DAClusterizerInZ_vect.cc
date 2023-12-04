@@ -1276,6 +1276,9 @@ vector<vector<reco::TransientTrack>> DAClusterizerInZ_vect::clusterize(
     const vector<reco::TransientTrack>& tracks) const {
   vector<vector<reco::TransientTrack>> clusters;
 
+  if (tracks.empty())
+    return clusters;
+
   vector<TransientVertex> pv;
   if (runInBlocks_ and (block_size_ < tracks.size()))  //doesn't bother if low number of tracks
     pv = vertices_in_blocks(tracks);

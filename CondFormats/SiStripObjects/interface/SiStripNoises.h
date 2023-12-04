@@ -49,7 +49,6 @@ public:
   typedef Registry::const_iterator RegistryIterator;
   typedef std::vector<uint16_t> InputVector;
 
-  SiStripNoises(const SiStripNoises&);
   SiStripNoises() {}
   ~SiStripNoises() {}
 

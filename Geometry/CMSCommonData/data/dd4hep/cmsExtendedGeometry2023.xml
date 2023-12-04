@@ -262,7 +262,7 @@
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumirotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/rpd/2021/v1/rpd.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_000.xml'/>
@@ -369,14 +369,14 @@
     <Include ref='Geometry/ForwardCommonData/data/bhmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/pltsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bcm1fsens.xml'/>
-    <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
+    <Include ref='Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml'/>
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2021/v2/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/ESProdCuts.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v3/muonProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml'/>
-    <Include ref='Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml'/>
+    <Include ref='Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
 </DDDefinition>

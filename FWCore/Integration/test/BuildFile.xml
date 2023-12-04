@@ -78,6 +78,7 @@
 
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
   <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_"/>
+  <test name="testFWCoreIntegrationTransform_async_tracer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_ --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
   <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath"/>
   <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform"/>

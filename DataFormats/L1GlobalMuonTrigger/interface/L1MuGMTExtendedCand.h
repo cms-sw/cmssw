@@ -54,6 +54,9 @@ public:
   /// copy constructor
   L1MuGMTExtendedCand(const L1MuGMTExtendedCand&);
 
+  /// assignment operator
+  L1MuGMTExtendedCand& operator=(const L1MuGMTExtendedCand&) = default;
+
   /// destructor
   ~L1MuGMTExtendedCand() override;
 

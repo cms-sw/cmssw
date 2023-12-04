@@ -46,7 +46,8 @@ public:
                  const edm::EventSetup& es,
                  reco::Photon::FiducialFlags& phofid,
                  reco::Photon::IsolationVariables& phoisolR03,
-                 reco::Photon::IsolationVariables& phoisolR04) const;
+                 reco::Photon::IsolationVariables& phoisolR04,
+                 const HcalPFCuts* hcalCuts) const;
 
 private:
   static void classify(const reco::Photon* photon,
@@ -90,7 +91,8 @@ private:
                                 const HBHERecHitCollection& hbheRecHits,
                                 double RCone,
                                 double RConeInner,
-                                int depth) const dso_internal;
+                                int depth,
+                                const HcalPFCuts* hcalCuts) const dso_internal;
 
 private:
   edm::EDGetToken barrelecalCollection_;

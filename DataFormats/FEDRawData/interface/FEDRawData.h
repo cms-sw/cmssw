@@ -32,6 +32,9 @@ public:
   /// Copy constructor
   FEDRawData(const FEDRawData &);
 
+  /// Assignment operator
+  FEDRawData &operator=(const FEDRawData &) = default;
+
   /// Dtor
   ~FEDRawData();
 

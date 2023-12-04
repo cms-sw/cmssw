@@ -33,8 +33,6 @@
 #include "DataFormats/Math/interface/Rounding.h"
 #include <DD4hep/DD4hepUnits.h>
 
-//#define EDM_ML_DEBUG
-
 using namespace cms;
 
 class DD4hep_TestMTDIdealGeometry : public edm::one::EDAnalyzer<> {
@@ -137,6 +135,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   bool isBarrel = true;
   bool exitLoop = false;
   uint32_t level(0);
+  uint32_t count(0);
 
   do {
     if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
@@ -147,29 +146,26 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
     }
 
-    std::stringstream ss;
-
-    theBaseNumber(fv);
-
-    auto print_path = [&]() {
-      ss << " - OCMS[0]/";
-      for (int ii = thisN_.getLevels() - 1; ii-- > 0;) {
-        ss << thisN_.getLevelName(ii);
-        ss << "[";
-        ss << thisN_.getCopyNumber(ii);
-        ss << "]/";
-      }
-    };
-
     if (level > 0 && fv.navPos().size() < level) {
       level = 0;
       write = false;
-      exitLoop = true;
+      if (isBarrel) {
+        exitLoop = true;
+      } else if (!isBarrel && count == 2) {
+        exitLoop = true;
+      }
     }
     if (dd4hep::dd::noNamespace(fv.name()) == ddTopNodeName_) {
       write = true;
       level = fv.navPos().size();
+      count += 1;
     }
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry")
+        << "level= " << level << " isBarrel= " << isBarrel << " exitLoop= " << exitLoop << " count= " << count << " "
+        << fv.path();
+#endif
 
     // Test only the desired subdetector
 
@@ -180,11 +176,21 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     // Actions for MTD volumes: searchg for sensitive detectors
 
     if (write) {
-      print_path();
+      std::stringstream ss;
 
-#ifdef EDM_ML_DEBUG
-      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << fv.path();
-#endif
+      theBaseNumber(fv);
+
+      auto print_path = [&]() {
+        ss << " - OCMS[0]/";
+        for (int ii = thisN_.getLevels() - 1; ii-- > 0;) {
+          ss << thisN_.getLevelName(ii);
+          ss << "[";
+          ss << thisN_.getCopyNumber(ii);
+          ss << "]/";
+        }
+      };
+
+      print_path();
 
       edm::LogInfo("DD4hep_TestMTDPath") << ss.str();
 
@@ -280,7 +286,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         edm::LogVerbatim("MTDUnitTest") << sunitt.str();
       }
     }
-  } while (fv.next(0));
+  } while (fv.next(0) && !(exitLoop == 1 && count == 2));
 }
 
 void DD4hep_TestMTDIdealGeometry::theBaseNumber(cms::DDFilteredView& fv) {
@@ -292,7 +298,7 @@ void DD4hep_TestMTDIdealGeometry::theBaseNumber(cms::DDFilteredView& fv) {
     size_t ipos = name.rfind('_');
     thisN_.addLevel(name.substr(0, ipos), fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
+    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << ii << " " << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }

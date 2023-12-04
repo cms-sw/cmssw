@@ -86,7 +86,7 @@ namespace edm {
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
-                            ModuleCallingContext const*,
+                            ModuleCallingContext,
                             ServiceWeakToken const&);
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
@@ -166,6 +166,7 @@ namespace edm {
       virtual void transformAsync_(WaitingTaskHolder iTask,
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
+                                   edm::ActivityRegistry* iAct,
                                    ServiceWeakToken const& iToken) const;
 
       virtual void clearInputProcessBlockCaches();

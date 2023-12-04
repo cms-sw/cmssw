@@ -17,6 +17,7 @@ struct PdgIdSelector {
     end_ = pdgId_.end();
   }
   PdgIdSelector(const PdgIdSelector& o) : pdgId_(o.pdgId_), begin_(pdgId_.begin()), end_(pdgId_.end()) {}
+  PdgIdSelector& operator=(const PdgIdSelector& o) = default;
   PdgIdSelector& operator==(const PdgIdSelector& o) {
     *this = o;
     return *this;

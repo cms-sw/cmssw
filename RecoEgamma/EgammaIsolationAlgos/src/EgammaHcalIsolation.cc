@@ -126,10 +126,12 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
                                           int ieta,
                                           int iphi,
                                           int include_or_exclude,
-                                          double (*scale)(const double &)) const {
+                                          double (*scale)(const double &),
+                                          const HcalPFCuts *hcalCuts) const {
   const HcalDetId hid(hit.detid());
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
+  double thresholdE = 0.;
 
   if (include_or_exclude == -1 and (he != ieta or hp != iphi))
     return 0.;
@@ -146,8 +148,16 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   if (!right_depth)
     return 0.;
 
-  const bool goodHBe = hid.subdet() == HcalBarrel and hit.energy() > eThresHB_[h1];
-  const bool goodHEe = hid.subdet() == HcalEndcap and hit.energy() > eThresHE_[h1];
+  bool goodHBe = hid.subdet() == HcalBarrel and hit.energy() > eThresHB_[h1];
+  bool goodHEe = hid.subdet() == HcalEndcap and hit.energy() > eThresHE_[h1];
+
+  if (hcalCuts != nullptr) {
+    const HcalPFCut *cutValue = hcalCuts->getValues(hid.rawId());
+    thresholdE = cutValue->noiseThreshold();
+    goodHBe = hid.subdet() == HcalBarrel and hit.energy() > thresholdE;
+    goodHEe = hid.subdet() == HcalEndcap and hit.energy() > thresholdE;
+  }
+
   if (!(goodHBe or goodHEe))
     return 0.;
 
@@ -182,12 +192,13 @@ double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu,
                                        int ieta,
                                        int iphi,
                                        int include_or_exclude,
-                                       double (*scale)(const double &)) const {
+                                       double (*scale)(const double &),
+                                       const HcalPFCuts *hcalCuts) const {
   double sum = 0.;
   const float pcluEta = pclu.eta();
   const float pcluPhi = pclu.phi();
   for (const auto &hit : mhbhe_)
-    sum += goodHitEnergy(pcluEta, pcluPhi, hit, depth, ieta, iphi, include_or_exclude, scale);
+    sum += goodHitEnergy(pcluEta, pcluPhi, hit, depth, ieta, iphi, include_or_exclude, scale, hcalCuts);
 
   return sum;
 }

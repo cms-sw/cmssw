@@ -13,7 +13,6 @@ class CaloHit {
 public:
   CaloHit(int deti, int layi, double ei, double etai, double phii, double timi, uint32_t idi = 0);
   CaloHit();
-  CaloHit(const CaloHit&);
   virtual ~CaloHit();
 
   int det() const { return deth; }

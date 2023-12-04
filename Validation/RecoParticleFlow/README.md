@@ -10,8 +10,8 @@ for lxplus with SLC8 (used for Run3 CMSSW releases)
 ~~~
 ssh -X username@lxplus8.cern.ch
 export SCRAM_ARCH=el8_amd64_gcc10
-cmsrel CMSSW_12_5_0_pre3
-cd CMSSW_12_5_0_pre3
+cmsrel CMSSW_13_3_0_pre3
+cd CMSSW_13_3_0_pre3
 cmsenv
 ~~~
 

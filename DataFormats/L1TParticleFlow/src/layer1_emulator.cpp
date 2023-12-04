@@ -77,7 +77,7 @@ bool l1ct::PuppiObjEmu::write(std::fstream& to) const { return writeObj<PuppiObj
 
 bool l1ct::EGIsoObjEmu::read(std::fstream& from) {
   srcCluster = nullptr;  // not persistent
-  sta_idx = -1;
+  src_idx = -1;
   clearIsoVars();  // not persistent
   return readObj<EGIsoObj>(from, *this);
 }
@@ -87,7 +87,7 @@ bool l1ct::EGIsoObjEmu::write(std::fstream& to) const { return writeObj<EGIsoObj
 bool l1ct::EGIsoEleObjEmu::read(std::fstream& from) {
   srcCluster = nullptr;
   srcTrack = nullptr;
-  sta_idx = -1;
+  src_idx = -1;
   clearIsoVars();  // not persistent
   return readObj<EGIsoEleObj>(from, *this);
 }

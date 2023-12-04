@@ -23,6 +23,8 @@ from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
 sys.argv=theargv
 
 import os
+import hashlib
+
 if "RELMON_SA" in os.environ:
   from .dirstructure import Comparison,Directory
   from .definitions import *
@@ -32,7 +34,6 @@ else:
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.utils import unpickler
   
-  import hashlib
 #-------------------------------------------------------------------------------
 
 def encode_obj_url(url):
@@ -933,8 +934,9 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
 #-----------UPDATES------
 def hash_name(file_name, flag):
-    #print "     HashFILE name: "+file_name
     if flag: #if hashing flag is ON then return
+        if (3,0,0) <= sys.version_info:
+            return hashlib.md5(file_name.encode('utf-8')).hexdigest()[:10]
         return hashlib.md5(file_name).hexdigest()[:10] #md5 hashed file name with length 10
     else:
         return file_name #return standart name

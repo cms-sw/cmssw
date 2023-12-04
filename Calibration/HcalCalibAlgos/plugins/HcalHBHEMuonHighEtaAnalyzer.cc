@@ -1,10 +1,6 @@
-#include <memory>
-#include <iostream>
 #include <fstream>
 #include <vector>
-#include <TFile.h>
 #include <TTree.h>
-#include "TPRegexp.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

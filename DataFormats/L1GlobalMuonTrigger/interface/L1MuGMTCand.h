@@ -47,6 +47,9 @@ public:
   /// copy constructor
   L1MuGMTCand(const L1MuGMTCand&);
 
+  /// assignment operator
+  L1MuGMTCand& operator=(const L1MuGMTCand&) = default;
+
   /// destructor
   virtual ~L1MuGMTCand();
 

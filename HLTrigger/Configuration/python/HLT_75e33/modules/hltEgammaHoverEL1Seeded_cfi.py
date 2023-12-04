@@ -18,6 +18,7 @@ hltEgammaHoverEL1Seeded = cms.EDProducer("EgammaHLTHcalVarProducerFromRecHit",
     etThresHB = cms.vdouble( 0.0, 0.0, 0.0, 0.0 ),
     eThresHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
     etThresHE = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+    usePFThresholdsFromDB = cms.bool(True),
     maxSeverityHB = cms.int32( 9 ),
     maxSeverityHE = cms.int32( 9 )
 )

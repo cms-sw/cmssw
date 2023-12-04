@@ -89,8 +89,8 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
   //store auxiliary mappings for association
   std::vector<int> gsf2pack(ngsf, -1);
   std::vector<int> gsf2lost(ngsf, -1);
-  PackedCandidatePtrCollection ele2packedptr(nele, PackedCandidatePtr(packed, -1));
-  PackedCandidatePtrCollection ele2lostptr(nele, PackedCandidatePtr(lost_tracks, -1));
+  PackedCandidatePtrCollection ele2packedptr(nele, PackedCandidatePtr());
+  PackedCandidatePtrCollection ele2lostptr(nele, PackedCandidatePtr());
 
   //electrons will never store their track (they store the Gsf track)
   //map PackedPF <--> Track

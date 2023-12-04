@@ -147,7 +147,8 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                           const edm::EventSetup& es,
                                           reco::Photon::FiducialFlags& phofid,
                                           reco::Photon::IsolationVariables& phoisolR1,
-                                          reco::Photon::IsolationVariables& phoisolR2) const {
+                                          reco::Photon::IsolationVariables& phoisolR2,
+                                          const HcalPFCuts* hcalCuts) const {
   //Get fiducial flags. This does not really belong here
   bool isEBPho = false;
   bool isEEPho = false;
@@ -362,9 +363,10 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                   &hcalQual = *hcalChannelQuality,
                   &hcalSev = *hcalSevLvlComputer,
                   &towerMap,
-                  &hbheRecHits](double outer, double inner, int depth) {
+                  &hbheRecHits,
+                  hcalCuts](double outer, double inner, int depth) {
       return calculateHcalRecHitIso<false>(
-          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, inner, depth);
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, inner, depth, hcalCuts);
     };
 
     auto fbc = [this,
@@ -374,9 +376,10 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                 &hcalQual = *hcalChannelQuality,
                 &hcalSev = *hcalSevLvlComputer,
                 &towerMap,
-                &hbheRecHits](double outer, int depth) {
+                &hbheRecHits,
+                hcalCuts](double outer, int depth) {
       return calculateHcalRecHitIso<true>(
-          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, 0., depth);
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, 0., depth, hcalCuts);
     };
 
     for (size_t id = 0; id < phoisolR1.hcalRecHitSumEt.size(); ++id) {
@@ -538,7 +541,8 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                                          const HBHERecHitCollection& hbheRecHits,
                                                          double RCone,
                                                          double RConeInner,
-                                                         int depth) const {
+                                                         int depth,
+                                                         const HcalPFCuts* hcalCuts) const {
   const EgammaHcalIsolation::arrayHB e04{{0., 0., 0., 0.}};
   const EgammaHcalIsolation::arrayHE e07{{0., 0., 0., 0., 0., 0., 0.}};
 
@@ -560,7 +564,7 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                        hcalSevLvlComputer,
                                        towerMap);
 
-    return hcaliso.getHcalEtSumBc(photon, depth);
+    return hcaliso.getHcalEtSumBc(photon, depth, hcalCuts);
   } else {
     auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
                                        RCone,
@@ -579,6 +583,6 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                        hcalSevLvlComputer,
                                        towerMap);
 
-    return hcaliso.getHcalEtSum(photon, depth);
+    return hcaliso.getHcalEtSum(photon, depth, hcalCuts);
   }
 }

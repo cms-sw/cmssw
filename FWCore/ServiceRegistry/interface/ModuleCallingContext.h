@@ -17,6 +17,7 @@ Services as an argument to their callback functions.
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 
 #include <iosfwd>
+#include <cstdint>
 
 namespace cms {
   class Exception;
@@ -42,6 +43,7 @@ namespace edm {
     ModuleCallingContext(ModuleDescription const* moduleDescription);
 
     ModuleCallingContext(ModuleDescription const* moduleDescription,
+                         std::uintptr_t id,
                          State state,
                          ParentContext const& parent,
                          ModuleCallingContext const* previousOnThread);
@@ -53,6 +55,11 @@ namespace edm {
     ModuleDescription const* moduleDescription() const { return moduleDescription_; }
     State state() const { return state_; }
     Type type() const { return parent_.type(); }
+    /** Returns a unique id for this module to differentiate possibly concurrent calls to the module.
+        The value returned may be large so not appropriate for an index lookup.
+        A value of 0 denotes a call to produce, analyze or filter. Other values denote a transform.
+    */
+    std::uintptr_t callID() const { return id_; }
     ParentContext const& parent() const { return parent_; }
     ModuleCallingContext const* moduleCallingContext() const { return parent_.moduleCallingContext(); }
     PlaceInPathContext const* placeInPathContext() const { return parent_.placeInPathContext(); }
@@ -81,6 +88,7 @@ namespace edm {
     ModuleCallingContext const* previousModuleOnThread_;
     ModuleDescription const* moduleDescription_;
     ParentContext parent_;
+    std::uintptr_t id_;
     State state_;
   };
 
