@@ -1002,7 +1002,7 @@ namespace npstat {
 #include <climits>
 #include <algorithm>
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/binaryIO.hh"
 
 namespace npstat {
@@ -3521,7 +3521,7 @@ namespace npstat {
     ArrayND<Numeric> data, over;
     ArrayND<Numeric>::restore(ida, in, &data);
     ArrayND<Numeric>::restore(ida, in, &over);
-    CPP11_auto_ptr<HistoND<Numeric, Axis> > result(
+    std::unique_ptr<HistoND<Numeric, Axis> > result(
         new HistoND<Numeric, Axis>(axes, title.c_str(), accumulatedDataLabel.c_str()));
     result->data_ = data;
     result->overflow_ = over;

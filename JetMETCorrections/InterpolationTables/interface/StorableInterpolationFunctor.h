@@ -183,7 +183,7 @@ namespace npstat {
 }  // namespace npstat
 
 #include "Alignment/Geners/interface/binaryIO.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 
 namespace npstat {
@@ -212,7 +212,7 @@ namespace npstat {
       throw gs::IOReadFailure(
           "In npstat::StorableInterpolationFunctor::read: "
           "input stream failure");
-    CPP11_auto_ptr<Table> tab(Table::read(tabid, in));
+    std::unique_ptr<Table> tab(Table::read(tabid, in));
     return new StorableInterpolationFunctor(*tab, descr);
   }
 }  // namespace npstat
