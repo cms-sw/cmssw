@@ -41,7 +41,6 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-//New
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
@@ -69,7 +68,7 @@ private:
   // ----------member data ---------------------------
 
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvs_;
-  const edm::EDGetTokenT<pat::PackedCandidateCollection> pfc_; //New
+  const edm::EDGetTokenT<pat::PackedCandidateCollection> pfc_;
   const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
   const edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> svs_;
   const StringCutObjectSelector<reco::Candidate> svCut_;
@@ -86,7 +85,7 @@ private:
 //
 VertexTableProducer::VertexTableProducer(const edm::ParameterSet& params)
     : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
-      pfc_(consumes<pat::PackedCandidateCollection>(params.getParameter<edm::InputTag>("pfcSrc"))), //New
+      pfc_(consumes<pat::PackedCandidateCollection>(params.getParameter<edm::InputTag>("pfcSrc"))),
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
       svs_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(params.getParameter<edm::InputTag>("svSrc"))),
       svCut_(params.getParameter<std::string>("svCut"), true),
@@ -140,17 +139,18 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   pvTable->addColumnValue<float>(
       "score", pvsScoreProd.get(pvsIn.id(), 0), "main primary vertex score, i.e. sum pt2 of clustered objects", 8);
 
-  //New
   float pv_sumpt2=0.0;
   for (size_t i = 0; i < (*pfcIn).size(); i++) {
-    if ( (*pfcIn)[i].charge() == 0 ) { continue; } // skip neutrals
+    if ( (*pfcIn)[i].charge() == 0 ) { 
+      continue; 
+    } // skip neutrals
     double dz = fabs( (*pfcIn)[i].dz( (*pvsIn)[0].position() ) );
     int include_pfc = 0;
     if( dz < 0.2) include_pfc = 1;
     for (size_t j = 1; j < (*pvsIn).size(); j++) {
        double newdz = fabs( (*pfcIn)[i].dz( (*pvsIn)[j].position() ) );
-       if(newdz < dz) include_pfc = 0; // this pf candidate belongs to other PV
-    }
+       if(newdz < dz) include_pfc = 0; 
+    } // this pf candidate belongs to other PV
     if(include_pfc == 1){
       double pfc_pt = (*pfcIn)[i].pt() ;
       pv_sumpt2 +=  pfc_pt * pfc_pt;  
@@ -236,7 +236,7 @@ void VertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.add<edm::InputTag>("pvSrc")->setComment(
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
-  desc.add<edm::InputTag>("pfcSrc")->setComment("packedPFCandidates input collections"); //New
+  desc.add<edm::InputTag>("pfcSrc")->setComment("packedPFCandidates input collections"); 
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
   desc.add<edm::InputTag>("svSrc")->setComment(
       "reco::VertexCompositePtrCandidate compatible secondary vertex input collection");
