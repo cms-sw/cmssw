@@ -46,13 +46,13 @@ public:
                            bool side,
                            int channel);
   int photonFluctuation(double eav, double esig, double edis);
-  int encodePartID(G4int parCode);
 
 private:
+
+  int encodePartID(G4int parCode) {
+    return (std::abs(parCode) == 11 || parCode == 22) ? 0 : 1;
+  }
   bool verbose;
-  G4int emPDG, epPDG, gammaPDG;
-  G4int pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  G4int anuePDG, anumuPDG, anutauPDG, geantinoPDG;
   int npe;
   std::vector<ZdcShowerLibrary::Hit> hits;
 };

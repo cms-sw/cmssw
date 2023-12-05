@@ -4,8 +4,8 @@
 // E. Garcia June 2008
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -24,28 +24,8 @@ ZdcShowerLibrary::ZdcShowerLibrary(const std::string& name, edm::ParameterSet co
   hits.reserve(npe);
 }
 
-void ZdcShowerLibrary::initRun(G4ParticleTable* theParticleTable) {
-  G4String parName;
-  emPDG = theParticleTable->FindParticle(parName = "e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(parName = "e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(parName = "gamma")->GetPDGEncoding();
-  pi0PDG = theParticleTable->FindParticle(parName = "pi0")->GetPDGEncoding();
-  etaPDG = theParticleTable->FindParticle(parName = "eta")->GetPDGEncoding();
-  nuePDG = theParticleTable->FindParticle(parName = "nu_e")->GetPDGEncoding();
-  numuPDG = theParticleTable->FindParticle(parName = "nu_mu")->GetPDGEncoding();
-  nutauPDG = theParticleTable->FindParticle(parName = "nu_tau")->GetPDGEncoding();
-  anuePDG = theParticleTable->FindParticle(parName = "anti_nu_e")->GetPDGEncoding();
-  anumuPDG = theParticleTable->FindParticle(parName = "anti_nu_mu")->GetPDGEncoding();
-  anutauPDG = theParticleTable->FindParticle(parName = "anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG = theParticleTable->FindParticle(parName = "geantino")->GetPDGEncoding();
-  edm::LogVerbatim("ZdcShower") << "ZdcShowerLibrary: Particle codes for e- = " << emPDG << ", e+ = " << epPDG
-                                << ", gamma = " << gammaPDG << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
-                                << ", geantino = " << geantinoPDG << "\n        nu_e = " << nuePDG
-                                << ", nu_mu = " << numuPDG << ", nu_tau = " << nutauPDG << ", anti_nu_e = " << anuePDG
-                                << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = " << anutauPDG;
-}
-
 std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aStep, bool& ok) {
+
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4Track* track = aStep->GetTrack();
@@ -60,7 +40,9 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
   hits.clear();
 
   ok = false;
-  if (parCode == geantinoPDG)
+  bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
+  bool isHad = G4TrackToParticleID::isStableHadronIon(track);
+  if (!isEM && !isHad) // exclude geantino and neutrino 
     return hits;
   ok = true;
 
@@ -267,14 +249,4 @@ int ZdcShowerLibrary::photonFluctuation(double eav, double esig, double edis) {
   if (nphot < 0)
     nphot = 0;
   return nphot;
-}
-
-int ZdcShowerLibrary::encodePartID(G4int parCode) {
-  G4int iparCode = 1;
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG) {
-    iparCode = 0;
-  } else {
-    return iparCode;
-  }
-  return iparCode;
 }
