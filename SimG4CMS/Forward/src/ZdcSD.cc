@@ -61,9 +61,7 @@ ZdcSD::ZdcSD(const std::string& name,
   }
 }
 
-void ZdcSD::initRun() {
-  hits.clear();
-}
+void ZdcSD::initRun() { hits.clear(); }
 
 bool ZdcSD::getFromLibrary(const G4Step* aStep) {
   bool ok = true;
@@ -124,8 +122,6 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
   // preStepPoint information
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
-  std::string nameVolume = ForwardName::getName(currentPV->GetName());
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   const G4ThreeVector& hit_mom = preStepPoint->GetMomentumDirection();
@@ -137,7 +133,6 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
   // theTrack information
   G4Track* theTrack = aStep->GetTrack();
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
 
 #ifdef EDM_ML_DEBUG
@@ -160,7 +155,10 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   // postStepPoint information
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
+  G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
+  std::string nameVolume = ForwardName::getName(currentPV->GetName());
   std::string postnameVolume = ForwardName::getName(postPV->GetName());
+  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"
@@ -297,10 +295,12 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
     // determine failure mode: beta, charge, and/or nameVolume
     if (beta <= bThreshold)
       edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
-    if (charge == 0)
-      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail charge=0";
+
+#ifdef EDM_ML_DEBUG
+    std::string nameVolume = ForwardName::getName(currentPV->GetName());
     if (!(nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber"))
       edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
+#endif
   }
 
   return NCherPhot;
