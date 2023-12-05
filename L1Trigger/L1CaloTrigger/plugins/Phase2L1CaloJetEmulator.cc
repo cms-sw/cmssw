@@ -163,7 +163,7 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
   for (int iphi = 0; iphi < nHfPhi; iphi++) {
     for (int ieta = 0; ieta < nHfEta; ieta++) {
       hfTowers[ieta][iphi] = 0;
-      int temp = ieta;
+      int temp;
       if (ieta < nHfEta / 2)
         temp = ieta - l1t::CaloTools::kHFEnd;
       else
