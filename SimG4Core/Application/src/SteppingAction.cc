@@ -41,8 +41,7 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
-      << " MaxNumberOfSteps = " << maxNumberOfSteps
-      << " ZDC: " << m_CMStoZDCtransport;
+      << " MaxNumberOfSteps = " << maxNumberOfSteps << " ZDC: " << m_CMStoZDCtransport;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -138,8 +137,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     const G4Region* theRegion = lv->GetRegion();
 
     // kill in dead regions excpt CMStoZDC volume
-    if (isInsideDeadRegion(theRegion) && 
-        !isForZDC(lv, std::abs(theTrack->GetParticleDefinition()->GetPDGEncoding()))) {
+    if (isInsideDeadRegion(theRegion) && !isForZDC(lv, std::abs(theTrack->GetParticleDefinition()->GetPDGEncoding()))) {
       tstat = sDeadRegion;
     }
 
