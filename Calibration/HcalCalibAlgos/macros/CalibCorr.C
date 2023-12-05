@@ -178,16 +178,17 @@ unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
 bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
 
 int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int truncate0 = ((truncateFlag / 1) % 10);
   int d(depth);
-  if (truncateFlag == 5) {
+  if (truncate0 == 5) {
     d = (depth == 1) ? 1 : 2;
-  } else if (truncateFlag == 4) {
+  } else if (truncate0 == 4) {
     d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 3) {
+  } else if (truncate0 == 3) {
     d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 2) {
+  } else if (truncate0 == 2) {
     d = 1;
-  } else if (truncateFlag == 1) {
+  } else if (truncate0 == 1) {
     d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
   }
   return d;
