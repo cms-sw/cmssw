@@ -40,7 +40,7 @@ protected:
 
 private:
   int verbosity;
-  bool useShowerLibrary, useShowerHits;
+  bool useShowerLibrary;
   double thFibDir;
   double zdcHitEnergyCut;
   std::unique_ptr<ZdcShowerLibrary> showerLibrary;
