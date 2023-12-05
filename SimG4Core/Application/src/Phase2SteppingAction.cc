@@ -45,7 +45,8 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
       << " MaxNumberOfSteps = " << maxNumberOfSteps << "\n"
-      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_ << "  " << btlName_;
+      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_ << "  "
+      << btlName_;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
