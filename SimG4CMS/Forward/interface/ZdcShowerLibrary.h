@@ -48,10 +48,7 @@ public:
   int photonFluctuation(double eav, double esig, double edis);
 
 private:
-
-  int encodePartID(G4int parCode) {
-    return (std::abs(parCode) == 11 || parCode == 22) ? 0 : 1;
-  }
+  int encodePartID(G4int parCode) { return (std::abs(parCode) == 11 || parCode == 22) ? 0 : 1; }
   bool verbose;
   int npe;
   std::vector<ZdcShowerLibrary::Hit> hits;

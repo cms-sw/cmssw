@@ -25,7 +25,6 @@ ZdcShowerLibrary::ZdcShowerLibrary(const std::string& name, edm::ParameterSet co
 }
 
 std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aStep, bool& ok) {
-
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4Track* track = aStep->GetTrack();
@@ -42,7 +41,7 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
   ok = false;
   bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
   bool isHad = G4TrackToParticleID::isStableHadronIon(track);
-  if (!isEM && !isHad) // exclude geantino and neutrino 
+  if (!isEM && !isHad)  // exclude geantino and neutrino
     return hits;
   ok = true;
 

@@ -57,9 +57,7 @@ ZdcSD::ZdcSD(const std::string& name,
   }
 }
 
-void ZdcSD::initRun() {
-  hits.clear();
-}
+void ZdcSD::initRun() { hits.clear(); }
 
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (useShowerLibrary) {
