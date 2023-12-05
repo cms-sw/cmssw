@@ -21,6 +21,7 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
   }
+  m_CMStoZDCtransport = (p.getParameter<bool>("CMStoZDCtransport"));
   theCriticalDensity = (p.getParameter<double>("CriticalDensity") * CLHEP::g / CLHEP::cm3);
   maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTime = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
@@ -40,7 +41,8 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
-      << " MaxNumberOfSteps = " << maxNumberOfSteps;
+      << " MaxNumberOfSteps = " << maxNumberOfSteps
+      << " ZDC: " << m_CMStoZDCtransport;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -135,9 +137,11 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
     const G4Region* theRegion = lv->GetRegion();
 
-    // kill in dead regions
-    if (lv != m_CMStoZDC && isInsideDeadRegion(theRegion))
+    // kill in dead regions excpt CMStoZDC volume
+    if (isInsideDeadRegion(theRegion) && 
+        !isForZDC(lv, std::abs(theTrack->GetParticleDefinition()->GetPDGEncoding()))) {
       tstat = sDeadRegion;
+    }
 
     // kill out of time
     if (sAlive == tstat) {
