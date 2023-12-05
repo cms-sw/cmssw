@@ -45,9 +45,9 @@ ZdcSD::ZdcSD(const std::string& name,
   verbosity %= 10;
   numberingScheme = std::make_unique<ZdcNumberingScheme>(verbn);
 
-  edm::LogVerbatim("ForwardSim") << "Constructing a ZdcSD with name " << name 
-                                 << "\nUse of shower library: " << useShowerLibrary
-                                 << "Energy Threshold Cut " << zdcHitEnergyCut / CLHEP::GeV << " (GeV)";
+  edm::LogVerbatim("ForwardSim") << "Constructing a ZdcSD with name " << name
+                                 << "\nUse of shower library: " << useShowerLibrary << "Energy Threshold Cut "
+                                 << zdcHitEnergyCut / CLHEP::GeV << " (GeV)";
 
   if (useShowerLibrary) {
     showerLibrary = std::make_unique<ZdcShowerLibrary>(name, p);
@@ -73,16 +73,17 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     auto const theTrack = aStep->GetTrack();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "ZdcSD: " << " trackID=" << theTrack->GetTrackID()
-				   << " " << theTrack->GetDefinition()->GetParticleName()
-				   << " parentID=" << theTrack->GetParentID()
-				   << " Ekin(GeV)= " << theTrack->GetKineticEnergy()/CLHEP::GeV
-				   << " mat: " << aStep->GetPreStepPoint()->GetMaterial()->GetName()
-				   << " stepLength(mm)= " << aStep->GetStepLength() 
-				   << " Edep(MeV)= " << aStep->GetTotalEnergyDeposit();
+    edm::LogVerbatim("ForwardSim") << "ZdcSD: "
+                                   << " trackID=" << theTrack->GetTrackID() << " "
+                                   << theTrack->GetDefinition()->GetParticleName()
+                                   << " parentID=" << theTrack->GetParentID()
+                                   << " Ekin(GeV)= " << theTrack->GetKineticEnergy() / CLHEP::GeV
+                                   << " mat: " << aStep->GetPreStepPoint()->GetMaterial()->GetName()
+                                   << " stepLength(mm)= " << aStep->GetStepLength()
+                                   << " Edep(MeV)= " << aStep->GetTotalEnergyDeposit();
 #endif
 
-    if (aStep->GetTotalEnergyDeposit() == 0.0) 
+    if (aStep->GetTotalEnergyDeposit() == 0.0)
       return false;
     // check unitID
     unsigned int unitID = setDetUnitId(aStep);
@@ -118,7 +119,7 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
   auto const preStepPoint = aStep->GetPreStepPoint();
 
   double etrack = preStepPoint->GetKineticEnergy();
-  if (etrack < zdcHitEnergyCut) 
+  if (etrack < zdcHitEnergyCut)
     return false;
 
   int primaryID = setTrackID(aStep);
@@ -130,11 +131,10 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
 #ifdef EDM_ML_DEBUG
   auto const theTrack = aStep->GetTrack();
   edm::LogVerbatim("ForwardSim") << "ZdcSD uses shower library for primary Ekin(MeV)=" << etrack
-				 << " Cut(MeV)=" << zdcHitEnergyCut << "\n"
-				 << "ZdcSD::getFromLibrary " << hits.size() 
-				 << " hits from primaryID=" << primaryID 
-				 << " " << theTrack->GetDefinition()->GetParticleName() << " Ekin="
-				 << etrack << " MeV\n";
+                                 << " Cut(MeV)=" << zdcHitEnergyCut << "\n"
+                                 << "ZdcSD::getFromLibrary " << hits.size() << " hits from primaryID=" << primaryID
+                                 << " " << theTrack->GetDefinition()->GetParticleName() << " Ekin=" << etrack
+                                 << " MeV\n";
 #endif
   hits.swap(showerLibrary.get()->getHits(aStep, ok));
   incidentEnergy = etrack;
@@ -384,7 +384,7 @@ double ZdcSD::calculateCherenkovDeposit(const G4Step* aStep) {
   int charge = round(aParticle->GetDefinition()->GetPDGCharge());
 
   if (charge == 0)
-      return 0.0;
+    return 0.0;
 
   double beta = 0.5 * (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta());
   double stepLength = aStep->GetStepLength() / 1000;  // Geant4 stepLength is in "mm"
@@ -406,7 +406,7 @@ double ZdcSD::calculateCherenkovDeposit(const G4Step* aStep) {
     if (std::abs(cosTheta) > 1.0)
       continue;
 
-    double sinTheta = std::sqrt((1.0 - cosTheta)*(1.0 + cosTheta));
+    double sinTheta = std::sqrt((1.0 - cosTheta) * (1.0 + cosTheta));
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD: E_gamma=" << photonE << " omega=" << omega << " cosTheta=" << cosTheta;
@@ -443,15 +443,15 @@ double ZdcSD::calculateCherenkovDeposit(const G4Step* aStep) {
       double c = r0.mag2() - R2;
 
       if (a < 1E-6) {
-	totalE += 1;  //photonE /*eV*/;
+        totalE += 1;  //photonE /*eV*/;
       } else {
-	// calculate intersection point - solving 2nd order polynomial
-	double t = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-	G4ThreeVector n(r0.x() + v0.x() * t, r0.y() + v0.y() * t, 0.0);  // surface normal
-	double cosTheta = (n * photonMomentum) / (n.mag() * photonE);    // cosine of incident angle
+        // calculate intersection point - solving 2nd order polynomial
+        double t = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
+        G4ThreeVector n(r0.x() + v0.x() * t, r0.y() + v0.y() * t, 0.0);  // surface normal
+        double cosTheta = (n * photonMomentum) / (n.mag() * photonE);    // cosine of incident angle
 
-	if (cosTheta >= NAperRINDEX)  // lightguide condition
-	  totalE += 1;                //photonE /*eV*/;
+        if (cosTheta >= NAperRINDEX)  // lightguide condition
+          totalE += 1;                //photonE /*eV*/;
       }
     }
   }
