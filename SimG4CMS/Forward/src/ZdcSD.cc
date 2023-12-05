@@ -62,10 +62,6 @@ ZdcSD::ZdcSD(const std::string& name,
 }
 
 void ZdcSD::initRun() {
-  if (useShowerLibrary) {
-    G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
-    showerLibrary->initRun(theParticleTable);
-  }
   hits.clear();
 }
 
