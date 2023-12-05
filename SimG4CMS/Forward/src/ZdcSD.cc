@@ -61,7 +61,13 @@ ZdcSD::ZdcSD(const std::string& name,
   }
 }
 
-void ZdcSD::initRun() { hits.clear(); }
+void ZdcSD::initRun() {
+  if (useShowerLibrary) {
+    G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
+    showerLibrary->initRun(theParticleTable);
+  }
+  hits.clear();
+}
 
 bool ZdcSD::getFromLibrary(const G4Step* aStep) {
   bool ok = true;
@@ -130,6 +136,8 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4double stepL = aStep->GetStepLength() / cm;
   G4double beta = preStepPoint->GetBeta();
   G4double charge = preStepPoint->GetCharge();
+  if (charge == 0.0) 
+    return 0.0;
 
   // theTrack information
   G4Track* theTrack = aStep->GetTrack();
@@ -165,7 +173,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
                                  << " Etot(GeV)= " << theTrack->GetTotalEnergy() / GeV;
 #endif
   const double bThreshold = 0.67;
-  if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
+  if (beta > bThreshold) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass ";
 #endif
