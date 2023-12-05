@@ -217,7 +217,7 @@ bool SteppingAction::initPointer() {
   ekinVolumes.resize(numberEkins, nullptr);
   for (auto const& lvcite : *lvs) {
     const G4String& lvname = lvcite->GetName();
-    if (lvname == "CMStoZDC") {
+    if (lvname == "CMStoZDC" || lvname == "cmsextent:CMStoZDC") {
       m_CMStoZDC = lvcite;
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
