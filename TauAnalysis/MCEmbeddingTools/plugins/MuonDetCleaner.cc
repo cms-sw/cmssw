@@ -40,6 +40,13 @@ MuonDetCleaner<T1, T2>::~MuonDetCleaner() {
 }
 
 template <typename T1, typename T2>
+void MuonDetCleaner<T1, T2>::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+  // get the geometries from the event setup everytime the run (of the event which is processed right now to the previous event) changes
+  m_dtGeometry = iSetup.getHandle(m_dtGeometryToken);
+  m_cscGeometry = iSetup.getHandle(m_cscGeometryToken);
+}
+
+template <typename T1, typename T2>
 void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &iSetup) {
   std::map<T1, std::vector<T2>> recHits_output;  // This data format is easyer to handle
   std::vector<uint32_t> vetoHits;
@@ -77,8 +84,6 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
     vetoHits.erase(unique(vetoHits.begin(), vetoHits.end()), vetoHits.end());
     iEvent.getByToken(m_dtDigisToken, m_dtDigis);
     iEvent.getByToken(m_cscDigisToken, m_cscDigis);
-    auto const &m_dtGeometry = iSetup.getData(m_dtGeometryToken);
-    auto const &m_cscGeometry = iSetup.getData(m_cscGeometryToken);
     edm::ESHandle<Propagator> propagator;
     trackAssociator_.setPropagator(&iSetup.getData(propagatorToken_));
     TrackDetMatchInfo info =
@@ -124,7 +129,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
             auto range = m_dtDigis->get(layerId);
 
             for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-              const auto topo = m_dtGeometry.layer(layerId)->specificTopology();
+              const auto topo = m_dtGeometry->layer(layerId)->specificTopology();
               double xWire = topo.wirePosition((*digiIt).wire());
               double dX = std::abs(xWire - xTrack);
 
@@ -162,7 +167,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
             if (!hasFired)
               continue;
 
-            const CSCLayerGeometry *layerGeom = m_cscGeometry.layer(layerId)->geometry();
+            const CSCLayerGeometry *layerGeom = m_cscGeometry->layer(layerId)->geometry();
             Float_t xStrip = layerGeom->xOfStrip(digiIt->getStrip(), yTrack);
             float dX = std::abs(xStrip - xTrack);
 

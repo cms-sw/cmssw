@@ -50,6 +50,7 @@ public:
 private:
   typedef edm::RangeMap<T1, edm::OwnVector<T2>> RecHitCollection;
 
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   void fillVetoHits(const TrackingRecHit &, std::vector<uint32_t> *);
   uint32_t getRawDetId(const T2 &);
