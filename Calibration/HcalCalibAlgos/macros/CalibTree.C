@@ -50,12 +50,17 @@
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
 //  l1Cut           (double)  = Cut value for the closeness parameter (0.5)
-//  truncateFlag    (int)     = Flag to treat different depths differently (0)
-//                              both depths of ieta 15, 16 of HB as depth 1 (1)
-//                              all depths as depth 1 (2), all depths in HE
-//                              with values > 1 as depth 2 (3), all depths in
-//                              HB with values > 1 as depth 2 (4), all depths
-//                              in HB and HE with values > 1 as depth 2 (5)
+//  truncateFlag    (int)     = A two digit flag (dr) with the default value 0.
+//                              The digit *r* is used to treat depth values:
+//                              (0) treat each depth independently; (1) all
+//                              depths of ieta 15, 16 of HB as depth 1; (2)
+//                              all depths in HB and HE as depth 1; (3) all
+//                              depths in HE with values > 1 as depth 2; (4)
+//                              all depths in HB with values > 1 as depth 2;
+//                              (5) all depths in HB and HE with values > 1
+//                              as depth 2.
+//                              The digit *d* is used if zside is to be
+//                              ignored (1) or not (0)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  drForm          (int)     = type of threshold/dupFileName/rcorFileName (hdr)
