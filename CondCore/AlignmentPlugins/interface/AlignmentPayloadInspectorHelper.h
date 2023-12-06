@@ -15,8 +15,9 @@
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Math/interface/deltaPhi.h"  // for deltaPhi
 #include "DataFormats/Math/interface/Rounding.h"  // for rounding
+#include "DataFormats/Math/interface/deltaPhi.h"  // for deltaPhi
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -24,12 +24,17 @@
 #include <ctime>
 
 // user include files
+#include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,12 +45,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //
 // class declaration
 //
 
-class BeamSpotOnlineShifter : public edm::one::EDAnalyzer<> {
+class BeamSpotOnlineShifter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit BeamSpotOnlineShifter(const edm::ParameterSet&);
   ~BeamSpotOnlineShifter() override = default;
@@ -58,18 +64,32 @@ public:
                  const edm::ESGetToken<BeamSpotOnlineObjects, Record>& token);
 
 private:
+  const GlobalPoint getPixelBarycenter(const AlignmentPI::TkAlBarycenters barycenters, const bool isFullPixel);
+  const GlobalPoint deltaAlignments(const Alignments* target,
+                                    const Alignments* reference,
+                                    const TrackerTopology& tTopo,
+                                    const bool isFullPixel = false);
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
-  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> hltToken;
-  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> legacyToken;
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> hltToken_;
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> legacyToken_;
 
   edm::ESWatcher<BeamSpotOnlineHLTObjectsRcd> bsHLTWatcher_;
   edm::ESWatcher<BeamSpotOnlineLegacyObjectsRcd> bsLegayWatcher_;
 
   // IoV-structure
+  GlobalPoint theShift_;
   const bool fIsHLT_;
+  const bool fullPixel_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBR_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> refAliTokenBR_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> tarAliTokenBR_;
   const double xShift_;
   const double yShift_;
   const double zShift_;
@@ -84,7 +104,12 @@ private:
 // constructors and destructor
 //
 BeamSpotOnlineShifter::BeamSpotOnlineShifter(const edm::ParameterSet& iConfig)
-    : fIsHLT_(iConfig.getParameter<bool>("isHLT")),
+    : theShift_(GlobalPoint()),
+      fIsHLT_(iConfig.getParameter<bool>("isHLT")),
+      fullPixel_(iConfig.getParameter<bool>("useFullPixel")),
+      trackerTopoTokenBR_(esConsumes<edm::Transition::BeginRun>()),
+      refAliTokenBR_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "reference"))),
+      tarAliTokenBR_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "target"))),
       xShift_(iConfig.getParameter<double>("xShift")),
       yShift_(iConfig.getParameter<double>("yShift")),
       zShift_(iConfig.getParameter<double>("zShift")) {
@@ -101,9 +126,9 @@ BeamSpotOnlineShifter::BeamSpotOnlineShifter(const edm::ParameterSet& iConfig)
   fLabel_ = (fIsHLT_) ? "BeamSpotOnlineHLTObjectsRcd" : "BeamSpotOnlineLegacyObjectsRcd";
 
   if (fIsHLT_) {
-    hltToken = esConsumes();
+    hltToken_ = esConsumes();
   } else {
-    legacyToken = esConsumes();
+    legacyToken_ = esConsumes();
   }
 }
 
@@ -126,7 +151,13 @@ void BeamSpotOnlineShifter::writeToDB(const edm::Event& iEvent,
   // output object
   BeamSpotOnlineObjects abeam;
 
-  abeam.setPosition(inputSpot->x() + xShift_, inputSpot->y() + yShift_, inputSpot->z() + zShift_);
+  // N.B.: theShift is the difference between the target and the reference geometry barycenters
+  // so if effectively the displacement of the new origin of reference frame w.r.t the old one.
+  // This has to be subtracted from the old position of the beamspot:
+  // - if the new reference frame rises, the beamspot drops
+  // - if the new reference frame drops, the beamspot rises
+
+  abeam.setPosition(inputSpot->x() - theShift_.x(), inputSpot->y() - theShift_.y(), inputSpot->z() - theShift_.z());
   abeam.setSigmaZ(inputSpot->sigmaZ());
   abeam.setdxdz(inputSpot->dxdz());
   abeam.setdydz(inputSpot->dydz());
@@ -192,16 +223,75 @@ void BeamSpotOnlineShifter::writeToDB(const edm::Event& iEvent,
   edm::LogPrint("BeamSpotOnlineShifter") << "[BeamSpotOnlineShifter] analyze done \n";
 }
 
+//_____________________________________________________________________________________________
+const GlobalPoint BeamSpotOnlineShifter::deltaAlignments(const Alignments* target,
+                                                         const Alignments* reference,
+                                                         const TrackerTopology& tTopo,
+                                                         const bool isFullPixel) {
+  const std::map<AlignmentPI::coordinate, float> theZero = {
+      {AlignmentPI::t_x, 0.0}, {AlignmentPI::t_y, 0.0}, {AlignmentPI::t_z, 0.0}};
+
+  AlignmentPI::TkAlBarycenters ref_barycenters;
+  ref_barycenters.computeBarycenters(reference->m_align, tTopo, theZero);
+  const auto& ref = this->getPixelBarycenter(ref_barycenters, isFullPixel);
+
+  AlignmentPI::TkAlBarycenters tar_barycenters;
+  tar_barycenters.computeBarycenters(target->m_align, tTopo, theZero);
+  const auto& tar = this->getPixelBarycenter(tar_barycenters, isFullPixel);
+
+  return GlobalPoint(tar.x() - ref.x(), tar.y() - ref.y(), tar.z() - ref.z());
+}
+
+//_____________________________________________________________________________________________
+const GlobalPoint BeamSpotOnlineShifter::getPixelBarycenter(AlignmentPI::TkAlBarycenters barycenters,
+                                                            const bool isFullPixel) {
+  const auto& BPix = barycenters.getPartitionAvg(AlignmentPI::PARTITION::BPIX);
+  const double BPixMods = barycenters.getNModules(AlignmentPI::PARTITION::BPIX);
+
+  const auto& FPixM = barycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXm);
+  const double FPixMMods = barycenters.getNModules(AlignmentPI::PARTITION::FPIXm);
+
+  const auto& FPixP = barycenters.getPartitionAvg(AlignmentPI::PARTITION::FPIXp);
+  const double FPixPMods = barycenters.getNModules(AlignmentPI::PARTITION::FPIXp);
+
+  const double BPixFrac = BPixMods / (BPixMods + FPixMMods + FPixPMods);
+  const double FPixMFrac = FPixMMods / (BPixMods + FPixMMods + FPixPMods);
+  const double FPixPFrac = FPixPMods / (BPixMods + FPixMMods + FPixPMods);
+
+  if (isFullPixel) {
+    return GlobalPoint(BPixFrac * BPix.x() + FPixMFrac * FPixM.x() + FPixPFrac * FPixP.x(),
+                       BPixFrac * BPix.y() + FPixMFrac * FPixM.y() + FPixPFrac * FPixP.y(),
+                       BPixFrac * BPix.z() + FPixMFrac * FPixM.z() + FPixPFrac * FPixP.z());
+  } else {
+    return GlobalPoint(BPix.x(), BPix.y(), BPix.z());
+  }
+}
+
+//_____________________________________________________________________________________________
+void BeamSpotOnlineShifter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  const auto& reference = iSetup.getHandle(refAliTokenBR_);
+  const auto& target = iSetup.getHandle(tarAliTokenBR_);
+
+  const TrackerTopology& tTopo = iSetup.getData(trackerTopoTokenBR_);
+
+  if (reference.isValid() and target.isValid()) {
+    theShift_ = this->deltaAlignments(&(*reference), &(*target), tTopo, fullPixel_);
+  } else {
+    theShift_ = GlobalPoint(xShift_, yShift_, zShift_);
+  }
+  edm::LogPrint("BeamSpotOnlineShifter") << "[BeamSpotOnlineShifter] applied shift: " << theShift_ << std::endl;
+}
+
 // ------------ method called for each event  ------------
 void BeamSpotOnlineShifter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   if (fIsHLT_) {
     if (bsHLTWatcher_.check(iSetup)) {
-      writeToDB<BeamSpotOnlineHLTObjectsRcd>(iEvent, iSetup, hltToken);
+      writeToDB<BeamSpotOnlineHLTObjectsRcd>(iEvent, iSetup, hltToken_);
     }
   } else {
     if (bsLegayWatcher_.check(iSetup)) {
-      writeToDB<BeamSpotOnlineLegacyObjectsRcd>(iEvent, iSetup, legacyToken);
+      writeToDB<BeamSpotOnlineLegacyObjectsRcd>(iEvent, iSetup, legacyToken_);
     }
   }
 }
@@ -210,6 +300,7 @@ void BeamSpotOnlineShifter::analyze(const edm::Event& iEvent, const edm::EventSe
 void BeamSpotOnlineShifter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("isHLT", true);
+  desc.add<bool>("useFullPixel", false)->setComment("use the full pixel detector to compute the barycenter");
   desc.add<double>("xShift", 0.0)->setComment("in cm");
   desc.add<double>("yShift", 0.0)->setComment("in cm");
   desc.add<double>("zShift", 0.0)->setComment("in cm");

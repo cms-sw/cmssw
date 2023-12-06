@@ -4,11 +4,6 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process("READ")
 
 options = VarParsing.VarParsing()
-options.register('unitTest',
-                 False, # default value
-                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                 VarParsing.VarParsing.varType.bool, # string, int, or float
-                 "are we running the unit test?")
 options.register('inputTag',
                  "myTagName", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -34,12 +29,11 @@ options.parseArguments()
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000                         # do not clog output with IO
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1 if options.unitTest else 10000000) )   # large number of events is needed since we probe 5000LS for run (see below)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000))   # large number of events is needed since we probe 5000LS for run (see below)
 
 ####################################################################
 # Empty source 
 ####################################################################
-
 process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(options.startRun),                  # Run in ../data/BeamFitResults_Run306171.txt
                             firstLuminosityBlock = cms.untracked.uint32(options.startLumi),         # Lumi in ../data/BeamFitResults_Run306171.txt
@@ -50,50 +44,27 @@ process.source = cms.Source("EmptySource",
 ####################################################################
 # Connect to conditions DB
 ####################################################################
+process.load("Configuration.StandardSequences.GeometryDB_cff") # for the topolgy
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "132X_dataRun3_HLT_v2")
+process.GlobalTag.toGet =  cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),             # record
+                                              tag = cms.string("TrackerAlignment_PCL_byRun_v0_hlt"),  # choose your favourite tag
+                                              label = cms.untracked.string("reference")),             # refence label
+                                     cms.PSet(record = cms.string("TrackerAlignmentRcd"),                  # record
+                                              tag = cms.string("TrackerAlignment_collisions23_forHLT_v9"), # choose your favourite tag
+                                              label = cms.untracked.string("target")))                     # target label
 
-# either from Global Tag
-# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-# from Configuration.AlCa.GlobalTag import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag,"auto:run2_data")
+process.GlobalTag.DumpStats = cms.untracked.bool(True)
 
-# ...or specify database connection and tag:  
-#from CondCore.CondDB.CondDB_cfi import *
-#CondDBBeamSpotObjects = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-#process.dbInput = cms.ESSource("PoolDBESSource",
-#                               CondDBBeamSpotObjects,
-#                               toGet = cms.VPSet(cms.PSet(record = cms.string('BeamSpotOnlineLegacyObjectsRcd'), # BeamSpotOnlineLegacy record
-#                                                          tag = cms.string('BSLegacy_tag')                       # choose your favourite tag
-#                                                          )
-#                                                 )
-#                               )
-# ...or from a local db file
-# input database (in this case the local sqlite file)
-
-if options.unitTest :
-    if options.inputRecord ==  "BeamSpotOnlineLegacyObjectsRcd" : 
-        myTagName = 'BSLegacy_tag'
-    else:
-        myTagName = 'BSHLT_tag'
-else:
-    myTagName = options.inputTag
-
-from CondCore.CondDB.CondDB_cfi import *
-#CondDBBeamSpotOnlineLegacy = CondDB.clone(connect = cms.string("sqlite_file:test_%s.db" % myTagName)) # customize with input db file
-CondDBBeamSpotOnlineLegacy = CondDB.clone(connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")) # customize with input db file
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    CondDBBeamSpotOnlineLegacy,
-    DumpStat=cms.untracked.bool(True),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string(options.inputRecord),  # BeamSpotOnline record
-        tag = cms.string(myTagName)                 # choose your favourite tag
-    ))
-)
+myTagName = options.inputTag
 
 print("isForHLT: ",(options.inputRecord ==  "BeamSpotOnlineHLTObjectsRcd"))
 
 #################################
 # Produce a SQLITE FILE
 #################################
+from CondCore.CondDB.CondDB_cfi import *
 CondDBBeamSpotObjects = CondDB.clone(connect = cms.string('sqlite_file:test_%s.db' % myTagName)) # choose an output name
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           CondDBBeamSpotObjects,
@@ -107,10 +78,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 # Load and configure analyzer
 ####################################################################
 process.beamspotonlineshifter = cms.EDAnalyzer("BeamSpotOnlineShifter",
-                                              isHLT = cms.bool((options.inputRecord ==  "BeamSpotOnlineHLTObjectsRcd")),
-                                              xShift =  cms.double(+0.000141),
-                                              yShift =  cms.double(+0.000826),
-                                              zShift =  cms.double(+0.000277))
+                                               isHLT = cms.bool((options.inputRecord ==  "BeamSpotOnlineHLTObjectsRcd")),
+                                               xShift =  cms.double(+0.000141),
+                                               yShift =  cms.double(+0.000826),
+                                               zShift =  cms.double(+0.000277))
                                    
 # Put module in path:
 process.p = cms.Path(process.beamspotonlineshifter)
