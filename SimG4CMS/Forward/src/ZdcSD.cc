@@ -74,7 +74,6 @@ void ZdcSD::initRun() {
 }
 
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
-
   if (useShowerLibrary)
     getFromLibrary(aStep);
 
@@ -182,7 +181,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4double stepL = aStep->GetStepLength() / cm;
   G4double beta = preStepPoint->GetBeta();
   G4double charge = preStepPoint->GetCharge();
-  if (charge == 0.0) 
+  if (charge == 0.0)
     return 0.0;
 
   // theTrack information
