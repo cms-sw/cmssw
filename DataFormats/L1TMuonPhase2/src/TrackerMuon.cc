@@ -1,4 +1,3 @@
-
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 using namespace l1t;
@@ -27,3 +26,4 @@ void TrackerMuon::print() const {
                           << " z0=" << hwZ0_ << " d0=" << hwD0_ << " isolation=" << hwIso() << " beta=" << hwBeta_
                           << " quality=" << hwQual();
 }
+
