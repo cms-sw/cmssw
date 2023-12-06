@@ -419,6 +419,15 @@ def customiseCleaning(process, changeProcessname=True, reselect=False):
     TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = (
         cms.InputTag("horeco", "", dataTier)
     )
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.ME0HitCollectionLabel = (
+        cms.InputTag("me0RecHits", "", dataTier)
+    )
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.ME0SegmentCollectionLabel = (
+        cms.InputTag("me0Segments", "", dataTier)
+    )
+    TrackAssociatorParameterBlock.TrackAssociatorParameters.RPCHitCollectionLabel = (
+        cms.InputTag("rpcRecHits", "", dataTier)
+    )
 
     MuonImput = cms.InputTag("selectedMuonsForEmbedding", "", "")  ## This are the muon
     for akt_manimod in to_bemanipulate:
