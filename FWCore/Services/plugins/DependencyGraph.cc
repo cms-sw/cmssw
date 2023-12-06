@@ -96,7 +96,7 @@ private:
   using GraphvizAttributes = std::map<std::string, std::string>;
 
   // directed graph, with `node` properties attached to each vertex
-  boost::subgraph<boost::adjacency_list<
+  using GraphType = boost::subgraph<boost::adjacency_list<
       // edge list
       boost::vecS,
       // vertex list
@@ -118,8 +118,8 @@ private:
                           GraphvizAttributes,  // Graphviz graph attributes
                           boost::property<boost::graph_vertex_attribute_t,
                                           GraphvizAttributes,
-                                          boost::property<boost::graph_edge_attribute_t, GraphvizAttributes>>>>>>
-      m_graph;
+                                          boost::property<boost::graph_edge_attribute_t, GraphvizAttributes>>>>>>;
+  GraphType m_graph;
 
   std::string m_filename;
   std::unordered_set<std::string> m_highlightModules;
@@ -275,7 +275,37 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     }
   }
 
-  // marke the modules in the paths as scheduled, and add a soft dependency to reflect the order of modules along each path
+  // save each Path and EndPath as a Graphviz subgraph
+  for (unsigned int i = 0; i < paths.size(); ++i) {
+    // create a subgraph to match the Path
+    auto &graph = m_graph.create_subgraph();
+
+    // set the subgraph name property to the Path name
+    boost::get_property(graph, boost::graph_name) = paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "Path " + paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "bottom";
+
+    // add to the subgraph the node corresponding to the scheduled modules on the Path
+    for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnPath(i)) {
+      boost::add_vertex(module->id(), graph);
+    }
+  }
+  for (unsigned int i = 0; i < endps.size(); ++i) {
+    // create a subgraph to match the EndPath
+    auto &graph = m_graph.create_subgraph();
+
+    // set the subgraph name property to the EndPath name
+    boost::get_property(graph, boost::graph_name) = paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "EndPath " + paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "bottom";
+
+    // add to the subgraph the node corresponding to the scheduled modules on the EndPath
+    for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnEndPath(i)) {
+      boost::add_vertex(module->id(), graph);
+    }
+  }
+
+  // mark the modules in the paths as scheduled, and add a soft dependency to reflect the order of modules along each path
   edm::ModuleDescription const *previous;
   for (unsigned int i = 0; i < paths.size(); ++i) {
     previous = nullptr;
