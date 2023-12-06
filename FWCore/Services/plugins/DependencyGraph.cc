@@ -361,6 +361,12 @@ void DependencyGraph::postBeginJob() {
   if (not m_initialized)
     return;
 
+  // remove the nodes corresponding to the modules that have been removed from the process
+  for (int i = boost::num_vertices(m_graph) - 1; i > 1; --i) {
+    if (m_graph.m_graph[i].label.empty())
+      boost::remove_vertex(i, m_graph.m_graph);
+  }
+
   // draw the dependency graph
   std::ofstream out(m_filename);
   boost::write_graphviz(out, m_graph);
