@@ -684,7 +684,7 @@ run3_common.toModify( g4SimHits,
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False, 
                          SteppingAction = dict(
-                             CMStoZDCtransport = cms.bool(True) ) )
+                             CMStoZDCtransport = True) )
 
 ##
 ## Change ECAL time slices
