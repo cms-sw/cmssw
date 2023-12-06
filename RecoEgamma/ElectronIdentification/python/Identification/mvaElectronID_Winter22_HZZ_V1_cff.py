@@ -46,4 +46,4 @@ mvaEleID_Winter22_HZZ_V1_producer_config = cms.PSet(
 
 mvaEleID_Winter22_HZZ_V1 = configureVIDMVAEleID( mvaEleID_Winter22_HZZ_V1_container )
 
-mvaEleID_Winter22_HZZ_V1.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_Winter22_HZZ_V1.isPOGApproved = cms.untracked.bool(True)
