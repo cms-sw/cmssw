@@ -341,7 +341,7 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const Traject
 bool TrajSeedMatcher::layerHasValidHits(const DetLayer& layer,
                                         const TrajectoryStateOnSurface& hitSurState,
                                         const Propagator& propToLayerFromState) const {
-  //FIXME: do not hardcode with werid magic numbers stolen from ancient tracking code
+  //FIXME: do not hardcode with weird magic numbers stolen from ancient tracking code
   //its taken from https://cmssdt.cern.ch/dxr/CMSSW/source/RecoTracker/TrackProducer/interface/TrackProducerBase.icc#165
   //which inspires this code
   Chi2MeasurementEstimator estimator(30., -3.0, 0.5, 2.0, 0.5, 1.e12);  // same as defauts....
@@ -353,7 +353,8 @@ bool TrajSeedMatcher::layerHasValidHits(const DetLayer& layer,
   else {
     DetId id = detWithState.front().first->geographicalId();
     MeasurementDetWithData measDet = measTkEvt_.idToDet(id);
-    if (measDet.isActive())
+    //Below, measDet.hasBadComponents handles the check that a Pixel module has or not errors like FED25
+    if (measDet.isActive() && !measDet.hasBadComponents(detWithState.front().second))
       return true;
     else
       return false;
