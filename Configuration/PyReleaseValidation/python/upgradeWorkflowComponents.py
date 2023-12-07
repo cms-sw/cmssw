@@ -2825,8 +2825,6 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
-<<<<<<< HEAD
-=======
     '2026D105' : {
         'Geom' : 'Extended2026D104',
         'HLTmenu': '@relval2026',
@@ -2834,7 +2832,6 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
->>>>>>> 5bd8a0ba0d1 (ETL Geometry v8)
 }
 
 # standard PU sequences
