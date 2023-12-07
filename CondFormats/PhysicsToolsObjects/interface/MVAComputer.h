@@ -28,6 +28,16 @@ namespace PhysicsTools {
 
     class BitSet {
     public:
+      // help that poor ROOT to copy bitsets... (workaround)
+      BitSet &operator=(const BitSet &other) {
+        store = other.store;
+        bitsInLast = other.bitsInLast;
+        return *this;
+      }
+      BitSet(const BitSet &other) = default;
+      BitSet() = default;
+      ~BitSet() = default;
+
       std::vector<unsigned char> store;
       unsigned int bitsInLast;
 
@@ -61,6 +71,7 @@ namespace PhysicsTools {
       inline Variable() {}
       inline Variable(const std::string &name) : name(name) {}
       inline ~Variable() {}
+      Variable &operator=(const Variable &other) = default;
 
       std::string name;
 

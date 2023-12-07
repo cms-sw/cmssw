@@ -1,8 +1,5 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPattern.h"
 
-#include "boost/multi_array/multi_array_ref.hpp"
-#include "boost/multi_array/subarray.hpp"
-
 #include <cmath>
 #include <iomanip>
 

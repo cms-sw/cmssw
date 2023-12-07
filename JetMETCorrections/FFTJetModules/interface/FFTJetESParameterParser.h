@@ -52,7 +52,7 @@ std::shared_ptr<AbsFFTJetScaleCalculator<Jet, Adjustable> > parseFFTJetScaleCalc
   //     }
 
   // Load the table from the archive
-  CPP11_auto_ptr<npstat::StorableMultivariateFunctor> autof = loadFFTJetInterpolationTable(ps, ar, verbose);
+  std::unique_ptr<npstat::StorableMultivariateFunctor> autof = loadFFTJetInterpolationTable(ps, ar, verbose);
   std::shared_ptr<npstat::StorableMultivariateFunctor> f(autof.release());
 
   // Swap the class name if it is supposed to be determined

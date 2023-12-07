@@ -80,7 +80,7 @@ void FFTJetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::Event
   if (printAsString)
     std::cout << "++++ String rep: \"" << JetCorParams->str() << '"' << std::endl;
   else if (readArchive) {
-    CPP11_auto_ptr<gs::StringArchive> par;
+    std::unique_ptr<gs::StringArchive> par;
 
     {
       std::istringstream is(JetCorParams->str());

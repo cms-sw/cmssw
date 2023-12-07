@@ -249,6 +249,15 @@ namespace edm {
     preModuleEventAcquireSignal_.connect(std::cref(iOther.preModuleEventAcquireSignal_));
     postModuleEventAcquireSignal_.connect(std::cref(iOther.postModuleEventAcquireSignal_));
 
+    preModuleTransformPrefetchingSignal_.connect(std::cref(iOther.preModuleTransformPrefetchingSignal_));
+    postModuleTransformPrefetchingSignal_.connect(std::cref(iOther.postModuleTransformPrefetchingSignal_));
+
+    preModuleTransformSignal_.connect(std::cref(iOther.preModuleTransformSignal_));
+    postModuleTransformSignal_.connect(std::cref(iOther.postModuleTransformSignal_));
+
+    preModuleTransformAcquiringSignal_.connect(std::cref(iOther.preModuleTransformAcquiringSignal_));
+    postModuleTransformAcquiringSignal_.connect(std::cref(iOther.postModuleTransformAcquiringSignal_));
+
     preModuleEventDelayedGetSignal_.connect(std::cref(iOther.preModuleEventDelayedGetSignal_));
     postModuleEventDelayedGetSignal_.connect(std::cref(iOther.postModuleEventDelayedGetSignal_));
 
@@ -485,6 +494,15 @@ namespace edm {
 
     copySlotsToFrom(preModuleEventAcquireSignal_, iOther.preModuleEventAcquireSignal_);
     copySlotsToFromReverse(postModuleEventAcquireSignal_, iOther.postModuleEventAcquireSignal_);
+
+    copySlotsToFrom(preModuleTransformPrefetchingSignal_, iOther.preModuleTransformPrefetchingSignal_);
+    copySlotsToFromReverse(postModuleTransformPrefetchingSignal_, iOther.postModuleTransformPrefetchingSignal_);
+
+    copySlotsToFrom(preModuleTransformSignal_, iOther.preModuleTransformSignal_);
+    copySlotsToFromReverse(postModuleTransformSignal_, iOther.postModuleTransformSignal_);
+
+    copySlotsToFrom(preModuleTransformAcquiringSignal_, iOther.preModuleTransformAcquiringSignal_);
+    copySlotsToFromReverse(postModuleTransformAcquiringSignal_, iOther.postModuleTransformAcquiringSignal_);
 
     copySlotsToFrom(preModuleEventDelayedGetSignal_, iOther.preModuleEventDelayedGetSignal_);
     copySlotsToFromReverse(postModuleEventDelayedGetSignal_, iOther.postModuleEventDelayedGetSignal_);

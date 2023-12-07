@@ -26,6 +26,9 @@ public:
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic2DVector(const Basic2DVector& p) : v(p.v) {}
 
+  /// Assignment operator
+  Basic2DVector& operator=(const Basic2DVector&) = default;
+
   template <typename U>
   Basic2DVector(const Basic2DVector<U>& p) : v(p.v) {}
 

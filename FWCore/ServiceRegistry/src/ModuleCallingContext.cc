@@ -12,15 +12,21 @@
 namespace edm {
 
   ModuleCallingContext::ModuleCallingContext(ModuleDescription const* moduleDescription)
-      : previousModuleOnThread_(nullptr), moduleDescription_(moduleDescription), parent_(), state_(State::kInvalid) {}
+      : previousModuleOnThread_(nullptr),
+        moduleDescription_(moduleDescription),
+        parent_(),
+        id_(0),
+        state_(State::kInvalid) {}
 
   ModuleCallingContext::ModuleCallingContext(ModuleDescription const* moduleDescription,
+                                             std::uintptr_t id,
                                              State state,
                                              ParentContext const& parent,
                                              ModuleCallingContext const* previousOnThread)
       : previousModuleOnThread_(previousOnThread),
         moduleDescription_(moduleDescription),
         parent_(parent),
+        id_(id),
         state_(state) {}
 
   void ModuleCallingContext::setContext(State state,

@@ -27,6 +27,7 @@
 #include "G4AntiProton.hh"
 #include "G4VProcess.hh"
 
+#include <DD4hep/Filter.h>
 #include <vector>
 
 using namespace CLHEP;
@@ -168,7 +169,7 @@ void GFlashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     if (aSensitive == nullptr)
       continue;
 
-    G4String nameCalor = aCurrentVolume->GetName();
+    G4String nameCalor = (G4String)(dd4hep::dd::noNamespace(lv->GetName()));
     nameCalor.assign(nameCalor, 0, 2);
     G4double samplingWeight = 1.0;
     if (nameCalor == "HB") {

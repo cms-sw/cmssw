@@ -112,28 +112,32 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
   if (debug) {
     std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << " Flag " << truncateFlag << std::endl;
   }
+  int truncate0 = ((truncateFlag / 1) % 10);
+  int truncate1 = ((truncateFlag / 10) % 10);
   int subdet, depth, zside, ieta, iphi;
   unpackDetId(detId, subdet, zside, ieta, iphi, depth);
-  if (truncateFlag == 1) {
+  if (truncate1 == 1)
+    zside = 1;
+  if (truncate0 == 1) {
     //Ignore depth index of ieta values of 15 and 16 of HB
     if ((subdet == 1) && (ieta > 14))
       depth = 1;
-  } else if (truncateFlag == 2) {
+  } else if (truncate0 == 2) {
     //Ignore depth index of all ieta values
     depth = 1;
-  } else if (truncateFlag == 3) {
+  } else if (truncate0 == 3) {
     //Ignore depth index for depth > 1 in HE
     if ((subdet == 2) && (depth > 1))
       depth = 2;
     else
       depth = 1;
-  } else if (truncateFlag == 4) {
+  } else if (truncate0 == 4) {
     //Ignore depth index for depth > 1 in HB
     if ((subdet == 1) && (depth > 1))
       depth = 2;
     else
       depth = 1;
-  } else if (truncateFlag == 5) {
+  } else if (truncate0 == 5) {
     //Ignore depth index for depth > 1 in HB and HE
     if (depth > 1)
       depth = 2;
@@ -174,16 +178,17 @@ unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
 bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
 
 int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int truncate0 = ((truncateFlag / 1) % 10);
   int d(depth);
-  if (truncateFlag == 5) {
+  if (truncate0 == 5) {
     d = (depth == 1) ? 1 : 2;
-  } else if (truncateFlag == 4) {
+  } else if (truncate0 == 4) {
     d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 3) {
+  } else if (truncate0 == 3) {
     d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 2) {
+  } else if (truncate0 == 2) {
     d = 1;
-  } else if (truncateFlag == 1) {
+  } else if (truncate0 == 1) {
     d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
   }
   return d;

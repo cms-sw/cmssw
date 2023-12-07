@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/WrapperBase.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
@@ -24,19 +25,20 @@
 namespace edm {
 
   class EventPrincipal;
-  class ModuleCallingContext;
 
   class EventForTransformer {
   public:
-    EventForTransformer(EventPrincipal const&, ModuleCallingContext const*);
+    EventForTransformer(EventPrincipal const&, ModuleCallingContext);
 
     BasicHandle get(edm::TypeID const& iTypeID, ProductResolverIndex iIndex) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, BasicHandle const& iGetHandle);
 
+    ModuleCallingContext const& moduleCallingContext() const { return mcc_; }
+
   private:
     EventPrincipal const& eventPrincipal_;
-    ModuleCallingContext const* mcc_;
+    ModuleCallingContext mcc_;
   };
 }  // namespace edm
 #endif

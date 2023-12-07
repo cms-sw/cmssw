@@ -46,7 +46,13 @@ public:
   struct chamDC {
     uint32_t detId;
     int chamberType;
-    bool operator<(const chamDC& r) const { return detId < r.detId; }
+    bool operator<(const chamDC& r) const {
+      if (detId == r.detId) {
+        return chamberType < r.chamberType;
+      } else {
+        return detId < r.detId;
+      }
+    }
 
     COND_SERIALIZABLE;
   };

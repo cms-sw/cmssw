@@ -771,6 +771,12 @@ class ConfigBuilder(object):
         if self._options.pileup:
             pileupSpec=self._options.pileup.split(',')[0]
 
+            #make sure there is a set of pileup files specified when needed
+            pileups_without_input=[defaultOptions.pileup,"Cosmics","default","HiMixNoPU",None]
+            if self._options.pileup not in pileups_without_input and self._options.pileup_input==None:
+                message = "Pileup scenerio requires input files. Please add an appropriate --pileup_input option"
+                raise Exception(message)
+
             # Does the requested pile-up scenario exist?
             from Configuration.StandardSequences.Mixing import Mixing,defineMixing
             if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:

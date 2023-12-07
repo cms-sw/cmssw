@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include <vector>
+#include <array>
 
 class HGCalWaferMask {
 public:
@@ -68,11 +69,19 @@ public:
                                                          const double& ypos,
                                                          const bool& v17);
 
+  static std::array<double, 4> maskCut(
+      const int& part, const int& place, const double& waferSize, const double& offset, const bool& v17OrLess);
+
 private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
   static constexpr double sin_60_ = 0.5 * sqrt3_;
   static constexpr double cos_60_ = 0.5;
   static constexpr double tan_60_ = sqrt3_;
+  static constexpr std::array<double, 12> tan_1 = {
+      {-sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0}};
+  static constexpr std::array<double, 12> cos_1 = {{0.5, -0.5, -1.0, -0.5, 0.5, 1.0, -0.5, 0.5, 1.0, 0.5, -0.5, -1.0}};
+  static constexpr std::array<double, 12> cot_1 = {
+      {sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0}};
 };
 
 #endif

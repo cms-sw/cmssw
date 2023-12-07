@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 #include "zlib.h"
 
@@ -108,7 +109,7 @@ namespace gs {
 
       case ZLIB: {
         if (!inflator_.get())
-          inflator_ = CPP11_auto_ptr<ZlibInflateHandle>(new ZlibInflateHandle());
+          inflator_ = std::make_unique<ZlibInflateHandle>();
         doZlibCompression(&readBuf_[0], len, false, inflator_->strm(), &comprBuf_[0], comprBuf_.size(), *this);
       } break;
 
@@ -144,7 +145,7 @@ namespace gs {
     switch (mode_) {
       case ZLIB: {
         if (!deflator_.get())
-          deflator_ = CPP11_auto_ptr<ZlibDeflateHandle>(new ZlibDeflateHandle(compressionLevel_));
+          deflator_ = std::make_unique<ZlibDeflateHandle>(compressionLevel_);
         doZlibCompression(data, len, true, deflator_->strm(), &comprBuf_[0], comprBuf_.size(), *sink_);
       } break;
 

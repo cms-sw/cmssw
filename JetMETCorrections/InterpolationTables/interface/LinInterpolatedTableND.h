@@ -15,7 +15,7 @@
 #include <vector>
 #include <utility>
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 
 #include "JetMETCorrections/InterpolationTables/interface/ArrayND.h"
 #include "JetMETCorrections/InterpolationTables/interface/UniformAxis.h"
@@ -179,11 +179,11 @@ namespace npstat {
         // in case "Numeric" type is either float or double.
         */
     template <typename ConvertibleToUnsigned>
-    CPP11_auto_ptr<LinInterpolatedTableND> invertWRTAxis(ConvertibleToUnsigned axisNumber,
-                                                         const Axis& replacementAxis,
-                                                         bool newAxisLeftLinear,
-                                                         bool newAxisRightLinear,
-                                                         const char* functionLabel = nullptr) const;
+    std::unique_ptr<LinInterpolatedTableND> invertWRTAxis(ConvertibleToUnsigned axisNumber,
+                                                          const Axis& replacementAxis,
+                                                          bool newAxisLeftLinear,
+                                                          bool newAxisRightLinear,
+                                                          const char* functionLabel = nullptr) const;
 
     /**
         // This method inverts the ratio response.
@@ -208,13 +208,13 @@ namespace npstat {
         // only in case "Numeric" type is either float or double.
         */
     template <class Functor1, class Functor2>
-    CPP11_auto_ptr<LinInterpolatedTableND> invertRatioResponse(unsigned axisNumber,
-                                                               const Axis& replacementAxis,
-                                                               bool newAxisLeftLinear,
-                                                               bool newAxisRightLinear,
-                                                               Functor1 invg,
-                                                               Functor2 invh,
-                                                               const char* functionLabel = nullptr) const;
+    std::unique_ptr<LinInterpolatedTableND> invertRatioResponse(unsigned axisNumber,
+                                                                const Axis& replacementAxis,
+                                                                bool newAxisLeftLinear,
+                                                                bool newAxisRightLinear,
+                                                                Functor1 invg,
+                                                                Functor2 invh,
+                                                                const char* functionLabel = nullptr) const;
 
     /** Comparison for equality */
     bool operator==(const LinInterpolatedTableND&) const;
@@ -716,7 +716,7 @@ namespace npstat {
 
   template <typename Numeric, class Axis>
   template <typename ConvertibleToUnsigned>
-  CPP11_auto_ptr<LinInterpolatedTableND<Numeric, Axis> > LinInterpolatedTableND<Numeric, Axis>::invertWRTAxis(
+  std::unique_ptr<LinInterpolatedTableND<Numeric, Axis> > LinInterpolatedTableND<Numeric, Axis>::invertWRTAxis(
       const ConvertibleToUnsigned axisNumC,
       const Axis& replacementAxis,
       const bool leftLinear,
@@ -737,7 +737,7 @@ namespace npstat {
     iType[axisNumber] = std::pair<bool, bool>(leftLinear, rightLinear);
 
     // Create the new table
-    CPP11_auto_ptr<LinInterpolatedTableND> pTable(new LinInterpolatedTableND(newAxes, iType, functionLabel));
+    std::unique_ptr<LinInterpolatedTableND> pTable(new LinInterpolatedTableND(newAxes, iType, functionLabel));
 
     if (dim_ > 1U) {
       // Prepare array slices
@@ -767,7 +767,7 @@ namespace npstat {
 
   template <typename Numeric, class Axis>
   template <class Functor1, class Functor2>
-  CPP11_auto_ptr<LinInterpolatedTableND<Numeric, Axis> > LinInterpolatedTableND<Numeric, Axis>::invertRatioResponse(
+  std::unique_ptr<LinInterpolatedTableND<Numeric, Axis> > LinInterpolatedTableND<Numeric, Axis>::invertRatioResponse(
       const unsigned axisNumber,
       const Axis& replacementAxis,
       const bool leftLinear,
@@ -820,7 +820,7 @@ namespace npstat {
     std::vector<double> workspace(nCoords);
 
     // Create the new table
-    CPP11_auto_ptr<LinInterpolatedTableND> pTable(new LinInterpolatedTableND(newAxes, iType, functionLabel));
+    std::unique_ptr<LinInterpolatedTableND> pTable(new LinInterpolatedTableND(newAxes, iType, functionLabel));
 
     if (dim_ > 1U) {
       // Prepare array slices

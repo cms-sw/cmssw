@@ -2,7 +2,7 @@
 #define GENERS_REFERENCE_HH_
 
 #include "Alignment/Geners/interface/AbsReference.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 
 #include <memory>
 
@@ -32,7 +32,7 @@ namespace gs {
 
     // Methods to retrieve the item
     void restore(unsigned long index, T *obj) const;
-    CPP11_auto_ptr<T> get(unsigned long index) const;
+    std::unique_ptr<T> get(unsigned long index) const;
     std::shared_ptr<T> getShared(unsigned long index) const;
 
     Reference() = delete;
@@ -73,8 +73,8 @@ namespace gs {
   }
 
   template <typename T>
-  inline CPP11_auto_ptr<T> Reference<T>::get(const unsigned long index) const {
-    return CPP11_auto_ptr<T>(getPtr(index));
+  inline std::unique_ptr<T> Reference<T>::get(const unsigned long index) const {
+    return std::unique_ptr<T>(getPtr(index));
   }
 
   template <typename T>

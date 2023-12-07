@@ -21,15 +21,15 @@
 //      Defaults: append=true, iname=2
 //
 //             For plotting stored histograms from FitHist's
-//  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, dataMC,
+//  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, isRealData,
 //           drawStatBox, save);
-//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, dataMC=false,
+//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, isRealData=false,
 //                drawStatBox=true, save=0
 //
 //             For plotting histograms corresponding to individual ieta's
-//  PlotHistEta(infile, prefix, text, iene, numb, ieta, lumi, ener, dataMC,
+//  PlotHistEta(infile, prefix, text, iene, numb, ieta, lumi, ener, isRealData,
 //           drawStatBox, save);
-//      Defaults iene=3, numb=50, ieta=0, lumi=0, ener=13.0, dataMC=false,
+//      Defaults iene=3, numb=50, ieta=0, lumi=0, ener=13.0, isRealData=false,
 //                drawStatBox=true, save=0
 //
 //             For plotting several histograms in the same plot
@@ -64,9 +64,10 @@
 //      Defaults: save=0
 //
 //             For plotting correction factors
-//  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, dataMC,
+//  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, isRealData,
 //                    drawStatBox, iformat, save);
-//      Defaults: dataMC=true, drwaStatBox=false, nmin=100, iformat=0, save=0
+//      Defaults: isRealData=true, drwaStatBox=false, nmin=100, iformat=0,
+//                save=0
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
@@ -78,8 +79,8 @@
 //
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
-//                      drawStatBox, nmin, dataMC, year, iformat, save)
-//      Defaults: ratio=false, drawStatBox=true, nmin=100, dataMC=false,
+//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//      Defaults: ratio=false, drawStatBox=true, nmin=100, isRealData=false,
 //                year=2018, iformat=0, save=0
 //
 //             For plotting correction factors including systematics
@@ -118,10 +119,10 @@
 //               drawStatBox = true, save = 0
 //
 //             For plotting histograms created by CalibPlotProperties
-//  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, dataMC,
+//  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, isRealData,
 //		     drawStatBox, save)
 //      Defaults etaMax = 25 (draws for eta = 1 .. etaMax), lumi = 0,
-//               ener = 13.0, dataMC = false,  drawStatBox = true, save = 0
+//               ener = 13.0, isRealData = false,  drawStatBox = true, save = 0
 //
 //            For plotting mean response and resolution as a function of
 //            particle momentum
@@ -136,8 +137,8 @@
 //         Width of response and uts error for the 4 regions
 //
 //            For plotting depth dependent correction factors from muon study
-//  PlotDepthCorrFactor(infile, text, prefix, dataMC, drawStatBox, save)
-//      Defaults prefix = "", dataMC = true, drawStatBox = true, save = 0
+//  PlotDepthCorrFactor(infile, text, prefix, isRealData, drawStatBox, save)
+//      Defaults prefix = "", isRealData = true, drawStatBox = true, save = 0
 //      Format for the input file: ieta and correcrion factor with its
 //             uncertainty for each depth
 //
@@ -145,9 +146,9 @@
 //            give by infileX for 2 depths (depth1, depth2) as a function of
 //            ieta obaned from 2 sources of data (defined by text1 and text2)
 //  PlotHistCorrRatio(infile1, text1, infile2, text2, depth1, depth2, prefix,
-//                    text0, etaMin, etaMax, doFit, dataMC, year, iformat,
+//                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
 //                    save)
-//      Defaults etaMin = -1, etaMax = -1, doFit = true, dataMC = true,
+//      Defaults etaMin = -1, etaMax = -1, doFit = true, isRealData = true,
 //               year = 2022, iformat = 0, save = 0
 //      text0 is a general description common to both sets of corr factors
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
@@ -1230,7 +1231,7 @@ void PlotHist(const char* infile,
               int kopt = 100,
               double lumi = 0,
               double ener = 13.0,
-              bool dataMC = false,
+              bool isRealData = false,
               bool drawStatBox = true,
               int save = 0) {
   std::string name0[6] = {"ratio00", "ratio10", "ratio20", "ratio30", "ratio40", "ratio50"};
@@ -1334,7 +1335,7 @@ void PlotHist(const char* infile,
       } else {
         if (mode == 5)
           hist->GetYaxis()->SetRangeUser(0.1, 0.50);
-        else if (dataMC)
+        else if (isRealData)
           hist->GetYaxis()->SetRangeUser(0.5, 1.50);
         else
           hist->GetYaxis()->SetRangeUser(0.8, 1.20);
@@ -1411,12 +1412,12 @@ void PlotHist(const char* infile,
       }
       txt1->AddText(txt);
       txt1->Draw("same");
-      double xmax = (dataMC) ? 0.33 : 0.44;
+      double xmax = (isRealData) ? 0.33 : 0.44;
       ymi = (lumi > 0.1) ? 0.91 : 0.84;
       ymx = ymi + 0.05;
       TPaveText* txt2 = new TPaveText(0.11, ymi, xmax, ymx, "blNDC");
       txt2->SetFillColor(0);
-      if (dataMC)
+      if (isRealData)
         sprintf(txt, "CMS Preliminary");
       else
         sprintf(txt, "CMS Simulation Preliminary");
@@ -1443,7 +1444,7 @@ void PlotHistEta(const char* infile,
                  int ieta = 0,
                  double lumi = 0,
                  double ener = 13.0,
-                 bool dataMC = false,
+                 bool isRealData = false,
                  bool drawStatBox = true,
                  int save = 0) {
   std::string name0 = "ratio";
@@ -1527,12 +1528,12 @@ void PlotHistEta(const char* infile,
       }
       txt1->AddText(txt);
       txt1->Draw("same");
-      double xmax = (dataMC) ? 0.33 : 0.44;
+      double xmax = (isRealData) ? 0.33 : 0.44;
       ymi = (lumi > 0.1) ? 0.91 : 0.84;
       ymx = ymi + 0.05;
       TPaveText* txt2 = new TPaveText(0.11, ymi, xmax, ymx, "blNDC");
       txt2->SetFillColor(0);
-      if (dataMC)
+      if (isRealData)
         sprintf(txt, "CMS Preliminary");
       else
         sprintf(txt, "CMS Simulation Preliminary");
@@ -2165,7 +2166,7 @@ void PlotHistCorrFactor(char* infile,
                         std::string prefixF = "",
                         double scale = 1.0,
                         int nmin = 100,
-                        bool dataMC = false,
+                        bool isRealData = false,
                         bool drawStatBox = true,
                         int iformat = 0,
                         int save = 0) {
@@ -2271,10 +2272,10 @@ void PlotHistCorrFactor(char* infile,
     pad->Update();
   }
   char txt1[30];
-  double xmax = (dataMC) ? 0.33 : 0.44;
+  double xmax = (isRealData) ? 0.33 : 0.44;
   TPaveText* txt2 = new TPaveText(0.11, 0.85, xmax, 0.89, "blNDC");
   txt2->SetFillColor(0);
-  if (dataMC)
+  if (isRealData)
     sprintf(txt1, "CMS Preliminary");
   else
     sprintf(txt1, "CMS Simulation Preliminary");
@@ -2398,7 +2399,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool ratio = false,
                          bool drawStatBox = true,
                          int nmin = 100,
-                         bool dataMC = false,
+                         bool isRealData = false,
                          int year = 2018,
                          int iformat = 0,
                          int save = 0) {
@@ -2600,7 +2601,7 @@ void PlotHistCorrFactors(char* infile1,
     TPaveText* txt0 = new TPaveText(0.12, 0.84, 0.49, 0.89, "blNDC");
     txt0->SetFillColor(0);
     char txt[40];
-    if (dataMC)
+    if (isRealData)
       sprintf(txt, "CMS Preliminary (%d)", year);
     else
       sprintf(txt, "CMS Simulation Preliminary (%d)", year);
@@ -3435,7 +3436,7 @@ void PlotPropertyHist(const char* infile,
                       int etaMax = 25,
                       double lumi = 0,
                       double ener = 13.0,
-                      bool dataMC = false,
+                      bool isRealData = false,
                       bool drawStatBox = true,
                       int save = 0) {
   std::string name0[3] = {"energyE2", "energyH2", "energyP2"};
@@ -3519,12 +3520,12 @@ void PlotPropertyHist(const char* infile,
         }
         txt1->AddText(txt);
         txt1->Draw("same");
-        double xmax = (dataMC) ? 0.24 : 0.35;
+        double xmax = (isRealData) ? 0.24 : 0.35;
         ymi = 0.91;
         ymx = ymi + 0.05;
         TPaveText* txt2 = new TPaveText(0.02, ymi, xmax, ymx, "blNDC");
         txt2->SetFillColor(0);
-        if (dataMC)
+        if (isRealData)
           sprintf(txt, "CMS Preliminary");
         else
           sprintf(txt, "CMS Simulation Preliminary");
@@ -3608,12 +3609,12 @@ void PlotPropertyHist(const char* infile,
         }
         txt1->AddText(txt);
         txt1->Draw("same");
-        double xmax = (dataMC) ? 0.24 : 0.35;
+        double xmax = (isRealData) ? 0.24 : 0.35;
         ymi = 0.91;
         ymx = ymi + 0.05;
         TPaveText* txt2 = new TPaveText(0.02, ymi, xmax, ymx, "blNDC");
         txt2->SetFillColor(0);
-        if (dataMC)
+        if (isRealData)
           sprintf(txt, "CMS Preliminary");
         else
           sprintf(txt, "CMS Simulation Preliminary");
@@ -3768,7 +3769,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
 void PlotDepthCorrFactor(char* infile,
                          std::string text,
                          std::string prefix = "",
-                         bool dataMC = true,
+                         bool isRealData = true,
                          bool drawStatBox = true,
                          int save = 0) {
   std::map<int, cfactors> cfacs;
@@ -3915,10 +3916,10 @@ void PlotDepthCorrFactor(char* infile,
     pad->Update();
   }
   char txt1[30];
-  double xmax = (dataMC) ? 0.33 : 0.44;
+  double xmax = (isRealData) ? 0.33 : 0.44;
   TPaveText* txt2 = new TPaveText(0.11, 0.85, xmax, 0.89, "blNDC");
   txt2->SetFillColor(0);
-  if (dataMC)
+  if (isRealData)
     sprintf(txt1, "CMS Preliminary");
   else
     sprintf(txt1, "CMS Simulation Preliminary");
@@ -3935,7 +3936,7 @@ void PlotDepthCorrFactor(char* infile,
   }
 }
 
-void DrawHistPhiSymmetry(TH1D* hist0, bool dataMC, bool drawStatBox, bool save) {
+void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save) {
   char name[30], namep[30], txt1[30];
   TH1D* hist = (TH1D*)(hist0->Clone());
   sprintf(namep, "c_%s", hist->GetName());
@@ -3964,7 +3965,7 @@ void DrawHistPhiSymmetry(TH1D* hist0, bool dataMC, bool drawStatBox, bool save) 
   }
   TPaveText* txt2 = new TPaveText(0.11, 0.85, 0.44, 0.89, "blNDC");
   txt2->SetFillColor(0);
-  if (dataMC)
+  if (isRealData)
     sprintf(txt1, "CMS Preliminary");
   else
     sprintf(txt1, "CMS Simulation Preliminary");
@@ -3979,7 +3980,7 @@ void DrawHistPhiSymmetry(TH1D* hist0, bool dataMC, bool drawStatBox, bool save) 
 }
 
 void PlotPhiSymmetryResults(
-    char* infile, bool dataMC = true, bool drawStatBox = true, bool debug = false, bool save = false) {
+    char* infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
   const int maxDepthHB(4), maxDepthHE(7);
   const double cfacMin(0.70), cfacMax(1.5);
   const int nbin = (100.0 * (cfacMax - cfacMin));
@@ -4074,12 +4075,12 @@ void PlotPhiSymmetryResults(
 
   // HB first
   for (unsigned int k = 0; k < histHB.size(); ++k) {
-    DrawHistPhiSymmetry(histHB[k], dataMC, drawStatBox, save);
+    DrawHistPhiSymmetry(histHB[k], isRealData, drawStatBox, save);
   }
 
   // Then HE
   for (unsigned int k = 0; k < histHE.size(); ++k) {
-    DrawHistPhiSymmetry(histHE[k], dataMC, drawStatBox, save);
+    DrawHistPhiSymmetry(histHE[k], isRealData, drawStatBox, save);
   }
 }
 
@@ -4094,7 +4095,7 @@ void PlotHistCorrRatio(char* infile1,
                        int etaMin = -1,
                        int etaMax = -1,
                        bool doFit = true,
-                       bool dataMC = true,
+                       bool isRealData = true,
                        int year = 2022,
                        int iformat = 0,
                        int save = 0) {
@@ -4229,7 +4230,7 @@ void PlotHistCorrRatio(char* infile1,
     TPaveText* txt0 = new TPaveText(0.12, 0.91, 0.49, 0.96, "blNDC");
     txt0->SetFillColor(0);
     char txt[40];
-    if (dataMC)
+    if (isRealData)
       sprintf(txt, "CMS Preliminary (%d)", year);
     else
       sprintf(txt, "CMS Simulation Preliminary (%d)", year);

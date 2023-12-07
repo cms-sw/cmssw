@@ -15,6 +15,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4PhysicalConstants.hh"
 
+#include <DD4hep/Filter.h>
+
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
 constexpr G4double scaleFactor = 1.025;
 
@@ -29,7 +31,7 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
   fMaterial = nullptr;
   auto table = G4Material::GetMaterialTable();
   for (auto const& mat : *table) {
-    G4String nam = mat->GetName();
+    G4String nam = (G4String)(dd4hep::dd::noNamespace(mat->GetName()));
     size_t n = nam.size();
     if (n > 4) {
       G4String sn = nam.substr(n - 5, 5);
@@ -39,7 +41,7 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
       }
     }
   }
-  G4String nm = (nullptr == fMaterial) ? "not found!" : fMaterial->GetName();
+  G4String nm = (nullptr == fMaterial) ? "not found!" : (G4String)(dd4hep::dd::noNamespace(fMaterial->GetName()));
   edm::LogVerbatim("LowEnergyFastSimModel") << "LowEGFlash material: <" << nm << ">";
 }
 

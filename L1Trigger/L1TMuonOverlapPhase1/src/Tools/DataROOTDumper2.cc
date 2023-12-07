@@ -15,15 +15,6 @@
 
 #include "TFile.h"
 #include "TTree.h"
-#include "TParameter.h"
-#include "TObjString.h"
-
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
                                  const OMTFConfiguration* omtfConfig,

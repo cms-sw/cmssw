@@ -35,12 +35,14 @@ allTags["LAWidth"] = {
     'T21' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T15_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "forWidth", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
     'T25' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T19_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "forWidth", "2020-02-23 14:00:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
     'T30' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_IT_v6.4.0_25x100_empty_mc' ,SiPixelLARecord,connectionString, "forWidth", "2021-11-29 20:00:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
+    'T33' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_IT_v7.1.1_25x100_empty_mc' ,SiPixelLARecord,connectionString, "forWidth", "2023-12-02 15:55:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
 }
 
 allTags["LAfromAlignment"] = {
     'T21' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T15_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "fromAlignment", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
     'T25' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T19_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "fromAlignment", "2020-02-23 14:00:00.000"] ), ),  # uH=0.0/T (not in use)
     'T30' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_IT_v6.4.0_25x100_empty_mc' ,SiPixelLARecord,connectionString, "fromAlignment", "2021-11-29 20:00:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
+    'T33' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_IT_v7.1.1_25x100_empty_mc' ,SiPixelLARecord,connectionString, "fromAlignment", "2023-12-02 15:55:00.000"] ), ),  # uH=0.0/T (fall-back to offset)
 }
 
 allTags["SimLA"] = {

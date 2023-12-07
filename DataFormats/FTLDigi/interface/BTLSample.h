@@ -25,6 +25,7 @@ public:
   BTLSample(uint32_t value, uint16_t flag, uint8_t row, uint8_t col)
       : value_(value), flag_(flag), row_(row), col_(col) {}
   BTLSample(const BTLSample& o) : value_(o.value_), flag_(o.flag_), row_(o.row_), col_(o.col_) {}
+  BTLSample& operator=(const BTLSample&) = default;
 
   /**
      @short setters

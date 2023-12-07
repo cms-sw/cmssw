@@ -15,4 +15,11 @@
   <use name="cppunit"/>
 </bin>
 
+<bin file="test_catch2_*.cc" name="test_catch2_SiStripHashedDetId">
+  <use name="CalibFormats/SiStripObjects"/>
+  <use name="CalibTracker/SiStripCommon"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="catch2"/>
+</bin>
+
 <test name="testSiStripHashedDetId" command="testSiStripHashedDetId.sh"/>

@@ -7,7 +7,50 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include <optional>
+
+namespace {
+  class TransformSignalSentry {
+  public:
+    TransformSignalSentry(edm::ActivityRegistry* a, edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
+        : a_(a), sc_(sc), mcc_(mcc) {
+      if (a_)
+        a_->preModuleTransformSignal_(sc_, mcc_);
+    }
+    ~TransformSignalSentry() {
+      if (a_)
+        a_->postModuleTransformSignal_(sc_, mcc_);
+    }
+
+  private:
+    edm::ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
+    edm::StreamContext const& sc_;
+    edm::ModuleCallingContext const& mcc_;
+  };
+
+  class TransformAcquiringSignalSentry {
+  public:
+    TransformAcquiringSignalSentry(edm::ActivityRegistry* a,
+                                   edm::StreamContext const& sc,
+                                   edm::ModuleCallingContext const& mcc)
+        : a_(a), sc_(sc), mcc_(mcc) {
+      if (a_)
+        a_->preModuleTransformAcquiringSignal_(sc_, mcc_);
+    }
+    ~TransformAcquiringSignalSentry() {
+      if (a_)
+        a_->postModuleTransformAcquiringSignal_(sc_, mcc_);
+    }
+
+  private:
+    edm::ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
+    edm::StreamContext const& sc_;
+    edm::ModuleCallingContext const& mcc_;
+  };
+
+}  // namespace
 
 namespace edm {
   void TransformerBase::registerTransformImp(
@@ -65,11 +108,15 @@ namespace edm {
 
   void TransformerBase::transformImpAsync(edm::WaitingTaskHolder iHolder,
                                           std::size_t iIndex,
+                                          edm::ActivityRegistry* iAct,
                                           ProducerBase const& iBase,
                                           edm::EventForTransformer& iEvent) const {
+    auto const& mcc = iEvent.moduleCallingContext();
     if (transformInfo_.get<kPreTransform>(iIndex)) {
       std::optional<decltype(iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex)))>
           handle;
+      //transform acquiring signal
+      TransformAcquiringSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
       CMS_SA_ALLOW try {
         handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
       } catch (...) {
@@ -79,11 +126,14 @@ namespace edm {
       if (handle->wrapper()) {
         auto cache = std::make_shared<std::any>();
         auto nextTask =
-            edm::make_waiting_task([holder = iHolder, cache, iIndex, this, &iBase, handle = *handle, iEvent](
+            edm::make_waiting_task([holder = iHolder, cache, iIndex, this, &iBase, handle = *handle, iEvent, iAct](
                                        std::exception_ptr const* iPtr) mutable {
               if (iPtr) {
                 holder.doneWaiting(*iPtr);
               } else {
+                //transform signal
+                auto mcc = iEvent.moduleCallingContext();
+                TransformSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
                 iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
                            transformInfo_.get<kTransform>(iIndex)(std::move(*cache)),
                            handle);
@@ -102,6 +152,8 @@ namespace edm {
 
         if (handle.wrapper()) {
           std::any v = handle.wrapper();
+          //transform signal
+          TransformSignalSentry sentry(iAct, *mcc.getStreamContext(), mcc);
           iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
                      transformInfo_.get<kTransform>(iIndex)(std::move(v)),
                      handle);

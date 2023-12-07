@@ -241,7 +241,9 @@ _fastSim_jetCoreRegionalStepTracks = RecoTracker.FinalTrackSelectors.trackListMe
     copyExtras         = True
 )
 fastSim.toReplaceWith(jetCoreRegionalStepTracks,_fastSim_jetCoreRegionalStepTracks)
-
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+(seedingDeepCore & fastSim).toReplaceWith(jetCoreRegionalStepBarrelTracks,_fastSim_jetCoreRegionalStepTracks)
+(seedingDeepCore & fastSim).toReplaceWith(jetCoreRegionalStepEndcapTracks,_fastSim_jetCoreRegionalStepTracks)
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
@@ -335,10 +337,8 @@ JetCoreRegionalStepEndcapTask = cms.Task(jetsForCoreTrackingEndcap,
                                          jetCoreRegionalStepEndcap)
 
 
-from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
-
 from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
-seedingDeepCore.toReplaceWith(jetCoreRegionalStepTracks, TrackCollectionMerger.clone(
+(seedingDeepCore & ~fastSim).toReplaceWith(jetCoreRegionalStepTracks, TrackCollectionMerger.clone(
     trackProducers   = ["jetCoreRegionalStepBarrelTracks",
                         "jetCoreRegionalStepEndcapTracks",],
     inputClassifiers = ["jetCoreRegionalStepBarrel",
@@ -355,6 +355,12 @@ seedingDeepCore.toReplaceWith(JetCoreRegionalStepTask, cms.Task(
     cms.Task(jetCoreRegionalStepTracks,jetCoreRegionalStep)
 ))
 
+# short-circuit tracking parts for fastsim
 fastSim.toReplaceWith(JetCoreRegionalStepTask, 
-                      cms.Task(jetCoreRegionalStepTracks,
-                                   jetCoreRegionalStep))
+    cms.Task(jetCoreRegionalStepTracks,
+             jetCoreRegionalStep))
+(seedingDeepCore & fastSim).toReplaceWith(JetCoreRegionalStepTask,
+    cms.Task(jetCoreRegionalStepBarrelTracks, jetCoreRegionalStepEndcapTracks,
+             jetCoreRegionalStepTracks,
+             jetCoreRegionalStepBarrel, jetCoreRegionalStepEndcap,
+             jetCoreRegionalStep))
