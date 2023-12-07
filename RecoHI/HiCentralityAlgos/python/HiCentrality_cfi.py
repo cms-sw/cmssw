@@ -36,7 +36,8 @@ hiCentrality = cms.EDProducer("CentralityProducer",
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-(pp_on_XeXe_2017 | pp_on_AA).toModify(hiCentrality,
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+(pp_on_XeXe_2017 | pp_on_AA | run3_upc).toModify(hiCentrality,
                                       producePixelTracks = True,
                                       srcPixelTracks = "hiConformalPixelTracks",
                                       srcTracks = "generalTracks",

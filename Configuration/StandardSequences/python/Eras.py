@@ -45,6 +45,7 @@ class Eras (object):
                  'Run3_FastSim',
                  'Run3_2023_FastSim',
                  'Run3_2023_ZDC',
+                 'Run3_2023_UPC',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -87,6 +88,7 @@ class Eras (object):
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
                            'run3_ecal_devel',
+                           'run3_upc',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']

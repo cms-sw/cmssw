@@ -31,3 +31,6 @@ phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
 
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toModify(lostTracks,inputCandidates = 'cleanedParticleFlow')
+
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(lostTracks, minPtToStoreProps = 0.0, passThroughCut = "")
