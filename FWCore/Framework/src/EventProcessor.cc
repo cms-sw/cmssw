@@ -1668,7 +1668,7 @@ namespace edm {
                                       edm::WaitingTaskHolder iHolder) {
     actReg_->esSyncIOVQueuingSignal_.emit(iSync);
 
-    auto status = std::make_shared<LuminosityBlockProcessingStatus>(preallocations_.numberOfStreams());
+    auto status = std::make_shared<LuminosityBlockProcessingStatus>();
     chain::first([this, &iSync, &status](auto nextTask) {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
@@ -1767,6 +1767,9 @@ namespace edm {
                             streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
                               for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
                                 streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
+                                  if (!status->shouldStreamStartLumi()) {
+                                    return;
+                                  }
                                   streamQueues_[i].pause();
 
                                   auto& event = principalCache_.eventPrincipal(i);
@@ -1979,6 +1982,7 @@ namespace edm {
       if (streamLumiActive_ > 0) {
         FinalWaitingTask globalWaitTask{taskGroup_};
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
+        streamLumiStatus_[0]->noMoreEventsInLumi();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
         for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
           streamEndLumiAsync(WaitingTaskHolder{taskGroup_, &globalWaitTask}, i);
@@ -2305,6 +2309,7 @@ namespace edm {
           // the stream will stop processing this lumi now
           if (status->eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi) {
             if (not status->haveStartedNextLumiOrEndedRun()) {
+              status->noMoreEventsInLumi();
               status->startNextLumiOrEndRun();
               if (lastTransitionType() == InputSource::ItemType::IsLumi && !iTask.taskHasFailed()) {
                 CMS_SA_ALLOW try {
