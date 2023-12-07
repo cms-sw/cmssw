@@ -123,10 +123,10 @@ void SimTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       SimTauCPLink t;
       buildSimTau(t, 0, -1, g, -1, caloParticles_h, genBarcodes);
       t.decayMode = t.buildDecayModes();
-      #ifdef EDM_ML_DEBUG
-        t.dumpFullDecay();
-        t.dump();
-      #endif
+#ifdef EDM_ML_DEBUG
+      t.dumpFullDecay();
+      t.dump();
+#endif
       (*tauDecayVec).push_back(t);
     }
   }
@@ -138,6 +138,7 @@ void SimTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("genBarcodes", edm::InputTag("genParticles"));
-  descriptions.add("SimTauProducer", desc);}
+  descriptions.add("SimTauProducer", desc);
+}
 
 DEFINE_FWK_MODULE(SimTauProducer);

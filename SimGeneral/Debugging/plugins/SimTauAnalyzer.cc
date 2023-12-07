@@ -52,10 +52,10 @@ void SimTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const auto& simTaus = *simTau_h;
 
   for (auto const& simTau : simTaus) {
-    #ifdef EDM_ML_DEBUG
-      simTau.dumpFullDecay();
-      simTau.dump();
-    #endif
+#ifdef EDM_ML_DEBUG
+    simTau.dumpFullDecay();
+    simTau.dump();
+#endif
     DM_histo->Fill(simTau.decayMode);
   }
 }

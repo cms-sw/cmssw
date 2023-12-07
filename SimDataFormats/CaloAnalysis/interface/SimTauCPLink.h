@@ -77,78 +77,77 @@ public:
   }
 
   int buildDecayModes() {
+    int numElectrons = 0;
+    int numMuons = 0;
+    int numHadrons = 0;
+    int numPhotons = 0;
+    for (auto leaf : leaves) {
+      int pdg_id = abs(leaf.pdgId());
+      switch (pdg_id) {
+        case 22:
+          numPhotons++;
+          break;
+        case 11:
+          numElectrons++;
+          break;
+        case 13:
+          numMuons++;
+          break;
+        case 16:
+          break;
+        default:
+          numHadrons++;
+      }
+    }
 
-  int numElectrons = 0;
-  int numMuons = 0;
-  int numHadrons = 0;
-  int numPhotons = 0;
-  for (auto leaf : leaves) {
-    int pdg_id = abs(leaf.pdgId());
-    switch (pdg_id) {
-      case 22:
-        numPhotons++;
-        break;
-      case 11:
-        numElectrons++;
-        break;
-      case 13:
-        numMuons++;
-        break;
-      case 16:
-        break;
+    if (numElectrons == 1)
+      return kElectron;
+    else if (numMuons == 1)
+      return kMuon;
+    switch (numHadrons) {
+      case 1:
+        switch (numPhotons) {
+          case 0:
+            return kOneProng0PiZero;
+          case 2:
+            return kOneProng1PiZero;
+          case 4:
+            return kOneProng2PiZero;
+          case 6:
+            return kOneProng3PiZero;
+          default:
+            return kOneProngNPiZero;
+        }
+      case 2:
+        switch (numPhotons) {
+          case 0:
+            return kTwoProng0PiZero;
+          case 2:
+            return kTwoProng1PiZero;
+          case 4:
+            return kTwoProng2PiZero;
+          case 6:
+            return kTwoProng3PiZero;
+          default:
+            return kTwoProngNPiZero;
+        }
+      case 3:
+        switch (numPhotons) {
+          case 0:
+            return kThreeProng0PiZero;
+          case 2:
+            return kThreeProng1PiZero;
+          case 4:
+            return kThreeProng2PiZero;
+          case 6:
+            return kThreeProng3PiZero;
+          default:
+            return kThreeProngNPiZero;
+        }
       default:
-        numHadrons++;
+        return kRareDecayMode;
     }
   }
-
-  if (numElectrons == 1)
-    return kElectron;
-  else if (numMuons == 1)
-    return kMuon;
-  switch (numHadrons) {
-    case 1:
-      switch (numPhotons) {
-        case 0:
-          return kOneProng0PiZero;
-        case 2:
-          return kOneProng1PiZero;
-        case 4:
-          return kOneProng2PiZero;
-        case 6:
-          return kOneProng3PiZero;
-        default:
-          return kOneProngNPiZero;
-      }
-    case 2:
-      switch (numPhotons) {
-        case 0:
-          return kTwoProng0PiZero;
-        case 2:
-          return kTwoProng1PiZero;
-        case 4:
-          return kTwoProng2PiZero;
-        case 6:
-          return kTwoProng3PiZero;
-        default:
-          return kTwoProngNPiZero;
-      }
-    case 3:
-      switch (numPhotons) {
-        case 0:
-          return kThreeProng0PiZero;
-        case 2:
-          return kThreeProng1PiZero;
-        case 4:
-          return kThreeProng2PiZero;
-        case 6:
-          return kThreeProng3PiZero;
-        default:
-          return kThreeProngNPiZero;
-      }
-    default:
-      return kRareDecayMode;
-  }
-}
 
 private:
 };
