@@ -29,7 +29,8 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Layer " << layer << " wafer " << waferU << ":" << waferV << " index " << index << " partial " << partial;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Layer " << layer << " wafer " << waferU << ":" << waferV << " index "
+                               << index << " partial " << partial;
 #endif
     if (partial == HGCalTypes::WaferFull) {
       double dx = std::abs(point.x());

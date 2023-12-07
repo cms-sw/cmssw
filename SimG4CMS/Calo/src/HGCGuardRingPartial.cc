@@ -31,7 +31,8 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     int type = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: Layer " << layer << " wafer " << waferU << ":" << waferV << " index " << index << " partial " << partial << " type "<< type;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: Layer " << layer << " wafer " << waferU << ":" << waferV
+                               << " index " << index << " partial " << partial << " type " << type;
 #endif
     if (partial == HGCalTypes::WaferFull) {
       return (check);
@@ -43,7 +44,8 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
       double dx = point.x();
       double dy = point.y();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: orient " << orient << " placement " << placement << " dx " << dx << " dy " << dy;
+      edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: orient " << orient << " placement " << placement << " dx "
+                                 << dx << " dy " << dy;
 #endif
       if (type > 0) {
         for (int ii = HGCalTypes::WaferPartLDOffset;
