@@ -141,11 +141,11 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
     }
   }
   // Layer 2 params specification
-  paramsHelper.setEgSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()) / 2);
-  paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()) / 2);
-  paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()) / 2);
-  paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()) / 2);
-  paramsHelper.setPileUpTowerThreshold((conf["pileUpTowerThreshold"].getValue<int>()) / 2);
+  paramsHelper.setEgSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()) / 2.);
+  paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()) / 2.);
+  paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()) / 2.);
+  paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()) / 2.);
+  paramsHelper.setPileUpTowerThreshold((conf["pileUpTowerThreshold"].getValue<int>()) / 2.);
 
   paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>()) / 2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
@@ -164,7 +164,7 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
   paramsHelper.setTauIsolationLUT(l1t::convertToLUT(conf["tauIsoLUT"].getVector<int>()));
   paramsHelper.setTauTrimmingShapeVetoLUT(l1t::convertToLUT(conf["tauTrimmingLUT"].getVector<int>()));
 
-  paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>()) / 2);
+  paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>()) / 2.);
   paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<bool>());
   paramsHelper.setJetPUSUsePhiRing(conf["jetPUSUsePhiRing"].getValue<bool>());
   paramsHelper.setJetCalibrationLUT(l1t::convertToLUT(conf["jetEnergyCalibLUT"].getVector<uint32_t>()));
@@ -179,10 +179,10 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
 
   etSumEtThresh.push_back(0);  //deprecated by EttPUSLUT
-  etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>() / 2);
+  etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>() / 2.);
   etSumEtThresh.push_back(0);  //deprecated by MetPUSLUT
-  etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>() / 2);
-  etSumEtThresh.push_back(conf["towerCountThreshold"].getValue<int>() / 2);
+  etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>() / 2.);
+  etSumEtThresh.push_back(conf["towerCountThreshold"].getValue<int>() / 2.);
 
   for (uint i = 0; i < 5; ++i) {
     paramsHelper.setEtSumEtaMax(i, etSumEtaMax.at(i));
@@ -200,8 +200,8 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
   etSumCentUpperValues = conf["ET_centralityUpperThresholds"].getVector<double>();
 
   for (uint i = 0; i < 8; ++i) {
-    paramsHelper.setEtSumCentLower(i, etSumCentLowerValues[i] / 2);
-    paramsHelper.setEtSumCentUpper(i, etSumCentUpperValues[i] / 2);
+    paramsHelper.setEtSumCentLower(i, etSumCentLowerValues[i] / 2.);
+    paramsHelper.setEtSumCentUpper(i, etSumCentUpperValues[i] / 2.);
   }
 
   // demux tower sum calib LUTs
