@@ -387,7 +387,11 @@ window.onload = () => {
                 +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
             }
         } else {
-            selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+            let transform = '';
+            if (item.call != 0 && item.mod > 0) {
+                transform = ' transform '
+            }
+            selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+transform+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
         }
     }
     function doSelection(items, x) {

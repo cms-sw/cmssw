@@ -252,7 +252,7 @@ namespace edm {
       ServiceRegistry::Operate guard(weakToken.lock());
 
       ModuleCallingContext mcc(
-          &module_->moduleDescription(), iTransformIndex, ModuleCallingContext::State::kRunning, iParent, nullptr);
+          &module_->moduleDescription(), iTransformIndex + 1, ModuleCallingContext::State::kRunning, iParent, nullptr);
       module_->doTransformAsync(iTask, iTransformIndex, iEvent, activityRegistry(), mcc, weakToken);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
