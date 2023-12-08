@@ -340,6 +340,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
+        CMStoZDCtransport       = cms.bool(False),                 
         MaxNumberOfSteps        = cms.int32(20000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
@@ -594,8 +595,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     ZdcSD = cms.PSet(
         Verbosity = cms.int32(0),
-        UseShowerLibrary = cms.bool(True),
-        UseShowerHits = cms.bool(False),
+        UseShowerLibrary = cms.bool(False),
+        UseShowerHits = cms.bool(True),
         FiberDirection = cms.double(45.0),
         ZdcHitEnergyCut = cms.double(10.0)
     ),
@@ -678,10 +679,12 @@ run3_common.toModify( g4SimHits,
                       CaloHits = ['CaloHitsTk','EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','TotemHitsT2Scint','ZDCHITS'] )
 
 ##
-## Disable PPS from Run 3 PbPb runs
+## Disable PPS from Run 3 PbPb runs and enable ZDC 
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
+pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False, 
+                         SteppingAction = dict(
+                             CMStoZDCtransport = True) )
 
 ##
 ## Change ECAL time slices

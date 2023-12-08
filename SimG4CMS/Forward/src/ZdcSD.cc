@@ -74,8 +74,6 @@ void ZdcSD::initRun() {
 }
 
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
-  NaNTrap(aStep);
-
   if (useShowerLibrary)
     getFromLibrary(aStep);
 
@@ -105,7 +103,7 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
       edepositEM = 0;
       edepositHAD = energy;
     }
-    if (!hitExists(aStep, 0) && edepositEM + edepositHAD > 0.) {
+    if (!hitExists(aStep, 0) && energy > 0.) {
 #ifdef EDM_ML_DEBUG
       G4ThreeVector pre = aStep->GetPreStepPoint()->GetPosition();
       edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z();
@@ -183,6 +181,8 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4double stepL = aStep->GetStepLength() / cm;
   G4double beta = preStepPoint->GetBeta();
   G4double charge = preStepPoint->GetCharge();
+  if (charge == 0.0)
+    return 0.0;
 
   // theTrack information
   G4Track* theTrack = aStep->GetTrack();
@@ -218,7 +218,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
                                  << " Etot(GeV)= " << theTrack->GetTotalEnergy() / CLHEP::GeV;
 #endif
   const double bThreshold = 0.67;
-  if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
+  if (beta > bThreshold) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass ";
 #endif
