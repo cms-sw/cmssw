@@ -103,11 +103,9 @@ process.l1tTrackVertexAssociationProducerForJets.cutSet = cms.PSet(
 process.l1tTrackerEmuHTMiss.debug = (options.debug > 0)
 
 #Disable internal track selection
+#There is a problem with setting all of these (especially eta) to high numbers.
 process.l1tTrackJetsEmulation.MaxDzTrackPV = cms.double(10000.0)
-process.l1tTrackJetsEmulation.trk_zMax = cms.double(10000.0)    # maximum track z
-process.l1tTrackJetsEmulation.trk_ptMax = cms.double(10000.0)    # maximumum track pT before saturation [GeV]
-process.l1tTrackJetsEmulation.trk_ptMin = cms.double(0.0)     # minimum track pt [GeV]
-process.l1tTrackJetsEmulation.trk_etaMax = cms.double(10000.0)    # maximum track eta
+process.l1tTrackJetsEmulation.trk_zMax = cms.double(20.46912512)    # maximum track z from TrackWord
 process.l1tTrackJetsEmulation.nStubs4PromptChi2=cms.double(10000.0) #Prompt track quality flags for loose/tight
 process.l1tTrackJetsEmulation.nStubs4PromptBend=cms.double(10000.0)
 process.l1tTrackJetsEmulation.nStubs5PromptChi2=cms.double(10000.0)

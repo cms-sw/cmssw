@@ -17,6 +17,22 @@ namespace l1ttrackjet {
   const unsigned int ETA_INTPART_BITS{3};
   const unsigned int kExtraGlobalPhiBit{4};
 
+  static constexpr int kEtaWordLength = 15;
+  static constexpr int kPhiWordLength = 12;
+
+  //Constants used for jet clustering in eta direction
+  static constexpr int kThirteenBitMask = 0b1111111111111;
+  static constexpr int kEtaFineBinEdge1 = 0b0011001100110;
+  static constexpr int kEtaFineBinEdge2 = 0b0110011001100;
+  static constexpr int kEtaFineBinEdge3 = 0b1001100110010;
+  static constexpr int kEtaFineBinEdge4 = 0b1100110011000;
+
+  //Constants used for jet clustering in phi direction
+  static constexpr int kTwelveBitMask = 0b011111111111;
+  static constexpr int kPhiBinHalfWidth = 0b000100101111;
+  static constexpr int kNumPhiBins = 27;
+  static constexpr int kPhiBinZeroOffset = 12;  // phi bin zero offset between firmware and emulator
+
   typedef ap_ufixed<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1, PT_INTPART_BITS, AP_TRN, AP_SAT> pt_intern;
   typedef ap_fixed<TTTrack_TrackWord::TrackBitWidths::kTanlSize, ETA_INTPART_BITS, AP_TRN, AP_SAT> glbeta_intern;
   typedef ap_int<TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit> glbphi_intern;
@@ -111,6 +127,77 @@ namespace l1ttrackjet {
         PassQuality = true;
     }
     return PassQuality;
+  }
+
+  // Eta binning following the hardware logic
+  inline unsigned int eta_bin_firmwareStyle(int eta_word) {
+    //Function that reads in 15-bit eta word (in two's complement) and returns the index of eta bin in which it belongs
+    //Logic follows exactly according to the firmware
+    //We will first determine if eta is pos/neg from the first bit. Each half of the grid is then split into four coarse bins. Bits 2&3 determine which coarse bin to assign
+    //The coarse bins are split into 5 fine bins, final 13 bits determine which of these coarse bins this track needs to assign
+    int eta_coarse = 0;
+    int eta_fine = 0;
+
+    if (eta_word & (1 << kEtaWordLength)) {  //If eta is negative (first/leftmost bit is 1)
+      //Second and third bits contain information about which of four coarse bins
+      eta_coarse = 5 * ((eta_word & (3 << (kEtaWordLength - 2))) >> (kEtaWordLength - 2));
+    } else {  //else eta is positive (first/leftmost bit is 0)
+      eta_coarse = 5 * (4 + ((eta_word & (3 << (kEtaWordLength - 2))) >> (kEtaWordLength - 2)));
+    }
+
+    //Now get the fine bin index. The numbers correspond to the decimal representation of fine bin edges in binary
+    int j = eta_word & kThirteenBitMask;
+    if (j < kEtaFineBinEdge1)
+      eta_fine = 0;
+    else if (j < kEtaFineBinEdge2)
+      eta_fine = 1;
+    else if (j < kEtaFineBinEdge3)
+      eta_fine = 2;
+    else if (j < kEtaFineBinEdge4)
+      eta_fine = 3;
+    else
+      eta_fine = 4;
+
+    //Final eta bin is coarse bin index + fine bin index, subtract 8 to make eta_bin at eta=-2.4 have index=0
+    int eta_ = (eta_coarse + eta_fine) - 8;
+    return eta_;
+  }
+
+  // Phi binning following the hardware logic
+  inline unsigned int phi_bin_firmwareStyle(int phi_sector_raw, int phi_word) {
+    //Function that reads in decimal integers phi_sector_raw and phi_word and returns the index of phi bin in which it belongs
+    //phi_sector_raw is integer 0-8 correspoding to one of 9 phi sectors
+    //phi_word is 12 bit word representing the phi value measured w.r.t the center of the sector
+
+    int phi_coarse = 3 * phi_sector_raw;  //phi_coarse is index of phi coarse binning (sector edges)
+    int phi_fine = 0;  //phi_fine is index of fine bin inside sectors. Each sector contains 3 fine bins
+
+    //Determine fine bin. First bit is sign, next 11 bits determine fine bin
+    //303 is distance from 0 to first fine bin edge
+    //2047 is eleven 1's, use the &2047 to extract leftmost 11 bits.
+
+    //The allowed range for phi goes further than the edges of bin 0 or 2 (bit value 909). There's an apparent risk of phi being > 909, however this will always mean the track is in the next link (i.e. track beyond bin 2 in this link means track is actually in bin 0 of adjacent link)
+
+    if (phi_word & (1 << (kPhiWordLength - 1))) {  //if phi is negative (first bit 1)
+      //Since negative, we 'flip' the phi word, then check if it is in fine bin 0 or 1
+      if ((kTwelveBitMask - (phi_word & kTwelveBitMask)) > kPhiBinHalfWidth) {
+        phi_fine = 0;
+      } else if ((kTwelveBitMask - (phi_word & kTwelveBitMask)) < kPhiBinHalfWidth) {
+        phi_fine = 1;
+      }
+    } else {  //else phi is positive (first bit 0)
+      //positive phi, no 'flip' necessary. Just check if in  fine bin 1 or 2
+      if ((phi_word & kTwelveBitMask) < kPhiBinHalfWidth) {
+        phi_fine = 1;
+      } else if ((phi_word & kTwelveBitMask) > kPhiBinHalfWidth) {
+        phi_fine = 2;
+      }
+    }
+
+    // Final operation is a shift by pi (half a grid) to make bin at index=0 at -pi
+    int phi_bin_ = (phi_coarse + phi_fine + kPhiBinZeroOffset) % kNumPhiBins;
+
+    return phi_bin_;
   }
 
   // L1 clustering (in eta)

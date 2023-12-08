@@ -256,22 +256,20 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
     }
   }
 
+  //Begin Firmware-style clustering
   // logic: loop over z bins find tracks in this bin and arrange them in a 2D eta-phi matrix
   for (unsigned int zbin = 0; zbin < zmins.size(); ++zbin) {
     // initialize matrices for every z bin
     z0_intern zmin = zmins[zbin];
     z0_intern zmax = zmaxs[zbin];
+
     TrackJetEmulationEtaPhiBin epbins[phiBins_][etaBins_];
+
     std::copy(&epbins_default[0][0], &epbins_default[0][0] + phiBins_ * etaBins_, &epbins[0][0]);
 
-    //clear containers
     L1clusters.clear();
     L2clusters.clear();
-
-    // fill grid
     for (unsigned int k = 0; k < L1TrkPtrs_.size(); ++k) {
-      //// conversions
-      //-z0
       z0_intern trkZ = L1TrkPtrs_[k]->getZ0Word();
 
       if (zmax < trkZ)
@@ -281,75 +279,40 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       if (zbin == 0 && zmin == trkZ)
         continue;
 
-      //-pt
+      // Pt
       ap_uint<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1> ptEmulationBits = L1TrkPtrs_[k]->getRinvWord();
       pt_intern trkpt;
       trkpt.V = ptEmulationBits.range();
 
-      //-eta
-      TTTrack_TrackWord::tanl_t etaEmulationBits = L1TrkPtrs_[k]->getTanlWord();
-      glbeta_intern trketa;
-      trketa.V = etaEmulationBits.range();
-
-      //-phi
-      int Sector = L1TrkPtrs_[k]->phiSector();
-      double sector_phi_value = 0;
-      if (Sector < 5) {
-        sector_phi_value = 2.0 * M_PI * Sector / 9.0;
-      } else {
-        sector_phi_value = (-1.0 * M_PI + M_PI / 9.0 + (Sector - 5) * 2.0 * M_PI / 9.0);
-      }
-
-      glbphi_intern trkphiSector = DoubleToBit(sector_phi_value,
-                                               TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit,
-                                               TTTrack_TrackWord::stepPhi0);
-      glbphi_intern local_phi = 0;
-      local_phi.V = L1TrkPtrs_[k]->getPhiWord();
-      glbphi_intern local_phi2 =
-          DoubleToBit(BitToDouble(local_phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0),
-                      TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit,
-                      TTTrack_TrackWord::stepPhi0);
-      glbphi_intern trkphi = local_phi2 + trkphiSector;
-
-      //-d0
+      // d0
       d0_intern abs_trkD0 = L1TrkPtrs_[k]->getD0Word();
 
-      //-nstub
+      // nstubs
       int trk_nstubs = (int)L1TrkPtrs_[k]->getStubRefs().size();
 
-      // now fill the 2D grid with tracks
-      for (int i = 0; i < phiBins_; ++i) {
-        for (int j = 0; j < etaBins_; ++j) {
-          glbeta_intern eta_min = epbins[i][j].eta - etaStep_ / 2;  //eta min
-          glbeta_intern eta_max = epbins[i][j].eta + etaStep_ / 2;  //eta max
-          glbphi_intern phi_min = epbins[i][j].phi - phiStep_ / 2;  //phi min
-          glbphi_intern phi_max = epbins[i][j].phi + phiStep_ / 2;  //phi max
-          if ((trketa < eta_min) && j != 0)
-            continue;
-          if ((trketa > eta_max) && j != etaBins_ - 1)
-            continue;
-          if ((trkphi < phi_min) && i != 0)
-            continue;
-          if ((trkphi > phi_max) && i != phiBins_ - 1)
-            continue;
+      // Phi bin
+      int i = phi_bin_firmwareStyle(L1TrkPtrs_[k]->phiSector(),
+                                    L1TrkPtrs_[k]->getPhiWord());  //Function defined in L1TrackJetClustering.h
 
-          if (trkpt < pt_intern(trkPtMax_))
-            epbins[i][j].pTtot += trkpt;
-          else
-            epbins[i][j].pTtot += pt_intern(trkPtMax_);
-          if ((abs_trkD0 >
-                   DoubleToBit(d0CutNStubs5_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
-               trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
-              (abs_trkD0 >
-                   DoubleToBit(d0CutNStubs4_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
-               trk_nstubs == 4 && d0CutNStubs4_ >= 0))
-            epbins[i][j].nxtracks += 1;
+      // Eta bin
+      int j = eta_bin_firmwareStyle(L1TrkPtrs_[k]->getTanlWord());  //Function defined in L1TrackJetClustering.h
 
-          epbins[i][j].trackidx.push_back(k);
-          ++epbins[i][j].ntracks;
-        }  // for each etabin
-      }    // for each phibin
-    }      //end loop over tracks
+      if (trkpt < pt_intern(trkPtMax_))
+        epbins[i][j].pTtot += trkpt;
+      else
+        epbins[i][j].pTtot += pt_intern(trkPtMax_);
+      if ((abs_trkD0 >
+               DoubleToBit(d0CutNStubs5_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+           trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
+          (abs_trkD0 >
+               DoubleToBit(d0CutNStubs4_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+           trk_nstubs == 4 && d0CutNStubs4_ >= 0))
+        epbins[i][j].nxtracks += 1;
+
+      epbins[i][j].trackidx.push_back(k);
+      ++epbins[i][j].ntracks;
+    }
+    //End Firmware style clustering
 
     // first layer clustering - in eta using grid
     for (int phibin = 0; phibin < phiBins_; ++phibin) {
