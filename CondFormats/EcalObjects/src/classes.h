@@ -73,3 +73,7 @@
 //ECAL PH2:
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGAmplWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGTimeWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGLinearizationConst.h"
+#include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGPedestals.h"

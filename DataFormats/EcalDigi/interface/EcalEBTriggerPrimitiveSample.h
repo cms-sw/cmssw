@@ -21,8 +21,8 @@ public:
   void setValue(uint16_t data) { theSample = data; }
   // The sample is a 16 bit word defined as:
   //
-  //     o o o o o    o     o o o o o o o o o o
-  //     |________|        |____________________|
+  //     o o o o o    o      o o o o o o o o o o
+  //     |________|        |_______________________|
   //      ~60ps res  spike         Et
   //      time info  flag
   //
@@ -31,7 +31,7 @@ public:
   uint16_t raw() const { return theSample; }
 
   /// get the encoded Et (10 bits)
-  int encodedEt() const { return theSample & 0x3FF; }
+  int encodedEt() const { return theSample & 0x3ff; }
 
   bool l1aSpike() const { return (theSample & 0x400) != 0; }
 

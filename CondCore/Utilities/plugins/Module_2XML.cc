@@ -115,6 +115,12 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalTPGOddWeightGroup);
   PAYLOAD_2XML_CLASS(EcalTPGOddWeightIdMap);
   PAYLOAD_2XML_CLASS(EcalTPGTPMode);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGAmplWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGAmplWeights);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGLinearizationConstant);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGPedestal);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGTimeWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalEBPhase2TPGTimeWeights);
   PAYLOAD_2XML_CLASS(EcalTimeBiasCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeDependentCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeOffsetConstant);
