@@ -55,16 +55,16 @@ static inline void parsFromPathL_impl(const Tf& __restrict__ inPar,
 
 //should kinv and D be templated???
 template <typename Tf, typename Ti, typename TfLL1, typename TfLLL, typename Tf1>
-static inline void parsAndErrPropFromPathL_impl(const Tf& __restrict__ inPar,
-                                                const Ti& __restrict__ inChg,
-                                                TfLL1& __restrict__ outPar,
-                                                const float* kinv,
-                                                const Tf1& __restrict__ s,
-                                                TfLLL& __restrict__ errorProp,
-                                                const int nmin,
-                                                const int nmax,
-                                                const int N_proc,
-                                                const PropagationFlags& pf) {
+inline void parsAndErrPropFromPathL_impl(const Tf& __restrict__ inPar,
+                                         const Ti& __restrict__ inChg,
+                                         TfLL1& __restrict__ outPar,
+                                         const float* kinv,
+                                         const Tf1& __restrict__ s,
+                                         TfLLL& __restrict__ errorProp,
+                                         const int nmin,
+                                         const int nmax,
+                                         const int N_proc,
+                                         const PropagationFlags& pf) {
   //iteration should return the path length s, then update parameters and compute errors
 
   parsFromPathL_impl(inPar, outPar, kinv, s, nmin, nmax);
