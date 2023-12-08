@@ -32,6 +32,7 @@ Issue the shell command
 The script will outut a new file named `data.js`.
 
 If you only want to see the framework transitions and not all the information about ED or ES modules, you can use the option `-f`.
+You can also have all activities related to each module grouped by using the `-m` option.
 
 #### setup web data
 

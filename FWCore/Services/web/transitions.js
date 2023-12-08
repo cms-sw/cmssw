@@ -85,9 +85,10 @@ const typeToName = [
 const activityToName = [  "prefetch",
                           "acquire",
                           "process",
-                          "delayedGet"]
+                          "delayedGet",
+                        "externalWork"]
 
-const activityToColor = ["#FF5F1F", "#CC7722", null, "#FF4433"];
+const activityToColor = ["#FF5F1F", "#CC7722", null, "#FF4433", "#8B4513"];
 
 window.onload = () => {
     
@@ -154,15 +155,13 @@ window.onload = () => {
     const kEndTime = maxTime();
     
     function drawNames() {
-        name_context.save()
         name_context.setTransform(1,0,0,1,0,0);
         name_context.fillStyle = "#AACD6E"
         name_context.fillRect(0,0,name_view.width,name_view.height);
-        name_context.restore()
         name_context.scale(1,1)
         name_context.fillStyle = "black"
         name_context.strokeStyle = "black"
-        name_context.font = '10pt monospace';		//context.font = "50px";
+        name_context.font = '9pt monospace';		//context.font = "50px";
         
         let offset = kRowHeight/2 + graph_vertical_offset;
         for( let grouping of data.transitions ) {
@@ -453,7 +452,22 @@ window.onload = () => {
         graph_isDragging = false
         graph_mouseDown = false;
     }
-    
+    function graph_onWheel(event) {
+        if (event.ctrlKey) {
+            let currentTransformedCursor = getTransformedPoint(event.offsetX, event.offsetY);
+            const zoom = event.deltaY < 0 ? 1.02 : 0.98;
+            const originalScale = 1./timeZoomFactor/kInitPixelsPerSecond;
+            timeZoomFactor *= zoom;
+            const newScale = 1./timeZoomFactor/kInitPixelsPerSecond;
+            //Keep the cursor at the same time and change zoom around that point
+            minVisibleTime = minVisibleTime + currentTransformedCursor.x*(originalScale-newScale);
+        } else {
+            graph_translate(-1*event.deltaX, -1*event.deltaY);
+        }
+        drawGraph();
+        event.preventDefault()
+    }
+
     window.addEventListener('resize',function(){
 		graph_context.canvas.width = graph.clientWidth;
 		graph_context.canvas.height = graph.clientHeight;
@@ -467,6 +481,7 @@ window.onload = () => {
     graph.addEventListener('mousemove', graph_onMouseMove)
     graph.addEventListener('mouseup', graph_onMouseUp)
     graph.addEventListener('mouseout', graph_onMouseOut)
+    graph.addEventListener('wheel', graph_onWheel);
     
     function time_onMouseDown(event) {
         time_isDragging = true;
@@ -492,14 +507,17 @@ window.onload = () => {
     }
     
     function time_onWheel(event) {
-        let currentTransformedCursor = getTransformedPoint(event.offsetX, event.offsetY);
-        const zoom = event.deltaY < 0 ? 1.02 : 0.98;
-        const originalScale = 1./timeZoomFactor/kInitPixelsPerSecond;
-        timeZoomFactor *= zoom;
-        const newScale = 1./timeZoomFactor/kInitPixelsPerSecond;
-        //Keep the cursor at the same time and change zoom around that point
-        minVisibleTime = minVisibleTime + currentTransformedCursor.x*(originalScale-newScale);
-        
+        if (event.ctrlKey) {
+            let currentTransformedCursor = getTransformedPoint(event.offsetX, event.offsetY);
+            const zoom = event.deltaY < 0 ? 1.02 : 0.98;
+            const originalScale = 1./timeZoomFactor/kInitPixelsPerSecond;
+            timeZoomFactor *= zoom;
+            const newScale = 1./timeZoomFactor/kInitPixelsPerSecond;
+            //Keep the cursor at the same time and change zoom around that point
+            minVisibleTime = minVisibleTime + currentTransformedCursor.x*(originalScale-newScale);
+        } else {
+            graph_translate(-1*event.deltaX, 0);
+        }
         //console.log(minVisibleTime);
         drawGraph();
         event.preventDefault();
@@ -511,4 +529,12 @@ window.onload = () => {
     time_view.addEventListener('mouseup', time_onMouseUp)
     time_view.addEventListener('mouseout', time_onMouseOut)
     time_view.addEventListener('wheel', time_onWheel);
+    
+    function name_onWheel(event) {
+        let offset = 0;
+        graph_translate(0, -1*event.deltaY);
+        drawGraph();
+        event.preventDefault()
+    }
+    name_view.addEventListener('wheel', name_onWheel);
 }
