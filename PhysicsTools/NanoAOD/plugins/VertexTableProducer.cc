@@ -140,26 +140,29 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       "score", pvsScoreProd.get(pvsIn.id(), 0), "main primary vertex score, i.e. sum pt2 of clustered objects", 8);
 
   float pv_sumpt2 = 0.0;
-  for (size_t i = 0; i < (*pfcIn).size(); i++) {
-    if ((*pfcIn)[i].charge() == 0) {
+  for (const auto& obj : *pfcIn) {
+    if (obj.charge() == 0) {
       continue;
     }  // skip neutrals
-    double dz = fabs((*pfcIn)[i].dz((*pvsIn)[0].position()));
-    int include_pfc = 0;
-    if (dz < 0.2)
-      include_pfc = 1;
-    for (size_t j = 1; j < (*pvsIn).size(); j++) {
-      double newdz = fabs((*pfcIn)[i].dz((*pvsIn)[j].position()));
-      if (newdz < dz)
-        include_pfc = 0;
-    }  // this pf candidate belongs to other PV
-    if (include_pfc == 1) {
-      double pfc_pt = (*pfcIn)[i].pt();
+    double dz = fabs(obj.dz((*pvsIn)[0].position()));
+    bool include_pfc = false;
+    if (dz < 0.2) {
+      include_pfc = true;
+      for (size_t j = 1; j < (*pvsIn).size(); j++) {
+        double newdz = fabs(obj.dz((*pvsIn)[j].position()));
+        if (newdz < dz) {
+          include_pfc = false;
+          break;
+        }
+      }  // this pf candidate belongs to other PV
+    }
+    if (include_pfc) {
+      float pfc_pt = obj.pt();
       pv_sumpt2 += pfc_pt * pfc_pt;
     }
   }
   pvTable->addColumnValue<float>(
-      "sumpt2", pv_sumpt2, "sum pt2 of tracks for the main primary vertex", 10);  //precision from 8 to 10
+      "sumpt2", pv_sumpt2, "sum pt2 of pf charged candidates for the main primary vertex", 10);
 
   auto otherPVsTable =
       std::make_unique<nanoaod::FlatTable>((*pvsIn).size() > 4 ? 3 : (*pvsIn).size() - 1, "Other" + pvName_, false);
