@@ -31,6 +31,8 @@
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeomUtil.h"
+
 class EtlDigiHitsValidation : public DQMEDAnalyzer {
 public:
   explicit EtlDigiHitsValidation(const edm::ParameterSet&);
@@ -79,7 +81,6 @@ private:
   MonitorElement* meHitTvsPhi_[4];
   MonitorElement* meHitTvsEta_[4];
 
-  std::array<std::unordered_map<uint32_t, uint32_t>, 4> ndigiPerLGAD_;
 };
 
 // ------------ constructor and destructor --------------
@@ -97,6 +98,29 @@ EtlDigiHitsValidation::~EtlDigiHitsValidation() {}
 void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
+  using namespace mtd;
+  using namespace std;
+
+  // Struct to  identify the pixel
+  struct ETLPixelId {
+    const uint32_t detid_;
+    const uint8_t row_; 
+    const uint8_t col_;
+    ETLPixelId() : detid_(0), row_(0), col_(0) {}
+    ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
+    bool operator==(const ETLPixelId& other) const {
+      return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
+    }    
+  };
+
+  struct PixelKey_hash {
+    size_t operator()(const ETLPixelId& key) const {
+      return std::hash<uint32_t>{}(key.detid_) ^ std::hash<uint8_t>{}(key.row_) ^ std::hash<uint8_t>{}(key.col_);
+    }
+  };
+
+
+  
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
@@ -104,6 +128,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // --- Loop over the ETL DIGI hits
 
+  std::array<std::unordered_map<ETLPixelId, uint32_t, PixelKey_hash>, 4> ndigiPerLGAD_;
+  MTDGeomUtil geomUtil;
+  
   unsigned int n_digi_etl[4] = {0, 0, 0, 0};
   for (size_t i = 0; i < 4; i++) {
     ndigiPerLGAD_[i].clear();
@@ -181,9 +208,11 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
     n_digi_etl[idet]++;
     size_t ncount(0);
-    ndigiPerLGAD_[idet].emplace(detId.rawId(), ncount);
-    ndigiPerLGAD_[idet].at(detId.rawId())++;
 
+    std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
+    ETLPixelId pixelId(detId.rawId(), pixel.first, pixel.second);
+    ndigiPerLGAD_[idet].emplace(pixelId, ncount);
+    ndigiPerLGAD_[idet].at(pixelId)++;
   }  // dataFrame loop
 
   for (int i = 0; i < 4; i++) {
