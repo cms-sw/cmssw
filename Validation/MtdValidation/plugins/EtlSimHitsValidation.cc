@@ -112,9 +112,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const uint8_t row_; 
     const uint8_t col_;
     ETLPixelId() : detid_(0), row_(0), col_(0) {}
-    //ETLPixelId(const DetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
     ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
-    // Eventually add some member func else
     bool operator==(const ETLPixelId& other) const {
       return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
     }    
