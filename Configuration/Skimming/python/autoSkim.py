@@ -38,7 +38,7 @@ autoSkim = {
  'DoubleMuon' : 'LogError+LogErrorMonitor',
 
  # Used in unit test scenario ppEra_Run2_2018
- 'SingleMuon': 'LogError+LogErrorMonitor',
+ #'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
 autoSkimRunII = {
