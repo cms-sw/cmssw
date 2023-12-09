@@ -24,6 +24,8 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class EcalSeverityLevelAlgo;
 class EcalSeverityLevelAlgoRcd;
@@ -103,6 +105,7 @@ private:
   edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSevLvlComputerToken_;
   edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> towerMapToken_;
   edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSevLvlToken_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
 
   edm::EDGetToken trackInputTag_;
   edm::EDGetToken beamSpotProducerTag_;

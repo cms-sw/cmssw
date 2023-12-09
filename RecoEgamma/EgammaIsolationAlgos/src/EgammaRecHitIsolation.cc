@@ -64,7 +64,9 @@ EgammaRecHitIsolation::EgammaRecHitIsolation(double extRadius,
 
 EgammaRecHitIsolation::~EgammaRecHitIsolation() {}
 
-double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool returnEt) const {
+double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,
+                                      bool returnEt,
+                                      const EcalPFRecHitThresholds* thresholds) const {
   double energySum = 0.;
   if (!caloHits_.empty()) {
     //Take the SC position
@@ -95,6 +97,13 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool retu
           float etaDiff = eta - etaclus;
           float phiDiff = reco::deltaPhi(phi, phiclus);
           float energy = j->energy();
+
+          float rhThres = 0.0;
+          if (thresholds != nullptr) {
+            rhThres = (*thresholds)[j->detid()];  // access ECAL PFRechit thresholds for noise cleaning
+          }
+          if (energy <= rhThres)
+            continue;
 
           if (useNumCrystals_) {
             if (fabs(etaclus) < 1.479) {  // Barrel num crystals, crystal width = 0.0174
@@ -174,7 +183,9 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool retu
   return energySum;
 }
 
-double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnEt) const {
+double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc,
+                                      bool returnEt,
+                                      const EcalPFRecHitThresholds* thresholds) const {
   double energySum = 0.;
   if (!caloHits_.empty()) {
     //Take the SC position
@@ -204,6 +215,15 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
           double etaDiff = eta - etaclus;
           double phiDiff = reco::deltaPhi(phi, phiclus);
           double energy = j->energy();
+
+          float rhThres = 0.0;
+          if (thresholds != nullptr) {
+            rhThres = (*thresholds)[j->detid()];  // access ECAL PFRechit thresholds for noise cleaning
+          }
+          std::cout << "rhThres = " << rhThres << "  energy = " << energy << std::endl;
+
+          if (energy <= rhThres)
+            continue;
 
           if (useNumCrystals_) {
             if (fabs(etaclus) < 1.479) {  // Barrel num crystals, crystal width = 0.0174
