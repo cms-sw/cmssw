@@ -28,14 +28,14 @@ autoSkim = {
 
  # These should be uncommented when 2022 data reprocessing
  # Dedicated skim for 2022
- #'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
  'EGamma':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
  'Muon' : 'MUOJME+ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
- #'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
- #'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
- #'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
- #'SingleMuon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
- #'DoubleMuon' : 'LogError+LogErrorMonitor',
+ 'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
+ 'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
+ 'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ 'SingleMuon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
+ 'DoubleMuon' : 'LogError+LogErrorMonitor',
 
  # Used in unit test scenario ppEra_Run2_2018
  'SingleMuon': 'LogError+LogErrorMonitor',
