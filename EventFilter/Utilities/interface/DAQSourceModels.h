@@ -61,7 +61,9 @@ public:
                                                                           bool fileListMode) const = 0;
 
   virtual bool isMultiDir() { return false; }
-  virtual void makeDirectoryEntries(std::vector<std::string> const& baseDirs, std::string const& runDir) = 0;
+  virtual void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
+                                    std::vector<int> const& numSources,
+                                    std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
 
 protected:

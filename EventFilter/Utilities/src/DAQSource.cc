@@ -7,7 +7,7 @@
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsFRD.h"
-#include "EventFilter/Utilities/interface/DAQSourceModelsScouting.h"
+#include "EventFilter/Utilities/interface/DAQSourceModelsScoutingRun3.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -81,6 +81,8 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
     dataMode_.reset(new DataModeFRD(this));
   } else if (dataModeConfig_ == "FRDStriped") {
     dataMode_.reset(new DataModeFRDStriped(this));
+  } else if (dataModeConfig_ == "ScoutingRun3") {
+    dataMode_.reset(new DataModeScoutingRun3(this));
   } else
     throw cms::Exception("DAQSource::DAQSource") << "Unknown data mode " << dataModeConfig_;
 
@@ -101,7 +103,8 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
     }
   }
 
-  dataMode_->makeDirectoryEntries(daqDirector_->getBUBaseDirs(), daqDirector_->runString());
+  dataMode_->makeDirectoryEntries(
+      daqDirector_->getBUBaseDirs(), daqDirector_->getBUBaseDirsNSources(), daqDirector_->runString());
 
   auto& daqProvenanceHelpers = dataMode_->makeDaqProvenanceHelpers();
   for (const auto& daqProvenanceHelper : daqProvenanceHelpers)
