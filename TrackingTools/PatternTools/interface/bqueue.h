@@ -60,13 +60,13 @@ namespace cmsutils {
 
   private:
     _bqueue_item() : back(0), value(), refCount(0) {}
-    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > tail, const T &val) : back(tail), value(val), refCount(0) {}
+    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > &tail, const T &val) : back(tail), value(val), refCount(0) {}
     // move
-    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > tail, T &&val)
+    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > &tail, T &&val)
         : back(tail), value(std::move(val)), refCount(0) {}
     // emplace
     template <typename... Args>
-    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > tail, Args &&...args)
+    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > &tail, Args &&...args)
         : back(tail), value(std::forward<Args>(args)...), refCount(0) {}
     boost::intrusive_ptr<_bqueue_item<T> > back;
     T const value;
