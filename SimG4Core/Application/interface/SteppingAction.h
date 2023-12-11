@@ -40,6 +40,7 @@ private:
   const G4VPhysicalVolume* calo{nullptr};
   const CMSSteppingVerbose* steppingVerbose{nullptr};
   const G4LogicalVolume* m_CMStoZDC{nullptr};
+  const G4Region* m_ZDCRegion{nullptr};
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;

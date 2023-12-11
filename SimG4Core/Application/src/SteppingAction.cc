@@ -136,9 +136,16 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
     const G4Region* theRegion = lv->GetRegion();
 
-    // kill in dead regions excpt CMStoZDC volume
+    // kill in dead regions except CMStoZDC volume
     if (isInsideDeadRegion(theRegion) && !isForZDC(lv, std::abs(theTrack->GetParticleDefinition()->GetPDGEncoding()))) {
       tstat = sDeadRegion;
+    }
+
+    // kill particles leaving ZDC
+    if (sAlive == sVeryForward) {
+      const G4Region* preRegion = preStep->GetPhysicalVolume()->GetLogicalVolume()->GetRegion();
+      if (preRegion == m_ZDCRegion && preRegion != theRegion)
+	tstat = sDeadRegion;
     }
 
     // kill out of time
@@ -246,10 +253,10 @@ bool SteppingAction::initPointer() {
   }
 
   const G4RegionStore* rs = G4RegionStore::GetInstance();
-  if (numberTimes > 0) {
-    maxTimeRegions.resize(numberTimes, nullptr);
-    for (auto const& rcite : *rs) {
-      const G4String& rname = rcite->GetName();
+  for (auto const& rcite : *rs) {
+    const G4String& rname = rcite->GetName();
+    if (numberTimes > 0) {
+      maxTimeRegions.resize(numberTimes, nullptr);
       for (unsigned int i = 0; i < numberTimes; ++i) {
         if (rname == (G4String)(maxTimeNames[i])) {
           maxTimeRegions[i] = rcite;
@@ -257,17 +264,18 @@ bool SteppingAction::initPointer() {
         }
       }
     }
-  }
-  if (ndeadRegions > 0) {
-    deadRegions.resize(ndeadRegions, nullptr);
-    for (auto const& rcite : *rs) {
-      const G4String& rname = rcite->GetName();
+
+    if (ndeadRegions > 0) {
+      deadRegions.resize(ndeadRegions, nullptr);
       for (unsigned int i = 0; i < ndeadRegions; ++i) {
         if (rname == (G4String)(deadRegionNames[i])) {
           deadRegions[i] = rcite;
           break;
         }
       }
+    }
+    if (m_CMStoZDCtransport && rname == "ZDCRegion") {
+      m_ZDCRegion = rcite;
     }
   }
   return true;
