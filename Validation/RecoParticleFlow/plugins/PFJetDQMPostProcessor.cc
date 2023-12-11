@@ -124,6 +124,8 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       continue;
     me = iget_.get(stitle);
     int nEvents = ((TH1F*)me->getTH1F())->GetEntries();
+    if (nEvents == 0)
+      continue;
     iget_.setCurrentFolder(jetResponseDir[idir]);
 
     bool isNoJEC = (jetResponseDir[idir].find("noJEC") != std::string::npos);
