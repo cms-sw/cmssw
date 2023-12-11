@@ -21,6 +21,7 @@ public:
   void setCellHorizontalLayout(int layout[4]);
   void setCellHorizontalLayout(const int *layout);
   void setBaseChannelId(int bch) { baseChannelId_ = bch; }
+  void setMissingLayer(int layer) { missingLayer_ = layer; }
   void setQuality(cmsdt::MP_QUALITY qty) { quality_ = qty; }
   void setBxTimeValue(int time);
   void setLateralComb(cmsdt::LATERAL_CASES latComb[4]);
@@ -48,6 +49,7 @@ public:
   short nprimitivesUp() const { return nprimitivesUp_; }
   const int *cellLayout() const { return cellLayout_; }
   int baseChannelId() const { return baseChannelId_; }
+  int missingLayer() const { return missingLayer_; }
   cmsdt::MP_QUALITY quality() const { return quality_; }
   int bxTimeValue() const { return bxTimeValue_; }
   int bxNumId() const { return bxNumId_; }
@@ -89,6 +91,8 @@ private:
   */
   int cellLayout_[cmsdt::NUM_LAYERS];
   int baseChannelId_;
+
+  int missingLayer_;
 
   //------------------------------------------------------------------
   //--- Fit results:
