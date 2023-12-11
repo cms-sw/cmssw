@@ -224,12 +224,6 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   int tanpsi_msb = tanpsi >> (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH);
   tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
 
-  x_msb = x >> (X_SIZE - PHI_LUT_ADDR_WIDTH);
-  x_msb = from_two_comp(x_msb, PHI_LUT_ADDR_WIDTH);
-
-  tanpsi_msb = tanpsi >> (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH);
-  tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
-
   // The LSB part can be sliced right away because it must yield a positive integer
   int x_lsb = x & (int)(std::pow(2, (X_SIZE - PHI_LUT_ADDR_WIDTH)) - 1);
   int tanpsi_lsb = tanpsi & (int)(std::pow(2, (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH)) - 1);
