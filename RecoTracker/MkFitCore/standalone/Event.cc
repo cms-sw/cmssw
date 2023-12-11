@@ -341,11 +341,12 @@ namespace mkfit {
       if (layerHits_[il].empty())
         continue;
 
-      printf("Read %i hits in layer %i\n", (int)layerHits_[il].size(), il);
+      const LayerInfo &linfo = Config::TrkInfo[il];
+      printf("Read %i hits in layer %i, is_brl=%d is_pix=%d\n",
+             (int)layerHits_[il].size(), il, linfo.is_barrel(), linfo.is_pixel());
       total_hits += layerHits_[il].size();
       for (int ih = 0; ih < (int)layerHits_[il].size(); ih++) {
         const Hit &hit = layerHits_[il][ih];
-        const LayerInfo &linfo = Config::TrkInfo[il];
         unsigned int mid = hit.detIDinLayer();
         const ModuleInfo &mi = linfo.module_info(mid);
 
@@ -356,13 +357,15 @@ namespace mkfit {
         }
         // continue;
 
-        printf("  mcHitID=%5d r=%10g x=%10g y=%10g z=%10g"
-               "  sx=%10.4g sy=%10.4e sz=%10.4e sxy=%10.4e, mhl=%10.4e, delta=%10.4e\n",
+        printf("  mcHitID=%-5d r=%7g x=%8g y=%8g z=%8g"
+               "  sx=%10.4g sy=%10.4e sz=%10.4e sxy=%10.4e, mhl=%10.4e, delta=%10.4e"
+               "  chg_pcm=%u (%u - %u)\n",
                hit.mcHitID(), hit.r(), hit.x(), hit.y(), hit.z(),
                std::sqrt(hit.exx()), std::sqrt(hit.eyy()), std::sqrt(hit.ezz()),
                std::sqrt(hit.exx() + hit.eyy()),
                mi.half_length,
-               mi.half_length - std::sqrt(3)*std::sqrt(hit.exx() + hit.eyy()));
+               mi.half_length - std::sqrt(3)*std::sqrt(hit.exx() + hit.eyy()),
+               hit.chargePerCM(), hit.minChargePerCM(), hit.maxChargePerCM());
       }
     }
     printf("Total hits in all layers = %d; endcap strips: min_delta=%.5f  max_delta=%.5f\n",
@@ -862,8 +865,14 @@ namespace mkfit {
   // Handling of current seed vectors and MC label reconstruction from hit data
   //==============================================================================
 
-  void Event::setCurrentSeedTracks(const TrackVec &seeds) { currentSeedTracks_ = &seeds; }
-  const Track &Event::currentSeed(int i) const { return (*currentSeedTracks_)[i]; }
+  void Event::setCurrentSeedTracks(const TrackVec &seeds) {
+    currentSeedTracks_ = &seeds;
+    currentSeedSimFromHits_.clear();
+  }
+
+  const Track &Event::currentSeed(int i) const {
+    return (*currentSeedTracks_)[i];
+  }
 
   Event::SimLabelFromHits Event::simLabelForCurrentSeed(int i) const {
     assert(currentSeedTracks_ != nullptr);

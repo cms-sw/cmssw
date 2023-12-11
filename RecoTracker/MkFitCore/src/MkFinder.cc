@@ -68,7 +68,7 @@ namespace mkfit {
   void MkFinder::begin_layer(const LayerOfHits &layer_of_hits) {
 #ifdef RNT_DUMP_MkF_SelHitIdcs
     const LayerOfHits &L = layer_of_hits;
-    const LayerInfo &LI = *L.layer_info();
+    const LayerInfo &LI = L.layer_info();
     rnt_shi.ResetH();
     rnt_shi.ResetF();
     *rnt_shi.h = {m_event->evtID(),
@@ -243,7 +243,7 @@ namespace mkfit {
       if (hit_cnt < m_XHitSize[itrack]) {
         const auto &hit = layer_of_hits.refHit(m_XHitArr.constAt(itrack, hit_cnt, 0));
         unsigned int mid = hit.detIDinLayer();
-        const ModuleInfo &mi = layer_of_hits.layer_info()->module_info(mid);
+        const ModuleInfo &mi = layer_of_hits.layer_info().module_info(mid);
         norm.At(itrack, 0, 0) = mi.zdir[0];
         norm.At(itrack, 1, 0) = mi.zdir[1];
         norm.At(itrack, 2, 0) = mi.zdir[2];
@@ -401,7 +401,7 @@ namespace mkfit {
 
         const float z = m_Par[iI].constAt(itrack, 2, 0);
         const float dz = std::abs(nSigmaZ * std::sqrt(m_Err[iI].constAt(itrack, 2, 2)));
-        const float edgeCorr = std::abs(0.5f * (L.layer_info()->rout() - L.layer_info()->rin()) /
+        const float edgeCorr = std::abs(0.5f * (L.layer_info().rout() - L.layer_info().rin()) /
                                         std::tan(m_Par[iI].constAt(itrack, 5, 0)));
         // XXX-NUM-ERR above, m_Err(2,2) gets negative!
 
@@ -409,14 +409,14 @@ namespace mkfit {
         assignbins(itrack, z, dz, phi, dphi, min_dq, max_dq, min_dphi, max_dphi);
 
         // Relax propagation-fail detection to be in line with pre-43145.
-        if (m_FailFlag[itrack] && std::sqrt(r2) >= L.layer_info()->rin()) {
+        if (m_FailFlag[itrack] && std::sqrt(r2) >= L.layer_info().rin()) {
           m_FailFlag[itrack] = 0;
         }
       }
     } else  // endcap
     {
       //layer half-thikness for dphi spread calculation; only for very restrictive iters
-      const float layerD = std::abs(L.layer_info()->zmax() - L.layer_info()->zmin()) * 0.5f *
+      const float layerD = std::abs(L.layer_info().zmax() - L.layer_info().zmin()) * 0.5f *
                            (m_iteration_params->maxConsecHoles == 0 || m_iteration_params->maxHolesPerCand == 0);
       // Pull out the part of the loop that vectorizes with icc and gcc
 #if !defined(__clang__)
@@ -456,7 +456,7 @@ namespace mkfit {
                                                       y * y * m_Err[iI].constAt(itrack, 1, 1) +
                                                       2 * x * y * m_Err[iI].constAt(itrack, 0, 1)) /
                                              r2);
-        const float edgeCorr = std::abs(0.5f * (L.layer_info()->zmax() - L.layer_info()->zmin()) *
+        const float edgeCorr = std::abs(0.5f * (L.layer_info().zmax() - L.layer_info().zmin()) *
                                         std::tan(m_Par[iI].constAt(itrack, 5, 0)));
 
         m_XWsrResult[itrack] = L.is_within_r_sensitive_region(r, std::sqrt(dr * dr + edgeCorr * edgeCorr));
@@ -549,7 +549,7 @@ namespace mkfit {
 
             if (m_iteration_hit_mask && (*m_iteration_hit_mask)[hi_orig]) {
               dprintf(
-                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info()->layer_id(), hi, hi_orig);
+                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info().layer_id(), hi, hi_orig);
               continue;
             }
 
@@ -753,7 +753,7 @@ namespace mkfit {
     using bidx_t = LayerOfHits::bin_index_t;
     using bcnt_t = LayerOfHits::bin_content_t;
     const LayerOfHits &L = layer_of_hits;
-    const LayerInfo &LI = *L.layer_info();
+    const LayerInfo &LI = L.layer_info();
 
     const int iI = iP;
 
@@ -764,16 +764,20 @@ namespace mkfit {
 
 #ifdef RNT_DUMP_MkF_SelHitIdcs
     rnt_shi.InnerIdcsReset(N_proc);
+    Event::SimLabelFromHits sim_lbls[NN];
     for (int i = 0; i < N_proc; ++i) {
-      auto slfh = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[i]);
+      sim_lbls[i] = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[i]);
       if (m_FailFlag[i]) {
         rnt_shi.RegisterFailedProp(i, m_Par[1 - iI], m_Par[iI], m_event, m_SeedOriginIdx[i]);
-      } else if (slfh.is_set()) {
-        rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
-        // get BinSearch result from V1.
-        selectHitIndices(layer_of_hits, N_proc, true);
+      } else if (sim_lbls[i].is_set()) {
+        CandInfo &ci = rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
+        ci.ic2list.reset();  // zero initialize
       }  // else ... could do something about the bad seeds ... probably better to collect elsewhere.
     }
+    // Get BinSearch result from V1. Note -- it can clear m_FailFlag for some cands!
+    auto ff_stash = m_FailFlag;
+    selectHitIndices(layer_of_hits, N_proc, true);
+    m_FailFlag = ff_stash;
 #endif
 
     constexpr int NEW_MAX_HIT = 6;  // 4 - 6 give about the same # of tracks in quality-val
@@ -946,8 +950,15 @@ namespace mkfit {
 
       // clang-format off
       dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
-              L.layer_id(), itrack, qv[itrack], phi[itrack], dqv[itrack], dphiv[itrack],
+              L.layer_id(), itrack, B.q_c[itrack], B.phi_c[itrack],
+              B.qmax[itrack] - B.qmin[itrack], B.dphi[itrack],
               qb1, qb2, pb1, pb2);
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+      int hit_out_idx = 0;
+      // phi-sorted position of matched hits
+      struct pos_match { float dphi, dq; int idx; bool matched; };
+      std::vector<pos_match> pos_match_vec;
+#endif
       // clang-format on
 
       mp::InitialState mp_is(m_Par[iI], m_Chg, itrack);
@@ -957,8 +968,8 @@ namespace mkfit {
         for (bidx_t pi = pb1; pi != pb2; pi = L.phiMaskApply(pi + 1)) {
           // Limit to central Q-bin
           if (qi == qb && L.isBinDead(pi, qi) == true) {
-            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi << " q=" << q
-                                                     << " phi=" << phi);
+            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi
+                                                     << " q=" << B.q_c[itrack] << " phi=" << B.phi_c[itrack]);
             m_XWsrResult[itrack].m_in_gap = true;
           }
 
@@ -976,12 +987,9 @@ namespace mkfit {
 
             if (m_iteration_hit_mask && (*m_iteration_hit_mask)[hi_orig]) {
               dprintf(
-                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info()->layer_id(), hi, hi_orig);
+                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info().layer_id(), hi, hi_orig);
               continue;
             }
-
-            if (m_XHitSize[itrack] >= MPlexHitIdxMax)
-              break;
 
             float new_q, new_phi, new_ddphi, new_ddq;
             bool prop_fail;
@@ -1004,7 +1012,50 @@ namespace mkfit {
             // clang-format off
             dprintf("     SHI %3u %4u %5u  %6.3f %6.3f %6.4f %7.5f  PROP-%s  %s\n",
                     qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
-                    ddq, ddphi, prop_fail ? "FAIL" : "OK", dqdphi_presel ? "PASS" : "REJECT");
+                    new_ddq, new_ddphi, prop_fail ? "FAIL" : "OK", dqdphi_presel ? "PASS" : "REJECT");
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+            if (rnt_shi.f_h_remap[itrack] >= 0) {
+              int sim_lbl = sim_lbls[itrack].label;
+              const Hit &thishit = L.refHit(hi_orig);
+              m_msErr.copyIn(itrack, thishit.errArray());
+              m_msPar.copyIn(itrack, thishit.posArray());
+
+              MPlexQF thisOutChi2;
+              MPlexQI propFail(0);
+              MPlexLV tmpPropPar;
+              const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
+              (*fnd_foos.m_compute_chi2_foo)(
+                m_Err[iI], m_Par[iI], m_Chg, m_msErr, m_msPar,
+                thisOutChi2, tmpPropPar, propFail, N_proc,
+                m_prop_config->finding_intra_layer_pflags,
+                m_prop_config->finding_requires_propagation_to_hit_pos);
+              float hchi2 = thisOutChi2[itrack];
+
+              CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+
+              const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi_orig).mcHitID()];
+              int hit_lbl = mchinfo.mcTrackID();
+              ci.hmi.emplace_back(HitMatchInfo{ HitInfo
+                { hit2pos(thishit),
+                  new_q, L.hit_q_half_length(hi), L.hit_qbar(hi), new_phi,
+                  hit_lbl },
+                state2pos(mp_s), state2mom(mp_s),
+                new_ddq, new_ddphi, hchi2, (int) hi_orig,
+                (sim_lbl == hit_lbl), dqdphi_presel, !prop_fail
+              });
+
+              bool new_dec = dqdphi_presel && !prop_fail;
+              ++ci.n_all_hits;
+              if (sim_lbl == hit_lbl) {
+                ++ci.n_hits_match;
+                if (new_dec) ++ci.n_hits_pass_match;
+              }
+              if (new_dec) ++ci.n_hits_pass;
+              if (new_dec)
+                pos_match_vec.emplace_back(pos_match{ new_ddphi, new_ddq, hit_out_idx++,
+                                             sim_lbl == hit_lbl });
+            } // if cand is saved
+#endif
             // clang-format on
 
             if (prop_fail || !dqdphi_presel)
@@ -1021,6 +1072,26 @@ namespace mkfit {
       }      //qi
 
       dprintf(" PQUEUE (%d)", pqueue_size);
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+      // clang-format off
+      if (sim_lbls[itrack].is_set()) {
+        // Find ord number of matched hits.
+        std::sort(pos_match_vec.begin(), pos_match_vec.end(),
+                  [](auto &a, auto &b){return a.dphi < b.dphi;});
+        int pmvs = pos_match_vec.size();
+
+        CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+        for (int i = 0; i < pmvs; ++i) {
+          if (pos_match_vec[i].matched) {
+            ci.ord_first_match = i;
+            ci.dphi_first_match = pos_match_vec[i].dphi;
+            ci.dq_first_match = pos_match_vec[i].dq;
+            break;
+          }
+        }
+      }
+      // clang-format off
+#endif
       // Reverse hits so best dphis/scores come first in the hit-index list.
       m_XHitSize[itrack] = pqueue_size;
       while (pqueue_size) {
@@ -1402,19 +1473,21 @@ namespace mkfit {
             if (chi2 < max_c2) {
               bool isCompatible = true;
               if (!layer_of_hits.is_pixel()) {
-                //check module compatibility via long strip side = L/sqrt(12)
-                isCompatible =
-                    isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
-
-                //rescale strip charge to track parameters and reapply the cut
-                isCompatible &= passStripChargePCMfromTrack(
-                    itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
-              }
-              // Select only SiStrip hits with cluster size < maxClusterSize
-              if (!layer_of_hits.is_pixel()) {
+                // select only SiStrip hits with cluster size < maxClusterSize
                 if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
-                    m_iteration_params->maxClusterSize)
+                    m_iteration_params->maxClusterSize) {
+                  // isTooLargeCluster[itrack] = true; -- only in CloneEngine
                   isCompatible = false;
+                }
+                // check module compatibility via long strip side = L/sqrt(12)
+                if (isCompatible)
+                  isCompatible =
+                    isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
+                // rescale strip charge to track parameters and reapply the cut
+                if (isCompatible && layer_of_hits.layer_info().has_charge()) {
+                  isCompatible = passStripChargePCMfromTrack(
+                    itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
+                }
               }
 
               if (isCompatible) {
@@ -1607,25 +1680,24 @@ namespace mkfit {
           const float chi2 = std::abs(outChi2[itrack]);  //fixme negative chi2 sometimes...
           // XXX-NUM-ERR assert(chi2 >= 0);
 
-          dprint("chi2=" << chi2 << " for trkIdx=" << itrack << " hitIdx=" << m_XHitArr.At(itrack, hit_cnt, 0));
+          dprintf("  chi2=%.3f (%.3f)  trkIdx=%d hitIdx=%d\n", chi2, max_c2, itrack,  m_XHitArr.At(itrack, hit_cnt, 0));
           if (chi2 < max_c2) {
             bool isCompatible = true;
             if (!layer_of_hits.is_pixel()) {
-              //check module compatibility via long strip side = L/sqrt(12)
-              isCompatible =
-                  isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
-
-              //rescale strip charge to track parameters and reapply the cut
-              isCompatible &= passStripChargePCMfromTrack(
-                  itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
-            }
-
-            // Select only SiStrip hits with cluster size < maxClusterSize
-            if (!layer_of_hits.is_pixel()) {
+              // select only SiStrip hits with cluster size < maxClusterSize
               if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
                   m_iteration_params->maxClusterSize) {
                 isTooLargeCluster[itrack] = true;
                 isCompatible = false;
+              }
+              // check module compatibility via long strip side = L/sqrt(12)
+              if (isCompatible)
+                isCompatible =
+                  isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
+              // rescale strip charge to track parameters and reapply the cut
+              if (isCompatible && layer_of_hits.layer_info().has_charge()) {
+                isCompatible = passStripChargePCMfromTrack(
+                  itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
               }
             }
 
@@ -1672,6 +1744,13 @@ namespace mkfit {
 
               dprint("  adding hit with hit_cnt=" << hit_cnt << " for trkIdx=" << tmpList.trkIdx
                                                   << " orig Seed=" << m_Label(itrack, 0, 0));
+
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+              if (rnt_shi.f_h_remap[itrack] >= 0) {
+                CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+                ci.assignIdxChi2List(tmpList);
+              }
+#endif
             }
           }
         }
@@ -1949,7 +2028,7 @@ namespace mkfit {
       const int layer = lp_iter->m_layer;
 
       const LayerOfHits &L = eventofhits[layer];
-      const LayerInfo &LI = *L.layer_info();
+      const LayerInfo &LI = L.layer_info();
 
       int count = 0;
       for (int i = 0; i < N_proc; ++i) {
@@ -2111,7 +2190,7 @@ namespace mkfit {
       const int layer = lp_iter.layer();
 
       const LayerOfHits &L = eventofhits[layer];
-      const LayerInfo &LI = *L.layer_info();
+      const LayerInfo &LI = L.layer_info();
 
 #if defined(DEBUG_BACKWARD_FIT)
       const Hit *last_hit_ptr[NN];

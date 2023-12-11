@@ -229,7 +229,6 @@ namespace mkfit {
     bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
     ev.setCurrentSeedTracks(ev.seedTracks_);
-    ev.simLabelForCurrentSeed(0);
 
     builder.find_tracks_load_seeds(ev.seedTracks_, seeds_sorted);
 
@@ -477,7 +476,6 @@ namespace mkfit {
       if (seeds.size() <= 0)
         continue;
       ev.setCurrentSeedTracks(seeds);
-      ev.simLabelForCurrentSeed(0);
 
       builder.find_tracks_load_seeds(seeds, do_seed_clean);
 

@@ -195,7 +195,22 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                                     mkfit::TrackerInfo &trk_info,
                                                     MaterialHistogram &material_histogram,
                                                     layer_gap_map_t *lgc_map) {
-  DetId detid = det->geographicalId();
+  const DetId detid = det->geographicalId();
+
+  bool doubleSide = false;  //double modules have double material
+  if (detid.subdetId() == SiStripSubdetector::TIB)
+    doubleSide = trackerTopo_->tibIsDoubleSide(detid);
+  else if (detid.subdetId() == SiStripSubdetector::TID)
+    doubleSide = trackerTopo_->tidIsDoubleSide(detid);
+  else if (detid.subdetId() == SiStripSubdetector::TOB)
+    doubleSide = trackerTopo_->tobIsDoubleSide(detid);
+  else if (detid.subdetId() == SiStripSubdetector::TEC)
+    doubleSide = trackerTopo_->tecIsDoubleSide(detid);
+
+  // Double-sided entries (join of two modules) are not used in mkFit and are
+  // also not needed for the material calculation.
+  if (doubleSide)
+    return;
 
   float xy[4][2];
   float half_length, dz;
@@ -248,11 +263,12 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
                                       trackerTopo_->isStereo(detid),
                                       trackerTopo_->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 #ifdef DUMP_MKF_GEO
-  printf("  subdet=%d layer=%d side=%d is_stereo=%d --> mkflayer=%d\n",
+  printf("  subdet=%d layer=%d side=%d is_stereo=%d is_double_side=%d --> mkflayer=%d\n",
          detid.subdetId(),
          trackerTopo_->layer(detid),
          trackerTopo_->side(detid),
          trackerTopo_->isStereo(detid),
+         doubleSide,
          lay);
 #endif
 
@@ -288,23 +304,15 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
   layer_info.set_is_stereo(trackerTopo_->isStereo(detid));
+  if (layerNrConv_.isPhase2() && !layer_info.is_pixel())
+    layer_info.set_has_charge(false);
 
-  bool doubleSide = false;  //double modules have double material
-  if (detid.subdetId() == SiStripSubdetector::TIB)
-    doubleSide = trackerTopo_->tibIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TID)
-    doubleSide = trackerTopo_->tidIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TOB)
-    doubleSide = trackerTopo_->tobIsDoubleSide(detid);
-  else if (detid.subdetId() == SiStripSubdetector::TEC)
-    doubleSide = trackerTopo_->tecIsDoubleSide(detid);
-
-  if (!doubleSide)  //fill material
+  // Fill material
   {
-    //module material
+    // module material
     const float bbxi = det->surface().mediumProperties().xi();
     const float radL = det->surface().mediumProperties().radLen();
-    //loop over bins to fill histogram with bbxi, radL and their weight, which the overlap surface in r-z with the cmsquare of a bin
+    // loop over bins to fill histogram with bbxi, radL and their weight, which the overlap surface in r-z with the cmsquare of a bin
     const float iBin = trk_info.mat_range_z() / trk_info.mat_nbins_z();
     const float jBin = trk_info.mat_range_r() / trk_info.mat_nbins_r();
     for (int i = std::floor(zbox_min / iBin); i < std::ceil(zbox_max / iBin); i++) {
@@ -534,7 +542,8 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   MaterialHistogram material_histogram(trackerInfo->mat_nbins_z(), trackerInfo->mat_nbins_r());
 
-  // This is sort of CMS-phase1 specific ... but fireworks code uses it for PhaseII as well.
+  // This works for both Phase1 and Phase2.
+  // Phase2 TrackerGeometry returns empty det-vectors for TIB and TEC.
   addPixBGeometry(*trackerInfo, material_histogram);
   addPixEGeometry(*trackerInfo, material_histogram);
   addTIBGeometry(*trackerInfo, material_histogram);
