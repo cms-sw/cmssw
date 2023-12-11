@@ -24,12 +24,17 @@ options.register('startLumi',
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.int, # string, int, or float
                  "IOV Start Lumi")
+options.register('maxLSToRead',
+                 10, ## default value for unit test
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.int, # string, int, or float
+                 "total number of LumiSections to read in input")
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100000                         # do not clog output with IO
+process.MessageLogger.cerr.FwkReport.reportEvery = 100000 # do not clog output with IO
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000))   # large number of events is needed since we probe 5000LS for run (see below)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxLSToRead))   # large number of events is needed since we probe 5000LS for run (see below)
 
 ####################################################################
 # Empty source 
@@ -55,11 +60,12 @@ process.GlobalTag.toGet =  cms.VPSet(cms.PSet(record = cms.string("TrackerAlignm
                                               tag = cms.string("TrackerAlignment_collisions23_forHLT_v9"), # choose your favourite tag
                                               label = cms.untracked.string("target")))                     # target label
 
-process.GlobalTag.DumpStats = cms.untracked.bool(True)
+#process.GlobalTag.DumpStat = cms.untracked.bool(True)
 
 myTagName = options.inputTag
 
 print("isForHLT: ",(options.inputRecord ==  "BeamSpotOnlineHLTObjectsRcd"))
+print("max LS to Read: ",options.maxLSToRead)
 
 #################################
 # Produce a SQLITE FILE
