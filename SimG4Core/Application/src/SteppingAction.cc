@@ -145,7 +145,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (sAlive == sVeryForward) {
       const G4Region* preRegion = preStep->GetPhysicalVolume()->GetLogicalVolume()->GetRegion();
       if (preRegion == m_ZDCRegion && preRegion != theRegion)
-	tstat = sDeadRegion;
+        tstat = sDeadRegion;
     }
 
     // kill out of time
