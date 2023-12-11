@@ -191,8 +191,9 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
 
 bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
   for (int d = touchable->GetHistoryDepth() - 1; d >= 0; --d) {
-    if (std::find(m_selectedNames.begin(), m_selectedNames.end(), (std::string)(dd4hep::dd::noNamespace(touchable->GetVolume(d)->GetName()))) !=
-        m_selectedNames.end())
+    if (std::find(m_selectedNames.begin(),
+                  m_selectedNames.end(),
+                  (std::string)(dd4hep::dd::noNamespace(touchable->GetVolume(d)->GetName()))) != m_selectedNames.end())
       return true;
   }
   return false;
