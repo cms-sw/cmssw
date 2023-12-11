@@ -9,16 +9,23 @@
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
 
-LCToCPAssociatorByEnergyScoreImpl::LCToCPAssociatorByEnergyScoreImpl(
+template <typename HIT>
+LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
-  layers_ = recHitTools_->lastLayerBH();
+    const std::unordered_map<DetId, const unsigned int>* hitMap, 
+    std::vector<HIT>& hits)
+    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter), hits_(hits) {
+
+  if constexpr (std::is_same_v<HIT, HGCRecHit>)
+    layers_ = recHitTools_->lastLayerBH();
+  else
+    layers_ = 6;
 }
 
-ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
+template <typename HIT>
+ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
   // Get collections
   const auto& clusters = *cCCH.product();
@@ -56,11 +63,17 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     const SimClusterRefVector& simClusterRefVector = caloParticles[cpId].simClusters();
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
-      const auto& hits_and_fractions = simCluster.hits_and_fractions();
+      std::vector<std::pair<uint32_t, float>> hits_and_fractions;
+      if constexpr (std::is_same_v<HIT, HGCRecHit>)
+        hits_and_fractions = simCluster.endcap_hits_and_fractions();
+      else
+        hits_and_fractions = simCluster.barrel_hits_and_fractions();
       for (const auto& it_haf : hits_and_fractions) {
         const auto hitid = (it_haf.first);
-        const auto cpLayerId =
-            recHitTools_->getLayerWithOffset(hitid) + layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+        unsigned int cpLayerId = recHitTools_->getLayerWithOffset(hitid);
+        if constexpr (std::is_same_v<HIT, HGCRecHit>)
+          cpLayerId += layers_ * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+
         const auto itcheck = hitMap_->find(hitid);
         if (itcheck != hitMap_->end()) {
           auto hit_find_it = detIdToCaloParticleId_Map.find(hitid);
@@ -77,7 +90,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
               detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
             }
           }
-          const HGCRecHit* hit = itcheck->second;
+          const HIT* hit = &(hits_[itcheck->second]);
           cPOnLayer[cpId][cpLayerId].energy += it_haf.second * hit->energy();
           // We need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
@@ -149,12 +162,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     const std::vector<std::pair<DetId, float>>& hits_and_fractions = clusters[lcId].hitsAndFractions();
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
     const auto firstHitDetId = hits_and_fractions[0].first;
-    int lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers_ * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-
+    unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+    if constexpr (std::is_same_v<HIT, HGCRecHit>)
+      lcLayerId += layers_ * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
       const auto rh_detid = hits_and_fractions[hitId].first;
       const auto rhFraction = hits_and_fractions[hitId].second;
+
       auto hit_find_in_LC = detIdToLayerClusterId_Map.find(rh_detid);
       if (hit_find_in_LC == detIdToLayerClusterId_Map.end()) {
         detIdToLayerClusterId_Map[rh_detid] = std::vector<ticl::detIdInfoInCluster>();
@@ -165,7 +179,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
 
       if (hit_find_in_CP != detIdToCaloParticleId_Map.end()) {
         const auto itcheck = hitMap_->find(rh_detid);
-        const HGCRecHit* hit = itcheck->second;
+        const HIT* hit = &(hits_[itcheck->second]);
         for (auto& h : hit_find_in_CP->second) {
           cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[lcId].first += h.fraction * hit->energy();
           cpsInLayerCluster[lcId].emplace_back(h.clusterId, 0.f);
@@ -179,9 +193,9 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     const auto& hits_and_fractions = clusters[lcId].hitsAndFractions();
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
     const auto firstHitDetId = hits_and_fractions[0].first;
-    int lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers_ * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-
+    int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+    if constexpr (std::is_same_v<HIT, HGCRecHit>)
+      lcLayerId += layers_ * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     // This vector will store, for each hit in the Layercluster, the index of
     // the CaloParticle that contributed the most, in terms of energy, to it.
     // Special values are:
@@ -226,7 +240,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
         hitsToCaloParticleId[hitId] -= 1;
       } else {
         const auto itcheck = hitMap_->find(rh_detid);
-        const HGCRecHit* hit = itcheck->second;
+        const HIT* hit = static_cast<HIT*>(itcheck->second);
         auto maxCPEnergyInLC = 0.f;
         auto maxCPId = -1;
         for (auto& h : hit_find_in_CP->second) {
@@ -350,17 +364,19 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      invLayerClusterEnergyWeight +=
-          (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+      const HIT* hit = &(hits_[hitMap_->at(haf.first)]);
+      invLayerClusterEnergyWeight += (haf.second * hit->energy()) *
+                                     (haf.second * hit->energy());
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
       DetId rh_detid = hits_and_fractions[i].first;
       float rhFraction = hits_and_fractions[i].second;
+
       bool hitWithNoCP = (detIdToCaloParticleId_Map.find(rh_detid) == detIdToCaloParticleId_Map.end());
 
       auto itcheck = hitMap_->find(rh_detid);
-      const HGCRecHit* hit = itcheck->second;
+      const HIT* hit = &(hits_[itcheck->second]);
       float hitEnergyWeight = hit->energy() * hit->energy();
 
       for (auto& cpPair : cpsInLayerCluster[lcId]) {
@@ -417,12 +433,14 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
-        invCPEnergyWeight += std::pow(haf.second * hitMap_->at(haf.first)->energy(), 2);
+        const HIT* hit = &(hits_[hitMap_->at(haf.first)]);
+        invCPEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }
       invCPEnergyWeight = 1.f / invCPEnergyWeight;
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
         auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
         auto& cpFraction = cPOnLayer[cpId][layerId].hits_and_fractions[i].second;
+
         bool hitWithNoLC = false;
         if (cpFraction == 0.f)
           continue;  //hopefully this should never happen
@@ -430,7 +448,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
         if (hit_find_in_LC == detIdToLayerClusterId_Map.end())
           hitWithNoLC = true;
         auto itcheck = hitMap_->find(cp_hitDetId);
-        const HGCRecHit* hit = itcheck->second;
+        const HIT* hit = &(hits_[itcheck->second]);
         float hitEnergyWeight = hit->energy() * hit->energy();
         for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
           unsigned int layerClusterId = lcPair.first;
@@ -473,7 +491,8 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
   return {cpsInLayerCluster, cPOnLayer};
 }
 
-ticl::RecoToSimCollection LCToCPAssociatorByEnergyScoreImpl::associateRecoToSim(
+template <typename HIT>
+ticl::RecoToSimCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateRecoToSim(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
   ticl::RecoToSimCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
@@ -493,7 +512,8 @@ ticl::RecoToSimCollection LCToCPAssociatorByEnergyScoreImpl::associateRecoToSim(
   return returnValue;
 }
 
-ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl::associateSimToReco(
+template <typename HIT>
+ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl<HIT>::associateSimToReco(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
   ticl::SimToRecoCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
@@ -511,3 +531,6 @@ ticl::SimToRecoCollection LCToCPAssociatorByEnergyScoreImpl::associateSimToReco(
   }
   return returnValue;
 }
+
+template class LCToCPAssociatorByEnergyScoreImpl<HGCRecHit>;
+template class LCToCPAssociatorByEnergyScoreImpl<reco::PFRecHit>;
