@@ -28,6 +28,35 @@ class DictAction(Action):
             result[values[i]] = self.val_type(values[i+1])
         setattr(namespace, self.dest, result)
 
+# patched version for more succinct printing of repeated messages
+def PrintMessage(self, message):
+    if self.message_formatter and self._TryCustomFormatMessage(message):
+        return
+    if (message.DESCRIPTOR.full_name == text_format._ANY_FULL_TYPE_NAME and
+            self._TryPrintAsAnyMessage(message)):
+        return
+    fields = message.ListFields()
+    if self.use_index_order:
+        fields.sort(key=lambda x: x[0].number if x[0].is_extension else x[0].index)
+    for field, value in fields:
+        if text_format._IsMapEntry(field):
+            for key in sorted(value):
+                entry_submsg = value.GetEntryClass()(key=key, value=value[key])
+                self.PrintField(field, entry_submsg)
+        elif field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+            if self.use_short_repeated_primitives: # no other conditions here
+                self._PrintShortRepeatedPrimitivesValue(field, value)
+            else:
+                for element in value:
+                    self.PrintField(field, element)
+        else:
+            self.PrintField(field, value)
+
+    if self.print_unknown_fields:
+        self._PrintUnknownFields(unknown_fields.UnknownFieldSet(message))
+
+text_format._Printer.PrintMessage = PrintMessage
+
 message_classes = {cls.__name__ : cls for cls in message.Message.__subclasses__()}
 
 _FieldDescriptor = descriptor.FieldDescriptor
