@@ -277,23 +277,44 @@ def cfg_checksum(args):
         filekey = "MD5:{}".format(filename)
         if filekey in checksum_agent.parameters and checksum!=checksum_agent.parameters[filekey]:
             incorrect.append(filename)
+            if args.update and args.force:
+                checksum_agent.parameters[filekey] = checksum
         elif filekey not in checksum_agent.parameters:
             missing.append(filename)
+            if args.update:
+                checksum_agent.parameters[filekey] = checksum
         else:
             continue
-        if args.update:
-            checksum_agent.parameters[filekey] = checksum
 
-    if len(incorrect)>0 or len(missing)>0:
-        if not args.quiet:
-            if len(incorrect)>0:
+    needs_update = len(missing)>0
+    needs_force_update = len(incorrect)>0
+
+    if not args.quiet:
+        if needs_update:
+            print("\n".join(["Missing checksums:"]+missing))
+        if needs_force_update:
                 print("\n".join(["Incorrect checksums:"]+incorrect))
-            if len(missing)>0:
-                print("\n".join(["Missing checksums:"]+missing))
-        if args.update:
-            update_config(args)
+
+    if needs_force_update:
+        if not (args.update and args.force):
+            extra_args = [arg for arg in ["--update","--force"] if arg not in sys.argv]
+            raise RuntimeError("\n".join([
+                "Incorrect checksum(s) found, indicating existing model file(s) has been changed.",
+                "This violates policy. To override, run the following command, and provide a justification in your PR:",
+                "{} {}".format(" ".join(sys.argv), " ".join(extra_args))
+            ]))
         else:
-            sys.exit(1)
+            update_config(args)
+    elif needs_update:
+        if not args.update:
+            extra_args = [arg for arg in ["--update"] if arg not in sys.argv]
+            raise RuntimeError("\n".join([
+                "Missing checksum(s) found, indicating new model file(s).",
+                "To update, run the following command:",
+                "{} {}".format(" ".join(sys.argv), " ".join(extra_args))
+            ]))
+        else:
+            update_config(args)
 
     if args.view:
         cfg_view(args)
@@ -373,7 +394,8 @@ if __name__=="__main__":
     parser_edit.set_defaults(func=cfg_edit)
 
     parser_checksum = subparsers.add_parser("checksum", parents=[_parser_common, _parser_copy, _parser_view_args], help="handle model file checksums")
-    parser_checksum.add_argument("--update", default=False, action="store_true", help="update checksums in config.pbtxt")
+    parser_checksum.add_argument("--update", default=False, action="store_true", help="update missing checksums in config.pbtxt")
+    parser_checksum.add_argument("--force", default=False, action="store_true", help="force update all checksums in config.pbtxt")
     parser_checksum.add_argument("--quiet", default=False, action="store_true", help="suppress printouts")
     parser_checksum.set_defaults(func=cfg_checksum)
 
