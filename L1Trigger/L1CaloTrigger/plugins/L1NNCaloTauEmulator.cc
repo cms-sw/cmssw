@@ -73,10 +73,41 @@ Created: Tue June 7th 2023
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-class l1tNNCaloTauEmulator : public edm::stream::EDProducer<> {
+struct NNmodels_GlobalCache {
+  std::string CNNmodel_CB_path;
+  std::string DNNident_CB_path;
+  std::string DNNcalib_CB_path;
+
+  std::string CNNmodel_CE_path;
+  std::string DNNident_CE_path;
+  std::string DNNcalib_CE_path;
+  std::string FeatScaler_CE_path;
+  boost::property_tree::ptree FeatScaler_CE;
+
+  tensorflow::GraphDef* CNNmodel_CB;
+  tensorflow::GraphDef* DNNident_CB;
+  tensorflow::GraphDef* DNNcalib_CB;
+
+  tensorflow::Session* CNNmodel_CBsession;
+  tensorflow::Session* DNNident_CBsession;
+  tensorflow::Session* DNNcalib_CBsession;
+
+  tensorflow::GraphDef* CNNmodel_CE;
+  tensorflow::GraphDef* DNNident_CE;
+  tensorflow::GraphDef* DNNcalib_CE;
+
+  tensorflow::Session* CNNmodel_CEsession;
+  tensorflow::Session* DNNident_CEsession;
+  tensorflow::Session* DNNcalib_CEsession;
+};
+
+class l1tNNCaloTauEmulator : public edm::stream::EDProducer<edm::GlobalCache<NNmodels_GlobalCache>> {
 public:
-  explicit l1tNNCaloTauEmulator(const edm::ParameterSet&);
+  explicit l1tNNCaloTauEmulator(const edm::ParameterSet&, const NNmodels_GlobalCache*);
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static std::unique_ptr<NNmodels_GlobalCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const NNmodels_GlobalCache*){/*do nothing*/};
 
 private:
   // ----fixed LSBs, Nbits, scales, and types----
@@ -199,32 +230,6 @@ private:
   double EtaRestriction;
   double CB_CE_split;
   double PuidThr;
-
-  std::string CNNmodel_CB_path;
-  std::string DNNident_CB_path;
-  std::string DNNcalib_CB_path;
-
-  std::string CNNmodel_CE_path;
-  std::string DNNident_CE_path;
-  std::string DNNcalib_CE_path;
-  std::string FeatScaler_CE_path;
-  boost::property_tree::ptree FeatScaler_CE;
-
-  tensorflow::GraphDef* CNNmodel_CB;
-  tensorflow::GraphDef* DNNident_CB;
-  tensorflow::GraphDef* DNNcalib_CB;
-
-  tensorflow::Session* CNNmodel_CBsession;
-  tensorflow::Session* DNNident_CBsession;
-  tensorflow::Session* DNNcalib_CBsession;
-
-  tensorflow::GraphDef* CNNmodel_CE;
-  tensorflow::GraphDef* DNNident_CE;
-  tensorflow::GraphDef* DNNcalib_CE;
-
-  tensorflow::Session* CNNmodel_CEsession;
-  tensorflow::Session* DNNident_CEsession;
-  tensorflow::Session* DNNcalib_CEsession;
 
   double IdWp90_CB;
   double IdWp95_CB;
@@ -352,8 +357,47 @@ private:
    ██    ██   ██ ██████        ██    ██   ██ ███████ ██      ██ ██ ██   ████ ██   ██    ██     ██████  ██    ██
 */
 
+std::unique_ptr<NNmodels_GlobalCache> l1tNNCaloTauEmulator::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+  edm::LogInfo("Initialization") << "Init NN models Global Cache " << std::endl;
+
+  std::unique_ptr<NNmodels_GlobalCache> GlobalCache(new NNmodels_GlobalCache);
+
+  GlobalCache->CNNmodel_CB_path = iConfig.getParameter<std::string>("CNNmodel_CB_path");
+  GlobalCache->DNNident_CB_path = iConfig.getParameter<std::string>("DNNident_CB_path");
+  GlobalCache->DNNcalib_CB_path = iConfig.getParameter<std::string>("DNNcalib_CB_path");
+  GlobalCache->CNNmodel_CE_path = iConfig.getParameter<std::string>("CNNmodel_CE_path");
+  GlobalCache->DNNident_CE_path = iConfig.getParameter<std::string>("DNNident_CE_path");
+  GlobalCache->DNNcalib_CE_path = iConfig.getParameter<std::string>("DNNcalib_CE_path");
+  GlobalCache->FeatScaler_CE_path = iConfig.getParameter<std::string>("FeatScaler_CE_path");
+
+  // Create sessions for Tensorflow inferece
+  (GlobalCache->CNNmodel_CB) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->CNNmodel_CB_path)).fullPath());
+  (GlobalCache->CNNmodel_CBsession) = tensorflow::createSession((GlobalCache->CNNmodel_CB));
+
+  (GlobalCache->DNNident_CB) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->DNNident_CB_path)).fullPath());
+  (GlobalCache->DNNident_CBsession) = tensorflow::createSession((GlobalCache->DNNident_CB));
+
+  (GlobalCache->DNNcalib_CB) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->DNNcalib_CB_path)).fullPath());
+  (GlobalCache->DNNcalib_CBsession) = tensorflow::createSession((GlobalCache->DNNcalib_CB));
+
+  (GlobalCache->CNNmodel_CE) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->CNNmodel_CE_path)).fullPath());
+  (GlobalCache->CNNmodel_CEsession) = tensorflow::createSession((GlobalCache->CNNmodel_CE));
+
+  (GlobalCache->DNNident_CE) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->DNNident_CE_path)).fullPath());
+  (GlobalCache->DNNident_CEsession) = tensorflow::createSession((GlobalCache->DNNident_CE));
+
+  (GlobalCache->DNNcalib_CE) = tensorflow::loadGraphDef(edm::FileInPath((GlobalCache->DNNcalib_CE_path)).fullPath());
+  (GlobalCache->DNNcalib_CEsession) = tensorflow::createSession((GlobalCache->DNNcalib_CE));
+
+  // Read features scaler
+  boost::property_tree::read_json(edm::FileInPath((GlobalCache->FeatScaler_CE_path)).fullPath(),
+                                  (GlobalCache->FeatScaler_CE));
+
+  return GlobalCache;
+}
+
 // ----Constructor and Destructor -----
-l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig)
+l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig, const NNmodels_GlobalCache* globalCache)
     : l1TowersToken(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
       hgcalTowersToken(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("hgcalTowers"))),
 
@@ -370,14 +414,6 @@ l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig)
       CB_CE_split(iConfig.getParameter<double>("CB_CE_split")),
       PuidThr(iConfig.getParameter<double>("PuidThr")),
 
-      CNNmodel_CB_path(iConfig.getParameter<std::string>("CNNmodel_CB_path")),
-      DNNident_CB_path(iConfig.getParameter<std::string>("DNNident_CB_path")),
-      DNNcalib_CB_path(iConfig.getParameter<std::string>("DNNcalib_CB_path")),
-      CNNmodel_CE_path(iConfig.getParameter<std::string>("CNNmodel_CE_path")),
-      DNNident_CE_path(iConfig.getParameter<std::string>("DNNident_CE_path")),
-      DNNcalib_CE_path(iConfig.getParameter<std::string>("DNNcalib_CE_path")),
-      FeatScaler_CE_path(iConfig.getParameter<std::string>("FeatScaler_CE_path")),
-
       IdWp90_CB(iConfig.getParameter<double>("IdWp90_CB")),
       IdWp95_CB(iConfig.getParameter<double>("IdWp95_CB")),
       IdWp99_CB(iConfig.getParameter<double>("IdWp99_CB")),
@@ -385,28 +421,6 @@ l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig)
       IdWp90_CE(iConfig.getParameter<double>("IdWp90_CE")),
       IdWp95_CE(iConfig.getParameter<double>("IdWp95_CE")),
       IdWp99_CE(iConfig.getParameter<double>("IdWp99_CE")) {
-  // Create sessions for Tensorflow inferece
-  CNNmodel_CB = tensorflow::loadGraphDef(edm::FileInPath(CNNmodel_CB_path).fullPath());
-  CNNmodel_CBsession = tensorflow::createSession(CNNmodel_CB);
-
-  DNNident_CB = tensorflow::loadGraphDef(edm::FileInPath(DNNident_CB_path).fullPath());
-  DNNident_CBsession = tensorflow::createSession(DNNident_CB);
-
-  DNNcalib_CB = tensorflow::loadGraphDef(edm::FileInPath(DNNcalib_CB_path).fullPath());
-  DNNcalib_CBsession = tensorflow::createSession(DNNcalib_CB);
-
-  CNNmodel_CE = tensorflow::loadGraphDef(edm::FileInPath(CNNmodel_CE_path).fullPath());
-  CNNmodel_CEsession = tensorflow::createSession(CNNmodel_CE);
-
-  DNNident_CE = tensorflow::loadGraphDef(edm::FileInPath(DNNident_CE_path).fullPath());
-  DNNident_CEsession = tensorflow::createSession(DNNident_CE);
-
-  DNNcalib_CE = tensorflow::loadGraphDef(edm::FileInPath(DNNcalib_CE_path).fullPath());
-  DNNcalib_CEsession = tensorflow::createSession(DNNcalib_CE);
-
-  // Read features scaler
-  boost::property_tree::read_json(edm::FileInPath(FeatScaler_CE_path).fullPath(), FeatScaler_CE);
-
   // Initialize HGCAL BDTs
   if (!VsPuId.method().empty()) {
     VsPuId.prepareTMVA();
@@ -727,18 +741,25 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
   tensorflow::NamedTensorList CNNmodel_CBinputList = {{"TowerClusterImage", TowerClusterImage_CB},
                                                       {"TowerClusterPosition", TowerClusterPosition_CB}};
   std::vector<tensorflow::Tensor> CNNmodel_CBoutputs;
-  tensorflow::run(
-      CNNmodel_CBsession, CNNmodel_CBinputList, {"TauMinator_CB_conv/middleMan/concat"}, &CNNmodel_CBoutputs);
+  tensorflow::run((globalCache()->CNNmodel_CBsession),
+                  CNNmodel_CBinputList,
+                  {"TauMinator_CB_conv/middleMan/concat"},
+                  &CNNmodel_CBoutputs);
   tensorflow::NamedTensorList DNN_CBinputsList = {{"middleMan", CNNmodel_CBoutputs[0]}};
 
   // Apply DNN for identification
   std::vector<tensorflow::Tensor> DNN_CBoutputsIdent;
-  tensorflow::run(
-      DNNident_CBsession, DNN_CBinputsList, {"TauMinator_CB_ident/sigmoid_IDout/Sigmoid"}, &DNN_CBoutputsIdent);
+  tensorflow::run((globalCache()->DNNident_CBsession),
+                  DNN_CBinputsList,
+                  {"TauMinator_CB_ident/sigmoid_IDout/Sigmoid"},
+                  &DNN_CBoutputsIdent);
 
   // Apply DNN for calibration
   std::vector<tensorflow::Tensor> DNN_CBoutputsCalib;
-  tensorflow::run(DNNcalib_CBsession, DNN_CBinputsList, {"TauMinator_CB_calib/DNNout/MatMul"}, &DNN_CBoutputsCalib);
+  tensorflow::run((globalCache()->DNNcalib_CBsession),
+                  DNN_CBinputsList,
+                  {"TauMinator_CB_calib/DNNout/MatMul"},
+                  &DNN_CBoutputsCalib);
 
   // Endcap TauMinator application
   int batchSize_CE = (int)(Nclusters_CE);
@@ -784,18 +805,25 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
                                                       {"TowerClusterPosition", TowerClusterPosition_CE},
                                                       {"AssociatedCl3dFeatures", Cl3dShapeFeatures_CE}};
   std::vector<tensorflow::Tensor> CNNmodel_CEoutputs;
-  tensorflow::run(
-      CNNmodel_CEsession, CNNmodel_CEinputList, {"TauMinator_CE_conv/middleMan/concat"}, &CNNmodel_CEoutputs);
+  tensorflow::run((globalCache()->CNNmodel_CEsession),
+                  CNNmodel_CEinputList,
+                  {"TauMinator_CE_conv/middleMan/concat"},
+                  &CNNmodel_CEoutputs);
   tensorflow::NamedTensorList DNN_CEinputsList = {{"middleMan", CNNmodel_CEoutputs[0]}};
 
   // Apply DNN for identification
   std::vector<tensorflow::Tensor> DNN_CEoutputsIdent;
-  tensorflow::run(
-      DNNident_CEsession, DNN_CEinputsList, {"TauMinator_CE_ident/sigmoid_IDout/Sigmoid"}, &DNN_CEoutputsIdent);
+  tensorflow::run((globalCache()->DNNident_CEsession),
+                  DNN_CEinputsList,
+                  {"TauMinator_CE_ident/sigmoid_IDout/Sigmoid"},
+                  &DNN_CEoutputsIdent);
 
   // Apply DNN for calibration
   std::vector<tensorflow::Tensor> DNN_CEoutputsCalib;
-  tensorflow::run(DNNcalib_CEsession, DNN_CEinputsList, {"TauMinator_CE_calib/LIN_DNNout/Relu"}, &DNN_CEoutputsCalib);
+  tensorflow::run((globalCache()->DNNcalib_CEsession),
+                  DNN_CEinputsList,
+                  {"TauMinator_CE_calib/LIN_DNNout/Relu"},
+                  &DNN_CEoutputsCalib);
 
   // ------------------------------------------------------------- */
   // RESTART OF SOFTWARE PRECISION SECTION
@@ -922,8 +950,8 @@ int l1tNNCaloTauEmulator::apintQuantizer(float inputF, float LSB, int nbits) {
 }
 
 float l1tNNCaloTauEmulator::inputScaler(float inputF, std::string feature) {
-  float mean = FeatScaler_CE.get_child(feature).get<float>("mean");
-  float std = FeatScaler_CE.get_child(feature).get<float>("std");
+  float mean = (globalCache()->FeatScaler_CE).get_child(feature).get<float>("mean");
+  float std = (globalCache()->FeatScaler_CE).get_child(feature).get<float>("std");
 
   return (inputF - mean) / std;
 }
