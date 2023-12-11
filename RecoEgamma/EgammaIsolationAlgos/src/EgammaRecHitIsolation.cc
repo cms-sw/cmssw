@@ -220,7 +220,6 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc,
           if (thresholds != nullptr) {
             rhThres = (*thresholds)[j->detid()];  // access ECAL PFRechit thresholds for noise cleaning
           }
-          std::cout << "rhThres = " << rhThres << "  energy = " << energy << std::endl;
 
           if (energy <= rhThres)
             continue;
