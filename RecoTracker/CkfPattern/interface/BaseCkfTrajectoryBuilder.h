@@ -42,7 +42,6 @@ namespace edm {
   class ConsumesCollector;
 }
 
-#include "TrackingTools/PatternTools/interface/bqueue.h"
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
 #include <string>
