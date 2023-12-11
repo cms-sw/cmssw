@@ -948,6 +948,13 @@ namespace mkfit {
       dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
               L.layer_id(), itrack, qv[itrack], phi[itrack], dqv[itrack], dphiv[itrack],
               qb1, qb2, pb1, pb2);
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+      int sim_lbl = m_Label(itrack, 0, 0);
+      int hit_out_idx = 0;
+      // phi-sorted position of matched hits
+      struct pos_match { float dphi, dq; int idx; bool matched; };
+      std::vector<pos_match> pos_match_vec;
+#endif
       // clang-format on
 
       mp::InitialState mp_is(m_Par[iI], m_Chg, itrack);
@@ -1005,6 +1012,48 @@ namespace mkfit {
             dprintf("     SHI %3u %4u %5u  %6.3f %6.3f %6.4f %7.5f  PROP-%s  %s\n",
                     qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
                     ddq, ddphi, prop_fail ? "FAIL" : "OK", dqdphi_presel ? "PASS" : "REJECT");
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+            const Hit &thishit = L.refHit(hi_orig);
+            m_msErr.copyIn(itrack, thishit.errArray());
+            m_msPar.copyIn(itrack, thishit.posArray());
+
+            MPlexQF thisOutChi2;
+            MPlexQI propFail;
+            MPlexLV tmpPropPar;
+            const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
+            (*fnd_foos.m_compute_chi2_foo)(
+              m_Err[iI], m_Par[iI], m_Chg, m_msErr, m_msPar,
+              thisOutChi2, tmpPropPar, propFail, N_proc,
+              m_prop_config->finding_intra_layer_pflags,
+              m_prop_config->finding_requires_propagation_to_hit_pos);
+            float hchi2 = thisOutChi2[itrack];
+
+            CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+
+            if (sim_lbl >= 0) {
+              const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi_orig).mcHitID()];
+              int hit_lbl = mchinfo.mcTrackID();
+              ci.hmi.emplace_back(HitMatchInfo{ HitInfo
+                { hit2pos(thishit),
+                  new_q, L.hit_q_half_length(hi), L.hit_qbar(hi), new_phi,
+                  hit_lbl },
+                state2pos(mp_s), state2mom(mp_s),
+                new_ddq, new_ddphi, hchi2,
+                dqdphi_presel, (sim_lbl == hit_lbl), !prop_fail
+              });
+
+              bool new_dec = dqdphi_presel && !prop_fail;
+              ++ci.n_all_hits;
+              if (sim_lbl == hit_lbl) {
+                ++ci.n_hits_match;
+                if (new_dec) ++ci.n_hits_pass_match;
+              }
+              if (new_dec) ++ci.n_hits_pass;
+              if (new_dec)
+                pos_match_vec.emplace_back(pos_match{ new_ddphi, new_ddq, hit_out_idx++,
+                                             sim_lbl == hit_lbl });
+            } // if (sim_lbl >= 0)
+#endif
             // clang-format on
 
             if (prop_fail || !dqdphi_presel)
@@ -1021,6 +1070,26 @@ namespace mkfit {
       }      //qi
 
       dprintf(" PQUEUE (%d)", pqueue_size);
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+      // clang-format off
+      if (sim_lbl >= 0) {
+        // Find ord number of matched hits.
+        std::sort(pos_match_vec.begin(), pos_match_vec.end(),
+                  [](auto &a, auto &b){return a.dphi < b.dphi;});
+        int pmvs = pos_match_vec.size();
+
+        CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+        for (int i = 0; i < pmvs; ++i) {
+          if (pos_match_vec[i].matched) {
+            ci.ord_first_match = i;
+            ci.dphi_first_match = pos_match_vec[i].dphi;
+            ci.dq_first_match = pos_match_vec[i].dq;
+            break;
+          }
+        }
+      }
+      // clang-format off
+#endif
       // Reverse hits so best dphis/scores come first in the hit-index list.
       m_XHitSize[itrack] = pqueue_size;
       while (pqueue_size) {

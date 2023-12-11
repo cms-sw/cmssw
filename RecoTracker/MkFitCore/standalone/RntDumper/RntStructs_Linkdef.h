@@ -7,6 +7,11 @@
 #pragma link C++ class SimSeedInfo + ;
 #pragma link C++ class BinSearch + ;
 
+#pragma link C++ class HitInfo+;
+#pragma link C++ class HitMatchInfo+;
+#pragma link C++ class std::vector<HitInfo>+;
+#pragma link C++ class std::vector<HitMatchInfo>+;
+
 #pragma link C++ class CandInfo + ;
 #pragma link C++ class std::vector < CandInfo> + ;
 

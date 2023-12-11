@@ -71,17 +71,47 @@ struct BinSearch {
   BinSearch& operator=(const BinSearch&) = default;
 };
 
+struct HitInfo {
+  RVec hit_pos;
+  float hit_q, hit_qhalflen, hit_qbar, hit_phi;
+  int hit_lbl;
+
+  HitInfo() = default;
+  HitInfo& operator=(const HitInfo&) = default;
+};
+
+struct HitMatchInfo : public HitInfo {
+  RVec trk_pos, trk_mom;
+  float ddq, ddphi;
+  float chi2_true;
+  bool accept;
+  bool match;
+  bool prop_ok;
+
+  HitMatchInfo() = default;
+  HitMatchInfo& operator=(const HitMatchInfo&) = default;
+};
+
 struct CandInfo {
   SimSeedInfo ssi;
   State s_ctr;
   PropState ps_min, ps_max;
   BinSearch bso;
   BinSearch bsn;
+  std::vector<HitMatchInfo> hmi;
+  int n_all_hits = 0, n_hits_pass = 0, n_hits_match = 0, n_hits_pass_match = 0;
+  int ord_first_match = -1;
+  float dphi_first_match = -9999.0f, dq_first_match = -9999.0f;
   bool has_nans = false;
 
   CandInfo(const SimSeedInfo& s, const State& c) : ssi(s), s_ctr(c) {}
 
   void nan_check();
+  void reset_hits_match() {
+    n_all_hits = n_hits_pass = n_hits_match = n_hits_pass_match = 0;
+    ord_first_match = -1;
+    dphi_first_match = dq_first_match = -9999.0f;
+  }
 
   CandInfo() = default;
   CandInfo& operator=(const CandInfo&) = default;
