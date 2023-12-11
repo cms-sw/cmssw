@@ -369,7 +369,7 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
       int id = VsPuId.passID(*cl3dIt, cluster);
       if (!id) {
         continue;
-      }  // skip cl3d if it does not pass puid
+      } // skip cl3d if it does not pass puid
     }
 
     SimpleHGCluster HGCluster;
