@@ -64,10 +64,10 @@ private:
   double etaECMax;
 
   //Defining the relevant invariant mass regions
-  double LowMassMin;
-  double LowMassMax;
-  double HighMassMin;
-  double HighMassMax;
+  double lowMassMin;
+  double lowMassMax;
+  double highMassMin;
+  double highMassMax;
 
   std::vector<MonitorElement*> GlbGlbMuon_LM;
   std::vector<MonitorElement*> GlbGlbMuon_HM;
