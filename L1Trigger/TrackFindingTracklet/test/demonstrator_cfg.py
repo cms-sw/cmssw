@@ -22,16 +22,16 @@ process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 #--- Load code that compares s/w with f/w
 process.load( 'L1Trigger.TrackFindingTracklet.Demonstrator_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
-reducedConfig( process )
-#fwConfig( process )
+#reducedConfig( process )
+fwConfig( process )
 
 # build schedule
 process.tt = cms.Sequence (  process.TrackerDTCProducer
                            + process.L1THybridTracks
                            + process.TrackFindingTrackletProducerIRin
                            + process.TrackFindingTrackletProducerTBout
-                           + process.TrackFindingTrackletProducerKFin
-                           + process.TrackFindingTrackletProducerKF
+                           + process.TrackFindingTrackletProducerDRin
+                           + process.TrackFindingTrackletProducerDR
                           )
 process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
 process.schedule = cms.Schedule( process.demo )
@@ -40,7 +40,8 @@ process.schedule = cms.Schedule( process.demo )
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
-  inputMC = ["/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"]
+inputMC = ["/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"]
+
 options.register( 'inputMC', inputMC, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
 options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
@@ -51,7 +52,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  skipEvents = cms.untracked.uint32( 1 ),
+  #skipEvents = cms.untracked.uint32( 1 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

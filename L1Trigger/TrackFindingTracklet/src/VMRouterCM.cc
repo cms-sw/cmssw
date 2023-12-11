@@ -258,9 +258,9 @@ void VMRouterCM::execute(unsigned int) {
           FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
           allStubIndex);
 
-      assert(vmstubsMEPHI_[0] != nullptr);
-
-      vmstubsMEPHI_[0]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
+      if (vmstubsMEPHI_[0] != nullptr) {
+        vmstubsMEPHI_[0]->addStub(vmstub, ivm * nvmmebins_ + vmbin);
+      }
 
       //Fill the TE VM memories
       if (layerdisk_ >= N_LAYER && (!stub->isPSmodule()))

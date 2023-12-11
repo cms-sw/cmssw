@@ -302,6 +302,10 @@ namespace tt {
     double hybridRangeR() const { return hybridRangesR_[SensorModule::DiskPS]; }
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius() const { return tbInnerRadius_; }
+    // center radius of outer tracker endcap 2S diks strips
+    double disk2SR(int layerId, int r) const { return disk2SRs_.at(layerId).at(r); }
+    // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
+    int tbWidthR(SensorModule::Type type) const { return tbWidthsR_.at(type); }
 
     // Parameter specifying TTStub algorithm
 
@@ -491,21 +495,26 @@ namespace tt {
     int kfMaxLayers() const { return kfMaxLayers_; }
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor() const { return kfRangeFactor_; }
+    //
+    int kfShiftInitialC00() const { return kfShiftInitialC00_; }
+    //
+    int kfShiftInitialC11() const { return kfShiftInitialC11_; }
+    //
+    int kfShiftInitialC22() const { return kfShiftInitialC22_; }
+    //
+    int kfShiftInitialC33() const { return kfShiftInitialC33_; }
 
     // Parameter specifying KalmanFilter Output Formatter
-
-    // Final Chi2rphi digitization TODO extract from TTTrack Word
-    std::vector<double> kfoutchi2rphiBins() const { return kfoutchi2rphiBins_; }
-    // Final Chi2rz digitization TODO extract from TTTrack Word
-    std::vector<double> kfoutchi2rzBins() const { return kfoutchi2rzBins_; }
     // Conversion factor between dphi^2/weight and chi2rphi
     int kfoutchi2rphiConv() const { return kfoutchi2rphiConv_; }
     // Conversion factor between dz^2/weight and chi2rz
     int kfoutchi2rzConv() const { return kfoutchi2rzConv_; }
-    // Number of bits for the tttrack word
-    int tttrackBits() const { return tttrackBits_; }
     // Fraction of total dphi and dz ranges to calculate v0 and v1 LUT for
     int weightBinFraction() const { return weightBinFraction_; }
+    // Constant used in FW to prevent 32-bit int overflow
+    int dzTruncation() const { return dzTruncation_; }
+    // Constant used in FW to prevent 32-bit int overflow
+    int dphiTruncation() const { return dphiTruncation_; }
 
     // Parameter specifying DuplicateRemoval
 
@@ -656,6 +665,8 @@ namespace tt {
     double hybridRangePhi_;
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius_;
+    // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
+    std::vector<int> tbWidthsR_;
 
     // Parameter specifying TrackingParticle used for Efficiency measurements
     edm::ParameterSet pSetTP_;
@@ -897,29 +908,27 @@ namespace tt {
     int kfMaxLayers_;
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor_;
+    //
+    int kfShiftInitialC00_;
+    //
+    int kfShiftInitialC11_;
+    //
+    int kfShiftInitialC22_;
+    //
+    int kfShiftInitialC33_;
 
     // Parameter specifying KalmanFilter Output Formatter
     edm::ParameterSet pSetKFOut_;
-    // Bins used to digitize dPhi for chi2 calculation
-    std::vector<int> kfoutdPhiBins_;
-    // Bins used to digitize dZ for chi2 calculation
-    std::vector<int> kfoutdZBins_;
-    // v0 weight Bins corresponding to dPhi Bins for chi2 calculation
-    std::vector<int> kfoutv0Bins_;
-    // v1 weight Bins corresponding to dZ Bins for chi2 calculation
-    std::vector<int> kfoutv1Bins_;
-    // Final Chi2rphi digitization TODO extract from TTTrack Word
-    std::vector<double> kfoutchi2rphiBins_;
-    // Final Chi2rz digitization TODO extract from TTTrack Word
-    std::vector<double> kfoutchi2rzBins_;
     // Conversion factor between dphi^2/weight and chi2rphi
     int kfoutchi2rphiConv_;
     // Conversion factor between dz^2/weight and chi2rz
     int kfoutchi2rzConv_;
-    // Number of bits for the tttrack word
-    int tttrackBits_;
     // Fraction of total dphi and dz ranges to calculate v0 and v1 LUT for
     int weightBinFraction_;
+    // Constant used in FW to prevent 32-bit int overflow
+    int dzTruncation_;
+    // Constant used in FW to prevent 32-bit int overflow
+    int dphiTruncation_;
 
     // Parameter specifying DuplicateRemoval
     edm::ParameterSet pSetDR_;
