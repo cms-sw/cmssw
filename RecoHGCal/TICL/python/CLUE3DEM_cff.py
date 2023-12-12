@@ -7,10 +7,11 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 # CLUSTER FILTERING/MASKING
 
 filteredLayerClustersCLUE3DEM = _filteredLayerClustersProducer.clone(
-    clusterFilter = "ClusterFilterByAlgoAndSize",
+    clusterFilter = "ClusterFilterByAlgoAndSizeAndLayerRange",
     min_cluster_size = 2, # inclusive
     iteration_label = "CLUE3DEM",
-    algo_number = [6] # hgcal_em only
+    algo_number = [6,7],
+    max_layerId = 28, # inclusive
 )
 
 # PATTERN RECOGNITION
