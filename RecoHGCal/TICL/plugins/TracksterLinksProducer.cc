@@ -73,7 +73,7 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
     tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
   }
   //Loop over the edm::VInputTag of masks and append the token to original_masks_tokens_
-  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("original_masks_collections")) {
+  for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("original_masks")) {
     original_masks_tokens_.emplace_back(consumes<std::vector<float>>(tag));
   }
 
@@ -225,7 +225,7 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<std::vector<edm::InputTag>>("original_masks", {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
-  descriptions.add("TracksterLinksProducer", desc);
+  descriptions.add("tracksterLinksProducer", desc);
 }
 
 DEFINE_FWK_MODULE(TracksterLinksProducer);
