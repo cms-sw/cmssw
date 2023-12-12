@@ -1140,7 +1140,7 @@ namespace mkfit {
 
         mkfndr->inputTracksAndHits(eoccs.refCandidates(), layer_of_hits, seed_cand_overlap_idx, itrack, end, true);
 
-        mkfndr->updateWithLoadedHit(end - itrack, fnd_foos);
+        mkfndr->updateWithLoadedHit(end - itrack, layer_of_hits, fnd_foos);
 
         mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, false);
 
@@ -1159,10 +1159,11 @@ namespace mkfit {
           // chi2 check. To use it we should retune scoring function (might be even simpler).
           auto chi2Ovlp = mkfndr->m_Chi2[fi];
           if (mkfndr->m_FailFlag[fi] == 0 && chi2Ovlp >= 0.0f && chi2Ovlp <= 60.0f) {
-            auto scoreCand = getScoreCand(tc, true /*penalizeTailMissHits*/, true /*inFindCandidates*/);
+            auto scoreCand =
+                getScoreCand(st_par.m_track_scorer, tc, true /*penalizeTailMissHits*/, true /*inFindCandidates*/);
             tc.addHitIdx(seed_cand_overlap_idx[ii].ovlp_idx, curr_layer, chi2Ovlp);
             tc.incOverlapCount();
-            auto scoreCandOvlp = getScoreCand(tc, true, true);
+            auto scoreCandOvlp = getScoreCand(st_par.m_track_scorer, tc, true, true);
             if (scoreCand > scoreCandOvlp)
               tc.popOverlap();
           }

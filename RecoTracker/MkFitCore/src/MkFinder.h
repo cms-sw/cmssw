@@ -86,10 +86,7 @@ namespace mkfit {
                             int beg,
                             int end,
                             bool inputProp);
-    void inputOverlapHits(const LayerOfHits &layer_of_hits,
-                          const std::vector<UpdateIndices> &idxs,
-                          int beg,
-                          int end);
+    void inputOverlapHits(const LayerOfHits &layer_of_hits, const std::vector<UpdateIndices> &idxs, int beg, int end);
 
     void inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                               const std::vector<std::pair<int, IdxChi2List>> &idxs,

@@ -16,7 +16,7 @@ namespace mkfit {
   const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexLS &, MPlexLV &, MPlexQI &, \
       const int, const PropagationFlags &, const bool
 
-#define COMPUTE_CHI2_AND_UPDATE_ARGS \
+#define COMPUTE_CHI2_AND_UPDATE_ARGS                                                                              \
   const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexQF &, MPlexLS &, MPlexLV &, \
       MPlexQI &, const int, const PropagationFlags, const bool
 
