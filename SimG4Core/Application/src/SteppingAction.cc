@@ -13,7 +13,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-//#define DebugLog
+#include <DD4hep/Filter.h>
+
+//#define EDM_ML_DEBUG
 
 SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {
@@ -33,6 +35,9 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
+  cmseName_ = (G4String)(p.getParameter<std::string>("CMSName"));
+  trackerName_ = (G4String)(p.getParameter<std::string>("TrackerName"));
+  caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -41,7 +46,8 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
-      << " MaxNumberOfSteps = " << maxNumberOfSteps << " ZDC: " << m_CMStoZDCtransport;
+      << " MaxNumberOfSteps = " << maxNumberOfSteps << "\n"
+      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -173,7 +179,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
     isKilled = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     PrintKilledTrack(theTrack, tstat);
 #endif
   }
@@ -203,25 +209,34 @@ bool SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
     const G4String& pvname = pvcite->GetName();
-    if (pvname == "Tracker" || pvname == "tracker:Tracker_1") {
+    if (pvname == trackerName_) {
       tracker = pvcite;
-    } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
+    } else if (pvname == caloName_) {
       calo = pvcite;
     }
     if (tracker && calo)
       break;
   }
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SimG4CoreApplication") << pvs->size() << " Physical volume in the store";
+  for (auto const& pvcite : *pvs)
+    edm::LogVerbatim("SimG4CoreApplication") << pvcite << " corresponds to " << pvcite->GetName();
+#endif
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
 
   ekinVolumes.resize(numberEkins, nullptr);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SimG4CoreApplication") << lvs->size() << " Logical volume in the store";
+  for (auto const& lvcite : *lvs)
+    edm::LogVerbatim("SimG4CoreApplication") << lvcite << " corresponds to " << lvcite->GetName();
+#endif
   for (auto const& lvcite : *lvs) {
-    const G4String& lvname = lvcite->GetName();
-    if (lvname == "CMStoZDC" || lvname == "cmsextent:CMStoZDC") {
+    const G4String& lvname = (G4String)(dd4hep::dd::noNamespace(lvcite->GetName()));
+    if (lvname == "CMStoZDC") {
       m_CMStoZDC = lvcite;
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
-      if (lvname == (G4String)(ekinNames[i])) {
+      if (lvname == (G4String)(dd4hep::dd::noNamespace(ekinNames[i]))) {
         ekinVolumes[i] = lvcite;
         break;
       }
@@ -246,6 +261,11 @@ bool SteppingAction::initPointer() {
   }
 
   const G4RegionStore* rs = G4RegionStore::GetInstance();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SimG4CoreApplication") << rs->size() << " Regions in the store";
+  for (auto const& rcite : *rs)
+    edm::LogVerbatim("SimG4CoreApplication") << rcite << " corresponds to " << rcite->GetName();
+#endif
   if (numberTimes > 0) {
     maxTimeRegions.resize(numberTimes, nullptr);
     for (auto const& rcite : *rs) {

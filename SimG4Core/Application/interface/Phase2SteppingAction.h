@@ -64,6 +64,7 @@ private:
   std::vector<const G4Region*> deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int> ekinPDG;
+  G4String cmseName_, trackerName_, caloName_, btlName_;
 };
 
 inline bool Phase2SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
