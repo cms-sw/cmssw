@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_3_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_13_3_0/PRef/V11 (CMSSW_13_3_0)
+# /dev/CMSSW_13_3_0/PRef/V15 (CMSSW_13_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPRef" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_3_0/PRef/V11')
+  tableName = cms.string('/dev/CMSSW_13_3_0/PRef/V15')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -7768,9 +7768,9 @@ process.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
       ErrorCSC = cms.double( 7.4 )
     ),
     ShowerDigiFillerParameters = cms.PSet( 
-      cscDigiCollectionLabel = cms.InputTag( 'muonCSCDigis','MuonCSCStripDigi' ),
+      cscDigiCollectionLabel = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
       digiMaxDistanceX = cms.double( 25.0 ),
-      dtDigiCollectionLabel = cms.InputTag( "muonDTDigis" )
+      dtDigiCollectionLabel = cms.InputTag( "hltMuonDTDigis" )
     ),
     TrackerKinkFinderParameters = cms.PSet( 
       usePosition = cms.bool( False ),
@@ -7802,9 +7802,9 @@ process.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double( 2.0 ),
     fillGlobalTrackQuality = cms.bool( False ),
-    globalTrackQualityInputTag = cms.InputTag( "glbTrackQual" ),
+    globalTrackQualityInputTag = cms.InputTag( "" ),
     selectHighPurity = cms.bool( False ),
-    pvInputTag = cms.InputTag( "offlinePrimaryVertices" ),
+    pvInputTag = cms.InputTag( "" ),
     fillTrackerKink = cms.bool( False ),
     minCaloCompatibility = cms.double( 0.6 ),
     runArbitrationCleaner = cms.bool( False ),
@@ -9571,8 +9571,8 @@ process.hltMuons = cms.EDProducer( "MuonIdProducer",
       ErrorCSC = cms.double( 7.4 )
     ),
     ShowerDigiFillerParameters = cms.PSet( 
-      cscDigiCollectionLabel = cms.InputTag( 'muonCSCDigis','MuonCSCStripDigi' ),
-      dtDigiCollectionLabel = cms.InputTag( "muonDTDigis" ),
+      cscDigiCollectionLabel = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
+      dtDigiCollectionLabel = cms.InputTag( "hltMuonDTDigis" ),
       digiMaxDistanceX = cms.double( 25.0 )
     ),
     TrackerKinkFinderParameters = cms.PSet( 
@@ -9605,9 +9605,9 @@ process.hltMuons = cms.EDProducer( "MuonIdProducer",
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double( 2.0 ),
     fillGlobalTrackQuality = cms.bool( False ),
-    globalTrackQualityInputTag = cms.InputTag( "glbTrackQual" ),
+    globalTrackQualityInputTag = cms.InputTag( "" ),
     selectHighPurity = cms.bool( False ),
-    pvInputTag = cms.InputTag( "offlinePrimaryVertices" ),
+    pvInputTag = cms.InputTag( "" ),
     fillTrackerKink = cms.bool( False ),
     minCaloCompatibility = cms.double( 0.6 ),
     runArbitrationCleaner = cms.bool( False ),
