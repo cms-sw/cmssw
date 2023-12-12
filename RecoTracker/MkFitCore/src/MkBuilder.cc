@@ -1118,6 +1118,7 @@ namespace mkfit {
       // that need update (excluding all those with negative last hit index).
       // This is split into two sections - candidates without overlaps and with overlaps.
       // On CMS PU-50 the ratio of those is ~ 65 : 35 over all iterations.
+      // Note, overlap recheck is only enabled for some iterations, e.g. pixelLess.
 
       const int theEndUpdater = seed_cand_update_idx.size();
 
@@ -1166,24 +1167,6 @@ namespace mkfit {
               tc.popOverlap();
           }
         }
-
-        /*
-          perl -ne 'if (/^RT_OVLP/) { s/^RT_OVLP //og; print; }' | grep -v nan > ovlp.rtt
-          TTree t;
-          t.ReadFile("ovlp.rtt", "algo/I:region:layer:fail:chi2_est/F:chi2_real:pt:theta:phi:phi_pos");
-          // momEta() sometimes makes nans ... hmmh.
-        */
-        /*
-        for (int ii = itrack; ii < end; ++ii) {
-          const int fi = ii - itrack;
-          const TrackCand &trk = eoccs[seed_cand_overlap_idx[ii].seed_idx][seed_cand_overlap_idx[ii].cand_idx];
-          printf("RT_OVLP %d %d %d %d %f %f %f %f %f %f\n",
-                 m_job->m_iter_config.m_track_algorithm, region, curr_layer,
-                 mkfndr->m_FailFlag[fi],
-                 seed_cand_overlap_idx[ii].chi2_overlap, mkfndr->m_Chi2[fi], trk.pT(), trk.theta(), trk.momPhi(),
-                 trk.posPhi());
-        }
-        */
       }
 
       // Check if cands are sorted, as expected.

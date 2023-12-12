@@ -90,6 +90,7 @@ namespace mkfit {
     float chi2Cut_min = 15.0;
     float chi2CutOverlap = 3.5;
     float pTCutOverlap = 0.0;
+    bool recheckOverlap = false;
 
     //quality filter params
     int minHitsQF = 4;
