@@ -13,6 +13,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include <DD4hep/Filter.h>
+
 Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
@@ -30,6 +32,10 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
+  cmseName_ = (G4String)(p.getParameter<std::string>("CMSName"));
+  trackerName_ = (G4String)(p.getParameter<std::string>("TrackerName"));
+  caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
+  btlName_ = (G4String)(p.getParameter<std::string>("BTLName"));
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -38,7 +44,9 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
-      << " MaxNumberOfSteps = " << maxNumberOfSteps;
+      << " MaxNumberOfSteps = " << maxNumberOfSteps << "\n"
+      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_ << "  "
+      << btlName_;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -247,13 +255,13 @@ bool Phase2SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
     const G4String& pvname = pvcite->GetName();
-    if (pvname == "Tracker" || pvname == "tracker:Tracker_1") {
+    if (pvname == trackerName_) {
       tracker = pvcite;
-    } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
+    } else if (pvname == caloName_) {
       calo = pvcite;
-    } else if (pvname == "BarrelTimingLayer" || pvname == "btl:BarrelTimingLayer_1") {
+    } else if (pvname == btlName_) {
       btl = pvcite;
-    } else if (pvname == "CMSE" || pvname == "cms:CMSE_1") {
+    } else if (pvname == cmseName_) {
       cmse = pvcite;
     }
     if (tracker && calo && btl && cmse)
@@ -266,9 +274,9 @@ bool Phase2SteppingAction::initPointer() {
   if (numberEkins > 0) {
     ekinVolumes.resize(numberEkins, nullptr);
     for (auto const& lvcite : *lvs) {
-      const G4String& lvname = lvcite->GetName();
+      const G4String& lvname = (G4String)(dd4hep::dd::noNamespace(lvcite->GetName()));
       for (unsigned int i = 0; i < numberEkins; ++i) {
-        if (lvname == (G4String)(ekinNames[i])) {
+        if (lvname == (G4String)(dd4hep::dd::noNamespace(ekinNames[i]))) {
           ekinVolumes[i] = lvcite;
           break;
         }

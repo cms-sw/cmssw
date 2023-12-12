@@ -342,6 +342,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         common_maximum_time,
         CMStoZDCtransport       = cms.bool(False),                 
         MaxNumberOfSteps        = cms.int32(20000),
+        CMSName                 = cms.string('CMSE'),
+        TrackerName             = cms.string('Tracker'),
+        CaloName                = cms.string('CALO'),
+        BTLName                 = cms.string('BarrelTimingLayer'),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring()
@@ -724,7 +728,14 @@ h2tb.toModify(g4SimHits,
 ## DD4hep migration
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
+dd4hep.toModify( g4SimHits, 
+                 g4GeometryDD4hepSource = True,
+                 SteppingAction = dict(
+                     CMSName    = 'cms:CMSE_1',
+                     TrackerName = 'tracker:Tracker_1',
+                     CaloName    = 'caloBase:CALO_1',
+                     BTLName     = 'btl:BarrelTimingLayer'
+                 ) )
 
 ##
 ## Selection of SD's for Phase2, exclude PPS
