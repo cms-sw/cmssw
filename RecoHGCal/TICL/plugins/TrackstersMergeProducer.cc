@@ -85,9 +85,9 @@ private:
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
   const edm::EDGetTokenT<std::vector<reco::Muon>> muons_token_;
   const std::string tfDnnLabel_;
   const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
@@ -143,9 +143,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
-      tracks_time_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"))),
-      tracks_time_quality_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"))),
-      tracks_time_err_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"))),
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
       tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
@@ -183,6 +180,13 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       eidSession_(nullptr) {
   produces<std::vector<Trackster>>();
   produces<std::vector<TICLCandidate>>();
+
+  if (useMTDTiming_)
+  {
+    tracks_time_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"));
+    tracks_time_quality_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"));
+    tracks_time_err_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"));
+  }
 
   std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
   hdc_token_ =
