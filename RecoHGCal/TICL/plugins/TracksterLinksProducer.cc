@@ -88,7 +88,6 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
   auto linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
   auto algoType = linkingPSet.getParameter<std::string>("type");
   linkingAlgo_ = TracksterLinkingPluginFactory::get()->create(algoType, linkingPSet, consumesCollector());
-
 }
 
 void TracksterLinksProducer::beginJob() {}
@@ -153,7 +152,6 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
   }
 
   // Linking
-  // linkingAlgo_->linkTracksters(layerClusters, layerClustersTimes, trackstersManager, *resultTracksters);
   const typename TracksterLinkingAlgoBase::Inputs input(evt,
                                                         es,
                                                         layerClusters,
@@ -220,46 +218,13 @@ void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &
 
 void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-
   edm::ParameterSetDescription linkingDesc;
   linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "FastJet", true));
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
-
-  desc.add<edm::InputTag>("trackstersclue3d", edm::InputTag("ticlTrackstersCLUE3DHigh"));
+  desc.add<std::vector<edm::InputTag>>("tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DEM"), edm::InputTag("ticlTrackstersCLUE3DHAD")});
+  desc.add<std::vector<edm::InputTag>>("original_masks", {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
-  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("tracksTime", edm::InputTag("tofPID:t0"));
-  desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
-  desc.add<edm::InputTag>("tracksTimeErr", edm::InputTag("tofPID:sigmat0"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
-  desc.add<std::string>("detector", "HGCAL");
-  desc.add<std::string>("propagator", "PropagatorWithMaterial");
-  desc.add<bool>("optimiseAcrossTracksters", true);
-  desc.add<bool>("useMTDTiming", true);
-  desc.add<int>("eta_bin_window", 1);
-  desc.add<int>("phi_bin_window", 1);
-  desc.add<double>("pt_sigma_high", 2.);
-  desc.add<double>("pt_sigma_low", 2.);
-  desc.add<double>("halo_max_distance2", 4.);
-  desc.add<double>("track_min_pt", 1.);
-  desc.add<double>("track_min_eta", 1.48);
-  desc.add<double>("track_max_eta", 3.);
-  desc.add<int>("track_max_missing_outerhits", 5);
-  desc.add<double>("cosangle_align", 0.9945);
-  desc.add<double>("e_over_h_threshold", 1.);
-  desc.add<double>("pt_neutral_threshold", 2.);
-  desc.add<double>("resol_calo_offset_had", 1.5);
-  desc.add<double>("resol_calo_scale_had", 0.15);
-  desc.add<double>("resol_calo_offset_em", 1.5);
-  desc.add<double>("resol_calo_scale_em", 0.15);
-  desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
-  desc.add<std::string>("eid_input_name", "input");
-  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
-  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
-  desc.add<double>("eid_min_cluster_energy", 2.5);
-  desc.add<int>("eid_n_layers", 50);
-  desc.add<int>("eid_n_clusters", 10);
   descriptions.add("TracksterLinksProducer", desc);
 }
 
