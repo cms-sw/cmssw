@@ -529,7 +529,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
     if (!VsPuId.method().empty()) {
       int id = VsPuId.passID(*cl3dIt, cluster);
       idScore = cluster.egVsPUMVAOut();
-      (void) id; // dummy to avoid variable not used error
+      (void)id;  // dummy to avoid variable not used error
     }
 
     float eta_hgcalCoord = correctInputEtaCl3d(cl3d.eta());
