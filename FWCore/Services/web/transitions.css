@@ -78,3 +78,8 @@ body {
 	grid-row: 10;
 	height: 50px;
 }
+
+.controls {
+    grid-column: 1/1;
+    grid-row: 9;
+}

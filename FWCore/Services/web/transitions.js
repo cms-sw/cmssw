@@ -104,6 +104,8 @@ window.onload = () => {
     const time_view = document.getElementById('time_view');
     const time_context = time_view.getContext('2d');
     const selected_view = document.getElementById('selected_paragraph');
+    const zoom_in_button = document.getElementById('zoom_in');
+    const zoom_out_button = document.getElementById('zoom_out');
     let selected_item = null;
     selected_view.innerHTML = "Selected: [click on box in graph]";
     let mouse_is_down = false;
@@ -300,7 +302,7 @@ window.onload = () => {
         //console.log(xDiff, original, minVisibleTime);
         const timeEnd = (max_graph_width)/kInitPixelsPerSecond/timeZoomFactor+minVisibleTime;
         if (timeEnd > kEndTime) {
-            minVisibleTime = kEndTime - max_graph_width*kInitPixelsPerSecond*timeZoomFactor;
+            minVisibleTime = kEndTime - max_graph_width/kInitPixelsPerSecond/timeZoomFactor;
         }
         if (minVisibleTime < 0) {
             minVisibleTime = 0;
@@ -387,7 +389,11 @@ window.onload = () => {
                 +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
             }
         } else {
-            selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+            let transform = '';
+            if (item.call != 0 && item.mod > 0) {
+                transform = ' transform '
+            }
+            selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+transform+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
         }
     }
     function doSelection(items, x) {
@@ -530,6 +536,27 @@ window.onload = () => {
     time_view.addEventListener('mouseout', time_onMouseOut)
     time_view.addEventListener('wheel', time_onWheel);
     
+    function zoom_in_click(event) {
+        const zoom = 1.1;
+        const originalScale = 1. / timeZoomFactor / kInitPixelsPerSecond;
+        timeZoomFactor *= zoom;
+        const newScale = 1. / timeZoomFactor / kInitPixelsPerSecond;
+        //Keep the center of the view at the same time and change zoom around that point
+        minVisibleTime = minVisibleTime + max_graph_width/2*(originalScale-newScale);
+        drawGraph();
+    }
+    function zoom_out_click(event) {
+        const zoom = 0.909;
+        const originalScale = 1. / timeZoomFactor / kInitPixelsPerSecond;
+        timeZoomFactor *= zoom;
+        const newScale = 1. / timeZoomFactor / kInitPixelsPerSecond;
+        //Keep the center of the view at the same time and change zoom around that point
+        minVisibleTime = minVisibleTime + max_graph_width/2*(originalScale-newScale);
+        drawGraph();
+    }
+    zoom_in_button.addEventListener("click", zoom_in_click);
+    zoom_out_button.addEventListener("click", zoom_out_click);
+
     function name_onWheel(event) {
         let offset = 0;
         graph_translate(0, -1*event.deltaY);

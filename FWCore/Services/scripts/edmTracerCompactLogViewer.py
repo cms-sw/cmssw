@@ -54,14 +54,14 @@ kLargestLumiNumber = 4294967295
 
 #these values must match the enum class Phase in tracer_setupFile.cc
 class Phase (object):
-  destruction = -15
+  destruction = -16
   endJob = -12
   endStream = -11
   writeProcessBlock = -10
   endProcessBlock = -9
   globalWriteRun = -7
   globalEndRun = -6
-  streamEndRun = -4
+  streamEndRun = -5
   globalWriteLumi = -4
   globalEndLumi = -3
   streamEndLumi = -2
@@ -457,28 +457,34 @@ class EDModuleTransitionParser(object):
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
         self.moduleName = moduleNames[self.moduleID]
-        self.requestingModuleID = int(payload[3])
+        self.callID = int(payload[3])
+        self.requestingModuleID = int(payload[4])
+        self.requestingCallID = int(payload[5])
         self.requestingModuleName = None
         if self.requestingModuleID != 0:
             self.requestingModuleName = moduleNames[self.requestingModuleID]
-        self.time = int(payload[4])
+        self.time = int(payload[6])
     def baseIndentLevel(self):
         return transitionIndentLevel(self.transition)
     def textPrefix(self, context):
         indent = 0
         if self.requestingModuleID != 0:
-            indent = context[(self.transition, self.index, self.requestingModuleID)]
-        context[(self.transition, self.index, self.moduleID)] = indent+1
+            indent = context[(self.transition, self.index, self.requestingModuleID, self.requestingCallID)]
+        context[(self.transition, self.index, self.moduleID, self.callID)] = indent+1
         return textPrefix_(self.time, indent+1+self.baseIndentLevel())
     def textPostfix(self):
         return f'{self.moduleName} during {transitionName(self.transition)} : id={self.index}'
+    def textIfTransform(self):
+        if self.callID:
+            return f' transform {self.callID-1}'
+        return ''
     def text(self, context):
-        return f'{self.textPrefix(context)} {self.textSpecial()}: {self.textPostfix()}'
+        return f'{self.textPrefix(context)} {self.textSpecial()}{self.textIfTransform()}: {self.textPostfix()}'
     def _preJson(self, activity, counter, data, mayUseTemp = False):
         index = self.index
         found = False
         if mayUseTemp:
-            compare = lambda x: x['type'] == self.transition and x['id'] == self.index and x['mod'] == self.moduleID and (x['act'] == Activity.temporary or x['act'] == Activity.externalWork)
+            compare = lambda x: x['type'] == self.transition and x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and (x['act'] == Activity.temporary or x['act'] == Activity.externalWork)
             if transitionIsGlobal(self.transition):
                 item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
             else:
@@ -494,10 +500,10 @@ class EDModuleTransitionParser(object):
                 slot = data.findOpenSlotInModGlobals(index, self.moduleID)
             else:
                 slot = data.findOpenSlotInModStreams(index, self.moduleID)
-        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, activity=activity, start=self.time))
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=activity, start=self.time))
         return slot[-1]
     def _postJson(self, counter, data, injectAfter = None):
-        compare = lambda x: x['id'] == self.index and x['mod'] == self.moduleID and x['type'] == self.transition
+        compare = lambda x: x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and x['type'] == self.transition
         index = self.index
         if transitionIsGlobal(self.transition):
             item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
@@ -552,7 +558,7 @@ class PostEDModulePrefetchingParser(EDModuleTransitionParser):
     def jsonInfo(self, counter, data):
         if self._moduleCentric:
             #inject a dummy at end of the same slot to guarantee module run is in that slot
-            return self._postJson(counter, data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, activity=Activity.temporary, start=self.time))
+            return self._postJson(counter, data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.temporary, start=self.time))
         pass
 
 class PreEDModuleAcquireParser(EDModuleTransitionParser):
@@ -573,7 +579,7 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
     def jsonInfo(self, counter, data):
         if self._moduleCentric:
             #inject an external work at end of the same slot to guarantee module run is in that slot
-            return self._postJson(counter, data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, activity=Activity.externalWork, start=self.time))
+            return self._postJson(counter, data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
         return self._postJson(counter,data)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
@@ -620,18 +626,19 @@ class ESModuleTransitionParser(object):
         self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
         self.requestingModuleID = int(payload[5])
+        self.requestingCallID = int(payload[6])
         self.requestingModuleName = None
         if self.requestingModuleID < 0 :
             self.requestingModuleName = esModuleNames[-1*self.requestingModuleID]
         else:
             self.requestingModuleName = moduleNames[self.requestingModuleID]
-        self.time = int(payload[6])
+        self.time = int(payload[7])
     def baseIndentLevel(self):
         return transitionIndentLevel(self.transition)
     def textPrefix(self, context):
         indent = 0
-        indent = context[(self.transition, self.index, self.requestingModuleID)]
-        context[(self.transition, self.index, -1*self.moduleID)] = indent+1
+        indent = context[(self.transition, self.index, self.requestingModuleID, self.requestingCallID)]
+        context[(self.transition, self.index, -1*self.moduleID, self.callID)] = indent+1
         return textPrefix_(self.time, indent+1+self.baseIndentLevel())
     def textPostfix(self):
         return f'esmodule {self.moduleName} in record {self.recordName} during {transitionName(self.transition)} : id={self.index}'
@@ -643,11 +650,10 @@ class ESModuleTransitionParser(object):
             slot = data.findOpenSlotInModGlobals(index, -1*self.moduleID)
         else:
             slot = data.findOpenSlotInModStreams(index, -1*self.moduleID)
-        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, activity=activity, start=self.time))
-        slot[-1]['callID']=self.callID
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, callID=self.callID, activity=activity, start=self.time))
         return slot[-1]
     def _postJson(self, counter, data):
-        compare = lambda x: x['id'] == self.index and x['mod'] == -1*self.moduleID and x.get('callID',0) == self.callID
+        compare = lambda x: x['id'] == self.index and x['mod'] == -1*self.moduleID and x['call'] == self.callID
         index = self.index
         if transitionIsGlobal(self.transition):
             item,s = data.findLastInModGlobals(index, -1*self.moduleID, compare)
@@ -657,7 +663,6 @@ class ESModuleTransitionParser(object):
             print(f"failed to find {-1*self.moduleID} for {self.transition} in {self.index}")
             return
         item["finish"]=self.time*kMicroToSec
-        del item['callID']
 
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
@@ -978,8 +983,8 @@ class ModuleCentricContainers(object):
 def jsonTransition(type, id, sync, start, finish, isSrc=False):
     return {"type": type, "id": id, "sync": sync, "start": start*kMicroToSec, "finish": finish*kMicroToSec, "isSrc":isSrc}
 
-def jsonModuleTransition(type, id, modID, activity, start, finish=0):
-    return {"type": type, "id": id, "mod": modID, "act": activity, "start": start*kMicroToSec, "finish": finish*kMicroToSec}
+def jsonModuleTransition(type, id, modID, callID, activity, start, finish=0):
+    return {"type": type, "id": id, "mod": modID, "call": callID, "act": activity, "start": start*kMicroToSec, "finish": finish*kMicroToSec}
 
 def startTime(x):
     return x["start"]
@@ -1085,11 +1090,11 @@ class TestModuleCommand(unittest.TestCase):
              f'F {Phase.startTracing} 0 0 0 0 {incr(t)}',
              f'S {Phase.construction} 0 {incr(t)}',
              f's {Phase.construction} 0 {incr(t)}3',
-             f'M {Phase.construction} 0 1 0 {incr(t)}',
-             f'm {Phase.construction} 0 1 0 {incr(t)}',
+             f'M {Phase.construction} 0 1 0 0 0 {incr(t)}',
+             f'm {Phase.construction} 0 1 0 0 0 {incr(t)}',
              f'F {Phase.beginJob} 0 0 0 0 {incr(t)}',
-             f'M {Phase.beginJob} 0 1 0 {incr(t)}',
-             f'm {Phase.beginJob} 0 1 0 {incr(t)}',
+             f'M {Phase.beginJob} 0 1 0 0 0 {incr(t)}',
+             f'm {Phase.beginJob} 0 1 0 0 0 {incr(t)}',
              f'f {Phase.beginJob} 0 0 0 0 {incr(t)}',
              f'F {Phase.beginProcessBlock} 0 0 0 0 {incr(t)}',
              f'f {Phase.beginProcessBlock} 0 0 0 0 {incr(t)}',
@@ -1103,10 +1108,10 @@ class TestModuleCommand(unittest.TestCase):
              f'S {Phase.getNextTransition} {incr(t)}',
              f's {Phase.getNextTransition} {incr(t)}',
              f'F {Phase.globalBeginRun} 0 1 0 0 {incr(t)}',
-             f'P {Phase.globalBeginRun} 0 1 0 {incr(t)}',
-             f'p {Phase.globalBeginRun} 0 1 0 {incr(t)}',
-             f'M {Phase.globalBeginRun} 0 1 0 {incr(t)}',
-             f'm {Phase.globalBeginRun} 0 1 0 {incr(t)}',
+             f'P {Phase.globalBeginRun} 0 1 0 0 0 {incr(t)}',
+             f'p {Phase.globalBeginRun} 0 1 0 0 0 {incr(t)}',
+             f'M {Phase.globalBeginRun} 0 1 0 0 0 {incr(t)}',
+             f'm {Phase.globalBeginRun} 0 1 0 0 0 {incr(t)}',
              f'f {Phase.globalBeginRun} 0 1 0 0 {incr(t)}',
              f'F {Phase.esSyncEnqueue} -1 1 1 0 {incr(t)}',
              f'F {Phase.esSync} -1 1 1 0 {incr(t)}',
@@ -1114,22 +1119,22 @@ class TestModuleCommand(unittest.TestCase):
              f'S {Phase.getNextTransition} {incr(t)}',
              f's {Phase.getNextTransition} {incr(t)}',
              f'F {Phase.streamBeginRun} 0 1 0 0 {incr(t)}',
-             f'M {Phase.streamBeginRun} 0 1 0 {incr(t)}',
-             f'm {Phase.streamBeginRun} 0 1 0 {incr(t)}',
+             f'M {Phase.streamBeginRun} 0 1 0 0 0 {incr(t)}',
+             f'm {Phase.streamBeginRun} 0 1 0 0 0 {incr(t)}',
              f'f {Phase.streamBeginRun} 0 1 0 0 {incr(t)}',
              f'F {Phase.streamBeginRun} 1 1 0 0 {incr(t)}',
-             f'M {Phase.streamBeginRun} 1 1 0 {incr(t)}',
-             f'm {Phase.streamBeginRun} 1 1 0 {incr(t)}',
+             f'M {Phase.streamBeginRun} 1 1 0 0 0 {incr(t)}',
+             f'm {Phase.streamBeginRun} 1 1 0 0 0 {incr(t)}',
              f'f {Phase.streamBeginRun} 1 1 0 0 {incr(t)}',
              f'S {Phase.globalBeginLumi} 0 {incr(t)}',
              f's {Phase.globalBeginLumi} 0 {incr(t)}',
              f'S {Phase.getNextTransition} {incr(t)}',
              f's {Phase.getNextTransition} {incr(t)}',
              f'F {Phase.globalBeginLumi} 0 1 1 0 {incr(t)}',
-             f'P {Phase.globalBeginLumi} 0 1 0 {incr(t)}',
-             f'p {Phase.globalBeginLumi} 0 1 0 {incr(t)}',
-             f'M {Phase.globalBeginLumi} 0 1 0 {incr(t)}',
-             f'm {Phase.globalBeginLumi} 0 1 0 {incr(t)}',
+             f'P {Phase.globalBeginLumi} 0 1 0 0 0 {incr(t)}',
+             f'p {Phase.globalBeginLumi} 0 1 0 0 0 {incr(t)}',
+             f'M {Phase.globalBeginLumi} 0 1 0 0 0 {incr(t)}',
+             f'm {Phase.globalBeginLumi} 0 1 0 0 0 {incr(t)}',
              f'f {Phase.globalBeginLumi} 0 1 1 0 {incr(t)}',
              f'F {Phase.streamBeginLumi} 0 1 1 0 {incr(t)}',
              f'f {Phase.streamBeginLumi} 0 1 1 0 {incr(t)}',
@@ -1143,18 +1148,18 @@ class TestModuleCommand(unittest.TestCase):
              f'S {Phase.Event} 1 {incr(t)}',
              f's {Phase.Event} 1 {incr(t)}',
              f'F {Phase.Event} 1 1 1 2 {incr(t)}',
-             f'P {Phase.Event} 0 1 0 {incr(t)}',
-             f'p {Phase.Event} 0 1 0 {incr(t)}',
-             f'Q {Phase.Event} 0 1 1 0 1 {incr(t)}',
-             f'q {Phase.Event} 0 1 1 0 1 {incr(t)}',
-             f'N {Phase.Event} 0 1 1 0 1 {incr(t)}',
-             f'n {Phase.Event} 0 1 1 0 1 {incr(t)}',
-             f'P {Phase.Event} 1 1 0 {incr(t)}',
-             f'p {Phase.Event} 1 1 0 {incr(t)}',
-             f'M {Phase.Event} 0 1 0 {incr(t)}',
-             f'M {Phase.Event} 1 1 0 {incr(t)}',
-             f'm {Phase.Event} 1 1 0 {incr(t)}',
-             f'm {Phase.Event} 0 1 0 {incr(t)}',
+             f'P {Phase.Event} 0 1 0 0 0 {incr(t)}',
+             f'p {Phase.Event} 0 1 0 0 0 {incr(t)}',
+             f'Q {Phase.Event} 0 1 1 0 1 0 {incr(t)}',
+             f'q {Phase.Event} 0 1 1 0 1 0 {incr(t)}',
+             f'N {Phase.Event} 0 1 1 0 1 0 {incr(t)}',
+             f'n {Phase.Event} 0 1 1 0 1 0 {incr(t)}',
+             f'P {Phase.Event} 1 1 0 0 0 {incr(t)}',
+             f'p {Phase.Event} 1 1 0 0 0 {incr(t)}',
+             f'M {Phase.Event} 0 1 0 0 0 {incr(t)}',
+             f'M {Phase.Event} 1 1 0 0 0 {incr(t)}',
+             f'm {Phase.Event} 1 1 0 0 0 {incr(t)}',
+             f'm {Phase.Event} 0 1 0 0 0 {incr(t)}',
              f'f {Phase.Event} 0 1 1 1 {incr(t)}',
              f'f {Phase.Event} 1 1 1 2 {incr(t)}'])
 
