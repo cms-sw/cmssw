@@ -3,15 +3,15 @@
 #define MultiVectorManager_h
 
 #include <vector>
-#include <stdexcept>
+#include <cassert>
 #include <algorithm>
-#include <span>
+#include <iterator>
 
 template <typename T>
 class MultiVectorManager {
 public:
     void addVector(const std::vector<T>& vec) {
-        vectors.push_back(std::span<const T>{vec});
+        vectors.emplace_back(vec.begin(), vec.end());
         offsets.push_back(totalSize);
         totalSize += vec.size();
     }
@@ -21,9 +21,7 @@ public:
     }
 
     const T& operator[](size_t globalIndex) const {
-        if (globalIndex >= totalSize) {
-            throw std::out_of_range("Global index out of range");
-        }
+        assert(globalIndex < totalSize && "Global index out of range");
 
         auto it = std::upper_bound(offsets.begin(), offsets.end(), globalIndex);
         size_t vectorIndex = std::distance(offsets.begin(), it) - 1;
@@ -33,22 +31,20 @@ public:
     }
 
     size_t getGlobalIndex(size_t vectorIndex, size_t localIndex) const {
-        if (vectorIndex >= vectors.size()) {
-            throw std::out_of_range("Vector index out of range");
-        }
+        assert(vectorIndex < vectors.size() && "Vector index out of range");
 
         const auto& vec = vectors[vectorIndex];
-        if (localIndex >= vec.size()) {
-            throw std::out_of_range("Local index out of range");
-        }
+        assert(localIndex < vec.size() && "Local index out of range");
 
         return offsets[vectorIndex] + localIndex;
     }
 
+    size_t size() const {
+        return totalSize;
+    }
+
     std::pair<size_t, size_t> getVectorAndLocalIndex(size_t globalIndex) const {
-        if (globalIndex >= totalSize) {
-            throw std::out_of_range("Global index out of range");
-        }
+        assert(globalIndex < totalSize && "Global index out of range");
 
         auto it = std::upper_bound(offsets.begin(), offsets.end(), globalIndex);
         size_t vectorIndex = std::distance(offsets.begin(), it) - 1;
@@ -88,9 +84,10 @@ public:
     }
 
 private:
-    std::vector<std::span<const T>> vectors;
+    std::vector<std::vector<T>> vectors;
     std::vector<size_t> offsets;
     size_t totalSize = 0;
 };
+
 
 #endif
