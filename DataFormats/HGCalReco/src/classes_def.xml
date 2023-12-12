@@ -13,7 +13,9 @@
   <class name="std::vector<ticl::Trackster>" />
   <class name="edm::Wrapper<ticl::Trackster>" />
   <class name="edm::Wrapper<std::vector<ticl::Trackster> >" />
-
+  <class name="std::vector<std::vector<unsigned int>>" />
+  <class name="edm::Wrapper<std::vector<std::vector<unsigned int>>>" />
+  
   <class name="ticl::TICLLayerTile" persistent="false">
     <field name="tile_" transient="true"/>
   </class>
