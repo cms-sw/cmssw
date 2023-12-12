@@ -35,3 +35,10 @@ egamma_lowPt_exclusive.toModify(trackerClusterCheck,
                MaxNumberOfStripClusters = 1000
                )
 
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(trackerClusterCheck,
+               doClusterCheck=True,
+               cut = "strip < 30000 && pixel < 10000",
+               MaxNumberOfPixelClusters = 10000,
+               MaxNumberOfStripClusters = 30000
+               )

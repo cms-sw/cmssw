@@ -122,3 +122,6 @@ phase2_timing.toReplaceWith(slimmingTask,_phase2_timing_slimmingTask)
 from PhysicsTools.PatAlgos.slimming.patPhotonDRNCorrector_cfi import patPhotonsDRN
 from Configuration.ProcessModifiers.photonDRN_cff import _photonDRN
 _photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsDRN))
+
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2))
