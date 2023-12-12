@@ -962,27 +962,24 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
     TrackRef Track = iMuon->track();
 
-    if (Track.isNonnull()) {
-      commonME_->hMuonTrackP_->Fill(Track->p());
-      commonME_->hMuonTrackPt_->Fill(Track->pt());
-      commonME_->hMuonTrackEta_->Fill(Track->eta());
-      commonME_->hMuonTrackPhi_->Fill(Track->phi());
-
-      //ip histograms
-      commonME_->hMuonTrackDxy_->Fill(Track->dxy());
-      commonME_->hMuonTrackDz_->Fill(Track->dz());
-    }
-
-    if (iMuon->isGlobalMuon()) {
+    if (trackType_ == reco::InnerTk) {
+      Track = iMuon->track();
+      trkNTrackerHits = countTrackerHits(*Track);
+    } else if (trackType_ == reco::OuterTk) {
+      Track = iMuon->standAloneMuon();
+    } else if (trackType_ == reco::GlobalTk) {
       Track = iMuon->combinedMuon();
       glbNTrackerHits = countTrackerHits(*Track);
       glbNMuonHits = countMuonHits(*Track);
-    } else if (iMuon->isTrackerMuon()) {
-      Track = iMuon->track();
-      trkNTrackerHits = countTrackerHits(*Track);
-    } else {
-      Track = iMuon->standAloneMuon();
     }
+
+    commonME_->hMuonTrackP_->Fill(Track->p());
+    commonME_->hMuonTrackPt_->Fill(Track->pt());
+    commonME_->hMuonTrackEta_->Fill(Track->eta());
+    commonME_->hMuonTrackPhi_->Fill(Track->phi());
+    //ip histograms
+    commonME_->hMuonTrackDxy_->Fill(Track->dxy());
+    commonME_->hMuonTrackDz_->Fill(Track->dz());
 
     NTrackerHits = countTrackerHits(*Track);
     muonME_->hNTrackerHits_->Fill(NTrackerHits);
