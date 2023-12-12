@@ -396,6 +396,28 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
     )
 
+from Configuration.Skimming.PDWG_EGMJME_SD_cff import *
+EGMJMEPath = cms.Path(EGMJME)
+SKIMStreamEGMJME = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EGMJME',
+    paths = (EGMJMEPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+from Configuration.Skimming.PDWG_MUOJME_SD_cff import *
+MUOJMEPath = cms.Path(MUOJME)
+SKIMStreamMUOJME = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MUOJME',
+    paths = (MUOJMEPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
 ####################
    
 
