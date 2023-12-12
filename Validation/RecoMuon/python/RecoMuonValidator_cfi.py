@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
-from Validation.RecoMuon.selectors_cff import muonTPSet
+from Validation.RecoMuon.selectors_cff import muonTPSet, displacedMuonTPSet
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
@@ -93,6 +93,19 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
 
     # Number of sim,reco Tracks     #
     nTrks = cms.untracked.uint32(50)
+)
+
+recoDisplacedMuonValidator = recoMuonValidator.clone(
+    tpSelector = displacedMuonTPSet,
+    muonLabel = cms.InputTag("displacedMuons"),
+    doAssoc = cms.untracked.bool(True),
+    selection = cms.string(""),
+    nBinDxy = cms.untracked.uint32(350),
+    minDxy = cms.untracked.double(-700),
+    maxDxy = cms.untracked.double(700),
+    nBinDz = cms.untracked.uint32(350),
+    minDz = cms.untracked.double(-700),
+    maxDz = cms.untracked.double(700)
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
