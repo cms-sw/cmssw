@@ -2,7 +2,7 @@
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
   <use name="llvm"/>
 </test>
-<test name="scram-always-pass"  command="ture"/>
+<test name="scram-always-pass"  command="true"/>
 <test name="scram-always-fail"  command="! fail"/>
 <ifrelease name="!ASAN">
   <test name="TestValgrind" command="test-valgrind.sh">
