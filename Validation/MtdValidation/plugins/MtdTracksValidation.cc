@@ -34,6 +34,7 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeomUtil.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
@@ -296,14 +297,36 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
   using namespace geant_units::operators;
   using namespace std;
+  using namespace mtd;
+
+  // Struct to  identify the pixel
+  struct ETLPixelId {
+    const uint32_t detid_;
+    const uint8_t row_; 
+    const uint8_t col_;
+    ETLPixelId() : detid_(0), row_(0), col_(0) {}
+    ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
+    bool operator==(const ETLPixelId& other) const {
+      return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
+    }    
+
+  };
+
+  struct PixelKey_hash {
+    size_t operator()(const ETLPixelId& key) const {
+      return std::hash<uint32_t>{}(key.detid_) ^ std::hash<uint8_t>{}(key.row_) ^ std::hash<uint8_t>{}(key.col_);
+    }
+  };
+
+  MTDGeomUtil geomUtil;
 
   auto GenRecTrackHandle = makeValid(iEvent.getHandle(GenRecTrackToken_));
   auto RecVertexHandle = makeValid(iEvent.getHandle(RecVertexToken_));
 
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
-  std::unordered_map<uint32_t, MTDHit> m_etlHits;
+  std::unordered_map<ETLPixelId, MTDHit, PixelKey_hash> m_etlHits;
   std::unordered_map<uint32_t, std::set<unsigned long int>> m_btlTrkPerCell;
-  std::unordered_map<uint32_t, std::set<unsigned long int>> m_etlTrkPerCell;
+  std::unordered_map<ETLPixelId, std::set<unsigned long int>, PixelKey_hash > m_etlTrkPerCell;
   std::map<TrackingParticleRef, std::vector<uint32_t>> m_tp2detid;
 
   const auto& tMtd = iEvent.get(tmtdToken_);
@@ -358,8 +381,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
     DetId id = simHit.detUnitId();
     auto const thisHId = uniqueId(simHit.trackId(), simHit.eventId());
-    m_etlTrkPerCell[id.rawId()].insert(thisHId);
-    auto simHitIt = m_etlHits.emplace(id.rawId(), MTDHit()).first;
+    std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(id, simHit.localPosition());
+    ETLPixelId pixelId(id.rawId(), pixel.first, pixel.second);
+    m_etlTrkPerCell[pixelId].insert(thisHId);
+    auto simHitIt = m_etlHits.emplace(pixelId, MTDHit()).first;
+
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
     (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
   }
@@ -388,12 +414,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         for (auto const& cell : m_etlTrkPerCell) {
-          if (m_etlHits[cell.first].energy < depositETLthreshold_) {
+ 	  if (m_etlHits[cell.first].energy < depositETLthreshold_) {
             continue;
           }
           for (auto const& simtrack : cell.second) {
             if (thisTId == simtrack) {
-              m_tp2detid[tpref].emplace_back(cell.first);
+	      m_tp2detid[tpref].emplace_back(cell.first.detid_);
               break;
             }
           }
