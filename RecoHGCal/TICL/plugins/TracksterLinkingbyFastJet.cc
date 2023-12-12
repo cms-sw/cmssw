@@ -39,3 +39,9 @@ void TracksterLinkingbyFastJet::linkTracksters(const Inputs& input, std::vector<
   }
 }
 
+
+
+void TracksterLinkingbyFastJet::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+  iDesc.add<int>("algo_verbosity", 0);
+  iDesc.add<double>("antikt_radius", 0.4);
+}

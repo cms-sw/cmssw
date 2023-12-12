@@ -17,6 +17,7 @@ public:
       : TracksterLinkingAlgoBase(conf, iC),
         antikt_radius_(conf.getParameter<double>("antikt_radius")) {}
   virtual ~TracksterLinkingbyFastJet() {}
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   void linkTracksters(const Inputs& input, std::vector<Trackster>& resultTracksters,
                       std::vector<std::vector<unsigned int>>& linkedResultTracksters,
