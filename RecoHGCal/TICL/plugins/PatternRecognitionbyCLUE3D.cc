@@ -37,6 +37,8 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       criticalZDistanceLyr_(conf.getParameter<std::vector<int>>("criticalZDistanceLyr")),
       outlierMultiplier_(conf.getParameter<std::vector<double>>("outlierMultiplier")),
       minNumLayerCluster_(conf.getParameter<std::vector<int>>("minNumLayerCluster")),
+      doPidCut_(conf.getParameter<bool>("doPidCut")),
+      cutHadProb_(conf.getParameter<double>("cutHadProb")),
       eidInputName_(conf.getParameter<std::string>("eid_input_name")),
       eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
@@ -320,13 +322,25 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   }
   size_t tracksterIndex = 0;
   result.erase(
-      std::remove_if(std::begin(result),
+      std::remove_if(std::begin(result),                                                                                                                                                                                               
                      std::end(result),
-                     [&](auto const &v) { 
-                      return static_cast<int>(v.vertices().size()) < minNumLayerCluster_[tracksterSeedAlgoId_[tracksterIndex++]]; 
+                     [&](auto const &v) {
+                      return static_cast<int>(v.vertices().size()) < minNumLayerCluster_.at(tracksterSeedAlgoId_.at(tracksterIndex++));
                       }),
       result.end());
+  energyRegressionAndID(input.layerClusters, input.tfSession, result);
+  if(doPidCut_){
+  result.erase(
+      std::remove_if(std::begin(result),
+                     std::end(result),
+                     [&](auto const &v) {
+                      auto const& hadProb = v.id_probability(ticl::Trackster::ParticleType::charged_hadron) + v.id_probability(ticl::Trackster::ParticleType::neutral_hadron);
+                      return hadProb >= cutHadProb_;
+                      }),
+      result.end());
+  }
   result.shrink_to_fit();
+
 
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
@@ -876,6 +890,8 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<std::vector<double>>("outlierMultiplier", {2,2,2})
       ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
   iDesc.add<std::vector<int>>("minNumLayerCluster", {2,2,2})->setComment("Not Inclusive");
+  iDesc.add<bool>("doPidCut", false);
+  iDesc.add<double>("cutHadProb", 0.5);
   iDesc.add<std::string>("eid_input_name", "input");
   iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");

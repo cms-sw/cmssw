@@ -131,6 +131,8 @@ namespace ticl {
     const std::vector<int> criticalZDistanceLyr_;
     const std::vector<double> outlierMultiplier_;
     const std::vector<int> minNumLayerCluster_;
+    const bool doPidCut_;
+    const float cutHadProb_;
     const std::vector<int> filter_on_categories_;
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;
