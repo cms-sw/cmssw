@@ -4,7 +4,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process('test')
 
 options = VarParsing.VarParsing()
-options.register( 'source'
+options.register( 'db'
                 , 'sqlite_file:lhcinfoperfill_pop_test.db' #default value
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
@@ -14,7 +14,7 @@ options.register( 'tag'
                 , 'LHCInfoPerFill_PopCon_test'
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "Tag to read from in source"
+                , "Tag to read from in source db"
                   )
 options.register( 'timestamp'
                 , 1
@@ -43,7 +43,7 @@ process.source = cms.Source('EmptyIOVSource',
 )
 # load info from database
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect= options.source # SQLite input
+process.CondDB.connect= options.db # SQLite input
 
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
