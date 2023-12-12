@@ -60,6 +60,16 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   CmsMTDStringToEnum theCmsMTDStringToEnum;
   // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
   auto isBTLV2 = false;
+  // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
+  const bool prev8(fv.name().find("EModule") != std::string::npos);
+
+  // Specify ETL end component
+  GeometricTimingDet::GeometricTimingEnumType ETLEndComponent;
+  if (prev8) {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  } else {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  }
 
   auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv));
   if (check_root != GeometricTimingDet::MTD) {
@@ -118,7 +128,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
       } else {
         limit = num + 1;
       }
-    } else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
+    } else if ((thisNode == ETLEndComponent) && limit == 0) {
       limit = num;
     }
     if (num != limit && limit > 0) {
@@ -130,7 +140,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
 #endif
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
       limit = num;
-    } else if (thisNode == GeometricTimingDet::ETLModule) {
+    } else if (thisNode == ETLEndComponent) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
@@ -254,6 +264,16 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
   // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
   auto isBTLV2 = false;
+  // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
+  const bool prev8(fv.name().find("EModule") != std::string::npos);
+
+  // Specify ETL end component
+  GeometricTimingDet::GeometricTimingEnumType ETLEndComponent;
+  if (prev8) {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  } else {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  }
 
   std::vector<GeometricTimingDet*> subdet;
   std::vector<GeometricTimingDet*> layer;
@@ -291,7 +311,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
         }
       }
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
-    } else if (thisNode == GeometricTimingDet::ETLModule) {
+    } else if (thisNode == ETLEndComponent) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif

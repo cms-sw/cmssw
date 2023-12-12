@@ -29,6 +29,8 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
     nSector *= ETLDetId::kETLv4maxSector;
   } else if (etlL == ETLDetId::EtlLayout::v5) {
     nSector *= ETLDetId::kETLv5maxSector;
+  } else if (etlL == ETLDetId::EtlLayout::v8) {
+    nSector *= ETLDetId::kETLv5maxSector;
   } else {
     throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
   }
