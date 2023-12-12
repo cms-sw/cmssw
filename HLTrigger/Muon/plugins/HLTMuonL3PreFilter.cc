@@ -42,10 +42,13 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig)
       candToken_(consumes<reco::RecoChargedCandidateCollection>(candTag_)),
       previousCandTag_(iConfig.getParameter<InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
+      requireL3MuonTrajectorySeed_(iConfig.getParameter<bool>("requireL3MuonTrajectorySeed")),
       l1CandTag_(iConfig.getParameter<InputTag>("L1CandTag")),
-      l1CandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(l1CandTag_)),
+      l1CandToken_(requireL3MuonTrajectorySeed_ ? edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>()
+                                                : consumes<trigger::TriggerFilterObjectWithRefs>(l1CandTag_)),
       recoMuTag_(iConfig.getParameter<InputTag>("inputMuonCollection")),
-      recoMuToken_(consumes<reco::MuonCollection>(recoMuTag_)),
+      recoMuToken_(requireL3MuonTrajectorySeed_ ? edm::EDGetTokenT<reco::MuonCollection>()
+                                                : consumes<reco::MuonCollection>(recoMuTag_)),
       min_N_(iConfig.getParameter<int>("MinN")),
       max_Eta_(iConfig.getParameter<double>("MaxEta")),
       min_Nhits_(iConfig.getParameter<int>("MinNhits")),
@@ -72,7 +75,8 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig)
 
       devDebug_(false),
       theL3LinksLabel(iConfig.getParameter<InputTag>("InputLinks")),
-      linkToken_(consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel)) {
+      linkToken_(requireL3MuonTrajectorySeed_ ? edm::EDGetTokenT<reco::MuonTrackLinksCollection>()
+                                              : consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel)) {
   if (L1MatchingdR_ <= 0.) {
     throw cms::Exception("HLTMuonL3PreFilterConfiguration")
         << "invalid value for parameter \"L1MatchingdR\" (must be > 0): " << L1MatchingdR_;
@@ -119,6 +123,7 @@ void HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("L1MatchingdR", 0.3);
   desc.add<bool>("MatchToPreviousCand", true);
   desc.add<edm::InputTag>("InputLinks", edm::InputTag(""));
+  desc.add<bool>("requireL3MuonTrajectorySeed", false);
   PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonL3PreFilter", desc);
 }
@@ -171,6 +176,14 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
 
   if (tk->seedRef().isNonnull()) {
     auto a = dynamic_cast<const L3MuonTrajectorySeed*>(tk->seedRef().get());
+
+    if (requireL3MuonTrajectorySeed_ && not a) {
+      throw cms::Exception("HLTMuonL3PreFilter")
+          << "requireL3MuonTrajectorySeed is required to be true, but cannot cast the input "
+             "RecoChargedCandidateCollection to a L3MuonTrajectorySeed./n Please cross-check the configuration of this "
+             "module";
+    }
+
     useL3MTS = a != nullptr;
   }
 
@@ -268,7 +281,12 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
 
   // now loop on L3 from L1
   edm::Handle<reco::MuonCollection> recomuons;
-  iEvent.getByToken(recoMuToken_, recomuons);
+
+  // do the consume only if the MuonToL3s is not empty
+  // this happens certainly if requireL3MuonTrajectorySeed_ is true
+  if (!MuonToL3s.empty()) {
+    iEvent.getByToken(recoMuToken_, recomuons);
+  }
 
   for (const auto& MuonToL3s_it : MuonToL3s) {
     const reco::Muon& muon(recomuons->at(MuonToL3s_it.first));
