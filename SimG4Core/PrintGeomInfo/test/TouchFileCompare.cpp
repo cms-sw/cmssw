@@ -14,6 +14,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -40,12 +41,6 @@ std::vector<std::string> splitString(const std::string& fLine) {
     }
   }
   return result;
-}
-
-std::string noNameSpace(std::string& name) {
-  std::size_t found = name.find(":");
-  std::string nam = (found == std::string::npos) ? name : name.substr(found + 1, (name.size() - found));
-  return nam;
 }
 
 void CompareFiles(const char* sdFileDDD,
@@ -91,7 +86,7 @@ void CompareFiles(const char* sdFileDDD,
       std::vector<std::string> items = splitString(std::string(buffer));
       ++all;
       if (items.size() > 0) {
-        sdDD4hep.emplace_back(noNameSpace(items[0]));
+        sdDD4hep.emplace_back(DD4hep2DDDName::noNameSpace(items[0]));
         if (((debug / 10) % 10) > 0)
           std::cout << "[" << good << "] " << sdDD4hep.back() << std::endl;
         ++good;
