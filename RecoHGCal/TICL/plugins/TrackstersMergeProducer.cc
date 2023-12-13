@@ -68,7 +68,7 @@ public:
 
 private:
   typedef ticl::Trackster::IterationIndex TracksterIterIndex;
-  typedef math::XYZVector Vector;
+  typedef ticl::Vector Vector;
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 

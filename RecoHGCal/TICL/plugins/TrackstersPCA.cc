@@ -1,6 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
+#include "RecoHGCal/TICL/interface/commons.h"
+
 #include "TrackstersPCA.h"
 
 #include <iostream>
@@ -118,7 +120,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     sigmasEigen /= (1. - weights2_sum);
 
     // Add trackster attributes
-    trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
+    trackster.setBarycenter(ticl::Vector(barycenter));
     trackster.setTimeAndError(timeTrackster.first, timeTrackster.second);
     trackster.fillPCAVariables(
         eigenvalues_fromEigen, eigenvectors_fromEigen, sigmas, sigmasEigen, 3, ticl::Trackster::PCAOrdering::ascending);

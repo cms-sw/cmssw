@@ -61,7 +61,7 @@ public:
   explicit TICLDumper(const edm::ParameterSet&);
   ~TICLDumper() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  typedef math::XYZVector Vector;
+  typedef ticl::Vector Vector;
   typedef std::vector<double> Vec;
 
 private:
