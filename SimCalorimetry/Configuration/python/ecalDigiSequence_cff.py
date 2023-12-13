@@ -32,7 +32,7 @@ phase2_ecal_devel.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel)
 
 
 from Configuration.Eras.Modifier_phase2_ecalTP_devel_cff import phase2_ecalTP_devel
-from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2Digis_cff import *
+from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2Digis_cfi import *
 _phase2_ecalDigiTask_devel2 =  cms.Task(simEcalEBTriggerPrimitivePhase2Digis)
 phase2_ecalTP_devel.toReplaceWith(ecalDigiTask,_phase2_ecalDigiTask_devel2)
 
@@ -44,5 +44,5 @@ modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalForP
 
 
 def _modifyEcalTPForPh2( process ):
-    process.load("SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2ESProducer_cff")
+    process.load("SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2ESProducer_cfi")
 modifyDigi_Phase2EcalTP = phase2_ecalTP_devel.makeProcessModifier(_modifyEcalTPForPh2)

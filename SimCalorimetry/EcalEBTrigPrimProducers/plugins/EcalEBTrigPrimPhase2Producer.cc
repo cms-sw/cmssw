@@ -214,42 +214,30 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
         << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
   }
 
-  //  debug prints if TP >0
+  //  debug prints if TP > 0. The number of TP with Et>0 is also used later for a LogInfo 
   int nonZeroTP = 0;
-
-  if (debug_)
-    LogDebug("EcalEBTrigPrimPhase2Producer") << "EcalTPG Printing only non zero TP " << std::endl;
-
   int nXstal = 0;
   for (unsigned int i = 0; i < pOut->size(); ++i) {
     nXstal++;
-
-    if (debug_) {
-      for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
-        if ((*pOut)[i][isam].encodedEt() > 0) {
-          nonZeroTP++;
-          LogDebug("EcalEBTrigPrimPhase2Producer")
-              << " For xStal n " << nXstal << " xTsal Id " << (((*pOut)[i])).id() << ", TP is " << (*pOut)[i]
-              << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
-              << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " << (*pOut)[i][isam].time() << std::endl;
-        }
+    for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
+      if ((*pOut)[i][isam].encodedEt() > 0) {
+	nonZeroTP++;
+	if (debug_) {
+	  LogDebug("EcalEBTrigPrimPhase2Producer")
+	    << " For xStal n " << nXstal << " xTsal Id " << (((*pOut)[i])).id() << ", TP is " << (*pOut)[i]
+	    << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
+	    << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " << (*pOut)[i][isam].time() << std::endl;
+	}
       }
     }
-
-  }  // End loop over crystals
-
-  if (debug_) {
-    LogDebug("EcalEBTrigPrimPhase2Producer")
-        << "EcalTPG"
-        << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
-        << " Non zero primitives were " << nonZeroTP << std::endl;
   }
+  
 
   edm::LogInfo("EcalEBTrigPrimPhase2Producer")
-      << "EcalTPG"
-      << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
-      << " Non zero primitives were " << nonZeroTP << std::endl;
-
+    << "EcalTPG"
+    << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
+    << " Non zero primitives were " << nonZeroTP << std::endl;
+  
   // put result into the Event
   e.put(std::move(pOut));
 }

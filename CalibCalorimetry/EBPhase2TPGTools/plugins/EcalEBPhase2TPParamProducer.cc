@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 //
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -57,7 +58,7 @@ private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, int& shift, int& mult);
 
   const edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> theBarrelGeometryToken_;
-  const std::string inFile_;
+  const edm::FileInPath inFile_;
   const std::string outFile_;
   const int nSamplesToUse_;
   const bool useBXPlusOne_;
@@ -85,7 +86,7 @@ private:
 
 EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const& pSet)
     : theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
-      inFile_(pSet.getUntrackedParameter<std::string>("inputFile")),
+      inFile_(pSet.getParameter<edm::FileInPath>("inputFile")),
       outFile_(pSet.getUntrackedParameter<std::string>("outputFile")),
       nSamplesToUse_(pSet.getParameter<unsigned int>("nSamplesToUse")),
       useBXPlusOne_(pSet.getParameter<bool>("useBXPlusOne")),
@@ -99,7 +100,8 @@ EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const
 {
   out_file_ = gzopen(outFile_.c_str(), "wb");
 
-  TFile* inFile = new TFile(inFile_.c_str(), "READ");
+  std::string filename = inFile_.fullPath();
+  TFile* inFile = new TFile(filename.c_str(), "READ");
 
   inFile->GetObject("average-pulse", thePulse_);
   delete inFile;
@@ -119,7 +121,7 @@ void EcalEBPhase2TPParamProducer::beginJob() {}
 
 void EcalEBPhase2TPParamProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("inputFile");
+  desc.add<edm::FileInPath>("inputFile");
   desc.addUntracked<std::string>("outputFile");
   desc.add<unsigned int>("nSamplesToUse", 8);
   desc.add<bool>("useBXPlusOne", false);
@@ -128,6 +130,7 @@ void EcalEBPhase2TPParamProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("Et_sat", 1998.36);
   desc.add<double>("xtal_LSB", 0.0488);
   desc.add<unsigned int>("binOfMaximum", 6);
+  descriptions.add("ecalEBPhase2TPParamProducerDefault",desc);
 }
 
 void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {

@@ -15,16 +15,16 @@ class EcalTPGWeightGroup;
 
 class EcalEBPhase2TimeReconstructor {
 private:
+  static const int maxSamplesUsed_ = 12;
   bool debug_;
   int inputsAlreadyIn_;
-  int buffer_[12];
-  int weights_[12];
-  uint64_t ampIn_[12];
+  int buffer_[maxSamplesUsed_];
+  int weights_[maxSamplesUsed_];
+  uint64_t ampIn_[maxSamplesUsed_];
   int shift_;
   bool extraShift_[2] = {false, false};
   int setInput(int input);
   void process();
-  static const int maxSamplesUsed_;
   int processedOutput_;
 
   // The array invAmpPar is pre-calulated, at least for now since it has shown to be stable. We might decide at a later stage

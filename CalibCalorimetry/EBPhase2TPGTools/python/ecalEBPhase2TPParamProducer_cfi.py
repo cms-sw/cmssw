@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 EBPhase2TPGParamProducer = cms.EDAnalyzer("EcalEBPhase2TPParamProducer",
-inputFile = cms.untracked.string('../../../SimCalorimetry/EcalEBTrigPrimProducers/data/CMSSWPhaseIIPulseGraphAlt.root'),
+inputFile = cms.FileInPath('SimCalorimetry/EcalEBTrigPrimProducers/data/CMSSWPhaseIIPulseGraphAlt.root'),
 outputFile = cms.untracked.string('../../../SimCalorimetry/EcalEBTrigPrimProducers/data/AmpTimeOnPeakXtalWeightsCMSSWPulse_8samples_peakOnSix_WithAndyFixes.txt.gz'),
                                                 nSamplesToUse = cms.uint32(8),
                                                 useBXPlusOne = cms.bool(False),

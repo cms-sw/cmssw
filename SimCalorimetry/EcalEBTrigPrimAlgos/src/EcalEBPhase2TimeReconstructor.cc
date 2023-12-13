@@ -6,7 +6,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-const int EcalEBPhase2TimeReconstructor::maxSamplesUsed_ = 12;
 
 EcalEBPhase2TimeReconstructor::EcalEBPhase2TimeReconstructor(bool debug)
     : debug_(debug), inputsAlreadyIn_(0), shift_(maxSamplesUsed_) {}
