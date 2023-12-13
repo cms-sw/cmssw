@@ -98,10 +98,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,
           float phiDiff = reco::deltaPhi(phi, phiclus);
           float energy = j->energy();
 
-          float rhThres = 0.0;
-          if (thresholds != nullptr) {
-            rhThres = (*thresholds)[j->detid()];  // access ECAL PFRechit thresholds for noise cleaning
-          }
+	  float rhThres = (thresholds != nullptr) ? (*thresholds)[j->detid()] : 0.f;
           if (energy <= rhThres)
             continue;
 
@@ -216,11 +213,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc,
           double phiDiff = reco::deltaPhi(phi, phiclus);
           double energy = j->energy();
 
-          float rhThres = 0.0;
-          if (thresholds != nullptr) {
-            rhThres = (*thresholds)[j->detid()];  // access ECAL PFRechit thresholds for noise cleaning
-          }
-
+          float rhThres = (thresholds != nullptr) ? (*thresholds)[j->detid()] : 0.f;
           if (energy <= rhThres)
             continue;
 
