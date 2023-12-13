@@ -13,8 +13,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW, bool dd4hep)
-  : steppingVerbose(sv), hasWatcher(hasW), dd4hep_(dd4hep) {
+Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
+                                           const edm::ParameterSet& p,
+                                           bool hasW,
+                                           bool dd4hep)
+    : steppingVerbose(sv), hasWatcher(hasW), dd4hep_(dd4hep) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
