@@ -22,7 +22,7 @@ class L1HPSPFTauProducer : public edm::global::EDProducer<> {
     
 public:
   explicit L1HPSPFTauProducer(const edm::ParameterSet&);
-  ~L1HPSPFTauProducer() {};
+  ~L1HPSPFTauProducer() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 
@@ -146,11 +146,12 @@ std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertJetsToHW(std::ve
   using namespace L1HPSPFTauEmu;
   std::vector<Particle> hwJets;
   std::for_each(edmJets.begin(), edmJets.end(), [&](edm::Ptr<reco::CaloJet>& edmJet){
-  	hwJets.push_back(L1HPSPFTauEmu::Particle(edmJet->pt()*4.,
-  	                                         edmJet->eta() * etaphi_base,
-  	                                         edmJet->phi() * etaphi_base,
-  	                                         0.,
-  	                                         0.));
+  	L1HPSPFTauEmu::Particle jPart;
+        jPart.hwPt = l1ct::Scales::makePtFromFloat(edmJet->pt());
+        jPart.hwEta = edmJet->eta() * etaphi_base;
+        jPart.hwPhi = edmJet->phi() * etaphi_base;
+        jPart.tempZ0 = 0.;
+        hwJets.push_back(jPart);
   });
   return hwJets;
 }
@@ -162,21 +163,15 @@ std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertEDMToHW(std::vec
     std::vector<Particle> hwParticles;
     
     std::for_each(edmParticles.begin(), edmParticles.end(), [&](edm::Ptr<l1t::PFCandidate>& edmParticle){
-
-   if(edmParticle->z0()){
-    hwParticles.push_back(L1HPSPFTauEmu::Particle(edmParticle->pt() * 4.,
-                                               edmParticle->eta() * etaphi_base,
-                                               edmParticle->phi() * etaphi_base,
-                                               edmParticle->id(),
-                                               edmParticle->z0() / dz_base));
-     }
-   else{
-    hwParticles.push_back(L1HPSPFTauEmu::Particle(edmParticle->pt() *4,
-                                                  edmParticle->eta() * etaphi_base,
-                                                  edmParticle->phi() * etaphi_base,
-                                                  edmParticle->id(),
-                                                  0));
-    }
+      Particle hwPart;
+      hwPart.hwPt = l1ct::Scales::makePtFromFloat(edmParticle->pt());
+      hwPart.hwEta = edmParticle->eta() * etaphi_base;
+      hwPart.hwPhi = edmParticle->phi() * etaphi_base;
+      hwPart.pID = edmParticle->id();
+      if(edmParticle->z0()) {
+        hwPart.tempZ0 = edmParticle->z0() / dz_base;
+      }
+      hwParticles.push_back(hwPart);
 
  });
   return hwParticles;
@@ -191,7 +186,7 @@ std::vector<l1t::PFTau> L1HPSPFTauProducer::convertHWToEDM(std::vector<L1HPSPFTa
     float tauArray[80] = {0};
     std::for_each(hwTaus.begin(), hwTaus.end(), [&](Tau tau){
        
-    edmTaus.push_back(l1t::PFTau(reco::Candidate::PolarLorentzVector(float(tau.hwPt) / 4,
+    edmTaus.push_back(l1t::PFTau(reco::Candidate::PolarLorentzVector(l1ct::Scales::floatPt(tau.hwPt),
                                  float(tau.hwEta) / etaphi_base,
                                  float(tau.hwPhi) / etaphi_base,
                                  0), tauArray,  0, 0, 0, tau.hwPt, tau.hwEta, tau.hwPhi));

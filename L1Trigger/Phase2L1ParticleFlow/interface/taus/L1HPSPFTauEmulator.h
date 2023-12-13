@@ -7,6 +7,8 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include "DataFormats/L1TParticleFlow/interface/taus.h"
+#include "DataFormats/L1TParticleFlow/interface/puppi.h"
 
 namespace L1HPSPFTauEmu {
 
@@ -14,42 +16,24 @@ namespace L1HPSPFTauEmu {
 
   static float etaphi_base = 720. / M_PI;
   static float dz_base = 0.05;
-  typedef ap_ufixed<16, 14> pt_t;
+  typedef l1ct::pt_t pt_t;
+  typedef l1ct::glbeta_t etaphi_t;
 
-  typedef ap_int<12> etaphi_t;
-
-  typedef ap_int<12> detaphi_t;
+  typedef ap_int<13> detaphi_t;
 
   typedef ap_uint<20> detaphi2_t;
   typedef ap_uint<5> count_t;  //type for multiplicity
   typedef ap_uint<3> type_t;   //type for particle type
-  typedef ap_int<10> dz_t;     //type for z0 cut
+  typedef l1ct::z0_t dz_t;
 
-  class Particle {
+  class Particle : public l1ct::PuppiObj {
   public:
-    pt_t hwPt;
-    etaphi_t hwEta;
-    etaphi_t hwPhi;
-    type_t hwId;
-    dz_t hwZ0;
-
-    Particle() : hwPt(0), hwEta(0), hwPhi(0), hwId(0), hwZ0() {}
-    Particle(pt_t pt, etaphi_t eta, etaphi_t phi, type_t id, dz_t z0)
-        : hwPt(pt), hwEta(eta), hwPhi(phi), hwId(id), hwZ0(z0) {}
-
-    pt_t pt() const { return hwPt; }
-
-    etaphi_t phi() const { return hwPhi; }
-
-    etaphi_t eta() const { return hwEta; }
-    type_t id() const { return hwId; }
-    dz_t z0() const { return hwZ0; }
+    type_t pID;
+    dz_t tempZ0;
   };
 
-  //template classes
-  class Tau : public Particle {
+  class Tau : public l1ct::Tau {
   public:
-    Tau(pt_t pt, etaphi_t eta, etaphi_t phi, type_t id, dz_t z0) : Particle(pt, eta, phi, id, z0) {}
     ap_uint<5> seed_index;
     pt_t seed_pt;
     etaphi_t seed_eta;
@@ -58,17 +42,13 @@ namespace L1HPSPFTauEmu {
   };
 
   //constants
-  static const detaphi_t TWOPI = 3.14159 * 2. * etaphi_base;
-  static const detaphi_t PI = 3.14159 * etaphi_base;
-
   static const detaphi_t strip_phi = 0.20 * etaphi_base;
   static const detaphi_t strip_eta = 0.05 * etaphi_base;
 
-  static const pt_t min_leadChargedPfCand_pt = 4;
+  static const pt_t min_leadChargedPfCand_pt = l1ct::Scales::makePtFromFloat(1.);
   static const detaphi_t isoConeSize = 0.4 * etaphi_base;
   static const detaphi_t delta_Rclean = 0.4 * etaphi_base;
   static const dz_t dzCut = 0.4 / dz_base;
-  static const detaphi_t isoConeSizeRound = 92;
   static const etaphi_t etaCutoff = 2.4 * etaphi_base;
 
   template <int W, int I, ap_q_mode _AP_Q, ap_o_mode _AP_O>
@@ -96,7 +76,7 @@ namespace L1HPSPFTauEmu {
   template <class inP>
   inline bool is_charged(inP part) {
     bool charge = false;
-    if ((part.hwId == 0) || (part.hwId == 1) || (part.hwId == 4)) {
+    if ((part.pID == 0) || (part.pID == 1) || (part.pID == 4)) {
       charge = true;
     } else {
       charge = false;
@@ -104,9 +84,9 @@ namespace L1HPSPFTauEmu {
     return charge;
   }
 
-  inline ap_uint<20> setSConeSize2(pt_t total_pt) {
+  inline ap_uint<20> setSConeSize2(pt_t tpt) {
+    ap_ufixed<16, 14> total_pt = tpt * 4;
     ap_uint<20> SignalConeSizeSquare;
-    ap_uint<10> SignalConeSize;
     if (total_pt < 115) {
       SignalConeSizeSquare = 23 * 23;
     } else if (total_pt < 120) {
@@ -141,9 +121,9 @@ namespace L1HPSPFTauEmu {
     bool inCone = false;
     detaphi2_t isoConeSize2 = isoConeSize * isoConeSize;
 
-    if (part.pt() != 0) {
-      detaphi_t deltaEta = part.eta() - seed.eta();
-      detaphi_t deltaPhi = part.phi() - seed.phi();
+    if (part.hwPt != 0) {
+      detaphi_t deltaEta = part.hwEta - seed.hwEta;
+      detaphi_t deltaPhi = part.hwPhi - seed.hwPhi;
       if ((deltaEta * deltaEta + deltaPhi * deltaPhi) < isoConeSize2) {
         inCone = true;
       } else {
@@ -162,28 +142,28 @@ namespace L1HPSPFTauEmu {
     bool isPotentialLead = false;
 
     isPotentialLead =
-        is_charged(part) && part.id() != 4 && part.pt() > min_leadChargedPfCand_pt && int_abs(part.eta()) < etaCutoff;
+        is_charged(part) && part.pID != 4 && part.hwPt > min_leadChargedPfCand_pt && int_abs(part.hwEta) < etaCutoff;
 
     //calculate the deta and dphi
     bool inCone = false;
 
-    if (part.pt() != 0) {
-      detaphi_t deltaEta = part.eta() - seed.eta();
-      detaphi_t deltaPhi = part.phi() - seed.phi();
+    if (part.hwPt != 0) {
+      detaphi_t deltaEta = part.hwEta - seed.hwEta;
+      detaphi_t deltaPhi = part.hwPhi - seed.hwPhi;
       detaphi2_t deltaEta2 = deltaEta * deltaEta;
       detaphi2_t deltaPhi2 = deltaPhi * deltaPhi;
       dz_t deltaZ = 0;
-      if (part.z0() && seed.z0()) {
-        dz_t deltaZ = part.z0() - seed.z0();
+      if (part.tempZ0 && seed.tempZ0) {
+        deltaZ = part.tempZ0 - seed.tempZ0;
       }
 
-      if ((int_abs(deltaEta) < strip_eta) && (int_abs(deltaPhi) < strip_phi) && (part.id() == 3 || (part.id() == 1))) {
+      if ((int_abs(deltaEta) < strip_eta) && (int_abs(deltaPhi) < strip_phi) && (part.pID == 3 || (part.pID == 1))) {
         if (isPotentialLead) {
           isLead = true;
         }
         inCone = true;
 
-      } else if (((deltaEta2 + deltaPhi2) < cone2) && !((part.id() == 0) && (track_count > 3)) &&
+      } else if (((deltaEta2 + deltaPhi2) < cone2) && !((part.pID == 0) && (track_count > 3)) &&
                  !(is_charged(part) && int_abs(deltaZ) > dzCut)) {
         if (isPotentialLead) {
           isLead = true;
@@ -191,7 +171,7 @@ namespace L1HPSPFTauEmu {
         inCone = true;
       } else {
         if (is_charged(part) && int_abs(deltaZ) > dzCut) {
-          iso_pt += part.pt();
+          iso_pt += part.hwPt;
           inCone = false;
         }
       }
@@ -229,7 +209,7 @@ namespace L1HPSPFTauEmu {
       bool isSignal = inSignalCone(parts.at(i), seed, trct, scone2, isocone_pt, leadCand);
       if (isSignal) {
         signalParts.push_back(parts.at(i));
-        if (parts[i].id() == 0) {
+        if (parts[i].pID == 0) {
           trct++;
         }
         if (leadCand) {
@@ -238,7 +218,7 @@ namespace L1HPSPFTauEmu {
             leadCand = false;
             leadSet = true;
           } else {
-            if (parts[i].pt() > lead.pt()) {
+            if (parts[i].hwPt > lead.hwPt) {
               lead = parts[i];
               leadCand = false;
             } else {
@@ -253,10 +233,10 @@ namespace L1HPSPFTauEmu {
 
     for (std::vector<int>::size_type i = 0; i != signalParts.size(); i++) {
       Particle sigP = signalParts.at(i);
-      if (is_charged(sigP) || (sigP.id() == 3)) {
-        sum_pt += sigP.pt();
-        sum_eta += sigP.pt() * sigP.eta();
-        sum_phi += sigP.pt() * sigP.phi();
+      if (is_charged(sigP) || (sigP.pID == 3)) {
+        sum_pt += sigP.hwPt;
+        sum_eta += sigP.hwPt * sigP.hwEta;
+        sum_phi += sigP.hwPt * sigP.hwPhi;
       }
     }
 
@@ -271,11 +251,18 @@ namespace L1HPSPFTauEmu {
     tau_eta = sum_eta / div_pt;
     tau_phi = sum_phi / div_pt;
 
-    if (tau_pt > 80. && int_abs(tau_eta) < etaCutoff && leadSet == true && isocone_pt < tau_pt) {
-      Tau tau(tau_pt, tau_eta, tau_phi, 0, 0);
+    if (tau_pt > l1ct::Scales::makePtFromFloat(20.) && int_abs(tau_eta) < etaCutoff && leadSet == true &&
+        isocone_pt < tau_pt) {
+      Tau tau;
+      tau.hwPt = tau_pt;
+      tau.hwEta = tau_eta;
+      tau.hwPhi = tau_phi;
       return tau;
     } else {
-      Tau tau(0., 0., 0., 0, 0.);
+      Tau tau;
+      tau.hwPt = 0.;
+      tau.hwEta = 0.;
+      tau.hwPhi = 0.;
       return tau;
     }
   }
@@ -287,13 +274,13 @@ namespace L1HPSPFTauEmu {
     parts_copy.resize(parts.size());
     std::transform(parts.begin(), parts.end(), parts_copy.begin(), [](const Particle& part) { return part; });
     //sorting by pt
-    std::sort(parts_copy.begin(), parts_copy.end(), [](Particle i, Particle j) { return (i.pt() > j.pt()); });
+    std::sort(parts_copy.begin(), parts_copy.end(), [](Particle i, Particle j) { return (i.hwPt > j.hwPt); });
 
     //sorting jets by pt
     std::vector<Particle> jets_copy;
     jets_copy.resize(jets.size());
     std::transform(jets.begin(), jets.end(), jets_copy.begin(), [](const Particle& jet) { return jet; });
-    std::sort(jets_copy.begin(), jets_copy.end(), [](Particle i, Particle j) { return (i.pt() > j.pt()); });
+    std::sort(jets_copy.begin(), jets_copy.end(), [](Particle i, Particle j) { return (i.hwPt > j.hwPt); });
 
     std::vector<Tau> taus;
     std::vector<Tau> cleaned_taus;
@@ -315,7 +302,7 @@ namespace L1HPSPFTauEmu {
     while (preseed.size() < 128 && parts_index != parts_max) {
       Particle pSeed = parts_copy.at(parts_index);
 
-      if (pSeed.pt() > 20. && is_charged(pSeed) && int_abs(pSeed.eta()) < etaCutoff) {
+      if (pSeed.hwPt > l1ct::Scales::makePtFromFloat(5.) && is_charged(pSeed) && int_abs(pSeed.hwEta) < etaCutoff) {
         preseed.push_back(pSeed);
       }
 
@@ -335,7 +322,7 @@ namespace L1HPSPFTauEmu {
       while (jseeds.size() < 4 && jets_index != jets_max) {
         Particle jSeed = jets_copy.at(jets_index);
 
-        if (jSeed.pt() > 80. && int_abs(jSeed.eta()) < etaCutoff) {
+        if (jSeed.hwPt > l1ct::Scales::makePtFromFloat(20.) && int_abs(jSeed.hwEta) < etaCutoff) {
           jseeds.push_back(jSeed);
         }
         jets_index++;
@@ -353,7 +340,7 @@ namespace L1HPSPFTauEmu {
         Particle isoCand = parts_copy.at(iso_index);
         if (inIsolationCone(isoCand, seed)) {
           iso_parts.push_back(isoCand);
-          total_pt += isoCand.pt();
+          total_pt += isoCand.hwPt;
         }
         iso_index++;
       }
@@ -375,16 +362,16 @@ namespace L1HPSPFTauEmu {
           Particle isoCand = parts_copy.at(iso_index);
 
           if (inIsolationCone(isoCand, jseed)) {
-            if (is_charged(isoCand) && isoCand.pt() > max_pt_j) {
-              if (isoCand.z0()) {
-                jseed.z0() = isoCand.z0();
+            if (is_charged(isoCand) && isoCand.hwPt > max_pt_j) {
+              if (isoCand.tempZ0) {
+                jseed.tempZ0 = isoCand.tempZ0;
               }
-              max_pt_j = isoCand.pt();
+              max_pt_j = isoCand.hwPt;
             }
 
             if (iso_parts.size() < 30) {
               iso_parts.push_back(isoCand);
-              total_pt += isoCand.pt();
+              total_pt += isoCand.hwPt;
             }
           }
           iso_index++;
@@ -393,7 +380,7 @@ namespace L1HPSPFTauEmu {
       }
     }
 
-    std::sort(taus.begin(), taus.end(), [](Tau i, Tau j) { return (i.pt() > j.pt()); });
+    std::sort(taus.begin(), taus.end(), [](Tau i, Tau j) { return (i.hwPt > j.hwPt); });
 
     int taus_max = taus.size();
 
@@ -401,8 +388,8 @@ namespace L1HPSPFTauEmu {
 
     for (int i = 0; i < (taus_max - 1); i++) {
       for (int j = i + 1; j < taus_max; j++) {
-        etaphi_t deltaE = taus[i].eta() - taus[j].eta();
-        etaphi_t deltaP = taus[i].phi() - taus[j].phi();
+        etaphi_t deltaE = taus[i].hwEta - taus[j].hwEta;
+        etaphi_t deltaP = taus[i].hwPhi - taus[j].hwPhi;
         if ((deltaE * deltaE + deltaP * deltaP) < (delta_Rclean * delta_Rclean)) {
           matrix[i * 19 + j] = true;
         } else {
@@ -412,7 +399,7 @@ namespace L1HPSPFTauEmu {
     }
 
     if (!taus.empty()) {
-      if (taus[0].pt() > 0) {
+      if (taus[0].hwPt > 0) {
         cleaned_taus.push_back(taus.at(0));
       }
 
@@ -423,9 +410,9 @@ namespace L1HPSPFTauEmu {
       }
       for (int i = 1; i < taus_max; i++) {
         for (int j = i - 1; j >= 0; j--) {
-          clean[i] |= (matrix[j * 15 + i] && !clean[j]);
+          clean[i] |= (matrix[j * 19 + i] && !clean[j]);
         }
-        if (!clean[i] && taus[i].pt() > 0) {
+        if (!clean[i] && taus[i].hwPt > 0) {
           cleaned_taus.push_back(taus.at(i));
         }
       }
