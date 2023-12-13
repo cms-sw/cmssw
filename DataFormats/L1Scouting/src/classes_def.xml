@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="l1ScoutingRun3::ScMuon"/>
+  <class name="l1ScoutingRun3::ScMuon" ClassVersion="3">
+    <version ClassVersion="3" checksum="3332035"/>
+  </class>
   <class name="std::vector<l1ScoutingRun3::ScMuon>"/>
   <class name="l1ScoutingRun3::ScMuonOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScMuonOrbitCollection>"/>
@@ -7,27 +9,30 @@
   <class name="l1ScoutingRun3::ScCaloObject"/>
   <class name="std::vector<l1ScoutingRun3::ScCaloObject>"/>
 
-  <class name="l1ScoutingRun3::ScJet"/>
+  <class name="l1ScoutingRun3::ScJet" ClassVersion="3">
+    <version ClassVersion="3" checksum="1294486239"/>
+  </class>
   <class name="std::vector<l1ScoutingRun3::ScJet>"/>
   <class name="l1ScoutingRun3::ScJetOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScJetOrbitCollection>"/>
 
-  <class name="l1ScoutingRun3::ScEGamma"/>
+  <class name="l1ScoutingRun3::ScEGamma" ClassVersion="3">
+    <version ClassVersion="3" checksum="1825544612"/>
+  </class>
   <class name="std::vector<l1ScoutingRun3::ScEGamma>"/>
   <class name="l1ScoutingRun3::ScEGammaOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScEGammaOrbitCollection>"/>
 
-  <class name="l1ScoutingRun3::ScTau"/>
+  <class name="l1ScoutingRun3::ScTau" ClassVersion="3">
+    <version ClassVersion="3" checksum="1895566140"/>
+  </class>
   <class name="std::vector<l1ScoutingRun3::ScTau>"/>
   <class name="l1ScoutingRun3::ScTauOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScTauOrbitCollection>"/>
 
-  <class name="l1ScoutingRun3::ScEtSum"/>
-  <class name="std::vector<l1ScoutingRun3::ScEtSum>"/>
-  <class name="l1ScoutingRun3::ScEtSumOrbitCollection"/>
-  <class name="edm::Wrapper<l1ScoutingRun3::ScEtSumOrbitCollection>"/>
-
-  <class name="l1ScoutingRun3::ScBxSums"/>
+  <class name="l1ScoutingRun3::ScBxSums" ClassVersion="3">
+    <version ClassVersion="3" checksum="3155823757"/>
+  </class>
   <class name="std::vector<l1ScoutingRun3::ScBxSums>"/>
   <class name="l1ScoutingRun3::ScBxSumsOrbitCollection"/>
   <class name="edm::Wrapper<l1ScoutingRun3::ScBxSumsOrbitCollection>"/>

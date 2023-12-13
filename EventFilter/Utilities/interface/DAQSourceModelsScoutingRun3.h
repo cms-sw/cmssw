@@ -24,7 +24,7 @@ public:
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
-  void fillSRDCollection(SRDCollection& rawData, char* buff, size_t len);
+  void fillSDSRawDataCollection(SDSRawDataCollection& rawData, char* buff, size_t len);
 
   //reuse FRD file and event headers
   int dataVersion() const override { return detectedFRDversion_; }

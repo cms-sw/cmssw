@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="SRDCollection" />
-  <class name="edm::Wrapper<SRDCollection>" splitLevel="0"/>
-  <class name="edm::RefProd<SRDCollection>"/>
+  <class name="SDSRawDataCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="2352873727"/>
+  </class>
+  <class name="edm::Wrapper<SDSRawDataCollection>" splitLevel="0"/>
 </lcgdict>

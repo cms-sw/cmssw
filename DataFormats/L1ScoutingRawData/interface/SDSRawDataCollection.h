@@ -3,7 +3,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/Common/interface/traits.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 /** 
   *
@@ -12,11 +11,9 @@
   *
   */
 
-class SRDCollection : public edm::DoNotRecordParents {
+class SDSRawDataCollection : public edm::DoNotRecordParents {
 public:
-  SRDCollection();
-
-  virtual ~SRDCollection();
+  SDSRawDataCollection();
 
   // retrive data for the scouting source at sourceId
   const FEDRawData& FEDData(int sourceId) const;
@@ -24,14 +21,14 @@ public:
   // retrive data for the scouting source at sourceId
   FEDRawData& FEDData(int sourceId);
 
-  SRDCollection(const SRDCollection&);
+  SDSRawDataCollection(const SDSRawDataCollection&);
 
-  void swap(SRDCollection& other) { data_.swap(other.data_); }
+  void swap(SDSRawDataCollection& other) { data_.swap(other.data_); }
 
 private:
   std::vector<FEDRawData> data_;  // vector of raw data
 };
 
-inline void swap(SRDCollection& a, SRDCollection& b) { a.swap(b); }
+inline void swap(SDSRawDataCollection& a, SDSRawDataCollection& b) { a.swap(b); }
 
 #endif  // L1ScoutingRawData_SDSRawDataCollection_h

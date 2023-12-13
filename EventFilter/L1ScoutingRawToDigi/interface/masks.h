@@ -7,7 +7,6 @@
 namespace l1ScoutingRun3 {
 
   namespace ugmt {
-    // struct masks{
     struct masksMuon {
       // bx word: 16 bits used for actual bx, MS 4 bits are muon type
       // 0xf intermediate,
@@ -36,7 +35,7 @@ namespace l1ScoutingRun3 {
   }  // namespace ugmt
 
   namespace demux {
-    // struct masksCaloJet{
+
     struct masksJet {
       static constexpr uint32_t ET = 0x07ff;
       static constexpr uint32_t eta = 0x00ff;
@@ -45,7 +44,6 @@ namespace l1ScoutingRun3 {
       static constexpr uint32_t qual = 0x0003;
     };
 
-    // struct masksCaloEGamma{
     struct masksEGamma {
       static constexpr uint32_t ET = 0x01ff;
       static constexpr uint32_t eta = 0x00ff;
@@ -53,7 +51,6 @@ namespace l1ScoutingRun3 {
       static constexpr uint32_t iso = 0x0003;
     };
 
-    // struct masksCaloTau{
     struct masksTau {
       static constexpr uint32_t ET = 0x01ff;
       static constexpr uint32_t eta = 0x00ff;
@@ -61,7 +58,6 @@ namespace l1ScoutingRun3 {
       static constexpr uint32_t iso = 0x0003;
     };
 
-    // struct masksCaloESums{
     struct masksESums {
       static constexpr uint32_t ETEt = 0x0fff;  // Et of ET object
       static constexpr uint32_t ETEttem = 0x0fff;

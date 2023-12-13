@@ -5,6 +5,8 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
 
+#include "iostream"
+
 namespace l1ScoutingRun3 {
 
   void printScMuon(const ScMuon& muon, std::ostream& outs = std::cout);

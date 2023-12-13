@@ -64,21 +64,21 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
   daqSource_->makeEventWrapper(eventPrincipal, aux);
 
   // create scouting raw data collection
-  std::unique_ptr<SRDCollection> rawData(new SRDCollection);
+  std::unique_ptr<SDSRawDataCollection> rawData(new SDSRawDataCollection);
 
   // Fill the ScoutingRawDataCollection with valid orbit data from the multiple sources
   for (const auto& pair : sourceValidOrbitPair_) {
-    fillSRDCollection(*rawData, (char*)events_[pair.second]->payload(), events_[pair.second]->eventSize());
+    fillSDSRawDataCollection(*rawData, (char*)events_[pair.second]->payload(), events_[pair.second]->eventSize());
   }
 
-  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<SRDCollection>(std::move(rawData)));
+  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<SDSRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
       daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 
   eventCached_ = false;
 }
 
-void DataModeScoutingRun3::fillSRDCollection(SRDCollection& rawData, char* buff, size_t len) {
+void DataModeScoutingRun3::fillSDSRawDataCollection(SDSRawDataCollection& rawData, char* buff, size_t len) {
   size_t pos = 0;
 
   // get the source ID
@@ -103,7 +103,7 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeScoutingRu
   //set SRD data collection
   daqProvenanceHelpers_.clear();
   daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(SRDCollection)), "SRDCollection", "SRDCollection", "DAQSource"));
+      edm::TypeID(typeid(SDSRawDataCollection)), "SDSRawDataCollection", "SDSRawDataCollection", "DAQSource"));
   return daqProvenanceHelpers_;
 }
 

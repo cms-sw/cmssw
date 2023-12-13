@@ -5,8 +5,6 @@
 
 namespace l1ScoutingRun3 {
 
-  class ScMuon;
-  typedef OrbitCollection<ScMuon> ScMuonOrbitCollection;
   class ScMuon {
   public:
     ScMuon()
@@ -47,11 +45,6 @@ namespace l1ScoutingRun3 {
           hwPhiAtVtx_(hwPhiAtVtx),
           hwPtUnconstrained_(hwPtUnconstrained),
           hwDXY_(hwDXY) {}
-
-    ScMuon(const ScMuon& other) = default;
-    ScMuon(ScMuon&& other) = default;
-    ScMuon& operator=(const ScMuon& other) = default;
-    ScMuon& operator=(ScMuon&& other) = default;
 
     void swap(ScMuon& other) {
       using std::swap;
@@ -110,6 +103,8 @@ namespace l1ScoutingRun3 {
     int hwPtUnconstrained_;
     int hwDXY_;
   };
+
+  typedef OrbitCollection<ScMuon> ScMuonOrbitCollection;
 
 }  // namespace l1ScoutingRun3
 
