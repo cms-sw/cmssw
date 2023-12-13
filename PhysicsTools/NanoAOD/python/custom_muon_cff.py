@@ -284,44 +284,7 @@ def AddVariablesForMuon(proc):
     
     return proc
 
-def AddTriggerObjectBits(process):
-    #muon_triggers = list(process.triggerObjectTable.selections.Muon.qualityBits)
-    #muon_triggers.append(mksel("filter('hltTripleMuonL2PreFiltered0')","hltTripleMuonL2PreFiltered0"))
-    #muon_triggers.append(mksel("filter('hltTripleMuL3PreFiltered222')","hltTripleMuL3PreFiltered222"))
-    #muon_triggers.append(mksel("filter('hltJpsiMuonL3Filtered3p5')","hltJpsiMuonL3Filtered3p5")) 
-    #muon_triggers.append(mksel("filter('hltVertexmumuFilterJpsiMuon3p5')","hltVertexmumuFilterJpsiMuon3p5"))
-    #muon_triggers.append(mksel("filter('hltL2fL1sDoubleMu0er15OSIorDoubleMu0er14OSIorDoubleMu4OSIorDoubleMu4p5OSL1Filtered0')","hltL2fL1sDoubleMu0er15OSIorDoubleMu0er14OSIorDoubleMu4OSIorDoubleMu4p5OSL1Filtered0"))
-    #muon_triggers.append(mksel("filter('hltDoubleMu4JpsiDisplacedL3Filtered')","hltDoubleMu4JpsiDisplacedL3Filtered"))
-    #muon_triggers.append(mksel("filter('hltDisplacedmumuFilterDoubleMu4Jpsi')","hltDisplacedmumuFilterDoubleMu4Jpsi"))
-    #muon_triggers.append(mksel("filter('hltJpsiTkVertexFilter')","hltJpsiTkVertexFilter"))
-    #muon_triggers.append(mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"))
-    #muon_triggers.append(mksel("filter('hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08')","hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08"))
-    #muon_triggers.append(mksel("filter('hltL3fL1DoubleMu155fPreFiltered8')","hltL3fL1DoubleMu155fPreFiltered8"))
-    #muon_triggers.append(mksel("filter('hltL3fL1DoubleMu155fFiltered17')","hltL3fL1DoubleMu155fFiltered17"))
-    #muon_triggers.append(mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4')","hltDiMuon178RelTrkIsoFiltered0p4"))
-    #muon_triggers.append(mksel("filter('hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2')","hltDiMuon178RelTrkIsoFiltered0p4DzFiltered0p2"))
-    #muon_triggers.append(mksel("filter('hltDiMuon178RelTrkIsoVVLFiltered')","hltDiMuon178RelTrkIsoVVLFiltered"))
-    #muon_triggers.append(mksel("filter('hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2')","hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"))
-    #muon_triggers.append(mksel("filter('hltDiMuon178Mass3p8Filtered')","hltDiMuon178Mass3p8Filtered"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q"))
-    #muon_triggers.append(mksel("filter('hltL2fOldL1sMu22or25L1f0L2Filtered10Q')","hltL2fOldL1sMu22or25L1f0L2Filtered10Q"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q')","hltL3fL1sMu22Or25L1f0L2f10QL3Filtered100Q"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu25f0TkFiltered100Q')","hltL3fL1sMu25f0TkFiltered100Q"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered17"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered')","hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoVVLFiltered"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8')","hltL3fL1sMu5L1f0L2f5L3Filtered8"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered')","hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoVVLFiltered"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered12"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered15"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"))
-    #muon_triggers.append(mksel("filter('hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19')","hltL3fL1sMu15DQlqL1f0L2f10L3Filtered19"))
-     
-    
-     
-    #process.triggerObjectTable.selections.Muon.qualityBits = cms.VPSet(muon_triggers)
-    
+def AddTriggerObjectBits(process): 
     process.triggerObjectTable.selections.Muon_POG = cms.PSet(
             id = cms.int32(1313),
             sel = cms.string("type(83) && pt > 5 && (coll('hltIterL3MuonCandidates') || (pt > 45 && coll('hltHighPtTkMuonCands')) || (pt > 95 && coll('hltOldL3MuonCandidates')))"),
