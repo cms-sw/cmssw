@@ -184,7 +184,7 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
         name = cms.string('PFHBHERecHitCreator'),
         qualityTests = cms.VPSet(
             cms.PSet(
-                usePFThresholdsFromDB = cms.bool(False),
+                usePFThresholdsFromDB = cms.bool(True),
                 cuts = cms.VPSet(
                     cms.PSet(
                         depth = cms.vint32(1, 2, 3, 4),
@@ -224,7 +224,7 @@ if hcal:
             name = cms.string('PFHBHERecHitCreator'),
             qualityTests = cms.VPSet(
                 cms.PSet(
-                    usePFThresholdsFromDB = cms.bool(False),
+                    usePFThresholdsFromDB = cms.bool(True),
                     cuts = cms.VPSet(
                         cms.PSet(
                             depth = cms.vint32(1, 2, 3, 4),
