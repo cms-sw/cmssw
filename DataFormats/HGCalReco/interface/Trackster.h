@@ -74,7 +74,21 @@ namespace ticl {
     inline void setBarycenter(Vector value) { barycenter_ = value; }
     inline void setTrackIdx(int index) { track_idx_ = index; }
     int trackIdx() const { return track_idx_; }
+    inline void mergeTracksters(const Trackster& other){
+      *this += other;
 
+      //remove duplicates 
+      removeDuplicates();
+    }
+
+    inline void mergeTracksters(const std::vector<Trackster>& others){
+      for(auto& other: others){
+        *this += other;
+      }
+
+      //remove duplicates 
+      removeDuplicates();
+    }
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,
                                  Eigen::Vector3d &sigmas,
@@ -194,6 +208,39 @@ namespace ticl {
 
     // TICL iteration producing the trackster
     uint8_t iterationIndex_;
+    inline void removeDuplicates() {
+      auto vtx_sorted{vertices_};
+      std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
+      for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
+        if (vtx_sorted[iLC] == vtx_sorted[iLC - 1]) {
+          // Clean up duplicate LCs
+          const auto lcIdx = vtx_sorted[iLC];
+          const auto firstEl = std::find(vertices_.begin(), vertices_.end(), lcIdx);
+          const auto firstPos = std::distance(std::begin(vertices_), firstEl);
+          auto iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
+          while (iDup != vertices_.end()) {
+            vertices_.erase(iDup);
+            vertex_multiplicity_.erase(vertex_multiplicity_.begin() +
+                                                     std::distance(std::begin(vertices_), iDup));
+            vertex_multiplicity_[firstPos] -= 1;
+            iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
+          };
+        }
+    }
+
+    }
+    inline void operator+=(const Trackster &other) {
+      // use getters on other
+      raw_energy_ += other.raw_energy();
+      raw_em_energy_ += other.raw_em_energy();
+      raw_pt_ += other.raw_pt();
+      raw_em_pt_ += other.raw_em_pt();
+      // add vertices and multiplicities
+      std::copy(std::begin(other.vertices()), std::end(other.vertices()), std::back_inserter(vertices_));
+      std::copy(std::begin(other.vertex_multiplicity()), std::end(other.vertex_multiplicity()),
+                std::back_inserter(vertex_multiplicity_));
+      
+    }
   };
 
   typedef std::vector<Trackster> TracksterCollection;
