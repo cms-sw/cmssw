@@ -98,7 +98,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,
           float phiDiff = reco::deltaPhi(phi, phiclus);
           float energy = j->energy();
 
-	  float rhThres = (thresholds != nullptr) ? (*thresholds)[j->detid()] : 0.f;
+          float rhThres = (thresholds != nullptr) ? (*thresholds)[j->detid()] : 0.f;
           if (energy <= rhThres)
             continue;
 
