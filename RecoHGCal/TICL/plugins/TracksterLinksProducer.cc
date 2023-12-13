@@ -79,6 +79,7 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
 
   // New trackster collection after linking
   produces<std::vector<Trackster>>();
+  produces<std::vector<Trackster>>("CLUE3D");
 
   // Links
   produces<std::vector<std::vector<unsigned int>>>();
@@ -124,6 +125,7 @@ void TracksterLinksProducer::dumpTrackster(const Trackster &t) const {
 
 void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   auto resultTracksters = std::make_unique<std::vector<Trackster>>();
+  auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
 
   auto linkedResultTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
   
@@ -169,24 +171,70 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
 
   // Now we need to remove the tracksters that are not linked
   // We need to emplace_back in the resultTracksters only the tracksters that are linked
-  for (auto const &linkedTrackster : *linkedResultTracksters) {
-    for (auto const &tracksterIndex : linkedTrackster) {
-      auto [collectionIndex, indexInCollection] = trackstersManager.getVectorAndLocalIndex(tracksterIndex);
-      resultTracksters->emplace_back((*tracksters_h[collectionIndex])[indexInCollection]);
-      // Mask layerClusters found in tracksters
-      for (auto const &clusterIndex : resultTracksters->back().vertices()) {
+  for(auto const& resultTrackster : *resultTracksters){
+      for (auto const &clusterIndex : resultTrackster.vertices()) {
         (*resultMask)[clusterIndex] = 0.f;
       }
+  }
+
+  for (auto const &linkedTrackster : *linkedResultTracksters) {
+    Trackster outTrackster;
+    auto updated_size = 0;
+    for (auto const &tracksterIndex : linkedTrackster) {
+//      std::cout << "Trackster index " << tracksterIndex << std::endl;
+      auto [collectionIndex, indexInCollection] = trackstersManager.getVectorAndLocalIndex(tracksterIndex);
+      auto const& thisTrackster = (*tracksters_h[collectionIndex])[indexInCollection];
+      updated_size += thisTrackster.vertices().size(); 
+      outTrackster.vertices().reserve(updated_size);
+      outTrackster.vertex_multiplicity().reserve(updated_size);
+      std::copy(std::begin(thisTrackster.vertices()),
+                std::end(thisTrackster.vertices()),
+                std::back_inserter(outTrackster.vertices()));
+      std::copy(std::begin(thisTrackster.vertex_multiplicity()),
+                std::end(thisTrackster.vertex_multiplicity()),
+                std::back_inserter(outTrackster.vertex_multiplicity()));
+    }
+    // Find duplicate LCs
+    auto &orig_vtx = outTrackster.vertices();
+    auto vtx_sorted{orig_vtx};
+    std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
+    for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
+      if (vtx_sorted[iLC] == vtx_sorted[iLC - 1]) {
+        // Clean up duplicate LCs
+        const auto lcIdx = vtx_sorted[iLC];
+        const auto firstEl = std::find(orig_vtx.begin(), orig_vtx.end(), lcIdx);
+        const auto firstPos = std::distance(std::begin(orig_vtx), firstEl);
+        auto iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+        while (iDup != orig_vtx.end()) {
+          orig_vtx.erase(iDup);
+          outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() +
+                                                   std::distance(std::begin(orig_vtx), iDup));
+          outTrackster.vertex_multiplicity()[firstPos] -= 1;
+          iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+        };
+      }
+    }
+
+    outTrackster.zeroProbabilities();
+    if (!outTrackster.vertices().empty()) {
+      resultTrackstersMerged->push_back(outTrackster);
     }
   }
-#
-
+  
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+
+  assignPCAtoTracksters(*resultTrackstersMerged,
+                        layerClusters,
+                        layerClustersTimes,
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+
   evt.put(std::move(linkedResultTracksters));
   evt.put(std::move(resultMask));
+  evt.put(std::move(resultTracksters), "CLUE3D");
+  evt.put(std::move(resultTrackstersMerged));
 
 }
 
