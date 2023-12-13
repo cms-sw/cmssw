@@ -16,7 +16,7 @@ class EcalTPGWeightGroup;
 
 class EcalEBPhase2AmplitudeReconstructor {
 private:
-  static const int maxSamplesUsed_=12;
+  static const int maxSamplesUsed_ = 12;
   bool debug_;
   int inputsAlreadyIn_;
   int buffer_[maxSamplesUsed_];
@@ -25,7 +25,6 @@ private:
   int setInput(int input);
   void process();
   int processedOutput_;
-  
 
 public:
   EcalEBPhase2AmplitudeReconstructor(bool debug);

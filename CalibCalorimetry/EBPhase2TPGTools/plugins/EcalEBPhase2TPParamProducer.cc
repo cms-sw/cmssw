@@ -130,7 +130,7 @@ void EcalEBPhase2TPParamProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("Et_sat", 1998.36);
   desc.add<double>("xtal_LSB", 0.0488);
   desc.add<unsigned int>("binOfMaximum", 6);
-  descriptions.add("ecalEBPhase2TPParamProducerDefault",desc);
+  descriptions.add("ecalEBPhase2TPParamProducerDefault", desc);
 }
 
 void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {

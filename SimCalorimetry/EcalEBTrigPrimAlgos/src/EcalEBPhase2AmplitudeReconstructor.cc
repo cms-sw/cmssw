@@ -7,7 +7,6 @@
 
 #include <iostream>
 
-
 EcalEBPhase2AmplitudeReconstructor::EcalEBPhase2AmplitudeReconstructor(bool debug)
     : debug_(debug), inputsAlreadyIn_(0), shift_(13) {}
 
