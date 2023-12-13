@@ -1,30 +1,130 @@
-#!/bin/bash -ex
+#!/bin/bash
+# This script runs all the steps of the embedding workflow
+# author: Christian Winter (christian.winter@cern.ch)
+# TODO: move the dataset to a more persistent and for cmssw accessible place than a private EOS user folder
 
-##____________________________________________________________________________||
+# print the exit status before exiting
 function die { echo $1: status $2 ; exit $2; }
 
-# echo '{
-#"274199" : [[1, 180]]
-#}' > step1_lumiRanges.log  2>&1
- 
-# (das_client --limit 0 --query 'file dataset=/DoubleMuon/Run2016B-v2/RAW run=274199') | sort -u > step1_dasquery.log  2>&1
-#due to frequent failures of das_client: use file directly
 
-#echo "/store/data/Run2016B/DoubleMuon/RAW/v2/000/274/199/00000/02893BCB-6426-E611-B266-02163E012552.root" > step1_dasquery.log
+## This is a PRE SKIMED dataset
+dataset="root://eosuser.cern.ch//eos/user/c/cwinter/embedding_test_root_files/PreRAWskimmed.root"
 
-#cmsDriver.py selecting -s RAW2DIGI,L1Reco,RECO,PAT --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM --eventcontent RAWRECO --datatier RAWRECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting --filein filelist:step1_dasquery.log --lumiToProcess step1_lumiRanges.log --fileout step2.root -n 200 --nThreads 32  
+echo "################ Selection ################"
+cmsDriver.py RECO \
+--step RAW2DIGI,L1Reco,RECO,PAT \
+--data \
+--scenario pp \
+--conditions auto:run2_data \
+--era Run2_2018 \
+--eventcontent RAWRECO \
+--datatier RAWRECO \
+--customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting_Reselect \
+--filein $dataset \
+--fileout file:selection.root \
+-n -1 \
+--python_filename selection.py || die 'Failure during selecting step' $?
+
+echo "################ LHE production and cleaning ################"
+cmsDriver.py LHEprodandCLEAN \
+--step RAW2DIGI,RECO,PAT \
+--data \
+--scenario pp \
+--conditions auto:run2_data \
+--era Run2_2018 \
+--eventcontent RAWRECO \
+--datatier RAWRECO \
+--customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning_Reselect \
+--filein file:selection.root \
+--fileout file:lhe_and_cleaned.root \
+-n -1 \
+--python_filename lheprodandcleaning.py || die 'Failure during LHE and Cleaning step' $?
+
+# Simulation (MC & Detector)
+echo "################ Simulation (MC & Detector) ################"
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+--step GEN,SIM,DIGI,L1,DIGI2RAW \
+--mc \
+--beamspot Realistic25ns13TeVEarly2018Collision \
+--geometry DB:Extended \
+--era Run2_2018 \
+--conditions auto:phase1_2018_realistic \
+--eventcontent RAWSIM \
+--datatier RAWSIM \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT_Reselect \
+--filein file:lhe_and_cleaned.root \
+--fileout file:simulated_and_cleaned_prehlt.root \
+-n -1 \
+--python_filename generator_preHLT.py ||  die 'Failure during MC & Detector simulation step' $?
+
+# Simulation (Trigger)
+echo "################ Simulation (Trigger) ################"
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+--step HLT:Fake2 \
+--mc \
+--beamspot Realistic25ns13TeVEarly2018Collision \
+--geometry DB:Extended \
+--era Run2_2018 \
+--conditions auto:phase1_2018_realistic \
+--eventcontent RAWSIM \
+--datatier RAWSIM \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT_Reselect \
+--filein file:simulated_and_cleaned_prehlt.root \
+--fileout file:simulated_and_cleaned_hlt.root \
+-n -1 \
+--python_filename generator_HLT.py || die 'Failure during Fake Trigger simulation step' $?
 
 
-## This is a PRE SKIMED dataset, so  
-echo "/store/user/swayand/Emmbeddingfiles/Emmbedding_testInput3.root"  > file_list.txt
+# Simulation (Reconstruction)
+echo "################ Simulation (Reconstruction) ################"
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+--step RAW2DIGI,L1Reco,RECO,RECOSIM \
+--mc \
+--beamspot Realistic25ns13TeVEarly2018Collision \
+--geometry DB:Extended \
+--era Run2_2018 \
+--conditions auto:phase1_2018_realistic \
+--eventcontent RAWRECOSIMHLT \
+--datatier RAW-RECO-SIM \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT_Reselect \
+--filein file:simulated_and_cleaned_hlt.root \
+--fileout file:simulated_and_cleaned_posthlt.root \
+-n -1 \
+--python_filename generator_postHLT.py || die 'Failure during reconstruction simulation step' $?
 
+# Merging
+echo "################ Merging ################"
+cmsDriver.py PAT \
+--step PAT \
+--data \
+--scenario pp \
+--conditions auto:run2_data \
+--era Run2_2018 \
+--eventcontent MINIAODSIM \
+--datatier USER \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseMerging_Reselect \
+--filein file:simulated_and_cleaned_posthlt.root \
+--fileout file:merged.root \
+-n -1 \
+--python_filename merging.py || die 'Failure during the merging step' $?
 
-cmsDriver.py selecting -s RAW2DIGI,L1Reco,RECO,PAT --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM --eventcontent RAWRECO --datatier RAWRECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting --filein filelist:file_list.txt --fileout file:selected.root --python_filename selecting.py -n 5 || die 'Failure during selecting step' $?
-
-
-cmsDriver.py LHEembeddingCLEAN --filein file:selected.root --fileout file:lhe_and_cleaned.root --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM  --eventcontent RAWRECO --datatier RAWRECO --step RAW2DIGI,RECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning -n -1 --python_filename lheprodandcleaning.py  || die 'Failure during LHE and Cleaning step' $?
-
-### Do not run HLT in CMSSW_9_0_X so far since the RecoPixelVertexingPixelTrackFittingPlugins. seems not to work
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py --filein file:lhe_and_cleaned.root --fileout file:simulated_and_cleaned.root --conditions auto:run2_mc --era Run2_2016 --eventcontent RAWRECO --step GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO --datatier RAWRECO --customise TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator --beamspot Realistic25ns13TeV2016Collision -n -1 --customise_commands "process.generator.nAttempts = cms.uint32(1000)\n"  --python_filename simulation.py || die 'Failure during Simulation step' $?
-
-cmsDriver.py MERGE -s PAT --filein file:simulated_and_cleaned.root  --fileout file:merged.root --era Run2_2016_HIPM --data --scenario pp --conditions auto:run2_data --eventcontent  MINIAODSIM --datatier USER --customise TauAnalysis/MCEmbeddingTools/customisers.customiseMerging --customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" -n -1  || die 'Failure during merging step' $?
+# NanoAOD Production
+echo "################ NanoAOD Production ################"
+cmsDriver.py \
+--step NANO \
+--data \
+--conditions auto:run2_data \
+--era Run2_2018,run2_nanoAOD_106Xv2 \
+--eventcontent NANOAODSIM \
+--datatier NANOAODSIM \
+--customise TauAnalysis/MCEmbeddingTools/customisers.customiseNanoAOD \
+--filein file:merged.root \
+--fileout file:merged_nano.root \
+-n -1 \
+--python_filename embedding_nanoAOD.py || die 'Failure during the nanoAOD step' $?
