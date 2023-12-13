@@ -10,11 +10,11 @@ void TracksterLinkingbyFastJet::linkTracksters(const Inputs& input, std::vector<
                     std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) {
   // Create jets of tracksters using FastJet
   std::vector<fastjet::PseudoJet> fjInputs;
-  for (const auto& trackster : input.tracksters) {
+  for (size_t i = 0; i < input.tracksters.size(); ++i) {
     // Convert Trackster information to PseudoJet
-    fastjet::PseudoJet pj(trackster.barycenter().x(), trackster.barycenter().y(), trackster.barycenter().z(),
-                          trackster.raw_energy());
-    pj.set_user_index(&trackster - &input.tracksters[0]);
+    fastjet::PseudoJet pj(input.tracksters[i].barycenter().x(), input.tracksters[i].barycenter().y(),
+                          input.tracksters[i].barycenter().z(), input.tracksters[i].raw_energy());
+    pj.set_user_index(i);
     fjInputs.push_back(pj);
   }
   
@@ -39,9 +39,7 @@ void TracksterLinkingbyFastJet::linkTracksters(const Inputs& input, std::vector<
   }
 }
 
-
-
 void TracksterLinkingbyFastJet::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<double>("antikt_radius", 0.4);
+  iDesc.add<double>("antikt_radius", 0.1);
 }
