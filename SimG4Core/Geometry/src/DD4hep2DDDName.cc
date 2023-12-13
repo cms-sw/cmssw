@@ -1,7 +1,7 @@
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 
 std::string DD4hep2DDDName::noNameSpace(const std::string& name) {
-  std::size_t found = name.find(":");
+  std::size_t found = name.find(':');
   std::string nam = (found == std::string::npos) ? name : name.substr(found + 1, (name.size() - found));
   return nam;
 }
