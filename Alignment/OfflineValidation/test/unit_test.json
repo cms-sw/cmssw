@@ -15,6 +15,12 @@
            "style": "2001",
            "title": "unit test"
         },
+	"unitTestDiMuonVMC": {
+	    "color": "1",
+	    "globaltag": "auto:auto:phase1_2022_realistic",
+	    "style": "2101",
+	    "title": "unit test"
+	},
         "ideal": {
            "color": "1",
            "globaltag": "auto:phase1_2017_design",
@@ -140,6 +146,21 @@
                  }
              }
         },
+	"DiMuonV" : {
+            "merge": {
+		"testUnits": {
+                     "singles": ["testUnits"]
+                }
+            },
+	    "single" : {
+		"testUnits" : {
+		    "IOV" : ["1"],
+                    "alignments" : ["unitTestDiMuonVMC"],
+                    "trackcollection" : "generalTracks",
+                    "maxevents" : "10"
+		}
+	    }
+	},
         "GCP": {
              "GCPdetUnits": {
                  "levels": "DetUnit",
