@@ -26,8 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename CAL>
   class PFRecHitTopologyESProducer : public ESProducer {
   public:
-    PFRecHitTopologyESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig),
-      cutsFromDB_(iConfig.getParameter<bool>("usePFThresholdsFromDB")) {
+    PFRecHitTopologyESProducer(edm::ParameterSet const& iConfig)
+        : ESProducer(iConfig), cutsFromDB_(iConfig.getParameter<bool>("usePFThresholdsFromDB")) {
       auto cc = setWhatProduced(this);
       geomToken_ = cc.consumes();
       if constexpr (std::is_same_v<CAL, HCAL>) {
@@ -40,7 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSetDescription desc;
       if constexpr (std::is_same_v<CAL, HCAL>)
         desc.add<bool>("usePFThresholdsFromDB", "True");
-      else // only needs to be true for HBHE
+      else  // only needs to be true for HBHE
         desc.add<bool>("usePFThresholdsFromDB", "False");
       descriptions.addWithDefaultLabel(desc);
     }
@@ -71,16 +71,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Fill SoA members with HCAL PF Thresholds from GT
           if constexpr (std::is_same_v<CAL, HCAL>) {
-              view.cutsFromDB() = false;
-              if (cutsFromDB_) {
-                  view.cutsFromDB() = true;
-                  const HcalPFCuts& pfCuts = iRecord.get(hcalCutsToken_);
-                  const HcalTopology& htopo = iRecord.get(hcalToken_);
-                  std::unique_ptr<HcalPFCuts> prod = std::make_unique<HcalPFCuts>(pfCuts);
-                  prod->setTopo(&htopo);
-                  view.noiseThreshold(denseId) = prod->getValues(detId.rawId())->noiseThreshold();
-                  view.seedThreshold(denseId) = prod->getValues(detId.rawId())->seedThreshold();
-              }
+            view.cutsFromDB() = false;
+            if (cutsFromDB_) {
+              view.cutsFromDB() = true;
+              const HcalPFCuts& pfCuts = iRecord.get(hcalCutsToken_);
+              const HcalTopology& htopo = iRecord.get(hcalToken_);
+              std::unique_ptr<HcalPFCuts> prod = std::make_unique<HcalPFCuts>(pfCuts);
+              prod->setTopo(&htopo);
+              view.noiseThreshold(denseId) = prod->getValues(detId.rawId())->noiseThreshold();
+              view.seedThreshold(denseId) = prod->getValues(detId.rawId())->seedThreshold();
+            }
           }
 
           const GlobalPoint pos = geo->getGeometry(detId)->getPosition();
@@ -143,7 +143,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
     edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
     const bool cutsFromDB_;
-
 
     // specialised for HCAL/ECAL, because non-nearest neighbours are defined differently
     uint32_t getNeighbourDetId(const uint32_t detId, const uint32_t direction, const CaloSubdetectorTopology& topo);

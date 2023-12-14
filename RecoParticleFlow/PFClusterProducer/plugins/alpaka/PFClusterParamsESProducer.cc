@@ -35,17 +35,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (thresholds.size() != kMaxDepth_barrel)
             throw cms::Exception("Configuration") << "Invalid size (" << thresholds.size() << " != " << kMaxDepth_barrel
                                                   << ") for \"\" vector of det = \"" << det << "\"";
-          view.seedPt2ThresholdEB() = seedPt2Threshold;
+          view.seedPt2ThresholdHB() = seedPt2Threshold;
           for (size_t idx = 0; idx < thresholds.size(); ++idx) {
-            view.seedEThresholdEB_vec()[idx] = thresholds[idx];
+            view.seedEThresholdHB_vec()[idx] = thresholds[idx];
           }
         } else if (det == "HCAL_ENDCAP") {
           if (thresholds.size() != kMaxDepth_endcap)
             throw cms::Exception("Configuration") << "Invalid size (" << thresholds.size() << " != " << kMaxDepth_endcap
                                                   << ") for \"\" vector of det = \"" << det << "\"";
-          view.seedPt2ThresholdEE() = seedPt2Threshold;
+          view.seedPt2ThresholdHE() = seedPt2Threshold;
           for (size_t idx = 0; idx < thresholds.size(); ++idx) {
-            view.seedEThresholdEE_vec()[idx] = thresholds[idx];
+            view.seedEThresholdHE_vec()[idx] = thresholds[idx];
           }
         } else {
           throw cms::Exception("Configuration") << "Unknown detector when parsing seedFinder: " << det;
@@ -63,14 +63,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             throw cms::Exception("Configuration") << "Invalid size (" << thresholds.size() << " != " << kMaxDepth_barrel
                                                   << ") for \"\" vector of det = \"" << det << "\"";
           for (size_t idx = 0; idx < thresholds.size(); ++idx) {
-            view.topoEThresholdEB_vec()[idx] = thresholds[idx];
+            view.topoEThresholdHB_vec()[idx] = thresholds[idx];
           }
         } else if (det == "HCAL_ENDCAP") {
           if (thresholds.size() != kMaxDepth_endcap)
             throw cms::Exception("Configuration") << "Invalid size (" << thresholds.size() << " != " << kMaxDepth_endcap
                                                   << ") for \"\" vector of det = \"" << det << "\"";
           for (size_t idx = 0; idx < thresholds.size(); ++idx) {
-            view.topoEThresholdEE_vec()[idx] = thresholds[idx];
+            view.topoEThresholdHE_vec()[idx] = thresholds[idx];
           }
         } else {
           throw cms::Exception("Configuration") << "Unknown detector when parsing initClusteringStep: " << det;
@@ -99,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 << "Invalid size (" << recHitNorms.size() << " != " << kMaxDepth_barrel
                 << ") for \"\" vector of det = \"" << det << "\"";
           for (size_t idx = 0; idx < recHitNorms.size(); ++idx) {
-            view.recHitEnergyNormInvEB_vec()[idx] = 1. / recHitNorms[idx];
+            view.recHitEnergyNormInvHB_vec()[idx] = 1. / recHitNorms[idx];
           }
         } else if (det == "HCAL_ENDCAP") {
           if (recHitNorms.size() != kMaxDepth_endcap)
@@ -107,7 +107,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 << "Invalid size (" << recHitNorms.size() << " != " << kMaxDepth_endcap
                 << ") for \"\" vector of det = \"" << det << "\"";
           for (size_t idx = 0; idx < recHitNorms.size(); ++idx) {
-            view.recHitEnergyNormInvEE_vec()[idx] = 1. / recHitNorms[idx];
+            view.recHitEnergyNormInvHE_vec()[idx] = 1. / recHitNorms[idx];
           }
         } else {
           throw cms::Exception("Configuration") << "Unknown detector when parsing recHitEnergyNorms: " << det;

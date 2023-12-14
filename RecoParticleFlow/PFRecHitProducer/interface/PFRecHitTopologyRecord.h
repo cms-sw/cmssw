@@ -9,8 +9,7 @@
 
 class PFRecHitHCALTopologyRecord : public edm::eventsetup::DependentRecordImplementation<
                                        PFRecHitHCALTopologyRecord,
-                                       edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord,
-                                       HcalPFCutsRcd>> {};
+                                       edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord, HcalPFCutsRcd>> {};
 
 class PFRecHitECALTopologyRecord
     : public edm::eventsetup::DependentRecordImplementation<PFRecHitECALTopologyRecord,

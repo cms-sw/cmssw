@@ -48,6 +48,7 @@ process.maxEvents = cms.untracked.PSet(
 # Need to use a file that contains HCAL/ECAL hits. Verify using:
 # root root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_130X_mcRun3_2022_realistic_v2_HS-v4/2590000/0088b51b-0cda-40f2-95fc-590f446624ee.root -e 'Events->Print()' -q | grep -E "hltHbhereco|hltEcalRecHit"
 process.source = cms.Source("PoolSource",
+    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_13_0_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_130X_mcRun3_2022_realistic_v2_HS-v4/2590000/05ad6501-815f-4df6-b115-03ad028f9b76.root'),
     #fileNames = cms.untracked.vstring('/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_130X_mcRun3_2022_realistic_v2_HS-v4/2590000/0088b51b-0cda-40f2-95fc-590f446624ee.root'),
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_13_0_8/RelValQCD_FlatPt_15_3000HS_14/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v3_2022-v1/2580000/0e63ba30-251b-4034-93ca-4d400aaa399e.root'),
     secondaryFileNames = cms.untracked.vstring(),
@@ -316,7 +317,8 @@ process.pfRecHitParamsRecordSource = cms.ESSource('EmptyESSource',
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
-process.hltParticleFlowRecHitTopologyESProducer = cms.ESProducer(alpaka_backend_str % f"PFRecHit{CAL}TopologyESProducer")
+process.hltParticleFlowRecHitTopologyESProducer = cms.ESProducer(alpaka_backend_str % f"PFRecHit{CAL}TopologyESProducer",
+        usePFThresholdsFromDB = cms.bool(True))
 if hcal:
     process.hltParticleFlowRecHitParamsESProducer = cms.ESProducer(alpaka_backend_str % "PFRecHitHCALParamsESProducer",
         energyThresholdsHB = cms.vdouble( 0.4, 0.3, 0.3, 0.3 ),
@@ -430,6 +432,7 @@ for idx, x in enumerate(process.hltParticleFlowClusterParamsESProducer.seedFinde
 
 process.hltParticleFlowPFClusterAlpaka = cms.EDProducer(alpaka_backend_str % "PFClusterSoAProducer",
                                                         pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
+                                                        topology = cms.ESInputTag("hltParticleFlowRecHitTopologyESProducer:"),
                                                         synchronise = cms.bool(args.synchronise))
 process.hltParticleFlowPFClusterAlpaka.pfRecHits = cms.InputTag("hltParticleFlowPFRecHitAlpaka")
 
@@ -439,11 +442,12 @@ process.hltParticleFlowAlpakaToLegacyPFClusters = cms.EDProducer("LegacyPFCluste
                                                                  src = cms.InputTag("hltParticleFlowPFClusterAlpaka"),
                                                                  pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
                                                                  pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
+                                                                 usePFThresholdsFromDB = cms.bool(True),
                                                                  recHitsSource = cms.InputTag("hltParticleFlowAlpakaToLegacyPFRecHits"))
 process.hltParticleFlowAlpakaToLegacyPFClusters.PFRecHitsLabelIn = cms.InputTag("hltParticleFlowPFRecHitAlpaka")
 
 process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 5
-process.hltParticleFlowClusterHBHE.usePFThresholdsFromDB = cms.bool(False)
+process.hltParticleFlowClusterHBHE.usePFThresholdsFromDB = cms.bool(True)
 
 # Additional customization
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
