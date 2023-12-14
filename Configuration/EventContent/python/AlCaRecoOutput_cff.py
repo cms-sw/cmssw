@@ -41,6 +41,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
 # AlCaReco for track based alignment using JetHT events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_Output_cff import *
+# AlCaReco for track based alignment using V0s
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlV0s_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
@@ -200,7 +202,5 @@ ALCARECOEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
-
-
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

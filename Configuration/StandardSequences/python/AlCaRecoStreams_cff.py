@@ -33,6 +33,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 # AlCaReco for track based alignment using JetHT events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_cff import *
+# AlCaReco for track based alignment using V0s
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlV0s_cff import *
 
 ###############################################################
 # Tracker Calibration
@@ -196,6 +198,8 @@ pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUp
 pathALCARECOTkAlUpsilonMuMuPA = cms.Path(seqALCARECOTkAlUpsilonMuMuPA*ALCARECOTkAlUpsilonMuMuPADQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOTkAlJetHT = cms.Path(seqALCARECOTkAlJetHT*ALCARECOTkAlJetHTDQM)
+pathALCARECOTkAlK0s = cms.Path(seqALCARECOTkAlK0s)
+pathALCARECOTkAlLambdas = cms.Path(seqALCARECOTkAlLambdas)
 pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
 pathALCARECOSiPixelCalSingleMuonLoose = cms.Path(seqALCARECOSiPixelCalSingleMuonLoose)
 pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuonTight * ALCARECOSiPixelCalSingleMuonTightDQM)
@@ -407,6 +411,15 @@ ALCARECOStreamTkAlUpsilonMuMuPA = cms.FilteredStream(
         paths  = (pathALCARECOTkAlUpsilonMuMuPA),
         content = OutALCARECOTkAlUpsilonMuMuPA.outputCommands,
         selectEvents = OutALCARECOTkAlUpsilonMuMuPA.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+ALCARECOStreamTkAlV0s = cms.FilteredStream(
+        responsible = 'Marco Musich',
+        name = 'TkAlV0s',
+        paths  = (pathALCARECOTkAlK0s,pathALCARECOTkAlLambdas),
+        content =  OutALCARECOTkAlV0s.outputCommands,
+        selectEvents = OutALCARECOTkAlV0s.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
