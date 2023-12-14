@@ -1,5 +1,5 @@
 #include "SimG4Core/Application/interface/SteppingAction.h"
-
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
@@ -13,12 +13,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include <DD4hep/Filter.h>
-
 //#define EDM_ML_DEBUG
 
-SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
-    : steppingVerbose(sv), hasWatcher(hasW) {
+SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW, bool dd4hep)
+    : steppingVerbose(sv), hasWatcher(hasW), dd4hep_(dd4hep) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
@@ -35,9 +33,9 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
-  cmseName_ = (G4String)(p.getParameter<std::string>("CMSName"));
-  trackerName_ = (G4String)(p.getParameter<std::string>("TrackerName"));
-  caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
+  trackerName_ = p.getParameter<std::string>("TrackerName");
+  caloName_ = p.getParameter<std::string>("CaloName");
+  cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -47,7 +45,7 @@ SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::Paramete
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
       << " MaxNumberOfSteps = " << maxNumberOfSteps << "\n"
-      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_;
+      << "                 Names of special volumes: " << trackerName_ << "  " << caloName_;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -208,7 +206,7 @@ bool SteppingAction::isLowEnergy(const G4LogicalVolume* lv, const G4Track* theTr
 bool SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
-    const G4String& pvname = pvcite->GetName();
+    const std::string& pvname = (std::string)(DD4hep2DDDName::namePV(pvcite->GetName(), dd4hep_));
     if (pvname == trackerName_) {
       tracker = pvcite;
     } else if (pvname == caloName_) {
@@ -231,12 +229,12 @@ bool SteppingAction::initPointer() {
     edm::LogVerbatim("SimG4CoreApplication") << lvcite << " corresponds to " << lvcite->GetName();
 #endif
   for (auto const& lvcite : *lvs) {
-    const G4String& lvname = (G4String)(dd4hep::dd::noNamespace(lvcite->GetName()));
-    if (lvname == "CMStoZDC") {
+    std::string lvname = (std::string)(DD4hep2DDDName::nameMatterLV(lvcite->GetName(), dd4hep_));
+    if (lvname == cms2ZDCName_) {
       m_CMStoZDC = lvcite;
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
-      if (lvname == (G4String)(dd4hep::dd::noNamespace(ekinNames[i]))) {
+      if (lvname == ekinNames[i]) {
         ekinVolumes[i] = lvcite;
         break;
       }
