@@ -2,6 +2,7 @@
 
 #include "SimG4Core/Application/interface/GFlashHadronShowerModel.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 
 #include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
@@ -27,7 +28,6 @@
 #include "G4AntiProton.hh"
 #include "G4VProcess.hh"
 
-#include <DD4hep/Filter.h>
 #include <vector>
 
 using namespace CLHEP;
@@ -169,7 +169,7 @@ void GFlashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     if (aSensitive == nullptr)
       continue;
 
-    G4String nameCalor = (G4String)(dd4hep::dd::noNamespace(lv->GetName()));
+    G4String nameCalor = (G4String)(DD4hep2DDDName::noNameSpace(lv->GetName()));
     nameCalor.assign(nameCalor, 0, 2);
     G4double samplingWeight = 1.0;
     if (nameCalor == "HB") {
