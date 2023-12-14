@@ -22,7 +22,6 @@ process = cms.Process("EfficiencyAnalysisDQMWorker", eras.Run3)
 #SETUP PARAMETERS
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
-    FailPath = cms.untracked.vstring('Type Mismatch') # not crashing on this exception type
     )
 options = VarParsing.VarParsing('analysis')
 
@@ -178,7 +177,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 #CONFIGURE PROCESS
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 #SETUP GLOBAL TAG
 if options.globalTag != '':
@@ -188,6 +187,26 @@ else:
 
 print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
+
+# Patch for LHCInfo not in GT
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string("LHCInfoPerFillRcd"),
+    tag = cms.string("LHCInfoPerFill_endFill_Run3_v1"),
+    tag = cms.string("LHCInfoPerFill_hlt_forPPS"),
+    label = cms.untracked.string(""),
+    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    )
+)
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string("LHCInfoPerLSRcd"),
+    tag = cms.string("LHCInfoPerLS_endFill_Run3_v2"),
+    label = cms.untracked.string(""),
+    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    )
+)
+# End of patch
 
 #SETUP INPUT
 process.source = cms.Source("PoolSource",
@@ -277,8 +296,15 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     maxTracksInTagPot=cms.untracked.int32(options.maxTracksInTagPot),    
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
+    
+    # Generic configs
     debug=cms.untracked.bool(True),
+
+    # LHCInfo configs
+    useNewLHCInfo=cms.bool(True),
+
     # Configs for prescale provider
+    usePrescales = cms.bool(True),
     processName = cms.string("HLT"),
     triggerPattern = cms.string("HLT_PPSMaxTracksPerRP4_v*"),
     stageL1Trigger = cms.uint32(2),

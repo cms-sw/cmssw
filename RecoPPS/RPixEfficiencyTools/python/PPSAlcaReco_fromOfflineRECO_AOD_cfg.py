@@ -81,6 +81,26 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
+# Patch for LHCInfo not in GT
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string("LHCInfoPerFillRcd"),
+    tag = cms.string("LHCInfoPerFill_endFill_Run3_v1"),
+    tag = cms.string("LHCInfoPerFill_hlt_forPPS"),
+    label = cms.untracked.string(""),
+    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    )
+)
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string("LHCInfoPerLSRcd"),
+    tag = cms.string("LHCInfoPerLS_endFill_Run3_v2"),
+    label = cms.untracked.string(""),
+    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    )
+)
+# End of patch
+
 # Handle alignment inputs
 if options.alignmentXMLName and options.alignmentDBName:
     print('ERROR: Both alignment XML and DB files specified. Please specify only one.')

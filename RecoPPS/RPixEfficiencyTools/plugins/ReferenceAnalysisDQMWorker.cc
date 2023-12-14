@@ -27,9 +27,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"

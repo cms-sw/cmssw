@@ -16,6 +16,13 @@
 //         Created:  Wed, 22 Aug 2017 09:55:05 GMT
 //
 //
+#include <string>
+#include <algorithm>
+#include <boost/algorithm/string.hpp>
+#include <exception>
+#include <fstream>
+#include <memory>
+#include <set>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,8 +35,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -40,13 +46,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
-#include <string>
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <exception>
-#include <fstream>
-#include <memory>
-#include <set>
 
 //INTERPOT
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
@@ -126,8 +125,11 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelLocalTrackToken_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> pixelRecHitToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
-
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
+  
   bool isCorrelationPlotEnabled_;
   bool supplementaryPlots_;
   int minNumberOfPlanesForEfficiency_;
@@ -296,13 +298,17 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> multiRP_protonsToken_;
 
   // Prescale parameters
+  bool usePrescales_;
   std::string processName_, triggerPattern_, hltName_;
   HLTPrescaleProvider hltPrescaleProvider_;
 };
 
 EfficiencyTool_2018DQMWorker::EfficiencyTool_2018DQMWorker(const edm::ParameterSet &iConfig)
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
-      lhcInfoToken_(esConsumes(edm::ESInputTag("", ""))),
+      lhcInfoToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),      
       hltPrescaleProvider_(iConfig, consumesCollector(), *this)
  {
   pixelLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(iConfig.getUntrackedParameter<edm::InputTag>("tagPixelLocalTracks"));
@@ -375,6 +381,7 @@ EfficiencyTool_2018DQMWorker::EfficiencyTool_2018DQMWorker(const edm::ParameterS
   debug_ = iConfig.getUntrackedParameter<bool>("debug");
 
   // Prescale parameters
+  usePrescales_ = iConfig.getParameter<bool>("usePrescales");
   processName_ = iConfig.getParameter<std::string>("processName");
   triggerPattern_ = iConfig.getParameter<std::string>("triggerPattern");
 }
@@ -901,6 +908,10 @@ void EfficiencyTool_2018DQMWorker::setGlobalBinSizes(CTPPSPixelDetId &rpId) {
 
 void EfficiencyTool_2018DQMWorker::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const & iSetup) {
   bool changed(true);
+
+  if (!usePrescales_)
+    return;
+  // Only prescale stuff below
   if (hltPrescaleProvider_.init(iRun, iSetup, processName_, changed)) {
     HLTConfigProvider const& hltConfig = hltPrescaleProvider_.hltConfigProvider();
     const std::vector<std::string> triggerNames(hltConfig.triggerNames());
@@ -947,47 +958,49 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelLocalTracks;
   iEvent.getByToken(pixelLocalTrackToken_, pixelLocalTracks);
 
-  const auto prescales(hltPrescaleProvider_.prescaleValuesInDetail<double,double>(iEvent, iSetup, hltName_));
-
   int ls = iEvent.getLuminosityBlock().id().luminosityBlock();
-
-  // Print prescales
-  if (debug_){
-    std::cout << "LS: " << ls << std::endl;
-    std::cout << "\tHLT prescale: " << prescales.second << std::endl;
-    std::cout << "\tL1 prescales: " << std::endl;
-
-  }
-
   double weight = 1.;
+ 
+  if (usePrescales_){ 
+    const auto prescales(hltPrescaleProvider_.prescaleValuesInDetail<double,double>(iEvent, iSetup, hltName_));
 
-  bool l1Prescale_found = false;
-  for (const auto &l1Prescale : prescales.first){
-    if (debug_)
-      std::cout << "\t\t" << l1Prescale.first << ": " << l1Prescale.second << std::endl;
-    if (l1Prescale.first == "L1_ZeroBias"){
-      h1L1Prescale_->Fill(ls, l1Prescale.second);
-      weight *= l1Prescale.second; // Correct for the L1 prescale value
-      l1Prescale_found = true;
+    // Print prescales
+    if (debug_){
+      std::cout << "LS: " << ls << std::endl;
+      std::cout << "\tHLT prescale: " << prescales.second << std::endl;
+      std::cout << "\tL1 prescales: " << std::endl;
+
     }
-  }
-  if (!l1Prescale_found){
-    std::cout << "L1_ZeroBias prescale not found!" << std::endl;
-    return;
-  }
 
-  h1HLTPrescale_->Fill(ls,prescales.second);
-  // weight *= prescales.second; // Correct for the HLT prescale value
+    bool l1Prescale_found = false;
+    for (const auto &l1Prescale : prescales.first){
+      if (debug_)
+        std::cout << "\t\t" << l1Prescale.first << ": " << l1Prescale.second << std::endl;
+      if (l1Prescale.first == "L1_ZeroBias"){
+        h1L1Prescale_->Fill(ls, l1Prescale.second);
+        weight *= l1Prescale.second; // Correct for the L1 prescale value
+        l1Prescale_found = true;
+      }
+    }
+    if (!l1Prescale_found){
+      std::cout << "L1_ZeroBias prescale not found!" << std::endl;
+      return;
+    }
+
+    h1HLTPrescale_->Fill(ls,prescales.second);
+    // weight *= prescales.second; // Correct for the HLT prescale value
+  }
 
   if (!validBunchArray_[iEvent.eventAuxiliary().bunchCrossing()])
     return;
   h1BunchCrossing_->Fill(iEvent.eventAuxiliary().bunchCrossing(), weight);
 
-  auto const& dataLHCInfo = iSetup.getData(lhcInfoToken_);
+  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
 
   // re-initialise algorithm upon crossing-angle change
-  h1CrossingAngle_->Fill(dataLHCInfo.crossingAngle(), weight);
-
+  h1CrossingAngle_->Fill(lhcInfoCombined.crossingAngle(), weight);
+  if (debug_)
+    std::cout << "Crossing angle: " << lhcInfoCombined.crossingAngle() << std::endl; 
   // search for rps missing from the track collection (because they are empty) and fill the multiplicity
   for (const auto &rpIdAndHist : h1NumberOfTracks_){
     if (pixelLocalTracks->find(rpIdAndHist.first) == pixelLocalTracks->end())
@@ -1150,7 +1163,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   Handle<reco::ForwardProtonCollection> multiRP_protons;
   iEvent.getByToken(multiRP_protonsToken_, multiRP_protons);
 
-  double xangle = dataLHCInfo.crossingAngle();
+  double xangle = lhcInfoCombined.crossingAngle();
 
   trackMux_.clear();
   for (auto &proton_Tag : *protons) {
@@ -1434,8 +1447,91 @@ void EfficiencyTool_2018DQMWorker::initialize() {
 
 void EfficiencyTool_2018DQMWorker::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  // Configs for the plane efficiency plots
+  desc.addUntracked<edm::InputTag>("tagPixelLocalTracks", edm::InputTag("ctppsPixelLocalTracks"));
+  desc.add<int>("minNumberOfPlanesForEfficiency", 3)
+    ->setComment("Minimum number of planes that must be hit for the efficiency to be computed");
+  desc.add<int>("minNumberOfPlanesForTrack", 3)
+    ->setComment("Minimum number of planes that must be hit for the track to be considered");
+  desc.add<int>("maxNumberOfPlanesForTrack", 6)
+    ->setComment("Maximum number of planes that must be hit for the track to be considered");
+  desc.addUntracked<double>("maxChi2Prob", 0.2)
+    ->setComment("Maximum chi2 probability for the proton track to be considered");
+  desc.add<int>("minTracksPerEvent", 0)
+    ->setComment("Minimum multiplicity for the event to be considered");
+  desc.add<int>("maxTracksPerEvent", 99)
+    ->setComment("Maximum multiplicity for the event to be considered");
+  desc.add<bool>("supplementaryPlots", true)
+    ->setComment("Enable to produce supplementary plots");
+  desc.add<bool>("isCorrelationPlotEnabled", false)
+    ->setComment("Only enable if the estimation of the correlation between Strips and Pixel tracks is under study "
+                 "(disables filling of TGraph, reducing the output file size)");
+  desc.addUntracked<std::string>("bunchSelection", "NoSelection")
+    ->setComment("Bunch selection to be applied. Possible values are: NoSelection, CentralBunchesInTrain, "
+                 "FirstBunchInTrain, LastBunchInTrain, FilledBunches");
+  desc.addUntracked<std::string>("bunchListFileName", "injectionScheme.csv")
+    ->setComment("Name of the file containing the bunch list");
+  desc.addUntracked<int>("binGroupingX", 1)
+    ->setComment("Number of bins to be grouped in the X axis of the efficiency plots");
+  desc.addUntracked<int>("binGroupingY", 1)
+    ->setComment("Number of bins to be grouped in the Y axis of the efficiency plots");
+  desc.addUntracked<std::vector<double>>("fiducialXLow", {0.,0.,0.,0.})
+    ->setComment("Lower bound of the fiducial region in X");
+  desc.addUntracked<std::vector<double>>("fiducialYLow", {-20.0,-20.0,-20.0,-20.0})
+    ->setComment("Lower bound of the fiducial region in Y");
+  desc.addUntracked<std::vector<double>>("fiducialYHigh", {20.0,20.0,20.0,20.0})
+    ->setComment("Upper bound of the fiducial region in Y");
+  desc.addUntracked<double>("detectorTiltAngle", 20.)
+    ->setComment("Detector tilt angle in degrees");
+  desc.addUntracked<double>("detectorRotationAngle", -8.)
+    ->setComment("Detector rotation angle in degrees");
+
+  // Configs for the inter-pot efficiency plots
+  desc.addUntracked<edm::InputTag>("tagProtonsSingleRP", edm::InputTag("ctppsProtons", "singleRP"))
+    ->setComment("Tag for the single-RP protons collection");
+  desc.addUntracked<edm::InputTag>("tagProtonsMultiRP", edm::InputTag("ctppsProtons", "multiRP"))
+    ->setComment("Tag for the multi-RP protons collection");
+  desc.addUntracked<int>("minTracksInProbePot", 0)
+    ->setComment("Minimum number of tracks in the probe pot for the event to be considered");
+  desc.addUntracked<int>("maxTracksInProbePot", 99)
+    ->setComment("Maximum number of tracks in the probe pot for the event to be considered");
+  desc.addUntracked<int>("minTracksInTagPot", 0)
+    ->setComment("Minimum number of tracks in the tag pot for the event to be considered");
+  desc.addUntracked<int>("maxTracksInTagPot", 99)
+    ->setComment("Maximum number of tracks in the tag pot for the event to be considered");
+  desc.addUntracked<int>("recoInfo", 0)
+    ->setComment("RecoInfo to be used for the proton track selection. RecoInfo != 0 only in 2017 data.");
+  
+  // General configs
+  desc.addUntracked<bool>("debug", false)
+    ->setComment("Enable to print debug information");
+
+  // LHCInfo configs
+  desc.add<bool>("useNewLHCInfo", true)
+    ->setComment("Enable to use the new LHCInfo classes (LHCInfoPerFill/LS)");
+  desc.add<std::string>("lhcInfoLabel", "")
+    ->setComment("Label for the LHCInfo collection");
+  desc.add<std::string>("lhcInfoPerLSLabel","")
+    ->setComment("Label for the LHCInfoPerLS collection");
+  desc.add<std::string>("lhcInfoPerFillLabel","")
+    ->setComment("Label for the LHCInfoPerFill collection");
+
+  // Configs for prescale provider
+  desc.add<bool>("usePrescales", false)
+    ->setComment("Enable to use L1/HLT prescales for event reweighting");
+  desc.add<std::string>("processName", "HLT")
+    ->setComment("HLT process name");
+  desc.add<std::string>("triggerPattern", "HLT_PPSMaxTracksPerRP4_v*")
+    ->setComment("Trigger pattern to be used");
+  desc.add<uint32_t>("stageL1Trigger", 2)
+    ->setComment("Stage of the L1 trigger to be used");
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"))
+    ->setComment("Input tag for the L1 algorithm block");
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"))
+    ->setComment("Input tag for the L1 extension block");
+
+  descriptions.add("EfficiencyTool_2018DQMWorker",desc);
 }
 
 // This function produces all the possible plane combinations extracting
