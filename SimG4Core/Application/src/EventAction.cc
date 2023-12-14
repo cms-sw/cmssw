@@ -2,7 +2,6 @@
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
-//#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -23,8 +22,6 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
-  //  m_trackManager->reset();
-
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
 
@@ -50,9 +47,8 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     m_runInterface->abortRun(true);
   }
   if (anEvent->GetNumberOfPrimaryVertex() == 0) {
-    edm::LogWarning("SimG4CoreApplication") 
-        << "EventACtion::EndOfEventAction: event " << anEvent->GetEventID()
-        << " must have failed (no G4PrimaryVertices found) and will be skipped";
+    edm::LogWarning("SimG4CoreApplication") << "EventACtion::EndOfEventAction: event " << anEvent->GetEventID()
+                                            << " must have failed (no G4PrimaryVertices found) and will be skipped";
     return;
   }
 

@@ -245,8 +245,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
 
-          if (killDeltaRay && classification != fKill && aTrack->GetParentID() > 0 && 
-	      G4TrackToParticleID::isGammaElectronPositron(aTrack)) {
+          if (killDeltaRay && classification != fKill && aTrack->GetParentID() > 0 &&
+              G4TrackToParticleID::isGammaElectronPositron(aTrack)) {
             classification = fKill;
           }
 
@@ -324,9 +324,9 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
                   } else if (reg == regionMuonIron) {
                     prob = gRusRoMuonIron;
                   } else if (reg == regionHGcal) {
-		    prob = gRusRoHGcal;
+                    prob = gRusRoHGcal;
                   } else if (reg == regionZDC) {
-		    prob = gRusRoZDC;
+                    prob = gRusRoZDC;
                   } else if (reg == regionCastor) {
                     prob = gRusRoCastor;
                   } else if (reg == regionWorld) {
