@@ -61,13 +61,14 @@ legacyPFRecHitProducer = _legacyPFRecHitProducer.clone(
 pfClusterParamsESProducer = _pfClusterParamsESProducer.clone()
 pfClusterSoAProducer = _pfClusterSoAProducer.clone(
         pfRecHits = 'pfRecHitSoAProducerHCAL',
+        topology = "pfRecHitHCALTopologyESProducer:",
         pfClusterParams = 'pfClusterParamsESProducer:',
         synchronise = cms.bool(False)
     )
 
 
 legacyPFClusterProducer = _legacyPFClusterProducer.clone(
-        src = 'pfClusterProducerAlpaka',
+        src = 'pfClusterSoAProducer',
         pfClusterParams = 'pfClusterParamsESProducer:',
         pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
         recHitsSource = 'legacyPFRecHitProducer',
