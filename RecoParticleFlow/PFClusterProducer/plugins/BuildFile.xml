@@ -2,6 +2,7 @@
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/EcalObjects"/>
   <use name="CondFormats/DataRecord"/>
+  <use name="DataFormats/Common"/>
   <use name="DataFormats/EcalDetId"/>
   <use name="DataFormats/EcalRecHit"/>
   <use name="DataFormats/HcalDetId"/>
@@ -11,9 +12,11 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/CUDACore"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -36,5 +39,25 @@
   <use name="Geometry/Records"/>
   <use name="RecoLocalCalo/HGCalRecProducers"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- alpaka-based portable plugins -->
+<library name="RecoParticleFlowPFClusterProducersPluginsPortable" file="alpaka/*.cc">
+  <use name="alpaka"/>
+  <use name="DataFormats/ParticleFlowReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <use name="RecoParticleFlow/PFRecHitProducer"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
