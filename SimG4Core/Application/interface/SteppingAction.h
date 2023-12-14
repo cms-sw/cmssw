@@ -43,6 +43,7 @@ private:
 
   inline bool isInsideDeadRegion(const G4Region* reg) const;
   inline bool isOutOfTimeWindow(const G4Region* reg, const double& time) const;
+  inline bool isForZDC(const G4LogicalVolume* lv, int pdg) const;
 
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
@@ -50,6 +51,7 @@ private:
   EventAction* eventAction_;
   const G4VPhysicalVolume *tracker, *calo;
   const CMSSteppingVerbose* steppingVerbose;
+  const G4LogicalVolume* m_CMStoZDC{nullptr};
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
@@ -65,6 +67,7 @@ private:
 
   bool initialized;
   bool killBeamPipe;
+  bool m_CMStoZDCtransport;
   bool hasWatcher;
 
   std::vector<double> maxTrackTimes, ekinMins;
@@ -96,6 +99,10 @@ inline bool SteppingAction::isOutOfTimeWindow(const G4Region* reg, const double&
     }
   }
   return (time > tofM);
+}
+
+inline bool SteppingAction::isForZDC(const G4LogicalVolume* lv, int pdg) const {
+  return (m_CMStoZDCtransport && lv == m_CMStoZDC && (pdg == 22 || pdg == 2112));
 }
 
 #endif
