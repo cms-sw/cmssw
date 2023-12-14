@@ -91,6 +91,7 @@ namespace mkfit {
     float chi2CutOverlap = 3.5;
     float pTCutOverlap = 0.0;
     bool recheckOverlap = false;
+    bool useHitSelectionV2 = false;
 
     //quality filter params
     int minHitsQF = 4;

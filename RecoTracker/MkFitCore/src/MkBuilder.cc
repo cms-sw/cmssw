@@ -1088,7 +1088,10 @@ namespace mkfit {
 
         dprint("now get hit range");
 
-        mkfndr->selectHitIndices(layer_of_hits, end - itrack);
+        if (iter_params.useHitSelectionV2)
+          mkfndr->selectHitIndicesV2(layer_of_hits, end - itrack);
+        else
+          mkfndr->selectHitIndices(layer_of_hits, end - itrack);
 
         find_tracks_handle_missed_layers(
             mkfndr, layer_info, extra_cands, seed_cand_idx, region, start_seed, itrack, end);

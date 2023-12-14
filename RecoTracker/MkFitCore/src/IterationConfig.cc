@@ -62,6 +62,7 @@ namespace mkfit {
                                    /* float */ chi2CutOverlap,
                                    /* float */ pTCutOverlap,
                                    /* bool */ recheckOverlap,
+                                   /* bool */ useHitSelectionV2,
                                    /* int */ minHitsQF,
                                    /* float */ minPtCut,
                                    /* unsigned int */ maxClusterSize)
