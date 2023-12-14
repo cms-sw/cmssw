@@ -193,7 +193,6 @@ process.GlobalTag.toGet.append(
     cms.PSet(
     record = cms.string("LHCInfoPerFillRcd"),
     tag = cms.string("LHCInfoPerFill_endFill_Run3_v1"),
-    tag = cms.string("LHCInfoPerFill_hlt_forPPS"),
     label = cms.untracked.string(""),
     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
     )
