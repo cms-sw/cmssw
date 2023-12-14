@@ -684,7 +684,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   if (arbitrateTrackerMuons_) {
-    fillArbitrationInfo(outputMuons.get());
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::TrackerMuon);
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::GEMMuon);
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::ME0Muon);
     arbitrateMuons(outputMuons.get(), caloMuons.get());
   }
 
@@ -798,10 +800,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 bool MuonIdProducer::isGoodTrackerMuon(const reco::Muon& muon) {
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  if (addExtraSoftMuons_ && muon.pt() < 5 && std::abs(muon.eta()) < 1.5 &&
-      muon.numberOfMatches(reco::Muon::NoArbitration) >= 1)
+  // NoArbitration checks for CSC/DT segments only, also use ME0 segments
+  int numMatches = muon.numberOfMatches(reco::Muon::NoArbitration);
+  if (addExtraSoftMuons_ && muon.pt() < 5 && std::abs(muon.eta()) < 1.5 && numMatches >= 1)
     return true;
-  return (muon.numberOfMatches(reco::Muon::NoArbitration) >= minNumberOfMatches_);
+  return (numMatches >= minNumberOfMatches_);
 }
 
 bool MuonIdProducer::isGoodCaloMuon(const reco::CaloMuon& caloMuon) {
@@ -825,8 +828,14 @@ bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
     return false;
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) +
-          muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
+  //
+  int numMatches = 0;
+  for (auto& chamberMatch : muon.matches()) {
+    if (chamberMatch.gemMatches.empty())
+      continue;
+    numMatches += chamberMatch.gemMatches.size();
+  }
+  return (numMatches + muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
@@ -1139,7 +1148,9 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
   // if a muon was exclusively TrackerMuon check if it can be a calo muon
   for (reco::MuonCollection::iterator muon = muons->begin(); muon != muons->end();) {
     if (muon->isTrackerMuon()) {
-      if (muon->numberOfMatches(arbitration) < minNumberOfMatches_) {
+      int numMatches =
+          muon->numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) + muon->numberOfMatches(arbitration);
+      if (numMatches < minNumberOfMatches_) {
         // TrackerMuon failed arbitration
         // If not any other base type - erase the element
         // (PFMuon is not a base type)
