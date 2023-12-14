@@ -34,7 +34,7 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps)
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   // get the cfi parameters
-  noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef", 0);  //value different from 0 means Cosmics
+  noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef", 500);  //value set in DQM/DTMonitorClient/python/dtNoiseAnalysis_cfi.py
   isCosmics = ps.getUntrackedParameter<bool>("isCosmics", false);
 
   // switch on/off the summaries for the Synchronous noise
@@ -123,7 +123,7 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
             noiseHistos[3]->Fill(noise);
             int sector = chID.sector();
 
-            if (!isCosmics) {
+            if (!isCosmics) {   // for collisions
               float k = kW_MB[2 - abs(chID.wheel())][chID.station() - 1];
               if (chID.station() == 4) {  //special geometry cases for MB4
                 if (sector == 9 || sector == 10 || sector == 11)
@@ -131,9 +131,9 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                 else if (sector == 4 && chID.wheel() == 0)
                   k = 0.25;
               }
-              noisyCellDef = cellW * instLumi * k * lenghtSL_MB[(sl % 2)][chID.station() - 1];  // for collisions
+              noisyCellDef = cellW * instLumi * k * lenghtSL_MB[(sl % 2)][chID.station() - 1];  // background expected per chamber
               noisyCellDef = noisyCellDef * noiseSafetyFactor;
-            }  //else value read from config python in DQM/Integration (Cosmic case)
+            }  //else value read from DQM/DTMonitorClient/python/dtNoiseAnalysis_cfi.py
 
             if (noise > noisyCellDef) {
               if (sector == 13) {
