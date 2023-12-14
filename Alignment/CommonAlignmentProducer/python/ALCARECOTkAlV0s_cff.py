@@ -22,7 +22,19 @@ ALCARECOTkAlV0sLambdaEventSelector = v0EventSelector.clone(
 )
 
 ##################################################################
+# Tracks from the selected vertex
+#################################################################
+import Alignment.CommonAlignmentProducer.AlignmentTracksFromVertexCompositeCandidateSelector_cfi as TracksFromV0
+ALCARECOTkAlKShortTracks = TracksFromV0.AlignmentTracksFromVertexCompositeCandidateSelector.clone(
+    vertexCompositeCandidates = 'generalV0Candidates:Kshort'
+)
+
+ALCARECOTkAlLambdaTracks = TracksFromV0.AlignmentTracksFromVertexCompositeCandidateSelector.clone(
+    vertexCompositeCandidates = 'generalV0Candidates:Lambda'
+)
+
+##################################################################
 # Sequence
 ##################################################################
-seqALCARECOTkAlK0s = cms.Sequence(ALCARECOTkAlV0sHLTFilter+ALCARECOTkAlV0sKShortEventSelector)
-seqALCARECOTkAlLambdas = cms.Sequence(ALCARECOTkAlV0sHLTFilter+ALCARECOTkAlV0sLambdaEventSelector)
+seqALCARECOTkAlK0s = cms.Sequence(ALCARECOTkAlV0sHLTFilter + ALCARECOTkAlV0sKShortEventSelector + ALCARECOTkAlKShortTracks)
+seqALCARECOTkAlLambdas = cms.Sequence(ALCARECOTkAlV0sHLTFilter + ALCARECOTkAlV0sLambdaEventSelector + ALCARECOTkAlLambdaTracks)
