@@ -178,7 +178,9 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
                                    << " R " << pos.perp();
 #ifdef EDM_ML_DEBUG
     } else {
-      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer << ":" << iz << " for i/p Layer " << layer << " module " << module << " cell " << cell << " iz " << iz << " pos " <<  pos << " wt " << wt  << " ERROR";
+      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
+                                 << ":" << iz << " for i/p Layer " << layer << " module " << module << " cell " << cell
+                                 << " iz " << iz << " pos " << pos << " wt " << wt << " ERROR";
 #endif
     }
   }
@@ -237,7 +239,7 @@ bool HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
                           : "");
     if (matchOnly && match)
       ck = "";
-    if (ck != "")
+    if (!ck.empty())
       iok = false;
     if (!(match && inok && outok) || debug) {
       edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::Detector " << det_ << " Layer " << lay << " R " << r2 << ":"
@@ -255,9 +257,9 @@ bool HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
         double dx = (xx - xy.first);
         double dy = (pos.y() - xy.second);
         double dR = std::sqrt(dx * dx + dy * dy);
-	if (dR > tolR) {
+        if (dR > tolR) {
           ck = " ***** ERROR *****";
-	  iok = false;
+          iok = false;
         } else {
           ck = "";
         }
