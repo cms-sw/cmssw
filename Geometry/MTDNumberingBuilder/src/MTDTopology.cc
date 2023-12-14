@@ -36,7 +36,7 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
   int geomDetIndex;
 
   // distinguish numbering in prev8 / v8 geometries
-  if (getMTDTopologyMode() == static_cast<int>(MTDTopologyMode::Mode::btlv2etlv8)) {
+  if (getMTDTopologyMode() == static_cast<int>(MTDTopologyMode::Mode::btlv3etlv8)) {
     geomDetIndex = 2 * (module - 1) + sensor;
   } else {
     geomDetIndex = module;
@@ -83,7 +83,7 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
   int geomDetIndex;
 
   // distinguish numbering in prev8 / v8 geometries
-  if (getMTDTopologyMode() == static_cast<int>(MTDTopologyMode::Mode::btlv2etlv8)) {
+  if (getMTDTopologyMode() == static_cast<int>(MTDTopologyMode::Mode::btlv3etlv8)) {
     geomDetIndex = 2 * (module - 1) + sensor;
   } else {
     geomDetIndex = module;

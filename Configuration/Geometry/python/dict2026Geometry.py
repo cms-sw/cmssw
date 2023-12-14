@@ -1033,7 +1033,7 @@ timingDict = {
     "I17" : {
         1 : [
            'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
-           'Geometry/MTDCommonData/data/btl/v2/btl.xml',
+           'Geometry/MTDCommonData/data/btl/v3/btl.xml',
            'Geometry/MTDCommonData/data/etl/v8/etl.xml',
            'Geometry/MTDCommonData/data/mtdParameters/v5/mtdStructureTopology.xml',
            'Geometry/MTDCommonData/data/mtdParameters/v5/mtdParameters.xml',

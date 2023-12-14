@@ -5,9 +5,7 @@
 <SpecPar name="btlStructure">
    <PartSelector path="//BarrelTimingLayer"/>
    <PartSelector path="//Layer1Timing"/>
-   <PartSelector path="//BTLModule1"/>
-   <PartSelector path="//BTLModule2"/>
-   <PartSelector path="//BTLModule3"/>
+   <PartSelector path="//BTLModule"/>
    <Parameter name="MtdDDStructure" value="BarrelTimingLayer"/>
 </SpecPar>
 <SpecPar name="etlStructure">
@@ -26,7 +24,7 @@
   <PartSelector path="//etl:EndcapTimingLayer"/>
   <PartSelector path="//btl:BarrelTimingLayer"/>
   <Parameter name="OnlyForMTDRecNumbering" value="MTD" eval="false"/>
-  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv2etlv8" eval="false"/>
+  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv3etlv8" eval="false"/>
 </SpecPar>
 
 

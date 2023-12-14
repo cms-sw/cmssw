@@ -4,9 +4,7 @@
 
   <SpecParSection label="mtdsens.xml" eval="true">
     <SpecPar name="fasttimesenseBarrel">
-      <PartSelector path="//BTLCrystal1"/>
-      <PartSelector path="//BTLCrystal2"/>
-      <PartSelector path="//BTLCrystal3"/>
+      <PartSelector path="//BTLCrystal"/>
       <Parameter name="SensitiveDetector" value="MtdSensitiveDetector" eval="false"/>
       <Parameter name="ReadOutName" value="FastTimerHitsBarrel" eval="false"/>
       <Parameter name="Type"        value="1"/>
