@@ -4,8 +4,6 @@
 </test>
 <test name="scram-always-pass"  command="true"/>
 <test name="scram-always-fail"  command="! fail"/>
-
-
 <ifrelease name="!ASAN">
   <test name="TestValgrind" command="test-valgrind.sh">
     <flags PRE_TEST="test-valgrind-memleak"/>
