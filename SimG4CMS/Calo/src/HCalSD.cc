@@ -7,6 +7,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalDumpGeometry.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -24,8 +25,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
-
-#include "DD4hep/Filter.h"
 
 #include <iostream>
 #include <fstream>
@@ -77,7 +76,7 @@ HCalSD::HCalSD(const std::string& name,
   //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
 
-  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk = m_HC.getParameter<bool>("UseBirkLaw");
   double bunit = (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
@@ -175,12 +174,12 @@ HCalSD::HCalSD(const std::string& name,
     std::stringstream ss0;
     ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
 #endif
-    int addlevel = dd4hep ? 1 : 0;
+    int addlevel = dd4hep_ ? 1 : 0;
     for (unsigned int i = 0; i < hfNames.size(); ++i) {
-      G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(hfNames[i])));
+      std::string namv(DD4hep2DDDName::nameMatterLV(hfNames[i], dd4hep_));
       lv = nullptr;
       for (auto lvol : *lvs) {
-        if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
+        if (DD4hep2DDDName::nameMatterLV(lvol->GetName(), dd4hep_) == namv) {
           lv = lvol;
           break;
         }
@@ -211,7 +210,7 @@ HCalSD::HCalSD(const std::string& name,
   for (auto const& namx : matNames) {
     const G4Material* mat = nullptr;
     for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
-      if (static_cast<std::string>(dd4hep::dd::noNamespace((*matite)->GetName())) == namx) {
+      if (DD4hep2DDDName::nameMatterLV((*matite)->GetName(), dd4hep_) == namx) {
         mat = (*matite);
         break;
       }
@@ -315,10 +314,10 @@ void HCalSD::fillLogVolumeVector(const std::string& value,
   std::stringstream ss3;
   ss3 << "HCalSD: " << lvnames.size() << " names to be tested for Volume <" << value << ">:";
   for (unsigned int i = 0; i < lvnames.size(); ++i) {
-    G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(lvnames[i])));
+    std::string namv(DD4hep2DDDName::nameMatterLV(lvnames[i], dd4hep_));
     lv = nullptr;
     for (auto lvol : *lvs) {
-      if (dd4hep::dd::noNamespace(lvol->GetName()) == namv) {
+      if (DD4hep2DDDName::nameMatterLV(lvol->GetName(), dd4hep_) == namv) {
         lv = lvol;
         break;
       }
@@ -1029,7 +1028,7 @@ void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, doubl
   double depth = -2000;
   int idx = 4;
   for (int n = 0; n < touch->GetHistoryDepth(); ++n) {
-    G4String name(static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(n)->GetName())));
+    G4String name(static_cast<G4String>(DD4hep2DDDName::nameMatterLV(touch->GetVolume(n)->GetName(), dd4hep_)));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "plotProfile Depth " << n << " Name " << name;
 #endif

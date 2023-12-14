@@ -114,6 +114,7 @@ private:
   double deliveredLumi;
   double weight_;
   int depth_;
+  bool dd4hep_;
   std::vector<double> gpar;
   std::vector<int> hfLevels;
   std::vector<std::string> hfNames;
