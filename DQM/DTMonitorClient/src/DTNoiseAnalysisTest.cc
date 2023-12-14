@@ -34,12 +34,14 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps)
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   // get the cfi parameters
-  noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef", 500);
+  noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef", 0);  //value different from 0 means Cosmics
+  isCosmics = ps.getUntrackedParameter<bool>("isCosmics", false);
 
   // switch on/off the summaries for the Synchronous noise
   doSynchNoise = ps.getUntrackedParameter<bool>("doSynchNoise", false);
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
   maxSynchNoiseRate = ps.getUntrackedParameter<double>("maxSynchNoiseRate", 0.001);
+  noiseSafetyFactor = ps.getUntrackedParameter<double>("noiseSafetyFactor", 5.);  //for collisions
   nMinEvts = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
   nevents = 0;
@@ -120,6 +122,19 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
             noiseHistos[chID.wheel()]->Fill(noise);
             noiseHistos[3]->Fill(noise);
             int sector = chID.sector();
+
+            if (!isCosmics) {
+              float k = kW_MB[2 - abs(chID.wheel())][chID.station() - 1];
+              if (chID.station() == 4) {  //special geometry cases for MB4
+                if (sector == 9 || sector == 10 || sector == 11)
+                  k = 0.05;
+                else if (sector == 4 && chID.wheel() == 0)
+                  k = 0.25;
+              }
+              noisyCellDef = cellW * instLumi * k * lenghtSL_MB[(sl % 2)][chID.station() - 1];  // for collisions
+              noisyCellDef = noisyCellDef * noiseSafetyFactor;
+            }  //else value read from config python in DQM/Integration (Cosmic case)
+
             if (noise > noisyCellDef) {
               if (sector == 13) {
                 sector = 4;
@@ -224,13 +239,13 @@ void DTNoiseAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {
     wheel << wh;
     histoName = "NoiseRateSummary_W" + wheel.str();
 
-    noiseHistos[wh] = ibooker.book1D(histoName.c_str(), histoName.c_str(), 100, 0, 2000);
+    noiseHistos[wh] = ibooker.book1D(histoName.c_str(), histoName.c_str(), 500, 0, 10000);
     noiseHistos[wh]->setAxisTitle("rate (Hz)", 1);
     noiseHistos[wh]->setAxisTitle("entries", 2);
   }
   histoName = "NoiseRateSummary";
 
-  noiseHistos[3] = ibooker.book1D(histoName.c_str(), histoName.c_str(), 100, 0, 2000);
+  noiseHistos[3] = ibooker.book1D(histoName.c_str(), histoName.c_str(), 500, 0, 10000);
   noiseHistos[3]->setAxisTitle("rate (Hz)", 1);
   noiseHistos[3]->setAxisTitle("entries", 2);
 
