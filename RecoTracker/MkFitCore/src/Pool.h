@@ -14,7 +14,9 @@ namespace mkfit {
   public:
     Pool() = default;
 
-    ~Pool() {
+    ~Pool() { clear(); }
+
+    void clear() {
       TT *x = nullptr;
       while (m_stack.try_pop(x)) {
         destroy(x);

@@ -44,6 +44,12 @@ namespace mkfit {
       m_fitters.populate(n_thr - m_fitters.size());
       m_finders.populate(n_thr - m_finders.size());
     }
+
+    void clear() {
+      m_cloners.clear();
+      m_fitters.clear();
+      m_finders.clear();
+    }
   };
 
   CMS_SA_ALLOW ExecutionContext g_exe_ctx;
@@ -166,6 +172,7 @@ namespace mkfit {
   std::unique_ptr<MkBuilder> MkBuilder::make_builder(bool silent) { return std::make_unique<MkBuilder>(silent); }
 
   void MkBuilder::populate() { g_exe_ctx.populate(Config::numThreadsFinder); }
+  void MkBuilder::clear() { g_exe_ctx.clear(); }
 
   std::pair<int, int> MkBuilder::max_hits_layer(const EventOfHits &eoh) const {
     int maxN = 0;

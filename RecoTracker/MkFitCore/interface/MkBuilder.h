@@ -38,6 +38,7 @@ namespace mkfit {
 
     static std::unique_ptr<MkBuilder> make_builder(bool silent = true);
     static void populate();
+    static void clear();
 
     int total_cands() const;
     std::pair<int, int> max_hits_layer(const EventOfHits &eoh) const;

@@ -319,8 +319,8 @@ namespace mkfit {
     MPlexHitIdx m_XHitArr;
 
     // Hit errors / parameters for hit matching, update.
-    MPlexHS m_msErr;
-    MPlexHV m_msPar;
+    MPlexHS m_msErr{0.0f};
+    MPlexHV m_msPar{0.0f};
 
     // An idea: Do propagation to hit in FindTracksXYZZ functions.
     // Have some state / functions here that make this short to write.

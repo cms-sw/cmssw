@@ -72,8 +72,8 @@ namespace mkfit {
   private:
     MPlexQF m_Chi2;
 
-    MPlexHS m_msErr[Config::nMaxTrkHits];
-    MPlexHV m_msPar[Config::nMaxTrkHits];
+    MPlexHS m_msErr[Config::nMaxTrkHits]{0.0f};
+    MPlexHV m_msPar[Config::nMaxTrkHits]{0.0f};
 
     MPlexQI m_Label;    //this is the seed index in global seed vector (for MC truth match)
     MPlexQI m_SeedIdx;  //this is the seed index in local thread (for bookkeeping at thread level)
