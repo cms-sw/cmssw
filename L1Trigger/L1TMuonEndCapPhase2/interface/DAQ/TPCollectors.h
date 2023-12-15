@@ -6,17 +6,15 @@
 
 namespace emtf::phase2 {
 
-    class TPCollector {
-        public:
-            TPCollector() = default;
+  class TPCollector {
+  public:
+    TPCollector() = default;
 
-            virtual ~TPCollector() = default;
+    virtual ~TPCollector() = default;
 
-            // Collects all the trigger primitives in the event
-            virtual void collect(
-                    const edm::Event&,
-                    BXTPCMap&) const = 0;
-    };
+    // Collects all the trigger primitives in the event
+    virtual void collect(const edm::Event&, BXTPCMap&) const = 0;
+  };
 
 }  // namespace emtf::phase2
 

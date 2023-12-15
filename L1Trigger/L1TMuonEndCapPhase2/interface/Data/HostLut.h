@@ -9,29 +9,27 @@
 
 namespace emtf::phase2::data {
 
-    class HostLut {
-        // Static
-        public:
-            static const int kInvalid;
+  class HostLut {
+    // Static
+  public:
+    static const int kInvalid;
 
-        // Member
-        public:
-            HostLut();
+    // Member
+  public:
+    HostLut();
 
-            ~HostLut();
+    ~HostLut();
 
-            void update(
-                    const edm::Event&,
-                    const edm::EventSetup&);
+    void update(const edm::Event&, const edm::EventSetup&);
 
-            const int& lookup(const std::tuple<int, int, int>&) const;
+    const int& lookup(const std::tuple<int, int, int>&) const;
 
-        private:
-            // Key: Subsystem, Station, Ring
-            // Value: Host
-            std::map<std::tuple<int, int, int>, int> lut_;
-    };
+  private:
+    // Key: Subsystem, Station, Ring
+    // Value: Host
+    std::map<std::tuple<int, int, int>, int> lut_;
+  };
 
-}  // namespace emtf::phase2
+}  // namespace emtf::phase2::data
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_HostLut_h

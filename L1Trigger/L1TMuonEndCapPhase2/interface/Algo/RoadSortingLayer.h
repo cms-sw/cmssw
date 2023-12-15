@@ -10,21 +10,18 @@
 
 namespace emtf::phase2::algo {
 
-    class RoadSortingLayer {
-        public:
-            RoadSortingLayer(const EMTFContext&);
+  class RoadSortingLayer {
+  public:
+    RoadSortingLayer(const EMTFContext&);
 
-            ~RoadSortingLayer();
+    ~RoadSortingLayer();
 
-            void apply(
-                const int&,
-                const std::vector<road_collection_t>&,
-                std::vector<road_t>&
-            ) const;
-        private:
-            const EMTFContext& context_;
-    };
+    void apply(const int&, const std::vector<road_collection_t>&, std::vector<road_t>&) const;
 
-}
+  private:
+    const EMTFContext& context_;
+  };
+
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_RoadSortingLayer_h not defined

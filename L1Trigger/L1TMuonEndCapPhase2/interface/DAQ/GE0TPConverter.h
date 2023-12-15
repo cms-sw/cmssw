@@ -8,25 +8,20 @@
 
 namespace emtf::phase2 {
 
-    class GE0TPConverter: public TPConverter {
-        public:
-            explicit GE0TPConverter(const EMTFContext&,
-                    const int&, const int&);
+  class GE0TPConverter : public TPConverter {
+  public:
+    explicit GE0TPConverter(const EMTFContext&, const int&, const int&);
 
-            ~GE0TPConverter();
+    ~GE0TPConverter();
 
-            void convert(
-                    const TriggerPrimitive&,
-                    const TPInfo&,
-                    EMTFHit&) const final;
+    void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            int endcap_, sector_;
-    };
+    int endcap_, sector_;
+  };
 
 }  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_GE0TPConverter_h
-

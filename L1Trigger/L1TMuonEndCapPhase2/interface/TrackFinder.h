@@ -7,35 +7,31 @@
 
 namespace emtf::phase2 {
 
-    class TrackFinder {
-        public:
-            explicit TrackFinder(
-                    const edm::ParameterSet&,
-                    edm::ConsumesCollector&&
-            );
+  class TrackFinder {
+  public:
+    explicit TrackFinder(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
-            ~TrackFinder();
+    ~TrackFinder();
 
-            void process(
-                    // Input
-                    const edm::Event&,
-                    const edm::EventSetup&,
-                    // Output
-                    EMTFHitCollection&,
-                    EMTFTrackCollection&,
-                    EMTFInputCollection&
-            );
+    void process(
+        // Input
+        const edm::Event&,
+        const edm::EventSetup&,
+        // Output
+        EMTFHitCollection&,
+        EMTFTrackCollection&,
+        EMTFInputCollection&);
 
-            void on_job_begin();
+    void on_job_begin();
 
-            void on_job_end();
+    void on_job_end();
 
-        private:
-            EMTFContext context_;
+  private:
+    EMTFContext context_;
 
-            std::vector<std::unique_ptr<TPCollector>> tp_collectors_;
-            std::vector<std::unique_ptr<SectorProcessor>> sector_processors_;
-    };
-}
+    std::vector<std::unique_ptr<TPCollector>> tp_collectors_;
+    std::vector<std::unique_ptr<SectorProcessor>> sector_processors_;
+  };
+}  // namespace emtf::phase2
 
 #endif

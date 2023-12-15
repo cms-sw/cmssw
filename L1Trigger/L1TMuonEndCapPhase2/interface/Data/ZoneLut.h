@@ -9,47 +9,44 @@
 
 namespace emtf::phase2::data {
 
-    // Forward declarations
-    class Zone;
+  // Forward declarations
+  class Zone;
 
-    // Classes
-    class ZoneLut {
+  // Classes
+  class ZoneLut {
+  public:
+    ZoneLut();
 
-        public:
-            ZoneLut();
+    ~ZoneLut();
 
-            ~ZoneLut();
+    void update(const edm::Event&, const edm::EventSetup&);
 
-            void update(
-                    const edm::Event&,
-                    const edm::EventSetup&);
+    int get_zones(const int&, const int&) const;
 
-            int get_zones(const int&, const int&) const;
+    int get_zones(const int&, const int&, const int&) const;
 
-            int get_zones(const int&, const int&, const int&) const;
+  private:
+    std::vector<Zone> zones_;
+  };
 
-        private:
-            std::vector<Zone> zones_;
-    };
+  class Zone {
+    friend ZoneLut;
 
-    class Zone {
-        friend ZoneLut;
+  public:
+    Zone() = default;
 
-        public:
-            Zone() = default;
+    ~Zone() = default;
 
-            ~Zone() = default;
+    bool contains(const int&, const int&) const;
 
-            bool contains(const int&, const int&) const;
+    bool contains(const int&, const int&, const int&) const;
 
-            bool contains(const int&, const int&, const int&) const;
+  private:
+    // Key: Host
+    // Value: Theta Range
+    std::map<int, std::pair<int, int>> lut_;
+  };
 
-        private:
-            // Key: Host
-            // Value: Theta Range
-            std::map<int, std::pair<int, int>> lut_;
-    };
-
-}  // namespace emtf::phase2
+}  // namespace emtf::phase2::data
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_ZoneLut_h

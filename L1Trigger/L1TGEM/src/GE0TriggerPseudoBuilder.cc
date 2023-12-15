@@ -135,8 +135,8 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
                              << strippitch_rad * dphiresolution_ << " bend " << bend << " \n"
                              << "\t global point eta " << gp.eta() << " phi " << gp.phi() << " trigger digi eta "
                              << gp_digi.eta() << " phi " << gp_digi.phi() << " \n"
-                             // << "\t time (ns, float) " << time << " BX " << BX << " \n"
-      ;
+        // << "\t time (ns, float) " << time << " BX " << BX << " \n"
+        ;
 
   ME0TriggerDigi result = ME0TriggerDigi(chamberid, quality, phiposition, partition, idphi, bend, BX);
   result.setStrip(istrip);

@@ -10,38 +10,25 @@
 
 namespace emtf::phase2::algo {
 
-    class TrackBuildingLayer {
-        // Static
-        private:
-            static seg_theta_t calc_theta_median(
-                std::vector<seg_theta_t>
-            );
+  class TrackBuildingLayer {
+    // Static
+  private:
+    static seg_theta_t calc_theta_median(std::vector<seg_theta_t>);
 
-        // Members
-        public:
-            TrackBuildingLayer(const EMTFContext&);
+    // Members
+  public:
+    TrackBuildingLayer(const EMTFContext&);
 
-            ~TrackBuildingLayer();
+    ~TrackBuildingLayer();
 
-            void apply(
-                const segment_collection_t&,
-                const std::vector<road_t>&,
-                const bool&,
-                std::vector<track_t>&
-            ) const;
+    void apply(const segment_collection_t&, const std::vector<road_t>&, const bool&, std::vector<track_t>&) const;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            void attach_segments(
-                const segment_collection_t&,
-                const road_t&,
-                const bool&,
-                track_t&
-            ) const;
+    void attach_segments(const segment_collection_t&, const road_t&, const bool&, track_t&) const;
+  };
 
-    };
-
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_TrackBuildingLayer_h not defined

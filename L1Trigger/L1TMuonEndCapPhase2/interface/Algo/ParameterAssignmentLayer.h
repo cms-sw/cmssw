@@ -10,21 +10,18 @@
 
 namespace emtf::phase2::algo {
 
-    class ParameterAssignmentLayer {
-        public:
-            ParameterAssignmentLayer(const EMTFContext&);
+  class ParameterAssignmentLayer {
+  public:
+    ParameterAssignmentLayer(const EMTFContext&);
 
-            ~ParameterAssignmentLayer();
+    ~ParameterAssignmentLayer();
 
-            void apply(
-                    const bool&,
-                    std::vector<track_t>&
-            ) const;
+    void apply(const bool&, std::vector<track_t>&) const;
 
-        private:
-            const EMTFContext& context_;
-    };
+  private:
+    const EMTFContext& context_;
+  };
 
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_ParameterAssignment_h not defined

@@ -5,9 +5,9 @@
 
 namespace emtf::phase2::rpc {
 
-    // Enums
-    enum Type {kRPC, kiRPC, kNone};
+  // Enums
+  enum Type { kRPC, kiRPC, kNone };
 
-}
+}  // namespace emtf::phase2::rpc
 
-#endif // namespace L1Trigger_L1TMuonEndCapPhase2_RPCUtils_h
+#endif  // namespace L1Trigger_L1TMuonEndCapPhase2_RPCUtils_h

@@ -7,6 +7,7 @@ using namespace emtf::phase2;
 using namespace emtf::phase2::data;
 
 ActivationLut::ActivationLut() {
+  // clang-format off
     prompt_pt_lut_ = {{
         8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191,
         8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191, 8191,
@@ -190,36 +191,33 @@ ActivationLut::ActivationLut() {
         -13, -13, -13, -12, -12, -12, -12, -11, -11, -11, -11, -10, -10, -10, -9, -9, -9, -9, -8, -8, -8, -8, -6, -6, -6,
         -6, -5, -5, -5, -5, -3, -3, -3, -3, -2, -2, -2, -2, 0
     }};
+  // clang-format on
 }
 
 ActivationLut::~ActivationLut() {
-    // Do Nothing
+  // Do Nothing
 }
 
-void ActivationLut::update(
-        const edm::Event&,
-        const edm::EventSetup&
-) {
-    // Do Nothing
+void ActivationLut::update(const edm::Event&, const edm::EventSetup&) {
+  // Do Nothing
 }
 
 const trk_pt_t& ActivationLut::lookup_prompt_pt(const trk_nn_address_t& address) const {
-    ap_uint<10> bin = address.to_string(AP_HEX).c_str();
-    return prompt_pt_lut_[bin];
+  ap_uint<10> bin = address.to_string(AP_HEX).c_str();
+  return prompt_pt_lut_[bin];
 }
 
 const trk_pt_t& ActivationLut::lookup_disp_pt(const trk_nn_address_t& address) const {
-    ap_uint<10> bin = address.to_string(AP_HEX).c_str();
-    return disp_pt_lut_[bin];
+  ap_uint<10> bin = address.to_string(AP_HEX).c_str();
+  return disp_pt_lut_[bin];
 }
 
 const trk_rels_t& ActivationLut::lookup_rels(const trk_nn_address_t& address) const {
-    ap_uint<10> bin = address.to_string(AP_HEX).c_str();
-    return rels_lut_[bin];
+  ap_uint<10> bin = address.to_string(AP_HEX).c_str();
+  return rels_lut_[bin];
 }
 
 const trk_dxy_t& ActivationLut::lookup_dxy(const trk_nn_address_t& address) const {
-    ap_uint<10> bin = address.to_string(AP_HEX).c_str();
-    return dxy_lut_[bin];
+  ap_uint<10> bin = address.to_string(AP_HEX).c_str();
+  return dxy_lut_[bin];
 }
-

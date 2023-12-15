@@ -10,16 +10,16 @@
 
 namespace emtf::phase2 {
 
-    template <typename T, typename F>
-        T when(const bool& condition, const T& if_true, const F& if_false) {
-            return condition ? if_true : static_cast<T>(if_false);
-        }
+  template <typename T, typename F>
+  T when(const bool& condition, const T& if_true, const F& if_false) {
+    return condition ? if_true : static_cast<T>(if_false);
+  }
 
-    template <typename T>
-        T when(const bool& condition, const T& if_true, const T& if_false) {
-            return condition ? if_true : if_false;
-        }
+  template <typename T>
+  T when(const bool& condition, const T& if_true, const T& if_false) {
+    return condition ? if_true : if_false;
+  }
 
-}
+}  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_TemplateUtils_h not defined

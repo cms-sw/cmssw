@@ -9,29 +9,27 @@
 
 namespace emtf::phase2::data {
 
-    class TimeZoneLut {
-        // Static
-        public:
-            bool in_range(const std::pair<int, int>&, const int&) const;
+  class TimeZoneLut {
+    // Static
+  public:
+    bool in_range(const std::pair<int, int>&, const int&) const;
 
-        // Member
-        public:
-            TimeZoneLut();
+    // Member
+  public:
+    TimeZoneLut();
 
-            ~TimeZoneLut();
+    ~TimeZoneLut();
 
-            void update(
-                    const edm::Event&,
-                    const edm::EventSetup&);
+    void update(const edm::Event&, const edm::EventSetup&);
 
-            int get_timezones(const int&, const int&) const;
+    int get_timezones(const int&, const int&) const;
 
-        private:
-            // Key: Host
-            // Value: BX Range
-            std::map<int, std::pair<int, int>> lut_;
-    };
+  private:
+    // Key: Host
+    // Value: BX Range
+    std::map<int, std::pair<int, int>> lut_;
+  };
 
-}  // namespace emtf::phase2
+}  // namespace emtf::phase2::data
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_TimeZoneLut_h

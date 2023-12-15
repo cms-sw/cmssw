@@ -7,17 +7,14 @@
 
 namespace emtf::phase2 {
 
-    class TPConverter {
-        public:
-            TPConverter() = default;
+  class TPConverter {
+  public:
+    TPConverter() = default;
 
-            virtual ~TPConverter() = default;
+    virtual ~TPConverter() = default;
 
-            virtual void convert(
-                    const TriggerPrimitive&,
-                    const TPInfo&,
-                    EMTFHit&) const = 0;
-    };
+    virtual void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const = 0;
+  };
 
 }  // namespace emtf::phase2
 

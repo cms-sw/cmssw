@@ -11,28 +11,26 @@
 
 namespace emtf::phase2::data {
 
-    class ActivationLut {
-        public:
-            ActivationLut();
+  class ActivationLut {
+  public:
+    ActivationLut();
 
-            ~ActivationLut();
+    ~ActivationLut();
 
-            void update(
-                    const edm::Event&,
-                    const edm::EventSetup&);
+    void update(const edm::Event&, const edm::EventSetup&);
 
-            const trk_pt_t&   lookup_prompt_pt(const trk_nn_address_t&) const;
-            const trk_pt_t&   lookup_disp_pt(const trk_nn_address_t&) const;
-            const trk_rels_t& lookup_rels(const trk_nn_address_t&) const;
-            const trk_dxy_t&  lookup_dxy(const trk_nn_address_t&) const;
+    const trk_pt_t& lookup_prompt_pt(const trk_nn_address_t&) const;
+    const trk_pt_t& lookup_disp_pt(const trk_nn_address_t&) const;
+    const trk_rels_t& lookup_rels(const trk_nn_address_t&) const;
+    const trk_dxy_t& lookup_dxy(const trk_nn_address_t&) const;
 
-        private:
-            std::vector<trk_pt_t  > prompt_pt_lut_;
-            std::vector<trk_pt_t  > disp_pt_lut_;
-            std::vector<trk_rels_t> rels_lut_;
-            std::vector<trk_dxy_t > dxy_lut_;
-    };
+  private:
+    std::vector<trk_pt_t> prompt_pt_lut_;
+    std::vector<trk_pt_t> disp_pt_lut_;
+    std::vector<trk_rels_t> rels_lut_;
+    std::vector<trk_dxy_t> dxy_lut_;
+  };
 
-}  // namespace emtf::phase2
+}  // namespace emtf::phase2::data
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_ActivationLut_h

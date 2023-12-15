@@ -6,22 +6,18 @@
 
 namespace emtf::phase2::algo {
 
-    class HitmapLayer {
+  class HitmapLayer {
+  public:
+    HitmapLayer(const EMTFContext&);
 
-        public:
-            HitmapLayer(const EMTFContext&);
+    ~HitmapLayer();
 
-            ~HitmapLayer();
+    void apply(const segment_collection_t&, std::vector<hitmap_t>&) const;
 
-            void apply(
-                    const segment_collection_t&,
-                    std::vector<hitmap_t>&
-            ) const;
+  private:
+    const EMTFContext& context_;
+  };
 
-        private:
-            const EMTFContext& context_;
-    };
-
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_HitmapLayer_h not defined
