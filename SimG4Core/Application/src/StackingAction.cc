@@ -3,6 +3,7 @@
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -56,6 +57,11 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   nRusRoPreShower = p.getParameter<double>("RusRoPreShowerNeutron");
   nRusRoCastor = p.getParameter<double>("RusRoCastorNeutron");
   nRusRoWorld = p.getParameter<double>("RusRoWorldNeutron");
+
+  gRusRoZDC = p.getParameter<double>("RusRoZDCGamma");
+  gRusRoHGcal = p.getParameter<double>("RusRoHGcalGamma");
+  nRusRoZDC = p.getParameter<double>("RusRoZDCNeutron");
+  nRusRoHGcal = p.getParameter<double>("RusRoHGcalNeutron");
 
   if (gRusRoEnerLim > 0.0 && (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 ||
                               gRusRoCastor < 1.0 || gRusRoWorld < 1.0)) {
@@ -239,9 +245,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
 
-          if (killDeltaRay && classification != fKill && subType == fIonisation) {
+          if (killDeltaRay && classification != fKill && aTrack->GetParentID() > 0 &&
+              G4TrackToParticleID::isGammaElectronPositron(aTrack)) {
             classification = fKill;
           }
+
           if (killInCalo && classification != fKill && isThisRegion(reg, caloRegions)) {
             classification = fKill;
           }
@@ -275,7 +283,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             double currentWeight = aTrack->GetWeight();
 
             if (1.0 >= currentWeight) {
-              double prob = 1.0;
+              double prob = 1.001;
               double elim = 0.0;
 
               // neutron
@@ -289,6 +297,10 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
                   prob = nRusRoMuonIron;
                 } else if (reg == regionPreShower) {
                   prob = nRusRoPreShower;
+                } else if (reg == regionHGcal) {
+                  prob = nRusRoHGcal;
+                } else if (reg == regionZDC) {
+                  prob = nRusRoZDC;
                 } else if (reg == regionCastor) {
                   prob = nRusRoCastor;
                 } else if (reg == regionWorld) {
@@ -311,6 +323,10 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
                     prob = gRusRoHcal;
                   } else if (reg == regionMuonIron) {
                     prob = gRusRoMuonIron;
+                  } else if (reg == regionHGcal) {
+                    prob = gRusRoHGcal;
+                  } else if (reg == regionZDC) {
+                    prob = gRusRoZDC;
                   } else if (reg == regionCastor) {
                     prob = gRusRoCastor;
                   } else if (reg == regionWorld) {
@@ -372,6 +388,12 @@ void StackingAction::initPointer() {
     }
     if ((gRusRoCastor < 1.0 || nRusRoCastor < 1.0) && rname == "CastorRegion") {
       regionCastor = reg;
+    }
+    if ((gRusRoZDC < 1.0 || nRusRoZDC < 1.0) && rname == "ZDCRegion") {
+      regionZDC = reg;
+    }
+    if ((gRusRoHGcal < 1.0 || nRusRoHGcal < 1.0) && rname == "HGCalRegion") {
+      regionHGcal = reg;
     }
     if ((gRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {
       regionWorld = reg;

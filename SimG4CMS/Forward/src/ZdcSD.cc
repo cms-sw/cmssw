@@ -96,6 +96,13 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     int primaryID = getTrackID(theTrack);
     currentID[0].setID(unitID, time, primaryID, depth);
     double energy = calculateCherenkovDeposit(aStep);
+
+    // Russian Roulette
+    double wt2 = theTrack->GetWeight();
+    if (wt2 > 0.0) {
+      energy *= wt2;
+    }
+
     if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
       edepositEM = energy;
       edepositHAD = 0;

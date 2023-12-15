@@ -23,7 +23,6 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
-#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
@@ -270,9 +269,9 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.put(std::move(p1));
   e.put(std::move(p2));
 
-  for (auto& tracker : sTk) {
+  for (auto const& tracker : sTk) {
     const std::vector<std::string>& v = tracker->getNames();
-    for (auto& name : v) {
+    for (auto const& name : v) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())
@@ -280,9 +279,9 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(std::move(product), name);
     }
   }
-  for (auto& calo : sCalo) {
+  for (auto const& calo : sCalo) {
     const std::vector<std::string>& v = calo->getNames();
-    for (auto& name : v) {
+    for (auto const& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())
