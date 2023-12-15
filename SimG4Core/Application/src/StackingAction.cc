@@ -127,6 +127,8 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
         << "                 HCAL Prob= " << gRusRoHcal << "\n"
         << "             MuonIron Prob= " << gRusRoMuonIron << "\n"
         << "            PreShower Prob= " << gRusRoPreShower << "\n"
+        << "                HGCAL Prob= " << gRusRoHGcal << "\n"
+        << "                  ZDC Prob= " << gRusRoZDC << "\n"
         << "               CASTOR Prob= " << gRusRoCastor << "\n"
         << "                World Prob= " << gRusRoWorld;
   }
@@ -138,6 +140,8 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
         << "                 HCAL Prob= " << nRusRoHcal << "\n"
         << "             MuonIron Prob= " << nRusRoMuonIron << "\n"
         << "            PreShower Prob= " << nRusRoPreShower << "\n"
+        << "                HGCAL Prob= " << nRusRoHGcal << "\n"
+        << "                  ZDC Prob= " << nRusRoZDC << "\n"
         << "               CASTOR Prob= " << nRusRoCastor << "\n"
         << "                World Prob= " << nRusRoWorld;
   }
