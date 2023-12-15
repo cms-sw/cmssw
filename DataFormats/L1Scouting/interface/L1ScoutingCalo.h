@@ -11,14 +11,6 @@ namespace l1ScoutingRun3 {
 
     CaloObject(int hwEt, int hwEta, int hwPhi, int iso) : hwEt_(hwEt), hwEta_(hwEta), hwPhi_(hwPhi), hwIso_(iso) {}
 
-    void swap(CaloObject& other) {
-      using std::swap;
-      swap(hwEt_, other.hwEt_);
-      swap(hwEta_, other.hwEta_);
-      swap(hwPhi_, other.hwPhi_);
-      swap(hwIso_, other.hwIso_);
-    }
-
     void setHwEt(int hwEt) { hwEt_ = hwEt; }
     void setHwEta(int hwEta) { hwEta_ = hwEta; }
     void setHwPhi(int hwPhi) { hwPhi_ = hwPhi; }
@@ -128,31 +120,6 @@ namespace l1ScoutingRun3 {
           minBiasHFM1_(minBiasHFM1),
           towerCount_(towerCount),
           centrality_(centrality) {}
-
-    void swap(BxSums& other) {
-      using std::swap;
-      swap(hwTotalEt_, other.hwTotalEt_);
-      swap(hwTotalEtEm_, other.hwTotalEtEm_);
-      swap(hwTotalHt_, other.hwTotalHt_);
-      swap(hwMissEt_, other.hwMissEt_);
-      swap(hwMissEtPhi_, other.hwMissEtPhi_);
-      swap(hwMissHt_, other.hwMissHt_);
-      swap(hwMissHtPhi_, other.hwMissHtPhi_);
-      swap(hwMissEtHF_, other.hwMissEtHF_);
-      swap(hwMissEtHFPhi_, other.hwMissEtHFPhi_);
-      swap(hwMissHtHF_, other.hwMissHtHF_);
-      swap(hwMissHtHFPhi_, other.hwMissHtHFPhi_);
-      swap(hwAsymEt_, other.hwAsymEt_);
-      swap(hwAsymHt_, other.hwAsymHt_);
-      swap(hwAsymEtHF_, other.hwAsymEtHF_);
-      swap(hwAsymHtHF_, other.hwAsymHtHF_);
-      swap(minBiasHFP0_, other.minBiasHFP0_);
-      swap(minBiasHFM0_, other.minBiasHFM0_);
-      swap(minBiasHFP1_, other.minBiasHFP1_);
-      swap(minBiasHFM1_, other.minBiasHFM1_);
-      swap(towerCount_, other.towerCount_);
-      swap(centrality_, other.centrality_);
-    }
 
     void setHwTotalEt(int hwTotalEt) { hwTotalEt_ = hwTotalEt; }
     void setHwTotalEtEm(int hwTotalEtEm) { hwTotalEtEm_ = hwTotalEtEm; }

@@ -46,22 +46,6 @@ namespace l1ScoutingRun3 {
           hwPtUnconstrained_(hwPtUnconstrained),
           hwDXY_(hwDXY) {}
 
-    void swap(Muon& other) {
-      using std::swap;
-      swap(hwPt_, other.hwPt_);
-      swap(hwEta_, other.hwEta_);
-      swap(hwPhi_, other.hwPhi_);
-      swap(hwQual_, other.hwQual_);
-      swap(hwChrg_, other.hwChrg_);
-      swap(hwChrgv_, other.hwChrgv_);
-      swap(hwIso_, other.hwIso_);
-      swap(tfIndex_, other.tfIndex_);
-      swap(hwEtaAtVtx_, other.hwEtaAtVtx_);
-      swap(hwPhiAtVtx_, other.hwPhiAtVtx_);
-      swap(hwPtUnconstrained_, other.hwPtUnconstrained_);
-      swap(hwDXY_, other.hwDXY_);
-    }
-
     void setHwPt(int hwPt) { hwPt_ = hwPt; }
     void setHwEta(int hwEta) { hwEta_ = hwEta; }
     void setHwPhi(int hwPhi) { hwPhi_ = hwPhi; }
