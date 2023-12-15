@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 function die { echo $1: status $2 ;  exit $2; }
 
@@ -91,6 +91,28 @@ cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfil
 
 file=SchemaEvolutionTestOLD13_0_0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
+
+# The next test demonstrates the FileReadError that can occur as a
+# result of the known ROOT bug in 13_0_0 (file has a problem when
+# written with 13_0_0 that causes an exception when read).
+# Note that this is also used to test the cmsRun exit code
+# after a FileReadError (should be 8021). It is very convenient
+# to test that here because it is hard to intentionally create
+# a file that will cause a FileReadError. So we take advantage
+# of the ROOT bug to implement the test. This bug actually
+# occurred, see Issue 42179 for details.
+echo "***"
+echo "***"
+echo "Exception in next test is INTENTIONAL. Test fails if not thrown or cmsRun returns wrong exit code"
+echo "***"
+echo "***"
+cmsRun  -j FileReadErrorTest_jobreport.xml ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile $inputfile && die 'SchemaEvolution_test_read_cfg.py with corrupt input did not throw an exception' 1
+CMSRUN_EXIT_CODE=$(edmFjrDump --exitCode FileReadErrorTest_jobreport.xml)
+if [ "x${CMSRUN_EXIT_CODE}" != "x8021" ]; then
+    echo "cmsRun reported exit code ${CMSRUN_EXIT_CODE} which is different from the expected 8021 (FileReadError)"
+    exit 1
+fi
+
 # The test below would fail without the "--enableStreamerInfosFix"
 # because there was a bug in the version of ROOT associated with CMSSW_13_0_0.
 # The bug caused StreamerInfo objects to be missing from the ROOT file. In this case,
