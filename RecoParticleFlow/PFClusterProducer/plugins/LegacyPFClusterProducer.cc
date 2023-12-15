@@ -43,8 +43,8 @@ public:
         pfClusParamsToken_(esConsumes(config.getParameter<edm::ESInputTag>("pfClusterParams"))),
         legacyPfClustersToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
-        hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))) {
-    cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
+        hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
+        cutsFromDB_(config.getParameter<bool>("usePFThresholdsFromDB")) {
     edm::ConsumesCollector cc = consumesCollector();
 
     //setup pf cluster builder if requested
@@ -70,7 +70,7 @@ public:
     desc.add<edm::InputTag>("PFRecHitsLabelIn");
     desc.add<edm::ESInputTag>("pfClusterParams");
     desc.add<edm::InputTag>("recHitsSource");
-    desc.add<bool>("usePFThresholdsFromDB", "True");
+    desc.add<bool>("usePFThresholdsFromDB", true);
     {
       edm::ParameterSetDescription pfClusterBuilder;
       pfClusterBuilder.add<unsigned int>("maxIterations", 5);
@@ -187,18 +187,16 @@ private:
   const edm::EDPutTokenT<reco::PFClusterCollection> legacyPfClustersToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> recHitsLabel_;
   const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* paramPF = nullptr;
+  const bool cutsFromDB_;
   // the actual algorithm
   std::unique_ptr<PFCPositionCalculatorBase> positionCalc_;
   std::unique_ptr<PFCPositionCalculatorBase> allCellsPositionCalc_;
 };
 
 void LegacyPFClusterProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
-  if (cutsFromDB) {
-    paramPF = &setup.getData(hcalCutsToken_);
-  }
   const reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
+
+  HcalPFCuts const* paramPF = cutsFromDB_ ? &setup.getData(hcalCutsToken_) : nullptr;
 
   auto const& pfClusterSoA = event.get(pfClusterSoAToken_).const_view();
   auto const& pfRecHitFractionSoA = event.get(pfRecHitFractionSoAToken_).const_view();

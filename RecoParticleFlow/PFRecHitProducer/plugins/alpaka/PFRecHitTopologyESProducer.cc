@@ -39,9 +39,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       if constexpr (std::is_same_v<CAL, HCAL>)
-        desc.add<bool>("usePFThresholdsFromDB", "True");
+        desc.add<bool>("usePFThresholdsFromDB", true);
       else  // only needs to be true for HBHE
-        desc.add<bool>("usePFThresholdsFromDB", "False");
+        desc.add<bool>("usePFThresholdsFromDB", false);
       descriptions.addWithDefaultLabel(desc);
     }
 

@@ -122,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       tol = pfClusParams.stoppingTolerance();  // stopping tolerance * tolerance scaling
 
       if (topology.cutsFromDB()) {
-        rhENormInv = (1. / topology[pfRecHits[i].denseId()].noiseThreshold());
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
       } else {
         if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
           rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
@@ -167,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 (clusterPos.z - rhPos.z) * (clusterPos.z - rhPos.z);
 
         d2 = dist2 / pfClusParams.showerSigma2();
-        fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
+        fraction = clusterEnergy * rhENormInv * expf(-0.5f * d2);
 
         // For single seed clusters, rechit fraction is either 1 (100%) or -1 (not included)
         if (fraction > pfClusParams.minFracTot() && d2 < cutoffDistance)
@@ -298,7 +298,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
 
       if (topology.cutsFromDB()) {
-        rhENormInv = (1. / topology[pfRecHits[i].denseId()].noiseThreshold());
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
       } else {
         if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
           rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
@@ -405,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -420,7 +420,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
@@ -589,7 +589,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
 
       if (topology.cutsFromDB()) {
-        rhENormInv = (1. / topology[pfRecHits[i].denseId()].noiseThreshold());
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
       } else {
         if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
           rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
@@ -673,7 +673,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -691,7 +691,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
@@ -856,7 +856,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
 
       if (topology.cutsFromDB()) {
-        rhENormInv = (1. / topology[pfRecHits[i].denseId()].noiseThreshold());
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
       } else {
         if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
           rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
@@ -940,7 +940,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -958,7 +958,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
