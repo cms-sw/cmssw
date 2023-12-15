@@ -24,7 +24,6 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-
     void produceMuons(edm::Event& iEvent) const;
     void produceJets(edm::Event& iEvent) const;
     void produceEGammas(edm::Event& iEvent) const;
@@ -34,21 +33,21 @@ namespace edmtest {
     void throwWithMessage(const char*) const;
 
     const std::vector<unsigned int> bxValues_;
-    
+
     const std::vector<int> muonValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::ScMuon>> muonsPutToken_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::Muon>> muonsPutToken_;
 
     const std::vector<int> jetValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::ScJet>> jetsPutToken_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::Jet>> jetsPutToken_;
 
     const std::vector<int> eGammaValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::ScEGamma>> eGammasPutToken_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::EGamma>> eGammasPutToken_;
 
     const std::vector<int> tauValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::ScTau>> tausPutToken_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::Tau>> tausPutToken_;
 
     const std::vector<int> bxSumsValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::ScBxSums>> bxSumsPutToken_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::BxSums>> bxSumsPutToken_;
   };
 
   TestWriteL1Scouting::TestWriteL1Scouting(edm::ParameterSet const& iPSet)
@@ -63,23 +62,22 @@ namespace edmtest {
         tausPutToken_(produces()),
         bxSumsValues_(iPSet.getParameter<std::vector<int>>("bxSumsValues")),
         bxSumsPutToken_(produces()) {
-    
-    if (bxValues_.size()!=2) {
+    if (bxValues_.size() != 2) {
       throwWithMessage("bxValues must have 2 elements and it does not");
     }
-    if (muonValues_.size()!=3) {
+    if (muonValues_.size() != 3) {
       throwWithMessage("muonValues must have 3 elements and it does not");
     }
-    if (jetValues_.size()!=4) {
+    if (jetValues_.size() != 4) {
       throwWithMessage("jetValues must have 4 elements and it does not");
     }
-    if (eGammaValues_.size()!=3) {
+    if (eGammaValues_.size() != 3) {
       throwWithMessage("eGammaValues must have 3 elements and it does not");
     }
-    if (tauValues_.size()!=2) {
+    if (tauValues_.size() != 2) {
       throwWithMessage("tauValues must have 2 elements and it does not");
     }
-    if (bxSumsValues_.size()!=1) {
+    if (bxSumsValues_.size() != 1) {
       throwWithMessage("bxSumsValues_ must have 1 elements and it does not");
     }
   }
@@ -93,27 +91,14 @@ namespace edmtest {
   }
 
   void TestWriteL1Scouting::produceMuons(edm::Event& iEvent) const {
-    std::unique_ptr<l1ScoutingRun3::ScMuonOrbitCollection> muons(new l1ScoutingRun3::ScMuonOrbitCollection);
+    std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> muons(new l1ScoutingRun3::MuonOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::ScMuon>> orbitBufferMuons(3565);
-    int nMuons=0;
-    for (const unsigned& bx: bxValues_){
-      for(const int& val: muonValues_){
-        orbitBufferMuons[bx].emplace_back(
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val
-        );
-        nMuons ++;
+    std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBufferMuons(3565);
+    int nMuons = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : muonValues_) {
+        orbitBufferMuons[bx].emplace_back(val, val, val, val, val, val, val, val, val, val, val, val);
+        nMuons++;
       }
     }
 
@@ -122,19 +107,14 @@ namespace edmtest {
   }
 
   void TestWriteL1Scouting::produceJets(edm::Event& iEvent) const {
-    std::unique_ptr<l1ScoutingRun3::ScJetOrbitCollection> jets(new l1ScoutingRun3::ScJetOrbitCollection);
+    std::unique_ptr<l1ScoutingRun3::JetOrbitCollection> jets(new l1ScoutingRun3::JetOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::ScJet>> orbitBufferJets(3565);
-    int nJets=0;
-    for (const unsigned& bx: bxValues_){
-      for(const int& val: jetValues_){
-        orbitBufferJets[bx].emplace_back(
-          val,
-          val,
-          val,
-          val
-        );
-        nJets ++;
+    std::vector<std::vector<l1ScoutingRun3::Jet>> orbitBufferJets(3565);
+    int nJets = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : jetValues_) {
+        orbitBufferJets[bx].emplace_back(val, val, val, val);
+        nJets++;
       }
     }
 
@@ -143,19 +123,14 @@ namespace edmtest {
   }
 
   void TestWriteL1Scouting::produceEGammas(edm::Event& iEvent) const {
-    std::unique_ptr<l1ScoutingRun3::ScEGammaOrbitCollection> eGammas(new l1ScoutingRun3::ScEGammaOrbitCollection);
+    std::unique_ptr<l1ScoutingRun3::EGammaOrbitCollection> eGammas(new l1ScoutingRun3::EGammaOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::ScEGamma>> orbitBufferEGammas(3565);
-    int nEGammas=0;
-    for (const unsigned& bx: bxValues_){
-      for(const int& val: eGammaValues_){
-        orbitBufferEGammas[bx].emplace_back(
-          val,
-          val,
-          val,
-          val
-        );
-        nEGammas ++;
+    std::vector<std::vector<l1ScoutingRun3::EGamma>> orbitBufferEGammas(3565);
+    int nEGammas = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : eGammaValues_) {
+        orbitBufferEGammas[bx].emplace_back(val, val, val, val);
+        nEGammas++;
       }
     }
 
@@ -164,58 +139,31 @@ namespace edmtest {
   }
 
   void TestWriteL1Scouting::produceTaus(edm::Event& iEvent) const {
-    std::unique_ptr<l1ScoutingRun3::ScTauOrbitCollection> taus(new l1ScoutingRun3::ScTauOrbitCollection);
+    std::unique_ptr<l1ScoutingRun3::TauOrbitCollection> taus(new l1ScoutingRun3::TauOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::ScTau>> orbitBufferTaus(3565);
-    int nTaus=0;
-    for (const unsigned& bx: bxValues_){
-      for(const int& val: tauValues_){
-        orbitBufferTaus[bx].emplace_back(
-          val,
-          val,
-          val,
-          val
-        );
-        nTaus ++;
+    std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus(3565);
+    int nTaus = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : tauValues_) {
+        orbitBufferTaus[bx].emplace_back(val, val, val, val);
+        nTaus++;
       }
     }
 
     taus->fillAndClear(orbitBufferTaus, nTaus);
     iEvent.put(tausPutToken_, std::move(taus));
-
   }
 
   void TestWriteL1Scouting::produceBxSums(edm::Event& iEvent) const {
-    std::unique_ptr<l1ScoutingRun3::ScBxSumsOrbitCollection> bxSums(new l1ScoutingRun3::ScBxSumsOrbitCollection);
+    std::unique_ptr<l1ScoutingRun3::BxSumsOrbitCollection> bxSums(new l1ScoutingRun3::BxSumsOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::ScBxSums>> orbitBufferBxSums(3565);
-    int nBxSums=0;
-    for (const unsigned& bx: bxValues_){
-      for(const int& val: bxSumsValues_){
+    std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferBxSums(3565);
+    int nBxSums = 0;
+    for (const unsigned& bx : bxValues_) {
+      for (const int& val : bxSumsValues_) {
         orbitBufferBxSums[bx].emplace_back(
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val,
-          val
-        );
-        nBxSums ++;
+            val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val, val);
+        nBxSums++;
       }
     }
 

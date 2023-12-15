@@ -41,10 +41,10 @@ private:
   int nJetsOrbit_, nEGammasOrbit_, nTausOrbit_, nEtSumsOrbit_;
   // vectors holding data for every bunch crossing
   // before  filling the orbit collection
-  std::vector<std::vector<l1ScoutingRun3::ScJet>> orbitBufferJets_;
-  std::vector<std::vector<l1ScoutingRun3::ScEGamma>> orbitBufferEGammas_;
-  std::vector<std::vector<l1ScoutingRun3::ScTau>> orbitBufferTaus_;
-  std::vector<std::vector<l1ScoutingRun3::ScBxSums>> orbitBufferEtSums_;
+  std::vector<std::vector<l1ScoutingRun3::Jet>> orbitBufferJets_;
+  std::vector<std::vector<l1ScoutingRun3::EGamma>> orbitBufferEGammas_;
+  std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus_;
+  std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferEtSums_;
 
   bool debug_ = false;
   bool enableAllSums_ = false;

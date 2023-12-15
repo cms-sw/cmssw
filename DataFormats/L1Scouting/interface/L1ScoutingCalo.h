@@ -5,13 +5,13 @@
 
 namespace l1ScoutingRun3 {
 
-  class ScCaloObject {
+  class CaloObject {
   public:
-    ScCaloObject() : hwEt_(0), hwEta_(0), hwPhi_(0), hwIso_(0) {}
+    CaloObject() : hwEt_(0), hwEta_(0), hwPhi_(0), hwIso_(0) {}
 
-    ScCaloObject(int hwEt, int hwEta, int hwPhi, int iso) : hwEt_(hwEt), hwEta_(hwEta), hwPhi_(hwPhi), hwIso_(iso) {}
+    CaloObject(int hwEt, int hwEta, int hwPhi, int iso) : hwEt_(hwEt), hwEta_(hwEta), hwPhi_(hwPhi), hwIso_(iso) {}
 
-    void swap(ScCaloObject& other) {
+    void swap(CaloObject& other) {
       using std::swap;
       swap(hwEt_, other.hwEt_);
       swap(hwEta_, other.hwEta_);
@@ -36,34 +36,34 @@ namespace l1ScoutingRun3 {
     int hwIso_;
   };
 
-  class ScJet : public ScCaloObject {
+  class Jet : public CaloObject {
   public:
-    ScJet() : ScCaloObject(0, 0, 0, 0) {}
+    Jet() : CaloObject(0, 0, 0, 0) {}
 
-    ScJet(int hwEt, int hwEta, int hwPhi, int hwQual) : ScCaloObject(hwEt, hwEta, hwPhi, hwQual) {}
+    Jet(int hwEt, int hwEta, int hwPhi, int hwQual) : CaloObject(hwEt, hwEta, hwPhi, hwQual) {}
 
     // store quality instead of iso
     void setHwQual(int hwQual) { setHwIso(hwQual); }
     int hwQual() const { return hwIso(); }
   };
 
-  class ScEGamma : public ScCaloObject {
+  class EGamma : public CaloObject {
   public:
-    ScEGamma() : ScCaloObject(0, 0, 0, 0) {}
+    EGamma() : CaloObject(0, 0, 0, 0) {}
 
-    ScEGamma(int hwEt, int hwEta, int hwPhi, int iso) : ScCaloObject(hwEt, hwEta, hwPhi, iso) {}
+    EGamma(int hwEt, int hwEta, int hwPhi, int iso) : CaloObject(hwEt, hwEta, hwPhi, iso) {}
   };
 
-  class ScTau : public ScCaloObject {
+  class Tau : public CaloObject {
   public:
-    ScTau() : ScCaloObject(0, 0, 0, 0) {}
+    Tau() : CaloObject(0, 0, 0, 0) {}
 
-    ScTau(int hwEt, int hwEta, int hwPhi, int iso) : ScCaloObject(hwEt, hwEta, hwPhi, iso) {}
+    Tau(int hwEt, int hwEta, int hwPhi, int iso) : CaloObject(hwEt, hwEta, hwPhi, iso) {}
   };
 
-  class ScBxSums {
+  class BxSums {
   public:
-    ScBxSums()
+    BxSums()
         : hwTotalEt_(0),
           hwTotalEtEm_(0),
           hwTotalHt_(0),
@@ -86,27 +86,27 @@ namespace l1ScoutingRun3 {
           towerCount_(0),
           centrality_(0) {}
 
-    ScBxSums(int hwTotalEt,
-             int hwTotalEtEm,
-             int hwTotalHt,
-             int hwMissEt, 
-             int hwMissEtPhi,
-             int hwMissHt,
-             int hwMissHtPhi,
-             int hwMissEtHF,
-             int hwMissEtHFPhi,
-             int hwMissHtHF,
-             int hwMissHtHFPhi,
-             int hwAsymEt,
-             int hwAsymHt,
-             int hwAsymEtHF,
-             int hwAsymHtHF,
-             int minBiasHFP0,
-             int minBiasHFM0,
-             int minBiasHFP1,
-             int minBiasHFM1,
-             int towerCount,
-             int centrality)
+    BxSums(int hwTotalEt,
+           int hwTotalEtEm,
+           int hwTotalHt,
+           int hwMissEt,
+           int hwMissEtPhi,
+           int hwMissHt,
+           int hwMissHtPhi,
+           int hwMissEtHF,
+           int hwMissEtHFPhi,
+           int hwMissHtHF,
+           int hwMissHtHFPhi,
+           int hwAsymEt,
+           int hwAsymHt,
+           int hwAsymEtHF,
+           int hwAsymHtHF,
+           int minBiasHFP0,
+           int minBiasHFM0,
+           int minBiasHFP1,
+           int minBiasHFM1,
+           int towerCount,
+           int centrality)
         : hwTotalEt_(hwTotalEt),
           hwTotalEtEm_(hwTotalEtEm),
           hwTotalHt_(hwTotalHt),
@@ -129,7 +129,7 @@ namespace l1ScoutingRun3 {
           towerCount_(towerCount),
           centrality_(centrality) {}
 
-    void swap(ScBxSums& other) {
+    void swap(BxSums& other) {
       using std::swap;
       swap(hwTotalEt_, other.hwTotalEt_);
       swap(hwTotalEtEm_, other.hwTotalEtEm_);
@@ -222,10 +222,10 @@ namespace l1ScoutingRun3 {
     int centrality_;
   };
 
-  typedef OrbitCollection<ScJet> ScJetOrbitCollection;
-  typedef OrbitCollection<ScEGamma> ScEGammaOrbitCollection;
-  typedef OrbitCollection<ScTau> ScTauOrbitCollection;
-  typedef OrbitCollection<ScBxSums> ScBxSumsOrbitCollection;
+  typedef OrbitCollection<Jet> JetOrbitCollection;
+  typedef OrbitCollection<EGamma> EGammaOrbitCollection;
+  typedef OrbitCollection<Tau> TauOrbitCollection;
+  typedef OrbitCollection<BxSums> BxSumsOrbitCollection;
 
 }  // namespace l1ScoutingRun3
 #endif  // DataFormats_L1Scouting_L1ScoutingCalo_h

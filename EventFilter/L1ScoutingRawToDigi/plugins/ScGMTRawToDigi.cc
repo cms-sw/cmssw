@@ -6,13 +6,13 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
-  orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::ScMuon>>(3565);
+  orbitBuffer_ = std::vector<std::vector<l1ScoutingRun3::Muon>>(3565);
   for (auto& bxVec : orbitBuffer_) {
     bxVec.reserve(8);
   }
   nMuonsOrbit_ = 0;
 
-  produces<l1ScoutingRun3::ScMuonOrbitCollection>().setBranchAlias("ScMuonOrbitCollection");
+  produces<l1ScoutingRun3::MuonOrbitCollection>().setBranchAlias("MuonOrbitCollection");
   rawToken = consumes<SDSRawDataCollection>(srcInputTag);
 }
 
@@ -27,7 +27,7 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(SDSNumbering::GmtSDSID);
   size_t orbitSize = sourceRawData.size();
 
-  std::unique_ptr<l1ScoutingRun3::ScMuonOrbitCollection> unpackedMuons(new l1ScoutingRun3::ScMuonOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> unpackedMuons(new l1ScoutingRun3::MuonOrbitCollection);
 
   if ((sourceRawData.size() == 0) && debug_) {
     std::cout << "No raw data for GMT FED\n";
@@ -141,7 +141,7 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
       // increment muon counter
       nMuonsOrbit_++;
 
-      l1ScoutingRun3::ScMuon muon(ipt, ieta, iphi, qual, chrg, chrg != 0, iso, index, ietaext, iphiext, iptuncon, idxy);
+      l1ScoutingRun3::Muon muon(ipt, ieta, iphi, qual, chrg, chrg != 0, iso, index, ietaext, iphiext, iptuncon, idxy);
 
       orbitBuffer_[bx].push_back(muon);
 
@@ -150,7 +150,7 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
         std::cout << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n";
         std::cout << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n";
         std::cout << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
-        printScMuon(muon);
+        printMuon(muon);
       }
 
     }  // end of bx

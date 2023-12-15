@@ -7,20 +7,20 @@ ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
   enableAllSums_ = iConfig.getUntrackedParameter<bool>("enableAllSums", false);
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
-  orbitBufferJets_ = std::vector<std::vector<ScJet>>(3565);
-  orbitBufferEGammas_ = std::vector<std::vector<ScEGamma>>(3565);
-  orbitBufferTaus_ = std::vector<std::vector<ScTau>>(3565);
-  orbitBufferEtSums_ = std::vector<std::vector<ScBxSums>>(3565);
+  orbitBufferJets_ = std::vector<std::vector<Jet>>(3565);
+  orbitBufferEGammas_ = std::vector<std::vector<EGamma>>(3565);
+  orbitBufferTaus_ = std::vector<std::vector<Tau>>(3565);
+  orbitBufferEtSums_ = std::vector<std::vector<BxSums>>(3565);
 
   nJetsOrbit_ = 0;
   nEGammasOrbit_ = 0;
   nTausOrbit_ = 0;
   nEtSumsOrbit_ = 0;
 
-  produces<ScJetOrbitCollection>().setBranchAlias("ScJetOrbitCollection");
-  produces<ScTauOrbitCollection>().setBranchAlias("ScTauOrbitCollection");
-  produces<ScEGammaOrbitCollection>().setBranchAlias("ScEGammaOrbitCollection");
-  produces<ScBxSumsOrbitCollection>().setBranchAlias("ScBxSumsOrbitCollection");
+  produces<JetOrbitCollection>().setBranchAlias("JetOrbitCollection");
+  produces<TauOrbitCollection>().setBranchAlias("TauOrbitCollection");
+  produces<EGammaOrbitCollection>().setBranchAlias("EGammaOrbitCollection");
+  produces<BxSumsOrbitCollection>().setBranchAlias("BxSumsOrbitCollection");
 
   rawToken = consumes<SDSRawDataCollection>(srcInputTag);
 }
@@ -37,10 +37,10 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(SDSNumbering::CaloSDSID);
   size_t orbitSize = sourceRawData.size();
 
-  std::unique_ptr<ScJetOrbitCollection> unpackedJets(new ScJetOrbitCollection);
-  std::unique_ptr<ScTauOrbitCollection> unpackedTaus(new ScTauOrbitCollection);
-  std::unique_ptr<ScEGammaOrbitCollection> unpackedEGammas(new ScEGammaOrbitCollection);
-  std::unique_ptr<ScBxSumsOrbitCollection> unpackedEtSums(new ScBxSumsOrbitCollection);
+  std::unique_ptr<JetOrbitCollection> unpackedJets(new JetOrbitCollection);
+  std::unique_ptr<TauOrbitCollection> unpackedTaus(new TauOrbitCollection);
+  std::unique_ptr<EGammaOrbitCollection> unpackedEGammas(new EGammaOrbitCollection);
+  std::unique_ptr<BxSumsOrbitCollection> unpackedEtSums(new BxSumsOrbitCollection);
 
   if ((sourceRawData.size() == 0) && debug_) {
     std::cout << "No raw data for CALO source\n";
@@ -140,14 +140,14 @@ void ScCaloRawToDigi::unpackLinkJets(uint32_t* dataBlock, int bx) {
       if (Eta > 127)
         Eta = Eta - 256;
 
-      ScJet jet(ET, Eta, Phi, Qual);
+      Jet jet(ET, Eta, Phi, Qual);
       orbitBufferJets_[bx].push_back(jet);
       nJetsOrbit_++;
 
       if (debug_) {
         std::cout << "Jet " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printScJet(jet);
+        printJet(jet);
       }
     }
   }  // end link jets unpacking loop
@@ -167,14 +167,14 @@ void ScCaloRawToDigi::unpackLinkEGammas(uint32_t* dataBlock, int bx) {
       if (Eta > 127)
         Eta = Eta - 256;
 
-      ScEGamma eGamma(ET, Eta, Phi, Iso);
+      EGamma eGamma(ET, Eta, Phi, Iso);
       orbitBufferEGammas_[bx].push_back(eGamma);
       nEGammasOrbit_++;
 
       if (debug_) {
         std::cout << "E/g " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printScEGamma(eGamma);
+        printEGamma(eGamma);
       }
     }
   }  // end link e/gammas unpacking loop
@@ -194,14 +194,14 @@ void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx) {
       if (Eta > 127)
         Eta = Eta - 256;
 
-      ScTau tau(ET, Eta, Phi, Iso);
+      Tau tau(ET, Eta, Phi, Iso);
       orbitBufferTaus_[bx].push_back(tau);
       nTausOrbit_++;
 
       if (debug_) {
         std::cout << "Tau " << i << std::endl;
         std::cout << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << std::endl;
-        printScTau(tau);
+        printTau(tau);
       }
     }
   }  // end link taus unpacking loop
@@ -210,7 +210,7 @@ void ScCaloRawToDigi::unpackLinkTaus(uint32_t* dataBlock, int bx) {
 void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   using namespace l1ScoutingRun3;
 
-  ScBxSums bxSums;
+  BxSums bxSums;
 
   int32_t ETEt(0), ETEttem(0), ETMinBiasHFP0(0);                                // ET
   int32_t HTEt(0), HTtowerCount(0), HTMinBiasHFM0(0);                           // HT
@@ -315,7 +315,7 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
     for (int frame = 0; frame < 6; frame++) {
       std::cout << "  frame " << frame << ": 0x" << std::hex << dataBlock[frame] << std::dec << std::endl;
     }
-    printScBxSums(bxSums);
+    printBxSums(bxSums);
   }
 }
 

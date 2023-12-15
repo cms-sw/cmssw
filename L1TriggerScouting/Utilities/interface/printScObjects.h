@@ -9,13 +9,13 @@
 
 namespace l1ScoutingRun3 {
 
-  void printScMuon(const ScMuon& muon, std::ostream& outs = std::cout);
+  void printMuon(const Muon& muon, std::ostream& outs = std::cout);
   template <typename T>
-  void printScCaloObject(const T& obj, std::ostream& outs = std::cout);
-  void printScJet(const ScJet& jet, std::ostream& outs = std::cout);
-  void printScEGamma(const ScEGamma& eGamma, std::ostream& outs = std::cout);
-  void printScTau(const ScTau& tau, std::ostream& outs = std::cout);
-  void printScBxSums(const ScBxSums& sums, std::ostream& outs = std::cout);
+  void printCaloObject(const T& obj, std::ostream& outs = std::cout);
+  void printJet(const Jet& jet, std::ostream& outs = std::cout);
+  void printEGamma(const EGamma& eGamma, std::ostream& outs = std::cout);
+  void printTau(const Tau& tau, std::ostream& outs = std::cout);
+  void printBxSums(const BxSums& sums, std::ostream& outs = std::cout);
 
 }  // namespace l1ScoutingRun3
 

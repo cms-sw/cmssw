@@ -5,9 +5,9 @@
 
 namespace l1ScoutingRun3 {
 
-  class ScMuon {
+  class Muon {
   public:
-    ScMuon()
+    Muon()
         : hwPt_(0),
           hwEta_(0),
           hwPhi_(0),
@@ -21,18 +21,18 @@ namespace l1ScoutingRun3 {
           hwPtUnconstrained_(0),
           hwDXY_(0) {}
 
-    ScMuon(int hwPt,
-           int hwEta,
-           int hwPhi,
-           int hwQual,
-           int hwChrg,
-           int hwChrgv,
-           int hwIso,
-           int tfIndex,
-           int hwEtaAtVtx,
-           int hwPhiAtVtx,
-           int hwPtUnconstrained,
-           int hwDXY)
+    Muon(int hwPt,
+         int hwEta,
+         int hwPhi,
+         int hwQual,
+         int hwChrg,
+         int hwChrgv,
+         int hwIso,
+         int tfIndex,
+         int hwEtaAtVtx,
+         int hwPhiAtVtx,
+         int hwPtUnconstrained,
+         int hwDXY)
         : hwPt_(hwPt),
           hwEta_(hwEta),
           hwPhi_(hwPhi),
@@ -46,7 +46,7 @@ namespace l1ScoutingRun3 {
           hwPtUnconstrained_(hwPtUnconstrained),
           hwDXY_(hwDXY) {}
 
-    void swap(ScMuon& other) {
+    void swap(Muon& other) {
       using std::swap;
       swap(hwPt_, other.hwPt_);
       swap(hwEta_, other.hwEta_);
@@ -104,7 +104,7 @@ namespace l1ScoutingRun3 {
     int hwDXY_;
   };
 
-  typedef OrbitCollection<ScMuon> ScMuonOrbitCollection;
+  typedef OrbitCollection<Muon> MuonOrbitCollection;
 
 }  // namespace l1ScoutingRun3
 

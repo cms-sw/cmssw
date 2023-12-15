@@ -20,6 +20,7 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "L1TriggerScouting/Utilities/interface/printScObjects.h"
+#include "L1TriggerScouting/Utilities/interface/convertToL1TFormat.h"
 
 using namespace l1ScoutingRun3;
 
@@ -38,17 +39,17 @@ private:
   void printBx(unsigned bx);
 
   // the tokens to access the data
-  edm::EDGetTokenT<ScMuonOrbitCollection> gmtMuonsToken_;
-  edm::EDGetTokenT<ScJetOrbitCollection> caloJetsToken_;
-  edm::EDGetTokenT<ScEGammaOrbitCollection> caloEGammasToken_;
-  edm::EDGetTokenT<ScTauOrbitCollection> caloTausToken_;
-  edm::EDGetTokenT<ScBxSumsOrbitCollection> caloEtSumsToken_;
+  edm::EDGetTokenT<MuonOrbitCollection> gmtMuonsToken_;
+  edm::EDGetTokenT<JetOrbitCollection> caloJetsToken_;
+  edm::EDGetTokenT<EGammaOrbitCollection> caloEGammasToken_;
+  edm::EDGetTokenT<TauOrbitCollection> caloTausToken_;
+  edm::EDGetTokenT<BxSumsOrbitCollection> caloEtSumsToken_;
 
-  edm::Handle<ScMuonOrbitCollection> muonHandle_;
-  edm::Handle<ScJetOrbitCollection> jetHandle_;
-  edm::Handle<ScEGammaOrbitCollection> eGammaHandle_;
-  edm::Handle<ScTauOrbitCollection> tauHandle_;
-  edm::Handle<ScBxSumsOrbitCollection> etSumHandle_;
+  edm::Handle<MuonOrbitCollection> muonHandle_;
+  edm::Handle<JetOrbitCollection> jetHandle_;
+  edm::Handle<EGammaOrbitCollection> eGammaHandle_;
+  edm::Handle<TauOrbitCollection> tauHandle_;
+  edm::Handle<BxSumsOrbitCollection> etSumHandle_;
 
   // the min and max BX to be analyzed
   unsigned minBx_;
@@ -91,15 +92,15 @@ DumpScObjects::DumpScObjects(const edm::ParameterSet& iConfig)
 
       skipEmptyBx_(iConfig.getUntrackedParameter<bool>("skipEmptyBx", true)) {
   if (checkMuons_)
-    gmtMuonsToken_ = consumes<ScMuonOrbitCollection>(iConfig.getParameter<edm::InputTag>("gmtMuonsTag"));
+    gmtMuonsToken_ = consumes<MuonOrbitCollection>(iConfig.getParameter<edm::InputTag>("gmtMuonsTag"));
   if (checkJets_)
-    caloJetsToken_ = consumes<ScJetOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloJetsTag"));
+    caloJetsToken_ = consumes<JetOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloJetsTag"));
   if (checkEGammas_)
-    caloEGammasToken_ = consumes<ScEGammaOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloEGammasTag"));
+    caloEGammasToken_ = consumes<EGammaOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloEGammasTag"));
   if (checkTaus_)
-    caloTausToken_ = consumes<ScTauOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloTausTag"));
+    caloTausToken_ = consumes<TauOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloTausTag"));
   if (checkEtSums_)
-    caloEtSumsToken_ = consumes<ScBxSumsOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloEtSumsTag"));
+    caloEtSumsToken_ = consumes<BxSumsOrbitCollection>(iConfig.getParameter<edm::InputTag>("caloEtSumsTag"));
 }
 // -----------------------------------------------------------------------------
 
@@ -184,49 +185,48 @@ void DumpScObjects::printBx(unsigned bx) {
 
   if (checkMuons_ && muonHandle_.isValid()) {
     int i = 0;
-    const auto &muons = muonHandle_->bxIterator(bx);
-    for (const auto& muon: muons){
+    const auto& muons = muonHandle_->bxIterator(bx);
+    for (const auto& muon : muons) {
       std::cout << "--- Muon " << i << " ---\n";
-      printScMuon(muon);
+      printMuon(muon);
       i++;
     }
   }
 
   if (checkJets_ && jetHandle_.isValid()) {
     int i = 0;
-    const auto &jets = jetHandle_->bxIterator(bx);
-    for (const auto& jet: jets){
+    const auto& jets = jetHandle_->bxIterator(bx);
+    for (const auto& jet : jets) {
       std::cout << "--- Jet " << i << " ---\n";
-      printScJet(jet);
+      printJet(jet);
       i++;
     }
   }
 
   if (checkEGammas_ && jetHandle_.isValid()) {
     int i = 0;
-    const auto &eGammas = eGammaHandle_->bxIterator(bx);
-    for (const auto& egamma: eGammas){
+    const auto& eGammas = eGammaHandle_->bxIterator(bx);
+    for (const auto& egamma : eGammas) {
       std::cout << "--- E/Gamma " << i << " ---\n";
-      printScEGamma(egamma);
+      printEGamma(egamma);
       i++;
     }
   }
 
   if (checkTaus_ && tauHandle_.isValid()) {
     int i = 0;
-    const auto &taus = tauHandle_->bxIterator(bx);
-    for (const auto& tau: taus){
+    const auto& taus = tauHandle_->bxIterator(bx);
+    for (const auto& tau : taus) {
       std::cout << "--- Tau " << i << " ---\n";
-      printScTau(tau);
+      printTau(tau);
       i++;
     }
   }
 
   if (checkEtSums_ && etSumHandle_.isValid()) {
-    const auto &sums = etSumHandle_->bxIterator(bx);
-    for (const auto& sum: sums){
+    const auto& sums = etSumHandle_->bxIterator(bx);
+    for (const auto& sum : sums) {
       std::cout << "--- Calo Sums ---\n";
-      printScBxSums(sum);
     }
   }
 }

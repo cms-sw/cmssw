@@ -35,7 +35,7 @@ private:
 
   // vector holding data for every bunch crossing
   // before  filling the orbit collection
-  std::vector<std::vector<l1ScoutingRun3::ScMuon>> orbitBuffer_;
+  std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBuffer_;
   int nMuonsOrbit_;
 
   bool debug_ = false;

@@ -18,12 +18,12 @@ public:
 
   // Initialize the offset vector with 0s from 0 to 3565.
   // BX range is [1,3564], an extra entry is needed for the offserts of the last BX
-  OrbitCollection() : bxOffsets_(orbitBufferSize_+1, 0), data_(0) {}
+  OrbitCollection() : bxOffsets_(orbitBufferSize_ + 1, 0), data_(0) {}
   // Construct the flat orbit collection starting from an OrbitBuffer.
-  // The method fillAndClear will be used, meaning that, after copying the objects, 
+  // The method fillAndClear will be used, meaning that, after copying the objects,
   // orbitBuffer's vectors will be cleared.
   OrbitCollection(std::vector<std::vector<T>>& orbitBuffer, unsigned nObjects = 0)
-      : bxOffsets_(orbitBufferSize_+1, 0), data_(nObjects) {
+      : bxOffsets_(orbitBufferSize_ + 1, 0), data_(nObjects) {
     fillAndClear(orbitBuffer, nObjects);
   }
 
@@ -74,9 +74,8 @@ public:
   // iterate over elements of a bx
   edm::Span<const_iterator> bxIterator(unsigned bx) const {
     if (bx >= orbitBufferSize_)
-      throw cms::Exception("OrbitCollection::bxIterator")
-          << "Trying to access and object outside the orbit range. "
-          << " BX = " << bx;
+      throw cms::Exception("OrbitCollection::bxIterator") << "Trying to access and object outside the orbit range. "
+                                                          << " BX = " << bx;
     if (getBxSize(bx) > 0) {
       return edm::Span(data_.begin() + bxOffsets_[bx], data_.begin() + bxOffsets_[bx + 1]);
     } else {
@@ -98,7 +97,7 @@ public:
   const T& getBxObject(unsigned bx, unsigned i) const {
     if (bx >= orbitBufferSize_)
       throw cms::Exception("OrbitCollection::getBxObject") << "Trying to access and object outside the orbit range. "
-                                                           << " BX = " << bx ;
+                                                           << " BX = " << bx;
     if (i >= getBxSize(bx))
       throw cms::Exception("OrbitCollection::getBxObject")
           << "Trying to get element " << i << " but for"
