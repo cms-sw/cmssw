@@ -117,45 +117,44 @@ GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
 void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace l1t::demo::codecs;
-  if ( processOutputToCorrelator_ ) {
+  if (processOutputToCorrelator_) {
     l1t::demo::EventData correlatorEventData(fileReaderOutputToCorrelator_.getNextEvent());
     l1t::VertexWordCollection vertices(decodeVertices(correlatorEventData.at({"vertices", 0})));
     edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
     iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), l1VertexCollectionName_);
-  } // end if ( processOutputToCorrelator_ )
+  }  // end if ( processOutputToCorrelator_ )
 
-  if ( processInputTracks_ ) {
+  if (processInputTracks_) {
     l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
     auto inputTracks = std::make_unique<TTTrackCollection>();
     for (size_t i = 0; i < 18; i++) {
       auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
       for (auto& trackword : iTracks) {
-	if (!trackword.getValidWord())
-	  continue;
-	L1Track track = L1Track(trackword.getValidWord(),
-				trackword.getRinvWord(),
-				trackword.getPhiWord(),
-				trackword.getTanlWord(),
-				trackword.getZ0Word(),
-				trackword.getD0Word(),
-				trackword.getChi2RPhiWord(),
-				trackword.getChi2RZWord(),
-				trackword.getBendChi2Word(),
-				trackword.getHitPatternWord(),
-				trackword.getMVAQualityWord(),
-				trackword.getMVAOtherWord());
-	//retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
-	auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
-	track.setEtaSector(sectors.first);
-	track.setPhiSector(sectors.second);
-	track.trackWord_ = trackword.trackWord_;
-	inputTracks->push_back(track);
-      } //end loop over trackwoards
-    } // end loop over GTT input links
+        if (!trackword.getValidWord())
+          continue;
+        L1Track track = L1Track(trackword.getValidWord(),
+                                trackword.getRinvWord(),
+                                trackword.getPhiWord(),
+                                trackword.getTanlWord(),
+                                trackword.getZ0Word(),
+                                trackword.getD0Word(),
+                                trackword.getChi2RPhiWord(),
+                                trackword.getChi2RZWord(),
+                                trackword.getBendChi2Word(),
+                                trackword.getHitPatternWord(),
+                                trackword.getMVAQualityWord(),
+                                trackword.getMVAOtherWord());
+        //retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
+        auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
+        track.setEtaSector(sectors.first);
+        track.setPhiSector(sectors.second);
+        track.trackWord_ = trackword.trackWord_;
+        inputTracks->push_back(track);
+      }  //end loop over trackwoards
+    }    // end loop over GTT input links
     iEvent.put(std::move(inputTracks), l1TrackCollectionName_);
-  } // end if ( processInputTracks_ )
-
+  }  // end if ( processInputTracks_ )
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
