@@ -30,6 +30,10 @@
 
 #include <iomanip>
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 namespace {
   /* utility ot build the name of the plugin corresponding to a given record
      se ESSources
@@ -85,6 +89,27 @@ namespace {
       out << "   " << id.since << " - " << id.till << " : " << id.payloadId << std::endl;
   }
 
+  void dumpInfoJson(json& jsonData, const std::string& recName, cond::ProductResolverWrapperBase const& proxy) {
+    json recordData;
+    recordData["label"] = proxy.label();
+    recordData["connectionString"] = proxy.connString();
+    recordData["tag"] = proxy.tag();
+
+    // Code to fill the JSON structure
+
+    recordData["timeLookupPayloadIds"] = json::array();
+    const auto& pids = *proxy.requests();
+    for (const auto& id : pids) {
+      json payloadIdData;
+      payloadIdData["since"] = id.since;
+      payloadIdData["till"] = id.till;
+      payloadIdData["payloadId"] = id.payloadId;
+      recordData["timeLookupPayloadIds"].push_back(payloadIdData);
+    }
+
+    jsonData[recName].push_back(recordData);
+  }
+
 }  // namespace
 
 /*
@@ -96,7 +121,8 @@ namespace {
  *  toGet: list of record label tag connection-string to add/overwrite the content of the global-tag
  */
 CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
-    : m_connection(),
+    : m_jsonDumpFilename(iConfig.getUntrackedParameter<std::string>("JsonDumpFileName", "")),
+      m_connection(),
       m_connectionString(""),
       m_frontierKey(""),
       m_lastRun(0),   // for the stat
@@ -322,15 +348,28 @@ void CondDBESSource::fillList(const std::string& stringList,
   }
 }
 
+void CondDBESSource::printStatistics(const Stats& stats) const {
+  std::cout << "CondDBESSource Statistics\n"
+            << "DataProxy " << stats.nData << " setInterval " << stats.nSet << " Runs " << stats.nRun << " Lumis "
+            << stats.nLumi << " Refresh " << stats.nRefresh << " Actual Refresh " << stats.nActualRefresh
+            << " Reconnect " << stats.nReconnect << " Actual Reconnect " << stats.nActualReconnect << std::endl;
+}
+
+void saveJsonToFile(const json& jsonData, const std::string& filename) {
+  std::ofstream outputFile(filename);
+  if (outputFile.is_open()) {
+    outputFile << jsonData.dump(2) << std::endl;
+    std::cout << "JSON data saved in file '" << filename << "'" << std::endl;
+  } else {
+    std::cerr << "Error opening file to write JSON data." << std::endl;
+  }
+}
+
 CondDBESSource::~CondDBESSource() {
   //dump info FIXME: find a more suitable place...
   if (m_doDump) {
-    std::cout << "CondDBESSource Statistics" << std::endl
-              << "ProductResolver " << m_stats.nData << " setInterval " << m_stats.nSet << " Runs " << m_stats.nRun
-              << " Lumis " << m_stats.nLumi << " Refresh " << m_stats.nRefresh << " Actual Refresh "
-              << m_stats.nActualRefresh << " Reconnect " << m_stats.nReconnect << " Actual Reconnect "
-              << m_stats.nActualReconnect;
-    std::cout << std::endl;
+    //Output CondDBESSource Statistics to the console
+    printStatistics(m_stats);
 
     ResolverMap::iterator b = m_resolvers.begin();
     ResolverMap::iterator e = m_resolvers.end();
@@ -338,10 +377,21 @@ CondDBESSource::~CondDBESSource() {
       dumpInfo(std::cout, (*b).first, *(*b).second);
       std::cout << "\n" << std::endl;
     }
-
-    // FIXME
-    // We shall eventually close transaction and session...
   }
+  //if filename was provided for iConfig by process.GlobalTag.JsonDumpFileName =cms.untracked.string("CondDBESSource.json")
+  if (!m_jsonDumpFilename.empty()) {
+    json jsonData;
+
+    for (const auto& entry : m_resolvers) {
+      std::string recName = entry.first;
+      const auto& proxy = *entry.second;
+      dumpInfoJson(jsonData, recName, proxy);
+    }
+    //Save the dump data to a file in JSON format
+    saveJsonToFile(jsonData, m_jsonDumpFilename);
+  }
+  // FIXME
+  // We shall eventually close transaction and session...
 }
 
 //
