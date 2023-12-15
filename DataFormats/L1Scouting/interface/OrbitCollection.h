@@ -81,7 +81,7 @@ public:
   int getBxSize(unsigned bx) const {
     if (bx >= orbitBufferSize_) {
       cms::Exception("OrbitCollection") << "Called getBxSize() of a bx out of the orbit range."
-                                         << " BX = " << bx;
+                                        << " BX = " << bx;
       return 0;
     }
     return bxOffsets_[bx + 1] - bxOffsets_[bx];
