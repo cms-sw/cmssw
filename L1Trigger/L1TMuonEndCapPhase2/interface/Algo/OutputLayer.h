@@ -10,40 +10,40 @@
 
 namespace emtf::phase2::algo {
 
-    class OutputLayer {
-        public:
-            OutputLayer(const EMTFContext&);
+  class OutputLayer {
+  public:
+    OutputLayer(const EMTFContext&);
 
-            ~OutputLayer();
+    ~OutputLayer();
 
-            void apply(
-                    const int&, const int&, const int&,
-                    const std::map<int, int>&,
-                    const std::vector<track_t>&,
-                    const bool&,
-                    EMTFTrackCollection&
-            ) const;
+    void apply(const int&,
+               const int&,
+               const int&,
+               const std::map<int, int>&,
+               const std::vector<track_t>&,
+               const bool&,
+               EMTFTrackCollection&) const;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            std::array<float, 60> prompt_pt_calibration_lut_;
-            std::array<float, 60> disp_pt_calibration_lut_;
-            std::array<float, 60> disp_dxy_calibration_lut_;
+    std::array<float, 60> prompt_pt_calibration_lut_;
+    std::array<float, 60> disp_pt_calibration_lut_;
+    std::array<float, 60> disp_dxy_calibration_lut_;
 
-            int find_prompt_emtf_pt(const int&) const;
+    int find_prompt_emtf_pt(const int&) const;
 
-            int find_disp_emtf_pt(const int&) const;
+    int find_disp_emtf_pt(const int&) const;
 
-            int find_emtf_dxy(const int&) const;
+    int find_emtf_dxy(const int&) const;
 
-            int find_emtf_pt_no_calib(const int&) const;
+    int find_emtf_pt_no_calib(const int&) const;
 
-            int find_emtf_mode_v1(const track_t::site_mask_t&) const;
+    int find_emtf_mode_v1(const track_t::site_mask_t&) const;
 
-            int find_emtf_mode_v2(const track_t::site_mask_t&) const;
-    };
+    int find_emtf_mode_v2(const track_t::site_mask_t&) const;
+  };
 
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_OutputLayer_h not defined

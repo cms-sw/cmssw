@@ -10,131 +10,127 @@
 using namespace emtf::phase2;
 using namespace emtf::phase2::algo;
 
-OutputLayer::OutputLayer(
-        const EMTFContext& context
-):
-    context_(context)
-{
-    // Do Nothing
+OutputLayer::OutputLayer(const EMTFContext& context) : context_(context) {
+  // Do Nothing
 }
 
 OutputLayer::~OutputLayer() {
-    // Do Nothing
+  // Do Nothing
 }
 
-void OutputLayer::apply(
-        const int& endcap, const int& sector, const int& bx,
-        const std::map<int, int>& seg_to_hit,
-        const std::vector<track_t>& tracks,
-        const bool& displaced_en,
-        EMTFTrackCollection& out_tracks
- ) const {
-    const int endcap_pm = (endcap == 2) ? -1 : endcap; // 1: +endcap, -1: -endcap
+void OutputLayer::apply(const int& endcap,
+                        const int& sector,
+                        const int& bx,
+                        const std::map<int, int>& seg_to_hit,
+                        const std::vector<track_t>& tracks,
+                        const bool& displaced_en,
+                        EMTFTrackCollection& out_tracks) const {
+  const int endcap_pm = (endcap == 2) ? -1 : endcap;  // 1: +endcap, -1: -endcap
 
-    for (auto& track : tracks) { // Begin loop tracks
-        // Fill Site/Hit Vectors
-        int hit_count = 0;
+  for (auto& track : tracks) {  // Begin loop tracks
+    // Fill Site/Hit Vectors
+    int hit_count = 0;
 
-        EMTFTrack::site_hits_t site_hits;
-        EMTFTrack::site_segs_t site_segs;
-        EMTFTrack::site_mask_t site_mask;
-        EMTFTrack::site_mask_t site_rm_mask;
+    EMTFTrack::site_hits_t site_hits;
+    EMTFTrack::site_segs_t site_segs;
+    EMTFTrack::site_mask_t site_mask;
+    EMTFTrack::site_mask_t site_rm_mask;
 
-        for (int i = 0; i < v3::kNumTrackSites; i++) {
-            // Get attached segments
-            const auto& site_seg_id = track.site_segs[i];
-            const auto& site_bit    = track.site_mask[i];
-            const auto& site_rm_bit = track.site_rm_mask[i];
+    for (int i = 0; i < v3::kNumTrackSites; i++) {
+      // Get attached segments
+      const auto& site_seg_id = track.site_segs[i];
+      const auto& site_bit = track.site_mask[i];
+      const auto& site_rm_bit = track.site_rm_mask[i];
 
-            // Increase hit count
-            if (site_bit == 1) {
-                hit_count += 1;
-            }
+      // Increase hit count
+      if (site_bit == 1) {
+        hit_count += 1;
+      }
 
-            // Convert segment to hit
-            int hit_id = 0;
+      // Convert segment to hit
+      int hit_id = 0;
 
-            if ((site_bit == 1) || (site_rm_bit == 1)) {
-                hit_id = seg_to_hit.at(site_seg_id);                
-            }
+      if ((site_bit == 1) || (site_rm_bit == 1)) {
+        hit_id = seg_to_hit.at(site_seg_id);
+      }
 
-            // Save Info
-            site_hits.push_back(hit_id);
-            site_segs.push_back(site_seg_id);
-            site_mask.push_back(site_bit);
-            site_rm_mask.push_back(site_rm_bit);
-        }
+      // Save Info
+      site_hits.push_back(hit_id);
+      site_segs.push_back(site_seg_id);
+      site_mask.push_back(site_bit);
+      site_rm_mask.push_back(site_rm_bit);
+    }
 
-        // Short-Circuit: Only keep tracks with hits
-        if (!track.valid && hit_count == 0) {
-            continue;
-        }
+    // Short-Circuit: Only keep tracks with hits
+    if (!track.valid && hit_count == 0) {
+      continue;
+    }
 
-        // Fill Feature Vector
-        EMTFTrack::features_t model_features;
+    // Fill Feature Vector
+    EMTFTrack::features_t model_features;
 
-        for (int i = 0; i < v3::kNumTrackFeatures; i++) {
-            model_features.push_back(track.features[i]);
-        }
+    for (int i = 0; i < v3::kNumTrackFeatures; i++) {
+      model_features.push_back(track.features[i]);
+    }
 
-        // Find EMTF/GMT variables
-        const int emtf_mode_v1 = find_emtf_mode_v1(track.site_mask);
-        const int emtf_mode_v2 = find_emtf_mode_v2(track.site_mask);
+    // Find EMTF/GMT variables
+    const int emtf_mode_v1 = find_emtf_mode_v1(track.site_mask);
+    const int emtf_mode_v2 = find_emtf_mode_v2(track.site_mask);
 
-        // Init Parameters
-        auto& out_trk = out_tracks.emplace_back(); 
- 
-        out_trk.setEndcap(endcap_pm);
-        out_trk.setSector(sector);
-        out_trk.setBx(bx);
-        out_trk.setUnconstrained(displaced_en ? 1 : 0);
-        out_trk.setValid(track.valid);
+    // Init Parameters
+    auto& out_trk = out_tracks.emplace_back();
 
-        out_trk.setModelPtAddress(track.pt_address);
-        out_trk.setModelRelsAddress(track.rels_address);
-        out_trk.setModelDxyAddress(track.dxy_address);
-        out_trk.setModelPattern(track.pattern);
-        out_trk.setModelQual(track.quality);
-        out_trk.setModelPhi(track.phi);
-        out_trk.setModelEta(track.theta);
-        out_trk.setModelFeatures(model_features);
-        
-        out_trk.setEmtfQ(track.q);
-        out_trk.setEmtfPt(track.pt);
-        out_trk.setEmtfRels(track.rels);
-        out_trk.setEmtfD0(std::abs(track.dxy));
-        out_trk.setEmtfZ0(0);                      // not yet implemented
-        out_trk.setEmtfBeta(0);                    // not yet implemented
-        out_trk.setEmtfModeV1(emtf_mode_v1);
-        out_trk.setEmtfModeV2(emtf_mode_v2);
+    out_trk.setEndcap(endcap_pm);
+    out_trk.setSector(sector);
+    out_trk.setBx(bx);
+    out_trk.setUnconstrained(displaced_en ? 1 : 0);
+    out_trk.setValid(track.valid);
 
-        out_trk.setSiteHits(site_hits);
-        out_trk.setSiteSegs(site_segs);
-        out_trk.setSiteMask(site_mask);
-        out_trk.setSiteRMMask(site_rm_mask);
-    } // End loop tracks
-} 
+    out_trk.setModelPtAddress(track.pt_address);
+    out_trk.setModelRelsAddress(track.rels_address);
+    out_trk.setModelDxyAddress(track.dxy_address);
+    out_trk.setModelPattern(track.pattern);
+    out_trk.setModelQual(track.quality);
+    out_trk.setModelPhi(track.phi);
+    out_trk.setModelEta(track.theta);
+    out_trk.setModelFeatures(model_features);
+
+    out_trk.setEmtfQ(track.q);
+    out_trk.setEmtfPt(track.pt);
+    out_trk.setEmtfRels(track.rels);
+    out_trk.setEmtfD0(std::abs(track.dxy));
+    out_trk.setEmtfZ0(0);    // not yet implemented
+    out_trk.setEmtfBeta(0);  // not yet implemented
+    out_trk.setEmtfModeV1(emtf_mode_v1);
+    out_trk.setEmtfModeV2(emtf_mode_v2);
+
+    out_trk.setSiteHits(site_hits);
+    out_trk.setSiteSegs(site_segs);
+    out_trk.setSiteMask(site_mask);
+    out_trk.setSiteRMMask(site_rm_mask);
+  }  // End loop tracks
+}
 
 int OutputLayer::find_emtf_mode_v1(const track_t::site_mask_t& x) const {
-    int mode = 0;
+  int mode = 0;
 
-    if (x[0] or x[9] or x[1] or x[5] or x[11]) {  // ME1/1, GE1/1, ME1/2, RE1/2, ME0
-        mode |= (1 << 3);
-    }
+  if (x[0] or x[9] or x[1] or x[5] or x[11]) {  // ME1/1, GE1/1, ME1/2, RE1/2, ME0
+    mode |= (1 << 3);
+  }
 
-    if (x[2] or x[10] or x[6]) {  // ME2, GE2/1, RE2/2
-        mode |= (1 << 2);
-    }
+  if (x[2] or x[10] or x[6]) {  // ME2, GE2/1, RE2/2
+    mode |= (1 << 2);
+  }
 
-    if (x[3] or x[7]) {  // ME3, RE3
-        mode |= (1 << 1);
-    }
+  if (x[3] or x[7]) {  // ME3, RE3
+    mode |= (1 << 1);
+  }
 
-    if (x[4] or x[8]) {  // ME4, RE4
-        mode |= (1 << 0);
-    }
+  if (x[4] or x[8]) {  // ME4, RE4
+    mode |= (1 << 0);
+  }
 
-    return mode;
+  return mode;
 }
 
 // SingleMu (12)
@@ -171,22 +167,22 @@ int OutputLayer::find_emtf_mode_v1(const track_t::site_mask_t& x) const {
 // SingleHit (0)
 // - at least one station
 //
-// Note that SingleMu, DoubleMu, TripleMu, SingleHit are mutually-exclusive categories. 
+// Note that SingleMu, DoubleMu, TripleMu, SingleHit are mutually-exclusive categories.
 int OutputLayer::find_emtf_mode_v2(const track_t::site_mask_t& x) const {
-    int mode = 0;
-    int cnt_ye11 = x[0] + x[9];                                          // ME1/1, GE1/1
-    int cnt_ye12 = x[1] + x[5];                                          // ME1/2, RE1/2
-    int cnt_ye22 = x[2] + x[10] + x[6];                                  // ME2, GE2/1, RE2/2
-    int cnt_ye23 = x[3] + x[7];                                          // ME3, RE3
-    int cnt_ye24 = x[4] + x[8];                                          // ME4, RE4
-    int cnt_ye2a = (cnt_ye22 != 0) + (cnt_ye23 != 0) + (cnt_ye24 != 0);  //
-    int cnt_ye2b = (cnt_ye23 != 0) + (cnt_ye24 != 0);                    //
-    int cnt_me11 = x[0];                                                 // ME1/1 only
-    int cnt_me12 = x[1];                                                 // ME1/2 only
-    int cnt_me14 = x[11];                                                // ME0 only
-    int cnt_me2a = (x[2] != 0) + (x[3] != 0) + (x[4] != 0);              //
+  int mode = 0;
+  int cnt_ye11 = x[0] + x[9];                                          // ME1/1, GE1/1
+  int cnt_ye12 = x[1] + x[5];                                          // ME1/2, RE1/2
+  int cnt_ye22 = x[2] + x[10] + x[6];                                  // ME2, GE2/1, RE2/2
+  int cnt_ye23 = x[3] + x[7];                                          // ME3, RE3
+  int cnt_ye24 = x[4] + x[8];                                          // ME4, RE4
+  int cnt_ye2a = (cnt_ye22 != 0) + (cnt_ye23 != 0) + (cnt_ye24 != 0);  //
+  int cnt_ye2b = (cnt_ye23 != 0) + (cnt_ye24 != 0);                    //
+  int cnt_me11 = x[0];                                                 // ME1/1 only
+  int cnt_me12 = x[1];                                                 // ME1/2 only
+  int cnt_me14 = x[11];                                                // ME0 only
+  int cnt_me2a = (x[2] != 0) + (x[3] != 0) + (x[4] != 0);              //
 
-    // clang-format off
+  // clang-format off
     // SingleMu (12)
     {
         bool rule_a_i  = (cnt_me12 != 0) and (cnt_me2a >= 1);
@@ -231,7 +227,6 @@ int OutputLayer::find_emtf_mode_v2(const track_t::site_mask_t& x) const {
         }
     }
 
-    // clang-format on
-    return mode;
+  // clang-format on
+  return mode;
 }
-

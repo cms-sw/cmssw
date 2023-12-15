@@ -29,56 +29,51 @@
 
 namespace emtf::phase2 {
 
-    // Class
-    class EMTFContext {
+  // Class
+  class EMTFContext {
+  public:
+    EMTFContext(const edm::ParameterSet&, edm::ConsumesCollector);
 
-        public:
-            EMTFContext(
-                    const edm::ParameterSet&,
-                    edm::ConsumesCollector);
+    ~EMTFContext();
 
-            ~EMTFContext();
+    // Event configuration
+    void update(const edm::Event&, const edm::EventSetup&);
 
-            // Event configuration
-            void update(
-                    const edm::Event&,
-                    const edm::EventSetup&);
+    // Parameter Set
+    const edm::ParameterSet& pset_;
 
-            // Parameter Set
-            const edm::ParameterSet& pset_;
+    // Helpers
+    GeometryTranslator geometry_translator_;
 
-            // Helpers
-            GeometryTranslator geometry_translator_;
+    // EMTF
+    EMTFConfiguration config_;
+    EMTFModel model_;
 
-            // EMTF
-            EMTFConfiguration config_;
-            EMTFModel model_;
+    // Prompt Neural Network
+    tensorflow::GraphDef* prompt_graph_ptr_;
+    tensorflow::Session* prompt_session_ptr_;
 
-            // Prompt Neural Network
-            tensorflow::GraphDef* prompt_graph_ptr_;
-            tensorflow::Session* prompt_session_ptr_;
+    // Displaced Neural Network
+    tensorflow::GraphDef* disp_graph_ptr_;
+    tensorflow::Session* disp_session_ptr_;
 
-            // Displaced Neural Network
-            tensorflow::GraphDef* disp_graph_ptr_;
-            tensorflow::Session* disp_session_ptr_;
+    // Data
+    data::SiteLut site_lut_;
+    data::HostLut host_lut_;
+    data::ZoneLut zone_lut_;
+    data::TimeZoneLut timezone_lut_;
+    data::ActivationLut activation_lut_;
 
-            // Data
-            data::SiteLut site_lut_;
-            data::HostLut host_lut_;
-            data::ZoneLut zone_lut_;
-            data::TimeZoneLut timezone_lut_;
-            data::ActivationLut activation_lut_;
+    // Algorithm
+    algo::HitmapLayer hitmap_building_layer_;
+    algo::PatternMatchingLayer pattern_matching_layer_;
+    algo::RoadSortingLayer road_sorting_layer_;
+    algo::TrackBuildingLayer track_building_layer_;
+    algo::DuplicateRemovalLayer duplicate_removal_layer_;
+    algo::ParameterAssignmentLayer parameter_assignment_layer_;
+    algo::OutputLayer output_layer_;
+  };
 
-            // Algorithm
-            algo::HitmapLayer hitmap_building_layer_;
-            algo::PatternMatchingLayer pattern_matching_layer_;
-            algo::RoadSortingLayer road_sorting_layer_;
-            algo::TrackBuildingLayer track_building_layer_;
-            algo::DuplicateRemovalLayer duplicate_removal_layer_;
-            algo::ParameterAssignmentLayer parameter_assignment_layer_;
-            algo::OutputLayer output_layer_;
-    };
-
-}
+}  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_EMTFContext_h not defined

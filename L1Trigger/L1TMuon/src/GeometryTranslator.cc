@@ -151,11 +151,11 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
 // _____________________________________________________________________________
 // ME0
 GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) const {
-  if (tp.detId<DetId>().subdetId() == MuonSubdetId::GEM) { // GE0
+  if (tp.detId<DetId>().subdetId() == MuonSubdetId::GEM) {  // GE0
     const GEMDetId id(tp.detId<GEMDetId>());
     const GEMSuperChamber* chamber = _geogem->superChamber(id);
     const GEMChamber* keylayer = chamber->chamber(3);  // GEM key layer is layer 3
-    int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
+    int partition = tp.getME0Data().partition;         // 'partition' is in half-roll unit
     int iroll = (partition >> 1) + 1;
     const GEMEtaPartition* roll = keylayer->etaPartition(iroll);
     assert(roll != nullptr);  // failed to get GEM roll
@@ -167,7 +167,7 @@ GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) 
     const LocalPoint& lp = roll->centreOfStrip(centreOfStrip);
     const GlobalPoint& gp = roll->surface().toGlobal(lp);
     return gp;
-  } else { // ME0
+  } else {  // ME0
     const ME0DetId id(tp.detId<ME0DetId>());
     const ME0Chamber* chamber = _geome0->chamber(id);
     const ME0Layer* keylayer = chamber->layer(3);  // ME0 key layer is layer 3

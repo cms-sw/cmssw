@@ -10,23 +10,19 @@
 
 namespace emtf::phase2 {
 
-    class CSCTPConverter: public TPConverter {
-        public:
-            explicit CSCTPConverter(const EMTFContext&,
-                    const int&, const int&);
+  class CSCTPConverter : public TPConverter {
+  public:
+    explicit CSCTPConverter(const EMTFContext&, const int&, const int&);
 
-            ~CSCTPConverter();
+    ~CSCTPConverter();
 
-            void convert(
-                    const TriggerPrimitive&,
-                    const TPInfo&,
-                    EMTFHit&) const final;
+    void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            int endcap_, sector_;
-    };  // namespace emtf::phase2
-}
+    int endcap_, sector_;
+  };  // namespace emtf::phase2
+}  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_CSCTPConverter_h

@@ -11,35 +11,24 @@
 
 namespace emtf::phase2 {
 
-    class GE0TPSelector: public TPSelector {
-        public:
-            explicit GE0TPSelector(
-                    const EMTFContext&,
-                    const int&, const int&
-            );
+  class GE0TPSelector : public TPSelector {
+  public:
+    explicit GE0TPSelector(const EMTFContext&, const int&, const int&);
 
-            ~GE0TPSelector();
+    ~GE0TPSelector();
 
-            void select(
-                    const TriggerPrimitive&,
-                    TPInfo,
-                    ILinkTPCMap&
-            ) const final;
+    void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            int endcap_, sector_;
+    int endcap_, sector_;
 
-            int get_input_link(const TriggerPrimitive&, TPInfo&) const;
+    int get_input_link(const TriggerPrimitive&, TPInfo&) const;
 
-            int calculate_input_link(
-                    const int&, const int&, 
-                    const TPSelection&
-            ) const;
-    };
+    int calculate_input_link(const int&, const int&, const TPSelection&) const;
+  };
 
 }  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_GE0TPSelector_h
-

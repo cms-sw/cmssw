@@ -12,34 +12,23 @@
 
 namespace emtf::phase2 {
 
-    class CSCTPSelector: public TPSelector {
-        public:
-            explicit CSCTPSelector(
-                    const EMTFContext&,
-                    const int&, const int&
-            );
+  class CSCTPSelector : public TPSelector {
+  public:
+    explicit CSCTPSelector(const EMTFContext&, const int&, const int&);
 
-            ~CSCTPSelector();
+    ~CSCTPSelector();
 
-            void select(
-                    const TriggerPrimitive&,
-                    TPInfo,
-                    ILinkTPCMap&
-            ) const final;
+    void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            int endcap_, sector_;
+    int endcap_, sector_;
 
-            int get_input_link(const TriggerPrimitive&, TPInfo&) const;
+    int get_input_link(const TriggerPrimitive&, TPInfo&) const;
 
-            int calculate_input_link(
-                    const int&, const int&,
-                    const int&, const int&,
-                    const TPSelection&
-            ) const;
-    };
+    int calculate_input_link(const int&, const int&, const int&, const int&, const TPSelection&) const;
+  };
 
 }  // namespace emtf::phase2
 

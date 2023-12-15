@@ -26,4 +26,3 @@ void TrackerMuon::print() const {
                           << " z0=" << hwZ0_ << " d0=" << hwD0_ << " isolation=" << hwIso() << " beta=" << hwBeta_
                           << " quality=" << hwQual();
 }
-

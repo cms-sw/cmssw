@@ -15,5 +15,4 @@
 #define emtf_assert(expr) ((void)(expr))
 #endif
 
-#endif // namespace L1Trigger_L1TMuonEndCapPhase2_DebugUtils_h
-
+#endif  // namespace L1Trigger_L1TMuonEndCapPhase2_DebugUtils_h

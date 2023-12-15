@@ -6,18 +6,14 @@
 
 namespace emtf::phase2 {
 
-    class TPSelector {
-        public:
-            TPSelector() = default;
+  class TPSelector {
+  public:
+    TPSelector() = default;
 
-            virtual ~TPSelector() = default;
+    virtual ~TPSelector() = default;
 
-            virtual void select(
-                    const TriggerPrimitive& tp,
-                    TPInfo tp_info,
-                    ILinkTPCMap&
-            ) const = 0;
-    };
+    virtual void select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCMap&) const = 0;
+  };
 
 }  // namespace emtf::phase2
 

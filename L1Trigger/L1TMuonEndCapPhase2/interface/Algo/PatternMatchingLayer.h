@@ -10,23 +10,18 @@
 
 namespace emtf::phase2::algo {
 
-    class PatternMatchingLayer {
+  class PatternMatchingLayer {
+  public:
+    PatternMatchingLayer(const EMTFContext&);
 
-        public:
-            PatternMatchingLayer(const EMTFContext&);
+    ~PatternMatchingLayer();
 
-            ~PatternMatchingLayer();
+    void apply(const std::vector<hitmap_t>&, const bool&, std::vector<road_collection_t>&) const;
 
-            void apply(
-                    const std::vector<hitmap_t>&,
-                    const bool&,
-                    std::vector<road_collection_t>&
-            ) const;
+  private:
+    const EMTFContext& context_;
+  };
 
-        private:
-            const EMTFContext& context_;
-    };
-
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_PatternMatchingLayer_h not defined

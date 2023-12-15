@@ -10,20 +10,18 @@
 
 namespace emtf::phase2::algo {
 
-    class DuplicateRemovalLayer {
-        public:
-            DuplicateRemovalLayer(const EMTFContext&);
+  class DuplicateRemovalLayer {
+  public:
+    DuplicateRemovalLayer(const EMTFContext&);
 
-            ~DuplicateRemovalLayer();
+    ~DuplicateRemovalLayer();
 
-            void apply(
-                    std::vector<track_t>&
-            ) const;
+    void apply(std::vector<track_t>&) const;
 
-        private:
-            const EMTFContext& context_;
-    };
+  private:
+    const EMTFContext& context_;
+  };
 
-}
+}  // namespace emtf::phase2::algo
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_DuplicateRemovalLayer_h not defined

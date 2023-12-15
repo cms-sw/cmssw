@@ -7,23 +7,19 @@
 
 namespace emtf::phase2 {
 
-    class ME0TPCollector: public TPCollector {
-        public:
-            explicit ME0TPCollector(
-                    const EMTFContext&,
-                    edm::ConsumesCollector&);
+  class ME0TPCollector : public TPCollector {
+  public:
+    explicit ME0TPCollector(const EMTFContext&, edm::ConsumesCollector&);
 
-            ~ME0TPCollector();
+    ~ME0TPCollector();
 
-            void collect(
-                    const edm::Event&,
-                    BXTPCMap&) const final;
+    void collect(const edm::Event&, BXTPCMap&) const final;
 
-        private:
-            const EMTFContext& context_;
+  private:
+    const EMTFContext& context_;
 
-            const edm::EDGetToken input_token_;
-    };
+    const edm::EDGetToken input_token_;
+  };
 
 }  // namespace emtf::phase2
 

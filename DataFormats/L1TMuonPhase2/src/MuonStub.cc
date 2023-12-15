@@ -87,4 +87,3 @@ void MuonStub::print() const {
                        << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_
                        << " etaQuality=" << etaQuality_ << " type=" << type_;
 }
-
