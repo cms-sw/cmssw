@@ -605,7 +605,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ZdcSD = cms.PSet(
         Verbosity = cms.int32(0),
         UseShowerLibrary = cms.bool(False),
-        UseShowerHits = cms.bool(False),
+        UseShowerHits = cms.bool(True),
         FiberDirection = cms.double(45.0),
         ZdcHitEnergyCut = cms.double(10.0)
     ),
@@ -691,9 +691,9 @@ run3_common.toModify( g4SimHits,
 ## Disable PPS from Run 3 PbPb runs and enable ZDC 
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False, 
-                         SteppingAction = dict(
-                             CMStoZDCtransport = True) )
+pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False)
+#                         SteppingAction = dict(
+#                             CMStoZDCtransport = True) )
 
 ##
 ## Change ECAL time slices
