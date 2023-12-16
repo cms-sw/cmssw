@@ -344,7 +344,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        CMStoZDCtransport       = cms.bool(False),                 
+        CMStoZDCtransport       = cms.bool(False),
         MaxNumberOfSteps        = cms.int32(20000),
         CMSName                 = cms.string('CMSE'),
         TrackerName             = cms.string('Tracker'),
@@ -605,7 +605,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ZdcSD = cms.PSet(
         Verbosity = cms.int32(0),
         UseShowerLibrary = cms.bool(False),
-        UseShowerHits = cms.bool(True),
+        UseShowerHits = cms.bool(False),
         FiberDirection = cms.double(45.0),
         ZdcHitEnergyCut = cms.double(10.0)
     ),
