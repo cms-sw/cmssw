@@ -439,13 +439,15 @@ double ECalSD::curve_LY(const G4LogicalVolume* lv) {
     } else {
       edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
                                  << "to APD " << dapd << " crlength = " << crystalLength << ":" << crystalDepth
-                                 << " crystal name = " << lv->GetName() << " " << DD4hep2DDDName::noNameSpace(lv->GetName())
+                                 << " crystal name = " << lv->GetName() << " "
+                                 << DD4hep2DDDName::noNameSpace(lv->GetName())
                                  << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
     }
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD: light coll curve : crlength = " << crystalLength << " Depth " << crystalDepth
-                              << " crystal name = " << lv->GetName() << " " << DD4hep2DDDName::noNameSpace(lv->GetName())
+                              << " crystal name = " << lv->GetName() << " "
+                              << DD4hep2DDDName::noNameSpace(lv->GetName())
                               << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
 #endif
   return weight;
