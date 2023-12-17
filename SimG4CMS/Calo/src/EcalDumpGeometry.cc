@@ -72,9 +72,9 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           theBaseNumber.setSize(theSize + 1);
         std::stringstream ss;
         for (int ii = theSize; ii >= 0; --ii) {
-          std::string_view name =
+          std::string name =
               DD4hep2DDDName::noNameSpace(static_cast<std::string>(fHistory_.GetVolume(ii)->GetName()));
-          theBaseNumber.addLevel(static_cast<std::string>(name), fHistory_.GetVolume(ii)->GetCopyNo());
+          theBaseNumber.addLevel(name, fHistory_.GetVolume(ii)->GetCopyNo());
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
         }
         uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)
