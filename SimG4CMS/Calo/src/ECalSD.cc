@@ -218,7 +218,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
     edep *= wt2;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()))
+  edm::LogVerbatim("EcalSim") << lv->GetName() << " "
+                              << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()))
                               << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
                               << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at "
                               << preStepPoint->GetPosition();
@@ -302,7 +303,8 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
 #endif
 #ifdef EDM_ML_DEBUG
     G4ThreeVector localPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
-    edm::LogVerbatim("EcalSim") << lv->GetName() << " " << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName())) << " Global "
+    edm::LogVerbatim("EcalSim") << lv->GetName() << " "
+                                << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName())) << " Global "
                                 << hitPoint->GetPosition() << ":" << (hitPoint->GetPosition()).rho() << " Local "
                                 << localPoint << " Crystal Length " << crystalLength << " Radl " << radl
                                 << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : "
@@ -491,7 +493,8 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
         weight = 1.;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << DD4hep2DDDName::noNameSpace(static_cast<std::string>(mat->GetName())) << " Charge "
+    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in "
+                                << DD4hep2DDDName::noNameSpace(static_cast<std::string>(mat->GetName())) << " Charge "
                                 << charge << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight
                                 << " dE " << aStep->GetTotalEnergyDeposit();
 #endif
