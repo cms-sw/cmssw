@@ -157,9 +157,9 @@ void HGCPassive::update(const G4Step *aStep) {
       if (((aStep->GetPostStepPoint() == nullptr) || (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName())) << " F|L Step "
-                                   << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume() << " Position"
-                                   << aStep->GetPreStepPoint()->GetPosition() << " Track "
+        edm::LogVerbatim("HGCSim") << DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName()))
+                                   << " F|L Step " << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume()
+                                   << " Position" << aStep->GetPreStepPoint()->GetPosition() << " Track "
                                    << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
                                    << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
                                    << ":" << aStep->GetTrack()->GetNextVolume() << " Status "
