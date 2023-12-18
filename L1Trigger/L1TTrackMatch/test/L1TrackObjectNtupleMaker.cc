@@ -60,6 +60,8 @@
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
 #include "DataFormats/L1Trigger/interface/TkJetWord.h"
+#include "DataFormats/L1TCorrelator/interface/TkTriplet.h"
+#include "DataFormats/L1TCorrelator/interface/TkTripletFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMiss.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMissFwd.h"
@@ -185,6 +187,8 @@ private:
   edm::InputTag TrackFastJetsInputTag;
   edm::InputTag TrackJetsInputTag;
   edm::InputTag TrackJetsEmuInputTag;
+  edm::InputTag TrackTripletsInputTag;
+
   edm::InputTag TrackMETInputTag;
   edm::InputTag TrackMETEmuInputTag;
   edm::InputTag TrackMHTInputTag;
@@ -255,6 +259,8 @@ private:
   edm::EDGetTokenT<l1t::TkJetCollection> TrackJetsExtendedToken_;
   edm::EDGetTokenT<l1t::TkJetWordCollection> TrackJetsEmuToken_;
   edm::EDGetTokenT<l1t::TkJetWordCollection> TrackJetsExtendedEmuToken_;
+  edm::EDGetTokenT<l1t::TkTripletCollection> TrackTripletsToken_;
+
 
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
@@ -499,6 +505,10 @@ private:
   std::vector<int>* m_trkjetem_ntracks;
   std::vector<int>* m_trkjetem_nxtracks;
 
+  std::vector<float>* m_triplet_phi;
+  std::vector<float>* m_triplet_eta;
+  std::vector<float>* m_triplet_pt;
+
   std::vector<float>* m_trkjetExt_vz;
   std::vector<float>* m_trkjetExt_p;
   std::vector<float>* m_trkjetExt_phi;
@@ -578,6 +588,7 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
     TrackFastJetsInputTag = iConfig.getParameter<InputTag>("TrackFastJetsInputTag");
     TrackJetsInputTag = iConfig.getParameter<InputTag>("TrackJetsInputTag");
     TrackJetsEmuInputTag = iConfig.getParameter<InputTag>("TrackJetsEmuInputTag");
+    TrackTripletsInputTag = iConfig.getParameter<InputTag>("TrackTripletsInputTag");
     TrackMETInputTag = iConfig.getParameter<InputTag>("TrackMETInputTag");
     TrackMETEmuInputTag = iConfig.getParameter<InputTag>("TrackMETEmuInputTag");
     TrackMHTInputTag = iConfig.getParameter<InputTag>("TrackMHTInputTag");
@@ -605,6 +616,7 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
     TrackFastJetsToken_ = consumes<std::vector<l1t::TkJet>>(TrackFastJetsInputTag);
     TrackJetsToken_ = consumes<l1t::TkJetCollection>(TrackJetsInputTag);
     TrackJetsEmuToken_ = consumes<l1t::TkJetWordCollection>(TrackJetsEmuInputTag);
+    TrackTripletsToken_ = consumes<l1t::TkTripletCollection>(TrackTripletsInputTag);
     TrackMETToken_ = consumes<std::vector<l1t::TkEtMiss>>(TrackMETInputTag);
     TrackMETEmuToken_ = consumes<std::vector<l1t::EtSum>>(TrackMETEmuInputTag);
     TrackMHTToken_ = consumes<l1t::TkHTMissCollection>(TrackMHTInputTag);
@@ -887,6 +899,10 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkjetem_ntracks;
   delete m_trkjetem_nxtracks;
 
+  delete m_triplet_eta;
+  delete m_triplet_phi;
+  delete m_triplet_pt;
+
   delete m_trkfastjet_eta;
   delete m_trkfastjet_vz;
   delete m_trkfastjet_phi;
@@ -1114,6 +1130,10 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trkjet_nTight = new std::vector<int>;
   m_trkjet_nTightDisplaced = new std::vector<int>;
   m_trkjet_ntdtrk = new std::vector<int>;
+
+  m_triplet_eta = new std::vector<float>;
+  m_triplet_phi = new std::vector<float>;
+  m_triplet_pt = new std::vector<float>;
 
   m_trkjetem_pt = new std::vector<float>;
   m_trkjetem_phi = new std::vector<float>;
@@ -1365,6 +1385,9 @@ void L1TrackObjectNtupleMaker::beginJob() {
       eventTree->Branch("trkjetem_ntracks", &m_trkjetem_ntracks);
       eventTree->Branch("trkjetem_nxtracks", &m_trkjetem_nxtracks);
     }
+    eventTree->Branch("triplet_eta", &m_triplet_eta);
+    eventTree->Branch("triplet_pt", &m_triplet_pt);
+    eventTree->Branch("triplet_phi", &m_triplet_phi);
     if (Displaced == "Displaced" || Displaced == "Both") {
       eventTree->Branch("trkfastjetExt_eta", &m_trkfastjetExt_eta);
       eventTree->Branch("trkfastjetExt_vz", &m_trkfastjetExt_vz);
@@ -1627,6 +1650,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkjetem_ntracks->clear();
       m_trkjetem_nxtracks->clear();
     }
+    m_triplet_eta->clear();
+    m_triplet_pt->clear();
+    m_triplet_phi->clear();
     if (Displaced == "Displaced" || Displaced == "Both") {
       m_trkjetExt_eta->clear();
       m_trkjetExt_pt->clear();
@@ -1710,6 +1736,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<l1t::TkJetWordCollection> TrackJetsExtendedEmuHandle;
   std::vector<l1t::TkJet>::const_iterator jetIter;
   std::vector<l1t::TkJetWord>::const_iterator jetemIter;
+  edm::Handle<l1t::TkTripletCollection> TrackTripletsHandle;
+  std::vector<l1t::TkTriplet>::const_iterator tripletIter;
+
 
   // Track Sums
   edm::Handle<std::vector<l1t::TkEtMiss>> L1TkMETHandle;
@@ -1757,6 +1786,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     iEvent.getByToken(TrackFastJetsToken_, TrackFastJetsHandle);
     iEvent.getByToken(TrackJetsToken_, TrackJetsHandle);
     iEvent.getByToken(TrackJetsEmuToken_, TrackJetsEmuHandle);
+    iEvent.getByToken(TrackTripletsToken_, TrackTripletsHandle);
     iEvent.getByToken(TrackMETToken_, L1TkMETHandle);
     iEvent.getByToken(TrackMETEmuToken_, L1TkMETEmuHandle);
     iEvent.getByToken(TrackMHTToken_, L1TkMHTHandle);
@@ -2978,6 +3008,11 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_trkjet_nTight->push_back(jetIter->nTighttracks());
         m_trkjet_nTightDisplaced->push_back(jetIter->nTightDisptracks());
       }
+    }
+    for (tripletIter = TrackTripletsHandle->begin(); tripletIter != TrackTripletsHandle->end(); ++tripletIter) {
+        m_triplet_phi->push_back(tripletIter->phi());
+        m_triplet_eta->push_back(tripletIter->eta());
+        m_triplet_pt->push_back(tripletIter->pt());
     }
     if (TrackJetsExtendedHandle.isValid() && (Displaced == "Displaced" || Displaced == "Both")) {
       for (jetIter = TrackJetsExtendedHandle->begin(); jetIter != TrackJetsExtendedHandle->end(); ++jetIter) {
