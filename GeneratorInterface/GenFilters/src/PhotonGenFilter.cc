@@ -1,4 +1,4 @@
-#include "GeneratorInterface/GenFilters/plugins/PhotonGenFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PhotonGenFilter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
