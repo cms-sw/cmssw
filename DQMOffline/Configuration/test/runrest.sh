@@ -6,7 +6,7 @@ seqs=$(grep 'Analyzing [0-9][0-9]* seqs' run.log | sed 's|.*Analyzing *||;s| .*|
 echo "Sequences run by final DQMOfflineConfiguration: $seqs"
 if [ "$seqs" -gt 0 ] ; then
   echo "Final DQMOfflineConfiguration should not run any sequences."
-  echo "Please update parameters for TestDQMOfflineConfiguration unittest run the extra sequences."
+  echo "Please update parameters for TestDQMOfflineConfiguration unittest to run the extra sequences."
   exit 1
 fi
 exit $ERR
