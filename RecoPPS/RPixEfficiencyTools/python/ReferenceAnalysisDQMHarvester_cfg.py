@@ -15,7 +15,6 @@ process = cms.Process("ReferenceAnalysisDQMHarvester", eras.Run3)
 #SPECIFY INPUT PARAMETERS
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
-    FailPath = cms.untracked.vstring('Type Mismatch')
     )
 options = VarParsing.VarParsing('analysis')
 options.register('outputDirectoryPath',

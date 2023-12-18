@@ -19,7 +19,6 @@ process = cms.Process("ReferenceAnalysisDQMWorker", eras.Run3)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
-    FailPath = cms.untracked.vstring('Type Mismatch')
     )
 options = VarParsing.VarParsing ('analysis')
 options.register('outputFileName',

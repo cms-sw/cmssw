@@ -5,7 +5,6 @@ process = cms.Process("Demo")
 import FWCore.ParameterSet.VarParsing as VarParsing
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
-    FailPath = cms.untracked.vstring('ProductNotFound','Type Mismatch')
     )
 options = VarParsing.VarParsing ()
 options.register('outputFileName',

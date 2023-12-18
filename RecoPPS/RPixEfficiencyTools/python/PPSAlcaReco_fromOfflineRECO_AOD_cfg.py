@@ -10,7 +10,6 @@ process = cms.Process('MANUALALCARECO', eras.Run3)
 #SETUP PARAMETERS
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
-    FailPath = cms.untracked.vstring('Type Mismatch') # not crashing on this exception type
     )
 options = VarParsing.VarParsing ('analysis')
 options.register('outputFileName',
