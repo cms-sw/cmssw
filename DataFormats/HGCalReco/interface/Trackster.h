@@ -79,6 +79,7 @@ namespace ticl {
 
       //remove duplicates 
       removeDuplicates();
+      zeroProbabilities();
     }
 
     inline void mergeTracksters(const std::vector<Trackster>& others){
@@ -88,6 +89,7 @@ namespace ticl {
 
       //remove duplicates 
       removeDuplicates();
+      zeroProbabilities();
     }
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,

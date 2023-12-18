@@ -5,19 +5,23 @@
 
 using namespace ticl;
 
-void TracksterLinkingbyFastJet::linkTracksters(const Inputs& input, std::vector<Trackster>& resultTracksters,
-                    std::vector<std::vector<unsigned int>>& linkedResultTracksters,
-                    std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) {
+void TracksterLinkingbyFastJet::linkTracksters(
+    const Inputs& input,
+    std::vector<Trackster>& resultTracksters,
+    std::vector<std::vector<unsigned int>>& linkedResultTracksters,
+    std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) {
   // Create jets of tracksters using FastJet
   std::vector<fastjet::PseudoJet> fjInputs;
   for (size_t i = 0; i < input.tracksters.size(); ++i) {
     // Convert Trackster information to PseudoJet
-    fastjet::PseudoJet pj(input.tracksters[i].barycenter().x(), input.tracksters[i].barycenter().y(),
-                          input.tracksters[i].barycenter().z(), input.tracksters[i].raw_energy());
+    fastjet::PseudoJet pj(input.tracksters[i].barycenter().x(),
+                          input.tracksters[i].barycenter().y(),
+                          input.tracksters[i].barycenter().z(),
+                          input.tracksters[i].raw_energy());
     pj.set_user_index(i);
     fjInputs.push_back(pj);
   }
-  
+
   // Cluster tracksters into jets using FastJet
   fastjet::ClusterSequence sequence(fjInputs, fastjet::JetDefinition(fastjet::antikt_algorithm, antikt_radius_));
   auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
@@ -25,21 +29,25 @@ void TracksterLinkingbyFastJet::linkTracksters(const Inputs& input, std::vector<
   // Link tracksters based on which ones are components of the same jet
   for (unsigned int i = 0; i < jets.size(); ++i) {
     const auto& jet = jets[i];
-    
+
     std::vector<unsigned int> linkedTracksters;
-    // Check if a trackster is a component of the current jet
-    for (const auto& constituent : jet.constituents()) {
+    Trackster outTrackster;
+    if (!jet.constituents().empty()) {
+      // Check if a trackster is a component of the current jet
+      for (const auto& constituent : jet.constituents()) {
         auto tracksterIndex = constituent.user_index();
-        linkedTracksters.push_back(resultTracksters.size());
         linkedTracksterIdToInputTracksterId[i].push_back(tracksterIndex);
-        resultTracksters.push_back(input.tracksters[tracksterIndex]);
+        outTrackster.mergeTracksters(input.tracksters[tracksterIndex]);
+      }
+      linkedTracksters.push_back(resultTracksters.size());
+      resultTracksters.push_back(outTrackster);
+      // Store the linked tracksters
+      linkedResultTracksters.push_back(linkedTracksters);
     }
-    // Store the linked tracksters
-    linkedResultTracksters.push_back(linkedTracksters);
   }
 }
 
-void TracksterLinkingbyFastJet::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+void TracksterLinkingbyFastJet::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("antikt_radius", 0.1);
 }
