@@ -263,6 +263,14 @@ namespace Matriplex {
         a[5 * N + n] = s * c22;
       }
     }
+
+    Matriplex<T, 1, 1, N> ReduceFixedIJ(idx_t i, idx_t j) const {
+      Matriplex<T, 1, 1, N> t;
+      for (idx_t n = 0; n < N; ++n) {
+        t[n] = constAt(n, i, j);
+      }
+      return t;
+    }
   };
 
   template <typename T, idx_t D, idx_t N>

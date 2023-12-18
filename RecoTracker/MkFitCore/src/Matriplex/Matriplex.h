@@ -110,6 +110,24 @@ namespace Matriplex {
       return *this;
     }
 
+    Matriplex operator-() {
+      Matriplex t;
+      for (idx_t i = 0; i < kTotSize; ++i)
+        t.fArray[i] = -fArray[i];
+      return t;
+    }
+
+    Matriplex& abs(const Matriplex& a) {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        fArray[i] = std::abs(a.fArray[i]);
+      return *this;
+    }
+    Matriplex& abs() {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        fArray[i] = std::abs(fArray[i]);
+      return *this;
+    }
+
     Matriplex& sqrt(const Matriplex& a) {
       for (idx_t i = 0; i < kTotSize; ++i)
         fArray[i] = std::sqrt(a.fArray[i]);
@@ -397,6 +415,12 @@ namespace Matriplex {
   }
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> abs(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.abs(a);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
   MPlex<T, D1, D2, N> sqrt(const MPlex<T, D1, D2, N>& a) {
     MPlex<T, D1, D2, N> t;
     return t.sqrt(a);
@@ -405,7 +429,7 @@ namespace Matriplex {
   template <typename T, idx_t D1, idx_t D2, idx_t N>
   MPlex<T, D1, D2, N> sqr(const MPlex<T, D1, D2, N>& a) {
     MPlex<T, D1, D2, N> t;
-    return t.sqrt(a);
+    return t.sqr(a);
   }
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
