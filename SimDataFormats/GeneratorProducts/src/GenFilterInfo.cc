@@ -46,16 +46,6 @@ GenFilterInfo::GenFilterInfo(unsigned int passp,
       sumTotalWeights_(totalw),
       sumTotalWeights2_(totalw2) {}
 
-GenFilterInfo::GenFilterInfo(const GenFilterInfo& other)
-    : numPassPositiveEvents_(other.numPassPositiveEvents_),
-      numPassNegativeEvents_(other.numPassNegativeEvents_),
-      numTotalPositiveEvents_(other.numTotalPositiveEvents_),
-      numTotalNegativeEvents_(other.numTotalNegativeEvents_),
-      sumPassWeights_(other.sumPassWeights_),
-      sumPassWeights2_(other.sumPassWeights2_),
-      sumTotalWeights_(other.sumTotalWeights_),
-      sumTotalWeights2_(other.sumTotalWeights2_) {}
-
 GenFilterInfo::~GenFilterInfo() {}
 
 bool GenFilterInfo::mergeProduct(GenFilterInfo const& other) {
