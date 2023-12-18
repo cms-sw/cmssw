@@ -79,6 +79,8 @@ private:
   const G4Region* regionMuonIron{nullptr};
   const G4Region* regionPreShower{nullptr};
   const G4Region* regionCastor{nullptr};
+  const G4Region* regionZDC{nullptr};
+  const G4Region* regionHGcal{nullptr};
   const G4Region* regionWorld{nullptr};
 
   // Russian roulette energy limits
@@ -96,6 +98,10 @@ private:
   double nRusRoPreShower;
   double gRusRoCastor;
   double nRusRoCastor;
+  double gRusRoZDC;
+  double nRusRoZDC;
+  double gRusRoHGcal;
+  double nRusRoHGcal;
   double gRusRoWorld;
   double nRusRoWorld;
   // flags

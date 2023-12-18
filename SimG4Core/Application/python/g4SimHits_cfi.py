@@ -316,6 +316,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RusRoMuonIronGamma     = cms.double(0.3),
         RusRoPreShowerGamma    = cms.double(0.3),
         RusRoCastorGamma       = cms.double(0.3),
+        RusRoZDCGamma          = cms.double(0.3),
+        RusRoHGcalGamma        = cms.double(1.3),
         RusRoWorldGamma        = cms.double(0.3),
         RusRoNeutronEnergyLimit  = cms.double(10.0), ## (MeV)
         RusRoEcalNeutron         = cms.double(0.1),
@@ -323,6 +325,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RusRoMuonIronNeutron     = cms.double(0.1),
         RusRoPreShowerNeutron    = cms.double(0.1),
         RusRoCastorNeutron       = cms.double(0.1),
+        RusRoZDCNeutron          = cms.double(0.1),
+        RusRoHGcalNeutron        = cms.double(1.1),
         RusRoWorldNeutron        = cms.double(0.1),
         RusRoProtonEnergyLimit  = cms.double(0.0),
         RusRoEcalProton         = cms.double(1.0),
@@ -340,7 +344,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        CMStoZDCtransport       = cms.bool(False),                 
+        CMStoZDCtransport       = cms.bool(False),
         MaxNumberOfSteps        = cms.int32(20000),
         CMSName                 = cms.string('CMSE'),
         TrackerName             = cms.string('Tracker'),
@@ -687,9 +691,9 @@ run3_common.toModify( g4SimHits,
 ## Disable PPS from Run 3 PbPb runs and enable ZDC 
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False, 
-                         SteppingAction = dict(
-                             CMStoZDCtransport = True) )
+pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False)
+#                         SteppingAction = dict(
+#                             CMStoZDCtransport = True) )
 
 ##
 ## Change ECAL time slices

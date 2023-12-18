@@ -26,9 +26,9 @@ protected:
   void initRun() override;
 
   double calculateCherenkovDeposit(const G4Step *);
-  double calculateMeanNumberOfPhotons(int, double, double);
-  double photonEnergyDist(int, double, double);
-  double generatePhotonEnergy(int, double, double);
+  double calculateMeanNumberOfPhotons(double, double, double);
+  double photonEnergyDist(double, double, double);
+  double generatePhotonEnergy(double, double, double);
   double pmtEfficiency(double);
   double convertEnergyToWavelength(double);
 
