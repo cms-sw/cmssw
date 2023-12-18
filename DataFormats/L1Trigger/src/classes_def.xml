@@ -48,6 +48,12 @@
   <class name="l1t::JetVectorRef"/>
   <class name="edm::Wrapper<l1t::JetVectorRef>"/>
 
+  <class name="l1t::TkTripletWord" ClassVersion="3">
+    <version ClassVersion="3" checksum="3276366430"/>
+  </class>
+  <class name="std::vector<l1t::TkTripletWord>"/>
+  <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
+  <class name="edm::Wrapper<l1t::TkTripletWordCollection>"/>
 
   <class name="l1t::EGamma" ClassVersion="14">
    <version ClassVersion="14" checksum="1235149790"/>
