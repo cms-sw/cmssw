@@ -24,7 +24,6 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("SuperClusterImporter"),
                   source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
                   source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
-                  source_towers = cms.InputTag("towerMaker"),
                   maximumHoverE = cms.double(0.5),
                   minSuperClusterPt = cms.double(10.0),
                   minPTforBypass = cms.double(100.0),

@@ -54,7 +54,7 @@ private:
   const edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
   const edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSevLvlComputerToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  HcalPFCuts const *hcalCuts = nullptr;
+  HcalPFCuts const* hcalCuts = nullptr;
 };
 
 const math::XYZPoint SuperClusterImporter::_zero = math::XYZPoint(0, 0, 0);
@@ -77,8 +77,9 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       hcalTopologyToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>()},
       hcalChannelQualityToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>()} {
-	hcalCutsToken_ = cc.esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"));
-      }
+  hcalCutsToken_ =
+      cc.esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"));
+}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
   towerMap_ = &es.getData(_ctmapToken);
@@ -103,22 +104,22 @@ void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImport
   reco::SuperClusterRef scref;
 
   EgammaHcalIsolation thisHcalVar_ = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::isBehindClusterSeed,
-							 0, //outercone
-							 EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
-							 0, //innercone
-							 {{0, 0, 0, 0}},
-							 {{0, 0, 0, 0}},
-							 maxSeverityHB_,
-							 {{0, 0, 0, 0, 0, 0, 0}},
-							 {{0, 0, 0, 0, 0, 0, 0}},
-							 maxSeverityHE_,
-							 e.get(hbheRecHitsTag_),
-							 caloGeom_,
-							 hcalTopo_,
-							 hcalChannelQual_,
-							 hcalSev_,
-							 towerMap_);
-  
+                                                         0,  //outercone
+                                                         EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                                         0,  //innercone
+                                                         {{0, 0, 0, 0}},
+                                                         {{0, 0, 0, 0}},
+                                                         maxSeverityHB_,
+                                                         {{0, 0, 0, 0, 0, 0, 0}},
+                                                         {{0, 0, 0, 0, 0, 0, 0}},
+                                                         maxSeverityHE_,
+                                                         e.get(hbheRecHitsTag_),
+                                                         caloGeom_,
+                                                         hcalTopo_,
+                                                         hcalChannelQual_,
+                                                         hcalSev_,
+                                                         towerMap_);
+
   for (auto sc = bsc; sc != esc; ++sc) {
     scref = reco::SuperClusterRef(eb_scs, std::distance(bsc, sc));
     PFBlockElementSCEqual myEqual(scref);
