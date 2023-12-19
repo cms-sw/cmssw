@@ -11,6 +11,9 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
             source_eb = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
             source_ee = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),
             source_towers = cms.InputTag("towerMaker"),
+            hbheRecHitsTag = cms.InputTag("hltHbhereco"),
+            maxSeverityHB = cms.int32(9),
+            maxSeverityHE = cms.int32(9),
             superClustersArePF = cms.bool(True)
         ),
         cms.PSet(
