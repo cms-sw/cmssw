@@ -97,7 +97,7 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
     if (histo) {  // check the pointer
 
-      TH2F* histo_root = histo->getTH2F();
+      TH2D* histo_root = histo->getTH2D();
 
       for (int sl = 1; sl != 4; ++sl) {  // loop over SLs
         // skip theta SL in MB4 chambers
