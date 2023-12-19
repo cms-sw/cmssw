@@ -30,7 +30,7 @@ namespace edmtest {
     void registerProducts() final;
 
   private:
-    ItemType getNextItemType() final;
+    ItemTypeInfo getNextItemType() final;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() final;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() final;
     std::shared_ptr<FileBlock> readFile_() final;
@@ -109,21 +109,21 @@ void PutOrMergeTestSource::registerProducts() {
   productRegistryUpdate().copyProduct(thingWithEqualDesc_);
 }
 
-InputSource::ItemType PutOrMergeTestSource::getNextItemType() {
+InputSource::ItemTypeInfo PutOrMergeTestSource::getNextItemType() {
   switch (stage_) {
     case 0: {
-      return IsFile;
+      return ItemType::IsFile;
     }
     case 1: {
-      return IsRun;
+      return ItemType::IsRun;
     }
     case 2: {
-      return IsRun;
+      return ItemType::IsRun;
     }
     default:
-      return IsStop;
+      return ItemType::IsStop;
   }
-  return IsInvalid;
+  return ItemType::IsInvalid;
 }
 
 std::shared_ptr<RunAuxiliary> PutOrMergeTestSource::readRunAuxiliary_() {

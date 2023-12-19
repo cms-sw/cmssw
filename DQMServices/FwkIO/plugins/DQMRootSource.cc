@@ -330,7 +330,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::InputSource::ItemType getNextItemType() override;
+  edm::InputSource::ItemTypeInfo getNextItemType() override;
 
   std::shared_ptr<edm::FileBlock> readFile_() override;
   std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
@@ -440,7 +440,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
           {"LUMI", MonitorElementData::Scope::LUMI},
           {"RUN", MonitorElementData::Scope::RUN},
           {"JOB", MonitorElementData::Scope::JOB}}[iPSet.getUntrackedParameter<std::string>("reScope", "JOB")]),
-      m_nextItemType(edm::InputSource::IsFile),
+      m_nextItemType(edm::InputSource::ItemType::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
       m_openFiles(std::vector<OpenFileInfo>()),
@@ -448,7 +448,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
   if (m_catalog.fileNames(0).empty()) {
-    m_nextItemType = edm::InputSource::IsStop;
+    m_nextItemType = edm::InputSource::ItemType::IsStop;
   } else {
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT, m_rescope));
     m_treeReaders[kFloatIndex].reset(new TreeSimpleReader<double>(MonitorElementData::Kind::REAL, m_rescope));
@@ -483,7 +483,7 @@ DQMRootSource::~DQMRootSource() {
 // member functions
 //
 
-edm::InputSource::ItemType DQMRootSource::getNextItemType() { return m_nextItemType; }
+edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return m_nextItemType; }
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
 std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
@@ -630,9 +630,9 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
 
   // Stop if there's nothing to process. Otherwise start the run.
   if (m_fileMetadatas.empty())
-    m_nextItemType = edm::InputSource::IsStop;
+    m_nextItemType = edm::InputSource::ItemType::IsStop;
   else
-    m_nextItemType = edm::InputSource::IsRun;
+    m_nextItemType = edm::InputSource::ItemType::IsRun;
 
   // We have to return something but not sure why
   return std::make_shared<edm::FileBlock>();
@@ -728,18 +728,18 @@ bool DQMRootSource::isRunOrLumiTransition() const {
 
 void DQMRootSource::readNextItemType() {
   if (m_currentIndex == 0) {
-    m_nextItemType = edm::InputSource::IsRun;
+    m_nextItemType = edm::InputSource::ItemType::IsRun;
   } else if (m_currentIndex > m_fileMetadatas.size() - 1) {
     // We reached the end
-    m_nextItemType = edm::InputSource::IsStop;
+    m_nextItemType = edm::InputSource::ItemType::IsStop;
   } else {
     FileMetadata previousMetadata = m_fileMetadatas[m_currentIndex - 1];
     FileMetadata metadata = m_fileMetadatas[m_currentIndex];
 
     if (previousMetadata.m_run != metadata.m_run) {
-      m_nextItemType = edm::InputSource::IsRun;
+      m_nextItemType = edm::InputSource::ItemType::IsRun;
     } else if (previousMetadata.m_lumi != metadata.m_lumi) {
-      m_nextItemType = edm::InputSource::IsLumi;
+      m_nextItemType = edm::InputSource::ItemType::IsLumi;
     }
   }
 }

@@ -226,31 +226,31 @@ namespace edm {
     return true;
   }
 
-  InputSource::ItemType RootPrimaryFileSequence::getNextItemType(RunNumber_t& run,
-                                                                 LuminosityBlockNumber_t& lumi,
-                                                                 EventNumber_t& event) {
+  InputSource::ItemTypeInfo RootPrimaryFileSequence::getNextItemType(RunNumber_t& run,
+                                                                     LuminosityBlockNumber_t& lumi,
+                                                                     EventNumber_t& event) {
     if (noMoreFiles() || skipToStop_) {
       skipToStop_ = false;
-      return InputSource::IsStop;
+      return InputSource::ItemType::IsStop;
     }
     if (firstFile_ || goToEventInNewFile_ || skipIntoNewFile_) {
-      return InputSource::IsFile;
+      return InputSource::ItemType::IsFile;
     }
     if (rootFile()) {
       IndexIntoFile::EntryType entryType = rootFile()->getNextItemType(run, lumi, event);
       if (entryType == IndexIntoFile::kEvent) {
-        return InputSource::IsEvent;
+        return InputSource::ItemType::IsEvent;
       } else if (entryType == IndexIntoFile::kLumi) {
-        return InputSource::IsLumi;
+        return InputSource::ItemType::IsLumi;
       } else if (entryType == IndexIntoFile::kRun) {
-        return InputSource::IsRun;
+        return InputSource::ItemType::IsRun;
       }
       assert(entryType == IndexIntoFile::kEnd);
     }
     if (atLastFile()) {
-      return InputSource::IsStop;
+      return InputSource::ItemType::IsStop;
     }
-    return InputSource::IsFile;
+    return InputSource::ItemType::IsFile;
   }
 
   // Rewind to before the first event that was read.
