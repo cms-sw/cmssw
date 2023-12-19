@@ -23,7 +23,7 @@ void TracksterLinkingbyFastJet::linkTracksters(
   }
 
   // Cluster tracksters into jets using FastJet
-  fastjet::ClusterSequence sequence(fjInputs, fastjet::JetDefinition(fastjet::antikt_algorithm, antikt_radius_));
+  fastjet::ClusterSequence sequence(fjInputs, fastjet::JetDefinition(algorithm_, radius_));
   auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
   linkedTracksterIdToInputTracksterId.resize(jets.size());
   // Link tracksters based on which ones are components of the same jet
@@ -45,9 +45,4 @@ void TracksterLinkingbyFastJet::linkTracksters(
       linkedResultTracksters.push_back(linkedTracksters);
     }
   }
-}
-
-void TracksterLinkingbyFastJet::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<double>("antikt_radius", 0.1);
 }

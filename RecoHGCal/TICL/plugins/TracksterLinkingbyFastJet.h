@@ -11,21 +11,42 @@
 
 namespace ticl {
 
-class TracksterLinkingbyFastJet : public TracksterLinkingAlgoBase {
-public:
-  TracksterLinkingbyFastJet(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-      : TracksterLinkingAlgoBase(conf, iC),
-        antikt_radius_(conf.getParameter<double>("antikt_radius")) {}
-  virtual ~TracksterLinkingbyFastJet() {}
-  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+  class TracksterLinkingbyFastJet : public TracksterLinkingAlgoBase {
+  public:
+    TracksterLinkingbyFastJet(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+        : TracksterLinkingAlgoBase(conf, iC), radius_(conf.getParameter<double>("radius")) {
+      // Cluster tracksters into jets using FastJet with configurable algorithm
+      auto algo = conf.getParameter<int>("jet_algorithm");
+
+      switch (algo) {
+        case 0:
+          algorithm_ = fastjet::kt_algorithm;
+          break;
+        case 1:
+          algorithm_ = fastjet::cambridge_algorithm;
+          break;
+        case 2:
+          algorithm_ = fastjet::antikt_algorithm;
+          break;
+      }
+    }
+
+    virtual ~TracksterLinkingbyFastJet() {}
 
   void linkTracksters(const Inputs& input, std::vector<Trackster>& resultTracksters,
                       std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                       std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
-  
-private:
-  float antikt_radius_;
-};
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<int>("algo_verbosity", 0);
+      iDesc.add<int>("jet_algorithm", 2)
+          ->setComment("FastJet jet clustering algorithm: 0 = kt, 1 = Cambridge/Aachen, 2 = anti-kt");
+      iDesc.add<double>("radius", 0.1);
+    }
+
+  private:
+    fastjet::JetAlgorithm algorithm_;  // FastJet jet clustering algorithm
+    const float radius_;
+  };
 
 }  // namespace ticl
 
