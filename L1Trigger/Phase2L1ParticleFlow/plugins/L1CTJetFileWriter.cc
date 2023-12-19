@@ -56,6 +56,7 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
     : collections_(iConfig.getParameter<std::vector<edm::ParameterSet>>("collections")),
       nFramesPerBX_(iConfig.getParameter<unsigned>("nFramesPerBX")),
       ctl2BoardTMUX_(iConfig.getParameter<unsigned>("TMUX")),
+      gapLengthOutput_(iConfig.getParameter<unsigned>("gapLengthOutput")),
       maxLinesPerFile_(iConfig.getParameter<unsigned>("maxLinesPerFile")),
       channelSpecsOutputToGT_{{{"jets", 0}, {{ctl2BoardTMUX_, gapLengthOutput_}, {0}}}},
       fileWriterOutputToGT_(l1t::demo::parseFileFormat(iConfig.getParameter<std::string>("format")),
@@ -84,8 +85,6 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
     tokens_.emplace_back(jetToken, mhtToken);
     tokensToWrite_.emplace_back(writeJetToken, writeMhtToken);
   }
-  gapLengthOutput_ = ctl2BoardTMUX_ * nFramesPerBX_ - 2 * std::accumulate(nJets_.begin(), nJets_.end(), 0) -
-                     std::accumulate(nSums_.begin(), nSums_.end(), 0);
 }
 
 void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -174,6 +173,7 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::string>("outputFileExtension", "txt");
   desc.add<uint32_t>("nJets", 12);
   desc.add<uint32_t>("nFramesPerBX", 9);
+  desc.add<uint32_t>("gapLengthOutput", 4);
   desc.add<uint32_t>("TMUX", 6);
   desc.add<uint32_t>("maxLinesPerFile", 1024);
   desc.add<std::string>("format", "EMPv2");
