@@ -194,6 +194,7 @@ namespace evf {
     bool inputThrottled();
     bool lumisectionDiscarded(unsigned int ls);
     std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
+    std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -216,6 +217,7 @@ namespace evf {
     std::string base_dir_;
     std::string bu_base_dir_;
     std::vector<std::string> bu_base_dirs_all_;
+    std::vector<int> bu_base_dirs_nSources_;
     unsigned int run_;
     bool useFileBroker_;
     bool fileBrokerHostFromCfg_;
