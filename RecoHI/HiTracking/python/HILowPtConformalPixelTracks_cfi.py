@@ -217,3 +217,7 @@ pixelNtupletFit.toReplaceWith(hiConformalPixelTracksTaskPhase1, cms.Task(
 ))
 
 hiConformalPixelTracksSequencePhase1 = cms.Sequence(hiConformalPixelTracksTaskPhase1)
+
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+run3_upc.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
+run3_upc.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
