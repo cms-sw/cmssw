@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 #include <algorithm>
 #include <cmath>
@@ -100,6 +101,10 @@ namespace l1tVertexFinder {
     void fastHisto(const TrackerTopology* tTopo);
     /// Histogramming algorithm (emulation)
     void fastHistoEmulation();
+
+    void NNVtxEmulation(tensorflow::Session* cnnTrkSesh = nullptr,
+                        tensorflow::Session* cnnPVZ0Sesh = nullptr,
+                        tensorflow::Session* AssociationSesh = nullptr);
 
     /// Sort vertices in pT
     void sortVerticesInPt();

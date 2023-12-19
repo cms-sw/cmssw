@@ -3,6 +3,7 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/L1TrackTrigger"/>
 <use   name="DataFormats/Math"/>
+<use   name="PhysicsTools/TensorFlow" />
 <use   name="boost"/>
 <use   name="xerces-c"/>
 <use   name="clhep"/>

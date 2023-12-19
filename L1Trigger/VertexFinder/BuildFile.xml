@@ -12,6 +12,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimTracker/TrackTriggerAssociation"/>
+<use name="PhysicsTools/TensorFlow" />
 <use name="boost"/>
 <use name="roothistmatrix"/>
 <export>

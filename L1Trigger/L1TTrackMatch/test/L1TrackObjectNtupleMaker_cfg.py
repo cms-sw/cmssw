@@ -18,6 +18,8 @@ L1TRKALGO = 'HYBRID_PROMPTANDDISP'
 
 DISPLACED = ''
 
+
+runVtxNN = True
 ############################################################
 # import standard configurations
 ############################################################
@@ -99,6 +101,34 @@ process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 # Primary vertex
 ############################################################
 process.pPV = cms.Path(process.l1tVertexFinder)
+
+
+if runVtxNN:
+    process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
+    process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "NNEmulation"
+
+    process.l1tTrackSelectionProducer.cutSet = cms.PSet(ptMin = cms.double(2.0), # pt must be greater than this value, [GeV]
+                                                        absEtaMax = cms.double(2.4), # absolute value of eta must be less than this value
+                                                        absZ0Max = cms.double(15.0), # z0 must be less than this value, [cm]
+                                                        nStubsMin = cms.int32(4), # number of stubs must be greater than or equal to this value
+                                                        nPSStubsMin = cms.int32(0), # the number of stubs in the PS Modules must be greater than or equal to this value
+                                                        promptMVAMin = cms.double(-1.0), # MVA must be greater than this value
+                                                        reducedBendChi2Max = cms.double(999.0), # bend chi2 must be less than this value
+                                                        reducedChi2RZMax = cms.double(999.0), # chi2rz/dof must be less than this value
+                                                        reducedChi2RPhiMax = cms.double(999.0), # chi2rphi/dof must be less than this value
+                                                        reducedChi2MaxNstub4 = cms.double(999.9), # chi2/dof with nstub==4 must be less than this value
+                                                        reducedChi2MaxNstub5 = cms.double(999.9), # chi2/dof with nstub>4 must be less than this value
+                                                        reducedBendChi2MaxNstub4 = cms.double(999.9), # bend chi2 with nstub==4 must be less than this value
+                                                        reducedBendChi2MaxNstub5 = cms.double(999.9), # bend chi2 with nstub>4 must be less than this value
+                                                        ),
+    VertexAssociator = process.l1tTrackVertexNNAssociationProducer
+    AssociationName = "l1tTrackVertexNNAssociationProducer"
+else:
+    process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
+    process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "FHEmulation"
+    VertexAssociator = process.l1tTrackVertexAssociationProducer
+    AssociationName = "l1tTrackVertexAssociationProducer"
+    
 process.pPVemu = cms.Path(process.l1tVertexFinderEmulator)
 
 # HYBRID: prompt tracking
@@ -108,7 +138,7 @@ if (L1TRKALGO == 'HYBRID'):
     process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
                                          process.l1tTrackSelectionProducerForJets *
                                          process.l1tTrackSelectionProducerForEtMiss)
-    process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducer*
+    process.pL1TrackVertexAssociation = cms.Path(VertexAssociator *
                                                  process.l1tTrackVertexAssociationProducerForJets*
                                                  process.l1tTrackVertexAssociationProducerForEtMiss)
     process.pL1TrackJets = cms.Path(process.l1tTrackJets)
@@ -148,7 +178,7 @@ elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
                                          process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
                                          process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
-    process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducer * process.l1tTrackVertexAssociationProducerExtended *
+    process.pL1TrackVertexAssociation = cms.Path(VertexAssociator * process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerForJets * process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerForEtMiss * process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
     process.pL1TrackJets = cms.Path(process.l1tTrackJets*process.l1tTrackJetsExtended)
@@ -194,9 +224,9 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         L1TrackExtendedGTTInputTag = cms.InputTag("l1tGTTInputProducerExtended","Level1TTTracksExtendedConverted"),                              # TTTracks, extended, GTT converted
         L1TrackSelectedInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),                                           # TTTracks, prompt, selected
         L1TrackSelectedEmulationInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"),                         # TTTracks, prompt, emulation, selected
-        L1TrackSelectedAssociatedInputTag = cms.InputTag("l1tTrackVertexAssociationProducer", "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated
-        L1TrackSelectedAssociatedEmulationInputTag = cms.InputTag("l1tTrackVertexAssociationProducer", "Level1TTTracksSelectedAssociatedEmulation"),                         # TTTracks, prompt, emulation, selected, associated
-                                       
+        L1TrackSelectedAssociatedInputTag = cms.InputTag(AssociationName, "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated
+        L1TrackSelectedAssociatedEmulationInputTag = cms.InputTag(AssociationName, "Level1TTTracksSelectedAssociatedEmulation"),                         # TTTracks, prompt, emulation, selected, associated
+
         L1TrackSelectedForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerForJets", "Level1TTTracksSelected"),                                           # TTTracks, prompt, selected
         L1TrackSelectedEmulationForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerForJets", "Level1TTTracksSelectedEmulation"),                         # TTTracks, prompt, emulation, selected
         L1TrackSelectedAssociatedForJetsInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated

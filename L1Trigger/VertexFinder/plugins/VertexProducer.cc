@@ -56,13 +56,28 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
     case Algorithm::Kmeans:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a kmeans algorithm";
       break;
+    case Algorithm::NNEmulation:
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the Neural Network Emulation";
+      break;
   }
 
   //--- Define EDM output to be written to file (if required)
-  if (settings_.vx_algo() == Algorithm::fastHistoEmulation) {
+  if (settings_.vx_algo() == Algorithm::fastHistoEmulation || settings_.vx_algo() == Algorithm::NNEmulation) {
     produces<l1t::VertexWordCollection>(outputCollectionName_ + "Emulation");
   } else {
     produces<l1t::VertexCollection>(outputCollectionName_);
+  }
+
+  if (settings_.vx_algo() == Algorithm::NNEmulation) {
+    // load graphs, create a new session and add the graphDef
+  if (settings_.debug() > 1) {
+      edm::LogInfo("VertexProducer") << "loading trk weight graph from " << settings_.vx_trkw_graph() << std::endl;
+      edm::LogInfo("VertexProducer") << "loading pv z0 graph from " << settings_.vx_pvz0_graph() << std::endl;
+    }
+  TrkGraph_ = tensorflow::loadGraphDef(settings_.vx_trkw_graph());
+  TrkSesh_ = tensorflow::createSession(TrkGraph_);
+  PVZ0Graph_ = tensorflow::loadGraphDef(settings_.vx_pvz0_graph());
+  PVZ0Sesh_ = tensorflow::createSession(PVZ0Graph_);
   }
 }
 
@@ -127,13 +142,16 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
     case Algorithm::Kmeans:
       vf.Kmeans();
       break;
+    case Algorithm::NNEmulation:
+      vf.NNVtxEmulation(TrkSesh_, PVZ0Sesh_);
+      break;
   }
 
   vf.sortVerticesInPt();
   vf.findPrimaryVertex();
 
   // //=== Store output EDM track and hardware stub collections.
-  if (settings_.vx_algo() == Algorithm::fastHistoEmulation) {
+  if (settings_.vx_algo() == Algorithm::fastHistoEmulation || settings_.vx_algo() == Algorithm::NNEmulation) {
     std::unique_ptr<l1t::VertexWordCollection> product_emulation =
         std::make_unique<l1t::VertexWordCollection>(vf.verticesEmulation().begin(), vf.verticesEmulation().end());
     iEvent.put(std::move(product_emulation), outputCollectionName_ + "Emulation");

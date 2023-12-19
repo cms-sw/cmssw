@@ -19,7 +19,8 @@ namespace l1tVertexFinder {
     PVR,
     adaptiveVertexReconstruction,
     HPV,
-    Kmeans
+    Kmeans,
+    NNEmulation
   };
 
   enum class Precision { Simulation, Emulation };
@@ -54,6 +55,9 @@ namespace l1tVertexFinder {
     double vx_histogram_min() const { return vx_histogram_parameters_.at(0); }
     double vx_histogram_max() const { return vx_histogram_parameters_.at(1); }
     double vx_histogram_binwidth() const { return vx_histogram_parameters_.at(2); }
+    int vx_histogram_numbins() const {
+      return (vx_histogram_parameters_.at(1) - vx_histogram_parameters_.at(0)) / vx_histogram_parameters_.at(2);
+    }
     // fastHisto assumed vertex width
     float vx_width() const { return vx_width_; }
     // fastHisto track selection control
@@ -72,6 +76,10 @@ namespace l1tVertexFinder {
     float vx_TrackMaxChi2() const { return vx_TrackMaxChi2_; }
     unsigned int vx_NStubMin() const { return vx_NStubMin_; }
     unsigned int vx_NStubPSMin() const { return vx_NStubPSMin_; }
+
+    // Functions for NN:
+    std::string vx_trkw_graph() const { return vx_trkw_graph_; }
+    std::string vx_pvz0_graph() const { return vx_pvz0_graph_; }
 
     //=== Debug printout
     unsigned int debug() const { return debug_; }
@@ -119,7 +127,8 @@ namespace l1tVertexFinder {
     float vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
     unsigned int vx_kmeans_nclusters_;
-
+    std::string vx_trkw_graph_;
+    std::string vx_pvz0_graph_;
     // Debug printout
     unsigned int debug_;
   };
