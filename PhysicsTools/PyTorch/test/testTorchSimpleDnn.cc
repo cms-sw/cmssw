@@ -10,13 +10,16 @@ class testSimpleDNN : public testBasePyTorch {
   CPPUNIT_TEST_SUITE_END();
 
 public:
+  std::string pyScript() const override;
   void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testSimpleDNN);
 
+std::string testSimpleDNN::pyScript() const { return "create_simple_dnn.py"; }
+
 void testSimpleDNN::test() {
-  std::string model_path = testPath_ + "/simple_dnn.pt";
+  std::string model_path = dataPath_ + "/simple_dnn.pt";
   torch::Device device(torch::kCPU);
   torch::jit::script::Module module;
   try {
@@ -36,15 +39,3 @@ void testSimpleDNN::test() {
   CPPUNIT_ASSERT(output.item<float_t>() == 110.);
   std::cout << "ok\n";
 }
-
-// int main(int argc, const char* argv[]) {
-//   std::cout << "Running model on CPU" << std::endl;
-//   torch::Device cpu(torch::kCPU);
-//   runModel("/data/user/dvalsecc/simple_dnn.pt", cpu);
-
-//   std::cout << "Running model on CUDA" << std::endl;
-//   torch::Device cuda(torch::kCUDA);
-//   runModel("/data/user/dvalsecc/simple_dnn.pt", cuda);
-
-//   return 0;
-// }
