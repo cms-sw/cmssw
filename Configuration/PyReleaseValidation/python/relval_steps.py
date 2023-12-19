@@ -613,6 +613,9 @@ steps['RunTau2023D']={'INPUT':InputInfo(dataSet='/Tau/Run2023D-v1/RAW',label='20
 steps['RunMuonEG2023D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2023D-v1/RAW',label='2023D',events=100000,location='STD', ls=Run2023D)}
 steps['RunParkingDoubleMuonLowMass2023D']={'INPUT':InputInfo(dataSet='/ParkingDoubleMuonLowMass0/Run2023D-v1/RAW',label='2023D',events=100000,location='STD', ls=Run2023D)}
 
+Run2023UPC={375463: [[52,52]]}
+steps['RunUPC2023']={'INPUT':InputInfo(dataSet='/HIForward1/HIRun2023A-v1/RAW',label='upc2023',events=10000,location='STD',ls=Run2023UPC)}
+
 RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
@@ -2602,6 +2605,8 @@ steps['RECODR3_reHLT_2022']=merge([{'--conditions':'auto:run3_data_relval', '--h
 steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3_2023']])
 steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 
+steps['RECODR3_2023_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2023']])
+steps['RECODR3_2023_UPC']=merge([{'--era':'Run3_2023_UPC', '--conditions':'132X_dataRun3_Prompt_HI_LowPtPhotonReg_v2'},steps['RECODR3_2023_HIN']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
