@@ -496,6 +496,46 @@ namespace cms::alpakatools {
     const Idx range_;
   };
 
+  /* uniform_groups
+   *
+   * `uniform_groups(acc, elements)` returns a range than spans the group indices required to cover the given problem
+   * size, in units of the block size:
+   *   - the `elements` argument indicates the total number of elements, across all groups.
+   *
+   * `uniform_groups` should be called consistently by all the threads in a block. All threads in a block see the same
+   * loop iterations, while threads in different blocks may see a different number of iterations.
+   *
+   * For example, if `size` is 1000 and the block size is 16,
+   *
+   *   for (auto group: uniform_groups(acc, 1000)
+   *
+   * will return the range from 0 to 62, split across all blocks in the work division.
+   *
+   * If the work division has more than 63 blocks, the first 63 will perform one iteration of the loop, while the other
+   * blocks will exit immediately.
+   * If the work division has less than 63 blocks, some of the blocks will perform more than one iteration, in order to
+   * cover then whole problem space.
+   */
+
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  using uniform_groups = blocks_with_stride<TAcc>;
+
+  /* uniform_group_elements
+   *
+   * `uniform_group_elements(acc, group, elements)` returns a range that spans all the elements within the given group:
+   *   - the `group` argument indicates the id of the current group, for example as obtained from `uniform_groups`;
+   *   - the `elements` argument indicates the total number of elements, across all groups.
+   *
+   * Iterating over the range yields values of type `ElementIndex`, that contain the `.global` and `.local` indices of
+   * the corresponding element.
+   *
+   * The loop will perform a number of iterations up to the number of elements per thread, stopping earlier when the
+   * element index reaches `size`.
+   */
+
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  using uniform_group_elements = elements_in_block<TAcc>;
+
   /* once_per_grid
    *
    * `once_per_grid(acc)` returns true for a single thread within the kernel execution grid.
