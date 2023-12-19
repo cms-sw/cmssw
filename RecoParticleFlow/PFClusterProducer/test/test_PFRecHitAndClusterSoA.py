@@ -184,7 +184,7 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
         name = cms.string('PFHBHERecHitCreator'),
         qualityTests = cms.VPSet(
             cms.PSet(
-                usePFThresholdsFromDB = cms.bool(False),
+                usePFThresholdsFromDB = cms.bool(True),
                 cuts = cms.VPSet(
                     cms.PSet(
                         depth = cms.vint32(1, 2, 3, 4),
@@ -224,7 +224,7 @@ if hcal:
             name = cms.string('PFHBHERecHitCreator'),
             qualityTests = cms.VPSet(
                 cms.PSet(
-                    usePFThresholdsFromDB = cms.bool(False),
+                    usePFThresholdsFromDB = cms.bool(True),
                     cuts = cms.VPSet(
                         cms.PSet(
                             depth = cms.vint32(1, 2, 3, 4),
@@ -316,7 +316,8 @@ process.pfRecHitParamsRecordSource = cms.ESSource('EmptyESSource',
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
-process.hltParticleFlowRecHitTopologyESProducer = cms.ESProducer(alpaka_backend_str % f"PFRecHit{CAL}TopologyESProducer")
+process.hltParticleFlowRecHitTopologyESProducer = cms.ESProducer(alpaka_backend_str % f"PFRecHit{CAL}TopologyESProducer",
+        usePFThresholdsFromDB = cms.bool(True))
 if hcal:
     process.hltParticleFlowRecHitParamsESProducer = cms.ESProducer(alpaka_backend_str % "PFRecHitHCALParamsESProducer",
         energyThresholdsHB = cms.vdouble( 0.4, 0.3, 0.3, 0.3 ),
@@ -430,6 +431,7 @@ for idx, x in enumerate(process.hltParticleFlowClusterParamsESProducer.seedFinde
 
 process.hltParticleFlowPFClusterAlpaka = cms.EDProducer(alpaka_backend_str % "PFClusterSoAProducer",
                                                         pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
+                                                        topology = cms.ESInputTag("hltParticleFlowRecHitTopologyESProducer:"),
                                                         synchronise = cms.bool(args.synchronise))
 process.hltParticleFlowPFClusterAlpaka.pfRecHits = cms.InputTag("hltParticleFlowPFRecHitAlpaka")
 
@@ -439,11 +441,12 @@ process.hltParticleFlowAlpakaToLegacyPFClusters = cms.EDProducer("LegacyPFCluste
                                                                  src = cms.InputTag("hltParticleFlowPFClusterAlpaka"),
                                                                  pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
                                                                  pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
+                                                                 usePFThresholdsFromDB = cms.bool(True),
                                                                  recHitsSource = cms.InputTag("hltParticleFlowAlpakaToLegacyPFRecHits"))
 process.hltParticleFlowAlpakaToLegacyPFClusters.PFRecHitsLabelIn = cms.InputTag("hltParticleFlowPFRecHitAlpaka")
 
 process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 5
-process.hltParticleFlowClusterHBHE.usePFThresholdsFromDB = cms.bool(False)
+process.hltParticleFlowClusterHBHE.usePFThresholdsFromDB = cms.bool(True)
 
 # Additional customization
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')

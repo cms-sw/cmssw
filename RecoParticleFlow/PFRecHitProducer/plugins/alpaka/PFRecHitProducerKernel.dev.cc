@@ -16,6 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const typename CAL::ParameterType::ConstView params,
+                                  const typename CAL::TopologyTypeDevice::ConstView topology,
                                   const typename CAL::CaloRecHitSoATypeDevice::ConstView recHits,
                                   reco::PFRecHitDeviceCollection::View pfRecHits,
                                   uint32_t* __restrict__ denseId2pfRecHit,
@@ -23,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // Strided loop over CaloRecHits
       for (int32_t i : cms::alpakatools::elements_with_stride(acc, recHits.metadata().size())) {
         // Check energy thresholds/quality cuts (specialised for HCAL/ECAL)
-        if (!applyCuts(recHits[i], params))
+        if (!applyCuts(recHits[i], params, topology))
           continue;
 
         // Use atomic operation to determine index of the PFRecHit to be constructed
@@ -40,7 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     ALPAKA_FN_ACC static bool applyCuts(const typename CAL::CaloRecHitSoATypeDevice::ConstView::const_element rh,
-                                        const typename CAL::ParameterType::ConstView params);
+                                        const typename CAL::ParameterType::ConstView params,
+                                        const typename CAL::TopologyTypeDevice::ConstView topology);
 
     ALPAKA_FN_ACC static void constructPFRecHit(
         reco::PFRecHitDeviceCollection::View::element pfrh,
@@ -50,26 +52,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <>
   ALPAKA_FN_ACC bool PFRecHitProducerKernelConstruct<HCAL>::applyCuts(
       const typename HCAL::CaloRecHitSoATypeDevice::ConstView::const_element rh,
-      const HCAL::ParameterType::ConstView params) {
+      const HCAL::ParameterType::ConstView params,
+      const HCAL::TopologyTypeDevice::ConstView topology) {
     // Reject HCAL recHits below enery threshold
     float threshold = 9999.;
     const uint32_t detId = rh.detId();
     const uint32_t depth = HCAL::getDepth(detId);
     const uint32_t subdet = getSubdet(detId);
-    if (subdet == HcalBarrel) {
-      threshold = params.energyThresholds()[depth - 1];
-    } else if (subdet == HcalEndcap) {
-      threshold = params.energyThresholds()[depth - 1 + HCAL::kMaxDepthHB];
+    if (topology.cutsFromDB()) {
+      threshold = topology.noiseThreshold()[HCAL::detId2denseId(detId)];
     } else {
-      printf("Rechit with detId %u has invalid subdetector %u!\n", detId, subdet);
-      return false;
+      if (subdet == HcalBarrel) {
+        threshold = params.energyThresholds()[depth - 1];
+      } else if (subdet == HcalEndcap) {
+        threshold = params.energyThresholds()[depth - 1 + HCAL::kMaxDepthHB];
+      } else {
+        printf("Rechit with detId %u has invalid subdetector %u!\n", detId, subdet);
+        return false;
+      }
     }
     return rh.energy() >= threshold;
   }
 
   template <>
   ALPAKA_FN_ACC bool PFRecHitProducerKernelConstruct<ECAL>::applyCuts(
-      const ECAL::CaloRecHitSoATypeDevice::ConstView::const_element rh, const ECAL::ParameterType::ConstView params) {
+      const ECAL::CaloRecHitSoATypeDevice::ConstView::const_element rh,
+      const ECAL::ParameterType::ConstView params,
+      const ECAL::TopologyTypeDevice::ConstView topology) {
     // Reject ECAL recHits below energy threshold
     if (rh.energy() < params.energyThresholds()[ECAL::detId2denseId(rh.detId())])
       return false;
@@ -88,6 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       reco::PFRecHitDeviceCollection::View::element pfrh,
       const HCAL::CaloRecHitSoATypeDevice::ConstView::const_element rh) {
     pfrh.detId() = rh.detId();
+    pfrh.denseId() = HCAL::detId2denseId(rh.detId());
     pfrh.energy() = rh.energy();
     pfrh.time() = rh.time();
     pfrh.depth() = HCAL::getDepth(pfrh.detId());
@@ -105,6 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       reco::PFRecHitDeviceCollection::View::element pfrh,
       const ECAL::CaloRecHitSoATypeDevice::ConstView::const_element rh) {
     pfrh.detId() = rh.detId();
+    pfrh.denseId() = ECAL::detId2denseId(rh.detId());
     pfrh.energy() = rh.energy();
     pfrh.time() = rh.time();
     pfrh.depth() = 1;
@@ -168,11 +179,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void PFRecHitProducerKernel<CAL>::processRecHits(Queue& queue,
                                                    const typename CAL::CaloRecHitSoATypeDevice& recHits,
                                                    const typename CAL::ParameterType& params,
+                                                   const typename CAL::TopologyTypeDevice& topology,
                                                    reco::PFRecHitDeviceCollection& pfRecHits) {
     alpaka::exec<Acc1D>(queue,
                         work_div_,
                         PFRecHitProducerKernelConstruct<CAL>{},
                         params.view(),
+                        topology.view(),
                         recHits.view(),
                         pfRecHits.view(),
                         denseId2pfRecHit_.data(),

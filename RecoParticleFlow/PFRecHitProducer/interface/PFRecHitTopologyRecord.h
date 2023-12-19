@@ -5,10 +5,11 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 
 class PFRecHitHCALTopologyRecord : public edm::eventsetup::DependentRecordImplementation<
                                        PFRecHitHCALTopologyRecord,
-                                       edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord>> {};
+                                       edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord, HcalPFCutsRcd>> {};
 
 class PFRecHitECALTopologyRecord
     : public edm::eventsetup::DependentRecordImplementation<PFRecHitECALTopologyRecord,
