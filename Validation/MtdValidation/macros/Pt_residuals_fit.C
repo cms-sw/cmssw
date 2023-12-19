@@ -25,12 +25,12 @@ using namespace RooFit;
 
 // Funtion for fitting to data with roofit library (defined below)
 // ---------------------------------------------------------------
-void fit_to_data(TH1D* h_TrackMatchedTP);
+void fit_to_data(TH1D* histogram, TString name_file);
 
 
 //Main function
 //-------------
-void Pt_residuals_fit(){
+void residuals_fit(){
 
     // Open the root file to read 
     // --------------------------
@@ -62,25 +62,25 @@ void Pt_residuals_fit(){
     TH1D* h_TrackMatchedTPETL2PtResMtd = (TH1D*) dir_Tracks->Get("TrackMatchedTPETL2PtResMtd");
     
     
-    // Fit to data with the function fittodata
+    // Fit to data with the function fit_to_data
     //---------------------------------------
-    fit_to_data (h_TrackMatchedTPETLPtRatioMtd);
-    fit_to_data (h_TrackMatchedTPETLPtRatioGen);
+    fit_to_data (h_TrackMatchedTPBTLPtRatioGen,"BTLPtRatioGen_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETLPtRatioGen,"ETLPtRatioGen_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETL2PtRatioGen,"ETL2PtRatioGen_fit.pdf");
     
-    //fit_to_data (h_TrackMatchedTPETLPtRatioGen);
-    //fit_to_data (h_TrackMatchedTPETL2PtRatioGen);
-    //fit_to_data (h_TrackMatchedTPBTLPtRatioMtd);
-    //fit_to_data (h_TrackMatchedTPETLPtRatioMtd);
-    //fit_to_data (h_TrackMatchedTPETL2PtRatioMtd);
-    //fit_to_data (h_TrackMatchedTPBTLPtResMtd);
-    //fit_to_data (h_TrackMatchedTPETLPtResMtd);
-    //fit_to_data (h_TrackMatchedTPETL2PtResMtd);
+    fit_to_data (h_TrackMatchedTPBTLPtRatioMtd,"BTLPtRatioMtd_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETLPtRatioMtd,"ETLPtRatioMtd_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETL2PtRatioMtd,"ETL2PtRatioMtd_fit.pdf");
+    
+    fit_to_data (h_TrackMatchedTPBTLPtResMtd,"BTLPtResMtd_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETLPtResMtd,"ETLPtResMtd_fit.pdf");
+    fit_to_data (h_TrackMatchedTPETL2PtResMtd,"ETL2PtResMtd_fit.pdf"); 
     
     return;
     
 }
 
-void fit_to_data(TH1D* h_TrackMatchedTP){
+void fit_to_data(TH1D* h_TrackMatchedTP, TString str){
    
    // Fit to data using roofit library
    // -----------------------------------------------
@@ -119,7 +119,10 @@ void fit_to_data(TH1D* h_TrackMatchedTP){
    //Retrieve values from the fit
    Double_t mean_fit = mean.getVal();
    Double_t err_mean = mean.getError();
-   
+   Double_t sigmaR_fit = sigmaR.getVal();
+   Double_t err_sigmaR = sigmaR.getError();
+   Double_t sigmaL_fit = sigmaL.getVal();
+   Double_t err_sigmaL = sigmaL.getError();
    
    // Compute resolution as half-width of the interval containing 68% of all entries (including overflows), centered around the MPV of the residuals
    // ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -129,11 +132,10 @@ void fit_to_data(TH1D* h_TrackMatchedTP){
    double_t integral = 0;
    for(Int_t i=1; i<h_TrackMatchedTP->GetNbinsX()/2; i++){
      Int_t bin_mean = (mean_fit-range_min)/bin_width;
-     double_t integral = h_TrackMatchedTP->Integral(bin_mean-i,bin_mean+i)/h_TrackMatchedTP->GetEntries();
+     double_t integral = h_TrackMatchedTP->Integral(bin_mean-i,bin_mean+i)/h_TrackMatchedTP->Integral();
      if (integral-0.68<min) res = i*bin_width;
    }
    cout << "Resolution = " << res << " +- " << bin_width << endl;
-   cout << "Integral = " << h_TrackMatchedTP->Integral() << " Entries " << h_TrackMatchedTP->GetEntries() << endl;
    
    // Create a RooPlot to draw on. 
    //-----------------------------
@@ -149,7 +151,7 @@ void fit_to_data(TH1D* h_TrackMatchedTP){
    auto legend_res = new TLegend(0.65,0.8,0.8,0.9);
    gStyle->SetLegendTextSize(0.035);
    TLatex * header = new TLatex();
-   header->SetTextSize(0.04);
+   header->SetTextSize(0.035);
    
    TCanvas *c1 = new TCanvas ("c1", "c1", 600,500);
    c1->cd();
@@ -161,6 +163,9 @@ void fit_to_data(TH1D* h_TrackMatchedTP){
    header->DrawLatexNDC(0.12,0.96,"MC Simulation");
    header->DrawLatexNDC(0.81,0.96,"#sqrt{s} = 14 TeV");
    header->DrawLatexNDC(0.65,0.75,TString::Format("#mu = %.4f #pm %.4f", mean_fit, err_mean));
-   header->DrawLatexNDC(0.65,0.7,TString::Format("#sigma = %.3f #pm %.3f", res, bin_width));
-   c1->Print("fit.pdf")
+   header->DrawLatexNDC(0.65,0.71,TString::Format("#sigma_{R} = %.4f #pm %.4f", sigmaR_fit, err_sigmaR));
+   header->DrawLatexNDC(0.65,0.67,TString::Format("#sigma_{L} = %.4f #pm %.4f", sigmaL_fit, err_sigmaL));
+   header->DrawLatexNDC(0.65,0.63,TString::Format("#sigma (0.68) = %.3f #pm %.3f", res, bin_width));
+   c1->Print(str);
+   
 }
