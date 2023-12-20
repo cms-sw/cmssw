@@ -62,8 +62,11 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
   int levels = v->GetHistoryDepth();
 
   for (int k = 0; k <= levels; ++k) {
-    if (DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName())) != "TOBInactive") {
-      st.emplace_back(std::pair<int, std::string>(v->GetVolume(k)->GetCopyNo(), DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName()))));
+    if (DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName())) !=
+        "TOBInactive") {
+      st.emplace_back(std::pair<int, std::string>(
+          v->GetVolume(k)->GetCopyNo(),
+          DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName()))));
 #ifdef EDM_ML_DEBUG
       debugint.emplace_back(v->GetVolume(k)->GetCopyNo());
       debugstring.emplace_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
@@ -97,7 +100,7 @@ void TrackerG4SimHitNumberingScheme::dumpG4VPV(const G4VTouchable* v) {
 
   edm::LogVerbatim("TrackerSimDebugNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
   for (int k = 0; k <= levels; k++) {
-    edm::LogVerbatim("TrackerSimInfoNumbering") << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy "
-                                        << v->GetVolume(k)->GetCopyNo();
+    edm::LogVerbatim("TrackerSimInfoNumbering")
+        << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy " << v->GetVolume(k)->GetCopyNo();
   }
 }
