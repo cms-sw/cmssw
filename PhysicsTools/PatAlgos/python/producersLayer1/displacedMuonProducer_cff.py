@@ -70,6 +70,7 @@ patDisplacedMuons = patMuons.clone(
 
     computeSoftMuonMVA = False,
     softMvaTrainingFile = "RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml",
+    softMvaRun3Model = cms.string("RecoMuon/MuonIdentification/data/Run2022-20231030-1731-Event0"),
 
     # MC Info
     muonSimInfo = "displacedMuonSimClassifier", # This module does not exists but producer checks existence by itself
