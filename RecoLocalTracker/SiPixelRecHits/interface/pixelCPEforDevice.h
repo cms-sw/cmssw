@@ -66,6 +66,8 @@ namespace pixelCPEforDevice {
 
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
+
+    bool IrradiationBiasCorrection_;
   };
 
   struct DetParams {
@@ -98,6 +100,11 @@ namespace pixelCPEforDevice {
     int minCh[kGenErrorQBins];
 
     Frame frame;
+    // estimated bias for generic CPE in cm
+    float deltax[CPEFastParametrisation::kGenErrorQBins], deltay[CPEFastParametrisation::kGenErrorQBins];
+    // estimated bias for generic CPE in micron for dimension-1 clusters (single or double-width pixels) in cm
+    // they do not depend on charge, so no splitting per qBins
+    float dx1, dx2, dy1, dy2;
   };
 
   template <typename TrackerTopology>
@@ -336,6 +343,56 @@ namespace pixelCPEforDevice {
         cp.yerr[ic] = sy < std::size(yerr_barrel_ln) ? yerr_barrel_ln[sy] : yerr_barrel_ln_def;
       }
     }
+  }
+
+  template <typename TrackerTraits>
+  constexpr inline void irradiationBiasCorrection(
+                                    CommonParams const& __restrict__ comParams,
+                                    DetParams const& __restrict__ detParams,
+                                    ClusParams& cp,
+                                    uint32_t ic)
+  {
+    if(!comParams.IrradiationBiasCorrection_){
+      return;
+    }
+
+    float ibc_x=0;
+    float ibc_y=0;
+
+    // in detParams qBins are reversed bin0 -> smallest charge, bin4-> largest charge
+    // whereas in CondFormats/SiPixelTransient/src/SiPixelGenError.cc it is the opposite
+    // so we reverse the bin here -> kGenErrorQBins - 1 - bin
+    int bin = 0;
+    bin = CPEFastParametrisation::kGenErrorQBins - 1 - cp.status[ic].qBin;
+
+    if (cp.status[ic].isOneX) {  // size=1
+      //for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      ibc_x = ibc_x - detParams.shiftX;
+      if (cp.status[ic].isBigX){
+        ibc_x -= detParams.dx2;
+      }
+      else{
+        ibc_x -= detParams.dx1;
+      }
+    }
+    else {  // size>1
+      ibc_x -= detParams.deltax[bin];
+    }
+
+    if (cp.status[ic].isOneY) {  // size=1
+      //for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      ibc_y = ibc_y - detParams.shiftX;
+      if (cp.status[ic].isBigY)
+        ibc_y -= detParams.dy2;
+      else
+        ibc_y -= detParams.dy1;
+    }
+    else {  // size>1
+      ibc_y -= detParams.deltay[bin];
+    }
+
+  cp.xpos[ic] += ibc_x;
+  cp.ypos[ic] += ibc_y;
   }
 
   template <typename TrackerTraits>

@@ -20,7 +20,8 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
                                                               const TrackerTopology& ttopo,
                                                               const SiPixelLorentzAngle* lorentzAngle,
                                                               const SiPixelGenErrorDBObject* genErrorDBObject,
-                                                              const SiPixelLorentzAngle* lorentzAngleWidth)
+                                                              const SiPixelLorentzAngle* lorentzAngleWidth,
+                                                              const bool irradiationBiasCorrection)
     : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
       buffer_(cms::alpakatools::make_host_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>()) {
   // Use errors from templates or from GenError
@@ -31,6 +32,7 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
           << (*genErrorDBObject_).version();
   }
 
+  IrradiationBiasCorrection_ = irradiationBiasCorrection;
   fillParamsForDevice();
 }
 
@@ -46,7 +48,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   buffer_->commonParams().thePitchY = m_DetParams[0].thePitchY;
 
   buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
-
+  buffer_->commonParams().IrradiationBiasCorrection_ = IrradiationBiasCorrection_;
   LogDebug("PixelCPEFastParamsHost") << "pitch & thickness " << buffer_->commonParams().thePitchX << ' '
                                      << buffer_->commonParams().thePitchY << "  "
                                      << buffer_->commonParams().theThicknessB << ' '
@@ -173,6 +175,11 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.sy1 = std::max(21, toMicron(cp.sy1));  // for some angles sy1 is very small
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
+    g.dx1 = cp.dx1; 
+    g.dx2 = cp.dx2; 
+    g.dy1 = cp.dy1; 
+    g.dy2 = cp.dy2; 
+
     //sample xerr as function of position
     // moduleOffsetX is the definition of TrackerTraits::xOffset,
     // needs to be calculated because for Phase2 the modules are not uniform
@@ -220,19 +227,32 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // sample x by charge
     int qbin = pixelCPEforDevice::kGenErrorQBins;  // low charge
     int k = 0;
-    for (int qclus = 1000; qclus < 200000; qclus += 1000) {
+    int qClusIncrement = 100;
+    for (int qclus = 1000; k < CPEFastParametrisation::kGenErrorQBins; qclus += qClusIncrement) {//increase charge until we cover all qBin categories
       errorFromTemplates(p, cp, qclus);
       if (cp.qBin_ == qbin)
         continue;
       qbin = cp.qBin_;
+      //There are two qBin categories with low charge. Their qBins are 5 and 4 (CPEFastParametrisation::kGenErrorQBins, CPEFastParametrisation::kGenErrorQBins-1)
+      //We increment charge until qBin gets switched from 5 and then we start writing detParams as we are not interested in cases with qBin=5
+      //The problem is that with a too large qClusIncrement, we may go directly from 5 to 3, breaking the logic of the for loop
+      //Therefore, we start with lower increment (100) until we get to qBin=4
+      if(qbin<CPEFastParametrisation::kGenErrorQBins){
+        qClusIncrement=1000;
+      }
       g.xfact[k] = cp.sigmax;
       g.yfact[k] = cp.sigmay;
+
+      //printf("ParamsHost:qClus: %i, i: %i, k: %i, qbin:%i, deltax: %f, deltay: %f, sigmax: %f, sigmay: %f\n",qclus,i, k, qbin,cp.deltax,cp.deltay,cp.sigmax,cp.sigmay);
+      g.deltax[k] = cp.deltax;
+      g.deltay[k] = cp.deltay;
+
       g.minCh[k++] = qclus;
+
 #ifdef EDM_ML_DEBUG
-      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_
-                                         << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' '
-                                         << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2
-                                         << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_ << ' '
+                               << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' ' << m * cp.sx2 << ' '
+                               << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
 #endif  // EDM_ML_DEBUG
     }
 
@@ -347,16 +367,23 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.pixmx = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
 
   theClusterParam.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
+  theClusterParam.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
+  theClusterParam.deltay = -999.9;  // CPE Generic y-bias for multi-pixel cluster
   theClusterParam.sigmax = -999.9;  // CPE Generic x-error for multi-pixel cluster
+  theClusterParam.deltax = -999.9;  // CPE Generic x-bias for multi-pixel cluster
   theClusterParam.sy1 = -999.9;     // CPE Generic y-error for single single-pixel
+  theClusterParam.dy1 = -999.9;     // CPE Generic y-bias for single single-pixel cluster
   theClusterParam.sy2 = -999.9;     // CPE Generic y-error for single double-pixel cluster
+  theClusterParam.dy2 = -999.9;     // CPE Generic y-bias for single double-pixel cluster
   theClusterParam.sx1 = -999.9;     // CPE Generic x-error for single single-pixel cluster
+  theClusterParam.dx1 = -999.9;     // CPE Generic x-bias for single single-pixel cluster
   theClusterParam.sx2 = -999.9;     // CPE Generic x-error for single double-pixel cluster
-
-  float dummy;
+  theClusterParam.dx2 = -999.9;     // CPE Generic x-bias for single double-pixel cluster
 
   SiPixelGenError gtempl(this->thePixelGenError_);
   int gtemplID = theDetParam.detTemplateId;
+
+  bool IrradiationBiasCorrection_ = true;
 
   theClusterParam.qBin_ = gtempl.qbin(gtemplID,
                                       theClusterParam.cotalpha,
@@ -364,20 +391,20 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
                                       locBz,
                                       locBx,
                                       qclus,
-                                      false,
+                                      IrradiationBiasCorrection_,
                                       theClusterParam.pixmx,
                                       theClusterParam.sigmay,
-                                      dummy,
+                                      theClusterParam.deltay,
                                       theClusterParam.sigmax,
-                                      dummy,
+                                      theClusterParam.deltax,
                                       theClusterParam.sy1,
-                                      dummy,
+                                      theClusterParam.dy1,
                                       theClusterParam.sy2,
-                                      dummy,
+                                      theClusterParam.dy2,
                                       theClusterParam.sx1,
-                                      dummy,
+                                      theClusterParam.dx1,
                                       theClusterParam.sx2,
-                                      dummy);
+                                      theClusterParam.dx2);
 
   theClusterParam.sigmax = theClusterParam.sigmax * pixelCPEforDevice::micronsToCm;
   theClusterParam.sx1 = theClusterParam.sx1 * pixelCPEforDevice::micronsToCm;
@@ -386,6 +413,14 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.sigmay = theClusterParam.sigmay * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy1 = theClusterParam.sy1 * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy2 = theClusterParam.sy2 * pixelCPEforDevice::micronsToCm;
+  
+  theClusterParam.deltax = theClusterParam.deltax * pixelCPEforDevice::micronsToCm;
+  theClusterParam.dx1 = theClusterParam.dx1 * pixelCPEforDevice::micronsToCm;
+  theClusterParam.dx2 = theClusterParam.dx2 * pixelCPEforDevice::micronsToCm;
+
+  theClusterParam.deltay = theClusterParam.deltay * pixelCPEforDevice::micronsToCm;
+  theClusterParam.dy1 = theClusterParam.dy1 * pixelCPEforDevice::micronsToCm;
+  theClusterParam.dy2 = theClusterParam.dy2 * pixelCPEforDevice::micronsToCm; 
 }
 
 template <>

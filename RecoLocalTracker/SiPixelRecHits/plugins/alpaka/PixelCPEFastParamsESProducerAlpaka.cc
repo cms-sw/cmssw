@@ -42,6 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     edm::ParameterSet pset_;
     bool useErrorsFromTemplates_;
+    bool irradiationBiasCorrection_;
   };
 
   using namespace edm;
@@ -52,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& myname = p.getParameter<std::string>("ComponentName");
     auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
     useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
-
+    irradiationBiasCorrection_ = p.getParameter<bool>("IrradiationBiasCorrection");
     auto cc = setWhatProduced(this, myname);
     magfieldToken_ = cc.consumes(magname);
     pDDToken_ = cc.consumes();
@@ -84,8 +85,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                    iRecord.get(hTTToken_),
                                                                    &iRecord.get(lorentzAngleToken_),
                                                                    genErrorDBObjectProduct,
-                                                                   lorentzAngleWidthProduct);
-  }
+                                                                   lorentzAngleWidthProduct,
+                                                                   irradiationBiasCorrection_);
+}
 
   template <typename TrackerTraits>
   void PixelCPEFastParamsESProducerAlpaka<TrackerTraits>::fillDescriptions(
@@ -102,6 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("EdgeClusterErrorX", 50.0);
     desc.add<double>("EdgeClusterErrorY", 85.0);
     desc.add<bool>("UseErrorsFromTemplates", true);
+    desc.add<bool>("IrradiationBiasCorrection", false);
     desc.add<bool>("TruncatePixelCharge", true);
 
     std::string name = "PixelCPEFastParams";

@@ -184,6 +184,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               pixelCPEforDevice::errorFromDB<TrackerTraits>(
                   cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+              //We need to call this after the errorFromDB as it calculates some cluster properties needed for IBC
+              pixelCPEforDevice::irradiationBiasCorrection<TrackerTraits>(
+                  cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
               // store it
               hits[h].chargeAndStatus().charge = clusParams.charge[ic];
