@@ -86,6 +86,11 @@ namespace cms::alpakatools {
   };
 
   /* elements_with_stride
+   *
+   * `elements_with_stride(acc, [first, ]extent)` returns an iteratable range that spans the element indices required to
+   * cover the given problem size:
+   *   - `first` (optional) is index to the first element; if not specified, the loop starts from 0;
+   *   - `extent` is the total size of the problem, including any elements that may come before `first`.
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
@@ -93,13 +98,19 @@ namespace cms::alpakatools {
   public:
     ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc)
         : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          thread_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
           extent_{stride_} {}
 
     ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc, Idx extent)
         : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          thread_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+          extent_{extent} {}
+
+    ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc, Idx first, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_ + first},
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
 
@@ -164,13 +175,13 @@ namespace cms::alpakatools {
       Idx range_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(elements_, stride_, extent_, thread_); }
+    ALPAKA_FN_ACC inline iterator begin() const { return iterator(elements_, stride_, extent_, first_); }
 
     ALPAKA_FN_ACC inline iterator end() const { return iterator(elements_, stride_, extent_, extent_); }
 
   private:
     const Idx elements_;
-    const Idx thread_;
+    const Idx first_;
     const Idx stride_;
     const Idx extent_;
   };
