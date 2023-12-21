@@ -261,7 +261,6 @@ private:
   edm::EDGetTokenT<l1t::TkJetWordCollection> TrackJetsExtendedEmuToken_;
   edm::EDGetTokenT<l1t::TkTripletCollection> TrackTripletsToken_;
 
-
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 
@@ -1739,7 +1738,6 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<l1t::TkTripletCollection> TrackTripletsHandle;
   std::vector<l1t::TkTriplet>::const_iterator tripletIter;
 
-
   // Track Sums
   edm::Handle<std::vector<l1t::TkEtMiss>> L1TkMETHandle;
   edm::Handle<std::vector<l1t::TkEtMiss>> L1TkMETExtendedHandle;
@@ -3010,9 +3008,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       }
     }
     for (tripletIter = TrackTripletsHandle->begin(); tripletIter != TrackTripletsHandle->end(); ++tripletIter) {
-        m_triplet_phi->push_back(tripletIter->phi());
-        m_triplet_eta->push_back(tripletIter->eta());
-        m_triplet_pt->push_back(tripletIter->pt());
+      m_triplet_phi->push_back(tripletIter->phi());
+      m_triplet_eta->push_back(tripletIter->eta());
+      m_triplet_pt->push_back(tripletIter->pt());
     }
     if (TrackJetsExtendedHandle.isValid() && (Displaced == "Displaced" || Displaced == "Both")) {
       for (jetIter = TrackJetsExtendedHandle->begin(); jetIter != TrackJetsExtendedHandle->end(); ++jetIter) {

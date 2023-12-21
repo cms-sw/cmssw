@@ -24,8 +24,8 @@ namespace l1t {
 
     enum TkTripletBitWidths {
       // The sizes of the triplet word components and total word size
-      kValidSize = 1,            // Width of the valid bit
-      kPtSize = 16,              // Width of the triplet pt
+      kValidSize = 1,  // Width of the valid bit
+      kPtSize = 16,    // Width of the triplet pt
       kPtMagSize = 11,
       kGlbEtaSize = 14,          // Width of the triplet eta
       kGlbPhiSize = 13,          // Width of the triplet phi
@@ -36,10 +36,9 @@ namespace l1t {
       kDiTrackMinZ0Size = 8,     // Width of the Dz of min Dz pair
       kDiTrackMaxZ0Size = 8,     // Width of the Dz of max Dz pair
       kUnassignedSize = 17,
-      kTkTripletWordSize = kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + 
-                           kMassSize + kChargeSize + kDiTrackMinMassSize + 
-                           kDiTrackMaxMassSize + kDiTrackMinZ0Size + 
-                           kDiTrackMaxZ0Size + kUnassignedSize,
+      kTkTripletWordSize = kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + kMassSize + kChargeSize +
+                           kDiTrackMinMassSize + kDiTrackMaxMassSize + kDiTrackMinZ0Size + kDiTrackMaxZ0Size +
+                           kUnassignedSize,
     };
 
     enum TkTripletBitLocations {
@@ -56,30 +55,30 @@ namespace l1t {
       kMassMSB = kMassLSB + TkTripletBitWidths::kMassSize - 1,
       kChargeLSB = kMassMSB + 1,
       kChargeMSB = kChargeLSB + TkTripletBitWidths::kChargeSize - 1,
-      kDiTrackMinMassLSB = kChargeMSB +1,
+      kDiTrackMinMassLSB = kChargeMSB + 1,
       kDiTrackMinMassMSB = kDiTrackMinMassLSB + TkTripletBitWidths::kDiTrackMinMassSize - 1,
-      kDiTrackMaxMassLSB = kDiTrackMinMassMSB +1,
+      kDiTrackMaxMassLSB = kDiTrackMinMassMSB + 1,
       kDiTrackMaxMassMSB = kDiTrackMaxMassLSB + TkTripletBitWidths::kDiTrackMaxMassSize - 1,
-      kDiTrackMinZ0LSB = kDiTrackMaxMassMSB +1,
+      kDiTrackMinZ0LSB = kDiTrackMaxMassMSB + 1,
       kDiTrackMinZ0MSB = kDiTrackMinZ0LSB + TkTripletBitWidths::kDiTrackMinZ0Size - 1,
-      kDiTrackMaxZ0LSB = kDiTrackMinZ0MSB +1,
+      kDiTrackMaxZ0LSB = kDiTrackMinZ0MSB + 1,
       kDiTrackMaxZ0MSB = kDiTrackMaxZ0LSB + TkTripletBitWidths::kDiTrackMaxZ0Size - 1,
       kUnassignedLSB = kDiTrackMaxZ0MSB + 1,
       kUnassignedMSB = kUnassignedLSB + TkTripletBitWidths::kUnassignedSize - 1,
     };
 
     // vertex parameters types
-    typedef ap_uint<kValidSize> valid_t; //valid 
-    typedef ap_ufixed<kPtSize, kPtMagSize, AP_TRN, AP_SAT> pt_t; //triplet pt
-    typedef ap_int<kGlbEtaSize> glbeta_t;                        //triplet eta
-    typedef ap_int<kGlbPhiSize> glbphi_t;                        //triplet phi
-    typedef ap_int<kMassSize> mass_t;                            //triplet mass
-    typedef ap_int<kChargeSize> charge_t;                        //triplet Q
-    typedef ap_int<kDiTrackMinMassSize> ditrack_minmass_t;       //pair min mass
-    typedef ap_int<kDiTrackMaxMassSize> ditrack_maxmass_t;       //pair max mass
-    typedef ap_int<kDiTrackMinZ0Size> ditrack_minz0_t;           //pair dz min
-    typedef ap_int<kDiTrackMaxZ0Size> ditrack_maxz0_t;           //pair dz max
-    typedef ap_uint<TkTripletBitWidths::kUnassignedSize> unassigned_t; 
+    typedef ap_uint<kValidSize> valid_t;                          //valid
+    typedef ap_ufixed<kPtSize, kPtMagSize, AP_TRN, AP_SAT> pt_t;  //triplet pt
+    typedef ap_int<kGlbEtaSize> glbeta_t;                         //triplet eta
+    typedef ap_int<kGlbPhiSize> glbphi_t;                         //triplet phi
+    typedef ap_int<kMassSize> mass_t;                             //triplet mass
+    typedef ap_int<kChargeSize> charge_t;                         //triplet Q
+    typedef ap_int<kDiTrackMinMassSize> ditrack_minmass_t;        //pair min mass
+    typedef ap_int<kDiTrackMaxMassSize> ditrack_maxmass_t;        //pair max mass
+    typedef ap_int<kDiTrackMinZ0Size> ditrack_minz0_t;            //pair dz min
+    typedef ap_int<kDiTrackMaxZ0Size> ditrack_maxz0_t;            //pair dz max
+    typedef ap_uint<TkTripletBitWidths::kUnassignedSize> unassigned_t;
     typedef std::bitset<TkTripletBitWidths::kTkTripletWordSize> tktripletword_bs_t;
     typedef ap_uint<TkTripletBitWidths::kTkTripletWordSize> tktripletword_t;
 
@@ -87,16 +86,16 @@ namespace l1t {
     // ----------Constructors --------------------------
     TkTripletWord() {}
     TkTripletWord(valid_t valid,
-              pt_t pt,
-              glbeta_t eta,
-              glbphi_t phi,
-              mass_t mass,
-              charge_t charge,
-              ditrack_minmass_t ditrack_minmass,
-              ditrack_maxmass_t ditrack_maxmass,
-              ditrack_minz0_t ditrack_minz0_t,
-              ditrack_maxz0_t ditrack_maxz0_t,
-              unassigned_t unassigned);
+                  pt_t pt,
+                  glbeta_t eta,
+                  glbphi_t phi,
+                  mass_t mass,
+                  charge_t charge,
+                  ditrack_minmass_t ditrack_minmass,
+                  ditrack_maxmass_t ditrack_maxmass,
+                  ditrack_minz0_t ditrack_minz0_t,
+                  ditrack_maxz0_t ditrack_maxz0_t,
+                  unassigned_t unassigned);
 
     ~TkTripletWord() {}
 
@@ -111,7 +110,9 @@ namespace l1t {
 
     // ----------member functions (getters) ------------
     // These functions return arbitarary precision words (lists of bits) for each quantity
-    valid_t validWord() const { return tkTripletWord()(TkTripletBitLocations::kValidMSB, TkTripletBitLocations::kValidLSB); }
+    valid_t validWord() const {
+      return tkTripletWord()(TkTripletBitLocations::kValidMSB, TkTripletBitLocations::kValidLSB);
+    }
     pt_t ptWord() const {
       pt_t ret;
       ret.V = tkTripletWord()(TkTripletBitLocations::kPtMSB, TkTripletBitLocations::kPtLSB);
@@ -186,17 +187,38 @@ namespace l1t {
           glbEtaWord(), TkTripletBitWidths::kGlbEtaSize, (MAX_ETA) / (1 << TkTripletBitWidths::kGlbEtaSize));
     }
     float glbphi() const {
-      return unpackSignedValue(
-          glbPhiWord(), TkTripletBitWidths::kGlbPhiSize, (2. * std::abs(M_PI)) / (1 << TkTripletBitWidths::kGlbPhiSize));
+      return unpackSignedValue(glbPhiWord(),
+                               TkTripletBitWidths::kGlbPhiSize,
+                               (2. * std::abs(M_PI)) / (1 << TkTripletBitWidths::kGlbPhiSize));
     }
     float mass() const {
-      return unpackSignedValue(massWord(), TkTripletBitWidths::kMassSize, MAX_MASS / (1 << TkTripletBitWidths::kMassSize));
+      return unpackSignedValue(
+          massWord(), TkTripletBitWidths::kMassSize, MAX_MASS / (1 << TkTripletBitWidths::kMassSize));
     }
-    int charge() const { return unpackSignedValue(chargeWord(), TkTripletBitWidths::kChargeSize, MAX_CHARGE / (1 << TkTripletBitWidths::kChargeSize)); }
-    float ditrackMinMass() const { return unpackSignedValue(ditrackMinMassWord(), TkTripletBitWidths::kDiTrackMinMassSize, MAX_MASS / (1 << TkTripletBitWidths::kDiTrackMinMassSize)); }
-    float ditrackMaxMass() const { return unpackSignedValue(ditrackMaxMassWord(), TkTripletBitWidths::kDiTrackMaxMassSize, MAX_MASS / (1 << TkTripletBitWidths::kDiTrackMaxMassSize)); }
-    float ditrackMinZ0() const { return unpackSignedValue(ditrackMinZ0Word(), TkTripletBitWidths::kDiTrackMinZ0Size, MAX_Z0 / (1 << TkTripletBitWidths::kDiTrackMinZ0Size));  }
-    float ditrackMaxZ0() const { return unpackSignedValue(ditrackMaxZ0Word(), TkTripletBitWidths::kDiTrackMaxZ0Size, MAX_Z0 / (1 << TkTripletBitWidths::kDiTrackMaxZ0Size));}
+    int charge() const {
+      return unpackSignedValue(
+          chargeWord(), TkTripletBitWidths::kChargeSize, MAX_CHARGE / (1 << TkTripletBitWidths::kChargeSize));
+    }
+    float ditrackMinMass() const {
+      return unpackSignedValue(ditrackMinMassWord(),
+                               TkTripletBitWidths::kDiTrackMinMassSize,
+                               MAX_MASS / (1 << TkTripletBitWidths::kDiTrackMinMassSize));
+    }
+    float ditrackMaxMass() const {
+      return unpackSignedValue(ditrackMaxMassWord(),
+                               TkTripletBitWidths::kDiTrackMaxMassSize,
+                               MAX_MASS / (1 << TkTripletBitWidths::kDiTrackMaxMassSize));
+    }
+    float ditrackMinZ0() const {
+      return unpackSignedValue(ditrackMinZ0Word(),
+                               TkTripletBitWidths::kDiTrackMinZ0Size,
+                               MAX_Z0 / (1 << TkTripletBitWidths::kDiTrackMinZ0Size));
+    }
+    float ditrackMaxZ0() const {
+      return unpackSignedValue(ditrackMaxZ0Word(),
+                               TkTripletBitWidths::kDiTrackMaxZ0Size,
+                               MAX_Z0 / (1 << TkTripletBitWidths::kDiTrackMaxZ0Size));
+    }
     unsigned int unassigned() const { return unassignedWord().to_uint(); }
 
     // ----------member functions (setters) ------------

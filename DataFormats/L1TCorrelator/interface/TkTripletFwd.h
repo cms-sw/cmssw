@@ -1,7 +1,7 @@
 #ifndef DataFormatsL1TCorrelator_TkTripletFwd_h
 #define DataFormatsL1TCorrelator_TkTripletFwd_h
 
-// Original author: G Karathanasis, 
+// Original author: G Karathanasis,
 //                    georgios.karathanasis@cern.ch, CU Boulder
 // -*- C++ -*-
 //
