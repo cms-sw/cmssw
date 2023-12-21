@@ -51,6 +51,16 @@ hgcalValidator = DQMEDAnalyzer(
     label_TS = cms.string("Morphology"),
     label_TSToCPLinking = cms.string("TSToCP_linking"),
     label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
+    #candidates plots
+    doCandidatesPlots = cms.untracked.bool(True),
+    ticlCandidates = cms.string("ticlCandidates"),
+
+    ticlTrackstersMerge = cms.InputTag("ticlTrackstersMerge"),
+    simTiclCandidates = cms.InputTag("ticlSimTracksters"),
+    recoTracks = cms.InputTag("generalTracks"),
+    trackstersclue3d = cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    mergeRecoToSimAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "recoToSim"),
+    mergeSimToRecoAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "simToReco"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).

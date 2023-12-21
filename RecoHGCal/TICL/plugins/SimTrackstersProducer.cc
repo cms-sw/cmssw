@@ -459,9 +459,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
     auto pdgId = cp.pdgId();
     auto charge = cp.charge();
-    if (cand.trackPtr().isNonnull() and charge == 0) {
-    }
-    if (cand.trackPtr().isNonnull() and charge != 0) {
+    if (cand.trackPtr().isNonnull()) {
       auto const& track = cand.trackPtr().get();
       if (std::abs(pdgId) == 13) {
         cand.setPdgId(pdgId);
@@ -475,7 +473,14 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                                  regressedEnergy);
       cand.setP4(p4);
     } else {  // neutral candidates
-      cand.setPdgId(isHad(pdgId) ? 130 : 22);
+      // a neutral candidate with a charged CaloParticle is charged without a reco track associated with it
+      // set the charge = 0, but keep the real pdgId to keep track of that
+      if (charge != 0)
+        cand.setPdgId(isHad(pdgId) ? 211 : 11);
+      else if (pdgId == 111)
+        cand.setPdgId(pdgId);
+      else
+        cand.setPdgId(isHad(pdgId) ? 130 : 22);
       cand.setCharge(0);
 
       auto particleType = tracksterParticleTypeFromPdgId(cand.pdgId(), 1);
