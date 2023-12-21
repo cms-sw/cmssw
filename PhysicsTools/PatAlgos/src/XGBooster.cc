@@ -1,8 +1,8 @@
 #include "PhysicsTools/PatAlgos/interface/XGBooster.h"
-#include <assert.h>
-#include <math.h>
-#include <stdexcept>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <stdexcept>
 
 #include <iostream>
 #include <fstream>
@@ -45,7 +45,7 @@ std::vector<std::string> read_features(const std::string& content) {
 
 XGBooster::XGBooster(std::string model_file)
 {
-  int status = XGBoosterCreate(NULL, 0, &booster_);
+  int status = XGBoosterCreate(nullptr, 0, &booster_);
   if (status != 0)
     throw std::runtime_error("Failed to create XGBooster");
   status = XGBoosterLoadModel(booster_, model_file.c_str());
