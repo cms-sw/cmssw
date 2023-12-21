@@ -91,6 +91,24 @@ namespace cms::alpakatools {
    * cover the given problem size:
    *   - `first` (optional) is index to the first element; if not specified, the loop starts from 0;
    *   - `extent` is the total size of the problem, including any elements that may come before `first`.
+   *
+   * To cover the problem space, different threads may execute a different number of iterations. As a result, it is not
+   * safe to call alpaka::syncBlockThreads() within this loop. If a block synchronisation is needed, one should split
+   * the loop into an outer loop on the blocks and an inner loop on the threads, and call the syncronisation only in the
+   * outer loop:
+   *
+   *  for (auto group : uniform_groups(acc, extent) {
+   *    for (auto element : uniform_group_elements(acc, group, extent) {
+   *       // no synchronisations here
+   *       ...
+   *    }
+   *    alpaka::syncBlockThreads();
+   *    for (auto element : uniform_group_elements(acc, group, extent) {
+   *       // no synchronisations here
+   *       ...
+   *    }
+   *    alpaka::syncBlockThreads();
+   *  }
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
@@ -438,6 +456,10 @@ namespace cms::alpakatools {
    * If the work division has only one element per thread, the loop will perform at most one iteration.
    * If the work division has more than one elements per thread, the loop will perform that number of iterations,
    * or less if it reaches size.
+   *
+   * If the problem size is not a multiple of the block size, different threads may execute a different number of
+   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
+   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
@@ -526,6 +548,11 @@ namespace cms::alpakatools {
    * blocks will exit immediately.
    * If the work division has less than 63 blocks, some of the blocks will perform more than one iteration, in order to
    * cover then whole problem space.
+   *
+   * If the problem size is not a multiple of the block size, the last group will process a number of elements smaller
+   * than the block size. Also in this case all threads in the block will execute the same number of iterations of this
+   * loop: this makes it safe to use block-level synchronisations in the loop body. It is left to the inner loop (or the
+   * user) to ensure that only the correct number of threads process any data.
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
@@ -542,6 +569,10 @@ namespace cms::alpakatools {
    *
    * The loop will perform a number of iterations up to the number of elements per thread, stopping earlier when the
    * element index reaches `size`.
+   *
+   * If the problem size is not a multiple of the block size, different threads may execute a different number of
+   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
+   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
@@ -630,7 +661,11 @@ namespace cms::alpakatools {
    *
    * Iterating over the range yields the local element index, between `0` and `elements - 1`. The threads in the block
    * will perform one or more iterations, depending on the number of elements per thread, and on the number of threads
-   * per block, ocmpared with the total number of elements.
+   * per block, compared with the total number of elements.
+   *
+   * If the problem size is not a multiple of the block size, different threads may execute a different number of
+   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
+   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
    */
 
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
