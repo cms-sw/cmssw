@@ -29,8 +29,8 @@ namespace l1tVertexFinder {
         vx_dbscan_mintracks_(vertex_.getParameter<unsigned int>("DBSCANMinDensityTracks")),
         vx_kmeans_iterations_(vertex_.getParameter<unsigned int>("KmeansIterations")),
         vx_kmeans_nclusters_(vertex_.getParameter<unsigned int>("KmeansNumClusters")),
-        vx_trkw_graph_(vertex_.getParameter<std::string>("TrackWeightGraph")),
-        vx_pvz0_graph_(vertex_.getParameter<std::string>("PVZ0Graph")),
+        vx_trkw_graph_(vertex_.getParameter<edm::FileInPath>("TrackWeightGraph")),
+        vx_pattrec_graph_(vertex_.getParameter<edm::FileInPath>("PatternRecGraph")),
         // Debug printout
         debug_(iConfig.getParameter<unsigned int>("debug")) {
     const std::string algoName(vertex_.getParameter<std::string>("Algorithm"));

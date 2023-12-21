@@ -47,10 +47,10 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
   const std::string outputCollectionName_;
 
-  tensorflow::GraphDef* TrkGraph_;
-  tensorflow::Session* TrkSesh_;
-  tensorflow::GraphDef* PVZ0Graph_;
-  tensorflow::Session* PVZ0Sesh_;
+  tensorflow::GraphDef* TrkWGraph_;
+  tensorflow::Session* TrkWSesh_;
+  tensorflow::GraphDef* PattRecGraph_;
+  tensorflow::Session* PattRecSesh_;
 
   l1tVertexFinder::AlgoSettings settings_;
 };

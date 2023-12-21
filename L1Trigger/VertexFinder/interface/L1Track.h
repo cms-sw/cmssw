@@ -25,7 +25,7 @@ namespace l1tVertexFinder {
     float z0() const { return track_->POCA().z(); };
     float weight() const { return weight_; };
     void setWeight(float w) { weight_ = w; };
-    double MVA1() const { return track_->trkMVA1(); };
+    double MVA1() const { return track_->trkMVA1(); };  //Track Quality BDT
 
     // FIXME: Double check nPar=4 is correct
     float chi2dof() const { return track_->chi2Red(); };

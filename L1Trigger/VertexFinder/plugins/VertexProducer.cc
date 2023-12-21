@@ -70,14 +70,14 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
 
   if (settings_.vx_algo() == Algorithm::NNEmulation) {
     // load graphs, create a new session and add the graphDef
-  if (settings_.debug() > 1) {
-      edm::LogInfo("VertexProducer") << "loading trk weight graph from " << settings_.vx_trkw_graph() << std::endl;
-      edm::LogInfo("VertexProducer") << "loading pv z0 graph from " << settings_.vx_pvz0_graph() << std::endl;
+    if (settings_.debug() > 1) {
+      edm::LogInfo("VertexProducer") << "loading TrkWeight graph from " << settings_.vx_trkw_graph() << std::endl;
+      edm::LogInfo("VertexProducer") << "loading PatternRec graph from " << settings_.vx_pattrec_graph() << std::endl;
     }
-  TrkGraph_ = tensorflow::loadGraphDef(settings_.vx_trkw_graph());
-  TrkSesh_ = tensorflow::createSession(TrkGraph_);
-  PVZ0Graph_ = tensorflow::loadGraphDef(settings_.vx_pvz0_graph());
-  PVZ0Sesh_ = tensorflow::createSession(PVZ0Graph_);
+    TrkWGraph_ = tensorflow::loadGraphDef(settings_.vx_trkw_graph());
+    TrkWSesh_ = tensorflow::createSession(TrkWGraph_);
+    PattRecGraph_ = tensorflow::loadGraphDef(settings_.vx_pattrec_graph());
+    PattRecSesh_ = tensorflow::createSession(PattRecGraph_);
   }
 }
 
@@ -143,7 +143,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       vf.Kmeans();
       break;
     case Algorithm::NNEmulation:
-      vf.NNVtxEmulation(TrkSesh_, PVZ0Sesh_);
+      vf.NNVtxEmulation(TrkWSesh_, PattRecSesh_);
       break;
   }
 

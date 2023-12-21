@@ -64,6 +64,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 //
 // class declaration
@@ -151,7 +152,7 @@ private:
     std::vector<double> deltaZMax_;
   };
 
-    struct NNTrackWordSelector {
+  struct NNTrackWordSelector {
     NNTrackWordSelector(tensorflow::Session* AssociationSesh,
                         const double AssociationThreshold,
                         const std::vector<double>& AssociationNetworkZ0binning,
@@ -164,7 +165,6 @@ private:
           res_bins_(AssociationNetworkZ0ResBins) {}
 
     bool operator()(const TTTrackType& t, const l1t::VertexWord& v) const {
-
       tensorflow::Tensor inputAssoc(tensorflow::DT_FLOAT, {1, 4});
       std::vector<tensorflow::Tensor> outputAssoc;
 
@@ -174,15 +174,15 @@ private:
 
       auto lower = std::lower_bound(eta_bins_.begin(), eta_bins_.end(), etaEmulation.to_double());
 
-      //int resbin = (lower - res_bins_.begin());
       int resbin = std::distance(eta_bins_.begin(), lower);
       float binWidth = z0_binning_[2];
-      // calculate integer dZ from track z0 and vertex z0 (use floating point version and convert internally allowing use of both emulator and simulator vertex and track)
-      float dZ = abs(floor(((t.getZ0() + z0_binning_[1]) / (binWidth))) - floor(((v.z0() + z0_binning_[1]) / (binWidth))));
+      // Calculate integer dZ from track z0 and vertex z0 (use floating point version and convert internally allowing use of both emulator and simulator vertex and track)
+      float dZ =
+          abs(floor(((t.getZ0() + z0_binning_[1]) / (binWidth))) - floor(((v.z0() + z0_binning_[1]) / (binWidth))));
 
-
-      ap_uint<14> ptEmulationBits = t.getTrackWord()(
-          TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
+      // The following constants <14, 9>, <22, 9> are defined by the quantisation of the Neural Network
+      ap_uint<14> ptEmulationBits = t.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1,
+                                                     TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<14, 9> ptEmulation;
       ptEmulation.V = (ptEmulationBits.range());
 
@@ -200,17 +200,17 @@ private:
 
       inputAssoc.tensor<float, 2>()(0, 0) = ptEmulation_rescale.to_double();
       inputAssoc.tensor<float, 2>()(0, 1) = MVAEmulation_rescale.to_double();
-      inputAssoc.tensor<float, 2>()(0, 2) = resBinEmulation_rescale.to_double()/16.0;
+      inputAssoc.tensor<float, 2>()(0, 2) = resBinEmulation_rescale.to_double() / 16.0;
       inputAssoc.tensor<float, 2>()(0, 3) = dZEmulation_rescale.to_double();
 
       // Run Association Network:
       tensorflow::run(AssociationSesh_, {{"assoc:0", inputAssoc}}, {"Identity:0"}, &outputAssoc);
 
-      double NNOutput = (double)outputAssoc[0].tensor<float, 2>()(0, 0) ; 
+      double NNOutput = (double)outputAssoc[0].tensor<float, 2>()(0, 0);
 
-      double NNOutput_exp = 1.0/(1.0+exp(-1.0*(NNOutput)));  
- 
-      return  NNOutput_exp >= AssociationThreshold_;
+      double NNOutput_exp = 1.0 / (1.0 + exp(-1.0 * (NNOutput)));
+
+      return NNOutput_exp >= AssociationThreshold_;
     }
 
   private:
@@ -220,7 +220,6 @@ private:
     std::vector<double> eta_bins_;
     std::vector<double> res_bins_;
   };
-
 
   struct TTTrackWordLinkLimitSelector {
     TTTrackWordLinkLimitSelector(const unsigned int fwNTrackSetsTVA) : fwNTrackSetsTVA_(fwNTrackSetsTVA) {
@@ -283,14 +282,14 @@ private:
   // corresponds to N_TRACK_SETS_TVA in LibHLS https://gitlab.cern.ch/GTT/LibHLS/-/blob/master/DataFormats/Track/interface/TrackConstants.h
   const unsigned int fwNTrackSetsTVA_;
 
-  std::string associationGraphPath_;
+  //NNVtx:
+  edm::FileInPath associationGraphPath_;
   const double associationThreshold_;
   bool useAssociationNetwork_;
-
   tensorflow::GraphDef* associationGraph_;
   tensorflow::Session* associationSesh_;
-
   std::vector<double> associationNetworkZ0binning_, associationNetworkEtaBounds_, associationNetworkZ0ResBins_;
+
   int debug_;
 };
 
@@ -323,16 +322,15 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
       deltaZMax_(cutSet_.getParameter<std::vector<double>>("deltaZMax")),
       useDisplacedTracksDeltaZOverride_(iConfig.getParameter<double>("useDisplacedTracksDeltaZOverride")),
       fwNTrackSetsTVA_(iConfig.getParameter<unsigned int>("fwNTrackSetsTVA")),
-      associationGraphPath_(iConfig.getParameter<std::string>("associationGraph")),
       associationThreshold_(iConfig.getParameter<double>("associationThreshold")),
       useAssociationNetwork_(iConfig.getParameter<bool>("useAssociationNetwork")),
       associationNetworkZ0binning_(iConfig.getParameter<std::vector<double>>("associationNetworkZ0binning")),
       associationNetworkEtaBounds_(iConfig.getParameter<std::vector<double>>("associationNetworkEtaBounds")),
       associationNetworkZ0ResBins_(iConfig.getParameter<std::vector<double>>("associationNetworkZ0ResBins")),
       debug_(iConfig.getParameter<int>("debug")) {
-  
-  if (useAssociationNetwork_){
-    associationGraph_ = tensorflow::loadGraphDef(associationGraphPath_);
+  if (useAssociationNetwork_) {
+    associationGraphPath_ = iConfig.getParameter<edm::FileInPath>("associationGraph");
+    associationGraph_ = tensorflow::loadGraphDef(associationGraphPath_.fullPath());
     associationSesh_ = tensorflow::createSession(associationGraph_);
   }
   // Confirm the the configuration makes sense
@@ -506,7 +504,6 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
                                              associationNetworkZ0binning_,
                                              associationNetworkEtaBounds_,
                                              associationNetworkZ0ResBins_);
-  
 
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
   size_t nOutputApproximate = l1TracksHandle->size();
@@ -554,18 +551,17 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
                                  [track](const auto& ref) { return (*ref).getTrackWord() == track.getTrackWord(); });
       bool passSelectionEmu = (itrEmu != l1SelectedTracksEmulationHandle->end());
       // Associated tracks based on the bitwise accurate TTTrack_TrackWord
-      if (useAssociationNetwork_){
+      if (useAssociationNetwork_) {
         if (passLinkLimitEmu && passSelectionEmu && TTTrackNetworkSelector(track, l1VerticesEmulationHandle->at(0))) {
           vTTTrackAssociatedEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
         }
-      }
-      else{
+      } else {
         if (passLinkLimitEmu && passSelectionEmu && deltaZSelEmu(track, l1VerticesEmulationHandle->at(0))) {
           vTTTrackAssociatedEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
         }  //end block for satisfying LinkLimitEmu and SelectionEmu criteria
-      }   //end use track association NN
-    }    //end if (processEmulatedTracks_)
-  }     //end loop over input converted tracks
+      }    //end if use track association NN
+    }      //end if (processEmulatedTracks_)
+  }        //end loop over input converted tracks
 
   if (processSimulatedTracks_) {
     iEvent.put(std::move(vTTTrackAssociatedOutput), outputCollectionName_);
@@ -616,7 +612,7 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<unsigned int>("fwNTrackSetsTVA", 94)->setComment("firmware limit on processed tracks per GTT input link");
   desc.add<bool>("useAssociationNetwork", false)->setComment("Enable Association Network");
   desc.add<double>("associationThreshold", 0)->setComment("Association Network threshold for PV tracks");
-  desc.add<std::string>("associationGraph", "")->setComment("Location of Association Network model file");
+  desc.addOptional<edm::FileInPath>("associationGraph")->setComment("Location of Association Network model file");
   desc.add<std::vector<double>>("associationNetworkZ0binning", {})
       ->setComment("z0 binning used for setting the input feature digitisation");
   desc.add<std::vector<double>>("associationNetworkEtaBounds", {})

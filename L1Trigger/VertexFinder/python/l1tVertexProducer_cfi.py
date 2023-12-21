@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import os
-CMSSW_BASE = os.getenv('CMSSW_BASE')
 
 l1tVertexProducer = cms.EDProducer('VertexProducer',                                   
   l1TracksInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),
@@ -70,9 +68,9 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Minimum number of stubs in PS modules associated to a track
         VxMinNStubPS = cms.uint32(3),
         # Track weight NN graph 
-        TrackWeightGraph = cms.string(CMSSW_BASE+"/src/L1Trigger/VertexFinder/data/Quantised_model_prune_iteration_9_weightModelgraph.pb"),
-        # Track position NN graph
-        PVZ0Graph = cms.string(CMSSW_BASE+"/src/L1Trigger/VertexFinder/data/Quantised_model_prune_iteration_9_patternModelgraph.pb"),
+        TrackWeightGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_WeightModelGraph.pb"),
+        # Pattern recognition NN graph
+        PatternRecGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_PatternModelGraph.pb"),
     ),
   # Debug printout
   debug  = cms.uint32(0)

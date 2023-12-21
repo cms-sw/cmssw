@@ -1099,8 +1099,8 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
   }  // end of fastHistoEmulation
 
-  void VertexFinder::NNVtxEmulation(tensorflow::Session* cnnTrkSesh,
-                                    tensorflow::Session* cnnPVZ0Sesh,
+  void VertexFinder::NNVtxEmulation(tensorflow::Session* TrackWeightSesh,
+                                    tensorflow::Session* PatternRecSesh,
                                     tensorflow::Session* AssociationSesh) {
     // #### Weight Tracks: ####
     // Loop over tracks -> weight the network -> set track weights
@@ -1135,13 +1135,13 @@ namespace l1tVertexFinder {
 
       // CNN output: track weight
       std::vector<tensorflow::Tensor> outputTrkWeight;
-      tensorflow::run(cnnTrkSesh, {{"weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
+      tensorflow::run(TrackWeightSesh, {{"weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
       // Set track weight pack into tracks:
 
       ap_ufixed<16, 5> NNOutput;
-      NNOutput = (double)outputTrkWeight[0].tensor<float, 2>()(0, 0) ;
+      NNOutput = (double)outputTrkWeight[0].tensor<float, 2>()(0, 0);
 
-      //std::cout<<"NNOutput_weight_network = "<< NNOutput <<std::endl; 
+      //std::cout<<"NNOutput_weight_network = "<< NNOutput <<std::endl;
 
       track.setWeight(NNOutput.to_double());
 
@@ -1186,7 +1186,7 @@ namespace l1tVertexFinder {
     }
 
     // Run PV Network:
-    tensorflow::run(cnnPVZ0Sesh, {{"hist:0", inputPV}}, {"Identity:0"}, &outputPV);
+    tensorflow::run(PatternRecSesh, {{"hist:0", inputPV}}, {"Identity:0"}, &outputPV);
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware
     const float histogrammingThreshold_ = 0.0;
     for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {
@@ -1213,13 +1213,12 @@ namespace l1tVertexFinder {
       }
     }
     int PV_index = ceil((float)max_index / (float)num_maxes);
-    // Argmax equivalent:
-    edm::LogVerbatim("VertexFinder") << " NNemu Chosen PV: prob: " << nnOutput[PV_index] << " bin = " << PV_index
-                                     << " z0 = " << vertices.at(PV_index).z0() << '\n';
+
+    edm::LogVerbatim("VertexFinder") << " NNVtxEmulation Chosen PV: prob: " << nnOutput[PV_index]
+                                     << " bin = " << PV_index << " z0 = " << vertices.at(PV_index).z0() << '\n';
 
     verticesEmulation_.emplace_back(1, vertices.at(PV_index).z0(), 0, vertices.at(PV_index).pt(), 0, 0, 0);
 
-  }  // end of NNPVZ0Algorithm
-
+  }  // end of NNVtx Algorithm
 
 }  // namespace l1tVertexFinder
