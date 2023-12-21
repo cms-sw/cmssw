@@ -132,6 +132,13 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
 
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, first_); }
+
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
+
     class const_iterator {
       friend class elements_with_stride;
 
@@ -193,10 +200,6 @@ namespace cms::alpakatools {
       Idx range_;
     };
 
-    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, first_); }
-
-    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
-
   private:
     const Idx elements_;
     const Idx first_;
@@ -224,6 +227,25 @@ namespace cms::alpakatools {
 
     // tag used to construct an end iterator
     struct at_end_t {};
+
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const {
+      // check that all dimensions of the current thread index are within the extent
+      if ((thread_ < extent_).all()) {
+        // construct an iterator pointing to the first element to be processed by the current thread
+        return const_iterator{this, thread_};
+      } else {
+        // construct an end iterator, pointing post the end of the extent
+        return const_iterator{this, at_end_t{}};
+      }
+    }
+
+    ALPAKA_FN_ACC inline const_iterator end() const {
+      // construct an end iterator, pointing post the end of the extent
+      return const_iterator{this, at_end_t{}};
+    }
 
     class const_iterator {
       friend class elements_with_stride_nd;
@@ -347,22 +369,6 @@ namespace cms::alpakatools {
       Vec index_;  // current element processed by this thread
     };
 
-    ALPAKA_FN_ACC inline const_iterator begin() const {
-      // check that all dimensions of the current thread index are within the extent
-      if ((thread_ < extent_).all()) {
-        // construct an iterator pointing to the first element to be processed by the current thread
-        return const_iterator{this, thread_};
-      } else {
-        // construct an end iterator, pointing post the end of the extent
-        return const_iterator{this, at_end_t{}};
-      }
-    }
-
-    ALPAKA_FN_ACC inline const_iterator end() const {
-      // construct an end iterator, pointing post the end of the extent
-      return const_iterator{this, at_end_t{}};
-    }
-
   private:
     const Vec elements_;
     const Vec thread_;
@@ -398,6 +404,13 @@ namespace cms::alpakatools {
         : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
           extent_{divide_up_by(extent, alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u])} {}
+
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
+
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
 
     class const_iterator {
       friend class blocks_with_stride;
@@ -439,10 +452,6 @@ namespace cms::alpakatools {
       Idx first_;
     };
 
-    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
-
-    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
-
   private:
     const Idx first_;
     const Idx stride_;
@@ -479,6 +488,13 @@ namespace cms::alpakatools {
                           alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] *
                               alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])},
           range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])} {}
+
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(local_, first_, range_); }
+
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(range_, first_, range_); }
 
     class const_iterator {
       friend class elements_in_block;
@@ -521,10 +537,6 @@ namespace cms::alpakatools {
       Idx first_;
       Idx range_;
     };
-
-    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(local_, first_, range_); }
-
-    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(range_, first_, range_); }
 
   private:
     const Idx first_;
@@ -607,6 +619,13 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
           extent_{groups} {}
 
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
+
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
+
     class const_iterator {
       friend class independent_groups;
 
@@ -647,10 +666,6 @@ namespace cms::alpakatools {
       Idx first_;
     };
 
-    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
-
-    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
-
   private:
     const Idx first_;
     const Idx stride_;
@@ -685,6 +700,13 @@ namespace cms::alpakatools {
           thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
           stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
+
+    class const_iterator;
+    using iterator = const_iterator;
+
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, thread_); }
+
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
     class const_iterator {
       friend class independent_group_elements;
@@ -746,10 +768,6 @@ namespace cms::alpakatools {
       Idx index_;
       Idx range_;
     };
-
-    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, thread_); }
-
-    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
   private:
     const Idx elements_;
