@@ -416,7 +416,7 @@ namespace pat {
     /// Muon MVA
     float mvaIDValue_;
     float softMvaValue_;
-    float softMvaRun3Value_=0;
+    float softMvaRun3Value_ = 0;
 
     /// Inverse beta
     float inverseBeta_;

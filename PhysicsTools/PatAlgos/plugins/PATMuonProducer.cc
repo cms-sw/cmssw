@@ -479,8 +479,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   if (computeSoftMuonMVA_) {
     std::string softMvaRun3Model = iConfig.getParameter<string>("softMvaRun3Model");
     softMuonMvaRun3Booster_ =
-      std::make_unique<pat::XGBooster>(edm::FileInPath(softMvaRun3Model + ".model").fullPath(),
-				       edm::FileInPath(softMvaRun3Model + ".features").fullPath());
+        std::make_unique<pat::XGBooster>(edm::FileInPath(softMvaRun3Model + ".model").fullPath(),
+                                         edm::FileInPath(softMvaRun3Model + ".features").fullPath());
   }
 
   addTriggerMatching_ = iConfig.getParameter<bool>("addTriggerMatching");

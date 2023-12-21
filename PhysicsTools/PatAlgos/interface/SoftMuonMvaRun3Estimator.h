@@ -9,5 +9,5 @@ namespace pat {
   class Muon;
 
   float computeSoftMvaRun3(XGBooster& booster, const Muon& muon);
-}
+}  // namespace pat
 #endif
