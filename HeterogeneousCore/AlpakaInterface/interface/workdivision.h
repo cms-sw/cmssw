@@ -132,10 +132,10 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
 
-    class iterator {
+    class const_iterator {
       friend class elements_with_stride;
 
-      ALPAKA_FN_ACC inline iterator(Idx elements, Idx stride, Idx extent, Idx first)
+      ALPAKA_FN_ACC inline const_iterator(Idx elements, Idx stride, Idx extent, Idx first)
           : elements_{elements},
             stride_{stride},
             extent_{extent},
@@ -147,7 +147,7 @@ namespace cms::alpakatools {
       ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
+      ALPAKA_FN_ACC inline const_iterator& operator++() {
         if constexpr (requires_single_thread_per_block_v<TAcc>) {
           // increment the index along the elements processed by the current thread
           ++index_;
@@ -170,17 +170,17 @@ namespace cms::alpakatools {
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC inline const_iterator operator++(int) {
+        const_iterator old = *this;
         ++(*this);
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const {
+      ALPAKA_FN_ACC inline bool operator==(const_iterator const& other) const {
         return (index_ == other.index_) and (first_ == other.first_);
       }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // non-const to support iterator copy and assignment
@@ -193,9 +193,9 @@ namespace cms::alpakatools {
       Idx range_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(elements_, stride_, extent_, first_); }
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, first_); }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(elements_, stride_, extent_, extent_); }
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
   private:
     const Idx elements_;
@@ -225,39 +225,41 @@ namespace cms::alpakatools {
     // tag used to construct an end iterator
     struct at_end_t {};
 
-    class iterator {
+    class const_iterator {
       friend class elements_with_stride_nd;
 
     public:
       ALPAKA_FN_ACC inline Vec operator*() const { return index_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC constexpr inline iterator operator++() {
+      ALPAKA_FN_ACC constexpr inline const_iterator operator++() {
         increment();
         return *this;
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC constexpr inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC constexpr inline const_iterator operator++(int) {
+        const_iterator old = *this;
         increment();
         return old;
       }
 
-      ALPAKA_FN_ACC constexpr inline bool operator==(iterator const& other) const { return (index_ == other.index_); }
+      ALPAKA_FN_ACC constexpr inline bool operator==(const_iterator const& other) const {
+        return (index_ == other.index_);
+      }
 
-      ALPAKA_FN_ACC constexpr inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC constexpr inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // construct an iterator pointing to the first element to be processed by the current thread
-      ALPAKA_FN_ACC inline iterator(elements_with_stride_nd const* loop, Vec first)
+      ALPAKA_FN_ACC inline const_iterator(elements_with_stride_nd const* loop, Vec first)
           : loop_{loop},
             first_{alpaka::elementwise_min(first, loop->extent_)},
             range_{alpaka::elementwise_min(first + loop->elements_, loop->extent_)},
             index_{first_} {}
 
       // construct an end iterator, pointing post the end of the extent
-      ALPAKA_FN_ACC inline iterator(elements_with_stride_nd const* loop, at_end_t const&)
+      ALPAKA_FN_ACC inline const_iterator(elements_with_stride_nd const* loop, at_end_t const&)
           : loop_{loop}, first_{loop_->extent_}, range_{loop_->extent_}, index_{loop_->extent_} {}
 
       template <size_t I>
@@ -345,20 +347,20 @@ namespace cms::alpakatools {
       Vec index_;  // current element processed by this thread
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const {
+    ALPAKA_FN_ACC inline const_iterator begin() const {
       // check that all dimensions of the current thread index are within the extent
       if ((thread_ < extent_).all()) {
         // construct an iterator pointing to the first element to be processed by the current thread
-        return iterator{this, thread_};
+        return const_iterator{this, thread_};
       } else {
         // construct an end iterator, pointing post the end of the extent
-        return iterator{this, at_end_t{}};
+        return const_iterator{this, at_end_t{}};
       }
     }
 
-    ALPAKA_FN_ACC inline iterator end() const {
+    ALPAKA_FN_ACC inline const_iterator end() const {
       // construct an end iterator, pointing post the end of the extent
-      return iterator{this, at_end_t{}};
+      return const_iterator{this, at_end_t{}};
     }
 
   private:
@@ -397,17 +399,17 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
           extent_{divide_up_by(extent, alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u])} {}
 
-    class iterator {
+    class const_iterator {
       friend class blocks_with_stride;
 
-      ALPAKA_FN_ACC inline iterator(Idx stride, Idx extent, Idx first)
+      ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
           : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
 
     public:
       ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
+      ALPAKA_FN_ACC inline const_iterator& operator++() {
         // increment the first-element-in-block index by the grid stride
         first_ += stride_;
         if (first_ < extent_)
@@ -419,15 +421,15 @@ namespace cms::alpakatools {
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC inline const_iterator operator++(int) {
+        const_iterator old = *this;
         ++(*this);
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const { return (first_ == other.first_); }
+      ALPAKA_FN_ACC inline bool operator==(const_iterator const& other) const { return (first_ == other.first_); }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // non-const to support iterator copy and assignment
@@ -437,9 +439,9 @@ namespace cms::alpakatools {
       Idx first_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(stride_, extent_, first_); }
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(stride_, extent_, extent_); }
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
 
   private:
     const Idx first_;
@@ -478,16 +480,17 @@ namespace cms::alpakatools {
                               alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])},
           range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])} {}
 
-    class iterator {
+    class const_iterator {
       friend class elements_in_block;
 
-      ALPAKA_FN_ACC inline iterator(Idx local, Idx first, Idx range) : index_{local}, first_{first}, range_{range} {}
+      ALPAKA_FN_ACC inline const_iterator(Idx local, Idx first, Idx range)
+          : index_{local}, first_{first}, range_{range} {}
 
     public:
       ALPAKA_FN_ACC inline ElementIndex operator*() const { return ElementIndex{index_ + first_, index_}; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
+      ALPAKA_FN_ACC inline const_iterator& operator++() {
         if constexpr (requires_single_thread_per_block_v<TAcc>) {
           // increment the index along the elements processed by the current thread
           ++index_;
@@ -501,15 +504,15 @@ namespace cms::alpakatools {
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC inline const_iterator operator++(int) {
+        const_iterator old = *this;
         ++(*this);
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const { return (index_ == other.index_); }
+      ALPAKA_FN_ACC inline bool operator==(const_iterator const& other) const { return (index_ == other.index_); }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // modified by the pre/post-increment operator
@@ -519,9 +522,9 @@ namespace cms::alpakatools {
       Idx range_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(local_, first_, range_); }
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(local_, first_, range_); }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(range_, first_, range_); }
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(range_, first_, range_); }
 
   private:
     const Idx first_;
@@ -604,17 +607,17 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
           extent_{groups} {}
 
-    class iterator {
+    class const_iterator {
       friend class independent_groups;
 
-      ALPAKA_FN_ACC inline iterator(Idx stride, Idx extent, Idx first)
+      ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
           : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
 
     public:
       ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
+      ALPAKA_FN_ACC inline const_iterator& operator++() {
         // increment the first-element-in-block index by the grid stride
         first_ += stride_;
         if (first_ < extent_)
@@ -626,15 +629,15 @@ namespace cms::alpakatools {
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC inline const_iterator operator++(int) {
+        const_iterator old = *this;
         ++(*this);
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const { return (first_ == other.first_); }
+      ALPAKA_FN_ACC inline bool operator==(const_iterator const& other) const { return (first_ == other.first_); }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // non-const to support iterator copy and assignment
@@ -644,9 +647,9 @@ namespace cms::alpakatools {
       Idx first_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(stride_, extent_, first_); }
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(stride_, extent_, first_); }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(stride_, extent_, extent_); }
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
 
   private:
     const Idx first_;
@@ -683,10 +686,10 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
 
-    class iterator {
+    class const_iterator {
       friend class independent_group_elements;
 
-      ALPAKA_FN_ACC inline iterator(Idx elements, Idx stride, Idx extent, Idx first)
+      ALPAKA_FN_ACC inline const_iterator(Idx elements, Idx stride, Idx extent, Idx first)
           : elements_{elements},
             stride_{stride},
             extent_{extent},
@@ -698,7 +701,7 @@ namespace cms::alpakatools {
       ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
+      ALPAKA_FN_ACC inline const_iterator& operator++() {
         if constexpr (requires_single_thread_per_block_v<TAcc>) {
           // increment the index along the elements processed by the current thread
           ++index_;
@@ -721,17 +724,17 @@ namespace cms::alpakatools {
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
-        iterator old = *this;
+      ALPAKA_FN_ACC inline const_iterator operator++(int) {
+        const_iterator old = *this;
         ++(*this);
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const {
+      ALPAKA_FN_ACC inline bool operator==(const_iterator const& other) const {
         return (index_ == other.index_) and (first_ == other.first_);
       }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC inline bool operator!=(const_iterator const& other) const { return not(*this == other); }
 
     private:
       // non-const to support iterator copy and assignment
@@ -744,9 +747,9 @@ namespace cms::alpakatools {
       Idx range_;
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(elements_, stride_, extent_, thread_); }
+    ALPAKA_FN_ACC inline const_iterator begin() const { return const_iterator(elements_, stride_, extent_, thread_); }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(elements_, stride_, extent_, extent_); }
+    ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
   private:
     const Idx elements_;
