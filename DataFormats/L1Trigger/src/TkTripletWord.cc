@@ -15,7 +15,8 @@ namespace l1t {
                                ditrack_minz0_t ditrack_minz0,
                                ditrack_maxz0_t ditrack_maxz0,
                                unassigned_t unassigned) {
-    setTkTripletWord(valid, pt, eta, phi, mass, charge,ditrack_minmass, ditrack_maxmass, ditrack_minz0, ditrack_maxz0, unassigned);
+    setTkTripletWord(
+        valid, pt, eta, phi, mass, charge, ditrack_minmass, ditrack_maxmass, ditrack_minz0, ditrack_maxz0, unassigned);
   }
 
   void TkTripletWord::setTkTripletWord(valid_t valid,
@@ -66,7 +67,7 @@ namespace l1t {
     for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMinZ0Size); b++) {
       tkTripletWord_.set(b, ditrack_minz0[b - offset]);
     }
-    offset += TkTripletBitWidths::kDiTrackMinZ0Size;    
+    offset += TkTripletBitWidths::kDiTrackMinZ0Size;
     for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMaxZ0Size); b++) {
       tkTripletWord_.set(b, ditrack_maxz0[b - offset]);
     }
@@ -74,7 +75,6 @@ namespace l1t {
     for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kUnassignedSize); b++) {
       tkTripletWord_.set(b, unassigned[b - offset]);
     }
-    
   }
 
 }  //namespace l1t

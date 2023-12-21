@@ -1,12 +1,12 @@
 #ifndef DataFormatsL1TCorrelator_TkTriplet_h
 #define DataFormatsL1TCorrelator_TkTriplet_h
 
-// Original author: G Karathanasis, 
+// Original author: G Karathanasis,
 //                    georgios.karathanasis@cern.ch, CU Boulder
 // -*- C++ -*-
 // Package:     L1Trigger
 // Class  :     TkTriplet
-// Description: Class to store the output of track-triplet producer, which used by L1T to create X->3h candidates (like W->3pi). 
+// Description: Class to store the output of track-triplet producer, which used by L1T to create X->3h candidates (like W->3pi).
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -24,13 +24,16 @@ namespace l1t {
     TkTriplet();
 
     TkTriplet(const LorentzVector& p4, int charge);
-    TkTriplet(const LorentzVector& p4, int charge, 
-              double pair_mass_max, double pair_mass_min,
-              double pair_dz_max, double pair_dz_min, 
+    TkTriplet(const LorentzVector& p4,
+              int charge,
+              double pair_mass_max,
+              double pair_mass_min,
+              double pair_dz_max,
+              double pair_dz_min,
               std::vector<edm::Ptr<L1TTTrackType>> trkPtrList);
 
-    ~TkTriplet() override {};
-   
+    ~TkTriplet() override{};
+
     int getTripletCharge() const;
     double getPairMassMax() const;
     double getPairMassMin() const;
@@ -43,10 +46,9 @@ namespace l1t {
     int charge_;
     double pair_mass_max_;
     double pair_mass_min_;
-    double pair_dz_max_; 
+    double pair_dz_max_;
     double pair_dz_min_;
     std::vector<edm::Ptr<L1TTTrackType>> trkPtrList_;
-
   };
 }  // namespace l1t
 

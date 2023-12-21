@@ -42,5 +42,5 @@ namespace l1trackunpacker {
     return (double(bits & digitized_maximum) + 0.5) * step * isign;
   }
 
-}  // namespace l1ttrackunpack
+}  // namespace l1trackunpacker
 #endif
