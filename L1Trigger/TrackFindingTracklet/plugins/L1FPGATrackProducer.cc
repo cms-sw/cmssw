@@ -739,7 +739,6 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     aTrack.setStubPtConsistency(
         StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar()));
 
-
     if (trackQuality_) {
       trackQualityModel_->setL1TrackQuality(aTrack);
     }

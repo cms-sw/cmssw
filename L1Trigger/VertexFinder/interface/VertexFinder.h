@@ -101,9 +101,9 @@ namespace l1tVertexFinder {
     void fastHisto(const TrackerTopology* tTopo);
     /// Histogramming algorithm (emulation)
     void fastHistoEmulation();
-
-    void NNVtxEmulation(tensorflow::Session* cnnTrkSesh = nullptr,
-                        tensorflow::Session* cnnPVZ0Sesh = nullptr,
+    /// NNVtx algorithm
+    void NNVtxEmulation(tensorflow::Session* TrackWeightSesh = nullptr,
+                        tensorflow::Session* PatternRecSesh = nullptr,
                         tensorflow::Session* AssociationSesh = nullptr);
 
     /// Sort vertices in pT

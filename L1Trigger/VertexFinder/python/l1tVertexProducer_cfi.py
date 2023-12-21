@@ -71,8 +71,8 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         VxMinNStubPS = cms.uint32(3),
         # Track weight NN graph 
         TrackWeightGraph = cms.string(CMSSW_BASE+"/src/L1Trigger/VertexFinder/data/Quantised_model_prune_iteration_9_weightModelgraph.pb"),
-        # Track position NN graph
-        PVZ0Graph = cms.string(CMSSW_BASE+"/src/L1Trigger/VertexFinder/data/Quantised_model_prune_iteration_9_patternModelgraph.pb"),
+        # Pattern recognition NN graph
+        PatternRecGraph = cms.string(CMSSW_BASE+"/src/L1Trigger/VertexFinder/data/Quantised_model_prune_iteration_9_patternModelgraph.pb"),
     ),
   # Debug printout
   debug  = cms.uint32(0)
