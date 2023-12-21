@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag.globaltag = "130X_dataRun3_Prompt_forLHCInfo_Candidate_2023_08_08_10_52_01"
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data')
 
 # local RP reconstruction chain with standard settings
 process.load("RecoPPS.Configuration.recoCTPPS_cff")

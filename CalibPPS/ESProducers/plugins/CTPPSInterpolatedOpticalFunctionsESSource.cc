@@ -62,7 +62,7 @@ void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::Configurat
   desc.add<std::string>("opticsLabel", "")->setComment("label of the optics records");
   desc.add<bool>("useNewLHCInfo", false)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
 
-  descriptions.add("ctppsInterpolatedOpticalFunctionsESSource", desc);
+  descriptions.add("ctppsInterpolatedOpticalFunctionsESSourceDefault", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
