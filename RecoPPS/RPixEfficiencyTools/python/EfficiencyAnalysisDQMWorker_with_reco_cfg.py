@@ -189,22 +189,22 @@ print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 # Patch for LHCInfo not in GT
-process.GlobalTag.toGet.append(
-    cms.PSet(
-    record = cms.string("LHCInfoPerFillRcd"),
-    tag = cms.string("LHCInfoPerFill_endFill_Run3_v1"),
-    label = cms.untracked.string(""),
-    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-    )
-)
-process.GlobalTag.toGet.append(
-    cms.PSet(
-    record = cms.string("LHCInfoPerLSRcd"),
-    tag = cms.string("LHCInfoPerLS_endFill_Run3_v2"),
-    label = cms.untracked.string(""),
-    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-    )
-)
+# process.GlobalTag.toGet.append(
+#     cms.PSet(
+#     record = cms.string("LHCInfoPerFillRcd"),
+#     tag = cms.string("LHCInfoPerFill_endFill_Run3_v1"),
+#     label = cms.untracked.string(""),
+#     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+#     )
+# )
+# process.GlobalTag.toGet.append(
+#     cms.PSet(
+#     record = cms.string("LHCInfoPerLSRcd"),
+#     tag = cms.string("LHCInfoPerLS_endFill_Run3_v2"),
+#     label = cms.untracked.string(""),
+#     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+#     )
+# )
 # End of patch
 
 #SETUP INPUT
