@@ -1030,9 +1030,9 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
 
       const HGCSiliconDetId& firstCellId(*triggercell_cells.second.begin());
       if (firstCellId.det() == DetId::HGCalEE) {
-        wafertype = triggerGeometry_->eeTopology().dddConstants().waferType(firstCellId);
+        wafertype = triggerGeometry_->eeTopology().dddConstants().waferType(firstCellId, false);
       } else if (firstCellId.det() == DetId::HGCalHSi) {
-        wafertype = triggerGeometry_->hsiTopology().dddConstants().waferType(firstCellId);
+        wafertype = triggerGeometry_->hsiTopology().dddConstants().waferType(firstCellId, false);
       } else {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Found inconsistency in cell <-> trigger cell type mapping";
