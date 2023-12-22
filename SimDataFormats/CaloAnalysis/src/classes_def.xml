@@ -17,7 +17,9 @@
   <class name="MtdCaloParticleRefProd"/>
   <class name="MtdCaloParticleContainer"/>
 
-  <class name="SimCluster"  ClassVersion="4">
+  <class name="SimCluster"  ClassVersion="6">
+   <version ClassVersion="6" checksum="1198608638"/>
+   <version ClassVersion="5" checksum="3963576369"/>
    <version ClassVersion="4" checksum="3868743425"/>
    <version ClassVersion="3" checksum="1773780587"/>
   </class>
