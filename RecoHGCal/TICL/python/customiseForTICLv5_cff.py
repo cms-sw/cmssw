@@ -13,12 +13,11 @@ from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseForTICLv5EventContent
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels_, ticlIterLabelsMerge_
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
 
 def customiseForTICLv5(process):
-    ticlIterLabels = ["CLUE3DEM", "CLUE3DHAD"]
-    ticlIterLabelsMerge = ticlIterLabels + ["Links"]
+
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
     process.ticlIterationsTask = cms.Task(
