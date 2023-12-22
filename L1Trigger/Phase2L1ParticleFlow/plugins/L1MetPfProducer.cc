@@ -55,12 +55,12 @@ private:
   bool useMlModel_;
   std::shared_ptr<hls4mlEmulator::Model> model;
   std::string modelVersion_;
-  typedef ap_fixed<32,16> input_t;
-  typedef ap_fixed<32,16> result_t;
+  typedef ap_fixed<32, 16> input_t;
+  typedef ap_fixed<32, 16> result_t;
   int numContInputs_ = 4;
   int numPxPyInputs_ = 2;
   int numCatInputs_ = 2;
-  int numInputs_ = numContInputs_+numPxPyInputs_+numCatInputs_;
+  int numInputs_ = numContInputs_ + numPxPyInputs_ + numCatInputs_;
 
   void Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool debug = false) const;
   void PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug = false) const;
@@ -68,7 +68,13 @@ private:
   int EncodePdgId(int pdgId) const;
 
   void CalcMetHLS(std::vector<float> pt, std::vector<float> phi, reco::Candidate::PolarLorentzVector& metVector) const;
-  void CalcMlMet(std::vector<float> pt, std::vector<float> eta, std::vector<float> phi, std::vector<float> puppiWeight, std::vector<int> pdgId, std::vector<int> charge, reco::Candidate::PolarLorentzVector& metVector) const;
+  void CalcMlMet(std::vector<float> pt,
+                 std::vector<float> eta,
+                 std::vector<float> phi,
+                 std::vector<float> puppiWeight,
+                 std::vector<int> pdgId,
+                 std::vector<int> charge,
+                 reco::Candidate::PolarLorentzVector& metVector) const;
 };
 
 L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
@@ -108,8 +114,7 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 
   if (useMlModel_) {
     CalcMlMet(pt, eta, phi, puppiWeight, pdgId, charge, metVector);
-  }
-  else {
+  } else {
     CalcMetHLS(pt, phi, metVector);
   }
 
@@ -121,7 +126,7 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 }
 
 int L1MetPfProducer::EncodePdgId(int pdgId) const {
-  switch(abs(pdgId)) {
+  switch (abs(pdgId)) {
     case 211:
       return 1;
     case 130:
@@ -156,17 +161,17 @@ void L1MetPfProducer::CalcMlMet(std::vector<float> pt,
 
   for (uint i = 0; i < pt.size(); i++) {
     // input_cont
-    input[i*numContInputs_] = pt[i];
-    input[i*numContInputs_+1] = eta[i];
-    input[i*numContInputs_+2] = phi[i];
-    input[i*numContInputs_+3] = puppiWeight[i];
+    input[i * numContInputs_] = pt[i];
+    input[i * numContInputs_ + 1] = eta[i];
+    input[i * numContInputs_ + 2] = phi[i];
+    input[i * numContInputs_ + 3] = puppiWeight[i];
     // input_pxpy
-    input[maxCands_*numContInputs_+i*numPxPyInputs_] = pt[i] * cos(phi[i]);
-    input[maxCands_*numContInputs_+i*numPxPyInputs_+1] = pt[i] * sin(phi[i]);
+    input[maxCands_ * numContInputs_ + i * numPxPyInputs_] = pt[i] * cos(phi[i]);
+    input[maxCands_ * numContInputs_ + i * numPxPyInputs_ + 1] = pt[i] * sin(phi[i]);
     // input_cat0
-    input[maxCands_*(numContInputs_+numPxPyInputs_)+i] = EncodePdgId(pdgId[i]);
+    input[maxCands_ * (numContInputs_ + numPxPyInputs_) + i] = EncodePdgId(pdgId[i]);
     // input_cat1
-    input[maxCands_*(numContInputs_+numPxPyInputs_+1)+i] = (abs(charge[i]) <= 1) ? (charge[i] + 2) : 0;
+    input[maxCands_ * (numContInputs_ + numPxPyInputs_ + 1) + i] = (abs(charge[i]) <= 1) ? (charge[i] + 2) : 0;
   }
 
   model->prepare_input(input);
