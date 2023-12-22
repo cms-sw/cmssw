@@ -22,6 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/moduleAbilities.h"
+#include "FWCore/Framework/interface/stream/moduleAbilities.h"
 
 // forward declarations
 namespace edm {
@@ -112,6 +113,16 @@ namespace edm {
         static constexpr bool kAccumulator = true;
       };
 
+      template <typename... U>
+      struct HasAbility<edm::stream::WatchLuminosityBlocks, U...> : public HasAbility<U...> {
+        static constexpr bool kWatchLuminosityBlocks = true;
+      };
+
+      template <typename... U>
+      struct HasAbility<edm::stream::WatchRuns, U...> : public HasAbility<U...> {
+        static constexpr bool kWatchRuns = true;
+      };
+
       template <>
       struct HasAbility<LastCheck> {
         static constexpr bool kGlobalCache = false;
@@ -130,6 +141,8 @@ namespace edm {
         static constexpr bool kExternalWork = false;
         static constexpr bool kAccumulator = false;
         static constexpr bool kTransformer = false;
+        static constexpr bool kWatchLuminosityBlocks = true;
+        static constexpr bool kWatchRuns = true;
       };
     }  // namespace impl
     template <typename... T>

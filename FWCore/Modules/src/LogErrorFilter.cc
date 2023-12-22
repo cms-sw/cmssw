@@ -32,7 +32,7 @@
 // class declaration
 //
 
-class LogErrorFilter : public edm::stream::EDFilter<> {
+class LogErrorFilter : public edm::stream::EDFilter<edm::stream::WatchLuminosityBlocks> {
 public:
   explicit LogErrorFilter(edm::ParameterSet const&);
   ~LogErrorFilter() override;

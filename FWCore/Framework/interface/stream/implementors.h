@@ -291,6 +291,27 @@ namespace edm {
         virtual void acquire(Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder) = 0;
       };
 
+      class WatchLuminosityBlocks {
+      public:
+        WatchLuminosityBlocks() = default;
+        WatchLuminosityBlocks(WatchLuminosityBlocks const&) = delete;
+        WatchLuminosityBlocks& operator=(WatchLuminosityBlocks const&) = delete;
+        virtual ~WatchLuminosityBlocks() noexcept(false){};
+
+        // virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
+        // virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+      };
+
+      class WatchRuns {
+      public:
+        WatchRuns() = default;
+        WatchRuns(WatchRuns const&) = delete;
+        WatchRuns& operator=(WatchRuns const&) = delete;
+        virtual ~WatchRuns() noexcept(false){};
+
+        // virtual void beginRun(edm::Run const&, edm::EventSetup const&) = 0;
+        // virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
+      };
       class Transformer : private TransformerBase, public EDProducerBase {
       public:
         Transformer() = default;
