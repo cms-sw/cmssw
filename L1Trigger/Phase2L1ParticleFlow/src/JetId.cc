@@ -2,8 +2,11 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
-JetId::JetId(const std::string &iInput, const std::string &iOutput, const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles) 
-    :modelRef_(model){
+JetId::JetId(const std::string &iInput,
+             const std::string &iOutput,
+             const std::shared_ptr<hls4mlEmulator::Model> model,
+             int iNParticles)
+    : modelRef_(model) {
   NNvectorVar_.clear();
   fNParticles_ = iNParticles;
 
@@ -72,18 +75,18 @@ float JetId::EvaluateNN() {
   return outputs[0].matrix<float>()(0, 0);
 }  //end EvaluateNN
 
-ap_fixed<16,6> JetId::EvaluateNNFixed() {
-  ap_fixed<16,6> modelInput[140]={};
+ap_fixed<16, 6> JetId::EvaluateNNFixed() {
+  ap_fixed<16, 6> modelInput[140] = {};
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
     modelInput[i] = NNvectorVar_[i];
   }
-  ap_fixed<16,6> modelResult = -1;
+  ap_fixed<16, 6> modelResult = -1;
   //for (int i = 0; i < 1; i++) {
   //  modelResult[i] = -1;
   //}
 
   modelRef_->prepare_input(modelInput);
-  modelRef_->predict();  
+  modelRef_->predict();
   modelRef_->read_result(modelResult);
   return modelResult;
 }  //end EvaluateNN

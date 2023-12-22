@@ -55,11 +55,11 @@ TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))),
-      loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("TOoLLiPVersion"))) 
-      {
+      loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("TOoLLiPVersion"))) {
   //load model and feed to JetID
   model = loader.load_model();
-  fJetId_ = std::make_unique<JetId>(cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_);
+  fJetId_ = std::make_unique<JetId>(
+      cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_);
   //produces<float>("L1LLPScores");
   produces<edm::ValueMap<float>>("L1PFLLPJets");
 }
@@ -78,14 +78,14 @@ void TOoLLiPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
- std::vector<float> LLPScores;
- for (const auto& srcjet : *jets) {
+  std::vector<float> LLPScores;
+  for (const auto& srcjet : *jets) {
     if (((fUseRawPt_ ? srcjet.rawPt() : srcjet.pt()) < fMinPt_) || std::abs(srcjet.eta()) > fMaxEta_ ||
         LLPScores.size() >= fMaxJets_) {
       LLPScores.push_back(-1.);
       continue;
     }
-    ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_); 
+    ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
     LLPScores.push_back(LLPScore);
   }
 
@@ -102,7 +102,8 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
   //change for LLP
-  desc.add<std::string>("TOoLLiPVersion", std::string("/src/L1Trigger/Phase2L1ParticleFlow/test/TOoLLip_emulator_v1.so"));
+  desc.add<std::string>("TOoLLiPVersion",
+                        std::string("/src/L1Trigger/Phase2L1ParticleFlow/test/TOoLLip_emulator_v1.so"));
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);
