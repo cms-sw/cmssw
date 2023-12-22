@@ -13,7 +13,7 @@ TICL_AOD = cms.PSet(
 TICL_RECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
       trackstersIters +
-      ['keep *_ticlTracksterLinks_*_*',
+      [
        'keep *_ticlTrackstersHFNoseTrkEM_*_*',
        'keep *_ticlTrackstersHFNoseEM_*_*',
        'keep *_ticlTrackstersHFNoseTrk_*_*',
@@ -28,7 +28,22 @@ TICL_RECO = cms.PSet(
       ['keep *_tracksterSimTracksterAssociationLinkingbyCLUE3D_*_*', 'keep *_tracksterSimTracksterAssociationPRbyCLUE3D_*_*'] 
       )
     )
+
+TICLv5_RECO = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        [
+            'drop *_ticlTracksters*_*_*',
+            'keep *_ticlTrackstersCLUE3DEM_*_*',
+            'keep *_ticlTrackstersCLUE3DHAD_*_*',
+            'keep *_ticlTracksterLinks_*_*',
+            'keep *_ticlCandidate_*_*',
+        ]
+    )
+)
+
+ 
 TICL_RECO.outputCommands.extend(TICL_AOD.outputCommands)
+
 
 # FEVT Content
 TICL_FEVT = cms.PSet(
@@ -40,6 +55,19 @@ TICL_FEVT = cms.PSet(
       )
     )
 TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)
+TICLv5_FEVT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+      'keep *_ticlSimTracksters_*_*',
+      'keep *_ticlSimTICLCandidates_*_*',
+      'keep *_ticlSimTrackstersFromCP_*_*',
+      )
+    )
+
+TICLv5_FEVT.outputCommands.extend(TICLv5_RECO.outputCommands)
+
+
+
+
 
 def customiseHGCalOnlyEventContent(process):
     def cleanOutputAndSet(outputModule, ticl_outputCommads):
@@ -71,3 +99,19 @@ def customiseHGCalOnlyEventContent(process):
         cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICL_FEVT.outputCommands)
 
     return process
+
+
+
+def customiseForTICLv5EventContent(process):
+    def cleanOutputAndSet(outputModule, ticl_outputCommands):
+        outputModule.outputCommands.extend(ticl_outputCommands)
+
+    if hasattr(process, 'FEVTDEBUGEventContent'):
+        cleanOutputAndSet(process.FEVTDEBUGEventContent, TICLv5_FEVT.outputCommands)
+    if hasattr(process, 'FEVTDEBUGHLToutput'):
+        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICLv5_FEVT.outputCommands)
+    if hasattr(process, 'FEVTEventContent'):
+        cleanOutputAndSet(process.FEVTEventContent, TICLv5_FEVT.outputCommands)
+
+    return process
+
