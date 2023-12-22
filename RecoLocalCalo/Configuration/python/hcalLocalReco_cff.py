@@ -58,6 +58,9 @@ _run3_hcalLocalRecoTask.remove(hbheprereco)
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoTask)
 
+#--- Legacy HCAL Only Task
+hcalOnlyLegacyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])
+
 #--- for Run 3 on GPU
 from Configuration.ProcessModifiers.gpu_cff import gpu
 

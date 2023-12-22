@@ -243,7 +243,16 @@ reconstruction_hcalOnlyTask = cms.Task(
     pfClusteringHBHEHFOnlyTask
 )
 
+# define secondary validation task running only Legacy
+reconstruction_hcalOnlyLegacyTask = cms.Task(
+        bunchSpacingProducer,
+        offlineBeamSpot,
+        hcalOnlyLegacyLocalRecoTask,
+        hcalOnlyLegacyGlobalRecoTask,
+        pfClusteringHBHEHFOnlyLegacyTask)
+
 reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
+reconstruction_hcalOnlyLegacy = cms.Sequence(reconstruction_hcalOnlyLegacyTask)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well

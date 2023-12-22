@@ -19,6 +19,9 @@ from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprere
 run3_HB.toReplaceWith(hbhereco.cpu, _phase1_hbheprereco)
 run3_HB.toReplaceWith(hcalOnlyGlobalRecoTask, cms.Task(hbhereco))
 
+#-- Legacy HCAL Only Task
+hcalOnlyLegacyGlobalRecoTask = hcalOnlyGlobalRecoTask.copy()
+
 #--- for Run 3 on GPU
 from Configuration.ProcessModifiers.gpu_cff import gpu
 
