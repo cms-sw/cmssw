@@ -29,7 +29,7 @@ public:
   void setNNVectorVar();
   float EvaluateNN();
   ap_fixed<16,6> EvaluateNNFixed();
-  float          compute     (const l1t::PFJet &iJet, float vz, bool useRawPt);
+  float compute(const l1t::PFJet &iJet, float vz, bool useRawPt);
   ap_fixed<16,6> computeFixed(const l1t::PFJet &iJet, float vz, bool useRawPt);
 
 private:
