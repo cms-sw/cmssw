@@ -281,15 +281,15 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 }
 
 void HGCalLayerClusterProducer::setAlgoId() {
-if (detector_ == "EE") { 
+  if (detector_ == "EE") {
     algoId_ = reco::CaloCluster::hgcal_em;
-  } else if (detector_ == "FH") {  
+  } else if (detector_ == "FH") {
     algoId_ = reco::CaloCluster::hgcal_had;
   } else if (detector_ == "BH") {
     algoId_ = reco::CaloCluster::hgcal_scintillator;
   } else if (detector_ == "HFNose") {
-    algoId_ = reco::CaloCluster::hfnose; 
-  }  
+    algoId_ = reco::CaloCluster::hfnose;
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

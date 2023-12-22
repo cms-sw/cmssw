@@ -31,12 +31,13 @@ namespace ticl {
       }
     }
 
-    virtual ~TracksterLinkingbyFastJet() {}
+    ~TracksterLinkingbyFastJet() override {}
 
-  void linkTracksters(const Inputs& input, std::vector<Trackster>& resultTracksters,
-                      std::vector<std::vector<unsigned int>>& linkedResultTracksters,
-                      std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
-  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    void linkTracksters(const Inputs& input,
+                        std::vector<Trackster>& resultTracksters,
+                        std::vector<std::vector<unsigned int>>& linkedResultTracksters,
+                        std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);
       iDesc.add<int>("jet_algorithm", 2)
           ->setComment("FastJet jet clustering algorithm: 0 = kt, 1 = Cambridge/Aachen, 2 = anti-kt");

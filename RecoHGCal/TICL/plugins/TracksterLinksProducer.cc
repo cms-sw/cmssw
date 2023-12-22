@@ -14,9 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
 #include "DataFormats/Common/interface/OrphanHandle.h"
-
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
@@ -29,8 +27,6 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "TrackstersPCA.h"
-
-
 
 using namespace ticl;
 
@@ -47,7 +43,6 @@ public:
   void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
 
 private:
-
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void dumpTrackster(const Trackster &) const;
 
@@ -101,7 +96,6 @@ void TracksterLinksProducer::beginRun(edm::Run const &iEvent, edm::EventSetup co
   rhtools_.setGeometry(*geom);
 };
 
-
 void TracksterLinksProducer::dumpTrackster(const Trackster &t) const {
   auto e_over_h = (t.raw_em_pt() / ((t.raw_pt() - t.raw_em_pt()) != 0. ? (t.raw_pt() - t.raw_em_pt()) : 1.));
   LogDebug("TracksterLinksProducer")
@@ -128,20 +122,19 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
   auto resultTracksters = std::make_unique<std::vector<Trackster>>();
 
   auto linkedResultTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
-  
+
   const auto &layerClusters = evt.get(clusters_token_);
   const auto &layerClustersTimes = evt.get(clustersTime_token_);
 
-  // loop over the original_masks_tokens_ and get the original masks collections and multiply them 
+  // loop over the original_masks_tokens_ and get the original masks collections and multiply them
   // to get the global mask
   std::vector<float> original_global_mask(layerClusters.size(), 1.f);
   for (unsigned int i = 0; i < original_masks_tokens_.size(); ++i) {
-    const auto& tmp_mask = evt.get(original_masks_tokens_[i]);
-    for(unsigned int j = 0; j < tmp_mask.size(); ++j) {
+    const auto &tmp_mask = evt.get(original_masks_tokens_[i]);
+    for (unsigned int j = 0; j < tmp_mask.size(); ++j) {
       original_global_mask[j] *= tmp_mask[j];
     }
   }
-
 
   auto resultMask = std::make_unique<std::vector<float>>(original_global_mask);
 
@@ -154,11 +147,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
   }
 
   // Linking
-  const typename TracksterLinkingAlgoBase::Inputs input(evt,
-                                                        es,
-                                                        layerClusters,
-                                                        layerClustersTimes,
-                                                        trackstersManager);
+  const typename TracksterLinkingAlgoBase::Inputs input(evt, es, layerClusters, layerClustersTimes, trackstersManager);
   std::vector<std::vector<unsigned int>> linkedTracksterIdToInputTracksterId;
 
   // LinkTracksters will produce a vector of vector of indices of tracksters that:
@@ -168,24 +157,21 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
   // linkedTrackstersToInputTrackstersMap contains the mapping between the linked tracksters and the input tracksters
   linkingAlgo_->linkTracksters(input, *resultTracksters, *linkedResultTracksters, linkedTracksterIdToInputTracksterId);
 
-
   // Now we need to remove the tracksters that are not linked
   // We need to emplace_back in the resultTracksters only the tracksters that are linked
-  for(auto const& resultTrackster : *resultTracksters){
-      for (auto const &clusterIndex : resultTrackster.vertices()) {
-        (*resultMask)[clusterIndex] = 0.f;
-      }
+
+  for (auto const &resultTrackster : *resultTracksters) {
+    for (auto const &clusterIndex : resultTrackster.vertices()) {
+      (*resultMask)[clusterIndex] = 0.f;
+    }
   }
 
-  assignPCAtoTracksters(*resultTracksters,
-                        layerClusters,
-                        layerClustersTimes,
-                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+  assignPCAtoTracksters(
+      *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
 
   evt.put(std::move(linkedResultTracksters));
   evt.put(std::move(resultMask));
   evt.put(std::move(resultTracksters));
-
 }
 
 void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
@@ -219,8 +205,10 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   edm::ParameterSetDescription linkingDesc;
   linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "FastJet", true));
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
-  desc.add<std::vector<edm::InputTag>>("tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DEM"), edm::InputTag("ticlTrackstersCLUE3DHAD")});
-  desc.add<std::vector<edm::InputTag>>("original_masks", {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
+  desc.add<std::vector<edm::InputTag>>(
+      "tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DEM"), edm::InputTag("ticlTrackstersCLUE3DHAD")});
+  desc.add<std::vector<edm::InputTag>>("original_masks",
+                                       {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
   descriptions.add("tracksterLinksProducer", desc);

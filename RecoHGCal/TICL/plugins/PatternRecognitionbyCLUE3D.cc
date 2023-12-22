@@ -321,26 +321,26 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     }
   }
   size_t tracksterIndex = 0;
-  result.erase(
-      std::remove_if(std::begin(result),                                                                                                                                                                                               
-                     std::end(result),
-                     [&](auto const &v) {
-                      return static_cast<int>(v.vertices().size()) < minNumLayerCluster_.at(tracksterSeedAlgoId_.at(tracksterIndex++));
-                      }),
-      result.end());
+  result.erase(std::remove_if(std::begin(result),
+                              std::end(result),
+                              [&](auto const &v) {
+                                return static_cast<int>(v.vertices().size()) <
+                                       minNumLayerCluster_.at(tracksterSeedAlgoId_.at(tracksterIndex++));
+                              }),
+               result.end());
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
-  if(doPidCut_){
-  result.erase(
-      std::remove_if(std::begin(result),
-                     std::end(result),
-                     [&](auto const &v) {
-                      auto const& hadProb = v.id_probability(ticl::Trackster::ParticleType::charged_hadron) + v.id_probability(ticl::Trackster::ParticleType::neutral_hadron);
-                      return hadProb >= cutHadProb_;
-                      }),
-      result.end());
+  if (doPidCut_) {
+    result.erase(std::remove_if(std::begin(result),
+                                std::end(result),
+                                [&](auto const &v) {
+                                  auto const &hadProb =
+                                      v.id_probability(ticl::Trackster::ParticleType::charged_hadron) +
+                                      v.id_probability(ticl::Trackster::ParticleType::neutral_hadron);
+                                  return hadProb >= cutHadProb_;
+                                }),
+                 result.end());
   }
   result.shrink_to_fit();
-
 
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
@@ -787,7 +787,8 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     const TILES &tiles, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
   unsigned int nTracksters = 0;
   std::vector<std::pair<int, int>> localStack;
-  const auto& critical_transverse_distance = useAbsoluteProjectiveScale_ ? criticalXYDistance_ : criticalEtaPhiDistance_;
+  const auto &critical_transverse_distance =
+      useAbsoluteProjectiveScale_ ? criticalXYDistance_ : criticalEtaPhiDistance_;
   // find cluster seeds and outlier
   for (unsigned int layer = 0; layer < 2 * rhtools_.lastLayer(); layer++) {
     auto &clustersOnLayer = clusters_[layer];
@@ -806,8 +807,9 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
                  (clustersOnLayer.rho[i] >= criticalDensity_[algoId]) &&
                  (clustersOnLayer.energy[i] / clustersOnLayer.rho[i] > criticalSelfDensity_[algoId]);
       }
-      bool isOutlier = (clustersOnLayer.delta[i].first > outlierMultiplier_[algoId] * critical_transverse_distance[algoId]) &&
-                       (clustersOnLayer.rho[i] < criticalDensity_[algoId]);
+      bool isOutlier =
+          (clustersOnLayer.delta[i].first > outlierMultiplier_[algoId] * critical_transverse_distance[algoId]) &&
+          (clustersOnLayer.rho[i] < criticalDensity_[algoId]);
       if (isSeed) {
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
@@ -856,17 +858,17 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<std::vector<double>>("criticalDensity", {4,4,4})->setComment("in GeV");
-  iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15,0.15,0.15} /* roughly 1/(densitySiblingLayers+1) */)
+  iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
+  iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
       ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
-  iDesc.add<std::vector<int>>("densitySiblingLayers", {3,3,3})
+  iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
       ->setComment(
           "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
-  iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008,0.0008,0.0008})
+  iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
       ->setComment("in eta,phi space, distance to consider for local density");
   iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
       ->setComment("in cm, distance on the transverse plane to consider for local density");
-  iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2,0.2,0.2})
+  iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
       ->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)
@@ -881,15 +883,15 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment(
           "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, "
           "fixed and factored out.");
-  iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025,0.025,0.025})
+  iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
       ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("criticalXYDistance", {1.8,1.8,1.8})
+  iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
       ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
-  iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5,5,5})
+  iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
       ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("outlierMultiplier", {2,2,2})
+  iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
       ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
-  iDesc.add<std::vector<int>>("minNumLayerCluster", {2,2,2})->setComment("Not Inclusive");
+  iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
   iDesc.add<bool>("doPidCut", false);
   iDesc.add<double>("cutHadProb", 0.5);
   iDesc.add<std::string>("eid_input_name", "input");

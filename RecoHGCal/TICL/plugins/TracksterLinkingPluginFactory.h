@@ -6,8 +6,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 
-using TracksterLinkingPluginFactory = edmplugin::PluginFactory<ticl::TracksterLinkingAlgoBase*(const edm::ParameterSet&,
-                                                                edm::ConsumesCollector)>;
-    
+using TracksterLinkingPluginFactory =
+    edmplugin::PluginFactory<ticl::TracksterLinkingAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector)>;
 
 #endif

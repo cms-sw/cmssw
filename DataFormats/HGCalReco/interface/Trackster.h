@@ -74,20 +74,23 @@ namespace ticl {
     inline void setBarycenter(Vector value) { barycenter_ = value; }
     inline void setTrackIdx(int index) { track_idx_ = index; }
     int trackIdx() const { return track_idx_; }
-    inline void mergeTracksters(const Trackster& other){
+    inline bool isHadronic(float th = 0.5f) const {
+      return id_probability(Trackster::ParticleType::photon) + id_probability(Trackster::ParticleType::electron) < th;
+    }
+    inline void mergeTracksters(const Trackster &other) {
       *this += other;
 
-      //remove duplicates 
+      //remove duplicates
       removeDuplicates();
       zeroProbabilities();
     }
 
-    inline void mergeTracksters(const std::vector<Trackster>& others){
-      for(auto& other: others){
+    inline void mergeTracksters(const std::vector<Trackster> &others) {
+      for (auto &other : others) {
         *this += other;
       }
 
-      //remove duplicates 
+      //remove duplicates
       removeDuplicates();
       zeroProbabilities();
     }
@@ -222,14 +225,12 @@ namespace ticl {
           auto iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
           while (iDup != vertices_.end()) {
             vertices_.erase(iDup);
-            vertex_multiplicity_.erase(vertex_multiplicity_.begin() +
-                                                     std::distance(std::begin(vertices_), iDup));
+            vertex_multiplicity_.erase(vertex_multiplicity_.begin() + std::distance(std::begin(vertices_), iDup));
             vertex_multiplicity_[firstPos] -= 1;
             iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
           };
         }
-    }
-
+      }
     }
     inline void operator+=(const Trackster &other) {
       // use getters on other
@@ -239,9 +240,9 @@ namespace ticl {
       raw_em_pt_ += other.raw_em_pt();
       // add vertices and multiplicities
       std::copy(std::begin(other.vertices()), std::end(other.vertices()), std::back_inserter(vertices_));
-      std::copy(std::begin(other.vertex_multiplicity()), std::end(other.vertex_multiplicity()),
+      std::copy(std::begin(other.vertex_multiplicity()),
+                std::end(other.vertex_multiplicity()),
                 std::back_inserter(vertex_multiplicity_));
-      
     }
   };
 

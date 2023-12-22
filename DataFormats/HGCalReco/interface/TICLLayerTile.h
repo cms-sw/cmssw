@@ -12,9 +12,7 @@ class TICLLayerTileT {
 public:
   typedef T type;
 
-  void fill(float eta, float phi, unsigned int layerClusterId) {
-    tile_[globalBin(eta, phi)].push_back(layerClusterId);
-  }
+  void fill(float eta, float phi, unsigned int layerClusterId) { tile_[globalBin(eta, phi)].push_back(layerClusterId); }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;

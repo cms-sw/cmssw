@@ -16,12 +16,14 @@ from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer a
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
+from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
 ticlTracksterLinks = _tracksterLinksProducer.clone()
+ticlCandidate = _ticlCandidateProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
@@ -31,6 +33,8 @@ ticlIterationsTask = cms.Task(
     ticlCLUE3DHADStepTask,
     ticlCLUE3DHighStepTask
 )
+
+ticlCandidateTask = cms.Task(ticlCandidate)
 
 
 from Configuration.ProcessModifiers.fastJetTICL_cff import fastJetTICL
@@ -53,6 +57,7 @@ ticlIterLabelsMerge = ticlIterLabels + ["Merge"]
 
 
 iterTICLTask = cms.Task(mergeTICLTask
+    ,ticlCandidateTask
     ,ticlPFTask)
 
 ticlLayerTileHFNose = ticlLayerTileProducer.clone(

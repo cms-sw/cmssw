@@ -39,17 +39,18 @@ namespace ticl {
       const std::vector<reco::CaloCluster>& layerClusters;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
       const MultiVectorManager<Trackster>& tracksters;
-      
+
       Inputs(const edm::Event& eV,
              const edm::EventSetup& eS,
              const std::vector<reco::CaloCluster>& lC,
              const edm::ValueMap<std::pair<float, float>>& lT,
-             const MultiVectorManager<Trackster>& tS )
+             const MultiVectorManager<Trackster>& tS)
           : ev(eV), es(eS), layerClusters(lC), layerClustersTime(lT), tracksters(tS) {}
     };
 
-    virtual void linkTracksters(const Inputs& input, std::vector<Trackster>& resultTracksters,
-                                std::vector<std::vector<unsigned int>> & linkedResultTracksters,
+    virtual void linkTracksters(const Inputs& input,
+                                std::vector<Trackster>& resultTracksters,
+                                std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                                 std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); };

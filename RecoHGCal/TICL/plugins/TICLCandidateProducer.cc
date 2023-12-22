@@ -28,12 +28,16 @@
 
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TICLInterpretationPluginFactory.h"
+#include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
+
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -65,7 +69,11 @@ public:
 private:
   void dumpCandidate(const TICLCandidate &) const;
 
-  // std::unique_ptr<InterpretationAlgoBase> interpretationAlgo_;
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                             const tensorflow::Session *,
+                             std::vector<Trackster> &result) const;
+
+  std::unique_ptr<TICLInterpretationAlgoBase<reco::Track>> generalInterpretationAlgo_;
   std::vector<edm::EDGetTokenT<std::vector<Trackster>>> egamma_tracksters_tokens_;
   std::vector<edm::EDGetTokenT<std::vector<std::vector<unsigned>>>> egamma_tracksterlinks_tokens_;
 
@@ -81,14 +89,18 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_beta_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_path_length_token_;
+  edm::EDGetTokenT<edm::ValueMap<GlobalPoint>> tracks_glob_pos_token_;
+
   const edm::EDGetTokenT<std::vector<reco::Muon>> muons_token_;
   const bool useMTDTiming_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
-  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
+  const std::string detector_;
   const std::string propName_;
-
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
 
   const std::string tfDnnLabel_;
   const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
@@ -102,7 +114,12 @@ private:
   tensorflow::Session *eidSession_;
 
   std::once_flag initializeGeometry_;
+  const HGCalDDDConstants *hgcons_;
   hgcal::RecHitTools rhtools_;
+  const float tkEnergyCut_ = 2.0f;
+  const StringCutObjectSelector<reco::Track> cutTk_;
+  static constexpr int eidNFeatures_ = 3;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
 };
 
 TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
@@ -114,9 +131,10 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
       useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      detector_(ps.getParameter<std::string>("detector")),
+      propName_(ps.getParameter<std::string>("propagator")),
       propagator_token_(
           esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(edm::ESInputTag("", propName_))),
-      propName_(ps.getParameter<std::string>("propagator")),
       tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
       tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
       tfSession_(nullptr),
@@ -126,7 +144,8 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
       eidMinClusterEnergy_(ps.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(ps.getParameter<int>("eid_n_layers")),
       eidNClusters_(ps.getParameter<int>("eid_n_clusters")),
-      eidSession_(nullptr) {
+      eidSession_(nullptr),
+      cutTk_(ps.getParameter<std::string>("cutTk")) {
   // These are the CLUE3DEM Tracksters put in the event by the TracksterLinksProducer with the superclustering algorithm
   for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("egamma_tracksters_collections")) {
     egamma_tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
@@ -159,9 +178,16 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
   }
 
   if (useMTDTiming_) {
+    std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
+    hdc_token_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag("", detectorName_));
     tracks_time_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"));
     tracks_time_quality_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"));
     tracks_time_err_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"));
+    tracks_beta_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksBeta"));
+    tracks_path_length_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksPathLength"));
+    tracks_glob_pos_token_ =
+        consumes<edm::ValueMap<GlobalPoint>>(ps.getParameter<edm::InputTag>("tracksGlobalPosition"));
   }
 
   produces<std::vector<TICLCandidate>>();
@@ -169,9 +195,10 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps)
   // New trackster collection after linking
   produces<std::vector<Trackster>>();
 
-  // auto linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
-  // auto algoType = linkingPSet.getParameter<std::string>("type");
-  // linkingAlgo_ = TracksterLinkingPluginFactory::get()->create(algoType, linkingPSet, consumesCollector());
+  auto interpretationPSet = ps.getParameter<edm::ParameterSet>("interpretationDescPSet");
+  auto algoType = interpretationPSet.getParameter<std::string>("type");
+  generalInterpretationAlgo_ =
+      TICLGeneralInterpretationPluginFactory::get()->create(algoType, interpretationPSet, consumesCollector());
 }
 
 void TICLCandidateProducer::beginJob() {}
@@ -179,30 +206,71 @@ void TICLCandidateProducer::beginJob() {}
 void TICLCandidateProducer::endJob(){};
 
 void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
+  edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
+  hgcons_ = hdc.product();
+
   edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
   rhtools_.setGeometry(*geom);
+
+  edm::ESHandle<MagneticField> bfield = es.getHandle(bfield_token_);
+  edm::ESHandle<Propagator> propagator = es.getHandle(propagator_token_);
+  generalInterpretationAlgo_->initialize(hgcons_, rhtools_, bfield, propagator);
 };
+
+void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
+                  const std::vector<reco::Muon> &muons,
+                  const StringCutObjectSelector<reco::Track> cutTk_,
+                  const float tkEnergyCut_,
+                  std::vector<bool> maskTracks) {
+  auto const &tracks = *tkH;
+  for (unsigned i = 0; i < tracks.size(); ++i) {
+    const auto &tk = tracks[i];
+    reco::TrackRef trackref = reco::TrackRef(tkH, i);
+
+    // veto tracks associated to muons
+    int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
+
+    if (!cutTk_((tk)) or muId != -1) {
+      maskTracks[i] = 0;
+      continue;
+    }
+
+    // don't consider tracks below 2 GeV for linking
+    if (std::sqrt(tk.p() * tk.p() + ticl::mpion2) < tkEnergyCut_) {
+      maskTracks[i] = 0;
+      continue;
+    }
+
+    // record tracks that can be used to make a ticlcandidate
+    maskTracks[i] = 1;
+  }
+}
 
 void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   auto resultTracksters = std::make_unique<std::vector<Trackster>>();
   auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
-
   auto linkedResultTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
+  tfSession_ = es.getData(tfDnnToken_).getSession();
 
   const auto &layerClusters = evt.get(clusters_token_);
   const auto &layerClustersTimes = evt.get(clustersTime_token_);
+  auto const &muons = evt.get(muons_token_);
 
-  edm::Handle<std::vector<reco::Track>> track_h;
+  edm::Handle<std::vector<reco::Track>> tracks_h;
 
   edm::Handle<edm::ValueMap<float>> trackTime_h;
   edm::Handle<edm::ValueMap<float>> trackTimeErr_h;
   edm::Handle<edm::ValueMap<float>> trackTimeQual_h;
-  evt.getByToken(tracks_token_, track_h);
-  const auto &tracks = *track_h;
+  edm::Handle<edm::ValueMap<float>> trackTimeBeta_h;
+  edm::Handle<edm::ValueMap<GlobalPoint>> trackTimeGlobalPosition_h;
+  evt.getByToken(tracks_token_, tracks_h);
+  const auto &tracks = *tracks_h;
   if (useMTDTiming_) {
     evt.getByToken(tracks_time_token_, trackTime_h);
     evt.getByToken(tracks_time_err_token_, trackTimeErr_h);
     evt.getByToken(tracks_time_quality_token_, trackTimeQual_h);
+    evt.getByToken(tracks_time_err_token_, trackTimeBeta_h);
+    evt.getByToken(tracks_glob_pos_token_, trackTimeGlobalPosition_h);
   }
 
   // loop over the original_masks_tokens_ and get the original masks collections and multiply them
@@ -239,21 +307,229 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       }
     }
   }
-  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs input(
-      evt, es, layerClusters, layerClustersTimes, generalTrackstersManager, generalTracksterLinksGlobalId, tracks);
+
+  std::vector<bool> maskTracks;
+  maskTracks.resize(tracks.size());
+  filterTracks(tracks_h, muons, cutTk_, tkEnergyCut_, maskTracks);
+
+  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs input(evt,
+                                                                       es,
+                                                                       layerClusters,
+                                                                       layerClustersTimes,
+                                                                       generalTrackstersManager,
+                                                                       generalTracksterLinksGlobalId,
+                                                                       tracks_h,
+                                                                       maskTracks);
+
+  const typename TICLInterpretationAlgoBase<reco::Track>::TrackTimingInformation inputTiming(
+      trackTime_h, trackTimeErr_h, trackTimeQual_h, trackTimeQual_h, trackTimeGlobalPosition_h);
+
+  auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
+  std::vector<int> trackstersInTrackIndices(tracks.size());
+
+  //TODO
+  //egammaInterpretationAlg_->makecandidates(inputGSF, inputTiming, *resultTrackstersMerged, trackstersInGSFTrackIndices)
+  // mask generalTracks associated to GSFTrack linked in egammaInterpretationAlgo_
+
+  generalInterpretationAlgo_->makeCandidates(input, inputTiming, *resultTracksters, trackstersInTrackIndices);
+
+  assignPCAtoTracksters(
+      *resultTracksters, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+
+  energyRegressionAndID(layerClusters, tfSession_, *resultTracksters);
+
+  std::vector<bool> maskTracksters(resultTracksters->size(), 1);
+  edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
+  //create ChargedCandidates
+  for (size_t iTrack = 0; iTrack < tracks.size(); iTrack++) {
+    auto const tracksterId = trackstersInTrackIndices[iTrack];
+    auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
+    if (tracksterId != -1) {
+      auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
+      TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+      resultCandidates->push_back(chargedCandidate);
+      maskTracksters[tracksterId] = 0;
+    } else {
+      //charged candidates track only
+      edm::Ptr<Trackster> tracksterPtr;
+      TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+      resultCandidates->push_back(chargedCandidate);
+    }
+  }
+
+  //Neutral Candidate
+  for (size_t iTrackster = 0; iTrackster < maskTracksters.size(); iTrackster++) {
+    if (maskTracksters[iTrackster]) {
+      edm::Ptr<Trackster> tracksterPtr(resultTracksters_h, 0);  //= edm::Ptr<Trackster>(resultTracksters_h, iTrackster);
+      edm::Ptr<reco::Track> trackPtr;
+      TICLCandidate neutralCandidate(trackPtr, tracksterPtr);
+      resultCandidates->push_back(neutralCandidate);
+    }
+  }
+
+  evt.put(std::move(resultCandidates));
+}
+
+void TICLCandidateProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                  const tensorflow::Session *eidSession,
+                                                  std::vector<Trackster> &tracksters) const {
+  // Energy regression and particle identification strategy:
+  //
+  // 1. Set default values for regressed energy and particle id for each trackster.
+  // 2. Store indices of tracksters whose total sum of cluster energies is above the
+  //    eidMinClusterEnergy_ (GeV) threshold. Inference is not applied for soft tracksters.
+  // 3. When no trackster passes the selection, return.
+  // 4. Create input and output tensors. The batch dimension is determined by the number of
+  //    selected tracksters.
+  // 5. Fill input tensors with layer cluster features. Per layer, clusters are ordered descending
+  //    by energy. Given that tensor data is contiguous in memory, we can use pointer arithmetic to
+  //    fill values, even with batching.
+  // 6. Zero-fill features for empty clusters in each layer.
+  // 7. Batched inference.
+  // 8. Assign the regressed energy and id probabilities to each trackster.
+  //
+  // Indices used throughout this method:
+  // i -> batch element / trackster
+  // j -> layer
+  // k -> cluster
+  // l -> feature
+
+  // do nothing when no trackster passes the selection (3)
+  int batchSize = (int)tracksters.size();
+  if (batchSize == 0) {
+    return;
+  }
+
+  for (auto &t : tracksters) {
+    t.setRegressedEnergy(0.f);
+    t.zeroProbabilities();
+  }
+
+  // create input and output tensors (4)
+  tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
+  tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
+  static constexpr int inputDimension = 4;
+
+  std::vector<tensorflow::Tensor> outputs;
+  std::vector<std::string> outputNames;
+  if (!eidOutputNameEnergy_.empty()) {
+    outputNames.push_back(eidOutputNameEnergy_);
+  }
+  if (!eidOutputNameId_.empty()) {
+    outputNames.push_back(eidOutputNameId_);
+  }
+
+  // fill input tensor (5)
+  for (int i = 0; i < batchSize; i++) {
+    const Trackster &trackster = tracksters[i];
+
+    // per layer, we only consider the first eidNClusters_ clusters in terms of
+    // energy, so in order to avoid creating large / nested structures to do
+    // the sorting for an unknown number of total clusters, create a sorted
+    // list of layer cluster indices to keep track of the filled clusters
+    std::vector<int> clusterIndices(trackster.vertices().size());
+    for (int k = 0; k < (int)trackster.vertices().size(); k++) {
+      clusterIndices[k] = k;
+    }
+    sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
+      return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
+    });
+
+    // keep track of the number of seen clusters per layer
+    std::vector<int> seenClusters(eidNLayers_);
+
+    // loop through clusters by descending energy
+    for (const int &k : clusterIndices) {
+      // get features per layer and cluster and store the values directly in the input tensor
+      const reco::CaloCluster &cluster = layerClusters[trackster.vertices(k)];
+      int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
+      if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
+        // get the pointer to the first feature value for the current batch, layer and cluster
+        float *features = &input.tensor<float, inputDimension>()(i, j, seenClusters[j], 0);
+
+        // fill features
+        *(features++) = float(cluster.energy() / float(trackster.vertex_multiplicity(k)));
+        *(features++) = float(std::abs(cluster.eta()));
+        *(features) = float(cluster.phi());
+
+        // increment seen clusters
+        seenClusters[j]++;
+      }
+    }
+
+    // zero-fill features of empty clusters in each layer (6)
+    for (int j = 0; j < eidNLayers_; j++) {
+      for (int k = seenClusters[j]; k < eidNClusters_; k++) {
+        float *features = &input.tensor<float, inputDimension>()(i, j, k, 0);
+        for (int l = 0; l < eidNFeatures_; l++) {
+          *(features++) = 0.f;
+        }
+      }
+    }
+  }
+
+  // run the inference (7)
+  tensorflow::run(eidSession, inputList, outputNames, &outputs);
+
+  // store regressed energy per trackster (8)
+  if (!eidOutputNameEnergy_.empty()) {
+    // get the pointer to the energy tensor, dimension is batch x 1
+    float *energy = outputs[0].flat<float>().data();
+
+    for (int i = 0; i < batchSize; ++i) {
+      float regressedEnergy =
+          tracksters[i].raw_energy() > eidMinClusterEnergy_ ? energy[i] : tracksters[i].raw_energy();
+      tracksters[i].setRegressedEnergy(regressedEnergy);
+    }
+  }
+
+  // store id probabilities per trackster (8)
+  if (!eidOutputNameId_.empty()) {
+    // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
+    int probsIdx = !eidOutputNameEnergy_.empty();
+    float *probs = outputs[probsIdx].flat<float>().data();
+    int probsNumber = tracksters[0].id_probabilities().size();
+    for (int i = 0; i < batchSize; ++i) {
+      tracksters[i].setProbabilities(&probs[i * probsNumber]);
+    }
+  }
 }
 
 void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  edm::ParameterSetDescription linkingDesc;
-  // linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "FastJet", true));
-  desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
-  desc.add<std::vector<edm::InputTag>>(
-      "tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DEM"), edm::InputTag("ticlTrackstersCLUE3DHAD")});
+  edm::ParameterSetDescription interpretationDesc;
+  interpretationDesc.addNode(edm::PluginDescription<TICLGeneralInterpretationPluginFactory>("type", "General", true));
+  desc.add<edm::ParameterSetDescription>("interpretationDescPSet", interpretationDesc);
+  desc.add<std::vector<edm::InputTag>>("egamma_tracksters_collections", {edm::InputTag("ticlTracksterLinks")});
+  desc.add<std::vector<edm::InputTag>>("egamma_tracksterlinks_collections", {edm::InputTag("ticlTracksterLinks")});
+  desc.add<std::vector<edm::InputTag>>("general_tracksters_collections", {edm::InputTag("ticlTracksterLinks")});
+  desc.add<std::vector<edm::InputTag>>("general_tracksterlinks_collections", {edm::InputTag("ticlTracksterLinks")});
   desc.add<std::vector<edm::InputTag>>("original_masks",
                                        {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("tracksTime", edm::InputTag("tofPID:t0"));
+  desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
+  desc.add<edm::InputTag>("tracksTimeErr", edm::InputTag("tofPID:sigmat0"));
+  desc.add<edm::InputTag>("tracksBeta", edm::InputTag("trackExtenderWithMTD:generalTrackBeta"));
+  desc.add<edm::InputTag>("tracksGlobalPosition", edm::InputTag("trackExtenderWithMTD:generalTrackmtdpos"));
+  desc.add<edm::InputTag>("tracksPathLength", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"));
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
+  desc.add<std::string>("detector", "HGCAL");
+  desc.add<std::string>("propagator", "PropagatorWithMaterial");
+  desc.add<bool>("useMTDTiming", true);
+  desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
+  desc.add<std::string>("eid_input_name", "input");
+  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
+  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  desc.add<double>("eid_min_cluster_energy", 2.5);
+  desc.add<int>("eid_n_layers", 50);
+  desc.add<int>("eid_n_clusters", 10);
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   descriptions.add("ticlCandidateProducer", desc);
 }
 

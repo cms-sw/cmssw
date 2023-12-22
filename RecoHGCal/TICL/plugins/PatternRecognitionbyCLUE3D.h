@@ -34,7 +34,7 @@ namespace ticl {
       std::vector<float> eta;
       std::vector<float> phi;
       std::vector<int> cells;
-      std::vector<int> algoId; // hgcal_em = 6, hgcal_had = 7, hgcal_scintillator = 8, hfnose = 9
+      std::vector<int> algoId;  // hgcal_em = 6, hgcal_had = 7, hgcal_scintillator = 8, hfnose = 9
       std::vector<uint8_t> isSilicon;
 
       std::vector<float> energy;

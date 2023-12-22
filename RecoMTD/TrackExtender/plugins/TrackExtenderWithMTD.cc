@@ -23,6 +23,7 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -549,6 +550,7 @@ public:
                          float& pathLength,
                          float& tmtdOut,
                          float& sigmatmtdOut,
+                         GlobalPoint& tmtdPosOut,
                          float& tofpi,
                          float& tofk,
                          float& tofp,
@@ -573,6 +575,7 @@ private:
   edm::EDPutToken pathLengthOrigTrkToken_;
   edm::EDPutToken tmtdOrigTrkToken_;
   edm::EDPutToken sigmatmtdOrigTrkToken_;
+  edm::EDPutToken tmtdPosOrigTrkToken_;
   edm::EDPutToken tofpiOrigTrkToken_;
   edm::EDPutToken tofkOrigTrkToken_;
   edm::EDPutToken tofpOrigTrkToken_;
@@ -664,6 +667,7 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   pathLengthOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackPathLength");
   tmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracktmtd");
   sigmatmtdOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
+  tmtdPosOrigTrkToken_ = produces<edm::ValueMap<GlobalPoint>>("generalTrackmtdpos");
   tofpiOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofPi");
   tofkOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofK");
   tofpOrigTrkToken_ = produces<edm::ValueMap<float>>("generalTrackTofP");
@@ -745,7 +749,6 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   Traj2TrackHits t2t;
 
   theTransformer->setServices(es);
-
   TrackingRecHitRefProd hitsRefProd = ev.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd extrasRefProd = ev.getRefBeforePut<reco::TrackExtraCollection>();
 
@@ -781,6 +784,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   std::vector<float> pathLengthsOrigTrkRaw;
   std::vector<float> tmtdOrigTrkRaw;
   std::vector<float> sigmatmtdOrigTrkRaw;
+  std::vector<GlobalPoint> tmtdPosOrigTrkRaw;
   std::vector<float> tofpiOrigTrkRaw;
   std::vector<float> tofkOrigTrkRaw;
   std::vector<float> tofpOrigTrkRaw;
@@ -912,12 +916,14 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     float pMap = 0.f, betaMap = 0.f, t0Map = 0.f, sigmat0Map = -1.f, pathLengthMap = -1.f, tmtdMap = 0.f,
           sigmatmtdMap = -1.f, tofpiMap = 0.f, tofkMap = 0.f, tofpMap = 0.f, sigmatofpiMap = -1.f, sigmatofkMap = -1.f,
           sigmatofpMap = -1.f;
+    GlobalPoint tmtdPosMap{0., 0., 0.};
     int iMap = -1;
 
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs);
       float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f, tofpi = 0.f, tofk = 0.f, tofp = 0.f, sigmatofpi = -1.f,
             sigmatofk = -1.f, sigmatofp = -1.f;
+      GlobalPoint tmtdPos{0., 0., 0.};
       LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: refit track " << itrack << " p/pT = " << track->p()
                                        << " " << track->pt() << " eta = " << track->eta();
       reco::Track result = buildTrack(track,
@@ -930,6 +936,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                       pathLength,
                                       tmtd,
                                       sigmatmtd,
+                                      tmtdPos,
                                       tofpi,
                                       tofk,
                                       tofp,
@@ -959,6 +966,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         pathLengthMap = pathLength;
         tmtdMap = tmtd;
         sigmatmtdMap = sigmatmtd;
+        tmtdPosMap = tmtdPos;
         auto& backtrack = output->back();
         iMap = output->size() - 1;
         pMap = backtrack.p();
@@ -998,6 +1006,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     pathLengthsOrigTrkRaw.push_back(pathLengthMap);
     tmtdOrigTrkRaw.push_back(tmtdMap);
     sigmatmtdOrigTrkRaw.push_back(sigmatmtdMap);
+    tmtdPosOrigTrkRaw.push_back(tmtdPosMap);
     tofpiOrigTrkRaw.push_back(tofpiMap);
     tofkOrigTrkRaw.push_back(tofkMap);
     tofpOrigTrkRaw.push_back(tofpMap);
@@ -1035,6 +1044,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   fillValueMap(ev, tracksH, pathLengthsOrigTrkRaw, pathLengthOrigTrkToken_);
   fillValueMap(ev, tracksH, tmtdOrigTrkRaw, tmtdOrigTrkToken_);
   fillValueMap(ev, tracksH, sigmatmtdOrigTrkRaw, sigmatmtdOrigTrkToken_);
+  fillValueMap(ev, tracksH, tmtdPosOrigTrkRaw, tmtdPosOrigTrkToken_);
   fillValueMap(ev, tracksH, tofpiOrigTrkRaw, tofpiOrigTrkToken_);
   fillValueMap(ev, tracksH, tofkOrigTrkRaw, tofkOrigTrkToken_);
   fillValueMap(ev, tracksH, tofpOrigTrkRaw, tofpOrigTrkToken_);
@@ -1301,6 +1311,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                                                                float& pathLengthOut,
                                                                float& tmtdOut,
                                                                float& sigmatmtdOut,
+                                                               GlobalPoint& tmtdPosOut,
                                                                float& tofpi,
                                                                float& tofk,
                                                                float& tofp,
@@ -1350,6 +1361,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     bool validpropagation = trackPathLength(trajWithMtd, bs, thePropagator, pathlength, trs);
     float thit = 0.f;
     float thiterror = -1.f;
+    GlobalPoint thitpos{0., 0., 0.};
     bool validmtd = false;
 
     if (!validpropagation) {
@@ -1375,6 +1387,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
       thit = mtdhit->time();
       thiterror = mtdhit->timeError();
+      thitpos = mtdhit->globalPosition();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
       std::pair<float, float> lastStep = trs.getSegmentPathAndMom2(0);
@@ -1410,11 +1423,13 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
             thiterror = 1.f / (err1 + err2);
             thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
             thiterror = std::sqrt(thiterror);
+            thitpos = mtdhit2->globalPosition();
             LogTrace("TrackExtenderWithMTD")
-                << "TrackExtenderWithMTD: p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
-                << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- " << mtdhit2->timeError()
+                << "TrackExtenderWithMTD: p trk = " << p.mag() << " ETL hits times/errors: 1) " << mtdhit1->time()
+                << " +/- " << mtdhit1->timeError() << " , 2) " << mtdhit2->time() << " +/- " << mtdhit2->timeError()
                 << " extrapolated time1: " << tofInfo.dt << " +/- " << tofInfo.dterror << " average = " << thit
-                << " +/- " << thiterror;
+                << " +/- " << thiterror << "\n    hit1 pos: " << mtdhit1->globalPosition()
+                << " hit2 pos: " << mtdhit2->globalPosition() << " etl path length " << etlpathlength << std::endl;
             validmtd = true;
           } else {
             // if back extrapolated time of the outermost measurement not compatible with the innermost, keep the one with smallest error
@@ -1443,6 +1458,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       pathLengthOut = pathlength;  // set path length if we've got a timing hit
       tmtdOut = thit;
       sigmatmtdOut = thiterror;
+      tmtdPosOut = thitpos;
       t0 = tofInfo.dt;
       covt0t0 = tofInfo.dterror2;
       betaOut = tofInfo.beta_pi;
