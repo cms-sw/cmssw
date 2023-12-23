@@ -1,31 +1,23 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_TAUNNIDHW_H_
 #define L1Trigger_Phase2L1ParticleFlow_TAUNNIDHW_H_
 
-#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
-
 #include <cstdio>
 #include <complex>
-#include "ap_int.h"
-#include "ap_fixed.h"
+
 #include "L1Trigger/Phase2L1ParticleFlow/interface/taus/tau_parameters.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/defines.h"
 
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
-
-#include "L1Trigger/Phase2L1ParticleFlow/interface/common/nnet_layer.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/common/nnet_activation.h"
-
-//hls-fpga-machine-learning insert weights
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/w1.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b1.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/w2.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b2.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/w3.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b3.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/w4.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b4.h"
 
 typedef ap_ufixed<16, 14> pt_t;
 typedef ap_fixed<10, 4> etaphi_t;
+
+// Tau NN returns two values
+struct Tau_NN_Result {
+  result_t nn_pt_correction;
+  result_t nn_id;
+};
 
 namespace L1TauEmu {
   // Data types and constants used in the FPGA and FPGA-optimized functions
@@ -148,8 +140,8 @@ public:
   void initialize(const std::string &iName, int iNParticles);
   void SetNNVectorVar();
   input_t *NNVectorVar() { return NNvectorVar_.data(); }
-  result_t EvaluateNN();
-  result_t compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
+  Tau_NN_Result EvaluateNN();
+  Tau_NN_Result compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
   //void print();
 
   std::string fInput_;
