@@ -29,9 +29,9 @@ public:
   static void globalEndJob(const tensorflow::SessionCache*){};
 
 private:
-  // There is te software and hardware emulator for the tau, default is the Hardware. 
+  // There is te software and hardware emulator for the tau, default is the Hardware.
   std::unique_ptr<TauNNId> fTauNNId_;
-  std::unique_ptr<TauNNIdHW> fTauNNIdHW_; // Default
+  std::unique_ptr<TauNNIdHW> fTauNNIdHW_;  // Default
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void process_SW(const l1t::PFCandidateCollection& parts, std::unique_ptr<l1t::PFTauCollection>& iTaus);
@@ -248,7 +248,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   if (pt < fSeedPt_)
     return;
 
-  // Tau NN Inference  
+  // Tau NN Inference
   Tau_NN_Result NN_ouput = fTauNNIdHW_->compute(seed, parts);
 
   // Needed for making PFTau
@@ -259,8 +259,8 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
 
   //Firmware Tau
   l1ct::Tau l1ctTau;
-  l1ctTau.hwPt = l1ct::pt_t(pt*NN_ouput.nn_pt_correction);                         //l1gt is <16,11> and currently <16,14>
-  l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());  // seed.eta() and seed.phi() are in physical coordinates
+  l1ctTau.hwPt = l1ct::pt_t(pt * NN_ouput.nn_pt_correction);  //l1gt is <16,11> and currently <16,14>
+  l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());       // seed.eta() and seed.phi() are in physical coordinates
   l1ctTau.hwPhi = l1ct::Scales::makeGlbPhi(seed.phi());
 
   l1ctTau.hwSeedPt = seed.pt();

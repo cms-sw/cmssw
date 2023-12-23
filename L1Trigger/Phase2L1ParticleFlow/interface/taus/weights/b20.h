@@ -6,6 +6,6 @@
 #ifndef B20_H_
 #define B20_H_
 
-bias20_t b20[1] = { 0.238281};
+bias20_t b20[1] = {0.238281};
 
 #endif
