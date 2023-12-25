@@ -1,5 +1,5 @@
-#ifndef HLTHPDFilter_h
-#define HLTHPDFilter_h
+#ifndef HLTrigger_JetMET_HLTHPDFilter_h
+#define HLTrigger_JetMET_HLTHPDFilter_h
 
 /** \class HLTHPDFilter
  *
@@ -35,4 +35,4 @@ private:
   double mRBXSpikeUnbalanceThreshold;
 };
 
-#endif  //HLTHPDFilter_h
+#endif

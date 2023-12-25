@@ -1,11 +1,14 @@
-#ifndef HLTmumutktkVtxProducer_h
-#define HLTmumutktkVtxProducer_h
+#ifndef HLTrigger_btau_HLTmumutktkVtxProducer_h
+#define HLTrigger_btau_HLTmumutktkVtxProducer_h
 //
-// Package:    HLTstaging
+// Package:    HLTrigger/btau
 // Class:      HLTmumutktkVtxProducer
 //
 /**\class HLTmumutktkVtxProducer
 */
+
+#include <vector>
+#include <memory>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,8 +24,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include <vector>
-#include <memory>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -41,8 +42,10 @@ class MagneticField;
 class HLTmumutktkVtxProducer : public edm::stream::EDProducer<> {
 public:
   explicit HLTmumutktkVtxProducer(const edm::ParameterSet&);
-  ~HLTmumutktkVtxProducer() override;
+  ~HLTmumutktkVtxProducer() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -72,8 +75,9 @@ private:
   const double maxTrkTrkMass_;
   const double minD0Significance_;
   const bool oppositeSign_;
-  const double overlapDR_;
+  const double overlapDR2_;
   const edm::InputTag beamSpotTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 };
+
 #endif

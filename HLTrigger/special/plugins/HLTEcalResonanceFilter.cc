@@ -1,7 +1,12 @@
-#include "HLTEcalResonanceFilter.h"
+#include <cmath>
+
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "TLorentzVector.h"
+#include "HLTEcalResonanceFilter.h"
+
+#include <TLorentzVector.h>
 
 using namespace std;
 using namespace edm;
@@ -39,7 +44,10 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig)
     }
     seleIso_ = barrelSelection.getParameter<double>("seleIso");
     ptMinForIsolation_ = barrelSelection.getParameter<double>("ptMinForIsolation");
-    seleBeltDR_ = barrelSelection.getParameter<double>("seleBeltDR");
+
+    auto const seleBeltDR = barrelSelection.getParameter<double>("seleBeltDR");
+    seleBeltDR2_ = seleBeltDR * std::abs(seleBeltDR);
+
     seleBeltDeta_ = barrelSelection.getParameter<double>("seleBeltDeta");
 
     store5x5RecHitEB_ = barrelSelection.getParameter<bool>("store5x5RecHitEB");
@@ -71,7 +79,10 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig)
     seleS4S9GammaEndCap_ = endcapSelection.getParameter<double>("seleS4S9GammaEndCap");
     seleS9S25GammaEndCap_ = endcapSelection.getParameter<double>("seleS9S25GammaEndCap");
     ptMinForIsolationEndCap_ = endcapSelection.getParameter<double>("ptMinForIsolationEndCap");
-    seleBeltDREndCap_ = endcapSelection.getParameter<double>("seleBeltDREndCap");
+
+    auto const seleBeltDREndCap = endcapSelection.getParameter<double>("seleBeltDREndCap");
+    seleBeltDR2EndCap_ = seleBeltDREndCap * std::abs(seleBeltDREndCap);
+
     seleBeltDetaEndCap_ = endcapSelection.getParameter<double>("seleBeltDetaEndCap");
     seleIsoEndCap_ = endcapSelection.getParameter<double>("seleIsoEndCap");
 
@@ -500,7 +511,7 @@ void HLTEcalResonanceFilter::doSelection(
   double m_maxCut = seleMinvMaxBarrel_;
   double ptminforIso = ptMinForIsolation_;
   double isoCut = seleIso_;
-  double isoBeltdrCut = seleBeltDR_;
+  double isoBeltdr2Cut = seleBeltDR2_;
   double isoBeltdetaCut = seleBeltDeta_;
   double s4s9Cut = seleS4S9Gamma_;
   double s9s25Cut = seleS9S25Gamma_;
@@ -511,7 +522,7 @@ void HLTEcalResonanceFilter::doSelection(
     m_maxCut = seleMinvMaxEndCap_;
     ptminforIso = ptMinForIsolationEndCap_;
     isoCut = seleIsoEndCap_;
-    isoBeltdrCut = seleBeltDREndCap_;
+    isoBeltdr2Cut = seleBeltDR2EndCap_;
     isoBeltdetaCut = seleBeltDetaEndCap_;
     s4s9Cut = seleS4S9GammaEndCap_;
     s9s25Cut = seleS9S25GammaEndCap_;
@@ -597,9 +608,12 @@ void HLTEcalResonanceFilter::doSelection(
       for (auto it_bc3 = clusterCollection->begin(); it_bc3 != clusterCollection->end(); it_bc3++) {
         if (it_bc3->seed() == it_bc->seed() || it_bc3->seed() == it_bc2->seed())
           continue;
-        float drcl = GetDeltaR(eta_pair, it_bc3->eta(), phi_pair, it_bc3->phi());
-        float dretacl = fabs(eta_pair - it_bc3->eta());
-        if (drcl > isoBeltdrCut || dretacl > isoBeltdetaCut)
+        float dretacl = std::abs(eta_pair - it_bc3->eta());
+        if (dretacl > isoBeltdetaCut)
+          continue;
+        float drphicl = reco::deltaPhi(phi_pair, it_bc3->phi());
+        float drcl2 = dretacl * dretacl + drphicl * drphicl;
+        if (drcl2 > isoBeltdr2Cut)
           continue;
         float pt3 = it_bc3->energy() * sin(it_bc3->position().theta());
         if (pt3 < ptminforIso)
@@ -872,21 +886,6 @@ bool HLTEcalResonanceFilter::checkStatusOfEcalRecHit(const EcalChannelStatus &ch
   }
 
   return true;
-}
-
-float HLTEcalResonanceFilter::DeltaPhi(float phi1, float phi2) {
-  float diff = fabs(phi2 - phi1);
-
-  while (diff > acos(-1))
-    diff -= 2 * acos(-1);
-  while (diff <= -acos(-1))
-    diff += 2 * acos(-1);
-
-  return diff;
-}
-
-float HLTEcalResonanceFilter::GetDeltaR(float eta1, float eta2, float phi1, float phi2) {
-  return sqrt((eta1 - eta2) * (eta1 - eta2) + DeltaPhi(phi1, phi2) * DeltaPhi(phi1, phi2));
 }
 
 void HLTEcalResonanceFilter::makeClusterES(

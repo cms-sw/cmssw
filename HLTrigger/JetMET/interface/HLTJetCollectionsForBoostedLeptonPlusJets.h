@@ -1,5 +1,5 @@
-#ifndef HLTJetCollectionsForBoostedLeptonPlusJets_h
-#define HLTJetCollectionsForBoostedLeptonPlusJets_h
+#ifndef HLTrigger_JetMET_HLTJetCollectionsForBoostedLeptonPlusJets_h
+#define HLTrigger_JetMET_HLTJetCollectionsForBoostedLeptonPlusJets_h
 
 /** \class HLTJetCollectionsForBoostedLeptonPlusJets
  *
@@ -16,25 +16,14 @@
  *
  */
 
-// user include files
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
   class ConfigurationDescriptions;
 }
-
-//
-// class declaration
-//
 
 template <typename jetType>
 class HLTJetCollectionsForBoostedLeptonPlusJets : public edm::stream::EDProducer<> {
@@ -51,8 +40,7 @@ private:
   edm::InputTag hltLeptonTag;
   edm::InputTag sourceJetTag;
 
-  double minDeltaR_;  //min dR to consider cleaning
-
-  // ----------member data ---------------------------
+  double minDeltaR2_;  // min dR^2 (with sign) to consider cleaning
 };
-#endif  //HLTJetCollectionsForBoostedLeptonPlusJets_h
+
+#endif
