@@ -95,12 +95,14 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
 
   // Russian roulette
   double wt2 = track->GetWeight();
-  if (wt2 <= 0.0) { wt2 = 1.0; }
+  if (wt2 <= 0.0) {
+    wt2 = 1.0;
+  }
 
   // tail energy deposition
   const G4double etail = energy - inPointEnergy;
   const G4int nspots = etail;
-  const G4double tailEnergy = etail*wt2 / (nspots + 1);
+  const G4double tailEnergy = etail * wt2 / (nspots + 1);
   /*  
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
