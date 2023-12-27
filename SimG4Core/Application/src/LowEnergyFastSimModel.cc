@@ -93,7 +93,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   spot.SetPosition(pos);
   fHitMaker.make(&spot, &fastTrack);
 
-  // Russian Roulette
+  // Russian roulette
   double wt2 = track->GetWeight();
   if (wt2 <= 0.0) { wt2 = 1.0; }
 
