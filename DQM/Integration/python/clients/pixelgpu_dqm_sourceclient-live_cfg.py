@@ -21,36 +21,42 @@ errorstr     = "### PixelDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
-
-unitTest = False
-if 'unitTest=True' in sys.argv:
-	unitTest=True
-	useFileInput=False
+unitTest     = 'unitTest=True' in sys.argv
 
 #-------------------------------------
 #	Central DQM Stuff imports
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
+
 if useOfflineGT:
-        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-        process.GlobalTag.globaltag = autoCond['run3_data_prompt'] 
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+    process.GlobalTag.globaltag = autoCond['run3_data_prompt']
 else:
-	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
+    process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
+
 if unitTest:
-	process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
-	from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+    process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+    from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 elif useFileInput:
-	process.load("DQM.Integration.config.fileinputsource_cfi")
-	from DQM.Integration.config.fileinputsource_cfi import options
+    process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 else:
-	process.load('DQM.Integration.config.inputsource_cfi')
-	from DQM.Integration.config.inputsource_cfi import options
+    process.load('DQM.Integration.config.inputsource_cfi')
+    from DQM.Integration.config.inputsource_cfi import options
+
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
 #	Central DQM Customization
 #-------------------------------------
-process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
+
+if not useFileInput:
+    # stream label
+    if process.runType.getRunType() == process.runType.hi_run:
+        process.source.streamLabel = "streamHIDQMGPUvsCPU"
+    else:
+        process.source.streamLabel = "streamDQMGPUvsCPU"
+
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = 'PixelGPU'
 process.dqmSaver.runNumber = options.runNumber

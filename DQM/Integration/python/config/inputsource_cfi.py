@@ -89,7 +89,7 @@ options.parseArguments()
 
 runType = RunType()
 if not options.runkey.strip():
-  options.runkey = 'pp_run'
+    options.runkey = 'pp_run'
 
 runType.setRunType(options.runkey.strip())
 
@@ -97,16 +97,22 @@ if not options.inputFiles:
     # Input source
     nextLumiTimeoutMillis = 240000
     endOfRunKills = True
-    
+
     if options.scanOnce:
         endOfRunKills = False
         nextLumiTimeoutMillis = 0
-    
+
+    # stream label
+    if runType.getRunType() == runType.hi_run:
+        streamLabel = 'streamHIDQM'
+    else:
+        streamLabel = 'streamDQM'
+
     source = cms.Source("DQMStreamerReader",
         runNumber = cms.untracked.uint32(options.runNumber),
         runInputDir = cms.untracked.string(options.runInputDir),
         SelectEvents = cms.untracked.vstring('*'),
-        streamLabel = cms.untracked.string('streamDQM'),
+        streamLabel = cms.untracked.string(streamLabel),
         scanOnce = cms.untracked.bool(options.scanOnce),
         datafnPosition = cms.untracked.uint32(options.datafnPosition),
         minEventsPerLumi = cms.untracked.int32(1),
@@ -117,6 +123,7 @@ if not options.inputFiles:
         endOfRunKills  = cms.untracked.bool(endOfRunKills),
         inputFileTransitionsEachEvent = cms.untracked.bool(False)
     )
+
 else:
     print("The list of input files is provided. Disabling discovery and running on everything.")
     files = ["file://" + x for x in options.inputFiles]

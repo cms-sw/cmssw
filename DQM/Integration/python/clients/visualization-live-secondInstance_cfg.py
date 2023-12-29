@@ -7,9 +7,7 @@ from Configuration.DataProcessing.GetScenario import getScenario
 Example configuration for online reconstruction meant for visualization clients.
 """
 
-unitTest = False
-if 'unitTest=True' in sys.argv:
-    unitTest=True
+unitTest = 'unitTest=True' in sys.argv
 
 if unitTest:
     from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
@@ -73,9 +71,15 @@ if not unitTest:
     process.source.skipFirstLumis                = True
     process.source.minEventsPerLumi              = 0
     process.source.nextLumiTimeoutMillis         = 10000
-    process.source.streamLabel                   = 'streamDQMEventDisplay'
-    if options.BeamSplashRun :
-      set_BeamSplashRun_settings( process.source )
+
+    if options.BeamSplashRun:
+        set_BeamSplashRun_settings( process.source )
+
+    # stream label
+    if runType.getRunType() == runType.hi_run:
+        process.source.streamLabel = "streamHIDQMEventDisplay"
+    else:
+        process.source.streamLabel = "streamDQMEventDisplay"
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
     runno = str(m.group(1))

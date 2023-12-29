@@ -30,6 +30,10 @@ process.analyzer = DQMEDAnalyzer('RamdiskMonitor',
     )
 )
 
+# stream label
+if process.runType.getRunType() == process.runType.hi_run:
+    process.analyzer.streamLabels[0] = "streamHIDQM"
+
 process.p = cms.Path(process.analyzer)
 process.dqmsave_step = cms.Path(process.dqmEnv * process.dqmSaver)
 
