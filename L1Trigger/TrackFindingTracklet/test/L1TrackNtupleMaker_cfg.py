@@ -95,15 +95,15 @@ else:
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
-if GEOMETRY == "D76":
-  # If reading old MC dataset, drop incompatible EDProducts.
-  process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-  process.source.inputCommands = cms.untracked.vstring()
-  process.source.inputCommands.append('keep  *_*_*Level1TTTracks*_*')
-  process.source.inputCommands.append('keep  *_*_*StubAccepted*_*')
-  process.source.inputCommands.append('keep  *_*_*ClusterAccepted*_*')
-  process.source.inputCommands.append('keep  *_*_*MergedTrackTruth*_*')
-  process.source.inputCommands.append('keep  *_genParticles_*_*')
+#if GEOMETRY == "D76":
+#  # If reading old MC dataset, drop incompatible EDProducts.
+#  process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+#  process.source.inputCommands = cms.untracked.vstring()
+#  process.source.inputCommands.append('keep  *_*_*Level1TTTracks*_*')
+#  process.source.inputCommands.append('keep  *_*_*StubAccepted*_*')
+#  process.source.inputCommands.append('keep  *_*_*ClusterAccepted*_*')
+#  process.source.inputCommands.append('keep  *_*_*MergedTrackTruth*_*')
+#  process.source.inputCommands.append('keep  *_genParticles_*_*')
 
 # Use skipEvents to select particular single events for test vectors
 #process.source.skipEvents = cms.untracked.uint32(11)
