@@ -7,8 +7,12 @@
 # the git CI runs on to check new code.
 #
 # Whenever the L1 tracking group switches to a new default
-# MC dataset, this skim should be run on ttbar+0PU MC, 
-# and the skimmed dataset placed in
+# MC dataset, this skim should be run on ttbar+0PU MC.
+# It should be copied somewhere like /eos/user/t/tomalin/
+# using cp on lxplus. And a link created to it from 
+# somewhere like 
+# https://cernbox.cern.ch/index.php/apps/files/?dir=/&
+# The link to the skimmed dataset should be referred to in
 # https://gitlab.cern.ch/cms-l1tk/cmssw_CI .
 #-----------------------------------------------------------
 
@@ -49,7 +53,8 @@ from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.RelVal_1130_D76.PU0_TTbar_14TeV_cfi import *
 #inputMC = getCMSdataFromCards()
 
-dataName="/RelValTTbar_14TeV/CMSSW_12_6_0_pre4-125X_mcRun4_realistic_v2_2026D88noPU-v1/GEN-SIM-DIGI-RAW"
+#dataName="/RelValTTbar_14TeV/CMSSW_12_6_0_pre4-125X_mcRun4_realistic_v2_2026D88noPU-v1/GEN-SIM-DIGI-RAW"
+dataName="/RelValTTbar_14TeV/CMSSW_12_6_0-125X_mcRun4_realistic_v5_2026D88noPURV183-v1/GEN-SIM-DIGI-RAW"
 inputMC=getCMSdata(dataName)
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
@@ -70,6 +75,10 @@ process.output.outputCommands.append('keep  *_*_*StubAccepted*_*')
 process.output.outputCommands.append('keep  *_*_*ClusterAccepted*_*')
 process.output.outputCommands.append('keep  *_*_*MergedTrackTruth*_*')
 process.output.outputCommands.append('keep  *_genParticles_*_*')
+
+# Add this if you need to rereconstruct the stubs.
+process.output.outputCommands.append('keep  Phase2TrackerDigi*_mix_Tracker_*')
+process.output.outputCommands.append('keep  PixelDigiSimLinked*_simSiPixelDigis_Tracker_*')
 
 process.pd = cms.EndPath(process.output)
 
