@@ -13,6 +13,9 @@
 // ROOT includes
 #include "TLorentzVector.h"
 
+// standard includes
+#include <fmt/printf.h>
+
 class ShortenedTrackResolution : public DQMEDAnalyzer {
 public:
   ShortenedTrackResolution(const edm::ParameterSet &);
@@ -67,7 +70,13 @@ void ShortenedTrackResolution::bookHistograms(DQMStore::IBooker &iBook,
 
   for (int i = 0; i < int(hitsRemain_.size()); ++i) {
     histsPtAll_.push_back(iBook.book1D(
-        "trackPt" + hitsRemain_[i] + "lAllPt", "Track p_{T} - " + hitsRemain_[i] + " layers", 41, 0.0, 2.0));
+        fmt::sprintf("trackPtRatio_%s", hitsRemain_[i]).c_str(),
+        fmt::sprintf("Short Track p_{T} / Full Track p_{T} - %s layers;p_{T}^{short}/p_{T}^{full};n. tracks",
+                     hitsRemain_[i])
+            .c_str(),
+        101,
+        -0.05,
+        2.05));
   }
 }
 
