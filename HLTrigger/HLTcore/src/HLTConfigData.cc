@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/path_configuration.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/transform.h"
 
 #include <iostream>
@@ -88,34 +89,33 @@ void HLTConfigData::extract() {
   using namespace trigger;
 
   // Extract process name
-  if (processPSet_->existsAs<string>("@process_name", true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<string>("@process_name", true)) {
     processName_ = processPSet_->getParameter<string>("@process_name");
   }
 
   // Extract globaltag
   globalTag_ = "";
   const ParameterSet* GlobalTagPSet(nullptr);
-  if (processPSet_->exists("GlobalTag")) {
-    GlobalTagPSet = &(processPSet_->getParameterSet("GlobalTag"));
-  } else if (processPSet_->exists("PoolDBESSource@GlobalTag")) {
+  CMS_SA_ALLOW if (processPSet_->exists("GlobalTag")) { GlobalTagPSet = &(processPSet_->getParameterSet("GlobalTag")); }
+  else if (processPSet_->exists("PoolDBESSource@GlobalTag")) {
     GlobalTagPSet = &(processPSet_->getParameterSet("PoolDBESSource@GlobalTag"));
   }
-  if (GlobalTagPSet && GlobalTagPSet->existsAs<std::string>("globaltag", true)) {
+  CMS_SA_ALLOW if (GlobalTagPSet && GlobalTagPSet->existsAs<std::string>("globaltag", true)) {
     globalTag_ = GlobalTagPSet->getParameter<std::string>("globaltag");
   }
 
   // Obtain PSet containing table name (available only in 2_1_10++ files)
-  if (processPSet_->existsAs<ParameterSet>("HLTConfigVersion", true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<ParameterSet>("HLTConfigVersion", true)) {
     const ParameterSet& HLTPSet(processPSet_->getParameterSet("HLTConfigVersion"));
-    if (HLTPSet.existsAs<string>("tableName", true)) {
+    CMS_SA_ALLOW if (HLTPSet.existsAs<string>("tableName", true)) {
       tableName_ = HLTPSet.getParameter<string>("tableName");
     }
   }
 
   // Extract trigger paths (= paths - end_paths)
-  if (processPSet_->existsAs<ParameterSet>("@trigger_paths", true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<ParameterSet>("@trigger_paths", true)) {
     const ParameterSet& HLTPSet(processPSet_->getParameterSet("@trigger_paths"));
-    if (HLTPSet.existsAs<vector<string>>("@trigger_paths", true)) {
+    CMS_SA_ALLOW if (HLTPSet.existsAs<vector<string>>("@trigger_paths", true)) {
       triggerNames_ = HLTPSet.getParameter<vector<string>>("@trigger_paths");
     }
   }
@@ -124,7 +124,7 @@ void HLTConfigData::extract() {
   const unsigned int n(size());
   moduleLabels_.reserve(n);
   for (unsigned int i = 0; i != n; ++i) {
-    if (processPSet_->existsAs<vector<string>>(triggerNames_[i], true)) {
+    CMS_SA_ALLOW if (processPSet_->existsAs<vector<string>>(triggerNames_[i], true)) {
       moduleLabels_.push_back(path_configuration::configurationToModuleBitPosition(
           processPSet_->getParameter<vector<string>>(triggerNames_[i])));
     }
@@ -203,7 +203,7 @@ void HLTConfigData::extract() {
   }
 
   // Extract and fill streams information
-  if (processPSet_->existsAs<ParameterSet>("streams", true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<ParameterSet>("streams", true)) {
     const ParameterSet& streams(processPSet_->getParameterSet("streams"));
     streamNames_ = streams.getParameterNamesForType<vector<string>>();
     sort(streamNames_.begin(), streamNames_.end());
@@ -217,7 +217,7 @@ void HLTConfigData::extract() {
   }
 
   // Extract and fill datasets information
-  if (processPSet_->existsAs<ParameterSet>("datasets", true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<ParameterSet>("datasets", true)) {
     const ParameterSet& datasets(processPSet_->getParameterSet("datasets"));
     datasetNames_ = datasets.getParameterNamesForType<vector<string>>();
     sort(datasetNames_.begin(), datasetNames_.end());
@@ -236,9 +236,8 @@ void HLTConfigData::extract() {
   string prescaleName("");
   const string preS("PrescaleService");
   const string preT("PrescaleTable");
-  if (processPSet_->existsAs<ParameterSet>(preS, true)) {
-    prescaleName = preS;
-  } else if (processPSet_->existsAs<ParameterSet>(preT, true)) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<ParameterSet>(preS, true)) { prescaleName = preS; }
+  else if (processPSet_->existsAs<ParameterSet>(preT, true)) {
     prescaleName = preT;
   }
   if (prescaleName.empty()) {
@@ -246,11 +245,11 @@ void HLTConfigData::extract() {
   } else {
     const ParameterSet& iPS(processPSet_->getParameterSet(prescaleName));
     string defaultLabel("default");
-    if (iPS.existsAs<string>("lvl1DefaultLabel", true)) {
+    CMS_SA_ALLOW if (iPS.existsAs<string>("lvl1DefaultLabel", true)) {
       defaultLabel = iPS.getParameter<string>("lvl1DefaultLabel");
     }
     vector<string> labels;
-    if (iPS.existsAs<vector<string>>("lvl1Labels", true)) {
+    CMS_SA_ALLOW if (iPS.existsAs<vector<string>>("lvl1Labels", true)) {
       labels = iPS.getParameter<vector<string>>("lvl1Labels");
     }
     unsigned int set(0);
@@ -260,7 +259,7 @@ void HLTConfigData::extract() {
         set = i;
     }
     map<string, vector<unsigned int>> table;
-    if (iPS.existsAs<vector<ParameterSet>>("prescaleTable", true)) {
+    CMS_SA_ALLOW if (iPS.existsAs<vector<ParameterSet>>("prescaleTable", true)) {
       const vector<ParameterSet>& vpTable(iPS.getParameterSetVector("prescaleTable"));
       const unsigned int m(vpTable.size());
       for (unsigned int i = 0; i != m; ++i) {
@@ -286,7 +285,7 @@ void HLTConfigData::extract() {
   // Determine L1T Type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
   l1tType_ = 0;
   unsigned int stage1(0), stage2(0);
-  if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
+  CMS_SA_ALLOW if (processPSet_->existsAs<std::vector<std::string>>("@all_modules")) {
     const std::vector<std::string>& allModules(processPSet_->getParameter<std::vector<std::string>>("@all_modules"));
     for (auto const& allModule : allModules) {
       if ((moduleType(allModule) == "HLTLevel1GTSeed") or (moduleType(allModule) == "L1GlobalTrigger")) {
@@ -492,18 +491,20 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
   const edm::ParameterSet& pset(modulePSet(module));
-  if (pset.existsAs<std::string>("@module_type", true)) {
+  CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_type", true)) {
     return pset.getParameter<std::string>("@module_type");
-  } else {
+  }
+  else {
     return "";
   }
 }
 
 const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
   const edm::ParameterSet& pset(modulePSet(module));
-  if (pset.existsAs<std::string>("@module_edm_type", true)) {
+  CMS_SA_ALLOW if (pset.existsAs<std::string>("@module_edm_type", true)) {
     return pset.getParameter<std::string>("@module_edm_type");
-  } else {
+  }
+  else {
     return "";
   }
 }
@@ -515,18 +516,18 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
   //but in the PSet, the module is named "modname"
   //so if it starts with "-", you need to remove the "-" from the
   //module name to be able to retreive it from the PSet
-  if (processPSet_->exists(module.front() != '-' ? module : module.substr(1))) {
+  CMS_SA_ALLOW if (processPSet_->exists(module.front() != '-' ? module : module.substr(1))) {
     return processPSet_->getParameterSet(module.front() != '-' ? module : module.substr(1));
-  } else {
+  }
+  else {
     return *s_dummyPSet();
   }
 }
 
 bool HLTConfigData::saveTags(const std::string& module) const {
   const edm::ParameterSet& pset(modulePSet(module));
-  if (pset.existsAs<bool>("saveTags", true)) {
-    return pset.getParameter<bool>("saveTags");
-  } else {
+  CMS_SA_ALLOW if (pset.existsAs<bool>("saveTags", true)) { return pset.getParameter<bool>("saveTags"); }
+  else {
     return false;
   }
 }
