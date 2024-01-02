@@ -54,15 +54,35 @@ SingleLongTrackProducer::SingleLongTrackProducer(const edm::ParameterSet &iConfi
 void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  // register input collections:
-  const auto &tracks = iEvent.getHandle(tracksToken);
-  const auto &muons = iEvent.getHandle(muonsToken);
-
-  const auto &vtx_h = iEvent.getHandle(PrimVtxToken);
-  const reco::Vertex vtx = vtx_h->at(0);
-
   // register output collection:
   std::unique_ptr<reco::TrackCollection> goodTracks(new reco::TrackCollection);
+
+  // register input collections:
+  const auto &tracks = iEvent.getHandle(tracksToken);
+  if (!tracks.isValid()) {
+    edm::LogError("SingleLongTrackProducer")
+        << "Input track collection is not valid.\n Returning empty output track collection.";
+    iEvent.put(std::move(goodTracks), "");
+    return;
+  }
+
+  const auto &muons = iEvent.getHandle(muonsToken);
+  if (!muons.isValid()) {
+    edm::LogError("SingleLongTrackProducer")
+        << "Input muon collection is not valid.\n Returning empty output track collection.";
+    iEvent.put(std::move(goodTracks), "");
+    return;
+  }
+
+  const auto &vertices = iEvent.getHandle(PrimVtxToken);
+  if (!vertices.isValid()) {
+    edm::LogError("SingleLongTrackProducer")
+        << "Input vertex collection is not valid.\n Returning empty output track collection.";
+    iEvent.put(std::move(goodTracks), "");
+    return;
+  }
+
+  const reco::Vertex vtx = vertices->at(0);
 
   // Preselection of long quality tracks
   std::vector<reco::Track> selTracks;
@@ -80,7 +100,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
     if (track.pt() < minPt)
       continue;
 
-    if (abs(track.eta()) > maxEta)
+    if (std::abs(track.eta()) > maxEta)
       continue;
 
     if (hitpattern.trackerLayersWithMeasurement() < minNumberOfLayers)
@@ -116,16 +136,16 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
       bestTrack.setExtra(track.extra());
     }
     if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << " deltaR (general) track to matched Track: " << dRmin << std::endl;
+      edm::LogPrint("SingleLongTrackProducer") << " deltaR (general) track to matched Track: " << dRmin;
     if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << "chi2Ndof:" << chiNdof << " best Track: " << fitProb << std::endl;
+      edm::LogPrint("SingleLongTrackProducer") << "chi2Ndof:" << chiNdof << " best Track: " << fitProb;
   }
 
   selTracks.push_back(bestTrack);
 
   if (debug)
-    edm::LogPrint("SingleLongTrackProducer") << " number of Tracker Muons: " << tMuon << ", thereof "
-                                             << selTracks.size() << " tracks passed preselection." << std::endl;
+    edm::LogPrint("SingleLongTrackProducer")
+        << " number of Tracker Muons: " << tMuon << ", thereof " << selTracks.size() << " tracks passed preselection.";
 
   // check hits validity in preselected tracks
   bool hitIsNotValid{false};
@@ -170,14 +190,14 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
 
         if (onlyValidHits && !hit.isValid()) {
           if (debug)
-            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h << std::endl;
+            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
           continue;
         }
 
         // loop over the hits of the track.
         if (onlyValidHits && !(hitpattern.validHitFilter(pHit))) {
           if (debug)
-            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h << std::endl;
+            edm::LogPrint("SingleLongTrackProducer") << "hit not valid: " << h;
           continue;
         }
       }
@@ -193,6 +213,13 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
           << "found tracks with " << deref << "missing valid hits and " << deref2 << " missing hit pattern";
   }
 
+  if (debug) {
+    auto const &moduleType = moduleDescription().moduleName();
+    auto const &moduleLabel = moduleDescription().moduleLabel();
+    edm::LogPrint("SingleLongTrackProducer") << "[" << moduleType << "] (" << moduleLabel << ") "
+                                             << " output track size: " << goodTracks.get()->size();
+  }
+
   // save track collection in event:
   iEvent.put(std::move(goodTracks), "");
 }
@@ -200,7 +227,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
 void SingleLongTrackProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("allTracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("matchMuons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("matchMuons", edm::InputTag("earlyMuons"));
   desc.add<edm::InputTag>("PrimaryVertex", edm::InputTag("offlinePrimaryVertices"));
   desc.add<int>("minNumberOfLayers", 10);
   desc.add<double>("requiredDr", 0.01);

@@ -4,7 +4,7 @@ from RecoTracker.FinalTrackSelectors.singleLongTrackProducer_cfi import singleLo
 
 SingleLongTrackProducer = singleLongTrackProducer.clone(
     allTracks = "generalTracks",
-    matchMuons = "muons",
+    matchMuons = "earlyMuons",
     requiredDr= 0.01,
     minNumberOfLayers = 10,
     onlyValidHits = True,
