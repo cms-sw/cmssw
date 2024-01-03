@@ -23,13 +23,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   portabletest::TestDeviceCollection::View view,
                                   int32_t size,
                                   double xvalue) const {
-      // global index of the thread within the grid
-      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
       const portabletest::Array flags = {{6, 4, 2, 0}};
 
       // set this only once in the whole kernel grid
-      if (thread == 0) {
+      if (once_per_grid(acc)) {
         view.r() = 1.;
       }
 
@@ -89,11 +87,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   portabletest::TestDeviceCollection::ConstView input,
                                   AlpakaESTestDataEDevice::ConstView esData,
                                   portabletest::TestDeviceCollection::View output) const {
-      // global index of the thread within the grid
-      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
-
       // set this only once in the whole kernel grid
-      if (thread == 0) {
+      if (once_per_grid(acc)) {
         output.r() = input.r();
       }
 
