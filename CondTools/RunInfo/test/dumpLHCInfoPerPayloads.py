@@ -1,5 +1,4 @@
-
-#!python3
+#!/usr/bin/env python3
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -7,7 +6,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
 
-process = cms.Process('LHCInfoPerAnalyzeMultiple')
+process = cms.Process('dumpLHCInfoPerPyalods')
 
 TEST_DIR = os.environ['CMSSW_BASE'] + "/src/CondTools/RunInfo/test"
 

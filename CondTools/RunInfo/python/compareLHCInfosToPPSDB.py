@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from typing import List, Tuple
 from datetime import datetime
 import time
@@ -8,32 +9,33 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
 
-process = cms.Process('ppsLHCInfoPerLSComp')
+process = cms.Process('compareLHCInfosToPPSDB')
 
 options = VarParsing.VarParsing()
 options.register( 'ppsFile'
                 , '' #default value
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "file with the pps data in format: TODO "
+                , "file with the pps data in the format: \
+                (FILL_NUMBER, RUN_NUMBER, LUMI_SECTION, BETA_STAR_P5_X_M, XING_ANGLE_P5_X_URAD, DIP_UPDATE_TIME as 'DD/MM/YYYY HH24:MI:SS') "
                   )
 options.register( 'LHCInfoFile'
                 , '' #default value
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "file with the LHCInfo data in format: TODO "
+                , "file with the LHCInfo data in the format: TODO "
                   )
 options.register( 'PerLSFile'
                 , '' #default value
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "file with the LHCInfoPerLS data in format: TODO "
+                , "file with the LHCInfoPerLS data in the format: TODO "
                   )
 options.register( 'separator'
                 , ','
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
-                , "separator for the csv format, works only in when csv=True"
+                , "separator of the input CSV files"
                   )
 options.register( 'debug'
                 , False
@@ -58,48 +60,27 @@ def to_date_string(unix_timestamp):
 
 def read_split(file) -> Tuple[str, List[str]]:
     line = file.readline()
-    return line, line.split(",")
-
-# def print_class(line_pps: str, split_pps: List[str], line_cls: str, split_cls: List[str],
-#                 time_ix: int, ls_ix: int, to_print: List[int], print_date: bool = True):
-#     if(len(split_pps) > 5 and len(split_cls) > max()):
-#         # if len(split_pps[5][1:-1]) != len('17/04/2023 07:30:42'):
-#         #     print(split_pps[5][1:-1], len(split_pps[5][1:-1]), len('17/04/2023 07:30:42'))
-#         #     print(split_pps[5][1:-1])
-#         #     print('17/04/2023 07:30:42')
-#         #     exit(0)
-#         pps_timestamp = to_unix_timestamp(split_pps[5][1:-1]) + 2*60*60 # - coversion of time zones
-#         # print(pps_timestamp, "-", int(split_cls[2]), "=", pps_timestamp -int(split_cls[2]), end = " |; ")
-#         if(abs(pps_timestamp-int(split_cls[2])) < 10*60 and split_pps[2] == split_cls[3]):
-#             # print(line_cls, end="")
-#             print(split_cls[1], split_cls[3], split_cls[5], split_cls[4], split_cls[6],
-#                 split_cls[0], to_date_string(int(split_cls[2])), sep=";", end=";")
-#             cls_beta = float(split_cls[5])
-#             cls_xangle = float(split_cls[4])
-
-#             line_cls = f_cls.readline()
-#             split_cls = line_cls.split(';')
-#         else:
-#             # print(";;;;;;;", end = "")
-#             print(";;;;;;;                                                            ", end = "")
-
+    return line, line.split(options.separator)
 
 def main():
     process_lhc = options.LHCInfoFile != ""
     process_perls = options.PerLSFile != ""
 
+    #TODO check if at least one of the lhcinfo files were provided
+
     f_pps = open(options.ppsFile)
     f_lhc = open(options.LHCInfoFile) if process_lhc else None
     f_perls = open(options.PerLSFile) if process_perls else None
     
-    print("fill", "pps run", "pps LS", "pps beta*", "pps xangle", "pps dip date", sep = ";")
+    print("fill", "pps run", "pps LS", "pps beta*", "pps xangle", "pps dip date", sep = ";", end="")
     if process_lhc:
         print("record", "LS LHCInfo", "beta* LHCInfo", "xangle LHCInfo", "delivLumi LHCInfo", "IOV LHCInfo", "IOV date LHCInfo",
-            "beta* |pps-LHCInfo| error", "xangle |pps-LHCInfo| error", sep = ";")
-    if process_lhc:
+            "beta* |pps-LHCInfo| error", "xangle |pps-LHCInfo| error", sep = ";", end="")
+    if process_perls:
         print("record", "LS PerLS", "beta*X", "beta*Y", "xangleX", "xangleY", "IOV PerLS", "IOV date PerLS",
-            "beta*X |pps-PerLS| error", "xangleX |pps-PerLS| error",
-            "", sep = ";")
+            "beta*X |pps-PerLS| error", "xangleX |pps-PerLS| error", sep = ";", end="")
+
+    print()
 
     lhc_beta = None
     lhc_xangle = None
@@ -199,13 +180,7 @@ def main():
                 print(";;;;;;;;;;")#, end = "")
                 if options.debug:
                     print("not enough fields", line_perls)
-        # print(split_perls)
 
-        # if print_lhc:
-        #     print(line_lhc, end = "")
-        # if print_perls:
-        #     print(line_perls, end = "")
-        
     f_pps.close()
     if process_lhc:
         f_lhc.close() 
@@ -216,13 +191,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-# 9019;369956;337;0.52;149;'02/07/2023 05:20:37';LHCInfo;337;0.52;149;28.4564;7251086920971714560;02/07/2023 07:20:35;0.0;0.0;;;;;;;;;                                                            0.0;0.0;
-# :Traceback (most recent call last):
-#   File "/eos/home-j/jchyczyn/popcon-2023-pr/CMSSW_13_1_0_pre3/src/CondTools/RunInfo/python/ppsLHCInfoOldPerLSComp.py", line 147, in <module>
-#     main()
-#   File "/eos/home-j/jchyczyn/popcon-2023-pr/CMSSW_13_1_0_pre3/src/CondTools/RunInfo/python/ppsLHCInfoOldPerLSComp.py", line 97, in main
-#     while(abs(pps_timestamp-int(split_lhc[2])) < 10*60 and split_pps[2] == split_lhc[3]):
-# IndexError: list index out of range
