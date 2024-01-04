@@ -40,32 +40,29 @@ private:
   std::string separator_;
 };
 
-
 void LHCInfoPerLSAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-   edm::ParameterSetDescription desc;
-   desc.addUntracked<bool>("csvFormat", false);
-   desc.addUntracked<bool>("header", false);
-   desc.addUntracked<std::string>("separator", ",");
-   desc.addUntracked<cond::Time_t>("iov", 0);
-   descriptions.add("LHCInfoPerLSAnalyzer", desc);
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("csvFormat", false);
+  desc.addUntracked<bool>("header", false);
+  desc.addUntracked<std::string>("separator", ",");
+  desc.addUntracked<cond::Time_t>("iov", 0);
+  descriptions.add("LHCInfoPerLSAnalyzer", desc);
 }
-
 
 void LHCInfoPerLSAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get InfoPerLS
   assert(infoPerLSWatcher_.check(iSetup));
   const LHCInfoPerLS& infoPerLS = iSetup.getData(tokenInfoPerLS_);
 
-  if(csvFormat_){
+  if (csvFormat_) {
     auto s = separator_;
-    if(header_) {
-      std::cout << "IOV" << s << "class" << s << "timestamp" << s << "runNumber" << s
-              << "LS" << s << "xangleX" << s << "xangleY"
-              << s << "beta*X" << s << "beta*Y" << s << std::endl;
+    if (header_) {
+      std::cout << "IOV" << s << "class" << s << "timestamp" << s << "runNumber" << s << "LS" << s << "xangleX" << s
+                << "xangleY" << s << "beta*X" << s << "beta*Y" << s << std::endl;
     }
     std::cout << iov_ << s << "LHCInfoPerLS" << s << iEvent.time().unixTime() << s << infoPerLS.runNumber() << s
-              << infoPerLS.lumiSection() << s << infoPerLS.crossingAngleX() << s << infoPerLS.crossingAngleY()
-              << s << infoPerLS.betaStarX() << s << infoPerLS.betaStarY() << s << std::endl;
+              << infoPerLS.lumiSection() << s << infoPerLS.crossingAngleX() << s << infoPerLS.crossingAngleY() << s
+              << infoPerLS.betaStarX() << s << infoPerLS.betaStarY() << s << std::endl;
   } else {
     std::cout << "LHCInfoPerLS retrieved:\n" << infoPerLS << std::endl;
   }
