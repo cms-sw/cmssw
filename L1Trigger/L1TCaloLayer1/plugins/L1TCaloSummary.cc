@@ -82,8 +82,6 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   //void endJob() override;
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override{};
-
   void print();
 
   // ----------member data ---------------------------
