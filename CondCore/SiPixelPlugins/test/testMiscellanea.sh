@@ -19,3 +19,28 @@ getPayloadData.py \
     --test ;
 
 mv *.png $W_DIR/display/testPixelMap.png
+
+# test a given PU bin
+getPayloadData.py \
+    --plugin pluginSiPixelQualityProbabilities_PayloadInspector \
+    --plot plot_SiPixelQualityProbabilityDensityPerPUbin \
+    --tag SiPixelQualityProbabilities_UltraLegacy2018_v0_mc \
+    --input_params '{"PU bin": "10"}' \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/display/testSiPixelQualityProbabilityDensity.png
+
+# test all PU bins
+getPayloadData.py \
+    --plugin pluginSiPixelQualityProbabilities_PayloadInspector \
+    --plot plot_SiPixelQualityProbabilityDensityPerPUbin \
+    --tag SiPixelQualityProbabilities_2023_v2_BPix_mc \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/display/testSiPixelQualityProbabilityDensity_v2.png
