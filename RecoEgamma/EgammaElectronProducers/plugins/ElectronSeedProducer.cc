@@ -37,14 +37,14 @@ class ElectronSeedProducer : public edm::stream::EDProducer<> {
 public:
   explicit ElectronSeedProducer(const edm::ParameterSet&);
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) final;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   reco::SuperClusterRefVector filterClusters(math::XYZPoint const& beamSpotPosition,
-                                             const edm::Handle<reco::SuperClusterCollection>& superClusters) const;
+                                             const edm::Handle<reco::SuperClusterCollection>& superClusters,
+                                             HcalPFCuts const* hcalCuts) const;
 
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_;
@@ -62,8 +62,7 @@ private:
   std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* hcalCuts = nullptr;
+  bool cutsFromDB_;
 };
 
 using namespace reco;
@@ -111,9 +110,9 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   }
 
   //Retrieve HCAL PF thresholds - from config or from DB
-  cutsFromDB = conf.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  cutsFromDB_ = conf.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   ElectronSeedGenerator::Tokens esg_tokens;
@@ -129,14 +128,13 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   produces<ElectronSeedCollection>();
 }
 
-void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  if (cutsFromDB) {
-    hcalCuts = &iSetup.getData(hcalCutsToken_);
-  }
-}
-
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   LogDebug("ElectronSeedProducer") << "[ElectronSeedProducer::produce] entering ";
+
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
+    hcalCuts = &iSetup.getData(hcalCutsToken_);
+  }
 
   std::vector<TrajectorySeedCollection const*> initialSeedCollections;
   std::unique_ptr<TrajectorySeedCollection> initialSeedCollectionPtr = nullptr;  //created on the fly
@@ -162,7 +160,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
-    auto clusterRefs = filterClusters(beamSpotPosition, e.getHandle(superClusters_[i]));
+    auto clusterRefs = filterClusters(beamSpotPosition, e.getHandle(superClusters_[i]), hcalCuts);
     matcher_->run(e, clusterRefs, initialSeedCollections, *seeds);
   }
 
@@ -185,7 +183,9 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 //===============================
 
 SuperClusterRefVector ElectronSeedProducer::filterClusters(
-    math::XYZPoint const& beamSpotPosition, const edm::Handle<reco::SuperClusterCollection>& superClusters) const {
+    math::XYZPoint const& beamSpotPosition,
+    const edm::Handle<reco::SuperClusterCollection>& superClusters,
+    HcalPFCuts const* hcalCuts) const {
   SuperClusterRefVector sclRefs;
 
   for (unsigned int i = 0; i < superClusters->size(); ++i) {
