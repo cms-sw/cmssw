@@ -49,7 +49,6 @@ class PhotonProducer : public edm::stream::EDProducer<> {
 public:
   PhotonProducer(const edm::ParameterSet& ps);
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -57,6 +56,7 @@ private:
                             edm::EventSetup const& es,
                             const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
                             const CaloTopology* topology,
+                            const HcalPFCuts* hcalCuts,
                             const EcalRecHitCollection* ecalBarrelHits,
                             const EcalRecHitCollection* ecalEndcapHits,
                             ElectronHcalHelper const& hcalHelperCone,
@@ -116,8 +116,7 @@ private:
   bool hcalRun2EffDepth_;
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* hcalCuts = nullptr;
+  bool cutsFromDB_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -147,9 +146,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   posCalculator_ = PositionCalc(posCalcParameters);
 
   //Retrieve HCAL PF thresholds - from config or from DB
-  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  cutsFromDB_ = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   //AA
@@ -254,13 +253,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   produces<reco::PhotonCollection>(PhotonCollection_);
 }
 
-void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& theEventSetup) {
-  if (cutsFromDB) {
+void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
     hcalCuts = &theEventSetup.getData(hcalCutsToken_);
   }
-}
-
-void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   using namespace edm;
   //  nEvt_++;
 
@@ -326,6 +323,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
                          theEventSetup,
                          photonCoreHandle,
                          topology,
+                         hcalCuts,
                          &barrelRecHits,
                          &endcapRecHits,
                          *hcalHelperCone_,
@@ -351,6 +349,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
                                           edm::EventSetup const& es,
                                           const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
                                           const CaloTopology* topology,
+                                          const HcalPFCuts* hcalCuts,
                                           const EcalRecHitCollection* ecalBarrelHits,
                                           const EcalRecHitCollection* ecalEndcapHits,
                                           ElectronHcalHelper const& hcalHelperCone,
