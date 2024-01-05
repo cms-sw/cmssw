@@ -38,7 +38,6 @@ class EcalDetIdToBeRecoveredProducer : public edm::stream::EDProducer<> {
 public:
   explicit EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps);
   void produce(edm::Event& evt, const edm::EventSetup& es) final;
-  void beginRun(edm::Run const& run, const edm::EventSetup& es) final;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -82,9 +81,9 @@ private:
 };
 
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps) {
-  ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd, edm::Transition::BeginRun>();
-  channelStatusToken_ = esConsumes<EcalChannelStatusMap, EcalChannelStatusRcd, edm::Transition::BeginRun>();
-  ttMapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord, edm::Transition::BeginRun>();
+  ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
+  channelStatusToken_ = esConsumes<EcalChannelStatusMap, EcalChannelStatusRcd>();
+  ttMapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
   // SRP collections
   ebSrFlagToken_ = consumes<EBSrFlagCollection>(ps.getParameter<edm::InputTag>("ebSrFlagCollection"));
   eeSrFlagToken_ = consumes<EESrFlagCollection>(ps.getParameter<edm::InputTag>("eeSrFlagCollection"));
@@ -119,16 +118,6 @@ EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::Parame
   produces<std::set<EcalScDetId>>(scDetIdCollection_);
 }
 
-void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
-  edm::ESHandle<EcalElectronicsMapping> pEcalMapping = es.getHandle(ecalMappingToken_);
-  ecalMapping_ = pEcalMapping.product();
-
-  edm::ESHandle<EcalChannelStatusMap> pChStatus = es.getHandle(channelStatusToken_);
-  chStatus_ = pChStatus.product();
-
-  ttMap_ = es.getHandle(ttMapToken_);
-}
-
 // fuction return true if "coll" have "item"
 template <typename CollT, typename ItemT>
 bool include(const CollT& coll, const ItemT& item) {
@@ -137,6 +126,10 @@ bool include(const CollT& coll, const ItemT& item) {
 }
 
 void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
+  ecalMapping_ = &es.getData(ecalMappingToken_);
+  chStatus_ = &es.getData(channelStatusToken_);
+  ttMap_ = es.getHandle(ttMapToken_);
+
   std::vector<edm::Handle<EBDetIdCollection>> ebDetIdColls;
   std::vector<edm::Handle<EEDetIdCollection>> eeDetIdColls;
   std::vector<edm::Handle<EcalElectronicsIdCollection>> ttColls;
