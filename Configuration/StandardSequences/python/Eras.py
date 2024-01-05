@@ -61,7 +61,8 @@ class Eras (object):
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
                  'Phase2C17I13M9',
-                 'Phase2C20I13M9'
+                 'Phase2C20I13M9',
+                 'Phase2C22I13M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
