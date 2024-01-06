@@ -290,9 +290,10 @@ namespace trklet {
                                 int channel) const {
     const int offset = channel * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[channel];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](const int& sum, const FrameTrack& frame) {
-      return sum + (frame.first.isNonnull() ? 1 : 0);
-    });
+    const int numTracks =
+        accumulate(streamTrack.begin(), streamTrack.end(), 0, [](const int& sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
+        });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
       const FrameTrack& frameTrack = streamTrack[frame];
