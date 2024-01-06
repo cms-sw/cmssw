@@ -901,6 +901,7 @@ void TrackletLUT::initProjectionDiskRadius(int nrbits) {
 void TrackletLUT::initBendMatch(unsigned int layerdisk) {
   unsigned int nrinv = NRINVBITS;
   double rinvhalf = 0.5 * ((1 << nrinv) - 1);
+  assert(layerdisk < 16); // should be a named constant for this
 
   bool barrel = layerdisk < N_LAYER;
 
