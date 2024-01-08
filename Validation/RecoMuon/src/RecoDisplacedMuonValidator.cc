@@ -1,4 +1,4 @@
-#include "Validation/RecoMuon/src/RecoMuonValidator.h"
+#include "Validation/RecoMuon/src/RecoDisplacedMuonValidator.h"
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
@@ -25,7 +25,7 @@ typedef FreeTrajectoryState FTS;
 //
 //Struct containing all histograms definitions
 //
-struct RecoMuonValidator::MuonME {
+struct RecoDisplacedMuonValidator::MuonME {
   typedef MonitorElement* MEP;
 
   //general kinematics
@@ -529,7 +529,7 @@ struct RecoMuonValidator::MuonME {
 //
 //struct defininiong histograms
 //
-struct RecoMuonValidator::CommonME {
+struct RecoDisplacedMuonValidator::CommonME {
   typedef MonitorElement* MEP;
 
   //diffs
@@ -552,10 +552,10 @@ struct RecoMuonValidator::CommonME {
 //
 //Constructor
 //
-RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
+RecoDisplacedMuonValidator::RecoDisplacedMuonValidator(const edm::ParameterSet& pset)
     : selector_(pset.getParameter<std::string>("selection")) {
   // dump cfg parameters
-  edm::LogVerbatim("RecoMuonValidator") << "constructing RecoMuonValidator: " << pset.dump();
+  edm::LogVerbatim("RecoDisplacedMuonValidator") << "constructing RecoDisplacedMuonValidator: " << pset.dump();
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
@@ -684,12 +684,12 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
   if (subDir_.empty())
-    subDir_ = "RecoMuonV";
+    subDir_ = "RecoDisplacedMuonV";
   if (subDir_[subDir_.size() - 1] == '/')
     subDir_.erase(subDir_.size() - 1);
 }
 
-void RecoMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
+void RecoDisplacedMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
                                        edm::Run const& iRun,
                                        edm::EventSetup const& /* iSetup */) {
   // book histograms
@@ -797,18 +797,18 @@ void RecoMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
 //
 //Destructor
 //
-RecoMuonValidator::~RecoMuonValidator() {}
+RecoDisplacedMuonValidator::~RecoDisplacedMuonValidator() {}
 
 //
 //Begin run
 //
 
-void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {}
+void RecoDisplacedMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {}
 
 //
 //End run
 //
-void RecoMuonValidator::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
+void RecoDisplacedMuonValidator::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
   if (dbe_ && !outputFileName_.empty())
     dbe_->save(outputFileName_);
 }
@@ -816,7 +816,7 @@ void RecoMuonValidator::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
 //
 //Analyze
 //
-void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup) {
+void RecoDisplacedMuonValidator::analyze(const Event& event, const EventSetup& eventSetup) {
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
@@ -833,7 +833,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     posVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).error();
   } else {
-    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+    LogInfo("RecoDisplacedMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     event.getByToken(beamspotToken_, recoBeamSpotHandle);
     reco::BeamSpot bs = *recoBeamSpotHandle;
@@ -889,7 +889,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   reco::SimToMuonCollection simToMuonColl;
 
   if (doAssoc_) {
-    edm::LogVerbatim("RecoMuonValidator")
+    edm::LogVerbatim("RecoDisplacedMuonValidator")
         << "\n >>> MuonToSim association : " << muAssocLabel_ << " <<< \n"
         << "     muon collection : " << muonLabel_ << " (size = " << muonHandle->size() << ") \n"
         << "     TrackingParticle collection : " << simLabel_ << " (size = " << nSim << ")";
@@ -962,27 +962,24 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
     TrackRef Track = iMuon->track();
 
-    if (Track.isNonnull()) {
-      commonME_->hMuonTrackP_->Fill(Track->p());
-      commonME_->hMuonTrackPt_->Fill(Track->pt());
-      commonME_->hMuonTrackEta_->Fill(Track->eta());
-      commonME_->hMuonTrackPhi_->Fill(Track->phi());
-
-      //ip histograms
-      commonME_->hMuonTrackDxy_->Fill(Track->dxy());
-      commonME_->hMuonTrackDz_->Fill(Track->dz());
-    }
-
-    if (iMuon->isGlobalMuon()) {
+    if (trackType_ == reco::InnerTk) {
+      Track = iMuon->track();
+      trkNTrackerHits = countTrackerHits(*Track);
+    } else if (trackType_ == reco::OuterTk) {
+      Track = iMuon->standAloneMuon();
+    } else if (trackType_ == reco::GlobalTk) {
       Track = iMuon->combinedMuon();
       glbNTrackerHits = countTrackerHits(*Track);
       glbNMuonHits = countMuonHits(*Track);
-    } else if (iMuon->isTrackerMuon()) {
-      Track = iMuon->track();
-      trkNTrackerHits = countTrackerHits(*Track);
-    } else {
-      Track = iMuon->standAloneMuon();
     }
+
+    commonME_->hMuonTrackP_->Fill(Track->p());
+    commonME_->hMuonTrackPt_->Fill(Track->pt());
+    commonME_->hMuonTrackEta_->Fill(Track->eta());
+    commonME_->hMuonTrackPhi_->Fill(Track->phi());
+    //ip histograms
+    commonME_->hMuonTrackDxy_->Fill(Track->dxy());
+    commonME_->hMuonTrackDz_->Fill(Track->dz());
 
     NTrackerHits = countTrackerHits(*Track);
     muonME_->hNTrackerHits_->Fill(NTrackerHits);
@@ -1086,7 +1083,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   }
 }
 
-int RecoMuonValidator::countMuonHits(const reco::Track& track) const {
+int RecoDisplacedMuonValidator::countMuonHits(const reco::Track& track) const {
   TransientTrackingRecHit::ConstRecHitContainer result;
 
   int count = 0;
@@ -1101,7 +1098,7 @@ int RecoMuonValidator::countMuonHits(const reco::Track& track) const {
   return count;
 }
 
-int RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
+int RecoDisplacedMuonValidator::countTrackerHits(const reco::Track& track) const {
   TransientTrackingRecHit::ConstRecHitContainer result;
 
   int count = 0;

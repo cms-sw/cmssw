@@ -1,27 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
-from Validation.RecoMuon.selectors_cff import muonTPSet
+from Validation.RecoMuon.selectors_cff import muonTPSet, displacedMuonTPSet
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
+recoDisplacedMuonValidator = DQMEDAnalyzer('RecoDisplacedMuonValidator',
     MuonServiceProxy,
-    tpSelector = muonTPSet,
+    tpSelector = displacedMuonTPSet,
 
     usePFMuon = cms.untracked.bool(False),
 
     simLabel = cms.InputTag("mix","MergedTrackTruth"),
     tpRefVector = cms.bool(False),
-    muonLabel = cms.InputTag("muons"),
+    muonLabel = cms.InputTag("displacedMuons"),
 
     muAssocLabel = cms.InputTag("muonAssociatorByHitsHelper"),
 
     doAssoc = cms.untracked.bool(True),
 
     outputFileName = cms.untracked.string(''),
-    subDir = cms.untracked.string('Muons/RecoMuonV/'),
+    subDir = cms.untracked.string('Muons/RecoDisplacedMuonV/'),
     trackType = cms.string("global"),
     #string cut selection
-    selection = cms.string("isTrackerMuon && muonID('TMLastStationAngTight')"),
+    selection = cms.string(""),
 
     wantTightMuon = cms.bool(False),
     beamSpot = cms.InputTag("offlineBeamSpot"),
@@ -44,13 +44,13 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
 
-    nBinDxy = cms.untracked.uint32(100),
-    minDxy = cms.untracked.double(-1.5),
-    maxDxy = cms.untracked.double(1.5),
+    nBinDxy = cms.untracked.uint32(350),
+    minDxy = cms.untracked.double(0),
+    maxDxy = cms.untracked.double(700),
 
-    nBinDz = cms.untracked.uint32(100),
-    minDz = cms.untracked.double(-25.),
-    maxDz = cms.untracked.double(25.),
+    nBinDz = cms.untracked.uint32(350),
+    minDz = cms.untracked.double(0),
+    maxDz = cms.untracked.double(700),
 
     nBinPhi = cms.untracked.uint32(25),
 
@@ -96,4 +96,4 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(recoMuonValidator, simLabel = "mixData:MergedTrackTruth")
+premix_stage2.toModify(recoDisplacedMuonValidator, simLabel = "mixData:MergedTrackTruth")
