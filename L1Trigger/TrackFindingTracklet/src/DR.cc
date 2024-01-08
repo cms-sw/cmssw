@@ -26,8 +26,8 @@ namespace trklet {
   // read in and organize input tracks and stubs
   void DR::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
     const int offsetTrack = region_ * channelAssignment_->numNodesDR();
-    auto nonNullTrack = [](int& sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
-    auto nonNullStub = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto nonNullTrack = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto nonNullStub = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     // count tracks and stubs and reserve corresponding vectors
     int sizeTracks(0);
     int sizeStubs(0);
