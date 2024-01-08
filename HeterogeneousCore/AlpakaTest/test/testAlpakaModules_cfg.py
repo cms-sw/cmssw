@@ -104,7 +104,8 @@ process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     expectBackend = cms.string("SerialSync")
 )
 process.alpakaGlobalConsumerE = process.alpakaGlobalConsumer.clone(
-    source = "alpakaGlobalProducerE"
+    source = "alpakaGlobalProducerE",
+    expectXvalues = cms.vdouble([(i%2)*10+1 + abs(27)+i*2 for i in range(0,5)] + [0]*5)
 )
 process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamProducer"),
@@ -141,6 +142,7 @@ if args.expectBackend == "cuda_async":
         m.expectBackend = "CudaAsync"
     setExpect(process.alpakaGlobalConsumer, size=20)
     setExpect(process.alpakaGlobalConsumerE, size=20)
+    process.alpakaGlobalConsumerE.expectXvalues.extend([0]*(20-10))
     setExpect(process.alpakaStreamConsumer, size=25)
     setExpect(process.alpakaStreamInstanceConsumer, size=36)
     setExpect(process.alpakaStreamSynchronizingConsumer, size=20)
@@ -150,6 +152,7 @@ elif args.expectBackend == "rocm_async":
         m.expectBackend = "ROCmAsync"
     setExpect(process.alpakaGlobalConsumer, size = 30)
     setExpect(process.alpakaGlobalConsumerE, size = 30)
+    process.alpakaGlobalConsumerE.expectXvalues.extend([0]*(30-10))
     setExpect(process.alpakaStreamConsumer, size = 125)
     setExpect(process.alpakaStreamInstanceConsumer, size = 216)
     setExpect(process.alpakaStreamSynchronizingConsumer, size = 30)

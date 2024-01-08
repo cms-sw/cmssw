@@ -94,13 +94,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : elements_with_stride(acc, output.metadata().size())) {
-        // just to test it compiles
         double x = input[i].x();
         if (i < esData.size()) {
           x += esData.val(i) + esData.val2(i);
         }
-        // zero it back so the AlpakaTestAnalyzer assert doesn't fire
-        x -= x * 1.0;
         output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
       }
     }
