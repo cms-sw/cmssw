@@ -275,11 +275,10 @@ namespace ecaldqm {
       const_iterator(EcalElectronicsMapping const *, MESet const &_meSet, unsigned _iME = 0, int _iBin = 1)
           : bin_(_meSet, _iME, _iBin) {}
       const_iterator(EcalElectronicsMapping const *, MESet const &, DetId const &);
-      const_iterator(const_iterator const &_orig) : bin_(_orig.bin_) {}
-      const_iterator &operator=(const_iterator const &_rhs) {
-        bin_ = _rhs.bin_;
-        return *this;
-      }
+      const_iterator(const_iterator const &_orig) = default;
+      const_iterator(const_iterator &&_orig) = default;
+      const_iterator &operator=(const_iterator const &_orig) = default;
+      const_iterator &operator=(const_iterator &&_orig) = default;
       bool operator==(const_iterator const &_rhs) const { return bin_ == _rhs.bin_; }
       bool operator!=(const_iterator const &_rhs) const { return !(bin_ == _rhs.bin_); }
       ConstBin const *operator->() const { return &bin_; }
@@ -304,7 +303,8 @@ namespace ecaldqm {
           : const_iterator(electronicsMap, _meSet, _id), bin_(_meSet) {
         bin_.ConstBin::operator=(const_iterator::bin_);
       }
-      iterator(iterator const &_orig) : const_iterator(_orig), bin_(_orig.bin_) {}
+      iterator(iterator const &_orig) = default;
+      iterator &operator=(iterator const &) = default;
       iterator &operator=(const_iterator const &_rhs) {
         const_iterator::operator=(_rhs);
         bin_.ConstBin::operator=(const_iterator::bin_);
