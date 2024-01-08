@@ -11,13 +11,13 @@ from SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi import *
 from SimMuon.MCTruth.MuonAssociatorByHits_cfi import muonAssociatorByHitsCommonParameters
 
 #tracker
-muonAssociatorByHitsNoSimHitsHelperTrk = muonAssociatorByHitsNoSimHitsHelper.clone(
+muondispAssociatorByHitsNoSimHitsHelperTrk = muonAssociatorByHitsNoSimHitsHelper.clone(
     UseTracker = True,
     UseMuon  = False
 )
 recoDisplacedMuonVMuAssoc_trk = recoDisplacedMuonValidator.clone(
     subDir = 'Muons/RecoDisplacedMuonV/RecoDisplacedMuon_MuonAssoc_Trk',
-    muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTrk',
+    muAssocLabel = 'muondispAssociatorByHitsNoSimHitsHelperTrk',
     trackType = 'inner',
     selection = "isTrackerMuon",
     simLabel = ("TPmu"),
@@ -25,13 +25,13 @@ recoDisplacedMuonVMuAssoc_trk = recoDisplacedMuonValidator.clone(
 )
 recoDisplacedMuonVMuAssoc_trk.tpSelector.src = ("TPmu")
 #standalone
-muonAssociatorByHitsNoSimHitsHelperStandalone = muonAssociatorByHitsNoSimHitsHelper.clone(
+muondispAssociatorByHitsNoSimHitsHelperStandalone = muonAssociatorByHitsNoSimHitsHelper.clone(
     UseTracker = False,
     UseMuon  = True
 )
 recoDisplacedMuonVMuAssoc_sta = recoDisplacedMuonValidator.clone(
     subDir = 'Muons/RecoDisplacedMuonV/RecoDisplacedMuon_MuonAssoc_Sta',
-    muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalone',
+    muAssocLabel = 'muondispAssociatorByHitsNoSimHitsHelperStandalone',
     trackType = 'outer',
     selection = "isStandAloneMuon",
     simLabel = ("TPmu"),
@@ -40,13 +40,13 @@ recoDisplacedMuonVMuAssoc_sta = recoDisplacedMuonValidator.clone(
 )
 recoDisplacedMuonVMuAssoc_sta.tpSelector.src = ("TPmu")
 #global
-muonAssociatorByHitsNoSimHitsHelperGlobal = muonAssociatorByHitsNoSimHitsHelper.clone(
+muondispAssociatorByHitsNoSimHitsHelperGlobal = muonAssociatorByHitsNoSimHitsHelper.clone(
     UseTracker = True,
     UseMuon  = True
 )
 recoDisplacedMuonVMuAssoc_glb = recoDisplacedMuonValidator.clone(
     subDir = 'Muons/RecoDisplacedMuonV/RecoDisplacedMuon_MuonAssoc_Glb',
-    muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperGlobal',
+    muAssocLabel = 'muondispAssociatorByHitsNoSimHitsHelperGlobal',
     trackType = 'global',
     selection = "isGlobalMuon",
     simLabel = ("TPmu"),
@@ -54,13 +54,13 @@ recoDisplacedMuonVMuAssoc_glb = recoDisplacedMuonValidator.clone(
 )
 recoDisplacedMuonVMuAssoc_glb.tpSelector.src = ("TPmu")
 #tight
-muonAssociatorByHitsNoSimHitsHelperTight = muonAssociatorByHitsNoSimHitsHelper.clone(
+muondispAssociatorByHitsNoSimHitsHelperTight = muonAssociatorByHitsNoSimHitsHelper.clone(
     UseTracker = True,
     UseMuon  = True
 )
 recoDisplacedMuonVMuAssoc_tgt = recoDisplacedMuonValidator.clone(
     subDir = 'Muons/RecoDisplacedMuonV/RecoDisplacedMuon_MuonAssoc_Tgt',
-    muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTight',
+    muAssocLabel = 'muondispAssociatorByHitsNoSimHitsHelperTight',
     trackType = 'global',
     selection = 'isGlobalMuon',
     wantTightMuon = True,
@@ -75,8 +75,8 @@ recoDisplacedMuonVMuAssoc_tgt.tpSelector.src = ("TPmu")
 #
 
 muonValidationRDMV_seq = cms.Sequence(
-    muonAssociatorByHitsNoSimHitsHelperTrk+recoDisplacedMuonVMuAssoc_trk
-    +muonAssociatorByHitsNoSimHitsHelperStandalone+recoDisplacedMuonVMuAssoc_sta
-    +muonAssociatorByHitsNoSimHitsHelperGlobal+recoDisplacedMuonVMuAssoc_glb
-    +muonAssociatorByHitsNoSimHitsHelperTight+recoDisplacedMuonVMuAssoc_tgt
+    muondispAssociatorByHitsNoSimHitsHelperTrk+recoDisplacedMuonVMuAssoc_trk
+    +muondispAssociatorByHitsNoSimHitsHelperStandalone+recoDisplacedMuonVMuAssoc_sta
+    +muondispAssociatorByHitsNoSimHitsHelperGlobal+recoDisplacedMuonVMuAssoc_glb
+    +muondispAssociatorByHitsNoSimHitsHelperTight+recoDisplacedMuonVMuAssoc_tgt
     )
