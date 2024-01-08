@@ -78,6 +78,8 @@ namespace Matriplex {
       return *this;
     }
 
+    MatriplexSym(const MatriplexSym& m) = default;
+
     void copySlot(idx_t n, const MatriplexSym& m) {
       for (idx_t i = n; i < kTotSize; i += N) {
         fArray[i] = m.fArray[i];
