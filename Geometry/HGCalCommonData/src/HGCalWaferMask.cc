@@ -1457,12 +1457,19 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
 #endif
   double c22(HGCalTypes::c22), c27(HGCalTypes::c27), c61(HGCalTypes::c61);
   double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
+  double c221(HGCalTypes::c221), c271(HGCalTypes::c271), c611(HGCalTypes::c611);
+  double c771(HGCalTypes::c771), c881(HGCalTypes::c881);
   if (v17OrLess) {
     c22 = HGCalTypes::c22O;
     c27 = HGCalTypes::c27O;
     c61 = HGCalTypes::c61O;
     c77 = HGCalTypes::c77O;
     c88 = HGCalTypes::c88O;
+    c221 = c22;
+    c271 = c27;
+    c611 = c61;
+    c771 = c77;
+    c881 = c88;
   }
   /*
     The exact contour of partial wafers are obtained by joining points on
@@ -1501,17 +1508,17 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
       -HGCalTypes::c50 * delX,
       -HGCalTypes::c10 * delX,
       -HGCalTypes::c50 * delX,
-      c22 * delX,
+      c221 * delX,
       HGCalTypes::c10 * delX,
-      c77 * delX,
-      -c22 * delX,
+      c771 * delX,
+      -c221 * delX,
       -HGCalTypes::c10 * delX,
-      -c77 * delX,
-      c22 * delX,
-      -c77 * delX,
+      -c771 * delX,
+      c221 * delX,
+      -c771 * delX,
       -HGCalTypes::c10 * delX,
-      -c22 * delX,
-      c77 * delX,
+      -c221 * delX,
+      c771 * delX,
       HGCalTypes::c10 * delX,
       c22 * delX,
       HGCalTypes::c10 * delX,
@@ -1563,18 +1570,18 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
       HGCalTypes::c75 * delY,
       HGCalTypes::c00 * delY,
       -HGCalTypes::c75 * delY,
-      -c88 * delY,
-      -c27 * delY,
-      c61 * delY,
-      c88 * delY,
-      c27 * delY,
-      -c61 * delY,
-      c88 * delY,
-      c61 * delY,
-      -c27 * delY,
-      -c88 * delY,
-      -c61 * delY,
-      c27 * delY,
+      -c881 * delY,
+      -c271 * delY,
+      c611 * delY,
+      c881 * delY,
+      c271 * delY,
+      -c611 * delY,
+      c881 * delY,
+      c611 * delY,
+      -c271 * delY,
+      -c881 * delY,
+      -c611 * delY,
+      c271 * delY,
       -c88 * delY,
       -c27 * delY,
       c61 * delY,
@@ -1999,10 +2006,10 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
 
 std::array<double, 4> HGCalWaferMask::maskCut(
     const int& part, const int& placement, const double& waferSize, const double& offset, const bool& v17OrLess) {
-  double c22(HGCalTypes::c22), c27(HGCalTypes::c27);
+  double c22(HGCalTypes::c22), c271(HGCalTypes::c271);
   if (v17OrLess) {
     c22 = HGCalTypes::c22O;
-    c27 = HGCalTypes::c27O;
+    c271 = HGCalTypes::c27O;
   }
   double delX = 0.5 * waferSize;
   double delY = 2 * delX / sqrt3_;
@@ -2068,21 +2075,21 @@ std::array<double, 4> HGCalWaferMask::maskCut(
     case (HGCalTypes::WaferHDLeft): {
       criterion[0] = 1.0;
       criterion[1] = -tan_1[placement];
-      criterion[2] = ((c27 * delY) / cos_1[placement]);
+      criterion[2] = ((c271 * delY) / cos_1[placement]);
       criterion[3] = tresh;
       break;
     }
     case (HGCalTypes::WaferHDRight): {
       criterion[0] = -1.0;
       criterion[1] = tan_1[placement];
-      criterion[2] = -((c27 * delY) / cos_1[placement]);
+      criterion[2] = -((c271 * delY) / cos_1[placement]);
       criterion[3] = tresh;
       break;
     }
     case (HGCalTypes::WaferHDFive): {
       criterion[0] = -1.0;
       criterion[1] = tan_1[placement];
-      criterion[2] = ((c27 * delY) / cos_1[placement]);
+      criterion[2] = ((c271 * delY) / cos_1[placement]);
       criterion[3] = tresh;
       break;
     }
