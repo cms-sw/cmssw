@@ -8,6 +8,7 @@ Table Of Contents
 5. Place Legend
 ***********************************/
 
+using namespace std;
 #include "trackSplitPlot.h"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
@@ -1869,12 +1870,12 @@ void makePlots(TString file,
                Bool_t matrix[xsize][ysize]) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {
@@ -1951,12 +1952,12 @@ void makePlots(TString file,
                TString yvar) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {
@@ -2008,12 +2009,12 @@ void makePlots(Int_t nFiles, TString *files, TString *names, TString directory) 
 void makePlots(TString file, TString misalignment, Double_t *values, Double_t *phases, TString directory) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {

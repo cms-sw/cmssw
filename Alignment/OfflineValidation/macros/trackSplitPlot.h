@@ -34,8 +34,8 @@ enum PlotType { ScatterPlot, Profile, Histogram, OrgHistogram, Resolution };
 enum Statistic { Minimum, Maximum, Average, RMS };
 
 const Double_t pi = TMath::Pi();
-vector<Color_t> colors;
-vector<Style_t> styles;
+std::vector<Color_t> colors;
+std::vector<Style_t> styles;
 bool colorsset = false;
 Int_t minrun = -1;
 Int_t maxrun = -1;
@@ -67,7 +67,7 @@ Table Of Contents
 
 #include "trackSplitPlot.h"
 
-ofstream devnull("/dev/null");
+std::ofstream devnull("/dev/null");
 template <typename T>
 T identity(T t) {
   return t;
@@ -86,7 +86,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
                         Bool_t resolution = false,
                         Bool_t pull = false,
                         TString saveas = "",
-                        ostream &summaryfile = devnull);
+                        std::ostream &summaryfile = devnull);
 TCanvas *trackSplitPlot(Int_t nFiles,
                         TString *files,
                         TString *names,
@@ -94,7 +94,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
                         Bool_t relative = false,
                         Bool_t pull = false,
                         TString saveas = "",
-                        ostream &summaryfile = devnull);
+                        std::ostream &summaryfile = devnull);
 TCanvas *trackSplitPlot(TString file,
                         TString xvar,
                         TString yvar,
@@ -103,13 +103,13 @@ TCanvas *trackSplitPlot(TString file,
                         Bool_t resolution = false,
                         Bool_t pull = false,
                         TString saveas = "",
-                        ostream &summaryfile = devnull);
+                        std::ostream &summaryfile = devnull);
 TCanvas *trackSplitPlot(TString file,
                         TString var,
                         Bool_t relative = false,
                         Bool_t pull = false,
                         TString saveas = "",
-                        ostream &summaryfile = devnull);
+                        std::ostream &summaryfile = devnull);
 void placeholder(TString saveas = "", Bool_t wide = false);
 void saveplot(TCanvas *c1, TString saveas);
 void deleteCanvas(TObject *canvas);
