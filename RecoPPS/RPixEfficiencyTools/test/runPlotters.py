@@ -49,9 +49,9 @@ alcarecoSuffix = ''
 # Uncomment the line below to run on ALCARECO files
 alcarecoSuffix += 'AlCaRecoProducer'
 
-process.load
 process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cfi')
 process.ctppsLHCInfoPlotter.outputFile = options.outputFileName + '_lhcInfo.root'
+process.ctppsLHCInfoPlotter.useNewLHCInfo = True
 
 process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPlotter",
     tagTracks = cms.InputTag("ctppsLocalTrackLiteProducer"+alcarecoSuffix),
