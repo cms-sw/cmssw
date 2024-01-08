@@ -129,3 +129,12 @@
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>
+
+<bin name="testTorch" file="testTorch.cc">
+  <use name="pytorch"/>
+</bin>
+
+<bin name="testTorchTimeSeries" file="time_serie_prediction.cpp">
+  <use name="pytorch"/>
+  <use name="pytorch-cuda"/>
+</bin>
