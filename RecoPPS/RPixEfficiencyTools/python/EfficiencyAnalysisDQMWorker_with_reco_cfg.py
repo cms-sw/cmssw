@@ -177,7 +177,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 #CONFIGURE PROCESS
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 #SETUP GLOBAL TAG
 if options.globalTag != '':
