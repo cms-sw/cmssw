@@ -53,7 +53,7 @@ namespace l1t {
 
   private:
     template <typename Iter>
-    struct KeyGetter : std::unary_function<typename Iter::value_type, typename Iter::value_type::first_type> {
+    struct KeyGetter {
       const typename Iter::value_type::first_type& operator()(const typename Iter::value_type& p) const {
         return p.first;
       }
