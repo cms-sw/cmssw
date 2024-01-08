@@ -18,6 +18,9 @@
   <test name="DiMuonVall" command="testingScripts/test_unitDiMuonV.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
+  <test name="MTSall" command="testingScripts/test_unitMTS.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>  
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>
