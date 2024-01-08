@@ -46,6 +46,8 @@ namespace clangcms {
     const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
       return;
+    if (!PD->hasAttr<CMSSaAllowAttr>())
+      return;
     std::string pname = support::getQualifiedName(*PD);
     Report(mname, pname, CCE);
 
@@ -58,6 +60,8 @@ namespace clangcms {
       return;
     const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
+      return;
+    if (!PD->hasAttr<CMSSaAllowAttr>())
       return;
     std::string mname = support::getQualifiedName(*MD);
     std::string pname = support::getQualifiedName(*PD);
@@ -81,6 +85,8 @@ namespace clangcms {
     mname = support::getQualifiedName(*FD);
     const NamedDecl *PD = llvm::dyn_cast_or_null<NamedDecl>(AC->getDecl());
     if (!PD)
+      return;
+    if (!PD->hasAttr<CMSSaAllowAttr>())
       return;
     std::string pname = support::getQualifiedName(*PD);
     Report(mname, pname, CE);
