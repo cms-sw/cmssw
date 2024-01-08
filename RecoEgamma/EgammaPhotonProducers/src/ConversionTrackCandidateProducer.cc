@@ -43,7 +43,8 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include <vector>
 
 class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
@@ -77,6 +78,8 @@ private:
   const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken_;
   const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevlvToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
+  const EcalPFRecHitThresholds* thresholds = nullptr;
 
   double hOverEConeSize_;
   double maxHOverE_;
@@ -153,7 +156,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
       navToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SimpleNavigationSchool"))),
       theCaloGeomToken_(esConsumes()),
       sevlvToken_(esConsumes()),
-
+      ecalPFRechitThresholdsToken_{esConsumes()},
       theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(
           config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
       outInSeedFinder_{config, consumesCollector()},
@@ -291,6 +294,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
     validEndcapSCHandle = false;
   }
 
+  thresholds = &theEventSetup.getData(ecalPFRechitThresholdsToken_);
+
   // get the geometry from the event setup:
   theCaloGeom_ = theEventSetup.getHandle(theCaloGeomToken_);
 
@@ -339,7 +344,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   auto const refprodOutInTrackC = theEvent.put(std::move(outInTrackCandidate_p), OutInTrackCandidateCollection_);
   //std::cout  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
   //
-  //std::cout  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
+  //std::cout << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
   auto const refprodInOutTrackC = theEvent.put(std::move(inOutTrackCandidate_p), InOutTrackCandidateCollection_);
   //std::cout  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
 
@@ -401,7 +406,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
       ecalIso.doSeverityChecks(&ecalRecHits, severitiesexclEE_);
     }
 
-    double ecalIsolation = ecalIso.getEtSum(sc);
+    double ecalIsolation = ecalIso.getEtSum(sc, *thresholds);
     if (ecalIsolation > ecalIsoCut_offset_ + ecalIsoCut_slope_ * scEt)
       continue;
 
