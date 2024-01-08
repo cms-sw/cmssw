@@ -57,6 +57,9 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 #include <bitset>
 
+#include <string>
+#include <sstream>
+
 //Anomaly detection includes
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
@@ -110,6 +113,9 @@ private:
 
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
+
+  bool overwriteWithTestPatterns;
+  std::vector<edm::ParameterSet> testPatterns;
 };
 
 //
@@ -137,7 +143,9 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
       regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
-      loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))) {
+      loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
+      overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
+      testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {
   std::vector<double> pumLUTData;
   char pumLUTString[10];
   for (uint32_t pumBin = 0; pumBin < nPumBins; pumBin++) {
@@ -215,6 +223,32 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     //CICADA reads this as a flat vector
     modelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
+  // Check if we're using test patterns. If so, we overwrite the inputs with a test pattern
+  if (overwriteWithTestPatterns) {
+    unsigned int evt = iEvent.id().event();
+    unsigned int totalTestPatterns = testPatterns.size();
+    unsigned int patternElement = evt % totalTestPatterns;
+    const edm::ParameterSet& element = testPatterns.at(patternElement);
+    std::stringstream inputStream;
+    std::string PhiRowString;
+
+    edm::LogWarning("L1TCaloSummary") << "Overwriting existing CICADA input with test pattern!\n";
+
+    for (unsigned short int iPhi = 1; iPhi <= 18; ++iPhi) {
+      PhiRowString = "";
+      std::stringstream PhiRowStringStream;
+      PhiRowStringStream << "iPhi_" << iPhi;
+      PhiRowString = PhiRowStringStream.str();
+      std::vector<unsigned int> phiRow = element.getParameter<std::vector<unsigned int>>(PhiRowString);
+      for (unsigned short int iEta = 1; iEta <= 14; ++iEta) {
+        modelInput[14 * (iPhi - 1) + (iEta - 1)] = phiRow.at(iEta - 1);
+        inputStream << phiRow.at(iEta - 1) << " ";
+      }
+      inputStream << "\n";
+    }
+    edm::LogInfo("L1TCaloSummary") << "Input Stream:\n" << inputStream.str();
+  }
+
   //Extract model output
   OUTPUT modelResult[1] = {
       OUTPUT("0.0", 10)};  //the 10 here refers to the fact that we read in "0.0" as a decimal number
@@ -223,6 +257,9 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   model->read_result(modelResult);
 
   *CICADAScore = modelResult[0].to_float();
+
+  if (overwriteWithTestPatterns)
+    edm::LogInfo("L1TCaloSummary") << "Test Pattern Output: " << *CICADAScore;
 
   summaryCard.setRegionData(inputRegions);
 
