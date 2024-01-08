@@ -38,18 +38,6 @@ namespace gctobj {
       phiCenter = 0;
       etaCenter = 0;
     }
-
-    towerMax& operator=(const towerMax& rhs) {
-      energy = rhs.energy;
-      phi = rhs.phi;
-      eta = rhs.eta;
-      energyMax = rhs.energyMax;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      phiCenter = rhs.phiCenter;
-      etaCenter = rhs.etaCenter;
-      return *this;
-    }
   };
 
   class jetInfo {
@@ -76,20 +64,6 @@ namespace gctobj {
       etaMax = 0;
       phiCenter = 0;
       etaCenter = 0;
-    }
-
-    jetInfo& operator=(const jetInfo& rhs) {
-      seedEnergy = rhs.seedEnergy;
-      energy = rhs.energy;
-      tauEt = rhs.tauEt;
-      phi = rhs.phi;
-      eta = rhs.eta;
-      energyMax = rhs.energyMax;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      phiCenter = rhs.phiCenter;
-      etaCenter = rhs.etaCenter;
-      return *this;
     }
   };
 
