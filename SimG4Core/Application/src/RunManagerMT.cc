@@ -52,6 +52,10 @@
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 
+#include "accel/AlongStepFactory.hh"
+#include "celeritas/field/RZMapFieldInput.hh"
+
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -85,6 +89,16 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_UIsession = new CustomUIsession();
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);
+
+  options_ = std::make_shared<celeritas::SetupOptions>();
+
+  // Use a RZ map dumped from CMSSW
+    options_->make_along_step
+      = celeritas::RZMapFieldAlongStepFactory([] {
+	  std::string filename = "cms-run3-rzfieldmap.json";
+	  celeritas::RZMapFieldInput inp;
+	  std::ifstream(filename) >> inp;
+	  return inp; } );
 }
 
 RunManagerMT::~RunManagerMT() { delete m_UIsession; }

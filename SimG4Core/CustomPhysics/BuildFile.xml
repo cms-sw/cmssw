@@ -12,3 +12,4 @@
 <use name="boost"/>
 <use name="rootmath"/>
 <use name="root"/>
+<use name="celeritas"/>

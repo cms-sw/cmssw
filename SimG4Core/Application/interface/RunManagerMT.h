@@ -9,6 +9,13 @@
 
 #include <memory>
 
+//@@@--->celeritas
+#include "accel/SetupOptions.hh"
+#include "accel/SharedParams.hh"
+#include <G4ThreeVector.hh>
+//class G4ThreeVector;
+//@@@<---celeritas
+
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
@@ -117,6 +124,12 @@ private:
   std::unique_ptr<DDDWorld> m_world;
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
+
+  //@@@--->celeritas
+  G4ThreeVector field_;
+  std::shared_ptr<celeritas::SetupOptions> options_;
+  std::shared_ptr<celeritas::SharedParams> params_;
+  //@@@<---celeritas
 };
 
 #endif
