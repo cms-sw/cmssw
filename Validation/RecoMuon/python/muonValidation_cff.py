@@ -9,7 +9,7 @@ from Validation.RecoMuon.associators_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 
 from Validation.RecoMuon.RecoMuonValidator_cff import *
-#from Validation.RecoMuon.RecoDisplacedMuonValidator_cff import *
+from Validation.RecoMuon.RecoDisplacedMuonValidator_cff import *
 
 import Validation.RecoMuon.MuonTrackValidator_cfi
 MTV = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone(
@@ -315,12 +315,12 @@ gemMuonValidation_phase2 = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonM
 # The full offline muon validation sequence
 #
 recoMuonValidation = cms.Sequence( TPtrack_seq + TPmu_seq + TPpfmu_seq +
-    muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq + muonValidationRDMV_seq
+    muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq #+ muonValidationRDMV_seq
     )
 
 # optionally omit TABH
 recoMuonValidation_noTABH = cms.Sequence( TPtrack_seq + TPmu_seq + TPpfmu_seq +
-    muonValidation_noTABH_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq + muonValidationRDMV_seq
+    muonValidation_noTABH_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq #+ muonValidationRDMV_seq
     )
 
 # ... and also displaced muons
@@ -330,7 +330,7 @@ recoMuonValidation_noTABH_noDisplaced = cms.Sequence( TPtrack_seq + TPmu_seq + T
 
 # no displaced muons in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(recoMuonValidation, cms.Sequence(cms.SequencePlaceholder("TPtrack") + cms.SequencePlaceholder("TPmu") + cms.SequencePlaceholder("TPpfmu") + muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationRMV_seq))
+fastSim.toReplaceWith(recoMuonValidation, cms.Sequence(cms.SequencePlaceholder("TPtrack") + cms.SequencePlaceholder("TPmu") + cms.SequencePlaceholder("TPpfmu") + muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationRMV_seq + muonValidationRDMV_seq))
 
 # sequence for cosmic muons
 recoCosmicMuonValidation = cms.Sequence(
