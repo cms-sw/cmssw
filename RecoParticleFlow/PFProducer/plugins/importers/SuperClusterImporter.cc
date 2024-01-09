@@ -40,6 +40,7 @@ private:
   const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
   const int maxSeverityHB_;
   const int maxSeverityHE_;
+  bool cutsFromDB;
   CaloTowerConstituentsMap const* towerMap_;
   CaloGeometry const* caloGeom_;
   HcalTopology const* hcalTopo_;
@@ -71,19 +72,24 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       hbheRecHitsTag_(cc.consumes(conf.getParameter<edm::InputTag>("hbheRecHitsTag"))),
       maxSeverityHB_(conf.getParameter<int>("maxSeverityHB")),
       maxSeverityHE_(conf.getParameter<int>("maxSeverityHE")),
+      cutsFromDB(conf.getParameter<bool>("usePFThresholdsFromDB")),
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
       _ctmapToken(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
       caloGeometryToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>()},
       hcalTopologyToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>()},
       hcalChannelQualityToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{cc.esConsumes<edm::Transition::BeginLuminosityBlock>()} {
-  hcalCutsToken_ =
-      cc.esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"));
+  if (cutsFromDB) {
+    hcalCutsToken_ = cc.esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginLuminosityBlock>(
+        edm::ESInputTag("", "withTopo"));
+  }
 }
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
   towerMap_ = &es.getData(_ctmapToken);
-  hcalCuts = &es.getData(hcalCutsToken_);
+  if (cutsFromDB) {
+    hcalCuts = &es.getData(hcalCutsToken_);
+  }
   caloGeom_ = &es.getData(caloGeometryToken_);
   hcalTopo_ = &es.getData(hcalTopologyToken_);
   hcalChannelQual_ = &es.getData(hcalChannelQualityToken_);

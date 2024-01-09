@@ -13,6 +13,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
             hbheRecHitsTag = cms.InputTag("hltHbhereco"),
             maxSeverityHB = cms.int32(9),
             maxSeverityHE = cms.int32(9),
+            usePFThresholdsFromDB = cms.bool(True),
             superClustersArePF = cms.bool(True)
         ),
         cms.PSet(
