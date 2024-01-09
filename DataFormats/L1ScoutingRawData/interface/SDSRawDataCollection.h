@@ -14,14 +14,16 @@
 class SDSRawDataCollection : public edm::DoNotRecordParents {
 public:
   SDSRawDataCollection();
+  SDSRawDataCollection(const SDSRawDataCollection&) = default;
+  SDSRawDataCollection(SDSRawDataCollection&&) noexcept = default;
+  SDSRawDataCollection& operator=(const SDSRawDataCollection&) = default;
+  SDSRawDataCollection& operator=(SDSRawDataCollection&&) noexcept = default;
 
   // retrive data for the scouting source at sourceId
   const FEDRawData& FEDData(int sourceId) const;
 
   // retrive data for the scouting source at sourceId
   FEDRawData& FEDData(int sourceId);
-
-  SDSRawDataCollection(const SDSRawDataCollection&);
 
   void swap(SDSRawDataCollection& other) { data_.swap(other.data_); }
 
