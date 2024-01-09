@@ -41,11 +41,9 @@ using namespace mkfit;
 
 //==============================================================================
 
-std::vector<DeadVec> deadvectors;
-
-void init_deadvectors() {
-  deadvectors.resize(Config::TrkInfo.n_layers());
-#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
+namespace mkfit::internal {
+  // Filled in geometry plugin.
+  std::vector<DeadVec> deadvectors;
 }
 
 void initGeom() {
@@ -113,10 +111,6 @@ void initGeom() {
   }
 
   Config::ItrInfo.setupStandardFunctionsFromNames();
-
-  // We always initialize the dead modules. Actual loading into each event is
-  // controlled via Config::useDeadModules.
-  init_deadvectors();
 
   // Test functions for ConfigJsonPatcher
   // cj.test_Direct (Config::ItrInfo[0]);
@@ -321,7 +315,7 @@ void test_standard() {
             StdSeq::loadHitsAndBeamSpot(ev, eoh);
 
             if (Config::useDeadModules) {
-              StdSeq::loadDeads(eoh, deadvectors);
+              StdSeq::loadDeads(eoh, mkfit::internal::deadvectors);
             }
 
             double t_best[NT] = {0}, t_cur[NT] = {0};
@@ -1018,7 +1012,7 @@ int main(int argc, const char* argv[]) {
     tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, Config::numThreadsFinder);
 
     initGeom();
-    Shell s(deadvectors, g_input_file, g_start_event);
+    Shell s(mkfit::internal::deadvectors, g_input_file, g_start_event);
     s.Run();
   } else {
     test_standard();
