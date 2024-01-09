@@ -105,9 +105,9 @@ private:
   int mapXbins_ = 200 / binGroupingX_;
   float mapXmin_;
   float mapXmax_;
-  int mapYbins_ = 240 / binGroupingY_;
-  float mapYmin_ = -12.;
-  float mapYmax_ = 12.;
+  int mapYbins_ = 300 / binGroupingY_;
+  float mapYmin_ = -15.;
+  float mapYmax_ = 15.;
 
   double xiBins_ = 44;
   double xiMin_ = 0;
