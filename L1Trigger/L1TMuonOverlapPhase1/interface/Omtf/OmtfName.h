@@ -1,10 +1,12 @@
 #ifndef L1Trigger_L1TMuonOverlapP1_OmtfName_H
 #define L1Trigger_L1TMuonOverlapP1_OmtfName_H
 
-#include <string>
-#include <ostream>
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
+#include <string>
+#include <ostream>
 
 class OmtfName {
 public:
@@ -30,13 +32,13 @@ public:
   OmtfName(const std::string& name);
 
   //by giving procesor id [0,5] and endcap position {+1,-1} as in uGMT.
-  explicit OmtfName(unsigned int iProcesor, int endcap);
+  explicit OmtfName(unsigned int iProcesor, int endcap, const OMTFConfiguration* omtfConfig);
 
   //by giving procesor id [0,5] and endcap position as l1t::tftype of omtf_pos or omtf_neg.
-  explicit OmtfName(unsigned int iProcesor, l1t::tftype endcap);
+  explicit OmtfName(unsigned int iProcesor, l1t::tftype endcap, const OMTFConfiguration* omtfConfig);
 
   //by giving procesor continous index [0,11].
-  explicit OmtfName(unsigned int iProcesor);
+  explicit OmtfName(unsigned int iProcesor, const OMTFConfiguration* omtfConfig);
 
   operator int() const { return theBoard; }
   bool operator==(const OmtfName& o) const { return theBoard == o.theBoard; }

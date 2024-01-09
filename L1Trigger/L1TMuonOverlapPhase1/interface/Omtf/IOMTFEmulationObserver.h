@@ -14,6 +14,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
+#include <boost/property_tree/ptree.hpp>
+
 #include <memory>
 #include <vector>
 
@@ -27,6 +30,10 @@ public:
   virtual ~IOMTFEmulationObserver();
 
   virtual void beginRun(edm::EventSetup const& eventSetup) {}
+
+  virtual void observeProcesorBegin(unsigned int iProcessor, l1t::tftype mtfType){};
+
+  virtual void addProcesorData(std::string key, boost::property_tree::ptree& procDataTree){};
 
   virtual void observeProcesorEmulation(unsigned int iProcessor,
                                         l1t::tftype mtfType,

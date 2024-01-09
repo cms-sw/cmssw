@@ -45,7 +45,8 @@ void GoldenPatternBase::setConfig(const OMTFConfiguration* omtfConfig) {
 StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
                                                      unsigned int iLayer,
                                                      MuonStubPtrs1D layerStubs,
-                                                     const MuonStubPtr refStub) {
+                                                     const std::vector<int>& extrapolatedPhi,
+                                                     const MuonStubPtr& refStub) {
   //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<key()<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;
 
   int phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw);
@@ -63,7 +64,8 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     phiRefHit = 0;  //phi ref hit for the bending layer set to 0, since it should not be included in the phiDist
   }
 
-  for (auto& stub : layerStubs) {
+  for (size_t iStub = 0; iStub < layerStubs.size(); iStub++) {
+    const auto& stub = layerStubs[iStub];
     if (!stub)  //empty pointer
       continue;
 
@@ -76,7 +78,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     if (hitPhi >= (int)myOmtfConfig->nPhiBins())  //TODO is this needed now? the empty hit will be empty stub
       continue;  //empty itHits are marked with nPhiBins() in OMTFProcessor::restrictInput
 
-    int phiDist = this->myOmtfConfig->foldPhi(hitPhi - phiMean - phiRefHit);
+    int phiDist = this->myOmtfConfig->foldPhi(hitPhi - extrapolatedPhi[iStub] - phiMean - phiRefHit);
     //for standard omtf foldPhi is not needed, but if one processor works for full phi then it is
     //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0)
     /*LogTrace("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
@@ -84,25 +86,23 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     		<<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer
     		<<" hitPhi "<<hitPhi<<" phiMean "<<phiMean<<" phiRefHit "<<phiRefHit<<" phiDist "<<phiDist<<std::endl;*/
 
-    //firmware works on the sign-value, shift must be done on abs(phiDist)
+    //firmware works on the sign-value, shift must be done on std::abs(phiDist)
     int sign = phiDist < 0 ? -1 : 1;
-    phiDist = abs(phiDist) >> this->getDistPhiBitShift(iLayer, iRefLayer);
+    phiDist = std::abs(phiDist) >> this->getDistPhiBitShift(iLayer, iRefLayer);
     phiDist *= sign;
     //if the shift is done here, it means that the phiMean in the xml should be the same as without shift
     //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) std::cout<<__FUNCTION__<<":"<<__LINE__<<" phiDist "<<phiDist<<std::endl;
-    if (abs(phiDist) < abs(phiDistMin)) {
+    if (std::abs(phiDist) < std::abs(phiDistMin)) {
       phiDistMin = phiDist;
       selectedStub = stub;
     }
   }
 
   if (!selectedStub) {
-    if (this->myOmtfConfig->isNoHitValueInPdf()) {
-      PdfValueType pdfVal = this->pdfValue(iLayer, iRefLayer, 0);
-      return StubResult(pdfVal, false, myOmtfConfig->nPhiBins(), iLayer, selectedStub);
-    } else {
-      return StubResult(0, false, myOmtfConfig->nPhiBins(), iLayer, selectedStub);  //2018 version
-    }
+    PdfValueType pdfVal = 0;
+    if (this->myOmtfConfig->isNoHitValueInPdf())
+      pdfVal = this->pdfValue(iLayer, iRefLayer, 0);
+    return StubResult(pdfVal, false, myOmtfConfig->nPhiBins(), iLayer, selectedStub);
   }
 
   int pdfMiddle = 1 << (myOmtfConfig->nPdfAddrBits() - 1);
@@ -114,7 +114,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
   ///Check if phiDistMin is within pdf range -63 +63
   ///in firmware here the arithmetic "value and sign" is used, therefore the range is -63 +63, and not -64 +63
-  if (abs(phiDistMin) > ((1 << (myOmtfConfig->nPdfAddrBits() - 1)) - 1)) {
+  if (std::abs(phiDistMin) > ((1 << (myOmtfConfig->nPdfAddrBits() - 1)) - 1)) {
     return StubResult(0, false, phiDistMin + pdfMiddle, iLayer, selectedStub);
 
     //return GoldenPatternResult::LayerResult(this->pdfValue(iLayer, iRefLayer, 0), false, phiDistMin + pdfMiddle, selHit);

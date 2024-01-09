@@ -43,7 +43,7 @@ public:
   static const int EMTPY_PHI = 0xffffff;
 
   int etaHw = 0;
-  int etaSigmaHw = 0;  ///error of the eta measurement
+  int r = 0;  //[cm] distance from beam pipe
   int qualityHw = 0;
 
   int bx = 0;
@@ -51,6 +51,8 @@ public:
 
   //used to address LUTs
   unsigned int logicLayer = 0;
+
+  unsigned int input = 0;
 
   //int roll = 0;  //TODO remove
 

@@ -3,10 +3,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("L1TMuonEmulation")
 import os
 import sys
+import re
+from os import listdir
+from os.path import isfile, join
+import fnmatch
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
+#version = 't14_extrapolSimpl_displ_allfiles'
+#version = 't16_extrapolSimpl_displ_test'
+#version = 'ExtraplMB1nadMB2SimplifiedFP_t17_v11_test_valueP1Scale'
+#version = 'ExtraplMB1nadMB2SimplifiedFP_t19_v16_test_bits'
+#version = 'Patterns_0x00012_t17_v11_extr_off_test_bits'
+#version = 'ExtraplMB1nadMB2SimplifiedFP_t19_v16_test_bits_MH-1000_MFF-150_CTau-1000mm'
+version = 'ExtraplMB1nadMB2SimplifiedFP_t19_v16_test'
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -20,9 +31,9 @@ if verbose:
                     ),
        categories        = cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction'),
        omtfEventPrint = cms.untracked.PSet(    
-                         filename  = cms.untracked.string('log_MuonOverlap_run3_mc'),
+                         filename  = cms.untracked.string('log_MuonOverlap_newPats_t' + version),
                          extension = cms.untracked.string('.txt'),                
-                         threshold = cms.untracked.string('DEBUG'),
+                         threshold = cms.untracked.string('INFO'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
@@ -108,11 +119,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 ####Event Setup Producer
 process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
-# process.omtfParams.patternsXMLFiles = cms.VPSet(
-#         cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")),
-#         #cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml") ),
-#     ),
+process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0009.xml")
 
 # reding config and patterns from the DB
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
@@ -125,36 +132,12 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
                                    
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_cfi')
+process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_extrapolSimple_cfi')
 
-process.simOmtfDigis.bxMin = cms.int32(0)
-process.simOmtfDigis.bxMax = cms.int32(0)
+process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2.xml")
 
 process.simOmtfDigis.dumpResultToXML = cms.bool(True)
 process.simOmtfDigis.eventCaptureDebug = cms.bool(True)
-
-#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/expert/omtf/Patterns_0x0009_oldSample_3_10Files.xml")
-#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files.xml")
-#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
-#process.simOmtfDigis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
-#                                                       cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_minus_v1.xml"))
-#)
-#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
-#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")
-
-process.simOmtfDigis.sorterType = cms.string("byLLH")
-
-process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
-
-process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
-
-process.simOmtfDigis.noHitValueInPdf = cms.bool(True) #!!!!!!!!!!!!!! cab be true only of the patterns has the noHitValues in the bin 0 of the PDFs
-
-process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
-process.simOmtfDigis.minDtPhiBQuality = cms.int32(2)
-
 
 process.simOmtfDigis.lctCentralBx = cms.int32(8)#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 

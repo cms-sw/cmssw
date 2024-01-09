@@ -21,7 +21,10 @@ class IProcessorEmulator {
 public:
   virtual ~IProcessorEmulator() {}
 
-  virtual void processInput(unsigned int iProcessor, l1t::tftype mtfType, const OMTFinput& aInput) = 0;
+  virtual void processInput(unsigned int iProcessor,
+                            l1t::tftype mtfType,
+                            const OMTFinput& aInput,
+                            std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) = 0;
 
   ///allows to use other IGhostBuster implementation than the default one
   virtual void setGhostBuster(IGhostBuster* ghostBuster) = 0;

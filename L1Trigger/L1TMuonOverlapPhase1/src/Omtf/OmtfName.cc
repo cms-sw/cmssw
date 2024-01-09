@@ -7,24 +7,24 @@ namespace {
   }
 }  // namespace
 
-OmtfName::OmtfName(unsigned int iProcesor, int endcap) {
-  int iproc = (iProcesor <= 5) ? static_cast<int>(iProcesor) : -1;
+OmtfName::OmtfName(unsigned int iProcesor, int endcap, const OMTFConfiguration* omtfConfig) {
+  int iproc = (iProcesor < omtfConfig->nProcessors()) ? static_cast<int>(iProcesor) : -1;
   int position = (abs(endcap) == 1) ? endcap : 0;
   theBoard = static_cast<Board>(sgn(position) * (iproc + 1));
 }
 
-OmtfName::OmtfName(unsigned int iProcesor, l1t::tftype endcap) {
-  int iproc = (iProcesor <= 5) ? static_cast<int>(iProcesor) : -1;
+OmtfName::OmtfName(unsigned int iProcesor, l1t::tftype endcap, const OMTFConfiguration* omtfConfig) {
+  int iproc = (iProcesor < omtfConfig->nProcessors()) ? static_cast<int>(iProcesor) : -1;
   int position = (endcap == l1t::omtf_pos) ? 1 : ((endcap == l1t::omtf_neg) ? -1 : 0);
   theBoard = static_cast<Board>(sgn(position) * (iproc + 1));
 }
 
-OmtfName::OmtfName(unsigned int iProcesor) {
+OmtfName::OmtfName(unsigned int iProcesor, const OMTFConfiguration* omtfConfig) {
   int board = 0;
-  if (iProcesor <= 5)  //OMTFn
+  if (iProcesor < omtfConfig->nProcessors())  //OMTFn
     board = -iProcesor - 1;
   else  //OMTFp
-    board = iProcesor - 5;
+    board = iProcesor - (omtfConfig->nProcessors() - 1);
   theBoard = static_cast<Board>(board);
 }
 
