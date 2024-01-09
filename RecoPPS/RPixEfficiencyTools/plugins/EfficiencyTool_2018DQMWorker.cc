@@ -1338,7 +1338,25 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
 
       for (auto &track_ptr : multiRP_proton.contributingLocalTracks()) {
         CTPPSLocalTrackLite track = *track_ptr;
-        CTPPSPixelDetId detId = CTPPSPixelDetId(track.rpId());
+        if (debug_) {
+          std::string rpName;
+          CTPPSDetId(track.rpId()).rpName(rpName,CTPPSDetId::nFull);
+          std::cout << "Track from " << rpName << std::endl;
+        }
+
+        CTPPSPixelDetId detId(0,0);
+        try {
+          detId = CTPPSPixelDetId(track.rpId());
+        } catch (cms::Exception const& e){
+          if (debug_) {
+            std::cout << e;
+            std::cout << "Ignoring this non-pixel track" << std::endl;
+          }
+          if (e.category() == "InvalidDetId")
+            continue;
+          else 
+            throw e;
+        }
         int arm = detId.arm();
         int station = detId.station();
         double trackX0 = track.x();

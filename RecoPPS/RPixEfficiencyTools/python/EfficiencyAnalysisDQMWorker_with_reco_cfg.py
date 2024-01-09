@@ -16,7 +16,7 @@ fiducialYLow = [-99.,-99.,-99.,-99.]
 fiducialYHigh = [99.,99.,99.,99.]
 
 #SETUP PROCESS
-process = cms.Process("EfficiencyAnalysisDQMWorker", eras.Run3)
+process = cms.Process("EfficiencyAnalysisDQMWorker", eras.run3_common)
 
 
 #SETUP PARAMETERS
@@ -297,7 +297,7 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     recoInfo=cms.untracked.int32(options.recoInfo),
     
     # Generic configs
-    debug=cms.untracked.bool(True),
+    debug=cms.untracked.bool(False),
 
     # LHCInfo configs
     useNewLHCInfo=cms.bool(True),
