@@ -1,10 +1,10 @@
 /* -*- C++ -*-
 
 Package: L1CaloTrigger
-Class: l1tNNCaloTauProducer
+Class: L1NNCaloTauProducer
 Frinedly name: The TauMinator
 
-\class l1tNNCaloTauProducer l1tNNCaloTauProducer.cc
+\class L1NNCaloTauProducer L1NNCaloTauProducer.cc
 
 Description: 
 Perform reconstruction and identification of tau 
@@ -85,9 +85,9 @@ struct NNmodels_GlobalCache {
   tensorflow::Session* DNNcalib_CEsession;
 };
 
-class l1tNNCaloTauProducer : public edm::stream::EDProducer<edm::GlobalCache<NNmodels_GlobalCache>> {
+class L1NNCaloTauProducer : public edm::stream::EDProducer<edm::GlobalCache<NNmodels_GlobalCache>> {
 public:
-  explicit l1tNNCaloTauProducer(const edm::ParameterSet&, const NNmodels_GlobalCache*);
+  explicit L1NNCaloTauProducer(const edm::ParameterSet&, const NNmodels_GlobalCache*);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::unique_ptr<NNmodels_GlobalCache> initializeGlobalCache(const edm::ParameterSet&);
@@ -200,7 +200,7 @@ private:
    ██    ██   ██ ██████        ██    ██   ██ ███████ ██      ██ ██ ██   ████ ██   ██    ██     ██████  ██    ██
 */
 
-std::unique_ptr<NNmodels_GlobalCache> l1tNNCaloTauProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+std::unique_ptr<NNmodels_GlobalCache> L1NNCaloTauProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   edm::LogInfo("Initialization") << "Init NN models Global Cache " << std::endl;
 
   std::unique_ptr<NNmodels_GlobalCache> GlobalCache(new NNmodels_GlobalCache);
@@ -240,7 +240,7 @@ std::unique_ptr<NNmodels_GlobalCache> l1tNNCaloTauProducer::initializeGlobalCach
 }
 
 // ----Constructor and Destructor -----
-l1tNNCaloTauProducer::l1tNNCaloTauProducer(const edm::ParameterSet& iConfig, const NNmodels_GlobalCache* globalCache)
+L1NNCaloTauProducer::L1NNCaloTauProducer(const edm::ParameterSet& iConfig, const NNmodels_GlobalCache* globalCache)
     : l1TowersToken(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("l1CaloTowers"))),
       hgcalTowersToken(consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("hgcalTowers"))),
 
@@ -278,7 +278,7 @@ l1tNNCaloTauProducer::l1tNNCaloTauProducer(const edm::ParameterSet& iConfig, con
                            << " , EcalTpEtMin = " << EcalEtMinForClustering << std::endl;
 }
 
-void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
+void L1NNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
   // Output collection
   std::unique_ptr<BXVector<l1t::Tau>> L1NNCaloTauCollectionBXV(new l1t::TauBxCollection);
 
@@ -604,36 +604,40 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
     clIdx++;  // Increase batch index
   }
 
-  // Apply CNN model
-  tensorflow::NamedTensorList CNNmodel_CBinputList = {{"TowerClusterImage", TowerClusterImage_CB},
-                                                      {"TowerClusterPosition", TowerClusterPosition_CB}};
-  std::vector<tensorflow::Tensor> CNNmodel_CBoutputs;
-  tensorflow::run((globalCache()->CNNmodel_CBsession),
-                  CNNmodel_CBinputList,
-                  {"TauMinator_CB_conv/middleMan/concat"},
-                  &CNNmodel_CBoutputs);
-  tensorflow::NamedTensorList DNN_CBinputsList = {{"middleMan", CNNmodel_CBoutputs[0]}};
+  if (batchSize_CB >
+      0)  // from CMSSW_14_0_X tensorflow does not seem to be able to deal with a tensor of dimension 0 anymore
+  {
+    // Apply CNN model
+    tensorflow::NamedTensorList CNNmodel_CBinputList = {{"TowerClusterImage", TowerClusterImage_CB},
+                                                        {"TowerClusterPosition", TowerClusterPosition_CB}};
+    std::vector<tensorflow::Tensor> CNNmodel_CBoutputs;
+    tensorflow::run((globalCache()->CNNmodel_CBsession),
+                    CNNmodel_CBinputList,
+                    {"TauMinator_CB_conv/middleMan/concat"},
+                    &CNNmodel_CBoutputs);
+    tensorflow::NamedTensorList DNN_CBinputsList = {{"middleMan", CNNmodel_CBoutputs[0]}};
 
-  // Apply DNN for identification
-  std::vector<tensorflow::Tensor> DNN_CBoutputsIdent;
-  tensorflow::run((globalCache()->DNNident_CBsession),
-                  DNN_CBinputsList,
-                  {"TauMinator_CB_ident/sigmoid_IDout/Sigmoid"},
-                  &DNN_CBoutputsIdent);
+    // Apply DNN for identification
+    std::vector<tensorflow::Tensor> DNN_CBoutputsIdent;
+    tensorflow::run((globalCache()->DNNident_CBsession),
+                    DNN_CBinputsList,
+                    {"TauMinator_CB_ident/sigmoid_IDout/Sigmoid"},
+                    &DNN_CBoutputsIdent);
 
-  // Apply DNN for calibration
-  std::vector<tensorflow::Tensor> DNN_CBoutputsCalib;
-  tensorflow::run((globalCache()->DNNcalib_CBsession),
-                  DNN_CBinputsList,
-                  {"TauMinator_CB_calib/LIN_DNNout/Relu"},
-                  &DNN_CBoutputsCalib);
+    // Apply DNN for calibration
+    std::vector<tensorflow::Tensor> DNN_CBoutputsCalib;
+    tensorflow::run((globalCache()->DNNcalib_CBsession),
+                    DNN_CBinputsList,
+                    {"TauMinator_CB_calib/LIN_DNNout/Relu"},
+                    &DNN_CBoutputsCalib);
 
-  // Fill TauMinator output variables of TowerClusters
-  clIdx = 0;
-  for (auto& clNxM : l1TowerClustersNxM_CB) {
-    clNxM.IDscore = DNN_CBoutputsIdent[0].matrix<float>()(0, clIdx);
-    clNxM.calibPt = DNN_CBoutputsCalib[0].matrix<float>()(0, clIdx);
-    clIdx++;  // Increase batch index
+    // Fill TauMinator output variables of TowerClusters
+    clIdx = 0;
+    for (auto& clNxM : l1TowerClustersNxM_CB) {
+      clNxM.IDscore = DNN_CBoutputsIdent[0].matrix<float>()(0, clIdx);
+      clNxM.calibPt = DNN_CBoutputsCalib[0].matrix<float>()(0, clIdx);
+      clIdx++;  // Increase batch index
+    }
   }
 
   // Endcap TauMinator application
@@ -680,37 +684,41 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
     clIdx++;  // Increase batch index
   }
 
-  // Apply CNN model
-  tensorflow::NamedTensorList CNNmodel_CEinputList = {{"TowerClusterImage", TowerClusterImage_CE},
-                                                      {"TowerClusterPosition", TowerClusterPosition_CE},
-                                                      {"AssociatedCl3dFeatures", Cl3dShapeFeatures_CE}};
-  std::vector<tensorflow::Tensor> CNNmodel_CEoutputs;
-  tensorflow::run((globalCache()->CNNmodel_CEsession),
-                  CNNmodel_CEinputList,
-                  {"TauMinator_CE_conv/middleMan/concat"},
-                  &CNNmodel_CEoutputs);
-  tensorflow::NamedTensorList DNN_CEinputsList = {{"middleMan", CNNmodel_CEoutputs[0]}};
+  if (batchSize_CE >
+      0)  // from CMSSW_14_0_X tensorflow does not seem to be able to deal with a tensor of dimension 0 anymore
+  {
+    // Apply CNN model
+    tensorflow::NamedTensorList CNNmodel_CEinputList = {{"TowerClusterImage", TowerClusterImage_CE},
+                                                        {"TowerClusterPosition", TowerClusterPosition_CE},
+                                                        {"AssociatedCl3dFeatures", Cl3dShapeFeatures_CE}};
+    std::vector<tensorflow::Tensor> CNNmodel_CEoutputs;
+    tensorflow::run((globalCache()->CNNmodel_CEsession),
+                    CNNmodel_CEinputList,
+                    {"TauMinator_CE_conv/middleMan/concat"},
+                    &CNNmodel_CEoutputs);
+    tensorflow::NamedTensorList DNN_CEinputsList = {{"middleMan", CNNmodel_CEoutputs[0]}};
 
-  // Apply DNN for identification
-  std::vector<tensorflow::Tensor> DNN_CEoutputsIdent;
-  tensorflow::run((globalCache()->DNNident_CEsession),
-                  DNN_CEinputsList,
-                  {"TauMinator_CE_ident/sigmoid_IDout/Sigmoid"},
-                  &DNN_CEoutputsIdent);
+    // Apply DNN for identification
+    std::vector<tensorflow::Tensor> DNN_CEoutputsIdent;
+    tensorflow::run((globalCache()->DNNident_CEsession),
+                    DNN_CEinputsList,
+                    {"TauMinator_CE_ident/sigmoid_IDout/Sigmoid"},
+                    &DNN_CEoutputsIdent);
 
-  // Apply DNN for calibration
-  std::vector<tensorflow::Tensor> DNN_CEoutputsCalib;
-  tensorflow::run((globalCache()->DNNcalib_CEsession),
-                  DNN_CEinputsList,
-                  {"TauMinator_CE_calib/LIN_DNNout/Relu"},
-                  &DNN_CEoutputsCalib);
+    // Apply DNN for calibration
+    std::vector<tensorflow::Tensor> DNN_CEoutputsCalib;
+    tensorflow::run((globalCache()->DNNcalib_CEsession),
+                    DNN_CEinputsList,
+                    {"TauMinator_CE_calib/LIN_DNNout/Relu"},
+                    &DNN_CEoutputsCalib);
 
-  // Fill TauMinator output variables of TowerClusters
-  clIdx = 0;
-  for (auto& clNxM : l1TowerClustersNxM_CE) {
-    clNxM.IDscore = DNN_CEoutputsIdent[0].matrix<float>()(0, clIdx);
-    clNxM.calibPt = DNN_CEoutputsCalib[0].matrix<float>()(0, clIdx);
-    clIdx++;  // Increase batch index
+    // Fill TauMinator output variables of TowerClusters
+    clIdx = 0;
+    for (auto& clNxM : l1TowerClustersNxM_CE) {
+      clNxM.IDscore = DNN_CEoutputsIdent[0].matrix<float>()(0, clIdx);
+      clNxM.calibPt = DNN_CEoutputsCalib[0].matrix<float>()(0, clIdx);
+      clIdx++;  // Increase batch index
+    }
   }
 
   // Fill the output collection of L1 taus
@@ -789,7 +797,7 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
 
 }  // End of produce function
 
-int l1tNNCaloTauProducer::tower_dIPhi(int& iPhi_1, int& iPhi_2) const {
+int L1NNCaloTauProducer::tower_dIPhi(int& iPhi_1, int& iPhi_2) const {
   const int PI = 36;
   int result = iPhi_1 - iPhi_2;
   if (result > PI) {
@@ -801,7 +809,7 @@ int l1tNNCaloTauProducer::tower_dIPhi(int& iPhi_1, int& iPhi_2) const {
   return result;
 }
 
-int l1tNNCaloTauProducer::tower_dIEta(int& iEta_1, int& iEta_2) const {
+int L1NNCaloTauProducer::tower_dIEta(int& iEta_1, int& iEta_2) const {
   if (iEta_1 * iEta_2 > 0) {
     return iEta_1 - iEta_2;
   } else {
@@ -813,7 +821,7 @@ int l1tNNCaloTauProducer::tower_dIEta(int& iEta_1, int& iEta_2) const {
   }
 }
 
-int l1tNNCaloTauProducer::endcap_iphi(float& phi) const {
+int L1NNCaloTauProducer::endcap_iphi(float& phi) const {
   const float phi_step = 0.0872664;
   if (phi > 0) {
     return floor(phi / phi_step) + 1;
@@ -822,71 +830,82 @@ int l1tNNCaloTauProducer::endcap_iphi(float& phi) const {
   }
 }
 
-int l1tNNCaloTauProducer::endcap_ieta(float& eta) const {
+int L1NNCaloTauProducer::endcap_ieta(float& eta) const {
   const float eta_step = 0.0845;
   return floor(abs(eta) / eta_step) * std::copysign(1, eta);
 }
 
-float l1tNNCaloTauProducer::inputQuantizer(float inputF, float LSB, int nbits) {
+float L1NNCaloTauProducer::inputQuantizer(float inputF, float LSB, int nbits) {
   return min(floor(inputF / LSB), float(pow(2, nbits) - 1)) * LSB;
 }
 
-float l1tNNCaloTauProducer::inputScaler(float inputF, std::string feature) {
+float L1NNCaloTauProducer::inputScaler(float inputF, std::string feature) {
   float mean = (globalCache()->FeatScaler_CE).get_child(feature).get<float>("mean");
   float std = (globalCache()->FeatScaler_CE).get_child(feature).get<float>("std");
 
   return (inputF - mean) / std;
 }
 
-void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // VARIABLES FOR HGCAL PU BDT
-  std::vector<edm::ParameterSet> variables;
-  edm::ParameterSet set1;
-  set1.addParameter<std::string>("name", "eMax");
-  set1.addParameter<std::string>("value", "eMax()");
-  variables.push_back(set1);
-  edm::ParameterSet set2;
-  set2.addParameter<std::string>("name", "eMaxOverE");
-  set2.addParameter<std::string>("value", "eMax()/energy()");
-  variables.push_back(set2);
-  edm::ParameterSet set3;
-  set3.addParameter<std::string>("name", "sigmaPhiPhiTot");
-  set3.addParameter<std::string>("value", "sigmaPhiPhiTot()");
-  variables.push_back(set3);
-  edm::ParameterSet set4;
-  set4.addParameter<std::string>("name", "sigmaRRTot");
-  set4.addParameter<std::string>("value", "sigmaRRTot()");
-  variables.push_back(set4);
-  edm::ParameterSet set5;
-  set5.addParameter<std::string>("name", "triggerCells90percent");
-  set5.addParameter<std::string>("value", "triggerCells90percent()");
-  variables.push_back(set5);
-
-  // // PSET FOR HGCAL PU BDT
-  edm::ParameterSetDescription tmp;
-  edm::ParameterSetDescription VsPuId;
-  VsPuId.addVPSet("variables", tmp, variables);
-  VsPuId.add<bool>("isPUFilter", true);
-  VsPuId.add<std::string>("preselection", "");
-  VsPuId.add<std::string>("method", "BDT");
-  VsPuId.add<std::string>(
-      "weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
-  VsPuId.add<std::string>("wp", "-0.10");
-
-  // DESCRIPTIONS
+void L1NNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setComment("Phase2 NN CaloTau (TauMinator) producer plugin.");
 
-  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer", "L1CaloTowerCollection", ""));
+  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer", "L1CaloTowerCollection"));
   desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer", "HGCalTowerProcessor"));
   desc.add<edm::InputTag>("HgcalClusters",
                           edm::InputTag("l1tHGCalBackEndLayer2Producer", "HGCalBackendLayer2Processor3DClustering"));
 
   desc.add<std::string>("preEmId", "hOverE < 0.3 && hOverE >= 0");
-  desc.add<edm::ParameterSetDescription>("VsPuId", VsPuId);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<bool>("isPUFilter", true);
+    psd0.add<std::string>("preselection", "");
+    psd0.add<std::string>("method", "BDT");
+    {
+      edm::ParameterSetDescription vpsd2;
+      vpsd2.add<std::string>("name", "eMax");
+      vpsd2.add<std::string>("value", "eMax()");
+      std::vector<edm::ParameterSet> temp2;
+      temp2.reserve(5);
+      {
+        edm::ParameterSet temp3;
+        temp3.addParameter<std::string>("name", "eMax");
+        temp3.addParameter<std::string>("value", "eMax()");
+        temp2.push_back(temp3);
+      }
+      {
+        edm::ParameterSet temp3;
+        temp3.addParameter<std::string>("name", "eMaxOverE");
+        temp3.addParameter<std::string>("value", "eMax()/energy()");
+        temp2.push_back(temp3);
+      }
+      {
+        edm::ParameterSet temp3;
+        temp3.addParameter<std::string>("name", "sigmaPhiPhiTot");
+        temp3.addParameter<std::string>("value", "sigmaPhiPhiTot()");
+        temp2.push_back(temp3);
+      }
+      {
+        edm::ParameterSet temp3;
+        temp3.addParameter<std::string>("name", "sigmaRRTot");
+        temp3.addParameter<std::string>("value", "sigmaRRTot()");
+        temp2.push_back(temp3);
+      }
+      {
+        edm::ParameterSet temp3;
+        temp3.addParameter<std::string>("name", "triggerCells90percent");
+        temp3.addParameter<std::string>("value", "triggerCells90percent()");
+        temp2.push_back(temp3);
+      }
+      psd0.addVPSet("variables", vpsd2, temp2);
+    }
+    psd0.add<std::string>(
+        "weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
+    psd0.add<std::string>("wp", "-0.10");
+    desc.add<edm::ParameterSetDescription>("VsPuId", psd0);
+  }
 
-  desc.add<double>("EcalEtMinForClustering", 0.);
-  desc.add<double>("HcalEtMinForClustering", 0.);
+  desc.add<double>("EcalEtMinForClustering", 0.0);
+  desc.add<double>("HcalEtMinForClustering", 0.0);
   desc.add<double>("EtMinForSeeding", 2.5);
   desc.add<double>("EtaRestriction", 2.4);
   desc.add<double>("CB_CE_split", 1.55);
@@ -899,7 +918,7 @@ void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::string>("DNNcalib_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/DNNcalib_CE.pb");
   desc.add<std::string>("FeatScaler_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/Cl3dFeatScaler_CE.json");
 
-  desc.add<double>("IdWp90_CB", 0.7060);
+  desc.add<double>("IdWp90_CB", 0.706);
   desc.add<double>("IdWp95_CB", 0.3432);
   desc.add<double>("IdWp99_CB", 0.0337);
   desc.add<double>("IdWp90_CE", 0.5711);
@@ -908,7 +927,7 @@ void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<bool>("DEBUG", false);
 
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add("l1tNNCaloTauProducer", desc);
 }
 
-DEFINE_FWK_MODULE(l1tNNCaloTauProducer);
+DEFINE_FWK_MODULE(L1NNCaloTauProducer);
