@@ -37,6 +37,12 @@ namespace ticl {
                         std::vector<Trackster>& resultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
+
+    void initialize(const HGCalDDDConstants* hgcons,
+                    const hgcal::RecHitTools rhtools,
+                    const edm::ESHandle<MagneticField> bfieldH,
+                    const edm::ESHandle<Propagator> propH) override{};
+
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);
       iDesc.add<int>("jet_algorithm", 2)

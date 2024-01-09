@@ -23,6 +23,17 @@
 
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TracksterLinkingPluginFactory.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -54,16 +65,29 @@ private:
 
   std::vector<edm::EDGetTokenT<std::vector<float>>> original_masks_tokens_;
 
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   std::once_flag initializeGeometry_;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  const std::string detector_;
+  const std::string propName_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
+  const HGCalDDDConstants *hgcons_;
   hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
 };
 
 TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
     : clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
-      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()) {
+      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      detector_(ps.getParameter<std::string>("detector")),
+      propName_(ps.getParameter<std::string>("propagator")),
+      bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      propagator_token_(
+          esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(edm::ESInputTag("", propName_))) {
   // Loop over the edm::VInputTag and append the token to tracksters_tokens_
   for (auto const &tag : ps.getParameter<std::vector<edm::InputTag>>("tracksters_collections")) {
     tracksters_tokens_.emplace_back(consumes<std::vector<Trackster>>(tag));
@@ -84,6 +108,13 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
 
   auto linkingPSet = ps.getParameter<edm::ParameterSet>("linkingPSet");
   auto algoType = linkingPSet.getParameter<std::string>("type");
+
+  if (algoType == "Skeletons") {
+    std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
+    hdc_token_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag("", detectorName_));
+  }
+
   linkingAlgo_ = TracksterLinkingPluginFactory::get()->create(algoType, linkingPSet, consumesCollector());
 }
 
@@ -92,8 +123,16 @@ void TracksterLinksProducer::beginJob() {}
 void TracksterLinksProducer::endJob(){};
 
 void TracksterLinksProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
+  edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
+  hgcons_ = hdc.product();
+
   edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
   rhtools_.setGeometry(*geom);
+
+  edm::ESHandle<MagneticField> bfield = es.getHandle(bfield_token_);
+  edm::ESHandle<Propagator> propagator = es.getHandle(propagator_token_);
+
+  linkingAlgo_->initialize(hgcons_, rhtools_, bfield, propagator);
 };
 
 void TracksterLinksProducer::dumpTrackster(const Trackster &t) const {
@@ -203,7 +242,8 @@ void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &
 void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription linkingDesc;
-  linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "FastJet", true));
+  linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "Skeletons", true));
+
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
   desc.add<std::vector<edm::InputTag>>(
       "tracksters_collections", {edm::InputTag("ticlTrackstersCLUE3DEM"), edm::InputTag("ticlTrackstersCLUE3DHAD")});
@@ -211,6 +251,8 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
                                        {edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask")});
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
+  desc.add<std::string>("detector", "HGCAL");
+  desc.add<std::string>("propagator", "PropagatorWithMaterial");
   descriptions.add("tracksterLinksProducer", desc);
 }
 

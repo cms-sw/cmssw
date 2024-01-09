@@ -20,6 +20,10 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 namespace edm {
   class Event;
@@ -52,6 +56,11 @@ namespace ticl {
                                 std::vector<Trackster>& resultTracksters,
                                 std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                                 std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) = 0;
+
+    virtual void initialize(const HGCalDDDConstants* hgcons,
+                            const hgcal::RecHitTools rhtools,
+                            const edm::ESHandle<MagneticField> bfieldH,
+                            const edm::ESHandle<Propagator> propH) = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); };
 

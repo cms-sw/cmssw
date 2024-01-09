@@ -14,6 +14,7 @@ labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLa
 labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
 lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -59,6 +60,90 @@ hgcalValidator = DQMEDAnalyzer(
     simTiclCandidates = cms.InputTag("ticlSimTracksters"),
     recoTracks = cms.InputTag("generalTracks"),
     trackstersclue3d = cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    mergeRecoToSimAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "recoToSim"),
+    mergeSimToRecoAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "simToReco"),
+
+    #The cumulative material budget in front of each layer. To be more specific, it
+    #is the material budget just in front of the active material (not including it).
+    #This file is created using the official material budget code.
+    cummatbudinxo = cms.FileInPath('Validation/HGCalValidation/data/D41.cumulative.xo'),
+
+    ### sim input configuration ###
+    label_cp_effic = layerClusterCaloParticleAssociation.label_cp,
+    label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
+    #simClusters
+    label_scl = layerClusterSimClusterAssociation.label_scl,
+
+    simVertices = cms.InputTag("g4SimHits"),
+
+    LayerClustersInputMask = cms.VInputTag(lcInputMask),
+
+    #Total number of layers of HGCal that we want to monitor
+    #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
+    totallayers_to_monitor = cms.int32(52),
+    #Thicknesses we want to monitor. -1 is for scintillator
+    thicknesses_to_monitor = cms.vint32(120,200,300,-1),
+
+    # HistoProducerAlgo. Defines the set of plots to be booked and filled
+    histoProducerAlgoBlock = HGVHistoProducerAlgoBlock,
+
+    ### output configuration
+    dirName = cms.string('HGCAL/HGCalValidator/')
+
+)
+
+#labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
+labelTst = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"]
+labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+lcInputMask  = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"]
+#lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
+lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
+
+hgcalValidatorv5 = DQMEDAnalyzer(
+    "HGCalValidator",
+
+    ### general settings ###
+    # selection of CP for evaluation of efficiency #
+    CaloParticleSelectionForEfficiency,
+
+    ### reco input configuration ###
+    #2DLayerClusters, PFClusters, Tracksters
+    label_lcl = layerClusterCaloParticleAssociation.label_lc,
+    label_tst = cms.VInputTag(labelTst),
+    label_simTS = cms.InputTag("ticlSimTracksters"),
+    label_simTSFromCP = cms.InputTag("ticlSimTracksters", "fromCPs"),
+
+    associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
+
+    associatorSim = cms.untracked.InputTag("layerClusterSimClusterAssociationProducer"),
+
+    #General info on layers etc.
+    SaveGeneralInfo = cms.untracked.bool(True),
+    #CaloParticle related plots
+    doCaloParticlePlots = cms.untracked.bool(True),
+    #Select caloParticles for efficiency or pass through
+    doCaloParticleSelection = cms.untracked.bool(True),
+    #SimCluster related plots
+    doSimClustersPlots = cms.untracked.bool(True),
+    label_SimClusters = cms.InputTag("SimClusters"),
+    label_SimClustersLevel = cms.InputTag("ClusterLevel"),
+    #Layer Cluster related plots
+    doLayerClustersPlots = cms.untracked.bool(True),
+    label_layerClusterPlots = cms.InputTag("hgcalMergeLayerClusters"),
+    label_LCToCPLinking = cms.InputTag("LCToCP_association"),
+    #Trackster related plots
+    doTrackstersPlots = cms.untracked.bool(True),
+    label_TS = cms.string("Morphology"),
+    label_TSToCPLinking = cms.string("TSToCP_linking"),
+    label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
+    #candidates plots
+    doCandidatesPlots = cms.untracked.bool(True),
+    ticlCandidates = cms.InputTag("ticlCandidate"),
+
+    ticlTrackstersMerge = cms.InputTag("ticlTrackstersMerge"),
+    simTiclCandidates = cms.InputTag("ticlSimTracksters"),
+    recoTracks = cms.InputTag("generalTracks"),
+    trackstersclue3d = cms.InputTag("ticlCandidate"),
     mergeRecoToSimAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "recoToSim"),
     mergeSimToRecoAssociator = cms.InputTag("tracksterSimTracksterAssociationLinking", "simToReco"),
 
