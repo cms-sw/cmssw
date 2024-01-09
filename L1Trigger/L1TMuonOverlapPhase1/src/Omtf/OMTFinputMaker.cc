@@ -53,10 +53,9 @@ void DtDigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers,
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
   stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum());
 
-  if (stub.qualityHw >= config->getMinDtPhiBQuality())
-    stub.phiBHw = digi.phiB();
-  else
-    stub.phiBHw = config->nPhiBins();
+  //the cut if (stub.qualityHw >= config->getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
+  //as is is done like that in the firmware
+  stub.phiBHw = digi.phiB();
 
   stub.bx = digi.bxNum();  //TODO sholdn't  it be BxCnt()?
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
@@ -93,11 +92,15 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
   unsigned int iLayer = config->getHwToLogicLayer().at(hwNumber);
   unsigned int iInput = OMTFinputMaker::getInputNumber(config, rawid, iProcessor, procTyp);
 
+  //edm::LogVerbatim("l1tOmtfEventPrint")<<"addCSCstubs iProcessor "<<iProcessor<<" procTyp "<<procTyp<< std::endl;
+
+  float r = 0;
   MuonStub stub;
   stub.type = MuonStub::CSC_PHI_ETA;
   stub.phiHw = angleConverter->getProcessorPhi(
-      OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, CSCDetId(rawid), digi);
-  stub.etaHw = angleConverter->getGlobalEta(rawid, digi);
+      OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, CSCDetId(rawid), digi, iInput);
+  stub.etaHw = angleConverter->getGlobalEta(rawid, digi, r);
+  stub.r = round(r);
   stub.phiBHw = digi.getPattern();  //TODO change to phiB when implemented
   stub.qualityHw = digi.getQuality();
 
@@ -108,7 +111,15 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
   stub.logicLayer = iLayer;
   stub.detId = rawid;
 
-  OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  //TODO this cut is not yet implemented in the FW,
+  //but it is worth to apply it at least for the pattern generation and NN training
+  if (iLayer == 9) {
+    if (stub.r >= config->minCSCStubRME12())
+      OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  } else if (stub.r >= config->minCscStubR()) {
+    OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  }
+
   ///Accept CSC digis only up to eta=1.26.
   ///The nominal OMTF range is up to 1.24, but cutting at 1.24
   ///kill efficiency at the edge. 1.26 is one eta bin above nominal.
@@ -166,7 +177,10 @@ void RpcDigiToStubsConverterOmtf::addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
   stub.type = MuonStub::RPC;
   stub.phiHw = angleConverter->getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, roll, cluster.firstStrip, cluster.lastStrip);
-  stub.etaHw = angleConverter->getGlobalEtaRpc(rawid, cluster.firstStrip);
+
+  float r = 0;
+  stub.etaHw = angleConverter->getGlobalEtaRpc(rawid, cluster.firstStrip, r);
+  stub.r = round(r);
 
   stub.qualityHw = cluster.size();
 
@@ -359,8 +373,8 @@ unsigned int OMTFinputMaker::getInputNumber(const OMTFConfiguration* config,
         aSector = rpc.sector();
         ///on the 0-2pi border we need to add 1 30 deg sector
         ///to get the correct index
-        if (iProcessor == 5 && aSector < 3)
-          aMin = -1;
+        if (iProcessor == (config->nProcessors() - 1) && aSector < 3)
+          aSector += 12;  //aMin = -1;
         //Use division into rolls
         iRoll = rpc.roll();
         ///Set roll number by hand to keep common input
@@ -381,8 +395,8 @@ unsigned int OMTFinputMaker::getInputNumber(const OMTFConfiguration* config,
         aMin = config->getEndcap10DegMin()[iProcessor];
         ///on the 0-2pi border we need to add 4 10 deg sectors
         ///to get the correct index
-        if (iProcessor == 5 && aSector < 5)
-          aMin = -4;
+        if (iProcessor == (config->nProcessors() - 1) && aSector < 5)
+          aSector += 36;  //aMin = -4;
       }
       break;
     }
@@ -391,8 +405,8 @@ unsigned int OMTFinputMaker::getInputNumber(const OMTFConfiguration* config,
       aSector = dt.sector();
       ///on the 0-2pi border we need to add 1 30 deg sector
       ///to get the correct index
-      if (iProcessor == 5 && aSector < 3)
-        aMin = -1;
+      if (iProcessor == (config->nProcessors() - 1) && aSector < 3)
+        aSector += 12;  //aMin = -1;
       break;
     }
     case MuonSubdetId::CSC: {
@@ -401,15 +415,15 @@ unsigned int OMTFinputMaker::getInputNumber(const OMTFConfiguration* config,
       aMin = config->getEndcap10DegMin()[iProcessor];
       ///on the 0-2pi border we need to add 4 10deg sectors
       ///to get the correct index
-      if (iProcessor == 5 && aSector < 5)
-        aMin = -4;
+      if (iProcessor == (config->nProcessors() - 1) && aSector < 5)
+        aSector += 36;  //aMin = -4;
       ///Endcap region covers algo 10 deg sectors
       ///on the 0-2pi border we need to add 2 20deg sectors
       ///to get the correct index
       if ((type == l1t::tftype::emtf_pos || type == l1t::tftype::emtf_neg) && csc.station() > 1 && csc.ring() == 1) {
         aMin = config->getEndcap20DegMin()[iProcessor];
-        if (iProcessor == 5 && aSector < 3)
-          aMin = -2;
+        if (iProcessor == (config->nProcessors() - 1) && aSector < 3)
+          aSector += 18;  //aMin = -2;
       }
       break;
     }
@@ -429,7 +443,8 @@ unsigned int OMTFinputMaker::getInputNumber(const OMTFConfiguration* config,
 int OMTFinputMaker::getProcessorPhiZero(const OMTFConfiguration* config, unsigned int iProcessor) {
   unsigned int nPhiBins = config->nPhiBins();
 
-  int phiZero = nPhiBins / 6. * (iProcessor) + nPhiBins / 24;
+  int phiZero =
+      nPhiBins / config->nProcessors() * (iProcessor) + nPhiBins / 24;  //this 24 gives 15deg (360deg/24 = 15deg)
   // "0" is 15degree moved cyclically to each processor, note [0,2pi]
 
   return config->foldPhi(phiZero);
@@ -463,5 +478,6 @@ void OMTFinputMaker::addStub(const OMTFConfiguration* config,
     return;
   //in this implementation only two first stubs are added for a given iInput
 
+  stub.input = iInput;
   muonStubsInLayers.at(iLayer).at(iInput) = std::make_shared<MuonStub>(stub);
 }

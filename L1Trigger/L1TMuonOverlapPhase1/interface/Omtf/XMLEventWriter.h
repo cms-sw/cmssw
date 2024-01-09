@@ -12,8 +12,9 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/XMLConfigWriter.h"
-#include "xercesc/util/XercesDefs.hpp"
+
+#include <boost/property_tree/ptree.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,6 +24,12 @@ public:
   XMLEventWriter(const OMTFConfiguration* aOMTFConfig, std::string fName);
 
   ~XMLEventWriter() override;
+
+  void observeProcesorBegin(unsigned int iProcessor, l1t::tftype mtfType) override;
+
+  void addProcesorData(std::string key, boost::property_tree::ptree& procDataTree) override {
+    procTree.add_child(key, procDataTree);
+  }
 
   void observeProcesorEmulation(unsigned int iProcessor,
                                 l1t::tftype mtfType,
@@ -40,8 +47,12 @@ public:
 
 private:
   const OMTFConfiguration* omtfConfig;
-  XMLConfigWriter xmlWriter;
-  xercesc::DOMElement* currentElement;
+
+  boost::property_tree::ptree tree;
+
+  boost::property_tree::ptree* eventTree = nullptr;
+
+  boost::property_tree::ptree procTree;
 
   std::string fName;
 
