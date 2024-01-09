@@ -425,12 +425,14 @@ namespace edm {
             statusOfModules[mod->id()].pathsOn_.push_back(p + offset);
           }
         }
-        status.nModules_ = uniqueModules.size() + 1;
+        status.nModules_ = uniqueModules.size();
 
         //add the EndPathStatusInserter at the end
         auto found = pathStatusInserterModuleLabelToModuleID.find(iPnC.endPaths()[p]);
-        assert(found != pathStatusInserterModuleLabelToModuleID.end());
-        status.modulesOnPath_.push_back(found->second);
+        if (found != pathStatusInserterModuleLabelToModuleID.end()) {
+          status.modulesOnPath_.push_back(found->second);
+          ++status.nModules_;
+        }
       }
     }
 
@@ -450,6 +452,11 @@ namespace edm {
     }
 
     unsigned int nPathsFinished = 0;
+    for (auto const& status : statusOfPaths) {
+      if (status.nModules_ == 0) {
+        ++nPathsFinished;
+      }
+    }
 
     //if a circular dependency exception happens, stackTrace has the info
     std::vector<unsigned int> stackTrace;
