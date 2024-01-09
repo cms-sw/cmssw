@@ -37,7 +37,8 @@ EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
     edm::LogImportant("OMTFReconstruction")
         << "EventCapture::EventCapture: no InputTag simTracksTag found" << std::endl;
 
-  if (this->candidateSimMuonMatcher)
+  //stubsSimHitsMatcher works only with the trackingParticle, because only them are stored in the pilup events
+  if (this->candidateSimMuonMatcher && edmCfg.exists("trackingParticleTag"))
     stubsSimHitsMatcher = std::make_unique<StubsSimHitsMatcher>(edmCfg, omtfConfig, muonGeometryTokens);
 }
 
@@ -58,7 +59,7 @@ void EventCapture::observeEventBegin(const edm::Event& event) {
     event.getByLabel(simTracksTag, simTraksHandle);
 
     for (unsigned int iSimTrack = 0; iSimTrack != simTraksHandle->size(); iSimTrack++) {
-      if (abs((*simTraksHandle.product())[iSimTrack].type()) == 13)
+      if (std::abs((*simTraksHandle.product())[iSimTrack].type()) == 13)
         simMuons.emplace_back(simTraksHandle, iSimTrack);
     }
   }
@@ -96,13 +97,15 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
 
   if (candidateSimMuonMatcher) {
     std::vector<MatchingResult> matchingResults = candidateSimMuonMatcher->getMatchingResults();
-    edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResults.size() " << matchingResults.size() << std::endl;
+    LogTrace("l1tOmtfEventPrint") << "matchingResults.size() " << matchingResults.size() << std::endl;
 
     //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
     for (auto& matchingResult : matchingResults) {
       //TODO choose a condition, to print the desired candidates
-      if (matchingResult.muonCand && matchingResult.muonCand->hwQual() >= 12 &&
-          matchingResult.muonCand->hwPt() > 38) {  //&& matchingResult.genPt < 20
+      if (matchingResult.muonCand)
+      //&& matchingResult.muonCand->hwQual() >= 12 &&
+      //matchingResult.muonCand->hwPt() > 38)
+      {  //&& matchingResult.genPt < 20
         dump = true;
 
         bool runStubsSimHitsMatcher = false;
@@ -113,18 +116,25 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                << std::setw(9) << trackingParticle->pt()  //<<" Beta "<<simMuon->momentum().Beta()
                << " eta " << std::setw(9) << trackingParticle->momentum().eta() << " phi " << std::setw(9)
                << trackingParticle->momentum().phi() << std::endl;
+        } else if (matchingResult.simTrack) {
+          runStubsSimHitsMatcher = true;
+          ostr << "SimMuon: eventId " << matchingResult.simTrack->eventId().event() << " pdgId " << std::setw(3)
+               << matchingResult.simTrack->type() << " pt " << std::setw(9)
+               << matchingResult.simTrack->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
+               << " eta " << std::setw(9) << matchingResult.simTrack->momentum().eta() << " phi " << std::setw(9)
+               << matchingResult.simTrack->momentum().phi() << std::endl;
         } else {
           ostr << "no simMuon ";
           runStubsSimHitsMatcher = true;
         }
         ostr << "matched to: " << std::endl;
         auto finalCandidate = matchingResult.muonCand;
-        ostr << " hwPt " << finalCandidate->hwPt() << " hwSign " << finalCandidate->hwSign() << " hwQual "
-             << finalCandidate->hwQual() << " hwEta " << std::setw(4) << finalCandidate->hwEta() << std::setw(4)
-             << " hwPhi " << finalCandidate->hwPhi() << "    eta " << std::setw(9)
-             << (finalCandidate->hwEta() * 0.010875) << " phi " << std::endl;
+        ostr << " hwPt " << finalCandidate->hwPt() << " hwUPt " << finalCandidate->hwPtUnconstrained() << " hwSign "
+             << finalCandidate->hwSign() << " hwQual " << finalCandidate->hwQual() << " hwEta " << std::setw(4)
+             << finalCandidate->hwEta() << std::setw(4) << " hwPhi " << finalCandidate->hwPhi() << "    eta "
+             << std::setw(9) << (finalCandidate->hwEta() * 0.010875) << " phi " << std::endl;
 
-        if (runStubsSimHitsMatcher)
+        if (stubsSimHitsMatcher && runStubsSimHitsMatcher)
           stubsSimHitsMatcher->match(iEvent, matchingResult.muonCand, matchingResult.procMuon, ostr);
       }
     }
@@ -134,8 +144,8 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     bool wasSimMuInOmtfNeg = false;
     for (auto& simMuon : simMuons) {
       //TODO choose a condition, to print the desired events
-      if (simMuon->eventId().event() == 0 && abs(simMuon->momentum().eta()) > 0.82 &&
-          abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 3.) {
+      if (simMuon->eventId().event() == 0 && std::abs(simMuon->momentum().eta()) > 0.82 &&
+          std::abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 3.) {
         ostr << "SimMuon: eventId " << simMuon->eventId().event() << " pdgId " << std::setw(3) << simMuon->type()
              << " pt " << std::setw(9) << simMuon->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
              << " eta " << std::setw(9) << simMuon->momentum().eta() << " phi " << std::setw(9)
@@ -208,11 +218,12 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
       std::bitset<18> layerHitBits(layerHits);
 
       edm::LogVerbatim("l1tOmtfEventPrint")
-          << " bx " << bx << " hwPt " << finalCandidate.hwPt() << " hwSign " << finalCandidate.hwSign() << " hwQual "
-          << finalCandidate.hwQual() << " hwEta " << std::setw(4) << finalCandidate.hwEta() << std::setw(4) << " hwPhi "
-          << finalCandidate.hwPhi() << "    eta " << std::setw(9) << (finalCandidate.hwEta() * 0.010875) << " phi "
-          << std::setw(9) << globalPhi << " " << layerHitBits << " processor "
-          << OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType()) << std::endl;
+          << " bx " << bx << " hwPt " << finalCandidate.hwPt() << " hwUPt " << finalCandidate.hwPtUnconstrained()
+          << " hwSign " << finalCandidate.hwSign() << " hwQual " << finalCandidate.hwQual() << " hwEta " << std::setw(4)
+          << finalCandidate.hwEta() << std::setw(4) << " hwPhi " << finalCandidate.hwPhi() << "    eta " << std::setw(9)
+          << (finalCandidate.hwEta() * 0.010875) << " phi " << std::setw(9) << globalPhi << " " << layerHitBits
+          << " processor " << OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType(), omtfConfig)
+          << std::endl;
 
       for (auto& trackAddr : finalCandidate.trackAddress()) {
         if (trackAddr.first >= 10)
@@ -225,7 +236,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
   edm::LogVerbatim("l1tOmtfEventPrint") << std::endl;
 
   for (unsigned int iProc = 0; iProc < inputInProcs.size(); iProc++) {
-    OmtfName board(iProc);
+    OmtfName board(iProc, omtfConfig);
 
     std::ostringstream ostrInput;
     if (inputInProcs[iProc]) {
@@ -238,7 +249,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
             layerFired = true;
 
             auto globalPhiRad = omtfConfig->procHwPhiToGlobalPhi(
-                stub->phiHw, OMTFinputMaker::getProcessorPhiZero(omtfConfig, iProc % 6));
+                stub->phiHw, OMTFinputMaker::getProcessorPhiZero(omtfConfig, iProc % omtfConfig->nProcessors()));
             ostrInput << (*stub) << " globalPhiRad " << globalPhiRad << std::endl;
           }
           if (layerFired)
@@ -263,7 +274,11 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
         if (algoMuon->isValid()) {
           edm::LogVerbatim("l1tOmtfEventPrint")
               << board.name() << " " << *algoMuon << " RefHitNum " << algoMuon->getRefHitNumber() << std::endl;
-          edm::LogVerbatim("l1tOmtfEventPrint") << algoMuon->getGpResult() << std::endl;
+          edm::LogVerbatim("l1tOmtfEventPrint") << algoMuon->getGpResultConstr();
+          if (algoMuon->getGpResultUnconstr().isValid())
+            edm::LogVerbatim("l1tOmtfEventPrint")
+                << "GpResultUnconstr " << algoMuon->getGoldenPaternUnconstr()->key() << "\n"
+                << algoMuon->getGpResultUnconstr() << std::endl;
 
           if (goldenPatterns)  //watch out with the golden patterns
             for (auto& gp : *goldenPatterns) {
@@ -286,6 +301,111 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
       for (auto& gbCandidate : gbCandidatesInProcs[iProc])
         if (gbCandidate->isValid())
           edm::LogVerbatim("l1tOmtfEventPrint") << board.name() << " " << *gbCandidate << std::endl;
+
+      {
+        edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl << "\ngb_test " << board.name() << std::endl;
+        for (auto& algoMuon : algoMuonsInProcs[iProc]) {
+          edm::LogVerbatim("l1tOmtfEventPrint")
+              << "     (" << std::setw(5) << algoMuon->getHwPatternNumConstr() << "," << std::setw(5)
+              << algoMuon->getHwPatternNumUnconstr() << ","
+
+              << std::setw(5) << algoMuon->getGpResultConstr().getFiredLayerCnt() << "," << std::setw(5)
+              << algoMuon->getGpResultUnconstr().getFiredLayerCnt()
+              << ","
+
+              //in the FW there is LSB added for some reason, therefore we multiply by 2 here
+              << std::setw(6) << algoMuon->getGpResultConstr().getFiredLayerBits() * 2 << "," << std::setw(6)
+              << algoMuon->getGpResultUnconstr().getFiredLayerBits() * 2 << ","
+
+              << std::setw(5) << algoMuon->getGpResultConstr().getPdfSum() << "," << std::setw(5)
+              << algoMuon->getGpResultUnconstr().getPdfSumUnconstr() << ","
+
+              << std::setw(5) << algoMuon->getGpResultConstr().getPhi() << "," << std::setw(5)
+              << algoMuon->getGpResultUnconstr().getPhi()
+              << ","
+
+              //<<std::setw(5)<<OMTFConfiguration::eta2Bits(std::abs(algoMuon->getEtaHw()))<<", "
+              << std::setw(5) << algoMuon->getEtaHw()
+              << ", "
+
+              //<<std::setw(5)<<omtfConfig->getRefToLogicNumber()[algoMuon->getRefLayer()]<<""
+              << std::setw(5) << algoMuon->getRefLayer() << ""
+
+              << "), " << std::endl;
+        }
+        edm::LogVerbatim("l1tOmtfEventPrint") << "\ngbCandidates" << std::endl;
+        for (auto& gbCandidate : gbCandidatesInProcs[iProc])
+          edm::LogVerbatim("l1tOmtfEventPrint")
+              << "     (" << std::setw(5) << gbCandidate->getPtConstr() << "," << std::setw(5)
+              << gbCandidate->getPtUnconstr() << ","
+
+              << std::setw(5) << gbCandidate->getGpResultConstr().getFiredLayerCnt() << "," << std::setw(5)
+              << gbCandidate->getGpResultUnconstr().getFiredLayerCnt()
+              << ","
+
+              //in the FW there is LSB added for some reason, therefore we multiply by 2 here
+              << std::setw(6) << gbCandidate->getGpResultConstr().getFiredLayerBits() * 2 << "," << std::setw(6)
+              << gbCandidate->getGpResultUnconstr().getFiredLayerBits() * 2 << ","
+
+              << std::setw(5) << gbCandidate->getGpResultConstr().getPdfSum() << "," << std::setw(5)
+              << gbCandidate->getGpResultUnconstr().getPdfSumUnconstr() << ","
+
+              << std::setw(5) << gbCandidate->getGpResultConstr().getPhi() << "," << std::setw(5)
+              << gbCandidate->getGpResultUnconstr().getPhi()
+              << ","
+
+              //<<std::setw(5)<<OMTFConfiguration::eta2Bits(std::abs(gbCandidate->getEtaHw()))<<", "
+              << std::setw(5) << gbCandidate->getEtaHw()
+              << ", "
+
+              //<<std::setw(5)<<omtfConfig->getRefToLogicNumber()[gbCandidate->getRefLayer()]<<""
+              << std::setw(5) << gbCandidate->getRefLayer() << ""
+
+              << "), "
+              << " -- getFiredLayerBits " << std::setw(5) << gbCandidate->getGpResultConstr().getFiredLayerBits()
+              << std::endl;
+
+        edm::LogVerbatim("l1tOmtfEventPrint") << "finalCandidates " << std::endl;
+
+        std::ostringstream ostr;
+        if (finalCandidates->size(0) > 0) {
+          int iMu = 1;
+          for (auto finalCandidateIt = finalCandidates->begin(0); finalCandidateIt != finalCandidates->end(0);
+               finalCandidateIt++) {
+            auto& finalCandidate = *finalCandidateIt;
+
+            auto omtfName = OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType(), omtfConfig);
+
+            if (omtfName == board.name()) {
+              int layerHits = (int)finalCandidate.trackAddress().at(0);
+              std::bitset<18> layerHitBits(layerHits);
+
+              unsigned int trackAddr = finalCandidate.trackAddress().at(0);
+              unsigned int uPt = finalCandidate.hwPtUnconstrained();
+              //if(uPt == 0) uPt = 5; //TODO remove when fixed in the FW
+              trackAddr = (uPt << 18) + trackAddr;
+
+              ostr << "M" << iMu << ":" << std::setw(4) << finalCandidate.hwPt() << "," << std::setw(4)
+                   << finalCandidate.hwQual() << "," << std::setw(4) << finalCandidate.hwPhi() << "," << std::setw(4)
+                   << std::abs(finalCandidate.hwEta())
+                   << ","
+                   //<<std::setw(10)<< finalCandidate.trackAddress().at(0)<<""
+                   << std::setw(10) << trackAddr << "," << std::setw(4) << 0 << ","                 //Halo
+                   << std::setw(4) << finalCandidate.hwSign() << "," << std::setw(4) << 1 << "; ";  //ChValid
+              //<< " -- uPt " << std::setw(10) << uPt << " firedLayers " << finalCandidate.trackAddress().at(0);
+
+              //<<std::setw(5)<< finalCandidate.hwPtUnconstrained()<<","
+
+              //<<std::setw(9)<< layerHitBits<<","
+              //<<std::setw(6)<< layerHits<<","
+              iMu++;
+            }
+          }
+          for (; iMu <= 3; iMu++)
+            ostr << "M" << iMu << ":   0,   0,   0,   0,         0,   0,   0,   0; ";
+          edm::LogVerbatim("l1tOmtfEventPrint") << ostr.str() << std::endl;
+        }
+      }
 
       edm::LogVerbatim("l1tOmtfEventPrint") << std::endl;
     }
