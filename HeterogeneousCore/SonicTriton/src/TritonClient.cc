@@ -88,11 +88,13 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
     int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
     if (fileDescriptor < 0)
-      throw TritonException("LocalFailure") << "TritonClient(): unable to open local model config: " << localModelConfigPath;
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to open local model config: " << localModelConfigPath;
     google::protobuf::io::FileInputStream localModelConfigInput(fileDescriptor);
     localModelConfigInput.SetCloseOnDelete(true);
     if (!google::protobuf::TextFormat::Parse(&localModelConfigInput, &localModelConfig))
-      throw TritonException("LocalFailure") << "TritonClient(): unable to parse local model config: " << localModelConfigPath;
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to parse local model config: " << localModelConfigPath;
   }
 
   //check batch size limitations (after i/o setup)
@@ -111,16 +113,16 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
                         "TritonClient(): unable to get model config");
   inference::ModelConfig remoteModelConfig(modelConfigResponse.config());
 
-  std::map<std::string,std::array<std::string,2>> checksums;
+  std::map<std::string, std::array<std::string, 2>> checksums;
   size_t fileCounter = 0;
-  for (const auto& modelConfig: {localModelConfig, remoteModelConfig}) {
+  for (const auto& modelConfig : {localModelConfig, remoteModelConfig}) {
     const auto& agents = modelConfig.model_repository_agents().agents();
     for (const auto& agent : agents) {
       if (agent.name() == "checksum") {
         const auto& params = agent.parameters();
-        for (const auto& [key, val]: params) {
+        for (const auto& [key, val] : params) {
           // only check the requested version
-          if (key.compare(0, options_[0].model_version_.size()+1, options_[0].model_version_+"/")==0)
+          if (key.compare(0, options_[0].model_version_.size() + 1, options_[0].model_version_ + "/") == 0)
             checksums[key][fileCounter] = val;
         }
         break;
@@ -129,12 +131,13 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     ++fileCounter;
   }
   std::vector<std::string> incorrect;
-  for (const auto& [key, val]: checksums) {
+  for (const auto& [key, val] : checksums) {
     if (checksums[key][0] != checksums[key][1])
       incorrect.push_back(key);
   }
   if (!incorrect.empty())
-    throw TritonException("ModelVersioning") << "The following files have incorrect checksums on the remote server: " << triton_utils::printColl(incorrect, ", ");
+    throw TritonException("ModelVersioning") << "The following files have incorrect checksums on the remote server: "
+                                             << triton_utils::printColl(incorrect, ", ");
 
   //get model info
   inference::ModelMetadataResponse modelMetadata;
