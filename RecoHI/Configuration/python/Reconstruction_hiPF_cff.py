@@ -54,6 +54,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
                   hbheRecHitsTag = cms.InputTag("hbhereco"),
                   maxSeverityHB = cms.int32(9),
                   maxSeverityHE = cms.int32(9),
+                  usePFThresholdsFromDB = cms.bool(True),
                   superClustersArePF = cms.bool(True) ),
     # all secondary track importers
     cms.PSet( importerName = cms.string("GeneralTracksImporter"),
