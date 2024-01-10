@@ -1069,8 +1069,8 @@ void L1NNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd0.add<std::string>("method", "BDT");
     {
       edm::ParameterSetDescription vpsd2;
-      vpsd2.add<std::string>("name", "eMax");
-      vpsd2.add<std::string>("value", "eMax()");
+      vpsd2.add<std::string>("name");
+      vpsd2.add<std::string>("value");
       std::vector<edm::ParameterSet> temp2;
       temp2.reserve(5);
       {
