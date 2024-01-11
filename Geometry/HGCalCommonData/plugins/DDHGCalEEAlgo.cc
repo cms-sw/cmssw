@@ -413,15 +413,20 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
           DDName name = DDName(DDSplit(wafers_[type]).first, DDSplit(wafers_[type]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
-	  static const std::vector<std::string> thickstr = {"h120", "l200", "l300", "h200"};
-	  char posit[20];
-	  sprintf (posit, "%8.3f %8.3f", xpos, ypos);
-	  double phi = convertRadToDeg(std::atan2(ypos, -xpos));
-	  if (phi < 0) 
-	    phi += 360.0;
-	  int cass = (layer < 7) ? static_cast<int>(phi / 60.0) : static_cast<int>(phi / 30.0);
-	  edm::LogVerbatim("HGCalGeomX") << std::setw(2) << layer << " " << std::setw(2) << HGCalTypes::WaferFull << " " << thickstr[type] << " " << posit << " " << std::setw(2) << HGCalTypes::WaferOrient0 << " " << std::setw(2) << u << " " << std::setw(2) << v << std::setw(2) << cass;
-	  edm::LogVerbatim("HGCalGeom") << " DDEHGCalEEAlgo " << name << " Number " << copy << " u|v " << u << ":" << v << " Poaition " << xpos << ":" << ypos << ":" << zpos << " Angle " << convertRadToDeg(std::atan2(ypos, -xpos));
+          static const std::vector<std::string> thickstr = {"h120", "l200", "l300", "h200"};
+          char posit[20];
+          sprintf(posit, "%8.3f %8.3f", xpos, ypos);
+          double phi = convertRadToDeg(std::atan2(ypos, -xpos));
+          if (phi < 0)
+            phi += 360.0;
+          int cass = (layer < 7) ? static_cast<int>(phi / 60.0) : static_cast<int>(phi / 30.0);
+          edm::LogVerbatim("HGCalGeomX") << std::setw(2) << layer << " " << std::setw(2) << HGCalTypes::WaferFull << " "
+                                         << thickstr[type] << " " << posit << " " << std::setw(2)
+                                         << HGCalTypes::WaferOrient0 << " " << std::setw(2) << u << " " << std::setw(2)
+                                         << v << std::setw(2) << cass;
+          edm::LogVerbatim("HGCalGeom") << " DDEHGCalEEAlgo " << name << " Number " << copy << " u|v " << u << ":" << v
+                                        << " Poaition " << xpos << ":" << ypos << ":" << zpos << " Angle "
+                                        << convertRadToDeg(std::atan2(ypos, -xpos));
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << " DDHGCalEEAlgo: " << name << " number " << copy << " positioned in "
                                         << glog.ddname() << " at " << tran << " with no rotation";
