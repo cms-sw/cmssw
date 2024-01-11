@@ -74,7 +74,9 @@ namespace l1ct {
 #ifndef __SYNTHESIS__
       assert(hwId.neutral());
 #endif
-      return puppiWgt_t(hwData(BITS_PUPPIW_START + puppiWgt_t::width - 1, BITS_PUPPIW_START));
+      puppiWgt_t ret;
+      ret(puppiWgt_t::width - 1, 0) = hwData(BITS_PUPPIW_START + puppiWgt_t::width - 1, BITS_PUPPIW_START);
+      return ret;
     }
 
     inline void setHwPuppiW(puppiWgt_t w) {
@@ -84,11 +86,11 @@ namespace l1ct {
       hwData(BITS_PUPPIW_START + puppiWgt_t::width - 1, BITS_PUPPIW_START) = w(puppiWgt_t::width - 1, 0);
     }
 
-    inline puppiWgt_t hwEmID() const {
+    inline emid_t hwEmID() const {
 #ifndef __SYNTHESIS__
       assert(hwId.neutral());
 #endif
-      return puppiWgt_t(hwData(BITS_EMID_START + emid_t::width - 1, BITS_EMID_START));
+      return emid_t(hwData(BITS_EMID_START + emid_t::width - 1, BITS_EMID_START));
     }
 
     inline void setHwEmID(emid_t w) {
