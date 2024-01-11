@@ -16,6 +16,7 @@
 #endif
 
 using namespace l1ct;
+using namespace linpuppi;
 
 l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
                                          unsigned int nIn,
@@ -220,16 +221,15 @@ void l1ct::LinPuppiEmulator::linpuppi_chs_ref(const PFRegionEmu &region,
                                               const std::vector<PFChargedObjEmu> &pfch /*[nTrack]*/,
                                               std::vector<PuppiObjEmu> &outallch /*[nTrack]*/) const {
   const unsigned int nTrack = std::min<unsigned int>(nTrack_, pfch.size());
+  const unsigned int nVtx = std::min<unsigned int>(nVtx_, pv.size());
   outallch.resize(nTrack);
   for (unsigned int i = 0; i < nTrack; ++i) {
     int pZ0 = pfch[i].hwZ0;
     int z0diff = -99999;
-    for (unsigned int j = 0; j < nVtx_; ++j) {
-      if (j < pv.size()) {
-        int pZ0Diff = pZ0 - pv[j].hwZ0;
-        if (std::abs(z0diff) > std::abs(pZ0Diff))
-          z0diff = pZ0Diff;
-      }
+    for (unsigned int j = 0; j < nVtx; ++j) {
+      int pZ0Diff = pZ0 - pv[j].hwZ0;
+      if (std::abs(z0diff) > std::abs(pZ0Diff))
+        z0diff = pZ0Diff;
     }
     bool accept = pfch[i].hwPt != 0;
     if (!fakePuppi_)
@@ -278,107 +278,90 @@ unsigned int l1ct::LinPuppiEmulator::find_ieta(const PFRegionEmu &region, eta_t 
 }
 
 std::pair<pt_t, puppiWgt_t> l1ct::LinPuppiEmulator::sum2puppiPt_ref(
-    uint64_t sum, pt_t pt, unsigned int ieta, bool isEM, int icand) const {
-  const int sum_bitShift = LINPUPPI_sum_bitShift;
-  const int x2_bits = LINPUPPI_x2_bits;                  // decimal bits the discriminator values
-  const int alpha_bits = LINPUPPI_alpha_bits;            // decimal bits of the alpha values
-  const int alphaSlope_bits = LINPUPPI_alphaSlope_bits;  // decimal bits of the alphaSlope values
-  const int ptSlope_bits = LINPUPPI_ptSlope_bits;        // decimal bits of the ptSlope values
-  const int weight_bits = LINPUPPI_weight_bits;
+    sumTerm_t sum, pt_t pt, unsigned int ieta, bool isEM, int icand) const {
+  const alpha_t logOffset = std::log2(linpuppi::PT2DR2_LSB) - SUM_BITSHIFT;
+  const ptSlope_t ptSlopeNe = ptSlopeNe_[ieta];
+  const ptSlope_t ptSlopePh = ptSlopePh_[ieta];
+  const l1ct::pt_t ptZeroNe = ptZeroNe_[ieta];
+  const l1ct::pt_t ptZeroPh = ptZeroPh_[ieta];
+  const x2_t alphaCrop = alphaCrop_[ieta];
+  // we put a log(2) in all alphaSlopes here since we compute alpha as log2(sum) instead of ln(sum)
+  const alphaSlope_t alphaSlopeNe = alphaSlope_[ieta] * std::log(2.);
+  const alphaSlope_t alphaSlopePh = alphaSlope_[ieta] * std::log(2.);
+  const alpha_t alphaZeroNe = alphaZero_[ieta] / std::log(2.);
+  const alpha_t alphaZeroPh = alphaZero_[ieta] / std::log(2.);
+  const x2_t priorNe = priorNe_[ieta];
+  const x2_t priorPh = priorPh_[ieta];
 
-  const int ptSlopeNe = ptSlopeNe_[ieta] * (1 << ptSlope_bits);
-  const int ptSlopePh = ptSlopePh_[ieta] * (1 << ptSlope_bits);
-  const int ptZeroNe = ptZeroNe_[ieta] / LINPUPPI_ptLSB;  // in pt scale
-  const int ptZeroPh = ptZeroPh_[ieta] / LINPUPPI_ptLSB;  // in pt scale
-  const int alphaCrop = alphaCrop_[ieta] * (1 << x2_bits);
-  const int alphaSlopeNe =
-      alphaSlope_[ieta] * std::log(2.) *
-      (1 << alphaSlope_bits);  // we put a log(2) here since we compute alpha as log2(sum) instead of ln(sum)
-  const int alphaSlopePh = alphaSlope_[ieta] * std::log(2.) * (1 << alphaSlope_bits);
-  const int alphaZeroNe = alphaZero_[ieta] / std::log(2.) * (1 << alpha_bits);
-  const int alphaZeroPh = alphaZero_[ieta] / std::log(2.) * (1 << alpha_bits);
-  const int priorNe = priorNe_[ieta] * (1 << x2_bits);
-  const int priorPh = priorPh_[ieta] * (1 << x2_bits);
-
-  // -- simplest version
-  //int alpha = sum > 0 ? int(std::log2(float(sum) * LINPUPPI_pt2DR2_scale / (1<<sum_bitShift)) * (1 << alpha_bits) + 0.5) :  0;
-  // -- re-written bringing terms out of the log
-  //int alpha = sum > 0 ? int(std::log2(float(sum))*(1 << alpha_bits) + (std::log2(LINPUPPI_pt2DR2_scale) - sum_bitShift)*(1 << alpha_bits) + 0.5 ) :  0;
-  // -- re-written for a LUT implementation of the log2
+  // emulate computing
+  //    alpha = log2(sum)
+  //    x2a = alphaSlope*(alpha - alphaZero)
+  // we use a 10-bit LUT for the log2(sum), and to save firmware resources we
+  // also pack the computation of x2a in the same LUT.
+  // In this emulator, however, we also compute the separately alpha, as it is
+  // useful for debugging and comparison to the floating-point emulator.
   const int log2lut_bits = 10;
-  int alpha = 0;
-  uint64_t logarg = sum;
+  alpha_t alpha = 0;
+  uint64_t logarg = sum.bits_to_uint64();
   if (logarg > 0) {
-    alpha = int((std::log2(LINPUPPI_pt2DR2_scale) - sum_bitShift) * (1 << alpha_bits) + 0.5);
+    alpha = logOffset;
     while (logarg >= (1 << log2lut_bits)) {
       logarg = logarg >> 1;
-      alpha += (1 << alpha_bits);
+      alpha += 1;
     }
-    alpha += int(
-        std::log2(float(logarg)) *
-        (1
-         << alpha_bits));  // the maximum value of this term is log2lut_bits * (1 << alpha_bits) ~ 10*16 = 160 => fits in ap_uint<4+alpha_bits>
+    alpha += alpha_t(std::log2(float(logarg)));
   }
-  int alphaZero = (isEM ? alphaZeroPh : alphaZeroNe);
-  int alphaSlope = (isEM ? alphaSlopePh : alphaSlopeNe);
-  int x2a = std::min(std::max(alphaSlope * (alpha - alphaZero) >> (alphaSlope_bits + alpha_bits - x2_bits), -alphaCrop),
-                     alphaCrop);
-
-  // -- re-written to fit in a single LUT
-  int x2a_lut = -alphaSlope * alphaZero;
-  logarg = sum;
+  alpha_t alphaZero = (isEM ? alphaZeroPh : alphaZeroNe);
+  alphaSlope_t alphaSlope = (isEM ? alphaSlopePh : alphaSlopeNe);
+  x2_t x2a = -alphaSlope * alphaZero;
+  logarg = sum.bits_to_uint64();
   if (logarg > 0) {
-    x2a_lut += alphaSlope * int((std::log2(LINPUPPI_pt2DR2_scale) - sum_bitShift) * (1 << alpha_bits) + 0.5);
+    x2a += alphaSlope * logOffset;
     while (logarg >= (1 << log2lut_bits)) {
       logarg = logarg >> 1;
-      x2a_lut += alphaSlope * (1 << alpha_bits);
+      x2a += alphaSlope;
     }
-    x2a_lut += alphaSlope * int(std::log2(float(logarg)) * (1 << alpha_bits));
-    /*if (in <= 3) dbgPrintf("ref [%d]:  x2a(sum = %9lu): logarg = %9lu, sumterm = %9d, table[logarg] = %9d, ret pre-crop = %9d\n", 
-          in, sum, logarg, 
-          alphaSlope * int((std::log2(LINPUPPI_pt2DR2_scale) - sum_bitShift)*(1 << alpha_bits) + 0.5) - alphaSlope * alphaZero,
-          alphaSlope * int(std::log2(float(logarg))*(1 << alpha_bits)), 
-          x2a_lut); */
-  } else {
-    //if (in <= 3) dbgPrintf("ref [%d]:  x2a(sum = %9lu): logarg = %9lu, ret pre-crop = %9d\n",
-    //        in, sum, logarg, x2a_lut);
+    x2a += alphaSlope * alpha_t(std::log2(float(logarg)));
   }
-  x2a_lut = std::min(std::max(x2a_lut >> (alphaSlope_bits + alpha_bits - x2_bits), -alphaCrop), alphaCrop);
-  assert(x2a_lut == x2a);
+  /* // debug printout, can be useful to study ranges and precisions for LUTs and coefficients
+    dbgPrintf("ref:  x2a(sum = %10.5f, raw = %9lu): logarg = %9lu, sumterm = %.6f, table[logarg] = %d = %.6f, ret pre-crop = %d = %.6f\n", 
+          sum.to_float(), sum.bits_to_uint64(), logarg, 
+          (alphaSlope * (logOffset - alphaZero)).to_float(),
+          (alphaSlope * alpha_t(std::log2(float(logarg)))).V.to_int(), 
+          (alphaSlope * alpha_t(std::log2(float(logarg)))).to_float(), 
+          x2a.V.to_int(), x2a.to_float());
+  */
+  x2a = std::min(std::max<x2_t>(x2a, -alphaCrop), alphaCrop);
 
-  int ptZero = (isEM ? ptZeroPh : ptZeroNe);
-  int ptSlope = (isEM ? ptSlopePh : ptSlopeNe);
-  int x2pt = ptSlope * (Scales::ptToInt(pt) - ptZero) >> (ptSlope_bits + 2 - x2_bits);
+  l1ct::pt_t ptZero = (isEM ? ptZeroPh : ptZeroNe);
+  ptSlope_t ptSlope = (isEM ? ptSlopePh : ptSlopeNe);
+  x2_t x2pt = ptSlope * (pt - ptZero);
 
-  int prior = (isEM ? priorPh : priorNe);
+  x2_t prior = (isEM ? priorPh : priorNe);
 
-  int x2 = x2a + x2pt - prior;
+  x2_t x2 = x2a + x2pt - prior;
 
-  int weight =
-      std::min<int>(1.0 / (1.0 + std::exp(-float(x2) / (1 << x2_bits))) * (1 << weight_bits) + 0.5, (1 << weight_bits));
-
-  pt_t ptPuppi = Scales::makePt((Scales::ptToInt(pt) * weight) >> weight_bits);
+  puppiWgt_t weight = 1.0 / (1.0 + std::exp(-x2.to_float()));
+  typedef ap_fixed<pt_t::width, pt_t::iwidth, AP_RND, AP_SAT> pt_rounding_t;
+  pt_t ptPuppi = pt_rounding_t(pt * weight);
 
   if (debug_)
     dbgPrintf(
-        "ref candidate %02d pt %7.2f  em %1d  ieta %1d: alpha %+7.2f   x2a %+5d = %+7.3f  x2pt %+5d = %+7.3f   x2 %+5d "
-        "= %+7.3f  --> weight %4d = %.4f  puppi pt %7.2f\n",
+        "ref candidate %02d pt %7.2f  em %1d  ieta %1d: sum %10.4f alpha %+7.2f   x2a %+7.3f  x2pt %+7.3f   x2 %+7.3f  "
+        "--> weight %.4f  puppi pt %7.2f\n",
         icand,
         Scales::floatPt(pt),
         int(isEM),
         ieta,
-        std::max<float>(alpha / float(1 << alpha_bits) * std::log(2.), -99.99f),
-        x2a,
-        x2a / float(1 << x2_bits),
-        x2pt,
-        x2pt / float(1 << x2_bits),
-        x2,
-        x2 / float(1 << x2_bits),
-        weight,
-        weight / float(1 << weight_bits),
+        sum.to_float(),
+        alpha.to_float() * std::log(2.),
+        x2a.to_float(),
+        x2pt.to_float(),
+        x2.to_float(),
+        weight.to_float(),
         Scales::floatPt(ptPuppi));
 
-  return std::make_pair(ptPuppi, puppiWgt_t(weight));
+  return std::make_pair(ptPuppi, weight);
 }
 
 void l1ct::LinPuppiEmulator::fwdlinpuppi_ref(const PFRegionEmu &region,
@@ -387,9 +370,7 @@ void l1ct::LinPuppiEmulator::fwdlinpuppi_ref(const PFRegionEmu &region,
                                              std::vector<PuppiObjEmu> &outallne /*[nIn]*/,
                                              std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned int>(nIn_, caloin.size());
-  const int PTMAX2 = (iptMax_ * iptMax_);
-
-  const int sum_bitShift = LINPUPPI_sum_bitShift;
+  const unsigned int PTMAX2 = (iptMax_ * iptMax_);
 
   outallne_nocut.resize(nIn);
   outallne.resize(nIn);
@@ -398,27 +379,17 @@ void l1ct::LinPuppiEmulator::fwdlinpuppi_ref(const PFRegionEmu &region,
     outallne[in].clear();
     if (caloin[in].hwPt == 0)
       continue;
-    uint64_t sum = 0;  // 2 ^ sum_bitShift times (int pt^2)/(int dr2)
+    sumTerm_t sum = 0;  // (pt^2)/(dr2)
     for (unsigned int it = 0; it < nIn; ++it) {
       if (it == in || caloin[it].hwPt == 0)
         continue;
-      unsigned int dr2 = dr2_int(
-          caloin[it].hwEta, caloin[it].hwPhi, caloin[in].hwEta, caloin[in].hwPhi);  // if dr is inside puppi cone
-      if (dr2 <= dR2Max_) {
-        ap_uint<9> dr2short = (dr2 >= dR2Min_ ? dr2 : dR2Min_) >> 5;  // reduce precision to make divide LUT cheaper
-        uint64_t pt2 = Scales::ptToInt(caloin[it].hwPt) * Scales::ptToInt(caloin[it].hwPt);
-        uint64_t term = std::min<uint64_t>(pt2 >> 5, PTMAX2 >> 5) * ((1 << sum_bitShift) / int(dr2short));
-        //      dr2short >= (dR2Min_ >> 5) = 2
-        //      num <= (PTMAX2 >> 5) << sum_bitShift = (2^11) << 15 = 2^26
-        //      ==> term <= 2^25
-        //dbgPrintf("ref term [%2d,%2d]: dr = %8d  pt2_shift = %8lu  term = %12lu\n", in, it, dr2, std::min<uint64_t>(pt2 >> 5, PTMAX2 >> 5), term);
-        assert(uint64_t(PTMAX2 << (sum_bitShift - 5)) / (dR2Min_ >> 5) <= (1 << 25));
-        assert(term < (1 << 25));
+      unsigned int dr2 = dr2_int(caloin[it].hwEta, caloin[it].hwPhi, caloin[in].hwEta, caloin[in].hwPhi);
+      if (dr2 <= dR2Max_) {                                             // if dr is inside puppi cone
+        unsigned int dr2short = (dr2 >= dR2Min_ ? dr2 : dR2Min_) >> 5;  // reduce precision to make divide LUT cheaper
+        unsigned int pt = caloin[it].intPt(), pt2 = pt * pt;
+        dr2inv_t dr2inv = 1.0f / float(dr2short);
+        sumTerm_t term = std::min(pt2 >> 5, PTMAX2 >> 5) * dr2inv;
         sum += term;
-        //dbgPrintf("    pT cand %5.1f    pT item %5.1f    dR = %.3f   term = %.1f [dbl] = %lu [int]\n",
-        //            caloin[in].floatPt(), caloin[it].floatPt(), std::sqrt(dr2*LINPUPPI_DR2LSB),
-        //            double(std::min<uint64_t>(pt2 >> 5, 131071)<<15)/double(std::max<int>(dr2,dR2Min_) >> 5),
-        //            term);
       }
     }
     unsigned int ieta = find_ieta(region, caloin[in].hwEta);
@@ -441,9 +412,7 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu &region,
                                           std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned>(nIn_, pfallne.size());
   const unsigned int nTrack = std::min<unsigned int>(nTrack_, track.size());
-  const int PTMAX2 = (iptMax_ * iptMax_);
-
-  const int sum_bitShift = LINPUPPI_sum_bitShift;
+  const unsigned int PTMAX2 = (iptMax_ * iptMax_);
 
   outallne_nocut.resize(nIn);
   outallne.resize(nIn);
@@ -452,7 +421,7 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu &region,
     outallne[in].clear();
     if (pfallne[in].hwPt == 0)
       continue;
-    uint64_t sum = 0;  // 2 ^ sum_bitShift times (int pt^2)/(int dr2)
+    sumTerm_t sum = 0;  // (pt^2)/(dr2)
     for (unsigned int it = 0; it < nTrack; ++it) {
       if (track[it].hwPt == 0)
         continue;
@@ -467,23 +436,23 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu &region,
       }
       if (std::abs(pZMin) > int(dzCut_))
         continue;
-      unsigned int dr2 = dr2_int(
-          pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi);  // if dr is inside puppi cone
-      if (dr2 <= dR2Max_) {
-        ap_uint<9> dr2short = (dr2 >= dR2Min_ ? dr2 : dR2Min_) >> 5;  // reduce precision to make divide LUT cheaper
-        uint64_t pt2 = Scales::ptToInt(track[it].hwPt) * Scales::ptToInt(track[it].hwPt);
-        uint64_t term = std::min<uint64_t>(pt2 >> 5, PTMAX2 >> 5) * ((1 << sum_bitShift) / int(dr2short));
-        //      dr2short >= (dR2Min_ >> 5) = 2
-        //      num <= (PTMAX2 >> 5) << sum_bitShift = (2^11) << 15 = 2^26
-        //      ==> term <= 2^25
-        //dbgPrintf("ref term [%2d,%2d]: dr = %8d  pt2_shift = %8lu  term = %12lu\n", in, it, dr2, std::min<uint64_t>(pt2 >> 5, PTMAX2 >> 5), term);
-        assert(uint64_t(PTMAX2 << (sum_bitShift - 5)) / (dR2Min_ >> 5) <= (1 << 25));
-        assert(term < (1 << 25));
+      unsigned int dr2 = dr2_int(pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi);
+      if (dr2 <= dR2Max_) {                                             // if dr is inside puppi cone
+        unsigned int dr2short = (dr2 >= dR2Min_ ? dr2 : dR2Min_) >> 5;  // reduce precision to make divide LUT cheaper
+        unsigned int pt = track[it].intPt(), pt2 = pt * pt;
+        dr2inv_t dr2inv = 1.0f / float(dr2short);
+        sumTerm_t term = std::min(pt2 >> 5, PTMAX2 >> 5) * dr2inv;
+        /* // printout useful for comparing internals steps of computation to the ones done in the firmware code
+        dbgPrintf("cand pT %5.1f eta %+6.2f ref term %2d %2d: dr = %8d  pt2_shift = %8lu  term = %12lu  apterm = %12.6f\n",
+                  pfallne[it].floatPt(),
+                  region.floatGlbEtaOf(pfallne[it]),
+                  in,
+                  it,
+                  dr2,
+                  std::min<uint64_t>(pt2 >> 5, PTMAX2 >> 5),
+                  term.to_float());
+        */
         sum += term;
-        //dbgPrintf("    pT cand %5.1f    pT item %5.1f    dR = %.3f   term = %.1f [dbl] = %lu [int]\n",
-        //            pfallne[in].floatPt(), track[it].floatPt(), std::sqrt(dr2*LINPUPPI_DR2LSB),
-        //            double(std::min<uint64_t>(pt2 >> 5, 131071)<<15)/double(std::max<int>(dr2,dR2Min_) >> 5),
-        //            term);
       }
     }
 
@@ -567,17 +536,15 @@ void l1ct::LinPuppiEmulator::fwdlinpuppi_flt(const PFRegionEmu &region,
     for (unsigned int it = 0; it < nIn; ++it) {
       if (it == in || caloin[it].hwPt == 0)
         continue;
-      unsigned int dr2 = dr2_int(
-          caloin[it].hwEta, caloin[it].hwPhi, caloin[in].hwEta, caloin[in].hwPhi);  // if dr is inside puppi cone
-      if (dr2 <= dR2Max_) {
-        sum += std::pow(std::min<float>(caloin[it].floatPt(), f_ptMax), 2) /
-               (std::max<int>(dr2, dR2Min_) * LINPUPPI_DR2LSB);
+      unsigned int dr2 = dr2_int(caloin[it].hwEta, caloin[it].hwPhi, caloin[in].hwEta, caloin[in].hwPhi);
+      if (dr2 <= dR2Max_) {  // if dr is inside puppi cone
+        sum += std::pow(std::min(caloin[it].floatPt(), f_ptMax), 2) / (std::max(dr2, dR2Min_) * DR2_LSB);
       }
     }
 
     unsigned int ieta = find_ieta(region, caloin[in].hwEta);
     std::pair<float, float> ptAndW = sum2puppiPt_flt(sum, caloin[in].floatPt(), ieta, caloin[in].hwIsEM(), in);
-    outallne_nocut[in].fill(region, caloin[in], Scales::makePtFromFloat(ptAndW.first), int(ptAndW.second * 256));
+    outallne_nocut[in].fill(region, caloin[in], Scales::makePtFromFloat(ptAndW.first), l1ct::puppiWgt_t(ptAndW.second));
     if (region.isFiducial(caloin[in]) && outallne_nocut[in].hwPt >= ptCut_[ieta]) {
       outallne[in] = outallne_nocut[in];
     }
@@ -610,26 +577,24 @@ void l1ct::LinPuppiEmulator::linpuppi_flt(const PFRegionEmu &region,
         continue;
 
       int pZMin = 99999;
-      for (unsigned int v = 0; v < nVtx_; ++v) {
-        if (v < pv.size()) {
-          int ppZMin = std::abs(int(track[it].hwZ0 - pv[v].hwZ0));
-          if (pZMin > ppZMin)
-            pZMin = ppZMin;
-        }
+      for (unsigned int v = 0, nVtx = std::min<unsigned int>(nVtx_, pv.size()); v < nVtx; ++v) {
+        int ppZMin = std::abs(int(track[it].hwZ0 - pv[v].hwZ0));
+        if (pZMin > ppZMin)
+          pZMin = ppZMin;
       }
       if (std::abs(pZMin) > int(dzCut_))
         continue;
       unsigned int dr2 = dr2_int(
           pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi);  // if dr is inside puppi cone
       if (dr2 <= dR2Max_) {
-        sum += std::pow(std::min<float>(track[it].floatPt(), f_ptMax), 2) /
-               (std::max<int>(dr2, dR2Min_) * LINPUPPI_DR2LSB);
+        sum += std::pow(std::min(track[it].floatPt(), f_ptMax), 2) / (std::max(dr2, dR2Min_) * DR2_LSB);
       }
     }
     unsigned int ieta = find_ieta(region, pfallne[in].hwEta);
     bool isEM = pfallne[in].hwId.isPhoton();
     std::pair<float, float> ptAndW = sum2puppiPt_flt(sum, pfallne[in].floatPt(), ieta, isEM, in);
-    outallne_nocut[in].fill(region, pfallne[in], Scales::makePtFromFloat(ptAndW.first), int(ptAndW.second * 256));
+    outallne_nocut[in].fill(
+        region, pfallne[in], Scales::makePtFromFloat(ptAndW.first), l1ct::puppiWgt_t(ptAndW.second));
     if (region.isFiducial(pfallne[in]) && outallne_nocut[in].hwPt >= ptCut_[ieta]) {
       outallne[in] = outallne_nocut[in];
     }
