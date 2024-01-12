@@ -106,7 +106,7 @@ namespace edmtest {
       }
     };
 
-    class RunIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>> {
+    class RunIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::stream::WatchRuns> {
     public:
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
@@ -163,7 +163,8 @@ namespace edmtest {
       }
     };
 
-    class LumiIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>> {
+    class LumiIntFilter
+        : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>, edm::stream::WatchLuminosityBlocks> {
     public:
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
@@ -235,7 +236,8 @@ namespace edmtest {
       }
     };
 
-    class RunSummaryIntFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::RunSummaryCache<SummaryCache>> {
+    class RunSummaryIntFilter
+        : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::RunSummaryCache<SummaryCache>, edm::stream::WatchRuns> {
     public:
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
@@ -321,8 +323,9 @@ namespace edmtest {
       }
     };
 
-    class LumiSummaryIntFilter
-        : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>, edm::LuminosityBlockSummaryCache<SummaryCache>> {
+    class LumiSummaryIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>,
+                                                              edm::LuminosityBlockSummaryCache<SummaryCache>,
+                                                              edm::stream::WatchLuminosityBlocks> {
     public:
       static std::atomic<unsigned int> m_count;
       unsigned int trans_;
