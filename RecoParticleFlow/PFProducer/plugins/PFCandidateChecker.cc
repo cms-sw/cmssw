@@ -24,11 +24,7 @@ class PFCandidateChecker : public edm::stream::EDAnalyzer<> {
 public:
   explicit PFCandidateChecker(const edm::ParameterSet&);
 
-  ~PFCandidateChecker() override;
-
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void printJets(const reco::PFJetCollection& pfJetsReco, const reco::PFJetCollection& pfJetsReReco) const;
@@ -95,10 +91,6 @@ PFCandidateChecker::PFCandidateChecker(const edm::ParameterSet& iConfig) {
   LogDebug("PFCandidateChecker") << " input collections : " << inputTagPFCandidatesReco_ << " "
                                  << inputTagPFCandidatesReReco_;
 }
-
-PFCandidateChecker::~PFCandidateChecker() {}
-
-void PFCandidateChecker::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
 
 void PFCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) {
   LogDebug("PFCandidateChecker") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
