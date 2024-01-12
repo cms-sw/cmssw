@@ -103,7 +103,7 @@ namespace trigger {
   typedef std::vector<reco::PFJetRef> VRpfjet;
   typedef std::vector<reco::PFTauRef> VRpftau;
   typedef std::vector<reco::PFMETRef> VRpfmet;
-  
+
   typedef l1t::P2GTCandidateVectorRef VRl1tp2gtcand;
 
   class TriggerRefsCollections {
@@ -175,7 +175,7 @@ namespace trigger {
     VRpftau pftauRefs_;
     Vids pfmetIds_;
     VRpfmet pfmetRefs_;
-    
+
     Vids l1tp2gtcandIds_;
     VRl1tp2gtcand l1tp2gtcandRefs_;
 
@@ -319,7 +319,7 @@ namespace trigger {
       std::swap(pftauRefs_, other.pftauRefs_);
       std::swap(pfmetIds_, other.pfmetIds_);
       std::swap(pfmetRefs_, other.pfmetRefs_);
-      
+
       std::swap(l1tp2gtcandIds_, other.l1tp2gtcandIds_);
       std::swap(l1tp2gtcandRefs_, other.l1tp2gtcandRefs_);
     }
@@ -1696,7 +1696,7 @@ namespace trigger {
       }
       return;
     }
-    
+
     void getObjects(Vids& ids, VRl1tp2gtcand& refs) const { getObjects(ids, refs, 0, l1tp2gtcandIds_.size()); }
     void getObjects(Vids& ids, VRl1tp2gtcand& refs, size_type begin, size_type end) const {
       assert(begin <= end);
@@ -1854,7 +1854,7 @@ namespace trigger {
     size_type l1tetsumSize() const { return l1tetsumIds_.size(); }
     const Vids& l1tetsumIds() const { return l1tetsumIds_; }
     const VRl1tetsum& l1tetsumRefs() const { return l1tetsumRefs_; }
-    
+
     size_type l1tp2gtcandSize() const { return l1tp2gtcandIds_.size(); }
     const Vids& l1tp2gtcandIds() const { return l1tp2gtcandIds_; }
     const VRl1tp2gtcand& l1tp2gtcandRefs() const { return l1tp2gtcandRefs_; }

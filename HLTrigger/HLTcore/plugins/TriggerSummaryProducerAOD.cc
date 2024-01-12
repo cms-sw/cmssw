@@ -154,7 +154,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getL1TPFTauCollection_ = edm::GetterOfProducts<l1t::PFTauCollection>(productMatch, this);
   getL1THPSPFTauCollection_ = edm::GetterOfProducts<l1t::HPSPFTauCollection>(productMatch, this);
   getL1TPFTrackCollection_ = edm::GetterOfProducts<l1t::PFTrackCollection>(productMatch, this);
-  
+
   getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(productMatch, this);
   getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(productMatch, this);
   getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(productMatch, this);

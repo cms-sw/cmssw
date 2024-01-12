@@ -419,7 +419,7 @@ namespace trigger {
       const size_type end(filterObjects_.at(filter).l1tetsum_);
       return std::pair<size_type, size_type>(begin, end);
     }
-    
+
     std::pair<size_type, size_type> l1tp2gtcandSlice(size_type filter) const {
       const size_type begin(filter == 0 ? 0 : filterObjects_.at(filter - 1).l1tp2gtcand_);
       const size_type end(filterObjects_.at(filter).l1tp2gtcand_);
@@ -758,7 +758,7 @@ namespace trigger {
       const size_type end(l1tetsumSlice(filter).second);
       TriggerRefsCollections::getObjects(id, l1tetsum, begin, end);
     }
-    
+
     void getObjects(size_type filter, Vids& ids, VRl1tp2gtcand& l1tp2gtcand) const {
       const size_type begin(l1tp2gtcandSlice(filter).first);
       const size_type end(l1tp2gtcandSlice(filter).second);

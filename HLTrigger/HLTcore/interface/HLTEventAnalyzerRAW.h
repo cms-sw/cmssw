@@ -131,7 +131,7 @@ private:
   trigger::VRpftau pftauRefs_;
   trigger::Vids pfmetIds_;
   trigger::VRpfmet pfmetRefs_;
-  
+
   trigger::Vids l1tp2gtcandIds_;
   trigger::VRl1tp2gtcand l1tp2gtcandRefs_;
 };
