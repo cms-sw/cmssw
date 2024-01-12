@@ -297,15 +297,13 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   /// debug printout
   if (isDebugEnabled()) {
     /// event-by-event tags
-    const unsigned int nc(collectionTagsEvent.size());
-    LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
+    LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << collectionTagsEvent.size();
     const InputTagSet::const_iterator cb(collectionTagsEvent.begin());
     const InputTagSet::const_iterator ce(collectionTagsEvent.end());
     for (InputTagSet::const_iterator ci = cb; ci != ce; ++ci) {
       LogTrace("TriggerSummaryProducerAOD") << distance(cb, ci) << " " << ci->encode();
     }
-    const unsigned int nf(filterTagsEvent.size());
-    LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
+    LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << filterTagsEvent.size();
     const InputTagSet::const_iterator fb(filterTagsEvent.begin());
     const InputTagSet::const_iterator fe(filterTagsEvent.end());
     for (InputTagSet::const_iterator fi = fb; fi != fe; ++fi) {
