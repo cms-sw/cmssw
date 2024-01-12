@@ -27,7 +27,6 @@ class FastTSGFromL2Muon : public edm::stream::EDProducer<> {
 public:
   FastTSGFromL2Muon(const edm::ParameterSet& cfg);
   ~FastTSGFromL2Muon() override = default;
-  void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
@@ -46,7 +45,6 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> l2TrackToken_;
   std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > seedToken_;
 
-  MuonServiceProxy* theService;
   std::unique_ptr<MuonTrackingRegionBuilder> theRegionBuilder;
 };
 #endif
