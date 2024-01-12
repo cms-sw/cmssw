@@ -215,6 +215,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
   std::string postnameVolume = ForwardName::getName(postPV->GetName());
+  std::string nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"
