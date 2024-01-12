@@ -14,8 +14,6 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

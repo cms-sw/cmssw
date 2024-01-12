@@ -6,25 +6,20 @@
  *  \author Martin Grunewald
  *
  */
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTDoublet.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "DataFormats/Candidate/interface/Particle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 #include <cmath>
 
-//
-// constructors and destructor
-//
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "HLTDoublet.h"
+
 template <typename T1, typename T2>
 HLTDoublet<T1, T2>::HLTDoublet(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
@@ -36,36 +31,40 @@ HLTDoublet<T1, T2>::HLTDoublet(const edm::ParameterSet& iConfig)
       inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
       triggerType1_(iConfig.template getParameter<int>("triggerType1")),
       triggerType2_(iConfig.template getParameter<int>("triggerType2")),
-      min_Dphi_(iConfig.template getParameter<double>("MinDphi")),
-      max_Dphi_(iConfig.template getParameter<double>("MaxDphi")),
       min_Deta_(iConfig.template getParameter<double>("MinDeta")),
       max_Deta_(iConfig.template getParameter<double>("MaxDeta")),
-      min_Minv_(iConfig.template getParameter<double>("MinMinv")),
-      max_Minv_(iConfig.template getParameter<double>("MaxMinv")),
-      min_DelR_(iConfig.template getParameter<double>("MinDelR")),
-      max_DelR_(iConfig.template getParameter<double>("MaxDelR")),
+      min_Dphi_(iConfig.template getParameter<double>("MinDphi")),
+      max_Dphi_(iConfig.template getParameter<double>("MaxDphi")),
+      // min Delta-R^2 threshold with sign
+      min_DelR2_(iConfig.template getParameter<double>("MinDelR") *
+                 std::abs(iConfig.template getParameter<double>("MinDelR"))),
+      // max Delta-R^2 threshold with sign
+      max_DelR2_(iConfig.template getParameter<double>("MaxDelR") *
+                 std::abs(iConfig.template getParameter<double>("MaxDelR"))),
       min_Pt_(iConfig.template getParameter<double>("MinPt")),
       max_Pt_(iConfig.template getParameter<double>("MaxPt")),
+      min_Minv_(iConfig.template getParameter<double>("MinMinv")),
+      max_Minv_(iConfig.template getParameter<double>("MaxMinv")),
       min_N_(iConfig.template getParameter<int>("MinN")),
       same_(inputTag1_.encode() == inputTag2_.encode()),  // same collections to be compared?
-      cutdphi_(min_Dphi_ <= max_Dphi_),                   // cut active?
       cutdeta_(min_Deta_ <= max_Deta_),                   // cut active?
-      cutminv_(min_Minv_ <= max_Minv_),                   // cut active?
-      cutdelr_(min_DelR_ <= max_DelR_),                   // cut active?
-      cutpt_(min_Pt_ <= max_Pt_)                          // cut active?
+      cutdphi_(min_Dphi_ <= max_Dphi_),                   // cut active?
+      cutdelr2_(min_DelR2_ <= max_DelR2_),                // cut active?
+      cutpt_(min_Pt_ <= max_Pt_),                         // cut active?
+      cutminv_(min_Minv_ <= max_Minv_)                    // cut active?
 {
-  LogDebug("") << "InputTags and cuts : " << inputTag1_.encode() << " " << inputTag2_.encode() << triggerType1_ << " "
-               << triggerType2_ << " Dphi [" << min_Dphi_ << " " << max_Dphi_ << "]"
-               << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
-               << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
-               << " DelR [" << min_DelR_ << " " << max_DelR_ << "]"
-               << " Pt   [" << min_Pt_ << " " << max_Pt_ << "]"
-               << " MinN =" << min_N_ << " same/dphi/deta/minv/delr/pt " << same_ << cutdphi_ << cutdeta_ << cutminv_
-               << cutdelr_ << cutpt_;
+  LogDebug("HLTDoublet") << "InputTags and cuts:\n inputTag1=" << inputTag1_.encode()
+                         << " inputTag2=" << inputTag2_.encode() << " triggerType1=" << triggerType1_
+                         << " triggerType2=" << triggerType2_ << "\n Deta [" << min_Deta_ << ", " << max_Deta_ << "]"
+                         << " Dphi [" << min_Dphi_ << ", " << max_Dphi_ << "]"
+                         << " DelR2 [" << min_DelR2_ << ", " << max_DelR2_ << "]"
+                         << " Pt [" << min_Pt_ << ", " << max_Pt_ << "]"
+                         << " Minv [" << min_Minv_ << ", " << max_Minv_ << "]"
+                         << " MinN=" << min_N_ << "\n same=" << same_ << " cut_deta=" << cutdeta_
+                         << " cutdphi=" << cutdphi_ << " cut_delr2=" << cutdelr2_ << " cut_pt=" << cutpt_
+                         << " cut_minv=" << cutminv_;
 }
 
-template <typename T1, typename T2>
-HLTDoublet<T1, T2>::~HLTDoublet() = default;
 template <typename T1, typename T2>
 void HLTDoublet<T1, T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -78,16 +77,16 @@ void HLTDoublet<T1, T2>::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("inputTag2", edm::InputTag("hltFiltered22"));
   desc.add<int>("triggerType1", 0);
   desc.add<int>("triggerType2", 0);
-  desc.add<double>("MinDphi", +1.0);
-  desc.add<double>("MaxDphi", -1.0);
   desc.add<double>("MinDeta", +1.0);
   desc.add<double>("MaxDeta", -1.0);
-  desc.add<double>("MinMinv", +1.0);
-  desc.add<double>("MaxMinv", -1.0);
+  desc.add<double>("MinDphi", +1.0);
+  desc.add<double>("MaxDphi", -1.0);
   desc.add<double>("MinDelR", +1.0);
   desc.add<double>("MaxDelR", -1.0);
   desc.add<double>("MinPt", +1.0);
   desc.add<double>("MaxPt", -1.0);
+  desc.add<double>("MinMinv", +1.0);
+  desc.add<double>("MaxMinv", -1.0);
   desc.add<int>("MinN", 1);
   descriptions.add(defaultModuleLabel<HLTDoublet<T1, T2>>(), desc);
 }
@@ -112,7 +111,7 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
 
   bool accept(false);
 
-  LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 0 " << std::endl;
+  LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 0 ";
 
   std::vector<T1Ref> coll1;
   std::vector<T2Ref> coll2;
@@ -129,8 +128,7 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
       InputTag tagOld;
       for (unsigned int i = 0; i < originTag1_.size(); ++i) {
         filterproduct.addCollectionTag(originTag1_[i]);
-        LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode()
-                                  << std::endl;
+        LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode();
       }
       tagOld = InputTag();
       for (size_type i1 = 0; i1 != n1; ++i1) {
@@ -143,13 +141,12 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);
           tagOld = tagNew;
-          LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 1b " << tagNew.encode() << std::endl;
+          LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 1b " << tagNew.encode();
         }
       }
       for (unsigned int i = 0; i < originTag2_.size(); ++i) {
         filterproduct.addCollectionTag(originTag2_[i]);
-        LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 2a/" << i << " " << originTag2_[i].encode()
-                                  << std::endl;
+        LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 2a/" << i << " " << originTag2_[i].encode();
       }
       tagOld = InputTag();
       for (size_type i2 = 0; i2 != n2; ++i2) {
@@ -162,7 +159,7 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
         if (tagOld.encode() != tagNew.encode()) {
           filterproduct.addCollectionTag(tagNew);
           tagOld = tagNew;
-          LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 2b " << tagNew.encode() << std::endl;
+          LogVerbatim("HLTDoublet") << " XXX " << moduleLabel() << " 2b " << tagNew.encode();
         }
       }
     }
@@ -182,29 +179,36 @@ bool HLTDoublet<T1, T2>::hltFilter(edm::Event& iEvent,
         r2 = coll2[i2];
         p2 = r2->p4();
 
-        double Dphi(std::abs(p1.phi() - p2.phi()));
-        if (Dphi > M_PI)
-          Dphi = 2.0 * M_PI - Dphi;
+        if (cutdeta_ or cutdphi_ or cutdelr2_) {
+          double const Deta = std::abs(p1.eta() - p2.eta());
+          if (cutdeta_ and (min_Deta_ > Deta or Deta > max_Deta_))
+            continue;
 
-        double Deta(std::abs(p1.eta() - p2.eta()));
+          double const Dphi = std::abs(reco::deltaPhi(p1.phi(), p2.phi()));
+          if (cutdphi_ and (min_Dphi_ > Dphi or Dphi > max_Dphi_))
+            continue;
+
+          double const DelR2 = Deta * Deta + Dphi * Dphi;
+          if (cutdelr2_ and (min_DelR2_ > DelR2 or DelR2 > max_DelR2_))
+            continue;
+        }
 
         p = p1 + p2;
-        double Minv(std::abs(p.mass()));
-        double Pt(p.pt());
 
-        double DelR(sqrt(Dphi * Dphi + Deta * Deta));
+        double const Pt = p.pt();
+        if (cutpt_ and (min_Pt_ > Pt or Pt > max_Pt_))
+          continue;
 
-        if (((!cutdphi_) || ((min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_))) &&
-            ((!cutdeta_) || ((min_Deta_ <= Deta) && (Deta <= max_Deta_))) &&
-            ((!cutminv_) || ((min_Minv_ <= Minv) && (Minv <= max_Minv_))) &&
-            ((!cutdelr_) || ((min_DelR_ <= DelR) && (DelR <= max_DelR_))) &&
-            ((!cutpt_) || ((min_Pt_ <= Pt) && (Pt <= max_Pt_)))) {
-          n++;
-          filterproduct.addObject(triggerType1_, r1);
-          filterproduct.addObject(triggerType2_, r2);
-        }
+        double const Minv = std::abs(p.mass());
+        if (cutminv_ and (min_Minv_ > Minv or Minv > max_Minv_))
+          continue;
+
+        n++;
+        filterproduct.addObject(triggerType1_, r1);
+        filterproduct.addObject(triggerType2_, r2);
       }
     }
+
     // filter decision
     accept = (n >= min_N_);
   }

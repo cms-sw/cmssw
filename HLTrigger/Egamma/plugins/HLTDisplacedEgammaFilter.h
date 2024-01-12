@@ -1,5 +1,5 @@
-#ifndef HLTDisplacedEgammaFilter_h
-#define HLTDisplacedEgammaFilter_h
+#ifndef HLTrigger_Egamma_HLTDisplacedEgammaFilter_h
+#define HLTrigger_Egamma_HLTDisplacedEgammaFilter_h
 
 /** \class HLTDisplacedEgammaFilter
  *
@@ -7,24 +7,19 @@
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-//
-// class decleration
-//
-typedef math::XYZTLorentzVector LorentzVector;
-#include <Math/VectorUtil.h>
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 class HLTDisplacedEgammaFilter : public HLTFilter {
 public:
   explicit HLTDisplacedEgammaFilter(const edm::ParameterSet&);
-  ~HLTDisplacedEgammaFilter() override;
+  ~HLTDisplacedEgammaFilter() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
@@ -51,8 +46,8 @@ private:
   edm::InputTag inputTrk;
   edm::EDGetTokenT<reco::TrackCollection> inputTrkToken_;
   double trkPtCut;
-  double trkdRCut;
+  double trkDr2Cut;
   int maxTrkCut;
 };
 
-#endif  //HLTDisplacedEgammaFilter_h
+#endif

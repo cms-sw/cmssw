@@ -1,5 +1,5 @@
-#ifndef HLTJetCollForElePlusJets_h
-#define HLTJetCollForElePlusJets_h
+#ifndef HLTrigger_JetMET_HLTJetCollForElePlusJets_h
+#define HLTrigger_JetMET_HLTJetCollForElePlusJets_h
 
 /** \class HLTJetCollForElePlusJets
  *
@@ -17,30 +17,21 @@
  */
 
 // user include files
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
   class ConfigurationDescriptions;
 }
 
-//
-// class declaration
-//
-
 template <typename T>
 class HLTJetCollForElePlusJets : public edm::stream::EDProducer<> {
 public:
   explicit HLTJetCollForElePlusJets(const edm::ParameterSet&);
-  ~HLTJetCollForElePlusJets() override;
+  ~HLTJetCollForElePlusJets() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -54,12 +45,9 @@ private:
   double minJetPt_;        // jet pt threshold in GeV
   double maxAbsJetEta_;    // jet |eta| range
   unsigned int minNJets_;  // number of required jets passing cuts after cleaning
-
-  double minDeltaR_;  //min dR for jets and electrons not to match
-
-  double minSoftJetPt_;  // jet pt threshold for the soft jet in the VBF pair
-  double minDeltaEta_;   // pseudorapidity separation for the VBF pair
-
-  // ----------member data ---------------------------
+  double minDeltaR2_;      // min dR^2 (with sign) for jets and electrons not to match
+  double minSoftJetPt_;    // jet pt threshold for the soft jet in the VBF pair
+  double minDeltaEta_;     // pseudorapidity separation for the VBF pair
 };
-#endif  //HLTJetCollForElePlusJets_h
+
+#endif
