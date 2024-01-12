@@ -25,7 +25,10 @@ public:
                                     const edm::EventSetup& iSetup);
 
 private:
-  l1t::MuonStub buildCSCOnlyStub(const CSCDetId&, const CSCCorrelatedLCTDigi&, const L1TMuon::GeometryTranslator*);
+  l1t::MuonStub buildCSCOnlyStub(const CSCDetId&,
+                                 const CSCCorrelatedLCTDigi&,
+                                 const L1TMuon::GeometryTranslator*,
+                                 unsigned int);
   l1t::MuonStub buildRPCOnlyStub(const RPCDetId&, const RPCDigi&, const L1TMuon::GeometryTranslator*);
   l1t::MuonStubCollection combineStubs(const l1t::MuonStubCollection&, const l1t::MuonStubCollection&);
 

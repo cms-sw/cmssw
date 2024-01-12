@@ -128,6 +128,18 @@ _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
 _phase2_siml1emulator.add(l1tPhase2CaloJetEmulator)
 
+# Overlap and EndCap Muon Track Finder
+# ########################################################################
+from L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi import *
+_phase2_siml1emulator.add(simOmtfPhase2Digis)
+
+from L1Trigger.L1TMuonEndCapPhase2.simCscTriggerPrimitiveDigisForEMTF_cfi import *
+from L1Trigger.L1TMuonEndCapPhase2.rpcRecHitsForEMTF_cfi import *
+from L1Trigger.L1TMuonEndCapPhase2.simEmtfDigisPhase2_cfi import *
+
+_phase2_siml1emulator.add(simCscTriggerPrimitiveDigisForEMTF)
+_phase2_siml1emulator.add(rpcRecHitsForEMTF)
+_phase2_siml1emulator.add(simEmtfDigisPhase2)
 
 # ########################################################################
 # Phase-2 L1T - TrackTrigger dependent modules
@@ -150,19 +162,27 @@ _phase2_siml1emulator.add(l1tVertexFinderEmulator)
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
 from L1Trigger.Phase2L1GMT.gmt_cfi  import *
-l1tTkStubsGmt = l1tGMTStubs.clone()
-l1tTkMuonsGmt = l1tGMTMuons.clone(
-    srcStubs  = 'l1tTkStubsGmt'
+l1tStubsGmt = gmtStubs.clone()
+l1tKMTFMuonsGmt = gmtKMTFMuons.clone(
+  stubs      = cms.InputTag('l1tStubsGmt','kmtf'),
 )
-l1tSAMuonsGmt = l1tStandaloneMuons.clone()
-_phase2_siml1emulator.add( l1tTkStubsGmt )
-_phase2_siml1emulator.add( l1tTkMuonsGmt )
+l1tFwdMuonsGmt = gmtFwdMuons.clone(
+    stubs  = 'l1tStubsGmt:tps'
+)
+l1tSAMuonsGmt = gmtSAMuons.clone(
+  barrelPrompt      = cms.InputTag('l1tKMTFMuonsGmt:prompt'),
+  barrelDisp        = cms.InputTag('l1tKMTFMuonsGmt:displaced'),
+  forwardPrompt     = cms.InputTag('l1tFwdMuonsGmt:prompt'),
+  forwardDisp     = cms.InputTag('l1tFwdMuonsGmt:displaced')
+)
+l1tTkMuonsGmt = gmtTkMuons.clone(
+    srcStubs  = 'l1tStubsGmt:tps'
+)
+_phase2_siml1emulator.add( l1tStubsGmt )
+_phase2_siml1emulator.add( l1tKMTFMuonsGmt )
+_phase2_siml1emulator.add( l1tFwdMuonsGmt )
 _phase2_siml1emulator.add( l1tSAMuonsGmt )
-
-## fix for low-pt muons, this collection is a copy of the l1tTkMuonsGmt collection 
-## in which we only keep those low pt muons with an SA muon associated to it. 
-l1tTkMuonsGmtLowPtFix = l1tGMTFilteredMuons.clone()
-_phase2_siml1emulator.add( l1tTkMuonsGmtLowPtFix )
+_phase2_siml1emulator.add( l1tTkMuonsGmt )
 
 # Tracker Objects
 # ########################################################################

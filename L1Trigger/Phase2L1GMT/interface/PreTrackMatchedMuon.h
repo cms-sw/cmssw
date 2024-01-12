@@ -3,8 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
+#include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
@@ -35,11 +35,12 @@ namespace Phase2L1GMT {
           beta_(beta),
           isGlobal_(false),
           quality_(0),
-          stubID0_(511),
-          stubID1_(511),
-          stubID2_(511),
-          stubID3_(511),
-          stubID4_(511),
+          stubID0_(4095),
+          stubID1_(4095),
+          stubID2_(4095),
+          stubID3_(4095),
+          stubID4_(4095),
+          matchMask_(0),
           valid_(false) {}
 
     const uint charge() const { return charge_; }
@@ -61,6 +62,8 @@ namespace Phase2L1GMT {
     const uint stubID2() const { return stubID2_; }
     const uint stubID3() const { return stubID3_; }
     const uint stubID4() const { return stubID4_; }
+    const uint matchMask() const { return matchMask_; }
+
     bool valid() const { return valid_; }
 
     void setQuality(uint quality) { quality_ = quality; }
@@ -72,26 +75,29 @@ namespace Phase2L1GMT {
       offline_phi_ = phi;
     }
 
-    void addMuonRef(const l1t::RegionalMuonCandRef& ref) {
-      muRef_.push_back(ref);
-      isGlobal_ = true;
-    }
+    void addMuonRef(const l1t::SAMuonRef& ref) { muRef_.push_back(ref); }
 
     void resetGlobal() { isGlobal_ = false; }
 
-    const std::vector<l1t::RegionalMuonCandRef>& muonRef() const { return muRef_; }
-    void addStub(const l1t::MuonStubRef& stub) {
+    const l1t::SAMuonRefVector& muonRef() const { return muRef_; }
+    void addStub(const l1t::MuonStubRef& stub, uint mask) {
       stubs_.push_back(stub);
-      if (stub->tfLayer() == 0)
-        stubID0_ = stub->id();
-      else if (stub->tfLayer() == 1)
-        stubID1_ = stub->id();
-      else if (stub->tfLayer() == 2)
-        stubID2_ = stub->id();
-      else if (stub->tfLayer() == 3)
-        stubID3_ = stub->id();
-      else if (stub->tfLayer() == 4)
-        stubID4_ = stub->id();
+      if (stub->tfLayer() == 0) {
+        stubID0_ = stub->address();
+        matchMask_ = matchMask_ | (mask);
+      } else if (stub->tfLayer() == 1) {
+        stubID1_ = stub->address();
+        matchMask_ = matchMask_ | (mask << 2);
+      } else if (stub->tfLayer() == 2) {
+        stubID2_ = stub->address();
+        matchMask_ = matchMask_ | (mask << 4);
+      } else if (stub->tfLayer() == 3) {
+        stubID3_ = stub->address();
+        matchMask_ = matchMask_ | (mask << 6);
+      } else if (stub->tfLayer() == 4) {
+        stubID4_ = stub->address();
+        matchMask_ = matchMask_ | (mask << 8);
+      }
     }
 
     const l1t::MuonStubRefVector& stubs() const { return stubs_; }
@@ -109,27 +115,31 @@ namespace Phase2L1GMT {
     }
 
     uint64_t lsb() const {
-      uint64_t w = charge_ & 0x1;
-      w = w | (twos_complement(pt_, BITSPT) << 1);
-      w = w | (twos_complement(phi_, BITSPHI) << (BITSPT + 1));
-      w = w | (twos_complement(eta_, BITSETA) << (BITSPHI + BITSPT + 1));
-      w = w | (twos_complement(z0_, BITSZ0) << (BITSETA + BITSPHI + BITSPT + 1));
-      w = w | (twos_complement(d0_, BITSD0) << (BITSZ0 + BITSETA + BITSPHI + BITSPT + 1));
-      return w;
+      wordtype w = 0;
+      int bstart = 0;
+      bstart = wordconcat<wordtype>(w, bstart, charge_ & 0x1, 1);
+      bstart = wordconcat<wordtype>(w, bstart, pt_, BITSPT);
+      bstart = wordconcat<wordtype>(w, bstart, phi_, BITSPHI);
+      bstart = wordconcat<wordtype>(w, bstart, eta_, BITSETA);
+      bstart = wordconcat<wordtype>(w, bstart, z0_, BITSZ0);
+      bstart = wordconcat<wordtype>(w, bstart, d0_, BITSD0);
+      return w.to_int();
     }
 
     uint64_t msb() const {
-      uint64_t w2 = 0;
-      w2 = twos_complement(stubID0_, BITSSTUBID);
-      w2 = w2 | (twos_complement(stubID1_, BITSSTUBID) << BITSSTUBID);
-      w2 = w2 | (twos_complement(stubID2_, BITSSTUBID) << (2 * BITSSTUBID));
-      w2 = w2 | (twos_complement(stubID3_, BITSSTUBID) << (3 * BITSSTUBID));
-      w2 = w2 | (twos_complement(stubID4_, BITSSTUBID) << (4 * BITSSTUBID));
-      w2 = w2 | (twos_complement(isGlobal_, 1) << (5 * BITSSTUBID));
-      w2 = w2 | (twos_complement(beta_, BITSMUONBETA) << (5 * BITSSTUBID + 1));
-      w2 = w2 | (twos_complement(quality_, BITSMATCHQUALITY) << (BITSMUONBETA + 5 * BITSSTUBID + 1));
-      w2 = w2 | (twos_complement(valid_, 1) << (BITSMATCHQUALITY + BITSMUONBETA + 5 * BITSSTUBID + 1));
-      return w2;
+      wordtype w2 = 0;
+      int bstart = 0;
+      bstart = wordconcat<wordtype>(w2, bstart, stubID0_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID1_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID2_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID3_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID4_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, isGlobal_, 1);
+      bstart = wordconcat<wordtype>(w2, bstart, beta_, BITSMUONBETA);
+      bstart = wordconcat<wordtype>(w2, bstart, quality_, BITSMATCHQUALITY);
+      bstart = wordconcat<wordtype>(w2, bstart, valid_, 1);
+
+      return w2.to_int();
     }
 
     void printWord() const {
@@ -157,9 +167,11 @@ namespace Phase2L1GMT {
     uint stubID2_;
     uint stubID3_;
     uint stubID4_;
+    uint matchMask_;
+
     bool valid_;
     l1t::MuonStubRefVector stubs_;
-    std::vector<l1t::RegionalMuonCandRef> muRef_;
+    l1t::SAMuonRefVector muRef_;
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
   };
 }  // namespace Phase2L1GMT
