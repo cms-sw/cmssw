@@ -52,11 +52,6 @@ namespace l1t {
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-    void beginRun(edm::Run const&, edm::EventSetup const&) override{};
-    void endRun(edm::Run const&, edm::EventSetup const&) override{};
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
-
     // ----------member data ---------------------------
     edm::EDGetTokenT<FEDRawDataCollection> fedData_;
     std::vector<int> fedIds_;
