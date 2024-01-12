@@ -1,11 +1,33 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
+"""hltFindDuplicates: script to find duplicate modules of an HLT configuration.
 
-from __future__ import print_function
-import sys, imp, re, itertools
-from HLTrigger.Configuration.Tools.frozendict import frozendict
+Input.
+ Path to a local cmsRun configuration file, or stdin.
+
+Output.
+ A directory containing
+ (1) the input cmsRun configuration, and
+ (2) text files listing the groups of duplicate modules.
+
+Examples.
+
+ # input: local configuration file
+ hltFindDuplicates tmp.py -o output_dir
+
+ # input: stdin
+ hltConfigFromDB --configName /dev/CMSSW_X_Y_0/GRun/Vn | hltFindDuplicates -o output_dir
+ hltGetConfiguration /dev/CMSSW_X_Y_0/GRun/Vn | hltFindDuplicates -o output_dir -x realData=0 globalTag=@
+"""
+import os
+import sys
+import argparse
+import re
+import itertools
+import shutil
+
 import FWCore.ParameterSet.Config as cms
 
-debug = True
+from HLTrigger.Configuration.Tools.frozendict import frozendict
 
 whitelist_types = [
   'HLTPrescaler',
@@ -22,19 +44,21 @@ whitelist_labels = [
 def whitelist(module):
   return module.label in whitelist_labels or module.type in whitelist_types
 
+def iterate(arg):
+  return (not isinstance(arg, str) and '__iter__' in dir(arg))
 
 def freeze(arg):
   if type(arg) == dict:
-    return frozendict((k, freeze(v)) for (k, v) in arg.iteritems())
-  elif '__iter__' in dir(arg):
+    return frozendict((k, freeze(v)) for (k, v) in iter(arg.items()))
+  elif iterate(arg):
     return tuple( freeze(v) for v in arg )
   else:
     return arg
 
 def unfreeze(arg):
   if type(arg) == frozendict:
-    return dict((k, unfreeze(v)) for (k, v) in arg.iteritems())
-  elif '__iter__' in dir(arg):
+    return dict((k, unfreeze(v)) for (k, v) in iter(arg.items()))
+  elif iterate(arg):
     return list( unfreeze(v) for v in arg )
   else:
     return arg
@@ -43,68 +67,87 @@ def pythonize(arg):
   if 'parameters_' in dir(arg):
     arg = arg.parameters_()
 
-  if 'value' in dir(arg):
+  elif 'value' in dir(arg):
     arg = arg.value()
 
   if type(arg) == dict:
-    return frozendict((k, pythonize(v)) for (k, v) in arg.iteritems())
-  elif '__iter__' in dir(arg):
+    return frozendict((k, pythonize(v)) for (k, v) in iter(arg.items()))
+  elif iterate(arg):
     return tuple( pythonize(v) for v in arg )
   else:
     return arg
 
+def mkdirp(dirpath):
+  try:
+    os.makedirs(dirpath)
+  except OSError:
+    if not os.path.isdir(dirpath):
+      raise
 
 class Module(object):
-  type   = ''
-  label  = ''
+  type = ''
+  label = ''
   params = frozendict()
-  hash   = 0
+  hash = 0
 
   def __init__(self, module):
-    self.label  = module.label_()
-    self.type   = module.type_()
+    self.label = module.label_()
+    self.type = module.type_()
     self.params = pythonize(module.parameters_())
-    self.__rehash()
+    self.__rehash(self.params)
 
+  def __str__(self):
+    return f'{self.label} (type: {self.type}): {self.params}'
 
   def key(self):
     return self.hash
 
-  def __rehash(self):
-    self.hash = (hash(self.type) << 4) + hash(self.params)
+  def __rehash(self, params):
+    self.hash = (hash(self.type) << 4) + hash(params)
 
-  def __check(self, value, group):
-    return type(value) is str and bool(group.match(value))
+  def __check(self, value, check):
+    if isinstance(value, list):
+      return any(self.__check(foo, check) for foo in value)
+    elif isinstance(value, dict):
+      return any(self.__check(value[foo], check) for foo in value)
+    else:
+      return isinstance(value, str) and bool(check.match(value))
 
   def __sub(self, value, group, label):
-    if type(value) is str:
+    if isinstance(value, list):
+      return [self.__sub(foo, group, label) for foo in value]
+    elif isinstance(value, dict):
+      return {foo:self.__sub(value[foo], group, label) for foo in value}
+    elif isinstance(value, str):
       return group.sub(r'%s\2' % label, value)
     else:
       return value
 
-  def apply_rename(self, groups):
+  def apply_rename(self, groups, verbosity_level):
     modified = False
     newparams = unfreeze(self.params)
-    for label, (group, check) in groups.iteritems():
-      for k, p in newparams.iteritems():
-        if '__iter__' in dir(p):
-          if any(self.__check(v, check) for v in p):
-            newparams[k] = tuple(self.__sub(v, check, label) for v in p)
-            modified = True
-        else:
-          if self.__check(p, check):
-            newparams[k] = self.__sub(p, check, label)
-            modified = True
+
+    if verbosity_level > 2:
+      print('')
+      print(f'             {self.label} ({self.type})')
+      print(f'             parameters before: {newparams}')
+
+    for label, (group, check) in iter(groups.items()):
+      for k, p in iter(newparams.items()):
+        if self.__check(p, check):
+          newparams[k] = self.__sub(p, check, label)
+          modified = True
+
+    if verbosity_level > 2:
+      print(f'             parameters after:  {newparams}')
+      print(f'             modified = {modified}')
 
     if modified:
-      self.params = frozendict(newparams)
-      self.__rehash()
-
-
-
+      self.__rehash(frozendict(newparams))
 
 class ModuleList(object):
   modules = []
+  hashToLabelDict = {}
 
   def append(self, module):
     m = Module(module)
@@ -117,10 +160,13 @@ class ModuleList(object):
 
   def __init__(self, *args):
     for arg in args:
-      if '__iter__' in dir(arg):
+      if iterate(arg):
         self.extend(arg)
       else:
         self.append(arg)
+
+  def hash_label(self, hash_value):
+    return self.hashToLabelDict.get(hash_value, None)
 
   def sort(self):
     self.modules.sort(key = Module.key)
@@ -128,87 +174,182 @@ class ModuleList(object):
   def group(self):
     groups = dict()
     self.sort()
-    i = 0
     for v, g in itertools.groupby(self.modules, Module.key):
       group = list(g)
       if len(group) > 1:
-        i = i + 1
         g = [ m.label for m in group ]
         g.sort()
-        l = 'hltGroup%d' %i
+        # hash identifying the group (it is the same for every module in the group)
+        g_key = group[0].key()
+        if g_key not in self.hashToLabelDict:
+          # label identifying this group of modules
+          # (set only once so it cannot change from step to step)
+          self.hashToLabelDict[g_key] = f'{group[0].type} ({g[0]})'
         r = re.compile(r'^(%s)($|:)' % r'|'.join(g))
-        groups[l] = (g, r)
+        groups[g_key] = (g, r)
     return groups
 
-  def apply_rename(self, groups):
+  def apply_rename(self, groups, verbosity_level):
     for module in self.modules:
-      module.apply_rename(groups)
+      module.apply_rename(groups, verbosity_level)
 
-  def dump(self):
+  def dump(self, indent=0):
     for m in self.modules:
-      print("%s = (%s) {" % (m.label, m.type))
-      for k, v in m.params.iteritems():
-        print("\t%s = %s" % (k, v))
-      print('}')
-      print()
+      print(' '*indent + "%s = (%s) {" % (m.label, m.type))
+      for k, v in iter(m.params.items()):
+        print(' '*indent + "  %s = %s" % (k, v))
+      print(' '*indent + '}\n')
 
+def findDuplicates(process, output_dir, verbosity_level):
+  mkdirp(output_dir)
 
-
-def findDuplicates(process):
   modules = ModuleList( 
-    process._Process__analyzers.itervalues(), 
-    process._Process__producers.itervalues(),
-    process._Process__filters.itervalues() 
+    iter(process.analyzers_().values()),
+    iter(process.producers_().values()),
+    iter(process.filters_().values())
   )
 
   oldups = 0
   groups = modules.group()
-  dups   = sum(len(g[0]) for g in groups.itervalues()) - len(groups)
+  dups = sum(len(g[0]) for g in groups.values()) - len(groups)
 
   index = 1
-  while(dups != oldups):
-    if debug:
-      dump = open('step%d.sed' % index, 'w')
-      for target, (group, regexp) in groups.iteritems():
-        dump.write('s#\\<\\(%s\\)\\>#%s#g\n' % ('\\|'.join(group), target))
-      dump.close()
-      dump = open('step%d.txt' % index, 'w')
-      for target, (group, regexp) in groups.iteritems():
-        dump.write('#%s\n%s\n\n' % ( target, '\n'.join(group)))
-      dump.close()
-    print("found %3d duplicates in %3d groups" % (dups, len(groups)))
+  while dups != oldups:
+    groupLabelToHashDict = {modules.hash_label(group_hash):group_hash for group_hash in groups}
+
+    dump = open(os.path.join(output_dir, f'step{index}.sed'), 'w')
+    for group_label in sorted(groupLabelToHashDict.keys()):
+      (group, regexp) = groups[groupLabelToHashDict[group_label]]
+      dump.write('s#\\<\\(%s\\)\\>#%s#g\n' % ('\\|'.join(group), group_label))
+    dump.close()
+
+    dump = open(os.path.join(output_dir, f'step{index}.txt'), 'w')
+    first_entry = True
+    for group_label in sorted(groupLabelToHashDict.keys()):
+      (group, regexp) = groups[groupLabelToHashDict[group_label]]
+      dump.write('\n'*(not first_entry) + '# %s\n%s\n' % ( group_label, '\n'.join(group)))
+      first_entry = False
+    dump.close()
+
+    if verbosity_level > 0:
+      print(f"[step {index:>2d}] found {dups:>3d} duplicates in {len(groups):>3d} groups")
+
+    if verbosity_level > 2:
+      print(f'[step {index:>2d}]   groups={groups}')
+      print(f'[step {index:>2d}]   ---------------')
+      print(f'[step {index:>2d}]   apply_rename ..')
+
     oldups = dups
-    modules.apply_rename(groups)
+    modules.apply_rename(groups, verbosity_level)
+
+    if verbosity_level > 2:
+      print()
+      print(f'            ------------------------')
+      print(f'            modules (after renaming)')
+      print(f'            ------------------------')
+      modules.dump(indent=14)
+
     groups = modules.group()
-    dups   = sum(len(g[0]) for g in groups.itervalues()) - len(groups)
-    index  = index + 1
+    dups = sum(len(g[0]) for g in groups.values()) - len(groups)
+    index += 1
 
-  dump = open('groups.sed', 'w')
-  for target, (group, regexp) in groups.iteritems():
-    dump.write('s#\\<\\(%s\\)\\>#%s#\n' % ('\\|'.join(group), target))
+  groupLabelToHashDict = {modules.hash_label(group_hash):group_hash for group_hash in groups}
+
+  dump = open(os.path.join(output_dir, 'groups.sed'), 'w')
+  for group_label in sorted(groupLabelToHashDict.keys()):
+    (group, regexp) = groups[groupLabelToHashDict[group_label]]
+    dump.write('s#\\<\\(%s\\)\\>#%s#\n' % ('\\|'.join(group), group_label))
   dump.close()
 
-  dump = open('groups.txt', 'w')
-  for target, (group, regexp) in groups.iteritems():
-    dump.write('#%s\n%s\n\n' % ( target, '\n'.join(group)))
+  dump = open(os.path.join(output_dir, 'groups.txt'), 'w')
+  first_entry = True
+  for group_label in sorted(groupLabelToHashDict.keys()):
+    (group, regexp) = groups[groupLabelToHashDict[group_label]]
+    dump.write('\n'*(not first_entry) + '# %s\n%s\n' % ( group_label, '\n'.join(group)))
+    first_entry = False
   dump.close()
 
+##
+## main
+##
+if __name__ == '__main__':
 
+    ### args
+    parser = argparse.ArgumentParser(
+        prog = './'+os.path.basename(__file__),
+        formatter_class = argparse.RawDescriptionHelpFormatter,
+        description = __doc__,
+        argument_default = argparse.SUPPRESS,
+    )
 
-def main():
-  # parse the HLT configuration from standard input or from the given file
-  hlt = imp.new_module('hlt')
-  try:
-    configname = sys.argv[1]
-  except:
-    config = sys.stdin
-  else:
-    config = open(configname)
-  exec(config, globals(), hlt.__dict__)
-  config.close()
-  findDuplicates(hlt.process)
+    # menu: name of ConfDB config, or local cmsRun cfg file, or stdin
+    parser.add_argument('menu',
+                        nargs = '?',
+                        metavar = 'MENU',
+                        default = None,
+                        help = 'Path to cmsRun configuration file (if not specified, stdin is used)')
 
+    # output-dir: path to directory containing output files
+    parser.add_argument('-o', '--output-dir',
+                        metavar = 'OUTPUT_DIR',
+                        default = 'hltFindDuplicates_output',
+                        help = 'Path to directory containing output files')
 
-if __name__ == "__main__":
-    main()
+    # menu arguments: list of arguments to be applied to the cmsRun configuration file
+    # (via argparse, VarParsing, or similar)
+    parser.add_argument('-x', '--menu-args',
+                        nargs = '+',
+                        metavar = 'MENU_ARGS',
+                        default = [],
+                        help = 'List of arguments (each without whitespaces) to be applied to the cmsRun configuration file')
 
+    # verbosity level: level of verbosity of stdout/stderr printouts
+    parser.add_argument('-v', '--verbosity-level',
+                        metavar = 'VERBOSITY_LEVEL',
+                        type = int,
+                        default = 1,
+                        help = 'Verbosity level')
+
+    # parse command line arguments and options
+    opts = parser.parse_args()
+
+    print('-'*25)
+    print('hltFindDuplicates')
+    print('-'*25)
+
+    # create new output directory
+    if os.path.exists(opts.output_dir):
+        log_msg = 'Failed to create output directory (a directory or file already exists under that path)'
+        raise RuntimeError(f'{log_msg}: {opts.output_dir}')
+
+    mkdirp(opts.output_dir)
+    output_config_filepath = os.path.join(opts.output_dir, 'config.py')
+
+    print(f'output directory: {opts.output_dir}')
+    print('-'*25)
+
+    # parse the HLT configuration from a local cfg file, or from standard input
+    hlt = {'process': None, 'fragment': None}
+
+    if opts.menu != None:
+        if not os.path.isfile(opts.menu):
+            raise RuntimeError(f'Invalid path to input file (file does not exist): {opts.menu}')
+        shutil.copyfile(opts.menu, output_config_filepath)
+    else:
+        with open(output_config_filepath, 'w') as config_file:
+            config_file.write(sys.stdin.read())
+
+    sys.argv = [sys.argv[0], output_config_filepath] + opts.menu_args
+    exec(open(output_config_filepath).read(), globals(), hlt)
+
+    # find cms.Process object
+    process = None
+    if hlt['process'] != None:
+        process = hlt['process']
+    if hlt['fragment'] != None:
+        process = hlt['fragment']
+
+    if process == None or not isinstance(process, cms.Process):
+        raise RuntimeError('Failed to find object of type cms.Process !')
+
+    findDuplicates(process, output_dir=opts.output_dir, verbosity_level=opts.verbosity_level)
