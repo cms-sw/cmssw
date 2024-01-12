@@ -48,7 +48,6 @@ class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 public:
   ConvertedPhotonProducer(const edm::ParameterSet& ps);
 
-  void beginRun(edm::Run const&, const edm::EventSetup& es) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -79,8 +78,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* hcalCuts = nullptr;
+  bool cutsFromDB_;
+  HcalPFCuts const* hcalCuts_ = nullptr;
 
   // Register the product
   edm::EDPutTokenT<reco::ConversionCollection> convertedPhotonCollectionPutToken_;
@@ -146,9 +145,8 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
       scIslandEndcapProducer_{consumes(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))},
       hbheRecHits_{consumes(config.getParameter<edm::InputTag>("hbheRecHits"))},
       caloGeomToken_{esConsumes()},
-      mFToken_{esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()},
-      transientTrackToken_{esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", "TransientTrackBuilder"))},
+      mFToken_{esConsumes()},
+      transientTrackToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
       vertexFinder_{config},
       algoName_{config.getParameter<std::string>("AlgorithmName")},
 
@@ -166,9 +164,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   // instantiate the Track Pair Finder algorithm
   likelihoodCalc_.setWeightsFile(edm::FileInPath{likelihoodWeights_.c_str()}.fullPath().c_str());
 
-  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  cutsFromDB_ = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   ElectronHcalHelper::Configuration cfgCone;
@@ -188,18 +186,16 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   hcalHelper_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
 }
 
-void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
+void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   magneticField_ = &theEventSetup.getData(mFToken_);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   transientTrackBuilder_ = &theEventSetup.getData(transientTrackToken_);
 
-  if (cutsFromDB) {
-    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  if (cutsFromDB_) {
+    hcalCuts_ = &theEventSetup.getData(hcalCutsToken_);
   }
-}
 
-void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   //
   // create empty output collections
   //
@@ -357,7 +353,7 @@ void ConvertedPhotonProducer::buildCollections(
       continue;
     const reco::CaloCluster* pClus = &(*aClus);
     auto const* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
-    double HoE = hcalHelper.hcalESum(*sc, 0, hcalCuts) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalCuts_) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
     /////
