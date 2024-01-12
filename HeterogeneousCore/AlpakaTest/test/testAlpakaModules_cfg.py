@@ -84,6 +84,12 @@ process.alpakaGlobalProducerCopyToDeviceCache = cms.EDProducer("TestAlpakaGlobal
     y = cms.int32(4),
     z = cms.int32(5),
 )
+process.alpakaGlobalProducerMoveToDeviceCache = cms.EDProducer("TestAlpakaGlobalProducerMoveToDeviceCache@alpaka",
+    source = cms.InputTag("alpakaGlobalProducer"),
+    x = cms.int32(32),
+    y = cms.int32(42),
+    z = cms.int32(52),
+)
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
     eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
@@ -132,6 +138,10 @@ process.alpakaGlobalConsumerCopyToDeviceCache = process.alpakaGlobalConsumer.clo
     source = "alpakaGlobalProducerCopyToDeviceCache",
     expectXvalues = cms.vdouble([3]*10)
 )
+process.alpakaGlobalConsumerMoveToDeviceCache = process.alpakaGlobalConsumer.clone(
+    source = "alpakaGlobalProducerMoveToDeviceCache",
+    expectXvalues = cms.vdouble([32]*10)
+)
 process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamProducer"),
     expectSize = cms.int32(5),
@@ -163,7 +173,8 @@ if args.processAcceleratorBackend != "":
 if args.moduleBackend != "":
     for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerE", "ESProducerAMulti",
                  "ESProducerNull",
-                 "GlobalProducer", "GlobalProducerE", "GlobalProducerCopyToDeviceCache",
+                 "GlobalProducer", "GlobalProducerE",
+                 "GlobalProducerCopyToDeviceCache", "GlobalProducerMoveToDeviceCache",
                  "StreamProducer", "StreamInstanceProducer",
                  "StreamSynchronizingProducer", "StreamSynchronizingProducerToDevice",
                  "GlobalDeviceConsumer", "StreamDeviceConsumer",
@@ -180,6 +191,8 @@ if args.expectBackend == "cuda_async":
     process.alpakaGlobalConsumerE.expectXvalues.extend([0]*(20-10))
     setExpect(process.alpakaGlobalConsumerCopyToDeviceCache, size=20)
     process.alpakaGlobalConsumerCopyToDeviceCache.expectXvalues = [3]*20
+    setExpect(process.alpakaGlobalConsumerMoveToDeviceCache, size=20)
+    process.alpakaGlobalConsumerMoveToDeviceCache.expectXvalues = [32]*20
     setExpect(process.alpakaStreamConsumer, size=25)
     setExpect(process.alpakaStreamInstanceConsumer, size=36)
     setExpect(process.alpakaStreamSynchronizingConsumer, size=20)
@@ -192,6 +205,8 @@ elif args.expectBackend == "rocm_async":
     process.alpakaGlobalConsumerE.expectXvalues.extend([0]*(30-10))
     setExpect(process.alpakaGlobalConsumerCopyToDeviceCache, size = 30)
     process.alpakaGlobalConsumerCopyToDeviceCache.expectXvalues = [3]*30
+    setExpect(process.alpakaGlobalConsumerMoveToDeviceCache, size = 30)
+    process.alpakaGlobalConsumerMoveToDeviceCache.expectXvalues = [32]*30
     setExpect(process.alpakaStreamConsumer, size = 125)
     setExpect(process.alpakaStreamInstanceConsumer, size = 216)
     setExpect(process.alpakaStreamSynchronizingConsumer, size = 30)
@@ -211,6 +226,7 @@ process.t = cms.Task(
     process.alpakaGlobalProducer,
     process.alpakaGlobalProducerE,
     process.alpakaGlobalProducerCopyToDeviceCache,
+    process.alpakaGlobalProducerMoveToDeviceCache,
     process.alpakaStreamProducer,
     process.alpakaStreamInstanceProducer,
     process.alpakaStreamSynchronizingProducer,
@@ -221,6 +237,7 @@ process.p = cms.Path(
     process.alpakaGlobalDeviceConsumer+
     process.alpakaGlobalConsumerE+
     process.alpakaGlobalConsumerCopyToDeviceCache+
+    process.alpakaGlobalConsumerMoveToDeviceCache+
     process.alpakaStreamConsumer+
     process.alpakaStreamDeviceConsumer+
     process.alpakaStreamInstanceConsumer+
