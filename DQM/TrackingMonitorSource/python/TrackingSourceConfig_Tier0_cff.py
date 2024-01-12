@@ -397,6 +397,8 @@ seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMon
 
 TrackingDQMSourceTier0 += TrackSeedMonSequence
 
+from DQM.TrackingMonitorSource.shortTrackResolution_cff import *
+
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
@@ -404,6 +406,7 @@ for module in selectedModules :
 TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += voWcutMonitoringSequence
 TrackingDQMSourceTier0 += primaryVertexResolution
+TrackingDQMSourceTier0 += shortTrackResolution3to8
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -426,6 +429,7 @@ for module in selectedModules :
 TrackingDQMSourceTier0Common += voMonitoringCommonSequence
 TrackingDQMSourceTier0Common += voWcutMonitoringCommonSequence
 TrackingDQMSourceTier0Common += primaryVertexResolution
+TrackingDQMSourceTier0Common += shortTrackResolution3to8
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
