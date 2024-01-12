@@ -764,11 +764,12 @@ namespace mkfit {
 
 #ifdef RNT_DUMP_MkF_SelHitIdcs
     rnt_shi.InnerIdcsReset(N_proc);
+    Event::SimLabelFromHits sim_lbls[NN];
     for (int i = 0; i < N_proc; ++i) {
-      auto slfh = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[i]);
+      sim_lbls[i] = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[i]);
       if (m_FailFlag[i]) {
         rnt_shi.RegisterFailedProp(i, m_Par[1 - iI], m_Par[iI], m_event, m_SeedOriginIdx[i]);
-      } else if (slfh.is_set()) {
+      } else if (sim_lbls[i].is_set()) {
         rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
         // get BinSearch result from V1.
         selectHitIndices(layer_of_hits, N_proc, true);
@@ -949,7 +950,6 @@ namespace mkfit {
               L.layer_id(), itrack, qv[itrack], phi[itrack], dqv[itrack], dphiv[itrack],
               qb1, qb2, pb1, pb2);
 #ifdef RNT_DUMP_MkF_SelHitIdcs
-      int sim_lbl = m_Label(itrack, 0, 0);
       int hit_out_idx = 0;
       // phi-sorted position of matched hits
       struct pos_match { float dphi, dq; int idx; bool matched; };
@@ -1013,24 +1013,25 @@ namespace mkfit {
                     qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
                     ddq, ddphi, prop_fail ? "FAIL" : "OK", dqdphi_presel ? "PASS" : "REJECT");
 #ifdef RNT_DUMP_MkF_SelHitIdcs
-            const Hit &thishit = L.refHit(hi_orig);
-            m_msErr.copyIn(itrack, thishit.errArray());
-            m_msPar.copyIn(itrack, thishit.posArray());
+            if (sim_lbls[itrack].is_set()) {
+              int sim_lbl = sim_lbls[itrack].label;
+              const Hit &thishit = L.refHit(hi_orig);
+              m_msErr.copyIn(itrack, thishit.errArray());
+              m_msPar.copyIn(itrack, thishit.posArray());
 
-            MPlexQF thisOutChi2;
-            MPlexQI propFail;
-            MPlexLV tmpPropPar;
-            const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
-            (*fnd_foos.m_compute_chi2_foo)(
-              m_Err[iI], m_Par[iI], m_Chg, m_msErr, m_msPar,
-              thisOutChi2, tmpPropPar, propFail, N_proc,
-              m_prop_config->finding_intra_layer_pflags,
-              m_prop_config->finding_requires_propagation_to_hit_pos);
-            float hchi2 = thisOutChi2[itrack];
+              MPlexQF thisOutChi2;
+              MPlexQI propFail;
+              MPlexLV tmpPropPar;
+              const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
+              (*fnd_foos.m_compute_chi2_foo)(
+                m_Err[iI], m_Par[iI], m_Chg, m_msErr, m_msPar,
+                thisOutChi2, tmpPropPar, propFail, N_proc,
+                m_prop_config->finding_intra_layer_pflags,
+                m_prop_config->finding_requires_propagation_to_hit_pos);
+              float hchi2 = thisOutChi2[itrack];
 
-            CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+              CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
 
-            if (sim_lbl >= 0) {
               const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi_orig).mcHitID()];
               int hit_lbl = mchinfo.mcTrackID();
               ci.hmi.emplace_back(HitMatchInfo{ HitInfo
@@ -1052,7 +1053,7 @@ namespace mkfit {
               if (new_dec)
                 pos_match_vec.emplace_back(pos_match{ new_ddphi, new_ddq, hit_out_idx++,
                                              sim_lbl == hit_lbl });
-            } // if (sim_lbl >= 0)
+            } // if sim_lbl is set
 #endif
             // clang-format on
 
@@ -1072,7 +1073,7 @@ namespace mkfit {
       dprintf(" PQUEUE (%d)", pqueue_size);
 #ifdef RNT_DUMP_MkF_SelHitIdcs
       // clang-format off
-      if (sim_lbl >= 0) {
+      if (sim_lbls[itrack].is_set()) {
         // Find ord number of matched hits.
         std::sort(pos_match_vec.begin(), pos_match_vec.end(),
                   [](auto &a, auto &b){return a.dphi < b.dphi;});
