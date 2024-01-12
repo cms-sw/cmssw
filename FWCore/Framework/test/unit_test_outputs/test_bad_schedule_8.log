@@ -1,0 +1,6 @@
+An exception of category 'ScheduleExecutionFailure' occurred while
+   [0] Calling beginJob
+Exception Message:
+Unrunnable schedule
+Dependent module later on Path
+  module 'dependingFilter' depends on 'a' which is later on path p2

@@ -98,4 +98,14 @@ elif mod == 7:
 
     process.p1 = cms.Path(process.a, cms.Task(process.b, process.c))
 
+elif mod == 8:
+    #cycle with filter on other path
+    process.a = cms.EDProducer("IntProducer", ivalue = cms.int32(10))
+    process.b = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("c"))
+    process.c = process.b.clone(labels=["a"])
+    process.dependingFilter = cms.EDFilter("IntProductFilter", label=cms.InputTag("b"), threshold=cms.int32(1000))
+    process.rejectingFilter = cms.EDFilter("TestFilterModule", acceptValue = cms.untracked.int32(-1))
 
+    process.p1 = cms.Path(process.c)
+    process.p2 = cms.Path(process.b + process.dependingFilter + process.a)
+    process.p3 = cms.Path(process.rejectingFilter + process.a)
