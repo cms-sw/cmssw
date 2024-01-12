@@ -20,6 +20,7 @@ public:
     int resonance_idx() const { return resonance_idx_; }
     int calo_particle_idx() const { return calo_particle_idx_; }
     int gen_particle_idx() const { return gen_particle_idx_; }
+    private:
   };
 
   std::vector<std::pair<int, int>> resonances;
@@ -51,20 +52,18 @@ public:
 
   void dump(void) const {
     for (auto const &l : leaves) {
-      LogDebug("SimTauProducer") << "L " + std::to_string(l.pdgId()) + " " + std::to_string(l.resonance_idx()) +
-                                        " CP: " + std::to_string(l.calo_particle_idx()) +
-                                        " GenP idx: " + std::to_string(l.gen_particle_idx());
+      LogDebug("SimTauProducer").format("L {} {} CP: {} GenP idx: {}", l.pdgId(), l.resonance_idx(), l.calo_particle_idx(), l.gen_particle_idx());
     }
     for (auto const &r : resonances) {
-      LogDebug("SimTauProducer") << "R " + std::to_string(r.first) + " " + std::to_string(r.second);
+      LogDebug("SimTauProducer").format("R {} {}", r.first, r.second);
     }
   }
 
   void dumpDecay(const std::pair<int, int> &entry) const {
     if (entry.second == -1) {  // No intermediate mother.
-      LogDebug("SimTauProducer") << std::to_string(entry.first) + " " + std::to_string(entry.second);
+      LogDebug("SimTauProducer").format("{} {}", entry.first, entry.second);
     } else {
-      LogDebug("SimTauProducer") << std::to_string(entry.first) + " " + std::to_string(entry.second) + " coming from: ";
+      LogDebug("SimTauProducer").format("{} {} coming from: ", entry.first, entry.second);
       auto const &mother = resonances[entry.second];
       dumpDecay(mother);
     }

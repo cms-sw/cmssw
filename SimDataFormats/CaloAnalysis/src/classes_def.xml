@@ -52,8 +52,8 @@
   <class name="MtdSimTracksterRefProd"/>
   <class name="MtdSimTracksterContainer"/>
 
-  <class name="SimTauCPLink" ClassVersion="10">
-   <version ClassVersion="10" checksum="213448491"/>
+  <class name="SimTauCPLink" ClassVersion="3">
+   <version ClassVersion="3" checksum="213448491"/>
   </class>
   <class name="std::vector<SimTauCPLink>"/>
   <class name="edm::Wrapper<std::vector<SimTauCPLink> >" />

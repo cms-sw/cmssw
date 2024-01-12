@@ -11,8 +11,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,10 +27,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimTauCPLink.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-class SimTauProducer : public edm::stream::EDProducer<> {
+class SimTauProducer : public edm::global::EDProducer<> {
 public:
   explicit SimTauProducer(const edm::ParameterSet&);
   ~SimTauProducer() override = default;
@@ -39,7 +35,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   void buildSimTau(SimTauCPLink&,
                    uint8_t,
@@ -47,7 +43,7 @@ private:
                    const reco::GenParticle&,
                    int,
                    edm::Handle<std::vector<CaloParticle>>,
-                   const std::vector<int>&);
+                   const std::vector<int>&) const;
   // ----------member data ---------------------------
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_token_;
   const edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticles_token_;
@@ -67,55 +63,49 @@ void SimTauProducer::buildSimTau(SimTauCPLink& t,
                                  const reco::GenParticle& gen_particle,
                                  int gen_particle_key,
                                  edm::Handle<std::vector<CaloParticle>> calo_particle_h,
-                                 const std::vector<int>& gen_particle_barcodes) {
+                                 const std::vector<int>& gen_particle_barcodes) const {
   const auto& caloPartVec = *calo_particle_h;
   auto& daughters = gen_particle.daughterRefVector();
   bool is_leaf = (daughters.empty());
+  
   if (is_leaf) {
-    LogDebug("SimTauProducer") << " TO BE SAVED " + std::to_string(resonance_idx) + " ";
+    LogDebug("SimTauProducer").format(" TO BE SAVED {} ", resonance_idx);
     auto const& gen_particle_barcode = gen_particle_barcodes[gen_particle_key];
     auto const& found_in_caloparticles = std::find_if(caloPartVec.begin(), caloPartVec.end(), [&](const auto& p) {
-      return p.g4Tracks()[0].genpartIndex() == gen_particle_barcode;
+        return p.g4Tracks()[0].genpartIndex() == gen_particle_barcode;
     });
     if (found_in_caloparticles != caloPartVec.end()) {
       auto calo_particle_idx = (found_in_caloparticles - caloPartVec.begin());
       t.calo_particle_leaves.push_back(CaloParticleRef(calo_particle_h, calo_particle_idx));
       t.leaves.push_back(
-          {gen_particle.pdgId(), resonance_idx, (int)t.calo_particle_leaves.size() - 1, gen_particle_key});
-      LogDebug("SimTauProducer") << " CP " + std::to_string(calo_particle_idx) + " " << caloPartVec[calo_particle_idx];
+      {gen_particle.pdgId(), resonance_idx, (int)t.calo_particle_leaves.size() - 1, gen_particle_key});
+      LogDebug("SimTauProducer").format(" CP {} {}", calo_particle_idx, caloPartVec[calo_particle_idx]);
     } else {
       t.leaves.push_back({gen_particle.pdgId(), resonance_idx, -1, gen_particle_key});
     }
     return;
-  } else if (generation != 0) {
-    t.resonances.push_back({gen_particle.pdgId(), resonance_idx});
-    resonance_idx = t.resonances.size() - 1;
-    LogDebug("SimTauProducer") << " RESONANCE/INTERMEDIATE " + std::to_string(resonance_idx) + " ";
-  }
+    } else if (generation != 0) {
+      t.resonances.push_back({gen_particle.pdgId(), resonance_idx});
+      resonance_idx = t.resonances.size() - 1;
+      LogDebug("SimTauProducer").format(" RESONANCE/INTERMEDIATE {} ", resonance_idx);
+    }
 
-  ++generation;
-  for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
-    int gen_particle_key = (*daughter).key();
-    LogDebug("SimTauProducer") << " gen " + std::to_string((int)generation) + " " + std::to_string(gen_particle_key) +
-                                      " " + std::to_string((*daughter)->pdgId()) + " ";
-    buildSimTau(t, generation, resonance_idx, *(*daughter), gen_particle_key, calo_particle_h, gen_particle_barcodes);
-  }
+    ++generation;
+    for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
+      int gen_particle_key = (*daughter).key();
+      LogDebug("SimTauProducer").format(" gen {} {} {} ", generation, gen_particle_key, (*daughter)->pdgId());
+      buildSimTau(t, generation, resonance_idx, *(*daughter), gen_particle_key, calo_particle_h, gen_particle_barcodes);
+    }
+  
 }
 
-void SimTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SimTauProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   using namespace edm;
 
-  Handle<std::vector<CaloParticle>> caloParticles_h;
-  iEvent.getByToken(caloParticles_token_, caloParticles_h);
-
-  edm::Handle<std::vector<reco::GenParticle>> genParticles_h;
-  iEvent.getByToken(genParticles_token_, genParticles_h);
-
-  Handle<std::vector<int>> genBarcodes_h;
-  iEvent.getByToken(genBarcodes_token_, genBarcodes_h);
-
-  const auto& genParticles = *genParticles_h;
-  const auto& genBarcodes = *genBarcodes_h;
+  auto caloParticles_h = iEvent.getHandle(caloParticles_token_);
+  const auto& genParticles = iEvent.get(genParticles_token_);
+  const auto& genBarcodes = iEvent.get(genBarcodes_token_);
+  
   auto tauDecayVec = std::make_unique<std::vector<SimTauCPLink>>();
   for (auto const& g : genParticles) {
     auto const& flags = g.statusFlags();

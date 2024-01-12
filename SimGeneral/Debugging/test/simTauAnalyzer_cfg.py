@@ -11,8 +11,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1)
                                         )
 process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(
-                                #'file:/data/agruber/patatrack/CMSSW_14_0_0_pre0/src/24036.0_ZTT_14TeV+2026D96/step3.root'
-                                'file:SimTauProducer_test.root'
+                                'file:/data/agruber/patatrack/CMSSW_14_0_0_pre0/src/24036.0_ZTT_14TeV+2026D96/step3.root'
+                                #'file:SimTauProducer_test.root'
                                 )
                             )
 

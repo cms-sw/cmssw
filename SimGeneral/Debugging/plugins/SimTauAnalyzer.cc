@@ -26,7 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-class SimTauAnalyzer : public edm::one::EDAnalyzer<> {
+class SimTauAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SimTauAnalyzer(const edm::ParameterSet&);
   ~SimTauAnalyzer() override = default;
@@ -40,6 +40,7 @@ private:
 
 SimTauAnalyzer::SimTauAnalyzer(const edm::ParameterSet& iConfig)
     : simTau_token_(consumes<std::vector<SimTauCPLink>>(iConfig.getParameter<edm::InputTag>("simTau"))) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   DM_histo = fs->make<TH1D>("DM_histo", "DM_histo", 20, -1, 19);
 }
