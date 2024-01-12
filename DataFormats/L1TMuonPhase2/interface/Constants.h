@@ -28,9 +28,9 @@ namespace Phase2L1GMT {
   const int BITSD0 = 12;
 
   //Muon ROI
-  const int BITSSTUBCOORD = 8;
+  const int BITSSTUBCOORD = 10;
   const int BITSSTUBETA = 8;
-  const int BITSSTUBID = 9;
+  const int BITSSTUBID = 12;
   const int BITSSTUBPHIQUALITY = 4;
   const int BITSSTUBETAQUALITY = 4;
   const int BITSSTUBTIME = 8;
@@ -45,8 +45,8 @@ namespace Phase2L1GMT {
   const int BITSSIGMAETA = 4;
   const int BITSSIGMACOORD = 4;
   const int BITSPROPCOORD = 9;
-  const int BITSPROPSIGMACOORD_A = 5;
-  const int BITSPROPSIGMACOORD_B = 5;
+  const int BITSPROPSIGMACOORD_A = 6;
+  const int BITSPROPSIGMACOORD_B = 6;
   const int BITSPROPSIGMAETA_A = 5;
   const int BITSPROPSIGMAETA_B = 5;
 

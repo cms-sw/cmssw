@@ -8,6 +8,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
+#include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
@@ -32,7 +33,7 @@ namespace l1t {
     ~TrackerMuon() override;
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
-    const std::vector<l1t::RegionalMuonCandRef>& muonRef() const { return muRef_; }
+    const SAMuonRefVector muonRef() const { return muRef_; }
 
     const bool hwCharge() const { return hwCharge_; }
     const int hwZ0() const { return hwZ0_; }
@@ -41,7 +42,7 @@ namespace l1t {
     const int hwIsoSumAp() const { return hwIsoSumAp_; }
     const uint hwBeta() const { return hwBeta_; }
     void setBeta(uint beta) { hwBeta_ = beta; }
-    void setMuonRef(const std::vector<l1t::RegionalMuonCandRef>& p) { muRef_ = p; }
+    void setMuonRef(const l1t::SAMuonRefVector& p) { muRef_ = p; }
     void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; }
     void setHwIsoSumAp(int isoSum) { hwIsoSumAp_ = isoSum; }
 
@@ -64,13 +65,14 @@ namespace l1t {
     const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
     const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
     const int phCharge() const { return pow(-1, hwCharge()); }
-
+    const uint numberOfMatches() const { return numberOfMatches_; }
+    const uint numberOfStations() const { return stubs_.size(); }
     const std::array<uint64_t, 2> word() const { return word_; }
     void setWord(std::array<uint64_t, 2> word) { word_ = word; }
     void print() const;
     const MuonStubRefVector stubs() const { return stubs_; }
     void addStub(const MuonStubRef& stub) { stubs_.push_back(stub); }
-
+    void setNumberOfMatches(uint matches) { numberOfMatches_ = matches; }
     bool operator<(const TrackerMuon& other) const { return (hwPt() < other.hwPt()); }
     bool operator>(const TrackerMuon& other) const { return (hwPt() > other.hwPt()); }
 
@@ -87,8 +89,9 @@ namespace l1t {
     int hwIsoSum_;
     //Store the eneryg sum for isolation with ap_type
     int hwIsoSumAp_;
-
-    std::vector<l1t::RegionalMuonCandRef> muRef_;
+    uint numberOfMatches_;
+    uint numberOfStations_;
+    SAMuonRefVector muRef_;
     MuonStubRefVector stubs_;
   };
 }  // namespace l1t
