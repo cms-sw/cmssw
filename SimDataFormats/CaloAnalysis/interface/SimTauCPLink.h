@@ -20,7 +20,8 @@ public:
     int resonance_idx() const { return resonance_idx_; }
     int calo_particle_idx() const { return calo_particle_idx_; }
     int gen_particle_idx() const { return gen_particle_idx_; }
-    private:
+
+  private:
   };
 
   std::vector<std::pair<int, int>> resonances;
@@ -52,7 +53,9 @@ public:
 
   void dump(void) const {
     for (auto const &l : leaves) {
-      LogDebug("SimTauProducer").format("L {} {} CP: {} GenP idx: {}", l.pdgId(), l.resonance_idx(), l.calo_particle_idx(), l.gen_particle_idx());
+      LogDebug("SimTauProducer")
+          .format(
+              "L {} {} CP: {} GenP idx: {}", l.pdgId(), l.resonance_idx(), l.calo_particle_idx(), l.gen_particle_idx());
     }
     for (auto const &r : resonances) {
       LogDebug("SimTauProducer").format("R {} {}", r.first, r.second);
