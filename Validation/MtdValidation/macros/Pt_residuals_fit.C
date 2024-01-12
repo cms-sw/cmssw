@@ -29,7 +29,7 @@ void fit_to_data(TH1D* histogram, TString name_file);
 
 
 // Main function
-//-------------
+//--------------
 void residuals_fit(){
 
     // Open the root file to read 
@@ -102,8 +102,8 @@ void fit_to_data(TH1D* h_TrackMatchedTP, TString str){
     RooRealVar sigmaR("sigmaR", "sigmaR", 0.05, 0., 5.);
     RooRealVar alphaL("alphaL", "alphaL", 1., 0., 5.);
     RooRealVar alphaR("alphaR", "alphaR", 1., 0., 5.);
-    RooRealVar nL("NL", "NL", 10., 0., 100.);
-    RooRealVar nR("NR", "NR", 10., 0., 100.);
+    RooRealVar nL("NL", "NL", 5., 0., 100.);
+    RooRealVar nR("NR", "NR", 5., 0., 100.);
  
     // Build a double sided crystall ball PDF
     RooCrystalBall* pdf = new RooCrystalBall("pdf", "pdf", x_res, mean, sigmaL, sigmaR, alphaL, nL, alphaR, nR);
@@ -139,7 +139,7 @@ void fit_to_data(TH1D* h_TrackMatchedTP, TString str){
     cout << "Resolution = " << res << " +- " << bin_width << endl;
    
     // Create a RooPlot to draw on
-    //-----------------------------
+    //----------------------------
     // We don't manage the memory of the returned pointer 
     // Instead we let it leak such that the plot still exists at the end of the macro and we can take a look at it
     RooPlot* xresframe = x_res.frame();
@@ -171,8 +171,9 @@ void fit_to_data(TH1D* h_TrackMatchedTP, TString str){
     header->DrawLatexNDC(0.66,0.75,TString::Format("#mu = %.4f #pm %.4f", mean_fit, err_mean));
     header->DrawLatexNDC(0.66,0.71,TString::Format("#sigma_{R} = %.4f #pm %.4f", sigmaR_fit, err_sigmaR));
     header->DrawLatexNDC(0.66,0.67,TString::Format("#sigma_{L} = %.4f #pm %.4f", sigmaL_fit, err_sigmaL));
-    header->DrawLatexNDC(0.66,0.63,TString::Format("#sigma (0.68) = %.3f #pm %.3f", res, bin_width));
-    header->DrawLatexNDC(0.66,0.59,TString::Format("#chi^{2}/ndf = %.2f" , xresframe->chiSquare()));
+    if (str.Contains("Ratio")) header->DrawLatexNDC(0.66,0.63,TString::Format("#sigma (0.68) = %.3f #pm %.3f", res, bin_width));
+    if (str.Contains("Ratio")) header->DrawLatexNDC(0.66,0.59,TString::Format("#chi^{2}/ndf = %.2f" , xresframe->chiSquare()));
+    if (str.Contains("Res")) header->DrawLatexNDC(0.66,0.63,TString::Format("#chi^{2}/ndf = %.2f" , xresframe->chiSquare()));
     c1->Print(str);
    
 }
