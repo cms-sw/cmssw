@@ -1,44 +1,46 @@
 ###############################################################################
-# Way to use this:
-#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D100V1 tol=0.01
-#
-#   Options for geometry D100V1, D100V2
+# Usage example:
+#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D102 tol=0.01
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D100V1",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D100V1, D100V2")
+                 "",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Geometry name: e.g. D102"
+)
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Tolerance for checking overlaps: 0.01, 0.1, 1.0"
+                 "Overlap tolerance [mm]: 0.01, 0.1, 1.0"
+)
+options.register('full',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Check full CMS detector instead of just Tracker"
 )
 
 ### get and parse the command line arguments
 options.parseArguments()
-
-print(options)
 
 ####################################################################
 # Use the options
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('OverlapCheck',Phase2C17I13M9)
 
-geomFile = "Geometry.TrackerCommonData.GeometryExtended2026" + options.geometry + "_cff"
-baseName = "cms2026" + options.geometry + "DDD"
+baseName = "GeometryExtended2026" + options.geometry
+geomFile = "Configuration.Geometry." + baseName + "_cff"
 
-print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)
+print("Geometry file Name: ", geomFile)
 
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -57,8 +59,10 @@ process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
 process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
-# list of names
-process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS')
+# list of name to be checked 
+process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('Tracker')
+if options.full:
+    process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS')
 # enable dump gdml file 
 process.g4SimHits.G4CheckOverlap.gdmlFlag   = cms.bool(False)
 # if defined a G4PhysicsVolume info is printed
