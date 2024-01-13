@@ -128,7 +128,7 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (processInputTracks_) {
     l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
     auto inputTracks = std::make_unique<TTTrackCollection>();
-    for (size_t i = 0; i < 18; i++) {
+    for (size_t i = 0; i < l1t::demo::kTrackTMUX; i++) {
       auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
       for (auto& trackword : iTracks) {
         if (!trackword.getValidWord())
