@@ -771,10 +771,12 @@ namespace mkfit {
         rnt_shi.RegisterFailedProp(i, m_Par[1 - iI], m_Par[iI], m_event, m_SeedOriginIdx[i]);
       } else if (sim_lbls[i].is_set()) {
         rnt_shi.RegisterGoodProp(i, m_Par[iI], m_event, m_SeedOriginIdx[i]);
-        // get BinSearch result from V1.
-        selectHitIndices(layer_of_hits, N_proc, true);
       }  // else ... could do something about the bad seeds ... probably better to collect elsewhere.
     }
+    // Get BinSearch result from V1. Note -- it can clear m_FailFlag for some cands!
+    auto ff_stash = m_FailFlag;
+    selectHitIndices(layer_of_hits, N_proc, true);
+    m_FailFlag = ff_stash;
 #endif
 
     constexpr int NEW_MAX_HIT = 6;  // 4 - 6 give about the same # of tracks in quality-val
@@ -1013,14 +1015,14 @@ namespace mkfit {
                     qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
                     ddq, ddphi, prop_fail ? "FAIL" : "OK", dqdphi_presel ? "PASS" : "REJECT");
 #ifdef RNT_DUMP_MkF_SelHitIdcs
-            if (sim_lbls[itrack].is_set()) {
+            if (rnt_shi.f_h_remap[itrack] >= 0) {
               int sim_lbl = sim_lbls[itrack].label;
               const Hit &thishit = L.refHit(hi_orig);
               m_msErr.copyIn(itrack, thishit.errArray());
               m_msPar.copyIn(itrack, thishit.posArray());
 
               MPlexQF thisOutChi2;
-              MPlexQI propFail;
+              MPlexQI propFail(0);
               MPlexLV tmpPropPar;
               const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
               (*fnd_foos.m_compute_chi2_foo)(
