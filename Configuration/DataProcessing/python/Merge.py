@@ -73,7 +73,6 @@ def mergeProcess(*inputFiles, **options):
     elif mergeNANO:
         import Configuration.EventContent.EventContent_cff
         outMod = OutputModule("NanoAODOutputModule",Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
-        process.add_(Service("InitRootHandlers", EnableIMT = CfgTypes.untracked.bool(False)))
     else:
         outMod = OutputModule("PoolOutputModule")
         outMod.mergeJob = CfgTypes.untracked.bool(True)
