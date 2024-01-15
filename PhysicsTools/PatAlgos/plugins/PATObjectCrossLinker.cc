@@ -46,14 +46,11 @@
 class PATObjectCrossLinker : public edm::stream::EDProducer<> {
 public:
   explicit PATObjectCrossLinker(const edm::ParameterSet&);
-  ~PATObjectCrossLinker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   template <class C1, class C2, class C3, class C4>
   void matchOneToMany(const C1& refProdOne,
@@ -84,11 +81,6 @@ private:
 
   template <class C1, class C2, class C3>
   void matchVertexToMany(const C1& refProdVtx, C2& itemsVtx, const std::string& nameVtx, C3& itemsMany);
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<edm::View<pat::Jet>> jets_;
@@ -133,11 +125,6 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
     vertices_ = consumes<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_);
     produces<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
   }
-}
-
-PATObjectCrossLinker::~PATObjectCrossLinker() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -368,12 +355,6 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
   if (!verticesTag_.label().empty())
     iEvent.put(std::move(vertices), "vertices");
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void PATObjectCrossLinker::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void PATObjectCrossLinker::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

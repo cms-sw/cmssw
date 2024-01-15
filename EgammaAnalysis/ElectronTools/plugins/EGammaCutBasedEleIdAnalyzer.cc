@@ -51,7 +51,6 @@ public:
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsoDepositVals;
 
   explicit EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet &);
-  ~EGammaCutBasedEleIdAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget;
@@ -59,14 +58,7 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
 
-  /*
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  */
   // ----------member data ---------------------------
 
   // input tags
@@ -124,11 +116,6 @@ EGammaCutBasedEleIdAnalyzer::EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet
   h1_pt_tight_ = fs->make<TH1F>("h1_pt_tight", "pt (tight)", 100, 0.0, 100.0);
   h1_pt_trig_ = fs->make<TH1F>("h1_pt_trig", "pt (trig)", 100, 0.0, 100.0);
   h1_pt_fbremeopin_ = fs->make<TH1F>("h1_pt_fbremeopin", "pt (fbremeopin)", 100, 0.0, 100.0);
-}
-
-EGammaCutBasedEleIdAnalyzer::~EGammaCutBasedEleIdAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -253,21 +240,6 @@ void EGammaCutBasedEleIdAnalyzer::beginJob() {
     EAtarget = ElectronEffectiveArea::kEleEAData2012;
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void EGammaCutBasedEleIdAnalyzer::endJob() {}
-/*
-// ------------ method called when starting to processes a run  ------------
-void EGammaCutBasedEleIdAnalyzer::beginRun(edm::Run const &, edm::EventSetup const &) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void EGammaCutBasedEleIdAnalyzer::endRun(edm::Run const &, edm::EventSetup const &) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void EGammaCutBasedEleIdAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void EGammaCutBasedEleIdAnalyzer::endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
-*/
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void EGammaCutBasedEleIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

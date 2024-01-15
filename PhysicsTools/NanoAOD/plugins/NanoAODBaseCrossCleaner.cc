@@ -54,11 +54,6 @@ NanoAODBaseCrossCleaner::NanoAODBaseCrossCleaner(const edm::ParameterSet& params
   produces<nanoaod::FlatTable>("photons");
 }
 
-NanoAODBaseCrossCleaner::~NanoAODBaseCrossCleaner() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -129,12 +124,6 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(photonsTable), "photons");
   iEvent.put(std::move(lowPtElectronsTable), "lowPtElectrons");
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void NanoAODBaseCrossCleaner::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void NanoAODBaseCrossCleaner::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void NanoAODBaseCrossCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

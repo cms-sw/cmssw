@@ -71,9 +71,6 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
 
@@ -354,27 +351,6 @@ void L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup con
     }
   }
 }
-
-// ------------ method called when ending the processing of a run  ------------
-void L1TStage2Layer1Producer::endRun(edm::Run const&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-L1TStage2Layer1Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
-t&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-L1TStage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
-)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TStage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

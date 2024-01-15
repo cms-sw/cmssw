@@ -50,17 +50,11 @@ using namespace l1t;
 class L1TMicroGMTInputProducerFromGen : public edm::stream::EDProducer<> {
 public:
   explicit L1TMicroGMTInputProducerFromGen(const edm::ParameterSet&);
-  ~L1TMicroGMTInputProducerFromGen() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-
-  void beginRun(const edm::Run&, edm::EventSetup const&) override;
-  void endRun(const edm::Run&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
 
   static bool compareMuons(const RegionalMuonCand&, const RegionalMuonCand&);
 
@@ -91,11 +85,6 @@ L1TMicroGMTInputProducerFromGen::L1TMicroGMTInputProducerFromGen(const edm::Para
   produces<RegionalMuonCandBxCollection>("OverlapTFMuons");
   produces<RegionalMuonCandBxCollection>("ForwardTFMuons");
   produces<MuonCaloSumBxCollection>("TriggerTowerSums");
-}
-
-L1TMicroGMTInputProducerFromGen::~L1TMicroGMTInputProducerFromGen() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -241,18 +230,6 @@ void L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::Eve
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   m_currEvt++;
 }
-
-// ------------ method called when starting to processes a run  ------------
-void L1TMicroGMTInputProducerFromGen::beginRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void L1TMicroGMTInputProducerFromGen::endRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void L1TMicroGMTInputProducerFromGen::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void L1TMicroGMTInputProducerFromGen::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TMicroGMTInputProducerFromGen::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

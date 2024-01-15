@@ -51,19 +51,11 @@
 class VertexTableProducer : public edm::stream::EDProducer<> {
 public:
   explicit VertexTableProducer(const edm::ParameterSet&);
-  ~VertexTableProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
 
@@ -102,11 +94,6 @@ VertexTableProducer::VertexTableProducer(const edm::ParameterSet& params)
   produces<nanoaod::FlatTable>("otherPVs");
   produces<nanoaod::FlatTable>("svs");
   produces<edm::PtrVector<reco::Candidate>>();
-}
-
-VertexTableProducer::~VertexTableProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -227,12 +214,6 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(std::move(svsTable), "svs");
   iEvent.put(std::move(selCandSv));
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void VertexTableProducer::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void VertexTableProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void VertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

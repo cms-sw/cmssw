@@ -44,17 +44,12 @@ using namespace l1t;
 class L1TBMTFConverter : public edm::stream::EDProducer<> {
 public:
   explicit L1TBMTFConverter(const edm::ParameterSet&);
-  ~L1TBMTFConverter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void beginRun(const edm::Run&, edm::EventSetup const&) override;
-  void endRun(const edm::Run&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
   // ----------member data ---------------------------
   edm::EDGetTokenT<RegionalMuonCandBxCollection> m_barrelTfInputToken;
   edm::InputTag m_barrelTfInputTag;
@@ -111,11 +106,6 @@ L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig) {
   ptMap_[31] = 280;
 }
 
-L1TBMTFConverter::~L1TBMTFConverter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -143,18 +133,6 @@ void L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   iEvent.put(std::move(convMuons), "ConvBMTFMuons");
 }
-
-// ------------ method called when starting to processes a run  ------------
-void L1TBMTFConverter::beginRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void L1TBMTFConverter::endRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void L1TBMTFConverter::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void L1TBMTFConverter::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TBMTFConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

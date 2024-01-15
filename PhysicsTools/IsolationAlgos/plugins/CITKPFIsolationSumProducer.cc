@@ -37,8 +37,6 @@ namespace citk {
   public:
     PFIsolationSumProducer(const edm::ParameterSet&);
 
-    ~PFIsolationSumProducer() override {}
-
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
     void produce(edm::Event&, const edm::EventSetup&) final;

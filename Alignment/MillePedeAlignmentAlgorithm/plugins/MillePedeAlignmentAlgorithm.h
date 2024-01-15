@@ -116,9 +116,6 @@ public:
   /// called at end of luminosity block
   void endLuminosityBlock(const edm::EventSetup &) override;
 
-  /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
-  /*   virtual void endLuminosityBlock(const edm::EventSetup &setup) {} */
-
   /// Called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
   bool setParametersForRunRange(const RunRange &runrange) override;
