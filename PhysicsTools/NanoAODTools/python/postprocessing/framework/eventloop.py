@@ -15,7 +15,7 @@ class Module(object):
             prevdir = ROOT.gDirectory
             self.histFile = histFile
             self.histFile.cd()
-            self.dir = self.histFile.mkdir(histDirName)
+            self.dir = self.histFile.mkdir(histDirName, "", True)
             prevdir.cd()
             self.objs = []
 
@@ -26,8 +26,6 @@ class Module(object):
             for obj in self.objs:
                 obj.Write()
             prevdir.cd()
-            if hasattr(self, 'histFile') and self.histFile != None:
-                self.histFile.Close()
 
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
