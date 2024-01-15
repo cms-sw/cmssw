@@ -193,7 +193,7 @@ void go(Queue & queue, bool useShared) {
       if (offsets_h[ib + 1] > offsets_h[ib])
         inds.insert(ind_h[offsets_h[ib]]);
       for (auto j = offsets_h[ib] + 1; j < offsets_h[ib + 1]; j++) {
-        if (inds.count(ind_h[j])) {
+        if (inds.count(ind_h[j]) != 0) {
           printf("i=%d ib=%d ind_h[j=%d]=%d: duplicate indice!\n",
                   i, ib, j, ind_h[j]);
           std::vector<int> counts;
@@ -206,6 +206,7 @@ void go(Queue & queue, bool useShared) {
               printf("counts[%ld]=%d ", j2, counts[j2]);
           } 
           printf("\n");
+          printf("inds.count(ind_h[j] = %lu\n", inds.count(ind_h[j]));
         }
         assert(0 == inds.count(ind_h[j]));
         inds.insert(ind_h[j]);
@@ -218,7 +219,6 @@ void go(Queue & queue, bool useShared) {
           std::cout << "i=" << i << " not ordered at ib=" << ib << " in [" << offsets_h[ib]  << ", " << offsets_h[ib + 1] - 1 
                   << "] j=" << j << " ind[j]=" << ind_h[j] << " (k1 < k2) : a1=" << a[ind_h[j]] << " k1=" << k1
                   << "a2= " << a[ind_h[j - 1]] << " k2=" << k2 << std::endl;
-          assert(false);
         }
       }
       if (!inds.empty()) {

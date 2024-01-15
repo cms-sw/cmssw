@@ -1,9 +1,13 @@
 #ifndef HeterogeneousCore_AlpakaInterface_interface_radixSort_h
 #define HeterogeneousCore_AlpakaInterface_interface_radixSort_h
 
+#include <algorithm>
 #include <cstdint>
+#include <numeric>
 #include <type_traits>
+
 #include <alpaka/alpaka.hpp>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 namespace cms::alpakatools {
@@ -125,17 +129,17 @@ namespace cms::alpakatools {
       auto k = ind2;
 
       // Initializer index order to trivial increment.
-      for (auto idx: elements_with_stride(acc, size)) { j[idx] = idx; }
+      for (auto idx: independent_group_elements(acc, size)) { j[idx] = idx; }
       alpaka::syncBlockThreads(acc);
 
       // Iterate on the slices of the data.
       while (alpaka::syncBlockThreadsPredicate<alpaka::BlockAnd>(acc, (currentSortingPass < totalSortingPassses))) {
-        for (auto idx: elements_with_stride(acc, binsNumber)) { c[idx] = 0; }
+        for (auto idx: independent_group_elements(acc, binsNumber)) { c[idx] = 0; }
         alpaka::syncBlockThreads(acc);
         const auto sortingPassShift = binBits * currentSortingPass;
 
         // fill bins (count elements in each bin)
-        for (auto idx: elements_with_stride(acc, size)) {
+        for (auto idx: independent_group_elements(acc, size)) {
           auto bin = (a[j[idx]] >> sortingPassShift) & binsMask;
           alpaka::atomicAdd(acc, &c[bin], 1, alpaka::hierarchy::Threads{});
         } 
@@ -154,7 +158,7 @@ namespace cms::alpakatools {
         // prefix scan "optimized"???...
         // TODO: we might be able to reuse the warpPrefixScan function
         // Warp level prefix scan
-        for (auto idx: elements_with_stride(acc, binsNumber)) {
+        for (auto idx: independent_group_elements(acc, binsNumber)) {
           auto x = c[idx];
           auto laneId = idx & warpMask;
 
@@ -168,7 +172,7 @@ namespace cms::alpakatools {
         alpaka::syncBlockThreads(acc);
         
         // Block level completion of prefix scan (add last sum of each preceding warp)
-        for (auto idx: elements_with_stride(acc, binsNumber)) {
+        for (auto idx: independent_group_elements(acc, binsNumber)) {
           auto ss = (idx / warpSize) * warpSize - 1;
           c[idx] = ct[idx];
           for (int i = ss; i > 0; i -= warpSize)
@@ -198,7 +202,7 @@ namespace cms::alpakatools {
         // Iterate on bin-sized slices to (size - 1) / binSize + 1 iterations
         while (alpaka::syncBlockThreadsPredicate<alpaka::BlockAnd>(acc, ibs >= 0)) {
           // Init
-          for (auto idx: elements_with_stride(acc, binsNumber)) {
+          for (auto idx: independent_group_elements(acc, binsNumber)) {
             cu[idx] = -1;
             ct[idx] = -1;
           }
@@ -206,7 +210,7 @@ namespace cms::alpakatools {
 
           // Find the highest index for all the threads dealing with a given bin (in cu[])
           // Also record the bin for each thread (in ct[])
-          for (auto idx: elements_with_stride(acc, binsNumber)) {
+          for (auto idx: independent_group_elements(acc, binsNumber)) {
             int i = ibs - idx;
             int32_t bin = -1;
             if (i >= 0) {
@@ -226,7 +230,7 @@ namespace cms::alpakatools {
 
           
           // FIXME: we can slash a memory access.
-          for (auto idx: elements_with_stride(acc, binsNumber)) {
+          for (auto idx: independent_group_elements(acc, binsNumber)) {
             int i = ibs - idx;
             // Are we still in inside the data?
             if (i >= 0) {
@@ -302,7 +306,7 @@ namespace cms::alpakatools {
 
       // TODO this copy is (doubly?) redundant with the reorder
       if (j != ind)  // odd number of sorting passes, we need to move the result to the right array (ind[])
-        for (auto idx: elements_with_stride(acc, size)) { ind[idx] = ind2[idx]; };
+        for (auto idx: independent_group_elements(acc, size)) { ind[idx] = ind2[idx]; };
 
       alpaka::syncBlockThreads(acc);
 
@@ -360,8 +364,9 @@ namespace cms::alpakatools {
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     static_assert(requires_single_thread_per_block_v<TAcc>, "CPU sort (not a radixSort) called wtth wrong accelerator");
     // Initialize the index array
-    for (std::size_t i = 0; i < size; i++) ind[i] = i;
-    printf("std::sort(a=%p, ind=%p, indmax=%p, size=%d)\n", a, ind, ind + size, size);
+    std::iota(ind, ind + size, 0);
+    /*
+    printf("std::stable_sort(a=%p, ind=%p, indmax=%p, size=%d)\n", a, ind, ind + size, size);
     for (uint32_t i=0; i<10 && i<size; i++) {
       printf ("a[%d]=%ld ", i, (long int)a[i]);
     }
@@ -370,11 +375,14 @@ namespace cms::alpakatools {
       printf ("ind[%d]=%d ", i, ind[i]);
     }
     printf("\n");
-    std::sort(ind, ind+size, [a](uint16_t i0, uint16_t i1) { return a[i0] < a[i1]; });
+    */
+    std::stable_sort(ind, ind+size, [a](uint16_t i0, uint16_t i1) { return a[i0] < a[i1]; });
+    /*
     for (uint32_t i=0; i<10 && i<size; i++) {
       printf ("ind[%d]=%d ", i, ind[i]);
     }
     printf("\n");
+    */
   }
   
                                                                                                                                                                                    template <typename TAcc, typename T, int NS = sizeof(T)>
