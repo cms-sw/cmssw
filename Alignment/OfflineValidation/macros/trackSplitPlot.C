@@ -8,6 +8,7 @@ Table Of Contents
 5. Place Legend
 ***********************************/
 
+using namespace std;
 #include "trackSplitPlot.h"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
@@ -36,7 +37,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
   stufftodelete->SetOwner(true);
   cout << xvar << " " << yvar << endl;
   if (xvar == "" && yvar == "")
-    return 0;
+    return nullptr;
 
   PlotType type;
   if (xvar == "")
@@ -159,7 +160,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
 
     TFile *f = TFile::Open(files[i]);
     TTree *tree = (TTree *)f->Get("cosmicValidation/splitterTree");
-    if (tree == 0)
+    if (tree == nullptr)
       tree = (TTree *)f->Get("splitterTree");
 
     lengths[i] = tree->GetEntries();
@@ -167,6 +168,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
     Double_t x = 0, y = 0, rel = 1, sigma1 = 1;
     Double_t sigma2 = 1;  //if !pull, we want to divide by sqrt(2) because we want the error from 1 track
     Double_t sigmaorg = 0;
+
     Int_t xint = 0, xint2 = 0;
     Int_t runNumber = 0;
     double pt1 = 0, maxpt1 = 0;
@@ -436,16 +438,16 @@ TCanvas *trackSplitPlot(Int_t nFiles,
     }
   }
 
-  TH1 *firstp = 0;
+  TH1 *firstp = nullptr;
   for (int i = 0; i < n; i++) {
     if (used[i]) {
       firstp = p[i];
       break;
     }
   }
-  if (firstp == 0) {
+  if (firstp == nullptr) {
     stufftodelete->Clear();
-    return 0;
+    return nullptr;
   }
 
   TCanvas *c1 = TCanvas::MakeDefCanvas();
@@ -544,13 +546,13 @@ TCanvas *trackSplitPlot(Int_t nFiles,
         p[i]->Draw("same hist");
         legend->AddEntry(p[i], names[i], "l");
       }
-      legend->AddEntry((TObject *)0, meansrmss[i], "");
+      legend->AddEntry((TObject *)nullptr, meansrmss[i], "");
     }
   }
-  if (legend->GetListOfPrimitives()->At(0) == 0) {
+  if (legend->GetListOfPrimitives()->At(0) == nullptr) {
     stufftodelete->Clear();
     deleteCanvas(c1);
-    return 0;
+    return nullptr;
   }
 
   c1->Update();
@@ -637,16 +639,13 @@ void saveplot(TCanvas *c1, TString saveas) {
 }
 
 void deleteCanvas(TObject *canvas) {
-  if (canvas == 0)
+  if (canvas == nullptr)
     return;
   if (!canvas->InheritsFrom("TCanvas")) {
     delete canvas;
     return;
   }
   TCanvas *c1 = (TCanvas *)canvas;
-  TList *list = c1->GetListOfPrimitives();
-  list->SetOwner(true);
-  list->Clear();
   delete c1;
 }
 
@@ -731,7 +730,7 @@ void misalignmentDependence(TCanvas *c1old,
                             Bool_t resolution,
                             Bool_t pull,
                             TString saveas) {
-  if (c1old == 0)
+  if (c1old == nullptr)
     return;
   c1old = (TCanvas *)c1old->Clone("c1old");
   if (misalignment == "" || yvar == "")
@@ -762,9 +761,9 @@ void misalignmentDependence(TCanvas *c1old,
     s0 << "p" << i;
     TString pname = s0.str();
     p[i] = (TH1 *)list->/*At(i+1+(xvar == ""))*/ FindObject(pname);
-    used[i] = (p[i] != 0);
+    used[i] = (p[i] != nullptr);
     if (used[i])
-      p[i]->SetDirectory(0);
+      p[i]->SetDirectory(nullptr);
     if (xvar == "")
       continue;
     stringstream s;
@@ -863,12 +862,12 @@ void misalignmentDependence(TCanvas *c1old,
     legend->SetFillStyle(0);
     legend->Draw();
   } else {
-    if (values == 0)
+    if (values == nullptr)
       return;
 
     Bool_t phasesmatter = false;
     if (misalignment == "elliptical" || misalignment == "sagitta" || misalignment == "skew") {
-      if (phases == 0) {
+      if (phases == nullptr) {
         cout << "This misalignment has a phase, but you didn't supply the phases!" << endl
              << "Can't produce plots depending on the misalignment value." << endl;
         return;
@@ -885,7 +884,7 @@ void misalignmentDependence(TCanvas *c1old,
     }
 
     if (!phasesmatter) {
-      TGraphErrors *g = new TGraphErrors(nFiles, values, result, (Double_t *)0, error);
+      TGraphErrors *g = new TGraphErrors(nFiles, values, result, (Double_t *)nullptr, error);
       g->SetName("");
       stufftodelete->Add(g);
 
@@ -919,7 +918,8 @@ void misalignmentDependence(TCanvas *c1old,
         xvalues[i] = values[i] * cos(phases[i]);
         yvalues[i] = values[i] * sin(phases[i]);
       }
-      TGraph2DErrors *g = new TGraph2DErrors(nFiles, xvalues, yvalues, result, (Double_t *)0, (Double_t *)0, error);
+      TGraph2DErrors *g =
+          new TGraph2DErrors(nFiles, xvalues, yvalues, result, (Double_t *)nullptr, (Double_t *)nullptr, error);
       g->SetName("");
       stufftodelete->Add(g);
       delete[] xvalues;  //A TGraph2DErrors has its own copy of xvalues and yvalues, so it's ok to delete these copies.
@@ -1256,7 +1256,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
                               Bool_t pull,
                               TString saveas) {
   if (xvar == "") {
-    if (c1old == 0 || misalignment == "" || values == 0)
+    if (c1old == nullptr || misalignment == "" || values == nullptr)
       return false;
     misalignmentDependence(c1old,
                            nFiles,
@@ -1266,7 +1266,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
                            phases,
                            xvar,
                            yvar,
-                           (TF1 *)0,
+                           (TF1 *)nullptr,
                            0,
                            "",
                            "",
@@ -1276,7 +1276,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
                            saveas);
     return true;
   }
-  TF1 *f = 0;
+  TF1 *f = nullptr;
   TString functionname = "";
 
   //if only one parameter is of interest
@@ -1285,8 +1285,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
 
   //if multiple parameters are of interest
   Int_t nParameters = -1;
-  TString *parameternames = 0;
-  Int_t *parameters = 0;
+  TString *parameternames = nullptr;
+  Int_t *parameters = nullptr;
 
   if (misalignment == "sagitta") {
     if (xvar == "phi" && yvar == "phi" && !resolution && !pull) {
@@ -1557,12 +1557,12 @@ Bool_t misalignmentDependence(Int_t nFiles,
 }
 
 Bool_t hasFit(TString misalignment, TString xvar, TString yvar, Bool_t relative, Bool_t resolution, Bool_t pull) {
-  return misalignmentDependence((TCanvas *)0,
+  return misalignmentDependence((TCanvas *)nullptr,
                                 0,
-                                (TString *)0,
+                                (TString *)nullptr,
                                 misalignment,
-                                (Double_t *)0,
-                                (Double_t *)0,
+                                (Double_t *)nullptr,
+                                (Double_t *)nullptr,
                                 xvar,
                                 yvar,
                                 false,
@@ -1587,7 +1587,7 @@ void makePlots(Int_t nFiles,
   stufftodelete->SetOwner(true);
 
   for (Int_t i = 0, totaltime = 0; i < nFiles; i++) {
-    TFile *f = 0;
+    TFile *f = nullptr;
     bool exists = false;
     if (files[i] == "")
       exists = true;
@@ -1595,7 +1595,7 @@ void makePlots(Int_t nFiles,
     for (int j = 1; j <= 60 * 24 && !exists; j++, totaltime++)  //wait up to 1 day for the validation to be finished
     {
       f = TFile::Open(files[i]);
-      if (f != 0)
+      if (f != nullptr)
         exists = f->IsOpen();
       delete f;
       if (exists)
@@ -1860,7 +1860,7 @@ void makePlots(Int_t nFiles,
 }
 
 void makePlots(Int_t nFiles, TString *files, TString *names, TString directory, Bool_t matrix[xsize][ysize]) {
-  makePlots(nFiles, files, names, "", (Double_t *)0, (Double_t *)0, directory, matrix);
+  makePlots(nFiles, files, names, "", (Double_t *)nullptr, (Double_t *)nullptr, directory, matrix);
 }
 
 void makePlots(TString file,
@@ -1871,12 +1871,12 @@ void makePlots(TString file,
                Bool_t matrix[xsize][ysize]) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {
@@ -1904,7 +1904,7 @@ void makePlots(TString file,
 }
 
 void makePlots(TString file, TString directory, Bool_t matrix[xsize][ysize]) {
-  makePlots(file, "", (Double_t *)0, (Double_t *)0, directory, matrix);
+  makePlots(file, "", (Double_t *)nullptr, (Double_t *)nullptr, directory, matrix);
 }
 
 //***************************************************************************
@@ -1941,7 +1941,7 @@ void makePlots(Int_t nFiles,
 }
 
 void makePlots(Int_t nFiles, TString *files, TString *names, TString directory, TString xvar, TString yvar) {
-  makePlots(nFiles, files, names, "", (Double_t *)0, (Double_t *)0, directory, xvar, yvar);
+  makePlots(nFiles, files, names, "", (Double_t *)nullptr, (Double_t *)nullptr, directory, xvar, yvar);
 }
 
 void makePlots(TString file,
@@ -1953,12 +1953,12 @@ void makePlots(TString file,
                TString yvar) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {
@@ -1986,7 +1986,7 @@ void makePlots(TString file,
 }
 
 void makePlots(TString file, TString directory, TString xvar, TString yvar) {
-  makePlots(file, "", (Double_t *)0, (Double_t *)0, directory, xvar, yvar);
+  makePlots(file, "", (Double_t *)nullptr, (Double_t *)nullptr, directory, xvar, yvar);
 }
 
 //***************************
@@ -2004,18 +2004,18 @@ void makePlots(Int_t nFiles,
 }
 
 void makePlots(Int_t nFiles, TString *files, TString *names, TString directory) {
-  makePlots(nFiles, files, names, "", (Double_t *)0, (Double_t *)0, directory);
+  makePlots(nFiles, files, names, "", (Double_t *)nullptr, (Double_t *)nullptr, directory);
 }
 
 void makePlots(TString file, TString misalignment, Double_t *values, Double_t *phases, TString directory) {
   setupcolors();
   file.Remove(TString::kTrailing, ',');
-  int n = file.CountChar(',') + 1;
+  unsigned int n = file.CountChar(',') + 1;
   TString *files = new TString[n];
   TString *names = new TString[n];
   vector<Color_t> tempcolors = colors;
   vector<Style_t> tempstyles = styles;
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     TString thisfile = nPart(i + 1, file, ",");
     int numberofpipes = thisfile.CountChar('|');
     if (numberofpipes >= 0 && nPart(numberofpipes + 1, thisfile, "|").IsDigit()) {
@@ -2042,7 +2042,9 @@ void makePlots(TString file, TString misalignment, Double_t *values, Double_t *p
   styles = tempstyles;
 }
 
-void makePlots(TString file, TString directory) { makePlots(file, "", (Double_t *)0, (Double_t *)0, directory); }
+void makePlots(TString file, TString directory) {
+  makePlots(file, "", (Double_t *)nullptr, (Double_t *)nullptr, directory);
+}
 
 //=============
 //3. Axis Label
@@ -2109,7 +2111,7 @@ TString latexunits(TString variable, char axis) {
 TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull) {
   if (axis == 'X' || axis == 'Y') {
     double min, max, bins;
-    axislimits(0, 0, variable, tolower(axis), relative, pull, min, max, bins);
+    axislimits(0, nullptr, variable, tolower(axis), relative, pull, min, max, bins);
 
     if (variable.BeginsWith("nHits"))
       return "fraction of tracks";
@@ -2285,7 +2287,7 @@ Double_t findStatistic(
       continue;
     TFile *f = TFile::Open(files[j]);
     TTree *tree = (TTree *)f->Get("cosmicValidation/splitterTree");
-    if (tree == 0)
+    if (tree == nullptr)
       tree = (TTree *)f->Get("splitterTree");
     Int_t length = tree->GetEntries();
 
@@ -2577,9 +2579,9 @@ Double_t placeLegend(
 Bool_t fitsHere(TLegend *l, Double_t x1, Double_t y1, Double_t x2, Double_t y2) {
   Bool_t fits = true;
   TList *list = l->GetListOfPrimitives();
-  for (Int_t k = 0; list->At(k) != 0 && fits; k++) {
+  for (Int_t k = 0; list->At(k) != nullptr && fits; k++) {
     TObject *obj = ((TLegendEntry *)(list->At(k)))->GetObject();
-    if (obj == 0)
+    if (obj == nullptr)
       continue;
     TClass *cl = obj->IsA();
 
