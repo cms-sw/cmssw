@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_histomax
 
-hgcalTrigPrimValidation = DQMEDAnalyzer(
+L1THGCalTrigPrimValidation = DQMEDAnalyzer(
         "HGCalTriggerValidator",
         TriggerCells = cms.InputTag('l1tHGCalConcentratorProducer:HGCalConcentratorProcessorSelection'),
         Clusters = cms.InputTag('l1tHGCalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
