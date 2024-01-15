@@ -7,7 +7,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
-    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.source = cms.Source("EmptySource")
 
