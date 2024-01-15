@@ -22,6 +22,7 @@ class L1MetPfProducer : public edm::global::EDProducer<> {
 public:
   explicit L1MetPfProducer(const edm::ParameterSet&);
   ~L1MetPfProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
@@ -87,6 +88,14 @@ L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
     hls4mlEmulator::ModelLoader loader(modelVersion_);
     model = loader.load_model();
   }
+}
+
+void L1MetPfProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer", "l1pfCandidates"));
+  desc.add<int>("maxCands", 128);
+  desc.add<std::string>("modelVersion", "");
+  descriptions.add("L1MetPfProducer", desc);
 }
 
 void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -166,8 +175,8 @@ void L1MetPfProducer::CalcMlMet(std::vector<float> pt,
     input[i * numContInputs_ + 2] = phi[i];
     input[i * numContInputs_ + 3] = puppiWeight[i];
     // input_pxpy
-    input[maxCands_ * numContInputs_ + i * numPxPyInputs_] = pt[i] * cos(phi[i]);
-    input[maxCands_ * numContInputs_ + i * numPxPyInputs_ + 1] = pt[i] * sin(phi[i]);
+    input[(maxCands_ * numContInputs_) + (i * numPxPyInputs_)] = pt[i] * cos(phi[i]);
+    input[(maxCands_ * numContInputs_) + (i * numPxPyInputs_) + 1] = pt[i] * sin(phi[i]);
     // input_cat0
     input[maxCands_ * (numContInputs_ + numPxPyInputs_) + i] = EncodePdgId(pdgId[i]);
     // input_cat1
@@ -178,8 +187,10 @@ void L1MetPfProducer::CalcMlMet(std::vector<float> pt,
   model->predict();
   model->read_result(result);
 
-  metVector.SetPt(hypot(result[0].to_double(), result[1].to_double()));
-  metVector.SetPhi(atan2(result[1].to_double(), result[0].to_double()));
+  double met_px = -result[0].to_double();
+  double met_py = -result[1].to_double();
+  metVector.SetPt(hypot(met_px, met_py));
+  metVector.SetPhi(atan2(met_py, met_px));
   metVector.SetEta(0);
 }
 
