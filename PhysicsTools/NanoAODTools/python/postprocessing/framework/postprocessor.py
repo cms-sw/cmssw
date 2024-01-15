@@ -263,6 +263,10 @@ class PostProcessor:
         for m in self.modules:
             m.endJob()
 
+        # close histogram file
+        if self.histFile != None:
+            self.histFile.Close()
+
         print("Total time %.1f sec. to process %i events. Rate = %.1f Hz." % ((time.time() - t0), totEntriesRead, totEntriesRead / (time.time() - t0)))
 
         if self.haddFileName:
