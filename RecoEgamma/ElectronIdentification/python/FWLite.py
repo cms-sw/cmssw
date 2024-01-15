@@ -100,6 +100,8 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_Gen
         import mvaSpring16WeightFiles_V1 as mvaSpring16GPWeightFiles_V1
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff \
         import mvaSpring16WeightFiles_V1 as mvaSpring16HZZWeightFiles_V1
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff \
+        import mvaWeightFiles as mvaWinter22HZZWeightFiles_V1
 
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff \
         import workingPoints as mvaSpring16GP_V1_workingPoints
@@ -113,6 +115,8 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter
         import workingPoints as RunIIIWinter22_iso_V1_workingPoints
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff \
         import workingPoints as RunIIIWinter22_noIso_V1_workingPoints
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff \
+        import workingPoints as Winter22_HZZ_V1_workingPoints
 
 # Dictionary with the relecant e/gmma MVAs
 
@@ -129,6 +133,8 @@ electron_mvas = {
                                     EleMVA_6CategoriesCuts, mvaSpring16HZZWeightFiles_V1, mvaVariablesFile),
     "Spring16GPV1"    : ElectronMVAID("ElectronMVAEstimatorRun2","Spring16GeneralPurposeV1",
                                     EleMVA_3CategoriesCuts, mvaSpring16GPWeightFiles_V1, mvaVariablesFile),
+    "Winter22HZZV1"    : ElectronMVAID("ElectronMVAEstimatorRun2","Winter22HZZV1",
+                                    EleMVA_6CategoriesCuts, mvaWinter22HZZWeightFiles_V1, mvaVariablesFileRun3),    
     }
 
 working_points = {
@@ -144,5 +150,7 @@ working_points = {
                                     mvaSpring16HZZ_V1_workingPoints, logistic_transform=True),
     "Spring16GPV1"    : WorkingPoints("ElectronMVAEstimatorRun2","Spring16GeneralPurposeV1",
                                     mvaSpring16GP_V1_workingPoints, logistic_transform=True),
+    "Winter22HZZV1" : WorkingPoints("ElectronMVAEstimatorRun2","Winter22HZZV1",
+                                    Winter22_HZZ_V1_workingPoints),        
 
     }
