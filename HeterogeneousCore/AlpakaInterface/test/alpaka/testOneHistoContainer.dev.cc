@@ -93,7 +93,7 @@ struct mykernel {
 #ifndef NDEBUG
       auto b0 = Hist::bin(v[j]);
 #endif
-      int tot = 0;
+      [[maybe_unused]] int tot = 0;
       auto ftest = [&](unsigned int k) {
         ALPAKA_ASSERT_OFFLOAD(k < N);
         ++tot;

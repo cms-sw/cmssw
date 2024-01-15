@@ -58,7 +58,6 @@
 
 <bin name="alpakaTestSimpleVector" file="alpaka/testSimpleVector.dev.cc">
   <use name="alpaka"/>
-  <use name="catch2"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>

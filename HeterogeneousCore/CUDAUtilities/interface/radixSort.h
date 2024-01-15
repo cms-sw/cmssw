@@ -203,7 +203,7 @@ __device__ __forceinline__ void radixSortImpl(
     if (threadIdx.x == 0)
       ++p;
     __syncthreads();
-      }
+  }
 
   if ((w != 8) && (0 == (NS & 1)))
     assert(j == ind);  // w/d is even so ind is correct
@@ -261,7 +261,7 @@ namespace cms {
 
     template <typename T, int NS = sizeof(T)>
     __global__ void __launch_bounds__(256, 4)
-      radixSortMultiWrapper(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
+        radixSortMultiWrapper(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
       radixSortMulti<T, NS>(v, index, offsets, workspace);
     }
 

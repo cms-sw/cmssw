@@ -42,7 +42,7 @@ namespace cms::alpakatools {
       }
     }
 
-    inline constexpr T cont& back() const {
+    inline constexpr T const &back() const {
       if (m_size > 0) {
         return m_data[m_size - 1];
       } else

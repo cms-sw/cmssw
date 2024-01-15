@@ -81,7 +81,7 @@ void truncate(T& t) {
 }
 
 template <typename T, int NS = sizeof(T), typename U = T, typename LL = long long>
-void go(Queue & queue, bool useShared) {
+void go(Queue& queue, bool useShared) {
   std::mt19937 eng;
   //std::mt19937 eng2;
   auto rgen = RS<T>::ud();
@@ -145,46 +145,48 @@ void go(Queue & queue, bool useShared) {
 
     alpaka::memcpy(queue, v_d, v_h);
     alpaka::memcpy(queue, off_d, offsets_h);
-//    cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
-//    cudaCheck(cudaMemcpy(off_d.get(), offsets_h, 4 * (blocks + 1), cudaMemcpyHostToDevice));
 
     if (i < 2)
       std::cout << "launch for " << offsets_h[blocks] << std::endl;
 
-    auto ntXBl __attribute__((unused)) = 1 == i % 4 ? 256 : 256;
+    auto ntXBl = 1 == i % 4 ? 256 : 256;
 
     auto start = std::chrono::high_resolution_clock::now();
-    // TODO: manage runtime sized shared memory
-    [[maybe_unused]] constexpr int MaxSize = 256 * 32;
+    // The MaxSize is the max size we allow between offsets (i.e. biggest set to sort when using shared memory).
+    constexpr int MaxSize = 256 * 32;
     auto workdiv = make_workdiv<Acc1D>(blocks, ntXBl);
     if (useShared)
       // The original CUDA version used to call a kernel with __launch_bounds__(256, 4) specifier
-      // 
-      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workdiv, 
-              radixSortMultiWrapper<U, NS>{}, v_d.data(), ind_d.data(), off_d.data(), nullptr));
-//      cms::cuda::launch(
-//          radixSortMultiWrapper<U, NS>, {blocks, ntXBl, MaxSize * 2}, v_d.get(), ind_d.get(), off_d.get(), nullptr);
+      //
+      alpaka::enqueue(queue,
+                      alpaka::createTaskKernel<Acc1D>(workdiv,
+                                                      radixSortMultiWrapper<U, NS>{},
+                                                      v_d.data(),
+                                                      ind_d.data(),
+                                                      off_d.data(),
+                                                      nullptr,
+                                                      MaxSize * sizeof(uint16_t)));
     else
-//      cms::cuda::launch(
-//          radixSortMultiWrapper2<U, NS>, {blocks, ntXBl},             v_d.get(), ind_d.get(), off_d.get(), ws_d.get());
-      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workdiv, 
-              radixSortMultiWrapper2<U, NS>{}, v_d.data(), ind_d.data(), off_d.data(), ws_d.data()));
+      alpaka::enqueue(
+          queue,
+          alpaka::createTaskKernel<Acc1D>(
+              workdiv, radixSortMultiWrapper2<U, NS>{}, v_d.data(), ind_d.data(), off_d.data(), ws_d.data()));
 
-    if (i == 0)
-      std::cout << "done for " << offsets_h[blocks] << std::endl;
+    if (i < 2)
+      std::cout << "launch done for " << offsets_h[blocks] << std::endl;
 
     alpaka::memcpy(queue, ind_h, ind_d);
     alpaka::wait(queue);
-    //cudaCheck(cudaMemcpy(ind_h, ind_d.get(), 2 * N, cudaMemcpyDeviceToHost));
 
     delta += std::chrono::high_resolution_clock::now() - start;
 
-    if (i == 0)
-      std::cout << "done for " << offsets_h[blocks] << std::endl;
+    if (i < 2)
+      std::cout << "kernel and read back done for " << offsets_h[blocks] << std::endl;
 
     if (32 == i) {
       std::cout << LL(v_h[ind_h[0]]) << ' ' << LL(v_h[ind_h[1]]) << ' ' << LL(v_h[ind_h[2]]) << std::endl;
-      std::cout << LL(v_h[ind_h[3]]) << ' ' << LL(v_h[ind_h[10]]) << ' ' << LL(v_h[ind_h[blockSize - 1000]]) << std::endl;
+      std::cout << LL(v_h[ind_h[3]]) << ' ' << LL(v_h[ind_h[10]]) << ' ' << LL(v_h[ind_h[blockSize - 1000]])
+                << std::endl;
       std::cout << LL(v_h[ind_h[blockSize / 2 - 1]]) << ' ' << LL(v_h[ind_h[blockSize / 2]]) << ' '
                 << LL(v_h[ind_h[blockSize / 2 + 1]]) << std::endl;
     }
@@ -194,17 +196,16 @@ void go(Queue & queue, bool useShared) {
         inds.insert(ind_h[offsets_h[ib]]);
       for (auto j = offsets_h[ib] + 1; j < offsets_h[ib + 1]; j++) {
         if (inds.count(ind_h[j]) != 0) {
-          printf("i=%d ib=%d ind_h[j=%d]=%d: duplicate indice!\n",
-                  i, ib, j, ind_h[j]);
+          printf("i=%d ib=%d ind_h[j=%d]=%d: duplicate indice!\n", i, ib, j, ind_h[j]);
           std::vector<int> counts;
           counts.resize(offsets_h[ib + 1] - offsets_h[ib], 0);
           for (size_t j2 = offsets_h[ib]; j2 < offsets_h[ib + 1]; j2++) {
             counts[ind_h[j2]]++;
-          } 
+          }
           for (size_t j2 = 0; j2 < counts.size(); j2++) {
-            if (counts[j2]!=1)
+            if (counts[j2] != 1)
               printf("counts[%ld]=%d ", j2, counts[j2]);
-          } 
+          }
           printf("\n");
           printf("inds.count(ind_h[j] = %lu\n", inds.count(ind_h[j]));
         }
@@ -216,9 +217,12 @@ void go(Queue & queue, bool useShared) {
         truncate<NS>(k1);
         truncate<NS>(k2);
         if (k1 < k2) {
-          std::cout << "i=" << i << " not ordered at ib=" << ib << " in [" << offsets_h[ib]  << ", " << offsets_h[ib + 1] - 1 
-                  << "] j=" << j << " ind[j]=" << ind_h[j] << " (k1 < k2) : a1=" << a[ind_h[j]] << " k1=" << k1
-                  << "a2= " << a[ind_h[j - 1]] << " k2=" << k2 << std::endl;
+          std::cout << "i=" << i << " not ordered at ib=" << ib << " in [" << offsets_h[ib] << ", "
+                    << offsets_h[ib + 1] - 1 << "] j=" << j << " ind[j]=" << ind_h[j]
+                    << " (k1 < k2) : a1=" << (int64_t)a[ind_h[j]] << " k1=" << (int64_t)k1
+                    << " a2= " << (int64_t)a[ind_h[j - 1]] << " k2=" << (int64_t)k2 << std::endl;
+          //sleep(2);
+          assert(false);
         }
       }
       if (!inds.empty()) {
@@ -228,7 +232,7 @@ void go(Queue & queue, bool useShared) {
       if (inds.size() != (offsets_h[ib + 1] - offsets_h[ib]))
         std::cout << "error " << i << ' ' << ib << ' ' << inds.size() << "!=" << (offsets_h[ib + 1] - offsets_h[ib])
                   << std::endl;
-      // 
+      //
       assert(inds.size() == (offsets_h[ib + 1] - offsets_h[ib]));
     }
   }  // 50 times
