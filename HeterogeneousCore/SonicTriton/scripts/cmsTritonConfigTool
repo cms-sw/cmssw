@@ -242,6 +242,7 @@ def cfg_checksum(args):
     from glob import glob
     config_dir = os.path.dirname(args.config)
     for filename in glob(os.path.join(config_dir,"*/*")):
+        if os.path.islink(os.path.dirname(filename)): continue
         checksum = get_checksum(filename)
         # key = algorithm:[filename relative to config.pbtxt dir]
         filename = os.path.relpath(filename, config_dir)
