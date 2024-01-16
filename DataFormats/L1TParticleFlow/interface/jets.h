@@ -92,7 +92,7 @@ namespace l1ct {
       j.v3.pt = CTtoGT_pt(hwPt);
       j.v3.phi = CTtoGT_phi(hwPhi);
       j.v3.eta = CTtoGT_eta(hwEta);
-      j.z0 = z0;
+      j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       j.hwBtagScore = hwBtagScore;
       return j;
     }
