@@ -23,4 +23,12 @@ def lowerHitsPerStructure(process):
             'threads 1 1',
             'closeandreopen'
         )
+    if hasattr(process,'SiPixelAliPedeAlignmentProducerHGCombined'):
+        process.SiPixelAliPedeAlignmentProducerHGCombined.algoConfig.pedeSteerer.options = cms.vstring(
+            'entries 10',
+            'chisqcut  30.0  4.5',
+            'threads 1 1',
+            'closeandreopen',
+            'skipemptycons'
+        )
     return process

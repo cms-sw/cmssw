@@ -2546,6 +2546,13 @@ steps['ALCAHARVDSIPIXELALIHG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdS
                      '--filein':'file:PromptCalibProdSiPixelAliHG.root',
                      '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
+steps['ALCAHARVDSIPIXELALIHGCOMBINED']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHGComb']),
+                     '--conditions':'auto:run2_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiPixelAliHGComb.root',
+                     '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
+
 steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimingCalib']),
                         '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
@@ -3254,14 +3261,14 @@ steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPi
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
 
-steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA',
+steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixelAliHGComb+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA',
                   '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                   '--conditions':'auto:run2_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
 
-steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
+steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixelAliHGComb+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA+PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                   '--conditions':'auto:run3_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
@@ -3283,7 +3290,7 @@ steps['ALCAEXPTE']={'-s':'ALCA:PromptCalibProdEcalPedestals',
                     '--eventcontent':'ALCARECO',
                     '--triggerResultsProcess': 'RECO'}
 
-steps['ALCARECOEXPR3']=merge([{'-s':'ALCAOUTPUT:SiPixelCalZeroBias+SiStripCalZeroBias+SiStripCalMinBias+SiStripCalMinBiasAAG+TkAlMinBias,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixel',
+steps['ALCARECOEXPR3']=merge([{'-s':'ALCAOUTPUT:SiPixelCalZeroBias+SiStripCalZeroBias+SiStripCalMinBias+SiStripCalMinBiasAAG+TkAlMinBias,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHGComb+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixel',
                                '--conditions':'auto:run3_data_express',
                                '--scenario':'pp',
                                '--era':'Run3',
@@ -3426,12 +3433,11 @@ steps['ALCAHARVDTE']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdEcalPedesta
                      '--data':'',
                      '--filein':'file:PromptCalibProdEcalPedestals.root'}
 
-steps['ALCAHARVDEXPRUN3']={'-s':'ALCAHARVEST:SiStripQuality+SiStripHitEff+SiStripGains+SiStripGainsAAG+SiPixelAli+SiPixelQuality+SiPixelLA+BeamSpotHPByRun+BeamSpotHPByLumi+BeamSpotHPLowPUByRun+BeamSpotHPLowPUByLumi',
+steps['ALCAHARVDEXPRUN3']={'-s':'ALCAHARVEST:SiStripQuality+SiStripHitEff+SiStripGains+SiStripGainsAAG+SiPixelAli+SiPixelAliHG+SiPixelAliHGCombined+SiPixelQuality+SiPixelLA+BeamSpotHPByRun+BeamSpotHPByLumi+BeamSpotHPLowPUByRun+BeamSpotHPLowPUByLumi',
                     '--conditions':'auto:run3_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
-
 
 steps['RECOHISt4']=steps['RECOHI2015']
 
