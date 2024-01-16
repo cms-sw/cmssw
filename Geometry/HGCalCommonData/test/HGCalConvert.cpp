@@ -40,9 +40,9 @@
 //  HGCalConvert 4 infile outfile1 outfile2 modeGlobal debug
 //               4 for the V18 formats of HFNose
 //  infile   (const char*)   Input file from conatining layer #, size, depth,
-//                           x, y position, orientation, u, v, cassette 
+//                           x, y position, orientation, u, v, cassette
 //  outfile1 (const char*)   Output fle for the EE part
-//  outfile2 (const char*)   Output fle for the HE part 
+//  outfile2 (const char*)   Output fle for the HE part
 //  maxLayEE (int)           Maximum layer number of the EE part
 //  maxLayHE (int)           Maximum layer number of the HE part
 //  modeGlobal (int)         Flag to create parts to be inserted in the
@@ -171,20 +171,16 @@ private:
 class ConvertNoseV0 {
 public:
   ConvertNoseV0(unsigned int layMax1 = 6, unsigned int layMax2 = 8);
-  void convert(const char* infile,
-               const char* outfile1,
-               const char* outfile2,
-               int modeGlobal = 0,
-               int debug = 0);
+  void convert(const char* infile, const char* outfile1, const char* outfile2, int modeGlobal = 0, int debug = 0);
 
 private:
   void writeNose(const char*,
-		 const unsigned int,
-		 const std::vector<layerInfo>&,
-		 const std::map<int, wafer>&,
-		 const std::string&,
-		 const bool&,
-		 const bool&);
+                 const unsigned int,
+                 const std::vector<layerInfo>&,
+                 const std::map<int, wafer>&,
+                 const std::string&,
+                 const bool&,
+                 const bool&);
 
   const unsigned int layMax1_, layMax2_;
 };
@@ -252,9 +248,9 @@ int main(int argc, char* argv[]) {
     int maxLayHE = atoi(argv[6]);
     int modeGlobal = atoi(argv[7]);
     int debug = (argc > 7) ? atoi(argv[8]) : 0;
-    std::cout << "Calls ConvertNose for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2 << " Layers "
-              << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Debug " << debug << std::endl;
-    ConvertNoseV0 c1 (maxLayEE, maxLayHE);
+    std::cout << "Calls ConvertNose for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
+              << " Layers " << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Debug " << debug << std::endl;
+    ConvertNoseV0 c1(maxLayEE, maxLayHE);
     c1.convert(infile, outfile1, outfile2, modeGlobal, debug);
   } else {
     code = 1;
@@ -1248,8 +1244,7 @@ ConvertNoseV0::ConvertNoseV0(unsigned int layMax1, unsigned int layMax2) : layMa
   std::cout << "ConvertNoseV0 Iniltailized with " << layMax1_ << ":" << layMax2_ << std::endl;
 }
 
-void ConvertNoseV0::convert(
-    const char* infile, const char* outfile1, const char* outfile2, int modeGlobal, int debug) {
+void ConvertNoseV0::convert(const char* infile, const char* outfile1, const char* outfile2, int modeGlobal, int debug) {
   std::ifstream fInput(infile);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
@@ -1294,8 +1289,8 @@ void ConvertNoseV0::convert(
         if (others <= layMax2_) {
           unsigned int cassettes = (others <= layMax1_) ? cassetteEE : cassetteHE;
           if (items.size() < (cassettes + 2)) {
-	    if (debug % 10 > 1)
-	      std::cout << "Size " << items.size() << " expect >= " << (cassettes +2 ) << std::endl;
+            if (debug % 10 > 1)
+              std::cout << "Size " << items.size() << " expect >= " << (cassettes + 2) << std::endl;
             ++bad;
           } else {
             int layer = std::atoi(items[0].c_str());
@@ -1347,7 +1342,9 @@ void ConvertNoseV0::convert(
       }
     }
     fInput.close();
-    std::cout << "Read " << all << " records with " << comments << " comments " << others << " non-comment records out of which " << good << ":" << module1.size() << ":" << module2.size() << " are good and " << bad << " are bad and with " << layers << " layers\n";
+    std::cout << "Read " << all << " records with " << comments << " comments " << others
+              << " non-comment records out of which " << good << ":" << module1.size() << ":" << module2.size()
+              << " are good and " << bad << " are bad and with " << layers << " layers\n";
     std::cout << "\nThere are " << layer1.size() << " of types:" << std::endl;
     for (const auto& l : layer1) {
       std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
@@ -1374,12 +1371,12 @@ void ConvertNoseV0::convert(
 }
 
 void ConvertNoseV0::writeNose(const char* outfile,
-				 const unsigned int cassettes,
-				 const std::vector<layerInfo>& layers,
-				 const std::map<int, wafer>& module,
-				 const std::string& tag,
-				 const bool& mode,
-				 const bool& debug) {
+                              const unsigned int cassettes,
+                              const std::vector<layerInfo>& layers,
+                              const std::map<int, wafer>& module,
+                              const std::string& tag,
+                              const bool& mode,
+                              const bool& debug) {
   char apost('"');
   unsigned int k0(0), k1(0), k2(0), k3(0);
   std::map<int, wafer>::const_iterator itr;
