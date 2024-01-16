@@ -771,7 +771,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
             'Geometry/HcalSimData/data/CaloUtil/2026/v2c/CaloUtil.xml',
-            'Geometry/HGCalSimData/data/hgcsensv17n.xml',
+            'Geometry/HGCalSimData/data/hgcsensv15.xml',
         ],
         4 : [
             'Geometry/HcalSimData/data/HcalProdCuts/2026/v1/HcalProdCuts.xml',
