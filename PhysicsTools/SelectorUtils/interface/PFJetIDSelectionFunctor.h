@@ -798,7 +798,7 @@ private:  // member variables
         push_back("CEF_TR");
       }
     }
-    if ((version_ == RUN3CHSrunsBCDEprompt)) {
+    if (version_ == RUN3CHSrunsBCDEprompt) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NCH_TR");
@@ -815,7 +815,7 @@ private:  // member variables
         push_back("CEF_TR");
       }
     }
-    if ((version_ == RUN3CHSruns2022FGruns2023CD)) {
+    if (version_ == RUN3CHSruns2022FGruns2023CD) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NCH_TR");
