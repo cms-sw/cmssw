@@ -6,6 +6,7 @@ def customise_debug(process):
     process.load('L1Trigger.L1TMuonEndCapPhase2.rpcRecHitsForEMTF_cfi')
     process.load('L1Trigger.L1TMuonEndCapPhase2.simEmtfDigisPhase2_cfi')
 
+    process.gemRecHits.gemDigiLabel = 'simMuonGEMDigis'
     process.simEmtfDigisPhase2.Verbosity = cms.untracked.int32(5)
 
     process.L1TMuonEndCapPhase2Task = cms.Task(
@@ -34,6 +35,7 @@ def customise_mc(process):
     process.load('L1Trigger.L1TMuonEndCapPhase2.rpcRecHitsForEMTF_cfi')
     process.load('L1Trigger.L1TMuonEndCapPhase2.simEmtfDigisPhase2_cfi')
 
+    process.gemRecHits.gemDigiLabel = 'simMuonGEMDigis'
     process.simEmtfDigisPhase2.Verbosity = cms.untracked.int32(1)
 
     process.L1TMuonEndCapPhase2Task = cms.Task(
