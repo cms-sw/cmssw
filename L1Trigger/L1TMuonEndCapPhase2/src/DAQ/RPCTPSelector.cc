@@ -14,13 +14,7 @@
 using namespace emtf::phase2;
 
 RPCTPSelector::RPCTPSelector(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-RPCTPSelector::~RPCTPSelector() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void RPCTPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCMap& ilink_tpc_map) const {
   emtf_assert(tp.subsystem() == L1TMuon::kRPC);
@@ -63,7 +57,7 @@ int RPCTPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) c
 
   if (csc::is_in_sector(endcap_, sector_, tp_endcap, tp_sector)) {
     tp_selection = TPSelection::kNative;
-  } else if (CONFIG.include_neighbor_en_ &&
+  } else if (this->context_.config_.include_neighbor_en_ &&
              csc::is_in_neighbor_sector(endcap_, sector_, tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_id)) {
     tp_selection = TPSelection::kNeighbor;
   } else {  // Short-Circuit: tp_selection = TPSelection::kNone

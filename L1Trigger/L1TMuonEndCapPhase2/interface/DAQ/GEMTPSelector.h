@@ -6,16 +6,13 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/DAQ/TPrimitives.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/DAQ/TPSelectors.h"
 
-// 6 in GE1/1; 3 in GE2/1; 3 in ME0; 3 from neighbor sector. (unconfirmed!)
-#define NUM_GEM_CHAMBERS 15
-
 namespace emtf::phase2 {
 
   class GEMTPSelector : public TPSelector {
   public:
     explicit GEMTPSelector(const EMTFContext&, const int&, const int&);
 
-    ~GEMTPSelector();
+    ~GEMTPSelector() = default;
 
     void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 

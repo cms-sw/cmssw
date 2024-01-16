@@ -19,7 +19,7 @@ namespace emtf::phase2::algo {
   public:
     TrackBuildingLayer(const EMTFContext&);
 
-    ~TrackBuildingLayer();
+    ~TrackBuildingLayer() = default;
 
     void apply(const segment_collection_t&, const std::vector<road_t>&, const bool&, std::vector<track_t>&) const;
 

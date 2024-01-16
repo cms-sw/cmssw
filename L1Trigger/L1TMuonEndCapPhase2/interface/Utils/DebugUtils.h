@@ -7,7 +7,7 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFTypes.h"
 
 // Uncomment the following line to use assert
-#define EMTF_ALLOW_ASSERT
+// #define EMTF_ALLOW_ASSERT
 
 #ifdef EMTF_ALLOW_ASSERT
 #define emtf_assert(expr) (assert(expr))

@@ -13,13 +13,7 @@
 using namespace emtf::phase2;
 
 CSCTPSelector::CSCTPSelector(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-CSCTPSelector::~CSCTPSelector() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void CSCTPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCMap& ilink_tpc_map) const {
   emtf_assert(tp.subsystem() == L1TMuon::kCSC);
@@ -36,22 +30,22 @@ void CSCTPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCM
   if (ilink_tpc_map[ilink].size() < 2) {
     ilink_tpc_map[ilink].emplace_back(tp, tp_info);
   } else {
-    edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
-    edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
+    edm::LogWarning("L1T EMTF++") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
+    edm::LogWarning("L1T EMTF++") << "Found 3 CSC trigger primitives in the same chamber";
 
     for (int i_tp = 0; i_tp < 3; i_tp++) {
       const auto& tp_err = ((i_tp < 2) ? ilink_tpc_map[ilink].at(i_tp).tp_ : tp);
 
-      edm::LogWarning("L1T") << "LCT #" << i_tp + 1 << ": BX " << tp_err.getBX() << ", endcap "
-                             << tp_err.detId<CSCDetId>().endcap() << ", sector "
-                             << tp_err.detId<CSCDetId>().triggerSector() << ", station "
-                             << tp_err.detId<CSCDetId>().station() << ", ring " << tp_err.detId<CSCDetId>().ring()
-                             << ", chamber " << tp_err.detId<CSCDetId>().chamber() << ", CSC ID "
-                             << tp_err.getCSCData().cscID << ": strip " << tp_err.getStrip() << ", wire "
-                             << tp_err.getWire();
+      edm::LogWarning("L1T EMTF++") << "LCT #" << i_tp + 1 << ": BX " << tp_err.getBX() << ", endcap "
+                                    << tp_err.detId<CSCDetId>().endcap() << ", sector "
+                                    << tp_err.detId<CSCDetId>().triggerSector() << ", station "
+                                    << tp_err.detId<CSCDetId>().station() << ", ring "
+                                    << tp_err.detId<CSCDetId>().ring() << ", chamber "
+                                    << tp_err.detId<CSCDetId>().chamber() << ", CSC ID " << tp_err.getCSCData().cscID
+                                    << ": strip " << tp_err.getStrip() << ", wire " << tp_err.getWire();
     }
 
-    edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
+    edm::LogWarning("L1T EMTF++") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
   }
 }
 
@@ -74,7 +68,7 @@ int CSCTPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) c
 
   if (csc::is_in_sector(endcap_, sector_, tp_endcap, tp_sector)) {
     tp_selection = TPSelection::kNative;
-  } else if (CONFIG.include_neighbor_en_ &&
+  } else if (this->context_.config_.include_neighbor_en_ &&
              csc::is_in_neighbor_sector(endcap_, sector_, tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_id)) {
     tp_selection = TPSelection::kNeighbor;
   } else {  // Short-Circuit: tp_selection = TPSelection::kNone

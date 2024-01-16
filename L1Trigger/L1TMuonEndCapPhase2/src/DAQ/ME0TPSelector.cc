@@ -13,13 +13,7 @@
 using namespace emtf::phase2;
 
 ME0TPSelector::ME0TPSelector(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-ME0TPSelector::~ME0TPSelector() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void ME0TPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCMap& ilink_tpc_map) const {
   emtf_assert(tp.subsystem() == L1TMuon::kME0);
@@ -53,7 +47,7 @@ int ME0TPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) c
 
   if (csc::is_in_sector(endcap_, sector_, tp_endcap, tp_sector)) {
     tp_selection = TPSelection::kNative;
-  } else if (CONFIG.include_neighbor_en_ &&
+  } else if (this->context_.config_.include_neighbor_en_ &&
              csc::is_in_neighbor_sector(endcap_, sector_, tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_id)) {
     tp_selection = TPSelection::kNeighbor;
   } else {  // Short-Circuit: tp_selection = TPSelection::kNone

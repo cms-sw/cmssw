@@ -29,7 +29,7 @@ class GE0TriggerPseudoBuilder;
 class GE0TriggerPseudoProducer : public edm::global::EDProducer<> {
 public:
   explicit GE0TriggerPseudoProducer(const edm::ParameterSet&);
-  ~GE0TriggerPseudoProducer() override;
+  ~GE0TriggerPseudoProducer() override = default;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
@@ -40,17 +40,14 @@ private:
   edm::ParameterSet config_;
 };
 
-GE0TriggerPseudoProducer::GE0TriggerPseudoProducer(const edm::ParameterSet& conf) {
-  me0segmentProducer_ = conf.getParameter<edm::InputTag>("ME0SegmentProducer");
-  me0segment_token_ = consumes<GEMSegmentCollection>(me0segmentProducer_);
-  me0_geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
-  config_ = conf;
-
+GE0TriggerPseudoProducer::GE0TriggerPseudoProducer(const edm::ParameterSet& conf)
+    : me0segmentProducer_(conf.getParameter<edm::InputTag>("ME0SegmentProducer")),
+      me0segment_token_(consumes<GEMSegmentCollection>(me0segmentProducer_)),
+      me0_geom_token_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
+      config_(conf) {
   // register what this produces
   produces<GE0TriggerDigiCollection>();
 }
-
-GE0TriggerPseudoProducer::~GE0TriggerPseudoProducer() {}
 
 void GE0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& setup) const {
   edm::ESHandle<GEMGeometry> h_me0 = setup.getHandle(me0_geom_token_);

@@ -10,15 +10,10 @@
 #include "L1TMuonEndCapPhase2TrackProducer.h"
 
 L1TMuonEndCapPhase2TrackProducer::L1TMuonEndCapPhase2TrackProducer(const edm::ParameterSet& pset)
-    : track_finder_(std::make_unique<emtf::phase2::TrackFinder>(pset, consumesCollector())) {
-  hit_token_ = produces<emtf::phase2::EMTFHitCollection>();
-  trk_token_ = produces<emtf::phase2::EMTFTrackCollection>();
-  in_token_ = produces<emtf::phase2::EMTFInputCollection>();
-}
-
-L1TMuonEndCapPhase2TrackProducer::~L1TMuonEndCapPhase2TrackProducer() {
-  // Do nothing
-}
+    : track_finder_(std::make_unique<emtf::phase2::TrackFinder>(pset, consumesCollector())),
+      hit_token_(produces<emtf::phase2::EMTFHitCollection>()),
+      trk_token_(produces<emtf::phase2::EMTFTrackCollection>()),
+      in_token_(produces<emtf::phase2::EMTFInputCollection>()) {}
 
 void L1TMuonEndCapPhase2TrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

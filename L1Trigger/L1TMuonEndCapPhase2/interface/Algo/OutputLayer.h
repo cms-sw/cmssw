@@ -14,7 +14,7 @@ namespace emtf::phase2::algo {
   public:
     OutputLayer(const EMTFContext&);
 
-    ~OutputLayer();
+    ~OutputLayer() = default;
 
     void apply(const int&,
                const int&,

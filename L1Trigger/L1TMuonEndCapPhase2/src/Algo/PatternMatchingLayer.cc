@@ -1,3 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFContext.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DebugUtils.h"
 
@@ -5,13 +7,7 @@
 
 using namespace emtf::phase2::algo;
 
-PatternMatchingLayer::PatternMatchingLayer(const EMTFContext& context) : context_(context) {
-  // Do Nothing
-}
-
-PatternMatchingLayer::~PatternMatchingLayer() {
-  // Do Nothing
-}
+PatternMatchingLayer::PatternMatchingLayer(const EMTFContext& context) : context_(context) {}
 
 void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
                                  const bool& displaced_en,
@@ -112,15 +108,15 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
     }  // End Loop Patterns in Zones
 
     // Debug Info
-    if (CONFIG.verbosity_ > 1) {
+    if (this->context_.config_.verbosity_ > 1) {
       for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
         if (roads[i_col].quality == 0) {
           continue;
         }
 
-        std::cout << "Road"
-                  << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern << " qual "
-                  << roads[i_col].quality << std::endl;
+        edm::LogInfo("L1T EMTF++") << "Road"
+                                   << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
+                                   << " qual " << roads[i_col].quality << std::endl;
       }
     }
   }  // End Loop Zones

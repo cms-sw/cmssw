@@ -12,7 +12,7 @@ namespace emtf::phase2 {
   public:
     explicit RPCTPConverter(const EMTFContext&, const int&, const int&);
 
-    ~RPCTPConverter();
+    ~RPCTPConverter() = default;
 
     void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 

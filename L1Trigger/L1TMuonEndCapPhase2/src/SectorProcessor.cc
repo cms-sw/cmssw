@@ -32,27 +32,27 @@ SectorProcessor::SectorProcessor(const EMTFContext& context, const int& endcap, 
   // ===========================================================================
   // Register Selectors/Converters
   // ===========================================================================
-  if (CONFIG.csc_en_) {
+  if (this->context_.config_.csc_en_) {
     tp_selectors_[L1TMuon::kCSC] = std::make_unique<CSCTPSelector>(context_, endcap_, sector_);
     tp_converters_[L1TMuon::kCSC] = std::make_unique<CSCTPConverter>(context_, endcap_, sector_);
   }
 
-  if (CONFIG.rpc_en_) {
+  if (this->context_.config_.rpc_en_) {
     tp_selectors_[L1TMuon::kRPC] = std::make_unique<RPCTPSelector>(context_, endcap_, sector_);
     tp_converters_[L1TMuon::kRPC] = std::make_unique<RPCTPConverter>(context_, endcap_, sector_);
   }
 
-  if (CONFIG.gem_en_) {
+  if (this->context_.config_.gem_en_) {
     tp_selectors_[L1TMuon::kGEM] = std::make_unique<GEMTPSelector>(context_, endcap_, sector_);
     tp_converters_[L1TMuon::kGEM] = std::make_unique<GEMTPConverter>(context_, endcap_, sector_);
   }
 
-  if (CONFIG.me0_en_) {
+  if (this->context_.config_.me0_en_) {
     tp_selectors_[L1TMuon::kME0] = std::make_unique<ME0TPSelector>(context_, endcap_, sector_);
     tp_converters_[L1TMuon::kME0] = std::make_unique<ME0TPConverter>(context_, endcap_, sector_);
   }
 
-  if (CONFIG.ge0_en_) {
+  if (this->context_.config_.ge0_en_) {
     tp_selectors_[L1TMuon::kME0] = std::make_unique<GE0TPSelector>(context_, endcap_, sector_);
     tp_converters_[L1TMuon::kME0] = std::make_unique<GE0TPConverter>(context_, endcap_, sector_);
   }
@@ -81,8 +81,8 @@ void SectorProcessor::configure_bx(const int& bx) {
 
   // Remove BX TPCollections that aren't in the bx window
   // Note that the first entry in bx_window_hits is the earliest BX
-  const auto min_bx = CONFIG.min_bx_;
-  const auto delay_bx = CONFIG.bx_window_ - 1;
+  const auto min_bx = this->context_.config_.min_bx_;
+  const auto delay_bx = this->context_.config_.bx_window_ - 1;
   const auto pop_after_bx = min_bx + delay_bx;
 
   if (pop_after_bx < bx) {
@@ -98,8 +98,8 @@ void SectorProcessor::select(const TriggerPrimitive& tp, const TPInfo& tp_info) 
 
   // Short-Circuit: Operation not supported
   if (tp_selectors_it == tp_selectors_.end()) {
-    edm::LogWarning("L1T") << "TPCollector has been implemented, "
-                           << "but there is no TPSelector for " << tp_subsystem;
+    edm::LogWarning("L1T EMTF++") << "TPCollector has been implemented, "
+                                  << "but there is no TPSelector for " << tp_subsystem;
     return;
   }
 
@@ -233,8 +233,8 @@ void SectorProcessor::convert_tp(const int& initial_hit_id, const ILinkTPCMap& i
 
       // Short-Circuit: Operation not supported
       if (tp_converters_it == tp_converters_.end()) {
-        edm::LogWarning("L1T") << "TPCollector & TPSelector have been implemented, "
-                               << "but there is no TPConverter for " << tp_subsystem;
+        edm::LogWarning("L1T EMTF++") << "TPCollector & TPSelector have been implemented, "
+                                      << "but there is no TPConverter for " << tp_subsystem;
         continue;
       }
 
@@ -353,18 +353,20 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
       segments[seg_id].valid = hit.flagValid();
 
       // Debug Info
-      if (CONFIG.verbosity_ > 1) {
-        std::cout << std::endl
-                  << "Event: " << event_->id() << " Endcap: " << endcap_ << " Sector: " << sector_ << " BX: " << (*bx_)
-                  << " Hit iLink: " << hit_chamber << " Hit iSeg: " << ch_seg << " Hit Host " << hit_host
-                  << " Hit Rel BX " << (hit_bx - *bx_) << " Hit Timezones " << hit_timezones << std::endl;
+      if (this->context_.config_.verbosity_ > 1) {
+        edm::LogInfo("L1T EMTF++") << std::endl
+                                   << "Event: " << event_->id() << " Endcap: " << endcap_ << " Sector: " << sector_
+                                   << " BX: " << (*bx_) << " Hit iLink: " << hit_chamber << " Hit iSeg: " << ch_seg
+                                   << " Hit Host " << hit_host << " Hit Rel BX " << (hit_bx - *bx_) << " Hit Timezones "
+                                   << hit_timezones << std::endl;
 
-        std::cout << " id " << seg_id << " phi " << segments[seg_id].phi << " bend " << segments[seg_id].bend
-                  << " theta1 " << segments[seg_id].theta1 << " theta2 " << segments[seg_id].theta2 << " qual1 "
-                  << segments[seg_id].qual1 << " qual2 " << segments[seg_id].qual2 << " time " << segments[seg_id].time
-                  << " zones " << segments[seg_id].zones << " timezones " << segments[seg_id].tzones << " cscfr "
-                  << segments[seg_id].cscfr << " layer " << segments[seg_id].layer << " bx " << segments[seg_id].bx
-                  << " valid " << segments[seg_id].valid << std::endl;
+        edm::LogInfo("L1T EMTF++") << " id " << seg_id << " phi " << segments[seg_id].phi << " bend "
+                                   << segments[seg_id].bend << " theta1 " << segments[seg_id].theta1 << " theta2 "
+                                   << segments[seg_id].theta2 << " qual1 " << segments[seg_id].qual1 << " qual2 "
+                                   << segments[seg_id].qual2 << " time " << segments[seg_id].time << " zones "
+                                   << segments[seg_id].zones << " timezones " << segments[seg_id].tzones << " cscfr "
+                                   << segments[seg_id].cscfr << " layer " << segments[seg_id].layer << " bx "
+                                   << segments[seg_id].bx << " valid " << segments[seg_id].valid << std::endl;
       }
 
       // Update bx chamber last segment

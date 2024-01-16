@@ -14,7 +14,7 @@ namespace emtf::phase2::algo {
   public:
     DuplicateRemovalLayer(const EMTFContext&);
 
-    ~DuplicateRemovalLayer();
+    ~DuplicateRemovalLayer() = default;
 
     void apply(std::vector<track_t>&) const;
 

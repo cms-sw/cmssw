@@ -9,7 +9,6 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/DAQ/SubsystemTags.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/DAQ/TPrimitives.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DebugUtils.h"
-#include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/IteratorUtils.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/RPCUtils.h"
 
 using namespace emtf::phase2;
@@ -17,13 +16,7 @@ using namespace emtf::phase2;
 RPCTPCollector::RPCTPCollector(const EMTFContext& context, edm::ConsumesCollector& i_consumes_collector)
     : context_(context),
       input_token_(i_consumes_collector.consumes<RPCTag::rechit_collection_type>(
-          context.pset_.getParameter<edm::InputTag>("RPCInput"))) {
-  // Do Nothing
-}
-
-RPCTPCollector::~RPCTPCollector() {
-  // Do Nothing
-}
+          context.pset_.getParameter<edm::InputTag>("RPCInput"))) {}
 
 void RPCTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) const {
   // Constants
@@ -73,7 +66,7 @@ void RPCTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
 
     const bool tp_is_CPPF = tp_data.isCPPF;
 
-    const int tp_bx = tp_data.bx + CONFIG.rpc_bx_shift_;
+    const int tp_bx = tp_data.bx + this->context_.config_.rpc_bx_shift_;
 
     // Check Ring
     bool tp_is_substitute = (tp_ring == 3);

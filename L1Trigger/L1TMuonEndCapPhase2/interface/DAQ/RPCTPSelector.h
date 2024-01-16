@@ -7,17 +7,13 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/DAQ/TPSelectors.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/RPCUtils.h"
 
-// Arranged in FW as 7 stations, 6 chambers per station.
-// For Phase 2, add RE1/3, RE2/3, RE3/1, RE4/1 -> 10 chambers per station
-#define NUM_RPC_CHAMBERS 7 * 10
-
 namespace emtf::phase2 {
 
   class RPCTPSelector : public TPSelector {
   public:
     explicit RPCTPSelector(const EMTFContext&, const int&, const int&);
 
-    ~RPCTPSelector();
+    ~RPCTPSelector() = default;
 
     void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 
