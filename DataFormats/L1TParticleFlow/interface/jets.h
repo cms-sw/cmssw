@@ -13,7 +13,7 @@ namespace l1ct {
     pt_t hwPt;
     glbeta_t hwEta;
     glbphi_t hwPhi;
-    z0_t z0;
+    z0_t hwZ0;
     b_tag_score_t hwBtagScore;
 
     inline bool operator==(const Jet &other) const {
