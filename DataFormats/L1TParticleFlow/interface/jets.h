@@ -70,7 +70,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwPt);
       unpack_from_bits(src, start, hwEta);
       unpack_from_bits(src, start, hwPhi);
-      unpack_from_bits(src, start, z0);
+      unpack_from_bits(src, start, hwZ0);
       unpack_from_bits(src, start, hwBtagScore);
     }
 
