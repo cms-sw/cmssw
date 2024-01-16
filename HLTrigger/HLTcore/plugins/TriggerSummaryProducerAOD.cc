@@ -159,6 +159,8 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(productMatch, this);
   getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(productMatch, this);
 
+  getL1TP2GTCandCollection_ = edm::GetterOfProducts<l1t::P2GTCandidateCollection>(productMatch, this);
+
   callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
     getTriggerFilterObjectWithRefs_(bd);
     getRecoEcalCandidateCollection_(bd);
@@ -190,6 +192,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     getPFJetCollection_(bd);
     getPFTauCollection_(bd);
     getPFMETCollection_(bd);
+    getL1TP2GTCandCollection_(bd);
   });
 }
 
@@ -383,6 +386,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   fillTriggerObjectCollections<reco::PFMETCollection>(
       toc, offset, tags, keys, iEvent, getPFMETCollection_, collectionTagsEvent);
   ///
+  fillTriggerObjectCollections<l1t::P2GTCandidateCollection>(
+      toc, offset, tags, keys, iEvent, getL1TP2GTCandCollection_, collectionTagsEvent);
   const unsigned int nk(tags.size());
   LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
   const unsigned int no(toc.size());
@@ -455,6 +460,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfjetIds(), fobs[ifob]->pfjetRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pftauIds(), fobs[ifob]->pftauRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfmetIds(), fobs[ifob]->pfmetRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tp2gtcandIds(), fobs[ifob]->l1tp2gtcandRefs(), offset, keys, ids);
       product->addFilter(filterTag, ids, keys);
     }
   }

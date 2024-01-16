@@ -248,6 +248,9 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
   pfmetIds_.clear();
   pfmetRefs_.clear();
 
+  l1tp2gtcandIds_.clear();
+  l1tp2gtcandRefs_.clear();
+
   // Attention: must look only for modules actually run in this path for this event!
   for (unsigned int j = 0; j <= moduleIndex; ++j) {
     const std::string& moduleLabel(moduleLabels[j]);
@@ -377,6 +380,10 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
       // PFMETs
       triggerEventWithRefsHandle_->getObjects(filterIndex, pfmetIds_, pfmetRefs_);
       showObjects(pfmetIds_, pfmetRefs_, "PFMETs");
+
+      // L1TP2GTCandidates
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1tp2gtcandIds_, l1tp2gtcandRefs_);
+      showObjects(l1tp2gtcandIds_, l1tp2gtcandRefs_, "L1TP2GTCandidates");
     }
   }
 

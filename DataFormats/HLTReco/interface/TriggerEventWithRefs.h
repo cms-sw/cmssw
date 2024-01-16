@@ -63,6 +63,7 @@ namespace trigger {
       size_type l1tp2etsum_;
       size_type l1ttau_;
       size_type l1tetsum_;
+      size_type l1tp2gtcand_;
 
       /// constructor
       TriggerFilterObject()
@@ -96,7 +97,8 @@ namespace trigger {
             l1tpftrack_(0),
             l1tp2etsum_(0),
             l1ttau_(0),
-            l1tetsum_(0) {
+            l1tetsum_(0),
+            l1tp2gtcand_(0) {
         filterTag_ = edm::InputTag().encode();
       }
       TriggerFilterObject(const edm::InputTag& filterTag,
@@ -129,7 +131,8 @@ namespace trigger {
                           size_type l1tpftrack,
                           size_type l1tp2etsum,
                           size_type l1ttau,
-                          size_type l1tetsum)
+                          size_type l1tetsum,
+                          size_type l1tp2gtcand)
           : filterTag_(filterTag.encode()),
             photons_(np),
             electrons_(ne),
@@ -160,7 +163,8 @@ namespace trigger {
             l1tpftrack_(l1tpftrack),
             l1tp2etsum_(l1tp2etsum),
             l1ttau_(l1ttau),
-            l1tetsum_(l1tetsum) {}
+            l1tetsum_(l1tetsum),
+            l1tp2gtcand_(l1tp2gtcand) {}
     };
 
     /// data members
@@ -213,7 +217,8 @@ namespace trigger {
                               addObjects(tfowr.l1tpftrackIds(), tfowr.l1tpftrackRefs()),
                               addObjects(tfowr.l1tp2etsumIds(), tfowr.l1tp2etsumRefs()),
                               addObjects(tfowr.l1ttauIds(), tfowr.l1ttauRefs()),
-                              addObjects(tfowr.l1tetsumIds(), tfowr.l1tetsumRefs()))
+                              addObjects(tfowr.l1tetsumIds(), tfowr.l1tetsumRefs()),
+                              addObjects(tfowr.l1tp2gtcandIds(), tfowr.l1tp2gtcandRefs()))
 
       );
     }
@@ -412,6 +417,12 @@ namespace trigger {
     std::pair<size_type, size_type> l1tetsumSlice(size_type filter) const {
       const size_type begin(filter == 0 ? 0 : filterObjects_.at(filter - 1).l1tetsum_);
       const size_type end(filterObjects_.at(filter).l1tetsum_);
+      return std::pair<size_type, size_type>(begin, end);
+    }
+
+    std::pair<size_type, size_type> l1tp2gtcandSlice(size_type filter) const {
+      const size_type begin(filter == 0 ? 0 : filterObjects_.at(filter - 1).l1tp2gtcand_);
+      const size_type end(filterObjects_.at(filter).l1tp2gtcand_);
       return std::pair<size_type, size_type>(begin, end);
     }
 
@@ -746,6 +757,17 @@ namespace trigger {
       const size_type begin(l1tetsumSlice(filter).first);
       const size_type end(l1tetsumSlice(filter).second);
       TriggerRefsCollections::getObjects(id, l1tetsum, begin, end);
+    }
+
+    void getObjects(size_type filter, Vids& ids, VRl1tp2gtcand& l1tp2gtcand) const {
+      const size_type begin(l1tp2gtcandSlice(filter).first);
+      const size_type end(l1tp2gtcandSlice(filter).second);
+      TriggerRefsCollections::getObjects(ids, l1tp2gtcand, begin, end);
+    }
+    void getObjects(size_type filter, int id, VRl1tp2gtcand& l1tp2gtcand) const {
+      const size_type begin(l1tp2gtcandSlice(filter).first);
+      const size_type end(l1tp2gtcandSlice(filter).second);
+      TriggerRefsCollections::getObjects(id, l1tp2gtcand, begin, end);
     }
   };
 
