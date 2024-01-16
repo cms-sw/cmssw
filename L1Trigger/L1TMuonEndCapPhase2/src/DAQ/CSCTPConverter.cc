@@ -16,13 +16,7 @@
 using namespace emtf::phase2;
 
 CSCTPConverter::CSCTPConverter(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-CSCTPConverter::~CSCTPConverter() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void CSCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, EMTFHit& hit) const {
   // Unpack Id
@@ -82,7 +76,7 @@ void CSCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
   const int tp_ilink = tp_info.ilink;
 
   // Get Global Coordinates
-  const GlobalPoint& gp_w1 = GEOM.getGlobalPoint(tp);
+  const GlobalPoint& gp_w1 = this->context_.geometry_translator_.getGlobalPoint(tp);
   const float glob_phi_w1 = tp::rad_to_deg(gp_w1.phi().value());
   const float glob_theta_w1 = tp::rad_to_deg(gp_w1.theta().value());
   const double glob_rho_w1 = gp_w1.perp();
@@ -106,7 +100,7 @@ void CSCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
 
     tp_w2.accessCSCData().keywire = tp_wire2;
 
-    const GlobalPoint& gp_w2 = GEOM.getGlobalPoint(tp_w2);
+    const GlobalPoint& gp_w2 = this->context_.geometry_translator_.getGlobalPoint(tp_w2);
     const double glob_theta_w2 = tp::rad_to_deg(gp_w2.theta().value());
 
     emtf_theta_w2 = tp::calc_theta_int(tp_endcap_pm, glob_theta_w2);

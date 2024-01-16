@@ -251,7 +251,7 @@ TriggerPrimitive::TriggerPrimitive(const ME0DetId& detid, const ME0TriggerDigi& 
   _me0.bx = digi.getBX();
 }
 
-// Constructor from ME0 data
+// Constructor from GE0 data
 TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const ME0TriggerDigi& digi)
     : _id(detid), _subsystem(L1TMuon::kME0) {
   calculateGlobalSector(detid, _globalsector, _subsector);

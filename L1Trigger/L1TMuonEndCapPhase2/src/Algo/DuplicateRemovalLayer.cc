@@ -1,20 +1,15 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFContext.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DataUtils.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DebugUtils.h"
-#include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/TemplateUtils.h"
 
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Algo/DuplicateRemovalLayer.h"
 
 using namespace emtf::phase2;
 using namespace emtf::phase2::algo;
 
-DuplicateRemovalLayer::DuplicateRemovalLayer(const EMTFContext& context) : context_(context) {
-  // Do Nothing
-}
-
-DuplicateRemovalLayer::~DuplicateRemovalLayer() {
-  // Do Nothing
-}
+DuplicateRemovalLayer::DuplicateRemovalLayer(const EMTFContext& context) : context_(context) {}
 
 void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
   // ===========================================================================
@@ -117,12 +112,12 @@ void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
     trk_i.valid = rtrk_i.valid;
 
     // DEBUG
-    if (CONFIG.verbosity_ > 1) {
+    if (this->context_.config_.verbosity_ > 1) {
       if (trk_i.valid) {
-        std::cout << "Unique Track"
-                  << " zone " << trk_i.zone << " col " << trk_i.col << " pat " << trk_i.pattern << " qual "
-                  << trk_i.quality << " phi " << trk_i.phi << " theta " << trk_i.theta << " valid " << trk_i.valid
-                  << std::endl;
+        edm::LogInfo("L1T EMTF++") << "Unique Track"
+                                   << " zone " << trk_i.zone << " col " << trk_i.col << " pat " << trk_i.pattern
+                                   << " qual " << trk_i.quality << " phi " << trk_i.phi << " theta " << trk_i.theta
+                                   << " valid " << trk_i.valid << std::endl;
       }
     }
   }  // End loop reduced tracks i

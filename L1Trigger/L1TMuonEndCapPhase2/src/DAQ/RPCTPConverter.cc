@@ -18,13 +18,7 @@
 using namespace emtf::phase2;
 
 RPCTPConverter::RPCTPConverter(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-RPCTPConverter::~RPCTPConverter() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void RPCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, EMTFHit& hit) const {
   // Unpack Id
@@ -92,7 +86,8 @@ void RPCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
 
   if (tp_rpc_type == rpc::Type::kiRPC) {
     // Handle iRPC Coordinates
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(GEOM.getRPCGeometry().roll(tp_det_id));
+    const RPCRoll* roll =
+        dynamic_cast<const RPCRoll*>(this->context_.geometry_translator_.getRPCGeometry().roll(tp_det_id));
     const GlobalPoint& irpc_gp = roll->surface().toGlobal(LocalPoint(tp_data.x, tp_data.y, 0));
 
     glob_phi = tp::rad_to_deg(irpc_gp.phi().value());
@@ -101,7 +96,7 @@ void RPCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
     glob_z = irpc_gp.z();
   } else {
     // Handle RPC Coordinates
-    const GlobalPoint& gp = GEOM.getGlobalPoint(tp);
+    const GlobalPoint& gp = this->context_.geometry_translator_.getGlobalPoint(tp);
     glob_phi = tp::rad_to_deg(gp.phi().value());
     glob_theta = tp::rad_to_deg(gp.theta().value());
     glob_rho = gp.perp();

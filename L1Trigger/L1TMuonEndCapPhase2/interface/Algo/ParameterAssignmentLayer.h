@@ -14,7 +14,7 @@ namespace emtf::phase2::algo {
   public:
     ParameterAssignmentLayer(const EMTFContext&);
 
-    ~ParameterAssignmentLayer();
+    ~ParameterAssignmentLayer() = default;
 
     void apply(const bool&, std::vector<track_t>&) const;
 

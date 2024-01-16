@@ -14,7 +14,7 @@ namespace emtf::phase2::algo {
   public:
     RoadSortingLayer(const EMTFContext&);
 
-    ~RoadSortingLayer();
+    ~RoadSortingLayer() = default;
 
     void apply(const int&, const std::vector<road_collection_t>&, std::vector<road_t>&) const;
 

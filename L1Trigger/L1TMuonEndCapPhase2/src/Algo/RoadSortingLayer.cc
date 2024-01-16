@@ -1,3 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFContext.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DataUtils.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DebugUtils.h"
@@ -6,13 +8,7 @@
 
 using namespace emtf::phase2::algo;
 
-RoadSortingLayer::RoadSortingLayer(const EMTFContext& context) : context_(context) {
-  // Do Nothing
-}
-
-RoadSortingLayer::~RoadSortingLayer() {
-  // Do Nothing
-}
+RoadSortingLayer::RoadSortingLayer(const EMTFContext& context) : context_(context) {}
 
 void RoadSortingLayer::apply(const int& first_n,
                              const std::vector<road_collection_t>& zone_roads,
@@ -55,10 +51,10 @@ void RoadSortingLayer::apply(const int& first_n,
           suppressed_roads[i_col].quality = roads[i_col].quality;
         } else {
           // Debug Info
-          if (CONFIG.verbosity_ > 2 && roads[i_col].quality > 0) {
-            std::cout << "Road Suppressed"
-                      << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern << " qual "
-                      << roads[i_col].quality << std::endl;
+          if (this->context_.config_.verbosity_ > 2 && roads[i_col].quality > 0) {
+            edm::LogInfo("L1T EMTF++") << "Road Suppressed"
+                                       << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
+                                       << " qual " << roads[i_col].quality << std::endl;
           }
 
           // Suppress
@@ -85,10 +81,11 @@ void RoadSortingLayer::apply(const int& first_n,
           roads_kept[i_col] = suppressed_roads[i_col * 2 + 1];
         }
 
-        if (CONFIG.verbosity_ > 2 && roads_kept[i_col].quality > 0) {
-          std::cout << "Road Kept"
-                    << " zone " << roads_kept[i_col].zone << " col " << roads_kept[i_col].col << " pat "
-                    << roads_kept[i_col].pattern << " qual " << roads_kept[i_col].quality << std::endl;
+        if (this->context_.config_.verbosity_ > 2 && roads_kept[i_col].quality > 0) {
+          edm::LogInfo("L1T EMTF++") << "Road Kept"
+                                     << " zone " << roads_kept[i_col].zone << " col " << roads_kept[i_col].col
+                                     << " pat " << roads_kept[i_col].pattern << " qual " << roads_kept[i_col].quality
+                                     << std::endl;
         }
       }
     }
@@ -117,16 +114,16 @@ void RoadSortingLayer::apply(const int& first_n,
   }  // End Loop Zones
 
   // Debug Info
-  if (CONFIG.verbosity_ > 2) {
+  if (this->context_.config_.verbosity_ > 2) {
     for (const auto& road : top_roads) {
       // Short-Circuit: Skip quality-0 roads
       if (road.quality == 0) {
         continue;
       }
 
-      std::cout << "Top Road"
-                << " zone " << road.zone << " col " << road.col << " pat " << road.pattern << " qual " << road.quality
-                << std::endl;
+      edm::LogInfo("L1T EMTF++") << "Top Road"
+                                 << " zone " << road.zone << " col " << road.col << " pat " << road.pattern << " qual "
+                                 << road.quality << std::endl;
     }
   }
 
@@ -153,9 +150,9 @@ void RoadSortingLayer::apply(const int& first_n,
     best_roads.push_back(road);
 
     // Debug Info
-    if (CONFIG.verbosity_ > 1 && road.quality > 0) {
-      std::cout << "Best Road " << i_road << " zone " << road.zone << " col " << road.col << " pat " << road.pattern
-                << " qual " << road.quality << std::endl;
+    if (this->context_.config_.verbosity_ > 1 && road.quality > 0) {
+      edm::LogInfo("L1T EMTF++") << "Best Road " << i_road << " zone " << road.zone << " col " << road.col << " pat "
+                                 << road.pattern << " qual " << road.quality << std::endl;
     }
   }
 }

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFContext.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFConfiguration.h"
@@ -31,23 +32,23 @@ TrackFinder::TrackFinder(const edm::ParameterSet& i_config, edm::ConsumesCollect
   // ===========================================================================
 
   // Register Trigger Primitives
-  if (CONFIG.csc_en_) {
+  if (this->context_.config_.csc_en_) {
     tp_collectors_.push_back(std::make_unique<CSCTPCollector>(context_, i_consumes_collector));
   }
 
-  if (CONFIG.rpc_en_) {
+  if (this->context_.config_.rpc_en_) {
     tp_collectors_.push_back(std::make_unique<RPCTPCollector>(context_, i_consumes_collector));
   }
 
-  if (CONFIG.gem_en_) {
+  if (this->context_.config_.gem_en_) {
     tp_collectors_.push_back(std::make_unique<GEMTPCollector>(context_, i_consumes_collector));
   }
 
-  if (CONFIG.me0_en_) {
+  if (this->context_.config_.me0_en_) {
     tp_collectors_.push_back(std::make_unique<ME0TPCollector>(context_, i_consumes_collector));
   }
 
-  if (CONFIG.ge0_en_) {
+  if (this->context_.config_.ge0_en_) {
     tp_collectors_.push_back(std::make_unique<GE0TPCollector>(context_, i_consumes_collector));
   }
 
@@ -93,9 +94,9 @@ void TrackFinder::process(
   std::vector<int> bx_sequence;
 
   {
-    auto min_bx = CONFIG.min_bx_;
-    auto delay_bx = CONFIG.bx_window_ - 1;
-    auto max_bx = CONFIG.max_bx_ + delay_bx;
+    auto min_bx = this->context_.config_.min_bx_;
+    auto delay_bx = this->context_.config_.bx_window_ - 1;
+    auto max_bx = this->context_.config_.max_bx_ + delay_bx;
 
     for (int bx = min_bx; bx <= max_bx; ++bx) {
       bx_sequence.push_back(bx);
@@ -110,7 +111,7 @@ void TrackFinder::process(
   }
 
   // Debug Info
-  if (CONFIG.verbosity_ > 4) {
+  if (this->context_.config_.verbosity_ > 4) {
     int n_tp = 0;
 
     // Loop BX
@@ -133,26 +134,31 @@ void TrackFinder::process(
       }
 
       // Print trigger primitives
-      std::cout << "===========================================================================" << std::endl;
-      std::cout << "Begin TPC BX " << bx << " Dump" << std::endl;
-      std::cout << "---------------------------------------------------------------------------" << std::endl;
+      edm::LogInfo("L1T EMTF++") << "==========================================================================="
+                                 << std::endl;
+      edm::LogInfo("L1T EMTF++") << "Begin TPC BX " << bx << " Dump" << std::endl;
+      edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
+                                 << std::endl;
 
       n_tp += bx_tpc.size();
 
       for (const auto& tp_entry : bx_tpc) {
         tp_entry.tp_.print(std::cout);
 
-        std::cout << "---------------------------------------------------------------------------" << std::endl;
+        edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
+                                   << std::endl;
       }
 
-      std::cout << "End TPC BX " << bx << " Dump" << std::endl;
-      std::cout << "===========================================================================" << std::endl;
+      edm::LogInfo("L1T EMTF++") << "End TPC BX " << bx << " Dump" << std::endl;
+      edm::LogInfo("L1T EMTF++") << "==========================================================================="
+                                 << std::endl;
     }
 
     // Print TPrimitives Summary
     if (n_tp > 0) {
-      std::cout << "Num of TriggerPrimitive: " << n_tp << std::endl;
-      std::cout << "===========================================================================" << std::endl;
+      edm::LogInfo("L1T EMTF++") << "Num of TriggerPrimitive: " << n_tp << std::endl;
+      edm::LogInfo("L1T EMTF++") << "==========================================================================="
+                                 << std::endl;
     }
   }
 

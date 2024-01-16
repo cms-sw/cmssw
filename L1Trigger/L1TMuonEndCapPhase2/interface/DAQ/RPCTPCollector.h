@@ -11,7 +11,7 @@ namespace emtf::phase2 {
   public:
     explicit RPCTPCollector(const EMTFContext&, edm::ConsumesCollector&);
 
-    ~RPCTPCollector();
+    ~RPCTPCollector() = default;
 
     void collect(const edm::Event&, BXTPCMap&) const final;
 

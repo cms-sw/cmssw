@@ -16,13 +16,7 @@
 using namespace emtf::phase2;
 
 GEMTPConverter::GEMTPConverter(const EMTFContext& context, const int& endcap, const int& sector)
-    : context_(context), endcap_(endcap), sector_(sector) {
-  // Do Nothing
-}
-
-GEMTPConverter::~GEMTPConverter() {
-  // Do Nothing
-}
+    : context_(context), endcap_(endcap), sector_(sector) {}
 
 void GEMTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, EMTFHit& hit) const {
   // Unpack Id
@@ -71,7 +65,7 @@ void GEMTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
 
   // Get Global Coordinates
   // const GlobalPoint& gp = get_global_point(detgeom, detid, digi);
-  const GlobalPoint& gp = GEOM.getGlobalPoint(tp);
+  const GlobalPoint& gp = this->context_.geometry_translator_.getGlobalPoint(tp);
   const float glob_phi = tp::rad_to_deg(gp.phi().value());
   const float glob_theta = tp::rad_to_deg(gp.theta().value());
   const double glob_rho = gp.perp();

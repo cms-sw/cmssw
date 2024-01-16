@@ -50,9 +50,9 @@ int TimeZoneLut::get_timezones(const int& host, const int& bx) const {
   // Build word
   int word = 0x0;
 
-  word |= in_range(found->second, bx) ? 0x01 : 0;
-  word |= in_range(found->second, bx + 1) ? 0x02 : 0;  // +1 BX delay
-  word |= in_range(found->second, bx + 2) ? 0x04 : 0;  // +2 BX delay
+  word |= in_range(found->second, bx) ? 0b001 : 0;
+  word |= in_range(found->second, bx + 1) ? 0b010 : 0;  // +1 BX delay
+  word |= in_range(found->second, bx + 2) ? 0b100 : 0;  // +2 BX delay
 
   return word;
 }

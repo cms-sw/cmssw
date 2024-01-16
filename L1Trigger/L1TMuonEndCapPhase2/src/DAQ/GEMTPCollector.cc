@@ -15,13 +15,7 @@ using namespace emtf::phase2;
 GEMTPCollector::GEMTPCollector(const EMTFContext& context, edm::ConsumesCollector& i_consumes_collector)
     : context_(context),
       input_token_(i_consumes_collector.consumes<GEMTag::collection_type>(
-          context.pset_.getParameter<edm::InputTag>("GEMInput"))) {
-  // Do Nothing
-}
-
-GEMTPCollector::~GEMTPCollector() {
-  // Do Nothing
-}
+          context.pset_.getParameter<edm::InputTag>("GEMInput"))) {}
 
 void GEMTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) const {
   // Constants
@@ -72,7 +66,7 @@ void GEMTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
     const uint16_t tp_pad_lo = tp_data.pad_low;
     const uint16_t tp_pad_hi = tp_data.pad_hi;
 
-    const int tp_bx = tp_data.bx + CONFIG.gem_bx_shift_;
+    const int tp_bx = tp_data.bx + this->context_.config_.gem_bx_shift_;
 
     GEMDetId tp_mod_det_id(tp_region, tp_ring, tp_station, 0, tp_chamber, 0);
     auto key = std::make_pair(tp_mod_det_id.rawId(), tp_bx);
@@ -107,7 +101,7 @@ void GEMTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
     const int tp_pad_lo = tp_data.pad_low;
     const int tp_pad_hi = tp_data.pad_hi;
 
-    const int tp_bx = tp_data.bx + CONFIG.gem_bx_shift_;
+    const int tp_bx = tp_data.bx + this->context_.config_.gem_bx_shift_;
 
     // Get Copad Info
     GEMDetId tp_mod_det_id(tp_region, tp_ring, tp_station, 0, tp_chamber, 0);

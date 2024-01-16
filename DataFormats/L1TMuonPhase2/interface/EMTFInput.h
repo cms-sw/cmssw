@@ -13,13 +13,8 @@ namespace l1t::phase2 {
     typedef std::vector<uint16_t> hits_t;
     typedef std::vector<uint16_t> segs_t;
 
-    EMTFInput() : endcap_(0), sector_(0), bx_(0), hits_{}, segs_{} {
-      // Do Nothing
-    }
-
-    ~EMTFInput() {
-      // Do Nothing
-    }
+    EMTFInput() : endcap_(0), sector_(0), bx_(0), hits_{}, segs_{} {}
+    ~EMTFInput() = default;
 
     // Setters
     void setEndcap(int16_t aEndcap) { endcap_ = aEndcap; }

@@ -17,13 +17,7 @@ using namespace emtf::phase2;
 GE0TPCollector::GE0TPCollector(const EMTFContext& context, edm::ConsumesCollector& i_consumes_collector)
     : context_(context),
       input_token_(i_consumes_collector.consumes<GE0Tag::collection_type>(
-          context.pset_.getParameter<edm::InputTag>("GE0Input"))) {
-  // Do Nothing
-}
-
-GE0TPCollector::~GE0TPCollector() {
-  // Do Nothing
-}
+          context.pset_.getParameter<edm::InputTag>("GE0Input"))) {}
 
 void GE0TPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) const {
   // Constants
@@ -68,7 +62,7 @@ void GE0TPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
 
     const int tp_pad = tp_data.phiposition;
     const int tp_partition = tp_data.partition;
-    const int tp_bx = tp_data.bx + CONFIG.me0_bx_shift_;
+    const int tp_bx = tp_data.bx + this->context_.config_.me0_bx_shift_;
 
     // Reject if outside eta of 2.4
     if (tp_partition > me0_max_partition) {

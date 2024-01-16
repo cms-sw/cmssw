@@ -158,7 +158,12 @@ GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) 
     int partition = tp.getME0Data().partition;         // 'partition' is in half-roll unit
     int iroll = (partition >> 1) + 1;
     const GEMEtaPartition* roll = keylayer->etaPartition(iroll);
-    assert(roll != nullptr);  // failed to get GEM roll
+
+    // failed to get ME0 roll
+    if (roll == nullptr) {
+      throw cms::Exception("Invalid GE0 Roll") << "Failed to get GEM roll for GE0" << std::endl;
+    }
+
     // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
     int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
     int istrip = (phiposition >> 1);
@@ -174,7 +179,12 @@ GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) 
     int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
     int iroll = (partition >> 1) + 1;
     const ME0EtaPartition* roll = keylayer->etaPartition(iroll);
-    assert(roll != nullptr);  // failed to get ME0 roll
+
+    // failed to get ME0 roll
+    if (roll == nullptr) {
+      throw cms::Exception("Invalid ME0 Roll") << "Failed to get ME0 roll" << std::endl;
+    }
+
     // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
     int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
     int istrip = (phiposition >> 1);

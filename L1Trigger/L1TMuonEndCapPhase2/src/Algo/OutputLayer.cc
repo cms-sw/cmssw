@@ -3,20 +3,13 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFContext.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DataUtils.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/DebugUtils.h"
-#include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/TemplateUtils.h"
 
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Algo/OutputLayer.h"
 
 using namespace emtf::phase2;
 using namespace emtf::phase2::algo;
 
-OutputLayer::OutputLayer(const EMTFContext& context) : context_(context) {
-  // Do Nothing
-}
-
-OutputLayer::~OutputLayer() {
-  // Do Nothing
-}
+OutputLayer::OutputLayer(const EMTFContext& context) : context_(context) {}
 
 void OutputLayer::apply(const int& endcap,
                         const int& sector,
@@ -182,51 +175,49 @@ int OutputLayer::find_emtf_mode_v2(const track_t::site_mask_t& x) const {
   int cnt_me14 = x[11];                                                // ME0 only
   int cnt_me2a = (x[2] != 0) + (x[3] != 0) + (x[4] != 0);              //
 
-  // clang-format off
-    // SingleMu (12)
-    {
-        bool rule_a_i  = (cnt_me12 != 0) and (cnt_me2a >= 1);
-        bool rule_a_ii = (cnt_ye12 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
-        bool rule_b_i  = (cnt_me11 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
-        bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 2);
-        bool rule_c_i  = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2b >= 1);
-        bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
+  // SingleMu (12)
+  {
+    bool rule_a_i = (cnt_me12 != 0) and (cnt_me2a >= 1);
+    bool rule_a_ii = (cnt_ye12 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
+    bool rule_b_i = (cnt_me11 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
+    bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 2);
+    bool rule_c_i = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2b >= 1);
+    bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1) and (cnt_ye2a >= 2);
 
-        if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii) {
-            mode |= (1 << 3);
-            mode |= (1 << 2);
-        }
+    if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii) {
+      mode |= (1 << 3);
+      mode |= (1 << 2);
     }
+  }
 
-    // DoubleMu (8)
-    if (mode < (1 << 3)) {
-        bool rule_a_i  = (cnt_me12 != 0) and (cnt_ye2a >= 1);
-        bool rule_a_ii = (cnt_me11 != 0) and (cnt_ye2a >= 1);
-        bool rule_b_i  = (cnt_ye12 != 0) and (cnt_me2a >= 1);
-        bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 1);
-        bool rule_c_i  = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2a >= 1);
-        bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1);
+  // DoubleMu (8)
+  if (mode < (1 << 3)) {
+    bool rule_a_i = (cnt_me12 != 0) and (cnt_ye2a >= 1);
+    bool rule_a_ii = (cnt_me11 != 0) and (cnt_ye2a >= 1);
+    bool rule_b_i = (cnt_ye12 != 0) and (cnt_me2a >= 1);
+    bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 1);
+    bool rule_c_i = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2a >= 1);
+    bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1);
 
-        if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii) {
-            mode |= (1 << 3);
-        }
+    if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii) {
+      mode |= (1 << 3);
     }
+  }
 
-    // TripleMu (4)
-    if (mode < (1 << 2)) {
-        bool rule_a_i  = (cnt_me12 != 0) and (cnt_ye2a >= 1);
-        bool rule_a_ii = (cnt_me11 != 0) and (cnt_ye2a >= 1);
-        bool rule_b_i  = (cnt_ye12 != 0) and (cnt_me2a >= 1);
-        bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 1);
-        bool rule_c_i  = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2a >= 1);
-        bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1);
-        bool rule_d    = (cnt_me2a >= 2);
+  // TripleMu (4)
+  if (mode < (1 << 2)) {
+    bool rule_a_i = (cnt_me12 != 0) and (cnt_ye2a >= 1);
+    bool rule_a_ii = (cnt_me11 != 0) and (cnt_ye2a >= 1);
+    bool rule_b_i = (cnt_ye12 != 0) and (cnt_me2a >= 1);
+    bool rule_b_ii = (cnt_ye11 != 0) and (cnt_me2a >= 1);
+    bool rule_c_i = (cnt_me14 != 0) and (cnt_me11 != 0) and (cnt_ye2a >= 1);
+    bool rule_c_ii = (cnt_me14 != 0) and (cnt_me2a >= 1);
+    bool rule_d = (cnt_me2a >= 2);
 
-        if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii or rule_d) {
-            mode |= (1 << 2);
-        }
+    if (rule_a_i or rule_a_ii or rule_b_i or rule_b_ii or rule_c_i or rule_c_ii or rule_d) {
+      mode |= (1 << 2);
     }
+  }
 
-  // clang-format on
   return mode;
 }

@@ -20,13 +20,6 @@
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Data/ZoneLut.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Data/TimeZoneLut.h"
 
-#define PSET this->context_.pset_
-#define CONFIG this->context_.config_
-#define GEOM this->context_.geometry_translator_
-// #define EMTF_PSET this->context_.pset_
-// #define EMTF_CONFIG this->context_.config_
-// #define EMTF_GEOM this->context_.geometry_translator_
-
 namespace emtf::phase2 {
 
   // Class

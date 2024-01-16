@@ -102,7 +102,7 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
   if (phiposition > totstrip)
     LogTrace("L1ME0Trigger") << " ME0 segment strip number is " << phiposition << " larger than nstrip " << totstrip
                              << " !!! \n";
-  float phi_resolution = 0.5;                                                         //halfstrip
+  constexpr float phi_resolution = 0.5;                                               //halfstrip
   int phiposition2 = (static_cast<int>((strip - phiposition) / phi_resolution) & 1);  // half-strip resolution
   phiposition = (phiposition << 1) | phiposition2;
 
