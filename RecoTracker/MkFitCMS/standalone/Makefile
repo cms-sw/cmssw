@@ -70,7 +70,7 @@ ${MAIN}: ${MAIN_DEPS} mkFit.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${LDFLAGS} mkFit.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. ${MAIN_LIBS} -Wl,-rpath=.
 
 ${WRMEMF}: ${MAIN_DEPS} WriteMemoryFile.o WriteMemFileDict.o
-	${CXX} ${CXXFLAGS} ${LDFLAGS} $^ -o $@ ${LDFLAGS_HOST} -ltbb -L.. ${MAIN_LIBS} -Wl,-rpath=.
+	${CXX} ${CXXFLAGS} ${LDFLAGS} WriteMemoryFile.o WriteMemFileDict.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. ${MAIN_LIBS} -Wl,-rpath=.
 
 ${OBJS}: %.o: %.cc %.d
 	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${VEC_HOST} -c -o $@ $<
