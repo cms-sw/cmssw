@@ -27,7 +27,7 @@ namespace l1ct {
       hwPt = 0;
       hwEta = 0;
       hwPhi = 0;
-      z0 = 0;
+      hwZ0 = 0;
       hwBtagScore = 0;
     }
 
