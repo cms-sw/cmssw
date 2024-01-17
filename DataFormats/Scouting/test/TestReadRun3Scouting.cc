@@ -83,6 +83,7 @@ namespace edmtest {
     const std::vector<int> expectedPFJetIntegralValues_;
     const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfJetsToken_;
 
+    const int inputPhotonClassVersion_;
     const std::vector<double> expectedPhotonFloatingPointValues_;
     const std::vector<int> expectedPhotonIntegralValues_;
     const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
@@ -114,6 +115,7 @@ namespace edmtest {
         expectedPFJetFloatingPointValues_(iPSet.getParameter<std::vector<double>>("expectedPFJetFloatingPointValues")),
         expectedPFJetIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedPFJetIntegralValues")),
         pfJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("pfJetsTag"))),
+        inputPhotonClassVersion_(iPSet.getParameter<int>("photonClassVersion")),
         expectedPhotonFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedPhotonFloatingPointValues")),
         expectedPhotonIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedPhotonIntegralValues")),
@@ -128,12 +130,12 @@ namespace edmtest {
     if (expectedCaloJetsValues_.size() != 16) {
       throwWithMessageFromConstructor("test configuration error, expectedCaloJetsValues must have size 16");
     }
-    if (expectedElectronFloatingPointValues_.size() != 25) {
+    if (expectedElectronFloatingPointValues_.size() != 33) {
       throwWithMessageFromConstructor(
-          "test configuration error, expectedElectronFloatingPointValues must have size 25");
+          "test configuration error, expectedElectronFloatingPointValues must have size 33");
     }
-    if (expectedElectronIntegralValues_.size() != 6) {
-      throwWithMessageFromConstructor("test configuration error, expectedElectronIntegralValues must have size 6");
+    if (expectedElectronIntegralValues_.size() != 8) {
+      throwWithMessageFromConstructor("test configuration error, expectedElectronIntegralValues must have size 8");
     }
     if (expectedMuonFloatingPointValues_.size() != 37) {
       throwWithMessageFromConstructor("test configuration error, expectedMuonFloatingPointValues must have size 37");
@@ -154,11 +156,11 @@ namespace edmtest {
     if (expectedPFJetIntegralValues_.size() != 8) {
       throwWithMessageFromConstructor("test configuration error, expectedPFJetIntegralValues must have size 8");
     }
-    if (expectedPhotonFloatingPointValues_.size() != 14) {
-      throwWithMessageFromConstructor("test configuration error, expectedPhotonFloatingPointValues must have size 14");
+    if (expectedPhotonFloatingPointValues_.size() != 18) {
+      throwWithMessageFromConstructor("test configuration error, expectedPhotonFloatingPointValues must have size 18");
     }
-    if (expectedPhotonIntegralValues_.size() != 3) {
-      throwWithMessageFromConstructor("test configuration error, expectedPhotonIntegralValues must have size 3");
+    if (expectedPhotonIntegralValues_.size() != 5) {
+      throwWithMessageFromConstructor("test configuration error, expectedPhotonIntegralValues must have size 5");
     }
     if (expectedTrackFloatingPointValues_.size() != 29) {
       throwWithMessageFromConstructor("test configuration error, expectedTrackFloatingPointValues must have size 29");
@@ -202,6 +204,7 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedPFJetFloatingPointValues");
     desc.add<std::vector<int>>("expectedPFJetIntegralValues");
     desc.add<edm::InputTag>("pfJetsTag");
+    desc.add<int>("photonClassVersion");
     desc.add<std::vector<double>>("expectedPhotonFloatingPointValues");
     desc.add<std::vector<int>>("expectedPhotonIntegralValues");
     desc.add<edm::InputTag>("photonsTag");
@@ -393,7 +396,7 @@ namespace edmtest {
       if (electron.rechitZeroSuppression() != static_cast<bool>((expectedElectronIntegralValues_[4] + iOffset) % 2)) {
         throwWithMessage("analyzeElectrons, rechitZeroSuppression does not equal expected value");
       }
-      if (inputElectronClassVersion_ == 6) {
+      if (inputElectronClassVersion_ == 6 || inputElectronClassVersion_ == 7) {
         if (electron.trkd0().size() != vectorSize) {
           throwWithMessage("analyzeElectrons, trkd0 does not have expected size");
         }
@@ -463,6 +466,66 @@ namespace edmtest {
             throwWithMessage("analyzeElectrons, trkcharge does not contain expected value");
           }
           ++j;
+        }
+      }
+      if (inputElectronClassVersion_ == 7) {
+        if (electron.rawEnergy() != expectedElectronFloatingPointValues_[25] + offset) {
+          throwWithMessage("analyzeElectrons, rawEnergy does not equal expected value");
+        }
+        if (electron.preshowerEnergy() != expectedElectronFloatingPointValues_[26] + offset) {
+          throwWithMessage("analyzeElectrons, preshowerEnergy does not equal expected value");
+        }
+        if (electron.corrEcalEnergyError() != expectedElectronFloatingPointValues_[27] + offset) {
+          throwWithMessage("analyzeElectrons, corrEcalEnergyError does not equal expected value");
+        }
+        if (electron.fbrem() != expectedElectronFloatingPointValues_[28] + offset) {
+          throwWithMessage("analyzeElectrons, fbrem does not equal expected value");
+        }
+        if (electron.trkpMode().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkpMode does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkpMode()) {
+          if (val != expectedElectronFloatingPointValues_[29] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkpMode does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trketaMode().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trketaMode does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trketaMode()) {
+          if (val != expectedElectronFloatingPointValues_[30] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trketaMode does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkphiMode().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkphiMode does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkphiMode()) {
+          if (val != expectedElectronFloatingPointValues_[31] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkphiMode does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkqoverpModeError().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkqoverpModeError does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkqoverpModeError()) {
+          if (val != expectedElectronFloatingPointValues_[32] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkqoverpModeError does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.nClusters() != static_cast<unsigned int>(expectedElectronIntegralValues_[6] + iOffset)) {
+          throwWithMessage("analyzeElectrons, nClusters does not equal expected value");
+        }
+        if (electron.nCrystals() != static_cast<unsigned int>(expectedElectronIntegralValues_[7] + iOffset)) {
+          throwWithMessage("analyzeElectrons, nCrystals does not equal expected value");
         }
       }
       ++i;
@@ -916,6 +979,26 @@ namespace edmtest {
       }
       if (photon.rechitZeroSuppression() != static_cast<bool>((expectedPhotonIntegralValues_[2] + iOffset) % 2)) {
         throwWithMessage("analyzePhotons, rechitZeroSuppression does not equal expected value");
+      }
+      if (inputPhotonClassVersion_ == 6) {
+        if (photon.rawEnergy() != expectedPhotonFloatingPointValues_[14] + offset) {
+          throwWithMessage("analyzePhotons, rawEnergy does not equal expected value");
+        }
+        if (photon.preshowerEnergy() != expectedPhotonFloatingPointValues_[15] + offset) {
+          throwWithMessage("analyzePhotons, preshowerEnergy does not equal expected value");
+        }
+        if (photon.corrEcalEnergyError() != expectedPhotonFloatingPointValues_[16] + offset) {
+          throwWithMessage("analyzePhotons, corrEcalEnergyError does not equal expected value");
+        }
+        if (photon.fbrem() != expectedPhotonFloatingPointValues_[17] + offset) {
+          throwWithMessage("analyzePhotons, fbrem does not equal expected value");
+        }
+        if (photon.nClusters() != static_cast<unsigned int>(expectedPhotonIntegralValues_[3] + iOffset)) {
+          throwWithMessage("analyzePhotons, nClusters does not equal expected value");
+        }
+        if (photon.nCrystals() != static_cast<unsigned int>(expectedPhotonIntegralValues_[4] + iOffset)) {
+          throwWithMessage("analyzePhotons, nCrystals does not equal expected value");
+        }
       }
       ++i;
     }
