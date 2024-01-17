@@ -169,6 +169,7 @@ The tool has several modes of operation (each with its own options, which can be
 * `view`: displays the field values from a provided `config.pbtxt` file.
 * `edit`: allows changing any field value in a `config.pbtxt` file. Non-primitive types are specified using JSON format.
 * `checksum`: checks and updates checksums for model files (to enforce versioning).
+* `versioncheck`: checks and updates checksums for all `config.pbtxt` files in `$CMSSW_SEARCH_PATH`.
 * `threadcontrol`: adds job- and ML framework-specific thread control settings.
 
 The `edit` mode is intended for generic modifications, and only supports overwriting existing values

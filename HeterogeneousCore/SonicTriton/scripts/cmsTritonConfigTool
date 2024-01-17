@@ -2,7 +2,8 @@
 
 import os, sys, json, pathlib, shutil
 from collections import OrderedDict
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, RawTextHelpFormatter, RawDescriptionHelpFormatter, Action
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, RawTextHelpFormatter, RawDescriptionHelpFormatter, Action, Namespace
+from enum import Enum
 from google.protobuf import text_format, json_format, message, descriptor
 from google.protobuf.internal import type_checkers
 from tritonclient import grpc
@@ -27,6 +28,11 @@ class DictAction(Action):
         for i in range(0, len(values), 2):
             result[values[i]] = self.val_type(values[i+1])
         setattr(namespace, self.dest, result)
+
+class TritonChecksumStatus(Enum):
+    CORRECT = 0
+    MISSING = 1
+    INCORRECT = 2
 
 message_classes = {cls.__name__ : cls for cls in message.Message.__subclasses__()}
 
@@ -87,6 +93,9 @@ def get_fields(obj, name, level=0, verbose=False):
     for field in field_list:
         obj_info["fields"].append(get_fields(getattr(field_obj,field),field,level+1,verbose))
     return obj_info
+
+def get_model_info():
+    return get_fields(grpc.model_config_pb2.ModelConfig(), "ModelConfig")
 
 def msg_json(val, defaults=False):
     return json_format.MessageToJson(val, preserving_proto_field_name=True, including_default_value_fields=defaults, indent=0).replace(",\n",", ").replace("\n","")
@@ -198,6 +207,12 @@ def get_checksum(filename, chunksize=4096):
             file_hash.update(chunk)
     return file_hash.hexdigest()
 
+def get_checksum_update_cmd(force=False):
+    extra_args = ["--update"]
+    if force: extra_args.append("--force")
+    extra_args = [arg for arg in extra_args if arg not in sys.argv]
+    return "{} {}".format(" ".join(sys.argv), " ".join(extra_args))
+
 def update_config(args):
     # update config path to be output path (in case view is called)
     if args.copy:
@@ -209,6 +224,8 @@ def update_config(args):
         text_format.PrintMessage(args.model, outfile, use_short_repeated_primitives=True)
 
 def cfg_common(args):
+    if not hasattr(args,'model_info'):
+        args.model_info = get_model_info()
     args.model = grpc.model_config_pb2.ModelConfig()
     if hasattr(args,'config'):
         with open(args.config,'r') as infile:
@@ -231,6 +248,10 @@ def cfg_edit(args):
         cfg_view(args)
 
 def cfg_checksum(args):
+    # internal parameter
+    if not hasattr(args, "should_return"):
+        args.should_return = False
+
     agents = args.model.model_repository_agents.agents
     checksum_agent = next((agent for agent in agents if agent.name=="checksum"), None)
     if checksum_agent is None:
@@ -265,31 +286,71 @@ def cfg_checksum(args):
         if needs_update:
             print("\n".join(["Missing checksums:"]+missing))
         if needs_force_update:
-                print("\n".join(["Incorrect checksums:"]+incorrect))
+            print("\n".join(["Incorrect checksums:"]+incorrect))
 
     if needs_force_update:
         if not (args.update and args.force):
-            extra_args = [arg for arg in ["--update","--force"] if arg not in sys.argv]
-            raise RuntimeError("\n".join([
-                "Incorrect checksum(s) found, indicating existing model file(s) has been changed.",
-                "This violates policy. To override, run the following command, and provide a justification in your PR:",
-                "{} {}".format(" ".join(sys.argv), " ".join(extra_args))
-            ]))
+            if args.should_return:
+                return TritonChecksumStatus.INCORRECT
+            else:
+                raise RuntimeError("\n".join([
+                    "Incorrect checksum(s) found, indicating existing model file(s) has been changed, which violates policy.",
+                    "To override, run the following command (and provide a justification in your PR):",
+                    get_checksum_update_cmd(force=True)
+                ]))
         else:
             update_config(args)
     elif needs_update:
         if not args.update:
-            extra_args = [arg for arg in ["--update"] if arg not in sys.argv]
-            raise RuntimeError("\n".join([
-                "Missing checksum(s) found, indicating new model file(s).",
-                "To update, run the following command:",
-                "{} {}".format(" ".join(sys.argv), " ".join(extra_args))
-            ]))
+            if args.should_return:
+                return TritonChecksumStatus.MISSING
+            else:
+                raise RuntimeError("\n".join([
+                    "Missing checksum(s) found, indicating new model file(s).",
+                    "To update, run the following command:",
+                    get_checksum_update_cmd(force=False)
+                ]))
         else:
             update_config(args)
 
     if args.view:
         cfg_view(args)
+
+    if args.should_return:
+        return TritonChecksumStatus.CORRECT
+
+def cfg_versioncheck(args):
+    incorrect = []
+    missing = []
+
+    for path in os.environ['CMSSW_SEARCH_PATH'].split(':'):
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                if filename=="config.pbtxt":
+                    filepath = os.path.join(dirpath,filename)
+                    checksum_args = Namespace(
+                        config=filepath, should_return=True,
+                        copy=False, json=False, defaults=False, view=False,
+                        update=args.update, force=args.force, quiet=True
+                    )
+                    cfg_common(checksum_args)
+                    status = cfg_checksum(checksum_args)
+                    if status==TritonChecksumStatus.INCORRECT:
+                        incorrect.append(filepath)
+                    elif status==TritonChecksumStatus.MISSING:
+                        missing.append(filepath)
+
+    msg = []
+    instr = []
+    if len(missing)>0:
+        msg.extend(["","The following files have missing checksum(s), indicating new model file(s):"]+missing)
+        instr.extend(["","To update missing checksums, run the following command:",get_checksum_update_cmd(force=False)])
+    if len(incorrect)>0:
+        msg.extend(["","The following files have incorrect checksum(s), indicating existing model file(s) have been changed, which violates policy:"]+incorrect)
+        instr.extend(["","To override incorrect checksums, run the following command (and provide a justification in your PR):",get_checksum_update_cmd(force=True)])
+
+    if len(msg)>0:
+        raise RuntimeError("\n".join(msg+instr))
 
 def cfg_threadcontrol(args):
     # copy the entire model, not just config.pbtxt
@@ -331,7 +392,7 @@ def cfg_threadcontrol(args):
 
 if __name__=="__main__":
     # initial common operations
-    model_info = get_fields(grpc.model_config_pb2.ModelConfig(), "ModelConfig")
+    model_info = get_model_info()
     edit_dests = None
 
     _parser_common = ArgumentParser(add_help=False)
@@ -365,11 +426,16 @@ if __name__=="__main__":
     parser_edit, edit_dests = add_edit_args(parser_edit, model_info)
     parser_edit.set_defaults(func=cfg_edit)
 
-    parser_checksum = subparsers.add_parser("checksum", parents=[_parser_common, _parser_copy, _parser_view_args], help="handle model file checksums")
-    parser_checksum.add_argument("--update", default=False, action="store_true", help="update missing checksums in config.pbtxt")
-    parser_checksum.add_argument("--force", default=False, action="store_true", help="force update all checksums in config.pbtxt")
+    _parser_checksum_update = ArgumentParser(add_help=False)
+    _parser_checksum_update.add_argument("--update", default=False, action="store_true", help="update missing checksums")
+    _parser_checksum_update.add_argument("--force", default=False, action="store_true", help="force update all checksums")
+
+    parser_checksum = subparsers.add_parser("checksum", parents=[_parser_common, _parser_copy, _parser_view_args, _parser_checksum_update], help="handle model file checksums")
     parser_checksum.add_argument("--quiet", default=False, action="store_true", help="suppress printouts")
     parser_checksum.set_defaults(func=cfg_checksum)
+
+    parser_versioncheck = subparsers.add_parser("versioncheck", parents=[_parser_checksum_update], help="check all model checksums")
+    parser_versioncheck.set_defaults(func=cfg_versioncheck)
 
     _parser_copy_req = ArgumentParser(add_help=False, parents=[_parser_copy_view])
     _parser_copy_req.add_argument("--copy", metavar="dir", type=str, required=True,
