@@ -369,7 +369,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const std::string outputCollectionName_;
   const edm::ParameterSet cutSet_;
-  const double ptMin_, absEtaMax_, absZ0Max_, promptMVAMin_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
+  const double ptMin_, absEtaMax_, absZ0Max_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
   const double reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_, reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_,
       reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_;
   const int nStubsMin_, nPSStubsMin_;
@@ -521,8 +521,6 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   TTTrackBendChi2Chi2RZChi2RPhiMaxSelector chi2Sel(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector chi2SelEmu(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackNPSStubsMinSelector nPSStubsSel(nPSStubsMin_, tTopo);
-  TTTrackPromptMVAMinSelector mvaSel(promptMVAMin_);
-  TTTrackWordPromptMVAMinSelector mvaSelEmu(promptMVAMin_);
   TTTrackChi2MaxNstubSelector chi2NstubSel({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
                                            {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
                                            {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
