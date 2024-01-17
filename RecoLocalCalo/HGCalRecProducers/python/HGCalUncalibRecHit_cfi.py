@@ -1,21 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHitProducer_cfi import HGCalUncalibRecHitProducer
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
 fCPerMIP_mpv = cms.vdouble(1.25,2.57,3.88) #120um, 200um, 300um
 fCPerMIP_mean = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
 # HGCAL producer of rechits starting from digis
-HGCalUncalibRecHit = cms.EDProducer(
-    "HGCalUncalibRecHitProducer",
-    HGCEEdigiCollection = cms.InputTag('hgcalDigis:EE'),
-    HGCEEhitCollection = cms.string('HGCEEUncalibRecHits'),
-    HGCHEFdigiCollection = cms.InputTag('hgcalDigis:HEfront'),
-    HGCHEFhitCollection = cms.string('HGCHEFUncalibRecHits'),
-    HGCHEBdigiCollection = cms.InputTag('hgcalDigis:HEback'),
-    HGCHEBhitCollection = cms.string('HGCHEBUncalibRecHits'),
-    HGCHFNosedigiCollection = cms.InputTag('hfnoseDigis:HFNose'),
-    HGCHFNosehitCollection = cms.string('HGCHFNoseUncalibRecHits'),
+HGCalUncalibRecHit = HGCalUncalibRecHitProducer.clone(
     
     HGCEEConfig = cms.PSet(
         isSiFE = cms.bool(True),
@@ -71,9 +63,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         toaLSB_ns     = hfnoseDigitizer.digiCfg.feCfg.toaLSB_ns,
         tofDelay      = hfnoseDigitizer.tofDelay,
         fCPerMIP      = fCPerMIP_mpv
-        ),
-
-    algo = cms.string("HGCalUncalibRecHitWorkerWeights")
+        )
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10

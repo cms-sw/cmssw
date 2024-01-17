@@ -41,11 +41,12 @@ namespace ticl {
           regressed_energy_(0.f),
           raw_energy_(0.f),
           time_(0.f),
+          boundTime_(0.f),
           timeError_(-1.f),
-          raw_em_energy_(0.f),
           id_probabilities_{},
           raw_pt_(0.f),
           raw_em_pt_(0.f),
+          raw_em_energy_(0.f),
           seedIndex_(-1),
           eigenvalues_{},
           sigmas_{},
@@ -137,6 +138,8 @@ namespace ticl {
     }
     inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = value; }
 
+    inline void setBoundaryTime(float t) { boundTime_ = t; };
+
     inline const Trackster::IterationIndex ticlIteration() const { return (IterationIndex)iterationIndex_; }
     inline const std::vector<unsigned int> &vertices() const { return vertices_; }
     inline const unsigned int vertices(int index) const { return vertices_[index]; }
@@ -152,6 +155,7 @@ namespace ticl {
     inline const float raw_em_energy() const { return raw_em_energy_; }
     inline const float raw_pt() const { return raw_pt_; }
     inline const float raw_em_pt() const { return raw_em_pt_; }
+    inline const float boundaryTime() const { return boundTime_; };
     inline const Vector &barycenter() const { return barycenter_; }
     inline const std::array<float, 3> &eigenvalues() const { return eigenvalues_; }
     inline const std::array<Vector, 3> &eigenvectors() const { return eigenvectors_; }
@@ -173,8 +177,8 @@ namespace ticl {
     float raw_energy_;
     // -99, -1 if not available. ns units otherwise
     float time_;
+    float boundTime_;
     float timeError_;
-    float raw_em_energy_;
 
     // trackster ID probabilities
     std::array<float, 8> id_probabilities_;
@@ -185,6 +189,7 @@ namespace ticl {
     std::vector<float> vertex_multiplicity_;
     float raw_pt_;
     float raw_em_pt_;
+    float raw_em_energy_;
 
     // Product ID of the seeding collection used to create the Trackster.
     // For GlobalSeeding the ProductID is set to 0. For track-based seeding

@@ -167,7 +167,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           // Compute weighted average between HGCAL and MTD timing
           const auto invTimeESqHGC = pow(timeEHGC, -2);
           const auto invTimeESqMTD = pow(timeEMTD, -2);
-          timeE = (invTimeESqHGC * invTimeESqMTD) / (invTimeESqHGC + invTimeESqMTD);
+          timeE = 1.f / (invTimeESqHGC + invTimeESqMTD);
           time = (timeHGC * invTimeESqHGC + timeMTD * invTimeESqMTD) * timeE;
           timeE = sqrt(timeE);
         } else if (timeEMTD > 0) {  // Ignore HGCal timing until it will be TOF corrected

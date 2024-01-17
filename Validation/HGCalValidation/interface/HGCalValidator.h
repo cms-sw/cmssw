@@ -77,7 +77,7 @@ protected:
   std::string label_TS_, label_TSToCPLinking_, label_TSToSTSPR_;
   std::vector<edm::InputTag> label_clustersmask;
   const bool doCandidatesPlots_;
-  edm::InputTag label_candidates_;
+  std::string label_candidates_;
   const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;

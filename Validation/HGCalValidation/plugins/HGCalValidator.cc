@@ -31,7 +31,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_TSToSTSPR_(pset.getParameter<std::string>("label_TSToSTSPR")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       doCandidatesPlots_(pset.getUntrackedParameter<bool>("doCandidatesPlots")),
-      label_candidates_(pset.getParameter<edm::InputTag>("ticlCandidates")),
+      label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
@@ -248,8 +248,8 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   // Booking histograms concerning TICL candidates
   if (doCandidatesPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_candidates_.label());
-    candidateVal.bookCandidatesHistos(ibook, dirName_ + label_candidates_.label());
+    ibook.setCurrentFolder(dirName_ + label_candidates_);
+    candidateVal.bookCandidatesHistos(ibook, dirName_ + label_candidates_);
   }
 }
 

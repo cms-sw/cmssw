@@ -44,7 +44,8 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-      eidNClusters_(conf.getParameter<int>("eid_n_clusters")){};
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+      computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
@@ -345,7 +346,8 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
+                              computeLocalTime_);
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
@@ -900,6 +902,7 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<double>("eid_min_cluster_energy", 1.);
   iDesc.add<int>("eid_n_layers", 50);
   iDesc.add<int>("eid_n_clusters", 10);
+  iDesc.add<bool>("computeLocalTime", false);
 }
 
 template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>;

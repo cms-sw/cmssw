@@ -51,7 +51,6 @@ namespace ticl {
                                  const Trackster &trackster,
                                  const float &tkTime,
                                  const float &tkTimeErr,
-                                 const float &tkTimeQual,
                                  const float &tkBeta,
                                  const GlobalPoint &tkMtdPos,
                                  bool useMTDTiming);
@@ -63,7 +62,6 @@ namespace ticl {
     const float del_ts_em_had_;
     const float del_ts_had_had_;
 
-    const float timing_quality_threshold_;
     const HGCalDDDConstants *hgcons_;
 
     std::unique_ptr<GeomDet> firstDisk_[2];

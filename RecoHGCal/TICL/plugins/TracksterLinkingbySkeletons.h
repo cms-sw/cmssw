@@ -24,7 +24,7 @@ namespace ticl {
   public:
     TracksterLinkingbySkeletons(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
 
-    virtual ~TracksterLinkingbySkeletons() {}
+    ~TracksterLinkingbySkeletons() override {}
 
     void linkTracksters(const Inputs& input,
                         std::vector<Trackster>& resultTracksters,

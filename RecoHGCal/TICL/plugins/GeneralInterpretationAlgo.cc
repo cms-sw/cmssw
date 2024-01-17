@@ -14,8 +14,7 @@ GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &co
       del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
       del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
       del_ts_em_had_(conf.getParameter<double>("delta_ts_em_had")),
-      del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")),
-      timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")) {}
+      del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")) {}
 
 void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
                                            const hgcal::RecHitTools rhtools,
@@ -155,7 +154,6 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
                                                         const Trackster &trackster,
                                                         const float &tkT,
                                                         const float &tkTErr,
-                                                        const float &tkTimeQual,
                                                         const float &tkBeta,
                                                         const GlobalPoint &tkMtdPos,
                                                         bool useMTDTiming) {
@@ -167,7 +165,7 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
 
   // compatible if trackster time is within 3sigma of
   // track time; compatible if either: no time assigned
-  // to trackster or track time quality is below threshold
+  // to trackster or track
 
   float tsT = trackster.time();
   float tsTErr = trackster.timeError();
@@ -223,21 +221,12 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   // to look for potential linkages in the appropriate tiles
   std::vector<std::pair<Vector, unsigned>> trackPColl;     // propagated track points and index of track in collection
   std::vector<std::pair<Vector, unsigned>> tkPropIntColl;  // tracks propagated to lastLayerEE
-  std::vector<std::pair<Vector, unsigned>> tsPropIntColl;  // Tracksters in CE-E, propagated to lastLayerEE
-  std::vector<std::pair<Vector, unsigned>> tsHadPropIntColl;  // Tracksters in CE-H, propagated to lastLayerEE
 
   trackPColl.reserve(tracks.size());
   tkPropIntColl.reserve(tracks.size());
 
   std::array<TICLLayerTile, 2> tracksterPropTiles = {};  // all Tracksters, propagated to layer 1
   std::array<TICLLayerTile, 2> tsPropIntTiles = {};      // all Tracksters, propagated to lastLayerEE
-  std::array<TICLLayerTile, 2> tsHadPropIntTiles = {};   // Tracksters in CE-H, propagated to lastLayerEE
-
-  // linking : trackster is hadronic if its barycenter is in CE-H
-  auto isHadron = [&](const Trackster &t) -> bool {
-    auto boundary_z = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-    return (std::abs(t.barycenter().Z()) > boundary_z);
-  };
 
   if (TICLInterpretationAlgoBase::algo_verbosity_ > VerbosityLevel::Advanced)
     LogDebug("GeneralInterpretationAlgo") << "------- Geometric Linking ------- \n";
@@ -248,8 +237,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   for (unsigned i = 0; i < tracks.size(); ++i) {
     if (!maskTracks.at(i))
       continue;
-    const auto &tk = tracks.at(i);
-    reco::TrackRef trackref = reco::TrackRef(tkH, i);
     candidateTrackIds.push_back(i);
   }
 
@@ -306,15 +293,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     tsP = propagateTrackster(t, i, zVal, tsPropIntTiles);
     tsAllPropInt.emplace_back(tsP);
 
-    if (!isHadron(t))  // EM tracksters
-      tsPropIntColl.emplace_back(tsP, i);
-    else {  // HAD
-      tsHadPropIntTiles[(t.barycenter().Z() > 0) ? 1 : 0].fill(tsP.Eta(), tsP.Phi(), i);
-      tsHadPropIntColl.emplace_back(tsP, i);
-    }
   }  // TS
-  tsPropIntColl.shrink_to_fit();
-  tsHadPropIntColl.shrink_to_fit();
 
   std::vector<std::vector<unsigned>> tsNearTk(tracks.size());
   findTrackstersInWindow(
@@ -329,8 +308,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   std::vector<std::vector<unsigned int>> trackstersInTrackIndices;
   trackstersInTrackIndices.resize(tracks.size());
 
-  resultCandidate.resize(tracks.size(), -1);
-
   std::vector<bool> chargedMask(tracksters.size(), true);
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
@@ -343,13 +320,11 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     auto tkRef = reco::TrackRef(tkH, i);
     float track_time = 0.f;
     float track_timeErr = 0.f;
-    float track_timeQual = 0.f;
     float track_beta = 0.f;
     GlobalPoint track_MtdPos{0.f, 0.f, 0.f};
     if (useMTDTiming) {
       track_time = (*inputTiming.tkTime_h)[tkRef];
       track_timeErr = (*inputTiming.tkTimeErr_h)[tkRef];
-      track_timeQual = (*inputTiming.tkTimeQual_h)[tkRef];
       track_beta = (*inputTiming.tkBeta_h)[tkRef];
       track_MtdPos = (*inputTiming.tkMtdPos_h)[tkRef];
     }
@@ -360,7 +335,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                         tracksters[tsIdx],
                                                         track_time,
                                                         track_timeErr,
-                                                        track_timeQual,
                                                         track_beta,
                                                         track_MtdPos,
                                                         useMTDTiming)) {
@@ -374,7 +348,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                         tracksters[tsIdx],
                                                         track_time,
                                                         track_timeErr,
-                                                        track_timeQual,
                                                         track_beta,
                                                         track_MtdPos,
                                                         useMTDTiming)) {
@@ -412,6 +385,5 @@ void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription
   desc.add<double>("delta_tk_ts_interface", 0.03);
   desc.add<double>("delta_ts_em_had", 0.03);
   desc.add<double>("delta_ts_had_had", 0.03);
-  desc.add<double>("track_time_quality_threshold", 0.5);
   TICLInterpretationAlgoBase::fillPSetDescription(desc);
 }

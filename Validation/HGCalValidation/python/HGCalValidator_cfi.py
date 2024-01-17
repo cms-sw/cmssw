@@ -138,7 +138,7 @@ hgcalValidatorv5 = DQMEDAnalyzer(
     label_TSToSTSPR = cms.string("TSToSTS_patternRecognition"),
     #candidates plots
     doCandidatesPlots = cms.untracked.bool(True),
-    ticlCandidates = cms.InputTag("ticlCandidate"),
+    ticlCandidates = cms.string("ticlCandidate"),
 
     ticlTrackstersMerge = cms.InputTag("ticlTrackstersMerge"),
     simTiclCandidates = cms.InputTag("ticlSimTracksters"),

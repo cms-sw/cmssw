@@ -14,12 +14,50 @@ from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as 
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import customiseForTICLv5EventContent
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper
+from RecoHGCal.TICL.mergedTrackstersProducer_cfi import mergedTrackstersProducer as _mergedTrackstersProducer
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinkingbyCLUE3D as _tracksterSimTracksterAssociationLinkingbyCLUE3D
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationPRbyCLUE3D  as _tracksterSimTracksterAssociationPRbyCLUE3D 
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidatorv5 
+from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibRecHit
+from RecoHGCal.TICL.SimTracksters_cff import ticlSimTracksters
+
+from RecoHGCal.TICL.FastJetStep_cff import ticlTrackstersFastJet
+from RecoHGCal.TICL.EMStep_cff import ticlTrackstersEM, ticlTrackstersHFNoseEM
+from RecoHGCal.TICL.TrkStep_cff import ticlTrackstersTrk, ticlTrackstersHFNoseTrk
+from RecoHGCal.TICL.MIPStep_cff import ticlTrackstersMIP, ticlTrackstersHFNoseMIP
+from RecoHGCal.TICL.HADStep_cff import ticlTrackstersHAD, ticlTrackstersHFNoseHAD
+from RecoHGCal.TICL.CLUE3DEM_cff import ticlTrackstersCLUE3DEM
+from RecoHGCal.TICL.CLUE3DHAD_cff import ticlTrackstersCLUE3DHAD
+from RecoHGCal.TICL.CLUE3DHighStep_cff import ticlTrackstersCLUE3DHigh
+from RecoHGCal.TICL.TrkEMStep_cff import ticlTrackstersTrkEM, filteredLayerClustersHFNoseTrkEM
 
 
-def customiseForTICLv5(process):
+def customiseForTICLv5(process, enableDumper = False):
+
+    process.HGCalUncalibRecHit.computeLocalTime = cms.bool(True)
+    process.ticlSimTracksters.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersFastJet.pluginPatternRecognitionByFastJet.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersHFNoseEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersTrk.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersHFNoseTrk.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersMIP.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersHFNoseMIP.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersHAD.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersHFNoseHAD.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersCLUE3DHAD.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersCLUE3DEM.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
+
+    process.ticlTrackstersTrkEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
+    process.ticlTrackstersHFNoseTrkEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
 
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
@@ -47,7 +85,14 @@ def customiseForTICLv5(process):
         label_tst = cms.InputTag("ticlTrackstersCLUE3DHAD")
         )
 
-    
+    process.mergedTrackstersProducer = _mergedTrackstersProducer.clone()    
+
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3D = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
+        label_tst = cms.InputTag("mergedTrackstersProducer")
+        )
+    process.tracksterSimTracksterAssociationPRbyCLUE3D = _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
+        label_tst = cms.InputTag("mergedTrackstersProducer")
+        )
     process.iterTICLTask = cms.Task(process.ticlLayerTileTask,
                                      process.ticlIterationsTask,
                                      process.ticlTracksterLinksTask,
@@ -62,11 +107,12 @@ def customiseForTICLv5(process):
     process.tracksterSimTracksterAssociationPRPU.label_tst = cms.InputTag("ticlTracksterLinks")
     process.mergeTICLTask = cms.Task()
     process.pfTICL.ticlCandidateSrc = cms.InputTag("ticlCandidate") 
-    process.hgcalAssociators = cms.Task(process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
+    process.hgcalAssociators = cms.Task(process.mergedTrackstersProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,
                             process.simTsAssocByEnergyScoreProducer,  process.simTracksterHitLCAssociatorByEnergyScoreProducer,
                             process.tracksterSimTracksterAssociationLinking, process.tracksterSimTracksterAssociationPR,
+                            process.tracksterSimTracksterAssociationLinkingbyCLUE3D, process.tracksterSimTracksterAssociationPRbyCLUE3D,
                             process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM, process.tracksterSimTracksterAssociationPRbyCLUE3DEM,
                             process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, process.tracksterSimTracksterAssociationPRbyCLUE3DHAD,
                             process.tracksterSimTracksterAssociationLinkingPU, process.tracksterSimTracksterAssociationPRPU
@@ -74,12 +120,33 @@ def customiseForTICLv5(process):
 
     process.hgcalValidatorv5 = hgcalValidatorv5.clone(
         ticlTrackstersMerge = cms.InputTag("ticlCandidate"),
-        trackstersclue3d = cms.InputTag("ticlTracksterLinks")
+        trackstersclue3d = cms.InputTag("mergedTrackstersProducer")
     )
     process.hgcalValidatorSequence = cms.Sequence(process.hgcalValidatorv5)
     process.hgcalValidation = cms.Sequence(process.hgcalSimHitValidationEE+process.hgcalSimHitValidationHEF+process.hgcalSimHitValidationHEB+process.hgcalDigiValidationEE+process.hgcalDigiValidationHEF+process.hgcalDigiValidationHEB+process.hgcalRecHitValidationEE+process.hgcalRecHitValidationHEF+process.hgcalRecHitValidationHEB+process.hgcalHitValidationSequence+process.hgcalValidatorSequence+process.hgcalTiclPFValidation+process.hgcalPFJetValidation)
     process.globalValidationHGCal = cms.Sequence(process.hgcalValidation)
     process.validation_step9 = cms.EndPath(process.globalValidationHGCal)
+    if(enableDumper):
+        process.ticlDumper = ticlDumper.clone(
+            saveLCs=True,
+            saveCLUE3DTracksters=True,
+            saveTrackstersMerged=True,
+            saveSimTrackstersSC=True,
+            saveSimTrackstersCP=True,
+            saveTICLCandidate=True,
+            saveSimTICLCandidate=True,
+            saveTracks=True,
+            saveAssociations=True,
+            trackstersclue3d = cms.InputTag('mergedTrackstersProducer'),
+            ticlcandidates = cms.InputTag("ticlCandidate"),
+            trackstersmerged = cms.InputTag("ticlCandidate")
+        )
+        process.TFileService = cms.Service("TFileService",
+                                           fileName=cms.string("histo.root")
+                                           )
+        process.FEVTDEBUGHLToutput_step = cms.EndPath(
+            process.FEVTDEBUGHLToutput + process.ticlDumper)
+
 
     process = customiseForTICLv5EventContent(process)
 

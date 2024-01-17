@@ -9,6 +9,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoHGCal/TICL/interface/commons.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // A TICLCandidate is a lightweight physics object made from one or multiple Tracksters.
 
 class TICLCandidate : public reco::LeafCandidate {
@@ -28,16 +30,13 @@ public:
         timeError_(trackster->timeError()),
         rawEnergy_(0.f) {}
 
-  TICLCandidate(const edm::Ptr<reco::Track> trackPtr, edm::Ptr<ticl::Trackster>& tracksterPtr)
-      : LeafCandidate(),
-        tracksters_({std::move(tracksterPtr)}),
-        trackPtr_(std::move(trackPtr)),
-        time_(0.f),
-        timeError_(-1.f) {
-    //TODO: Raise Error
-    assert(trackPtr_.isNonnull() or tracksters_[0].isNonnull());
+  TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
+      : LeafCandidate(), tracksters_{}, trackPtr_(trackPtr), time_(0.f), timeError_(-1.f) {
+    if (trackPtr_.isNull() and tracksterPtr.isNull())
+      edm::LogError("TICLCandidate") << "At least one between track and trackster must be valid\n";
 
-    if (tracksters_[0].isNonnull()) {
+    if (tracksterPtr.isNonnull()) {
+      tracksters_.push_back(std::move(tracksterPtr));
       auto const& trackster = tracksters_[0].get();
       idProbabilities_ = trackster->id_probabilities();
       if (trackPtr_.isNonnull()) {
@@ -65,9 +64,7 @@ public:
                                    regrE);
         setP4(p4);
       }
-    }
-
-    else {
+    } else {
       //candidate from track only
       auto const& tk = trackPtr_.get();
       setPdgId(211 * tk->charge());

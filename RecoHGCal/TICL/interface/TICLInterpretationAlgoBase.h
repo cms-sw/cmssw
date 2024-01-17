@@ -65,16 +65,16 @@ namespace ticl {
     struct TrackTimingInformation {
       const edm::Handle<edm::ValueMap<float>> tkTime_h;
       const edm::Handle<edm::ValueMap<float>> tkTimeErr_h;
-      const edm::Handle<edm::ValueMap<float>> tkTimeQual_h;
       const edm::Handle<edm::ValueMap<float>> tkBeta_h;
+      const edm::Handle<edm::ValueMap<float>> tkPath_h;
       const edm::Handle<edm::ValueMap<GlobalPoint>> tkMtdPos_h;
 
       TrackTimingInformation(const edm::Handle<edm::ValueMap<float>> tkT,
                              const edm::Handle<edm::ValueMap<float>> tkTE,
-                             const edm::Handle<edm::ValueMap<float>> tkTQ,
                              const edm::Handle<edm::ValueMap<float>> tkB,
+                             const edm::Handle<edm::ValueMap<float>> tkP,
                              const edm::Handle<edm::ValueMap<GlobalPoint>> mtdPos)
-          : tkTime_h(tkT), tkTimeErr_h(tkTE), tkTimeQual_h(tkTQ), tkBeta_h(tkB), tkMtdPos_h(mtdPos) {}
+          : tkTime_h(tkT), tkTimeErr_h(tkTE), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
     };
 
     virtual void makeCandidates(const Inputs& input,

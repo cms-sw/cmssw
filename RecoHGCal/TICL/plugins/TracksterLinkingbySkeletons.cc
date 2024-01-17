@@ -165,7 +165,7 @@ void TracksterLinkingbySkeletons::linkTracksters(
         findSkeletonPoints(0.1f, trackster.raw_energy(), trackster.vertices(), rhtools_, layerClusters);
     auto const lastLayerZ =
         findSkeletonPoints(0.9f, trackster.raw_energy(), trackster.vertices(), rhtools_, layerClusters);
-    auto const t0_p1 = trackster.barycenter();
+    auto const &t0_p1 = trackster.barycenter();
     auto const t0_p0 = intersectLineWithSurface(firstLayerZ, t0_p1, trackster.eigenvectors(0));
     auto const t0_p2 = intersectLineWithSurface(lastLayerZ, t0_p1, trackster.eigenvectors(0));
     std::array<Vector, 3> skeleton{{t0_p0, t0_p1, t0_p2}};
