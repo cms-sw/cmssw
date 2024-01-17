@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 # ------------------------------------------------------------------------------
 # configure a filter to run only on the events selected by TkAlZMuMu AlcaReco
-import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-ALCARECOTkAlZMuMuFilterForSiPixelAli = copy.deepcopy(hltHighLevel)
-ALCARECOTkAlZMuMuFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlZMuMu']
-ALCARECOTkAlZMuMuFilterForSiPixelAli.throw = True ## dont throw on unknown path names
-ALCARECOTkAlZMuMuFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
+ALCARECOTkAlZMuMuFilterForSiPixelAli = hltHighLevel.clone(
+    HLTPaths = ['pathALCARECOTkAlZMuMu'],
+    throw = True, ## dont throw on unknown path names,
+    TriggerResultsTag = "TriggerResults::RECO"
+)
 
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
@@ -20,36 +20,35 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 #-- AlignmentTrackSelector
 SiPixelAliHighPuritySelectorHGDimuon = SiPixelAliHighPuritySelector.clone(
     src = 'ALCARECOTkAlZMuMu',
-    etaMax = cms.double(3.0),
-    etaMin = cms.double(-3.0),
-    filter = cms.bool(True),
-    pMin = cms.double(8.0),
+    etaMax = 3.0,
+    etaMin = -3.0,
+    filter = True,
+    pMin = 8.0,
 )
 
 # track selection for alignment
 SiPixelAliTrackSelectorHGDimuon = SiPixelAliTrackSelector.clone(
     src = 'SiPixelAliTrackFitterHGDimuon',
-    applyMultiplicityFilter = cms.bool(True),
-    d0Max = cms.double(50.0),
-    d0Min = cms.double(-50.0),
-    etaMax = cms.double(3.0),
-    etaMin = cms.double(-3.0),
-    filter = cms.bool(True),
-    maxMultiplicity = cms.int32(2),
-    minHitChargeStrip = cms.double(20.0),
-    minHitIsolation = cms.double(0.01),
-    minMultiplicity = cms.int32(2),
-    nHighestPt = cms.int32(2),
-    nHitMin = cms.double(10),
-    pMin = cms.double(3.0),
-    ptMin = cms.double(15.0)
+    applyMultiplicityFilter = True,
+    d0Max = 50.0,
+    d0Min = -50.0,
+    etaMax = 3.0,
+    etaMin = -3.0,
+    filter = True,
+    maxMultiplicity = 2,
+    minHitChargeStrip = 20.0,
+    minHitIsolation = 0.01,
+    minMultiplicity = 2,
+    nHighestPt = 2,
+    nHitMin = 10,
+    pMin = 3.0,
+    ptMin = 15.0,
+    TwoBodyDecaySelector = dict(applyChargeFilter = True,
+                                applyMassrangeFilter = True,
+                                maxXMass = 95.8,
+                                minXMass = 85.8),
+    minHitsPerSubDet = dict(inPIXEL = 1)
 )
-
-SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.applyChargeFilter = cms.bool(True)
-SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.applyMassrangeFilter = cms.bool(True)
-SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.maxXMass = cms.double(95.8)
-SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.minXMass = cms.double(85.8)
-SiPixelAliTrackSelectorHGDimuon.minHitsPerSubDet.inPIXEL = cms.int32(1)
 
 # Ingredient: SiPixelAliTrackRefitter0
 # refitting
@@ -75,8 +74,8 @@ SiPixelAliMilleAlignmentProducerHGDimuon = SiPixelAliMilleAlignmentProducer.clon
 	binaryFile = 'milleBinaryHGDimuon_0.dat',
 	treeFile = 'treeFileHGDimuon.root',
 	monitorFile = 'millePedeMonitorHGDimuon.root',
-        minNumHits = cms.uint32(8),
-        skipGlobalPositionRcdCheck = cms.bool(True),
+        minNumHits = 8,
+        skipGlobalPositionRcdCheck = True,
         TrajectoryFactory = cms.PSet(
             AllowZeroMaterial = cms.bool(False),
             Chi2Cut = cms.double(10000.0),
@@ -109,8 +108,8 @@ SiPixelAliMilleAlignmentProducerHGDimuon = SiPixelAliMilleAlignmentProducer.clon
 # Ingredient: SiPixelAliTrackerTrackHitFilter
 SiPixelAliTrackerTrackHitFilterHGDimuon = SiPixelAliTrackerTrackHitFilter.clone(
     src = 'SiPixelAliTrackRefitterHGDimuon0',
-    TrackAngleCut = cms.double(0.087),
-    minimumHits = cms.uint32(10)
+    TrackAngleCut = 0.087,
+    minimumHits = 10
 )
 
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
