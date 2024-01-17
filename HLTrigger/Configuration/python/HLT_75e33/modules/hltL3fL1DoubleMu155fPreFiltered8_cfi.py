@@ -10,6 +10,7 @@ hltL3fL1DoubleMu155fPreFiltered8 = cms.EDFilter("HLTMuonTrkL1TkMuFilter",
     minN = cms.uint32(2),
     minPt = cms.double(8.0),
     minTrkHits = cms.int32(-1),
-    previousCandTag = cms.InputTag("hltL1TkDoubleMuFiltered7"),
+    algoBlockTag = cms.InputTag("l1tGTAlgoBlockProducer"),
+    algoNames = cms.vstring("pDoubleTkMuon15_7"),
     saveTags = cms.bool(True)
 )
