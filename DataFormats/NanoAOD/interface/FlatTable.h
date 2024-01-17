@@ -37,7 +37,7 @@ namespace nanoaod {
 
   class FlatTable {
   public:
-      //Int8, //removed due to mis-interpretation in ROOT/pyroot
+    //Int8, //removed due to mis-interpretation in ROOT/pyroot
     enum class ColumnType {
       UInt8,
       Int16,
