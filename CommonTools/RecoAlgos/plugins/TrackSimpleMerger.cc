@@ -13,7 +13,7 @@ void TrackSimpleMerger::fillDescriptions(edm::ConfigurationDescriptions& descrip
                                            edm::InputTag("collection1"),
                                            edm::InputTag("collection2"),
                                        });
-  descriptions.add("simpleMergedTracks", desc);
+  descriptions.add("trackSimpleMerger", desc);
 }
 
 DEFINE_FWK_MODULE(TrackSimpleMerger);

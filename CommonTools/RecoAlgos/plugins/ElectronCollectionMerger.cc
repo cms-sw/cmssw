@@ -12,7 +12,27 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 typedef Merger<reco::GsfElectronCollection> GsfElectronCollectionMerger;
+template <>
+void GsfElectronCollectionMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("src",
+                                       {
+                                           edm::InputTag("collection1"),
+                                           edm::InputTag("collection2"),
+                                       });
+  descriptions.add("gsfElectronCollectionMerger", desc);
+}
 DEFINE_FWK_MODULE(GsfElectronCollectionMerger);
 
 typedef Merger<pat::ElectronCollection> PATElectronCollectionMerger;
+template <>
+void PATElectronCollectionMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("src",
+                                       {
+                                           edm::InputTag("collection1"),
+                                           edm::InputTag("collection2"),
+                                       });
+  descriptions.add("patElectronCollectionMerger", desc);
+}
 DEFINE_FWK_MODULE(PATElectronCollectionMerger);
