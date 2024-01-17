@@ -13,8 +13,7 @@ hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                     cms.PSet(
                         depth = cms.vint32(1, 2, 3, 4),
                         detectorEnum = cms.int32(1),
-                        #Run3 thresholds. Will be overwritten with valid aging customisation 
-                        threshold = cms.vdouble(0.1, 0.2, 0.3, 0.3) 
+                        threshold = cms.vdouble(0.1, 0.2, 0.3, 0.3)
                     ),
                     cms.PSet(
                         depth = cms.vint32(

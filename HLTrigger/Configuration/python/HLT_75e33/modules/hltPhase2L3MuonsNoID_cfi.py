@@ -202,7 +202,6 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
         useHO = cms.bool(False),
         useHcal = cms.bool(False),
         useME0 = cms.bool(False),
-#        useME0 = cms.bool(True), ### Thiago: in the offline RECO it is false...
         useMuon = cms.bool(True),
         usePreshower = cms.bool(False)
     ),

@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..tasks.HLTDoLocalStripTask_cfi import *
+from ..modules.siPhase2Clusters_cfi import *
 
-HLTDoLocalStripSequence = cms.Sequence(
-    HLTDoLocalStripTask
-)
+HLTDoLocalStripSequence = cms.Sequence(siPhase2Clusters)

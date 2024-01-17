@@ -14,7 +14,6 @@ hltGemSegments = cms.EDProducer("GEMSegmentProducer",
         preClustering = cms.bool(True),
         preClusteringUseChaining = cms.bool(True)
     ),
-    gemRecHitLabel = cms.InputTag("hltGemRecHits"),
     ge0_name = cms.string('GE0SegAlgoRU'),
     ge0_pset = cms.PSet(
         allowWideSegments = cms.bool(True),
@@ -31,4 +30,5 @@ hltGemSegments = cms.EDProducer("GEMSegmentProducer",
         minNumberOfHits = cms.uint32(4),
         requireCentralBX = cms.bool(True)
     ),
+    gemRecHitLabel = cms.InputTag("hltGemRecHits")
 )

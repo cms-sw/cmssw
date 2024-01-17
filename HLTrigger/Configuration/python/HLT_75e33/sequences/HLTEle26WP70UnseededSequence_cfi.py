@@ -1,7 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltEG26EtUnseededFilter_cfi import *
+from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaCandidatesWrapperUnseeded_cfi import *
+from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
+from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
+from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
+from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
+from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
+from ..modules.hltEgammaHGCalLayerClusterIsoUnseeded_cfi import *
+from ..modules.hltEgammaHoverEUnseeded_cfi import *
 from ..modules.hltEGL1SeedsForSingleEleIsolatedFilter_cfi import *
 from ..modules.hltEle26WP70BestGsfChi2UnseededFilter_cfi import *
 from ..modules.hltEle26WP70BestGsfNLayerITUnseededFilter_cfi import *
@@ -21,47 +30,14 @@ from ..modules.hltEle26WP70HgcalIsoUnseededFilter_cfi import *
 from ..modules.hltEle26WP70PixelMatchUnseededFilter_cfi import *
 from ..modules.hltEle26WP70PMS2UnseededFilter_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
-from ..sequences.HLTDoLocalHcalSequence_cfi import *
+from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
-from ..sequences.HLTFastJetForEgamma_cfi import *
+from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
-from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseeded_cfi import *
+from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
-from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
-from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
+from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
+from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
-from ..tasks.HLTEle26WP70UnseededTask_cfi import *
 
-HLTEle26WP70UnseededSequence = cms.Sequence(
-    HLTL1Sequence +
-    hltEGL1SeedsForSingleEleIsolatedFilter +
-    HLTDoFullUnpackingEgammaEcalSequence +
-    HLTPFClusteringForEgammaUnseeded +
-    HLTHgcalTiclPFClusteringForEgammaUnseeded +
-    hltEgammaCandidatesWrapperUnseeded +
-    hltEG26EtUnseededFilter +
-    hltEle26WP70ClusterShapeUnseededFilter +
-    hltEle26WP70ClusterShapeSigmavvUnseededFilter +
-    hltEle26WP70ClusterShapeSigmawwUnseededFilter +
-    hltEle26WP70HgcalHEUnseededFilter +
-    HLTDoLocalHcalSequence +
-    HLTFastJetForEgamma +
-    hltEle26WP70HEUnseededFilter +
-    hltEle26WP70EcalIsoUnseededFilter +
-    hltEle26WP70HgcalIsoUnseededFilter +
-    HLTPFHcalClusteringForEgamma +
-    hltEle26WP70HcalIsoUnseededFilter +
-    HLTElePixelMatchUnseededSequence +
-    hltEle26WP70PixelMatchUnseededFilter +
-    hltEle26WP70PMS2UnseededFilter +
-    HLTGsfElectronUnseededSequence +
-    hltEle26WP70GsfOneOEMinusOneOPUnseededFilter +
-    hltEle26WP70GsfDetaUnseededFilter +
-    hltEle26WP70GsfDphiUnseededFilter +
-    hltEle26WP70BestGsfNLayerITUnseededFilter +
-    hltEle26WP70BestGsfChi2UnseededFilter +
-    hltEle26WP70GsfTrackIsoFromL1TracksUnseededFilter +
-    HLTTrackingV61Sequence +
-    hltEle26WP70GsfTrackIsoUnseededFilter,
-    HLTEle26WP70UnseededTask
-)
+HLTEle26WP70UnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSingleEleIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaUnseededSequence+HLTHgcalTiclPFClusteringForEgammaUnseededSequence+HLTFastJetForEgammaSequence+HLTPFHcalClusteringForEgammaSequence+HLTElePixelMatchUnseededSequence+HLTTrackingV61Sequence+HLTGsfElectronUnseededSequence+(hltEgammaCandidatesUnseeded+hltEgammaClusterShapeUnseeded+hltEgammaHGCALIDVarsUnseeded+hltEgammaHoverEUnseeded+hltEgammaEcalPFClusterIsoUnseeded+hltEgammaHGCalLayerClusterIsoUnseeded+hltEgammaHcalPFClusterIsoUnseeded+hltEgammaEleL1TrkIsoUnseeded+hltEgammaEleGsfTrackIsoV6Unseeded)+hltEgammaCandidatesWrapperUnseeded+hltEG26EtUnseededFilter+hltEle26WP70ClusterShapeUnseededFilter+hltEle26WP70ClusterShapeSigmavvUnseededFilter+hltEle26WP70ClusterShapeSigmawwUnseededFilter+hltEle26WP70HgcalHEUnseededFilter+hltEle26WP70HEUnseededFilter+hltEle26WP70EcalIsoUnseededFilter+hltEle26WP70HgcalIsoUnseededFilter+hltEle26WP70HcalIsoUnseededFilter+hltEle26WP70PixelMatchUnseededFilter+hltEle26WP70PMS2UnseededFilter+hltEle26WP70GsfOneOEMinusOneOPUnseededFilter+hltEle26WP70GsfDetaUnseededFilter+hltEle26WP70GsfDphiUnseededFilter+hltEle26WP70BestGsfNLayerITUnseededFilter+hltEle26WP70BestGsfChi2UnseededFilter+hltEle26WP70GsfTrackIsoFromL1TracksUnseededFilter+hltEle26WP70GsfTrackIsoUnseededFilter)
