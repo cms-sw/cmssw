@@ -5,4 +5,15 @@
 
 typedef Merger<reco::TrackCollection> TrackSimpleMerger;
 
+template <>
+void TrackSimpleMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("src",
+                                       {
+                                           edm::InputTag("collection1"),
+                                           edm::InputTag("collection2"),
+                                       });
+  descriptions.add("simpleMergedTracks", desc);
+}
+
 DEFINE_FWK_MODULE(TrackSimpleMerger);

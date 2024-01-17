@@ -72,15 +72,4 @@ void Merger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
   evt.put(std::move(coll));
 }
 
-template <typename InputCollection, typename OutputCollection, typename P>
-void Merger<InputCollection, OutputCollection, P>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<std::vector<edm::InputTag>>("src",
-                                       {
-                                           edm::InputTag("collection1"),
-                                           edm::InputTag("collection2"),
-                                       });
-  descriptions.add("simpleMergedTracks", desc);
-}
-
 #endif
