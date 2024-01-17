@@ -34,6 +34,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Effi
       acceptCount_(0),
       offsetCount_(0),
       offsetPhase_(iConfig.getParameter<unsigned int>("offset")),
+      initialSeed_(iConfig.exists("initialSeed") ? iConfig.getParameter<int>("initialSeed") : -1),
       prescaleService_(nullptr),
       newLumi_(true),
       gtDigiTag_(iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag")),
@@ -55,6 +56,7 @@ HLTPrescaler::~HLTPrescaler() = default;
 void HLTPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<unsigned int>("offset", 0);
+  desc.addOptional<int>("initialSeed");
   desc.add<edm::InputTag>("L1GtReadoutRecordTag", edm::InputTag("hltGtStage2Digis"));
   descriptions.add("hltPrescaler", desc);
 }
@@ -116,7 +118,9 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&) {
 
     if (needsInit && (prescaleFactor_ != 0)) {
       // initialize the prescale counter to the first event number multiplied by a big "seed"
-      offsetCount_ = ((uint64_t)(iEvent.id().event() + offsetPhase_) * prescaleSeed_) % prescaleFactor_;
+      uint64_t seed = initialSeed_ < 0 ? static_cast<uint64_t>(iEvent.id().event()) + offsetPhase_
+                                       : static_cast<uint64_t>(initialSeed_);
+      offsetCount_ = (seed * prescaleSeed_) % prescaleFactor_;
     }
   }
 

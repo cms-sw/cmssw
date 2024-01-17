@@ -81,6 +81,15 @@ private:
   unsigned int offsetCount_;
   unsigned int offsetPhase_;
 
+  //this the number used to seed prescaler
+  //a negative value measures use the first event number it sees making it pseudorandom
+  //this is used to stagger the streams so they all dont accept the nth event they see
+  //eg if this is zero, each stream would accept the first event it sees so you wouldnt
+  //get an even sampling of time, you would be biased to selecting a specific time period
+  //however this isnt reproducable and for some offline studies its preferable to have the
+  //prescalers be always the same in each run
+  int initialSeed_;
+
   /// prescale service
   edm::service::PrescaleService* prescaleService_;
 
