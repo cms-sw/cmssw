@@ -10,10 +10,12 @@ namespace mkfit {
   inline void squashPhiMPlex(MPlexLV& par, const int N_proc) {
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
-      if (par(n, 4, 0) >= Const::PI)
-        par(n, 4, 0) -= Const::TwoPI;
-      if (par(n, 4, 0) < -Const::PI)
-        par(n, 4, 0) += Const::TwoPI;
+      if (n < N_proc) {
+        if (par(n, 4, 0) >= Const::PI)
+          par(n, 4, 0) -= Const::TwoPI;
+        if (par(n, 4, 0) < -Const::PI)
+          par(n, 4, 0) += Const::TwoPI;
+      }
     }
   }
 

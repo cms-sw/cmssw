@@ -32,7 +32,7 @@
 class MkFitProducer : public edm::global::EDProducer<edm::StreamCache<mkfit::MkBuilderWrapper>> {
 public:
   explicit MkFitProducer(edm::ParameterSet const& iConfig);
-  ~MkFitProducer() override = default;
+  ~MkFitProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -100,6 +100,8 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
   mkfit::MkBuilderWrapper::populate();
 }
+
+MkFitProducer::~MkFitProducer() { mkfit::MkBuilderWrapper::clear(); }
 
 void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
