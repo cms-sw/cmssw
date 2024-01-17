@@ -1,4 +1,5 @@
 // user includes
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -92,7 +93,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
 
   for (const auto &track : *tracks) {
     const reco::HitPattern &hitpattern = track.hitPattern();
-    double dRmin = 10;
+    double dR2min = 100.;
     double chiNdof = track.normalizedChi2();
     double dxy = std::abs(track.dxy(vtx.position()));
     double dz = std::abs(track.dz(vtx.position()));
@@ -106,22 +107,20 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
     if (hitpattern.trackerLayersWithMeasurement() < minNumberOfLayers)
       continue;
 
-    TLorentzVector pTrack(track.px(), track.py(), track.pz(), track.pt());
-
     // Long track needs to be close to a good muon (only if requested)
     if (matchInDr > 0.) {
       for (const auto &m : *muons) {
         if (m.isTrackerMuon()) {
           tMuon++;
           reco::Track matchedTrack = *(m.innerTrack());
-          TLorentzVector pMatched(matchedTrack.px(), matchedTrack.py(), matchedTrack.pz(), matchedTrack.pt());
           // match to general track in deltaR
-          double dr = pTrack.DeltaR(pMatched);
-          if (dr < dRmin)
-            dRmin = dr;
+          double dr2 = reco::deltaR2(track, matchedTrack);
+          if (dr2 < dR2min)
+            dR2min = dr2;
         }
       }
-      if (dRmin >= matchInDr)
+      // matchInDr here is defined positive
+      if (dR2min >= matchInDr * matchInDr)
         continue;
     }
     // do vertex consistency:
@@ -137,7 +136,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
       bestTrack.setExtra(track.extra());
     }
     if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << " deltaR (general) track to matched Track: " << dRmin;
+      edm::LogPrint("SingleLongTrackProducer") << " deltaR2 (general) track to matched Track: " << dR2min;
     if (debug)
       edm::LogPrint("SingleLongTrackProducer") << "chi2Ndof:" << chiNdof << " best Track: " << fitProb;
   }
