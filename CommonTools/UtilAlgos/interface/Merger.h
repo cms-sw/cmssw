@@ -80,7 +80,7 @@ void Merger<InputCollection, OutputCollection, P>::fillDescriptions(edm::Configu
                                            edm::InputTag("collection1"),
                                            edm::InputTag("collection2"),
                                        });
-  descriptions.add("simpleMergedTracks", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif
