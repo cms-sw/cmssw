@@ -97,9 +97,6 @@ private:
       if (icol == -1)
         return;  // columns may be missing (e.g. mc-only)
       switch (table.columnType(icol)) {
-        case FlatTable::ColumnType::Int8:
-          vfill<int8_t>(table, icol, rowsel);
-          break;
         case FlatTable::ColumnType::UInt8:
           vfill<uint8_t>(table, icol, rowsel);
           break;

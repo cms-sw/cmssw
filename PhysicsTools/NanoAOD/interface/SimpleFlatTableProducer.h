@@ -135,8 +135,6 @@ public:
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
       else if (type == "double")
         vars_.push_back(std::make_unique<DoubleVar>(vname, varPSet));
-      else if (type == "int8")
-        vars_.push_back(std::make_unique<Int8Var>(vname, varPSet));
       else if (type == "uint8")
         vars_.push_back(std::make_unique<UInt8Var>(vname, varPSet));
       else if (type == "int16")
@@ -170,7 +168,7 @@ public:
     variable.ifValue(
         edm::ParameterDescription<std::string>(
             "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-        edm::allowedValues<std::string>("int", "uint", "float", "double", "int8", "uint8", "int16", "uint16", "bool"));
+        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16", "bool"));
     variable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -211,7 +209,6 @@ protected:
   typedef FuncVariable<T, StringObjectFunction<T>, uint32_t> UIntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
   typedef FuncVariable<T, StringObjectFunction<T>, double> DoubleVar;
-  typedef FuncVariable<T, StringObjectFunction<T>, int8_t> Int8Var;
   typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
   typedef FuncVariable<T, StringObjectFunction<T>, int16_t> Int16Var;
   typedef FuncVariable<T, StringObjectFunction<T>, uint16_t> UInt16Var;
@@ -245,9 +242,6 @@ public:
         else if (type == "double")
           extvars_.push_back(
               std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
-        else if (type == "int8")
-          extvars_.push_back(
-              std::make_unique<Int8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "uint8")
           extvars_.push_back(
               std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
@@ -285,7 +279,7 @@ public:
     extvariable.ifValue(
         edm::ParameterDescription<std::string>(
             "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-        edm::allowedValues<std::string>("int", "uint", "float", "double", "int8", "uint8", "int16", "uint16", "bool"));
+        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16", "bool"));
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -343,7 +337,6 @@ protected:
   typedef ValueMapVariable<T, float> FloatExtVar;
   typedef ValueMapVariable<T, double, float> DoubleExtVar;
   typedef ValueMapVariable<T, bool> BoolExtVar;
-  typedef ValueMapVariable<T, int, int8_t> Int8ExtVar;
   typedef ValueMapVariable<T, int, uint8_t> UInt8ExtVar;
   typedef ValueMapVariable<T, int, int16_t> Int16ExtVar;
   typedef ValueMapVariable<T, int, uint16_t> UInt16ExtVar;
