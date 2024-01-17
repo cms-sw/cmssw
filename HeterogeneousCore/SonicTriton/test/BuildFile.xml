@@ -1,6 +1,6 @@
-<test name="TestHeterogeneousCoreSonicTritonProducerCPU" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/unittest.sh ${LOCALTOP} CPU"/>
-<test name="TestHeterogeneousCoreSonicTritonProducerGPU" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/unittest.sh ${LOCALTOP} GPU"/>
-<test name="TestHeterogeneousCoreSonicTritonVersionCheck" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/scripts/cmsTritonConfigTool versioncheck">
+<test name="TestHeterogeneousCoreSonicTritonProducerCPU" command="unittest.sh ${LOCALTOP} CPU"/>
+<test name="TestHeterogeneousCoreSonicTritonProducerGPU" command="unittest.sh ${LOCALTOP} GPU"/>
+<test name="TestHeterogeneousCoreSonicTritonVersionCheck" command="cmsTritonConfigTool versioncheck">
   <use name="cmsswdata"/>
 </test>
 <library file="*.cc" name="testHeterogenousCoreSonicTriton">
