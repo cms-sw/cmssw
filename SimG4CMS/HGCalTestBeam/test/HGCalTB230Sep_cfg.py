@@ -8,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Geometry.HGCalTBCommonData.testTB230JulXML_cfi')
+process.load('Geometry.HGCalTBCommonData.testTB230SepXML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB23Analyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 if 'MessageLogger' in process.__dict__:
@@ -64,7 +64,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSim.root')
+                                   fileName = cms.string('TBGenSimSep.root')
                                    )
 
 # Other statements
@@ -75,8 +75,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(99.99),
-        MaxE = cms.double(100.01),
+        MinE = cms.double(199.99),
+        MaxE = cms.double(200.01),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
@@ -118,10 +118,12 @@ process.analysis_step = cms.Path(process.HGCalTB23Analyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMN'
+
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.simulation_step,
-			        process.analysis_step,
+#        		        process.analysis_step,
 				process.endjob_step,
 				process.RAWSIMoutput_step,
 				)

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<SpecParSection label="hgcsens.xml" eval="true">
+  <SpecPar name="hgcee">
+    <PartSelector path="//HGCalEECellSensitive.*"/>  
+    <Parameter name="SensitiveDetector" value="HGCalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>
