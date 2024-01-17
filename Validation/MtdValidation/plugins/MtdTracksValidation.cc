@@ -575,18 +575,15 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       meTrackPtTot_->Fill(trackGen.pt());
       meTrackEtaTot_->Fill(std::abs(trackGen.eta()));
       if (tp_info != nullptr && mvaTPSel(**tp_info)) {
-        if (std::abs(track.eta()) < trackMaxBtlEta_ && (track.pt() < 10.) ){
+        if (track.pt() < 12.) {
           if (isBTL) {
             meBTLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt())/std::abs(trackGen.pt() - (*tp_info)->pt()));
             meBTLTrackMatchedTPPtRatioGen_->Fill(trackGen.pt()/(*tp_info)->pt());
             meBTLTrackMatchedTPPtRatioMtd_->Fill(track.pt()/(*tp_info)->pt());
             meBTLTrackMatchedTPPtResvsPtMtd_->Fill((*tp_info)->pt(),std::abs(track.pt() - (*tp_info)->pt())/std::abs(trackGen.pt() - (*tp_info)->pt()));
-//            cout << "Genrel= " << (trackGen.pt()-(*tp_info)->pt())/((*tp_info)->pt()) << "  pt= " << (*tp_info)->pt() << "   rel= " << (track.pt()-(*tp_info)->pt())/((*tp_info)->pt()) << "  res= " << (track.pt() - (*tp_info)->pt())/(trackGen.pt() - (*tp_info)->pt()) << endl;
             meBTLTrackMatchedTPDPtvsPtGen_->Fill((*tp_info)->pt(),(trackGen.pt()-(*tp_info)->pt())/(*tp_info)->pt());
             meBTLTrackMatchedTPDPtvsPtMtd_->Fill((*tp_info)->pt(),(track.pt()-(*tp_info)->pt())/(*tp_info)->pt());
           }
-        }
-        else if ( (std::abs(track.eta()) > trackMinEtlEta_) && ( std::abs(track.eta()) < trackMaxEtlEta_) && (track.pt() < 10.) ) {
           if (isETL && !twoETLdiscs) {
             meETLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt())/std::abs(trackGen.pt() - (*tp_info)->pt()));
             meETLTrackMatchedTPPtRatioGen_->Fill(trackGen.pt()/(*tp_info)->pt());
