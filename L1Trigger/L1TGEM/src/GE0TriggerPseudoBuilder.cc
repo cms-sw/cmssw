@@ -17,9 +17,9 @@ GE0TriggerPseudoBuilder::GE0TriggerPseudoBuilder(const edm::ParameterSet& conf) 
 
 GE0TriggerPseudoBuilder::~GE0TriggerPseudoBuilder() {}
 
-void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection* me0Segments, GE0TriggerDigiCollection& oc_trig) {
+void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection& me0Segments, GE0TriggerDigiCollection& oc_trig) {
   if (info_ > 2)
-    dumpAllME0Segments(*me0Segments);
+    dumpAllME0Segments(me0Segments);
 
   for (int endc = 0; endc < static_cast<int>(trig_me0s::MAX_ENDCAPS); endc++) {
     for (int cham = 0; cham < static_cast<int>(trig_me0s::MAX_CHAMBERS); cham++) {
@@ -29,7 +29,7 @@ void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection* me0Segments, GE0
       //  constexpr GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
       GEMDetId detid(region, 1, 0, 0, cham + 1, 0);
 
-      const auto& drange = me0Segments->get(detid);
+      const auto& drange = me0Segments.get(detid);
       std::vector<ME0TriggerDigi> trigV;
       for (auto digiIt = drange.first; digiIt != drange.second; digiIt++) {
         if (info_ > 1)
@@ -74,9 +74,10 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
   //assert(rolls.size() <= 2);   // we did found very few ME0 segments crossing 3 rolls!!! this cut is applied offline
   if (rolls.empty())
     return ME0TriggerDigi();
-  if (rolls[0] < 1)
+  if (rolls[0] < 1) {
     LogTrace("L1ME0Trigger") << " ME0 segment has wrong roll number " << rolls[0] << " which should be >= 1 \n !!!";
-  assert(rolls[0] >= 1);
+    throw edm::Exception(edm::errors::LogicError, "ME0 should have at least one roll");
+  }
   int partition = (rolls[0] - 1) << 1;  //roll from detid counts from 1
   if (rolls.size() == 2 and rolls[0] > rolls[1])
     partition = partition - 1;
@@ -146,19 +147,21 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
 }
 
 void GE0TriggerPseudoBuilder::dumpAllME0Segments(const GEMSegmentCollection& segments) const {
-  LogTrace("L1ME0Trigger") << "dumpt all ME0 Segments" << std::endl;
-  // for (auto iC = segments.id_begin(); iC != segments.id_end(); ++iC) {
-  //   auto ch_segs = segments.get(*iC);
-  //   for (auto iS = ch_segs.first; iS != ch_segs.second; ++iS) {
-  //     GlobalPoint gp = me0_g->idToDet(iS->me0DetId())->surface().toGlobal(iS->localPosition());
-  //     LogTrace("L1ME0Trigger") << "ME0Detid " << iS->me0DetId() << " segment " << *iS << " eta " << gp.eta() << " phi "
-  //                              << gp.phi() << std::endl;
-  //     auto recHits(iS->recHits());
-  //     LogTrace("L1ME0Trigger") << "\t has " << recHits.size() << " me0 rechits" << std::endl;
-  //     for (auto& rh : recHits) {
-  //       const ME0RecHit* me0rh(dynamic_cast<const ME0RecHit*>(rh));
-  //       LogTrace("L1ME0Trigger") << "\t  detid " << me0rh->me0Id() << " rechit " << *me0rh << std::endl;
-  //     }
-  //   }
-  // }
+  LogTrace("L1GE0Trigger") << "dumpt all ME0 Segments" << std::endl;
+  for (auto iC = segments.id_begin(); iC != segments.id_end(); ++iC) {
+     auto ch_segs = segments.get(*iC);
+     for (auto iS = ch_segs.first; iS != ch_segs.second; ++iS) {
+       if (iS->gemDetId().station() != 0) // only dump GE0 segments
+         continue;
+       GlobalPoint gp = me0_g->idToDet(iS->gemDetId())->surface().toGlobal(iS->localPosition());
+       LogTrace("L1ME0Trigger") << "ME0Detid " << iS->gemDetId() << " segment " << *iS << " eta " << gp.eta() << " phi "
+                                << gp.phi() << std::endl;
+       auto recHits(iS->recHits());
+       LogTrace("L1GE0Trigger") << "\t has " << recHits.size() << " me0 rechits" << std::endl;
+       for (auto& rh : recHits) {
+         const GEMRecHit* me0rh(dynamic_cast<const GEMRecHit*>(rh));
+         LogTrace("L1GEMTrigger") << "\t  detid " << me0rh->gemId() << " rechit " << *me0rh << std::endl;
+       }
+     }
+  }
 }

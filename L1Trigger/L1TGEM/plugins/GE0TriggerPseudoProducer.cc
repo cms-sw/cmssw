@@ -64,7 +64,7 @@ void GE0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
 
   // Fill output collections if valid input collection is available.
   if (me0Segmentcoll.isValid()) {
-    trigBuilder->build(me0segments, *oc_trig);
+    trigBuilder->build(*me0segments, *oc_trig);
   }
 
   // Put collections in event.
