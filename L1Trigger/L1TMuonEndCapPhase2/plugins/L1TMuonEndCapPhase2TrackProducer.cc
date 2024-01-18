@@ -17,9 +17,44 @@ L1TMuonEndCapPhase2TrackProducer::L1TMuonEndCapPhase2TrackProducer(const edm::Pa
 
 void L1TMuonEndCapPhase2TrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
 
-  descriptions.addDefault(desc);
+  // Neural Network Models
+  desc.add<std::string>("PromptGraphPath", "L1Trigger/L1TMuonEndCapPhase2/data/prompt_model.pb");
+  desc.add<std::string>("DisplacedGraphPath", "L1Trigger/L1TMuonEndCapPhase2/data/displaced_model.pb");
+
+  // Input Collections
+  desc.add<edm::InputTag>("CSCInput", edm::InputTag("simCscTriggerPrimitiveDigisForEMTF"));
+  desc.add<edm::InputTag>("RPCInput", edm::InputTag("rpcRecHitsForEMTF"));
+  desc.add<edm::InputTag>("GEMInput", edm::InputTag("simMuonGEMPadDigiClusters"));
+  desc.add<edm::InputTag>("ME0Input", edm::InputTag("me0TriggerConvertedPseudoDigis"));
+  desc.add<edm::InputTag>("GE0Input", edm::InputTag("ge0TriggerConvertedPseudoDigis"));
+
+  // Enable Subdetectors
+  desc.add<bool>("CSCEnabled", true);
+  desc.add<bool>("RPCEnabled", true);
+  desc.add<bool>("GEMEnabled", true);
+  desc.add<bool>("ME0Enabled", true);
+  desc.add<bool>("GE0Enabled", false);
+
+  // Bunch-Crossing Settings
+  desc.add<int>("MinBX", -2);
+  desc.add<int>("MaxBX", 2);
+  desc.add<int>("BXWindow", 1);
+
+  desc.add<int>("CSCInputBXShift", -8);
+  desc.add<int>("RPCInputBXShift", 0);
+  desc.add<int>("GEMInputBXShift", 0);
+  desc.add<int>("ME0InputBXShift", -8);
+
+  // Primitive Settings
+  desc.add<bool>("IncludeNeighborEnabled", true);
+
+  // Debug Utils
+  desc.addUntracked<int>("Verbosity", 3);
+  desc.add<std::string>("ValidationDirectory", "L1Trigger/L1TMuonEndCapPhase2/data/validation");
+
+  // Register
+  descriptions.add("L1TMuonEndCapPhase2TrackProducer", desc);
 }
 
 void L1TMuonEndCapPhase2TrackProducer::produce(edm::Event& event, const edm::EventSetup& event_setup) {
