@@ -482,7 +482,7 @@ namespace gctobj {
       jet_tmp.tauEt = 0.;
     }
     jet_tmp.etaCenter = jet.etaCenter;  // this is the ET weighted eta centre of the ST
-    jet_tmp.phiCenter = jet.phiCenter;  // this is the ET weighted eta centre of the ST
+    jet_tmp.phiCenter = jet.phiCenter;  // this is the ET weighted phi centre of the ST
     jet_tmp.etaMax = jet.etaMax;        // this is the leading tower eta in the ST
     jet_tmp.phiMax = jet.phiMax;        // this is the leading tower phi in the ST
     return jet_tmp;

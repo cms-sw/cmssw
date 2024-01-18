@@ -134,8 +134,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
   for (const auto& hit : *pcalohits.product()) {
     if (hit.encodedEt() > 0)  // hit.encodedEt() returns an int corresponding to 2x the crystal Et
     {
-      // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
-      float et = hit.encodedEt() * p2eg::ECAL_LSB;
+      // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to multiply by 0.125 (input LSB)
+      float et = hit.encodedEt() * 0.125;
       if (et < p2eg::cut_500_MeV) {
         continue;  // Reject hits with < 500 MeV ET
       }
@@ -332,8 +332,9 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
 
       // Iteratively find four clusters and remove them from 'temporary' as we go, and fill cluster_list
       for (int c = 0; c < p2eg::N_CLUSTERS_PER_REGION; c++) {
-        p2eg::Cluster newCluster = p2eg::getClusterFromRegion3x4(temporary);  // remove cluster from 'temporary'
-        newCluster.setRegionIdx(idxRegion);                                   // add the region number
+        p2eg::Cluster newCluster = p2eg::getClusterFromRegion3x4(
+            temporary);  // remove cluster from 'temporary', adjust for LSB 0.5 at GCT in getClusterValues
+        newCluster.setRegionIdx(idxRegion);  // add the region number
         if (newCluster.clusterEnergy() > 0) {
           // do not push back 0-energy clusters
           cluster_list[cc].push_back(newCluster);
@@ -342,7 +343,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
 
       // Create towers using remaining ECAL energy, and the HCAL towers were already calculated in towersEtHCAL[12]
       ap_uint<12> towerEtECAL[12];
-      p2eg::getECALTowersEt(temporary, towerEtECAL);
+      p2eg::getECALTowersEt(temporary, towerEtECAL);  // adjust for LSB 0.5 at GCT
 
       // Fill towerHCALCard and towerECALCard arrays
       for (int i = 0; i < 12; i++) {
@@ -440,7 +441,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       for (int jj = 0; jj < p2eg::n_towers_cardPhi; ++jj) {  // 4 towers per card in phi
         ap_uint<12> ecalEt = towerECALCard[ii][jj][cc].et();
         ap_uint<12> hcalEt = towerHCALCard[ii][jj][cc].et();
-        towerECALCard[ii][jj][cc].getHoverE(ecalEt, hcalEt);
+        towerECALCard[ii][jj][cc].addHoverEToTower(ecalEt, hcalEt);
       }
     }
 

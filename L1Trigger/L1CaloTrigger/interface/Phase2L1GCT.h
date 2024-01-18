@@ -240,7 +240,6 @@ inline p2eg::GCTinternal_t p2eg::getClustersTowers(const p2eg::GCTcard_t& GCTcar
  */
 inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTinternal) {
   p2eg::GCTintTowers_t GCTintTowers;
-
   // Positive eta
   for (int i = 0; i < p2eg::N_GCTPOSITIVE_FIBERS; i = i + 4) {
     for (int i1 = 0; i1 < 4; i1++) {
@@ -249,6 +248,8 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
         ap_uint<15> eta = p2eg::N_GCTETA / 2 + k;
         GCTintTowers.GCTtower[eta][phi].et = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].et;
         GCTintTowers.GCTtower[eta][phi].hoe = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].hoe;
+        GCTintTowers.GCTtower[eta][phi].ecalEt = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].ecalEt;
+        GCTintTowers.GCTtower[eta][phi].hcalEt = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].hcalEt;
         for (int ic1 = 0; ic1 < 4; ic1++) {
           for (int jc = 0; jc < p2eg::N_GCTCLUSTERS_FIBER; jc++) {
             ap_uint<15> eta1 = p2eg::N_GCTETA / 2 + GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].towEta;
@@ -271,6 +272,8 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
         ap_uint<15> phi = i + i1 - p2eg::N_GCTPOSITIVE_FIBERS;
         GCTintTowers.GCTtower[eta][phi].et = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].et;
         GCTintTowers.GCTtower[eta][phi].hoe = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].hoe;
+        GCTintTowers.GCTtower[eta][phi].ecalEt = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].ecalEt;
+        GCTintTowers.GCTtower[eta][phi].hcalEt = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].hcalEt;
         for (int ic1 = 0; ic1 < 4; ic1++) {
           for (int jc = 0; jc < p2eg::N_GCTCLUSTERS_FIBER; jc++) {
             ap_uint<15> eta1 = p2eg::N_GCTETA / 2 - 1 - GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].towEta;
