@@ -11,7 +11,7 @@ namespace Phase2L1GMT {
   public:
     ConvertedTTTrack(const ap_uint<1>& charge,
                      const ap_int<BITSTTCURV>& curvature,
-                     const ap_int<BITSETA-1>& abseta,
+                     const ap_int<BITSETA - 1>& abseta,
                      const ap_uint<BITSPT>& pt,
                      const ap_int<BITSETA>& eta,
                      const ap_int<BITSPHI>& phi,
@@ -33,7 +33,7 @@ namespace Phase2L1GMT {
     const ap_uint<1> charge() const { return charge_; }
 
     const ap_int<BITSTTCURV> curvature() const { return curvature_; }
-    const ap_uint<BITSETA-1> abseta() const { return abseta_; }
+    const ap_uint<BITSETA - 1> abseta() const { return abseta_; }
 
     const ap_uint<BITSPT> pt() const { return pt_; }
 
@@ -77,7 +77,7 @@ namespace Phase2L1GMT {
   private:
     ap_uint<1> charge_;
     ap_int<BITSTTCURV> curvature_;
-    ap_uint<BITSETA-1> abseta_;
+    ap_uint<BITSETA - 1> abseta_;
     ap_uint<BITSPT> pt_;
     ap_int<BITSETA> eta_;
     ap_int<BITSPHI> phi_;

@@ -73,8 +73,8 @@ void Phase2L1TGMTTkMuonProducer::produce(edm::Event& iEvent, const edm::EventSet
   l1t::MuonStubRefVector muonStubs;
   Handle<std::vector<l1t::MuonStub> > stubHandle;
   iEvent.getByToken(srcStubs_, stubHandle);
-  for(size_t i=0;i<stubHandle->size();++i) {
-    MuonStubRef stub(stubHandle,i);
+  for (size_t i = 0; i < stubHandle->size(); ++i) {
+    MuonStubRef stub(stubHandle, i);
     muonStubs.push_back(stub);
   }
 

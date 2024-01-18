@@ -8,9 +8,9 @@
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 #include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
-#include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
+#include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
 #include <fstream>
 
@@ -62,14 +62,12 @@ namespace Phase2L1GMT {
     propagation_t propagate(const ConvertedTTTrack& track, uint layer);
     ap_uint<BITSSIGMAETA + 1> deltaEta(const ap_int<BITSSTUBETA>& eta1, const ap_int<BITSSTUBETA>& eta2);
     ap_uint<BITSSIGMACOORD + 1> deltaCoord(const ap_int<BITSSTUBCOORD>& phi1, const ap_int<BITSSTUBCOORD>& phi2);
-    match_t match(const propagation_t prop, const l1t::MuonStubRef& stub,uint trackID);
-    match_t propagateAndMatch(const ConvertedTTTrack& track, const l1t::MuonStubRef& stub,uint trackID);
+    match_t match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID);
+    match_t propagateAndMatch(const ConvertedTTTrack& track, const l1t::MuonStubRef& stub, uint trackID);
     match_t getBest(const std::vector<match_t> matches);
     PreTrackMatchedMuon processTrack(const ConvertedTTTrack&, const l1t::MuonStubRefVector&);
     ap_uint<5> cleanMuon(const PreTrackMatchedMuon& mu, const PreTrackMatchedMuon& other, bool eq);
     std::vector<PreTrackMatchedMuon> clean(std::vector<PreTrackMatchedMuon>& muons);
-
-
   };
 }  // namespace Phase2L1GMT
 

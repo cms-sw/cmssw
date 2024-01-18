@@ -1,8 +1,8 @@
 #ifndef PHASE2GMT_TRACKCONVERTER
 #define PHASE2GMT_TRACKCONVERTER
 
-#include "ConvertedTTTrack.h"
-#include "TPSLUTs.h"
+#include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
+#include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -12,7 +12,6 @@ namespace Phase2L1GMT {
   public:
     TrackConverter(const edm::ParameterSet& iConfig);
     ~TrackConverter();
-
 
     std::vector<ConvertedTTTrack> convertTracks(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks);
 
