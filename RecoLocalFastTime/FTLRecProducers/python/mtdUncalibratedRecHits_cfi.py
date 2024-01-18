@@ -33,7 +33,11 @@ mtdUncalibratedRecHits = cms.EDProducer(
     barrelDigis = cms.InputTag('mix:FTLBarrel'),
     endcapDigis = cms.InputTag('mix:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
-    EndcapHitsName = cms.string('FTLEndcap')
+    EndcapHitsName = cms.string('FTLEndcap'),
+    timeCorr_p0 = cms.double(0.667116),
+    timeCorr_p1 = cms.double(-0.500665),
+    timeCorr_p2 = cms.double(0.141136),
+    timeCorr_p3 = cms.double(-0.0169169)
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

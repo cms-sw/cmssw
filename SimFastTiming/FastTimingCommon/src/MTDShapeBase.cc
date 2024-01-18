@@ -70,6 +70,10 @@ unsigned int MTDShapeBase::indexOfMax() const { return indexOfMax_; }
 
 double MTDShapeBase::timeOfMax() const { return timeOfMax_; }
 
+float MTDShapeBase::maximum() const {return shape_[indexOfMax_]; }
+
+float MTDShapeBase::fallTime() const {return fallTime_; }
+
 void MTDShapeBase::buildMe() {
   // --- Fill the vector with the pulse shape
   fillShape(shape_);
@@ -78,6 +82,13 @@ void MTDShapeBase::buildMe() {
   for (unsigned int i = 0; i < shape_.size(); ++i) {
     if (shape_[indexOfMax_] < shape_[i])
       indexOfMax_ = i;
+  }
+
+  for (unsigned int i = indexOfMax_; i < shape_.size(); ++i) {
+    if (shape_[indexOfMax_] * 0.01 > shape_[i]) {
+      fallTime_ = i * qNSecPerBin_;
+      break;
+    }
   }
 
   if (indexOfMax_ != 0)

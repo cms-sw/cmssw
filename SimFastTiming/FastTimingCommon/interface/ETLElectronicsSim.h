@@ -16,6 +16,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
+#include "SimFastTiming/FastTimingCommon/interface/ETLPulseShape.h"
+
 namespace mtd = mtd_digitizer;
 
 namespace CLHEP {
@@ -34,13 +36,14 @@ public:
 
   void runTrivialShaper(ETLDataFrame& dataFrame,
                         const mtd::MTDSimHitData& chargeColl,
-                        const mtd::MTDSimHitData& toa,
+                        const mtd::MTDSimHitData& toa1,
+                        const mtd::MTDSimHitData& toa2,
                         const uint8_t row,
                         const uint8_t column) const;
 
   void updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const;
 
-  static constexpr int dfSIZE = 5;
+  static constexpr int dfSIZE = 1;
 
 private:
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
@@ -49,9 +52,8 @@ private:
   const bool debug_;
   const float bxTime_;
   const float integratedLum_;
-  const reco::FormulaEvaluator fluence_;
-  const reco::FormulaEvaluator lgadGain_;
-  const reco::FormulaEvaluator timeRes2_;
+
+  const ETLPulseShape etlPulseShape_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_;
@@ -61,8 +63,15 @@ private:
   const float adcLSB_MIP_;
   const uint32_t adcBitSaturation_;
   const float adcThreshold_MIP_;
+  const float iThreshold_MIP_;
   const float toaLSB_ns_;
   const uint32_t tdcBitSaturation_;
+  const float referenceChargeColl_;
+  const float noiseLevel_;
+  const float sigmaDistorsion_;
+  const float sigmaTDC_;
+  const reco::FormulaEvaluator formulaLandauNoise_;
+
 };
 
 #endif
