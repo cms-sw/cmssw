@@ -34,9 +34,10 @@ public:
   /**
      @short CTOR
    */
-  ETLSample() : value_(0) {}
-  ETLSample(uint32_t value) : value_(value) {}
-  ETLSample(const ETLSample& o) : value_(o.value_) {}
+  ETLSample() : value_(0), valueToT_(0) {}
+  ETLSample(uint32_t value) : value_(value), valueToT_(0) {}
+  ETLSample(uint32_t value, uint16_t valueToT) : value_(value), valueToT_(valueToT) {}
+  ETLSample(const ETLSample& o) : value_(o.value_), valueToT_(o.valueToT_) {}
   ETLSample& operator=(const ETLSample&) = default;
 
   /**
@@ -56,7 +57,7 @@ public:
   }
   void print(std::ostream& out = std::cout) {
     out << "(row,col) : (" << row() << ',' << column() << ") "
-        << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " Data: " << data() << " Raw=0x"
+        << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " ToT: " << tot() << " Data: " << data() << " Raw=0x"
         << std::hex << raw() << std::dec << std::endl;
   }
 

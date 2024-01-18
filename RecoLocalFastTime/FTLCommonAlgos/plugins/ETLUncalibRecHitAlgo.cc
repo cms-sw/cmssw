@@ -49,12 +49,14 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   const std::array<double, 1> amplitudeV = {{double(sample.data()) * adcLSB_}};
     
   double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
+  double time_over_threshold = double(sample.tot()) * toaLSBToNS_;
+  
   unsigned char flag = 0;
   
   LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << amplitudeV[0] << ' ' << sample.data() << ' ' << adcLSB_
                                << ' ' << std::endl;
   
-  if (amplitudeV[0] >= 0) {
+  if (time_over_threshold == 0) {
   
 
     LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_ << ' '
@@ -63,7 +65,6 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   
   } else {
 
-    double time_over_threshold = double(sample.tot()) * toaLSBToNS_;
 
     // Time-walk correction for toa
     double timeWalkCorr = timeCorr_p0_ + 
