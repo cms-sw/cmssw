@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
+#include <ap_int.h>
 
 L1TPhase2GMTBarrelStubProcessor::L1TPhase2GMTBarrelStubProcessor() : minPhiQuality_(0), minBX_(-3), maxBX_(3) {}
 
@@ -75,12 +77,11 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   int sector = phiS.scNum();
   int station = phiS.stNum();
 
-  ap_uint<18> normalization0 = sector*ap_uint<15>(21845);
-  ap_int<18>  normalization1 = ap_int<18>(ap_int<17>(phiS.phi())*ap_ufixed<8,0>(0.3183));
-  ap_int<18> kmtf_phi = ap_int<18>(normalization0+normalization1);
+  ap_uint<18> normalization0 = sector * ap_uint<15>(21845);
+  ap_int<18> normalization1 = ap_int<18>(ap_int<17>(phiS.phi()) * ap_ufixed<8, 0>(0.3183));
+  ap_int<18> kmtf_phi = ap_int<18>(normalization0 + normalization1);
   int phi = int(kmtf_phi);
-  float globalPhi = phi*M_PI/(1<<17);
-
+  float globalPhi = phi * M_PI / (1 << 17);
 
   //  double globalPhi = (sector * 30) + phiS.phi() * 30. / 65535.;
   int tag = phiS.index();
@@ -107,16 +108,16 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   eta = eta * sign;
   l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, 0, 0, 1);
 
-  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend()*0.49e-3), eta* etaLSB_, 0.0);
+  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, 0.0);
   return stub;
 }
 
 l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase2MuDTPhContainer* phiContainer,
-    const L1MuDTChambThContainer* etaContainer) {
+                                                                   const L1MuDTChambThContainer* etaContainer) {
   l1t::MuonStubCollection out;
   for (int bx = minBX_; bx <= maxBX_; bx++) {
     ostringstream os;
-    if (verbose_==2)
+    if (verbose_ == 2)
       os << "PATTERN ";
     for (int wheel = -2; wheel <= 2; wheel++) {
       for (int sector = 0; sector < 12; sector++) {
@@ -134,21 +135,21 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
             if (phiDigi.quality() < minPhiQuality_)
               continue;
 
-            if (verbose_==2) {
+            if (verbose_ == 2) {
               ap_uint<64> wphi = ap_uint<17>(phiDigi.phi());
               ap_uint<64> wphib = ap_uint<13>(phiDigi.phiBend());
-              ap_uint<64> wr1   = ap_uint<21>(0);
-              ap_uint<64> wq    = ap_uint<4>(phiDigi.quality());
-              ap_uint<64> wr2    = ap_uint<9>(0);
-              ap_uint<64> sN=0;
-              sN=sN|wphi;
-              sN=sN|(wphib<<17);
-              sN=sN|(wr1<<30);
-              sN=sN|(wq<<51);
-              sN=sN|(wr2<<55);
-              unsigned int index = (station-1)*4+phiDigi.index();
-              os <<std::setw(0) << std::dec <<sector<<" "<<wheel<<" "<<station<<" ";
-              os<<std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) <<" ";
+              ap_uint<64> wr1 = ap_uint<21>(0);
+              ap_uint<64> wq = ap_uint<4>(phiDigi.quality());
+              ap_uint<64> wr2 = ap_uint<9>(0);
+              ap_uint<64> sN = 0;
+              sN = sN | wphi;
+              sN = sN | (wphib << 17);
+              sN = sN | (wr1 << 30);
+              sN = sN | (wq << 51);
+              sN = sN | (wr2 << 55);
+              unsigned int index = (station - 1) * 4 + phiDigi.index();
+              os << std::setw(0) << std::dec << sector << " " << wheel << " " << station << " ";
+              os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
             }
 
             if (hasEta) {
@@ -160,8 +161,7 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
         }
       }
     }
-    std::cout<< os.str() <<std::endl;
-
+    std::cout << os.str() << std::endl;
   }
 
   if (verbose_) {

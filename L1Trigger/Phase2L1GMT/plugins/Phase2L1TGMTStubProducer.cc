@@ -30,7 +30,7 @@ private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  l1t::MuonStub convertToHybrid(const l1t::MuonStub& stub); 
+  l1t::MuonStub convertToHybrid(const l1t::MuonStub& stub);
   edm::EDGetTokenT<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>> srcCSC_;
   edm::EDGetTokenT<L1Phase2MuDTPhContainer> srcDT_;
   edm::EDGetTokenT<L1MuDTChambThContainer> srcDTTheta_;
@@ -72,25 +72,23 @@ Phase2L1TGMTStubProducer::~Phase2L1TGMTStubProducer() {
 // member functions
 //
 
-
 l1t::MuonStub Phase2L1TGMTStubProducer::convertToHybrid(const l1t::MuonStub& stub) {
-      l1t::MuonStub hybrid(stub.etaRegion(),
-			   stub.phiRegion(),
-			   stub.depthRegion(),
-			   stub.tfLayer(),
-			   stub.coord1()/256,//for track matching was 1024
-			   stub.coord2()/256,//for track matching was 1024
-			   stub.id(),
-			   stub.bxNum(),
-			   0x3, //for track matching
-			   stub.eta1(),
-			   stub.eta2(),
-			   stub.etaQuality(),
-			   stub.type());
-      hybrid.setOfflineQuantities(stub.offline_coord1(),stub.offline_coord2(),stub.offline_eta1(),stub.offline_eta2());
-      return hybrid;
-} 
-
+  l1t::MuonStub hybrid(stub.etaRegion(),
+                       stub.phiRegion(),
+                       stub.depthRegion(),
+                       stub.tfLayer(),
+                       stub.coord1() / 256,  //for track matching was 1024
+                       stub.coord2() / 256,  //for track matching was 1024
+                       stub.id(),
+                       stub.bxNum(),
+                       0x3,  //for track matching
+                       stub.eta1(),
+                       stub.eta2(),
+                       stub.etaQuality(),
+                       stub.type());
+  hybrid.setOfflineQuantities(stub.offline_coord1(), stub.offline_coord2(), stub.offline_eta1(), stub.offline_eta2());
+  return hybrid;
+}
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -130,8 +128,8 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
     stubsKMTF.push_back(stub);
   }
 
-  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubs),"tps");
-  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubsKMTF),"kmtf");
+  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubs), "tps");
+  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubsKMTF), "kmtf");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

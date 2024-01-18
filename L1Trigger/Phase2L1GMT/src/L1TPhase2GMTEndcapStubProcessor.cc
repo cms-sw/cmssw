@@ -23,7 +23,7 @@ L1TPhase2GMTEndcapStubProcessor::~L1TPhase2GMTEndcapStubProcessor() {}
 l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& detid,
                                                                 const CSCCorrelatedLCTDigi& digi,
                                                                 const L1TMuon::GeometryTranslator* translator,
-								unsigned int tag) {
+                                                                unsigned int tag) {
   int endcap = detid.endcap();
   int station = detid.station();
   int chamber = detid.chamber();
@@ -251,10 +251,10 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
   for (; chamber != chend; ++chamber) {
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
-    unsigned int tag=0;
+    unsigned int tag = 0;
     for (; digi != dend; ++digi) {
-      l1t::MuonStub stub = buildCSCOnlyStub((*chamber).first, *digi, t,tag);
-      tag=tag+1;
+      l1t::MuonStub stub = buildCSCOnlyStub((*chamber).first, *digi, t, tag);
+      tag = tag + 1;
       if (stub.bxNum() >= minBX_ && stub.bxNum() <= maxBX_)
         cscStubs.push_back(stub);
     }

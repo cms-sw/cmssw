@@ -33,14 +33,12 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
 
-
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > barrelTokenPrompt_;
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > barrelTokenDisp_;
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > fwdToken_;
 
   SAMuonCleaner ghostCleaner;
-
 };
 //
 // constants, enums and typedefs
@@ -53,16 +51,13 @@ private:
 //
 // constructors and destructor
 //
-  Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::ParameterSet& iConfig):
-    barrelTokenPrompt_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelPrompt"))),
-    barrelTokenDisp_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelDisp"))),
-    fwdToken_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forward"))) 
-  {
-    produces<std::vector<l1t::SAMuon> >("prompt");
-    produces<std::vector<l1t::SAMuon> >("displaced");
-
-
-  }
+Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::ParameterSet& iConfig)
+    : barrelTokenPrompt_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelPrompt"))),
+      barrelTokenDisp_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelDisp"))),
+      fwdToken_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forward"))) {
+  produces<std::vector<l1t::SAMuon> >("prompt");
+  produces<std::vector<l1t::SAMuon> >("displaced");
+}
 
 Phase2L1TGMTSAMuonGhostCleaner::~Phase2L1TGMTSAMuonGhostCleaner() {}
 
@@ -82,14 +77,13 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
   std::vector<l1t::SAMuon> muons = *barrelPrompt.product();
   muons.insert(muons.end(), forward->begin(), forward->end());
 
-
   std::vector<l1t::SAMuon> cleanedMuons = ghostCleaner.cleanTFMuons(muons);
   //here switch to the offical word required by the GT
   std::vector<l1t::SAMuon> finalPrompt;
-  for ( const auto& mu : cleanedMuons) {
+  for (const auto& mu : cleanedMuons) {
     l1t::SAMuon m = mu;
-    if (m.tfType()==l1t::tftype::bmtf)
-      m.setHwQual(m.hwQual()>>4);
+    if (m.tfType() == l1t::tftype::bmtf)
+      m.setHwQual(m.hwQual() >> 4);
     int bstart = 0;
     wordtype word(0);
     bstart = wordconcat<wordtype>(word, bstart, 1, 1);
@@ -98,18 +92,17 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
     bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
     bstart = wordconcat<wordtype>(word, bstart, 0, BITSSAZ0);
     bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, m.charge()>0 ? 0: 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(),BITSSAQUAL);
+    bstart = wordconcat<wordtype>(word, bstart, m.charge() > 0 ? 0 : 1, 1);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
     m.setWord(word);
     finalPrompt.push_back(m);
   }
 
-
   std::vector<l1t::SAMuon> finalDisp;
-  for ( const auto& mu : *barrelDisp.product()) {
+  for (const auto& mu : *barrelDisp.product()) {
     l1t::SAMuon m = mu;
-    if (m.tfType()==l1t::tftype::bmtf)
-      m.setHwQual(m.hwQual()>>4);
+    if (m.tfType() == l1t::tftype::bmtf)
+      m.setHwQual(m.hwQual() >> 4);
     int bstart = 0;
     wordtype word(0);
     bstart = wordconcat<wordtype>(word, bstart, 1, 1);
@@ -118,22 +111,17 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
     bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
     bstart = wordconcat<wordtype>(word, bstart, 0, BITSSAZ0);
     bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, m.charge()>0 ? 0: 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(),BITSSAQUAL);
+    bstart = wordconcat<wordtype>(word, bstart, m.charge() > 0 ? 0 : 1, 1);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
     m.setWord(word);
     finalDisp.push_back(m);
   }
 
-
-
   std::unique_ptr<std::vector<l1t::SAMuon> > prompt_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalPrompt);
   std::unique_ptr<std::vector<l1t::SAMuon> > disp_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalDisp);
-  iEvent.put(std::move(prompt_ptr),"prompt");
-  iEvent.put(std::move(disp_ptr),"displaced");
-
+  iEvent.put(std::move(prompt_ptr), "prompt");
+  iEvent.put(std::move(disp_ptr), "displaced");
 }
-
-
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void Phase2L1TGMTSAMuonGhostCleaner::beginStream(edm::StreamID) {
@@ -155,6 +143,5 @@ void Phase2L1TGMTSAMuonGhostCleaner::fillDescriptions(edm::ConfigurationDescript
 }
 
 DEFINE_FWK_MODULE(Phase2L1TGMTSAMuonGhostCleaner);
-
 
 #endif

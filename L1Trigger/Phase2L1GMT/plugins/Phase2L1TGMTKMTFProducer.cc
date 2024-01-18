@@ -4,7 +4,6 @@
 // Class:      Phase2L1TGMTSAMuonProducer
 // Original Author:  Michalis Bachtis
 
-
 #ifndef PHASE2GMT_KMTFPRODUCER
 #define PHASE2GMT_KMTFPRODUCER
 
@@ -50,7 +49,7 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
-  KMTF * kmtf_;
+  KMTF* kmtf_;
   unsigned int Nprompt;
   unsigned int Ndisplaced;
 };
@@ -67,11 +66,10 @@ private:
 // constructors and destructor
 //
 Phase2L1TGMTKMTFProducer::Phase2L1TGMTKMTFProducer(const edm::ParameterSet& iConfig)
-  : stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))),
-    kmtf_(new KMTF(iConfig.getParameter<int>("verbose"),
-		   iConfig.getParameter<edm::ParameterSet>("algo"))),
-    Nprompt(iConfig.getParameter<uint>("Nprompt")),
-    Ndisplaced(iConfig.getParameter<uint>("Ndisplaced")) {
+    : stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))),
+      kmtf_(new KMTF(iConfig.getParameter<int>("verbose"), iConfig.getParameter<edm::ParameterSet>("algo"))),
+      Nprompt(iConfig.getParameter<uint>("Nprompt")),
+      Ndisplaced(iConfig.getParameter<uint>("Ndisplaced")) {
   produces<std::vector<l1t::SAMuon> >("prompt").setBranchAlias("prompt");
   produces<std::vector<l1t::SAMuon> >("displaced").setBranchAlias("displaced");
   produces<std::vector<l1t::KMTFTrack> >("kmtfTracks");
@@ -96,15 +94,21 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
       stubs.push_back(stub);
   }
 
-  // KMTF 
+  // KMTF
   std::vector<SAMuon> prompt;
   std::vector<SAMuon> displaced;
-  std::pair<std::vector<l1t::KMTFTrack>,std::vector<l1t::KMTFTrack > > kmtfOutput = kmtf_->process(stubs,0,32);
+  std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > kmtfOutput = kmtf_->process(stubs, 0, 32);
   std::vector<l1t::KMTFTrack> kmtfTracks;
   for (const auto& track : kmtfOutput.first) {
-
     kmtfTracks.push_back(track);
-    l1t::SAMuon p(track.p4(),(track.curvatureAtVertex()<0),track.ptPrompt(),track.coarseEta(),track.phiAtMuon()/(1<<5),0,0,track.stubs().size()-1);
+    l1t::SAMuon p(track.p4(),
+                  (track.curvatureAtVertex() < 0),
+                  track.ptPrompt(),
+                  track.coarseEta(),
+                  track.phiAtMuon() / (1 << 5),
+                  0,
+                  0,
+                  track.stubs().size() - 1);
     p.setTF(l1t::tftype::bmtf);
     int bstart = 0;
     wordtype word(0);
@@ -116,18 +120,23 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
     bstart = wordconcat<wordtype>(word, bstart, track.rankPrompt(), 8);
 
-
-    for (const auto& stub :track.stubs()) 
+    for (const auto& stub : track.stubs())
       p.addStub(stub);
     p.setWord(word);
     prompt.push_back(p);
-
   }
 
   for (const auto& track : kmtfOutput.second) {
     kmtfTracks.push_back(track);
-    ap_int<7> dxy = track.dxy()*ap_ufixed<8,1>(1.606);
-    l1t::SAMuon p(track.p4(),(track.curvatureAtMuon()<0),track.ptDisplaced(),track.coarseEta(),track.phiAtMuon()/(1<<5),0,dxy,track.approxDispChi2());
+    ap_int<7> dxy = track.dxy() * ap_ufixed<8, 1>(1.606);
+    l1t::SAMuon p(track.p4(),
+                  (track.curvatureAtMuon() < 0),
+                  track.ptDisplaced(),
+                  track.coarseEta(),
+                  track.phiAtMuon() / (1 << 5),
+                  0,
+                  dxy,
+                  track.approxDispChi2());
     int charge = p.charge() > 0 ? 0 : 1;
     int bstart = 0;
     wordtype word(0);
@@ -139,7 +148,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
     bstart = wordconcat<wordtype>(word, bstart, track.rankDisp(), 8);
 
-    for (const auto& stub: track.stubs())  {
+    for (const auto& stub : track.stubs()) {
       p.addStub(stub);
     }
     p.setWord(word);
