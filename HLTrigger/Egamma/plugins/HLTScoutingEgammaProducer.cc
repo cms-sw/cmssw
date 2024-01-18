@@ -279,6 +279,10 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     std::vector<float> trkpt;
     std::vector<float> trketa;
     std::vector<float> trkphi;
+    std::vector<float> trkpMode;
+    std::vector<float> trketaMode;
+    std::vector<float> trkphiMode;
+    std::vector<float> trkqoverpModeError;
     std::vector<float> trkchi2overndf;
     std::vector<int> trkcharge;
     trkd0.reserve(maxTrkSize);
@@ -286,6 +290,10 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     trkpt.reserve(maxTrkSize);
     trketa.reserve(maxTrkSize);
     trkphi.reserve(maxTrkSize);
+    trkpMode.reserve(maxTrkSize);
+    trketaMode.reserve(maxTrkSize);
+    trkphiMode.reserve(maxTrkSize);
+    trkqoverpModeError.reserve(maxTrkSize);
     trkchi2overndf.reserve(maxTrkSize);
     trkcharge.reserve(maxTrkSize);
 
@@ -300,6 +308,10 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
         trkpt.push_back(track.pt());
         trketa.push_back(track.eta());
         trkphi.push_back(track.phi());
+        trkpMode.push_back(track.pMode());
+        trketaMode.push_back(track.etaMode());
+        trkphiMode.push_back(track.phiMode());
+        trkqoverpModeError.push_back(track.qoverpModeError());
         auto const trackndof = track.ndof();
         trkchi2overndf.push_back(((trackndof == 0) ? -1 : (track.chi2() / trackndof)));
         trkcharge.push_back(track.charge());
@@ -310,6 +322,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                candidate.eta(),
                                candidate.phi(),
                                candidate.mass(),
+                               scRef->rawEnergy(),
+                               scRef->preshowerEnergy(),
+                               scRef->correctedEnergyUncertainty(),
                                (*SigmaIEtaIEtaMap)[candidateRef],
                                HoE,
                                (*EcalPFClusterIsoMap)[candidateRef],
@@ -319,6 +334,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                sMin,
                                sMaj,
                                seedId,
+                               scRef->clustersSize(),
+                               scRef->size(),
                                mEnergies,
                                mDetIdIds,
                                mTimes,
@@ -328,11 +345,18 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  candidate.eta(),
                                  candidate.phi(),
                                  candidate.mass(),
+                                 scRef->rawEnergy(),
+                                 scRef->preshowerEnergy(),
+                                 scRef->correctedEnergyUncertainty(),
                                  trkd0,
                                  trkdz,
                                  trkpt,
                                  trketa,
                                  trkphi,
+                                 trkpMode,
+                                 trketaMode,
+                                 trkphiMode,
+                                 trkqoverpModeError,
                                  trkchi2overndf,
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],
@@ -341,6 +365,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  (*OneOEMinusOneOPMap)[candidateRef],
                                  (*MissingHitsMap)[candidateRef],
                                  trkcharge,
+                                 0.0 /* waiting implementation of the track fbrem producer*/,
                                  (*EcalPFClusterIsoMap)[candidateRef],
                                  (*HcalPFClusterIsoMap)[candidateRef],
                                  (*EleGsfTrackIsoMap)[candidateRef],
@@ -348,6 +373,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  sMin,
                                  sMaj,
                                  seedId,
+                                 scRef->clustersSize(),
+                                 scRef->size(),
                                  mEnergies,
                                  mDetIdIds,
                                  mTimes,

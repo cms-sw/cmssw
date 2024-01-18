@@ -4,7 +4,8 @@ import argparse
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 3 Scouting data formats')
 
-parser.add_argument("--electronVersion", type=int, help="electron data format version (default: 6)", default=6)
+parser.add_argument("--electronVersion", type=int, help="electron data format version (default: 7)", default=7)
+parser.add_argument("--photonVersion", type=int, help="photon data format version (default: 6)", default=6)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
 args = parser.parse_args()
@@ -28,8 +29,10 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
         60.0,   70.0,  80.0,  90.0, 100.0,
         110.0, 120.0, 130.0, 140.0, 150.0,
         160.0, 170.0, 180.0, 190.0, 200.0,
-        210.0, 220.0, 230.0, 240.0, 250.0),
-    expectedElectronIntegralValues = cms.vint32(10, 20, 30, 40, 50, 60),
+        210.0, 220.0, 230.0, 240.0, 250.0,
+        260.0, 270.0, 280.0, 290.0, 300.0,
+        310.0, 320.0, 330.0),
+    expectedElectronIntegralValues = cms.vint32(10, 20, 30, 40, 50, 60, 70, 80),
     electronsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
     expectedMuonFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
@@ -69,13 +72,15 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
         62,   72,  82
     ),
     pfJetsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
+    photonClassVersion = cms.int32(args.photonVersion),
     expectedPhotonFloatingPointValues = cms.vdouble(
         14.0,   23.0,  33.0,  43.0,  53.0,
         63.0,   73.0,  83.0,  93.0, 103.0,
-        113.0, 123.0, 133.0, 143.0
+        113.0, 123.0, 133.0, 143.0, 153.0,
+        163.0, 173.0
     ),
     expectedPhotonIntegralValues = cms.vint32(
-        14,   23,  33
+        14,   23,  33,  43,  53
     ),
     photonsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
     expectedTrackFloatingPointValues = cms.vdouble(
