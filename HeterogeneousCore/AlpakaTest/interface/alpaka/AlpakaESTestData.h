@@ -17,11 +17,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using AlpakaESTestDataDHost = cms::alpakatest::AlpakaESTestDataDHost;
   using AlpakaESTestDataDDevice = PortableCollection<cms::alpakatest::AlpakaESTestSoAD>;
+
+  using AlpakaESTestDataEHost = cms::alpakatest::AlpakaESTestDataEHost;
+  using AlpakaESTestDataEDevice = cms::alpakatest::AlpakaESTestDataE<Device>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 // check that the portable device collections for the host device are the same as the portable host collections
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(AlpakaESTestDataADevice, cms::alpakatest::AlpakaESTestDataAHost);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(AlpakaESTestDataCDevice, cms::alpakatest::AlpakaESTestDataCHost);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(AlpakaESTestDataDDevice, cms::alpakatest::AlpakaESTestDataDHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(AlpakaESTestDataEDevice, cms::alpakatest::AlpakaESTestDataEHost);
 
 #endif  // HeterogeneousCore_AlpakaTest_interface_alpaka_AlpakaESTestData_h

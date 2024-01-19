@@ -4,6 +4,7 @@
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaTest/interface/alpaka/AlpakaESTestData.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -12,6 +13,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void fill(Queue& queue, portabletest::TestDeviceCollection& collection, double xvalue = 0.) const;
     void fillObject(
         Queue& queue, portabletest::TestDeviceObject& object, double x, double y, double z, int32_t id) const;
+
+    portabletest::TestDeviceCollection update(Queue& queue,
+                                              portabletest::TestDeviceCollection const& input,
+                                              AlpakaESTestDataEDevice const& esData) const;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
