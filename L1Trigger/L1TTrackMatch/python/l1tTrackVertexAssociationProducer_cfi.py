@@ -41,8 +41,8 @@ l1tTrackVertexAssociationProducerForJets = l1tTrackVertexAssociationProducer.clo
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
-                    deltaZMaxEtaBounds = cms.vdouble(0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4), # these values define the bin boundaries in |eta|
-                    deltaZMax = cms.vdouble(999.0, 999.0, 999.0, 999.0, 999.0, 999.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
+                    deltaZMaxEtaBounds = cms.vdouble(0.0, 2.4), # these values define the bin boundaries in |eta|
+                    deltaZMax = cms.vdouble(0.55), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     ),
 )
 
@@ -52,8 +52,8 @@ l1tTrackVertexAssociationProducerExtendedForJets = l1tTrackVertexAssociationProd
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
-                    deltaZMaxEtaBounds = cms.vdouble(0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4), # these values define the bin boundaries in |eta|
-                    deltaZMax = cms.vdouble(999.0, 999.0, 999.0, 999.0, 999.0, 999.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
+                    deltaZMaxEtaBounds = cms.vdouble(0.0, 2.4), # these values define the bin boundaries in |eta|
+                    deltaZMax = cms.vdouble(5.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     ),
 )
 
