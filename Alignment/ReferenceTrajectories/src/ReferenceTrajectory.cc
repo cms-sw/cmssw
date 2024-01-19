@@ -956,7 +956,14 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
   //CHK: add material effects using general broken lines, no initial kinks
   // local track parameters are defined in the TSO system
 
-  const double minPrec = 1.0;  // minimum precision to use measurement (reject measurements in strip direction)
+  // Minimum precision to use a measurement.
+  // Measurements with smaller values are rejected and with larger values are accepted
+  // (ending up in the MP2 binary files and used for alignment).
+  // The precision for the measurement along the strips is 12./Length^2. Thus:
+  // - for the Phase 0 Strips modules (Length ~ 10 cm) is 0.12 => rejected
+  // - for the Phase 2 Strips in PS modules (Length ~ 2.4 cm) is 2.08 => accepted
+  // - for the Phase 2 Strips in 2S modules (Length ~ 5 cm) is 0.48 => accepted
+  const double minPrec = 0.3;
 
   AlgebraicMatrix OffsetToLocal(5, 2);  // dLocal/dU
   OffsetToLocal[3][0] = 1.;
@@ -1038,7 +1045,14 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
   //CHK: add material effects using general broken lines
   // local track parameters are defined in the curvilinear system
 
-  const double minPrec = 1.0;  // minimum precision to use measurement (reject measurements in strip direction)
+  // Minimum precision to use a measurement.
+  // Measurements with smaller values are rejected and with larger values are accepted
+  // (ending up in the MP2 binary files and used for alignment).
+  // The precision for the measurement along the strips is 12./Length^2. Thus:
+  // - for the Phase 0 Strips modules (Length ~ 10 cm) is 0.12 => rejected
+  // - for the Phase 2 Strips in PS modules (Length ~ 2.4 cm) is 2.08 => accepted
+  // - for the Phase 2 Strips in 2S modules (Length ~ 5 cm) is 0.48 => accepted
+  const double minPrec = 0.3;
   int ierr = 0;
 
   AlgebraicMatrix OffsetToCurv(5, 2);  // dCurv/dU
