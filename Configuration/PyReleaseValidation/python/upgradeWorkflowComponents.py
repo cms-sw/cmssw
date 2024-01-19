@@ -2856,7 +2856,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
