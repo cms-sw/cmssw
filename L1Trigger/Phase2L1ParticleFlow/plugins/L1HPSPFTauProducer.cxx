@@ -185,11 +185,16 @@ std::vector<l1t::PFTau> L1HPSPFTauProducer::convertHWToEDM(std::vector<L1HPSPFTa
     //empty array for the PFTau format, since it's used for PuppiTaus but not here
     float tauArray[80] = {0};
     std::for_each(hwTaus.begin(), hwTaus.end(), [&](Tau tau){
-       
-    edmTaus.push_back(l1t::PFTau(reco::Candidate::PolarLorentzVector(l1ct::Scales::floatPt(tau.hwPt),
+    l1gt::Tau gtTau = tau.toGT();
+    l1gt::PackedTau packTau = gtTau.pack();
+
+           
+    l1t::PFTau pTau(reco::Candidate::PolarLorentzVector(l1ct::Scales::floatPt(tau.hwPt),
                                  float(tau.hwEta) / etaphi_base,
                                  float(tau.hwPhi) / etaphi_base,
-                                 0), tauArray,  0, 0, 0, tau.hwPt, tau.hwEta, tau.hwPhi));
+                                 0), tauArray,  0, 0, 0, tau.hwPt, tau.hwEta, tau.hwPhi);
+    pTau.set_encodedTau(packTau);
+    edmTaus.push_back(pTau);
   });
   return edmTaus;
 }  
