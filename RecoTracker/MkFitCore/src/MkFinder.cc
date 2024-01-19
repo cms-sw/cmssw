@@ -989,9 +989,6 @@ namespace mkfit {
               continue;
             }
 
-            if (m_XHitSize[itrack] >= MPlexHitIdxMax)
-              break;
-
             float new_q, new_phi, new_ddphi, new_ddq;
             bool prop_fail;
 
@@ -1041,8 +1038,8 @@ namespace mkfit {
                   new_q, L.hit_q_half_length(hi), L.hit_qbar(hi), new_phi,
                   hit_lbl },
                 state2pos(mp_s), state2mom(mp_s),
-                new_ddq, new_ddphi, hchi2,
-                dqdphi_presel, (sim_lbl == hit_lbl), !prop_fail
+                new_ddq, new_ddphi, hchi2, (int) hi_orig,
+                (sim_lbl == hit_lbl), dqdphi_presel, !prop_fail
               });
 
               bool new_dec = dqdphi_presel && !prop_fail;
@@ -1055,7 +1052,7 @@ namespace mkfit {
               if (new_dec)
                 pos_match_vec.emplace_back(pos_match{ new_ddphi, new_ddq, hit_out_idx++,
                                              sim_lbl == hit_lbl });
-            } // if sim_lbl is set
+            } // if cand is saved
 #endif
             // clang-format on
 
@@ -1744,6 +1741,13 @@ namespace mkfit {
 
               dprint("  adding hit with hit_cnt=" << hit_cnt << " for trkIdx=" << tmpList.trkIdx
                                                   << " orig Seed=" << m_Label(itrack, 0, 0));
+
+#ifdef RNT_DUMP_MkF_SelHitIdcs
+              if (rnt_shi.f_h_remap[itrack] >= 0) {
+                CandInfo &ci = (*rnt_shi.ci)[rnt_shi.f_h_remap[itrack]];
+                ci.assignIdxChi2List(tmpList);
+              }
+#endif
             }
           }
         }

@@ -1,5 +1,7 @@
 // #pragma link C++ class ROOT::Experimental::REveVector+;
 
+#pragma link C++ class mkfit::IdxChi2List + ;
+
 #pragma link C++ class HeaderLayer + ;
 
 #pragma link C++ class State + ;

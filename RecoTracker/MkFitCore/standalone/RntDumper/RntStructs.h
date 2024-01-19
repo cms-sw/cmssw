@@ -1,8 +1,7 @@
 #ifndef RecoTracker_MkFitCore_standalone_RntDumper_RntStructs_h
 #define RecoTracker_MkFitCore_standalone_RntDumper_RntStructs_h
 
-// Avoid MkFit includes for now to simpligy pure ROOT builds.
-// #include "RecoTracker/MkFitCore/interface/
+#include "RecoTracker/MkFitCore/interface/IdxChi2List.h"
 
 #include "ROOT/REveVector.hxx"
 #include "Math/Point3D.h"
@@ -84,9 +83,14 @@ struct HitMatchInfo : public HitInfo {
   RVec trk_pos, trk_mom;
   float ddq, ddphi;
   float chi2_true;
-  bool accept;
+  int hit_index;
   bool match;
+  bool presel;
   bool prop_ok;
+  bool has_ic2list{false};
+  mkfit::IdxChi2List ic2list{0};
+
+  bool accept() const { return presel && prop_ok; }
 
   HitMatchInfo() = default;
   HitMatchInfo& operator=(const HitMatchInfo&) = default;
@@ -111,6 +115,17 @@ struct CandInfo {
     n_all_hits = n_hits_pass = n_hits_match = n_hits_pass_match = 0;
     ord_first_match = -1;
     dphi_first_match = dq_first_match = -9999.0f;
+  }
+
+  bool assignIdxChi2List(const mkfit::IdxChi2List& ic2l) {
+    for (auto & hm : hmi) {
+      if (hm.hit_index == ic2l.hitIdx) {
+        hm.has_ic2list = true;
+        hm.ic2list = ic2l;
+        return true;
+      }
+    }
+    return false;
   }
 
   CandInfo() = default;
