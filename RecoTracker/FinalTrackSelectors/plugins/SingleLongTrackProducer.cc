@@ -1,4 +1,5 @@
 // user includes
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -67,7 +68,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
   }
 
   const auto &muons = iEvent.getHandle(muonsToken);
-  if (!muons.isValid()) {
+  if (!muons.isValid() && matchInDr > 0.) {
     edm::LogError("SingleLongTrackProducer")
         << "Input muon collection is not valid.\n Returning empty output track collection.";
     iEvent.put(std::move(goodTracks), "");
@@ -92,7 +93,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
 
   for (const auto &track : *tracks) {
     const reco::HitPattern &hitpattern = track.hitPattern();
-    double dRmin = 10;
+    double dR2min = 100.;
     double chiNdof = track.normalizedChi2();
     double dxy = std::abs(track.dxy(vtx.position()));
     double dz = std::abs(track.dz(vtx.position()));
@@ -106,23 +107,22 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
     if (hitpattern.trackerLayersWithMeasurement() < minNumberOfLayers)
       continue;
 
-    TLorentzVector pTrack(track.px(), track.py(), track.pz(), track.pt());
-
-    // Long track needs to be close to a good muon
-    for (const auto &m : *muons) {
-      if (m.isTrackerMuon()) {
-        tMuon++;
-        reco::Track matchedTrack = *(m.innerTrack());
-        TLorentzVector pMatched(matchedTrack.px(), matchedTrack.py(), matchedTrack.pz(), matchedTrack.pt());
-        // match to general track in deltaR
-        double dr = pTrack.DeltaR(pMatched);
-        if (dr < dRmin)
-          dRmin = dr;
+    // Long track needs to be close to a good muon (only if requested)
+    if (matchInDr > 0.) {
+      for (const auto &m : *muons) {
+        if (m.isTrackerMuon()) {
+          tMuon++;
+          reco::Track matchedTrack = *(m.innerTrack());
+          // match to general track in deltaR
+          double dr2 = reco::deltaR2(track, matchedTrack);
+          if (dr2 < dR2min)
+            dR2min = dr2;
+        }
       }
+      // matchInDr here is defined positive
+      if (dR2min >= matchInDr * matchInDr)
+        continue;
     }
-
-    if (dRmin >= matchInDr)
-      continue;
     // do vertex consistency:
     bool vertex_match = dxy < maxDxy && dz < maxDz;
     if (!(vertex_match))
@@ -136,7 +136,7 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
       bestTrack.setExtra(track.extra());
     }
     if (debug)
-      edm::LogPrint("SingleLongTrackProducer") << " deltaR (general) track to matched Track: " << dRmin;
+      edm::LogPrint("SingleLongTrackProducer") << " deltaR2 (general) track to matched Track: " << dR2min;
     if (debug)
       edm::LogPrint("SingleLongTrackProducer") << "chi2Ndof:" << chiNdof << " best Track: " << fitProb;
   }
@@ -226,17 +226,18 @@ void SingleLongTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup 
 
 void SingleLongTrackProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("allTracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("matchMuons", edm::InputTag("earlyMuons"));
-  desc.add<edm::InputTag>("PrimaryVertex", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<int>("minNumberOfLayers", 10);
-  desc.add<double>("requiredDr", 0.01);
-  desc.add<bool>("onlyValidHits", true);
-  desc.add<bool>("debug", false);
-  desc.add<double>("minPt", 15.0);
-  desc.add<double>("maxEta", 2.2);
-  desc.add<double>("maxDxy", 0.02);
-  desc.add<double>("maxDz", 0.5);
+  desc.add<edm::InputTag>("allTracks", edm::InputTag("generalTracks"))->setComment("input track collection");
+  desc.add<edm::InputTag>("matchMuons", edm::InputTag("earlyMuons"))->setComment("input muon collection for matching");
+  desc.add<edm::InputTag>("PrimaryVertex", edm::InputTag("offlinePrimaryVertices"))
+      ->setComment("input primary vertex collection");
+  desc.add<int>("minNumberOfLayers", 10)->setComment("minimum number of layers");
+  desc.add<double>("requiredDr", 0.01)->setComment("matching muons deltaR. If negative do not match");
+  desc.add<bool>("onlyValidHits", true)->setComment("use only valid hits");
+  desc.add<bool>("debug", false)->setComment("verbose?");
+  desc.add<double>("minPt", 15.0)->setComment("minimum pT");
+  desc.add<double>("maxEta", 2.2)->setComment("maximum pseudorapidity (absolute value)");
+  desc.add<double>("maxDxy", 0.02)->setComment("maximum transverse impact parameter");
+  desc.add<double>("maxDz", 0.5)->setComment("maximum longitudinal impact parameter");
   descriptions.addWithDefaultLabel(desc);
 }
 
