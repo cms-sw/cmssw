@@ -60,8 +60,9 @@
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>
   </class>
-  <class name="Run3ScoutingVertex" ClassVersion="3">
+  <class name="Run3ScoutingVertex" ClassVersion="4">
       <version ClassVersion="3" checksum="316446070"/>
+      <version ClassVersion="4" checksum="2363071875"/>
   </class>
   <class name="ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="2" checksum="2705685116"/>
