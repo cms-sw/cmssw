@@ -132,7 +132,6 @@ public:
   static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
   // ------------ method called to produce the data  ------------
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
@@ -169,8 +168,7 @@ private:
   std::vector<tensorflow::Session*> tfSessions_;
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* hcalCuts = nullptr;
+  bool cutsFromDB_;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -406,12 +404,6 @@ namespace {
   }
 };  // namespace
 
-void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-  if (cutsFromDB) {
-    hcalCuts = &setup.getData(hcalCutsToken_);
-  }
-}
-
 GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* gcache)
     : cutsCfg_{makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))},
       ecalSeedingParametersChecked_(false),
@@ -424,9 +416,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   }
 
   //Retrieve HCAL PF thresholds - from config or from DB
-  cutsFromDB = cfg.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  cutsFromDB_ = cfg.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
@@ -745,6 +737,11 @@ bool GsfElectronProducer::isPreselected(GsfElectron const& ele) const {
 
 // ------------ method called to produce the data  ------------
 void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
+    hcalCuts = &setup.getData(hcalCutsToken_);
+  }
+
   // check configuration
   if (!ecalSeedingParametersChecked_) {
     ecalSeedingParametersChecked_ = true;
