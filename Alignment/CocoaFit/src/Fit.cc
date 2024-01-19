@@ -1210,8 +1210,9 @@ void Fit::dumpFittedValues(ALIFileOut& fileout, ALIbool printErrors, ALIbool pri
   //  const Entry* entry;
   int ii, siz;
   std::vector<OpticalObject*>::const_iterator vocite;
+  ALIstring sys = ALIstring("system");
   for (vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite) {
-    if ((*vocite)->type() == ALIstring("system"))
+    if ((*vocite)->type() == sys)
       continue;
 
     fileout << " %%%% Optical Object: " << (*vocite)->longName() << std::endl;
@@ -1268,8 +1269,9 @@ void Fit::dumpFittedValuesInAllAncestorFrames(ALIFileOut& fileout, ALIbool print
   //---------- Iterate over OptO list
   std::vector<Entry*> entries;
   std::vector<OpticalObject*>::const_iterator vocite;
+  ALIstring sys = ALIstring("system");
   for (vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite) {
-    if ((*vocite)->type() == ALIstring("system"))
+    if ((*vocite)->type() == sys)
       continue;
 
     fileout << " %%%% Optical Object: " << (*vocite)->longName() << std::endl;
