@@ -28,14 +28,14 @@ updatedJetsPuppi = updatedPatJets.clone(
 
 tightJetPuppiId = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
+        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
         quality = cms.string('TIGHT'),
     ),
     src = cms.InputTag("updatedJetsPuppi")
 )
 tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
+        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
         quality = cms.string('TIGHTLEPVETO'),
     ),
     src = cms.InputTag("updatedJetsPuppi")
@@ -54,9 +54,9 @@ run2_jme_2016.toModify(
 )
 
 run3_jme_Winter22runsBCDEprompt.toModify(
-    tightJetPuppiId.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+    tightJetPuppiId.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
 ).toModify(
-    tightJetPuppiIdLepVeto.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
 )
 
 #HF shower shape recomputation
