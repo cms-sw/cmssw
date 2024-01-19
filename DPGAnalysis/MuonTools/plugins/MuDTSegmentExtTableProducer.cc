@@ -145,7 +145,7 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
 
   std::vector<float> seg4D_hitsExpPos;
   std::vector<float> seg4D_hitsExpPosCh;
-  std::vector<int8_t> seg4D_hitsExpWire;
+  std::vector<int16_t> seg4D_hitsExpWire;
 
   // rec-hits vectors, filled if m_fillHits == true
   unsigned int nHits{0};
@@ -153,11 +153,11 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
   std::vector<float> seg2D_hits_pos;
   std::vector<float> seg2D_hits_posCh;
   std::vector<float> seg2D_hits_posErr;
-  std::vector<int8_t> seg2D_hits_side;
-  std::vector<int8_t> seg2D_hits_wire;
-  std::vector<int8_t> seg2D_hits_wirePos;
-  std::vector<int8_t> seg2D_hits_layer;
-  std::vector<int8_t> seg2D_hits_superLayer;
+  std::vector<int16_t> seg2D_hits_side;
+  std::vector<int16_t> seg2D_hits_wire;
+  std::vector<int16_t> seg2D_hits_wirePos;
+  std::vector<int16_t> seg2D_hits_layer;
+  std::vector<int16_t> seg2D_hits_superLayer;
   std::vector<float> seg2D_hits_time;
   std::vector<float> seg2D_hits_timeCali;
 

@@ -30,18 +30,18 @@ muonFlatTableProducer = simpleCandidateFlatTableProducer.clone(
         trk_dz = Var(f"?!innerTrack().isNull()? dB('PVDZ') : {defaults.FLOAT}", float, doc="dz (with sign) wrt first PV - cm", precision=10),
         trk_dxy = Var(f"?!innerTrack().isNull()? dB('PV2D') : {defaults.FLOAT}", float, doc="dxy (with sign) wrt first PV - cm", precision=10),
 
-        trk_algo = Var(f"?!innerTrack().isNull()? innerTrack().algo() : {defaults.INT_POS}", "int8", doc="iterative tracking algorithm used to build the inner track"),
-        trk_origAlgo = Var(f"?!innerTrack().isNull()? innerTrack().originalAlgo() : {defaults.INT_POS}", "int8", doc="original (pre muon iterations) iterative tracking algorithm used to build the inner track"),
+        trk_algo = Var(f"?!innerTrack().isNull()? innerTrack().algo() : {defaults.INT_POS}", "int16", doc="iterative tracking algorithm used to build the inner track"),
+        trk_origAlgo = Var(f"?!innerTrack().isNull()? innerTrack().originalAlgo() : {defaults.INT_POS}", "int16", doc="original (pre muon iterations) iterative tracking algorithm used to build the inner track"),
         
-        trk_numberOfValidPixelHits = Var(f"?!innerTrack().isNull()? innerTrack().hitPattern().numberOfValidPixelHits() : {defaults.INT_POS}", "int8", doc="number of valid pixel hits"),
-        trk_numberOfValidTrackerLayers = Var(f"?!innerTrack().isNull()? innerTrack().hitPattern().trackerLayersWithMeasurement() : {defaults.INT_POS}", "int8", doc="number of valid tracker layers"),
-        trk_validFraction = Var(f"?!innerTrack().isNull()? innerTrack().validFraction() : {defaults.FLOAT_POS}", "int8", doc="fraction of tracker layer with muon hits"),
+        trk_numberOfValidPixelHits = Var(f"?!innerTrack().isNull()? innerTrack().hitPattern().numberOfValidPixelHits() : {defaults.INT_POS}", "int16", doc="number of valid pixel hits"),
+        trk_numberOfValidTrackerLayers = Var(f"?!innerTrack().isNull()? innerTrack().hitPattern().trackerLayersWithMeasurement() : {defaults.INT_POS}", "int16", doc="number of valid tracker layers"),
+        trk_validFraction = Var(f"?!innerTrack().isNull()? innerTrack().validFraction() : {defaults.FLOAT_POS}", "int16", doc="fraction of tracker layer with muon hits"),
         
         trkMu_stationMask = Var("stationMask()", "uint8", doc="bit map of stations with tracks within given distance (in cm) of chamber edges"),
-        trkMu_numberOfMatchedStations = Var("numberOfMatchedStations()", "int8", doc="number of matched DT/CSC stations"),
-        rpcMu_numberOfMatchedRPCLayers = Var("numberOfMatchedRPCLayers()", "int8", doc="number of matched RPC layers"),
+        trkMu_numberOfMatchedStations = Var("numberOfMatchedStations()", "int16", doc="number of matched DT/CSC stations"),
+        rpcMu_numberOfMatchedRPCLayers = Var("numberOfMatchedRPCLayers()", "int16", doc="number of matched RPC layers"),
         
-        staMu_numberOfValidMuonHits = Var(f"?isStandAloneMuon()? outerTrack().hitPattern().numberOfValidMuonHits() : {defaults.INT_POS}", "int8", doc="Number of valid muon hits"),
+        staMu_numberOfValidMuonHits = Var(f"?isStandAloneMuon()? outerTrack().hitPattern().numberOfValidMuonHits() : {defaults.INT_POS}", "int16", doc="Number of valid muon hits"),
 
         staMu_normChi2 = Var(f"?isStandAloneMuon()? outerTrack().chi2()/outerTrack().ndof() : {defaults.FLOAT_POS}", float, doc="chi2/ndof (standalone track)", precision=10),
         glbMu_normChi2 = Var(f"?isGlobalMuon()? globalTrack().chi2()/globalTrack().ndof() : {defaults.FLOAT_POS}", float, doc="chi2/ndof (global track)", precision=10)

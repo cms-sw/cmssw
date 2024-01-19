@@ -63,11 +63,11 @@ void MuDTTPGThetaFlatTableProducer::fillDescriptions(edm::ConfigurationDescripti
 void MuDTTPGThetaFlatTableProducer::fillTable(edm::Event& ev) {
   unsigned int nTrigs{0};
 
-  std::vector<int8_t> wheel;
-  std::vector<int8_t> sector;
-  std::vector<int8_t> station;
+  std::vector<int16_t> wheel;
+  std::vector<int16_t> sector;
+  std::vector<int16_t> station;
 
-  std::vector<int8_t> bx;
+  std::vector<int16_t> bx;
   std::vector<uint32_t> hitMap;
 
   auto trigColl = m_token.conditionalGet(ev);
