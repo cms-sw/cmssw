@@ -24,9 +24,9 @@ public:
       : x_(x),
         y_(y),
         z_(z),
+        zError_(zError),
         xError_(xError),
         yError_(yError),
-        zError_(zError),
         xyCov_(xyCov),
         xzCov_(xzCov),
         yzCov_(yzCov),
@@ -39,9 +39,9 @@ public:
       : x_(0),
         y_(0),
         z_(0),
+        zError_(0),
         xError_(0),
         yError_(0),
-        zError_(0),
         xyCov_(0),
         xzCov_(0),
         yzCov_(0),
@@ -69,9 +69,9 @@ private:
   float x_;
   float y_;
   float z_;
+  float zError_;
   float xError_;
   float yError_;
-  float zError_;
   float xyCov_;
   float xzCov_;
   float yzCov_;
