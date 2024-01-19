@@ -28,9 +28,9 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;  // input collection of muons
   edm::InputTag m_candsTag;                             // input collection of candidates to be referenced
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken;  // input collection of candidates to be referenced
-  edm::InputTag m_algoBlockTag;
+  edm::InputTag m_l1GTAlgoBlockTag;
   edm::EDGetTokenT<std::vector<l1t::P2GTAlgoBlock>> m_algoBlockToken;
-  std::vector<std::string> m_algoNames;
+  std::vector<std::string> m_l1GTAlgoNames;
   int m_minTrkHits;
   int m_minMuonHits;
   int m_minMuonStations;

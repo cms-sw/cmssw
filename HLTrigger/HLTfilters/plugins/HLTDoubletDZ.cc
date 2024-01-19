@@ -46,10 +46,10 @@ HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::HLTDoubletDZ(const edm::Pa
       originTag1_(iConfig.getParameter<std::vector<edm::InputTag>>("originTag1")),
       originTag2_(iConfig.getParameter<std::vector<edm::InputTag>>("originTag2")),
       electronToken_(edm::EDGetTokenT<reco::ElectronCollection>()),
-      algoBlockTag_(iConfig.template getParameter<edm::InputTag>("algoBlockTag")),
-      algoBlockToken_(consumes<std::vector<l1t::P2GTAlgoBlock>>(algoBlockTag_)),
-      algoName1_(iConfig.template getParameter<std::string>("algoName1")),
-      algoName2_(iConfig.template getParameter<std::string>("algoName2")),
+      l1GTAlgoBlockTag_(iConfig.template getParameter<edm::InputTag>("l1GTAlgoBlockTag")),
+      algoBlockToken_(consumes<std::vector<l1t::P2GTAlgoBlock>>(l1GTAlgoBlockTag_)),
+      l1GTAlgoName1_(iConfig.template getParameter<std::string>("l1GTAlgoName1")),
+      l1GTAlgoName2_(iConfig.template getParameter<std::string>("l1GTAlgoName2")),
       triggerType1_(iConfig.getParameter<int>("triggerType1")),
       triggerType2_(iConfig.getParameter<int>("triggerType2")),
       minDR_(iConfig.getParameter<double>("MinDR")),
@@ -58,7 +58,7 @@ HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::HLTDoubletDZ(const edm::Pa
       min_N_(iConfig.getParameter<int>("MinN")),
       minPixHitsForDZ_(iConfig.getParameter<int>("MinPixHitsForDZ")),
       checkSC_(iConfig.getParameter<bool>("checkSC")),
-      same_(algoName1_ == algoName2_)  // same collections to be compared?
+      same_(l1GTAlgoName1_ == l1GTAlgoName2_)  // same collections to be compared?
 {}
 
 template <>
@@ -196,9 +196,9 @@ void HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::fillDescriptions(
   //  std::vector<edm::InputTag> originTag2(1, edm::InputTag("l1tGTProducer", "GMTTkMuons"));
   desc.add<std::vector<edm::InputTag>>("originTag1", {edm::InputTag("hltOriginal1")});
   desc.add<std::vector<edm::InputTag>>("originTag2", {edm::InputTag("hltOriginal2")});
-  desc.add<edm::InputTag>("algoBlockTag", edm::InputTag("l1tGTAlgoBlockProducer"));
-  desc.add<std::string>("algoName1", "");
-  desc.add<std::string>("algoName2", "");
+  desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag("l1tGTAlgoBlockProducer"));
+  desc.add<std::string>("l1GTAlgoName1", "");
+  desc.add<std::string>("l1GTAlgoName2", "");
   desc.add<int>("triggerType1", 0);
   desc.add<int>("triggerType2", 0);
   desc.add<double>("MinDR", -1.0);
@@ -400,7 +400,7 @@ bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::getCollections(
 
   if (!algos.empty()) {
     for (const l1t::P2GTAlgoBlock& algo : algos) {
-      if (algo.algoName() == algoName1_ && algo.decisionBeforeBxMaskAndPrescale()) {
+      if (algo.algoName() == l1GTAlgoName1_ && algo.decisionBeforeBxMaskAndPrescale()) {
         const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
         for (const l1t::P2GTCandidateRef& obj : objects) {
           if ((triggerType1_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
@@ -410,7 +410,7 @@ bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::getCollections(
           }
         }
       }
-      if (algo.algoName() == algoName2_ && algo.decisionBeforeBxMaskAndPrescale()) {
+      if (algo.algoName() == l1GTAlgoName2_ && algo.decisionBeforeBxMaskAndPrescale()) {
         const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
         for (const l1t::P2GTCandidateRef& obj : objects) {
           if ((triggerType2_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||

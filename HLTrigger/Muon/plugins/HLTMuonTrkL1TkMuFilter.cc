@@ -28,9 +28,9 @@ HLTMuonTrkL1TkMuFilter::HLTMuonTrkL1TkMuFilter(const edm::ParameterSet& iConfig)
   m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
   m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
   m_candsToken = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
-  m_algoBlockTag = iConfig.getParameter<edm::InputTag>("algoBlockTag");
-  m_algoBlockToken = consumes<std::vector<l1t::P2GTAlgoBlock>>(m_algoBlockTag);
-  m_algoNames = iConfig.getParameter<std::vector<std::string>>("algoNames");
+  m_l1GTAlgoBlockTag = iConfig.getParameter<edm::InputTag>("l1GTAlgoBlockTag");
+  m_algoBlockToken = consumes<std::vector<l1t::P2GTAlgoBlock>>(m_l1GTAlgoBlockTag);
+  m_l1GTAlgoNames = iConfig.getParameter<std::vector<std::string>>("l1GTAlgoNames");
   m_minTrkHits = iConfig.getParameter<int>("minTrkHits");
   m_minMuonHits = iConfig.getParameter<int>("minMuonHits");
   m_minMuonStations = iConfig.getParameter<int>("minMuonStations");
@@ -45,8 +45,8 @@ void HLTMuonTrkL1TkMuFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMuonCollection", edm::InputTag(""));
   desc.add<edm::InputTag>("inputCandCollection", edm::InputTag(""));
-  desc.add<edm::InputTag>("algoBlockTag", edm::InputTag(""));
-  desc.add<std::vector<std::string>>("algoNames", {});
+  desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag(""));
+  desc.add<std::vector<std::string>>("l1GTAlgoNames", {});
   desc.add<int>("minTrkHits", -1);
   desc.add<int>("minMuonHits", -1);
   desc.add<int>("minMuonStations", -1);
@@ -73,12 +73,12 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
 
   std::vector<l1t::P2GTCandidateRef> vl1cands;
   bool check_l1match = true;
-  if (m_algoBlockTag == edm::InputTag("") || m_algoNames.empty())
+  if (m_l1GTAlgoBlockTag == edm::InputTag("") || m_l1GTAlgoNames.empty())
     check_l1match = false;
   if (check_l1match) {
     const std::vector<l1t::P2GTAlgoBlock>& algos = iEvent.get(m_algoBlockToken);
     for (const l1t::P2GTAlgoBlock& algo : algos) {
-      for (auto& algoName : m_algoNames) {
+      for (auto& algoName : m_l1GTAlgoNames) {
         if (algo.algoName() == algoName && algo.decisionBeforeBxMaskAndPrescale()) {
           const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
           for (const l1t::P2GTCandidateRef& obj : objects) {

@@ -10,7 +10,7 @@ hltL3fL1TkSingleMu22L3Filtered24Q = cms.EDFilter("HLTMuonTrkL1TkMuFilter",
     minN = cms.uint32(1),
     minPt = cms.double(24.0),
     minTrkHits = cms.int32(-1),
-    algoBlockTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-    algoNames = cms.vstring("pSingleTkMuon22"),
+    l1GTAlgoBlockTag = cms.InputTag("l1tGTAlgoBlockProducer"),
+    l1GTAlgoNames = cms.vstring("pSingleTkMuon22"),
     saveTags = cms.bool(True)
 )
