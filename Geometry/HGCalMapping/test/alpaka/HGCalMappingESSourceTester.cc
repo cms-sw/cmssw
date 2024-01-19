@@ -251,7 +251,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     tmap(sipmgeo2ele, sipmele2geo);
 
     // Timing studies
-    uint16_t fedid(175), econdidx(2), captureblockidx(0), chip(0), half(1), seq(12) ,rocpin(48);
+    uint16_t fedid(175), econdidx(2), captureblockidx(0), chip(0), half(1), seq(12), rocpin(48);
     int zside(0), n_i(6000000);
 
     edm::LogInfo("HGCalMappingIndexESSourceTester").log([&](auto& log) {
@@ -270,7 +270,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert((uint32_t)eid.econdIdx() == econdidx);
       assert((uint32_t)eid.econdeRx() == (uint32_t)(2 * chip + half));
       assert((uint32_t)eid.halfrocChannel() == seq);
-      float eidrocpin = (uint32_t)eid.halfrocChannel() + 36*((uint32_t)eid.econdeRx()%2) - ((uint32_t)eid.halfrocChannel()>17)*((uint32_t)eid.econdeRx()%2+1);
+      float eidrocpin = (uint32_t)eid.halfrocChannel() + 36 * ((uint32_t)eid.econdeRx() % 2) -
+                        ((uint32_t)eid.halfrocChannel() > 17) * ((uint32_t)eid.econdeRx() % 2 + 1);
       assert(eidrocpin == rocpin);
     });
 
