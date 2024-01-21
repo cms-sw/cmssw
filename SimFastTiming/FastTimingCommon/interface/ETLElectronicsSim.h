@@ -71,7 +71,6 @@ private:
   const float sigmaDistorsion_;
   const float sigmaTDC_;
   const reco::FormulaEvaluator formulaLandauNoise_;
-
 };
 
 #endif

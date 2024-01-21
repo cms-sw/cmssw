@@ -34,7 +34,6 @@ public:
                        CLHEP::HepRandomEngine* hre);
 
 private:
- 
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
   const MTDGeometry* geom_;
   float MIPPerMeV_;

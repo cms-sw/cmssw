@@ -58,8 +58,8 @@ public:
   }
   void print(std::ostream& out = std::cout) {
     out << "(row,col) : (" << row() << ',' << column() << ") "
-        << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " ToT: " << tot() << " Data: " << data() << " Raw=0x"
-        << std::hex << raw() << std::dec << std::endl;
+        << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " ToT: " << tot()
+        << " Data: " << data() << " Raw=0x" << std::hex << raw() << std::dec << std::endl;
   }
 
   /**
@@ -95,8 +95,7 @@ private:
 
   // a 32-bit word
   uint32_t value_;
-  uint32_t valueToT_; 
-
+  uint32_t valueToT_;
 };
 
 #endif

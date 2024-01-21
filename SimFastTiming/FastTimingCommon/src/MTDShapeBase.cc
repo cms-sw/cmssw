@@ -70,9 +70,9 @@ unsigned int MTDShapeBase::indexOfMax() const { return indexOfMax_; }
 
 double MTDShapeBase::timeOfMax() const { return timeOfMax_; }
 
-float MTDShapeBase::maximum() const {return shape_[indexOfMax_]; }
+float MTDShapeBase::maximum() const { return shape_[indexOfMax_]; }
 
-float MTDShapeBase::fallTime() const {return fallTime_; }
+float MTDShapeBase::fallTime() const { return fallTime_; }
 
 void MTDShapeBase::buildMe() {
   // --- Fill the vector with the pulse shape

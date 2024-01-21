@@ -12,7 +12,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-
 ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
     : geomToken_(iC.esConsumes()),
       geom_(nullptr),
@@ -30,15 +29,12 @@ ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       MPVElectron_(pset.getParameter<std::string>("MPVElectron")),
       MPVProton_(pset.getParameter<std::string>("MPVProton")) {}
 
-
-
 void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs.getData(geomToken_); }
 
 void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
                                    const edm::Handle<edm::PSimHitContainer>& hits,
                                    mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
                                    CLHEP::HepRandomEngine* hre) {
-
   using namespace geant_units::operators;
 
   std::vector<double> emptyV;
@@ -51,9 +47,8 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
   //loop over sorted hits
   const int nchits = hitRefs.size();
   LogTrace("ETLDeviceSim") << "Processing " << nchits << " SIM hits";
-  
-  for (int i = 0; i < nchits; ++i) {
 
+  for (int i = 0; i < nchits; ++i) {
     const int hitidx = std::get<0>(hitRefs[i]);
     const uint32_t id = std::get<1>(hitRefs[i]);
     const MTDDetId detId(id);
@@ -82,26 +77,26 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     momentum[0] = hit.pabs();
-    
+
     // particle type
     int particleType = abs(hit.particleType());
     float MPV_ = 0;
-    if(particleType == 11) {
-        MPV_ = MPVElectron_.evaluate(momentum, emptyV);
-    } else if(particleType == 13) {
-        MPV_ = MPVMuon_.evaluate(momentum, emptyV);
-    } else if(particleType == 211) {
-        MPV_ = MPVPion_.evaluate(momentum, emptyV);
-    } else if(particleType == 321) {
-        MPV_ = MPVKaon_.evaluate(momentum, emptyV);
+    if (particleType == 11) {
+      MPV_ = MPVElectron_.evaluate(momentum, emptyV);
+    } else if (particleType == 13) {
+      MPV_ = MPVMuon_.evaluate(momentum, emptyV);
+    } else if (particleType == 211) {
+      MPV_ = MPVPion_.evaluate(momentum, emptyV);
+    } else if (particleType == 321) {
+      MPV_ = MPVKaon_.evaluate(momentum, emptyV);
     } else {
-        MPV_ = MPVProton_.evaluate(momentum, emptyV);
+      MPV_ = MPVProton_.evaluate(momentum, emptyV);
     }
     float MPV_charge = convertGeVToMeV(MPV_) * MIPPerMeV_;
 
     // calculate the simhit row and column
     const auto& position = hit.localPosition();
-    
+
     // ETL is already in module-local coordinates so just scale to cm from mm
     Local3DPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     const auto& global_point = thedet->toGlobal(simscaled);
@@ -112,18 +107,18 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     //The following lines check whether the pixel point is actually out of the active area.
     if (topo.isInPixel(simscaled)) {
-          charge *= gain[0];
+      charge *= gain[0];
     } else {
-        if(applyDegradation_) {
-            double dGapCenter = TMath::Max(TMath::Abs(simscaled.x()), TMath::Abs(simscaled.y()));
-            param[0] = gain[0];
-            param[1] = dGapCenter;
-            gain[0] = lgadGainDegradation_.evaluate(param, emptyV);
-            charge *= gain[0];
-            MPV_charge *= gain[0]; 
-        }
+      if (applyDegradation_) {
+        double dGapCenter = TMath::Max(TMath::Abs(simscaled.x()), TMath::Abs(simscaled.y()));
+        param[0] = gain[0];
+        param[1] = dGapCenter;
+        gain[0] = lgadGainDegradation_.evaluate(param, emptyV);
+        charge *= gain[0];
+        MPV_charge *= gain[0];
+      }
     }
-    
+
     const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
 
@@ -137,7 +132,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const int itime = std::floor(toa / bxTime_) + 9;
     if (itime < 0 || itime > 14)
       continue;
-    
+
     // Check if time index is ok and store energy
     if (itime >= (int)simHitIt->second.hit_info[0].size())
       continue;
@@ -145,9 +140,9 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     // Store the time of the first SimHit in the right DataFrame bucket
     const float tof = toa - (itime - 9) * bxTime_;
-    
+
     if ((simHitIt->second).hit_info[1][itime] == 0. || tof < (simHitIt->second).hit_info[1][itime]) {
-	(simHitIt->second).hit_info[1][itime] = tof;
+      (simHitIt->second).hit_info[1][itime] = tof;
     }
     (simHitIt->second).hit_info[2][itime] = MPV_charge;
   }

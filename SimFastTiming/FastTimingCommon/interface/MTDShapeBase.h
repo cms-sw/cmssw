@@ -37,7 +37,7 @@ protected:
 
 private:
   double linear_interpolation(
-  const double& y, const double& x1, const double& x2, const double& y1, const double& y2) const;
+      const double& y, const double& x1, const double& x2, const double& y1, const double& y2) const;
 
   const double qNSecPerBin_;
   unsigned int indexOfMax_;

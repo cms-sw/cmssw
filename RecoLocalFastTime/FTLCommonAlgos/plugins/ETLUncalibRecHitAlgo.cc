@@ -14,7 +14,7 @@ public:
         toaLSBToNS_(conf.getParameter<double>("toaLSB_ns")),
         tofDelay_(conf.getParameter<double>("tofDelay")),
         timeError_(conf.getParameter<std::string>("timeResolutionInNs")),
-	timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
+        timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
         timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
         timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")),
         timeCorr_p3_(conf.getParameter<double>("timeCorr_p3")) {}
@@ -39,50 +39,51 @@ private:
   const double timeCorr_p1_;
   const double timeCorr_p2_;
   const double timeCorr_p3_;
-
 };
 
 FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataFrame) const {
-
   constexpr int iSample = 2;  //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
   const std::array<double, 1> amplitudeV = {{double(sample.data()) * adcLSB_}};
-    
+
   double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
   double time_over_threshold = double(sample.tot()) * toaLSBToNS_;
   unsigned char flag = 0;
-  
+
   LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << amplitudeV[0] << ' ' << sample.data() << ' ' << adcLSB_
                                << ' ' << std::endl;
 
-  if (time_over_threshold == 0)  {
+  if (time_over_threshold == 0) {
+    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_
+                                 << ' ' << std::endl;
 
-    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_ << ' '
-                               << std::endl;
-  
   } else {
-
-
     // Time-walk correction for toa
-    double timeWalkCorr = timeCorr_p0_ + 
-	                  timeCorr_p1_ * time_over_threshold + 
-	                  timeCorr_p2_ * time_over_threshold * time_over_threshold + 
-			  timeCorr_p3_ * time_over_threshold * time_over_threshold * time_over_threshold;
-  
+    double timeWalkCorr = timeCorr_p0_ + timeCorr_p1_ * time_over_threshold +
+                          timeCorr_p2_ * time_over_threshold * time_over_threshold +
+                          timeCorr_p3_ * time_over_threshold * time_over_threshold * time_over_threshold;
+
     time -= timeWalkCorr;
 
-    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_ << " .Timewalk correction: " << timeWalkCorr
-                               << std::endl;
-
+    LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_
+                                 << " .Timewalk correction: " << timeWalkCorr << std::endl;
   }
-  
+
   LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitudeV[0] << std::endl;
-  
+
   const std::array<double, 1> emptyV = {{0.}};
-    
+
   double timeError = timeError_.evaluate(amplitudeV, emptyV);
 
-  return FTLUncalibratedRecHit(dataFrame.id(), dataFrame.row(), dataFrame.column(), {amplitudeV[0], 0.f}, {time, 0.f}, timeError, -1.f, -1.f, flag);
+  return FTLUncalibratedRecHit(dataFrame.id(),
+                               dataFrame.row(),
+                               dataFrame.column(),
+                               {amplitudeV[0], 0.f},
+                               {time, 0.f},
+                               timeError,
+                               -1.f,
+                               -1.f,
+                               flag);
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(ETLUncalibratedRecHitAlgoFactory, ETLUncalibRecHitAlgo, "ETLUncalibRecHitAlgo");
