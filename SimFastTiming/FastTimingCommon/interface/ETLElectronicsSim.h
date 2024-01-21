@@ -43,7 +43,7 @@ public:
 
   void updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const;
 
-  static constexpr int dfSIZE = 1;
+  static constexpr int dfSIZE = 5;
 
 private:
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;

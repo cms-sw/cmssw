@@ -36,7 +36,7 @@ public:
    */
   ETLSample() : value_(0), valueToT_(0) {}
   ETLSample(uint32_t value) : value_(value), valueToT_(0) {}
-  ETLSample(uint32_t value, uint16_t valueToT) : value_(value), valueToT_(valueToT) {}
+  ETLSample(uint32_t value, uint32_t valueToT) : value_(value), valueToT_(valueToT) {}
   ETLSample(const ETLSample& o) : value_(o.value_), valueToT_(o.valueToT_) {}
   ETLSample& operator=(const ETLSample&) = default;
 
@@ -54,6 +54,7 @@ public:
     value_ = (((uint32_t)thr & kThreshMask) << kThreshShift | ((uint32_t)mode & kModeMask) << kModeShift |
               ((uint32_t)col & kColumnMask) << kColumnShift | ((uint32_t)row & kRowMask) << kRowShift |
               ((uint32_t)toa & kToAMask) << kToAShift | ((uint32_t)data & kDataMask) << kDataShift);
+    valueToT_ = ((uint32_t)tot & kToTMask) << kToTShift;
   }
   void print(std::ostream& out = std::cout) {
     out << "(row,col) : (" << row() << ',' << column() << ") "
@@ -94,7 +95,7 @@ private:
 
   // a 32-bit word
   uint32_t value_;
-  uint16_t valueToT_; 
+  uint32_t valueToT_; 
 
 };
 

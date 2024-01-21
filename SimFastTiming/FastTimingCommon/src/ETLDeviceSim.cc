@@ -77,15 +77,15 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    const double toa = std::get<2>(hitRefs[i]) + tofDelay_;
+    const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
     const PSimHit& hit = hits->at(hitidx);
-    double charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
+    float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     momentum[0] = hit.pabs();
     
     // particle type
     int particleType = abs(hit.particleType());
-    double MPV_ = 0;
+    float MPV_ = 0;
     if(particleType == 11) {
         MPV_ = MPVElectron_.evaluate(momentum, emptyV);
     } else if(particleType == 13) {
@@ -97,10 +97,10 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     } else {
         MPV_ = MPVProton_.evaluate(momentum, emptyV);
     }
-    double MPV_charge = convertGeVToMeV(MPV_) * MIPPerMeV_;
+    float MPV_charge = convertGeVToMeV(MPV_) * MIPPerMeV_;
 
     // calculate the simhit row and column
-    const auto& position = hit.entryPoint();
+    const auto& position = hit.localPosition();
     
     // ETL is already in module-local coordinates so just scale to cm from mm
     Local3DPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
@@ -134,25 +134,21 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
     // Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    // For the ETL we are not considering the 15 buckets but just one
-    const int itime = 0;
+    const int itime = std::floor(toa / bxTime_) + 9;
+    if (itime < 0 || itime > 14)
+      continue;
     
-    //const int itime = std::floor(toa / bxTime_) + 9;
-    //if (itime < 0 || itime > 14)
-    //  continue;
-    //
     // Check if time index is ok and store energy
-    //if (itime >= (int)simHitIt->second.hit_info[0].size())
-    //  continue;
+    if (itime >= (int)simHitIt->second.hit_info[0].size())
+      continue;
     (simHitIt->second).hit_info[0][itime] += charge;
 
     // Store the time of the first SimHit in the right DataFrame bucket
-    // const float tof = toa - (itime - 9) * bxTime_;
-    const float tof = toa;
-
+    const float tof = toa - (itime - 9) * bxTime_;
+    
     if ((simHitIt->second).hit_info[1][itime] == 0. || tof < (simHitIt->second).hit_info[1][itime]) {
-      (simHitIt->second).hit_info[1][itime] = tof;
+	(simHitIt->second).hit_info[1][itime] = tof;
     }
-    (simHitIt->second).hit_info[2][itime] += MPV_charge;
+    (simHitIt->second).hit_info[2][itime] = MPV_charge;
   }
 }
