@@ -7,7 +7,9 @@
    <class name="edm::Wrapper<FTLDigiCollection>" />
    <class name="BTLSample"/>
    <class name="std::vector<BTLSample>"/>
-   <class name="ETLSample"/>
+   <class name="ETLSample" ClassVersion="10">
+     <version ClassVersion="10" checksum="1290724074"/>
+   </class>  
    <class name="std::vector<ETLSample>"/>
    <class name="BTLDataFrame"/>
    <class name="std::vector<BTLDataFrame>"/>
