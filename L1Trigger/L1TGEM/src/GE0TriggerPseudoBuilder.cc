@@ -149,19 +149,19 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
 void GE0TriggerPseudoBuilder::dumpAllME0Segments(const GEMSegmentCollection& segments) const {
   LogTrace("L1GE0Trigger") << "dumpt all ME0 Segments" << std::endl;
   for (auto iC = segments.id_begin(); iC != segments.id_end(); ++iC) {
-     auto ch_segs = segments.get(*iC);
-     for (auto iS = ch_segs.first; iS != ch_segs.second; ++iS) {
-       if (iS->gemDetId().station() != 0) // only dump GE0 segments
-         continue;
-       GlobalPoint gp = me0_g->idToDet(iS->gemDetId())->surface().toGlobal(iS->localPosition());
-       LogTrace("L1ME0Trigger") << "ME0Detid " << iS->gemDetId() << " segment " << *iS << " eta " << gp.eta() << " phi "
-                                << gp.phi() << std::endl;
-       auto recHits(iS->recHits());
-       LogTrace("L1GE0Trigger") << "\t has " << recHits.size() << " me0 rechits" << std::endl;
-       for (auto& rh : recHits) {
-         const GEMRecHit* me0rh(dynamic_cast<const GEMRecHit*>(rh));
-         LogTrace("L1GEMTrigger") << "\t  detid " << me0rh->gemId() << " rechit " << *me0rh << std::endl;
-       }
-     }
+    auto ch_segs = segments.get(*iC);
+    for (auto iS = ch_segs.first; iS != ch_segs.second; ++iS) {
+      if (iS->gemDetId().station() != 0)  // only dump GE0 segments
+        continue;
+      GlobalPoint gp = me0_g->idToDet(iS->gemDetId())->surface().toGlobal(iS->localPosition());
+      LogTrace("L1ME0Trigger") << "ME0Detid " << iS->gemDetId() << " segment " << *iS << " eta " << gp.eta() << " phi "
+                               << gp.phi() << std::endl;
+      auto recHits(iS->recHits());
+      LogTrace("L1GE0Trigger") << "\t has " << recHits.size() << " me0 rechits" << std::endl;
+      for (auto& rh : recHits) {
+        const GEMRecHit* me0rh(dynamic_cast<const GEMRecHit*>(rh));
+        LogTrace("L1GEMTrigger") << "\t  detid " << me0rh->gemId() << " rechit " << *me0rh << std::endl;
+      }
+    }
   }
 }

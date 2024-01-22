@@ -72,17 +72,17 @@ void TrackBuildingLayer::apply(const segment_collection_t& segments,
     // Debug Info
     if (this->context_.config_.verbosity_ > 1) {
       if (i_road == 0) {
-        edm::LogInfo("L1T EMTF++") << std::endl;
-        edm::LogInfo("L1T EMTF++") << "==========================================================================="
-                                   << std::endl;
-        edm::LogInfo("L1T EMTF++") << "BEGIN TRACK BUILDING" << std::endl;
-        edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
-                                   << std::endl;
+        edm::LogInfo("L1TEMTFpp") << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "==========================================================================="
+                                  << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "BEGIN TRACK BUILDING" << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "---------------------------------------------------------------------------"
+                                  << std::endl;
       }
 
-      edm::LogInfo("L1T EMTF++") << "***************************************************************************"
-                                 << std::endl;
-      edm::LogInfo("L1T EMTF++") << "Begin building track " << i_road << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "***************************************************************************"
+                                << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Begin building track " << i_road << std::endl;
     }
 
     // Attach segments
@@ -90,14 +90,14 @@ void TrackBuildingLayer::apply(const segment_collection_t& segments,
 
     // Debug Info
     if (this->context_.config_.verbosity_ > 1) {
-      edm::LogInfo("L1T EMTF++") << "End building track " << i_road << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "End building track " << i_road << std::endl;
 
       if (i_road == (roads.size() - 1)) {
-        edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
-                                   << std::endl;
-        edm::LogInfo("L1T EMTF++") << "END TRACK BUILDING" << std::endl;
-        edm::LogInfo("L1T EMTF++") << "==========================================================================="
-                                   << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "---------------------------------------------------------------------------"
+                                  << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "END TRACK BUILDING" << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "==========================================================================="
+                                  << std::endl;
       }
     }
   }
@@ -242,9 +242,9 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
     const auto& trk_pat_row_phi = trk_pat_phi[i_row];
 
     if (this->context_.config_.verbosity_ > 2) {
-      edm::LogInfo("L1T EMTF++") << "Pattern Row:"
-                                 << " row " << i_row << " begin " << trk_pat_row_begin << " end " << trk_pat_row_end
-                                 << " phi " << trk_pat_row_phi << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Pattern Row:"
+                                << " row " << i_row << " begin " << trk_pat_row_begin << " end " << trk_pat_row_end
+                                << " phi " << trk_pat_row_phi << std::endl;
     }
 
     for (const auto& model_hm_site : model_hm_row) {  // Begin loop sites in row
@@ -298,10 +298,10 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
           }
 
           if (this->context_.config_.verbosity_ > 2) {
-            edm::LogInfo("L1T EMTF++") << "Site candidate:"
-                                       << " site_id " << site_id << " seg_id " << seg_id << " seg_phi " << seg.phi
-                                       << " seg_theta1 " << seg.theta1 << " seg_theta2 " << seg.theta2 << " seg_bend "
-                                       << seg.bend << std::endl;
+            edm::LogInfo("L1TEMTFpp") << "Site candidate:"
+                                      << " site_id " << site_id << " seg_id " << seg_id << " seg_phi " << seg.phi
+                                      << " seg_theta1 " << seg.theta1 << " seg_theta2 " << seg.theta2 << " seg_bend "
+                                      << seg.bend << std::endl;
           }
 
           // Short-Circuit: If the difference is larger than the min diff move on
@@ -318,11 +318,11 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
 
       // Debug Info
       if (this->context_.config_.verbosity_ > 2 && site_bit == 1) {
-        edm::LogInfo("L1T EMTF++") << "Segment attached:"
-                                   << " site_id " << site_id << " seg_id " << site_seg_id << " seg_phi "
-                                   << segments[site_seg_id].phi << " seg_theta1 " << segments[site_seg_id].theta1
-                                   << " seg_theta2 " << segments[site_seg_id].theta2 << " seg_bend "
-                                   << segments[site_seg_id].bend << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "Segment attached:"
+                                  << " site_id " << site_id << " seg_id " << site_seg_id << " seg_phi "
+                                  << segments[site_seg_id].phi << " seg_theta1 " << segments[site_seg_id].theta1
+                                  << " seg_theta2 " << segments[site_seg_id].theta2 << " seg_bend "
+                                  << segments[site_seg_id].bend << std::endl;
       }
     }  // End loop sites in row
 
@@ -374,7 +374,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
       // Calculate theta median
       if (this->context_.config_.verbosity_ > 2) {
         for (const auto& theta : group) {
-          edm::LogInfo("L1T EMTF++") << "theta " << theta << std::endl;
+          edm::LogInfo("L1TEMTFpp") << "theta " << theta << std::endl;
         }
       }
 
@@ -382,7 +382,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
       group_medians.push_back(group_median);
 
       if (this->context_.config_.verbosity_ > 2) {
-        edm::LogInfo("L1T EMTF++") << "group_median " << group_median << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "group_median " << group_median << std::endl;
       }
     }  // End loop theta median groups
 
@@ -391,7 +391,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
     theta_medians.push_back(theta_median);
 
     if (this->context_.config_.verbosity_ > 2) {
-      edm::LogInfo("L1T EMTF++") << "theta_median " << theta_median << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "theta_median " << theta_median << std::endl;
     }
   }  // End loop theta medians
 
@@ -490,10 +490,10 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
 
       // Debug Info
       if (this->context_.config_.verbosity_ > 4) {
-        edm::LogInfo("L1T EMTF++") << "Segment outside of theta window; detatched:"
-                                   << " site_id " << site_id << " seg_id " << site_seg_id << " seg_phi " << site_seg.phi
-                                   << " seg_theta1 " << site_seg.theta1 << " seg_theta2 " << site_seg.theta2
-                                   << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "Segment outside of theta window; detatched:"
+                                  << " site_id " << site_id << " seg_id " << site_seg_id << " seg_phi " << site_seg.phi
+                                  << " seg_theta1 " << site_seg.theta1 << " seg_theta2 " << site_seg.theta2
+                                  << std::endl;
       }
     }
   }
@@ -552,20 +552,20 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
 
   // Debug Info
   if (this->context_.config_.verbosity_ > 1) {
-    edm::LogInfo("L1T EMTF++") << "Track"
-                               << " zone " << track.zone << " col " << track.col << " pat " << track.pattern << " qual "
-                               << track.quality << " sector_abs_phi " << sector_abs_phi << " abs_phi " << track.phi
-                               << " rel_phi " << trk_rel_phi << " abs_theta " << track.theta << " features "
-                               << std::endl;
+    edm::LogInfo("L1TEMTFpp") << "Track"
+                              << " zone " << track.zone << " col " << track.col << " pat " << track.pattern << " qual "
+                              << track.quality << " sector_abs_phi " << sector_abs_phi << " abs_phi " << track.phi
+                              << " rel_phi " << trk_rel_phi << " abs_theta " << track.theta << " features "
+                              << std::endl;
 
     for (int i = 0; i < v3::kNumTrackFeatures; ++i) {
       if (i > 0) {
-        edm::LogInfo("L1T EMTF++") << " ";
+        edm::LogInfo("L1TEMTFpp") << " ";
       }
 
-      edm::LogInfo("L1T EMTF++") << track.features[i];
+      edm::LogInfo("L1TEMTFpp") << track.features[i];
     }
 
-    edm::LogInfo("L1T EMTF++") << std::endl;
+    edm::LogInfo("L1TEMTFpp") << std::endl;
   }
 }
