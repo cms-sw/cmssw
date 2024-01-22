@@ -28,6 +28,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/middle_buffer_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
@@ -265,6 +266,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     const auto &pset = iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters");
     regionizer_ =
         std::make_unique<l1ct::MultififoRegionizerEmulator>(pset.getParameter<std::string>("barrelSetup"), pset);
+  } else if (regalgo == "MiddleBufferMultififo") {
+    regionizer_ = std::make_unique<l1ct::MiddleBufferMultififoRegionizerEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else if (regalgo == "TDR") {
     regionizer_ = std::make_unique<l1ct::TDRRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
@@ -367,9 +371,11 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
   auto bfMultififoRegPD = getParDesc<l1ct::BufferedFoldedMultififoRegionizerEmulator>("regionizerAlgo");
   auto multififoBarrelRegPD = edm::ParameterDescription<edm::ParameterSetDescription>(
       "regionizerAlgoParameters", l1ct::MultififoRegionizerEmulator::getParameterSetDescriptionBarrel(), true);
+  auto mbMultififoRegPD = getParDesc<l1ct::MiddleBufferMultififoRegionizerEmulator>("regionizerAlgo");
   desc.ifValue(edm::ParameterDescription<std::string>("regionizerAlgo", "Ideal", true),
                "Ideal" >> idealRegPD or "TDR" >> tdrRegPD or "Multififo" >> multififoRegPD or
-                   "BufferedFoldedMultififo" >> bfMultififoRegPD or "MultififoBarrel" >> multififoBarrelRegPD);
+                   "BufferedFoldedMultififo" >> bfMultififoRegPD or "MultififoBarrel" >> multififoBarrelRegPD or
+                   "MiddleBufferMultififo" >> mbMultififoRegPD);
   // PF
   desc.ifValue(edm::ParameterDescription<std::string>("pfAlgo", "PFAlgo3", true),
                "PFAlgo3" >> getParDesc<l1ct::PFAlgo3Emulator>("pfAlgo") or
