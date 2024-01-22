@@ -186,9 +186,11 @@ namespace {
                                                           "Inverter::Dinv",
                                                           "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 3> in_message_print_error{{"number of iterations was insufficient",
-                                                                     "bad integrand behavior",
-                                                                     "integral is divergent, or slowly convergent"}};
+  constexpr std::array<const char* const, 4> in_message_print_error{
+      {"number of iterations was insufficient",
+       "bad integrand behavior",
+       "integral is divergent, or slowly convergent",
+       "VariableMetricBuilder Initial matrix not pos.def."}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;
