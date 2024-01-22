@@ -76,7 +76,7 @@ void OutputLayer::apply(const int& endcap,
     out_trk.setEndcap(endcap_pm);
     out_trk.setSector(sector);
     out_trk.setBx(bx);
-    out_trk.setUnconstrained(displaced_en ? 1 : 0);
+    out_trk.setUnconstrained(displaced_en ? true : false);
     out_trk.setValid(track.valid);
 
     out_trk.setModelPtAddress(track.pt_address);

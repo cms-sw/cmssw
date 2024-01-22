@@ -129,7 +129,7 @@ void TrackFinder::process(
       auto& bx_tpc = bx_tpc_map_it->second;
 
       // Short-Circuit: Empty trigger primitive collection
-      if (bx_tpc.size() == 0) {
+      if (bx_tpc.empty()) {
         continue;
       }
 

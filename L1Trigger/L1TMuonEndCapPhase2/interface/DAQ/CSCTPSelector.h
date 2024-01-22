@@ -12,7 +12,7 @@ namespace emtf::phase2 {
   public:
     explicit CSCTPSelector(const EMTFContext&, const int&, const int&);
 
-    ~CSCTPSelector() = default;
+    ~CSCTPSelector() override = default;
 
     void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 

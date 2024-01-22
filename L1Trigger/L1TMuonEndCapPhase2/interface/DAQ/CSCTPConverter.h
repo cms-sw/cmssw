@@ -14,7 +14,7 @@ namespace emtf::phase2 {
   public:
     explicit CSCTPConverter(const EMTFContext&, const int&, const int&);
 
-    ~CSCTPConverter() = default;
+    ~CSCTPConverter() override = default;
 
     void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 
