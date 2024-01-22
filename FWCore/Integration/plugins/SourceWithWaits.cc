@@ -63,14 +63,19 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    edm::InputSource::ItemType getNextItemType() override;
+    edm::InputSource::ItemTypeInfo getNextItemType() override;
     std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
     std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     void readEvent_(edm::EventPrincipal&) override;
 
-    unsigned int timePerLumi_;  // seconds
+    double timePerLumi_;           // seconds
+    double sleepAfterStartOfRun_;  // seconds
     std::vector<unsigned int> eventsPerLumi_;
     unsigned int lumisPerRun_;
+    unsigned int multipleEntriesForRun_;
+    unsigned int multipleEntriesForLumi_;
+    bool declareLast_;
+    bool declareAllLast_;
 
     edm::EventNumber_t currentEvent_ = 0;
     edm::LuminosityBlockNumber_t currentLumi_ = 0;
@@ -78,66 +83,148 @@ namespace edmtest {
     unsigned int currentFile_ = 0;
     unsigned int eventInCurrentLumi_ = 0;
     unsigned int lumiInCurrentRun_ = 0;
+    bool startedNewRun_ = false;
+    bool lastEventOfLumi_ = false;
+    bool noEventsInLumi_ = false;
   };
 
   SourceWithWaits::SourceWithWaits(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
       : edm::InputSource(pset, desc),
-        timePerLumi_(pset.getUntrackedParameter<unsigned int>("timePerLumi")),
+        timePerLumi_(pset.getUntrackedParameter<double>("timePerLumi")),
+        sleepAfterStartOfRun_(pset.getUntrackedParameter<double>("sleepAfterStartOfRun")),
         eventsPerLumi_(pset.getUntrackedParameter<std::vector<unsigned int>>("eventsPerLumi")),
-        lumisPerRun_(pset.getUntrackedParameter<unsigned int>("lumisPerRun")) {}
+        lumisPerRun_(pset.getUntrackedParameter<unsigned int>("lumisPerRun")),
+        multipleEntriesForRun_(pset.getUntrackedParameter<unsigned int>("multipleEntriesForRun")),
+        multipleEntriesForLumi_(pset.getUntrackedParameter<unsigned int>("multipleEntriesForLumi")),
+        declareLast_(pset.getUntrackedParameter<bool>("declareLast")),
+        declareAllLast_(pset.getUntrackedParameter<bool>("declareAllLast")) {}
 
   SourceWithWaits::~SourceWithWaits() {}
 
   void SourceWithWaits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.addUntracked<unsigned int>("timePerLumi");
+    desc.addUntracked<double>("timePerLumi");
+    desc.addUntracked<double>("sleepAfterStartOfRun");
     desc.addUntracked<std::vector<unsigned int>>("eventsPerLumi");
     desc.addUntracked<unsigned int>("lumisPerRun");
+    desc.addUntracked<unsigned int>("multipleEntriesForRun", 0);
+    desc.addUntracked<unsigned int>("multipleEntriesForLumi", 0);
+    desc.addUntracked<bool>("declareLast", false);
+    desc.addUntracked<bool>("declareAllLast", false);
     descriptions.add("source", desc);
   }
 
-  edm::InputSource::ItemType SourceWithWaits::getNextItemType() {
+  edm::InputSource::ItemTypeInfo SourceWithWaits::getNextItemType() {
     constexpr unsigned int secondsToMicroseconds = 1000000;
+
+    if (startedNewRun_) {
+      usleep(secondsToMicroseconds * sleepAfterStartOfRun_);
+      startedNewRun_ = false;
+    }
+
+    if (lastEventOfLumi_ || noEventsInLumi_) {
+      usleep(secondsToMicroseconds * timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1));
+      lastEventOfLumi_ = false;
+      noEventsInLumi_ = false;
+    }
 
     // First three cases are for the initial file, run, and lumi transitions
     // Note that there will always be at exactly one file and at least
     // one run from this test source.
     if (currentFile_ == 0u) {
       ++currentFile_;
-      return edm::InputSource::IsFile;
-    } else if (currentRun_ == 0u) {
+      return ItemType::IsFile;
+    }
+    // First Run
+    else if (currentRun_ == 0u) {
       ++currentRun_;
-      return edm::InputSource::IsRun;
-    } else if (currentLumi_ == 0u) {
+      if (currentRun_ != multipleEntriesForRun_) {
+        startedNewRun_ = true;
+        auto const position =
+            (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsRun, position);
+      } else {
+        // declareAllLast_ with multipleEntriesForRun_ or multipleEntriesForLumi_ is an intentional bug, used to test
+        // if the Framework detects the potential InputSource bug and throws an exception.
+        auto const position = declareAllLast_ ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsRun, position);
+      }
+    }
+    // If configured, a second Entry for the same run number and reduced ProcessHistoryID
+    else if (currentRun_ == multipleEntriesForRun_) {
+      multipleEntriesForRun_ = 0;
+      startedNewRun_ = true;
+      auto const position =
+          (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+      return ItemTypeInfo(ItemType::IsRun, position);
+    }
+    // First lumi
+    else if (currentLumi_ == 0u && lumisPerRun_ != 0) {
       ++currentLumi_;
       ++lumiInCurrentRun_;
       // The job will stop when we hit the end of the eventsPerLumi vector
       // unless maxEvents stopped it earlier.
       if ((currentLumi_ - 1) >= eventsPerLumi_.size()) {
-        return edm::InputSource::IsStop;
+        return ItemType::IsStop;
       }
-      return edm::InputSource::IsLumi;
+      if (currentLumi_ != multipleEntriesForLumi_) {
+        if (eventsPerLumi_[currentLumi_ - 1] == 0) {
+          noEventsInLumi_ = true;
+        }
+        auto const position =
+            (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsLumi, position);
+      } else {
+        // declareAllLast_ with multipleEntriesForRun_ or multipleEntriesForLumi_ is an intentional bug, used to test
+        // if the Framework detects the potential InputSource bug and throws an exception.
+        auto const position = declareAllLast_ ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsLumi, position);
+      }
     }
-    // Handle more events in the current lumi
-    else if (eventInCurrentLumi_ < eventsPerLumi_[currentLumi_ - 1]) {
+    // If configured, a second Entry for the same lumi number in the same run
+    else if (currentLumi_ == multipleEntriesForLumi_ && lumisPerRun_ != 0) {
+      multipleEntriesForLumi_ = 0;
+      if (eventsPerLumi_[currentLumi_ - 1] == 0) {
+        noEventsInLumi_ = true;
+      }
+      auto const position =
+          (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+      return ItemTypeInfo(ItemType::IsLumi, position);
+    }
+    // Handle events in the current lumi
+    else if (eventInCurrentLumi_ < eventsPerLumi_[currentLumi_ - 1] && lumisPerRun_ != 0) {
       // note the argument to usleep is microseconds, timePerLumi_ is in seconds
       usleep(secondsToMicroseconds * timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1));
       ++eventInCurrentLumi_;
       ++currentEvent_;
-      return edm::InputSource::IsEvent;
+      if (eventInCurrentLumi_ == eventsPerLumi_[currentLumi_ - 1]) {
+        lastEventOfLumi_ = true;
+      }
+      return ItemType::IsEvent;
     }
     // Next lumi
     else if (lumiInCurrentRun_ < lumisPerRun_) {
-      usleep(secondsToMicroseconds * timePerLumi_ / (eventsPerLumi_[currentLumi_ - 1] + 1));
       ++currentLumi_;
       ++lumiInCurrentRun_;
       // The job will stop when we hit the end of the eventsPerLumi vector
       // unless maxEvents stopped it earlier.
       if ((currentLumi_ - 1) >= eventsPerLumi_.size()) {
-        return edm::InputSource::IsStop;
+        return ItemType::IsStop;
       }
       eventInCurrentLumi_ = 0;
-      return edm::InputSource::IsLumi;
+      if (currentLumi_ != multipleEntriesForLumi_) {
+        if (eventsPerLumi_[currentLumi_ - 1] == 0) {
+          noEventsInLumi_ = true;
+        }
+        auto const position =
+            (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsLumi, position);
+      } else {
+        // declareAllLast_ with multipleEntriesForRun_ or multipleEntriesForLumi_ is an intentional bug, used to test
+        // if the Framework detects the potential InputSource bug and throws an exception.
+        auto const position = declareAllLast_ ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsLumi, position);
+      }
     }
     // Next run
     else {
@@ -145,16 +232,30 @@ namespace edmtest {
       // unless maxEvents stopped it earlier. Don't start the run if
       // it will end with no lumis in it.
       if (currentLumi_ >= eventsPerLumi_.size()) {
-        return edm::InputSource::IsStop;
+        return ItemType::IsStop;
       }
       ++currentRun_;
+      // Avoid infinite job if lumisPerRun_ is 0
+      if (currentRun_ > 100) {
+        return ItemType::IsStop;
+      }
       lumiInCurrentRun_ = 0;
-      return edm::InputSource::IsRun;
+      if (currentRun_ != multipleEntriesForRun_) {
+        startedNewRun_ = true;
+        auto const position =
+            (declareLast_ || declareAllLast_) ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsRun, position);
+      } else {
+        // declareAllLast_ with multipleEntriesForRun_ or multipleEntriesForLumi_ is an intentional bug, used to test
+        // if the Framework detects the potential InputSource bug and throws an exception.
+        auto const position = declareAllLast_ ? ItemPosition::LastItemToBeMerged : ItemPosition::NotLastItemToBeMerged;
+        return ItemTypeInfo(ItemType::IsRun, position);
+      }
     }
     // Should be impossible to get here
     assert(false);
     // return something so it will compile
-    return edm::InputSource::IsStop;
+    return ItemType::IsStop;
   }
 
   std::shared_ptr<edm::RunAuxiliary> SourceWithWaits::readRunAuxiliary_() {

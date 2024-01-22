@@ -63,14 +63,7 @@ public:
   explicit PhotonOfflineClient(const edm::ParameterSet& pset);
   ~PhotonOfflineClient() override;
 
-  //  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
-  // virtual void beginJob() ;
-  //virtual void endJob() ;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
-
-  //  virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
-  //virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-  //virtual void runClient();
 
   virtual void runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
   MonitorElement* bookHisto(

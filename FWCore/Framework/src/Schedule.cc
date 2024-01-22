@@ -510,13 +510,16 @@ namespace edm {
                             processConfiguration,
                             std::string("PathStatusInserter"));
 
-    makePathStatusInserters(endPathStatusInserters_,
-                            *endPathNames_,
-                            prealloc,
-                            preg,
-                            areg,
-                            processConfiguration,
-                            std::string("EndPathStatusInserter"));
+    if (endPathNames_->size() > 1) {
+      //NOTE: FinalPaths are a type of EndPath
+      makePathStatusInserters(endPathStatusInserters_,
+                              *endPathNames_,
+                              prealloc,
+                              preg,
+                              areg,
+                              processConfiguration,
+                              std::string("EndPathStatusInserter"));
+    }
 
     assert(0 < prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());

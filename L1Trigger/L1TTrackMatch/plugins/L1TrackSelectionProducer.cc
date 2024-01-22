@@ -19,6 +19,7 @@
 // Original Author:  Alexx Perloff
 //         Created:  Thu, 16 Dec 2021 19:02:50 GMT
 //
+// Updates: Claire Savard (claire.savard@colorado.edu), Nov. 2023
 //
 
 // system include files
@@ -201,6 +202,26 @@ private:
     double nPSStubsMin_;
     const TrackerTopology& tTopo_;
   };
+  struct TTTrackPromptMVAMinSelector {
+    TTTrackPromptMVAMinSelector(double promptMVAMin) : promptMVAMin_(promptMVAMin) {}
+    TTTrackPromptMVAMinSelector(const edm::ParameterSet& cfg)
+        : promptMVAMin_(cfg.template getParameter<double>("promptMVAMin")) {}
+    bool operator()(const L1Track& t) const { return t.trkMVA1() >= promptMVAMin_; }
+
+  private:
+    double promptMVAMin_;
+  };
+  struct TTTrackWordPromptMVAMinSelector {
+    TTTrackWordPromptMVAMinSelector(double promptMVAMin) : promptMVAMin_(promptMVAMin) {}
+    TTTrackWordPromptMVAMinSelector(const edm::ParameterSet& cfg)
+        : promptMVAMin_(cfg.template getParameter<double>("promptMVAMin")) {}
+    bool operator()(const L1Track& t) const {
+      return t.trkMVA1() >= promptMVAMin_;
+    }  //change when mva bins in word are set
+
+  private:
+    double promptMVAMin_;
+  };
   struct TTTrackBendChi2MaxSelector {
     TTTrackBendChi2MaxSelector(double bendChi2Max) : bendChi2Max_(bendChi2Max) {}
     TTTrackBendChi2MaxSelector(const edm::ParameterSet& cfg)
@@ -369,7 +390,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const std::string outputCollectionName_;
   const edm::ParameterSet cutSet_;
-  const double ptMin_, absEtaMax_, absZ0Max_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
+  const double ptMin_, absEtaMax_, absZ0Max_, promptMVAMin_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
   const double reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_, reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_,
       reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_;
   const int nStubsMin_, nPSStubsMin_;
@@ -389,6 +410,7 @@ L1TrackSelectionProducer::L1TrackSelectionProducer(const edm::ParameterSet& iCon
       ptMin_(cutSet_.getParameter<double>("ptMin")),
       absEtaMax_(cutSet_.getParameter<double>("absEtaMax")),
       absZ0Max_(cutSet_.getParameter<double>("absZ0Max")),
+      promptMVAMin_(cutSet_.getParameter<double>("promptMVAMin")),
       bendChi2Max_(cutSet_.getParameter<double>("reducedBendChi2Max")),
       reducedChi2RZMax_(cutSet_.getParameter<double>("reducedChi2RZMax")),
       reducedChi2RPhiMax_(cutSet_.getParameter<double>("reducedChi2RPhiMax")),
@@ -521,6 +543,8 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   TTTrackBendChi2Chi2RZChi2RPhiMaxSelector chi2Sel(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector chi2SelEmu(bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_);
   TTTrackNPSStubsMinSelector nPSStubsSel(nPSStubsMin_, tTopo);
+  TTTrackPromptMVAMinSelector mvaSel(promptMVAMin_);
+  TTTrackWordPromptMVAMinSelector mvaSelEmu(promptMVAMin_);
   TTTrackChi2MaxNstubSelector chi2NstubSel({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
                                            {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
                                            {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
@@ -532,12 +556,13 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     const auto& track = l1TracksHandle->at(i);
 
     // Select tracks based on the floating point TTTrack
-    if (processSimulatedTracks_ && kinSel(track) && nPSStubsSel(track) && chi2Sel(track)) {
+    if (processSimulatedTracks_ && kinSel(track) && nPSStubsSel(track) && chi2Sel(track) && mvaSel(track) &&
+        chi2NstubSel(track)) {
       vTTTrackOutput->push_back(TTTrackRef(l1TracksHandle, i));
     }
 
     // Select tracks based on the bitwise accurate TTTrack_TrackWord
-    if (processEmulatedTracks_ && kinSelEmu(track) && chi2SelEmu(track)) {
+    if (processEmulatedTracks_ && kinSelEmu(track) && chi2SelEmu(track) && mvaSelEmu(track) && chi2NstubSelEmu(track)) {
       vTTTrackEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
     }
   }
@@ -570,6 +595,7 @@ void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& 
     descCutSet.add<int>("nPSStubsMin", 0)
         ->setComment("number of stubs in the PS Modules must be greater than or equal to this value");
 
+    descCutSet.add<double>("promptMVAMin", -1.0)->setComment("MVA must be greater than this value");
     descCutSet.add<double>("reducedBendChi2Max", 2.25)->setComment("bend chi2 must be less than this value");
     descCutSet.add<double>("reducedChi2RZMax", 5.0)->setComment("chi2rz/dof must be less than this value");
     descCutSet.add<double>("reducedChi2RPhiMax", 20.0)->setComment("chi2rphi/dof must be less than this value");

@@ -18,6 +18,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     PFClusterSoAProducer(edm::ParameterSet const& config)
         : pfClusParamsToken(esConsumes(config.getParameter<edm::ESInputTag>("pfClusterParams"))),
+          topologyToken_(esConsumes(config.getParameter<edm::ESInputTag>("topology"))),
           inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHits"))},
           outputPFClusterSoA_Token_{produces()},
           outputPFRHFractionSoA_Token_{produces()},
@@ -26,6 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(device::Event& event, device::EventSetup const& setup) override {
       const reco::PFClusterParamsDeviceCollection& params = setup.getData(pfClusParamsToken);
+      const reco::PFRecHitHCALTopologyDeviceCollection& topology = setup.getData(topologyToken_);
       const reco::PFRecHitHostCollection& pfRecHits = event.get(inputPFRecHitSoA_Token_);
       const int nRH = pfRecHits->size();
 
@@ -36,7 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       PFClusterProducerKernel kernel(event.queue(), pfRecHits);
       kernel.execute(
-          event.queue(), params, pfClusteringVars, pfClusteringEdgeVars, pfRecHits, pfClusters, pfrhFractions);
+          event.queue(), params, topology, pfClusteringVars, pfClusteringEdgeVars, pfRecHits, pfClusters, pfrhFractions);
 
       if (synchronise_)
         alpaka::wait(event.queue());
@@ -49,6 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("pfRecHits");
       desc.add<edm::ESInputTag>("pfClusterParams");
+      desc.add<edm::ESInputTag>("topology");
       desc.add<bool>("synchronise");
       desc.add<int>("pfRecHitFractionAllocation", 120);
       descriptions.addWithDefaultLabel(desc);
@@ -56,6 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const device::ESGetToken<reco::PFClusterParamsDeviceCollection, JobConfigurationGPURecord> pfClusParamsToken;
+    const device::ESGetToken<reco::PFRecHitHCALTopologyDeviceCollection, PFRecHitHCALTopologyRecord> topologyToken_;
     const edm::EDGetTokenT<reco::PFRecHitHostCollection> inputPFRecHitSoA_Token_;
     const device::EDPutToken<reco::PFClusterDeviceCollection> outputPFClusterSoA_Token_;
     const device::EDPutToken<reco::PFRecHitFractionDeviceCollection> outputPFRHFractionSoA_Token_;

@@ -487,7 +487,8 @@ bool CaloSD::hitExists(const G4Step* aStep, int k) {
 
 bool CaloSD::checkHit(int k) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k;
+  edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k << " for map " << useMap << ":" << &hitMap[k] << " Nhits "
+                              << nCheckedHits[k] << " HC " << theHC[k] << " ID " << currentID[k];
 #endif
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;

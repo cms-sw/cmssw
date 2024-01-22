@@ -49,8 +49,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   hcalSevLvlComputerToken_ = decltype(hcalSevLvlComputerToken_){iC.esConsumes()};
   towerMapToken_ = decltype(towerMapToken_){iC.esConsumes()};
   ecalSevLvlToken_ = iC.esConsumes();
-
-  //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
+  ecalPFRechitThresholdsToken_ = iC.esConsumes();
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
   moduleEtaBoundary_ = conf.getParameter<std::vector<double>>("moduleEtaBoundary");
   //
@@ -500,6 +499,8 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   iEvent.getByToken(barrelecalCollection_, ecalhitsCollEB);
 
+  auto const& thresholds = iSetup.getData(ecalPFRechitThresholdsToken_);
+
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
 
@@ -514,7 +515,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEB.setUseNumCrystals(useNumXtals);
   phoIsoEB.doSeverityChecks(ecalhitsCollEB.product(), severityExclEB_);
   phoIsoEB.doFlagChecks(flagsEB_);
-  double ecalIsolEB = phoIsoEB.getEtSum(photon);
+  double ecalIsolEB = phoIsoEB.getEtSum(photon, thresholds);
 
   EgammaRecHitIsolation phoIsoEE(
       RCone, RConeInner, etaSlice, etMin, eMin, geoHandle, *rechitsCollectionEE_, sevLevel, DetId::Ecal);
@@ -524,7 +525,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEE.doSeverityChecks(ecalhitsCollEE.product(), severityExclEE_);
   phoIsoEE.doFlagChecks(flagsEE_);
 
-  double ecalIsolEE = phoIsoEE.getEtSum(photon);
+  double ecalIsolEE = phoIsoEE.getEtSum(photon, thresholds);
   //  delete phoIso;
   double ecalIsol = ecalIsolEB + ecalIsolEE;
 

@@ -88,14 +88,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Processing single seed clusters
   // Device function designed to be called by all threads of a given block
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  ALPAKA_FN_ACC static void hcalFastCluster_singleSeed(const TAcc& acc,
-                                                       reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
-                                                       int topoId,   // from selection
-                                                       int nRHTopo,  // from selection
-                                                       reco::PFRecHitDeviceCollection::ConstView pfRecHits,
-                                                       reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
-                                                       reco::PFClusterDeviceCollection::View clusterView,
-                                                       reco::PFRecHitFractionDeviceCollection::View fracView) {
+  ALPAKA_FN_ACC static void hcalFastCluster_singleSeed(
+      const TAcc& acc,
+      reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
+      int topoId,   // from selection
+      int nRHTopo,  // from selection
+      reco::PFRecHitDeviceCollection::ConstView pfRecHits,
+      reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
+      reco::PFClusterDeviceCollection::View clusterView,
+      reco::PFRecHitFractionDeviceCollection::View fracView) {
     int tid = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];  // thread index is rechit number
     // Declaration of shared variables
     int& i = alpaka::declareSharedVar<int, __COUNTER__>(acc);
@@ -119,13 +121,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       clusterEnergy = seedEnergy;
       tol = pfClusParams.stoppingTolerance();  // stopping tolerance * tolerance scaling
 
-      if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEB_vec()[pfRecHits[i].depth() - 1];
-      else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEE_vec()[pfRecHits[i].depth() - 1];
-      else {
-        rhENormInv = 0.;
-        printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+      if (topology.cutsFromDB()) {
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
+      } else {
+        if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
+        else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHE_vec()[pfRecHits[i].depth() - 1];
+        else {
+          rhENormInv = 0.;
+          printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+        }
       }
 
       iter = 0;
@@ -161,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 (clusterPos.z - rhPos.z) * (clusterPos.z - rhPos.z);
 
         d2 = dist2 / pfClusParams.showerSigma2();
-        fraction = clusterEnergy * rhENormInv * expf(-0.5 * d2);
+        fraction = clusterEnergy * rhENormInv * expf(-0.5f * d2);
 
         // For single seed clusters, rechit fraction is either 1 (100%) or -1 (not included)
         if (fraction > pfClusParams.minFracTot() && d2 < cutoffDistance)
@@ -253,6 +259,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedParallel(
       const TAcc& acc,
       reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,   // from selection
       int nSeeds,   // from selection
       int nRHTopo,  // from selection
@@ -289,12 +296,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       notDone = true;
 
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
-      if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEB_vec()[pfRecHits[i].depth() - 1];
-      else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEE_vec()[pfRecHits[i].depth() - 1];
-      else
-        printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+
+      if (topology.cutsFromDB()) {
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
+      } else {
+        if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
+        else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHE_vec()[pfRecHits[i].depth() - 1];
+        else {
+          rhENormInv = 0.;
+          printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+        }
+      }
     }
     alpaka::syncBlockThreads(acc);  // all threads call sync
 
@@ -391,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -406,7 +420,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
@@ -531,6 +545,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC static void hcalFastCluster_exotic(const TAcc& acc,
                                                    reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                                   const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                                    int topoId,
                                                    int nSeeds,
                                                    int nRHTopo,
@@ -572,12 +587,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       notDone = true;
 
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
-      if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEB_vec()[pfRecHits[i].depth() - 1];
-      else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEE_vec()[pfRecHits[i].depth() - 1];
-      else
-        printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+
+      if (topology.cutsFromDB()) {
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
+      } else {
+        if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
+        else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHE_vec()[pfRecHits[i].depth() - 1];
+        else {
+          rhENormInv = 0.;
+          printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+        }
+      }
     }
     alpaka::syncBlockThreads(acc);  // all threads call sync
 
@@ -651,7 +673,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -669,7 +691,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
@@ -798,6 +820,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   ALPAKA_FN_ACC static void hcalFastCluster_multiSeedIterative(
       const TAcc& acc,
       reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+      const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
       int topoId,
       int nSeeds,
       int nRHTopo,
@@ -831,12 +854,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       notDone = true;
 
       int i = pfClusteringVars[topoSeedBegin].topoSeedList();
-      if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEB_vec()[pfRecHits[i].depth() - 1];
-      else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
-        rhENormInv = pfClusParams.recHitEnergyNormInvEE_vec()[pfRecHits[i].depth() - 1];
-      else
-        printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+
+      if (topology.cutsFromDB()) {
+        rhENormInv = (1.f / topology[pfRecHits[i].denseId()].noiseThreshold());
+      } else {
+        if (pfRecHits[i].layer() == PFLayer::HCAL_BARREL1)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHB_vec()[pfRecHits[i].depth() - 1];
+        else if (pfRecHits[i].layer() == PFLayer::HCAL_ENDCAP)
+          rhENormInv = pfClusParams.recHitEnergyNormInvHE_vec()[pfRecHits[i].depth() - 1];
+        else {
+          rhENormInv = 0.;
+          printf("Rechit %d has invalid layer %d!\n", i, pfRecHits[i].layer());
+        }
+      }
     }
     alpaka::syncBlockThreads(acc);  // all threads call sync
 
@@ -910,7 +940,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           rhFracSum[tid] += fraction;
         }
@@ -928,7 +958,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         (clusterPos[s].z - rhThreadPos.z) * (clusterPos[s].z - rhThreadPos.z);
 
           float d2 = dist2 / pfClusParams.showerSigma2();
-          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5 * d2);
+          float fraction = clusterEnergy[s] * rhENormInv * expf(-0.5f * d2);
 
           if (rhFracSum[tid] > pfClusParams.minFracTot()) {
             float fracpct = fraction / rhFracSum[tid];
@@ -1057,6 +1087,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   const reco::PFRecHitHostCollection::ConstView pfRecHits,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   reco::PFRecHitFractionDeviceCollection::View fracView,
@@ -1082,15 +1113,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         int depthOffset = pfRecHits[i].depth() - 1;
         float energy = pfRecHits[i].energy();
         Position3 pos = Position3{pfRecHits[i].x(), pfRecHits[i].y(), pfRecHits[i].z()};
+        float seedThreshold = 9999.;
+        float topoThreshold = 9999.;
+
+        if (topology.cutsFromDB()) {
+          seedThreshold = topology[pfRecHits[i].denseId()].seedThreshold();
+          topoThreshold = topology[pfRecHits[i].denseId()].noiseThreshold();
+        } else {
+          if (layer == PFLayer::HCAL_BARREL1) {
+            seedThreshold = pfClusParams.seedEThresholdHB_vec()[depthOffset];
+            topoThreshold = pfClusParams.topoEThresholdHB_vec()[depthOffset];
+          } else if (layer == PFLayer::HCAL_ENDCAP) {
+            seedThreshold = pfClusParams.seedEThresholdHE_vec()[depthOffset];
+            topoThreshold = pfClusParams.topoEThresholdHE_vec()[depthOffset];
+          }
+        }
 
         // cmssdt.cern.ch/lxr/source/DataFormats/ParticleFlowReco/interface/PFRecHit.h#0108
         float pt2 = energy * energy * (pos.x * pos.x + pos.y * pos.y) / (pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 
         // Seeding threshold test
-        if ((layer == PFLayer::HCAL_BARREL1 && energy > pfClusParams.seedEThresholdEB_vec()[depthOffset] &&
-             pt2 > pfClusParams.seedPt2ThresholdEB()) ||
-            (layer == PFLayer::HCAL_ENDCAP && energy > pfClusParams.seedEThresholdEE_vec()[depthOffset] &&
-             pt2 > pfClusParams.seedPt2ThresholdEE())) {
+        if ((layer == PFLayer::HCAL_BARREL1 && energy > seedThreshold && pt2 > pfClusParams.seedPt2ThresholdHB()) ||
+            (layer == PFLayer::HCAL_ENDCAP && energy > seedThreshold && pt2 > pfClusParams.seedPt2ThresholdHE())) {
           pfClusteringVars[i].pfrh_isSeed() = 1;
           for (int k = 0; k < 4; k++) {  // Does this seed candidate have a higher energy than four neighbours
             if (pfRecHits[i].neighbours()(k) < 0)
@@ -1104,8 +1148,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             alpaka::atomicAdd(acc, nSeeds, 1u);
         }
         // Topo clustering threshold test
-        if ((layer == PFLayer::HCAL_ENDCAP && energy > pfClusParams.topoEThresholdEE_vec()[depthOffset]) ||
-            (layer == PFLayer::HCAL_BARREL1 && energy > pfClusParams.topoEThresholdEB_vec()[depthOffset])) {
+
+        if ((layer == PFLayer::HCAL_ENDCAP && energy > topoThreshold) ||
+            (layer == PFLayer::HCAL_BARREL1 && energy > topoThreshold)) {
           pfClusteringVars[i].pfrh_passTopoThresh() = true;
           pfClusteringVars[i].pfrh_topoId() = i;
         } else {
@@ -1306,6 +1351,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const reco::PFRecHitHostCollection::ConstView pfRecHits,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   reco::PFRecHitFractionDeviceCollection::View fracView) const {
@@ -1339,14 +1385,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (nSeeds == 1) {
             // Single seed cluster
             hcalFastCluster_singleSeed(
-                acc, pfClusParams, topoId, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
+                acc, pfClusParams, topology, topoId, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
           } else if (nSeeds <= 100 && nRHTopo - nSeeds < threadsPerBlockForClustering) {
             hcalFastCluster_multiSeedParallel(
-                acc, pfClusParams, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
+                acc, pfClusParams, topology, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
           }
         } else if (nSeeds <= 400 && nRHTopo - nSeeds <= 1500) {
           hcalFastCluster_multiSeedIterative(
-              acc, pfClusParams, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
+              acc, pfClusParams, topology, topoId, nSeeds, nRHTopo, pfRecHits, pfClusteringVars, clusterView, fracView);
         } else {
           if constexpr (debug) {
             if (once_per_block(acc))
@@ -1367,6 +1413,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const reco::PFRecHitHostCollection::ConstView pfRecHits,
                                   const reco::PFClusterParamsDeviceCollection::ConstView pfClusParams,
+                                  const reco::PFRecHitHCALTopologyDeviceCollection::ConstView topology,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusterDeviceCollection::View clusterView,
                                   reco::PFRecHitFractionDeviceCollection::View fracView,
@@ -1385,6 +1432,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (nRHTopo > 0 && nSeeds > 400 && nRHTopo - nSeeds > 1500) {
           hcalFastCluster_exotic(acc,
                                  pfClusParams,
+                                 topology,
                                  topoId,
                                  nSeeds,
                                  nRHTopo,
@@ -1420,6 +1468,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void PFClusterProducerKernel::execute(Queue& queue,
                                         const reco::PFClusterParamsDeviceCollection& params,
+                                        const reco::PFRecHitHCALTopologyDeviceCollection& topology,
                                         reco::PFClusteringVarsDeviceCollection& pfClusteringVars,
                                         reco::PFClusteringEdgeVarsDeviceCollection& pfClusteringEdgeVars,
                                         const reco::PFRecHitHostCollection& pfRecHits,
@@ -1435,6 +1484,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         SeedingTopoThresh{},
                         pfClusteringVars.view(),
                         params.view(),
+                        topology.view(),
                         pfRecHits.view(),
                         pfClusters.view(),
                         pfrhFractions.view(),
@@ -1489,6 +1539,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         FastCluster{},
                         pfRecHits.view(),
                         params.view(),
+                        topology.view(),
                         pfClusteringVars.view(),
                         pfClusters.view(),
                         pfrhFractions.view());
@@ -1499,6 +1550,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         FastClusterExotic{},
                         pfRecHits.view(),
                         params.view(),
+                        topology.view(),
                         pfClusteringVars.view(),
                         pfClusters.view(),
                         pfrhFractions.view(),

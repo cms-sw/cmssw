@@ -224,6 +224,7 @@ namespace mkfit {
     }
 
     void addHitIdx(int hitIdx, int hitLyr, float chi2);
+    bool popOverlap();
 
     HoTNode& refLastHoTNode();              // for filling up overlap info
     const HoTNode& refLastHoTNode() const;  // for dump traversal
@@ -564,6 +565,25 @@ namespace mkfit {
     }
   }
 
+  inline bool TrackCand::popOverlap() {
+    auto popHitIdx = getLastHitIdx();
+    auto popHitLyr = getLastHitLyr();
+    auto popPrev = refLastHoTNode().m_prev_idx;
+    auto popChi2 = refLastHoTNode().m_chi2;
+    // sanity checks first, then just shift lastHitIdx_ to popPrev
+    if (lastHitIdx_ == 0 || popHitIdx < 0)
+      return false;
+    auto prevHitLyr = m_comb_candidate->hot(popPrev).layer;
+    auto prevHitIdx = m_comb_candidate->hot(popPrev).index;
+    if (popHitLyr != prevHitLyr || prevHitIdx < 0)
+      return false;
+    lastHitIdx_ = popPrev;
+
+    --nFoundHits_;
+    chi2_ -= popChi2;
+    --nOverlapHits_;
+    return true;
+  }
   //==============================================================================
 
   class EventOfCombCandidates {

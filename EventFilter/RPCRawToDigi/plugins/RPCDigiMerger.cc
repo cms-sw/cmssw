@@ -57,8 +57,6 @@ void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions& descs) {
   descs.add("rpcDigiMerger", desc);
 }
 
-void RPCDigiMerger::beginRun(edm::Run const& run, edm::EventSetup const& setup) {}
-
 void RPCDigiMerger::produce(edm::Event& event, edm::EventSetup const& setup) {
   // Get the digis
   // new RPCDigiCollection

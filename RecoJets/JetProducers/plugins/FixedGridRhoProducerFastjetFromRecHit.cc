@@ -37,7 +37,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   std::array<double, 4> getHitP4(const DetId &detId, const double hitE, const CaloGeometry &caloGeometry) const;
   bool passedHcalNoiseCut(const HBHERecHit &hit, const HcalPFCuts *) const;
@@ -82,7 +81,7 @@ FixedGridRhoProducerFastjetFromRecHit::FixedGridRhoProducerFastjetFromRecHit(con
         << "skipHCAL and skipECAL both can't be True. Please make at least one of them False.";
   }
   if (cutsFromDB_) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
   produces<double>();
 }
@@ -107,13 +106,11 @@ void FixedGridRhoProducerFastjetFromRecHit::fillDescriptions(edm::ConfigurationD
 
 FixedGridRhoProducerFastjetFromRecHit::~FixedGridRhoProducerFastjetFromRecHit() = default;
 
-void FixedGridRhoProducerFastjetFromRecHit::beginRun(edm::Run const &r, edm::EventSetup const &es) {
-  if (cutsFromDB_) {
-    paramPF_ = &es.getData(hcalCutsToken_);
-  }
-}
-
 void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  if (cutsFromDB_) {
+    paramPF_ = &iSetup.getData(hcalCutsToken_);
+  }
+
   std::vector<fastjet::PseudoJet> inputs;
   auto const &thresholds = iSetup.getData(ecalPFRecHitThresholdsToken_);
   auto const &caloGeometry = iSetup.getData(caloGeometryToken_);

@@ -179,25 +179,30 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
-                                 << ":" << iz << " ERROR";
+                                 << ":" << iz << " for i/p Layer " << layer << " module " << module << " cell " << cell
+                                 << " iz " << iz << " pos " << pos << " wt " << wt << " ERROR";
 #endif
     }
   }
 #ifdef EDM_ML_DEBUG
-  bool matchOnly = ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+  bool matchOnly = hgcons_.waferHexagon8Module();
   bool debug = hgcons_.waferHexagon8File();
   if (debug)
     edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
                                << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
                                << index << std::dec << " wt " << wt;
-  checkPosition(index, pos, matchOnly, debug);
+  bool ok = checkPosition(index, pos, matchOnly, debug);
+  if (matchOnly && (!ok))
+    edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
+                               << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
+                               << index << std::dec << " wt " << wt << " flag " << ok << " ERROR";
 #endif
   return index;
 }
 
-void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const {
+bool HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const {
   std::pair<float, float> xy;
-  bool ok(false);
+  bool ok(false), iok(true);
   double z1(0), tolR(14.0), tolZ(1.0);
   int lay(-1);
   if (index == 0) {
@@ -234,6 +239,8 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
                           : "");
     if (matchOnly && match)
       ck = "";
+    if (!ck.empty())
+      iok = false;
     if (!(match && inok && outok) || debug) {
       edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::Detector " << det_ << " Layer " << lay << " R " << r2 << ":"
                                  << r1 << ":" << rrange.first << ":" << rrange.second << " Z " << z2 << ":" << z1 << ":"
@@ -250,11 +257,17 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
         double dx = (xx - xy.first);
         double dy = (pos.y() - xy.second);
         double dR = std::sqrt(dx * dx + dy * dy);
-        ck = (dR > tolR) ? " ***** ERROR *****" : "";
+        if (dR > tolR) {
+          ck = " ***** ERROR *****";
+          iok = false;
+        } else {
+          ck = "";
+        }
         edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme " << HGCSiliconDetId(index) << " original position " << xx
                                    << ":" << pos.y() << " derived " << xy.first << ":" << xy.second << " Difference "
                                    << dR << ck;
       }
     }
   }
+  return iok;
 }

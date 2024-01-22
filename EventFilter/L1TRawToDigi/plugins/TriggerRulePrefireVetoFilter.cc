@@ -39,19 +39,11 @@
 class TriggerRulePrefireVetoFilter : public edm::stream::EDFilter<> {
 public:
   explicit TriggerRulePrefireVetoFilter(const edm::ParameterSet&);
-  ~TriggerRulePrefireVetoFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
@@ -71,11 +63,6 @@ private:
 TriggerRulePrefireVetoFilter::TriggerRulePrefireVetoFilter(const edm::ParameterSet& iConfig)
     : tcdsRecordToken_(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))) {
   //now do what ever initialization is needed
-}
-
-TriggerRulePrefireVetoFilter::~TriggerRulePrefireVetoFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -130,44 +117,6 @@ bool TriggerRulePrefireVetoFilter::filter(edm::Event& iEvent, const edm::EventSe
 
   return false;
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void TriggerRulePrefireVetoFilter::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void TriggerRulePrefireVetoFilter::endStream() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-TriggerRulePrefireVetoFilter::beginRun(edm::Run const&, edm::EventSetup const&)
-{ 
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-TriggerRulePrefireVetoFilter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-TriggerRulePrefireVetoFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-TriggerRulePrefireVetoFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void TriggerRulePrefireVetoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

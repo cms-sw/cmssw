@@ -38,7 +38,7 @@ DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset, edm::InputSo
   produces<DQMToken, edm::Transition::BeginLuminosityBlock>("DQMGenerationRecoLumi");
 }
 
-edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
+edm::InputSource::ItemTypeInfo DQMProtobufReader::getNextItemType() {
   typedef DQMFileIterator::State State;
   typedef DQMFileIterator::LumiEntry LumiEntry;
 
@@ -49,23 +49,23 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
 
     if (edm::shutdown_flag.load()) {
       fiterator_.logFileAction("Shutdown flag was set, shutting down.");
-      return InputSource::IsStop;
+      return InputSource::ItemType::IsStop;
     }
 
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
-      return InputSource::IsStop;
+      return InputSource::ItemType::IsStop;
     }
 
     // check for end of run and quit if everything has been processed.
     // this is the clean exit
     if ((!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
-      return InputSource::IsStop;
+      return InputSource::ItemType::IsStop;
     }
 
     // skip to the next file if we have no files openned yet
     if (fiterator_.lumiReady()) {
-      return InputSource::IsLumi;
+      return InputSource::ItemType::IsLumi;
     }
 
     fiterator_.delay();
@@ -73,7 +73,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
     // IsSynchronize state
     //
     // comment out in order to block at this level
-    // return InputSource::IsSynchronize;
+    // return InputSource::ItemType::IsSynchronize;
   }
 
   // this is unreachable

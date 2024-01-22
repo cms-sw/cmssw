@@ -741,7 +741,7 @@ namespace mkfit {
           KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
     for (int n = 0; n < NN; ++n) {
-      if (outPar.At(n, 3, 0) < 0) {
+      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
         Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
         outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
       }
@@ -777,7 +777,11 @@ namespace mkfit {
       MPlexQF msRad;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+        if (n < N_proc) {
+          msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+        } else {
+          msRad.At(n, 0, 0) = 0.0f;
+        }
       }
 
       propagateHelixToRMPlex(psErr, psPar, inChg, msRad, propErr, propPar, outFailFlag, N_proc, propFlags);
@@ -843,9 +847,14 @@ namespace mkfit {
     MPlexQF rotT00;
     MPlexQF rotT01;
     for (int n = 0; n < NN; ++n) {
-      const float r = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
-      rotT00.At(n, 0, 0) = -(msPar.constAt(n, 1, 0) + psPar.constAt(n, 1, 0)) / (2 * r);
-      rotT01.At(n, 0, 0) = (msPar.constAt(n, 0, 0) + psPar.constAt(n, 0, 0)) / (2 * r);
+      if (n < N_proc) {
+        const float r = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
+        rotT00.At(n, 0, 0) = -(msPar.constAt(n, 1, 0) + psPar.constAt(n, 1, 0)) / (2 * r);
+        rotT01.At(n, 0, 0) = (msPar.constAt(n, 0, 0) + psPar.constAt(n, 0, 0)) / (2 * r);
+      } else {
+        rotT00.At(n, 0, 0) = 0.0f;
+        rotT01.At(n, 0, 0) = 0.0f;
+      }
     }
 
     MPlexHV res_glo;  //position residual in global coordinates
@@ -1359,7 +1368,7 @@ namespace mkfit {
       kalmanOperationEndcap(KFO_Update_Params, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
     for (int n = 0; n < NN; ++n) {
-      if (outPar.At(n, 3, 0) < 0) {
+      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
         Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
         outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
       }

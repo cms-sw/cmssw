@@ -13,7 +13,7 @@
 
 */
 
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
@@ -30,6 +30,7 @@ public:
   typedef coral::AttributeList AttributeList;
   /** Construct a new field handler with the C++ field name as its argument */
   FieldHandlerBase(const std::string& name) : name_(name) {}
+  FieldHandlerBase() = delete;
 
   /** Return the name of the field handled by this object. */
   const std::string& getName() { return name_; }
@@ -64,14 +65,16 @@ public:
   FieldHandler(const std::string& fieldName, TSetMethod setter)
       : FieldHandlerBase<TOutput>(fieldName), setter_(setter) {}
 
+  FieldHandler() = delete;
+
   /** Actual data extraction. */
   void extractValue(const AttributeList& src, TOutput& dest) override {
 #ifdef RECORDHELPER_DEBUG
     std::cout << "Parsing field " << this->getName() << " with type " << typeid(TCField).name();
 #endif
-    typedef typename boost::remove_cv<typename boost::remove_reference<TDBField>::type>::type TDBFieldT;
+    typedef typename std::remove_cv<typename std::remove_reference<TDBField>::type>::type TDBFieldT;
     const TDBFieldT& value = src[this->getColumnName()].template data<TDBFieldT>();
-    ((dest).*setter_)(TCField(value));
+    call(dest, TCField(value));
 
 #ifdef RECORDHELPER_DEBUG
     std::cout << "=" << TCField(value) << std::endl;
@@ -79,9 +82,10 @@ public:
   }
 
 protected:
+  void call(TOutput& dest, const TCField value) { ((dest).*setter_)(value); }
   /** Points to the setter method used to stuff the field's value into the
      destination object. */
-  TSetMethod setter_;
+  TSetMethod setter_ = nullptr;
 };
 
 /** A special handler for bool fields in the GT/GMT DBs. These can't be imported
@@ -96,13 +100,15 @@ public:
   ASCIIBoolFieldHandler(const std::string& fieldName, typename FieldHandler<TOutput, bool, char>::TSetMethod setter)
       : FieldHandler<TOutput, bool, char>(fieldName, setter) {}
 
+  ASCIIBoolFieldHandler() = delete;
+
   /** Extract value as char, then see compare it to '0' to get its truth value. */
   void extractValue(const AttributeList& src, TOutput& dest) override {
     char value = src[this->getColumnName()].template data<char>();
 #ifdef RECORDHELPER_DEBUG
     std::cout << " .. and " << this->getColumnName() << " is (in integers) " << (int)value << std::endl;
 #endif
-    ((dest).*(this->setter_))(value != FalseCharacter);
+    this->call(dest, value != FalseCharacter);
   }
 };
 

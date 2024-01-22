@@ -36,9 +36,12 @@ public:
   static bool comparator(const Jpair& l, const Jpair& r) { return l.first < r.first; }
 
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
-  ~HLTJetSortedVBFFilter() override;
+  ~HLTJetSortedVBFFilter() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   static float findCSV(const typename std::vector<T>::const_iterator& jet, const reco::JetTagCollection& jetTags);
+
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;

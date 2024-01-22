@@ -1027,13 +1027,16 @@ namespace edm {
           return;
         }
       }
-      for (int empty_end_path : empty_end_paths_) {
-        std::exception_ptr except = endPathStatusInserterWorkers_[empty_end_path]
-                                        ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-                                            info, streamID_, ParentContext(&streamContext_), &streamContext_);
-        if (except) {
-          iTask.doneWaiting(except);
-          return;
+      if (not endPathStatusInserterWorkers_.empty()) {
+        for (int empty_end_path : empty_end_paths_) {
+          std::exception_ptr except =
+              endPathStatusInserterWorkers_[empty_end_path]
+                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+                      info, streamID_, ParentContext(&streamContext_), &streamContext_);
+          if (except) {
+            iTask.doneWaiting(except);
+            return;
+          }
         }
       }
 

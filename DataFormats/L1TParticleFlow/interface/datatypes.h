@@ -1,15 +1,6 @@
 #ifndef DataFormats_L1TParticleFlow_datatypes_h
 #define DataFormats_L1TParticleFlow_datatypes_h
 
-#if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#endif
-#include <ap_int.h>
-#if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
-#pragma GCC diagnostic pop
-#endif
-
 #include <ap_int.h>
 #include <cassert>
 #include <cmath>
@@ -162,8 +153,14 @@ namespace l1ct {
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
     inline float floatPt(pt2_t pt2) { return pt2.to_float(); }
-    inline int intPt(pt_t pt) { return (ap_ufixed<16, 14>(pt) << 2).to_int(); }
-    inline int intPt(dpt_t pt) { return (ap_fixed<18, 16>(pt) << 2).to_int(); }
+    inline int intPt(pt_t pt) {
+      ap_uint<pt_t::width> rawPt = pt.range();
+      return rawPt.to_int();
+    }
+    inline int intPt(dpt_t pt) {
+      ap_int<dpt_t::width> rawPt = pt.range();
+      return rawPt.to_int();
+    }
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
     inline float floatEta(tkdeta_t eta) { return eta.to_float() * ETAPHI_LSB; }
@@ -181,9 +178,9 @@ namespace l1ct {
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
-    inline pt_t makePtFromFloat(float pt) { return pt_t(0.25 * round(pt * 4)); }
+    inline pt_t makePtFromFloat(float pt) { return pt_t(0.25 * std::round(pt * 4)); }
     inline dpt_t makeDPtFromFloat(float dpt) { return dpt_t(dpt); }
-    inline z0_t makeZ0(float z0) { return z0_t(round(z0 / Z0_LSB)); }
+    inline z0_t makeZ0(float z0) { return z0_t(std::round(z0 / Z0_LSB)); }
 
     inline ap_uint<pt_t::width> ptToInt(pt_t pt) {
       // note: this can be synthethized, e.g. when pT is used as intex in a LUT
@@ -216,7 +213,7 @@ namespace l1ct {
     inline float maxAbsPhi() { return ((1 << (phi_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsGlbEta() { return ((1 << (glbeta_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsGlbPhi() { return ((1 << (glbphi_t::width - 1)) - 1) * ETAPHI_LSB; }
-  };  // namespace Scales
+  }  // namespace Scales
 
   inline int dr2_int(eta_t eta1, phi_t phi1, eta_t eta2, phi_t phi2) {
     ap_int<eta_t::width + 1> deta = (eta1 - eta2);

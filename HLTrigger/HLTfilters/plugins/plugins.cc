@@ -114,6 +114,7 @@ typedef HLTDoublet<Electron, HLTTau> HLT2ElectronHLTTau;
 typedef HLTDoublet<RecoChargedCandidate, HLTTau> HLT2MuonHLTTau;
 typedef HLTDoublet<Electron, PFTau> HLT2ElectronPFTau;
 typedef HLTDoublet<RecoEcalCandidate, PFTau> HLT2PhotonPFTau;
+typedef HLTDoublet<RecoEcalCandidate, PFJet> HLT2PhotonPFJet;
 typedef HLTDoublet<RecoChargedCandidate, PFTau> HLT2MuonPFTau;
 typedef HLTDoublet<Electron, PFJet> HLT2ElectronPFJet;
 typedef HLTDoublet<RecoChargedCandidate, PFJet> HLT2MuonPFJet;
@@ -130,6 +131,8 @@ typedef HLTDoublet<RecoEcalCandidate, PFMET> HLT2PhotonPFMET;
 #include "HLTDoubletSinglet.h"
 typedef HLTDoubletSinglet<PFTau, PFTau, PFJet> HLT3DoublePFTauPFJet;
 typedef HLTDoubletSinglet<RecoChargedCandidate, PFTau, PFJet> HLT3MuonPFTauPFJet;
+typedef HLTDoubletSinglet<PFJet, PFJet, PFJet> HLT3TriplePFJet;
+typedef HLTDoubletSinglet<RecoChargedCandidate, PFJet, PFJet> HLT3MuonDoublePFJet;
 typedef HLTDoubletSinglet<PFJet, PFJet, RecoEcalCandidate> HLT3DoublePFJetPhoton;
 
 DEFINE_FWK_MODULE(HLTBool);
@@ -148,6 +151,7 @@ DEFINE_FWK_MODULE(HLT2PhotonTau);
 DEFINE_FWK_MODULE(HLT2MuonTau);
 DEFINE_FWK_MODULE(HLT2ElectronPFTau);
 DEFINE_FWK_MODULE(HLT2PhotonPFTau);
+DEFINE_FWK_MODULE(HLT2PhotonPFJet);
 DEFINE_FWK_MODULE(HLT2MuonPFTau);
 DEFINE_FWK_MODULE(HLT2ElectronPFJet);
 DEFINE_FWK_MODULE(HLT2MuonPFJet);
@@ -163,6 +167,8 @@ DEFINE_FWK_MODULE(HLT2PFTauPFTau);
 
 DEFINE_FWK_MODULE(HLT3DoublePFTauPFJet);
 DEFINE_FWK_MODULE(HLT3MuonPFTauPFJet);
+DEFINE_FWK_MODULE(HLT3TriplePFJet);
+DEFINE_FWK_MODULE(HLT3MuonDoublePFJet);
 DEFINE_FWK_MODULE(HLT3DoublePFJetPhoton);
 
 DEFINE_FWK_MODULE(HLT1Electron);

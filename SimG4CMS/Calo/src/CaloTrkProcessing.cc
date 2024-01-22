@@ -1,3 +1,4 @@
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -12,7 +13,6 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4SystemOfUnits.hh"
-#include "DD4hep/Filter.h"
 
 #include <sstream>
 //#define EDM_ML_DEBUG
@@ -82,7 +82,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     G4LogicalVolume* lv = nullptr;
     G4String name(csps.caloNames_[i]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      G4String namx(DD4hep2DDDName::noNameSpace(static_cast<std::string>((*lvcite)->GetName())));
       if (namx == name) {
         lv = (*lvcite);
         break;
@@ -107,7 +107,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
         lv = nullptr;
         name = static_cast<G4String>(csps.insideNames_[istart + k]);
         for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-          G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+          G4String namx(DD4hep2DDDName::noNameSpace(static_cast<std::string>((*lvcite)->GetName())));
           if (namx == name) {
             lv = (*lvcite);
             break;
@@ -129,7 +129,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     G4LogicalVolume* lv = nullptr;
     G4String name = static_cast<G4String>(fineNames[useFines[i]]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      G4String namx(DD4hep2DDDName::noNameSpace(static_cast<std::string>((*lvcite)->GetName())));
       if (namx == name) {
         lv = (*lvcite);
         break;

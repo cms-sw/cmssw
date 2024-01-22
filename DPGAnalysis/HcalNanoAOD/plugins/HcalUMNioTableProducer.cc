@@ -40,11 +40,8 @@ public:
     */
 
 private:
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
 };
-
-void HcalUMNioTableProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
 void HcalUMNioTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<HcalUMNioDigi> uMNioDigi;

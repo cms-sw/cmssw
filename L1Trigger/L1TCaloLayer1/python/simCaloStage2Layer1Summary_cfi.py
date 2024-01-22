@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1Trigger.L1TCaloLayer1.CICADATestPatterns import standardCICADATestPatterns
+
 simCaloStage2Layer1Summary = cms.EDProducer('L1TCaloSummaryCICADAv2',
     nPumBins = cms.uint32(18),
     pumLUT00n=  cms.vdouble(0.43, 0.32, 0.29, 0.36, 0.33, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
@@ -48,5 +50,7 @@ simCaloStage2Layer1Summary = cms.EDProducer('L1TCaloSummaryCICADAv2',
     verbose = cms.bool(False),
     # See UCTLayer1.hh for firmware version
     firmwareVersion = cms.int32(1),
-    CICADAModelVersion = cms.string("CICADAModel_v2p1")
+    CICADAModelVersion = cms.string("CICADAModel_v2p1"),
+    useTestPatterns = cms.bool(False),
+    testPatterns = standardCICADATestPatterns
 )

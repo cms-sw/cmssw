@@ -125,7 +125,7 @@ int main(void) {
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDeviceLayout::computeDataSize(numElements);
   std::byte* h_buf = nullptr;
-  hipCheck(hipMallocHost((void**)&h_buf, hostDeviceSize));
+  hipCheck(hipHostMalloc((void**)&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
   SoAHostDeviceConstView h_soahd_c(h_soahdLayout);
@@ -133,7 +133,7 @@ int main(void) {
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
   std::byte* d_buf = nullptr;
-  hipCheck(hipMallocHost((void**)&d_buf, hostDeviceSize + deviceOnlySize));
+  hipCheck(hipHostMalloc((void**)&d_buf, hostDeviceSize + deviceOnlySize));
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.metadata().nextByte(), numElements);
   SoAHostDeviceView d_soahdView(d_soahdLayout);

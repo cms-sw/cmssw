@@ -94,17 +94,22 @@ public:
 
   static constexpr double c00 = 0.0;
   static constexpr double c22O = 0.225;
+  static constexpr double c221 = 0.2083;
   static constexpr double c22 = 0.1944;
   static constexpr double c25 = 0.25;
   static constexpr double c27O = 0.275;
+  static constexpr double c271 = 0.2917;
   static constexpr double c27 = 0.3056;
   static constexpr double c50 = 0.5;
   static constexpr double c61O = 0.6125;
+  static constexpr double c611 = 0.6042;
   static constexpr double c61 = 0.59722;
   static constexpr double c75 = 0.75;
   static constexpr double c77O = 0.775;
+  static constexpr double c771 = 0.7917;
   static constexpr double c77 = 0.8055;
   static constexpr double c88O = 0.8875;
+  static constexpr double c881 = 0.8958;
   static constexpr double c88 = 0.90277;
   static constexpr double c10 = 1.0;
 

@@ -30,8 +30,9 @@ namespace mkfit {
     int seed_idx;
     int cand_idx;
     int hit_idx;
+    int ovlp_idx;
 
-    UpdateIndices(int si, int ci, int hi) : seed_idx(si), cand_idx(ci), hit_idx(hi) {}
+    UpdateIndices(int si, int ci, int hi, int oi) : seed_idx(si), cand_idx(ci), hit_idx(hi), ovlp_idx(oi) {}
   };
 
   class MkFinder : public MkBase {
@@ -85,6 +86,7 @@ namespace mkfit {
                             int beg,
                             int end,
                             bool inputProp);
+    void inputOverlapHits(const LayerOfHits &layer_of_hits, const std::vector<UpdateIndices> &idxs, int beg, int end);
 
     void inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                               const std::vector<std::pair<int, IdxChi2List>> &idxs,
@@ -144,6 +146,8 @@ namespace mkfit {
                                    const FindingFoos &fnd_foos);
 
     void updateWithLoadedHit(int N_proc, const LayerOfHits &layer_of_hits, const FindingFoos &fnd_foos);
+
+    void chi2OfLoadedHit(int N_proc, const FindingFoos &fnd_foos);
 
     void copyOutParErr(std::vector<CombCandidate> &seed_cand_vec, int N_proc, bool outputProp) const;
 
@@ -319,8 +323,8 @@ namespace mkfit {
     MPlexHitIdx m_XHitArr;
 
     // Hit errors / parameters for hit matching, update.
-    MPlexHS m_msErr;
-    MPlexHV m_msPar;
+    MPlexHS m_msErr{0.0f};
+    MPlexHV m_msPar{0.0f};
 
     // An idea: Do propagation to hit in FindTracksXYZZ functions.
     // Have some state / functions here that make this short to write.

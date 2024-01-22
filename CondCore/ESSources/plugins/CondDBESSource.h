@@ -93,6 +93,8 @@ public:
 
   typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
 
+  std::string m_jsonDumpFilename;
+
   explicit CondDBESSource(const edm::ParameterSet&);
   ~CondDBESSource() override;
 
@@ -164,5 +166,7 @@ private:
                                const std::vector<std::string>& roottagList,
                                std::map<std::string, cond::GTEntry_t>& replacement,
                                cond::GTMetadata_t& gtMetadata);
+
+  void printStatistics(const Stats& stats) const;
 };
 #endif

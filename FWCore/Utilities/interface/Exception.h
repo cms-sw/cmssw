@@ -45,26 +45,14 @@
 
 namespace cms {
 
+  class Exception;
   namespace detail {
-    // The struct template Desired exists in order to allow us to use
-    // SFINAE to control the instantiation of the stream insertion
+    // Used for SFINAE to control the instantiation of the stream insertion
     // member template needed to support streaming output to an object
     // of type cms::Exception, or a subclass of cms::Exception.
-
-    template <typename T, bool b>
-    struct Desired;
-    template <typename T>
-    struct Desired<T, true> {
-      typedef T type;
-    };
-
-    // The following struct template is a metafunction which combines
-    // two of the boost type_traits metafunctions.
-
-    template <typename BASE, typename DERIVED>
-    struct is_derived_or_same {
-      static bool const value = std::is_base_of<BASE, DERIVED>::value || std::is_same<BASE, DERIVED>::value;
-    };
+    template <typename E>
+    using exception_type =
+        std::enable_if_t<std::is_base_of_v<Exception, std::remove_reference_t<E>>, std::remove_reference_t<E>>;
 
   }  // namespace detail
 
@@ -129,48 +117,14 @@ namespace cms {
     // classes.
     //
 
-    // We have provided versions of these templates which accept, and
-    // return, reference-to-const objects of type E. These are needed
-    // so that the expression:
-    //
-    //     throw Exception("category") << "some message";
-    //
-    // shall compile. The technical reason is that the un-named
-    // temporary created by the explicit call to the constructor
-    // allows only const access, except by member functions. It seems
-    // extremely unlikely that any Exception object will be created in
-    // read-only memory; thus it seems unlikely that allowing the
-    // stream operators to write into a nominally 'const' Exception
-    // object is a real danger.
-
     template <typename E, typename T>
-    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-    operator<<(E&& e, T const& stuff);
+    friend typename detail::exception_type<E>& operator<<(E&& e, T const& stuff);
 
     template <typename E>
-    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-    operator<<(E&& e, std::ostream& (*f)(std::ostream&));
+    friend typename detail::exception_type<E>& operator<<(E&& e, std::ostream& (*f)(std::ostream&));
 
     template <typename E>
-    friend typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-    operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
-
-    // The following two function templates should be included, to help
-    // reduce the number of function templates instantiated. However,
-    // GCC 3.2.3 crashes with an internal compiler error when
-    // instantiating these functions.
-
-    //     template <typename E>
-    //     friend
-    //     typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
-    // 				 std::is_same<Exception,E>::value)>::type &
-    //     operator<<(E& e, const char*);
-
-    //    template <typename E>
-    //    friend
-    //    typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
-    //  			       std::is_same<Exception,E>::value)>::type &
-    //  			       operator<<(E& e, char*);
+    friend typename detail::exception_type<E>& operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
 
     // This function is deprecated and we are in the process of removing
     // all code that uses it from CMSSW.  It will then be deleted.
@@ -199,68 +153,23 @@ namespace cms {
   // -------- implementation ---------
 
   template <typename E, typename T>
-  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-  operator<<(E&& e, T const& stuff) {
+  inline typename detail::exception_type<E>& operator<<(E&& e, T const& stuff) {
     e.ost_ << stuff;
     return e;
   }
 
   template <typename E>
-  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-  operator<<(E&& e, std::ostream& (*f)(std::ostream&)) {
+  inline typename detail::exception_type<E>& operator<<(E&& e, std::ostream& (*f)(std::ostream&)) {
     f(e.ost_);
     return e;
   }
 
   template <typename E>
-  inline typename detail::Desired<E, detail::is_derived_or_same<Exception, std::remove_reference_t<E>>::value>::type&
-  operator<<(E&& e, std::ios_base& (*f)(std::ios_base&)) {
+  inline typename detail::exception_type<E>& operator<<(E&& e, std::ios_base& (*f)(std::ios_base&)) {
     f(e.ost_);
     return e;
   }
 
-  // The following four function templates should be included, to help
-  // reduce the number of function templates instantiated. However,
-  // GCC 3.2.3 crashes with an internal compiler error when
-  // instantiating these functions.
-
-  // template <typename E>
-  // inline
-  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  // operator<<(E& e, char const* c)
-  // {
-  //   e.ost_ << c;
-  //   return e;
-  // }
-
-  // template <typename E>
-  // inline
-  // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  // operator<<(E const& e, char const* c)
-  // {
-  //   E& ref = const_cast<E&>(e);
-  //   ref.ost_ << c;
-  //   return e;
-  // }
-
-  //  template <typename E>
-  //  inline
-  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  //  operator<<(E& e, char* c)
-  //  {
-  //    e.ost_ << c;
-  //    return e;
-  //  }
-
-  //  template <typename E>
-  //  inline
-  //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  //  operator<<(E const& e, char* c)
-  //  {
-  //    E& ref = const_cast<E&>(e);
-  //    ref.ost_ << c;
-  //    return e;
-  //  }
 }  // namespace cms
 
 #endif

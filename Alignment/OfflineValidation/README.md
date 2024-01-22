@@ -114,5 +114,8 @@ For details read [`README_PV.md`](https://github.com/cms-sw/cmssw/blob/master/Al
 ## JetHT validation
 For details read [`README_JetHT.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_JetHT.md)
 
+## MTS validation
+For details read [`README_MTS.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_MTS.md)
+
 ## General info about IOV/run arguments
 For details read [`README_IOV.md`](https://github.com/cms-sw/cmssw/blob/master/Alignment/OfflineValidation/README_IOV.md)

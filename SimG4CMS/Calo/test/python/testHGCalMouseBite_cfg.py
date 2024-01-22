@@ -63,7 +63,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.load("Geometry.HGCalCommonData.hgcalMouseBiteTester_cfi")
+process.load("SimG4CMS.Calo.hgcalMouseBiteTester_cfi")
 
  
 process.p1 = cms.Path(process.generator*process.hgcalMouseBiteTester)

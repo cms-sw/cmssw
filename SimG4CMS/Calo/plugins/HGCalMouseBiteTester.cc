@@ -168,7 +168,12 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
     if (goodPoint) {  //Only allowing (x, y) inside a partial wafer 11, placement index 2
       partialType_ = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
       G4ThreeVector point(xi, yi, 0.0);
-      std::pair<int32_t, int32_t> uv5 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, partialType_, true, false);
+      std::pair<int32_t, int32_t> uv5;
+      if (hgcons_.v17OrLess()) {
+        uv5 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, partialType_, true, false);
+      } else {
+        uv5 = wafer.cellUVFromXY2(xi, yi, placeIndex_, waferType_, partialType_, true, false);
+      }
       if (guardRingPartial_.exclude(point, zside, frontBack, layer_, waferU_, waferV_)) {
         guard_ring_partial << xi << "," << yi << std::endl;
       } else if (mouseBite_.exclude(point, zside, layer_, waferU_, waferV_)) {

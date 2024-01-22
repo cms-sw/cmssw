@@ -189,7 +189,7 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   desc.add<std::string>("multiRPAlgorithm", "chi2")
       ->setComment("algorithm for multi-RP reco, options include chi2, newton, anal-iter");
 
-  descriptions.add("ctppsProtons", desc);
+  descriptions.add("ctppsProtonsDefault", desc);
 }
 
 //----------------------------------------------------------------------------------------------------

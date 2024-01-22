@@ -6,6 +6,7 @@
 * Author: Kyeongpil Lee (kplee@cern.ch)
 * 
 */
+#include <cmath>
 
 #include "HLTMuonTrackSelector.h"
 
@@ -26,8 +27,6 @@ HLTMuonTrackSelector::HLTMuonTrackSelector(const edm::ParameterSet& iConfig)
       flag_copyMVA(iConfig.getParameter<bool>("copyMVA")) {
   produces<MVACollection>("MVAValues");
 }
-
-HLTMuonTrackSelector::~HLTMuonTrackSelector() {}
 
 void HLTMuonTrackSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -89,7 +88,7 @@ void HLTMuonTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
       double trackEta = track.eta();
       double trackPhi = track.phi();
 
-      if (deltaR(trackEta, trackPhi, muonEta, muonPhi) < 0.1) {
+      if (reco::deltaR2(trackEta, trackPhi, muonEta, muonPhi) < 0.01) {
         double dPt = fabs(trackPt - muonPt);
 
         if (dPt < smallestDPt) {

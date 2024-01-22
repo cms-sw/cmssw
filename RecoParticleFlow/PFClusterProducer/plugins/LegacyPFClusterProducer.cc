@@ -22,6 +22,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitHostCollection.h"
@@ -39,7 +42,9 @@ public:
         InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
         pfClusParamsToken_(esConsumes(config.getParameter<edm::ESInputTag>("pfClusterParams"))),
         legacyPfClustersToken_(produces()),
-        recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))) {
+        recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
+        hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
+        cutsFromDB_(config.getParameter<bool>("usePFThresholdsFromDB")) {
     edm::ConsumesCollector cc = consumesCollector();
 
     //setup pf cluster builder if requested
@@ -65,6 +70,7 @@ public:
     desc.add<edm::InputTag>("PFRecHitsLabelIn");
     desc.add<edm::ESInputTag>("pfClusterParams");
     desc.add<edm::InputTag>("recHitsSource");
+    desc.add<bool>("usePFThresholdsFromDB", true);
     {
       edm::ParameterSetDescription pfClusterBuilder;
       pfClusterBuilder.add<unsigned int>("maxIterations", 5);
@@ -180,6 +186,8 @@ private:
   const edm::ESGetToken<reco::PFClusterParamsHostCollection, JobConfigurationGPURecord> pfClusParamsToken_;
   const edm::EDPutTokenT<reco::PFClusterCollection> legacyPfClustersToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> recHitsLabel_;
+  const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  const bool cutsFromDB_;
   // the actual algorithm
   std::unique_ptr<PFCPositionCalculatorBase> positionCalc_;
   std::unique_ptr<PFCPositionCalculatorBase> allCellsPositionCalc_;
@@ -187,6 +195,8 @@ private:
 
 void LegacyPFClusterProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   const reco::PFRecHitHostCollection& pfRecHits = event.get(InputPFRecHitSoA_Token_);
+
+  HcalPFCuts const* paramPF = cutsFromDB_ ? &setup.getData(hcalCutsToken_) : nullptr;
 
   auto const& pfClusterSoA = event.get(pfClusterSoAToken_).const_view();
   auto const& pfRecHitFractionSoA = event.get(pfRecHitFractionSoAToken_).const_view();
@@ -221,11 +231,9 @@ void LegacyPFClusterProducer::produce(edm::Event& event, const edm::EventSetup& 
 
     // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
     if (nTopoSeeds[pfClusterSoA[i].topoId()] == 1 && allCellsPositionCalc_) {
-      allCellsPositionCalc_->calculateAndSetPosition(
-          temp, nullptr);  // temporarily use nullptr until we can properly set GT thresholds
+      allCellsPositionCalc_->calculateAndSetPosition(temp, paramPF);
     } else {
-      positionCalc_->calculateAndSetPosition(
-          temp, nullptr);  // temporarily use nullptr until we can properly set GT thresholds
+      positionCalc_->calculateAndSetPosition(temp, paramPF);
     }
     out.emplace_back(std::move(temp));
   }

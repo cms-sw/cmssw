@@ -66,8 +66,6 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-
   // ----------member data ---------------------------
 
   // input tokens
@@ -156,9 +154,6 @@ void L1TZDCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Output in this case will be an empty collection
   iEvent.emplace(etToken_, std::move(etsumsReduced));
 }
-
-// ------------ method called when starting to processes a run  ------------
-void L1TZDCProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TZDCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

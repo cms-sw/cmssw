@@ -260,15 +260,15 @@ namespace edm {
     return true;
   }
 
-  InputSource::ItemType PoolSource::getNextItemType() {
+  InputSource::ItemTypeInfo PoolSource::getNextItemType() {
     RunNumber_t run = IndexIntoFile::invalidRun;
     LuminosityBlockNumber_t lumi = IndexIntoFile::invalidLumi;
     EventNumber_t event = IndexIntoFile::invalidEvent;
     InputSource::ItemType itemType = primaryFileSequence_->getNextItemType(run, lumi, event);
-    if (secondaryFileSequence_ && (IsSynchronize != state())) {
-      if (itemType == IsRun || itemType == IsLumi || itemType == IsEvent) {
+    if (secondaryFileSequence_ && (ItemType::IsSynchronize != state())) {
+      if (itemType == ItemType::IsRun || itemType == ItemType::IsLumi || itemType == ItemType::IsEvent) {
         if (!secondaryFileSequence_->containedInCurrentFile(run, lumi, event)) {
-          return IsSynchronize;
+          return ItemType::IsSynchronize;
         }
       }
     }

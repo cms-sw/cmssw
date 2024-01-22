@@ -85,8 +85,8 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent,
         JetContainer.push_back(calojetIter);
         double maxTowerE = 0.0;
         for (auto const& kal : *towerHandle) {
-          double dR = deltaR(calojetIter.eta(), calojetIter.phi(), kal.eta(), kal.phi());
-          if ((dR < 0.50) and (kal.p() > maxTowerE)) {
+          double const dR2 = reco::deltaR2(calojetIter.eta(), calojetIter.phi(), kal.eta(), kal.phi());
+          if (dR2 < 0.25 and kal.p() > maxTowerE) {
             maxTowerE = kal.p();
             seedTower = kal;
           }

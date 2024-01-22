@@ -256,6 +256,27 @@ namespace l1t {
 
     ObjectType objectType() const { return objectType_; }
 
+    // Nano SimpleCandidateFlatTableProducer accessor functions
+    int hwPT_toInt() const { return hwPT().to_int(); }
+    int hwPhi_toInt() const { return hwPhi().to_int(); }
+    int hwEta_toInt() const { return hwEta().to_int(); }
+    int hwZ0_toInt() const { return hwZ0().to_int(); }
+    int hwIso_toInt() const { return hwIso().to_int(); }
+    int hwQual_toInt() const { return hwQual().to_int(); }
+    int hwCharge_toInt() const { return hwCharge().to_int(); }
+    int hwD0_toInt() const { return hwD0().to_int(); }
+    int hwBeta_toInt() const { return hwBeta().to_int(); }
+    int hwMass_toInt() const { return hwMass().to_int(); }
+    int hwIndex_toInt() const { return hwIndex().to_int(); }
+    int hwSeed_pT_toInt() const { return hwSeed_pT().to_int(); }
+    int hwSeed_z0_toInt() const { return hwSeed_z0().to_int(); }
+    int hwSca_sum_toInt() const { return hwSca_sum().to_int(); }
+    int hwNumber_of_tracks_toInt() const { return hwNumber_of_tracks().to_int(); }
+    int hwSum_pT_pv_toInt() const { return hwSum_pT_pv().to_int(); }
+    int hwType_toInt() const { return hwType().to_int(); }
+    int hwNumber_of_tracks_in_pv_toInt() const { return hwNumber_of_tracks_in_pv().to_int(); }
+    int hwNumber_of_tracks_not_in_pv_toInt() const { return hwNumber_of_tracks_not_in_pv().to_int(); }
+
     bool operator==(const P2GTCandidate& rhs) const;
     bool operator!=(const P2GTCandidate& rhs) const;
 

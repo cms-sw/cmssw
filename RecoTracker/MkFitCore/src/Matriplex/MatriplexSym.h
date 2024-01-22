@@ -78,6 +78,8 @@ namespace Matriplex {
       return *this;
     }
 
+    MatriplexSym(const MatriplexSym& m) = default;
+
     void copySlot(idx_t n, const MatriplexSym& m) {
       for (idx_t i = n; i < kTotSize; i += N) {
         fArray[i] = m.fArray[i];
@@ -262,6 +264,14 @@ namespace Matriplex {
         a[4 * N + n] = s * c12;
         a[5 * N + n] = s * c22;
       }
+    }
+
+    Matriplex<T, 1, 1, N> ReduceFixedIJ(idx_t i, idx_t j) const {
+      Matriplex<T, 1, 1, N> t;
+      for (idx_t n = 0; n < N; ++n) {
+        t[n] = constAt(n, i, j);
+      }
+      return t;
     }
   };
 

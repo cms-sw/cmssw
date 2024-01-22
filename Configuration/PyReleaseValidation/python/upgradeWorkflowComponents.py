@@ -782,10 +782,13 @@ upgradeWFs['photonDRN'].step3 = {
 #   - 2018 conditions, TTbar
 #   - 2018 conditions, Z->mumu
 #   - 2022 conditions (labelled "2021"), TTbar
+#   - 2022 conditions (labelled "2021"), NuGun
 #   - 2022 conditions (labelled "2021"), Z->mumu
 #   - 2023 conditions, TTbar
+#   - 2023 conditions, NuGun
 #   - 2023 conditions, Z->mumu
 #   - 2026 conditions, TTbar
+#   - 2026 conditions, NuGu
 class PatatrackWorkflow(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, mini = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
@@ -843,10 +846,12 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ('2018' in key and fragment == "TTbar_13"),
             ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2023' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
+            ('2021' in key and fragment == "NuGun"),
+            ('2023' in key and fragment == "NuGun"),
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
             ('2023' in key and fragment == "ZMM_14" and 'FS' not in key),
-            ('2026' in key and fragment == "TTbar_14TeV"),
+            ('2026' in key and (fragment == "TTbar_14TeV" or fragment=="NuGun")),
             (('HI' in key) and 'Hydjet' in fragment and "PixelOnly" in self.suffix )
         ]
         result = any(selected) and hasHarvest
@@ -1884,7 +1889,7 @@ upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
 
 # ECAL component
 class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
-    def __init__(self, suffix, offset, ecalMod,
+    def __init__(self, suffix, offset, ecalTPPh2, ecalMod,
                  steps = [
                      'GenSim',
                      'GenSimHLBeamSpot',
@@ -1892,6 +1897,9 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
                      'GenSimHLBeamSpotHGCALCloseBy',
                      'Digi',
                      'DigiTrigger',
+                     'RecoGlobal',
+                     'HARVESTGlobal',
+                     'ALCAPhase2',
                  ],
                  PU = [
                      'GenSim',
@@ -1900,14 +1908,35 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
                      'GenSimHLBeamSpotHGCALCloseBy',
                      'Digi',
                      'DigiTrigger',
+                     'RecoGlobal',
+                     'HARVESTGlobal',
+                     'ALCAPhase2',
                  ]):
         super(UpgradeWorkflow_ECalComponent, self).__init__(steps, PU, suffix, offset)
+        self.__ecalTPPh2 = ecalTPPh2
         self.__ecalMod = ecalMod
-    
+
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Sim' in step or 'Digi' in step:
+        stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if 'Sim' in step:
             if self.__ecalMod is not None:
                 stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+        if 'Digi' in step:
+            if self.__ecalMod is not None:
+                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+            if self.__ecalTPPh2 is not None:
+                mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
+                mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW,HLT:@fake2'
+                stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,RECO,RECOSIM,PAT',
+                                            '--datatier':'GEN-SIM-RECO',
+                                            '--eventcontent':'FEVTDEBUGHLT',
+                                        }, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = None
+        if 'ALCAPhase2' in step:
+            stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return ('2021' in key or '2023' in key or '2026' in key)
@@ -1915,12 +1944,35 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
 upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponent',
     offset = 0.631,
+    ecalTPPh2 = None,
     ecalMod = 'ecal_component',
 )
 
 upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponentFSW',
     offset = 0.632,
+    ecalTPPh2 = None,
+    ecalMod = 'ecal_component_finely_sampled_waveforms',
+)
+
+upgradeWFs['ECALTPPh2'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2',
+    offset = 0.633,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = None,
+)
+
+upgradeWFs['ECALTPPh2Component'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2Component',
+    offset = 0.634,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = 'ecal_component',
+)
+
+upgradeWFs['ECALTPPh2ComponentFSW'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2ComponentFSW',
+    offset = 0.635,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
     ecalMod = 'ecal_component_finely_sampled_waveforms',
 )
 
@@ -2822,7 +2874,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D104',
         'HLTmenu': '@relval2026',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     '2026D105' : {

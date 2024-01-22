@@ -551,17 +551,19 @@ namespace mkfit {
 
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        if (n >= N_proc || (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)))) {
-          hitsRl(n, 0, 0) = 0.f;
-          hitsXi(n, 0, 0) = 0.f;
-        } else {
-          auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
-          hitsRl(n, 0, 0) = mat.radl;
-          hitsXi(n, 0, 0) = mat.bbxi;
+        if (n < N_proc) {
+          if (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
+            hitsRl(n, 0, 0) = 0.f;
+            hitsXi(n, 0, 0) = 0.f;
+          } else {
+            auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
+            hitsRl(n, 0, 0) = mat.radl;
+            hitsXi(n, 0, 0) = mat.bbxi;
+          }
+          const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
+          const float r = msRad(n, 0, 0);
+          propSign(n, 0, 0) = (r > r0 ? 1. : -1.);
         }
-        const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
-        const float r = msRad(n, 0, 0);
-        propSign(n, 0, 0) = (r > r0 ? 1. : -1.);
       }
       MPlexHV plNrm;
 #pragma omp simd
@@ -690,9 +692,11 @@ namespace mkfit {
           hitsRl(n, 0, 0) = mat.radl;
           hitsXi(n, 0, 0) = mat.bbxi;
         }
-        const float zout = msZ.constAt(n, 0, 0);
-        const float zin = inPar.constAt(n, 2, 0);
-        propSign(n, 0, 0) = (std::abs(zout) > std::abs(zin) ? 1.f : -1.f);
+        if (n < N_proc) {
+          const float zout = msZ.constAt(n, 0, 0);
+          const float zin = inPar.constAt(n, 2, 0);
+          propSign(n, 0, 0) = (std::abs(zout) > std::abs(zin) ? 1.f : -1.f);
+        }
       }
       MPlexHV plNrm;
 #pragma omp simd
@@ -1245,6 +1249,8 @@ namespace mkfit {
                             const int N_proc) {
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
+      if (n >= N_proc)
+        continue;
       float radL = hitsRl.constAt(n, 0, 0);
       if (radL < 1e-13f)
         continue;  //ugly, please fixme

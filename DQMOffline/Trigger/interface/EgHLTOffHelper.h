@@ -49,6 +49,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
 class EcalSeverityLevelAlgo;
@@ -200,6 +203,8 @@ namespace egHLT {
 
     template <class T>
     static bool getHandle(const edm::Event& event, const edm::EDGetTokenT<T>& token, edm::Handle<T>& handle);
+
+    const EcalPFRecHitThresholds* thresholds = nullptr;
   };
 
   template <class T>

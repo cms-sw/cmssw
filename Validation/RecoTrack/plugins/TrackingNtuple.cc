@@ -55,6 +55,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -492,6 +494,7 @@ private:
 
   using PixelMaskContainer = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
   using StripMaskContainer = edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>;
+  using Phase2OTMaskContainer = edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D>>;
 
   struct TPHitIndex {
     TPHitIndex(unsigned int tp = 0, unsigned int simHit = 0, float to = 0, unsigned int id = 0)
@@ -681,6 +684,7 @@ private:
 
   std::vector<std::pair<unsigned int, edm::EDGetTokenT<PixelMaskContainer>>> pixelUseMaskTokens_;
   std::vector<std::pair<unsigned int, edm::EDGetTokenT<StripMaskContainer>>> stripUseMaskTokens_;
+  std::vector<std::pair<unsigned int, edm::EDGetTokenT<Phase2OTMaskContainer>>> ph2OTUseMaskTokens_;
 
   std::string builderName_;
   const bool includeSeeds_;
@@ -1287,6 +1291,7 @@ private:
   std::vector<float>
       ph2_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> ph2_bbxi;
+  std::vector<uint64_t> ph2_usedMask;
 
   ////////////////////
   // invalid (missing/inactive/etc) hits
@@ -1490,6 +1495,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     auto const& maskVPset = iConfig.getUntrackedParameterSetVector("clusterMasks");
     pixelUseMaskTokens_.reserve(maskVPset.size());
     stripUseMaskTokens_.reserve(maskVPset.size());
+    ph2OTUseMaskTokens_.reserve(maskVPset.size());
     for (auto const& mask : maskVPset) {
       auto index = mask.getUntrackedParameter<unsigned int>("index");
       assert(index < 64);
@@ -1498,6 +1504,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       if (includeStripHits_)
         stripUseMaskTokens_.emplace_back(
             index, consumes<StripMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
+      if (includePhase2OTHits_)
+        ph2OTUseMaskTokens_.emplace_back(
+            index, consumes<Phase2OTMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
     }
   }
 
@@ -1872,7 +1881,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("ph2_zx", &ph2_zx);
       t->Branch("ph2_radL", &ph2_radL);
       t->Branch("ph2_bbxi", &ph2_bbxi);
-      t->Branch("ph2_bbxi", &ph2_bbxi);
+      t->Branch("ph2_usedMask", &ph2_usedMask);
     }
     //invalid hits
     t->Branch("inv_isBarrel", &inv_isBarrel);
@@ -2299,6 +2308,7 @@ void TrackingNtuple::clearVariables() {
   ph2_zx.clear();
   ph2_radL.clear();
   ph2_bbxi.clear();
+  ph2_usedMask.clear();
   //invalid hits
   inv_isBarrel.clear();
   inv_detId.clear();
@@ -3314,6 +3324,22 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                       const TrackerTopology& tTopo,
                                       const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                       std::set<edm::ProductID>& hitProductIds) {
+  std::vector<std::pair<uint64_t, Phase2OTMaskContainer const*>> phase2OTMasks;
+  phase2OTMasks.reserve(ph2OTUseMaskTokens_.size());
+  for (const auto& itoken : ph2OTUseMaskTokens_) {
+    edm::Handle<Phase2OTMaskContainer> aH;
+    iEvent.getByToken(itoken.second, aH);
+    phase2OTMasks.emplace_back(1 << itoken.first, aH.product());
+  }
+  auto ph2OTUsedMask = [&phase2OTMasks](size_t key) {
+    uint64_t mask = 0;
+    for (auto const& m : phase2OTMasks) {
+      if (m.second->mask(key))
+        mask |= m.first;
+    }
+    return mask;
+  };
+
   edm::Handle<Phase2TrackerRecHit1DCollectionNew> phase2OTHits;
   iEvent.getByToken(phase2OTRecHitToken_, phase2OTHits);
   for (auto it = phase2OTHits->begin(); it != phase2OTHits->end(); it++) {
@@ -3349,6 +3375,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       ph2_zx.push_back(hit->globalPositionError().czx());
       ph2_radL.push_back(hit->surface()->mediumProperties().radLen());
       ph2_bbxi.push_back(hit->surface()->mediumProperties().xi());
+      ph2_usedMask.push_back(ph2OTUsedMask(hit->firstClusterRef().key()));
 
       LogTrace("TrackingNtuple") << "phase2 OT cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                  << " rawId=" << hitId.rawId() << " pos =" << hit->globalPosition();

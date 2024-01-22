@@ -37,7 +37,8 @@ process.source = cms.Source("PoolSource",
             "drop l1tPFClusters_*_*_*",
             "drop l1tPFTracks_*_*_*",
             "drop l1tPFCandidates_*_*_*",
-            "drop l1tTkPrimaryVertexs_*_*_*")
+            "drop l1tTkPrimaryVertexs_*_*_*"),
+    skipEvents = cms.untracked.uint32(0),
 )
 
 process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
@@ -51,6 +52,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '125X_mcRun4_realistic_v2', '')
 
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff')
+process.load('L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff')
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
 process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would need stubs, and are not used anyway
@@ -58,15 +60,15 @@ process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
 process.l1tSAMuonsGmt = l1tStandaloneMuons.clone()
 
-from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
-from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
-process.l1tLayer2Deregionizer = l1tDeregionizerProducer.clone()
-process.l1tLayer2SeedConeJetsCorrected = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'),
-                                                                                doCorrections = cms.bool(True),
-                                                                                correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
-                                                                                correctorDir = cms.string('L1PuppiSC4EmuJets'))
-process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJetsCorrected")
+l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               mht  = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
+                                               nSums = cms.uint32(2)),
+                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12))
+                                      ])
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
 
 process.l1tLayer1BarrelTDR = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelTDR.regionizerAlgo = cms.string("TDR")
@@ -130,7 +132,9 @@ process.runPF = cms.Path(
         process.l1tLayer1HF +
         process.l1tLayer1 +
         process.l1tLayer2Deregionizer +
-        process.l1tLayer2SeedConeJetsCorrected +
+        process.l1tSC4PFL1PuppiCorrectedEmulator +
+        process.l1tSC4PFL1PuppiCorrectedEmulatorMHT +
+        process.l1tSC8PFL1PuppiCorrectedEmulator +
         # process.l1tLayer2SeedConeJetWriter +
         process.l1tLayer2EG
     )
@@ -149,7 +153,7 @@ if not args.patternFilesOFF:
 #####################################################################################################################
 ## Layer 2 seeded-cone jets 
 if not args.patternFilesOFF:
-    process.runPF.insert(process.runPF.index(process.l1tLayer2SeedConeJetsCorrected)+1, process.l1tLayer2SeedConeJetWriter)
+    process.runPF.insert(process.runPF.index(process.l1tSC8PFL1PuppiCorrectedEmulator)+1, process.l1tLayer2SeedConeJetWriter)
     process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = _eventsPerFile*54
 
 if not args.dumpFilesOFF:
@@ -171,13 +175,24 @@ if args.tm18:
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nEndcaps 
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nTkLinks
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nCaloLinks
+    process.l1tLayer1BarrelSerenityTM18 = process.l1tLayer1BarrelSerenity.clone()
+    process.l1tLayer1BarrelSerenityTM18.regionizerAlgo = "MiddleBufferMultififo"
+    process.l1tLayer1BarrelSerenityTM18.regionizerAlgoParameters = cms.PSet(
+        nTrack = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nTrack,
+        nCalo = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nCalo,
+        nEmCalo = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nEmCalo,
+        nMu = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nMu,
+    )
+    process.l1tLayer1BarrelSerenityTM18.boards = cms.VPSet(*[cms.PSet(regions = cms.vuint32(*range(18*i,18*i+18))) for i in range(3)])
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCal)+1, process.l1tLayer1HGCalTM18)
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCalNoTK)+1, process.l1tLayer1HGCalNoTKTM18)
+    process.runPF.insert(process.runPF.index(process.l1tLayer1BarrelSerenity)+1, process.l1tLayer1BarrelSerenityTM18)
     if not args.patternFilesOFF:
         process.l1tLayer1HGCalTM18.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
         process.l1tLayer1HGCalNoTKTM18.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
+        process.l1tLayer1BarrelSerenityTM18.patternWriters = cms.untracked.VPSet()
     if not args.dumpFilesOFF:
-        for det in "HGCalTM18", "HGCalNoTKTM18":
+        for det in "HGCalTM18", "HGCalNoTKTM18", "BarrelSerenityTM18":
                 getattr(process, 'l1tLayer1'+det).dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/12_5_X/NewInputs125X/150223/TTbar_PU200/inputs125X_1.root' ]

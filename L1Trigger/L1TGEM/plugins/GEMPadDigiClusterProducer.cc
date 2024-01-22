@@ -33,7 +33,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -57,7 +57,7 @@
 #include <map>
 #include <vector>
 
-class GEMPadDigiClusterProducer : public edm::stream::EDProducer<> {
+class GEMPadDigiClusterProducer : public edm::global::EDProducer<> {
 public:
   typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusters;
   typedef std::map<GEMDetId, GEMPadDigiClusters> GEMPadDigiClusterContainer;
@@ -66,20 +66,19 @@ public:
 
   ~GEMPadDigiClusterProducer() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void buildClusters(const GEMPadDigiCollection& pads, GEMPadDigiClusterContainer& out_clusters) const;
-  void selectClusters(const GEMPadDigiClusterContainer& in_clusters, GEMPadDigiClusterCollection& out) const;
+  GEMPadDigiClusterContainer buildClusters(const GEMPadDigiCollection& pads, const GEMGeometry&) const;
+  GEMPadDigiClusterCollection selectClusters(const GEMPadDigiClusterContainer& in_clusters, const GEMGeometry&) const;
   template <class T>
   void checkValid(const T& cluster, const GEMDetId& id) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
+  edm::EDPutTokenT<GEMPadDigiClusterCollection> put_token_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
   edm::InputTag pads_;
 
@@ -93,11 +92,9 @@ private:
   unsigned int maxClustersOHGE21_;
   unsigned int maxClusterSize_;
   bool sendOverflowClusters_;
-
-  const GEMGeometry* geometry_;
 };
 
-GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
+GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps) {
   pads_ = ps.getParameter<edm::InputTag>("InputCollection");
   nPartitionsGE11_ = ps.getParameter<unsigned int>("nPartitionsGE11");
   nPartitionsGE21_ = ps.getParameter<unsigned int>("nPartitionsGE21");
@@ -116,10 +113,9 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
   }
 
   pad_token_ = consumes<GEMPadDigiCollection>(pads_);
-  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
 
-  produces<GEMPadDigiClusterCollection>();
-  consumes<GEMPadDigiCollection>(pads_);
+  put_token_ = produces<GEMPadDigiClusterCollection>();
 }
 
 GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer() {}
@@ -141,36 +137,24 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("simMuonGEMPadDigiClustersDef", desc);
 }
 
-void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
-  geometry_ = &*hGeom;
-}
+void GEMPadDigiClusterProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& eventSetup) const {
+  auto const& geometry = eventSetup.getData(geom_token_);
 
-void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
-  edm::Handle<GEMPadDigiCollection> hpads;
-  e.getByToken(pad_token_, hpads);
-
-  // Create empty output
-  std::unique_ptr<GEMPadDigiClusterCollection> pClusters(new GEMPadDigiClusterCollection());
+  auto const& pads = e.get(pad_token_);
 
   // build the proto clusters (per partition)
-  GEMPadDigiClusterContainer proto_clusters;
-  buildClusters(*(hpads.product()), proto_clusters);
+  GEMPadDigiClusterContainer proto_clusters = buildClusters(pads, geometry);
 
   // sort and select clusters per chamber, per OH, per partition number and per pad number
-  selectClusters(proto_clusters, *pClusters);
-
-  // store them in the event
-  e.put(std::move(pClusters));
+  e.emplace(put_token_, selectClusters(proto_clusters, geometry));
 }
 
-void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pads,
-                                              GEMPadDigiClusterContainer& proto_clusters) const {
-  // clear the container
-  proto_clusters.clear();
+GEMPadDigiClusterProducer::GEMPadDigiClusterContainer GEMPadDigiClusterProducer::buildClusters(
+    const GEMPadDigiCollection& det_pads, const GEMGeometry& geometry) const {
+  GEMPadDigiClusterContainer proto_clusters;
 
   // construct clusters
-  for (const auto& part : geometry_->etaPartitions()) {
+  for (const auto& part : geometry.etaPartitions()) {
     // clusters are not build for ME0
     // -> ignore hits from station 0
     if (part->isME0())
@@ -228,11 +212,13 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
     proto_clusters.emplace(part->id(), all_pad_clusters);
 
   }  // end of partition loop
+  return proto_clusters;
 }
 
-void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterContainer& proto_clusters,
-                                               GEMPadDigiClusterCollection& out_clusters) const {
-  for (const auto& ch : geometry_->chambers()) {
+GEMPadDigiClusterCollection GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterContainer& proto_clusters,
+                                                                      const GEMGeometry& geometry) const {
+  GEMPadDigiClusterCollection out_clusters;
+  for (const auto& ch : geometry.chambers()) {
     const unsigned nOH = ch->id().isGE11() ? nOHGE11_ : nOHGE21_;
     const unsigned nPartitions = ch->id().isGE11() ? nPartitionsGE11_ : nPartitionsGE21_;
     const unsigned nEtaPerPartition = ch->nEtaPartitions() / (nPartitions * nOH);
@@ -264,6 +250,7 @@ void GEMPadDigiClusterProducer::selectClusters(const GEMPadDigiClusterContainer&
       }    // end of clusterizer partition loop
     }      // end of OH loop
   }        // end of chamber loop
+  return out_clusters;
 }
 
 template <class T>

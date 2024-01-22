@@ -16,6 +16,10 @@ namespace mkfit {
   const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexLS &, MPlexLV &, MPlexQI &, \
       const int, const PropagationFlags &, const bool
 
+#define COMPUTE_CHI2_AND_UPDATE_ARGS                                                                              \
+  const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexQF &, MPlexLS &, MPlexLV &, \
+      MPlexQI &, const int, const PropagationFlags, const bool
+
   class FindingFoos {
   public:
     void (*m_compute_chi2_foo)(COMPUTE_CHI2_ARGS);

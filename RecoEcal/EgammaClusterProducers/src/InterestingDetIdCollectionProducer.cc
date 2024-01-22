@@ -32,7 +32,7 @@ The following classes of "interesting id" are considered
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -47,13 +47,12 @@ The following classes of "interesting id" are considered
 
 #include <memory>
 
-class InterestingDetIdCollectionProducer : public edm::stream::EDProducer<> {
+class InterestingDetIdCollectionProducer : public edm::global::EDProducer<> {
 public:
   //! ctor
   explicit InterestingDetIdCollectionProducer(const edm::ParameterSet&);
-  void beginRun(edm::Run const&, const edm::EventSetup&) final;
   //! producer
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
@@ -66,10 +65,8 @@ private:
   std::string interestingDetIdCollection_;
   int minimalEtaSize_;
   int minimalPhiSize_;
-  const CaloTopology* caloTopology_;
 
   int severityLevel_;
-  const EcalSeverityLevelAlgo* severity_;
   bool keepNextToDead_;
   bool keepNextToBoundary_;
 };
@@ -81,8 +78,8 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
   recHitsToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
   basicClustersToken_ =
       consumes<reco::BasicClusterCollection>(iConfig.getParameter<edm::InputTag>("basicClustersLabel"));
-  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginRun>();
-  sevLVToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd, edm::Transition::BeginRun>();
+  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  sevLVToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
   nextToDeadToken_ = esConsumes<EcalNextToDeadChannel, EcalNextToDeadChannelRcd>();
 
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
@@ -100,18 +97,16 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
   keepNextToBoundary_ = iConfig.getParameter<bool>("keepNextToBoundary");
 }
 
-void InterestingDetIdCollectionProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology = iSetup.getHandle(caloTopologyToken_);
-  caloTopology_ = &(*theCaloTopology);
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv = iSetup.getHandle(sevLVToken_);
-  severity_ = sevLv.product();
-}
-
 // ------------ method called to produce the data  ------------
-void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void InterestingDetIdCollectionProducer::produce(edm::StreamID,
+                                                 edm::Event& iEvent,
+                                                 const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
+
+  auto const& caloTopology = iSetup.getData(caloTopologyToken_);
+
+  auto const& severity = iSetup.getData(sevLVToken_);
 
   // take BasicClusters
   Handle<reco::BasicClusterCollection> pClusters;
@@ -155,7 +150,7 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
       if (eMaxId.null())
         continue;
 
-      const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(eMaxId.det(), eMaxId.subdetId());
+      const CaloSubdetectorTopology* topology = caloTopology.getSubdetectorTopology(eMaxId.det(), eMaxId.subdetId());
 
       xtalsToStore = topology->getWindow(eMaxId, minimalEtaSize_, minimalPhiSize_);
 
@@ -172,7 +167,7 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
         indexToStore.push_back(it->id());
       }
       // add hits for severities above a threshold
-      if (severityLevel_ >= 0 && severity_->severityLevel(*it) >= severityLevel_) {
+      if (severityLevel_ >= 0 && severity.severityLevel(*it) >= severityLevel_) {
         indexToStore.push_back(it->id());
       }
       if (keepNextToDead_) {

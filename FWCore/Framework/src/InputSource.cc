@@ -64,7 +64,7 @@ namespace edm {
         newRun_(true),
         newLumi_(true),
         eventCached_(false),
-        state_(IsInvalid),
+        state_(),
         runAuxiliary_(),
         lumiAuxiliary_(),
         statusFileName_(),
@@ -133,61 +133,62 @@ namespace edm {
   // implement the skipping internally, so that the performance gain is realized.
   // If this is done for a source, the 'if' blocks in this function will never be entered
   // for that source.
-  InputSource::ItemType InputSource::nextItemType_() {
-    ItemType itemType = callWithTryCatchAndPrint<ItemType>([this]() { return getNextItemType(); },
-                                                           "Calling InputSource::getNextItemType");
+  InputSource::ItemTypeInfo InputSource::nextItemType_() {
+    ItemTypeInfo itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
+                                                                       "Calling InputSource::getNextItemType");
 
-    if (itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
+    if (itemTypeInfo == ItemType::IsEvent && processingMode() != RunsLumisAndEvents) {
       skipEvents(1);
       return nextItemType_();
     }
-    if (itemType == IsLumi && processingMode() == Runs) {
+    if (itemTypeInfo == ItemType::IsLumi && processingMode() == Runs) {
       // QQQ skipLuminosityBlock_();
       return nextItemType_();
     }
-    return itemType;
+    return itemTypeInfo;
   }
 
-  InputSource::ItemType InputSource::nextItemType() {
-    ItemType oldState = state_;
+  InputSource::ItemTypeInfo InputSource::nextItemType() {
+    ItemType oldType = state_.itemType();
     if (eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
-      state_ = IsStop;
+      state_ = ItemType::IsStop;
     } else if (lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
-      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsLumisAndEvents) {
-        state_ = IsStop;
+      if (oldType == ItemType::IsInvalid || oldType == ItemType::IsFile || oldType == ItemType::IsRun ||
+          processingMode() != RunsLumisAndEvents) {
+        state_ = ItemType::IsStop;
       } else {
-        ItemType newState = nextItemType_();
-        if (newState == IsEvent) {
+        ItemTypeInfo newState = nextItemType_();
+        if (newState == ItemType::IsEvent) {
           assert(processingMode() == RunsLumisAndEvents);
-          state_ = IsEvent;
+          state_ = ItemType::IsEvent;
         } else {
-          state_ = IsStop;
+          state_ = ItemType::IsStop;
         }
       }
     } else {
-      ItemType newState = nextItemType_();
-      if (newState == IsStop) {
-        state_ = IsStop;
-      } else if (newState == IsSynchronize) {
-        state_ = IsSynchronize;
-      } else if (newState == IsFile || oldState == IsInvalid) {
-        state_ = IsFile;
-      } else if (newState == IsRun || oldState == IsFile) {
+      ItemTypeInfo newState = nextItemType_();
+      if (newState == ItemType::IsStop) {
+        state_ = ItemType::IsStop;
+      } else if (newState == ItemType::IsSynchronize) {
+        state_ = ItemType::IsSynchronize;
+      } else if (newState == ItemType::IsFile || oldType == ItemType::IsInvalid) {
+        state_ = ItemType::IsFile;
+      } else if (newState == ItemType::IsRun || oldType == ItemType::IsFile) {
         runAuxiliary_ = readRunAuxiliary();
-        state_ = IsRun;
-      } else if (newState == IsLumi || oldState == IsRun) {
+        state_ = (newState == ItemType::IsRun) ? newState : ItemTypeInfo(ItemType::IsRun);
+      } else if (newState == ItemType::IsLumi || oldType == ItemType::IsRun) {
         assert(processingMode() != Runs);
         lumiAuxiliary_ = readLuminosityBlockAuxiliary();
-        state_ = IsLumi;
+        state_ = (newState == ItemType::IsLumi) ? newState : ItemTypeInfo(ItemType::IsLumi);
       } else {
         assert(processingMode() == RunsLumisAndEvents);
-        state_ = IsEvent;
+        state_ = ItemType::IsEvent;
       }
     }
-    if (state_ == IsStop) {
+    if (state_ == ItemType::IsStop) {
       lumiAuxiliary_.reset();
       runAuxiliary_.reset();
     }
@@ -220,7 +221,7 @@ namespace edm {
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock> InputSource::readFile() {
-    assert(state_ == IsFile);
+    assert(state_ == ItemType::IsFile);
     assert(!limitReached());
     return callWithTryCatchAndPrint<std::shared_ptr<FileBlock> >([this]() { return readFile_(); },
                                                                  "Calling InputSource::readFile_");
@@ -299,7 +300,7 @@ namespace edm {
   }
 
   void InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
-    assert(state_ == IsEvent);
+    assert(state_ == ItemType::IsEvent);
     assert(!eventLimitReached());
     {
       // block scope, in order to issue the PostSourceEvent signal before calling postRead and issueReports
@@ -345,7 +346,7 @@ namespace edm {
   }
 
   void InputSource::rewind() {
-    state_ = IsInvalid;
+    state_ = ItemTypeInfo();
     remainingEvents_ = maxEvents_;
     setNewRun();
     setNewLumi();

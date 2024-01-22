@@ -43,7 +43,7 @@ void LHCInfoCombined::setFromPerFill(const LHCInfoPerFill& infoPerFill) {
   fillNumber = infoPerFill.fillNumber();
 }
 
-float LHCInfoCombined::crossingAngle() {
+float LHCInfoCombined::crossingAngle() const {
   if (crossingAngleX == 0. && crossingAngleY == 0.) {
     return crossingAngleInvalid;
   }

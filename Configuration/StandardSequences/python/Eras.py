@@ -61,7 +61,8 @@ class Eras (object):
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
                  'Phase2C17I13M9',
-                 'Phase2C20I13M9'
+                 'Phase2C20I13M9',
+                 'Phase2C22I13M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -76,7 +77,7 @@ class Eras (object):
                            'phase2_common', 'phase2_tracker',
                            'phase2_muon', 'phase2_GEM', 'phase2_GE0',
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
-                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
+                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel', 'phase2_ecalTP_devel',
                            'phase2_trigger',
                            'phase2_squarePixels', 'phase2_3DPixels',
                            'trackingLowPU', 'trackingPhase1',

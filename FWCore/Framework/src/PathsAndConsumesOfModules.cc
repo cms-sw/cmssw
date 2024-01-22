@@ -328,6 +328,28 @@ namespace edm {
 
       return allDependenciesRan;
     }
+
+    void findAllDependenciesForModule(unsigned int iModID,
+                                      std::vector<ModuleStatus> const& iStatus,
+                                      std::vector<std::unordered_set<unsigned int>>& oDependencies) {
+      auto const& dependsOn = iStatus[iModID].dependsOn_;
+      if (dependsOn.empty() or !oDependencies[iModID].empty()) {
+        return;
+      }
+      oDependencies[iModID].insert(dependsOn.begin(), dependsOn.end());
+      for (auto dep : dependsOn) {
+        findAllDependenciesForModule(dep, iStatus, oDependencies);
+        oDependencies[iModID].merge(oDependencies[dep]);
+      }
+    }
+    std::vector<std::unordered_set<unsigned int>> findAllDependenciesForModules(
+        std::vector<ModuleStatus> const& iStatus) {
+      std::vector<std::unordered_set<unsigned int>> ret(iStatus.size());
+      for (unsigned int id = 0; id < iStatus.size(); ++id) {
+        findAllDependenciesForModule(id, iStatus, ret);
+      }
+      return ret;
+    }
   }  // namespace
   void checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC, bool iPrintDependencies) {
     constexpr auto kInvalidIndex = std::numeric_limits<unsigned int>::max();
@@ -425,12 +447,14 @@ namespace edm {
             statusOfModules[mod->id()].pathsOn_.push_back(p + offset);
           }
         }
-        status.nModules_ = uniqueModules.size() + 1;
+        status.nModules_ = uniqueModules.size();
 
         //add the EndPathStatusInserter at the end
         auto found = pathStatusInserterModuleLabelToModuleID.find(iPnC.endPaths()[p]);
-        assert(found != pathStatusInserterModuleLabelToModuleID.end());
-        status.modulesOnPath_.push_back(found->second);
+        if (found != pathStatusInserterModuleLabelToModuleID.end()) {
+          status.modulesOnPath_.push_back(found->second);
+          ++status.nModules_;
+        }
       }
     }
 
@@ -450,6 +474,11 @@ namespace edm {
     }
 
     unsigned int nPathsFinished = 0;
+    for (auto const& status : statusOfPaths) {
+      if (status.nModules_ == 0) {
+        ++nPathsFinished;
+      }
+    }
 
     //if a circular dependency exception happens, stackTrace has the info
     std::vector<unsigned int> stackTrace;
@@ -636,26 +665,6 @@ namespace edm {
     //NOTE: although the following conditions are not needed for safe running, they are
     // policy choices the collaboration has made.
 
-    //Check to see if for each path if the order of the modules is correct based on dependencies
-    for (auto& p : statusOfPaths) {
-      for (unsigned long int i = 0; p.nModules_ > 0 and i < p.nModules_ - 1; ++i) {
-        auto moduleID = p.modulesOnPath_[i];
-        if (not statusOfModules[moduleID].dependsOn_.empty()) {
-          for (unsigned long int j = i + 1; j < p.nModules_; ++j) {
-            auto testModuleID = p.modulesOnPath_[j];
-            for (auto depModuleID : statusOfModules[moduleID].dependsOn_) {
-              if (depModuleID == testModuleID) {
-                throw edm::Exception(edm::errors::ScheduleExecutionFailure, "Unrunnable schedule\n")
-                    << "Dependent module later on Path\n"
-                    << "  module '" << moduleIndexToNames[moduleID] << "' depends on '"
-                    << moduleIndexToNames[depModuleID] << "' which is later on path " << pathName(p);
-              }
-            }
-          }
-        }
-      }
-    }
-
     //HLT wants all paths to be equivalent. If a path has a module A that needs data from module B and module B appears on one path
     // as module A then B must appear on ALL paths that have A.
     unsigned int modIndex = 0;
@@ -703,6 +712,25 @@ namespace edm {
         }
       }
       ++modIndex;
+    }
+
+    //Check to see if for each path if the order of the modules is correct based on dependencies
+    auto allDependencies = findAllDependenciesForModules(statusOfModules);
+    for (auto& p : statusOfPaths) {
+      for (unsigned long int i = 0; p.nModules_ > 0 and i < p.nModules_ - 1; ++i) {
+        auto moduleID = p.modulesOnPath_[i];
+        if (not allDependencies[moduleID].empty()) {
+          for (unsigned long int j = i + 1; j < p.nModules_; ++j) {
+            auto testModuleID = p.modulesOnPath_[j];
+            if (allDependencies[moduleID].find(testModuleID) != allDependencies[moduleID].end()) {
+              throw edm::Exception(edm::errors::ScheduleExecutionFailure, "Unrunnable schedule\n")
+                  << "Dependent module later on Path\n"
+                  << "  module '" << moduleIndexToNames[moduleID] << "' depends on '"
+                  << moduleIndexToNames[testModuleID] << "' which is later on path " << pathName(p);
+            }
+          }
+        }
+      }
     }
   }
 }  // namespace edm

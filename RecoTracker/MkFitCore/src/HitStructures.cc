@@ -91,6 +91,9 @@ namespace mkfit {
       m_hit_infos.reserve(m_n_hits);
     }
 
+    // Factor to get from hit sigma to half-length in q direction.
+    const float hl_fac = is_pixel() ? 3.0f : std::sqrt(3.0f);
+
     for (unsigned int i = 0; i < m_n_hits; ++i) {
       const Hit &h = hitv[i];
 
@@ -100,13 +103,12 @@ namespace mkfit {
       m_binnor.register_entry_safe(phi, q);
 
       if (Config::usePhiQArrays) {
-        const float sqrt3 = std::sqrt(3);
         float half_length, qbar;
         if (m_is_barrel) {
-          half_length = sqrt3 * std::sqrt(h.ezz());
+          half_length = hl_fac * std::sqrt(h.ezz());
           qbar = h.r();
         } else {
-          half_length = sqrt3 * std::sqrt(h.exx() + h.eyy());
+          half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
           qbar = h.z();
         }
         hinfos.emplace_back(HitInfo({phi, q, half_length, qbar}));
@@ -168,13 +170,14 @@ namespace mkfit {
     m_binnor.register_entry_safe(phi, q);
 
     if (Config::usePhiQArrays) {
-      const float sqrt3 = std::sqrt(3);
+      // Factor to get from hit sigma to half-length in q direction.
+      const float hl_fac = is_pixel() ? 3.0f : std::sqrt(3.0f);
       float half_length, qbar;
       if (m_is_barrel) {
-        half_length = sqrt3 * std::sqrt(h.ezz());
+        half_length = hl_fac * std::sqrt(h.ezz());
         qbar = h.r();
       } else {
-        half_length = sqrt3 * std::sqrt(h.exx() + h.eyy());
+        half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
         qbar = h.z();
       }
       m_hit_infos.emplace_back(HitInfo({phi, q, half_length, qbar}));

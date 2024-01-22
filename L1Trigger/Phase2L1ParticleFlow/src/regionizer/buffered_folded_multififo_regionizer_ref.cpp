@@ -88,16 +88,17 @@ void l1ct::BufferedFoldedMultififoRegionizerEmulator::initSectorsAndRegions(cons
     l1ct::glbeta_t etaMin, etaMax;
     findEtaBounds_(fold_[ie].sectors.track[0].region, fold_[ie].regions, etaMin, etaMax);
     for (unsigned int isec = 0; ntk_ > 0 && isec < NTK_SECTORS; ++isec) {
-      tkBuffers_[2 * isec + ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::TkObjEmu>(nclocks_ / 2, etaMin, etaMax);
+      tkBuffers_[2 * isec + ie] =
+          l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.hadcalo[0].region, fold_[ie].regions, etaMin, etaMax);
     for (unsigned int isec = 0; ncalo_ > 0 && isec < NCALO_SECTORS; ++isec) {
       caloBuffers_[2 * isec + ie] =
-          l1ct::multififo_regionizer::EtaBuffer<l1ct::HadCaloObjEmu>(nclocks_ / 2, etaMin, etaMax);
+          l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.muon.region, fold_[ie].regions, etaMin, etaMax);
     if (nmu_ > 0) {
-      muBuffers_[ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
+      muBuffers_[ie] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
   }
 }

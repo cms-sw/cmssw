@@ -48,7 +48,7 @@ namespace edm {
     token t;
     if (not(input_ >> t)) {
       reachedEndOfInput_ = true;
-      return lastTransition_ = InputSource::IsStop;
+      return lastTransition_ = InputSource::ItemType::IsStop;
     }
 
     char ch = t.id;
@@ -57,11 +57,11 @@ namespace edm {
     if (ch == 'r') {
       output_ << "    *** nextItemType: Run " << t.value << " ***\n";
       nextRun_ = static_cast<RunNumber_t>(t.value);
-      return lastTransition_ = InputSource::IsRun;
+      return lastTransition_ = InputSource::ItemType::IsRun;
     } else if (ch == 'l') {
       output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
       nextLumi_ = static_cast<LuminosityBlockNumber_t>(t.value);
-      return lastTransition_ = InputSource::IsLumi;
+      return lastTransition_ = InputSource::ItemType::IsLumi;
     } else if (ch == 'e') {
       output_ << "    *** nextItemType: Event ***\n";
       // a special value for test purposes only
@@ -71,7 +71,7 @@ namespace edm {
       } else {
         shouldWeStop_ = false;
       }
-      return lastTransition_ = InputSource::IsEvent;
+      return lastTransition_ = InputSource::ItemType::IsEvent;
     } else if (ch == 'f') {
       output_ << "    *** nextItemType: File " << t.value << " ***\n";
       // a special value for test purposes only
@@ -79,7 +79,7 @@ namespace edm {
         shouldWeCloseOutput_ = false;
       else
         shouldWeCloseOutput_ = true;
-      return lastTransition_ = InputSource::IsFile;
+      return lastTransition_ = InputSource::ItemType::IsFile;
     } else if (ch == 's') {
       output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
       // a special value for test purposes only
@@ -87,17 +87,17 @@ namespace edm {
         shouldWeEndLoop_ = false;
       else
         shouldWeEndLoop_ = true;
-      return lastTransition_ = InputSource::IsStop;
+      return lastTransition_ = InputSource::ItemType::IsStop;
     } else if (ch == 'x') {
       output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
       shouldWeEndLoop_ = t.value;
-      return lastTransition_ = InputSource::IsStop;
+      return lastTransition_ = InputSource::ItemType::IsStop;
     } else if (ch == 't') {
       output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
       shouldThrow_ = true;
       return nextTransitionType();
     }
-    return lastTransition_ = InputSource::IsInvalid;
+    return lastTransition_ = InputSource::ItemType::IsInvalid;
   }
 
   InputSource::ItemType MockEventProcessor::lastTransitionType() const { return lastTransition_; }
@@ -112,9 +112,9 @@ namespace edm {
       }
       readAndProcessEvent();
       if (shouldWeStop()) {
-        return InputSource::IsEvent;
+        return InputSource::ItemType::IsEvent;
       }
-    } while (nextTransitionType() == InputSource::IsEvent);
+    } while (nextTransitionType() == InputSource::ItemType::IsEvent);
 
     return lastTransitionType();
   }
@@ -137,7 +137,7 @@ namespace edm {
 
         fp.normalEnd();
 
-        if (trans != InputSource::IsStop) {
+        if (trans != InputSource::ItemType::IsStop) {
           //problem with the source
           doErrorStuff();
           break;
@@ -188,15 +188,15 @@ namespace edm {
 
   InputSource::ItemType MockEventProcessor::processRuns() {
     bool finished = false;
-    auto nextTransition = edm::InputSource::IsRun;
+    auto nextTransition = edm::InputSource::ItemType::IsRun;
     do {
       switch (nextTransition) {
-        case edm::InputSource::IsRun: {
+        case edm::InputSource::ItemType::IsRun: {
           processRun();
           nextTransition = nextTransitionType();
           break;
         }
-        case edm::InputSource::IsLumi: {
+        case edm::InputSource::ItemType::IsLumi: {
           nextTransition = processLumis();
           break;
         }
@@ -225,10 +225,10 @@ namespace edm {
   InputSource::ItemType MockEventProcessor::processLumis() {
     if (lumiStatus_ and currentLumiNumber_ == nextLumi_) {
       readAndMergeLumi();
-      if (nextTransitionType() == InputSource::IsEvent) {
+      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
         readAndProcessEvents();
         if (shouldWeStop()) {
-          return edm::InputSource::IsStop;
+          return edm::InputSource::ItemType::IsStop;
         }
       }
     } else {
@@ -239,10 +239,10 @@ namespace edm {
       throwIfNeeded();
       didGlobalBeginLumiSucceed_ = true;
       //Need to do event processing here
-      if (nextTransitionType() == InputSource::IsEvent) {
+      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
         readAndProcessEvents();
         if (shouldWeStop()) {
-          return edm::InputSource::IsStop;
+          return edm::InputSource::ItemType::IsStop;
         }
       }
     }

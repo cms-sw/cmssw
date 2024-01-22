@@ -20,6 +20,7 @@ namespace mkfit {
     MkBuilder& get() { return *builder_; }
 
     static void populate();
+    static void clear();
 
   private:
     std::unique_ptr<MkBuilder> builder_;

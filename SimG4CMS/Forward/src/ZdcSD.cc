@@ -96,6 +96,13 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     int primaryID = getTrackID(theTrack);
     currentID[0].setID(unitID, time, primaryID, depth);
     double energy = calculateCherenkovDeposit(aStep);
+
+    // Russian Roulette
+    double wt2 = theTrack->GetWeight();
+    if (wt2 > 0.0) {
+      energy *= wt2;
+    }
+
     if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
       edepositEM = energy;
       edepositHAD = 0;
@@ -173,8 +180,6 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
   // preStepPoint information
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
-  std::string nameVolume = ForwardName::getName(currentPV->GetName());
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   const G4ThreeVector& hit_mom = preStepPoint->GetMomentumDirection();
@@ -210,6 +215,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
   std::string postnameVolume = ForwardName::getName(postPV->GetName());
+  std::string nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"
@@ -328,28 +334,11 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
                                    << "," << charge << "," << beta << "," << stepL << "," << d_qz << "," << variant
                                    << "," << meanNCherPhot << "," << poissNCherPhot << "," << NCherPhot;
 #endif
-    // --constants-----------------
-    // << "," << photEnSpectrDE
-    // << "," << nMedium
-    // << "," << bThreshold
-    // << "," << thFibDirRad
-    // << "," << thFullReflRad
-    // << "," << effPMTandTransport
-    // --other variables-----------
-    // << "," << curprocess
-    // << "," << nameProcess
-    // << "," << name
-    // << "," << rad
-    // << "," << mat
 
   } else {
     // determine failure mode: beta, charge, and/or nameVolume
     if (beta <= bThreshold)
       edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
-    if (charge == 0)
-      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail charge=0";
-    if (!(nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber"))
-      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
   }
 
   return NCherPhot;
@@ -370,131 +359,120 @@ const double HBARC = 6.582119514E-16 /*eV*s*/ * 2.99792458E8 /*m/s*/;  // hbar *
 
 // Calculate the Cherenkov deposit corresponding to a G4Step
 double ZdcSD::calculateCherenkovDeposit(const G4Step* aStep) {
-  G4Material* material = aStep->GetTrack()->GetMaterial();
+  const G4StepPoint* pPreStepPoint = aStep->GetPreStepPoint();
+  G4double charge = pPreStepPoint->GetCharge() / CLHEP::eplus;
+  if (charge == 0.0 || aStep->GetStepLength() < 1e-9 * CLHEP::mm)
+    return 0.0;
 
-  if (material->GetName() != "quartz")
-    return 0.0;  // 0 deposit if material is not quartz
-  else {
-    const G4StepPoint* pPreStepPoint = aStep->GetPreStepPoint();
-    const G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-    const G4String volumeName = pPreStepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
+  const G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
 
-    G4ThreeVector pre = pPreStepPoint->GetPosition();
-    G4ThreeVector post = pPostStepPoint->GetPosition();
+  G4ThreeVector pre = pPreStepPoint->GetPosition();
+  G4ThreeVector post = pPostStepPoint->GetPosition();
 
-    if ((post - pre).mag() < 1E-9)
-      return 0.0;
+  //Convert step coordinates to local (fiber) coodinates
+  const G4ThreeVector localPre = setToLocal(pre, pPreStepPoint->GetTouchable());
+  const G4ThreeVector localPost = setToLocal(post, pPreStepPoint->GetTouchable());
 
-    //Convert step coordinates to local (fiber) coodinates
-    const G4ThreeVector localPre = setToLocal(pre, pPreStepPoint->GetTouchable());
-    const G4ThreeVector localPost = setToLocal(post, pPreStepPoint->GetTouchable());
-    // Calculate the unit direction vector in local coordinates
+  // Calculate the unit direction vector in local coordinates
+  const G4ThreeVector particleDirection = (localPost - localPre) / (localPost - localPre).mag();
 
-    const G4ThreeVector particleDirection = (localPost - localPre) / (localPost - localPre).mag();
+  double beta = 0.5 * (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta());
+  double stepLength = aStep->GetStepLength() / 1000;  // Geant4 stepLength is in "mm"
 
-    const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
-    int charge = round(aParticle->GetDefinition()->GetPDGCharge());
+  int nPhotons;  // Number of Cherenkov photons
 
-    if (charge == 0)
-      return 0.0;
+  nPhotons = G4Poisson(calculateMeanNumberOfPhotons(charge, beta, stepLength));
 
-    double beta = 0.5 * (pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta());
-    double stepLength = aStep->GetStepLength() / 1000;  // Geant4 stepLength is in "mm"
+  double totalE = 0.0;
 
-    int nPhotons;  // Number of Cherenkov photons
+  for (int i = 0; i < nPhotons; ++i) {
+    // uniform refractive index in PMT range -> uniform energy distribution
+    double photonE = EMIN + G4UniformRand() * (EMAX - EMIN);
+    // UPDATE: taking into account dispersion relation -> energy distribution
 
-    nPhotons = G4Poisson(calculateMeanNumberOfPhotons(charge, beta, stepLength));
+    if (G4UniformRand() > pmtEfficiency(convertEnergyToWavelength(photonE)))
+      continue;
 
-    double totalE = 0.0;
-
-    for (int i = 0; i < nPhotons; i++) {
-      // uniform refractive index in PMT range -> uniform energy distribution
-      double photonE = EMIN + G4UniformRand() * (EMAX - EMIN);
-      // UPDATE: taking into account dispersion relation -> energy distribution
-
-      if (G4UniformRand() > pmtEfficiency(convertEnergyToWavelength(photonE)))
-        continue;
-
-      double omega = G4UniformRand() * twopi;
-      double thetaC = acos(1.0 / (beta * RINDEX));
+    double omega = G4UniformRand() * twopi;
+    double cosTheta = std::min(1.0 / (beta * RINDEX), 1.0);
+    double sinTheta = std::sqrt((1. - cosTheta) * (1.0 + cosTheta));
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("ZdcSD") << "E_gamma: " << photonE << "\t omega: " << omega << "\t thetaC: " << thetaC;
+    edm::LogVerbatim("ZdcSD") << "E_gamma: " << photonE << "\t omega: " << omega << "\t thetaC: " << cosTheta;
 #endif
-      // Calculate momentum direction w.r.t primary particle (z-direction)
-      double px = photonE * sin(thetaC) * cos(omega);
-      double py = photonE * sin(thetaC) * sin(omega);
-      double pz = photonE * cos(thetaC);
-      G4ThreeVector photonMomentum(px, py, pz);
+    // Calculate momentum direction w.r.t primary particle (z-direction)
+    double px = photonE * sinTheta * std::cos(omega);
+    double py = photonE * sinTheta * std::sin(omega);
+    double pz = photonE * cosTheta;
+    G4ThreeVector photonMomentum(px, py, pz);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("ZdcSD") << "pPR = (" << particleDirection.x() << "," << particleDirection.y() << ","
-                                << particleDirection.z() << ")";
-      edm::LogVerbatim("ZdcSD") << "pCH = (" << px << "," << py << "," << pz << ")";
+    edm::LogVerbatim("ZdcSD") << "pPR = (" << particleDirection.x() << "," << particleDirection.y() << ","
+                              << particleDirection.z() << ")";
+    edm::LogVerbatim("ZdcSD") << "pCH = (" << px << "," << py << "," << pz << ")";
 #endif
-      // Rotate to the fiber reference frame
-      photonMomentum.rotateUz(particleDirection);
+    // Rotate to the fiber reference frame
+    photonMomentum.rotateUz(particleDirection);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("ZdcSD") << "pLAB = (" << photonMomentum.x() << "," << photonMomentum.y() << ","
-                                << photonMomentum.z() << ")";
+    edm::LogVerbatim("ZdcSD") << "pLAB = (" << photonMomentum.x() << "," << photonMomentum.y() << ","
+                              << photonMomentum.z() << ")";
 #endif
-      // Get random position along G4Step
-      G4ThreeVector photonPosition = localPre + G4UniformRand() * (localPost - localPre);
+    // Get random position along G4Step
+    G4ThreeVector photonPosition = localPre + G4UniformRand() * (localPost - localPre);
 
-      // 2D vectors to calculate impact position (x*,y*)
-      G4TwoVector r0(photonPosition);
-      G4TwoVector v0(photonMomentum);
+    // 2D vectors to calculate impact position (x*,y*)
+    G4TwoVector r0(photonPosition);
+    G4TwoVector v0(photonMomentum);
 
-      double R = 0.3; /*mm, fiber radius*/
-      double R2 = 0.3 * 0.3;
+    double R = 0.3; /*mm, fiber radius*/
+    double R2 = 0.3 * 0.3;
 
-      if (r0.mag() < R && photonMomentum.z() < 0.0) {
-        // 2nd order polynomial coefficients
-        double a = v0.mag2();
-        double b = 2.0 * r0 * v0;
-        double c = r0.mag2() - R2;
+    if (r0.mag() < R && photonMomentum.z() < 0.0) {
+      // 2nd order polynomial coefficients
+      double a = v0.mag2();
+      double b = 2.0 * r0 * v0;
+      double c = r0.mag2() - R2;
 
-        if (a < 1E-6)
-          totalE += 1;  //photonE /*eV*/;
-        else {
-          // calculate intersection point - solving 2nd order polynomial
-          double t = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-          G4ThreeVector n(r0.x() + v0.x() * t, r0.y() + v0.y() * t, 0.0);  // surface normal
-          double cosTheta = (n * photonMomentum) / (n.mag() * photonE);    // cosine of incident angle
+      if (a < 1E-6)
+        totalE += 1;  //photonE /*eV*/;
+      else {
+        // calculate intersection point - solving 2nd order polynomial
+        double t = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
+        G4ThreeVector n(r0.x() + v0.x() * t, r0.y() + v0.y() * t, 0.0);  // surface normal
+        double cosTheta = (n * photonMomentum) / (n.mag() * photonE);    // cosine of incident angle
 
-          if (cosTheta >= NAperRINDEX)  // lightguide condition
-            totalE += 1;                //photonE /*eV*/;
-        }
+        if (cosTheta >= NAperRINDEX)  // lightguide condition
+          totalE += 1;                //photonE /*eV*/;
       }
-
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("ZdcSD") << "r = (" << photonPosition.x() << "," << photonPosition.y() << ","
-                                << photonPosition.z() << ")" << std::endl;
-#endif
     }
 
 #ifdef EDM_ML_DEBUG
-    if (nPhotons > 30) {
-      edm::LogVerbatim("ZdcSD") << totalE;
-
-      if (totalE > 0)
-        edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z() << " " << totalE << std::endl;
-    }
+    edm::LogVerbatim("ZdcSD") << "r = (" << photonPosition.x() << "," << photonPosition.y() << "," << photonPosition.z()
+                              << ")" << std::endl;
 #endif
-    return totalE;
   }
+
+#ifdef EDM_ML_DEBUG
+  if (nPhotons > 30) {
+    edm::LogVerbatim("ZdcSD") << totalE;
+
+    if (totalE > 0)
+      edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z() << " " << totalE;
+  }
+#endif
+  return totalE;
 }
 
 // Calculate mean number of Cherenkov photons in the sensitivity range (300-650 nm)
 // for a given step length for a particle with given charge and beta
-double ZdcSD::calculateMeanNumberOfPhotons(int charge, double beta, double stepLength) {
+double ZdcSD::calculateMeanNumberOfPhotons(double charge, double beta, double stepLength) {
   // Return mean number of Cherenkov photons
   return (ALPHA * charge * charge * stepLength) / HBARC * (EMAX - EMIN) * (1.0 - 1.0 / (beta * beta * RINDEX * RINDEX));
 }
 
 // Evaluate photon pdf
-double ZdcSD::photonEnergyDist(int charge, double beta, double E) {
+double ZdcSD::photonEnergyDist(double charge, double beta, double E) {
   const std::vector<double> ENERGY_TAB{1.75715, 1.81902, 1.88311, 1.94944, 2.0183,  2.08939, 2.16302, 2.23919,
                                        2.31789, 2.39954, 2.48416, 2.57175, 2.66232, 2.75643, 2.85349, 2.95411,
                                        3.05756, 3.16528, 3.2774,  3.39218, 3.5123,  3.6359,  3.76394, 3.89642,
@@ -509,7 +487,7 @@ double ZdcSD::photonEnergyDist(int charge, double beta, double E) {
 }
 
 // Generate a photon with the given minimum energy accourding to the energy distribution
-double ZdcSD::generatePhotonEnergy(int charge, double beta, double Emin) {
+double ZdcSD::generatePhotonEnergy(double charge, double beta, double Emin) {
   double photonE;
 
   // Use rejection method

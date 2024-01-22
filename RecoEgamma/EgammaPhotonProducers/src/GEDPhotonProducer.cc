@@ -89,7 +89,6 @@ class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheD
 public:
   GEDPhotonProducer(const edm::ParameterSet& ps, const CacheData* gcache);
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
@@ -99,8 +98,8 @@ public:
 
 private:
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
-  bool cutsFromDB;
-  HcalPFCuts const* hcalCuts = nullptr;
+  bool cutsFromDB_;
+  HcalPFCuts const* hcalCuts_ = nullptr;
 
   class RecoStepInfo {
   public:
@@ -289,9 +288,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
       hcalHelperCone_(nullptr),
       hcalHelperBc_(nullptr) {
   //Retrieve HCAL PF thresholds - from config or from DB
-  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  cutsFromDB_ = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   if (recoStep_.isFinal()) {
@@ -485,12 +484,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
   }
 }
 
-void GEDPhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  if (cutsFromDB) {
-    hcalCuts = &eventSetup.getData(hcalCutsToken_);
-  }
-}
-
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
   // this method is supposed to create, initialize and return a CacheData instance
   return std::make_unique<CacheData>(config);
@@ -504,6 +497,10 @@ void GEDPhotonProducer::endStream() {
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
   using namespace edm;
+
+  if (cutsFromDB_) {
+    hcalCuts_ = &eventSetup.getData(hcalCutsToken_);
+  }
 
   auto outputPhotonCollection_p = std::make_unique<reco::PhotonCollection>();
   edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap;
@@ -819,7 +816,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     reco::Photon::FiducialFlags fiducialFlags;
     reco::Photon::IsolationVariables isolVarR03, isolVarR04;
     if (!EcalTools::isHGCalDet(thedet)) {
-      photonIsoCalculator_->calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03, hcalCuts);
+      photonIsoCalculator_->calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03, hcalCuts_);
     }
     newCandidate.setFiducialVolumeFlags(fiducialFlags);
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03);
@@ -835,10 +832,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
-          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy() : 0.f;
+          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalCuts_) / scRef->energy() : 0.f;
 
       showerShape.hcalOverEcalBc[id] =
-          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy() : 0.f;
+          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalCuts_) / scRef->energy() : 0.f;
     }
     showerShape.invalidHcal = (hcalHelperBc != nullptr) ? !hcalHelperBc->hasActiveHcal(*scRef) : false;
     if (hcalHelperBc != nullptr)
@@ -950,9 +947,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.effSigmaRR = sigmaRR;
     for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
       full5x5_showerShape.hcalOverEcal[id] =
-          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5 : 0.f;
+          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalCuts_) / full5x5_e5x5 : 0.f;
       full5x5_showerShape.hcalOverEcalBc[id] =
-          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5 : 0.f;
+          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalCuts_) / full5x5_e5x5 : 0.f;
     }
     full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);

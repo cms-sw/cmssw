@@ -10,6 +10,7 @@ l1tTrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
                     nStubsMin = cms.int32(4), # number of stubs must be greater than or equal to this value
                     nPSStubsMin = cms.int32(0), # the number of stubs in the PS Modules must be greater than or equal to this value
 
+                    promptMVAMin = cms.double(-1.0), # MVA must be greater than this value
                     reducedBendChi2Max = cms.double(2.25), # bend chi2 must be less than this value
                     reducedChi2RZMax = cms.double(5.0), # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = cms.double(20.0), # chi2rphi/dof must be less than this value
@@ -35,6 +36,7 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
                     nStubsMin = 4, # number of stubs must be greater than or equal to this value
                     nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
 
+                    promptMVAMin = -1.0, # MVA must be greater than this value 
                     reducedBendChi2Max = 2.4, # bend chi2 must be less than this value
                     reducedChi2RZMax = 10.0, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 40.0, # chi2rphi/dof must be less than this value
@@ -51,12 +53,13 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
 
 l1tTrackSelectionProducerForJets = l1tTrackSelectionProducer.clone(
   cutSet = dict(
-                    ptMin = 0.0, # pt must be greater than this value, [GeV]
-                    absEtaMax = 999.9, # absolute value of eta must be less than this value
-                    absZ0Max = 999.9, # z0 must be less than this value, [cm]
-                    nStubsMin = 0, # number of stubs must be greater than or equal to this value
+                    ptMin = 2.0, # pt must be greater than this value, [GeV]
+                    absEtaMax = 2.4, # absolute value of eta must be less than this value
+                    absZ0Max = 15.0, # z0 must be less than this value, [cm]
+                    nStubsMin = 4, # number of stubs must be greater than or equal to this value
                     nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
 
+                    promptMVAMin = 0.1, # MVA must be greater than this value
                     reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
                     reducedChi2RZMax = 999.9, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value
@@ -71,12 +74,13 @@ l1tTrackSelectionProducerForJets = l1tTrackSelectionProducer.clone(
 
 l1tTrackSelectionProducerExtendedForJets = l1tTrackSelectionProducerExtended.clone(
   cutSet = dict(
-                    ptMin = 0.0, # pt must be greater than this value, [GeV]
-                    absEtaMax = 999.9, # absolute value of eta must be less than this value
-                    absZ0Max = 999.9, # z0 must be less than this value, [cm]
-                    nStubsMin = 0, # number of stubs must be greater than or equal to this value
+                    ptMin = 2.0, # pt must be greater than this value, [GeV]
+                    absEtaMax = 2.4, # absolute value of eta must be less than this value
+                    absZ0Max = 15.0, # z0 must be less than this value, [cm]
+                    nStubsMin = 4, # number of stubs must be greater than or equal to this value
                     nPSStubsMin = 0, # the number of stubs in the PS Modules must be greater than or equal to this value
 
+                    promptMVAMin = -1.0, # MVA must be greater than this value
                     reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
                     reducedChi2RZMax = 999.9, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value

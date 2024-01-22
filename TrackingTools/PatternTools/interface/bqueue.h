@@ -110,6 +110,7 @@ namespace cmsutils {
       it = t2.it;
       return *this;
     }
+    _bqueue_itr(const _bqueue_itr<T> &t2) = default;
     friend class bqueue<T>;
 
   private:

@@ -14,6 +14,7 @@ namespace reco {
   using PFRecHitsNeighbours = Eigen::Matrix<int32_t, 8, 1>;
   GENERATE_SOA_LAYOUT(PFRecHitSoALayout,
                       SOA_COLUMN(uint32_t, detId),
+                      SOA_COLUMN(uint32_t, denseId),
                       SOA_COLUMN(float, energy),
                       SOA_COLUMN(float, time),
                       SOA_COLUMN(int, depth),

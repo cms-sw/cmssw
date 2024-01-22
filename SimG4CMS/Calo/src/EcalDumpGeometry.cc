@@ -3,9 +3,8 @@
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4CMS/Calo/interface/EcalDumpGeometry.h"
-
-#include "DD4hep/Filter.h"
 
 #include <iostream>
 
@@ -20,7 +19,7 @@ EcalDumpGeometry::EcalDumpGeometry(const std::vector<std::string_view>& names,
   G4cout << " Type: " << type << " Depth Names " << name1_ << ":" << name2_ << " with " << names.size()
          << " LVs: " << ss.str() << G4endl;
   for (const auto& name : names) {
-    std::string namex = (static_cast<std::string>(dd4hep::dd::noNamespace(name))).substr(0, 4);
+    std::string namex = DD4hep2DDDName::noNameSpace(static_cast<std::string>(name)).substr(0, 4);
     if (std::find(names_.begin(), names_.end(), namex) == names_.end())
       names_.emplace_back(namex);
   }
@@ -60,7 +59,7 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
   G4LogicalVolume* lv = pv->GetLogicalVolume();
 
   bool flag = ((type_ / 10) % 10 > 0);
-  std::string lvname = (static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName())));
+  std::string lvname = DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()));
   std::string namex = lvname.substr(0, 4);
   EcalBaseNumber theBaseNumber;
   for (unsigned int k = 0; k < names_.size(); ++k) {
@@ -73,8 +72,8 @@ void EcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
           theBaseNumber.setSize(theSize + 1);
         std::stringstream ss;
         for (int ii = theSize; ii >= 0; --ii) {
-          std::string_view name = dd4hep::dd::noNamespace(fHistory_.GetVolume(ii)->GetName());
-          theBaseNumber.addLevel(static_cast<std::string>(name), fHistory_.GetVolume(ii)->GetCopyNo());
+          std::string name = DD4hep2DDDName::noNameSpace(static_cast<std::string>(fHistory_.GetVolume(ii)->GetName()));
+          theBaseNumber.addLevel(name, fHistory_.GetVolume(ii)->GetCopyNo());
           ss << " " << ii << " " << name << ":" << fHistory_.GetVolume(ii)->GetCopyNo();
         }
         uint32_t id = (((type_ % 10) == 0) ? ebNumbering_.getUnitID(theBaseNumber)

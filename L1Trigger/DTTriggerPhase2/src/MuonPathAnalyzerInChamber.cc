@@ -1,4 +1,5 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerInChamber.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <cmath>
 #include <memory>
 
@@ -242,7 +243,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     }
 
     // Protection against non-converged fits
-    if (isnan(jm_x))
+    if (edm::isNotFinite(jm_x))
       continue;
 
     // Updating muon-path horizontal position
