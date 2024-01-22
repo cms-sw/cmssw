@@ -192,8 +192,6 @@ void HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  //  std::vector<edm::InputTag> originTag1(1, edm::InputTag("l1tGTProducer", "GMTTkMuons"));
-  //  std::vector<edm::InputTag> originTag2(1, edm::InputTag("l1tGTProducer", "GMTTkMuons"));
   desc.add<std::vector<edm::InputTag>>("originTag1", {edm::InputTag("hltOriginal1")});
   desc.add<std::vector<edm::InputTag>>("originTag2", {edm::InputTag("hltOriginal2")});
   desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag("l1tGTAlgoBlockProducer"));
@@ -498,7 +496,6 @@ bool HLTDoubletDZ<C1, C2>::passCutMinDeltaR(C1 const& c1, C2 const& c2) const {
 template <>
 bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::passCutMinDeltaR(l1t::P2GTCandidate const& c1,
                                                                             l1t::P2GTCandidate const& c2) const {
-  //return (minDR_ < 0 or reco::deltaR2(r1.phEta(), r1.phPhi(), r2.phEta(), r2.phPhi()) >= minDR2_);
   return (minDR_ < 0 or reco::deltaR2(c1, c2) > minDR2_);
 }
 

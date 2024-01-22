@@ -13,4 +13,3 @@ hltTripleMuon3DZ1p0 = cms.EDFilter("HLT2L1P2GTCandL1P2GTCandDZ",
     triggerType1 = cms.int32(-114),
     triggerType2 = cms.int32(-114)
 )
-
