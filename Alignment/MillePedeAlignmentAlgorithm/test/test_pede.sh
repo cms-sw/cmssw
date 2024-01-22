@@ -4,7 +4,7 @@ function die { echo $1: status $2; exit $2; }
 LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 clean_up(){
-    echo "cleaning the local test area"
+    echo -e "\nCleaning the local test area"
     rm -fr milleBinary00* 
     rm -fr pedeSteer* 
     rm -fr millepede.*
@@ -13,7 +13,7 @@ clean_up(){
     rm -fr *.dat
     rm -fr *.tar
     rm -fr *.gz
-    rm -fr *.db
+    rm -fr *.dump
 }
 
 if test -f "milleBinary*"; then
@@ -39,10 +39,9 @@ if [ $STATUS -eq 0 ]; then
     echo -e "\n @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
     echo -e " @ MillePede Exit Status: "`cat millepede.end`
     echo -e " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-    ## mv the output file to the local test directory for the subsequent payload sanity check
-    mv alignments_MP.db ${LOCAL_TEST_DIR}
     ## clean the house now...
     clean_up
+    echo -e "\nContent of the current directory is: "`ls .`
 else 
   die "SKIPPING test, file ${TESTPACKAGE}.tar not found" 0
 fi
