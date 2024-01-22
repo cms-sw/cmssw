@@ -39,7 +39,8 @@ namespace reco {
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
-    enum { dimension = 3, dimension4D = 4 };
+    constexpr static int dimension = 3;
+    constexpr static int dimension4D = 4;
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type Error;
     /// covariance error matrix (3x3)
@@ -49,7 +50,7 @@ namespace reco {
     /// covariance error matrix (4x4)
     typedef math::Error<dimension4D>::type CovarianceMatrix4D;
     /// matix size
-    enum { size = dimension * (dimension + 1) / 2, size4D = (dimension4D) * (dimension4D + 1) / 2 };
+    constexpr static int size = dimension * (dimension + 1) / 2, size4D = (dimension4D) * (dimension4D + 1) / 2;
     /// index type
     typedef unsigned int index;
     /// default constructor - The vertex will not be valid. Position, error,
