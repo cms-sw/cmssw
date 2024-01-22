@@ -98,8 +98,8 @@ void SectorProcessor::select(const TriggerPrimitive& tp, const TPInfo& tp_info) 
 
   // Short-Circuit: Operation not supported
   if (tp_selectors_it == tp_selectors_.end()) {
-    edm::LogWarning("L1T EMTF++") << "TPCollector has been implemented, "
-                                  << "but there is no TPSelector for " << tp_subsystem;
+    edm::LogWarning("L1TEMTFpp") << "TPCollector has been implemented, "
+                                 << "but there is no TPSelector for " << tp_subsystem;
     return;
   }
 
@@ -233,8 +233,8 @@ void SectorProcessor::convert_tp(const int& initial_hit_id, const ILinkTPCMap& i
 
       // Short-Circuit: Operation not supported
       if (tp_converters_it == tp_converters_.end()) {
-        edm::LogWarning("L1T EMTF++") << "TPCollector & TPSelector have been implemented, "
-                                      << "but there is no TPConverter for " << tp_subsystem;
+        edm::LogWarning("L1TEMTFpp") << "TPCollector & TPSelector have been implemented, "
+                                     << "but there is no TPConverter for " << tp_subsystem;
         continue;
       }
 
@@ -354,19 +354,19 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
 
       // Debug Info
       if (this->context_.config_.verbosity_ > 1) {
-        edm::LogInfo("L1T EMTF++") << std::endl
-                                   << "Event: " << event_->id() << " Endcap: " << endcap_ << " Sector: " << sector_
-                                   << " BX: " << (*bx_) << " Hit iLink: " << hit_chamber << " Hit iSeg: " << ch_seg
-                                   << " Hit Host " << hit_host << " Hit Rel BX " << (hit_bx - *bx_) << " Hit Timezones "
-                                   << hit_timezones << std::endl;
+        edm::LogInfo("L1TEMTFpp") << std::endl
+                                  << "Event: " << event_->id() << " Endcap: " << endcap_ << " Sector: " << sector_
+                                  << " BX: " << (*bx_) << " Hit iLink: " << hit_chamber << " Hit iSeg: " << ch_seg
+                                  << " Hit Host " << hit_host << " Hit Rel BX " << (hit_bx - *bx_) << " Hit Timezones "
+                                  << hit_timezones << std::endl;
 
-        edm::LogInfo("L1T EMTF++") << " id " << seg_id << " phi " << segments[seg_id].phi << " bend "
-                                   << segments[seg_id].bend << " theta1 " << segments[seg_id].theta1 << " theta2 "
-                                   << segments[seg_id].theta2 << " qual1 " << segments[seg_id].qual1 << " qual2 "
-                                   << segments[seg_id].qual2 << " time " << segments[seg_id].time << " zones "
-                                   << segments[seg_id].zones << " timezones " << segments[seg_id].tzones << " cscfr "
-                                   << segments[seg_id].cscfr << " layer " << segments[seg_id].layer << " bx "
-                                   << segments[seg_id].bx << " valid " << segments[seg_id].valid << std::endl;
+        edm::LogInfo("L1TEMTFpp") << " id " << seg_id << " phi " << segments[seg_id].phi << " bend "
+                                  << segments[seg_id].bend << " theta1 " << segments[seg_id].theta1 << " theta2 "
+                                  << segments[seg_id].theta2 << " qual1 " << segments[seg_id].qual1 << " qual2 "
+                                  << segments[seg_id].qual2 << " time " << segments[seg_id].time << " zones "
+                                  << segments[seg_id].zones << " timezones " << segments[seg_id].tzones << " cscfr "
+                                  << segments[seg_id].cscfr << " layer " << segments[seg_id].layer << " bx "
+                                  << segments[seg_id].bx << " valid " << segments[seg_id].valid << std::endl;
       }
 
       // Update bx chamber last segment

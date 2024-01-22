@@ -114,10 +114,10 @@ void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
     // DEBUG
     if (this->context_.config_.verbosity_ > 1) {
       if (trk_i.valid) {
-        edm::LogInfo("L1T EMTF++") << "Unique Track"
-                                   << " zone " << trk_i.zone << " col " << trk_i.col << " pat " << trk_i.pattern
-                                   << " qual " << trk_i.quality << " phi " << trk_i.phi << " theta " << trk_i.theta
-                                   << " valid " << trk_i.valid << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "Unique Track"
+                                  << " zone " << trk_i.zone << " col " << trk_i.col << " pat " << trk_i.pattern
+                                  << " qual " << trk_i.quality << " phi " << trk_i.phi << " theta " << trk_i.theta
+                                  << " valid " << trk_i.valid << std::endl;
       }
     }
   }  // End loop reduced tracks i
