@@ -1036,18 +1036,15 @@ inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg
     }
   }
 
-  towerEt[0] = towerEtN[0][0][0] + towerEtN[0][0][1] + towerEtN[0][0][2] + towerEtN[0][0][3] + towerEtN[0][0][4];
-  towerEt[1] = towerEtN[0][1][0] + towerEtN[0][1][1] + towerEtN[0][1][2] + towerEtN[0][1][3] + towerEtN[0][1][4];
-  towerEt[2] = towerEtN[0][2][0] + towerEtN[0][2][1] + towerEtN[0][2][2] + towerEtN[0][2][3] + towerEtN[0][2][4];
-  towerEt[3] = towerEtN[0][3][0] + towerEtN[0][3][1] + towerEtN[0][3][2] + towerEtN[0][3][3] + towerEtN[0][3][4];
-  towerEt[4] = towerEtN[1][0][0] + towerEtN[1][0][1] + towerEtN[1][0][2] + towerEtN[1][0][3] + towerEtN[1][0][4];
-  towerEt[5] = towerEtN[1][1][0] + towerEtN[1][1][1] + towerEtN[1][1][2] + towerEtN[1][1][3] + towerEtN[1][1][4];
-  towerEt[6] = towerEtN[1][2][0] + towerEtN[1][2][1] + towerEtN[1][2][2] + towerEtN[1][2][3] + towerEtN[1][2][4];
-  towerEt[7] = towerEtN[1][3][0] + towerEtN[1][3][1] + towerEtN[1][3][2] + towerEtN[1][3][3] + towerEtN[1][3][4];
-  towerEt[8] = towerEtN[2][0][0] + towerEtN[2][0][1] + towerEtN[2][0][2] + towerEtN[2][0][3] + towerEtN[2][0][4];
-  towerEt[9] = towerEtN[2][1][0] + towerEtN[2][1][1] + towerEtN[2][1][2] + towerEtN[2][1][3] + towerEtN[2][1][4];
-  towerEt[10] = towerEtN[2][2][0] + towerEtN[2][2][1] + towerEtN[2][2][2] + towerEtN[2][2][3] + towerEtN[2][2][4];
-  towerEt[11] = towerEtN[2][3][0] + towerEtN[2][3][1] + towerEtN[2][3][2] + towerEtN[2][3][3] + towerEtN[2][3][4];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      int index = j + 4 * i;
+      towerEt[index] = 0;
+      for (int k = 0; k < 5; k++) {
+        towerEt[index] += (towerEtN[i][j][k] >> 2);
+      }
+    }
+  }
 
   ap_uint<12> totalEt;
   for (int i = 0; i < 12; i++) {
@@ -1226,7 +1223,7 @@ inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYST
   for (int i = 0; i < 3; i++) {
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
-  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]);
+  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]) >> 2;
 
   return cluster_tmp;
 }
@@ -1301,7 +1298,7 @@ inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYST
   for (int i = 0; i < 3; i++) {
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
-  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]);
+  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]) >> 2;
 
   return cluster_tmp;
 }
@@ -1392,7 +1389,7 @@ inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTA
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
 
-  cluster_tmp.energy = (eta_slice[1] + eta_slice[2] + eta_slice[3]);
+  cluster_tmp.energy = (eta_slice[1] + eta_slice[2] + eta_slice[3]) >> 2;
 
   // Get the energy totals in the 5x5 and also in two 2x5
   et5x5Tot = (eta_slice[0] + eta_slice[1] + eta_slice[2] + eta_slice[3] + eta_slice[4]);
@@ -1404,8 +1401,8 @@ inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTA
   else
     etSum2x5 = et2x5_2Tot;
 
-  cluster_tmp.et5x5 = et5x5Tot;
-  cluster_tmp.et2x5 = etSum2x5;
+  cluster_tmp.et5x5 = et5x5Tot >> 2;
+  cluster_tmp.et2x5 = etSum2x5 >> 2;
 
   return cluster_tmp;
 }
@@ -1427,7 +1424,7 @@ inline p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYS
 
   cluster_tmp = p2eg::getClusterPosition(ecalRegion);
 
-  float seedEnergyFloat = cluster_tmp.seedEnergy / 8.0;
+  float seedEnergyFloat = cluster_tmp.seedEnergy * ECAL_LSB;
 
   // Do not make cluster if seed is less than 1.0 GeV
   if (seedEnergyFloat < 1.0) {

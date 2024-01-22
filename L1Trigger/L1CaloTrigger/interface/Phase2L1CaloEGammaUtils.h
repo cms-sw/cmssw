@@ -60,7 +60,7 @@ namespace p2eg {
   static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  // passes_looseTkss
   static constexpr float cut_500_MeV = 0.5;
 
-  static constexpr float ECAL_LSB = 0.125;  // to convert from int to float (GeV) multiply by LSB
+  static constexpr float ECAL_LSB = 0.5;  // to convert from int to float (GeV) multiply by LSB
   static constexpr float HCAL_LSB = 0.5;
 
   static constexpr int N_CLUSTERS_PER_REGION = 4;  // number of clusters per ECAL region
@@ -434,10 +434,22 @@ namespace p2eg {
 
   class towerHCAL {
   private:
-    ap_uint<10> et = 0;
-    ap_uint<6> fb = 0;
+    ap_uint<10> et;
+    ap_uint<6> fb;
 
   public:
+    // constructor
+    towerHCAL() {
+      et = 0;
+      fb = 0;
+    };
+
+    // copy constructor
+    towerHCAL(const towerHCAL& other) {
+      et = other.et;
+      fb = other.fb;
+    };
+
     // set members
     inline void zeroOut() {
       et = 0;
@@ -472,12 +484,6 @@ namespace p2eg {
           towersHCAL[i][j] = other.towersHCAL[i][j];
         }
       };
-    };
-
-    // overload operator= to use copy constructor
-    towers3x4 operator=(const towers3x4& other) {
-      const towers3x4& newRegion(other);
-      return newRegion;
     };
 
     // set members
@@ -591,9 +597,22 @@ namespace p2eg {
   */
   class crystalMax {
   public:
-    ap_uint<10> energy = 0;
-    uint8_t phiMax = 0;
-    uint8_t etaMax = 0;
+    ap_uint<10> energy;
+    uint8_t phiMax;
+    uint8_t etaMax;
+
+    crystalMax() {
+      energy = 0;
+      phiMax = 0;
+      etaMax = 0;
+    }
+
+    crystalMax& operator=(const crystalMax& rhs) {
+      energy = rhs.energy;
+      phiMax = rhs.phiMax;
+      etaMax = rhs.etaMax;
+      return *this;
+    }
   };
 
   class ecaltp_t {
@@ -667,9 +686,14 @@ namespace p2eg {
 
   class tower_t {
   public:
-    ap_uint<16> data = 0;
+    ap_uint<16> data;
 
-    tower_t() = default;
+    tower_t() { data = 0; }
+    tower_t& operator=(const tower_t& rhs) {
+      data = rhs.data;
+      return *this;
+    }
+
     tower_t(ap_uint<12> et, ap_uint<4> hoe) { data = (et) | (((ap_uint<16>)hoe) << 12); }
 
     ap_uint<12> et() { return (data & 0xFFF); }
@@ -685,7 +709,7 @@ namespace p2eg {
       float newEt = getEt() * factor;
 
       // Convert the new pT to an unsigned int (16 bits so we can take the logical OR with the bit mask later)
-      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt * 8.0);
+      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt / ECAL_LSB);
       // Make sure the first four bits are zero
       newEt_uint = (newEt_uint & 0x0FFF);
 
@@ -697,9 +721,7 @@ namespace p2eg {
     /*
      * For towers: Calculate H/E ratio given the ECAL and HCAL energies and modify the hoe() value.
      */
-    void getHoverE(ap_uint<12> ECAL, ap_uint<12> HCAL_inHcalConvention) {
-      // Convert HCAL ET to ECAL ET convention
-      ap_uint<12> HCAL = convertHcalETtoEcalET(HCAL_inHcalConvention);
+    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
       ap_uint<4> hoe = 0;
@@ -741,13 +763,34 @@ namespace p2eg {
 
   class clusterInfo {
   public:
-    ap_uint<10> seedEnergy = 0;
-    ap_uint<15> energy = 0;
-    ap_uint<15> et5x5 = 0;
-    ap_uint<15> et2x5 = 0;
-    ap_uint<5> phiMax = 0;
-    ap_uint<5> etaMax = 0;
-    ap_uint<2> brems = 0;
+    ap_uint<10> seedEnergy;
+    ap_uint<15> energy;
+    ap_uint<15> et5x5;
+    ap_uint<15> et2x5;
+    ap_uint<5> phiMax;
+    ap_uint<5> etaMax;
+    ap_uint<2> brems;
+
+    clusterInfo() {
+      seedEnergy = 0;
+      energy = 0;
+      et5x5 = 0;
+      et2x5 = 0;
+      phiMax = 0;
+      etaMax = 0;
+      brems = 0;
+    }
+
+    clusterInfo& operator=(const clusterInfo& rhs) {
+      seedEnergy = rhs.seedEnergy;
+      energy = rhs.energy;
+      et5x5 = rhs.et5x5;
+      et2x5 = rhs.et2x5;
+      phiMax = rhs.phiMax;
+      etaMax = rhs.etaMax;
+      brems = rhs.brems;
+      return *this;
+    }
   };
 
   //--------------------------------------------------------//
@@ -806,6 +849,20 @@ namespace p2eg {
       is_looseTkss = cluster_is_looseTkss;
       is_iso = cluster_is_iso;
       is_looseTkiso = cluster_is_looseTkiso;
+    }
+
+    Cluster& operator=(const Cluster& rhs) {
+      data = rhs.data;
+      regionIdx = rhs.regionIdx;
+      calib = rhs.calib;
+      brems = rhs.brems;
+      et5x5 = rhs.et5x5;
+      et2x5 = rhs.et2x5;
+      is_ss = rhs.is_ss;
+      is_looseTkss = rhs.is_looseTkss;
+      is_iso = rhs.is_iso;
+      is_looseTkiso = rhs.is_looseTkiso;
+      return *this;
     }
 
     void setRegionIdx(int regIdx) { regionIdx = regIdx; }  // Newly added
@@ -1438,6 +1495,7 @@ namespace p2eg {
       l1tp2::CaloTower l1CaloTower;
       // Store total Et (HCAL+ECAL) in the ECAL Et member
       l1CaloTower.setEcalTowerEt(totalEtFloat());
+      l1CaloTower.setHcalTowerEt(ecalEtFloat());
       int global_tower_iEta = globalToweriEtaFromGCTcardiEta(gctCard_tower_iEta);
       int global_tower_iPhi = globalToweriPhiFromGCTcardiPhi(nGCTCard, gctCard_tower_iPhi);
       l1CaloTower.setTowerIEta(global_tower_iEta);
