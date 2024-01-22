@@ -97,6 +97,55 @@ public:
     ++nsimhits_;
   }
 
+  // --  for backward compatibility
+  void newForm() {
+    static const uint32_t kMTDsubdOffset = 23;
+    static const uint32_t kMTDsubdMask = 0x3;
+
+    static constexpr uint32_t kBTLmoduleOffset = 10;
+    static constexpr uint32_t kBTLmoduleMask = 0x3F;
+    static constexpr uint32_t kBTLmodTypeOffset = 8;
+    static constexpr uint32_t kBTLmodTypeMask = 0x3;
+    static constexpr uint32_t kModulePerTypeBarPhiFlat = 48 / 3;
+
+    static constexpr uint32_t kBTLRUOffset = 6;
+    static constexpr uint32_t kBTLRUMask = 0x3;
+    static constexpr uint32_t kBTLCrystalMask = 0x3F;
+    static constexpr uint32_t kCrystalsPerModuleV2 = 16;
+
+    for (size_t i = 0; i < mtdHits_.size(); ++i) {
+      // - Get detId, row, column from old format
+      uint32_t rawid = mtdHits_[i] >> 32;
+      uint8_t row = static_cast<uint8_t>(mtdHits_[i] >> 16);
+      uint8_t col = static_cast<uint8_t>(mtdHits_[i]);
+
+      uint32_t newid = 0;
+
+      // - Change bit content only for BTL ( MTD subdetector BTL/ETL : bit 24-23)
+      if (((rawid >> kMTDsubdOffset) & kMTDsubdMask) == 1) {
+        // - check bit 6-7: if = 0 --> old barphiflat BTL layout, if !=0 V2, V3 BTL layout
+        if (((rawid >> kBTLRUOffset) & kBTLRUMask) == 0) {
+          // - change bit fields for module (15-10), crystal type (9-8), crystal num (7-0) as done in BTLDetId.cc for geom V1
+          uint32_t module = (rawid >> kBTLmoduleOffset) & kBTLmoduleMask;
+          uint32_t modtype = (rawid >> kBTLmodTypeOffset) & kBTLmodTypeMask;
+          uint32_t newmodule = module + kModulePerTypeBarPhiFlat * (modtype - 1);
+          newid = ((rawid >> kBTLmoduleOffset) & ~kBTLmoduleMask) | newmodule;
+          newid = newid << kBTLmoduleOffset;
+        } else {
+          // - change bit field for crystal number to 17-1 for geom V2, V3
+          newid = (~kBTLCrystalMask & rawid) | kCrystalsPerModuleV2;
+        }
+
+        // - Create the unique id in the new format
+        uint64_t uniqueIdNew = static_cast<uint64_t>(newid) << 32;
+        uniqueIdNew |= row << 16;
+        uniqueIdNew |= col;
+
+        mtdHits_[i] = uniqueIdNew;
+      }
+    }
+  }
+
 protected:
   std::vector<uint64_t> mtdHits_;
   std::vector<float> times_;

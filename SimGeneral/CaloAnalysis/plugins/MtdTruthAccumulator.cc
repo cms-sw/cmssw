@@ -757,8 +757,19 @@ void MtdTruthAccumulator::fillSimHits(std::vector<std::pair<uint64_t, const PSim
       const auto &position = simHit.localPosition();
       LocalPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
       std::pair<uint8_t, uint8_t> pixel = geomTools_.pixelInModule(id, simscaled);
+      // -- Get sensor module id
+      DetId geoId;
+      MTDDetId mtdId = MTDDetId(id);
+      if (mtdId.mtdSubDetector() == MTDDetId::BTL) {
+        BTLDetId detId(id.rawId());
+        geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+      }
+      if (mtdId.mtdSubDetector() == MTDDetId::ETL) {
+        ETLDetId detId(id.rawId());
+        geoId = detId.geographicalId();
+      }
       // create the unique id
-      uint64_t uniqueId = static_cast<uint64_t>(id.rawId()) << 32;
+      uint64_t uniqueId = static_cast<uint64_t>(geoId) << 32;
       uniqueId |= pixel.first << 16;
       uniqueId |= pixel.second;
 
