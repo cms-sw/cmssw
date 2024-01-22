@@ -169,7 +169,7 @@ void SectorProcessor::process(EMTFHitCollection& out_hits,
   // ===========================================================================
   // Record segments/hits used in track building
   // ===========================================================================
-  if (seg_to_hit.size() > 0) {
+  if (!seg_to_hit.empty()) {
     EMTFInput::hits_t hit_id_col;
     EMTFInput::segs_t seg_id_col;
 

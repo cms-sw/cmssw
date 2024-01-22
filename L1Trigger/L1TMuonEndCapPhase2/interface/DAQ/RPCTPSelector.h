@@ -13,7 +13,7 @@ namespace emtf::phase2 {
   public:
     explicit RPCTPSelector(const EMTFContext&, const int&, const int&);
 
-    ~RPCTPSelector() = default;
+    ~RPCTPSelector() override = default;
 
     void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 

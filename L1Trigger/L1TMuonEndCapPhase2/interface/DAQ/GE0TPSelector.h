@@ -12,7 +12,7 @@ namespace emtf::phase2 {
   public:
     explicit GE0TPSelector(const EMTFContext&, const int&, const int&);
 
-    ~GE0TPSelector() = default;
+    ~GE0TPSelector() override = default;
 
     void select(const TriggerPrimitive&, TPInfo, ILinkTPCMap&) const final;
 

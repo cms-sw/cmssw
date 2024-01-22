@@ -100,7 +100,7 @@ void CSCTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
     auto tp_wire_key = std::make_pair(tp_det_id.rawId(), tp_bx);
     const auto& tp_wires = chamber_wires_map.at(tp_wire_key);
 
-    emtf_assert((1 <= tp_wires.size()) && (tp_wires.size() <= 2));
+    emtf_assert((!tp_wires.empty()) && (tp_wires.size() <= 2));
 
     if (tp_wires.size() > 1) {
       tp_wire1 = tp_wires.at(0);
