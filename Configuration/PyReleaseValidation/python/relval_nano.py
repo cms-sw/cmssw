@@ -169,6 +169,9 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--datatier':'NANOAOD',
                                    '--eventcontent':'NANOAOD'}])
 
+steps['muPOGNANO_data13.0']=merge([{'--customise' : 'PhysicsTools/NanoAOD/custom_muon_cff:PrepMuonCustomNanoAOD', '-n' : '1000'},
+                                     steps['NANO_data13.0']])
+
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
                                                ## dataset below to be replaced with a 13.2 relval sample when available
@@ -237,6 +240,7 @@ workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.
 workflows[_wfn()] = ['muPOGNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
 workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
+workflows[_wfn()] = ['muPOGNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 
 _wfn.next()
 ################
