@@ -46,7 +46,7 @@ void runTestForAnalyzer(const std::string& baseConfig, const std::string& analyz
 //___________________________________________________________________________________________
 std::string generateBaseConfig(const std::string& analyzerName, const std::string& rootFileName) {
   // Define a raw string literal
-  const char* rawString = R"_(from FWCore.TestProcessor.TestProcess import *
+  constexpr const char* rawString = R"_(from FWCore.TestProcessor.TestProcess import *
 from Alignment.OfflineValidation.{}_cfi import {}
 process = TestProcess()
 process.trackAnalyzer = {}
