@@ -47,9 +47,6 @@ public:
   /// Constructors
   explicit TTClusterAssociator(const edm::ParameterSet& iConfig);
 
-  /// Destructor
-  ~TTClusterAssociator() override;
-
 private:
   /// Data members
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle_;
@@ -64,8 +61,6 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerGeometryToken_;
 
   /// Mandatory methods
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 };  /// Close class
@@ -93,22 +88,10 @@ TTClusterAssociator<T>::TTClusterAssociator(const edm::ParameterSet& iConfig) {
   }
 
   theTrackerGeometryToken_ = esConsumes();
-}
 
-/// Destructor
-template <typename T>
-TTClusterAssociator<T>::~TTClusterAssociator() {}
-
-/// Begin run
-template <typename T>
-void TTClusterAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Print some information when loaded
   edm::LogInfo("TTClusterAssociator< ") << templateNameFinder<T>() << " > loaded.";
 }
-
-/// End run
-template <typename T>
-void TTClusterAssociator<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 /// Implement the producer
 template <>

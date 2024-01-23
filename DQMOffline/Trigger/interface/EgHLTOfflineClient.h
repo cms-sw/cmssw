@@ -33,7 +33,6 @@
 
 class EgHLTOfflineClient : public DQMEDHarvester {
 private:
-  // DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string dirName_;
 
   std::vector<std::string> eleHLTFilterNames_;  //names of the filters monitored using electrons to make plots for
@@ -71,15 +70,8 @@ public:
   explicit EgHLTOfflineClient(const edm::ParameterSet&);
   ~EgHLTOfflineClient() override;
 
-  // virtual void beginJob();
-  // virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
-  // virtual void endJob();
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
-  // virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-
-  // virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context){}
   // DQM Client Diagnostic
-  // virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
   void dqmEndLuminosityBlock(DQMStore::IBooker&,
                              DQMStore::IGetter&,

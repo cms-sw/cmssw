@@ -63,21 +63,6 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc) 
 }
 
 //====================================================================================
-const PixelHdwAddress& PixelHdwAddress::operator=(const PixelHdwAddress& aROC) {
-  fecnumber_ = aROC.fecnumber_;
-  mfec_ = aROC.mfec_;
-  mfecchannel_ = aROC.mfecchannel_;
-  portaddress_ = aROC.portaddress_;
-  hubaddress_ = aROC.hubaddress_;
-  rocid_ = aROC.rocid_;
-  fednumber_ = aROC.fednumber_;
-  fedchannel_ = aROC.fedchannel_;
-  fedrocnumber_ = aROC.fedrocnumber_;
-
-  return *this;
-}
-
-//====================================================================================
 // Added by Dario
 void PixelHdwAddress::setAddress(std::string what, int value) {
   std::string mthn = "[PixelHdwAddress::setAddress()]\t\t\t    ";

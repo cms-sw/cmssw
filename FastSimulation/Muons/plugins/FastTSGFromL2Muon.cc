@@ -29,10 +29,6 @@ FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg)
   theRegionBuilder = std::make_unique<MuonTrackingRegionBuilder>(regionBuilderPSet, consumesCollector());
 }
 
-void FastTSGFromL2Muon::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-  //region builder
-}
-
 void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   // Initialize the output product
   std::unique_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());

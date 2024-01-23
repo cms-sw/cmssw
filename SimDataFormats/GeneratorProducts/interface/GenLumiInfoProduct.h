@@ -17,7 +17,6 @@ public:
   // constructors, destructors
   GenLumiInfoProduct();
   GenLumiInfoProduct(const int id);
-  GenLumiInfoProduct(const GenLumiInfoProduct &other);
   virtual ~GenLumiInfoProduct();
 
   // getters
@@ -35,7 +34,6 @@ public:
   public:
     XSec() : value_(-1.), error_(-1.) {}
     XSec(double v, double e = -1.) : value_(v), error_(e) {}
-    XSec(const XSec &other) : value_(other.value_), error_(other.error_) {}
 
     double value() const { return value_; }
     double error() const { return error_; }
@@ -57,7 +55,6 @@ public:
   public:
     FinalStat() : n_(0), sum_(0.0), sum2_(0.0) {}
     FinalStat(unsigned int n1, double sum1, double sum21) : n_(n1), sum_(sum1), sum2_(sum21) {}
-    FinalStat(const FinalStat &other) : n_(other.n_), sum_(other.sum_), sum2_(other.sum2_) {}
 
     unsigned int n() const { return n_; }
     double sum() const { return sum_; }

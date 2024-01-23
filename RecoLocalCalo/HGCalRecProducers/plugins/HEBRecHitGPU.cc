@@ -25,7 +25,6 @@ class HEBRecHitGPU : public edm::stream::EDProducer<> {
 public:
   explicit HEBRecHitGPU(const edm::ParameterSet &ps);
   ~HEBRecHitGPU() override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -87,8 +86,6 @@ void HEBRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
   if (vdata_.weights_.size() != HGChebUncalibRecHitConstantData::heb_weights)
     edm::LogError("WrongSize") << this->assert_error_message_("weights", vdata_.fCPerMIP_.size());
 }
-
-void HEBRecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
 void HEBRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};

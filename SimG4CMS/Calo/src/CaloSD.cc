@@ -5,6 +5,7 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -22,7 +23,6 @@
 #include "G4ParticleTable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
-#include "DD4hep/Filter.h"
 
 #include <fstream>
 #include <memory>
@@ -147,7 +147,7 @@ CaloSD::CaloSD(const std::string& name,
     G4LogicalVolume* lv = nullptr;
     G4String name = static_cast<G4String>(fineNames[useFines[i]]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      G4String namx(static_cast<G4String>(DD4hep2DDDName::nameMatterLV((*lvcite)->GetName(), dd4hep)));
       if (namx == name) {
         lv = (*lvcite);
         break;
@@ -487,7 +487,8 @@ bool CaloSD::hitExists(const G4Step* aStep, int k) {
 
 bool CaloSD::checkHit(int k) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k;
+  edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k << " for map " << useMap << ":" << &hitMap[k] << " Nhits "
+                              << nCheckedHits[k] << " HC " << theHC[k] << " ID " << currentID[k];
 #endif
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;

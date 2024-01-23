@@ -66,8 +66,6 @@ public:
 
   static void globalEndJob(lowptgsfeleseed::HeavyObjectCache const*) {}
 
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -184,7 +182,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       trajectoryFitterToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Fitter"))},
       trajectorySmootherToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Smoother"))},
       builderToken_{esConsumes(conf.getParameter<edm::ESInputTag>("TTRHBuilder"))},
-      magToken_{esConsumes<edm::Transition::BeginLuminosityBlock>()},
+      magToken_{esConsumes()},
       ecalClusterToolsESGetTokens_{consumesCollector()},
       passThrough_(conf.getParameter<bool>("PassThrough")),
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
@@ -204,13 +202,8 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronSeedProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& setup) {
-  field_ = setup.getHandle(magToken_);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//
 void LowPtGsfElectronSeedProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  field_ = setup.getHandle(magToken_);
   // Products
   auto seeds = std::make_unique<reco::ElectronSeedCollection>();
   auto ecalPreIds = std::make_unique<reco::PreIdCollection>();

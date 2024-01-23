@@ -27,8 +27,15 @@ pixelTracksMonitoringHLT = trackingMonHLT.clone(
     doEffFromHitPatternVsLUMI = False
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(pixelTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
+                         TrackProducer    = 'hltPixelTracksPPOnAA',
+                         allTrackProducer = 'hltPixelTracksPPOnAA')
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(pixelTracksMonitoringHLT,
+                        primaryVertex    = 'hltPhase2PixelVertices',
                         TrackProducer    = 'hltPhase2PixelTracks',
                         allTrackProducer = 'hltPhase2PixelTracks')
 
@@ -101,10 +108,15 @@ iterHLTTracksMonitoringHLT = trackingMonHLT.clone(
     doSIPPlots                = cms.bool(True)
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+pp_on_PbPb_run3.toModify(iterHLTTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
+                         TrackProducer    = 'hltMergedTracksPPOnAA',
+                         allTrackProducer = 'hltMergedTracksPPOnAA')
+
 phase2_tracker.toModify(iterHLTTracksMonitoringHLT,
-                        TrackProducer    = cms.InputTag("generalTracks","","HLT"),
-                        allTrackProducer = cms.InputTag("generalTracks","","HLT"))
+                        primaryVertex    = 'hltPhase2PixelVertices',
+                        TrackProducer    = 'generalTracks::HLT',
+                        allTrackProducer = 'generalTracks::HLT')
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone(
     FolderName       = 'HLT/Tracking/iter3Merged',
@@ -147,6 +159,11 @@ doubletRecoveryHPTracksMonitoringHLT = trackingMonHLT.clone(
     doEffFromHitPatternVsBX   = False,
     doEffFromHitPatternVsLUMI = False
 )
+
+pp_on_PbPb_run3.toModify(doubletRecoveryHPTracksMonitoringHLT,
+                         primaryVertex    = 'hltPixelVerticesPPOnAA',
+                         TrackProducer    = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA',
+                         allTrackProducer = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA')
 
 ############
 #### EGM tracks

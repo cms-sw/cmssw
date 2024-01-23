@@ -56,10 +56,6 @@ public:
   typedef Container InputVector;
 
   SiStripBadStrip(){};
-  SiStripBadStrip(const SiStripBadStrip& orig) {
-    v_badstrips = orig.v_badstrips;
-    indexes = orig.indexes;
-  }
   virtual ~SiStripBadStrip(){};
 
   bool put(const uint32_t& detID, const InputVector& vect) { return put(detID, Range(vect.begin(), vect.end())); }

@@ -44,6 +44,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
@@ -102,6 +103,8 @@ namespace trigger {
   typedef std::vector<reco::PFJetRef> VRpfjet;
   typedef std::vector<reco::PFTauRef> VRpftau;
   typedef std::vector<reco::PFMETRef> VRpfmet;
+
+  typedef l1t::P2GTCandidateVectorRef VRl1tp2gtcand;
 
   class TriggerRefsCollections {
     /// data members
@@ -173,6 +176,9 @@ namespace trigger {
     Vids pfmetIds_;
     VRpfmet pfmetRefs_;
 
+    Vids l1tp2gtcandIds_;
+    VRl1tp2gtcand l1tp2gtcandRefs_;
+
     /// methods
   public:
     /// constructors
@@ -241,7 +247,10 @@ namespace trigger {
           pftauIds_(),
           pftauRefs_(),
           pfmetIds_(),
-          pfmetRefs_() {}
+          pfmetRefs_(),
+
+          l1tp2gtcandIds_(),
+          l1tp2gtcandRefs_() {}
 
     /// utility
     void swap(TriggerRefsCollections& other) {
@@ -310,6 +319,9 @@ namespace trigger {
       std::swap(pftauRefs_, other.pftauRefs_);
       std::swap(pfmetIds_, other.pfmetIds_);
       std::swap(pfmetRefs_, other.pfmetRefs_);
+
+      std::swap(l1tp2gtcandIds_, other.l1tp2gtcandIds_);
+      std::swap(l1tp2gtcandRefs_, other.l1tp2gtcandRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -435,6 +447,10 @@ namespace trigger {
     void addObject(int id, const reco::PFMETRef& ref) {
       pfmetIds_.push_back(id);
       pfmetRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::P2GTCandidateRef& ref) {
+      l1tp2gtcandIds_.push_back(id);
+      l1tp2gtcandRefs_.push_back(ref);
     }
 
     ///
@@ -621,6 +637,12 @@ namespace trigger {
       pfmetIds_.insert(pfmetIds_.end(), ids.begin(), ids.end());
       pfmetRefs_.insert(pfmetRefs_.end(), refs.begin(), refs.end());
       return pfmetIds_.size();
+    }
+    size_type addObjects(const Vids& ids, const VRl1tp2gtcand& refs) {
+      assert(ids.size() == refs.size());
+      l1tp2gtcandIds_.insert(l1tp2gtcandIds_.end(), ids.begin(), ids.end());
+      l1tp2gtcandRefs_.insert(l1tp2gtcandRefs_.end(), refs.begin(), refs.end());
+      return l1tp2gtcandIds_.size();
     }
 
     /// various physics-level getters:
@@ -1675,6 +1697,41 @@ namespace trigger {
       return;
     }
 
+    void getObjects(Vids& ids, VRl1tp2gtcand& refs) const { getObjects(ids, refs, 0, l1tp2gtcandIds_.size()); }
+    void getObjects(Vids& ids, VRl1tp2gtcand& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tp2gtcandIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tp2gtcandIds_[i];
+        refs[j] = l1tp2gtcandRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tp2gtcand& refs) const { getObjects(id, refs, 0, l1tp2gtcandIds_.size()); }
+    void getObjects(int id, VRl1tp2gtcand& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tp2gtcandIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tp2gtcandIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tp2gtcandIds_[i]) {
+          refs[j] = l1tp2gtcandRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type photonSize() const { return photonIds_.size(); }
     const Vids& photonIds() const { return photonIds_; }
@@ -1797,6 +1854,10 @@ namespace trigger {
     size_type l1tetsumSize() const { return l1tetsumIds_.size(); }
     const Vids& l1tetsumIds() const { return l1tetsumIds_; }
     const VRl1tetsum& l1tetsumRefs() const { return l1tetsumRefs_; }
+
+    size_type l1tp2gtcandSize() const { return l1tp2gtcandIds_.size(); }
+    const Vids& l1tp2gtcandIds() const { return l1tp2gtcandIds_; }
+    const VRl1tp2gtcand& l1tp2gtcandRefs() const { return l1tp2gtcandRefs_; }
   };
 
   // picked up via argument dependent lookup, e-g- by boost::swap()

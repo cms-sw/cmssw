@@ -38,6 +38,7 @@ public:
   HGCROCChannelDataFrame(uint32_t value) : id_(0), value_(value) {}
   HGCROCChannelDataFrame(const D& id, uint32_t value) : id_(id), value_(value) {}
   HGCROCChannelDataFrame(const HGCROCChannelDataFrame& o) : id_(o.id_), value_(o.value_) {}
+  HGCROCChannelDataFrame& operator=(const HGCROCChannelDataFrame&) = default;
 
   /**
      @short det id

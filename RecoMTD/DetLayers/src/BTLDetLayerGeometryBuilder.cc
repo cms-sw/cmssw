@@ -30,7 +30,7 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
   const int mtdTopologyMode = topo.getMTDTopologyMode();
   BTLDetId::CrysLayout btlL = MTDTopologyMode::crysLayoutFromTopoMode(mtdTopologyMode);
 
-  if (btlL != BTLDetId::CrysLayout::v2) {
+  if (btlL != BTLDetId::CrysLayout::v2 && btlL != BTLDetId::CrysLayout::v3) {
     for (unsigned tray = 1; tray <= BTLDetId::HALF_ROD; ++tray) {
       vector<const GeomDet*> geomDets;
       for (unsigned module = 1; module <= BTLDetId::kModulesPerRODBarPhiFlat; ++module) {

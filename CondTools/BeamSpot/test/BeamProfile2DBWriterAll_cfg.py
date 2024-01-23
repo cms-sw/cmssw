@@ -31,20 +31,20 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 from CondTools.BeamSpot.beamProfile2DBWriter_cfi import beamProfile2DBWriter
 process.load("IOMC.EventVertexGenerators.VtxSmearedParameters_cfi")
 
-# Get the PSets that have BetaStar as a parameter
-psets_with_BetaStar = []
+# Get the PSets that have BetaStar (BetafuncEvtVtxGenerator) or SigmaX (GaussEvtVtxGenerator) as a parameter
+psets_SimBeamSpotObjects = []
 psets_names = []
 for psetName in process.__dict__:
     pset = getattr(process, psetName)
-    if isinstance(pset, cms.PSet) and "BetaStar" in pset.parameterNames_():
+    if isinstance(pset, cms.PSet) and ("BetaStar" in pset.parameterNames_() or "SigmaX" in pset.parameterNames_()):
         print(psetName)
         psets_names.append(psetName)
-        psets_with_BetaStar.append(pset)
+        psets_SimBeamSpotObjects.append(pset)
 
 # Create a VPSet to store the parameter sets
 myVPSet = cms.VPSet()
 
-for i, pset in enumerate(psets_with_BetaStar):
+for i, pset in enumerate(psets_SimBeamSpotObjects):
     cloneName = 'BeamProfile2DBWriter_' + str(i+1)  # Unique clone name
     setattr(process, cloneName, beamProfile2DBWriter.clone(pset,
                                                            recordName = cms.string(psets_names[i])))
@@ -74,7 +74,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.end = cms.EndPath()
 
 process.schedule = cms.Schedule()
-for i, pset in enumerate(psets_with_BetaStar):
+for i, pset in enumerate(psets_SimBeamSpotObjects):
     pathName = 'Path_' + str(i+1)  # Unique path name
     process.schedule.append(getattr(process, pathName))
 process.schedule.append(process.end)

@@ -9,7 +9,6 @@ mvaTag = "RunIIIWinter22NoIsoV1"
 
 weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Winter22NoIsoV1"
 
-
 mvaWeightFiles = cms.vstring(
      path.join(weightFileDir, "EB1_5.weights.root"), # EB1_5
      path.join(weightFileDir, "EB2_5.weights.root"), # EB2_5
@@ -21,11 +20,11 @@ mvaWeightFiles = cms.vstring(
 
 mvaEleID_RunIIIWinter22_noIso_V1_wp80_container = EleMVA_WP(
     idName = "mvaEleID-RunIIIWinter22-noIso-V1-wp80", mvaTag = mvaTag,
-    cutCategory0 = "0.99776583820026143", # EB1_5
-    cutCategory1 = "0.99399710641666705", # EB2_5
+    cutCategory0 = "0.9806578295496566", # EB1_5
+    cutCategory1 = "0.9413641904670094", # EB2_5
     cutCategory2 = "0.89762967983679642", # EE_5
-    cutCategory3 = "0.99997133733482069", # EB1_10
-    cutCategory4 = "0.99991566148661426", # EB2_10
+    cutCategory3 = "0.9997826058686308", # EB1_10
+    cutCategory4 = "0.9993177946586951", # EB2_10
     cutCategory5 = "0.99712023523348758", # EE_10
     )
 
@@ -33,11 +32,11 @@ mvaEleID_RunIIIWinter22_noIso_V1_wp80_container = EleMVA_WP(
 
 mvaEleID_RunIIIWinter22_noIso_V1_wp90_container = EleMVA_WP(
     idName = "mvaEleID-RunIIIWinter22-noIso-V1-wp90", mvaTag = mvaTag,
-    cutCategory0 = "0.9870981346957135", # EB1_5
-    cutCategory1 = "0.95756807831082225", # EB2_5
+    cutCategory0 = "0.8774784815007495", # EB1_5
+    cutCategory1 = "0.6755302215938275", # EB2_5
     cutCategory2 = "0.4195020250389494", # EE_5
-    cutCategory3 = "0.99981763428587134", # EB1_10
-    cutCategory4 = "0.99936974968805936", # EB2_10
+    cutCategory3 = "0.9981164732135666", # EB1_10
+    cutCategory4 = "0.9926206339419237", # EB2_10
     cutCategory5 = "0.96553633326857091", # EE_10
     )
 
@@ -52,7 +51,7 @@ mvaEleID_RunIIIWinter22_noIso_V1_producer_config = cms.PSet(
     nCategories         = cms.int32(6),
     categoryCuts        = cms.vstring(*EleMVA_6CategoriesCuts),
     weightFileNames     = mvaWeightFiles,
-    variableDefinition  = cms.string(mvaVariablesFileRun3)
+    variableDefinition  = cms.string(mvaVariablesFileRun3NonIso)
     )
 
 mvaEleID_RunIIIWinter22_noIso_V1_wp80 = configureVIDMVAEleID( mvaEleID_RunIIIWinter22_noIso_V1_wp80_container )

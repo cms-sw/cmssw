@@ -11,6 +11,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigDataRegistry.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,10 +38,7 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
                              const edm::EventSetup& iSetup,
                              const std::string& processName,
                              bool& changed) {
-  using namespace std;
-  using namespace edm;
-
-  LogInfo("HLTConfigProvider") << "Called (R) with processName '" << processName << "' for " << iRun.id() << endl;
+  edm::LogInfo("HLTConfigProvider") << "Called (R) with processName '" << processName << "' for " << iRun.id();
 
   init(iRun.processHistory(), processName);
 
@@ -50,7 +48,6 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
 }
 
 void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::string& processName) {
-  using namespace std;
   using namespace edm;
 
   const ProcessHistory::const_iterator hb(iHistory.begin());
@@ -60,22 +57,23 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
   const edm::ParameterSet* processPSet(nullptr);
 
   processName_ = processName;
+
   if (processName_ == "*") {
     // auto-discovery of process name
     for (ProcessHistory::const_iterator hi = hb; hi != he; ++hi) {
       if (iHistory.getConfigurationForProcess(hi->processName(), processConfiguration)) {
         processPSet = edm::pset::Registry::instance()->getMapped(processConfiguration.parameterSetID());
-        if ((processPSet != nullptr) && (processPSet->exists("hltTriggerSummaryAOD"))) {
+        CMS_SA_ALLOW if ((processPSet != nullptr) && (processPSet->exists("hltTriggerSummaryAOD"))) {
           processName_ = hi->processName();
         }
       }
     }
     if (processName_ == "*") {
-      LogError("HLTConfigProvider") << "Auto-discovery of processName failed!" << endl;
+      LogError("HLTConfigProvider") << "Auto-discovery of processName failed!";
       clear();
       return;
     } else {
-      LogInfo("HLTConfigProvider") << "Auto-discovered processName: '" << processName_ << "'" << endl;
+      LogInfo("HLTConfigProvider") << "Auto-discovered processName: '" << processName_ << "'";
     }
   }
   if (processName_ == "@currentProcess") {
@@ -90,7 +88,7 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
     }
   }
   if (n > 1) {
-    LogError("HLTConfigProvider") << " ProcessName '" << processName_ << " found " << n << " times in history!" << endl;
+    LogError("HLTConfigProvider") << " ProcessName '" << processName_ << " found " << n << " times in history!";
     clear();
     return;
   }
@@ -151,13 +149,12 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID) {
 }
 
 void HLTConfigProvider::init(const std::string& processName) {
-  using namespace std;
   using namespace edm;
 
   // Obtain ParameterSetID for requested process (with name
   // processName) from pset registry
-  string pNames("");
-  string hNames("");
+  std::string pNames("");
+  std::string hNames("");
   const ParameterSet* pset = nullptr;
   ParameterSetID psetID;
   unsigned int nPSets(0);
@@ -165,8 +162,9 @@ void HLTConfigProvider::init(const std::string& processName) {
   const edm::pset::Registry::const_iterator rb(registry_->begin());
   const edm::pset::Registry::const_iterator re(registry_->end());
   for (edm::pset::Registry::const_iterator i = rb; i != re; ++i) {
-    if (i->second.existsAs<string>("@process_name", true) and i->second.existsAs<vector<string>>("@paths", true)) {
-      const std::string pName(i->second.getParameter<string>("@process_name"));
+    CMS_SA_ALLOW if (i->second.existsAs<std::string>("@process_name", true) and
+                     i->second.existsAs<std::vector<std::string>>("@paths", true)) {
+      const std::string pName(i->second.getParameter<std::string>("@process_name"));
       pNames += pName + " ";
       if (pName == processName) {
         psetID = i->first;
@@ -174,10 +172,10 @@ void HLTConfigProvider::init(const std::string& processName) {
         if ((hltConfigData_ != s_dummyHLTConfigData()) && (hltConfigData_->id() == psetID)) {
           hNames += tableName();
         } else if (nullptr != (pset = registry_->getMapped(psetID))) {
-          if (pset->exists("HLTConfigVersion")) {
+          CMS_SA_ALLOW if (pset->exists("HLTConfigVersion")) {
             const ParameterSet& HLTPSet(pset->getParameterSet("HLTConfigVersion"));
-            if (HLTPSet.exists("tableName")) {
-              hNames += HLTPSet.getParameter<string>("tableName") + " ";
+            CMS_SA_ALLOW if (HLTPSet.exists("tableName")) {
+              hNames += HLTPSet.getParameter<std::string>("tableName") + " ";
             }
           }
         }
@@ -185,23 +183,22 @@ void HLTConfigProvider::init(const std::string& processName) {
     }
   }
 
-  LogVerbatim("HLTConfigProvider") << "Unordered list of all process names found: " << pNames << "." << endl;
+  LogVerbatim("HLTConfigProvider") << "Unordered list of all process names found: " << pNames << ".";
 
-  LogVerbatim("HLTConfigProvider") << "HLT TableName of each selected process: " << hNames << "." << endl;
+  LogVerbatim("HLTConfigProvider") << "HLT TableName of each selected process: " << hNames << ".";
 
   if (nPSets == 0) {
-    LogError("HLTConfigProvider") << " Process name '" << processName << "' not found in registry!" << endl;
+    LogError("HLTConfigProvider") << " Process name '" << processName << "' not found in registry!";
     clear();
     return;
   }
   if (psetID == ParameterSetID()) {
-    LogError("HLTConfigProvider") << " Process name '" << processName << "' found but ParameterSetID invalid!" << endl;
+    LogError("HLTConfigProvider") << " Process name '" << processName << "' found but ParameterSetID invalid!";
     clear();
     return;
   }
   if (nPSets > 1) {
-    LogError("HLTConfigProvider") << " Process name '" << processName << " found " << nPSets << " times in registry!"
-                                  << endl;
+    LogError("HLTConfigProvider") << " Process name '" << processName << " found " << nPSets << " times in registry!";
     clear();
     return;
   }

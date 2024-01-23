@@ -15,7 +15,7 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    ItemType getNextItemType() final;
+    ItemTypeInfo getNextItemType() final;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() final;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() final;
     void readEvent_(EventPrincipal& eventPrincipal) final;
@@ -36,32 +36,32 @@ namespace edm {
 
   TestSource::ItemType TestSource::stringToType(const std::string& iTrans) {
     if (iTrans == "IsStop") {
-      return IsStop;
+      return ItemType::IsStop;
     }
     if (iTrans == "IsFile") {
-      return IsFile;
+      return ItemType::IsFile;
     }
     if (iTrans == "IsRun") {
-      return IsRun;
+      return ItemType::IsRun;
     }
     if (iTrans == "IsLumi") {
-      return IsLumi;
+      return ItemType::IsLumi;
     }
     if (iTrans == "IsEvent") {
-      return IsEvent;
+      return ItemType::IsEvent;
     }
     if (iTrans == "IsSynchronize") {
-      return IsSynchronize;
+      return ItemType::IsSynchronize;
     }
 
     throw edm::Exception(errors::Configuration) << "Unknown transition type \'" << iTrans << "\'";
 
-    return IsInvalid;
+    return ItemType::IsInvalid;
   }
 
-  TestSource::ItemType TestSource::getNextItemType() {
+  TestSource::ItemTypeInfo TestSource::getNextItemType() {
     if (m_nextTransition == m_transitions.end()) {
-      return IsStop;
+      return ItemType::IsStop;
     }
     auto trans = m_nextTransition->first;
     ++m_nextTransition;

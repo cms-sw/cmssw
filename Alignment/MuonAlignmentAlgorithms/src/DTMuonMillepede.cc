@@ -1,5 +1,6 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonMillepede.h"
 
+#include <array>
 #include <iostream>
 
 DTMuonMillepede::DTMuonMillepede(std::string path,
@@ -567,13 +568,13 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
         }
       }
     }
-    double **Eta = new double *[12];
-    for (int counterLayer = 0; counterLayer < 12; counterLayer++) {
+
+    std::array<std::array<double, 12>, 12> Eta{};
+    for (size_t counterLayer = 0; counterLayer < Eta.size(); counterLayer++) {
       if (counterLayer > 7 && st == 4)
         continue;
-      Eta[counterLayer] = new double[5];
-      for (int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-        if (counterLayer > 7 && st == 4)
+      for (size_t counterLayer2 = 0; counterLayer2 < Eta[counterLayer].size(); counterLayer2++) {
+        if (counterLayer2 > 7 && st == 4)
           continue;
         if ((counterLayer2 < 4 && counterLayer < 4) || (counterLayer2 > 3 && counterLayer > 3)) {
           if (counterLayer == counterLayer2) {
@@ -581,20 +582,18 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
           } else {
             Eta[counterLayer][counterLayer2] = -1.0 / (4.0);
           }
-        } else {
-          Eta[counterLayer][counterLayer2] = 0.0;
         }
       }
     }
 
     for (int counterDeg = 0; counterDeg < 5; counterDeg++) {
-      for (int counterLayer = 0; counterLayer < 12; counterLayer++) {
+      for (size_t counterLayer = 0; counterLayer < 12; counterLayer++) {
         if (counterLayer > 7 && st == 4)
           continue;
-        for (int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
+        for (size_t counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
           if (counterLayer2 > 7 && st == 4)
             continue;
-          for (int counterLayer3 = 0; counterLayer3 < 12; counterLayer3++) {
+          for (size_t counterLayer3 = 0; counterLayer3 < 12; counterLayer3++) {
             if (counterLayer3 > 7 && st == 4)
               continue;
             matrix(5 * counterLayer2 + counterDeg, 5 * counterLayer3 + counterDeg) +=
@@ -668,13 +667,12 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
         }
       }
     }
-    double **Eta = new double *[12];
-    for (int counterLayer = 0; counterLayer < 12; counterLayer++) {
+    std::array<std::array<double, 12>, 12> Eta{};
+    for (size_t counterLayer = 0; counterLayer < Eta.size(); counterLayer++) {
       if (counterLayer > 7 && st == 4)
         continue;
-      Eta[counterLayer] = new double[5];
-      for (int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-        if (counterLayer > 7 && st == 4)
+      for (size_t counterLayer2 = 0; counterLayer2 < Eta[counterLayer].size(); counterLayer2++) {
+        if (counterLayer2 > 7 && st == 4)
           continue;
         if ((counterLayer2 < 4 && counterLayer < 4) || (counterLayer2 > 3 && counterLayer > 3)) {
           if (counterLayer == counterLayer2) {
@@ -689,10 +687,10 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
     }
 
     for (int counterDeg = 0; counterDeg < 5; counterDeg++) {
-      for (int counterLayer = 0; counterLayer < 12; counterLayer++) {
+      for (size_t counterLayer = 0; counterLayer < 12; counterLayer++) {
         if (counterLayer > 7 && st == 4)
           continue;
-        for (int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
+        for (size_t counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
           if (counterLayer2 > 7 && st == 4)
             continue;
           float mean = 0;

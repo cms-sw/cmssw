@@ -34,16 +34,11 @@ using namespace l1t;
 class L1TMuonQualityAdjuster : public edm::stream::EDProducer<> {
 public:
   explicit L1TMuonQualityAdjuster(const edm::ParameterSet&);
-  ~L1TMuonQualityAdjuster() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run&, edm::EventSetup const&) override;
-  void endRun(const edm::Run&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_barrelTfInputToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_overlapTfInputToken;
@@ -78,11 +73,6 @@ L1TMuonQualityAdjuster::L1TMuonQualityAdjuster(const edm::ParameterSet& iConfig)
   produces<RegionalMuonCandBxCollection>("BMTF");
   produces<RegionalMuonCandBxCollection>("OMTF");
   produces<RegionalMuonCandBxCollection>("EMTF");
-}
-
-L1TMuonQualityAdjuster::~L1TMuonQualityAdjuster() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -160,18 +150,6 @@ void L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.put(std::move(filteredOMTFMuons), "OMTF");
   iEvent.put(std::move(filteredEMTFMuons), "EMTF");
 }
-
-// ------------ method called when starting to processes a run  ------------
-void L1TMuonQualityAdjuster::beginRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void L1TMuonQualityAdjuster::endRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void L1TMuonQualityAdjuster::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void L1TMuonQualityAdjuster::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TMuonQualityAdjuster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

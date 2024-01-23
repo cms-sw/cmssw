@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       PFRecHitProducerKernel<CAL> kernel{event.queue(), num_recHits};
       for (const auto& token : recHitsToken_)
-        kernel.processRecHits(event.queue(), event.get(token.first), setup.getData(token.second), pfRecHits);
+        kernel.processRecHits(event.queue(), event.get(token.first), setup.getData(token.second), topology, pfRecHits);
       kernel.associateTopologyInfo(event.queue(), topology, pfRecHits);
 
       if (synchronise_)

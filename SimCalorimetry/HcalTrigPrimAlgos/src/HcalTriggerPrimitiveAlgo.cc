@@ -32,6 +32,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    int numberOfFilterPresamplesHEQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
+                                                   int numberOfSamplesZDC,
+                                                   int numberOfPresamplesZDC,
                                                    bool useTDCInMinBiasBits,
                                                    uint32_t minSignalThreshold,
                                                    uint32_t PMT_NoiseThreshold)
@@ -50,6 +52,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       numberOfFilterPresamplesHEQIE11_(numberOfFilterPresamplesHEQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
+      numberOfSamplesZDC_(numberOfSamplesZDC),
+      numberOfPresamplesZDC_(numberOfPresamplesZDC),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
       minSignalThreshold_(minSignalThreshold),
       PMT_NoiseThreshold_(PMT_NoiseThreshold),
@@ -63,6 +67,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
     numberOfPresamples_ = 0;
     numberOfSamplesHF_ = 1;
     numberOfPresamplesHF_ = 0;
+    numberOfSamplesZDC_ = 1;
+    numberOfPresamplesZDC_ = 0;
   }
   // Switch to integer for comparisons - remove compiler warning
   ZS_threshold_I_ = ZS_threshold_;
@@ -207,41 +213,72 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame& frame) {
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame) {
-  HcalDetId detId = frame.detid();
-  // prevent QIE10 calibration channels from entering TP emulation
-  if (detId.subdet() != HcalForward)
-    return;
+  //HcalDetId detId = frame.detid();
+  DetId detId = DetId(frame.detid());
+  if (detId.det() == DetId::Hcal) {
+    HcalDetId detId = frame.detid();
+    // prevent QIE10 calibration channels from entering TP emulation
+    if (detId.subdet() != HcalForward)
+      return;
 
-  auto ids = theTrigTowerGeometry->towerIds(frame.id());
-  for (const auto& id : ids) {
-    if (id.version() == 0) {
-      edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
-      continue;
+    auto ids = theTrigTowerGeometry->towerIds(frame.id());
+    for (const auto& id : ids) {
+      if (id.version() == 0) {
+        edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
+        continue;
+      }
+      int nsamples = frame.samples();
+
+      IntegerCaloSamples samples(id, nsamples);
+      samples.setPresamples(frame.presamples());
+      incoder_->adc2Linear(frame, samples, false);
+
+      // Don't add to final collection yet
+      // HF PMT veto sum is calculated in analyzerHF()
+      IntegerCaloSamples zero_samples(id, nsamples);
+      zero_samples.setPresamples(frame.presamples());
+      addSignal(zero_samples);
+
+      auto fid = HcalDetId(frame.id());
+      auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
+      auto& detail = details[fid.depth() - 1];
+      detail.samples = samples;
+      detail.digi = frame;
+      detail.validity.resize(nsamples);
+      detail.passTDC.resize(nsamples);
+      incoder_->lookupMSB(frame, detail.fgbits);
+      for (int idx = 0; idx < nsamples; ++idx) {
+        detail.validity[idx] = validChannel(frame, idx);
+        detail.passTDC[idx] = passTDC(frame, idx);
+      }
+    }
+  } else if (detId.det() == DetId::Calo && detId.subdetId() == HcalZDCDetId::SubdetectorId) {
+    HcalZDCDetId detId = frame.detid();
+    if (detId.section() != HcalZDCDetId::EM && detId.section() != HcalZDCDetId::HAD) {
+      return;
     }
 
-    int nsamples = frame.samples();
+    auto ids = theTrigTowerGeometry->towerIds_ZDC(frame.id());
+    for (const auto& id : ids) {
+      int nsamples = frame.samples();
 
-    IntegerCaloSamples samples(id, nsamples);
-    samples.setPresamples(frame.presamples());
-    incoder_->adc2Linear(frame, samples);
+      IntegerCaloSamples samples(id, nsamples);
+      IntegerCaloSamples samples_PUsub(id, nsamples);
 
-    // Don't add to final collection yet
-    // HF PMT veto sum is calculated in analyzerHF()
-    IntegerCaloSamples zero_samples(id, nsamples);
-    zero_samples.setPresamples(frame.presamples());
-    addSignal(zero_samples);
+      samples.setPresamples(frame.presamples());
+      samples_PUsub.setPresamples(frame.presamples());
 
-    auto fid = HcalDetId(frame.id());
-    auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
-    auto& detail = details[fid.depth() - 1];
-    detail.samples = samples;
-    detail.digi = frame;
-    detail.validity.resize(nsamples);
-    detail.passTDC.resize(nsamples);
-    incoder_->lookupMSB(frame, detail.fgbits);
-    for (int idx = 0; idx < nsamples; ++idx) {
-      detail.validity[idx] = validChannel(frame, idx);
-      detail.passTDC[idx] = passTDC(frame, idx);
+      incoder_->adc2Linear(frame, samples, false);
+      incoder_->adc2Linear(frame, samples_PUsub, true);
+
+      for (int i = 1; i < samples.size(); ++i) {
+        if (samples_PUsub[i - 1] > samples[i])
+          samples[i] = 0;
+        else
+          samples[i] -= samples_PUsub[i - 1];
+      }
+
+      addSignal(samples);
     }
   }
 }
@@ -560,6 +597,30 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
           << ") is not aligned with digi SOI (dgPresamples = " << dgPresamples << ")";
   }
   outcoder_->compress(output, finegrain, result);
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeZDC(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result) {
+  HcalTrigTowerDetId detId(samples.id());
+
+  unsigned int tpSamples;
+  unsigned int tpPresamples;
+
+  tpSamples = samples.size();
+  tpPresamples = samples.presamples();
+  result.setSize(tpSamples);
+  result.setPresamples(tpPresamples);
+
+  IntegerCaloSamples output(samples.id(), tpSamples);
+  output.setPresamples(tpPresamples);
+
+  for (int i = 0; i < samples.size(); i++) {
+    if (samples[i] > QIE10_ZDC_MAX_LINEARIZATION_ET)
+      output[i] = QIE10_ZDC_MAX_LINEARIZATION_ET;
+    else
+      output[i] = samples[i];
+    HcalTriggerPrimitiveSample zdcSample(output[i]);
+    result.setSample(i, zdcSample);
+  }
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples& samples,

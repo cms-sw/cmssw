@@ -45,6 +45,7 @@ class Eras (object):
                  'Run3_FastSim',
                  'Run3_2023_FastSim',
                  'Run3_2023_ZDC',
+                 'Run3_2023_UPC',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -60,7 +61,8 @@ class Eras (object):
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
                  'Phase2C17I13M9',
-                 'Phase2C20I13M9'
+                 'Phase2C20I13M9',
+                 'Phase2C22I13M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -75,7 +77,7 @@ class Eras (object):
                            'phase2_common', 'phase2_tracker',
                            'phase2_muon', 'phase2_GEM', 'phase2_GE0',
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
-                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
+                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel', 'phase2_ecalTP_devel',
                            'phase2_trigger',
                            'phase2_squarePixels', 'phase2_3DPixels',
                            'trackingLowPU', 'trackingPhase1',
@@ -87,6 +89,7 @@ class Eras (object):
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
                            'run3_ecal_devel',
+                           'run3_upc',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']

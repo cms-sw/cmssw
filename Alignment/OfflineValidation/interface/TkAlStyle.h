@@ -42,6 +42,9 @@ enum PublicationStatus {
 // Data era: determines labels of data-taking periods, e.g. CRUZET
 enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
 
+// Alignment object
+enum AlignObj { IDEALAlign, RUN1Align, CRUZETAlign, CRAFTAlign, Coll0TAlign };
+
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
@@ -51,6 +54,13 @@ public:
                   const TString customRightTitle = "");
   static void set(const TString customTitle);
   static PublicationStatus status() { return publicationStatus_; }
+
+  static TString toTString(const PublicationStatus status);
+  static TString toTString(const Era era);
+  static TString toTString(const AlignObj obj);
+
+  static int color(const AlignObj obj);
+  static int style(const AlignObj obj);
 
   // Draws a title "<CMS label> 2015" on the current pad
   // dependending on the PublicationStatus

@@ -53,10 +53,10 @@ DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet) {
   etaECMin = parameters.getParameter<double>("etaECMin");
   etaECMax = parameters.getParameter<double>("etaECMax");
 
-  LowMassMin = parameters.getParameter<double>("LowMassMin");
-  LowMassMax = parameters.getParameter<double>("LowMassMax");
-  HighMassMin = parameters.getParameter<double>("HighMassMin");
-  HighMassMax = parameters.getParameter<double>("HighMassMax");
+  lowMassMin = parameters.getParameter<double>("lowMassMin");
+  lowMassMax = parameters.getParameter<double>("lowMassMax");
+  highMassMin = parameters.getParameter<double>("highMassMin");
+  highMassMax = parameters.getParameter<double>("highMassMax");
 
   theFolder = parameters.getParameter<string>("folder");
 }
@@ -78,51 +78,51 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker& ibooker,
     GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM" + EtaName[iEtaRegion],
                                            "InvMass_{GLB,GLB}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           LowMassMin,
-                                           LowMassMax));
+                                           lowMassMin,
+                                           lowMassMax));
     TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM" + EtaName[iEtaRegion],
                                            "InvMass_{TRK,TRK}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           LowMassMin,
-                                           LowMassMax));
+                                           lowMassMin,
+                                           lowMassMax));
     StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM" + EtaName[iEtaRegion],
                                            "InvMass_{STA,TRK}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           LowMassMin,
-                                           LowMassMax));
+                                           lowMassMin,
+                                           lowMassMax));
 
     GlbGlbMuon_HM.push_back(ibooker.book1D("GlbGlbMuon_HM" + EtaName[iEtaRegion],
                                            "InvMass_{GLB,GLB}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           HighMassMin,
-                                           HighMassMax));
+                                           highMassMin,
+                                           highMassMax));
     TrkTrkMuon_HM.push_back(ibooker.book1D("TrkTrkMuon_HM" + EtaName[iEtaRegion],
                                            "InvMass_{TRK,TRK}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           HighMassMin,
-                                           HighMassMax));
+                                           highMassMin,
+                                           highMassMax));
     StaTrkMuon_HM.push_back(ibooker.book1D("StaTrkMuon_HM" + EtaName[iEtaRegion],
                                            "InvMass_{STA,TRK}" + EtaName[iEtaRegion],
                                            nBin[iEtaRegion],
-                                           HighMassMin,
-                                           HighMassMax));
+                                           highMassMin,
+                                           highMassMax));
 
     // arround the Z peak
     TightTightMuon.push_back(ibooker.book1D("TightTightMuon" + EtaName[iEtaRegion],
                                             "InvMass_{Tight,Tight}" + EtaName[iEtaRegion],
                                             nBin[iEtaRegion],
-                                            LowMassMin,
-                                            LowMassMax));
+                                            highMassMin,
+                                            highMassMax));
     MediumMediumMuon.push_back(ibooker.book1D("MediumMediumMuon" + EtaName[iEtaRegion],
                                               "InvMass_{Medium,Medium}" + EtaName[iEtaRegion],
                                               nBin[iEtaRegion],
-                                              LowMassMin,
-                                              LowMassMax));
+                                              highMassMin,
+                                              highMassMax));
     LooseLooseMuon.push_back(ibooker.book1D("LooseLooseMuon" + EtaName[iEtaRegion],
                                             "InvMass_{Loose,Loose}" + EtaName[iEtaRegion],
                                             nBin[iEtaRegion],
-                                            LowMassMin,
-                                            LowMassMax));
+                                            highMassMin,
+                                            highMassMax));
     //Fraction of bad hits in the tracker track to the total
     TightTightMuonBadFrac.push_back(ibooker.book1D(
         "TightTightMuonBadFrac" + EtaName[iEtaRegion], "BadFrac_{Tight,Tight}" + EtaName[iEtaRegion], 10, 0, 0.4));
@@ -222,9 +222,9 @@ void DiMuonHistograms::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 fabs(recoCombinedGlbTrack1->eta()) < EtaCutMax[iEtaRegion] &&
                 fabs(recoCombinedGlbTrack2->eta()) > EtaCutMin[iEtaRegion] &&
                 fabs(recoCombinedGlbTrack2->eta()) < EtaCutMax[iEtaRegion]) {
-              if (InvMass < LowMassMax)
+              if (InvMass < lowMassMax)
                 GlbGlbMuon_LM[iEtaRegion]->Fill(InvMass);
-              if (InvMass > HighMassMin)
+              if (InvMass > highMassMin)
                 GlbGlbMuon_HM[iEtaRegion]->Fill(InvMass);
             }
           }
@@ -300,9 +300,9 @@ void DiMuonHistograms::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             if (fabs(recoStaTrack->eta()) > EtaCutMin[iEtaRegion] &&
                 fabs(recoStaTrack->eta()) < EtaCutMax[iEtaRegion] && fabs(recoTrack->eta()) > EtaCutMin[iEtaRegion] &&
                 fabs(recoTrack->eta()) < EtaCutMax[iEtaRegion]) {
-              if (InvMass < LowMassMax)
+              if (InvMass < lowMassMax)
                 StaTrkMuon_LM[iEtaRegion]->Fill(InvMass);
-              if (InvMass > HighMassMin)
+              if (InvMass > highMassMin)
                 StaTrkMuon_HM[iEtaRegion]->Fill(InvMass);
             }
           }
@@ -322,9 +322,9 @@ void DiMuonHistograms::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             if (fabs(recoStaTrack->eta()) > EtaCutMin[iEtaRegion] &&
                 fabs(recoStaTrack->eta()) < EtaCutMax[iEtaRegion] && fabs(recoTrack->eta()) > EtaCutMin[iEtaRegion] &&
                 fabs(recoTrack->eta()) < EtaCutMax[iEtaRegion]) {
-              if (InvMass < LowMassMax)
+              if (InvMass < lowMassMax)
                 StaTrkMuon_LM[iEtaRegion]->Fill(InvMass);
-              if (InvMass > HighMassMin)
+              if (InvMass > highMassMin)
                 StaTrkMuon_HM[iEtaRegion]->Fill(InvMass);
             }
           }
@@ -345,9 +345,9 @@ void DiMuonHistograms::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           for (unsigned int iEtaRegion = 0; iEtaRegion < 3; iEtaRegion++) {
             if (fabs(recoTrack1->eta()) > EtaCutMin[iEtaRegion] && fabs(recoTrack1->eta()) < EtaCutMax[iEtaRegion] &&
                 fabs(recoTrack2->eta()) > EtaCutMin[iEtaRegion] && fabs(recoTrack2->eta()) < EtaCutMax[iEtaRegion]) {
-              if (InvMass < LowMassMax)
+              if (InvMass < lowMassMax)
                 TrkTrkMuon_LM[iEtaRegion]->Fill(InvMass);
-              if (InvMass > HighMassMin)
+              if (InvMass > highMassMin)
                 TrkTrkMuon_HM[iEtaRegion]->Fill(InvMass);
             }
           }

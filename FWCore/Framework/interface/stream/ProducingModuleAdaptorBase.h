@@ -93,8 +93,8 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool hasAcquire() const = 0;
       virtual bool hasAccumulator() const = 0;
-      bool wantsStreamRuns() const { return true; }
-      bool wantsStreamLuminosityBlocks() const { return true; }
+      virtual bool wantsStreamRuns() const = 0;
+      virtual bool wantsStreamLuminosityBlocks() const = 0;
 
       void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
 
@@ -134,7 +134,7 @@ namespace edm {
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
-                            ModuleCallingContext const*,
+                            ModuleCallingContext,
                             ServiceWeakToken const&);
 
     protected:

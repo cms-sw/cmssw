@@ -1,29 +1,31 @@
+#include <cmath>
 #include <string>
 #include <vector>
 
-#include "TVector3.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForBoostedLeptonPlusJets.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-#include "CommonTools/Utils/interface/PtComparator.h"
 
 template <typename jetType>
 HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::HLTJetCollectionsForBoostedLeptonPlusJets(
     const edm::ParameterSet& iConfig)
     : hltLeptonTag(iConfig.getParameter<edm::InputTag>("HltLeptonTag")),
       sourceJetTag(iConfig.getParameter<edm::InputTag>("SourceJetTag")),
-      minDeltaR_(iConfig.getParameter<double>("minDeltaR")) {
+      // minimum delta-R^2 threshold with sign
+      minDeltaR2_(iConfig.getParameter<double>("minDeltaR") * std::abs(iConfig.getParameter<double>("minDeltaR"))) {
   using namespace edm;
   using namespace std;
 
@@ -107,12 +109,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
       for (size_t candNr = 0; candNr < muonCands.size(); candNr++) {
         if (std::find(usedCands.begin(), usedCands.end(), candNr) != usedCands.end())
           continue;
-        if (deltaR((*muonCands[candNr]), cleanedJet) <= minDeltaR_) {
+        if (reco::deltaR2((*muonCands[candNr]), cleanedJet) <= minDeltaR2_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
           for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
                i_candidate != pfConstituents.end();
                ++i_candidate) {
-            if (deltaR((*muonCands[candNr]), (**i_candidate)) < 0.001) {
+            if (reco::deltaR2((*muonCands[candNr]), (**i_candidate)) < 1e-6) {
               cleanedJet.setP4(cleanedJet.p4() - muonCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -131,12 +133,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
       for (size_t candNr = 0; candNr < eleCands.size(); candNr++) {
         if (std::find(usedCands.begin(), usedCands.end(), candNr) != usedCands.end())
           continue;
-        if (deltaR((*eleCands[candNr]), cleanedJet) <= minDeltaR_) {
+        if (reco::deltaR2((*eleCands[candNr]), cleanedJet) <= minDeltaR2_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
           for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
                i_candidate != pfConstituents.end();
                ++i_candidate) {
-            if (deltaR((*eleCands[candNr]), (**i_candidate)) < 0.001) {
+            if (reco::deltaR2((*eleCands[candNr]), (**i_candidate)) < 1e-6) {
               cleanedJet.setP4(cleanedJet.p4() - eleCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -155,12 +157,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
       for (size_t candNr = 0; candNr < photonCands.size(); candNr++) {
         if (std::find(usedCands.begin(), usedCands.end(), candNr) != usedCands.end())
           continue;
-        if (deltaR((*photonCands[candNr]), cleanedJet) <= minDeltaR_) {
+        if (reco::deltaR2((*photonCands[candNr]), cleanedJet) <= minDeltaR2_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
           for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
                i_candidate != pfConstituents.end();
                ++i_candidate) {
-            if (deltaR((*photonCands[candNr]), (**i_candidate)) < 0.001) {
+            if (reco::deltaR2((*photonCands[candNr]), (**i_candidate)) < 1e-6) {
               cleanedJet.setP4(cleanedJet.p4() - photonCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -179,12 +181,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
       for (size_t candNr = 0; candNr < clusCands.size(); candNr++) {
         if (std::find(usedCands.begin(), usedCands.end(), candNr) != usedCands.end())
           continue;
-        if (deltaR((*clusCands[candNr]), cleanedJet) <= minDeltaR_) {
+        if (reco::deltaR2((*clusCands[candNr]), cleanedJet) <= minDeltaR2_) {
           std::vector<edm::Ptr<reco::PFCandidate>> pfConstituents = cleanedJet.getPFConstituents();
           for (std::vector<edm::Ptr<reco::PFCandidate>>::const_iterator i_candidate = pfConstituents.begin();
                i_candidate != pfConstituents.end();
                ++i_candidate) {
-            if (deltaR((*clusCands[candNr]), (**i_candidate)) < 0.001) {
+            if (reco::deltaR2((*clusCands[candNr]), (**i_candidate)) < 1e-6) {
               cleanedJet.setP4(cleanedJet.p4() - clusCands[candNr]->p4());
               usedCands.push_back(candNr);
               break;
@@ -204,7 +206,7 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
   JetCollection const& jets = *cleanedJetHandle;
 
   JetRefVector cleanedJetRefs;
-
+  cleanedJetRefs.reserve(jets.size());
   for (unsigned iJet = 0; iJet < jets.size(); ++iJet) {
     cleanedJetRefs.push_back(JetRef(cleanedJetHandle, iJet));
   }

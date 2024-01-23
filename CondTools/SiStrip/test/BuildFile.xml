@@ -4,3 +4,4 @@
 </ifarch>
 
 <test name="testCondToolsSiStripBuildersReaders" command="testBuildersReaders.sh"/>
+<test name="testSiStripGainsManinpulation" command="testSiStripGainManipulation.sh"/>

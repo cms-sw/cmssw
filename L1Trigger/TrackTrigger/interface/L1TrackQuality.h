@@ -1,6 +1,5 @@
 /*
 Track Quality Header file
-
 C.Brown 28/07/20
 */
 
@@ -19,14 +18,18 @@ C.Brown 28/07/20
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include <memory>
 
+#include "conifer.h"
+#include "ap_fixed.h"
+
 class L1TrackQuality {
 public:
   // Enum class used for determining prediction behaviour in setL1TrackQuality
-  enum class QualityAlgorithm { Cut, GBDT, NN, None };
+  enum class QualityAlgorithm { Cut, GBDT, GBDT_cpp, NN, None };
 
   //Default Constructor
   L1TrackQuality();
@@ -42,7 +45,10 @@ public:
 
   // Passed by reference a track without MVA filled, method fills the track's MVA field
   void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
-
+  // Function to run the BDT in isolation allowing a feature vector in the ap_fixed datatype to be passed
+  // and a single output to be returned which is then used to fill the bits in the Track Word for situations
+  // where a TTTrack datatype is unavailable to be passed to the track quality
+  float runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures);
   // To set private member data
   void setCutParameters(std::string const& AlgorithmString,
                         float maxZ0,

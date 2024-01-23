@@ -32,6 +32,9 @@ public:
   /// this, no check is done on the vaildity of the values.
   DTLayerId(const DTLayerId& layerId);
 
+  /// Assignment Operator.
+  DTLayerId& operator=(const DTLayerId& layerId) = default;
+
   /// Constructor from a camberId and SL and layer numbers
   DTLayerId(const DTChamberId& chId, int superlayer, int layer);
 

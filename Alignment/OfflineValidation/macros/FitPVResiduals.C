@@ -39,7 +39,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-//#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
+//#include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"

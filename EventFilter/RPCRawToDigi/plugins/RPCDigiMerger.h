@@ -28,7 +28,6 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descs);
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
   void produce(edm::Event& event, edm::EventSetup const& setup) override;
 
 protected:

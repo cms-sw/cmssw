@@ -48,14 +48,11 @@
 class NanoAODBaseCrossCleaner : public edm::stream::EDProducer<> {
 public:
   explicit NanoAODBaseCrossCleaner(const edm::ParameterSet&);
-  ~NanoAODBaseCrossCleaner() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
   virtual void objectSelection(const edm::View<pat::Jet>& jets,
                                const edm::View<pat::Muon>& muons,
                                const edm::View<pat::Electron>& eles,
@@ -66,11 +63,6 @@ private:
                                std::vector<uint8_t>& eleBits,
                                std::vector<uint8_t>& tauBits,
                                std::vector<uint8_t>& photonBits){};
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   const std::string name_;

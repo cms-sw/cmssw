@@ -49,7 +49,7 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   protected:
-    ItemType getNextItemType() override;
+    ItemTypeInfo getNextItemType() override;
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     void readEvent_(EventPrincipal& eventPrincipal) override;

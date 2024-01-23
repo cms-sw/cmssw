@@ -377,6 +377,7 @@ namespace edm {
 
     ConditionalTaskHelper conditionalTaskHelper(
         proc_pset, preg, &prealloc, processConfiguration, workerManager_, pathNames);
+    std::unordered_set<std::string> conditionalModules;
 
     int trig_bitpos = 0;
     trig_paths_.reserve(pathNames.size());
@@ -389,7 +390,8 @@ namespace edm {
                    trig_name,
                    results(),
                    endPathNames,
-                   conditionalTaskHelper);
+                   conditionalTaskHelper,
+                   conditionalModules);
       ++trig_bitpos;
       hasPath = true;
     }
@@ -406,8 +408,15 @@ namespace edm {
     int bitpos = 0;
     end_paths_.reserve(endPathNames.size());
     for (auto const& end_path_name : endPathNames) {
-      fillEndPath(
-          proc_pset, preg, &prealloc, processConfiguration, bitpos, end_path_name, endPathNames, conditionalTaskHelper);
+      fillEndPath(proc_pset,
+                  preg,
+                  &prealloc,
+                  processConfiguration,
+                  bitpos,
+                  end_path_name,
+                  endPathNames,
+                  conditionalTaskHelper,
+                  conditionalModules);
       ++bitpos;
     }
 
@@ -454,6 +463,31 @@ namespace edm {
       }
     }
     number_of_unscheduled_modules_ = unscheduledLabels.size();
+
+    // Print conditional modules that were not consumed in any of their associated Paths
+    if (streamID.value() == 0 and not conditionalModules.empty()) {
+      // Intersection of unscheduled and ConditionalTask modules gives
+      // directly the set of conditional modules that were not
+      // consumed by anything in the Paths associated to the
+      // corresponding ConditionalTask.
+      std::vector<std::string_view> labelsToPrint;
+      std::copy_if(
+          unscheduledLabels.begin(),
+          unscheduledLabels.end(),
+          std::back_inserter(labelsToPrint),
+          [&conditionalModules](auto const& lab) { return conditionalModules.find(lab) != conditionalModules.end(); });
+
+      if (not labelsToPrint.empty()) {
+        edm::LogWarning log("NonConsumedConditionalModules");
+        log << "The following modules were part of some ConditionalTask, but were not\n"
+            << "consumed by any other module in any of the Paths to which the ConditionalTask\n"
+            << "was associated. Perhaps they should be either removed from the\n"
+            << "job, or moved to a Task to make it explicit they are unscheduled.\n";
+        for (auto const& modLabel : labelsToPrint) {
+          log.format("\n {}", modLabel);
+        }
+      }
+    }
   }  // StreamSchedule::StreamSchedule
 
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
@@ -753,7 +787,8 @@ namespace edm {
                                    bool ignoreFilters,
                                    PathWorkers& out,
                                    std::vector<std::string> const& endPathNames,
-                                   ConditionalTaskHelper const& conditionalTaskHelper) {
+                                   ConditionalTaskHelper const& conditionalTaskHelper,
+                                   std::unordered_set<std::string>& allConditionalModules) {
     vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
 
@@ -775,6 +810,9 @@ namespace edm {
 
       conditionalModsBranches = conditionalTaskHelper.conditionalModuleBranches(conditionalmods);
       modnames.erase(std::prev(condRange.first), modnames.end());
+
+      // Make a union of all conditional modules from all Paths
+      allConditionalModules.insert(conditionalmods.begin(), conditionalmods.end());
     }
 
     unsigned int placeInPath = 0;
@@ -856,10 +894,19 @@ namespace edm {
                                     std::string const& name,
                                     TrigResPtr trptr,
                                     std::vector<std::string> const& endPathNames,
-                                    ConditionalTaskHelper const& conditionalTaskHelper) {
+                                    ConditionalTaskHelper const& conditionalTaskHelper,
+                                    std::unordered_set<std::string>& allConditionalModules) {
     PathWorkers tmpworkers;
-    fillWorkers(
-        proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, endPathNames, conditionalTaskHelper);
+    fillWorkers(proc_pset,
+                preg,
+                prealloc,
+                processConfiguration,
+                name,
+                false,
+                tmpworkers,
+                endPathNames,
+                conditionalTaskHelper,
+                allConditionalModules);
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
@@ -880,10 +927,19 @@ namespace edm {
                                    int bitpos,
                                    std::string const& name,
                                    std::vector<std::string> const& endPathNames,
-                                   ConditionalTaskHelper const& conditionalTaskHelper) {
+                                   ConditionalTaskHelper const& conditionalTaskHelper,
+                                   std::unordered_set<std::string>& allConditionalModules) {
     PathWorkers tmpworkers;
-    fillWorkers(
-        proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames, conditionalTaskHelper);
+    fillWorkers(proc_pset,
+                preg,
+                prealloc,
+                processConfiguration,
+                name,
+                true,
+                tmpworkers,
+                endPathNames,
+                conditionalTaskHelper,
+                allConditionalModules);
 
     if (!tmpworkers.empty()) {
       end_paths_.emplace_back(bitpos,
@@ -971,13 +1027,16 @@ namespace edm {
           return;
         }
       }
-      for (int empty_end_path : empty_end_paths_) {
-        std::exception_ptr except = endPathStatusInserterWorkers_[empty_end_path]
-                                        ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-                                            info, streamID_, ParentContext(&streamContext_), &streamContext_);
-        if (except) {
-          iTask.doneWaiting(except);
-          return;
+      if (not endPathStatusInserterWorkers_.empty()) {
+        for (int empty_end_path : empty_end_paths_) {
+          std::exception_ptr except =
+              endPathStatusInserterWorkers_[empty_end_path]
+                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+                      info, streamID_, ParentContext(&streamContext_), &streamContext_);
+          if (except) {
+            iTask.doneWaiting(except);
+            return;
+          }
         }
       }
 

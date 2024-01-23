@@ -77,6 +77,8 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
       alpha_.set(newalpha, nalphabits, false, __LINE__, __FILE__);
       nrbits = 4;
     }
+    int negdisk = (disk < 0) ? 1 : 0;
+    negdisk_.set(negdisk, 1, true, __LINE__, __FILE__);
   } else {
     disk_.set(0, 4, false, __LINE__, __FILE__);
     layer_.set(layerdisk_, 3, true, __LINE__, __FILE__);
@@ -118,6 +120,12 @@ std::string Stub::phiregionaddressstr() const {
   int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_.nbitsallstubs(layerdisk())));
   FPGAWord phiregion(iphi, 3, true, __LINE__, __FILE__);
   return phiregion.str() + stubindex_.str();
+}
+
+std::string Stub::phiregionstr() const {
+  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_.nbitsallstubs(layerdisk())));
+  FPGAWord phiregion(iphi, 3, true, __LINE__, __FILE__);
+  return phiregion.str();
 }
 
 void Stub::setAllStubIndex(int nstub) {

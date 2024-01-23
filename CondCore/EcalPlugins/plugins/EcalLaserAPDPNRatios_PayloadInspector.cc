@@ -62,9 +62,9 @@ namespace {
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<EcalLaserAPDPNRatios> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
-          // set to -1 for ieta 0 (no crystal)
+          // set to 1 for ieta 0 (no crystal)
           for (int iphi = 1; iphi < 361; iphi++)
-            fillWithValue(iphi, 0, -1);
+            fillWithValue(iphi, 0, 1);
 
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);

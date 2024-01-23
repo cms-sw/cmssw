@@ -30,6 +30,7 @@ struct HaloTowerStrip {
     energyRatio = strip.energyRatio;
     emEt = strip.emEt;
   }
+  HaloTowerStrip& operator=(const HaloTowerStrip&) = default;
 };
 
 namespace reco {

@@ -39,7 +39,40 @@ alignments:
         globaltag: auto:phase1_2018_realistic
         style: 2101
         title: unit test
-
+    unitTestDiMuonVMC:
+        color: 1
+        globaltag: auto:phase1_2022_realistic
+        style: 2101
+        title: unit test
+    PromptNewTemplate:
+        name: PromptNewTemplate
+        color: 1
+        globaltag: 124X_dataRun3_Prompt_v10 
+        style: 2301
+        title: Alignment in prompt with 400V pixel templates
+        conditions:
+            SiPixelTemplateDBObjectRcd:
+               connect: frontier://FrontierProd/CMS_CONDITIONS
+               tag: SiPixelTemplateDBObject_phase1_38T_2022_v9
+            SiPixel2DTemplateDBObjectRcd:
+               connect: frontier://FrontierProd/CMS_CONDITIONS
+               tag: SiPixel2DTemplateDBObject_phase1_38T_2022_v9
+    mp3619:
+        name: mp3619
+        color: 2
+        globaltag: 124X_dataRun3_Prompt_v10 
+        style: 2001
+        title: mp3619 
+        conditions:
+            TrackerAlignmentRcd:
+               connect: frontier://FrontierProd/CMS_CONDITIONS
+               tag: TrackerAlignment_collisions22_v13
+            SiPixelTemplateDBObjectRcd:
+               connect: frontier://FrontierProd/CMS_CONDITIONS
+               tag: SiPixelTemplateDBObject_phase1_38T_2022_v9
+            SiPixel2DTemplateDBObjectRcd:
+               connect: frontier://FrontierProd/CMS_CONDITIONS
+               tag: SiPixel2DTemplateDBObject_phase1_38T_2022_v9
 validations:
     DMR:
         single:
@@ -136,6 +169,37 @@ validations:
                 HLTSelection: False
                 triggerBits: HLT_*
                 maxevents: 10
+    DiMuonV:
+        merge:
+            testUnits:
+                singles:
+                - testUnits
+        single:
+            testUnits:
+                IOV:
+                - 1
+                alignments:
+                - unitTestDiMuonVMC
+                trackcollection: generalTracks
+                maxevents: 10
+    MTS:
+        merge:
+            testSingleMTS:
+                singles:
+                - testSingleMTS
+        single:
+            testSingleMTS:
+                IOV:
+                - 1
+                alignments:
+                - PromptNewTemplate
+                - mp3619
+                maxevents: 200000 
+                trackcollection: ALCARECOTkAlCosmicsCTF0T
+                tthrbuilder: WithAngleAndTemplate
+                usePixelQualityFlag: True
+                cosmicsZeroTesla: False
+                magneticfield: 3.8  
     GCP:
         GCPdetUnits:
             levels: DetUnit

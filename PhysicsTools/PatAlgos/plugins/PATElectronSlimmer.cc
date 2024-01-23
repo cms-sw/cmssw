@@ -26,10 +26,8 @@ namespace pat {
   class PATElectronSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATElectronSlimmer(const edm::ParameterSet& iConfig);
-    ~PATElectronSlimmer() override {}
 
     void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) final;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
   private:
     const edm::EDGetTokenT<edm::View<pat::Electron>> src_;
@@ -90,8 +88,6 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet& iConfig)
 
   produces<std::vector<pat::Electron>>();
 }
-
-void pat::PATElectronSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup) {}
 
 void pat::PATElectronSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

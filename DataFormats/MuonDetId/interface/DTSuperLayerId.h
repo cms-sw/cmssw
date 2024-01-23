@@ -32,6 +32,9 @@ public:
   /// this, no check is done on the vaildity of the values.
   DTSuperLayerId(const DTSuperLayerId& slId);
 
+  /// Assignment Operator.
+  DTSuperLayerId& operator=(const DTSuperLayerId& slId) = default;
+
   /// Constructor from a DTChamberId and SL number.
   DTSuperLayerId(const DTChamberId& chId, int superlayer);
 

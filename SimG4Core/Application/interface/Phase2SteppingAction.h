@@ -19,7 +19,7 @@ class CMSSteppingVerbose;
 
 class Phase2SteppingAction : public G4UserSteppingAction {
 public:
-  explicit Phase2SteppingAction(const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
+  explicit Phase2SteppingAction(const CMSSteppingVerbose*, const edm::ParameterSet&, bool, bool);
   ~Phase2SteppingAction() override = default;
 
   void UserSteppingAction(const G4Step* aStep) final;
@@ -56,6 +56,7 @@ private:
   bool initialized{false};
   bool killBeamPipe{false};
   bool hasWatcher;
+  bool dd4hep_;
 
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
@@ -64,6 +65,7 @@ private:
   std::vector<const G4Region*> deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int> ekinPDG;
+  G4String cmseName_, trackerName_, caloName_, btlName_, cms2ZDCName_;
 };
 
 inline bool Phase2SteppingAction::isInsideDeadRegion(const G4Region* reg) const {

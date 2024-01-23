@@ -17,10 +17,8 @@ namespace evf {
     static const std::string menu[menu_items];
 
     explicit ExceptionGenerator(const edm::ParameterSet&);
-    ~ExceptionGenerator() override{};
     void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   private:
     int actionId_;

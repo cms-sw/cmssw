@@ -89,6 +89,7 @@ process.l1tTrackSelectionProducerForJets.cutSet = cms.PSet(
     nStubsMin = cms.int32(4), # number of stubs must be greater than or equal to this value
     nPSStubsMin = cms.int32(0), # the number of stubs in the PS Modules must be greater than or equal to this value
     
+    promptMVAMin = cms.double(-1.0), # MVA must be greater than this value
     reducedBendChi2Max = cms.double(2.25), # bend chi2 must be less than this value
     reducedChi2RZMax = cms.double(5.0), # chi2rz/dof must be less than this value
     reducedChi2RPhiMax = cms.double(20.0), # chi2rphi/dof must be less than this value
@@ -103,15 +104,8 @@ process.l1tTrackVertexAssociationProducerForJets.cutSet = cms.PSet(
 process.l1tTrackerEmuHTMiss.debug = (options.debug > 0)
 
 #Disable internal track selection
-process.l1tTrackJetsEmulation.MaxDzTrackPV = cms.double(10000.0)
-process.l1tTrackJetsEmulation.trk_zMax = cms.double(10000.0)    # maximum track z
-process.l1tTrackJetsEmulation.trk_ptMax = cms.double(10000.0)    # maximumum track pT before saturation [GeV]
-process.l1tTrackJetsEmulation.trk_ptMin = cms.double(0.0)     # minimum track pt [GeV]
-process.l1tTrackJetsEmulation.trk_etaMax = cms.double(10000.0)    # maximum track eta
-process.l1tTrackJetsEmulation.nStubs4PromptChi2=cms.double(10000.0) #Prompt track quality flags for loose/tight
-process.l1tTrackJetsEmulation.nStubs4PromptBend=cms.double(10000.0)
-process.l1tTrackJetsEmulation.nStubs5PromptChi2=cms.double(10000.0)
-process.l1tTrackJetsEmulation.nStubs5PromptBend=cms.double(10000.0)
+#There is a problem with setting all of these (especially eta) to high numbers.
+process.l1tTrackJetsEmulation.trk_zMax = cms.double(20.46912512)    # maximum track z from TrackWord
 
 if options.debug:
     process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000000000)

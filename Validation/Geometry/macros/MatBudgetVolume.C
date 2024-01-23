@@ -75,17 +75,29 @@ void etaPhiPlotComp4(std::string filePreFix = "files/matbdgRun3",
                      bool debug = false);
 void setStyle();
 
-const int nlay = 13;
-const int ngrp = 9;
-int nlayers[ngrp] = {5, 1, 1, 1, 1, 1, 1, 1, 1};
-int nflayer[ngrp] = {0, 5, 6, 7, 8, 9, 10, 11, 12};
-int colorLay[nlay] = {2, 2, 2, 2, 2, 3, 5, 4, 8, 6, 3, 7, 1};
-int styleLay[nlay] = {20, 20, 20, 20, 20, 21, 22, 23, 24, 25, 26, 27, 30};
-int legends[nlay] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
+const int nlay = 14;
+const int ngrp = 10;
+int nlayers[ngrp] = {5, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+int nflayer[ngrp] = {0, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+int colorLay[nlay] = {2, 2, 2, 2, 2, 3, 5, 4, 1, 6, 3, 7, 22, 46};
+int styleLay[nlay] = {20, 20, 20, 20, 20, 21, 22, 23, 24, 25, 26, 27, 32, 34};
+int legends[nlay] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 std::string title[nlay] = {
-    "Beam Pipe", "", "", "", "", "Tracker", "ECAL", "HCAL", "HGCAL", "HF", "Magnet", "MUON", "Forward"};
-std::string names[nlay] = {
-    "BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "CALOEC", "VCAL", "MGNT", "MUON", "OQUA"};
+    "Beam Pipe", "", "", "", "", "Tracker", "ECAL", "HCAL", "HGCAL", "HF", "Magnet", "MUON", "Forward", "HFNose"};
+std::string names[nlay] = {"BEAM",
+                           "BEAM1",
+                           "BEAM2",
+                           "BEAM3",
+                           "BEAM4",
+                           "Tracker",
+                           "ECAL",
+                           "HCal",
+                           "CALOEC",
+                           "VCAL",
+                           "MGNT",
+                           "MUON",
+                           "OQUA",
+                           "HFNoseVol"};
 
 void etaPhiPlot(TString fileName, std::string plot, bool drawLeg, bool ifEta, double maxEta, std::string tag) {
   TFile *hcalFile = new TFile(fileName);

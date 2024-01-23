@@ -42,6 +42,8 @@ The script also handles the common and forward elements of the geometry:
 * O5: as O6, but with trackermaterial removed (they are in T5, T6, T7, T8)
 * O6: 2021 baseline
 * F1: 2021 baseline
+* F2: same as F1 with modified file zdc.xmlfrom ZDC group
+* F3: same as F2 with added simulti geometry for RPD
 
 Several detector combinations have been generated:
 * 2021 = T3+C1+M1+P7+O6+F1
@@ -50,7 +52,12 @@ Several detector combinations have been generated:
 * 2021FlatMinus10Percent = T6+C1+M1+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
-* 2023 = T3+C1+M2+P7+O6+F1
+* 2023 = T3+C1+M2+P7+O6+F3
+* 2023ZeroMaterial = T4+C1+M1+P7+O4+F2
+* 2023FlatMinus05Percent = T5+C1+M1+P7+O5+F2
+* 2023FlatMinus10Percent = T6+C1+M1+P7+O5+F2
+* 2023FlatPlus05Percent = T7+C1+M1+P7+O5+F2
+* 2023FlatPlus10Percent = T8+C1+M1+P7+O5+F2
 
 # Phase 2 Geometries
 
@@ -85,6 +92,7 @@ Calorimeters:
 * C19: HGCal (v17 version of HGCal geometry as in C18 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB (used in 2026D93)
 * C20: HGCal (v17 version of HGCal geometry as in C18) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in 2026D93)
 * C21: HGCal (v17 version of HGCal geometry as in C19 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in 2026D101)
+* C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in 2026D104)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -103,6 +111,7 @@ Fast Timing system:
 * I14: Same as I13, updated sensor structure, disc z location and passive materials
 * I15: Same as I14, addition of notch and revision of envelope
 * I16: Starting from I15, revised BTL with complete passive material description, it needs Tracker T31 or newer
+* I17: Same as I16, BTL with one crystal thickness (type) only, ETL with LGAD split into two sensors
 
 The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
@@ -136,4 +145,5 @@ Several detector combinations have been generated:
 * D101 = T34+C18+M11+I16+O9+F8
 * D102 = T35+C17+M11+I16+O9+F8
 * D103 = T34+C21+M11+I16+O9+F8
-
+* D104 = T35+C22+M11+I16+O9+F8
+* D105 = T32+C18+M10+I17+O9+F8

@@ -56,6 +56,25 @@ namespace alpaka_cuda_async {
 
 }  // namespace alpaka_cuda_async
 
+#ifdef ALPAKA_HOST_ONLY
+
+namespace alpaka {
+
+  template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
+  class TaskKernelGpuUniformCudaHipRt final {
+    static_assert(std::is_same_v<TApi, alpaka::ApiCudaRt> and BOOST_LANG_CUDA,
+                  "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
+
+  public:
+    template <typename TWorkDiv>
+    ALPAKA_FN_HOST TaskKernelGpuUniformCudaHipRt(TWorkDiv&& workDiv, TKernelFnObj const& kernelFnObj, TArgs&&... args) {
+    }
+  };
+
+}  // namespace alpaka
+
+#endif  // ALPAKA_HOST_ONLY
+
 #ifdef ALPAKA_ACCELERATOR_NAMESPACE
 #define ALPAKA_DUPLICATE_NAMESPACE
 #else
@@ -81,6 +100,25 @@ namespace alpaka_rocm_async {
   using Acc3D = Acc<Dim3D>;
 
 }  // namespace alpaka_rocm_async
+
+#ifdef ALPAKA_HOST_ONLY
+
+namespace alpaka {
+
+  template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
+  class TaskKernelGpuUniformCudaHipRt final {
+    static_assert(std::is_same_v<TApi, alpaka::ApiHipRt> and BOOST_LANG_HIP,
+                  "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
+
+  public:
+    template <typename TWorkDiv>
+    ALPAKA_FN_HOST TaskKernelGpuUniformCudaHipRt(TWorkDiv&& workDiv, TKernelFnObj const& kernelFnObj, TArgs&&... args) {
+    }
+  };
+
+}  // namespace alpaka
+
+#endif  // ALPAKA_HOST_ONLY
 
 #ifdef ALPAKA_ACCELERATOR_NAMESPACE
 #define ALPAKA_DUPLICATE_NAMESPACE

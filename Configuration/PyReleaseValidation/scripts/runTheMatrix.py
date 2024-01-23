@@ -58,55 +58,83 @@ if __name__ == '__main__':
 
     #this can get out of here
     predefinedSet={
-        'limited' : [5.1, #FastSim ttbar
-                     7.3, #CosmicsSPLoose_UP17
-                     8, #BH/Cosmic MC
-                     25, #MC ttbar
-                     4.22, #cosmic data
-                     4.53, #run1 data + miniAOD
-                     9.0, #Higgs200 charged taus
-                     1000, #data+prompt
-                     1001, #data+express
-                     101.0, #SingleElectron120E120EHCAL
-                     136.731, #2016B Photon data
-                     136.7611, #2016E JetHT reMINIAOD from 80X legacy
-                     136.8311, #2017F JetHT reMINIAOD from 94X reprocessing
-                     136.88811,#2018D JetHT reMINIAOD from UL processing
-                     136.793, #2017C DoubleEG
-                     136.874, #2018C EGamma
-                     138.4, #2021 MinimumBias prompt reco
-                     138.5, #2021 MinimumBias express
-                     139.001, #2021 MinimumBias offline with HLT step
-                     140.53, #2011 HI data
-                     140.56, #2018 HI data
-                     158.01, #reMiniAOD of 2018 HI MC with pp-like reco
-                     312.0, #2021/Run3 HI MC Pyquen_ZeemumuJets_pt10 with pp-like reco
-                     1306.0, #SingleMu Pt1 UP15
-                     2500.4, #test NanoAOD from existing MINI
-                     1330, #Run2 2015/2016 MC Zmm
-                     135.4, #Run 2 2015/2016 Zee ttbar fastsim
-                     10042.0, #2017 ZMM
-                     10024.0, #2017 ttbar
-                     10824.0, #2018 ttbar
-                     2018.1, #2018 ttbar fastsim
-                     11634.911, #2021 DD4hep ttbar reading geometry from XML
-                     11634.914, #2021 DDD ttbar reading geometry from the DB
-                     11634.0, #2021 ttbar (switching to DD4hep by default)
-                     13234.0, #2021 ttbar fastsim
-                     12434.0, #2023 ttbar
-                     12634.0, #2023 ttbar PU
-                     12434.7, #2023 ttbar mkFit
-                     14034.0, #2023 ttbar fastsim
-                     14234.0, #2023 ttbar PU fastsim
-                     24834.0, #2026D98 ttbar (Phase-2 baseline)
-                     24834.911, #2026D98 ttbar DD4hep XML
-                     25034.999, #2026D98 ttbar premixing stage1+stage2, PU50
-                     24896.0, #CE_E_Front_120um D98
-                     24900.0, #CE_H_Coarse_Scint D98
-                     23234.0, #2026D94 ttbar (exercise with HFNose)
-                     25202.0, #2016 ttbar UP15 PU
-                     250202.181, #2018 ttbar stage1 + stage2 premix
-                     141.044 # 2023D JetMET PD
+        'limited' : [
+                    # See README for further details
+                    ###### MC (generated from scratch or from RelVals)
+                    ### FullSim
+                    # Run1 
+                    5.1,        # TTbar_8TeV_TuneCUETP8M1       FastSim                                 
+                    8,          # RelValBeamHalo                Cosmics
+                    9.0,        # RelValHiggs200ChargedTaus             
+                    25,         # RelValTTbar                           
+                    101.0,      # SingleElectronE120EHCAL       + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn
+                    
+                    # Run2
+                    7.3,        # UndergroundCosmicSPLooseMu            
+                    1306.0,     # RelValSingleMuPt1_UP15                
+                    1330,       # RelValZMM_13                          
+                    135.4,      # ZEE_13TeV_TuneCUETP8M1                
+                    25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
+                    250202.181, # RelValTTbar_13                PREMIX   
+
+                    # Run3
+                    11634.0,    # TTbar_14TeV 
+                    13234.0,    # RelValTTbar_14TeV             FastsSim
+                    12434.0,    # RelValTTbar_14TeV
+                    12446.0,    # RelValZEE_13
+                    12634.0,    # RelValTTbar_14TeV             PU = Run3_Flat55To75_PoissonOOTPU
+                    12434.7,    # RelValTTbar_14TeV             mkFit
+                    14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
+                    14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU 
+                    2500.4,     # RelValTTbar_14TeV             NanoAOD from existing MINI
+
+                    # Phase2
+                    24834.0,    # RelValTTbar_14TeV                     phase2_realistic_T25        Extended2026D98         (Phase-2 baseline)   
+                    24834.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T25        DD4hepExtended2026D98   DD4Hep (HLLHC14TeV BeamSpot) 
+                    25034.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T25        Extended2026D98         AVE_50_BX_25ns_m3p3     
+                    24896.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T25        Extended2026D98
+                    24900.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T25        Extended2026D98  
+                    23234.0,    # TTbar_14TeV_TuneCP5                   phase2_realistic_T21        Extended2026D94         (exercise with HFNose) 
+                    
+
+                    ###### pp Data
+                    ## Run1
+                    4.22,       # Run2011A  Cosmics 
+                    4.53,       # Run2012B  Photon                      miniAODs
+                    1000,       # Run2011A  MinimumBias Prompt          RecoTLR.customisePrompt
+                    1001,       # Run2011A  MinimumBias                 Data+Express
+                    ## Run2
+                    136.731,    # Run2016B SinglePhoton  
+                    136.7611,   # Run2016E JetHT (reMINIAOD)            Run2_2016_HIPM + run2_miniAOD_80XLegacy
+                    136.8311,   # Run2017F JetHT (reMINIAOD)            run2_miniAOD_94XFall17
+                    136.88811,  # Run2018D JetHT (reMINIAOD)            run2_miniAOD_UL_preSummer20 (UL MINI)
+                    136.793,    # Run2017C DoubleEG                      
+                    136.874,    # Run2018C EGamma
+                     
+                    ## Run3
+                    # 2021
+                    139.001,    # Run2021  MinimumBias                  Commissioning2021   
+                    
+                    # 2022
+                    140.023,    # Run2022B ZeroBias 
+                    140.043,    # Run2022C ZeroBias 
+                    140.063,    # Run2022D ZeroBias 
+
+                    # 2023
+                    141.044,    # Run2023D JetMET0
+                    141.042,    # Run2023D ZeroBias
+                    141.046,    # Run2023D EGamma0
+
+                    ###### Heavy Ions
+                    ## Data
+                    # Run1
+                    140.53,    # HIRun2011 HIMinBiasUPC              
+                    # Run2   
+                    140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
+                    ## MC
+                    158.01,    # RelValHydjetQ_B12_5020GeV_2018_ppReco      (reMINIAOD) (HI MC with pp-like reco)
+                    312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN 
+
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

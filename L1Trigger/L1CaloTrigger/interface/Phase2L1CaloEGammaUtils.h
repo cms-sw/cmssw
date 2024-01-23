@@ -60,7 +60,7 @@ namespace p2eg {
   static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  // passes_looseTkss
   static constexpr float cut_500_MeV = 0.5;
 
-  static constexpr float ECAL_LSB = 0.125;  // to convert from int to float (GeV) multiply by LSB
+  static constexpr float ECAL_LSB = 0.5;  // to convert from int to float (GeV) multiply by LSB
   static constexpr float HCAL_LSB = 0.5;
 
   static constexpr int N_CLUSTERS_PER_REGION = 4;  // number of clusters per ECAL region
@@ -709,7 +709,7 @@ namespace p2eg {
       float newEt = getEt() * factor;
 
       // Convert the new pT to an unsigned int (16 bits so we can take the logical OR with the bit mask later)
-      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt * 8.0);
+      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt / ECAL_LSB);
       // Make sure the first four bits are zero
       newEt_uint = (newEt_uint & 0x0FFF);
 
@@ -721,9 +721,7 @@ namespace p2eg {
     /*
      * For towers: Calculate H/E ratio given the ECAL and HCAL energies and modify the hoe() value.
      */
-    void getHoverE(ap_uint<12> ECAL, ap_uint<12> HCAL_inHcalConvention) {
-      // Convert HCAL ET to ECAL ET convention
-      ap_uint<12> HCAL = convertHcalETtoEcalET(HCAL_inHcalConvention);
+    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
       ap_uint<4> hoe = 0;
@@ -1497,6 +1495,7 @@ namespace p2eg {
       l1tp2::CaloTower l1CaloTower;
       // Store total Et (HCAL+ECAL) in the ECAL Et member
       l1CaloTower.setEcalTowerEt(totalEtFloat());
+      l1CaloTower.setHcalTowerEt(ecalEtFloat());
       int global_tower_iEta = globalToweriEtaFromGCTcardiEta(gctCard_tower_iEta);
       int global_tower_iPhi = globalToweriPhiFromGCTcardiPhi(nGCTCard, gctCard_tower_iPhi);
       l1CaloTower.setTowerIEta(global_tower_iEta);

@@ -135,6 +135,8 @@ for node in nodes:
     visited.add(node)
     if node in Hdg:
         stack = [(node, iter(Hdg[node]))]
+    else:
+        stack = []
     if node in Idg:
         Qdg = nx.dfs_preorder_nodes(Idg, node)
         for q in Qdg:

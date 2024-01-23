@@ -11,12 +11,12 @@
 
 namespace edm {
 
-  EventForTransformer::EventForTransformer(EventPrincipal const& ep, ModuleCallingContext const* moduleCallingContext)
+  EventForTransformer::EventForTransformer(EventPrincipal const& ep, ModuleCallingContext moduleCallingContext)
       : eventPrincipal_{ep}, mcc_{moduleCallingContext} {}
 
   BasicHandle EventForTransformer::get(edm::TypeID const& iTypeID, ProductResolverIndex iIndex) const {
     bool amb = false;
-    return eventPrincipal_.getByToken(PRODUCT_TYPE, iTypeID, iIndex, false, amb, nullptr, mcc_);
+    return eventPrincipal_.getByToken(PRODUCT_TYPE, iTypeID, iIndex, false, amb, nullptr, &mcc_);
   }
 
   void EventForTransformer::put(ProductResolverIndex index,

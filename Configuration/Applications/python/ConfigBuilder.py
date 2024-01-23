@@ -771,6 +771,12 @@ class ConfigBuilder(object):
         if self._options.pileup:
             pileupSpec=self._options.pileup.split(',')[0]
 
+            #make sure there is a set of pileup files specified when needed
+            pileups_without_input=[defaultOptions.pileup,"Cosmics","default","HiMixNoPU",None]
+            if self._options.pileup not in pileups_without_input and self._options.pileup_input==None:
+                message = "Pileup scenerio requires input files. Please add an appropriate --pileup_input option"
+                raise Exception(message)
+
             # Does the requested pile-up scenario exist?
             from Configuration.StandardSequences.Mixing import Mixing,defineMixing
             if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
@@ -1012,6 +1018,7 @@ class ConfigBuilder(object):
         self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
         self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
         self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
+        self.L1P2GTDefaultCFF = 'Configuration/StandardSequences/SimPhase2L1GlobalTriggerEmulator_cff'
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
@@ -1050,6 +1057,7 @@ class ConfigBuilder(object):
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
+        self.L1P2GTDefaultSeq=None
         self.L1REPACKDefaultSeq='GT'
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
@@ -1461,7 +1469,7 @@ class ConfigBuilder(object):
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjects+=','+name
 
-            if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly' or stepSpec == 'pgen_smear':
+            if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
                     self.productionFilterSequence = 'ProductionFilterSequence'
                 elif 'generator' in genModules:
@@ -1492,7 +1500,7 @@ class ConfigBuilder(object):
         #register to the genstepfilter the name of the path (static right now, but might evolve)
         self.executeAndRemember('process.genstepfilter.triggerConditions=cms.vstring("generation_step")')
 
-        if 'reGEN' in self.stepMap:
+        if 'reGEN' in self.stepMap or stepSpec == 'pgen_smear':
             #stop here
             return
 
@@ -1571,6 +1579,40 @@ class ConfigBuilder(object):
         _,_repackSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.REPACKDefaultCFF)
         self.scheduleSequence(_repackSeq,'digi2repack_step')
         return
+
+    def loadPhase2GTMenu(self, menuFile: str):
+        import importlib
+        menuPath = f'L1Trigger.Configuration.Phase2GTMenus.{menuFile}'
+        menuModule = importlib.import_module(menuPath)
+        
+        theMenu = menuModule.menu
+        triggerPaths = [] #we get a list of paths in each of these files to schedule
+
+        for triggerPathFile in theMenu:
+            self.loadAndRemember(triggerPathFile) #this load and remember will set the algo variable of the algoblock later
+
+            triggerPathModule = importlib.import_module(triggerPathFile)
+            for objName in dir(triggerPathModule):
+                obj = getattr(triggerPathModule, objName)
+                objType = type(obj)
+                if objType == cms.Path:
+                    triggerPaths.append(objName)
+        
+        triggerScheduleList = [getattr(self.process, name) for name in triggerPaths] #get the actual paths to put in the schedule
+        self.schedule.extend(triggerScheduleList) #put them in the schedule for later
+    
+    # create the L1 GT step
+    # We abuse the stepSpec a bit as a way to specify a menu
+    def prepare_L1P2GT(self, stepSpec=None):
+        """ Run the GT emulation sequence on top of the L1 emulation step """
+        self.loadAndRemember(self.L1P2GTDefaultCFF)
+        self.scheduleSequence('l1tGTProducerSequence', 'Phase2L1GTProducer')
+        self.scheduleSequence('l1tGTAlgoBlockProducerSequence', 'Phase2L1GTAlgoBlockProducer')
+        if stepSpec == None:
+            defaultMenuFile = "prototype_2023_v1_0_0"
+            self.loadPhase2GTMenu(menuFile = defaultMenuFile)
+        else:
+            self.loadPhase2GTMenu(menuFile = stepSpec)
 
     def prepare_L1(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step"""

@@ -28,10 +28,8 @@ namespace pat {
   class PATPhotonSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATPhotonSlimmer(const edm::ParameterSet& iConfig);
-    ~PATPhotonSlimmer() override {}
 
     void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
   private:
     const edm::EDGetTokenT<edm::View<pat::Photon>> src_;
@@ -85,8 +83,6 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet& iConfig)
 
   produces<std::vector<pat::Photon>>();
 }
-
-void pat::PATPhotonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup) {}
 
 void pat::PATPhotonSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

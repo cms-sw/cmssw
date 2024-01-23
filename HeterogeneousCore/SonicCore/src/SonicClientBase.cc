@@ -54,8 +54,8 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     }
     //prepare an exception if exceeded
     else {
-      cms::Exception ex("SonicCallFailed");
-      ex << "call failed after max " << tries_ << " tries";
+      edm::Exception ex(edm::errors::ExternalFailure);
+      ex << "SonicCallFailed: call failed after max " << tries_ << " tries";
       eptr = make_exception_ptr(ex);
     }
   }

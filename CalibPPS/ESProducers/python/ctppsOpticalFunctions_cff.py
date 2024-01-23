@@ -25,4 +25,4 @@ import FWCore.ParameterSet.Config as cms
 #ctppsOpticalFunctionsESSource.configuration.append(config_2016_preTS2)
 
 # optics interpolation between crossing angles
-from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cff import *
+from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *

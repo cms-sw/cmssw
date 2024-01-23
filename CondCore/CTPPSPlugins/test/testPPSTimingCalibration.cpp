@@ -30,12 +30,19 @@ int main(int argc, char** argv) {
 
   edm::LogPrint("testPPSCalibrationPI") << "## Exercising TimingCalibration plots ";
 
-  ParametersPerChannel<PPSTimingCalibrationPI::db0,
-                       PPSTimingCalibrationPI::plane0,
-                       PPSTimingCalibrationPI::parameter0,
-                       PPSTimingCalibration>
-      test;
+  ParametersPerChannel<PPSTimingCalibrationPI::parameter0, PPSTimingCalibration> test;
+  py::dict inputs;
+  inputs["db (0,1)"] = "0";
+  inputs["station (1,2)"] = "1";
+  inputs["plane (0-3)"] = "0";
+  test.setInputParamValues(inputs);
   test.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testparametersPerChannel") << test.data();
+
+  inputs.clear();
+#if PY_MAJOR_VERSION >= 3
+  Py_INCREF(inputs.ptr());
+#endif
+
   Py_Finalize();
 }

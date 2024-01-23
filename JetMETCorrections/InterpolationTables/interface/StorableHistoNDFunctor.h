@@ -118,7 +118,7 @@ namespace npstat {
 #include "JetMETCorrections/InterpolationTables/interface/NpstatException.h"
 
 #include "Alignment/Geners/interface/binaryIO.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 
 #include "JetMETCorrections/InterpolationTables/interface/interpolateHistoND.h"
@@ -157,7 +157,7 @@ namespace npstat {
       throw gs::IOReadFailure(
           "In npstat::StorableHistoNDFunctor::read: "
           "input stream failure");
-    CPP11_auto_ptr<Table> tab(Table::read(tabid, in));
+    std::unique_ptr<Table> tab(Table::read(tabid, in));
     return new StorableHistoNDFunctor(*tab, deg, descr);
   }
 

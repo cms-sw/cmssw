@@ -6,6 +6,7 @@
 #include <vector>
 class HcalTrigTowerDetId;
 class HcalDetId;
+class HcalZDCDetId;
 
 class HcalTrigTowerGeometry {
 public:
@@ -13,6 +14,7 @@ public:
 
   /// the mapping to and from DetIds
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId& cellId) const;
+  std::vector<HcalTrigTowerDetId> towerIds_ZDC(const HcalZDCDetId& cellId) const;
   std::vector<HcalDetId> detIds(const HcalTrigTowerDetId&) const;
 
   int firstHFTower(int version) const { return (version == 1) ? (30) : (29); }

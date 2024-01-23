@@ -86,7 +86,7 @@ void CTPPSLHCInfoPlotter::fillDescriptions(edm::ConfigurationDescriptions &descr
 
   desc.add<std::string>("outputFile", "")->setComment("output file");
 
-  descriptions.add("ctppsLHCInfoPlotter", desc);
+  descriptions.add("ctppsLHCInfoPlotterDefault", desc);
 }
 
 //----------------------------------------------------------------------------------------------------

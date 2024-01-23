@@ -248,14 +248,6 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
 }
 
 //____________________________________________________________________________
-// Function: beginLuminosityBlock
-// Description: This is will be run at the begining of each luminosity block
-// Inputs:
-// * const LuminosityBlock& lumiSeg = Luminosity Block information
-// * const EventSetup&      context = Event Setup information
-//____________________________________________________________________________
-
-//____________________________________________________________________________
 // Function: endLuminosityBlock
 // Description: This is will be run at the end of each luminosity block
 // Inputs:

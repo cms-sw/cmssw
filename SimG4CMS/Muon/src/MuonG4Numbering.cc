@@ -1,10 +1,10 @@
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DD4hep/Filter.h"
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
 #include "G4Step.hh"
@@ -54,7 +54,7 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep) 
     int copyno = vol->GetCopyNo();
     int extra(0);
     if (dd4hep_ && (offMap_ != nullptr)) {
-      std::string namx = static_cast<std::string>(dd4hep::dd::noNamespace(vol->GetName()));
+      std::string namx = DD4hep2DDDName::noNameSpace(static_cast<std::string>(vol->GetName()));
       std::size_t last = namx.rfind('_');
       std::string name = ((last == std::string::npos) ? namx : (namx.substr(0, last)));
       auto itr = offMap_->muonMap_.find(name);

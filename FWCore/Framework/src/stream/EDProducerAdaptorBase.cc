@@ -46,11 +46,11 @@ namespace edm {
     void ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::doTransformAsync(WaitingTaskHolder iTask,
                                                                                    size_t iTransformIndex,
                                                                                    EventPrincipal const& iEvent,
-                                                                                   ActivityRegistry*,
-                                                                                   ModuleCallingContext const* iMCC,
+                                                                                   ActivityRegistry* iAct,
+                                                                                   ModuleCallingContext iMCC,
                                                                                    ServiceWeakToken const& iToken) {
       EventForTransformer ev(iEvent, iMCC);
-      m_streamModules[iEvent.streamID()]->transformAsync_(iTask, iTransformIndex, ev, iToken);
+      m_streamModules[iEvent.streamID()]->transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
     //

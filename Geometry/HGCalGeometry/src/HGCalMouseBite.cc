@@ -22,7 +22,7 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
                                     << projXY[k].first << ":" << projXY[k].second;
 #endif
     static const double sqrt3 = std::sqrt(3.0);
-    int nf(HGCSiliconDetId::HGCalFineN);
+    int nf(HGCSiliconDetId::HGCalHighDensityN);
     int nf2 = nf / 2;
     double delXF = wafersize / (3.0 * nf);
     double delYF = 0.5 * delXF * sqrt3;
@@ -48,7 +48,7 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] = (" << rejectFine_[k] / 100 << ", " << rejectFine_[k] % 100
                                     << ")";
 #endif
-    int nc(HGCSiliconDetId::HGCalCoarseN);
+    int nc(HGCSiliconDetId::HGCalLowDensityN);
     int nc2 = nc / 2;
     double delXC = hgc.getParameter()->waferSize_ / (3.0 * nc);
     double delYC = 0.5 * delXC * sqrt3;

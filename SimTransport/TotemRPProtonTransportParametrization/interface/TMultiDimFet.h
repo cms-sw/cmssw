@@ -129,7 +129,7 @@ protected:
 
 public:
   TMultiDimFet();
-  //   TMultiDimFet(const TMultiDimFet &in);
+  TMultiDimFet(const TMultiDimFet &in) = default;
   const TMultiDimFet &operator=(const TMultiDimFet &in);
 
   TMultiDimFet(Int_t dimension, EMDFPolyType type = kMonomials, Option_t *option = "");

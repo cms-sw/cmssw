@@ -83,7 +83,6 @@ class HLTObjectMonitorProtonLead : public DQMEDAnalyzer {
 
 public:
   explicit HLTObjectMonitorProtonLead(const edm::ParameterSet&);
-  ~HLTObjectMonitorProtonLead() override;
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -92,8 +91,6 @@ private:
   void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   vector<hltPlot*> plotList;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   double get_wall_time(void);
   // ----------member data ---------------------------
 
@@ -325,11 +322,6 @@ HLTObjectMonitorProtonLead::HLTObjectMonitorProtonLead(const edm::ParameterSet& 
   //set Token(s)
   triggerResultsToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
   aodTriggerToken_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerEvent"));
-}
-
-HLTObjectMonitorProtonLead::~HLTObjectMonitorProtonLead() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //

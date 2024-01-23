@@ -53,19 +53,12 @@ namespace l1t {
   class L1TGlobalAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit L1TGlobalAnalyzer(const edm::ParameterSet&);
-    ~L1TGlobalAnalyzer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void beginJob() override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
-
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
     edm::EDGetToken m_gmuToken;
@@ -253,11 +246,6 @@ namespace l1t {
     typeStr_.push_back("tau");
     typeStr_.push_back("jet");
     typeStr_.push_back("sum");
-  }
-
-  L1TGlobalAnalyzer::~L1TGlobalAnalyzer() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
   }
 
   //
@@ -985,41 +973,6 @@ namespace l1t {
     hDmxVsGTSumEt_HFM1_ =
         dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_HFM1", "Dmx versus GT HFM1", 16, -0.5, 15.5, 16, -0.5, 15.5);
   }
-
-  // ------------ method called once each job just after ending the event loop  ------------
-  void L1TGlobalAnalyzer::endJob() {}
-
-  // ------------ method called when starting to processes a run  ------------
-  /*
-void 
-L1TGlobalAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a run  ------------
-  /*
-void 
-L1TGlobalAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when starting to processes a luminosity block  ------------
-  /*
-void 
-L1TGlobalAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a luminosity block  ------------
-  /*
-void 
-L1TGlobalAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void L1TGlobalAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

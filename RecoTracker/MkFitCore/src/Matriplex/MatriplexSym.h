@@ -22,7 +22,7 @@ namespace Matriplex {
   //------------------------------------------------------------------------------
 
   template <typename T, idx_t D, idx_t N>
-  class MatriplexSym {
+  class __attribute__((aligned(MPLEX_ALIGN))) MatriplexSym {
   public:
     typedef T value_type;
 
@@ -35,7 +35,7 @@ namespace Matriplex {
     /// size of the whole matriplex
     static constexpr int kTotSize = N * kSize;
 
-    T fArray[kTotSize] __attribute__((aligned(64)));
+    T fArray[kTotSize];
 
     MatriplexSym() {}
     MatriplexSym(T v) { setVal(v); }
@@ -77,6 +77,8 @@ namespace Matriplex {
       memcpy(fArray, m.fArray, sizeof(T) * kTotSize);
       return *this;
     }
+
+    MatriplexSym(const MatriplexSym& m) = default;
 
     void copySlot(idx_t n, const MatriplexSym& m) {
       for (idx_t i = n; i < kTotSize; i += N) {
@@ -262,6 +264,14 @@ namespace Matriplex {
         a[4 * N + n] = s * c12;
         a[5 * N + n] = s * c22;
       }
+    }
+
+    Matriplex<T, 1, 1, N> ReduceFixedIJ(idx_t i, idx_t j) const {
+      Matriplex<T, 1, 1, N> t;
+      for (idx_t n = 0; n < N; ++n) {
+        t[n] = constAt(n, i, j);
+      }
+      return t;
     }
   };
 

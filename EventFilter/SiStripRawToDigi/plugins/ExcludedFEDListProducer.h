@@ -30,14 +30,11 @@ namespace sistrip {
     ExcludedFEDListProducer(const edm::ParameterSet& pset);
     /// default constructor
     ~ExcludedFEDListProducer() override;
-    void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(edm::Event& event, const edm::EventSetup& es) override;
 
   private:
     unsigned int runNumber_;
-    uint32_t cacheId_;
-    const SiStripFedCabling* cabling_;
     const edm::EDGetTokenT<FEDRawDataCollection> token_;
     edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> cablingToken_;
 

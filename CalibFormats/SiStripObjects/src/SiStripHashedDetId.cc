@@ -36,8 +36,15 @@ SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids) : detI
 SiStripHashedDetId::SiStripHashedDetId(const SiStripHashedDetId &input) : detIds_(), id_(0), iter_(detIds_.begin()) {
   LogTrace(mlCabling_) << "[SiStripHashedDetId::" << __func__ << "]"
                        << " Constructing object...";
-  detIds_.reserve(input.end() - input.begin());
-  std::copy(input.begin(), input.end(), detIds_.begin());
+
+  // auxilliary vector to store the list of raw IDs
+  std::vector<uint32_t> raw_ids;
+  raw_ids.reserve(input.size());
+
+  // Copy elements from input vector to detIds_ vector
+  std::copy(input.begin(), input.end(), std::back_inserter(raw_ids));
+
+  init(raw_ids);
 }
 
 // -----------------------------------------------------------------------------

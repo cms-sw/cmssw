@@ -59,8 +59,10 @@ private:
   int firstBx, lastBx;
 
   std::map<std::string, MonitorElement*> m_HistNamesInitial, m_HistNamesFinal, m_SummaryHistograms;
-  MonitorElement* initDecisionMismatches_vs_LS;
-  MonitorElement* finalDecisionMismatches_vs_LS;
+  MonitorElement* initDecisionMismatchesDnoE_vs_LS;
+  MonitorElement* initDecisionMismatchesEnoD_vs_LS;
+  MonitorElement* finalDecisionMismatchesDnoE_vs_LS;
+  MonitorElement* finalDecisionMismatchesEnoD_vs_LS;
   MonitorElement* m_normalizationHisto;
 
   enum SummaryColumn {

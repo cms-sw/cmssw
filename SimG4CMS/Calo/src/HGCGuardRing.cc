@@ -25,9 +25,13 @@ HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
 
 bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV) {
   bool check(false);
-  if ((modeUV_ == HGCalGeometryMode::Hexagon8Module) || (modeUV_ == HGCalGeometryMode::Hexagon8Cassette)) {
+  if (hgcons_.waferHexagon8Module()) {
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Layer " << layer << " wafer " << waferU << ":" << waferV << " index "
+                               << index << " partial " << partial;
+#endif
     if (partial == HGCalTypes::WaferFull) {
       double dx = std::abs(point.x());
       double dy = std::abs(point.y());
@@ -44,8 +48,11 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
                                  << HGCalTypes::WaferFull << " x " << dx << ":" << xmax_ << " y " << dy << ":" << ymax_
                                  << " check " << check;
 #endif
-    } else {
+    } else if (partial > 0) {
       int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Orient " << orient << " Mode " << modeUV_;
+#endif
       if (modeUV_ == HGCalGeometryMode::Hexagon8Module) {
         std::vector<std::pair<double, double> > wxy =
             HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0, v17OrLess_);
@@ -73,6 +80,8 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
         edm::LogVerbatim("HGCSim") << st1.str();
 #endif
       }
+    } else {
+      check = true;
     }
   }
   return check;

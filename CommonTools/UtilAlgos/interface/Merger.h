@@ -19,6 +19,8 @@
  */
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,19 +36,20 @@ public:
   explicit Merger(const edm::ParameterSet&);
   /// destructor
   ~Merger() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// process an event
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// vector of strings
-  typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
+  typedef std::vector<edm::EDGetTokenT<InputCollection>> vtoken;
   /// labels of the collections to be merged
   vtoken srcToken_;
 };
 
 template <typename InputCollection, typename OutputCollection, typename P>
 Merger<InputCollection, OutputCollection, P>::Merger(const edm::ParameterSet& par)
-    : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >("src"),
+    : srcToken_(edm::vector_transform(par.template getParameter<std::vector<edm::InputTag>>("src"),
                                       [this](edm::InputTag const& tag) { return consumes<InputCollection>(tag); })) {
   produces<OutputCollection>();
 }
@@ -67,6 +70,17 @@ void Merger<InputCollection, OutputCollection, P>::produce(edm::StreamID,
     }
   }
   evt.put(std::move(coll));
+}
+
+template <typename InputCollection, typename OutputCollection, typename P>
+void Merger<InputCollection, OutputCollection, P>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("src",
+                                       {
+                                           edm::InputTag("collection1"),
+                                           edm::InputTag("collection2"),
+                                       });
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif

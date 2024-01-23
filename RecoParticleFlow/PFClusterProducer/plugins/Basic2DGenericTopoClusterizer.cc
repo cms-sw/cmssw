@@ -1,6 +1,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   typedef Basic2DGenericTopoClusterizer B2DGT;
@@ -15,7 +17,8 @@ public:
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection&) override;
+                     reco::PFClusterCollection&,
+                     const HcalPFCuts*) override;
 
 private:
   const bool _useCornerCells;
@@ -23,7 +26,8 @@ private:
                         const std::vector<bool>&,  // masked rechits
                         unsigned int,              //present rechit
                         std::vector<bool>&,        // hit usage state
-                        reco::PFCluster&);         // the topocluster
+                        reco::PFCluster&,          // the topocluster
+                        const HcalPFCuts*);
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DGenericTopoClusterizer, "Basic2DGenericTopoClusterizer");
@@ -43,7 +47,8 @@ DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DGenericTopoClusterizer, "
 void Basic2DGenericTopoClusterizer::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                                   const std::vector<bool>& rechitMask,
                                                   const std::vector<bool>& seedable,
-                                                  reco::PFClusterCollection& output) {
+                                                  reco::PFClusterCollection& output,
+                                                  const HcalPFCuts* hcalCuts) {
   auto const& hits = *input;
   std::vector<bool> used(hits.size(), false);
   std::vector<unsigned int> seeds;
@@ -64,7 +69,7 @@ void Basic2DGenericTopoClusterizer::buildClusters(const edm::Handle<reco::PFRecH
     if (!rechitMask[seed] || !seedable[seed] || used[seed])
       continue;
     temp.reset();
-    buildTopoCluster(input, rechitMask, seed, used, temp);
+    buildTopoCluster(input, rechitMask, seed, used, temp, hcalCuts);
     if (!temp.recHitFractions().empty())
       output.push_back(temp);
   }
@@ -74,7 +79,8 @@ void Basic2DGenericTopoClusterizer::buildTopoCluster(const edm::Handle<reco::PFR
                                                      const std::vector<bool>& rechitMask,
                                                      unsigned int kcell,
                                                      std::vector<bool>& used,
-                                                     reco::PFCluster& topocluster) {
+                                                     reco::PFCluster& topocluster,
+                                                     const HcalPFCuts* hcalCuts) {
   auto const& cell = (*input)[kcell];
   int cell_layer = (int)cell.layer();
   if (cell_layer == PFLayer::HCAL_BARREL2 && std::abs(cell.positionREP().eta()) > 0.34) {
@@ -93,6 +99,14 @@ void Basic2DGenericTopoClusterizer::buildTopoCluster(const edm::Handle<reco::PFR
         (cell_layer != PFLayer::HCAL_BARREL1 && cell_layer != PFLayer::HCAL_ENDCAP)) {
       thresholdE = std::get<1>(thresholds)[j];
       thresholdPT2 = std::get<2>(thresholds)[j];
+    }
+  }
+
+  if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in PFClusterProducer.cc
+    if ((cell_layer == PFLayer::HCAL_BARREL1) || (cell_layer == PFLayer::HCAL_ENDCAP)) {
+      HcalDetId thisId = cell.detId();
+      const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+      thresholdE = item->noiseThreshold();
     }
   }
 
@@ -118,6 +132,6 @@ void Basic2DGenericTopoClusterizer::buildTopoCluster(const edm::Handle<reco::PFR
           << " Reasons : " << used[nb] << " (used) " << !rechitMask[nb] << " (masked)." << std::endl;
       continue;
     }
-    buildTopoCluster(input, rechitMask, nb, used, topocluster);
+    buildTopoCluster(input, rechitMask, nb, used, topocluster, hcalCuts);
   }
 }

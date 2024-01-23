@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -20,6 +21,8 @@
 #include <queue>
 #include <sstream>
 #include <unordered_map>
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_scheduler_observer.h"
 
 /*Description
   this is an evolution of the MicroStateService intended to be run in standalone multi-threaded cmsRun jobs
@@ -28,9 +31,6 @@
   moduledesc pointer to key into the map instead and no string or string pointers are used for the microstates.
   Only a pointer value is stored using relaxed ordering at the time of module execution  which is fast.
   At snapshot time only (every few seconds) we do the map lookup to produce snapshot.
-  Path names use a similar logic. However path names are not accessible in the same way as later so they need to be
-  when starting to run associated to the memory location of path name strings as accessible when path is executed.
-  Path intermediate info will be called "ministate" :D
   The general counters and status variables (event number, number of processed events, number of passed and stored 
   events, luminosity section etc.) are also monitored here.
 
@@ -47,7 +47,10 @@ namespace edm {
 
 namespace evf {
 
+  template <typename T>
+  struct ContainableAtomic;
   class FastMonitoringThread;
+  class ConcurrencyTracker;
 
   namespace FastMonState {
 
@@ -62,7 +65,11 @@ namespace evf {
       mBoL,
       mEoL,
       mGlobEoL,
-      mCOUNT
+      mFwk,
+      mIdleSource,
+      mEvent,
+      mIgnore,
+      mCOUNT,
     };
 
     enum Macrostate {
@@ -153,19 +160,21 @@ namespace evf {
     };
   }  // namespace FastMonState
 
+  constexpr int nSpecialModules = FastMonState::mCOUNT;
+  //reserve output module space
+  constexpr int nReservedModules = 128;
+
   class FastMonitoringService : public MicroStateService {
   public:
     // the names of the states - some of them are never reached in an online app
-    static const edm::ModuleDescription reservedMicroStateNames[FastMonState::mCOUNT];
+    static const edm::ModuleDescription specialMicroStateNames[FastMonState::mCOUNT];
     static const std::string macroStateNames[FastMonState::MCOUNT];
     static const std::string inputStateNames[FastMonState::inCOUNT];
     // Reserved names for microstates
-    static const std::string nopath_;
     FastMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
     ~FastMonitoringService() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    std::string makePathLegendaJson();
     std::string makeModuleLegendaJson();
     std::string makeInputLegendaJson();
 
@@ -200,10 +209,6 @@ namespace evf {
     void preSourceEarlyTermination(edm::TerminationOrigin);
     void setExceptionDetected(unsigned int ls);
 
-    //this is still needed for use in special functions like DQM which are in turn framework services
-    void setMicroState(FastMonState::Microstate);
-    void setMicroState(edm::StreamID, FastMonState::Microstate);
-
     void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
     void startedLookingForFile();
     void stoppedLookingForFile(unsigned int lumi);
@@ -223,14 +228,23 @@ namespace evf {
     void setInputSource(DAQSource* inputSource) { daqInputSource_ = inputSource; }
     void setInState(FastMonState::InputState inputState) { inputState_ = inputState; }
     void setInStateSup(FastMonState::InputState inputState) { inputSupervisorState_ = inputState; }
+    //available for other modules
+    void setTMicrostate(FastMonState::Microstate m);
+
+    static unsigned int getTID() { return tbb::this_task_arena::current_thread_index(); }
 
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);
 
     void snapshotRunner();
 
+    static unsigned int getSID(edm::StreamContext const& sc) { return sc.streamID().value(); }
+
+    static unsigned int getSID(edm::StreamID const& sid) { return sid.value(); }
+
     //the actual monitoring thread is held by a separate class object for ease of maintenance
-    std::shared_ptr<FastMonitoringThread> fmt_;
+    std::unique_ptr<FastMonitoringThread> fmt_;
+    std::unique_ptr<ConcurrencyTracker> ct_;
     //Encoding encModule_;
     //std::vector<Encoding> encPath_;
     FedRawDataInputSource* inputSource_ = nullptr;
@@ -238,14 +252,16 @@ namespace evf {
     std::atomic<FastMonState::InputState> inputState_{FastMonState::InputState::inInit};
     std::atomic<FastMonState::InputState> inputSupervisorState_{FastMonState::InputState::inInit};
 
-    unsigned int nStreams_;
-    unsigned int nThreads_;
+    unsigned int nStreams_ = 0;
+    unsigned int nMonThreads_ = 0;
+    unsigned int nThreads_ = 0;
+    bool tbbMonitoringMode_;
+    bool tbbConcurrencyTracker_;
     int sleepTime_;
     unsigned int fastMonIntervals_;
     unsigned int snapCounter_ = 0;
     std::string microstateDefPath_, fastMicrostateDefPath_;
-    std::string fastName_, fastPath_, slowName_;
-    bool filePerFwkStream_;
+    std::string fastName_, fastPath_;
 
     //variables that are used by/monitored by FastMonitoringThread / FastMonitor
 
@@ -272,9 +288,6 @@ namespace evf {
     //to disable this behavior, set #ATOMIC_LEVEL 0 or 1 in DataPoint.h
     std::vector<std::atomic<bool>*> streamCounterUpdating_;
 
-    std::vector<std::atomic<bool>*> collectedPathList_;
-    std::vector<bool> pathNamesReady_;
-
     std::filesystem::path workingDirectory_, runDirectory_;
 
     bool threadIDAvailable_ = false;
@@ -283,8 +296,6 @@ namespace evf {
 
     std::string moduleLegendFile_;
     std::string moduleLegendFileJson_;
-    std::string pathLegendFile_;
-    std::string pathLegendFileJson_;
     std::string inputLegendFileJson_;
     unsigned int nOutputModules_ = 0;
 
@@ -293,7 +304,13 @@ namespace evf {
     std::atomic<bool> has_source_exception_ = false;
     std::atomic<bool> has_data_exception_ = false;
     std::vector<unsigned int> exceptionInLS_;
-    std::vector<std::string> fastPathList_;
+
+    //per stream
+    std::vector<ContainableAtomic<const void*>> microstate_;
+    std::vector<ContainableAtomic<unsigned char>> microstateAcqFlag_;
+    //per thread
+    std::vector<ContainableAtomic<const void*>> tmicrostate_;
+    std::vector<ContainableAtomic<unsigned char>> tmicrostateAcqFlag_;
 
     bool verbose_ = false;
   };

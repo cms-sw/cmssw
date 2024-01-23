@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
 from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
+from RecoTauTag.RecoTau.DeepTauIdSonicProducer_cfi import DeepTauIdSonicProducer
 from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p1, WORKING_POINTS_v2p5, WORKING_POINTS_PHASEII_v2p5
 
 import os
@@ -580,9 +581,32 @@ class TauIDEmbedder(object):
                 sub_version      = 1 #MB: subversion cannot be properly deduced from file names; it should be 1 also for v2
             ))
 
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+
+            from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
+            deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
+                Client = cms.PSet(
+                  mode = cms.string('PseudoAsync'),
+                  allowedTries = cms.untracked.uint32(0),
+                  verbose = cms.untracked.bool(False),
+                  modelName = cms.string("deeptau_2017v2p1"),
+                  modelVersion = cms.string(''),
+                  modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2017v2p1/config.pbtxt"),
+                  preferredServer = cms.untracked.string(''),
+                  timeout = cms.untracked.uint32(300),
+                  useSharedMemory = cms.untracked.bool(True),
+                  compression = cms.untracked.string(''),
+                  outputs = cms.untracked.vstring()
+                ),
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                year             = full_version[0],
+                version          = full_version[1],
+                sub_version      = 1, #MB: subversion cannot be properly deduced from file names
+            ))
+
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
             _rerunMvaIsolationTask.add(_deepTauProducer)
             _rerunMvaIsolationSequence += _deepTauProducer
 
@@ -609,9 +633,33 @@ class TauIDEmbedder(object):
                 disable_dxy_pca  = True
             ))
 
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+
+            from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
+            deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
+                Client = cms.PSet(
+                  mode = cms.string('PseudoAsync'),
+                  allowedTries = cms.untracked.uint32(0),
+                  verbose = cms.untracked.bool(False),
+                  modelName = cms.string("deeptau_2017v2p1"),
+                  modelVersion = cms.string(''),
+                  modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2017v2p1/config.pbtxt"),
+                  preferredServer = cms.untracked.string(''),
+                  timeout = cms.untracked.uint32(300),
+                  useSharedMemory = cms.untracked.bool(True),
+                  compression = cms.untracked.string(''),
+                  outputs = cms.untracked.vstring()
+                ),
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                year             = full_version[0],
+                version          = full_version[1],
+                sub_version      = 1, #MB: subversion cannot be properly deduced from file names
+                disable_dxy_pca  = True
+            ))
+
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
             _rerunMvaIsolationTask.add(_deepTauProducer)
             _rerunMvaIsolationSequence += _deepTauProducer
 
@@ -639,9 +687,35 @@ class TauIDEmbedder(object):
                 disable_CellIndex_workaround    = True
             ))
 
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+
+            from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
+            deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
+                Client = cms.PSet(
+                  mode = cms.string('PseudoAsync'),
+                  allowedTries = cms.untracked.uint32(0),
+                  verbose = cms.untracked.bool(False),
+                  modelName = cms.string("deeptau_2018v2p5"),
+                  modelVersion = cms.string(''),
+                  modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2018v2p5/config.pbtxt"),
+                  preferredServer = cms.untracked.string(''),
+                  timeout = cms.untracked.uint32(300),
+                  useSharedMemory = cms.untracked.bool(True),
+                  compression = cms.untracked.string(''),
+                  outputs = cms.untracked.vstring(),
+                ),
+                Prediscriminants                = noPrediscriminants,
+                taus                            = self.originalTauName,
+                year                            = full_version[0],
+                version                         = full_version[1],
+                sub_version                     = full_version[2],
+                disable_dxy_pca                 = True,
+                disable_hcalFraction_workaround = True,
+                disable_CellIndex_workaround    = True
+            ))
+
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
             _rerunMvaIsolationTask.add(_deepTauProducer)
             _rerunMvaIsolationSequence += _deepTauProducer
 

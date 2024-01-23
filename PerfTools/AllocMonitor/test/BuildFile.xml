@@ -3,7 +3,7 @@
   <use name="catch2"/>
 </bin>
 
-<ifrelease name="!_ASAN_">
+<ifrelease name="!ASAN">
   <bin file="test_proxies.cc" name="testAllocMonitorPreload">
     <use name="PerfTools/AllocMonitor"/>
     <use name="PerfTools/AllocMonitorPreload"/>

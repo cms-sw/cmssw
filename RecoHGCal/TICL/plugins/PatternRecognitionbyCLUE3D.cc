@@ -569,6 +569,16 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "OtherEta: " << clustersLayer.eta[layerandSoa.second];
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "OtherPhi: " << clustersLayer.phi[layerandSoa.second];
             }
+
+            bool onSameCluster = clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx;
+            if (onSameLayer && !densityOnSameLayer_ && !onSameCluster) {
+              if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
+                edm::LogVerbatim("PatternRecognitionbyCLUE3D")
+                    << "Skipping different cluster " << otherClusterIdx << "in the same layer " << currentLayer;
+              }
+              continue;
+            }
+
             bool reachable = false;
             if (useAbsoluteProjectiveScale_) {
               if (useClusterDimensionXY_) {
@@ -617,11 +627,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Cluster radius: " << clustersOnLayer.radius[i];
             }
             if (reachable) {
-              float factor_same_layer_different_cluster = (onSameLayer && !densityOnSameLayer_) ? 0.f : 1.f;
-              auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx
-                                      ? 1.f
-                                      : kernelDensityFactor_ * factor_same_layer_different_cluster) *
-                                 clustersLayer.energy[layerandSoa.second];
+              auto energyToAdd =
+                  (onSameCluster ? 1.f : kernelDensityFactor_) * clustersLayer.energy[layerandSoa.second];
               clustersOnLayer.rho[i] += energyToAdd;
               clustersOnLayer.z_extension[i] = deltaLayersZ;
               if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
@@ -744,22 +751,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       }      // End of loop on eta bins
     }        // End of loop on layers
 
-    bool foundNearestInFiducialVolume = (i_delta != maxDelta);
-    if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
-      edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-          << "i_delta: " << i_delta << " passed: " << foundNearestInFiducialVolume << " " << i_nearestHigher.first
-          << " " << i_nearestHigher.second << " distances: " << nearest_distances.first << ", "
-          << nearest_distances.second;
-    }
-    if (foundNearestInFiducialVolume) {
-      clustersOnLayer.delta[i] = nearest_distances;
-      clustersOnLayer.nearestHigher[i] = i_nearestHigher;
-    } else {
-      // otherwise delta is guaranteed to be larger outlierDeltaFactor_*delta_c
-      // we can safely maximize delta to be maxDelta
-      clustersOnLayer.delta[i] = std::make_pair(maxDelta, std::numeric_limits<int>::max());
-      clustersOnLayer.nearestHigher[i] = {-1, -1};
-    }
+    clustersOnLayer.delta[i] = nearest_distances;
+    clustersOnLayer.nearestHigher[i] = i_nearestHigher;
   }  // End of loop on clusters
 }
 

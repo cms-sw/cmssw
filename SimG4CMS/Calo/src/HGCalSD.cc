@@ -334,11 +334,10 @@ void HGCalSD::update(const BeginOfJob* job) {
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
-  if ((nHC_ > 1) && calibCells_) {
+  if ((nHC_ > 1) && calibCells_)
     newCollection(collName_[1], ps_);
-    cellOffset_ = std::make_unique<HGCalCellOffset>(
-        waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
-  }
+  cellOffset_ = std::make_unique<HGCalCellOffset>(
+      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
 }
 
 void HGCalSD::initRun() {}

@@ -5,7 +5,9 @@
 #include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include <string>
+#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 
 namespace mkfit {
 
@@ -30,10 +32,12 @@ namespace mkfit {
     SVector3 pos;
     SVector3 zdir;
     SVector3 xdir;
+    float half_length;
     unsigned int detid;
 
     ModuleInfo() = default;
-    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, unsigned int id) : pos(p), zdir(zd), xdir(xd), detid(id) {}
+    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, float hl, unsigned int id)
+        : pos(p), zdir(zd), xdir(xd), half_length(hl), detid(id) {}
   };
 
   //==============================================================================

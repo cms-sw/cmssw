@@ -146,7 +146,10 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
     AllowMissingInputs = cms.bool(False),
 	
 # specify hcal upgrade phase - 0, 1, 2	
-	HcalPhase = cms.int32(0)
+    HcalPhase = cms.int32(0),
+
+# Read HBHE thresholds from Global Tag
+    usePFThresholdsFromDB = cms.bool(False)
     
 )
 
@@ -175,3 +178,8 @@ run3_HB.toModify(calotowermaker,
     HBThreshold2 = 0.2,
     HBThreshold = 0.3,
 )
+
+#--- Use DB conditions for HBHE thresholds for Run3 and phase2
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify( calotowermaker,
+                           usePFThresholdsFromDB = True)

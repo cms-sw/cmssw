@@ -101,17 +101,17 @@ public:
 
   edm::InputSource::ItemType processFiles(EventProcessor& iEP) {
     bool finished = false;
-    auto nextTransition = iEP.nextTransitionType();
-    if (nextTransition != edm::InputSource::IsFile)
+    edm::InputSource::ItemType nextTransition = iEP.nextTransitionType();
+    if (nextTransition != edm::InputSource::ItemType::IsFile)
       return nextTransition;
     do {
       switch (nextTransition) {
-        case edm::InputSource::IsFile: {
+        case edm::InputSource::ItemType::IsFile: {
           processFile(iEP);
           nextTransition = iEP.nextTransitionType();
           break;
         }
-        case edm::InputSource::IsRun: {
+        case edm::InputSource::ItemType::IsRun: {
           nextTransition = runs_.processRuns(iEP);
           break;
         }

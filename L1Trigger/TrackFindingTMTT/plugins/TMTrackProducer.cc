@@ -28,7 +28,6 @@ namespace tmtt {
 
   namespace {
     std::once_flag printOnce;
-    std::once_flag callOnce;
   }  // namespace
 
   std::unique_ptr<GlobalCacheTMTT> TMTrackProducer::initializeGlobalCache(edm::ParameterSet const& iConfig) {

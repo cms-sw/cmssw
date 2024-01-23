@@ -28,14 +28,8 @@ public:
   /// Constructors
   L1ScalersClient(const edm::ParameterSet &ps);
 
-  /// Destructor
-  ~L1ScalersClient() override{};
-
   /// BeginJob
   void beginJob(void) override;
-
-  //   /// Endjob
-  //   void endJob(void);
 
   /// BeginRun
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;

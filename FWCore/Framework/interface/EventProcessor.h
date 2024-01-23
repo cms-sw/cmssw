@@ -185,8 +185,9 @@ namespace edm {
     // The following functions are used by the code implementing
     // transition handling.
 
-    InputSource::ItemType nextTransitionType();
-    InputSource::ItemType lastTransitionType() const { return lastSourceTransition_; }
+    InputSource::ItemTypeInfo nextTransitionType();
+    InputSource::ItemTypeInfo lastTransitionType() const { return lastSourceTransition_; }
+    void nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus, WaitingTaskHolder nextTask);
 
     void readFile();
     bool fileBlockValid() { return fb_.get() != nullptr; }
@@ -294,6 +295,10 @@ namespace edm {
     void throwAboutModulesRequiringLuminosityBlockSynchronization() const;
     void warnAboutModulesRequiringRunSynchronization() const;
     void warnAboutLegacyModules() const;
+
+    bool needToCallNext() const { return needToCallNext_; }
+    void setNeedToCallNext(bool val) { needToCallNext_ = val; }
+
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -311,7 +316,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
-    InputSource::ItemType lastSourceTransition_ = InputSource::IsInvalid;
+    InputSource::ItemTypeInfo lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<ModuleTypeResolverMaker const>> moduleTypeResolverMaker_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
@@ -369,7 +374,7 @@ namespace edm {
 
     bool printDependencies_ = false;
     bool deleteNonConsumedUnscheduledModules_ = true;
-    bool firstItemAfterLumiMerge_ = true;
+    bool needToCallNext_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

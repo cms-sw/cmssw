@@ -23,7 +23,6 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
-#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
@@ -40,9 +39,9 @@
 #include "Randomize.hh"
 
 // for some reason void doesn't compile
-class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int> > {
+class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>> {
 public:
-  typedef std::vector<std::shared_ptr<SimProducer> > Producers;
+  typedef std::vector<std::shared_ptr<SimProducer>> Producers;
 
   explicit OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*);
   ~OscarMTProducer() override;
@@ -122,71 +121,28 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   assert(m_masterThread);
   m_masterThread->callConsumes(consumesCollector());
 
-  // List of produced containers
+  // declair hit collections
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
-  produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelHighTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTIBLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTIBHighTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTIDLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTIDHighTof");
-  produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapHighTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTOBLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
-  produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
 
-  produces<edm::PSimHitContainer>("TotemHitsT1");
-  produces<edm::PSimHitContainer>("TotemHitsT2Gem");
-  produces<edm::PSimHitContainer>("TotemHitsRP");
-  produces<edm::PSimHitContainer>("CTPPSPixelHits");
-  produces<edm::PSimHitContainer>("CTPPSTimingHits");
-  produces<edm::PSimHitContainer>("FP420SI");
-  produces<edm::PSimHitContainer>("BSCHits");
-  produces<edm::PSimHitContainer>("PLTHits");
-  produces<edm::PSimHitContainer>("BCM1FHits");
-  produces<edm::PSimHitContainer>("BHMHits");
-  produces<edm::PSimHitContainer>("FastTimerHitsBarrel");
-  produces<edm::PSimHitContainer>("FastTimerHitsEndcap");
+  auto trackHits = p.getParameter<std::vector<std::string>>("TrackHits");
+  for (auto const& ss : trackHits) {
+    produces<edm::PSimHitContainer>(ss);
+  }
 
-  produces<edm::PCaloHitContainer>("EcalHitsEB");
-  produces<edm::PCaloHitContainer>("EcalHitsEE");
-  produces<edm::PCaloHitContainer>("EcalHitsES");
-  produces<edm::PCaloHitContainer>("HcalHits");
-  produces<edm::PCaloHitContainer>("CaloHitsTk");
-  produces<edm::PCaloHitContainer>("HGCHitsEE");
-  produces<edm::PCaloHitContainer>("HGCHitsHEfront");
-  produces<edm::PCaloHitContainer>("HGCHitsHEback");
-  produces<edm::PCaloHitContainer>("CalibrationHGCHitsEE");
-  produces<edm::PCaloHitContainer>("CalibrationHGCHitsHEfront");
-  produces<edm::PCaloHitContainer>("CalibrationHGCHitsHEback");
-
-  produces<edm::PSimHitContainer>("MuonDTHits");
-  produces<edm::PSimHitContainer>("MuonCSCHits");
-  produces<edm::PSimHitContainer>("MuonRPCHits");
-  produces<edm::PSimHitContainer>("MuonGEMHits");
-  produces<edm::PSimHitContainer>("MuonME0Hits");
-  produces<edm::PCaloHitContainer>("CastorPL");
-  produces<edm::PCaloHitContainer>("CastorFI");
-  produces<edm::PCaloHitContainer>("CastorBU");
-  produces<edm::PCaloHitContainer>("CastorTU");
-  produces<edm::PCaloHitContainer>("EcalTBH4BeamHits");
-  produces<edm::PCaloHitContainer>("HcalTB06BeamHits");
-  produces<edm::PCaloHitContainer>("ZDCHITS");
-  produces<edm::PCaloHitContainer>("ChamberHits");
-  produces<edm::PCaloHitContainer>("FibreHits");
-  produces<edm::PCaloHitContainer>("WedgeHits");
-  produces<edm::PCaloHitContainer>("HFNoseHits");
-  produces<edm::PCaloHitContainer>("TotemHitsT2Scint");
+  auto caloHits = p.getParameter<std::vector<std::string>>("CaloHits");
+  for (auto const& ss : caloHits) {
+    produces<edm::PCaloHitContainer>(ss);
+  }
 
   //register any products
   auto& producers = m_runManagerWorker->producers();
   for (auto& ptr : producers) {
     ptr->registerProducts(producesCollector());
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "OscarMTProducer is constructed with hit collections:" << trackHits.size() << " tracking type; "
+      << caloHits.size() << " calo type; " << producers.size() << " watcher type.";
 }
 
 OscarMTProducer::~OscarMTProducer() {
@@ -313,9 +269,9 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.put(std::move(p1));
   e.put(std::move(p2));
 
-  for (auto& tracker : sTk) {
+  for (auto const& tracker : sTk) {
     const std::vector<std::string>& v = tracker->getNames();
-    for (auto& name : v) {
+    for (auto const& name : v) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())
@@ -323,9 +279,9 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(std::move(product), name);
     }
   }
-  for (auto& calo : sCalo) {
+  for (auto const& calo : sCalo) {
     const std::vector<std::string>& v = calo->getNames();
-    for (auto& name : v) {
+    for (auto const& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
       if (0 < m_verbose && product != nullptr && !product->empty())

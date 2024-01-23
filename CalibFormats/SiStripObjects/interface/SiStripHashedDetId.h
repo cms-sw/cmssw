@@ -29,6 +29,23 @@ public:
   /** Copy constructor. */
   SiStripHashedDetId(const SiStripHashedDetId &);
 
+  /** Assignment operator. */
+  SiStripHashedDetId &operator=(const SiStripHashedDetId &other) {
+    if (this != &other) {  // Self-assignment check
+      this->id_ = 0;
+      this->iter_ = other.begin();
+      // auxilliary vector to store the list of raw IDs
+      std::vector<uint32_t> raw_ids;
+      raw_ids.reserve(other.size());
+
+      // Copy elements from input vector to detIds_ vector
+      std::copy(other.begin(), other.end(), std::back_inserter(raw_ids));
+
+      this->init(raw_ids);
+    }
+    return *this;
+  }
+
   /** Public default constructor. */
   SiStripHashedDetId();
 
@@ -55,6 +72,8 @@ public:
   inline const_iterator begin() const;
 
   inline const_iterator end() const;
+
+  inline const size_t size() const { return detIds_.size(); }
 
 private:
   void init(const std::vector<uint32_t> &);

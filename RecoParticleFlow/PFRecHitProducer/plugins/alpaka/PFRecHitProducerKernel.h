@@ -17,6 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void processRecHits(Queue& queue,
                         const typename CAL::CaloRecHitSoATypeDevice& recHits,
                         const typename CAL::ParameterType& params,
+                        const typename CAL::TopologyTypeDevice& topology,
                         reco::PFRecHitDeviceCollection& pfRecHits);
 
     // Run kernel: Associate topology information (position, neighbours)

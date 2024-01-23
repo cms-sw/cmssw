@@ -7,8 +7,9 @@ process.source = cms.Source('EmptySource')
 process.load('Configuration.StandardSequences.Accelerators_cff')
 process.load('HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi')
 
-# enable logging for the AlpakaService and TestAlpakaAnalyzer
+# enable logging for the analysers
 process.MessageLogger.TestAlpakaAnalyzer = cms.untracked.PSet()
+process.MessageLogger.TestAlpakaObjectAnalyzer = cms.untracked.PSet()
 
 # either run the producer on a gpu (if available) and copy the product to the cpu, or run the producer directly on the cpu
 process.testProducer = cms.EDProducer('TestAlpakaProducer@alpaka',
@@ -20,8 +21,12 @@ process.testProducer = cms.EDProducer('TestAlpakaProducer@alpaka',
     #)
 )
 
-# analyse the product
+# analyse the first set of products
 process.testAnalyzer = cms.EDAnalyzer('TestAlpakaAnalyzer',
+    source = cms.InputTag('testProducer')
+)
+
+process.testObjectAnalyzer = cms.EDAnalyzer('TestAlpakaObjectAnalyzer',
     source = cms.InputTag('testProducer')
 )
 
@@ -37,28 +42,32 @@ process.testProducerSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaProdu
 #    )
 #)
 
-# analyse the second product
+# analyse the second set of products
 process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',
-    source = cms.InputTag('testProducerSerial')
+    source = cms.InputTag('testProducerSerial'),
+    expectBackend = cms.string('SerialSync')
 )
 
-# write the two products to a 'test.root' file
+process.testObjectAnalyzerSerial = cms.EDAnalyzer('TestAlpakaObjectAnalyzer',
+    source = cms.InputTag('testProducerSerial'),
+    expectBackend = cms.string('SerialSync')
+)
+
+# write all products to a 'test.root' file
 process.output = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('test.root'),
-    outputCommands = cms.untracked.vstring(
-        'drop *',
-        'keep *_testProducer_*_*',
-        'keep *_testProducerSerial_*_*',
-  )
+    outputCommands = cms.untracked.vstring('keep *')
 )
 
 process.process_path = cms.Path(
     process.testProducer +
-    process.testAnalyzer)
+    process.testAnalyzer +
+    process.testObjectAnalyzer)
 
 process.serial_path = cms.Path(
     process.testProducerSerial +
-    process.testAnalyzerSerial)
+    process.testAnalyzerSerial +
+    process.testObjectAnalyzerSerial)
 
 process.output_path = cms.EndPath(process.output)
 

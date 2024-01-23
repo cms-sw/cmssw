@@ -13,6 +13,8 @@
 <!-- alpaka-based portable plugins -->
 <library name="RecoParticleFlowPFRecHitProducersPluginsPortable" file="alpaka/*.cc">
   <use name="CondFormats/EcalObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondTools/Hcal"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EcalDetId"/>
   <use name="DataFormats/ParticleFlowReco"/>

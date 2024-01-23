@@ -98,7 +98,7 @@ void HGCalPartialWaferTester::analyze(const edm::Event&, const edm::EventSetup& 
         edm::LogVerbatim("HGCalGeom") << "\n\nPartial Type " << partialType << " Orientation " << orientation
                                       << " Wafer " << waferU << ":" << waferV << " in layer " << layer << " at "
                                       << xy.first << ":" << xy.second << "\n\n";
-        int nCells = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+        int nCells = (type == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
         for (int i = 0; i < nTrials_; i++) {
           int ui = std::floor(nCells * 0.0002 * (rand() % 10000));
           int vi = std::floor(nCells * 0.0002 * (rand() % 10000));

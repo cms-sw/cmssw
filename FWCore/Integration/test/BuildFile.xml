@@ -40,6 +40,7 @@
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
   <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
+  <test name="TestIntegrationEmptyRootFile" command="run_TestEmptyRootFile.sh"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
@@ -78,6 +79,7 @@
 
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
   <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_"/>
+  <test name="testFWCoreIntegrationTransform_async_tracer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_ --addTracer 2>&amp;1 | fgrep 'transform in event' | wc | awk '{print $1}' | fgrep 24"/>
   <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath"/>
   <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform"/>
@@ -95,6 +97,8 @@
   <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
 
+  <test name="testFWCoreIntegrationNoEndPathStatus" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/check_empty_event_cfg.py 2>&amp;1 | fgrep 'contains 0 products'"/>
+  
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
 
   <bin file="RandomIntProducer_t.cpp">

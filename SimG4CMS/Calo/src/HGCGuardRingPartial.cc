@@ -4,6 +4,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include <iostream>
+#include <array>
 
 //#define EDM_ML_DEBUG
 
@@ -25,28 +26,41 @@ HGCGuardRingPartial::HGCGuardRingPartial(const HGCalDDDConstants& hgc)
 
 bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV) {
   bool check(false);
-  if (modeUV_ == HGCalGeometryMode::Hexagon8Cassette) {
+  if ((modeUV_ == HGCalGeometryMode::Hexagon8Cassette) || (modeUV_ == HGCalGeometryMode::Hexagon8CalibCell)) {
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     int type = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: Layer " << layer << " wafer " << waferU << ":" << waferV
+                               << " index " << index << " partial " << partial << " type " << type;
+#endif
     if (partial == HGCalTypes::WaferFull) {
       return (check);
+    } else if (partial < 0) {
+      return true;
     } else {
       int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
       int placement = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
-      double delX = 0.5 * waferSize_;
-      double delY = 2 * delX / sqrt3_;
-      double dx = (zside > 0) ? -point.x() : point.x();
+      double dx = point.x();
       double dy = point.y();
-      double tresh = std::abs(offset_ / cos_1[placement]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: orient " << orient << " placement " << placement << " dx "
+                                 << dx << " dy " << dy;
+#endif
       if (type > 0) {
-        check |= std::abs(dy - (dx * tan_1[placement])) < tresh;
-        check |= std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5) / cos_1[placement])) < tresh;
-        check |= std::abs(dy * cot_1[placement] - (dx)) < tresh;
+        for (int ii = HGCalTypes::WaferPartLDOffset;
+             ii < (HGCalTypes::WaferPartLDOffset + HGCalTypes::WaferPartLDCount);
+             ii++) {
+          std::array<double, 4> criterion = HGCalWaferMask::maskCut(ii, placement, waferSize_, offset_, v17OrLess_);
+          check |= std::abs(criterion[0] * dy + criterion[1] * dx + criterion[2]) < criterion[3];
+        }
       } else {
-        check |= std::abs((dy * cot_1[placement]) - dx + ((c22_ * delX) / cos_1[placement])) < tresh;
-        check |= std::abs(dy - (dx * tan_1[placement]) - ((c27_ * delY) / cos_1[placement])) < tresh;
-        check |= std::abs(dy - (dx * tan_1[placement]) + ((c27_ * delY) / cos_1[placement])) < tresh;
+        for (int ii = HGCalTypes::WaferPartHDOffset;
+             ii < (HGCalTypes::WaferPartHDOffset + HGCalTypes::WaferPartHDCount);
+             ii++) {
+          std::array<double, 4> criterion = HGCalWaferMask::maskCut(ii, placement, waferSize_, offset_, v17OrLess_);
+          check |= std::abs(criterion[0] * dy + criterion[1] * dx + criterion[2]) < criterion[3];
+        }
       }
     }
 #ifdef EDM_ML_DEBUG

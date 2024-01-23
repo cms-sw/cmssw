@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/ECalSD.h"
 #include "SimG4CMS/Calo/interface/EcalDumpGeometry.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
@@ -17,8 +18,6 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "DD4hep/Filter.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -127,8 +126,9 @@ ECalSD::ECalSD(const std::string& name,
   int type0 = dumpGeom / 1000;
   type += (10 * type0);
 
-  if (nullptr != scheme)
+  if (nullptr != scheme) {
     setNumberingScheme(scheme);
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "Constructing a ECalSD  with name " << GetName();
 #endif
@@ -218,7 +218,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
     edep *= wt2;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
+  edm::LogVerbatim("EcalSim") << lv->GetName() << " "
+                              << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()))
                               << " Light Collection Efficiency " << weight << ":" << wt1 << " wt2= " << wt2
                               << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV at "
                               << preStepPoint->GetPosition();
@@ -292,7 +293,7 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     double radl = hitPoint->GetMaterial()->GetRadlen();
     thisX0 = (uint16_t)floor(scaleRL * crystalDepth / radl);
 #ifdef plotDebug
-    const std::string& lvname = dd4hep::dd::noNamespace(lv->GetName());
+    const std::string lvname = DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()));
     int k1 = (lvname.find("EFRY") != std::string::npos) ? 2 : 0;
     int k2 = (lvname.find("refl") != std::string::npos) ? 1 : 0;
     int kk = k1 + k2;
@@ -302,7 +303,8 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
 #endif
 #ifdef EDM_ML_DEBUG
     G4ThreeVector localPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
-    edm::LogVerbatim("EcalSim") << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName()) << " Global "
+    edm::LogVerbatim("EcalSim") << lv->GetName() << " "
+                                << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName())) << " Global "
                                 << hitPoint->GetPosition() << ":" << (hitPoint->GetPosition()).rho() << " Local "
                                 << localPoint << " Crystal Length " << crystalLength << " Radl " << radl
                                 << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : "
@@ -338,7 +340,7 @@ void ECalSD::initMap() {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::map<const std::string, const G4LogicalVolume*> nameMap;
   for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
-    nameMap.emplace(dd4hep::dd::noNamespace((*lvi)->GetName()), *lvi);
+    nameMap.emplace(DD4hep2DDDName::noNameSpace(static_cast<std::string>((*lvi)->GetName())), *lvi);
 
   for (unsigned int it = 0; it < ecalSimParameters_->lvNames_.size(); ++it) {
     const std::string& matname = ecalSimParameters_->matNames_[it];
@@ -419,7 +421,7 @@ void ECalSD::initMap() {
   for (auto ite : xtalLMap) {
     std::string name("Unknown");
     if (ite.first != nullptr)
-      name = dd4hep::dd::noNamespace((ite.first)->GetName());
+      name = DD4hep2DDDName::noNameSpace(static_cast<std::string>((ite.first)->GetName()));
     edm::LogVerbatim("EcalSim") << " " << i << " " << ite.first << " " << name << " L = " << ite.second;
     ++i;
   }
@@ -440,13 +442,15 @@ double ECalSD::curve_LY(const G4LogicalVolume* lv) {
     } else {
       edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
                                  << "to APD " << dapd << " crlength = " << crystalLength << ":" << crystalDepth
-                                 << " crystal name = " << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
+                                 << " crystal name = " << lv->GetName() << " "
+                                 << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()))
                                  << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
     }
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "ECalSD: light coll curve : crlength = " << crystalLength << " Depth " << crystalDepth
-                              << " crystal name = " << lv->GetName() << " " << dd4hep::dd::noNamespace(lv->GetName())
+                              << " crystal name = " << lv->GetName() << " "
+                              << DD4hep2DDDName::noNameSpace(static_cast<std::string>(lv->GetName()))
                               << " z of localPoint = " << currentLocalPoint.z() << " take weight = " << weight;
 #endif
   return weight;
@@ -461,8 +465,8 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
   //Get name and copy numbers
   if (theSize > 1) {
     for (int ii = 0; ii < theSize; ii++) {
-      std::string_view name = dd4hep::dd::noNamespace(touch->GetVolume(ii)->GetName());
-      theBaseNumber.addLevel(std::string(name), touch->GetReplicaNumber(ii));
+      std::string name = DD4hep2DDDName::noNameSpace(static_cast<std::string>(touch->GetVolume(ii)->GetName()));
+      theBaseNumber.addLevel(name, touch->GetReplicaNumber(ii));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii << ": " << name << "["
                                   << touch->GetReplicaNumber(ii) << "]";
@@ -489,7 +493,8 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
         weight = 1.;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in " << dd4hep::dd::noNamespace(mat->GetName()) << " Charge "
+    edm::LogVerbatim("EcalSim") << "ECalSD::getBirkL3 in "
+                                << DD4hep2DDDName::noNameSpace(static_cast<std::string>(mat->GetName())) << " Charge "
                                 << charge << " dE/dx " << dedx << " Birk Const " << rkb << " Weight = " << weight
                                 << " dE " << aStep->GetTotalEnergyDeposit();
 #endif

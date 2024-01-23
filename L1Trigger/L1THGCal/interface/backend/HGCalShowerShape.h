@@ -38,20 +38,25 @@ public:
 
   float meanZ(const l1t::HGCalMulticluster& c3d) const;
   float sigmaZZ(const l1t::HGCalMulticluster& c3d) const;
+  float varZZ(const l1t::HGCalMulticluster& c3d) const;
 
   float sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const;
   float sigmaEtaEtaTot(const l1t::HGCalCluster& c2d) const;
   float sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const;
+  float varEtaEta(const l1t::HGCalMulticluster& c3d) const;
 
   float sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const;
   float sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const;
   float sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const;
+  float varPhiPhi(const l1t::HGCalMulticluster& c3d) const;
 
   float sigmaRRTot(const l1t::HGCalMulticluster& c3d) const;
   float sigmaRRTot(const l1t::HGCalCluster& c2d) const;
   float sigmaRRMax(const l1t::HGCalMulticluster& c3d) const;
   float sigmaRRMean(const l1t::HGCalMulticluster& c3d, float radius = 5.) const;
-
+  float varRR(const l1t::HGCalMulticluster& c3d) const;
+  float sumLayers(const l1t::HGCalMulticluster& c3d, int start = 1, int end = 0) const;
+  int bitmap(const l1t::HGCalMulticluster& c3d, int start = 1, int end = 14, float threshold = 0) const;
   void fillShapes(l1t::HGCalMulticluster&, const HGCalTriggerGeometryBase&) const;
 
 private:
@@ -59,7 +64,7 @@ private:
   // Compute energy-weighted RMS of any variable X in the cluster
   // Delta(a,b) functor as template argument. Default is (a-b)
   template <typename Delta = std::minus<float>>
-  float sigmaXX(const std::vector<pair<float, float>>& energy_X_tc, const float X_cluster) const {
+  float varXX(const std::vector<pair<float, float>>& energy_X_tc, const float X_cluster) const {
     Delta delta;
     float Etot = 0;
     float deltaX2_sum = 0;
@@ -70,17 +75,26 @@ private:
     float X_MSE = 0;
     if (Etot > 0)
       X_MSE = deltaX2_sum / Etot;
-    float X_RMS = sqrt(X_MSE);
+    return X_MSE;
+  }
+
+  float sigmaXX(const std::vector<pair<float, float>>& energy_X_tc, const float X_cluster) const {
+    float X_RMS = sqrt(varXX(energy_X_tc, X_cluster));
     return X_RMS;
   }
+
   // Special case of delta for phi
+  float sigmaPhiPhi(const std::vector<pair<float, float>>& energy_phi_tc, const float phi_cluster) const {
+    return sqrt(varPhiPhi(energy_phi_tc, phi_cluster));
+  }
   template <class T>
   struct DeltaPhi {
     T operator()(const T& x, const T& y) const { return deltaPhi(x, y); }
   };
-  float sigmaPhiPhi(const std::vector<pair<float, float>>& energy_phi_tc, const float phi_cluster) const {
-    return sigmaXX<DeltaPhi<float>>(energy_phi_tc, phi_cluster);
+  float varPhiPhi(const std::vector<pair<float, float>>& energy_phi_tc, const float phi_cluster) const {
+    return varXX<DeltaPhi<float>>(energy_phi_tc, phi_cluster);
   }
+
   template <typename T, typename Tref>
   bool pass(const T& obj, const Tref& ref) const {
     bool pass_threshold = (obj.mipPt() > threshold_);

@@ -85,7 +85,8 @@ public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")},
         token_{consumes(source_)},
-        expectSize_{config.getParameter<int>("expectSize")} {
+        expectSize_{config.getParameter<int>("expectSize")},
+        expectXvalues_{config.getParameter<std::vector<double>>("expectXvalues")} {
     if (std::string const& eb = config.getParameter<std::string>("expectBackend"); not eb.empty()) {
       expectBackend_ = cms::alpakatools::toBackend(eb);
       backendToken_ = consumes(edm::InputTag(source_.label(), "backend", source_.process()));
@@ -146,7 +147,10 @@ public:
     assert(view.r() == 1.);
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
       auto vi = view[i];
-      assert(vi.x() == 0.);
+      if (not expectXvalues_.empty() and vi.x() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x();
+      }
       assert(vi.y() == 0.);
       assert(vi.z() == 0.);
       assert(vi.id() == i);
@@ -168,6 +172,11 @@ public:
     desc.add<edm::InputTag>("source");
     desc.add<int>("expectSize", -1)
         ->setComment("Expected size of the input collection. Values < 0 mean the check is not performed. Default: -1");
+    desc.add<std::vector<double>>("expectXvalues", std::vector<double>(0.))
+        ->setComment(
+            "Expected values of the 'x' field in the input collection. Empty value means to not perform the check. If "
+            "input collection has more elements than this parameter, the parameter values are looped over. Default: "
+            "{0.}");
     desc.add<std::string>("expectBackend", "")
         ->setComment(
             "Expected backend of the input collection. Empty value means to not perform the check. Default: empty "
@@ -181,6 +190,7 @@ private:
   edm::EDGetTokenT<unsigned short> backendToken_;
   std::optional<cms::alpakatools::Backend> expectBackend_;
   const int expectSize_;
+  const std::vector<double> expectXvalues_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

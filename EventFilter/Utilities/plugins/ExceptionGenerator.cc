@@ -250,6 +250,4 @@ namespace evf {
     }
   }
 
-  void ExceptionGenerator::endLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) {}
-
 }  // end namespace evf

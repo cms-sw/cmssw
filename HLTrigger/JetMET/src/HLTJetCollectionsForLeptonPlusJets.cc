@@ -1,25 +1,25 @@
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include <cmath>
 
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
 
 template <typename jetType>
 HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet& iConfig)
     : hltLeptonTag(iConfig.getParameter<edm::InputTag>("HltLeptonTag")),
       sourceJetTag(iConfig.getParameter<edm::InputTag>("SourceJetTag")),
-      minDeltaR_(iConfig.getParameter<double>("minDeltaR")) {
+      // minimum delta-R^2 threshold with sign
+      minDeltaR2_(iConfig.getParameter<double>("minDeltaR") * std::abs(iConfig.getParameter<double>("minDeltaR"))) {
   using namespace edm;
   using namespace std;
   typedef vector<RefVector<vector<jetType>, jetType, refhelper::FindUsingAdvance<vector<jetType>, jetType>>>
@@ -27,12 +27,6 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(
   m_theLeptonToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltLeptonTag);
   m_theJetToken = consumes<std::vector<jetType>>(sourceJetTag);
   produces<JetCollectionVector>();
-}
-
-template <typename jetType>
-HLTJetCollectionsForLeptonPlusJets<jetType>::~HLTJetCollectionsForLeptonPlusJets() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 template <typename jetType>
@@ -86,10 +80,10 @@ void HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, co
   unique_ptr<JetCollectionVector> allSelections(new JetCollectionVector());
 
   if (!clusCands.empty()) {  // try trigger clusters
-    for (auto& clusCand : clusCands) {
+    for (auto const& clusCand : clusCands) {
       JetRefVector refVector;
       for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-        if (deltaR(clusCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+        if (reco::deltaR2(clusCand->superCluster()->position(), theJetCollection[j]) > minDeltaR2_)
           refVector.push_back(JetRef(theJetCollectionHandle, j));
       }
       allSelections->push_back(refVector);
@@ -97,10 +91,10 @@ void HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, co
   }
 
   if (!eleCands.empty()) {  // try electrons
-    for (auto& eleCand : eleCands) {
+    for (auto const& eleCand : eleCands) {
       JetRefVector refVector;
       for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-        if (deltaR(eleCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+        if (reco::deltaR2(eleCand->superCluster()->position(), theJetCollection[j]) > minDeltaR2_)
           refVector.push_back(JetRef(theJetCollectionHandle, j));
       }
       allSelections->push_back(refVector);
@@ -108,10 +102,10 @@ void HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, co
   }
 
   if (!photonCands.empty()) {  // try photons
-    for (auto& photonCand : photonCands) {
+    for (auto const& photonCand : photonCands) {
       JetRefVector refVector;
       for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-        if (deltaR(photonCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+        if (reco::deltaR2(photonCand->superCluster()->position(), theJetCollection[j]) > minDeltaR2_)
           refVector.push_back(JetRef(theJetCollectionHandle, j));
       }
       allSelections->push_back(refVector);
@@ -119,10 +113,10 @@ void HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, co
   }
 
   if (!muonCands.empty()) {  // muons
-    for (auto& muonCand : muonCands) {
+    for (auto const& muonCand : muonCands) {
       JetRefVector refVector;
       for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-        if (deltaR(muonCand->p4(), theJetCollection[j]) > minDeltaR_)
+        if (reco::deltaR2(muonCand->p4(), theJetCollection[j]) > minDeltaR2_)
           refVector.push_back(JetRef(theJetCollectionHandle, j));
       }
       allSelections->push_back(refVector);

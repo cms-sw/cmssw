@@ -12,11 +12,11 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="SimG4CMS/HGCalTestBeam"/>
+<use name="SimG4Core/Geometry"/>
 <use name="SimG4Core/Notification"/>
 <use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="clhep"/>
-<use name="dd4hep"/>
 <use name="rootphysics"/>
 <use name="root"/>
 <use name="hepmc"/>

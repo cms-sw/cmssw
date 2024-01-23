@@ -736,6 +736,81 @@ caloDict = {
         ],
         "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV16, phase2_hfnose",
     },
+    "C22" : {
+        1 : [
+            'Geometry/EcalCommonData/data/eregalgo/2026/v2/eregalgo.xml',
+            'Geometry/EcalCommonData/data/ectkcable/2026/v1/ectkcable.xml',
+            'Geometry/EcalCommonData/data/ectkcablemat/2026/v2/ectkcablemat.xml',
+            'Geometry/EcalCommonData/data/ebalgo.xml',
+            'Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml',
+            'Geometry/EcalCommonData/data/ebrot.xml',
+            'Geometry/HcalCommonData/data/hcalrotations.xml',
+            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml',
+            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
+            'Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml',
+            'Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml',
+            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
+            'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/v1/hcalSimNumbering.xml',
+            'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcal/v18/hgcal.xml',
+            'Geometry/HGCalCommonData/data/hgcalcell/v17/hgcalcell.xml',
+            'Geometry/HGCalCommonData/data/hgcalwafer/v18/hgcalwafer.xml',
+            'Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml',
+            'Geometry/HGCalCommonData/data/hgcalEE/v18/hgcalEE.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEsil/v18/hgcalHEsil.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEmix/v18/hgcalHEmix.xml',
+            'Geometry/HGCalCommonData/data/hgcalCons/v18/hgcalCons.xml',
+            'Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml',
+        ],
+        3 : [
+            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
+            'Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml',
+            'Geometry/HcalSimData/data/hf.xml',
+            'Geometry/HcalSimData/data/hfpmt.xml',
+            'Geometry/HcalSimData/data/hffibrebundle.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2c/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/hgcsensv15.xml',
+        ],
+        4 : [
+            'Geometry/HcalSimData/data/HcalProdCuts/2026/v1/HcalProdCuts.xml',
+            'Geometry/EcalSimData/data/EcalProdCuts.xml',
+            'Geometry/HGCalSimData/data/hgcProdCutsv15.xml',
+        ],
+        "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
+        ],
+        "reco" : [
+            'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
+            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
+            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
+            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
+            '    SelectedCalos = cms.vstring("HCAL",',
+            '                                "ZDC",',
+            '                                "EcalBarrel",',
+            '                                "TOWER",',
+            '                                "HGCalEESensitive",',
+            '                                "HGCalHESiliconSensitive",',
+            '                                "HGCalHEScintillatorSensitive"',
+            '    )',
+            ')',
+            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
+            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
+            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
+            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
+            'from Geometry.EcalMapping.EcalMapping_cfi import *',
+            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
+        ],
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV16, phase2_hfnose",
+    },
 
 }
 
@@ -955,6 +1030,34 @@ timingDict = {
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
+    "I17" : {
+        1 : [
+           'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
+           'Geometry/MTDCommonData/data/btl/v3/btl.xml',
+           'Geometry/MTDCommonData/data/etl/v8/etl.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v5/mtdStructureTopology.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v5/mtdParameters.xml',
+           ],
+       3 : [
+           'Geometry/MTDSimData/data/v5/mtdsens.xml'
+           ],
+       4 : [
+           'Geometry/MTDSimData/data/v5/mtdProdCuts.xml'
+           ],
+       "sim" : [
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           ],
+       "reco" :[
+           'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+           'mtdGeometry.applyAlignment = False'
+           ],
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -975,6 +1078,8 @@ detectorVersionDict = {
     ("O9","T34","C18","M11","F8","I16") : "D101",
     ("O9","T35","C17","M11","F8","I16") : "D102",
     ("O9","T34","C21","M11","F8","I16") : "D103",
+    ("O9","T35","C22","M11","F8","I16") : "D104",
+    ("O9","T32","C18","M10","F8","I17") : "D105",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85"])

@@ -159,6 +159,8 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(productMatch, this);
   getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(productMatch, this);
 
+  getL1TP2GTCandCollection_ = edm::GetterOfProducts<l1t::P2GTCandidateCollection>(productMatch, this);
+
   callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
     getTriggerFilterObjectWithRefs_(bd);
     getRecoEcalCandidateCollection_(bd);
@@ -190,6 +192,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     getPFJetCollection_(bd);
     getPFTauCollection_(bd);
     getPFMETCollection_(bd);
+    getL1TP2GTCandCollection_(bd);
   });
 }
 
@@ -297,15 +300,13 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   /// debug printout
   if (isDebugEnabled()) {
     /// event-by-event tags
-    const unsigned int nc(collectionTagsEvent.size());
-    LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
+    LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << collectionTagsEvent.size();
     const InputTagSet::const_iterator cb(collectionTagsEvent.begin());
     const InputTagSet::const_iterator ce(collectionTagsEvent.end());
     for (InputTagSet::const_iterator ci = cb; ci != ce; ++ci) {
       LogTrace("TriggerSummaryProducerAOD") << distance(cb, ci) << " " << ci->encode();
     }
-    const unsigned int nf(filterTagsEvent.size());
-    LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
+    LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << filterTagsEvent.size();
     const InputTagSet::const_iterator fb(filterTagsEvent.begin());
     const InputTagSet::const_iterator fe(filterTagsEvent.end());
     for (InputTagSet::const_iterator fi = fb; fi != fe; ++fi) {
@@ -385,6 +386,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
   fillTriggerObjectCollections<reco::PFMETCollection>(
       toc, offset, tags, keys, iEvent, getPFMETCollection_, collectionTagsEvent);
   ///
+  fillTriggerObjectCollections<l1t::P2GTCandidateCollection>(
+      toc, offset, tags, keys, iEvent, getL1TP2GTCandCollection_, collectionTagsEvent);
   const unsigned int nk(tags.size());
   LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
   const unsigned int no(toc.size());
@@ -457,6 +460,8 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfjetIds(), fobs[ifob]->pfjetRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pftauIds(), fobs[ifob]->pftauRefs(), offset, keys, ids);
       fillFilterObjectMembers(iEvent, filterTag, fobs[ifob]->pfmetIds(), fobs[ifob]->pfmetRefs(), offset, keys, ids);
+      fillFilterObjectMembers(
+          iEvent, filterTag, fobs[ifob]->l1tp2gtcandIds(), fobs[ifob]->l1tp2gtcandRefs(), offset, keys, ids);
       product->addFilter(filterTag, ids, keys);
     }
   }

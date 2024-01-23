@@ -109,9 +109,6 @@ private:
   int diff_neta_s(int, int);
   int diff_nphi_s(int, int);
 
-  static float DeltaPhi(float phi1, float phi2);
-  static float GetDeltaR(float eta1, float eta2, float phi1, float phi2);
-
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> const caloTopologyRecordToken_;
   edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const ecalChannelStatusRcdToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeometryRecordToken_;
@@ -141,7 +138,7 @@ private:
   double seleMinvMinBarrel_;
   double seleS4S9Gamma_;
   double seleS9S25Gamma_;
-  double seleBeltDR_;
+  double seleBeltDR2_;
   double seleBeltDeta_;
   double seleIso_;
   double ptMinForIsolation_;
@@ -166,7 +163,7 @@ private:
   double seleS4S9GammaEndCap_;
   double seleS9S25GammaEndCap_;
   double seleIsoEndCap_;
-  double seleBeltDREndCap_;
+  double seleBeltDR2EndCap_;
   double seleBeltDetaEndCap_;
   double ptMinForIsolationEndCap_;
   bool store5x5RecHitEE_;

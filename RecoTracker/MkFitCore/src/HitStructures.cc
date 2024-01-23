@@ -61,9 +61,22 @@ namespace mkfit {
 
   //==============================================================================
 
+  void LayerOfHits::reset() {
+    m_hit_infos.clear();
+    m_ext_idcs.clear();
+    m_min_ext_idx = std::numeric_limits<unsigned int>::max();
+    m_max_ext_idx = std::numeric_limits<unsigned int>::min();
+    m_n_hits = 0;
+    m_binnor.reset_contents();
+  }
+
+  //==============================================================================
+
   void LayerOfHits::suckInHits(const HitVec &hitv) {
-    m_n_hits = hitv.size();
     m_ext_hits = &hitv;
+    m_n_hits = hitv.size();
+
+    m_binnor.begin_registration(m_n_hits);
 
 #ifdef COPY_SORTED_HITS
     if (m_capacity < m_n_hits) {
@@ -72,24 +85,33 @@ namespace mkfit {
     }
 #endif
 
+    std::vector<HitInfo> hinfos;
     if (Config::usePhiQArrays) {
-      m_hit_phis.resize(m_n_hits);
-      m_hit_qs.resize(m_n_hits);
-      m_hit_infos.resize(m_n_hits);
+      hinfos.reserve(m_n_hits);
+      m_hit_infos.reserve(m_n_hits);
     }
 
-    m_binnor.reset_contents();
-    m_binnor.begin_registration(m_n_hits);
+    // Factor to get from hit sigma to half-length in q direction.
+    const float hl_fac = is_pixel() ? 3.0f : std::sqrt(3.0f);
 
     for (unsigned int i = 0; i < m_n_hits; ++i) {
       const Hit &h = hitv[i];
 
-      HitInfo hi = {h.phi(), m_is_barrel ? h.z() : h.r()};
+      float phi = h.phi();
+      float q = m_is_barrel ? h.z() : h.r();
 
-      m_binnor.register_entry_safe(hi.phi, hi.q);
+      m_binnor.register_entry_safe(phi, q);
 
       if (Config::usePhiQArrays) {
-        m_hit_infos[i] = hi;
+        float half_length, qbar;
+        if (m_is_barrel) {
+          half_length = hl_fac * std::sqrt(h.ezz());
+          qbar = h.r();
+        } else {
+          half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
+          qbar = h.z();
+        }
+        hinfos.emplace_back(HitInfo({phi, q, half_length, qbar}));
       }
     }
 
@@ -101,8 +123,7 @@ namespace mkfit {
       memcpy(&m_hits[i], &hitv[j], sizeof(Hit));
 #endif
       if (Config::usePhiQArrays) {
-        m_hit_phis[i] = m_hit_infos[j].phi;
-        m_hit_qs[i] = m_hit_infos[j].q;
+        m_hit_infos.emplace_back(hinfos[j]);
       }
     }
   }
@@ -131,14 +152,8 @@ namespace mkfit {
 
   void LayerOfHits::beginRegistrationOfHits(const HitVec &hitv) {
     m_ext_hits = &hitv;
-
     m_n_hits = 0;
-    m_hit_infos.clear();
-    m_ext_idcs.clear();
-    m_min_ext_idx = std::numeric_limits<unsigned int>::max();
-    m_max_ext_idx = std::numeric_limits<unsigned int>::min();
 
-    m_binnor.reset_contents();
     m_binnor.begin_registration(128);  // initial reserve for cons vectors
   }
 
@@ -149,12 +164,23 @@ namespace mkfit {
     m_min_ext_idx = std::min(m_min_ext_idx, idx);
     m_max_ext_idx = std::max(m_max_ext_idx, idx);
 
-    HitInfo hi = {h.phi(), m_is_barrel ? h.z() : h.r()};
+    float phi = h.phi();
+    float q = m_is_barrel ? h.z() : h.r();
 
-    m_binnor.register_entry_safe(hi.phi, hi.q);
+    m_binnor.register_entry_safe(phi, q);
 
     if (Config::usePhiQArrays) {
-      m_hit_infos.emplace_back(hi);
+      // Factor to get from hit sigma to half-length in q direction.
+      const float hl_fac = is_pixel() ? 3.0f : std::sqrt(3.0f);
+      float half_length, qbar;
+      if (m_is_barrel) {
+        half_length = hl_fac * std::sqrt(h.ezz());
+        qbar = h.r();
+      } else {
+        half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
+        qbar = h.z();
+      }
+      m_hit_infos.emplace_back(HitInfo({phi, q, half_length, qbar}));
     }
   }
 
@@ -174,9 +200,10 @@ namespace mkfit {
     }
 #endif
 
+    std::vector<HitInfo> hinfos;
     if (Config::usePhiQArrays) {
-      m_hit_phis.resize(m_n_hits);
-      m_hit_qs.resize(m_n_hits);
+      hinfos.swap(m_hit_infos);
+      m_hit_infos.reserve(m_n_hits);
     }
 
     for (unsigned int i = 0; i < m_n_hits; ++i) {
@@ -188,8 +215,7 @@ namespace mkfit {
 #endif
 
       if (Config::usePhiQArrays) {
-        m_hit_phis[i] = m_hit_infos[j].phi;
-        m_hit_qs[i] = m_hit_infos[j].q;
+        m_hit_infos.emplace_back(hinfos[j]);
       }
 
       // Redirect m_binnor.m_ranks[i] to point to external/original index.

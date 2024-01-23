@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
@@ -73,7 +74,9 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
   if (topology.waferHexagon8() || topology.tileTrapezoid()) {
     for (unsigned int i = 0; i < type_.size(); ++i) {
       DetId id;
-      if (detectorName_ == "HGCalEESensitive") {
+      if (topology.isHFNose()) {
+        id = HFNoseDetId(1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
+      } else if (detectorName_ == "HGCalEESensitive") {
         id = HGCSiliconDetId(DetId::HGCalEE, 1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
       } else if (detectorName_ == "HGCalHESiliconSensitive") {
         id = HGCSiliconDetId(DetId::HGCalHSi, 1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
@@ -84,7 +87,13 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
       }
       std::vector<DetId> ids = topology.neighbors(id);
       unsigned int k(0);
-      if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+      if (topology.isHFNose()) {
+        edm::LogVerbatim("HGCalGeom") << (HFNoseDetId)(id) << " has " << ids.size() << " neighbours:";
+        for (const auto& idn : ids) {
+          edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HFNoseDetId)(idn);
+          ++k;
+        }
+      } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
         edm::LogVerbatim("HGCalGeom") << (HGCSiliconDetId)(id) << " has " << ids.size() << " neighbours:";
         for (const auto& idn : ids) {
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HGCSiliconDetId)(idn);

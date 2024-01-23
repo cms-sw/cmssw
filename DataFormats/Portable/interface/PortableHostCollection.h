@@ -70,10 +70,13 @@ public:
 
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostCollection* newObj, Layout& layout) {
+    // destroy the default-constructed collection
     newObj->~PortableHostCollection();
-    // use the global "host" object returned by cms::alpakatools::host()
+    // construct in-place a new collection, with the known size, using the global "host" object returned by cms::alpakatools::host()
     new (newObj) PortableHostCollection(layout.metadata().size(), cms::alpakatools::host());
+    // copy the data from the on-file layout to the new collection
     newObj->layout_.ROOTReadStreamer(layout);
+    // free the memory allocated by ROOT
     layout.ROOTStreamerCleaner();
   }
 

@@ -45,6 +45,131 @@ namespace DiLeptonHelp {
 
   enum flavour { MM = 0, EE = 1, UNDEF = -1 };
 
+  enum etaRegion { BARBAR, BARFWD, BARBWD, FWDFWD, BWDBWD, FWDBWD, END };
+
+  //
+  // Ancillary class for plotting in different kinematics regions
+  // of the two muon tracks
+  //
+  class PlotsVsDiLeptonRegion {
+  public:
+    PlotsVsDiLeptonRegion(const float etaBoundary) : m_etaBoundary(etaBoundary) {}
+    ~PlotsVsDiLeptonRegion() = default;
+
+    //________________________________________________________________________________//
+    inline void bookSet(const TFileDirectory& fs, const TH1* histo) {
+      const std::string name = histo->GetName();
+      const std::string title = histo->GetTitle();
+      const std::string xTitle = histo->GetXaxis()->GetTitle();
+      const std::string yTitle = histo->GetYaxis()->GetTitle();
+      std::string zTitle = "";
+      if (((TObject*)histo)->InheritsFrom("TH2")) {
+        zTitle = histo->GetZaxis()->GetTitle();
+      }
+
+      for (const auto& etaReg : m_etaRegions) {
+        if (etaReg == etaRegion::END)
+          continue;
+
+        if (((TObject*)histo)->InheritsFrom("TH2")) {
+          m_h2_map[etaReg] =
+              fs.make<TH2F>((name + "_" + m_etaRegionNames[etaReg]).c_str(),
+                            (title + m_etaRegionNames[etaReg] + ";" + xTitle + ";" + yTitle + ";" + zTitle).c_str(),
+                            histo->GetNbinsX(),
+                            histo->GetXaxis()->GetXmin(),
+                            histo->GetXaxis()->GetXmax(),
+                            histo->GetNbinsY(),
+                            histo->GetYaxis()->GetXmin(),
+                            histo->GetYaxis()->GetXmax());
+        } else {
+          m_h1_map[etaReg] = fs.make<TH1F>((name + "_" + m_etaRegionNames[etaReg]).c_str(),
+                                           (title + m_etaRegionNames[etaReg] + ";" + xTitle + ";" + yTitle).c_str(),
+                                           histo->GetNbinsX(),
+                                           histo->GetXaxis()->GetXmin(),
+                                           histo->GetXaxis()->GetXmax());
+        }
+      }
+
+      // flip the is booked bit
+      m_isBooked = true;
+    }
+
+    //________________________________________________________________________________//
+    // Determine the eta region based on eta values
+    etaRegion getEtaRegion(const double eta1, const double eta2) {
+      bool isEta1Barrel = std::abs(eta1) <= m_etaBoundary;
+      bool isEta2Barrel = std::abs(eta2) <= m_etaBoundary;
+
+      if (isEta1Barrel && isEta2Barrel) {
+        return etaRegion::BARBAR;
+      } else if ((isEta1Barrel && eta2 > m_etaBoundary) || (isEta2Barrel && eta1 > m_etaBoundary)) {
+        return etaRegion::BARFWD;
+      } else if ((isEta1Barrel && eta2 < -m_etaBoundary) || (isEta2Barrel && eta1 < -m_etaBoundary)) {
+        return etaRegion::BARBWD;
+      } else if (eta1 > m_etaBoundary && eta2 > m_etaBoundary) {
+        return etaRegion::FWDFWD;
+      } else if (eta1 < -m_etaBoundary && eta2 < -m_etaBoundary) {
+        return etaRegion::BWDBWD;
+      } else if ((eta1 > m_etaBoundary && eta2 < -m_etaBoundary) || (eta2 > m_etaBoundary && eta1 < -m_etaBoundary)) {
+        return etaRegion::FWDBWD;
+      }
+
+      // Default case if none of the conditions match
+      return etaRegion::END;  // Adjust the default based on your logic
+    }
+
+    //________________________________________________________________________________//
+    inline void fillTH1Plots(const float val, const std::pair<TLorentzVector, TLorentzVector>& momenta) {
+      if (!m_isBooked) {
+        edm::LogError("PlotsVsDiLeptonRegion")
+            << "In" << __FUNCTION__ << "," << __LINE__ << "trying to fill a plot not booked!" << std::endl;
+        return;
+      }
+
+      etaRegion region = getEtaRegion(momenta.first.Eta(), momenta.second.Eta());
+      if (region == etaRegion::END) {
+        edm::LogError("PlotsVsDiLeptonRegion") << "undefined di-muon kinematics" << std::endl;
+      }
+      m_h1_map[region]->Fill(val);
+    }
+
+    //________________________________________________________________________________//
+    inline void fillTH2Plots(const float valX,
+                             const float valY,
+                             const std::pair<TLorentzVector, TLorentzVector>& momenta) {
+      if (!m_isBooked) {
+        edm::LogError("PlotsVsDiLeptonRegion")
+            << "In" << __FUNCTION__ << "," << __LINE__ << "trying to fill a plot not booked!" << std::endl;
+        return;
+      }
+
+      etaRegion region = getEtaRegion(momenta.first.Eta(), momenta.second.Eta());
+      if (region == etaRegion::END) {
+        edm::LogError("PlotsVsDiLeptonRegion") << "undefined di-muon kinematics" << std::endl;
+      }
+      m_h2_map[region]->Fill(valX, valY);
+    }
+
+  private:
+    const std::vector<etaRegion> m_etaRegions = {etaRegion::BARBAR,
+                                                 etaRegion::BARFWD,
+                                                 etaRegion::BARBWD,
+                                                 etaRegion::FWDFWD,
+                                                 etaRegion::BWDBWD,
+                                                 etaRegion::FWDBWD};
+
+    const std::vector<std::string> m_etaRegionNames = {"barrel-barrel",
+                                                       "barrel-forward",
+                                                       "barrel-backward",
+                                                       "forward-forward",
+                                                       "backward-backward",
+                                                       "forward-backward"};
+    const float m_etaBoundary;
+    bool m_isBooked;
+    std::map<etaRegion, TH1F*> m_h1_map;
+    std::map<etaRegion, TH2F*> m_h2_map;
+  };
+
   //
   // Ancillary class for plotting
   //

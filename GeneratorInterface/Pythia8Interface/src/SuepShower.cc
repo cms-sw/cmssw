@@ -53,7 +53,7 @@ std::vector<Pythia8::Vec4> SuepShower::generateShower(double energy) {
   double shower_energy = 0.0;
 
   // Fill up shower record
-  while (shower_energy < mediator_energy_) {
+  while (shower_energy < mediator_energy_ || shower.size() < 2) {
     shower.push_back(generateFourVector());
     shower_energy += (shower.back()).e();
   }
@@ -73,9 +73,18 @@ std::vector<Pythia8::Vec4> SuepShower::generateShower(double energy) {
 
   // With momentum conserved, balance energy. scale is the multiplicative factor needed such that sum_daughters((scale*p)^2+m^2) = E_parent, i.e. energy is conserved
   double scale;
+  double minscale = 0.0;
+  double maxscale = 2.0;
+  while (SuepShower::reballanceFunction(minscale, shower) * SuepShower::reballanceFunction(maxscale, shower) > 0) {
+    minscale = maxscale;
+    maxscale *= 2;
+  }
+
   scale =
-      (boost::math::tools::bisect(
-           boost::bind(&SuepShower::reballanceFunction, this, boost::placeholders::_1, shower), 0.0, 2.0, tolerance_))
+      (boost::math::tools::bisect(boost::bind(&SuepShower::reballanceFunction, this, boost::placeholders::_1, shower),
+                                  minscale,
+                                  maxscale,
+                                  tolerance_))
           .first;
 
   for (auto& daughter : shower) {

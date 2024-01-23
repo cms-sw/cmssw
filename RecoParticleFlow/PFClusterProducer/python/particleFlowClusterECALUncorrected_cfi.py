@@ -60,7 +60,7 @@ _localMaxSeeds_ECAL = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.int32(8)
+    nNeighbours = cms.int32(8),
 )
 
 # topo clusterizer
@@ -131,6 +131,7 @@ _pfClusterizer_ECAL = cms.PSet(
 particleFlowClusterECALUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
+    usePFThresholdsFromDB = cms.bool(False), 
     recHitCleaners = cms.VPSet(),
     #seedCleaners = cms.VPSet(_seedsFlagsCleaner_ECAL,_seedCleaner_ECAL),
     seedCleaners = cms.VPSet(_seedsFlagsCleaner_ECAL),

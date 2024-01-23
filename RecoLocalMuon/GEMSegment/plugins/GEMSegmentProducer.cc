@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
@@ -30,6 +32,8 @@ public:
   /// Produce the GEMSegment collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   int iev;  // events through
   edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
@@ -43,6 +47,13 @@ GEMSegmentProducer::GEMSegmentProducer(const edm::ParameterSet& ps) : iev(0) {
   gemGeomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   // register what this produces
   produces<GEMSegmentCollection>();
+}
+
+void GEMSegmentProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("gemRecHitLabel", edm::InputTag("gemRecHits"));
+  GEMSegmentBuilder::fillDescription(desc);
+  descriptions.add("gemSegments", desc);
 }
 
 void GEMSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {

@@ -6,7 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
-
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 #include "vdt/vdtMath.h"
 
 #include <iterator>
@@ -26,7 +27,8 @@ public:
 
   void buildClusters(const reco::PFClusterCollection&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection& outclus) override;
+                     reco::PFClusterCollection& outclus,
+                     const HcalPFCuts*) override;
 
 private:
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
@@ -90,7 +92,8 @@ PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, 
 
 void PFMultiDepthClusterizer::buildClusters(const reco::PFClusterCollection& input,
                                             const std::vector<bool>& seedable,
-                                            reco::PFClusterCollection& output) {
+                                            reco::PFClusterCollection& output,
+                                            const HcalPFCuts* hcalCuts) {
   std::vector<double> etaRMS2(input.size(), 0.0);
   std::vector<double> phiRMS2(input.size(), 0.0);
 
@@ -133,7 +136,7 @@ void PFMultiDepthClusterizer::buildClusters(const reco::PFClusterCollection& inp
     reco::PFCluster cluster = input[i];
     mask[i] = true;
     expandCluster(cluster, i, mask, input, prunedLinks);
-    _allCellsPosCalc->calculateAndSetPosition(cluster);
+    _allCellsPosCalc->calculateAndSetPosition(cluster, hcalCuts);
     output.push_back(cluster);
     //    printf("Added linked cluster with energy =%f\n",cluster.energy());
   }

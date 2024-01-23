@@ -7,6 +7,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <string>
 #include <iostream>
@@ -41,7 +43,8 @@ public:
 
   virtual void buildClusters(const reco::PFClusterCollection& topos,
                              const std::vector<bool>& seedable,
-                             reco::PFClusterCollection& outclus) = 0;
+                             reco::PFClusterCollection& outclus,
+                             const HcalPFCuts*) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
     o << "PFClusterBuilder with algo \"" << _algoName << "\" located " << _nSeeds << " seeds and built "

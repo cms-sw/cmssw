@@ -19,19 +19,11 @@
 class L1TMuonEndCapTrackProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TMuonEndCapTrackProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapTrackProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-
-  //void beginJob() override;
-  //void endJob() override;
-  //void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 private:
   std::unique_ptr<TrackFinder> track_finder_;

@@ -2,9 +2,10 @@
 //
 // Rewritting/improvements:  George Karathanasis,
 //                           georgios.karathanasis@cern.ch, CU Boulder
+//                           Claire Savard (claire.savard@colorado.edu)
 //
 //         Created:  Wed, 01 Aug 2018 14:01:41 GMT
-//         Latest update: Nov 2022 (by GK)
+//         Latest update: Nov 2023 (by CS)
 //
 // Track jets are clustered in a two-layer process, first by clustering in phi,
 // then by clustering in eta. The code proceeds as following: putting all tracks
@@ -57,16 +58,9 @@ private:
   // ----------member data ---------------------------
 
   vector<Ptr<L1TTTrackType>> L1TrkPtrs_;
-  vector<int> tdtrk_;
   const float trkZMax_;
   const float trkPtMax_;
-  const float trkPtMin_;
   const float trkEtaMax_;
-  const float nStubs4PromptChi2_;
-  const float nStubs5PromptChi2_;
-  const float nStubs4PromptBend_;
-  const float nStubs5PromptBend_;
-  const int trkNPSStubMin_;
   const int lowpTJetMinTrackMultiplicity_;
   const float lowpTJetThreshold_;
   const int highpTJetMinTrackMultiplicity_;
@@ -81,28 +75,15 @@ private:
   const bool displaced_;
   const float d0CutNStubs4_;
   const float d0CutNStubs5_;
-  const float nStubs4DisplacedChi2_;
-  const float nStubs5DisplacedChi2_;
-  const float nStubs4DisplacedBend_;
-  const float nStubs5DisplacedBend_;
   const int nDisplacedTracks_;
-  const float dzPVTrk_;
 
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
-  const EDGetTokenT<l1t::VertexWordCollection> PVtxToken_;
 };
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
     : trkZMax_(iConfig.getParameter<double>("trk_zMax")),
       trkPtMax_(iConfig.getParameter<double>("trk_ptMax")),
-      trkPtMin_(iConfig.getParameter<double>("trk_ptMin")),
       trkEtaMax_(iConfig.getParameter<double>("trk_etaMax")),
-      nStubs4PromptChi2_(iConfig.getParameter<double>("nStubs4PromptChi2")),
-      nStubs5PromptChi2_(iConfig.getParameter<double>("nStubs5PromptChi2")),
-      nStubs4PromptBend_(iConfig.getParameter<double>("nStubs4PromptBend")),
-      nStubs5PromptBend_(iConfig.getParameter<double>("nStubs5PromptBend")),
-      trkNPSStubMin_(iConfig.getParameter<int>("trk_nPSStubMin")),
       lowpTJetMinTrackMultiplicity_(iConfig.getParameter<int>("lowpTJetMinTrackMultiplicity")),
       lowpTJetThreshold_(iConfig.getParameter<double>("lowpTJetThreshold")),
       highpTJetMinTrackMultiplicity_(iConfig.getParameter<int>("highpTJetMinTrackMultiplicity")),
@@ -114,15 +95,8 @@ L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
       displaced_(iConfig.getParameter<bool>("displaced")),
       d0CutNStubs4_(iConfig.getParameter<double>("d0_cutNStubs4")),
       d0CutNStubs5_(iConfig.getParameter<double>("d0_cutNStubs5")),
-      nStubs4DisplacedChi2_(iConfig.getParameter<double>("nStubs4DisplacedChi2")),
-      nStubs5DisplacedChi2_(iConfig.getParameter<double>("nStubs5DisplacedChi2")),
-      nStubs4DisplacedBend_(iConfig.getParameter<double>("nStubs4DisplacedBend")),
-      nStubs5DisplacedBend_(iConfig.getParameter<double>("nStubs5DisplacedBend")),
       nDisplacedTracks_(iConfig.getParameter<int>("nDisplacedTracks")),
-      dzPVTrk_(iConfig.getParameter<double>("MaxDzTrackPV")),
-      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
-      trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
-      PVtxToken_(consumes<l1t::VertexWordCollection>(iConfig.getParameter<InputTag>("L1PVertexInputTag"))) {
+      trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<InputTag>("L1TrackInputTag"))) {
   zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);  // added +1 in denom
   etaStep_ = 2.0 * trkEtaMax_ / etaBins_;  //etaStep is the width of an etabin
   phiStep_ = 2 * M_PI / phiBins_;          ////phiStep is the width of a phibin
@@ -134,78 +108,26 @@ L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
 }
 
 void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  unique_ptr<TkJetCollection> L1L1TrackJetProducer(new TkJetCollection);
+  unique_ptr<TkJetCollection> L1TrackJetProducer(new TkJetCollection);
 
-  // Read inputs
-  const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
-
+  // L1 tracks
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
 
-  edm::Handle<l1t::VertexWordCollection> PVtx;
-  iEvent.getByToken(PVtxToken_, PVtx);
-  float PVz = (PVtx->at(0)).z0();
-
   L1TrkPtrs_.clear();
-  tdtrk_.clear();
 
   // track selection
   for (unsigned int this_l1track = 0; this_l1track < TTTrackHandle->size(); this_l1track++) {
     edm::Ptr<L1TTTrackType> trkPtr(TTTrackHandle, this_l1track);
-    float trk_pt = trkPtr->momentum().perp();
-    int trk_nstubs = (int)trkPtr->getStubRefs().size();
-    float trk_chi2dof = trkPtr->chi2Red();
-    float trk_d0 = trkPtr->d0();
-    float trk_bendchi2 = trkPtr->stubPtConsistency();
-
-    int trk_nPS = 0;
-    for (int istub = 0; istub < trk_nstubs; istub++) {  // loop over the stubs
-      DetId detId(trkPtr->getStubRefs().at(istub)->getDetId());
-      if (detId.det() == DetId::Detector::Tracker) {
-        if ((detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3) ||
-            (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9))
-          trk_nPS++;
-      }
-    }
-    // select tracks
-    if (trk_nPS < trkNPSStubMin_)
-      continue;
-    if (!TrackQualitySelection(trk_nstubs,
-                               trk_chi2dof,
-                               trk_bendchi2,
-                               nStubs4PromptBend_,
-                               nStubs5PromptBend_,
-                               nStubs4PromptChi2_,
-                               nStubs5PromptChi2_,
-                               nStubs4DisplacedBend_,
-                               nStubs5DisplacedBend_,
-                               nStubs4DisplacedChi2_,
-                               nStubs5DisplacedChi2_,
-                               displaced_))
-      continue;
-    if (std::abs(PVz - trkPtr->z0()) > dzPVTrk_ && dzPVTrk_ > 0)
-      continue;
-    if (std::abs(trkPtr->z0()) > trkZMax_)
-      continue;
-    if (std::abs(trkPtr->momentum().eta()) > trkEtaMax_)
-      continue;
-    if (trk_pt < trkPtMin_)
-      continue;
     L1TrkPtrs_.push_back(trkPtr);
-
-    if ((std::abs(trk_d0) > d0CutNStubs5_ && trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
-        (trk_nstubs == 4 && std::abs(trk_d0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
-      tdtrk_.push_back(1);  //displaced track
-    else
-      tdtrk_.push_back(0);  // not displaced track
   }
 
   // if no tracks pass selection return empty containers
   if (L1TrkPtrs_.empty()) {
     if (displaced_)
-      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+      iEvent.put(std::move(L1TrackJetProducer), "L1TrackJetsExtended");
     else
-      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
+      iEvent.put(std::move(L1TrackJetProducer), "L1TrackJets");
     return;
   }
 
@@ -273,6 +195,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       float trkpt = L1TrkPtrs_[k]->momentum().perp();
       float trketa = L1TrkPtrs_[k]->momentum().eta();
       float trkphi = L1TrkPtrs_[k]->momentum().phi();
+      float trkd0 = L1TrkPtrs_[k]->d0();
+      int trknstubs = (int)L1TrkPtrs_[k]->getStubRefs().size();
       for (int i = 0; i < phiBins_; ++i) {
         for (int j = 0; j < etaBins_; ++j) {
           float eta_min = epbins[i][j].eta - etaStep_ / 2.0;  //eta min
@@ -287,7 +211,9 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
             epbins[i][j].pTtot += trkpt;
           else
             epbins[i][j].pTtot += trkPtMax_;
-          epbins[i][j].nxtracks += tdtrk_[k];
+          if ((std::abs(trkd0) > d0CutNStubs5_ && trknstubs >= 5 && d0CutNStubs5_ >= 0) ||
+              (trknstubs == 4 && std::abs(trkd0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
+            epbins[i][j].nxtracks += 1;
           epbins[i][j].trackidx.push_back(k);
           ++epbins[i][j].ntracks;
         }  // for each etabin
@@ -335,7 +261,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     float jetPz = jetPt * sinh(jetEta);
     float jetP = jetPt * cosh(jetEta);
     int totalDisptrk = mzb.clusters[j].nxtracks;
-    bool isDispJet = (totalDisptrk > nDisplacedTracks_ || totalDisptrk == nDisplacedTracks_);
+    bool isDispJet = (totalDisptrk >= nDisplacedTracks_);
 
     math::XYZTLorentzVector jetP4(jetPx, jetPy, jetPz, jetP);
     L1TrackAssocJet.clear();
@@ -344,31 +270,23 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
 
     TkJet trkJet(jetP4, L1TrackAssocJet, mzb.zbincenter, mzb.clusters[j].ntracks, 0, totalDisptrk, 0, isDispJet);
 
-    L1L1TrackJetProducer->push_back(trkJet);
+    L1TrackJetProducer->push_back(trkJet);
   }
 
-  std::sort(
-      L1L1TrackJetProducer->begin(), L1L1TrackJetProducer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
+  std::sort(L1TrackJetProducer->begin(), L1TrackJetProducer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
   if (displaced_)
-    iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+    iEvent.put(std::move(L1TrackJetProducer), "L1TrackJetsExtended");
   else
-    iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
+    iEvent.put(std::move(L1TrackJetProducer), "L1TrackJets");
 }
 
 void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
   ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
-  desc.add<edm::InputTag>("L1PVertexInputTag", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
-  desc.add<double>("MaxDzTrackPV", 1.0);
+  desc.add<edm::InputTag>(
+      "L1TrackInputTag", edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
   desc.add<double>("trk_zMax", 15.0);
   desc.add<double>("trk_ptMax", 200.0);
-  desc.add<double>("trk_ptMin", 3.0);
   desc.add<double>("trk_etaMax", 2.4);
-  desc.add<double>("nStubs4PromptChi2", 5.0);
-  desc.add<double>("nStubs4PromptBend", 1.7);
-  desc.add<double>("nStubs5PromptChi2", 2.75);
-  desc.add<double>("nStubs5PromptBend", 3.5);
-  desc.add<int>("trk_nPSStubMin", -1);
   desc.add<double>("minTrkJetpT", -1.0);
   desc.add<int>("etaBins", 24);
   desc.add<int>("phiBins", 27);
@@ -380,10 +298,6 @@ void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &description
   desc.add<int>("highpTJetMinTrackMultiplicity", 3);
   desc.add<double>("highpTJetThreshold", 100.0);
   desc.add<bool>("displaced", false);
-  desc.add<double>("nStubs4DisplacedChi2", 5.0);
-  desc.add<double>("nStubs4DisplacedBend", 1.7);
-  desc.add<double>("nStubs5DisplacedChi2", 2.75);
-  desc.add<double>("nStubs5DisplacedBend", 3.5);
   desc.add<int>("nDisplacedTracks", 2);
   descriptions.add("l1tTrackJets", desc);
 }

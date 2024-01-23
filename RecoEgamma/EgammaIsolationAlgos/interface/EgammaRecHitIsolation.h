@@ -22,6 +22,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class EgammaRecHitIsolation {
 public:
@@ -36,11 +38,19 @@ public:
                         const EcalSeverityLevelAlgo*,
                         DetId::Detector detector);
 
-  double getEtSum(const reco::Candidate* emObject) const { return getSum_(emObject, true); }
-  double getEnergySum(const reco::Candidate* emObject) const { return getSum_(emObject, false); }
+  double getEtSum(const reco::Candidate* emObject, EcalPFRecHitThresholds const& thresholds) const {
+    return getSum_(emObject, true, &thresholds);
+  }
+  double getEnergySum(const reco::Candidate* emObject, EcalPFRecHitThresholds const& thresholds) const {
+    return getSum_(emObject, false, &thresholds);
+  }
 
-  double getEtSum(const reco::SuperCluster* emObject) const { return getSum_(emObject, true); }
-  double getEnergySum(const reco::SuperCluster* emObject) const { return getSum_(emObject, false); }
+  double getEtSum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const& thresholds) const {
+    return getSum_(emObject, true, &thresholds);
+  }
+  double getEnergySum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const& thresholds) const {
+    return getSum_(emObject, false, &thresholds);
+  }
 
   void setUseNumCrystals(bool b = true) { useNumCrystals_ = b; }
   void setVetoClustered(bool b = true) { vetoClustered_ = b; }
@@ -61,8 +71,8 @@ public:
   ~EgammaRecHitIsolation();
 
 private:
-  double getSum_(const reco::Candidate*, bool returnEt) const;
-  double getSum_(const reco::SuperCluster*, bool returnEt) const;
+  double getSum_(const reco::Candidate*, bool returnEt, const EcalPFRecHitThresholds* thresholds) const;
+  double getSum_(const reco::SuperCluster*, bool returnEt, const EcalPFRecHitThresholds* thresholds) const;
 
   double extRadius_;
   double intRadius_;

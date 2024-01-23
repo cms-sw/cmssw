@@ -328,8 +328,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   auto sensDets = sim::attachSD(
       m_sdMakers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
 
-  m_tls->sensTkDets.swap(sensDets.first);
-  m_tls->sensCaloDets.swap(sensDets.second);
+  m_tls->sensTkDets = sensDets.first;
+  m_tls->sensCaloDets = sensDets.second;
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: Sensitive Detectors are built in thread " << thisID << " found "
@@ -440,12 +440,13 @@ void RunManagerMTWorker::initializeUserActions() {
 
   // different stepping actions for Run2,3 and Phase2
   G4UserSteppingAction* userSteppingAction;
+  bool dd4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   if (m_isPhase2) {
-    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers, dd4hep);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   } else {
-    auto ptr = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    auto ptr = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers, dd4hep);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   }

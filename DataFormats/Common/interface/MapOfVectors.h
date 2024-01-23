@@ -128,12 +128,6 @@ namespace edm {
       m_data.swap(other.m_data);
     }
 
-    MapOfVectors& operator=(MapOfVectors const& rhs) {
-      MapOfVectors temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
-
   private:
     //for testing
     friend class ::TestMapOfVectors;

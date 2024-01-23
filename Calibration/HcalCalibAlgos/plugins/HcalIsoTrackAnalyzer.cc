@@ -1,19 +1,9 @@
 // system include files
-#include <atomic>
-#include <cmath>
-#include <memory>
 #include <string>
 #include <vector>
 
 // Root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TDirectory.h"
 #include "TTree.h"
-#include "TLorentzVector.h"
-#include "TInterpreter.h"
 
 #include "DataFormats/HcalCalibObjects/interface/HcalIsoTrkCalibVariables.h"
 #include "DataFormats/HcalCalibObjects/interface/HcalIsoTrkEventVariables.h"

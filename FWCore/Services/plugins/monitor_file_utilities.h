@@ -19,6 +19,10 @@ namespace edm::service::monitor_file_utilities {
 
   inline auto module_id(edm::ESModuleCallingContext const& mcc) { return mcc.componentDescription()->id_; }
 
+  inline auto module_callid(edm::ModuleCallingContext const& mcc) { return mcc.callID(); }
+
+  inline auto module_callid(edm::ESModuleCallingContext const& mcc) { return mcc.callID(); }
+
   template <typename T>
   std::enable_if_t<std::is_integral<T>::value> concatenate(std::ostream& os, T const t) {
     os << ' ' << t;

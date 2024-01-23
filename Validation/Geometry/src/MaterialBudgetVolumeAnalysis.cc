@@ -70,8 +70,20 @@ MaterialBudgetVolumeAnalysis::MaterialBudgetVolumeAnalysis(const edm::ParameterS
 
 void MaterialBudgetVolumeAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> names = {
-      "BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "MUON", "VCAL", "MGNT", "OQUA", "CALOEC"};
+  std::vector<std::string> names = {"BEAM",
+                                    "BEAM1",
+                                    "BEAM2",
+                                    "BEAM3",
+                                    "BEAM4",
+                                    "Tracker",
+                                    "ECAL",
+                                    "HCal",
+                                    "MUON",
+                                    "VCAL",
+                                    "MGNT",
+                                    "OQUA",
+                                    "CALOEC",
+                                    "HFNoseVol"};
   desc.add<std::vector<std::string> >("names", names);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "MaterialInformation"));
   desc.add<int>("nBinEta", 300);

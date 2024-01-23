@@ -48,9 +48,6 @@ public:
   /// Constructors
   explicit TTStubAssociator(const edm::ParameterSet& iConfig);
 
-  /// Destructor
-  ~TTStubAssociator() override;
-
 private:
   /// Data members
   std::vector<edm::InputTag> ttStubsInputTags_;
@@ -63,8 +60,6 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTrackerTopologyToken_;
 
   /// Mandatory methods
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 };  /// Close class
@@ -94,22 +89,10 @@ TTStubAssociator<T>::TTStubAssociator(const edm::ParameterSet& iConfig) {
 
   theTrackerGeometryToken_ = esConsumes();
   theTrackerTopologyToken_ = esConsumes();
-}
 
-/// Destructor
-template <typename T>
-TTStubAssociator<T>::~TTStubAssociator() {}
-
-/// Begin run
-template <typename T>
-void TTStubAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Print some information when loaded
   edm::LogInfo("TTStubAssociator< ") << templateNameFinder<T>() << " > loaded.";
 }
-
-/// End run
-template <typename T>
-void TTStubAssociator<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 /// Implement the producer
 template <>

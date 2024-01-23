@@ -10,10 +10,9 @@ process.MessageLogger.cerr.threshold = "DEBUG"
 process.MessageLogger.debugModules = ["Totem"]
 
 process.load('Configuration.EventContent.EventContent_cff')
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 #dummy = cms.untracked.FileInPath('RecoPPS/Local/data/run364983_ls0001_streamA_StorageManager.dat'),
 
@@ -29,16 +28,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # raw-to-digi conversion
-process.load('CalibPPS.ESProducers.totemT2DAQMapping_cff')
 process.load('EventFilter.CTPPSRawToDigi.totemT2Digis_cfi')
 process.totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
-process.totemDAQMappingESSourceXML.verbosity = 1
 process.totemT2Digis.RawUnpacking.verbosity = 1
 process.totemT2Digis.RawToDigi.verbosity = 3
 process.totemT2Digis.RawToDigi.useOlderT2TestFile = True
 process.totemT2Digis.RawToDigi.printUnknownFrameSummary = True
 process.totemT2Digis.RawToDigi.printErrorSummary = True
-process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
 
 # rechits production
 #process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')

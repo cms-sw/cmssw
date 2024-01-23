@@ -45,6 +45,9 @@ public:
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector(const Basic3DVector& p) : v(p.v) {}
 
+  /// Assignment operator
+  Basic3DVector& operator=(const Basic3DVector&) = default;
+
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector(const Basic3DVector<U>& p) : v(p.v) {}

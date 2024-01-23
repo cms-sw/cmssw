@@ -179,7 +179,6 @@ void TrackletEventProcessor::event(SLHCEvent& ev,
   globals_->event() = &ev;
 
   tracks_.clear();
-
   eventnum_++;
   bool first = (eventnum_ == 1);
 

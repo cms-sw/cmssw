@@ -2314,7 +2314,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
         wv.placeVolume(mfv1, 1);
 
       // Can not deal with reflections without closed geometry
-      det.manager().CloseGeometry();
+      det.manager().CloseGeometry("nv");
 
       det.endDocument();
     }

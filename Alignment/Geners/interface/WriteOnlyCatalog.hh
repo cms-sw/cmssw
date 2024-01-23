@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "Alignment/Geners/interface/AbsCatalog.hh"
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 
 namespace gs {
   class WriteOnlyCatalog : public AbsCatalog {
@@ -63,7 +63,7 @@ namespace gs {
     unsigned long long count_;
     unsigned long long smallestId_;
     unsigned long long largestId_;
-    CPP11_auto_ptr<const CatalogEntry> lastEntry_;
+    std::unique_ptr<const CatalogEntry> lastEntry_;
   };
 }  // namespace gs
 

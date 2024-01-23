@@ -60,12 +60,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   bool select(const reco::MuonCollection&);
 
   // ----------member data ---------------------------
-  unsigned int nRun_, nAll_, nGood_;
+  unsigned int nAll_, nGood_;
   const edm::InputTag labelBS_, labelVtx_;
   const edm::InputTag labelEB_, labelEE_, labelHBHE_, labelMuon_;
   const double pMuonMin_;
@@ -80,8 +78,7 @@ private:
 
 AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig,
                                            const alCaHBHEMuonProducer::Counters* count)
-    : nRun_(0),
-      nAll_(0),
+    : nAll_(0),
       nGood_(0),
       labelBS_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
       labelVtx_(iConfig.getParameter<edm::InputTag>("VertexLabel")),
@@ -233,15 +230,6 @@ void AlCaHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
   desc.add<double>("MinimumMuonP", 5.0);
   descriptions.add("alcaHBHEMuonProducer", desc);
-}
-
-void AlCaHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::LogVerbatim("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run();
-}
-
-void AlCaHBHEMuonProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  ++nRun_;
-  edm::LogVerbatim("HcalHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
 bool AlCaHBHEMuonProducer::select(const reco::MuonCollection& muons) {

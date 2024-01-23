@@ -33,7 +33,7 @@ namespace BSPrintUtils {
 class BeamSpotRcdPrinter : public edm::one::EDAnalyzer<> {
 public:
   explicit BeamSpotRcdPrinter(const edm::ParameterSet& iConfig);
-  ~BeamSpotRcdPrinter() override;
+  ~BeamSpotRcdPrinter() override = default;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   void endJob() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -48,6 +48,8 @@ private:
   unsigned long long m_endTime;
   // Specify output text file name. Leave empty if do not want to dump beamspots in a file.
   std::string m_output;
+  // decide if to print to screen the dump
+  bool m_verbose;
 };
 
 BeamSpotRcdPrinter::BeamSpotRcdPrinter(const edm::ParameterSet& iConfig)
@@ -56,12 +58,11 @@ BeamSpotRcdPrinter::BeamSpotRcdPrinter(const edm::ParameterSet& iConfig)
       m_tagName(iConfig.getParameter<std::string>("tagName")),
       m_startTime(iConfig.getParameter<unsigned long long>("startIOV")),
       m_endTime(iConfig.getParameter<unsigned long long>("endIOV")),
-      m_output(iConfig.getParameter<std::string>("output")) {
+      m_output(iConfig.getParameter<std::string>("output")),
+      m_verbose(iConfig.getParameter<bool>("verbose")) {
   m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
 }
-
-BeamSpotRcdPrinter::~BeamSpotRcdPrinter() {}
 
 void BeamSpotRcdPrinter::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   cond::Time_t startIov = m_startTime;
@@ -112,7 +113,7 @@ void BeamSpotRcdPrinter::analyze(const edm::Event& evt, const edm::EventSetup& e
   edm::LogInfo("BeamSpotRcdPrinter") << "[BeamSpotRcdPrinter::" << __func__ << "] "
                                      << "Read " << niov << " IOVs from tag " << m_tagName
                                      << " corresponding to the specified time interval.\n\n"
-                                     << ss.str();
+                                     << (m_verbose ? ss.str() : std::string{});
 
   condDbSession.transaction().commit();
 
@@ -130,7 +131,8 @@ void BeamSpotRcdPrinter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("tagName", "BeamSpotObjects_PCL_byLumi_v0_prompt");
   desc.add<unsigned long long>("startIOV", 1406859487478481);
   desc.add<unsigned long long>("endIOV", 1406876667347162);
-  desc.add<std::string>("output", "summary.txt");
+  desc.add<std::string>("output", "summary.txt")->setComment("ASCII file with the full tag dump information");
+  desc.add<bool>("verbose", true)->setComment("print to screen the dump of all the payloads");
   desc.add<std::string>("connect", "");
 
   edm::ParameterSetDescription descDBParameters;

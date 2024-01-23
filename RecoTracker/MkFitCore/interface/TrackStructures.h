@@ -224,6 +224,7 @@ namespace mkfit {
     }
 
     void addHitIdx(int hitIdx, int hitLyr, float chi2);
+    bool popOverlap();
 
     HoTNode& refLastHoTNode();              // for filling up overlap info
     const HoTNode& refLastHoTNode() const;  // for dump traversal
@@ -290,13 +291,9 @@ namespace mkfit {
           m_lastHitIdx_before_bkwsearch(o.m_lastHitIdx_before_bkwsearch),
           m_nInsideMinusOneHits_before_bkwsearch(o.m_nInsideMinusOneHits_before_bkwsearch),
           m_nTailMinusOneHits_before_bkwsearch(o.m_nTailMinusOneHits_before_bkwsearch),
-#ifdef DUMPHITWINDOW
-          m_seed_algo(o.m_seed_algo),
-          m_seed_label(o.m_seed_label),
-#endif
+          m_seed_origin_index(o.m_seed_origin_index),
           m_hots_size(o.m_hots_size),
-          m_hots(o.m_hots) {
-    }
+          m_hots(o.m_hots) {}
 
     // Required for std::swap().
     CombCandidate(CombCandidate&& o)
@@ -307,10 +304,7 @@ namespace mkfit {
           m_lastHitIdx_before_bkwsearch(o.m_lastHitIdx_before_bkwsearch),
           m_nInsideMinusOneHits_before_bkwsearch(o.m_nInsideMinusOneHits_before_bkwsearch),
           m_nTailMinusOneHits_before_bkwsearch(o.m_nTailMinusOneHits_before_bkwsearch),
-#ifdef DUMPHITWINDOW
-          m_seed_algo(o.m_seed_algo),
-          m_seed_label(o.m_seed_label),
-#endif
+          m_seed_origin_index(o.m_seed_origin_index),
           m_hots_size(o.m_hots_size),
           m_hots(std::move(o.m_hots)) {
       // This is not needed as we do EOCC::reset() after EOCCS::resize which
@@ -332,10 +326,7 @@ namespace mkfit {
       m_lastHitIdx_before_bkwsearch = o.m_lastHitIdx_before_bkwsearch;
       m_nInsideMinusOneHits_before_bkwsearch = o.m_nInsideMinusOneHits_before_bkwsearch;
       m_nTailMinusOneHits_before_bkwsearch = o.m_nTailMinusOneHits_before_bkwsearch;
-#ifdef DUMPHITWINDOW
-      m_seed_algo = o.m_seed_algo;
-      m_seed_label = o.m_seed_label;
-#endif
+      m_seed_origin_index = o.m_seed_origin_index;
       m_hots_size = o.m_hots_size;
       m_hots = std::move(o.m_hots);
 
@@ -378,7 +369,7 @@ namespace mkfit {
       m_nTailMinusOneHits_before_bkwsearch = -1;
     }
 
-    void importSeed(const Track& seed, const track_score_func& score_func, int region);
+    void importSeed(const Track& seed, int seed_idx, const track_score_func& score_func, int region);
 
     int addHit(const HitOnTrack& hot, float chi2, int prev_idx) {
       m_hots.push_back({hot, chi2, prev_idx});
@@ -412,10 +403,7 @@ namespace mkfit {
 
     int pickupLayer() const { return m_pickup_layer; }
 
-#ifdef DUMPHITWINDOW
-    int seed_algo() const { return m_seed_algo; }
-    int seed_label() const { return m_seed_label; }
-#endif
+    int seed_origin_index() const { return m_seed_origin_index; }
 
   private:
     trk_cand_vec_type m_trk_cands;
@@ -425,11 +413,7 @@ namespace mkfit {
     short int m_lastHitIdx_before_bkwsearch = -1;
     short int m_nInsideMinusOneHits_before_bkwsearch = -1;
     short int m_nTailMinusOneHits_before_bkwsearch = -1;
-
-#ifdef DUMPHITWINDOW
-    int m_seed_algo = 0;
-    int m_seed_label = 0;
-#endif
+    int m_seed_origin_index = -1;  // seed index in the passed-in seed vector
     int m_hots_size = 0;
     std::vector<HoTNode> m_hots;
   };
@@ -581,6 +565,25 @@ namespace mkfit {
     }
   }
 
+  inline bool TrackCand::popOverlap() {
+    auto popHitIdx = getLastHitIdx();
+    auto popHitLyr = getLastHitLyr();
+    auto popPrev = refLastHoTNode().m_prev_idx;
+    auto popChi2 = refLastHoTNode().m_chi2;
+    // sanity checks first, then just shift lastHitIdx_ to popPrev
+    if (lastHitIdx_ == 0 || popHitIdx < 0)
+      return false;
+    auto prevHitLyr = m_comb_candidate->hot(popPrev).layer;
+    auto prevHitIdx = m_comb_candidate->hot(popPrev).index;
+    if (popHitLyr != prevHitLyr || prevHitIdx < 0)
+      return false;
+    lastHitIdx_ = popPrev;
+
+    --nFoundHits_;
+    chi2_ -= popChi2;
+    --nOverlapHits_;
+    return true;
+  }
   //==============================================================================
 
   class EventOfCombCandidates {
@@ -623,10 +626,10 @@ namespace mkfit {
       m_n_seeds_inserted -= n_removed;
     }
 
-    void insertSeed(const Track& seed, const track_score_func& score_func, int region, int pos) {
+    void insertSeed(const Track& seed, int seed_idx, const track_score_func& score_func, int region, int pos) {
       assert(pos < m_size);
 
-      m_candidates[pos].importSeed(seed, score_func, region);
+      m_candidates[pos].importSeed(seed, seed_idx, score_func, region);
 
       ++m_n_seeds_inserted;
     }

@@ -18,7 +18,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/CStringBuf.hh"
 #include "Alignment/Geners/interface/ZlibHandle.hh"
 
@@ -76,8 +76,8 @@ namespace gs {
     std::vector<char> comprBuf_;
     std::vector<char> readBuf_;
     std::ostream *sink_;
-    CPP11_auto_ptr<ZlibInflateHandle> inflator_;
-    CPP11_auto_ptr<ZlibDeflateHandle> deflator_;
+    std::unique_ptr<ZlibInflateHandle> inflator_;
+    std::unique_ptr<ZlibDeflateHandle> deflator_;
   };
 }  // namespace gs
 
