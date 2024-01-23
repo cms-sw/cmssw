@@ -701,6 +701,12 @@ namespace cms::alpakatools {
           stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
           extent_{extent} {}
 
+    ALPAKA_FN_ACC inline independent_group_elements(TAcc const& acc, Idx first, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
+          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_ + first},
+          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
+          extent_{extent} {}
+
     class const_iterator;
     using iterator = const_iterator;
 

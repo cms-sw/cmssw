@@ -151,10 +151,15 @@ void go(bool useShared) {
     auto ntXBl __attribute__((unused)) = 1 == i % 4 ? 256 : 256;
 
     delta -= (std::chrono::high_resolution_clock::now() - start);
+    // The MaxSize is the max size we allow between offsets (i.e. biggest set to sort when using shared memory).
     constexpr int MaxSize = 256 * 32;
     if (useShared)
-      cms::cuda::launch(
-          radixSortMultiWrapper<U, NS>, {blocks, ntXBl, MaxSize * 2}, v_d.get(), ind_d.get(), off_d.get(), nullptr);
+      cms::cuda::launch(radixSortMultiWrapper<U, NS>,
+                        {blocks, ntXBl, MaxSize * 2 /* sizeof(uint16_t)  */},
+                        v_d.get(),
+                        ind_d.get(),
+                        off_d.get(),
+                        nullptr);
     else
       cms::cuda::launch(
           radixSortMultiWrapper2<U, NS>, {blocks, ntXBl}, v_d.get(), ind_d.get(), off_d.get(), ws_d.get());
