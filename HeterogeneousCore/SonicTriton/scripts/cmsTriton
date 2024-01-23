@@ -23,6 +23,7 @@ NPORTS=3
 IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
+EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -41,6 +42,7 @@ usage() {
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
 	$ECHO "-d          \t use Docker instead of Apptainer"
+	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g          \t use GPU instead of CPU"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
@@ -131,6 +133,11 @@ else
 	TMPDIR=$(readlink -f $TMPDIR)
 fi
 
+# update path
+if [ -n "$EXTRAPATH" ]; then
+	export PATH="${EXTRAPATH}:${PATH}"
+fi
+
 # find executables
 if [ -n "$USEDOCKER" ]; then
 	if [ -z "$DOCKER" ]; then
@@ -148,7 +155,6 @@ else
 		fi
 	fi
 fi
-
 
 SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
