@@ -1,1 +1,12 @@
-<test name="TestConfigDP" command="run_CfgTest.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_1.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_2.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_3.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_4.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_5.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_6.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_7.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_8.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_9.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_10.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_11.sh"/>
+<test name="TestConfigDP" command="run_CfgTest_12.sh"/>
