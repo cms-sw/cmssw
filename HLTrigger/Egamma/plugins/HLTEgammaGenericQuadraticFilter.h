@@ -37,6 +37,7 @@ private:
 
   bool lessThan_;  // the cut is "<" or ">" ?
   bool useEt_;     // use E or Et in relative isolation cuts
+  bool useAbs_;    // use the standard abs of the variable (before any rho corr)
   /*  Barrel quadratic threshold function:
       vali (<= or >=) thrRegularEB_ + (E or Et)*thrOverEEB_ + (E or Et)*(E or Et)*thrOverE2EB_
     Endcap quadratic threshold function:
