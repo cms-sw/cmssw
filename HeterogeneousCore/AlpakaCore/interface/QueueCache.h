@@ -9,6 +9,7 @@
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 namespace cms::alpakatools {
@@ -29,12 +30,12 @@ namespace cms::alpakatools {
 #endif
 
     using Device = alpaka::Dev<Queue>;
-    using Platform = alpaka::Pltf<Device>;
+    using Platform = alpaka::Platform<Device>;
 
   public:
     // QueueCache should be constructed by the first call to
     // getQueueCache() only if we have any devices present
-    QueueCache() : cache_(alpaka::getDevCount<Platform>()) {}
+    QueueCache() : cache_(devices<Platform>().size()) {}
 
     // Gets a (cached) queue for the current device. The queue
     // will be returned to the cache by the shared_ptr destructor.
@@ -52,7 +53,7 @@ namespace cms::alpakatools {
       // QueueCache lives through multiple tests (and go through
       // multiple shutdowns of the framework).
       cache_.clear();
-      cache_.resize(alpaka::getDevCount<Platform>());
+      cache_.resize(devices<Platform>().size());
     }
 
     std::vector<edm::ReusableObjectHolder<Queue>> cache_;

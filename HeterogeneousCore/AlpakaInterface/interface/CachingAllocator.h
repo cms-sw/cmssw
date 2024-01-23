@@ -15,6 +15,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
@@ -337,7 +338,8 @@ namespace cms::alpakatools {
         return alpaka::allocBuf<std::byte, size_t>(device_, bytes);
       } else if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         // allocate pinned host memory accessible by the queue's platform
-        return alpaka::allocMappedBuf<alpaka::Pltf<alpaka::Dev<Queue>>, std::byte, size_t>(device_, bytes);
+        using Platform = alpaka::Platform<alpaka::Dev<Queue>>;
+        return alpaka::allocMappedBuf<Platform, std::byte, size_t>(device_, platform<Platform>(), bytes);
       } else {
         // unsupported combination
         static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,
