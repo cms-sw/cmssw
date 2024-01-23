@@ -168,6 +168,9 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
 steps['muPOGNANO_data13.0']=merge([{'--customise' : 'PhysicsTools/NanoAOD/custom_muon_cff:PrepMuonCustomNanoAOD', '-n' : '1000'},
                                      steps['NANO_data13.0']])
 
+steps['muPOGNANO_data13.0']=merge([{'--customise' : 'PhysicsTools/NanoAOD/custom_muon_cff:PrepMuonCustomNanoAOD', '-n' : '1000'},
+                                     steps['NANO_data13.0']])
+
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
                                                ## dataset below to be replaced with a 13.2 relval sample when available
