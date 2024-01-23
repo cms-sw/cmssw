@@ -160,6 +160,12 @@ SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
 COMPAT_SCRIPT=/etc/shinit_v2
 
+THREADCONTROL=""
+# do not apply thread control settings if GPU use is requested
+if [ "$INSTANCES" -gt 0 ] && [ -z "$GPU" ]; then
+	THREADCONTROL=true
+fi
+
 compute_ports(){
 	# compute derived port numbers
 	export HTTPPORT=$BASEPORT
@@ -341,7 +347,7 @@ wait_server(){
 list_models(){
 	# make list of model repositories
 	LOCALMODELREPO="local_model_repo"
-	if [ "$INSTANCES" -gt 0 ]; then
+	if [ -n "$THREADCONTROL" ]; then
 		if [ -d "$TMPDIR/$LOCALMODELREPO" ]; then
 			#Want to start with a fresh copy of model files in case this directory already exists with local edits
 			rm -rf $TMPDIR/$LOCALMODELREPO
@@ -359,7 +365,7 @@ list_models(){
 		if [ -f "$MODEL" ]; then
 			MODEL="$(dirname "$MODEL")"
 		fi
-		if [ "$INSTANCES" -gt 0 ]; then
+		if [ -n "$THREADCONTROL" ]; then
 			$DRYRUN cmsTritonConfigTool threadcontrol -c ${MODEL}/config.pbtxt --copy $TMPDIR/$LOCALMODELREPO --nThreads $INSTANCES
 			TOOL_EXIT=$?
 			if [ "$TOOL_EXIT" -ne 0 ]; then
@@ -370,7 +376,7 @@ list_models(){
 			REPOS+=("$(dirname "$MODEL")")
 		fi
 	done
-	if [ "$INSTANCES" -gt 0 ]; then
+	if [ -n "$THREADCONTROL" ]; then
 		REPOS=$TMPDIR/$LOCALMODELREPO
 	else
 		for ((r=0; r < ${#REPOS[@]}; r++)); do
@@ -570,7 +576,7 @@ elif [ "$OP" == start ]; then
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
 		make_tmp
 		#If we plan on editing model configs, must repull files into /tmp/local_model_repo, which is deleted upon retry
-		if [ "$counter" -eq 0 ] || [ "$INSTANCES" -gt 0 ]; then list_models; fi
+		if [ "$counter" -eq 0 ] || [ -n "$THREADCONTROL" ]; then list_models; fi
 		check_drivers
 		DRIVER_EXIT=$?
 		if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
