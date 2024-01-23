@@ -33,6 +33,8 @@ autoNANO = {
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                   'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
+    # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
+    'MUPOG' : {'customize' : 'PrepMuonCustomNanoAOD'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'}
