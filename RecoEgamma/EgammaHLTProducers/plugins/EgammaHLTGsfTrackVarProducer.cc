@@ -58,11 +58,9 @@ public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  float fillAbsAbleVar(float& existVal, const float newVal) const {
+  void fillAbsAbleVar(float& existVal, const float newVal) const {
     if (std::abs(newVal) < existVal) {
-      return produceAbsValues_ ? std::abs(newVal) : newVal;
-    } else {
-      return existVal;
+      existVal = produceAbsValues_ ? std::abs(newVal) : newVal;
     }
   }
 
