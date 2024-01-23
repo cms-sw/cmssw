@@ -24,23 +24,23 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   :    '131X_mcRun2_pA_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    :    '133X_dataRun2_v2',
+    'run2_data'                    :    '140X_dataRun2_v1',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'             :    '133X_dataRun2_HEfail_v2',
+    'run2_data_HEfail'             :    '140X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi'      :    '133X_dataRun2_PromptLike_HI_v2',
+    'run2_data_promptlike_hi'      :    '140X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'              :    '133X_dataRun2_HLT_relval_v2',
-    # GlobalTag for Run3 HLT: identical to the online GT (132X_dataRun3_HLT_v2) but with snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_hlt'                     :    '133X_dataRun3_HLT_frozen_v2',
-    # GlobalTag for Run3 data relvals (express GT) - 132X_dataRun3_Express_v4 with Ecal CC timing tags and snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_data_express'            :    '133X_dataRun3_Express_frozen_v2',
-    # GlobalTag for Run3 data relvals (prompt GT) - 132X_dataRun3_Prompt_v4 with Ecal CC timing tags and snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_data_prompt'             :    '133X_dataRun3_Prompt_frozen_v2',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2023-10-19 12:00:00 (UTC)
-    'run3_data'                    :    '133X_dataRun3_v4',
-    # GlobalTag for Run3 offline data reprocessing with Prompt GT, currenlty for 2022FG - snapshot at 2023-10-19 12:00:00 (UTC)
-    'run3_data_PromptAnalysis'     :    '133X_dataRun3_PromptAnalysis_v3',
+    'run2_hlt_relval'              :    '140X_dataRun2_HLT_relval_v1',
+    # GlobalTag for Run3 HLT: identical to the online GT - 140X_dataRun3_HLT_v1 but with snapshot at 2024-01-20 12:00:00 (UTC)
+    'run3_hlt'                     :    '140X_dataRun3_HLT_frozen_v1',
+    # GlobalTag for Run3 data relvals (express GT) - 140X_dataRun3_Express_v1 but snapshot at 2024-01-20 12:00:00 (UTC)
+    'run3_data_express'            :    '140X_dataRun3_Express_frozen_v1',
+    # GlobalTag for Run3 data relvals (prompt GT) - 140X_dataRun3_Prompt_v1 but snapshot at 2024-01-20 12:00:00 (UTC)
+    'run3_data_prompt'             :    '140X_dataRun3_Prompt_frozen_v1',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2024-01-19 05:46:14 (UTC)
+    'run3_data'                    :    '140X_dataRun3_v1',
+    # GlobalTag for Run3 offline data reprocessing with Prompt GT, currenlty for 2022FG - snapshot at 2024-01-19 05:46:14 (UTC)
+    'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           :    '131X_mc2017_design_v3',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
@@ -64,33 +64,41 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
     'phase1_2018_cosmics_peak'     :    '131X_upgrade2018cosmics_realistic_peak_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2022
-    'phase1_2022_design'           :    '133X_mcRun3_2022_design_v3',
+    'phase1_2022_design'           :    '140X_mcRun3_2022_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2022
-    'phase1_2022_realistic'        :    '133X_mcRun3_2022_realistic_v3',
+    'phase1_2022_realistic'        :    '140X_mcRun3_2022_realistic_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2022 post-EE+ leak
-    'phase1_2022_realistic_postEE' :    '133X_mcRun3_2022_realistic_postEE_v4',
-    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2022,  Strip tracker in DECO mode
-    'phase1_2022_cosmics'          :    '133X_mcRun3_2022cosmics_realistic_deco_v3',
+    'phase1_2022_realistic_postEE' :    '140X_mcRun3_2022_realistic_postEE_v1',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2022, Strip tracker in DECO mode
+    'phase1_2022_cosmics'          :    '140X_mcRun3_2022cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2022, Strip tracker in DECO mode
-    'phase1_2022_cosmics_design'   :    '133X_mcRun3_2022cosmics_design_deco_v3',
+    'phase1_2022_cosmics_design'   :    '140X_mcRun3_2022cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2022 detector for Heavy Ion
-    'phase1_2022_realistic_hi'     :    '133X_mcRun3_2022_realistic_HI_v3',
+    'phase1_2022_realistic_hi'     :    '140X_mcRun3_2022_realistic_HI_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2023
-    'phase1_2023_design'           :    '133X_mcRun3_2023_design_v3',
+    'phase1_2023_design'           :    '140X_mcRun3_2023_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'        :    '133X_mcRun3_2023_realistic_v3',
-    # GlobalTag for MC production with realistic conditions for Phase1 post BPix issue 2023
-    'phase1_2023_realistic_postBPix'  : '133X_mcRun3_2023_realistic_postBPix_v3',
-    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2023,  Strip tracker in DECO mode
-    'phase1_2023_cosmics'          :    '133X_mcRun3_2023cosmics_realistic_deco_v3',
+    'phase1_2023_realistic'        :    '140X_mcRun3_2023_realistic_v1',
+    # GlobalTag for MC production with realistic conditions for Phase1 postBPix issue 2023
+    'phase1_2023_realistic_postBPix'  : '140X_mcRun3_2023_realistic_postBPix_v1',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 preBPix 2023, Strip tracker in DECO mode
+    'phase1_2023_cosmics'          :    '140X_mcRun3_2023cosmics_realistic_deco_v1',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 postBPix 2023, Strip tracker in DECO mode
+    'phase1_2023_cosmics_postBPix' :    '140X_mcRun3_2023cosmics_realistic_postBPix_deco_v1',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2023, Strip tracker in DECO mode
-    'phase1_2023_cosmics_design'   :    '133X_mcRun3_2023cosmics_design_deco_v3',
+    'phase1_2023_cosmics_design'   :    '140X_mcRun3_2023cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2023 detector for Heavy Ion
-    'phase1_2023_realistic_hi'     :    '133X_mcRun3_2023_realistic_HI_v7',
+    'phase1_2023_realistic_hi'     :    '140X_mcRun3_2023_realistic_HI_v1',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2024
+    'phase1_2024_design'           :    '140X_mcRun3_2024_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        :    '133X_mcRun3_2024_realistic_v5',
+    'phase1_2024_realistic'        :    '140X_mcRun3_2024_realistic_v1',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
+    'phase1_2024_cosmics'          :    '140X_mcRun3_2024cosmics_realistic_deco_v1',
+    # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
+    'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '133X_mcRun4_realistic_v1'
+    'phase2_realistic'             :    '140X_mcRun4_realistic_v1'
 }
 
 aliases = {
