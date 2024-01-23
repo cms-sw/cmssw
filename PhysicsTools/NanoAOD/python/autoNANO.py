@@ -28,6 +28,8 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
+    # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
+    'MUPOG' : {'customize' : 'PrepMuonCustomNanoAOD'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS', 
                 'customize': '@PHYS+@L1'}
