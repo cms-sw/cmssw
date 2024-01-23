@@ -19,6 +19,14 @@ namespace l1t {
         valid, pt, eta, phi, mass, charge, ditrack_minmass, ditrack_maxmass, ditrack_minz0, ditrack_maxz0, unassigned);
   }
 
+  template<class packVarType>
+  inline void TkTripletWord::packIntoWord(unsigned int& currentOffset, unsigned int wordChunkSize, packVarType& packVar){
+      for (unsigned int b = currentOffset; b < (currentOffset + wordChunkSize); ++b)  {
+         tkTripletWord_.set(b, packVar[b-currentOffset]);
+      }
+      currentOffset += wordChunkSize;
+  }
+
   void TkTripletWord::setTkTripletWord(valid_t valid,
                                        pt_t pt,
                                        glbeta_t eta,
@@ -32,49 +40,16 @@ namespace l1t {
                                        unassigned_t unassigned) {
     // pack the TkTriplet word
     unsigned int offset = 0;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kValidSize); b++) {
-      tkTripletWord_.set(b, valid[b - offset]);
-    }
-    offset += TkTripletBitWidths::kValidSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kPtSize); b++) {
-      tkTripletWord_.set(b, pt[b - offset]);
-    }
-    offset += TkTripletBitWidths::kPtSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kGlbPhiSize); b++) {
-      tkTripletWord_.set(b, phi[b - offset]);
-    }
-    offset += TkTripletBitWidths::kGlbPhiSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kGlbEtaSize); b++) {
-      tkTripletWord_.set(b, eta[b - offset]);
-    }
-    offset += TkTripletBitWidths::kGlbEtaSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kMassSize); b++) {
-      tkTripletWord_.set(b, mass[b - offset]);
-    }
-    offset += TkTripletBitWidths::kMassSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kChargeSize); b++) {
-      tkTripletWord_.set(b, charge[b - offset]);
-    }
-    offset += TkTripletBitWidths::kChargeSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMinMassSize); b++) {
-      tkTripletWord_.set(b, ditrack_minmass[b - offset]);
-    }
-    offset += TkTripletBitWidths::kDiTrackMinMassSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMaxMassSize); b++) {
-      tkTripletWord_.set(b, ditrack_maxmass[b - offset]);
-    }
-    offset += TkTripletBitWidths::kDiTrackMaxMassSize;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMinZ0Size); b++) {
-      tkTripletWord_.set(b, ditrack_minz0[b - offset]);
-    }
-    offset += TkTripletBitWidths::kDiTrackMinZ0Size;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kDiTrackMaxZ0Size); b++) {
-      tkTripletWord_.set(b, ditrack_maxz0[b - offset]);
-    }
-    offset += TkTripletBitWidths::kDiTrackMaxZ0Size;
-    for (unsigned int b = offset; b < (offset + TkTripletBitWidths::kUnassignedSize); b++) {
-      tkTripletWord_.set(b, unassigned[b - offset]);
-    }
-  }
+    packIntoWord(offset, TkTripletBitWidths::kValidSize, valid);
+    packIntoWord(offset, TkTripletBitWidths::kPtSize, pt);
+    packIntoWord(offset, TkTripletBitWidths::kGlbPhiSize, phi);
+    packIntoWord(offset, TkTripletBitWidths::kGlbEtaSize, eta);
+    packIntoWord(offset, TkTripletBitWidths::kMassSize, mass);
+    packIntoWord(offset, TkTripletBitWidths::kChargeSize, charge);
+    packIntoWord(offset, TkTripletBitWidths::kDiTrackMinMassSize, ditrack_minmass);
+    packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxMassSize, ditrack_maxmass);
+    packIntoWord(offset, TkTripletBitWidths::kDiTrackMinZ0Size, ditrack_minz0);
+    packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxZ0Size, ditrack_maxz0);
+}   
 
 }  //namespace l1t
