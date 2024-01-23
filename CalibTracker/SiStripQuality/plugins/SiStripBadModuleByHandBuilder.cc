@@ -10,7 +10,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <ext/hash_map>
 
 class SiStripBadModuleByHandBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:

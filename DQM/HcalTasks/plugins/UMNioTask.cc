@@ -60,7 +60,7 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
 }
 
 int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
-  constants::OrbitGapType orbitGapType;
+  constants::OrbitGapType orbitGapType = tNull;
   if (eventType == constants::EVENTTYPE_PHYSICS) {
     orbitGapType = tPhysics;
   } else if (eventType == constants::EVENTTYPE_PEDESTAL) {
