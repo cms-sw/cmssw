@@ -50,6 +50,8 @@ LutXml::Config::_Config() {
   targetfirmware = "default_revision";
   generalizedindex = -1;
   weight = -1;
+  // Default to keeping veto disabled
+  codedvetothreshold = 0;
 }
 
 LutXml::LutXml() : XMLDOMBlock("CFGBrickSet", 1) { init(); }
@@ -113,6 +115,18 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
     addParameter("SLB", "int", _config.fiber);
     addParameter("SLBCHAN", "int", _config.fiberchan);
     addParameter("WEIGHT", "int", _config.weight);
+    // Special coded veto threshold value of zero disables vetoing in PFA1'
+    if (_config.codedvetothreshold > 0) {
+      // A valid coded value here is in the range (1, 2048) inclusive
+      if (_config.codedvetothreshold <= 2048) {
+        // The coded value of 2048 means to do vetoing with no threshold
+        int actualvetothreshold = _config.codedvetothreshold == 2048 ? 0 : _config.codedvetothreshold;
+        addParameter("PREFIRE_VETO_THRESHOLD", "int", actualvetothreshold);
+      } else {
+        edm::LogWarning("LutXml") << "Positive veto threshold of " << _config.codedvetothreshold
+                                  << " is not in range (1, 2048) ! Vetoing will not be done in PFA1' !";
+      }
+    }
     addData(to_string(_config.lut.size()), "hex", _config.lut);
   } else if (_config.lut_type == 5) {  // channel masks
     addParameter("MASK_TYPE", "string", "TRIGGERCHANMASK");

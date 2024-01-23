@@ -48,6 +48,43 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
     FG_HF_thresholds = cms.vuint32(17, 255), ## thresholds for setting fine grain bit
     ZS_threshold = cms.uint32(1),  ## threshold for setting TP zero suppression
+
+    # To be used when overriding the CondDB, default is with vetoing off ("coded" threshold = 0)
+    # To run PFA1' + vetoing with no threshold, use 2048
+    # All other values (1, 2047) are interpreted literally as the PFA1' veto threshold 
+    codedVetoThresholds = cms.PSet(
+        ieta1  = cms.int32(0),
+        ieta2  = cms.int32(0),
+        ieta3  = cms.int32(0),
+        ieta4  = cms.int32(0),
+        ieta5  = cms.int32(0),
+        ieta6  = cms.int32(0),
+        ieta7  = cms.int32(0),
+        ieta8  = cms.int32(0),
+        ieta9  = cms.int32(0),
+        ieta10 = cms.int32(0),
+        ieta11 = cms.int32(0),
+        ieta12 = cms.int32(0),
+        ieta13 = cms.int32(0),
+        ieta14 = cms.int32(0),
+        ieta15 = cms.int32(0),
+        ieta16 = cms.int32(0),
+        ieta17 = cms.int32(0),
+        ieta18 = cms.int32(0),
+        ieta19 = cms.int32(0),
+        ieta20 = cms.int32(0),
+        ieta21 = cms.int32(0),
+        ieta22 = cms.int32(0),
+        ieta23 = cms.int32(0),
+        ieta24 = cms.int32(0),
+        ieta25 = cms.int32(0),
+        ieta26 = cms.int32(0),
+        ieta27 = cms.int32(0),
+        ieta28 = cms.int32(0)
+    ),
+
+    overrideDBvetoThresholdsHB = cms.bool(False),
+    overrideDBvetoThresholdsHE = cms.bool(False),
     numberOfSamples = cms.int32(4),
     numberOfPresamples = cms.int32(2),
     numberOfSamplesHF = cms.int32(4),
