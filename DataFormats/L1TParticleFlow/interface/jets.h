@@ -37,8 +37,8 @@ namespace l1ct {
     float floatPt() const { return Scales::floatPt(hwPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
-    float floatBtagScore() const {return Scales::floatBtagScore(hwBtagScore);}
-    float floatZ0() const {return Scales::floatZ0(hwZ0); }
+    float floatBtagScore() const { return Scales::floatBtagScore(hwBtagScore); }
+    float floatZ0() const { return Scales::floatZ0(hwZ0); }
 
     static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width;
     inline ap_uint<BITWIDTH> pack_ap() const {
