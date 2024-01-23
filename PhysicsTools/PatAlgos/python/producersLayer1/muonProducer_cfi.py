@@ -123,6 +123,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     computeSoftMuonMVA = cms.bool(False),
     softMvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
+    softMvaRun3Model = cms.string("RecoMuon/MuonIdentification/data/Run2022-20231030-1731-Event0"),
 
     # MC Info
     muonSimInfo = cms.InputTag("muonSimClassifier"),                 
