@@ -59,7 +59,7 @@ public:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void fillAbsAbleVar(float& existVal, const float newVal) const {
-    if (std::abs(newVal) < existVal) {
+    if (std::abs(newVal) < std::abs(existVal)) {
       existVal = produceAbsValues_ ? std::abs(newVal) : newVal;
     }
   }
