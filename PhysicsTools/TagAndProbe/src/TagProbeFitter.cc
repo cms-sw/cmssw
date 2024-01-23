@@ -222,10 +222,10 @@ string TagProbeFitter::calculateEfficiency(string dirName,
   if (not split_mode) {
     data = new RooDataSet("data",
                           "data",
-                          inputTree,
                           dataVars,
-                          /*selExpr=*/"",
-                          /*wgtVarName=*/(weightVar.empty() ? nullptr : weightVar.c_str()));
+                          Import(*inputTree),
+                          /*selExpr=*/Cut(""),
+                          /*wgtVarName=*/WeightVar(weightVar.empty() ? nullptr : weightVar.c_str()));
 
     // Now add all expressions that are computed dynamically
     for (vector<pair<pair<string, string>, pair<string, vector<string> > > >::const_iterator
@@ -355,7 +355,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
       //create the dataset
       data_bin = (RooDataSet*)data->reduce(Cut(TString::Format("allCats==%d", iCat)));
     } else {
-      data_bin = new RooDataSet("data", "data", dataVars, (weightVar.empty() ? nullptr : weightVar.c_str()));
+      data_bin = new RooDataSet("data", "data", dataVars, WeightVar(weightVar.empty() ? nullptr : weightVar.c_str()));
 
       TDirectory* tmp = gDirectory;
       gROOT->cd();
