@@ -50,11 +50,11 @@ namespace cms::alpakatools {
       const auto warpSize = alpaka::warp::getSize(acc);
       int32_t const blockDimension(alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u]);
       int32_t const blockThreadIdx(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-      ALPAKA_ASSERT_OFFLOAD(ws);
-      ALPAKA_ASSERT_OFFLOAD(size <= warpSize * warpSize);
-      ALPAKA_ASSERT_OFFLOAD(0 == blockDimension % warpSize);
+      ALPAKA_ASSERT_ACC(ws);
+      ALPAKA_ASSERT_ACC(size <= warpSize * warpSize);
+      ALPAKA_ASSERT_ACC(0 == blockDimension % warpSize);
       auto first = blockThreadIdx;
-      ALPAKA_ASSERT_OFFLOAD(isPowerOf2(warpSize));
+      ALPAKA_ASSERT_ACC(isPowerOf2(warpSize));
       auto laneId = blockThreadIdx & (warpSize - 1);
       auto warpUpRoundedSize = (size + warpSize - 1) / warpSize * warpSize;
 
@@ -64,7 +64,7 @@ namespace cms::alpakatools {
         if (i < size) {
           // Skipped in warp padding threads.
           auto warpId = i / warpSize;
-          ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
+          ALPAKA_ASSERT_ACC(warpId < warpSize);
           if ((warpSize - 1) == laneId)
             ws[warpId] = co[i];
         }
@@ -97,9 +97,9 @@ namespace cms::alpakatools {
       const auto warpSize = alpaka::warp::getSize(acc);
       int32_t const blockDimension(alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u]);
       int32_t const blockThreadIdx(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-      ALPAKA_ASSERT_OFFLOAD(ws);
-      ALPAKA_ASSERT_OFFLOAD(size <= warpSize * warpSize);
-      ALPAKA_ASSERT_OFFLOAD(0 == blockDimension % warpSize);
+      ALPAKA_ASSERT_ACC(ws);
+      ALPAKA_ASSERT_ACC(size <= warpSize * warpSize);
+      ALPAKA_ASSERT_ACC(0 == blockDimension % warpSize);
       auto first = blockThreadIdx;
       auto laneId = blockThreadIdx & (warpSize - 1);
       auto warpUpRoundedSize = (size + warpSize - 1) / warpSize * warpSize;
@@ -110,7 +110,7 @@ namespace cms::alpakatools {
         if (i < size) {
           // Skipped in warp padding threads.
           auto warpId = i / warpSize;
-          ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
+          ALPAKA_ASSERT_ACC(warpId < warpSize);
           if ((warpSize - 1) == laneId)
             ws[warpId] = c[i];
         }
@@ -144,14 +144,14 @@ namespace cms::alpakatools {
       if constexpr (!requires_single_thread_per_block_v<TAcc>) {
         ws = alpaka::getDynSharedMem<T>(acc);
       }
-      ALPAKA_ASSERT_OFFLOAD(warpSize == static_cast<std::size_t>(alpaka::warp::getSize(acc)));
+      ALPAKA_ASSERT_ACC(warpSize == static_cast<std::size_t>(alpaka::warp::getSize(acc)));
       [[maybe_unused]] const auto elementsPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[0u];
       const auto elementsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
       const auto threadsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
       const auto blocksPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       const auto blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
-      ALPAKA_ASSERT_OFFLOAD(elementsPerGrid >= size);
+      ALPAKA_ASSERT_ACC(elementsPerGrid >= size);
       // first each block does a scan
       [[maybe_unused]] int off = elementsPerBlock * blockIdx;
       if (size - off > 0) {
@@ -172,7 +172,7 @@ namespace cms::alpakatools {
       if (!isLastBlockDone)
         return;
 
-      ALPAKA_ASSERT_OFFLOAD(int(blocksPerGrid) == *pc);
+      ALPAKA_ASSERT_ACC(int(blocksPerGrid) == *pc);
 
       // good each block has done its work and now we are left in last block
 

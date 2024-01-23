@@ -42,15 +42,15 @@ namespace cms::alpakatools {
     constexpr auto capacity() const { return content.capacity(); }
 
     ALPAKA_FN_HOST_ACC void initStorage(View view) {
-      ALPAKA_ASSERT_OFFLOAD(view.assoc == this);
+      ALPAKA_ASSERT_ACC(view.assoc == this);
       if constexpr (ctCapacity() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.contentSize > 0);
+        ALPAKA_ASSERT_ACC(view.contentStorage);
+        ALPAKA_ASSERT_ACC(view.contentSize > 0);
         content.init(view.contentStorage, view.contentSize);
       }
       if constexpr (ctNOnes() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+        ALPAKA_ASSERT_ACC(view.offStorage);
+        ALPAKA_ASSERT_ACC(view.offSize > 0);
         off.init(view.offStorage, view.offSize);
       }
     }
@@ -80,15 +80,15 @@ namespace cms::alpakatools {
 
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, I b) {
-      ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(nOnes()));
+      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
       atomicIncrement(acc, off[b]);
     }
 
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, I b, index_type j) {
-      ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(nOnes()));
+      ALPAKA_ASSERT_ACC(b < static_cast<uint32_t>(nOnes()));
       auto w = atomicDecrement(acc, off[b]);
-      ALPAKA_ASSERT_OFFLOAD(w > 0);
+      ALPAKA_ASSERT_ACC(w > 0);
       content[w - 1] = j;
     }
 
@@ -96,8 +96,8 @@ namespace cms::alpakatools {
     struct zeroAndInit {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, View view) const {
-        ALPAKA_ASSERT_OFFLOAD((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-        ALPAKA_ASSERT_OFFLOAD((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
+        ALPAKA_ASSERT_ACC((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
+        ALPAKA_ASSERT_ACC((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
         auto h = view.assoc;
         if (cms::alpakatools::once_per_block(acc)) {
           h->psws = 0;
@@ -119,12 +119,12 @@ namespace cms::alpakatools {
     template <typename TAcc, typename TQueue>
     ALPAKA_FN_INLINE static void launchZero(View view, TQueue &queue) {
       if constexpr (ctCapacity() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.contentSize > 0);
+        ALPAKA_ASSERT_ACC(view.contentStorage);
+        ALPAKA_ASSERT_ACC(view.contentSize > 0);
       }
       if constexpr (ctNOnes() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+        ALPAKA_ASSERT_ACC(view.offStorage);
+        ALPAKA_ASSERT_ACC(view.offSize > 0);
       }
       if constexpr (!requires_single_thread_per_block_v<TAcc>) {
         auto nthreads = 1024;
@@ -133,7 +133,7 @@ namespace cms::alpakatools {
         alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
       } else {
         auto h = view.assoc;
-        ALPAKA_ASSERT_OFFLOAD(h);
+        ALPAKA_ASSERT_ACC(h);
         h->initStorage(view);
         h->zero();
         h->psws = 0;
@@ -213,9 +213,9 @@ namespace cms::alpakatools {
 
     template <typename TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize(TAcc &acc, Counter *ws = nullptr) {
-      ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == 0);
+      ALPAKA_ASSERT_ACC(this->off[this->totOnes() - 1] == 0);
       blockPrefixScan(acc, this->off.data(), this->totOnes(), ws);
-      ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == this->off[this->totOnes() - 2]);
+      ALPAKA_ASSERT_ACC(this->off[this->totOnes() - 1] == this->off[this->totOnes() - 2]);
     }
 
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize() {
@@ -234,17 +234,17 @@ namespace cms::alpakatools {
     ALPAKA_FN_INLINE static void launchFinalize(View view, TQueue &queue) {
       // View stores a base pointer, we need to upcast back...
       auto h = static_cast<OneToManyAssocRandomAccess *>(view.assoc);
-      ALPAKA_ASSERT_OFFLOAD(h);
+      ALPAKA_ASSERT_ACC(h);
       if constexpr (!requires_single_thread_per_block_v<TAcc>) {
         Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
         auto nOnes = OneToManyAssocRandomAccess::ctNOnes();
         if constexpr (OneToManyAssocRandomAccess::ctNOnes() < 0) {
-          ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-          ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+          ALPAKA_ASSERT_ACC(view.offStorage);
+          ALPAKA_ASSERT_ACC(view.offSize > 0);
           nOnes = view.offSize;
           poff = view.offStorage;
         }
-        ALPAKA_ASSERT_OFFLOAD(nOnes > 0);
+        ALPAKA_ASSERT_ACC(nOnes > 0);
         int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
         auto nthreads = 1024;
         auto nblocks = (nOnes + nthreads - 1) / nthreads;

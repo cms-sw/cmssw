@@ -38,12 +38,12 @@ void checkContents(Hist* h,
 #ifndef NDEBUG
       [[maybe_unused]] auto bk = h->bin(v[k]);
 #endif
-      ALPAKA_ASSERT_OFFLOAD(bk == i);
-      ALPAKA_ASSERT_OFFLOAD(k < offsets[j + 1]);
+      ALPAKA_ASSERT_ACC(bk == i);
+      ALPAKA_ASSERT_ACC(k < offsets[j + 1]);
       auto kl = h->bin(v[k] - window);
       auto kh = h->bin(v[k] + window);
-      ALPAKA_ASSERT_OFFLOAD(kl != i);
-      ALPAKA_ASSERT_OFFLOAD(kh != i);
+      ALPAKA_ASSERT_ACC(kl != i);
+      ALPAKA_ASSERT_ACC(kh != i);
       // std::cout << kl << ' ' << kh << std::endl;
 
       auto me = v[k];
@@ -81,7 +81,7 @@ void checkContents(Hist* h,
         std::cout << "what? " << j << ' ' << i << ' ' << int(me) << '/' << (int)T(me - window) << '/'
                   << (int)T(me + window) << ": " << kl << '/' << kh << ' ' << khh << ' ' << tot << '/' << nm
                   << std::endl;
-      ALPAKA_ASSERT_OFFLOAD(!l);
+      ALPAKA_ASSERT_ACC(!l);
     }
   }
   int status;
@@ -133,7 +133,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
     offsets[0] = 0;
     for (uint32_t j = 1; j < nParts + 1; ++j) {
       offsets[j] = offsets[j - 1] + partSize - 3 * j;
-      ALPAKA_ASSERT_OFFLOAD(offsets[j] <= N);
+      ALPAKA_ASSERT_ACC(offsets[j] <= N);
     }
 
     if (it == 1) {  // special cases...
@@ -210,14 +210,14 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
     //   std::cout << offsets[i] <<" - "<< h->size() << std::endl;
     // }
 
-    ALPAKA_ASSERT_OFFLOAD(0 == h->off[0]);
-    ALPAKA_ASSERT_OFFLOAD(offsets[10] == h->size());
-    ALPAKA_ASSERT_OFFLOAD(0 == hr->off[0]);
-    ALPAKA_ASSERT_OFFLOAD(offsets[10] == hr->size());
+    ALPAKA_ASSERT_ACC(0 == h->off[0]);
+    ALPAKA_ASSERT_ACC(offsets[10] == h->size());
+    ALPAKA_ASSERT_ACC(0 == hr->off[0]);
+    ALPAKA_ASSERT_ACC(offsets[10] == hr->size());
 
     auto verify = [&](uint32_t i, uint32_t k, uint32_t t1, uint32_t t2) {
-      ALPAKA_ASSERT_OFFLOAD(t1 < N);
-      ALPAKA_ASSERT_OFFLOAD(t2 < N);
+      ALPAKA_ASSERT_ACC(t1 < N);
+      ALPAKA_ASSERT_ACC(t2 < N);
       if (T(v[t1] - v[t2]) <= 0)
         std::cout << "for " << i << ':' << v[k] << " failed " << v[t1] << ' ' << v[t2] << std::endl;
     };
