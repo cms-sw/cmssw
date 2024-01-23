@@ -444,12 +444,6 @@ namespace p2eg {
       fb = 0;
     };
 
-    // copy constructor
-    towerHCAL(const towerHCAL& other) {
-      et = other.et;
-      fb = other.fb;
-    };
-
     // set members
     inline void zeroOut() {
       et = 0;
@@ -484,6 +478,12 @@ namespace p2eg {
           towersHCAL[i][j] = other.towersHCAL[i][j];
         }
       };
+    };
+
+    // overload operator= to use copy constructor
+    towers3x4 operator=(const towers3x4& other) {
+      const towers3x4& newTowers3x4(other);
+      return newTowers3x4;
     };
 
     // set members
@@ -606,13 +606,6 @@ namespace p2eg {
       phiMax = 0;
       etaMax = 0;
     }
-
-    crystalMax& operator=(const crystalMax& rhs) {
-      energy = rhs.energy;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      return *this;
-    }
   };
 
   class ecaltp_t {
@@ -689,10 +682,6 @@ namespace p2eg {
     ap_uint<16> data;
 
     tower_t() { data = 0; }
-    tower_t& operator=(const tower_t& rhs) {
-      data = rhs.data;
-      return *this;
-    }
 
     tower_t(ap_uint<12> et, ap_uint<4> hoe) { data = (et) | (((ap_uint<16>)hoe) << 12); }
 
@@ -780,17 +769,6 @@ namespace p2eg {
       etaMax = 0;
       brems = 0;
     }
-
-    clusterInfo& operator=(const clusterInfo& rhs) {
-      seedEnergy = rhs.seedEnergy;
-      energy = rhs.energy;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      brems = rhs.brems;
-      return *this;
-    }
   };
 
   //--------------------------------------------------------//
@@ -849,20 +827,6 @@ namespace p2eg {
       is_looseTkss = cluster_is_looseTkss;
       is_iso = cluster_is_iso;
       is_looseTkiso = cluster_is_looseTkiso;
-    }
-
-    Cluster& operator=(const Cluster& rhs) {
-      data = rhs.data;
-      regionIdx = rhs.regionIdx;
-      calib = rhs.calib;
-      brems = rhs.brems;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      is_ss = rhs.is_ss;
-      is_looseTkss = rhs.is_looseTkss;
-      is_iso = rhs.is_iso;
-      is_looseTkiso = rhs.is_looseTkiso;
-      return *this;
     }
 
     void setRegionIdx(int regIdx) { regionIdx = regIdx; }  // Newly added
