@@ -261,7 +261,7 @@ def customizeHLTfor43549(process):
 
     return process
 
-def customizeHLTfor43748(process):
+def customizeHLTfor43774(process):
     filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
     absAbleVar = ["DEta","deta","DetaSeed","Dphi","OneOESuperMinusOneOP","OneOESeedMinusOneOP"]
     for filt_type in filt_types:
@@ -283,5 +283,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor43025(process)
     process = customizeHLTfor43549(process)
-    process = customizeHLTfor43748(process)
+    process = customizeHLTfor43774(process)
     return process
