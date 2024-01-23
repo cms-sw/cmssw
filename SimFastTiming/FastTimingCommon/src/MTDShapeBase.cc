@@ -4,7 +4,11 @@
 MTDShapeBase::~MTDShapeBase() {}
 
 MTDShapeBase::MTDShapeBase()
-    : qNSecPerBin_(1. / kNBinsPerNSec), indexOfMax_(0), timeOfMax_(0.), fallTime_(0.), shape_(DVec(k1NSecBinsTotal, 0.0)) {}
+    : qNSecPerBin_(1. / kNBinsPerNSec),
+      indexOfMax_(0),
+      timeOfMax_(0.),
+      fallTime_(0.),
+      shape_(DVec(k1NSecBinsTotal, 0.0)) {}
 
 std::array<float, 3> MTDShapeBase::timeAtThr(const float scale, const float threshold1, const float threshold2) const {
   std::array<float, 3> times_tmp = {{0., 0., 0.}};
