@@ -73,8 +73,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_TriMu_10_5_5_DZ_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    hltL1TripleMuFiltered3 +
-    hltL1SingleMuFiltered5 +
     hltTripleMuon3DZ1p0 +
     hltTripleMuon3DR0 +
     hltL3fL1TkTripleMu533PreFiltered555 +

@@ -125,7 +125,6 @@ from ..modules.hgcalMergeLayerClusters_cfi import *
 
 HLT_IsoMu24_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    hltL1TkSingleMuFiltered22 +
     hltL3fL1TkSingleMu22L3Filtered24Q +
     hltL3crIsoL1TkSingleMu22L3f24QL3pfecalIsoFiltered0p41 +
     hltL3crIsoL1TkSingleMu22L3f24QL3pfhcalIsoFiltered0p40 +
