@@ -390,7 +390,7 @@ namespace p2eg {
   class region3x4 {
   private:
     int idx_ = -1;
-    std::array < std::array<linkECAL, TOWER_IN_PHI>, TOWER_IN_ETA > linksECAL;  // 3x4 in towers
+    std::array<std::array<linkECAL, TOWER_IN_PHI>, TOWER_IN_ETA> linksECAL;  // 3x4 in towers
 
   public:
     // constructor
