@@ -19,7 +19,7 @@ namespace gpuPixelRecHits {
   template <typename TrackerTraits>
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* __restrict__ cpeParams,
                           BeamSpotPOD const* __restrict__ bs,
-                          SiPixelDigisCUDASOAConstView digis,
+                          SiPixelDigisSoA::ConstView digis,
                           int numElements,
                           SiPixelClustersCUDASOAConstView clusters,
                           TrackingRecHitSoAView<TrackerTraits> hits) {
