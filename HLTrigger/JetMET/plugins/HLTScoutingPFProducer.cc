@@ -118,16 +118,16 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.x(), mantissaPrecision_),
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.y(), mantissaPrecision_),
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.z(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.zError(), mantissaPrecision_),
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.xError(), mantissaPrecision_),
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.yError(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.zError(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(0, 1), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(0, 2), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(1, 2), mantissaPrecision_),
           vtx.tracksSize(),
           MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.chi2(), mantissaPrecision_),
           vtx.ndof(),
-          vtx.isValid());
+          vtx.isValid(),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(0, 1), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(0, 2), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(vtx.covariance(1, 2), mantissaPrecision_));
     }
   }
 

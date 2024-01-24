@@ -97,7 +97,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
     tracksTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
     expectedVertexFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
-        65.0,   75.0
+        65.0,   75.0, 85.0, 95.0, 105.0
     ),
     expectedVertexIntegralValues = cms.vint32(
         15,  25,  35

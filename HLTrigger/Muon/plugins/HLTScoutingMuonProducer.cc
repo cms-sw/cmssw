@@ -98,16 +98,16 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
       dispVertices->emplace_back(dispvtx.x(),
                                  dispvtx.y(),
                                  dispvtx.z(),
+                                 dispvtx.zError(),
                                  dispvtx.xError(),
                                  dispvtx.yError(),
-                                 dispvtx.zError(),
-                                 dispvtx.covariance(0, 1),
-                                 dispvtx.covariance(0, 2),
-                                 dispvtx.covariance(1, 2),
                                  dispvtx.tracksSize(),
                                  dispvtx.chi2(),
                                  dispvtx.ndof(),
-                                 dispvtx.isValid());
+                                 dispvtx.isValid(),
+                                 dispvtx.covariance(0, 1),
+                                 dispvtx.covariance(0, 2),
+                                 dispvtx.covariance(1, 2));
     }
   }
 
