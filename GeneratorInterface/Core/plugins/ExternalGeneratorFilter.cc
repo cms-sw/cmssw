@@ -152,9 +152,12 @@ namespace externalgen {
   };
   struct LumiCache {
     LumiCache(std::vector<unsigned long> iState, long iSeed) : randomState_(std::move(iState), iSeed) {}
-    //Only stream 0 sets this at stream end Lumi and it is read at global end Lumi
-    // the framework guarantees those calls can not happen simultaneously
-    CMS_THREAD_SAFE mutable edm::RandomNumberGeneratorState randomState_;
+    const edm::RandomNumberGeneratorState randomState_;
+
+    // The next 2 data members are only accessed in streamEndLuminosityBlockSummary and
+    // globalEndLuminosityBlockProduce. These functions are not run concurrently for the same lumi.
+    CMS_THREAD_SAFE mutable bool selectedStreamTransitionsCompleted_ = false;
+    CMS_THREAD_SAFE mutable externalgen::StreamCache* cacheForAStreamThatCompleted_ = nullptr;
   };
 }  // namespace externalgen
 
@@ -208,15 +211,12 @@ private:
   unsigned int waitTime_;
   std::string const extraConfig_;
 
-  //This is set at beginStream and used for globalBeginRun
-  //The framework guarantees that non of those can happen concurrently
-  CMS_THREAD_SAFE mutable externalgen::StreamCache* stream0Cache_ = nullptr;
   //A stream which has finished processing the last lumi is used for the
   // call to globalBeginLuminosityBlockProduce
   mutable std::atomic<externalgen::StreamCache*> availableForBeginLumi_;
-  //Streams all see the lumis in the same order, we want to be sure to pick a stream cache
-  // to use at globalBeginLumi which just finished the most recent lumi and not a previous one
-  mutable std::atomic<unsigned int> lastLumiIndex_ = 0;
+
+  enum class State { kReadyForNextGlobalBeginLumi, kNotReadyForNextGlobalBeginLumi };
+  mutable std::atomic<State> state_{State::kReadyForNextGlobalBeginLumi};
 };
 
 ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
@@ -250,9 +250,7 @@ process.add_(cms.Service("InitRootHandlers", AbortOnSignal=cms.untracked.bool(Fa
 
   auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_, waitTime_);
   if (iID.value() == 0) {
-    stream0Cache_ = cache.get();
-
-    availableForBeginLumi_ = stream0Cache_;
+    availableForBeginLumi_ = cache.get();
   }
 
   return cache;
@@ -287,13 +285,14 @@ void ExternalGeneratorFilter::streamEndRun(edm::StreamID iID, edm::Run const& iR
   }
 }
 void ExternalGeneratorFilter::globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&) const {
-  iRun.emplace(runInfoToken_, std::move(runCache(iRun.index())->runInfo_));
+  iRun.emplace(runInfoToken_, runCache(iRun.index())->runInfo_);
 }
 
 void ExternalGeneratorFilter::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& iLuminosityBlock,
                                                                 edm::EventSetup const&) const {
-  while (not availableForBeginLumi_.load()) {
+  while (state_.load() == State::kNotReadyForNextGlobalBeginLumi) {
   }
+  state_.store(State::kNotReadyForNextGlobalBeginLumi);
 
   auto v = availableForBeginLumi_.load()->beginLumiProduce(
       iLuminosityBlock.luminosityBlock(), luminosityBlockCache(iLuminosityBlock.index())->randomState_);
@@ -303,8 +302,6 @@ void ExternalGeneratorFilter::globalBeginLuminosityBlockProduce(edm::LuminosityB
   engine.get(v.randomState_.state_);
 
   iLuminosityBlock.emplace(lumiHeaderToken_, std::move(v.header_));
-
-  lastLumiIndex_.store(iLuminosityBlock.index());
 }
 
 std::shared_ptr<externalgen::LumiCache> ExternalGeneratorFilter::globalBeginLuminosityBlock(
@@ -341,16 +338,32 @@ void ExternalGeneratorFilter::streamEndLuminosityBlockSummary(edm::StreamID iID,
                                                               GenLumiInfoProduct* iProduct) const {
   iProduct->mergeProduct(*streamCache(iID)->endLumiProduce(iLuminosityBlock.run()));
 
-  if (lastLumiIndex_ == iLuminosityBlock.index()) {
+  if (!luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_) {
     externalgen::StreamCache* expected = nullptr;
+    if (availableForBeginLumi_.compare_exchange_strong(expected, streamCache(iID))) {
+      luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_ = true;
+      state_.store(State::kReadyForNextGlobalBeginLumi);
 
-    availableForBeginLumi_.compare_exchange_strong(expected, streamCache(iID));
+    } else {
+      luminosityBlockCache(iLuminosityBlock.index())->cacheForAStreamThatCompleted_ = streamCache(iID);
+    }
   }
 }
 
 void ExternalGeneratorFilter::globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLuminosityBlock,
                                                               edm::EventSetup const&,
                                                               GenLumiInfoProduct const* iProduct) const {
+  if (!luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_) {
+    // It is possible for a stream to skip a lumi if the other streams finished
+    // all the events before the stream starts that lumi. The next two lines
+    // of code handle the rare case where that happened and also the stream associated with
+    // availableForBeginLumi_ was the stream that skipped the lumi. In that case,
+    // streamBeginLuminosityBlock does not set availableForBeginLumi_
+    // to null and then streamEndLuminosityBlockSummary does not reset it or set state_.
+    // So we handle that here.
+    availableForBeginLumi_.store(luminosityBlockCache(iLuminosityBlock.index())->cacheForAStreamThatCompleted_);
+    state_.store(State::kReadyForNextGlobalBeginLumi);
+  }
   iLuminosityBlock.emplace(lumiInfoToken_, *iProduct);
 }
 
