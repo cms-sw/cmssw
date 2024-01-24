@@ -49,9 +49,8 @@ public:
     TrajectoryStateOnSurface outTSOS;
     TrajectoryStateOnSurface sclTSOS;
 
-    // mode
-    GlobalVector innMom, outMom, sclMom;
-    GlobalPoint innPos, outPos, sclPos;
+    GlobalVector innMom, outMom;
+    GlobalPoint sclPos;
   };
 
 public:
@@ -93,7 +92,7 @@ private:
 
 namespace {
 
-  float calRelDelta(float a, float b, float defaultVal = 0) { return b != 0 ? (a - b) / a : defaultVal; }
+  float calRelDelta(float a, float b, float defaultVal = 0.f) { return a != 0.f ? (a - b) / a : defaultVal; }
 
 }  // namespace
 
@@ -284,11 +283,8 @@ void EgammaHLTGsfTrackVarProducer::GsfTrackExtrapolations::operator()(
   sclTSOS = mtsTransform.extrapolatedState(innTSOS, GlobalPoint(sc.x(), sc.y(), sc.z()));
 
   multiTrajectoryStateMode::momentumFromModeCartesian(innTSOS, innMom);
-  multiTrajectoryStateMode::positionFromModeCartesian(innTSOS, innPos);
-  multiTrajectoryStateMode::momentumFromModeCartesian(sclTSOS, sclMom);
   multiTrajectoryStateMode::positionFromModeCartesian(sclTSOS, sclPos);
   multiTrajectoryStateMode::momentumFromModeCartesian(outTSOS, outMom);
-  multiTrajectoryStateMode::positionFromModeCartesian(outTSOS, outPos);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
