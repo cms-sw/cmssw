@@ -5,6 +5,7 @@
 #define L1Trigger_L1CaloTrigger_Phase2L1CaloEGammaUtils
 
 #include <ap_int.h>
+#include <array>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
@@ -389,27 +390,11 @@ namespace p2eg {
   class region3x4 {
   private:
     int idx_ = -1;
-    linkECAL linksECAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array < std::array<linkECAL, TOWER_IN_PHI>, TOWER_IN_ETA > linksECAL;  // 3x4 in towers
 
   public:
     // constructor
     region3x4() { idx_ = -1; }
-
-    // copy constructor
-    region3x4(const region3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          linksECAL[i][j] = other.linksECAL[i][j];
-        }
-      }
-    }
-
-    // overload operator= to use copy constructor
-    region3x4 operator=(const region3x4& other) {
-      const region3x4& newRegion(other);
-      return newRegion;
-    };
 
     // set members
     inline void zeroOut() {
@@ -464,27 +449,11 @@ namespace p2eg {
   class towers3x4 {
   private:
     int idx_ = -1;
-    towerHCAL towersHCAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array<std::array<towerHCAL, TOWER_IN_PHI>, TOWER_IN_ETA> towersHCAL;  // 3x4 in towers
 
   public:
     // constructor
     towers3x4() { idx_ = -1; };
-
-    // copy constructor
-    towers3x4(const towers3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          towersHCAL[i][j] = other.towersHCAL[i][j];
-        }
-      };
-    };
-
-    // overload operator= to use copy constructor
-    towers3x4 operator=(const towers3x4& other) {
-      const towers3x4& newTowers3x4(other);
-      return newTowers3x4;
-    };
 
     // set members
     inline void zeroOut() {
@@ -514,8 +483,8 @@ namespace p2eg {
   class card {
   private:
     int idx_ = -1;
-    region3x4 card3x4Regions[N_REGIONS_PER_CARD];
-    towers3x4 card3x4Towers[N_REGIONS_PER_CARD];
+    std::array<region3x4, N_REGIONS_PER_CARD> card3x4Regions;
+    std::array<towers3x4, N_REGIONS_PER_CARD> card3x4Towers;
 
   public:
     // constructor
@@ -527,21 +496,6 @@ namespace p2eg {
         card3x4Towers[i].setIdx(i);
         card3x4Towers[i].zeroOut();
       }
-    };
-
-    // copy constructor
-    card(const card& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < N_REGIONS_PER_CARD; i++) {
-        card3x4Regions[i] = other.card3x4Regions[i];
-        card3x4Towers[i] = other.card3x4Towers[i];
-      }
-    };
-
-    // overload operator= to use copy constructor
-    card operator=(const card& other) {
-      const card& newCard(other);
-      return newCard;
     };
 
     // set members
