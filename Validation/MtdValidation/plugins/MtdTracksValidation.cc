@@ -1,3 +1,4 @@
+#define EDM_ML_DEBUG
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -201,6 +202,26 @@ private:
   MonitorElement* meMVATrackMatchedEffPtMtd_;
   MonitorElement* meExtraPtMtd_;
   MonitorElement* meExtraPtEtl2Mtd_;
+
+  MonitorElement* meBTLTrackMatchedTPPtResMtd_;
+  MonitorElement* meETLTrackMatchedTPPtResMtd_;
+  MonitorElement* meETLTrackMatchedTP2PtResMtd_;
+  MonitorElement* meBTLTrackMatchedTPPtRatioGen_;
+  MonitorElement* meETLTrackMatchedTPPtRatioGen_;
+  MonitorElement* meETLTrackMatchedTP2PtRatioGen_;
+  MonitorElement* meBTLTrackMatchedTPPtRatioMtd_;
+  MonitorElement* meETLTrackMatchedTPPtRatioMtd_;
+  MonitorElement* meETLTrackMatchedTP2PtRatioMtd_;
+  MonitorElement* meBTLTrackMatchedTPPtResvsPtMtd_;
+  MonitorElement* meETLTrackMatchedTPPtResvsPtMtd_;
+  MonitorElement* meETLTrackMatchedTP2PtResvsPtMtd_;
+  MonitorElement* meBTLTrackMatchedTPDPtvsPtGen_;
+  MonitorElement* meETLTrackMatchedTPDPtvsPtGen_;
+  MonitorElement* meETLTrackMatchedTP2DPtvsPtGen_;
+  MonitorElement* meBTLTrackMatchedTPDPtvsPtMtd_;
+  MonitorElement* meETLTrackMatchedTPDPtvsPtMtd_;
+  MonitorElement* meETLTrackMatchedTP2DPtvsPtMtd_;
+
   MonitorElement* meTrackMatchedTPEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtMtd_;
   MonitorElement* meTrackMatchedTPEffPtEtl2Mtd_;
@@ -554,6 +575,43 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       meTrackPtTot_->Fill(trackGen.pt());
       meTrackEtaTot_->Fill(std::abs(trackGen.eta()));
       if (tp_info != nullptr && mvaTPSel(**tp_info)) {
+        if (track.pt() < 12.) {
+          if (isBTL) {
+            meBTLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
+                                               std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meBTLTrackMatchedTPPtRatioGen_->Fill(trackGen.pt() / (*tp_info)->pt());
+            meBTLTrackMatchedTPPtRatioMtd_->Fill(track.pt() / (*tp_info)->pt());
+            meBTLTrackMatchedTPPtResvsPtMtd_->Fill(
+                (*tp_info)->pt(), std::abs(track.pt() - (*tp_info)->pt()) / std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meBTLTrackMatchedTPDPtvsPtGen_->Fill((*tp_info)->pt(),
+                                                 (trackGen.pt() - (*tp_info)->pt()) / (*tp_info)->pt());
+            meBTLTrackMatchedTPDPtvsPtMtd_->Fill((*tp_info)->pt(), (track.pt() - (*tp_info)->pt()) / (*tp_info)->pt());
+          }
+          if (isETL && !twoETLdiscs) {
+            meETLTrackMatchedTPPtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
+                                               std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meETLTrackMatchedTPPtRatioGen_->Fill(trackGen.pt() / (*tp_info)->pt());
+            meETLTrackMatchedTPPtRatioMtd_->Fill(track.pt() / (*tp_info)->pt());
+            meETLTrackMatchedTPPtResvsPtMtd_->Fill(
+                (*tp_info)->pt(), std::abs(track.pt() - (*tp_info)->pt()) / std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meETLTrackMatchedTPDPtvsPtGen_->Fill((*tp_info)->pt(),
+                                                 (trackGen.pt() - (*tp_info)->pt()) / ((*tp_info)->pt()));
+            meETLTrackMatchedTPDPtvsPtMtd_->Fill((*tp_info)->pt(),
+                                                 (track.pt() - (*tp_info)->pt()) / ((*tp_info)->pt()));
+          }
+          if (isETL && twoETLdiscs) {
+            meETLTrackMatchedTP2PtResMtd_->Fill(std::abs(track.pt() - (*tp_info)->pt()) /
+                                                std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meETLTrackMatchedTP2PtRatioGen_->Fill(trackGen.pt() / (*tp_info)->pt());
+            meETLTrackMatchedTP2PtRatioMtd_->Fill(track.pt() / (*tp_info)->pt());
+            meETLTrackMatchedTP2PtResvsPtMtd_->Fill(
+                (*tp_info)->pt(), std::abs(track.pt() - (*tp_info)->pt()) / std::abs(trackGen.pt() - (*tp_info)->pt()));
+            meETLTrackMatchedTP2DPtvsPtGen_->Fill((*tp_info)->pt(),
+                                                  (trackGen.pt() - (*tp_info)->pt()) / ((*tp_info)->pt()));
+            meETLTrackMatchedTP2DPtvsPtMtd_->Fill((*tp_info)->pt(),
+                                                  (track.pt() - (*tp_info)->pt()) / ((*tp_info)->pt()));
+          }
+        }
         const bool withMTD = (m_tp2detid.find(*tp_info) != m_tp2detid.end());
         LogDebug("MtdTracksValidation") << "Matched with selected TP, MTD sim hits association: " << withMTD;
         if (noCrack) {
@@ -948,6 +1006,129 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("MatchedTPEffPtMtd", "Pt of tracks  matched to TP with time; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtEtl2Mtd_ = ibook.book1D(
       "MatchedTPEffPtEtl2Mtd", "Pt of tracks  matched to TP with time, 2 ETL hits; track pt [GeV] ", 110, 0., 11.);
+
+  meBTLTrackMatchedTPPtResMtd_ = ibook.book1D(
+      "TrackMatchedTPBTLPtResMtd",
+      "Pt resolution of tracks matched to TP-BTL hit  ;|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+      100,
+      0.,
+      4.);
+  meETLTrackMatchedTPPtResMtd_ = ibook.book1D(
+      "TrackMatchedTPETLPtResMtd",
+      "Pt resolution of tracks matched to TP-ETL hit  ;|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+      100,
+      0.,
+      4.);
+  meETLTrackMatchedTP2PtResMtd_ = ibook.book1D(
+      "TrackMatchedTPETL2PtResMtd",
+      "Pt resolution of tracks matched to TP-ETL 2hits  ;|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+      100,
+      0.,
+      4.);
+  meBTLTrackMatchedTPPtRatioGen_ = ibook.book1D(
+      "TrackMatchedTPBTLPtRatioGen", "Pt ratio of Gentracks (BTL)  ;pT_{Gentrack}/pT_{truth} ", 100, 0.9, 1.1);
+  meETLTrackMatchedTPPtRatioGen_ = ibook.book1D(
+      "TrackMatchedTPETLPtRatioGen", "Pt ratio of Gentracks (ETL 1hit)  ;pT_{Gentrack}/pT_{truth} ", 100, 0.9, 1.1);
+  meETLTrackMatchedTP2PtRatioGen_ = ibook.book1D(
+      "TrackMatchedTPETL2PtRatioGen", "Pt ratio of Gentracks (ETL 2hits)  ;pT_{Gentrack}/pT_{truth} ", 100, 0.9, 1.1);
+  meBTLTrackMatchedTPPtRatioMtd_ = ibook.book1D("TrackMatchedTPBTLPtRatioMtd",
+                                                "Pt ratio of tracks matched to TP-BTL hits  ;pT_{MTDtrack}/pT_{truth} ",
+                                                100,
+                                                0.9,
+                                                1.1);
+  meETLTrackMatchedTPPtRatioMtd_ = ibook.book1D("TrackMatchedTPETLPtRatioMtd",
+                                                "Pt ratio of tracks matched to TP-ETL hits  ;pT_{MTDtrack}/pT_{truth} ",
+                                                100,
+                                                0.9,
+                                                1.1);
+  meETLTrackMatchedTP2PtRatioMtd_ =
+      ibook.book1D("TrackMatchedTPETL2PtRatioMtd",
+                   "Pt ratio of tracks matched to TP-ETL 2hits  ;pT_{MTDtrack}/pT_{truth} ",
+                   100,
+                   0.9,
+                   1.1);
+  meBTLTrackMatchedTPPtResvsPtMtd_ = ibook.bookProfile("TrackMatchedTPBTLPtResvsPtMtd",
+                                                       "Pt resolution of tracks matched to TP-BTL hit vs Pt;pT_{truth} "
+                                                       "[GeV];|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+                                                       20,
+                                                       0.7,
+                                                       10.,
+                                                       0.,
+                                                       4.,
+                                                       "s");
+  meETLTrackMatchedTPPtResvsPtMtd_ = ibook.bookProfile("TrackMatchedTPETLPtResvsPtMtd",
+                                                       "Pt resolution of tracks matched to TP-ETL hit vs Pt;pT_{truth} "
+                                                       "[GeV];|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+                                                       20,
+                                                       0.7,
+                                                       10.,
+                                                       0.,
+                                                       4.,
+                                                       "s");
+  meETLTrackMatchedTP2PtResvsPtMtd_ =
+      ibook.bookProfile("TrackMatchedTPETL2PtResvsPtMtd",
+                        "Pt resolution of tracks matched to TP-ETL 2hits Pt pT;pT_{truth} "
+                        "[GeV];|pT_{MTDtrack}-pT_{truth}|/|pT_{Gentrack}-pT_{truth}| ",
+                        20,
+                        0.7,
+                        10.,
+                        0.,
+                        4.,
+                        "s");
+  meBTLTrackMatchedTPDPtvsPtGen_ = ibook.bookProfile(
+      "TrackMatchedTPBTLDPtvsPtGen",
+      "Pt relative difference of Gentracks (BTL) vs Pt;pT_{truth} [GeV];pT_{Gentrack}-pT_{truth}/pT_{truth} ",
+      20,
+      0.7,
+      10.,
+      -0.1,
+      0.1,
+      "s");
+  meETLTrackMatchedTPDPtvsPtGen_ = ibook.bookProfile(
+      "TrackMatchedTPETLDPtvsPtGen",
+      "Pt relative difference of Gentracks (ETL 1hit) vs Pt;pT_{truth} [GeV];pT_{Gentrack}-pT_{truth}/pT_{truth} ",
+      20,
+      0.7,
+      10.,
+      -0.1,
+      0.1,
+      "s");
+  meETLTrackMatchedTP2DPtvsPtGen_ = ibook.bookProfile(
+      "TrackMatchedTPETL2DPtvsPtGen",
+      "Pt relative difference  of Gentracks (ETL 2hits) vs Pt;pT_{truth} [GeV];pT_{Gentrack}-pT_{truth}/pT_{truth} ",
+      20,
+      0.7,
+      10.,
+      -0.1,
+      0.1,
+      "s");
+  meBTLTrackMatchedTPDPtvsPtMtd_ = ibook.bookProfile("TrackMatchedTPBTLDPtvsPtMtd",
+                                                     "Pt relative difference of tracks matched to TP-BTL hits vs "
+                                                     "Pt;pT_{truth} [GeV];pT_{MTDtrack}-pT_{truth}/pT_{truth} ",
+                                                     20,
+                                                     0.7,
+                                                     10.,
+                                                     -0.1,
+                                                     0.1,
+                                                     "s");
+  meETLTrackMatchedTPDPtvsPtMtd_ = ibook.bookProfile("TrackMatchedTPETLDPtvsPtMtd",
+                                                     "Pt relative difference of tracks matched to TP-ETL hits vs "
+                                                     "Pt;pT_{truth} [GeV];pT_{MTDtrack}-pT_{truth}/pT_{truth} ",
+                                                     20,
+                                                     0.7,
+                                                     10.,
+                                                     -0.1,
+                                                     0.1,
+                                                     "s");
+  meETLTrackMatchedTP2DPtvsPtMtd_ = ibook.bookProfile("TrackMatchedTPETL2DPtvsPtMtd",
+                                                      "Pt relative difference of tracks matched to TP-ETL 2hits vs "
+                                                      "Pt;pT_{truth} [GeV];pT_{MTDtrack}-pT_{truth}/pT_{truth} ",
+                                                      20,
+                                                      0.7,
+                                                      10.,
+                                                      -0.1,
+                                                      0.1,
+                                                      "s");
 
   meTrackMatchedTPmtdEffPtTot_ =
       ibook.book1D("MatchedTPmtdEffPtTot", "Pt of tracks  matched to TP-mtd hit; track pt [GeV] ", 110, 0., 11.);
