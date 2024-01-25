@@ -1,9 +1,10 @@
-#ifndef TrackClusterizerInZ_h
-#define TrackClusterizerInZ_h
+#ifndef PrimaryVertexTrackClusterizer_h
+#define PrimaryVertexTrackClusterizer_h
 
-/**\class TrackClusterizerInZ 
+/**\class PrimaryVertexTrackClusterizer
  
   Description: interface/base class for track clusterizers that separate event tracks into clusters along the beam line
+  extends TrackClusterizerInZ
 
 */
 
@@ -11,16 +12,17 @@
 #include <vector>
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 
-class TrackClusterizerInZ {
+class PrimaryVertexTrackClusterizer : public TrackClusterizerInZ {
 public:
-  TrackClusterizerInZ() = default;
-  TrackClusterizerInZ(const edm::ParameterSet& conf){};
+  PrimaryVertexTrackClusterizer() = default;
+  PrimaryVertexTrackClusterizer(const edm::ParameterSet& conf){};
   virtual std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack>& tracks) const = 0;
   virtual std::vector<std::vector<reco::TransientTrack> > clusterize(
       const std::vector<reco::TransientTrack>& tracks) const = 0;
 
-  virtual ~TrackClusterizerInZ() = default;
+  virtual ~PrimaryVertexTrackClusterizer() = default;
 };
 
 #endif
