@@ -127,7 +127,9 @@ class DTWorkflow(CLIHelper, CrabHelper):
         tools.prependPaths(self.process, seqname)
 
     def add_raw_option(self):
-        getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
+        # getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
+        # HI CHANGES
+        getattr(self.process, self.digilabel).inputLabel = 'rawDataRepacker'
         tools.prependPaths(self.process,self.digilabel)
 
     def add_local_t0_db(self, local=False):
