@@ -14,8 +14,10 @@ l1tTrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
                     reducedBendChi2Max = cms.double(2.25), # bend chi2 must be less than this value
                     reducedChi2RZMax = cms.double(5.0), # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = cms.double(20.0), # chi2rphi/dof must be less than this value
-                    reducedChi2MaxNstub4 = cms.double(999.9), # chi2/dof with nstub==4 must be less than this value
-                    reducedChi2MaxNstub5 = cms.double(999.9), # chi2/dof with nstub>4 must be less than this value
+                    reducedChi2RZMaxNstub4 = cms.double(999.9), # chi2rz/dof with nstub==4 must be less than this value
+                    reducedChi2RZMaxNstub5 = cms.double(999.9), # chi2rz/dof with nstub>4 must be less than this value
+                    reducedChi2RPhiMaxNstub4 = cms.double(999.9), # chi2rphi/dof with nstub==4 must be less than this value
+                    reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
                     reducedBendChi2MaxNstub4 = cms.double(999.9), # bend chi2 with nstub==4 must be less than this value
                     reducedBendChi2MaxNstub5 = cms.double(999.9), # bend chi2 with nstub>4 must be less than this value
                     ),
@@ -38,8 +40,10 @@ l1tTrackSelectionProducerExtended = l1tTrackSelectionProducer.clone(
                     reducedBendChi2Max = 2.4, # bend chi2 must be less than this value
                     reducedChi2RZMax = 10.0, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 40.0, # chi2rphi/dof must be less than this value
-                    reducedChi2MaxNstub4 = 999.9,# chi2/dof with nstub==4 must be less than this value 
-                    reducedChi2MaxNstub5 = 999.9,# chi2/dof with nstub>4 must be less than this value
+                    reducedChi2RZMaxNstub4 = cms.double(999.9), # chi2rz/dof with nstub==4 must be less than this value
+                    reducedChi2RZMaxNstub5 = cms.double(999.9), # chi2rz/dof with nstub>4 must be less than this value
+                    reducedChi2RPhiMaxNstub4 = cms.double(999.9), # chi2rphi/dof with nstub==4 must be less than this value
+                    reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
                     reducedBendChi2MaxNstub4 = 999.9, # bend chi2 with nstub==4 must be less than this value
                     reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value 
                     ),
@@ -59,10 +63,12 @@ l1tTrackSelectionProducerForJets = l1tTrackSelectionProducer.clone(
                     reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
                     reducedChi2RZMax = 999.9, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value
-      reducedChi2MaxNstub4 = 999.9, # chi2/dof with nstub==4 must be less than this value
-      reducedChi2MaxNstub5 = 999.9, # chi2/dof with nstub>4 must be less than this value
-      reducedBendChi2MaxNstub4 = 999.9, # bend chi2 with nstub==4 must be less than this value
-      reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value
+                    reducedChi2RZMaxNstub4 = cms.double(999.9), # chi2rz/dof with nstub==4 must be less than this value
+                    reducedChi2RZMaxNstub5 = cms.double(999.9), # chi2rz/dof with nstub>4 must be less than this value
+                    reducedChi2RPhiMaxNstub4 = cms.double(999.9), # chi2rphi/dof with nstub==4 must be less than this value
+                    reducedChi2RPhiMaxNstub5 = cms.double(999.9), # chi2rphi/dof with nstub>4 must be less than this value
+                    reducedBendChi2MaxNstub4 = 999.9, # bend chi2 with nstub==4 must be less than this value
+                    reducedBendChi2MaxNstub5 = 999.9, # bend chi2 with nstub>4 must be less than this value
                     ),
 )
 
@@ -78,10 +84,12 @@ l1tTrackSelectionProducerExtendedForJets = l1tTrackSelectionProducerExtended.clo
                     reducedBendChi2Max = 999.9, # bend chi2 must be less than this value
                     reducedChi2RZMax = 999.9, # chi2rz/dof must be less than this value
                     reducedChi2RPhiMax = 999.9, # chi2rphi/dof must be less than this value
-      reducedChi2MaxNstub4 = cms.double(3.3), # chi2/dof with nstub==4 must be less than this value
-      reducedChi2MaxNstub5 = cms.double(11.3), # chi2/dof with nstub>4 must be less than this value
-      reducedBendChi2MaxNstub4 = cms.double(2.3), # bend chi2 with nstub==4 must be less than this value
-      reducedBendChi2MaxNstub5 = cms.double(9.8), # bend chi2 with nstub>4 must be less than this value
+                    reducedChi2RZMaxNstub4 = cms.double(5.0), # chi2rz/dof with nstub==4 must be less than this value
+                    reducedChi2RZMaxNstub5 = cms.double(5.0), # chi2rz/dof with nstub>4 must be less than this value
+                    reducedChi2RPhiMaxNstub4 = cms.double(6.0), # chi2rphi/dof with nstub==4 must be less than this value
+                    reducedChi2RPhiMaxNstub5 = cms.double(35.0), # chi2rphi/dof with nstub>4 must be less than this value
+                    reducedBendChi2MaxNstub4 = cms.double(2.25), # bend chi2 with nstub==4 must be less than this value
+                    reducedBendChi2MaxNstub5 = cms.double(3.5), # bend chi2 with nstub>4 must be less than this value
                     ),
 )
 

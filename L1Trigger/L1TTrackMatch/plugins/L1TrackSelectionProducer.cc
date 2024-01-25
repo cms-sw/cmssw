@@ -276,35 +276,65 @@ private:
   private:
     double reducedChi2RPhiMax_;
   };
-  struct TTTrackChi2MaxNstubSelector {
-    TTTrackChi2MaxNstubSelector(double reducedChi2MaxNstub4, double reducedChi2MaxNstub5)
-        : reducedChi2MaxNstub4_(reducedChi2MaxNstub4), reducedChi2MaxNstub5_(reducedChi2MaxNstub5) {}
-    TTTrackChi2MaxNstubSelector(const edm::ParameterSet& cfg)
-        : reducedChi2MaxNstub4_(cfg.template getParameter<double>("reducedChi2MaxNstub4")),
-          reducedChi2MaxNstub5_(cfg.template getParameter<double>("reducedChi2MaxNstub5")) {}
+  struct TTTrackChi2RZMaxNstubSelector {
+    TTTrackChi2RZMaxNstubSelector(double reducedChi2RZMaxNstub4, double reducedChi2RZMaxNstub5)
+        : reducedChi2RZMaxNstub4_(reducedChi2RZMaxNstub4), reducedChi2RZMaxNstub5_(reducedChi2RZMaxNstub5) {}
+    TTTrackChi2RZMaxNstubSelector(const edm::ParameterSet& cfg)
+        : reducedChi2RZMaxNstub4_(cfg.template getParameter<double>("reducedChi2RZMaxNstub4")),
+          reducedChi2RZMaxNstub5_(cfg.template getParameter<double>("reducedChi2RZMaxNstub5")) {}
     bool operator()(const L1Track& t) const {
-      return (((t.chi2Red() < reducedChi2MaxNstub4_) && (t.getStubRefs().size() == 4)) ||
-              ((t.chi2Red() < reducedChi2MaxNstub5_) && (t.getStubRefs().size() > 4)));
+      return (((t.chi2ZRed() < reducedChi2RZMaxNstub4_) && (t.getStubRefs().size() == 4)) ||
+              ((t.chi2ZRed() < reducedChi2RZMaxNstub5_) && (t.getStubRefs().size() > 4)));
     }
 
   private:
-    double reducedChi2MaxNstub4_;
-    double reducedChi2MaxNstub5_;
+    double reducedChi2RZMaxNstub4_;
+    double reducedChi2RZMaxNstub5_;
   };
-  struct TTTrackWordChi2MaxNstubSelector {  // using simulated chi2 since not implemented in track word, updates needed
-    TTTrackWordChi2MaxNstubSelector(double reducedChi2MaxNstub4, double reducedChi2MaxNstub5)
-        : reducedChi2MaxNstub4_(reducedChi2MaxNstub4), reducedChi2MaxNstub5_(reducedChi2MaxNstub5) {}
-    TTTrackWordChi2MaxNstubSelector(const edm::ParameterSet& cfg)
-        : reducedChi2MaxNstub4_(cfg.template getParameter<double>("reducedChi2MaxNstub4")),
-          reducedChi2MaxNstub5_(cfg.template getParameter<double>("reducedChi2MaxNstub5")) {}
+  struct TTTrackWordChi2RZMaxNstubSelector {
+    TTTrackWordChi2RZMaxNstubSelector(double reducedChi2RZMaxNstub4, double reducedChi2RZMaxNstub5)
+        : reducedChi2RZMaxNstub4_(reducedChi2RZMaxNstub4), reducedChi2RZMaxNstub5_(reducedChi2RZMaxNstub5) {}
+    TTTrackWordChi2RZMaxNstubSelector(const edm::ParameterSet& cfg)
+        : reducedChi2RZMaxNstub4_(cfg.template getParameter<double>("reducedChi2RZMaxNstub4")),
+          reducedChi2RZMaxNstub5_(cfg.template getParameter<double>("reducedChi2RZMaxNstub5")) {}
     bool operator()(const L1Track& t) const {
-      return (((t.chi2Red() < reducedChi2MaxNstub4_) && (t.getNStubs() == 4)) ||
-              ((t.chi2Red() < reducedChi2MaxNstub5_) && (t.getNStubs() > 4)));
+      return (((t.getChi2RZ() < reducedChi2RZMaxNstub4_) && (t.getNStubs() == 4)) ||
+              ((t.getChi2RZ() < reducedChi2RZMaxNstub5_) && (t.getNStubs() > 4)));
     }
 
   private:
-    double reducedChi2MaxNstub4_;
-    double reducedChi2MaxNstub5_;
+    double reducedChi2RZMaxNstub4_;
+    double reducedChi2RZMaxNstub5_;
+  };
+  struct TTTrackChi2RPhiMaxNstubSelector {
+    TTTrackChi2RPhiMaxNstubSelector(double reducedChi2RPhiMaxNstub4, double reducedChi2RPhiMaxNstub5)
+        : reducedChi2RPhiMaxNstub4_(reducedChi2RPhiMaxNstub4), reducedChi2RPhiMaxNstub5_(reducedChi2RPhiMaxNstub5) {}
+    TTTrackChi2RPhiMaxNstubSelector(const edm::ParameterSet& cfg)
+        : reducedChi2RPhiMaxNstub4_(cfg.template getParameter<double>("reducedChi2RPhiMaxNstub4")),
+          reducedChi2RPhiMaxNstub5_(cfg.template getParameter<double>("reducedChi2RPhiMaxNstub5")) {}
+    bool operator()(const L1Track& t) const {
+      return (((t.chi2XYRed() < reducedChi2RPhiMaxNstub4_) && (t.getStubRefs().size() == 4)) ||
+              ((t.chi2XYRed() < reducedChi2RPhiMaxNstub5_) && (t.getStubRefs().size() > 4)));
+    }
+
+  private:
+    double reducedChi2RPhiMaxNstub4_;
+    double reducedChi2RPhiMaxNstub5_;
+  };
+  struct TTTrackWordChi2RPhiMaxNstubSelector {  // using simulated chi2 since not implemented in track word, updates needed
+    TTTrackWordChi2RPhiMaxNstubSelector(double reducedChi2RPhiMaxNstub4, double reducedChi2RPhiMaxNstub5)
+        : reducedChi2RPhiMaxNstub4_(reducedChi2RPhiMaxNstub4), reducedChi2RPhiMaxNstub5_(reducedChi2RPhiMaxNstub5) {}
+    TTTrackWordChi2RPhiMaxNstubSelector(const edm::ParameterSet& cfg)
+        : reducedChi2RPhiMaxNstub4_(cfg.template getParameter<double>("reducedChi2RPhiMaxNstub4")),
+          reducedChi2RPhiMaxNstub5_(cfg.template getParameter<double>("reducedChi2RPhiMaxNstub5")) {}
+    bool operator()(const L1Track& t) const {
+      return (((t.getChi2RPhi() < reducedChi2RPhiMaxNstub4_) && (t.getNStubs() == 4)) ||
+              ((t.getChi2RPhi() < reducedChi2RPhiMaxNstub5_) && (t.getNStubs() > 4)));
+    }
+
+  private:
+    double reducedChi2RPhiMaxNstub4_;
+    double reducedChi2RPhiMaxNstub5_;
   };
   struct TTTrackBendChi2MaxNstubSelector {
     TTTrackBendChi2MaxNstubSelector(double reducedBendChi2MaxNstub4, double reducedBendChi2MaxNstub5)
@@ -348,9 +378,12 @@ private:
       TTTrackBendChi2Chi2RZChi2RPhiMaxSelector;
   typedef AndSelector<TTTrackWordBendChi2MaxSelector, TTTrackWordChi2RZMaxSelector, TTTrackWordChi2RPhiMaxSelector>
       TTTrackWordBendChi2Chi2RZChi2RPhiMaxSelector;
-  typedef AndSelector<TTTrackChi2MaxNstubSelector, TTTrackBendChi2MaxNstubSelector> TTTrackChi2BendChi2MaxNstubSelector;
-  typedef AndSelector<TTTrackWordChi2MaxNstubSelector, TTTrackWordBendChi2MaxNstubSelector>
-      TTTrackWordChi2BendChi2MaxNstubSelector;
+  typedef AndSelector<TTTrackChi2RZMaxNstubSelector, TTTrackChi2RPhiMaxNstubSelector, TTTrackBendChi2MaxNstubSelector>
+      TTTrackChi2MaxNstubSelector;
+  typedef AndSelector<TTTrackWordChi2RZMaxNstubSelector,
+                      TTTrackWordChi2RPhiMaxNstubSelector,
+                      TTTrackWordBendChi2MaxNstubSelector>
+      TTTrackWordChi2MaxNstubSelector;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
@@ -358,7 +391,8 @@ private:
   const std::string outputCollectionName_;
   const edm::ParameterSet cutSet_;
   const double ptMin_, absEtaMax_, absZ0Max_, promptMVAMin_, bendChi2Max_, reducedChi2RZMax_, reducedChi2RPhiMax_;
-  const double reducedChi2MaxNstub4_, reducedChi2MaxNstub5_, reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_;
+  const double reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_, reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_,
+      reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_;
   const int nStubsMin_, nPSStubsMin_;
   bool processSimulatedTracks_, processEmulatedTracks_;
   int debug_;
@@ -380,8 +414,10 @@ L1TrackSelectionProducer::L1TrackSelectionProducer(const edm::ParameterSet& iCon
       bendChi2Max_(cutSet_.getParameter<double>("reducedBendChi2Max")),
       reducedChi2RZMax_(cutSet_.getParameter<double>("reducedChi2RZMax")),
       reducedChi2RPhiMax_(cutSet_.getParameter<double>("reducedChi2RPhiMax")),
-      reducedChi2MaxNstub4_(cutSet_.getParameter<double>("reducedChi2MaxNstub4")),
-      reducedChi2MaxNstub5_(cutSet_.getParameter<double>("reducedChi2MaxNstub5")),
+      reducedChi2RZMaxNstub4_(cutSet_.getParameter<double>("reducedChi2RZMaxNstub4")),
+      reducedChi2RZMaxNstub5_(cutSet_.getParameter<double>("reducedChi2RZMaxNstub5")),
+      reducedChi2RPhiMaxNstub4_(cutSet_.getParameter<double>("reducedChi2RPhiMaxNstub4")),
+      reducedChi2RPhiMaxNstub5_(cutSet_.getParameter<double>("reducedChi2RPhiMaxNstub5")),
       reducedBendChi2MaxNstub4_(cutSet_.getParameter<double>("reducedBendChi2MaxNstub4")),
       reducedBendChi2MaxNstub5_(cutSet_.getParameter<double>("reducedBendChi2MaxNstub5")),
       nStubsMin_(cutSet_.getParameter<int>("nStubsMin")),
@@ -509,10 +545,12 @@ void L1TrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   TTTrackNPSStubsMinSelector nPSStubsSel(nPSStubsMin_, tTopo);
   TTTrackPromptMVAMinSelector mvaSel(promptMVAMin_);
   TTTrackWordPromptMVAMinSelector mvaSelEmu(promptMVAMin_);
-  TTTrackChi2BendChi2MaxNstubSelector chi2NstubSel({reducedChi2MaxNstub4_, reducedChi2MaxNstub5_},
-                                                   {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
-  TTTrackWordChi2BendChi2MaxNstubSelector chi2NstubSelEmu({reducedChi2MaxNstub4_, reducedChi2MaxNstub5_},
-                                                          {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
+  TTTrackChi2MaxNstubSelector chi2NstubSel({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
+                                           {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
+                                           {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
+  TTTrackWordChi2MaxNstubSelector chi2NstubSelEmu({reducedChi2RZMaxNstub4_, reducedChi2RZMaxNstub5_},
+                                                  {reducedChi2RPhiMaxNstub4_, reducedChi2RPhiMaxNstub5_},
+                                                  {reducedBendChi2MaxNstub4_, reducedBendChi2MaxNstub5_});
 
   for (size_t i = 0; i < nOutputApproximate; i++) {
     const auto& track = l1TracksHandle->at(i);
@@ -561,10 +599,14 @@ void L1TrackSelectionProducer::fillDescriptions(edm::ConfigurationDescriptions& 
     descCutSet.add<double>("reducedBendChi2Max", 2.25)->setComment("bend chi2 must be less than this value");
     descCutSet.add<double>("reducedChi2RZMax", 5.0)->setComment("chi2rz/dof must be less than this value");
     descCutSet.add<double>("reducedChi2RPhiMax", 20.0)->setComment("chi2rphi/dof must be less than this value");
-    descCutSet.add<double>("reducedChi2MaxNstub4", 999.9)
-        ->setComment("chi2/dof must be less than this value in nstub==4");
-    descCutSet.add<double>("reducedChi2MaxNstub5", 999.9)
-        ->setComment("chi2/dof must be less than this value in nstub>4");
+    descCutSet.add<double>("reducedChi2RZMaxNstub4", 999.9)
+        ->setComment("chi2rz/dof must be less than this value in nstub==4");
+    descCutSet.add<double>("reducedChi2RZMaxNstub5", 999.9)
+        ->setComment("chi2rz/dof must be less than this value in nstub>4");
+    descCutSet.add<double>("reducedChi2RPhiMaxNstub4", 999.9)
+        ->setComment("chi2rphi/dof must be less than this value in nstub==4");
+    descCutSet.add<double>("reducedChi2RPhiMaxNstub5", 999.9)
+        ->setComment("chi2rphi/dof must be less than this value in nstub>4");
     descCutSet.add<double>("reducedBendChi2MaxNstub4", 999.9)
         ->setComment("bend chi2 must be less than this value in nstub==4");
     descCutSet.add<double>("reducedBendChi2MaxNstub5", 999.9)
