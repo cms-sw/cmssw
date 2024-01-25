@@ -59,21 +59,18 @@ SiPixelAliTrackFitterHG = SiPixelAliTrackFitter.clone(
 )
 
 SiPixelAliMillePedeFileConverterHG = cms.EDProducer("MillePedeFileConverter",
-                                                  fileDir = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.fileDir.value()),
-                                                  inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.binaryFile.value()),
-                                                  fileBlobLabel = cms.string(''),
-                                                 )
-
-
+                                                    fileDir = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.fileDir.value()),
+                                                    inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.binaryFile.value()),
+                                                    fileBlobLabel = cms.string(''))
 
 seqALCARECOPromptCalibProdSiPixelAliHG = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAliHG*
-                                                    lsNumberFilter*
-                                                    offlineBeamSpot*
-                                                    SiPixelAliHighPuritySelectorHG*
-                                                    SiPixelAliTrackRefitterHG0*
-                                                    SiPixelAliTrackerTrackHitFilterHG*
-                                                    SiPixelAliTrackFitterHG*
-                                                    SiPixelAliTrackSelectorHG*
-                                                    SiPixelAliTrackRefitterHG1*
-                                                    SiPixelAliMilleAlignmentProducerHG*
-                                                    SiPixelAliMillePedeFileConverterHG)
+                                                      lsNumberFilter*
+                                                      offlineBeamSpot*
+                                                      SiPixelAliHighPuritySelectorHG*
+                                                      SiPixelAliTrackRefitterHG0*
+                                                      SiPixelAliTrackerTrackHitFilterHG*
+                                                      SiPixelAliTrackFitterHG*
+                                                      SiPixelAliTrackSelectorHG*
+                                                      SiPixelAliTrackRefitterHG1*
+                                                      SiPixelAliMilleAlignmentProducerHG*
+                                                      SiPixelAliMillePedeFileConverterHG)
