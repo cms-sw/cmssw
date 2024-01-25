@@ -310,19 +310,27 @@ void TritonService::postEndJob() {
     return;
 
   std::string command = fallbackOpts_.command;
-  //print logs if cmsRun is currently exiting because of a TritonException
-  if (callFails_ > 0 and !fallbackOpts_.verbose)
-    command += " -v";
+  //prevent log cleanup during server stop
+  if (callFails_ > 0)
+    command += " -c";
   command += " stop";
   if (verbose_)
     edm::LogInfo("TritonService") << command;
 
   const auto& [output, rv] = execSys(command);
-  if (rv != 0) {
+  if (rv != 0 or callFails_ > 0) {
+    //print logs if cmsRun is currently exiting because of a TritonException
     edm::LogError("TritonService") << output;
     printFallbackServerLog<edm::LogError>();
-    throw cms::Exception("FallbackFailed")
-        << "TritonService: Stopping the fallback server failed with exit code " << rv;
+    if (rv != 0) {
+      cms::Exception stopException("FallbackFailed");
+      stopException << "TritonService: Stopping the fallback server failed with exit code " << rv;
+      //avoid throwing if the stack is already unwinding
+      if (callFails_ > 0)
+        edm::LogWarning(stopException.category()) << stopException.explainSelf();
+      else
+        throw stopException;
+    }
   } else if (verbose_) {
     edm::LogInfo("TritonService") << output;
     printFallbackServerLog<edm::LogInfo>();
