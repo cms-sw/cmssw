@@ -261,6 +261,18 @@ def customizeHLTfor43549(process):
 
     return process
 
+def customizeHLTfor43774(process):
+    filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
+    absAbleVar = ["DEta","deta","DetaSeed","Dphi","OneOESuperMinusOneOP","OneOESeedMinusOneOP"]
+    for filt_type in filt_types:
+        for filt in filters_by_type(process, filt_type):
+            if filt.varTag.productInstanceLabel in absAbleVar:
+                filt.useAbs = cms.bool(True)
+            
+    return process
+            
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -271,5 +283,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor43025(process)
     process = customizeHLTfor43549(process)
-    
+    process = customizeHLTfor43774(process)
     return process
