@@ -406,6 +406,7 @@ auto_stop(){
 		fi
 		PCOUNTER=0
 		PMAX=5
+		# builtin wait is not used here because it can only monitor a child process, not a parent process
 		while [ "$PCOUNTER" -le "$PMAX" ]; do
 			if ! kill -0 $PARENTPID >& /dev/null; then
 				PCOUNTER=$((PCOUNTER+1))
@@ -427,13 +428,11 @@ auto_stop(){
 	$STOP_FN
 
 	# move logs out of tmp dir
-	if [ -z "$DRYRUN" ]; then
-		if [ -n "$VERBOSE" ]; then
-			mv "$LOG" "$TOPDIR"
-			# only keep non-empty log
-			if [ -s "$STOPLOG" ]; then
-				mv "$STOPLOG" "$TOPDIR"
-			fi
+	if [ -z "$DRYRUN" ] && [ -n "$VERBOSE" ]; then
+		mv "$LOG" "$TOPDIR"
+		# only keep non-empty log
+		if [ -s "$STOPLOG" ]; then
+			mv "$STOPLOG" "$TOPDIR"
 		fi
 	fi
 
