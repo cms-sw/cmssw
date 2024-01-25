@@ -61,6 +61,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
       currentModuleId_(0),
       allowAddModel_(false),
       startedFallback_(false),
+      callFails_(0),
       pid_(std::to_string(::getpid())) {
   //module construction is assumed to be serial (correct at the time this code was written)
 
@@ -297,11 +298,22 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
                                            << output;
 }
 
+void TritonService::notifyCallStatus(bool status) const {
+  if (status)
+    --callFails_;
+  else
+    ++callFails_;
+}
+
 void TritonService::postEndJob() {
   if (!startedFallback_)
     return;
 
-  std::string command = fallbackOpts_.command + " stop";
+  std::string command = fallbackOpts_.command;
+  //print logs if cmsRun is currently exiting because of a TritonException
+  if (callFails_ > 0 and !fallbackOpts_.verbose)
+    command += " -v";
+  command += " stop";
   if (verbose_)
     edm::LogInfo("TritonService") << command;
 
