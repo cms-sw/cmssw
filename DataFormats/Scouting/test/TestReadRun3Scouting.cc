@@ -92,6 +92,7 @@ namespace edmtest {
     const std::vector<int> expectedTrackIntegralValues_;
     const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
 
+    const int inputVertexClassVersion_;
     const std::vector<double> expectedVertexFloatingPointValues_;
     const std::vector<int> expectedVertexIntegralValues_;
     const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> vertexesToken_;
@@ -123,6 +124,7 @@ namespace edmtest {
         expectedTrackFloatingPointValues_(iPSet.getParameter<std::vector<double>>("expectedTrackFloatingPointValues")),
         expectedTrackIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedTrackIntegralValues")),
         tracksToken_(consumes(iPSet.getParameter<edm::InputTag>("tracksTag"))),
+        inputVertexClassVersion_(iPSet.getParameter<int>("vertexClassVersion")),
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
         expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
@@ -211,6 +213,7 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedTrackFloatingPointValues");
     desc.add<std::vector<int>>("expectedTrackIntegralValues");
     desc.add<edm::InputTag>("tracksTag");
+    desc.add<int>("vertexClassVersion");
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
     desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
@@ -1159,14 +1162,17 @@ namespace edmtest {
       if (vertex.isValidVtx() != static_cast<bool>((expectedVertexIntegralValues_[2] + iOffset) % 2)) {
         throwWithMessage("analyzeVertexes, isValidVtx does not equal expected value");
       }
-      if (vertex.xyCov() != expectedVertexFloatingPointValues_[7] + offset) {
-        throwWithMessage("analyzeVertexes, xy cov. does not equal expected value");
-      }
-      if (vertex.xzCov() != expectedVertexFloatingPointValues_[8] + offset) {
-        throwWithMessage("analyzeVertexes, xz cov. does not equal expected value");
-      }
-      if (vertex.yzCov() != expectedVertexFloatingPointValues_[9] + offset) {
-        throwWithMessage("analyzeVertexes, yz cov. does not equal expected value");
+
+      if (inputVertexClassVersion_ == 4) {
+        if (vertex.xyCov() != expectedVertexFloatingPointValues_[7] + offset) {
+          throwWithMessage("analyzeVertexes, xy cov. does not equal expected value");
+        }
+        if (vertex.xzCov() != expectedVertexFloatingPointValues_[8] + offset) {
+          throwWithMessage("analyzeVertexes, xz cov. does not equal expected value");
+        }
+        if (vertex.yzCov() != expectedVertexFloatingPointValues_[9] + offset) {
+          throwWithMessage("analyzeVertexes, yz cov. does not equal expected value");
+        }
       }
       ++i;
     }
