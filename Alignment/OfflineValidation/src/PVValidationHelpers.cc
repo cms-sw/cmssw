@@ -234,7 +234,7 @@ std::pair<Measurement1D, Measurement1D> PVValHelper::fitResiduals(TH1* hist)
   float sigma = hist->GetRMS();
 
   TF1 func("tmp", "gaus", mean - 1.5 * sigma, mean + 1.5 * sigma);
-  if (0 == hist->Fit(&func, "QNRL")) {  // N: do not blow up file by storing fit!
+  if (0 == hist->Fit(&func, "QNR")) {  // N: do not blow up file by storing fit!
     mean = func.GetParameter(1);
     sigma = func.GetParameter(2);
     // second fit: three sigma of first fit around mean of first fit
