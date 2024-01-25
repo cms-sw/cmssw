@@ -346,6 +346,12 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
 
 //default case for sync and pseudo async
 void TritonClient::evaluate() {
+  //undo previous signal from TritonException
+  if (tries_ > 0) {
+    edm::Service<TritonService> ts;
+    ts->notifyCallStatus(true);
+  }
+
   //in case there is nothing to process
   if (batchSize() == 0) {
     //call getResults on an empty vector

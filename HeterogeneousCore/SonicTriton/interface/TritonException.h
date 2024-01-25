@@ -9,9 +9,6 @@ class TritonException : public cms::Exception {
 public:
   explicit TritonException(std::string const& aCategory, bool signal = false);
   void convertToWarning() const;
-
-protected:
-  bool signal_;
 };
 
 #endif
