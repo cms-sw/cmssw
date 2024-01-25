@@ -232,8 +232,8 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
-        seediEtaOriX = Var("superCluster().seedCrysIEtaOrIx","int8",doc="iEta or iX of seed crystal. iEta is barrel-only, iX is endcap-only. iEta runs from -85 to +85, with no crystal at iEta=0. iX runs from 1 to 100."),
-        seediPhiOriY = Var("superCluster().seedCrysIPhiOrIy",int,doc="iPhi or iY of seed crystal. iPhi is barrel-only, iY is endcap-only. iPhi runs from 1 to 360. iY runs from 1 to 100."),
+        seediEtaOriX = Var("superCluster().seedCrysIEtaOrIx","int16",doc="iEta or iX of seed crystal. iEta is barrel-only, iX is endcap-only. iEta runs from -85 to +85, with no crystal at iEta=0. iX runs from 1 to 100."),
+        seediPhiOriY = Var("superCluster().seedCrysIPhiOrIy","int16",doc="iPhi or iY of seed crystal. iPhi is barrel-only, iY is endcap-only. iPhi runs from 1 to 360. iY runs from 1 to 100."),
         # position of photon is best approximated by position of seed cluster, not the SC centroid
         x_calo = Var("superCluster().seed().position().x()",float,doc="photon supercluster position on calorimeter, x coordinate (cm)",precision=10),
         y_calo = Var("superCluster().seed().position().y()",float,doc="photon supercluster position on calorimeter, y coordinate (cm)",precision=10),

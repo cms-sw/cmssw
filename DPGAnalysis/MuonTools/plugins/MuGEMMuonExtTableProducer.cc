@@ -115,10 +115,10 @@ void MuGEMMuonExtTableProducer::fillTable(edm::Event& ev) {
 
   std::vector<bool> propagated_isincoming;
   std::vector<bool> propagated_isinsideout;
-  std::vector<int8_t> propagated_region;
-  std::vector<int8_t> propagated_layer;
-  std::vector<int8_t> propagated_chamber;
-  std::vector<int8_t> propagated_etaP;
+  std::vector<int16_t> propagated_region;
+  std::vector<int16_t> propagated_layer;
+  std::vector<int16_t> propagated_chamber;
+  std::vector<int16_t> propagated_etaP;
 
   std::vector<float> propagatedLoc_x;
   std::vector<float> propagatedLoc_y;
@@ -148,10 +148,10 @@ void MuGEMMuonExtTableProducer::fillTable(edm::Event& ev) {
   std::vector<float> propagated_EtaPartition_rMax;
   std::vector<float> propagated_EtaPartition_rMin;
 
-  std::vector<int8_t> propagated_nME1hits;
-  std::vector<int8_t> propagated_nME2hits;
-  std::vector<int8_t> propagated_nME3hits;
-  std::vector<int8_t> propagated_nME4hits;
+  std::vector<int16_t> propagated_nME1hits;
+  std::vector<int16_t> propagated_nME2hits;
+  std::vector<int16_t> propagated_nME3hits;
+  std::vector<int16_t> propagated_nME4hits;
 
   auto muons = m_token.conditionalGet(ev);
 
@@ -237,10 +237,10 @@ void MuGEMMuonExtTableProducer::fillTable(edm::Event& ev) {
         //if at least one CSC hit is found, perform propagation
         if (is_csc) {
           // CSC Hits
-          int8_t nME1_hits = 0;
-          int8_t nME2_hits = 0;
-          int8_t nME3_hits = 0;
-          int8_t nME4_hits = 0;
+          int16_t nME1_hits = 0;
+          int16_t nME2_hits = 0;
+          int16_t nME3_hits = 0;
+          int16_t nME4_hits = 0;
 
           int nHits{htp.numberOfAllHits(htp.TRACK_HITS)};
 

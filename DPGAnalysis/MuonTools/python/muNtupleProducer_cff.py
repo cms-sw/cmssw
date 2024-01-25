@@ -11,14 +11,14 @@ from DPGAnalysis.MuonTools.nano_mu_l1t_cff import *
 
 muDPGNanoProducer = cms.Sequence(lhcInfoTableProducer
                                 + lumiTableProducer
-                                + muDigiProducers 
-                                + muLocalRecoProducers 
+                                + muDigiProducers
+                                + muLocalRecoProducers
                                 + muRecoProducers
                                 + muL1TriggerProducers
                                )
-                               
+
 def muDPGNanoCustomize(process) :
-     
+
      if hasattr(process, "dtrpcPointFlatTableProducer") and \
         hasattr(process, "cscrpcPointFlatTableProducer") and \
         hasattr(process, "RawToDigiTask"):
@@ -27,7 +27,7 @@ def muDPGNanoCustomize(process) :
           process.rpcPointProducer.cscSegments =  'cscSegments'
           process.rpcPointProducer.ExtrapolatedRegion = 0.6
           process.RawToDigiTask.add(process.rpcPointProducer)
-          
+
      if hasattr(process, "muGEMMuonExtTableProducer") or hasattr(process, "muCSCTnPFlatTableProducer"):
           process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
           process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")

@@ -13,9 +13,6 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
     throw cms::Exception("LogicError", "Mismatch in adding extension");
   for (unsigned int i = 0, n = other.nColumns(); i < n; ++i) {
     switch (other.columnType(i)) {
-      case ColumnType::Int8:
-        addColumn<int8_t>(other.columnName(i), other.columnData<int8_t>(i), other.columnDoc(i));
-        break;
       case ColumnType::UInt8:
         addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
@@ -50,8 +47,6 @@ double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) co
   if (column >= nColumns())
     throw cms::Exception("LogicError", "Invalid column");
   switch (columnType(column)) {
-    case ColumnType::Int8:
-      return *(beginData<int8_t>(column) + row);
     case ColumnType::UInt8:
       return *(beginData<uint8_t>(column) + row);
     case ColumnType::Int16:

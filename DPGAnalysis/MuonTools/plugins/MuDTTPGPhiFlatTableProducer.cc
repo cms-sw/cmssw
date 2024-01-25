@@ -77,12 +77,12 @@ void MuDTTPGPhiFlatTableProducer::getFromES(const edm::Run& run, const edm::Even
 void MuDTTPGPhiFlatTableProducer::fillTable(edm::Event& ev) {
   unsigned int nTrigs{0};
 
-  std::vector<int8_t> wheel;
-  std::vector<int8_t> sector;
-  std::vector<int8_t> station;
+  std::vector<int16_t> wheel;
+  std::vector<int16_t> sector;
+  std::vector<int16_t> station;
 
-  std::vector<int8_t> quality;
-  std::vector<int8_t> rpcBit;
+  std::vector<int16_t> quality;
+  std::vector<int16_t> rpcBit;
 
   std::vector<int> phi;
   std::vector<int> phiB;
@@ -90,8 +90,8 @@ void MuDTTPGPhiFlatTableProducer::fillTable(edm::Event& ev) {
   std::vector<float> posLoc_x;
   std::vector<float> dirLoc_phi;
 
-  std::vector<int8_t> bx;
-  std::vector<int8_t> is2nd;
+  std::vector<int16_t> bx;
+  std::vector<int16_t> is2nd;
 
   auto trigColl = m_token.conditionalGet(ev);
 
