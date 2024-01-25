@@ -158,7 +158,7 @@ public:
     // ... create your hists
     TH2F* h = me->getTH2F();
     TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
-    h->FitSlicesY(&fgaus, 0, -1, 0, "QNRL SERIAL");
+    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL");
     string name(h->GetName());
     h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
     h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
@@ -1162,7 +1162,7 @@ void DQMGenericClient::limitedFit(MonitorElement* srcME, MonitorElement* meanME,
       //To avoid DQMGenericClient maintains state between fit calls
       fitFcn->SetParameters(histoY->Integral(), histoY->GetMean(), histoY->GetRMS());
 
-      histoY->Fit(fitFcn, "QR0L SERIAL", "", x1, x2);
+      histoY->Fit(fitFcn, "QR0 SERIAL", "", x1, x2);
 
       //      histoY->Fit(fitFcn->GetName(),"RME");
       double* par = fitFcn->GetParameters();
