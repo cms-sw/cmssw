@@ -3270,13 +3270,13 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     const auto sts_phi = sts.barycenter().phi();
     const auto sts_en = sts.raw_energy();
     const auto sts_pt = sts.raw_pt();
-    
+
     if (tracksters_PurityDuplicate[stsId] > 0) {
       histograms.h_num_caloparticle_eta[valType][count]->Fill(sts_eta);
       histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
       histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
       histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
-      
+
       if (tracksters_PurityDuplicate[stsId] > 1) {
         histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
         histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
