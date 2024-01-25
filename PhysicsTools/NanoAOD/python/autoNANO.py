@@ -14,26 +14,26 @@ def expandNanoMapping(seqList, mapping, key):
                 #  - An empty string recalls the default for the given key
                 #  - None is interpreted as "ignore this"
                 seqList.remove(specifiedCommand)
-                if key in mappedTo and mappedTo[key] is not None:                    
+                if key in mappedTo and mappedTo[key] is not None:
                     seqList.extend(mappedTo[key].split('+'))
                 break;
         if level==maxLevel:
             raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
 
 
-autoNANO = { 
+autoNANO = {
     # PHYS is a mapping to the default NANO config, i.e. empty strings
-    'PHYS': {'sequence': '', 
+    'PHYS': {'sequence': '',
              'customize': ''},
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
-    # MUDPG flavours: use their own sequence 
-    'MUDPG' : {'sequence': 'muDPGNanoProducer',
-               'customize': 'muDPGNanoCustomize'},
-    'MUDPGBKG' : {'sequence': 'muDPGNanoProducerBkg',
-                  'customize': 'muDPGNanoBkgCustomize'},
+    # MUDPG flavours: use their own sequence
+    'MUDPG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoProducer',
+               'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
+    'MUDPGBKG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
+                  'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
     # PromptReco config: PHYS+L1
-    'Prompt' : {'sequence': '@PHYS', 
+    'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'}
 }
