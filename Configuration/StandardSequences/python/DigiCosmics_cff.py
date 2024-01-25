@@ -62,3 +62,12 @@ doAllDigi = cms.Sequence(doAllDigiTask)
 pdigi = cms.Sequence(pdigiTask)
 pdigi_valid = cms.Sequence(pdigiTask)
 
+#phase 2 common mods
+def _modifyEnableHcalHardcode( theProcess ):
+    from CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff import hcal_db_producer as _hcal_db_producer, es_hardcode as _es_hardcode, es_prefer_hcalHardcode as _es_prefer_hcalHardcode
+    theProcess.hcal_db_producer = _hcal_db_producer
+    theProcess.es_hardcode = _es_hardcode
+    theProcess.es_prefer_hcalHardcode = _es_prefer_hcalHardcode    
+
+from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
+modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )

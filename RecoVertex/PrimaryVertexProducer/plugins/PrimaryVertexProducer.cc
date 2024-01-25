@@ -160,6 +160,37 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::TrackCollection> tks;
   iEvent.getByToken(trkToken, tks);
 
+  // mechanism to put the beamspot if the track collection is empty
+  if (!tks.isValid()) {
+    for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+      auto result = std::make_unique<reco::VertexCollection>();
+      reco::VertexCollection& vColl = (*result);
+
+      GlobalError bse(beamSpot.rotatedCovariance3D());
+      if ((bse.cxx() <= 0.) || (bse.cyy() <= 0.) || (bse.czz() <= 0.)) {
+        AlgebraicSymMatrix33 we;
+        we(0, 0) = 10000;
+        we(1, 1) = 10000;
+        we(2, 2) = 10000;
+        vColl.push_back(reco::Vertex(beamSpot.position(), we, 0., 0., 0));
+        if (fVerbose) {
+          std::cout << "RecoVertex/PrimaryVertexProducer: "
+                    << "Beamspot with invalid errors " << bse.matrix() << std::endl;
+          std::cout << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n";
+        }
+      } else {
+        vColl.push_back(reco::Vertex(beamSpot.position(), beamSpot.rotatedCovariance3D(), 0., 0., 0));
+        if (fVerbose) {
+          std::cout << "RecoVertex/PrimaryVertexProducer: "
+                    << " will put Vertex derived from BeamSpot into Event.\n";
+        }
+      }
+      iEvent.put(std::move(result), algorithm->label);
+    }
+
+    return;  // early return
+  }
+
   // interface RECO tracks to vertex reconstruction
   const auto& theB = &iSetup.getData(theTTBToken);
   std::vector<reco::TransientTrack> t_tks;

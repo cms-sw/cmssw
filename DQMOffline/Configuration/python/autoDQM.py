@@ -247,6 +247,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
             'none': ['DQMNone',
                      'PostDQMOffline',
                      'DQMNone'],
+
+            'cosmics' : ['DQMOfflineCosmics',
+                         'PostDQMOffline',
+                         'DQMOfflineCosmics']
             }
 
 _phase2_allowed = ['beam','trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma','L1TMonPhase2','HLTMon']
