@@ -275,11 +275,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ALPAKA_ASSERT_OFFLOAD((hist.size() / blockDimension) <= maxiter);
 
           // NB: can be tuned.
-          constexpr uint32_t threadDimension = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 1 : 256;
+          constexpr uint32_t threadDimension = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 256 : 1;
 
 #ifndef NDEBUG
-          [[maybe_unused]] const uint32_t runTimeThreadDimension(
-              alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]);
+          [[maybe_unused]] const uint32_t runTimeThreadDimension =
+              alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u];
           ALPAKA_ASSERT_OFFLOAD(runTimeThreadDimension <= threadDimension);
 #endif
 
