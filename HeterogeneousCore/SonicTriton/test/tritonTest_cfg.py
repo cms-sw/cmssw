@@ -22,6 +22,7 @@ options.register("serverName", "default", VarParsing.multiplicity.singleton, Var
 options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "server address")
 options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int, "server port")
 options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int, "timeout for requests")
+options.register("timeoutUnit", "seconds", VarParsing.multiplicity.singleton, VarParsing.varType.string, "unit for timeout")
 options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "json file containing server address/port")
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of threads")
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of streams")
@@ -122,6 +123,7 @@ for im,module in enumerate(options.modules):
                 mode = cms.string(options.mode),
                 preferredServer = cms.untracked.string(""),
                 timeout = cms.untracked.uint32(options.timeout),
+                timeoutUnit = cms.untracked.string(options.timeoutUnit),
                 modelName = cms.string(model),
                 modelVersion = cms.string(""),
                 modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(model)),

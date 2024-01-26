@@ -29,6 +29,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `modelConfigPath`: path to `config.pbtxt` file for the model (using `edm::FileInPath`)
 * `preferredServer`: name of preferred server, for testing (see [Services](#services) below)
 * `timeout`: maximum allowed time for a request (disabled with 0)
+* `timeoutUnit`: seconds, milliseconds, or microseconds (default: seconds)
 * `outputs`: optional, specify which output(s) the server should send
 * `verbose`: enable verbose printouts (default: false)
 * `useSharedMemory`: enable use of shared memory (see [below](#shared-memory)) with local servers (default: true)

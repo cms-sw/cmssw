@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
@@ -81,8 +82,19 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
 
   //set options
   options_[0].model_version_ = params.getParameter<std::string>("modelVersion");
-  //convert seconds to microseconds
-  options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
+  options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout");
+  //convert to microseconds
+  const auto& timeoutUnit = params.getUntrackedParameter<std::string>("timeoutUnit");
+  unsigned conversion = 1;
+  if (timeoutUnit == "seconds")
+    conversion = 1e6;
+  else if (timeoutUnit == "milliseconds")
+    conversion = 1e3;
+  else if (timeoutUnit == "microseconds")
+    conversion = 1;
+  else
+    throw cms::Exception("Configuration") << "Unknown timeout unit: " << timeoutUnit;
+  options_[0].client_timeout_ *= conversion;
 
   //get fixed parameters from local config
   inference::ModelConfig localModelConfig;
@@ -563,6 +575,8 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   //server parameters should not affect the physics results
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
+  descClient.ifValue(edm::ParameterDescription<std::string>("timeoutUnit", "seconds", false),
+                     edm::allowedValues<std::string>("seconds", "milliseconds", "microseconds"));
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
