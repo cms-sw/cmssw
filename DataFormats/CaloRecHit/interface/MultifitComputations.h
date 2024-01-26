@@ -413,7 +413,7 @@ namespace calo {
 
           // compute the gradient
           //w.tail(nactive) = Atb.tail(nactive) - (AtA * solution).tail(nactive);
-          Eigen::Index w_max_idx;
+          Eigen::Index w_max_idx = 0;
           float w_max = -std::numeric_limits<float>::max();
           for (int icol = npassive; icol < NPULSES; icol++) {
             auto const icol_real = pulseOffsets(icol);

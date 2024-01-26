@@ -1053,6 +1053,27 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
     offset = 0.508,
 )
 
+# ECAL-only workflow running on CPU or GPU with Alpaka code
+#  - HLT with Alpaka
+#  - ECAL-only reconstruction with Alpaka, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackECALOnlyAlpaka'] = PatatrackWorkflow(
+    digi = {
+        # customize the ECAL Local Reco part of the HLT menu for Alpaka
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HLTrigger/Configuration/customizeHLTforAlpaka.customizeHLTforAlpakaEcalLocalReco'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+        '--procModifiers': 'alpaka'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+    },
+    suffix = 'Patatrack_ECALOnlyAlpaka',
+    offset = 0.411,
+)
+
 # ECAL-only workflow running on CPU
 #  - HLT on CPU
 #  - ECAL-only reconstruction on CPU, with DQM and validation

@@ -73,9 +73,14 @@ RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
 RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
 RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
+from Configuration.ProcessModifiers.gpu_cff import gpu
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.cpu.InputLabel = 'rawDataCollector'
-ecalDigis.cpu.InputLabel = 'rawDataCollector'
+ecalDigisCPU.InputLabel = 'rawDataCollector'
+gpu.toModify(ecalDigisGPU, InputLabel = 'rawDataCollector')
+alpaka.toModify(ecalDigisPortable, InputLabel = 'rawDataCollector')
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'

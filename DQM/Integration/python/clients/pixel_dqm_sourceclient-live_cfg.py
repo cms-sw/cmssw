@@ -22,14 +22,12 @@ offlineTesting=not live
 
 TAG ="PixelPhase1" 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siPixelDigis',
-                                         'siStripClusters', 
-                                         'SiPixelRawDataErrorSource', 
-                                         'SiPixelDigiSource'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.debugModules = cms.untracked.vstring('siPixelDigis',
+                                                           'siStripClusters', 
+                                                           'SiPixelRawDataErrorSource', 
+                                                           'SiPixelDigiSource')
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
 
 #----------------------------
 # Event Source

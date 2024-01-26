@@ -9,7 +9,6 @@
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalRecHit.h"
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -32,9 +31,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
+#include "DataFormats/EcalRecHit/interface/RecoTypes.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-#include "EigenMatrixTypes_gpu.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EigenMatrixTypes_gpu.h"
 
 struct EcalPulseShape;
 class EcalSampleMask;
