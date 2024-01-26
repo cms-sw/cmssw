@@ -222,7 +222,7 @@ pixelTracksAlpakaSerial = pixelTracksAlpaka.clone(
     pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial',
     alpaka = None
 )
-pixelTracksAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + pixelTracksAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
+pixelTracksAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync::' + pixelTracksAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 # legacy pixel tracks from SoA
 from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1_cfi import pixelTrackProducerFromSoAAlpakaPhase1 as _pixelTrackProducerFromSoAAlpakaPhase1

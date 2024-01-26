@@ -114,7 +114,7 @@ pixelVerticesAlpakaSerial = pixelVerticesAlpaka.clone(
     pixelTrackSrc = 'pixelTracksAlpakaSerial',
     alpaka = None
 )
-pixelVerticesAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + pixelVerticesAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
+pixelVerticesAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync::' + pixelVerticesAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 alpaka.toReplaceWith(pixelVerticesTask, cms.Task(
     # Build the pixel vertices in SoA format with alpaka on the device

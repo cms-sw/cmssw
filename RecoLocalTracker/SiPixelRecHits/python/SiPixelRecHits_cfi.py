@@ -144,7 +144,7 @@ siPixelRecHitsPreSplittingAlpakaSerial = siPixelRecHitsPreSplittingAlpaka.clone(
     #alpaka = dict( backend = '*' )
     alpaka = None
 )
-siPixelRecHitsPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + siPixelRecHitsPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
+siPixelRecHitsPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync::' + siPixelRecHitsPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase1_cfi import siPixelRecHitFromSoAAlpakaPhase1 as _siPixelRecHitFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase2_cfi import siPixelRecHitFromSoAAlpakaPhase2 as _siPixelRecHitFromSoAAlpakaPhase2

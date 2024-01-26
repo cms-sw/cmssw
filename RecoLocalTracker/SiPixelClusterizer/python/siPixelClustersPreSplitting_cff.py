@@ -134,7 +134,7 @@ siPixelClustersPreSplittingAlpakaSerial = siPixelClustersPreSplittingAlpaka.clon
     #alpaka = dict( backend = '*' )
     alpaka = None
 )
-siPixelClustersPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + siPixelClustersPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
+siPixelClustersPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync::' + siPixelClustersPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2
