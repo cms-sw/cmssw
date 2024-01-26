@@ -8,11 +8,9 @@
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-
-// local include(s)
-#include "SiPixelClusterThresholds.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 namespace gpuCalibPixel {
 
@@ -52,6 +50,7 @@ namespace gpuCalibPixel {
 
       int row = x[i];
       int col = y[i];
+
       auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
       float pedestal = ret.first;
       float gain = ret.second;

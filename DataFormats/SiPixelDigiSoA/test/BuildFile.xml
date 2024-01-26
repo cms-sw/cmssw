@@ -1,0 +1,11 @@
+<bin file="alpaka/Digis_test.cc alpaka/Digis_test.dev.cc" name="Digis_test">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin file="alpaka/DigiErrors_test.cc alpaka/DigiErrors_test.dev.cc" name="DigiErrors_test">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>

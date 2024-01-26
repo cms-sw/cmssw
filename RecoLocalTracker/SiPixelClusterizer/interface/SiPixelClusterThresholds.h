@@ -1,5 +1,9 @@
-#ifndef RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelClusterThresholds_h
-#define RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelClusterThresholds_h
+#ifndef RecoLocalTracker_SiPixelClusterizer_interface_SiPixelClusterThresholds_h
+#define RecoLocalTracker_SiPixelClusterizer_interface_SiPixelClusterThresholds_h
+
+/* This struct is an implementation detail of this package.
+ * It's in the interface directory because it needs to be shared by the legacy, CUDA, and Alpaka plugins.
+ */
 
 struct SiPixelClusterThresholds {
   inline constexpr int32_t getThresholdForLayerOnCondition(bool isLayer1) const noexcept {
@@ -51,4 +55,4 @@ struct SiPixelClusterThresholds {
         phase2KinkADC(phase2KinkADC) {}
 };
 
-#endif  // RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelClusterThresholds_h
+#endif  // RecoLocalTracker_SiPixelClusterizer_interface_SiPixelClusterThresholds_h

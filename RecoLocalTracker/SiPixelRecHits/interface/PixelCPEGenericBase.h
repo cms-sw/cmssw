@@ -1,8 +1,9 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
 #define RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
 
-#include "PixelCPEBase.h"
 #include <vector>
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 class PixelCPEGenericBase : public PixelCPEBase {
 public:
