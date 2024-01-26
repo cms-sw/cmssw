@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
@@ -139,12 +140,9 @@ phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingAlpaka,_siPixelRecHitAlpa
 ))
 
 # Hit SoA producer on the cpu, for validation
-siPixelRecHitsPreSplittingAlpakaSerial = siPixelRecHitsPreSplittingAlpaka.clone(
-    src = "siPixelClustersPreSplittingAlpakaSerial",
-    #alpaka = dict( backend = '*' )
-    alpaka = None
+siPixelRecHitsPreSplittingAlpakaSerial = makeSerialClone(siPixelRecHitsPreSplittingAlpaka,
+    src = "siPixelClustersPreSplittingAlpakaSerial"
 )
-siPixelRecHitsPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + siPixelRecHitsPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase1_cfi import siPixelRecHitFromSoAAlpakaPhase1 as _siPixelRecHitFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromSoAAlpakaPhase2_cfi import siPixelRecHitFromSoAAlpakaPhase2 as _siPixelRecHitFromSoAAlpakaPhase2

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
@@ -110,11 +111,9 @@ from RecoTracker.PixelVertexFinding.pixelVertexFromSoAAlpaka_cfi import pixelVer
 alpaka.toReplaceWith(pixelVertices, _pixelVertexFromSoAAlpaka.clone())
 
 # pixel vertex SoA producer with alpaka on the cpu, for validation
-pixelVerticesAlpakaSerial = pixelVerticesAlpaka.clone(
-    pixelTrackSrc = 'pixelTracksAlpakaSerial',
-    alpaka = None
+pixelVerticesAlpakaSerial = makeSerialClone(pixelVerticesAlpaka,
+    pixelTrackSrc = 'pixelTracksAlpakaSerial'
 )
-pixelVerticesAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + pixelVerticesAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 alpaka.toReplaceWith(pixelVerticesTask, cms.Task(
     # Build the pixel vertices in SoA format with alpaka on the device
