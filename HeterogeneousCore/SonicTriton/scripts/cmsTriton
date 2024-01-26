@@ -580,11 +580,16 @@ elif [ "$OP" == start ]; then
 	START_EXIT=0
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
 		make_tmp
-		#If we plan on editing model configs, must repull files into /tmp/local_model_repo, which is deleted upon retry
+
+		# if we plan on editing model configs, must copy files into /tmp/local_model_repo, which is deleted upon retry
 		if [ "$counter" -eq 0 ] || [ -n "$THREADCONTROL" ]; then list_models; fi
-		check_drivers
-		DRIVER_EXIT=$?
-		if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
+
+		# only need to check drivers if using GPU
+		if [ -n "$GPU" ]; then
+			check_drivers
+			DRIVER_EXIT=$?
+			if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
+		fi
 
 		$START_FN
 		START_EXIT=$?
