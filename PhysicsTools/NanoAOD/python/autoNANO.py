@@ -35,8 +35,6 @@ autoNANO = {
                'customize': 'muDPGNanoCustomize'},
     'MUDPGBKG' : {'sequence': 'muDPGNanoProducerBkg',
                   'customize': 'muDPGNanoBkgCustomize'},
-    # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
-    'MUPOG' : {'customize' : 'PrepMuonCustomNanoAOD'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'}

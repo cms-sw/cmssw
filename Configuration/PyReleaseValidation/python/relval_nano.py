@@ -165,8 +165,6 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--era' : 'Run3',
                                    '--datatier':'NANOAOD',
                                    '--eventcontent':'NANOAOD'}])
-steps['muPOGNANO_data13.0']=merge([{'--customise' : 'PhysicsTools/NanoAOD/custom_muon_cff:PrepMuonCustomNanoAOD', '-n' : '1000'},
-                                     steps['NANO_data13.0']])
 
 steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@PHYS+@MUPOG',
                                     '-n' : '1000'},
