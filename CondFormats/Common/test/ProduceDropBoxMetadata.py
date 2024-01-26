@@ -69,6 +69,10 @@ SiPixelAliRcd_prep_str = encodeJsonInString("SiPixelAliRcd_prep.json")
 SiPixelAliHGRcd_prod_str = encodeJsonInString("SiPixelAliHGRcd_prod.json")
 SiPixelAliHGRcd_prep_str = encodeJsonInString("SiPixelAliHGRcd_prep.json")
 
+#SiPixelAliHGComb
+SiPixelAliHGCombRcd_prod_str = encodeJsonInString("SiPixelAliHGCombRcd_prod.json")
+SiPixelAliHGCombRcd_prep_str = encodeJsonInString("SiPixelAliHGCombRcd_prep.json")
+
 #EcalPedestalsRcd
 EcalPedestalsRcd_prod_str = encodeJsonInString("EcalPedestal_prod.json")
 EcalPedestalsRcd_prep_str = encodeJsonInString("EcalPedestal_prep.json")
@@ -173,6 +177,12 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiPixelAliHGRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelAliHGRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('TrackerAlignmentHGCombinedRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiPixelAliHGCombRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiPixelAliHGCombRcd_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('SiStripApvGainRcdAAG'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
