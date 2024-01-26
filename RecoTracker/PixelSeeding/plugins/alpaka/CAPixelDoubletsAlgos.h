@@ -6,18 +6,22 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+
 #include <alpaka/alpaka.hpp>
+
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "DataFormats/Math/interface/approx_atan2.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "CAStructures.h"
-#include "CACell.h"
 
-#define GPU_DEBUG
+#include "CACell.h"
+#include "CAStructures.h"
+
+//#define GPU_DEBUG
 //#define NTUPLE_DEBUG
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace caPixelDoublets {
     using namespace cms::alpakatools;

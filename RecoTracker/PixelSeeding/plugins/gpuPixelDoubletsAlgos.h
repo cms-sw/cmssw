@@ -9,15 +9,15 @@
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "CAStructures.h"
 #include "GPUCACell.h"
 
-// #define GPU_DEBUG
-// #define NTUPLE_DEBUG
+//#define GPU_DEBUG
+//#define NTUPLE_DEBUG
 
 namespace gpuPixelDoublets {
 

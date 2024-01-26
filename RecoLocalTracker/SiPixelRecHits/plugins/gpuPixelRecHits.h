@@ -7,13 +7,14 @@
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 
-//#define GPU_DEBUG 1
+//#define GPU_DEBUG
+
 namespace gpuPixelRecHits {
 
   template <typename TrackerTraits>

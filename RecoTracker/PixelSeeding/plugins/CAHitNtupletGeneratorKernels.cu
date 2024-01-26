@@ -1,8 +1,9 @@
-#include "RecoTracker/PixelSeeding/plugins/CAHitNtupletGeneratorKernelsImpl.h"
 #include <mutex>
 
-// #define NTUPLE_DEBUG
-// #define GPU_DEBUG
+#include "RecoTracker/PixelSeeding/plugins/CAHitNtupletGeneratorKernelsImpl.h"
+
+//#define GPU_DEBUG
+//#define NTUPLE_DEBUG
 
 template <typename TrackerTraits>
 void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::launchKernels(const HitsConstView &hh,
