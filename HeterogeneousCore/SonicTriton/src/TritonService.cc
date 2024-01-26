@@ -105,20 +105,22 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
     TRITON_THROW_IF_ERROR(
         tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
-        "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")");
+        "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")",
+        false);
 
     if (verbose_) {
       inference::ServerMetadataResponse serverMetaResponse;
       TRITON_THROW_IF_ERROR(client->ServerMetadata(&serverMetaResponse),
-                            "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")");
+                            "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")",
+                            false);
       edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
                                     << ", version = " << serverMetaResponse.version();
     }
 
     inference::RepositoryIndexResponse repoIndexResponse;
-    TRITON_THROW_IF_ERROR(
-        client->ModelRepositoryIndex(&repoIndexResponse),
-        "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")");
+    TRITON_THROW_IF_ERROR(client->ModelRepositoryIndex(&repoIndexResponse),
+                          "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")",
+                          false);
 
     //servers keep track of models and vice versa
     if (verbose_)

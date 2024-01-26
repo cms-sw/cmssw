@@ -19,7 +19,8 @@ template <typename IO>
 void TritonMemResource<IO>::set() {
   for (auto& entry : data_->entries_) {
     TRITON_THROW_IF_ERROR(entry.data_->SetSharedMemory(name_, entry.totalByteSize_, entry.offset_),
-                          "unable to set shared memory (" + name_ + ")");
+                          "unable to set shared memory (" + name_ + ")",
+                          true);
   }
 }
 
@@ -35,7 +36,8 @@ void TritonInputHeapResource::copyInput(const void* values, size_t offset, unsig
                             (data_->entries_.size() > 1 ? std::to_string(entry)
                              : data_->entries_[entry].byteSizePerBatch_
                                  ? std::to_string(offset / data_->entries_[entry].byteSizePerBatch_)
-                                 : ""));
+                                 : ""),
+                        false);
 }
 
 template <>
@@ -45,7 +47,8 @@ void TritonOutputHeapResource::copyOutput() {
     size_t contentByteSizeEntry(0);
     if (entry.totalByteSize_ > 0)
       TRITON_THROW_IF_ERROR(entry.result_->RawData(data_->name_, &entry.output_, &contentByteSizeEntry),
-                            data_->name_ + " fromServer(): unable to get raw");
+                            data_->name_ + " fromServer(): unable to get raw",
+                            false);
     contentByteSize += contentByteSizeEntry;
   }
   if (contentByteSize != data_->totalByteSize_) {
@@ -87,7 +90,8 @@ TritonCpuShmResource<IO>::TritonCpuShmResource(TritonData<IO>* data, const std::
     throw cms::Exception("TritonError") << "unable to close descriptor for shared memory key: " + this->name_;
 
   TRITON_THROW_IF_ERROR(this->data_->client()->RegisterSystemSharedMemory(this->name_, this->name_, this->size_),
-                        "unable to register shared memory region: " + this->name_);
+                        "unable to register shared memory region: " + this->name_,
+                        true);
 }
 
 template <typename IO>
@@ -101,7 +105,8 @@ void TritonCpuShmResource<IO>::close() {
     return;
 
   TRITON_THROW_IF_ERROR(this->data_->client()->UnregisterSystemSharedMemory(this->name_),
-                        "unable to unregister shared memory region: " + this->name_);
+                        "unable to unregister shared memory region: " + this->name_,
+                        true);
 
   //unmap
   int tmp_fd = munmap(this->addr_, this->size_);
@@ -143,7 +148,8 @@ TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::
   cudaCheck(cudaMalloc((void**)&this->addr_, this->size_), "unable to allocate GPU memory for key: " + this->name_);
   cudaCheck(cudaIpcGetMemHandle(handle_.get(), this->addr_), "unable to get IPC handle for key: " + this->name_);
   TRITON_THROW_IF_ERROR(this->data_->client()->RegisterCudaSharedMemory(this->name_, *handle_, deviceId_, this->size_),
-                        "unable to register CUDA shared memory region: " + this->name_);
+                        "unable to register CUDA shared memory region: " + this->name_,
+                        true);
 }
 
 template <typename IO>
@@ -156,7 +162,8 @@ void TritonGpuShmResource<IO>::close() {
   if (this->closed_)
     return;
   TRITON_THROW_IF_ERROR(this->data_->client()->UnregisterCudaSharedMemory(this->name_),
-                        "unable to unregister CUDA shared memory region: " + this->name_);
+                        "unable to unregister CUDA shared memory region: " + this->name_,
+                        true);
   cudaCheck(cudaFree(this->addr_), "unable to free GPU memory for key: " + this->name_);
   this->closed_ = true;
 }
