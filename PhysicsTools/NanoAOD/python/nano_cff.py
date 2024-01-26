@@ -288,3 +288,4 @@ def nanoL1TrigObjCustomizeFull(process):
 from DPGAnalysis.MuonTools.muNtupleProducer_cff import *
 from DPGAnalysis.MuonTools.muNtupleProducerBkg_cff import *
 
+from PhysicsTools.NanoAOD.custom_muon_cff import *

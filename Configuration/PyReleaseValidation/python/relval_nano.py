@@ -169,8 +169,9 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--datatier':'NANOAOD',
                                    '--eventcontent':'NANOAOD'}])
 
-steps['muPOGNANO_data13.0']=merge([{'--customise' : 'PhysicsTools/NanoAOD/custom_muon_cff:PrepMuonCustomNanoAOD', '-n' : '1000'},
-                                     steps['NANO_data13.0']])
+steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@PHYS+@MUPOG',
+                                    '-n' : '1000'},
+                                    steps['NANO_data13.0']])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -181,7 +182,7 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
-steps['muPOGNANO_mc13.2']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize    ', '-n' : '1000'},
+steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@MUPOG ', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
 ##13.X INPUT
