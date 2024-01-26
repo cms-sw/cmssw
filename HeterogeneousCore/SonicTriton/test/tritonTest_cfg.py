@@ -29,7 +29,10 @@ options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.var
 options.register("modules", "TritonGraphProducer", VarParsing.multiplicity.list, VarParsing.varType.string, "list of modules to run (choices: {})".format(', '.join(models)))
 options.register("models","gat_test", VarParsing.multiplicity.list, VarParsing.varType.string, "list of models (same length as modules, or just 1 entry if all modules use same model)")
 options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string, "mode for client (choices: {})".format(', '.join(allowed_modes)))
-options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output")
+options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable all verbose output")
+options.register("verboseClient", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output for clients")
+options.register("verboseServer", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output for server")
+options.register("verboseService", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output for TritonService")
 options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "briefer output for graph modules")
 options.register("fallbackName", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "name for fallback server")
 options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "unit test mode: reduce input sizes")
@@ -83,8 +86,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
-process.TritonService.verbose = options.verbose
-process.TritonService.fallback.verbose = options.verbose
+process.TritonService.verbose = options.verbose or options.verboseService
+process.TritonService.fallback.verbose = options.verbose or options.verboseServer
 process.TritonService.fallback.useDocker = options.docker
 if len(options.fallbackName)>0:
     process.TritonService.fallback.instanceBaseName = options.fallbackName
@@ -127,7 +130,7 @@ for im,module in enumerate(options.modules):
                 modelName = cms.string(model),
                 modelVersion = cms.string(""),
                 modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(model)),
-                verbose = cms.untracked.bool(options.verbose),
+                verbose = cms.untracked.bool(options.verbose or options.verboseClient),
                 allowedTries = cms.untracked.uint32(options.tries),
                 useSharedMemory = cms.untracked.bool(options.shm),
                 compression = cms.untracked.string(options.compression),
