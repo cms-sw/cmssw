@@ -2,8 +2,8 @@
 // Original Author: Felice Pantaleo, CERN
 //
 
-// #define NTUPLE_DEBUG
-// #define GPU_DEBUG
+//#define GPU_DEBUG
+//#define NTUPLE_DEBUG
 
 #include <alpaka/alpaka.hpp>
 #include <cmath>

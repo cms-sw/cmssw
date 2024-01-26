@@ -5,15 +5,16 @@
 #include <cstdint>
 #include <cstdio>
 #include <type_traits>
+
 #include <alpaka/alpaka.hpp>
 
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -140,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // find the index of the first pixel not belonging to this module (or invalid)
         auto& msize = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
 
-        const uint32_t blockIdx(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
+        const uint32_t blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
         if (blockIdx >= clus_view[0].moduleStart())
           return;
 

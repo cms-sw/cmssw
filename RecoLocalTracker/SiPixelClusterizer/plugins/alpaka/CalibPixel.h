@@ -18,7 +18,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace calibPixel {
   using namespace cms::alpakatools;

@@ -33,7 +33,7 @@
 #include "gpuClusterChargeCut.h"
 #include "gpuClustering.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace pixelgpudetails {
 

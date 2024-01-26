@@ -1,18 +1,17 @@
 #ifndef RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorKernels_h
 #define RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorKernels_h
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
+//#define DUMP_GPU_TK_TUPLES
+
+#include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 
 #include "GPUCACell.h"
 #include "gpuPixelDoublets.h"
-
-#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
-#include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-
-// #define DUMP_GPU_TK_TUPLES
 
 namespace caHitNtupletGenerator {
 

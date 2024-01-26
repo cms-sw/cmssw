@@ -2,7 +2,8 @@
 
 #include "CAHitNtupletGeneratorKernels.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
+
 template <typename TrackerTraits>
 #ifdef __CUDACC__
 void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::allocateOnGPU(int32_t nHits, cudaStream_t stream) {

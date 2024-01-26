@@ -11,8 +11,8 @@
 #include <mutex>
 #endif
 
-#define NTUPLE_DEBUG
-#define GPU_DEBUG
+//#define GPU_DEBUG
+//#define NTUPLE_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
