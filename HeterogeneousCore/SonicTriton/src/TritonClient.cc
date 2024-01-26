@@ -117,15 +117,13 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   size_t fileCounter = 0;
   for (const auto& modelConfig : {localModelConfig, remoteModelConfig}) {
     const auto& agents = modelConfig.model_repository_agents().agents();
-    for (const auto& agent : agents) {
-      if (agent.name() == "checksum") {
-        const auto& params = agent.parameters();
-        for (const auto& [key, val] : params) {
-          // only check the requested version
-          if (key.compare(0, options_[0].model_version_.size() + 1, options_[0].model_version_ + "/") == 0)
-            checksums[key][fileCounter] = val;
-        }
-        break;
+    auto agent = std::find_if(agents.begin(), agents.end(), [](auto const& a) { return a.name() == "checksum"; });
+    if (agent != agents.end()) {
+      const auto& params = agent->parameters();
+      for (const auto& [key, val] : params) {
+        // only check the requested version
+        if (key.compare(0, options_[0].model_version_.size() + 1, options_[0].model_version_ + "/") == 0)
+          checksums[key][fileCounter] = val;
       }
     }
     ++fileCounter;
