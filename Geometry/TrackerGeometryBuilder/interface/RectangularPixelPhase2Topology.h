@@ -34,6 +34,8 @@ public:
                            int COLS_PER_ROC,       // Num of Cols per ROC
                            int BIG_PIX_PER_ROC_X,  // in x direction, rows
                            int BIG_PIX_PER_ROC_Y,  // in y direction, cols
+                           float BIG_PIX_PITCH_X,
+                           float BIG_PIX_PITCH_Y,
                            int ROCS_X,
                            int ROCS_Y)
       : m_pitchx(pitchx),
@@ -42,21 +44,28 @@ public:
         m_ncols(ncols),
         m_ROWS_PER_ROC(ROWS_PER_ROC),  // Num of Rows per ROC
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
+        m_BIG_PIX_PER_ROC_X(BIG_PIX_PER_ROC_X),  // Num of Rows per ROC
+        m_BIG_PIX_PER_ROC_Y(BIG_PIX_PER_ROC_Y),  // Num of Cols per ROC
+	m_BIG_PIX_PITCH_X(BIG_PIX_PITCH_X),
+        m_BIG_PIX_PITCH_Y(BIG_PIX_PITCH_Y),
         m_ROCS_X(ROCS_X),              // 
         m_ROCS_Y(ROCS_Y)               // 
         {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
     // Take into account large pixels
-    m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X * m_nrows / ROWS_PER_ROC) / 2. * m_pitchx;
-    m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y * m_ncols / COLS_PER_ROC) / 2. * m_pitchy;
+    //m_xoffset = -((m_nrows/2 - 2)*m_pitchx + 2*m_BIG_PIX_PITCH_X); //gbardell proto implementation fixing the number of big pix to the Phase 2 Geom, below a less harcoded attempt
+    //m_yoffset = -((m_ncols/2 - 1)*m_pitchy + m_BIG_PIX_PITCH_Y);
+    m_xoffset = -((m_nrows/2 - m_BIG_PIX_PER_ROC_X)*m_pitchx + m_BIG_PIX_PER_ROC_X*m_BIG_PIX_PITCH_X);  //gbardell: assuming the big pixel pitch is well computed it gets always in the middle regardless the number of big pixel.  Quad is 670*0.025 + 2*0.0875; double is 336* 0.025; 3D is 336*0.025; old geom is 672*faxe x pitch
+    m_yoffset = -((m_ncols/2 - m_BIG_PIX_PER_ROC_Y)*m_pitchy + m_BIG_PIX_PER_ROC_Y*m_BIG_PIX_PITCH_Y);
 
     std::cout << "RectangularPixelPhase2Topology"
       //   LogDebug("RectangularPixelPhase2Topology")
 	      << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx " << m_pitchx
                                          << ", pitchy " << m_pitchy << ", xoffset " << m_xoffset << ", yoffset "
                                          << m_yoffset << ", BIG_PIX_PER_ROC_X " << BIG_PIX_PER_ROC_X
-                                         << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
+                                         << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", BIG_PIX_PITCH_X "
+                                         << BIG_PIX_PITCH_X << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_X << ", ROWS_PER_ROC "
                                          << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X
                                          << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
                                          << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y
@@ -149,8 +158,13 @@ public:
   int rowsperroc() const override { return m_ROWS_PER_ROC; }
   // mlw Return number of cols per roc
   int colsperroc() const override { return m_COLS_PER_ROC; }
+  int bigpixperrocX() const { return m_BIG_PIX_PER_ROC_X; }
+  int bigpixperrocY() const { return m_BIG_PIX_PER_ROC_Y; }
   float xoffset() const { return m_xoffset; }
   float yoffset() const { return m_yoffset; }
+  float pitchbigpixelX() const { return m_BIG_PIX_PITCH_X; }
+  float pitchbigpixelY() const { return m_BIG_PIX_PITCH_Y; }
+
 
 private:
   float m_pitchx;
@@ -161,6 +175,10 @@ private:
   int m_ncols;
   int m_ROWS_PER_ROC;
   int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  float m_BIG_PIX_PITCH_X;
+  float m_BIG_PIX_PITCH_Y;
   int m_ROCS_X;
   int m_ROCS_Y;
 };

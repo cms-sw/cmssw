@@ -25,6 +25,8 @@ PixelTopology* PixelPhase2TopologyBuilder::build(
   // Take into account the large edge pixels
   float pitchX = (width - pixelROCsInX * BIG_PIX_PER_ROC_X * BIG_PIX_PITCH_X)/(nrows - pixelROCsInX * BIG_PIX_PER_ROC_X);
   float pitchY = (length - pixelROCsInY * BIG_PIX_PER_ROC_Y * BIG_PIX_PITCH_Y)/(ncols - pixelROCsInY * BIG_PIX_PER_ROC_Y);
+  if(BIG_PIX_PER_ROC_X == 0 ) BIG_PIX_PITCH_X = pitchX; //Gbardell: should then be either the exact one for Big Pixels or the expected one in the old geometry
+  if(BIG_PIX_PER_ROC_Y == 0 ) BIG_PIX_PITCH_Y = pitchY;
 
   return (new RectangularPixelPhase2Topology(nrows,
                                        ncols,
@@ -34,6 +36,8 @@ PixelTopology* PixelPhase2TopologyBuilder::build(
                                        pixelROCCols,  // (int)rocCol
                                        BIG_PIX_PER_ROC_X,
                                        BIG_PIX_PER_ROC_Y,
+				       BIG_PIX_PITCH_X,
+				       BIG_PIX_PITCH_Y,
                                        pixelROCsInX,
                                        pixelROCsInY));  // (int)rocInX, (int)rocInY
 }
