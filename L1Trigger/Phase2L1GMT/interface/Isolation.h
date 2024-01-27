@@ -159,18 +159,19 @@ namespace Phase2L1GMT {
         }
       }
 
-      // Only 8 bit for accumation?
+      // Accumation without fixed bit width
       mu.setHwIsoSum(accum);
 
+      // Accumation with fixed bit width
+      // Bit shifts with 3 bits with LSB of 0.25GeV
       iso_accum_t temp(accum);
-      accum = temp.to_int();
+      mu.setHwIsoSumAp(temp.to_int() >> 3);
 
-      mu.setHwIsoSumAp(accum);
+      //Disable isolation bit, sending isolation sumPT to GT
+      //iso_ |= SetAbsIsolationBits(accum);
+      //iso_ |= SetRelIsolationBits(accum, mu.hwPt());
 
-      iso_ |= SetAbsIsolationBits(accum);
-      iso_ |= SetRelIsolationBits(accum, mu.hwPt());
-
-      mu.setHwIso(iso_);
+      //mu.setHwIso(iso_);
     }
 
     if (dumpForHLS_) {

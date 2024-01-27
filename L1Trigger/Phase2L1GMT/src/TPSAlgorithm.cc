@@ -83,6 +83,20 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedM
   return out;
 }
 
+void TPSAlgorithm::SetQualityBits(std::vector<l1t::TrackerMuon>& muons)
+{
+  for (auto& mu : muons) {
+    // A preliminary suggestion. Need feedback from the menu group
+    bool veryloose = mu.numberOfMatches() > 0;
+    bool loose = mu.numberOfMatches() > 1;
+    bool medium = mu.stubs().size() > 1;
+    bool tight =  mu.numberOfMatches() > 2;
+    int qualbit = 0;
+    qualbit = (veryloose << 0 ) | ( loose << 1 ) | (medium << 2) | (tight<<3);
+    mu.setHwQual(qualbit);
+  }
+}
+
 bool TPSAlgorithm::outputGT(std::vector<l1t::TrackerMuon>& muons) {
   for (auto& mu : muons) {
     wordtype word1 = 0;

@@ -95,6 +95,8 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
   //sorter here:
   std::vector<l1t::TrackerMuon> sortedTrackMuonsNoIso = tps_->sort(trackMatchedMuonsNoIso, 12);
 
+  tps_->SetQualityBits(sortedTrackMuonsNoIso);
+
   isolation_->isolation_allmu_alltrk(sortedTrackMuonsNoIso, convertedTracks);
 
   //tauto3mu_->GetTau3Mu(sortedTrackMuonsNoIso, convertedTracks);
