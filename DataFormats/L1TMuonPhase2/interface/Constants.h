@@ -62,8 +62,9 @@ namespace Phase2L1GMT {
   const int BITSGTETA = 14;
   const int BITSGTZ0 = 10;
   const int BITSGTD0 = 10;
-  const int BITSGTQUAL = 8;
-  const int BITSGTISO = 4;
+  const int BITSGTQUAL = 6;
+  const int BITSGTQUALSC = 7;
+  const int BITSGTISO = 6;
   const int BITSGTBETA = 4;
 
   // Bitwidth for Tau->3mu object
@@ -91,6 +92,7 @@ namespace Phase2L1GMT {
   const float LSBpt = 0.03125;
   const float LSBphi = 2. * M_PI / pow(2, BITSPHI);
   const float LSBeta = 2. * M_PI / pow(2, BITSETA);
+  const float LSBGTiso = 0.25;  // 0.25GeV, LSBphi * 8
   const float LSBGTz0 = 0.05;  // 0.5mm, in sync with GTT and Correlator
   const float LSBGTd0 = 0.03;  // from GT interface doc
   const float LSBSAz0 = 1.6;   // 0.05 * 32 cm, with range +- 25.6
@@ -106,7 +108,8 @@ namespace Phase2L1GMT {
   typedef ap_int<BITSGTD0> d0_gt_t;       //d0        of tracker muon
   typedef ap_uint<BITSGTISO> iso_gt_t;    //isolation of tracker muon
   typedef ap_uint<BITSGTBETA> beta_gt_t;  //beta      of tracker muon
-  typedef ap_uint<BITSGTQUAL> qual_gt_t;  //quality   of tracker muon
+  typedef ap_int<BITSGTQUAL> qual_gt_t;   //quality   of tracker muon
+  typedef ap_int<BITSGTQUALSC> qualsc_gt_t;   //quality score of tracker muon (qual/q)
 
   //Standalone muon datatype
   typedef ap_uint<1> valid_sa_t;          //valid
