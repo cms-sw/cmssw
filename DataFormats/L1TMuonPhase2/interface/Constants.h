@@ -108,7 +108,7 @@ namespace Phase2L1GMT {
   typedef ap_int<BITSGTD0> d0_gt_t;       //d0        of tracker muon
   typedef ap_uint<BITSGTISO> iso_gt_t;    //isolation of tracker muon
   typedef ap_uint<BITSGTBETA> beta_gt_t;  //beta      of tracker muon
-  typedef ap_int<BITSGTQUAL> qual_gt_t;   //quality   of tracker muon
+  typedef ap_uint<BITSGTQUAL> qual_gt_t;   //quality   of tracker muon
   typedef ap_int<BITSGTQUALSC> qualsc_gt_t;   //quality score of tracker muon (qual/q)
 
   //Standalone muon datatype
