@@ -44,8 +44,8 @@ public:
         m_ncols(ncols),
         m_ROWS_PER_ROC(ROWS_PER_ROC),  // Num of Rows per ROC
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
-        m_BIG_PIX_PER_ROC_X(BIG_PIX_PER_ROC_X),  // Num of Rows per ROC
-        m_BIG_PIX_PER_ROC_Y(BIG_PIX_PER_ROC_Y),  // Num of Cols per ROC
+        m_BIG_PIX_PER_ROC_X(BIG_PIX_PER_ROC_X),  //
+        m_BIG_PIX_PER_ROC_Y(BIG_PIX_PER_ROC_Y),  // 
 	m_BIG_PIX_PITCH_X(BIG_PIX_PITCH_X),
         m_BIG_PIX_PITCH_Y(BIG_PIX_PITCH_Y),
         m_ROCS_X(ROCS_X),              // 
@@ -65,7 +65,7 @@ public:
                                          << ", pitchy " << m_pitchy << ", xoffset " << m_xoffset << ", yoffset "
                                          << m_yoffset << ", BIG_PIX_PER_ROC_X " << BIG_PIX_PER_ROC_X
                                          << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", BIG_PIX_PITCH_X "
-                                         << BIG_PIX_PITCH_X << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_X << ", ROWS_PER_ROC "
+                                         << BIG_PIX_PITCH_X << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_Y << ", ROWS_PER_ROC "
                                          << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X
                                          << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
                                          << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y
@@ -107,24 +107,41 @@ public:
   float localY(const float mpY) const override;
 
   //-------------------------------------------------------------
-  // Return the BIG pixel information for a given pixel
+  // Return the BIG pixel information for a given pixel (assuming they are always at the edge between two CROCs)
   //
   bool isItBigPixelInX(const int ixbin) const override {
-    return false;
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
+    if ( !no_big_pixel )
+      no_big_pixel = abs((ixbin-m_nrows/2) + 0.5) > m_BIG_PIX_PER_ROC_X;
+  
+    return !no_big_pixel;
   }
 
   bool isItBigPixelInY(const int iybin) const override {
-      return false;
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
+    if ( !no_big_pixel )
+      no_big_pixel = abs((iybin-m_ncols/2) + 0.5) > m_BIG_PIX_PER_ROC_Y;
+  
+    return !no_big_pixel;
   }
 
   //-------------------------------------------------------------
-  // Return BIG pixel flag in a given pixel range
+  // Return BIG pixel flag in a given pixel range (assuming they are always at the edge between two CROCs)
   //
   bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    return false;
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
+    if ( !no_big_pixel )      
+      no_big_pixel = (ixmin < std::clamp(ixmin, m_nrows/2-m_BIG_PIX_PER_ROC_X, m_nrows/2+m_BIG_PIX_PER_ROC_X-1)) | (ixmax > std::clamp(ixmax, m_nrows/2-m_BIG_PIX_PER_ROC_X, m_nrows/2+m_BIG_PIX_PER_ROC_X-1)); 
+	
+     return !no_big_pixel;
   }
+  
   bool containsBigPixelInY(int iymin, int iymax) const override {
-    return false;
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
+    if ( !no_big_pixel )      
+      no_big_pixel = (iymin < std::clamp(iymin, m_ncols/2-m_BIG_PIX_PER_ROC_Y, m_ncols/2+m_BIG_PIX_PER_ROC_Y-1)) | (iymax > std::clamp(iymax, m_ncols/2-m_BIG_PIX_PER_ROC_Y, m_ncols/2+m_BIG_PIX_PER_ROC_Y-1)); 
+	
+    return !no_big_pixel;
   }
 
   // @EM this is a dummy implementation ... 
