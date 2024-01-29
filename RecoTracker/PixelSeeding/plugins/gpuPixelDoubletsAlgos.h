@@ -287,8 +287,8 @@ namespace gpuPixelDoublets {
       }
 //      #endif
 #ifdef GPU_DEBUG
-      if (tooMany > 0)
-        printf("OuterHitOfCell full for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f\n",
+      if (tooMany > 0 || tot > 0)
+        printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f %s\n",
                i,
                inner,
                outer,
@@ -297,7 +297,8 @@ namespace gpuPixelDoublets {
                tooMany,
                iphicut,
                TrackerTraits::minz[pairLayerId],
-               TrackerTraits::maxz[pairLayerId]);
+               TrackerTraits::maxz[pairLayerId],
+               tooMany > 0 ? "FULL!!" : "not full.");
 #endif
     }  // loop in block...
   }

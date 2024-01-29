@@ -28,3 +28,10 @@
   <use name="eigen"/>
   <use name="boost"/>
 </bin>
+
+<bin file="alpaka/CAsizes_t.cpp">
+<flags ALPAKA_BACKENDS="1"/>  
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="boost"/>
+</bin>

@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="reco::ZVertexSoA"/>
+  <class name="PortableHostCollection<reco::ZVertexSoA>"/>
+  <class name="ZVertexHost" ClassVersion="3">
+    <version ClassVersion="3" checksum="1989784241"/>
+  </class>
+  <class name="edm::Wrapper<ZVertexHost>" splitLevel="0"/>
+</lcgdict>
