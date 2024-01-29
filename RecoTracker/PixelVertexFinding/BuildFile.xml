@@ -1,3 +1,5 @@
+<use name="alpaka"/>
+<use name="rootmath"/>
 <use name="CommonTools/Clustering1D"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/Math"/>
@@ -5,7 +7,6 @@
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="rootmath"/>
 <export>
   <lib name="1"/>
 </export>
