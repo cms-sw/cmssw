@@ -29,7 +29,7 @@
 #include "PixelClustering.h"
 #include "SiPixelRawToClusterKernel.h"
 
-//#define GPU_DEBUG
+// #define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelDetails {
@@ -640,15 +640,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto moduleStartFirstElement =
             cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
-        constexpr auto threadsPerBlockFindClus = 512;
+
+        // TODO
+        // - we are fixing this here since it needs to be needed
+        // at compile time also in the kernel (for_each_element_in_block_strided)
+        // - put maxIter in the Geometry traits
+        constexpr auto threadsOrElementsFindClus = 256;
+
         const auto workDivMaxNumModules =
-            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
+            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsOrElementsFindClus);
         // NB: With present FindClus() / chargeCut() algorithm,
         // threadPerBlock (GPU) or elementsPerThread (CPU) = 256 show optimal performance.
         // Though, it does not have to be the same number for CPU/GPU cases.
 
 #ifdef GPU_DEBUG
-        std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << threadsPerBlockFindClus
+        std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << threadsOrElementsFindClus
                   << " threadsPerBlockOrElementsPerThread\n";
 #endif
 
@@ -659,9 +665,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::wait(queue);
 #endif
 
+        constexpr auto threadsPerBlockChargeCut = 256;
+        const auto workDivChargeCut = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockChargeCut);
         // apply charge cut
         alpaka::exec<Acc1D>(queue,
-                            workDivMaxNumModules,
+                            workDivChargeCut,
                             ::pixelClustering::ClusterChargeCut<TrackerTraits>{},
                             digis_d->view(),
                             clusters_d->view(),
@@ -735,7 +743,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
 
-      const auto threadsPerBlockFindClus = ((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) * 128;
+      const auto threadsPerBlockFindClus = 256;
       const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
 
 #ifdef GPU_DEBUG

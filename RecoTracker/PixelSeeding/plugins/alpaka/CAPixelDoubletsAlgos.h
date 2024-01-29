@@ -191,8 +191,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const auto& [firstElementIdxNoStrideY, endElementIdxNoStrideY] =
           cms::alpakatools::element_index_range_in_grid(acc, 0u, dimIndexY);
       uint32_t firstElementIdxY = firstElementIdxNoStrideY;
+      uint32_t endElementIdxY = endElementIdxNoStrideY;
 
-      for (uint32_t j = firstElementIdxY; j < ntot; j += gridDimensionY) {
+      //const uint32_t incY = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 1 : gridDimensionY;
+      for (uint32_t j = firstElementIdxY; j < ntot; j++) {
+        if (not cms::alpakatools::next_valid_element_index_strided(
+                j, firstElementIdxY, endElementIdxY, gridDimensionY, ntot))
+          break;
+
         while (j >= innerLayerCumulativeSize[pairLayerId++])
           ;
         --pairLayerId;  // move to lower_bound ??
@@ -273,7 +279,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Here we parallelize in X
           uint32_t firstElementIdxX = firstElementIdxNoStrideX;
-          for (uint32_t pIndex = firstElementIdxX; pIndex < maxpIndex; pIndex += blockDimensionX) {
+          uint32_t endElementIdxX = endElementIdxNoStrideX;
+
+          for (uint32_t pIndex = firstElementIdxX; pIndex < maxpIndex; ++pIndex) {
+            if (not cms::alpakatools::next_valid_element_index_strided(
+                    pIndex, firstElementIdxX, endElementIdxX, blockDimensionX, maxpIndex))
+              break;
             auto oi = p[pIndex];  // auto oi = __ldg(p); is not allowed since __ldg is device-only
             ALPAKA_ASSERT_OFFLOAD(oi >= offsets[outer]);
             ALPAKA_ASSERT_OFFLOAD(oi < offsets[outer + 1]);

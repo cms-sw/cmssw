@@ -233,7 +233,6 @@ def customiseForOffline(process):
 
     return process
 
-
 def customizeHLTfor43025(process):
 
     for producer in producers_by_type(process, "PFClusterProducer"):
@@ -270,8 +269,11 @@ def customizeHLTfor43774(process):
                 filt.useAbs = cms.bool(True)
             
     return process
-            
 
+# from Configuration.ProcessModifiers.alpaka_cff import alpaka
+# from HLTTrigger.Configuration.customizeHLTForAlpaka import customizeHLTforAlpaka
+
+# modifyHLTForAlpaka_ = alpaka.makeProcessModifier(customizeHLTforAlpaka)
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
