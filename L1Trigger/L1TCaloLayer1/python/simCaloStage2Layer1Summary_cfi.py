@@ -50,7 +50,7 @@ simCaloStage2Layer1Summary = cms.EDProducer('L1TCaloSummary_CICADA_vXp1p1',
     verbose = cms.bool(False),
     # See UCTLayer1.hh for firmware version
     firmwareVersion = cms.int32(1),
-    CICADAModelVersion = cms.string("CICADA_v1p1p1"),
+    CICADAModelVersion = cms.string("CICADAModel_v1p1p1"),
     useTestPatterns = cms.bool(False),
     testPatterns = standardCICADATestPatterns
 )
