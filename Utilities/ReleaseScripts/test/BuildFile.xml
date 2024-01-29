@@ -5,7 +5,7 @@
   <flags PRE_TEST="SCRAM_Test"/>
 </test>
 <test name="SCRAM_PreTest" command="touch SCRAM_PreTest.txt"/>
-<test name="SCRAM_Test" command="test -e SCRAM_PreTest.txt &amp;&amp; touch SCRAM_Test.txt">
+<test name="SCRAM_Test" command="test -e SCRAM_PreTest.txt   &amp;&amp;   touch SCRAM_Test.txt">
   <flags PRE_TEST="SCRAM_PreTest"/>
 </test>
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
