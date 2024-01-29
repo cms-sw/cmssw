@@ -51,7 +51,7 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
             if ((seg.zones & zone_mask) != zone_mask) {
               // Debug Info
               if (this->context_.config_.verbosity_ > 4) {
-                edm::LogInfo("L1T EMTF++")
+                edm::LogInfo("L1TEMTFpp")
                     << "Hitmap Segment not in zone: "
                     << " zone " << zone_id << " row " << row_id << " seg_id " << seg_id << " seg_phi " << seg.phi
                     << " seg_zones " << seg.zones << " seg_tzones " << seg.tzones << std::endl;
@@ -64,7 +64,7 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
             if ((seg.tzones & tzone_mask) != tzone_mask) {
               // Debug Info
               if (this->context_.config_.verbosity_ > 4) {
-                edm::LogInfo("L1T EMTF++")
+                edm::LogInfo("L1TEMTFpp")
                     << "Hitmap Segment not in timezone: "
                     << " zone " << zone_id << " row " << row_id << " seg_id " << seg_id << " seg_phi " << seg.phi
                     << " seg_zones " << seg.zones << " seg_tzones " << seg.tzones << std::endl;
@@ -79,11 +79,11 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
             // Debug Info
             // Seg col should be in the range specified by the model chamber
             if (this->context_.config_.verbosity_ > 4) {
-              edm::LogInfo("L1T EMTF++") << "Hitmap Segment Before Assert"
-                                         << " zone " << zone_id << " row " << row_id << " col " << col_id << " seg_id "
-                                         << seg_id << " seg_phi " << seg.phi << " seg_zones " << seg.zones
-                                         << " seg_tzones " << seg.tzones << " ch_col_begin " << model_hm_chamber.begin
-                                         << " ch_col_end " << model_hm_chamber.end << std::endl;
+              edm::LogInfo("L1TEMTFpp") << "Hitmap Segment Before Assert"
+                                        << " zone " << zone_id << " row " << row_id << " col " << col_id << " seg_id "
+                                        << seg_id << " seg_phi " << seg.phi << " seg_zones " << seg.zones
+                                        << " seg_tzones " << seg.tzones << " ch_col_begin " << model_hm_chamber.begin
+                                        << " ch_col_end " << model_hm_chamber.end << std::endl;
             }
 
             emtf_assert(model_hm_chamber.begin <= col_id && col_id < model_hm_chamber.end);
@@ -94,10 +94,10 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
             if (!(v3::kHitmapCropColStart <= col_id && col_id < v3::kHitmapCropColStop)) {
               // Debug Info
               if (this->context_.config_.verbosity_ > 4) {
-                edm::LogInfo("L1T EMTF++") << "Hitmap Segment out of bounds: "
-                                           << " zone " << zone_id << " row " << row_id << " col " << col_id
-                                           << " seg_id " << seg_id << " seg_phi " << seg.phi << " seg_zones "
-                                           << seg.zones << " seg_tzones " << seg.tzones << std::endl;
+                edm::LogInfo("L1TEMTFpp") << "Hitmap Segment out of bounds: "
+                                          << " zone " << zone_id << " row " << row_id << " col " << col_id << " seg_id "
+                                          << seg_id << " seg_phi " << seg.phi << " seg_zones " << seg.zones
+                                          << " seg_tzones " << seg.tzones << std::endl;
               }
 
               continue;
@@ -112,10 +112,10 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
 
             // Debug Info
             if (this->context_.config_.verbosity_ > 1) {
-              edm::LogInfo("L1T EMTF++") << "Hitmap Segment"
-                                         << " zone " << zone_id << " row " << row_id << " col " << col_id << " seg_id "
-                                         << seg_id << " seg_phi " << seg.phi << " seg_zones " << seg.zones
-                                         << " seg_tzones " << seg.tzones << std::endl;
+              edm::LogInfo("L1TEMTFpp") << "Hitmap Segment"
+                                        << " zone " << zone_id << " row " << row_id << " col " << col_id << " seg_id "
+                                        << seg_id << " seg_phi " << seg.phi << " seg_zones " << seg.zones
+                                        << " seg_tzones " << seg.tzones << std::endl;
             }
           }  // End loop segments
 
@@ -137,13 +137,13 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
       }
 
       // Pretty print
-      edm::LogInfo("L1T EMTF++") << std::endl;
-      edm::LogInfo("L1T EMTF++") << "Zone " << zone_id << " Image" << std::endl;
+      edm::LogInfo("L1TEMTFpp") << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Zone " << zone_id << " Image" << std::endl;
 
       for (int row_id = (model_hm.size() - 1); 0 <= row_id; --row_id) {  // Print rows in reverse order
         const auto& row = hitmap[row_id];
 
-        edm::LogInfo("L1T EMTF++") << row_id << " ";
+        edm::LogInfo("L1TEMTFpp") << row_id << " ";
 
         for (int col_id = 0; col_id < v3::kHitmapNCols; ++col_id) {
           hitmap_row_t pixel_mask = 1;
@@ -152,16 +152,16 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
           bool is_present = (row & pixel_mask) == pixel_mask;
 
           if (is_present) {
-            edm::LogInfo("L1T EMTF++") << "X";
+            edm::LogInfo("L1TEMTFpp") << "X";
           } else {
-            edm::LogInfo("L1T EMTF++") << "-";
+            edm::LogInfo("L1TEMTFpp") << "-";
           }
         }
 
-        edm::LogInfo("L1T EMTF++") << std::endl;
+        edm::LogInfo("L1TEMTFpp") << std::endl;
       }
 
-      edm::LogInfo("L1T EMTF++") << std::endl;
+      edm::LogInfo("L1TEMTFpp") << std::endl;
     }
   }  // End loop zones
 }

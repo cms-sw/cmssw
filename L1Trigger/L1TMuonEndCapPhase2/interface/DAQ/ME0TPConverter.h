@@ -12,7 +12,7 @@ namespace emtf::phase2 {
   public:
     explicit ME0TPConverter(const EMTFContext&, const int&, const int&);
 
-    ~ME0TPConverter() = default;
+    ~ME0TPConverter() override = default;
 
     void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 

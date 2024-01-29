@@ -53,7 +53,7 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
       for (int i_row = 0; i_row < v3::kHitmapNRows; ++i_row) {  // Loop Rows
         // Pad the row with zeros to cover cases where
         // pattern range is out of range
-        auto hitmap_row = hitmap[i_row];
+        const auto& hitmap_row = hitmap[i_row];
         auto& model_pat_row = model_pat[i_row];
 
         // Pad the hitmap row on both sides using kMaxPadding
@@ -114,9 +114,9 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
           continue;
         }
 
-        edm::LogInfo("L1T EMTF++") << "Road"
-                                   << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
-                                   << " qual " << roads[i_col].quality << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "Road"
+                                  << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
+                                  << " qual " << roads[i_col].quality << std::endl;
       }
     }
   }  // End Loop Zones

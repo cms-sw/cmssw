@@ -11,7 +11,7 @@ namespace emtf::phase2 {
   public:
     explicit ME0TPCollector(const EMTFContext&, edm::ConsumesCollector&);
 
-    ~ME0TPCollector() = default;
+    ~ME0TPCollector() override = default;
 
     void collect(const edm::Event&, BXTPCMap&) const final;
 

@@ -52,9 +52,9 @@ void RoadSortingLayer::apply(const int& first_n,
         } else {
           // Debug Info
           if (this->context_.config_.verbosity_ > 2 && roads[i_col].quality > 0) {
-            edm::LogInfo("L1T EMTF++") << "Road Suppressed"
-                                       << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
-                                       << " qual " << roads[i_col].quality << std::endl;
+            edm::LogInfo("L1TEMTFpp") << "Road Suppressed"
+                                      << " zone " << i_zone << " col " << i_col << " pat " << roads[i_col].pattern
+                                      << " qual " << roads[i_col].quality << std::endl;
           }
 
           // Suppress
@@ -82,10 +82,9 @@ void RoadSortingLayer::apply(const int& first_n,
         }
 
         if (this->context_.config_.verbosity_ > 2 && roads_kept[i_col].quality > 0) {
-          edm::LogInfo("L1T EMTF++") << "Road Kept"
-                                     << " zone " << roads_kept[i_col].zone << " col " << roads_kept[i_col].col
-                                     << " pat " << roads_kept[i_col].pattern << " qual " << roads_kept[i_col].quality
-                                     << std::endl;
+          edm::LogInfo("L1TEMTFpp") << "Road Kept"
+                                    << " zone " << roads_kept[i_col].zone << " col " << roads_kept[i_col].col << " pat "
+                                    << roads_kept[i_col].pattern << " qual " << roads_kept[i_col].quality << std::endl;
         }
       }
     }
@@ -121,9 +120,9 @@ void RoadSortingLayer::apply(const int& first_n,
         continue;
       }
 
-      edm::LogInfo("L1T EMTF++") << "Top Road"
-                                 << " zone " << road.zone << " col " << road.col << " pat " << road.pattern << " qual "
-                                 << road.quality << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Top Road"
+                                << " zone " << road.zone << " col " << road.col << " pat " << road.pattern << " qual "
+                                << road.quality << std::endl;
     }
   }
 
@@ -151,8 +150,8 @@ void RoadSortingLayer::apply(const int& first_n,
 
     // Debug Info
     if (this->context_.config_.verbosity_ > 1 && road.quality > 0) {
-      edm::LogInfo("L1T EMTF++") << "Best Road " << i_road << " zone " << road.zone << " col " << road.col << " pat "
-                                 << road.pattern << " qual " << road.quality << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Best Road " << i_road << " zone " << road.zone << " col " << road.col << " pat "
+                                << road.pattern << " qual " << road.quality << std::endl;
     }
   }
 }

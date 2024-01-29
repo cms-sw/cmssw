@@ -43,10 +43,10 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
     tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, v3::kNumTrackFeatures});
 
     if (this->context_.config_.verbosity_ > 1) {
-      edm::LogInfo("L1T EMTF++") << "Parameter Assignment In"
-                                 << " disp " << displaced_en << " zone " << track.zone << " col " << track.col
-                                 << " pat " << track.pattern << " qual " << track.quality << " phi " << track.phi
-                                 << " theta " << track.theta << " features " << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Parameter Assignment In"
+                                << " disp " << displaced_en << " zone " << track.zone << " col " << track.col << " pat "
+                                << track.pattern << " qual " << track.quality << " phi " << track.phi << " theta "
+                                << track.theta << " features " << std::endl;
     }
 
     // Prepare input tensor
@@ -60,7 +60,7 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
 
       // Debug Info
       if (this->context_.config_.verbosity_ > 1 && i_feature > 0) {
-        edm::LogInfo("L1T EMTF++") << " ";
+        edm::LogInfo("L1TEMTFpp") << " ";
       }
 
       // Mask invalid sites
@@ -73,14 +73,14 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
 
         // Debug Info
         if (this->context_.config_.verbosity_ > 1) {
-          edm::LogInfo("L1T EMTF++") << "0";
+          edm::LogInfo("L1TEMTFpp") << "0";
         }
       } else {
         (*input_data) = feature.to_float();
 
         // Debug Info
         if (this->context_.config_.verbosity_ > 1) {
-          edm::LogInfo("L1T EMTF++") << feature.to_float();
+          edm::LogInfo("L1TEMTFpp") << feature.to_float();
         }
       }
 
@@ -89,7 +89,7 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
 
     // Debug Info
     if (this->context_.config_.verbosity_ > 1) {
-      edm::LogInfo("L1T EMTF++") << std::endl;
+      edm::LogInfo("L1TEMTFpp") << std::endl;
     }
 
     // Select TF Session
@@ -139,13 +139,13 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
 
     // DEBUG
     if (this->context_.config_.verbosity_ > 1) {
-      edm::LogInfo("L1T EMTF++") << "Parameter Assignment Out"
-                                 << " disp " << displaced_en << " zone " << track.zone << " col " << track.col
-                                 << " pat " << track.pattern << " qual " << track.quality << " q " << track.q << " pt "
-                                 << track.pt << " rels " << track.rels << " dxy " << track.dxy << " z0 " << track.z0
-                                 << " phi " << track.phi << " theta " << track.theta << " beta " << track.beta
-                                 << " pt_address " << track.pt_address << " rels_address " << track.rels_address
-                                 << " dxy_address " << track.dxy_address << " valid " << track.valid << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Parameter Assignment Out"
+                                << " disp " << displaced_en << " zone " << track.zone << " col " << track.col << " pat "
+                                << track.pattern << " qual " << track.quality << " q " << track.q << " pt " << track.pt
+                                << " rels " << track.rels << " dxy " << track.dxy << " z0 " << track.z0 << " phi "
+                                << track.phi << " theta " << track.theta << " beta " << track.beta << " pt_address "
+                                << track.pt_address << " rels_address " << track.rels_address << " dxy_address "
+                                << track.dxy_address << " valid " << track.valid << std::endl;
     }
   }  // End loop tracks
 }

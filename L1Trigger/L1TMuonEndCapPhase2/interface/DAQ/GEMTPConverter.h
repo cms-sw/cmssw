@@ -12,7 +12,7 @@ namespace emtf::phase2 {
   public:
     explicit GEMTPConverter(const EMTFContext&, const int&, const int&);
 
-    ~GEMTPConverter() = default;
+    ~GEMTPConverter() override = default;
 
     void convert(const TriggerPrimitive&, const TPInfo&, EMTFHit&) const final;
 

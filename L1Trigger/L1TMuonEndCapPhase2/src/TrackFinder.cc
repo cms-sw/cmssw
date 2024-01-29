@@ -129,36 +129,36 @@ void TrackFinder::process(
       auto& bx_tpc = bx_tpc_map_it->second;
 
       // Short-Circuit: Empty trigger primitive collection
-      if (bx_tpc.size() == 0) {
+      if (bx_tpc.empty()) {
         continue;
       }
 
       // Print trigger primitives
-      edm::LogInfo("L1T EMTF++") << "==========================================================================="
-                                 << std::endl;
-      edm::LogInfo("L1T EMTF++") << "Begin TPC BX " << bx << " Dump" << std::endl;
-      edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
-                                 << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "==========================================================================="
+                                << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Begin TPC BX " << bx << " Dump" << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "---------------------------------------------------------------------------"
+                                << std::endl;
 
       n_tp += bx_tpc.size();
 
       for (const auto& tp_entry : bx_tpc) {
         tp_entry.tp_.print(std::cout);
 
-        edm::LogInfo("L1T EMTF++") << "---------------------------------------------------------------------------"
-                                   << std::endl;
+        edm::LogInfo("L1TEMTFpp") << "---------------------------------------------------------------------------"
+                                  << std::endl;
       }
 
-      edm::LogInfo("L1T EMTF++") << "End TPC BX " << bx << " Dump" << std::endl;
-      edm::LogInfo("L1T EMTF++") << "==========================================================================="
-                                 << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "End TPC BX " << bx << " Dump" << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "==========================================================================="
+                                << std::endl;
     }
 
     // Print TPrimitives Summary
     if (n_tp > 0) {
-      edm::LogInfo("L1T EMTF++") << "Num of TriggerPrimitive: " << n_tp << std::endl;
-      edm::LogInfo("L1T EMTF++") << "==========================================================================="
-                                 << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "Num of TriggerPrimitive: " << n_tp << std::endl;
+      edm::LogInfo("L1TEMTFpp") << "==========================================================================="
+                                << std::endl;
     }
   }
 
