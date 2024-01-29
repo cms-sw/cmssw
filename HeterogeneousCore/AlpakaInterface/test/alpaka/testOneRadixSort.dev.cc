@@ -168,6 +168,9 @@ int main() {
     return 0;
   }
 
+  std::random_device rd;
+  std::mt19937 g(rd());
+
   // run the test on each device
   for (auto const& device : devices) {
     Queue queue(device);
@@ -232,7 +235,7 @@ int main() {
     //cudaCheck(cudaMemcpy(gpu_input, input, sizeof(FLOAT) * nmax, cudaMemcpyHostToDevice));
 
     for (int k = 2; k <= nmax; k++) {
-      std::random_shuffle(input, input + k);
+      std::shuffle(input, input + k, g);
       printf("Test with %d items\n", k);
       // sort  on the GPU
       testWrapper(queue, gpu_input_d.data(), gpu_product_d.data(), k, false);

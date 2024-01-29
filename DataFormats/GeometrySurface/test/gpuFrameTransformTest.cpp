@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <random>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
@@ -41,6 +42,9 @@ int main(void) {
 
   constexpr uint32_t size = 10000;
   constexpr uint32_t size32 = size * sizeof(float);
+
+  std::random_device rd;
+  std::mt19937 g(rd());
 
   float xl[size], yl[size];
   float x[size], y[size], z[size];
@@ -79,8 +83,8 @@ int main(void) {
     le[3 * i + 2] = (i > size / 2) ? 1.f : 0.04f;
     le[2 * i + 1] = 0.;
   }
-  std::random_shuffle(xl, xl + size);
-  std::random_shuffle(yl, yl + size);
+  std::shuffle(xl, xl + size, g);
+  std::shuffle(yl, yl + size, g);
 
   cudaCheck(cudaMemcpy(d_xl.get(), xl, size32, cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(d_yl.get(), yl, size32, cudaMemcpyHostToDevice));
