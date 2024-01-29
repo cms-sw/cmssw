@@ -176,9 +176,9 @@ void SiPixelCompareTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const ed
 
     float ptHost = tsoaHost.view()[it].pt();
     float etaHost = tsoaHost.view()[it].eta();
-    float phiHost = helper::phi(tsoaHost.view(), it);
-    float zipHost = helper::zip(tsoaHost.view(), it);
-    float tipHost = helper::tip(tsoaHost.view(), it);
+    float phiHost = reco::phi(tsoaHost.view(), it);
+    float zipHost = reco::zip(tsoaHost.view(), it);
+    float tipHost = reco::tip(tsoaHost.view(), it);
 
     if (!(ptHost > 0.))
       continue;
@@ -193,7 +193,7 @@ void SiPixelCompareTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const ed
 
     for (auto gid : looseTrkidxDevice) {
       float etaDevice = tsoaDevice.view()[gid].eta();
-      float phiDevice = helper::phi(tsoaDevice.view(), gid);
+      float phiDevice = reco::phi(tsoaDevice.view(), gid);
       float dr2 = reco::deltaR2(etaHost, phiHost, etaDevice, phiDevice);
       if (dr2 > dr2cut_)
         continue;  // this is arbitrary
@@ -210,22 +210,22 @@ void SiPixelCompareTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const ed
     nLooseAndAboveTracksHost_matchedDevice++;
 
     hchi2_->Fill(tsoaHost.view()[it].chi2(), tsoaDevice.view()[closestTkidx].chi2());
-    hCharge_->Fill(reco::charge<T>(tsoaHost.view(), it), reco::charge<T>(tsoaDevice.view(), closestTkidx));
+    hCharge_->Fill(reco::charge(tsoaHost.view(), it), reco::charge(tsoaDevice.view(), closestTkidx));
     hnHits_->Fill(helper::nHits(tsoaHost.view(), it), helper::nHits(tsoaDevice.view(), closestTkidx));
     hnLayers_->Fill(tsoaHost.view()[it].nLayers(), tsoaDevice.view()[closestTkidx].nLayers());
     hpt_->Fill(tsoaHost.view()[it].pt(), tsoaDevice.view()[closestTkidx].pt());
     hptLogLog_->Fill(tsoaHost.view()[it].pt(), tsoaDevice.view()[closestTkidx].pt());
     heta_->Fill(etaHost, tsoaDevice.view()[closestTkidx].eta());
-    hphi_->Fill(phiHost, helper::phi(tsoaDevice.view(), closestTkidx));
-    hz_->Fill(zipHost, helper::zip(tsoaDevice.view(), closestTkidx));
-    htip_->Fill(tipHost, helper::tip(tsoaDevice.view(), closestTkidx));
+    hphi_->Fill(phiHost, reco::phi(tsoaDevice.view(), closestTkidx));
+    hz_->Fill(zipHost, reco::zip(tsoaDevice.view(), closestTkidx));
+    htip_->Fill(tipHost, reco::tip(tsoaDevice.view(), closestTkidx));
     hptdiffMatched_->Fill(ptHost - tsoaDevice.view()[closestTkidx].pt());
-    hCurvdiffMatched_->Fill((reco::charge<T>(tsoaHost.view(), it) / tsoaHost.view()[it].pt()) -
-                            (reco::charge<T>(tsoaDevice.view(), closestTkidx) / tsoaDevice.view()[closestTkidx].pt()));
+    hCurvdiffMatched_->Fill((reco::charge(tsoaHost.view(), it) / tsoaHost.view()[it].pt()) -
+                            (reco::charge(tsoaDevice.view(), closestTkidx) / tsoaDevice.view()[closestTkidx].pt()));
     hetadiffMatched_->Fill(etaHost - tsoaDevice.view()[closestTkidx].eta());
-    hphidiffMatched_->Fill(reco::deltaPhi(phiHost, helper::phi(tsoaDevice.view(), closestTkidx)));
-    hzdiffMatched_->Fill(zipHost - helper::zip(tsoaDevice.view(), closestTkidx));
-    htipdiffMatched_->Fill(tipHost - helper::tip(tsoaDevice.view(), closestTkidx));
+    hphidiffMatched_->Fill(reco::deltaPhi(phiHost, reco::phi(tsoaDevice.view(), closestTkidx)));
+    hzdiffMatched_->Fill(zipHost - reco::zip(tsoaDevice.view(), closestTkidx));
+    htipdiffMatched_->Fill(tipHost - reco::tip(tsoaDevice.view(), closestTkidx));
     hpt_eta_tkAllHostMatched_->Fill(etaHost, tsoaHost.view()[it].pt());  //matched to gpu
     hphi_z_tkAllHostMatched_->Fill(etaHost, zipHost);
   }

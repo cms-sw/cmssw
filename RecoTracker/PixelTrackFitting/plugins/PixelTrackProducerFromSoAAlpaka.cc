@@ -199,7 +199,7 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     // mind: this values are respect the beamspot!
 
     float chi2 = tsoa.view()[it].chi2();
-    float phi = tracksHelpers::phi(tsoa.view(), it);
+    float phi = reco::phi(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;

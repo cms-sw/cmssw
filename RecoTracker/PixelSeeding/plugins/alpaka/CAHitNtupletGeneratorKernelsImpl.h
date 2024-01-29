@@ -250,7 +250,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           float mc = maxScore;
           uint16_t im = tkNotFound;
 
-          auto score = [&](auto it) { return std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)); };
+          auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
 
           // full crazy combinatorics
           int ntr = thisCell.tracks().size();
@@ -753,7 +753,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (hitToTuple.size(idx) < 2)
             continue;
 
-          auto score = [&](auto it, auto nl) { return std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)); };
+          auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
 
           // full combinatorics
           for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
@@ -874,7 +874,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
             if (tracks_view[*it].quality() <= good)
               continue;
-            onlyTriplets &= TracksUtilities<TrackerTraits>::isTriplet(tracks_view, *it);
+            onlyTriplets &= reco::isTriplet(tracks_view, *it);
             if (!onlyTriplets)
               break;
           }
@@ -886,9 +886,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // for triplets choose best tip!  (should we first find best quality???)
           for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
             auto const it = *ip;
-            if (tracks_view[it].quality() >= good &&
-                std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)) < mc) {
-              mc = std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it));
+            if (tracks_view[it].quality() >= good && std::abs(reco::tip(tracks_view, it)) < mc) {
+              mc = std::abs(reco::tip(tracks_view, it));
               im = it;
             }
           }
@@ -933,9 +932,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // choose best tip!  (should we first find best quality???)
           for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
             auto const it = *ip;
-            if (tracks_view[it].quality() >= good &&
-                std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)) < mc) {
-              mc = std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it));
+            if (tracks_view[it].quality() >= good && std::abs(reco::tip(tracks_view, it)) < mc) {
+              mc = std::abs(reco::tip(tracks_view, it));
               im = it;
             }
           }
@@ -946,8 +944,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // mark worse ambiguities
           for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
             auto const it = *ip;
-            if (tracks_view[it].quality() > reject && TracksUtilities<TrackerTraits>::isTriplet(tracks_view, it) &&
-                it != im)
+            if (tracks_view[it].quality() > reject && reco::isTriplet(tracks_view, it) && it != im)
               tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
           }
 
@@ -980,12 +977,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                  nh,
                  tracks_view[i].nLayers(),
                  reco::charge(tracks_view, i),
-                 //TracksUtilities<TrackerTraits>::charge(tracks_view, i),
                  tracks_view[i].pt(),
                  tracks_view[i].eta(),
-                 TracksUtilities<TrackerTraits>::phi(tracks_view, i),
-                 TracksUtilities<TrackerTraits>::tip(tracks_view, i),
-                 TracksUtilities<TrackerTraits>::zip(tracks_view, i),
+                 reco::phi(tracks_view, i),
+                 reco::tip(tracks_view, i),
+                 reco::zip(tracks_view, i),
                  tracks_view[i].chi2(),
                  hh[*tracks_view.hitIndices().begin(i)].zGlobal(),
                  hh[*(tracks_view.hitIndices().begin(i) + 1)].zGlobal(),
