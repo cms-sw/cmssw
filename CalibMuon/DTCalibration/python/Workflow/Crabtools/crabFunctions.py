@@ -168,7 +168,6 @@ class CrabController():
                 else:
                     callname = name
                 res = self.callCrabCommand( ('status', '--long', callname) )
-                #print res
                 if 'taskFailureMsg' in res and 'jobs' in res:
                     return res['status'], res['jobs'], res['taskFailureMsg']
                 elif 'jobs' in res and 'taskFailureMsg' not in res:

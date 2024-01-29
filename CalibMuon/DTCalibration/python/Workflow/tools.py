@@ -39,14 +39,12 @@ def listFilesLocal(paths, extension = '.root'):
     return file_paths
 
 def haddLocal(files,result_file,extension = 'root'):
-    # if not os.path.exists( localdir ):
-    #    raise ValueError(f"localdir {localdir} for hadd operation does not exist")
-
-    # files = listFilesLocal([localdir],extension)
+    log.info("hadd command: {}".format(" ".join(['hadd','-f', result_file] + files)))
     process = subprocess.Popen( ['hadd','-f', result_file] + files,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
     stdout = process.communicate()[0]
+    log.info(f"hadd output: {stdout}")
     return process.returncode
 
 def loadCmsProcessFile(psetName):

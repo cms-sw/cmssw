@@ -98,6 +98,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
         """
         self.run_all_command = True
         for command in self.all_commands:
+            log.info(f"Will run command: {command}")
             self.options.command = command
             self.run()
 
@@ -127,9 +128,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
         tools.prependPaths(self.process, seqname)
 
     def add_raw_option(self):
-        # getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
-        # HI CHANGES
-        getattr(self.process, self.digilabel).inputLabel = 'rawDataRepacker'
+        getattr(self.process, self.digilabel).inputLabel = self.options.raw_data_label
         tools.prependPaths(self.process,self.digilabel)
 
     def add_local_t0_db(self, local=False):
@@ -220,6 +219,10 @@ class DTWorkflow(CLIHelper, CrabHelper):
                                                initUpdate = False)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
             output_files =  self.get_output_files(crabtask, output_path)
+            if "xrootd" not in output_files.keys():
+                raise RuntimeError("Could not get output files. No xrootd key found.")
+            if len(output_files["xrootd"]) == 0:
+                raise RuntimeError("Could not get output files. Output file list is empty.")
             log.info("Received files from storage element")
             log.info("Using hadd to merge output files")
         if not self.options.no_exec and do_hadd:

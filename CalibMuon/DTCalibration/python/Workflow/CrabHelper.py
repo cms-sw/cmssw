@@ -52,6 +52,7 @@ class CrabHelper(object):
         print(self.crab_config_filepath)
         task = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                             initUpdate = False)
+        
         if self.options.no_exec:
             log.info("Nothing to check in no-exec mode")
             return True
