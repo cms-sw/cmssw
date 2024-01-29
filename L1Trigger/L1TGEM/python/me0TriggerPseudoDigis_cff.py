@@ -41,6 +41,9 @@ me0TriggerPseudoDigiTask = cms.Task(
 from RecoLocalMuon.GEMRecHit.gemRecHits_cfi import *
 from RecoLocalMuon.GEMSegment.gemSegments_cfi import *
 
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify(gemRecHits, gemDigiLabel=cms.InputTag("simMuonGEMDigis"))
+
 ge0TriggerPseudoDigiTask = cms.Task(
     ## need to run the standard GE0 RECO sequence for converted triggers
     gemRecHits,
