@@ -20,9 +20,10 @@ namespace cms::alpakatools {
   }
 
   template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(const TAcc& acc, int32_t laneId, T const* ci, T* co, uint32_t i) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(
+      const TAcc& acc, int32_t laneId, T const* ci, T* co, uint32_t i, bool active = true) {
     // ci and co may be the same
-    auto x = ci[i];
+    T x = active ? ci[i] : 0;
     CMS_UNROLL_LOOP
     for (int32_t offset = 1; offset < alpaka::warp::getSize(acc); offset <<= 1) {
       // Force the exact type for integer types otherwise the compiler will find the template resolution ambiguous.
@@ -31,12 +32,14 @@ namespace cms::alpakatools {
       if (laneId >= offset)
         x += y;
     }
-    co[i] = x;
+    if (active)
+      co[i] = x;
   }
 
   template <typename TAcc, typename T, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(const TAcc& acc, int32_t laneId, T* c, uint32_t i) {
-    warpPrefixScan(acc, laneId, c, c, i);
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void warpPrefixScan(
+      const TAcc& acc, int32_t laneId, T* c, uint32_t i, bool active = true) {
+    warpPrefixScan(acc, laneId, c, c, i, active);
   }
 
   // limited to warpSize² elements
@@ -53,13 +56,18 @@ namespace cms::alpakatools {
       auto first = blockThreadIdx;
       ALPAKA_ASSERT_OFFLOAD(isPowerOf2(warpSize));
       auto laneId = blockThreadIdx & (warpSize - 1);
+      auto warpUpRoundedSize = (size + warpSize - 1) / warpSize * warpSize;
 
-      for (auto i = first; i < size; i += blockDimension) {
-        warpPrefixScan(acc, laneId, ci, co, i);
-        auto warpId = i / warpSize;
-        ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
-        if ((warpSize - 1) == laneId)
-          ws[warpId] = co[i];
+      for (auto i = first; i < warpUpRoundedSize; i += blockDimension) {
+        // When padding the warp, warpPrefixScan is a noop
+        warpPrefixScan(acc, laneId, ci, co, i, i < size);
+        if (i < size) {
+          // Skipped in warp padding threads.
+          auto warpId = i / warpSize;
+          ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
+          if ((warpSize - 1) == laneId)
+            ws[warpId] = co[i];
+        }
       }
       alpaka::syncBlockThreads(acc);
       if (size <= warpSize)
@@ -94,13 +102,18 @@ namespace cms::alpakatools {
       ALPAKA_ASSERT_OFFLOAD(0 == blockDimension % warpSize);
       auto first = blockThreadIdx;
       auto laneId = blockThreadIdx & (warpSize - 1);
+      auto warpUpRoundedSize = (size + warpSize - 1) / warpSize * warpSize;
 
-      for (auto i = first; i < size; i += blockDimension) {
-        warpPrefixScan(acc, laneId, c, i);
-        auto warpId = i / warpSize;
-        ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
-        if ((warpSize - 1) == laneId)
-          ws[warpId] = c[i];
+      for (auto i = first; i < warpUpRoundedSize; i += blockDimension) {
+        // When padding the warp, warpPrefixScan is a noop
+        warpPrefixScan(acc, laneId, c, i, i < size);
+        if (i < size) {
+          // Skipped in warp padding threads.
+          auto warpId = i / warpSize;
+          ALPAKA_ASSERT_OFFLOAD(warpId < warpSize);
+          if ((warpSize - 1) == laneId)
+            ws[warpId] = c[i];
+        }
       }
       alpaka::syncBlockThreads(acc);
       if (size <= warpSize)
