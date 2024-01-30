@@ -2,6 +2,7 @@
 #define PHASE2L1GMT_PHASE2GMT_CONSTANTS
 
 #include "ap_int.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 namespace Phase2L1GMT {
 
