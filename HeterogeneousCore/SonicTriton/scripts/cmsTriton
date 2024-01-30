@@ -34,7 +34,7 @@ get_sandbox(){
 
 usage() {
 	ECHO="echo -e"
-	$ECHO "cmsTriton [options] [start|stop]"
+	$ECHO "cmsTriton [options] [start|stop|check]"
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
@@ -338,57 +338,6 @@ wait_server(){
 	echo "server is ready!"
 }
 
-edit_model(){
-	MODELNAME=$1
-	NUMINSTANCES=$2
-	
-	cp -r $MODELNAME $TMPDIR/$LOCALMODELREPO/
-	COPY_EXIT=$?
-	if [ "$COPY_EXIT" -ne 0 ]; then
-		echo "Could not copy $MODELNAME into $TMPDIR/$LOCALMODELREPO/"
-		exit "$COPY_EXIT"
-	fi
-	IFS='/' read -ra ADDR <<< "$MODELNAME"
-	CONFIG=$TMPDIR/$LOCALMODELREPO/${ADDR[-1]}/config.pbtxt
-
-	PLATFORM=$(grep -m 1 "^platform:" "$CONFIG")
-
-	if [[ $PLATFORM == *"ensemble"* ]]; then
-		#recurse over submodels of ensemble model
-		MODELLOC=$(echo ""${ADDR[@]:0:${#ADDR[@]}-1} | sed "s/ /\//g")
-		SUBNAME=$(grep "model_name:" "$CONFIG" | sed 's/model_name://; s/"//g')
-		for SUBMODEL in ${SUBNAME}; do
-			SUBMODEL=${MODELLOC}/${SUBMODEL}
-			edit_model $SUBMODEL "$INSTANCES"
-		done
-	else
-		#This is not an ensemble model, so we should edit the config file
-		cat <<EOF >> $CONFIG
-instance_group [
-  {
-    count: $NUMINSTANCES
-    kind: KIND_CPU
-  }
-]
-
-EOF
-		if [[ $PLATFORM == *"onnx"* ]]; then
-			cat <<EOF >> $CONFIG
-parameters { key: "intra_op_thread_count" value: { string_value: "1" } }
-parameters { key: "inter_op_thread_count" value: { string_value: "1" } }
-EOF
-		elif [[ $PLATFORM == *"tensorflow"* ]]; then
-			cat <<EOF >> $CONFIG
-parameters { key: "TF_NUM_INTRA_THREADS" value: { string_value: "1" } }
-parameters { key: "TF_NUM_INTER_THREADS" value: { string_value: "1" } }
-parameters { key: "TF_USE_PER_SESSION_THREADS" value: { string_value: "1" } }
-EOF
-		else
-			echo "Warning: thread (instance) control not implemented for $PLATFORM"
-		fi
-	fi
-}
-
 list_models(){
 	# make list of model repositories
 	LOCALMODELREPO="local_model_repo"
@@ -411,7 +360,12 @@ list_models(){
 			MODEL="$(dirname "$MODEL")"
 		fi
 		if [ "$INSTANCES" -gt 0 ]; then
-			edit_model $MODEL "$INSTANCES"
+			$DRYRUN cmsTritonConfigTool threadcontrol -c ${MODEL}/config.pbtxt --copy $TMPDIR/$LOCALMODELREPO --nThreads $INSTANCES
+			TOOL_EXIT=$?
+			if [ "$TOOL_EXIT" -ne 0 ]; then
+				echo "Could not apply threadcontrol to $MODEL"
+				exit "$TOOL_EXIT"
+			fi
 		else
 			REPOS+=("$(dirname "$MODEL")")
 		fi

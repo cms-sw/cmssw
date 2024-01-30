@@ -9,11 +9,18 @@
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
+#include "model_config.pb.h"
 
-#include <string>
+#include "google/protobuf/text_format.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
+
+#include <algorithm>
 #include <cmath>
 #include <exception>
+#include <experimental/iterator>
+#include <fcntl.h>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <tuple>
 
@@ -75,21 +82,60 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   //convert seconds to microseconds
   options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
 
-  //config needed for batch size
-  inference::ModelConfigResponse modelConfigResponse;
-  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
-                        "TritonClient(): unable to get model config");
-  inference::ModelConfig modelConfig(modelConfigResponse.config());
+  //get fixed parameters from local config
+  inference::ModelConfig localModelConfig;
+  {
+    const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
+    if (fileDescriptor < 0)
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to open local model config: " << localModelConfigPath;
+    google::protobuf::io::FileInputStream localModelConfigInput(fileDescriptor);
+    localModelConfigInput.SetCloseOnDelete(true);
+    if (!google::protobuf::TextFormat::Parse(&localModelConfigInput, &localModelConfig))
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to parse local model config: " << localModelConfigPath;
+  }
 
   //check batch size limitations (after i/o setup)
   //triton uses max batch size = 0 to denote a model that does not support native batching (using the outer dimension)
   //but for models that do support batching (native or otherwise), a given event may set batch size 0 to indicate no valid input is present
   //so set the local max to 1 and keep track of "no outer dim" case
-  maxOuterDim_ = modelConfig.max_batch_size();
+  maxOuterDim_ = localModelConfig.max_batch_size();
   noOuterDim_ = maxOuterDim_ == 0;
   maxOuterDim_ = std::max(1u, maxOuterDim_);
   //propagate batch size
   setBatchSize(1);
+
+  //compare model checksums to remote config to enforce versioning
+  inference::ModelConfigResponse modelConfigResponse;
+  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
+                        "TritonClient(): unable to get model config");
+  inference::ModelConfig remoteModelConfig(modelConfigResponse.config());
+
+  std::map<std::string, std::array<std::string, 2>> checksums;
+  size_t fileCounter = 0;
+  for (const auto& modelConfig : {localModelConfig, remoteModelConfig}) {
+    const auto& agents = modelConfig.model_repository_agents().agents();
+    auto agent = std::find_if(agents.begin(), agents.end(), [](auto const& a) { return a.name() == "checksum"; });
+    if (agent != agents.end()) {
+      const auto& params = agent->parameters();
+      for (const auto& [key, val] : params) {
+        // only check the requested version
+        if (key.compare(0, options_[0].model_version_.size() + 1, options_[0].model_version_ + "/") == 0)
+          checksums[key][fileCounter] = val;
+      }
+    }
+    ++fileCounter;
+  }
+  std::vector<std::string> incorrect;
+  for (const auto& [key, val] : checksums) {
+    if (checksums[key][0] != checksums[key][1])
+      incorrect.push_back(key);
+  }
+  if (!incorrect.empty())
+    throw TritonException("ModelVersioning") << "The following files have incorrect checksums on the remote server: "
+                                             << triton_utils::printColl(incorrect, ", ");
 
   //get model info
   inference::ModelMetadataResponse modelMetadata;
