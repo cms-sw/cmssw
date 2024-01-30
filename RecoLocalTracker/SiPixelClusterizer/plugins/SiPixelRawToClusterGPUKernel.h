@@ -18,7 +18,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 struct SiPixelROCsStatusAndMapping;
 class SiPixelGainForHLTonGPU;

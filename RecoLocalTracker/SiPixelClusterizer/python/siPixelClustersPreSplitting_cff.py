@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
@@ -130,11 +131,7 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelPhase2DigiToCluster_cfi import s
 ))
 
 # reconstruct the pixel digis and clusters with alpaka on the cpu, for validation
-siPixelClustersPreSplittingAlpakaSerial = siPixelClustersPreSplittingAlpaka.clone(
-    #alpaka = dict( backend = '*' )
-    alpaka = None
-)
-siPixelClustersPreSplittingAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + siPixelClustersPreSplittingAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
+siPixelClustersPreSplittingAlpakaSerial = makeSerialClone(siPixelClustersPreSplittingAlpaka)
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase1_cfi import siPixelDigisClustersFromSoAAlpakaPhase1 as _siPixelDigisClustersFromSoAAlpakaPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAAlpakaPhase2_cfi import siPixelDigisClustersFromSoAAlpakaPhase2 as _siPixelDigisClustersFromSoAAlpakaPhase2

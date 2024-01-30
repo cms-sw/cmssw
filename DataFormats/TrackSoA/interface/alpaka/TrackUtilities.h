@@ -12,29 +12,7 @@ struct TracksUtilities {
   using TrackSoAConstView = typename reco::TrackSoA<TrackerTraits>::template Layout<>::ConstView;
   using hindex_type = typename reco::TrackSoA<TrackerTraits>::hindex_type;
 
-  // State at the Beam spot
-  // phi,tip,1/pt,cotan(theta),zip
-  /*  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr float charge(const TrackSoAConstView &tracks, int32_t i) {
-    //was: std::copysign(1.f, tracks[i].state()(2)). Will be constexpr with C++23
-    float v = tracks[i].state()(2);
-    return float((0.0f < v) - (v < 0.0f));
-  }
-*/
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr float phi(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(0);
-  }
-
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr float tip(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(1);
-  }
-
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr float zip(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(4);
-  }
-
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr bool isTriplet(const TrackSoAConstView &tracks, int i) {
-    return tracks[i].nLayers() == 3;
-  }
+  // state at the beam spot: { phi, tip, 1/pt, cotan(theta), zip }
 
   template <typename V3, typename M3, typename V2, typename M2>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static constexpr void copyFromCircle(
@@ -109,7 +87,6 @@ namespace pixelTrack {
   struct QualityCutsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> {
     using TrackSoAView = typename reco::TrackSoA<TrackerTraits>::template Layout<>::View;
     using TrackSoAConstView = typename reco::TrackSoA<TrackerTraits>::template Layout<>::ConstView;
-    using tracksHelper = TracksUtilities<TrackerTraits>;
     float chi2Coeff[4];
     float chi2MaxPt;  // GeV
     float chi2Scale;
@@ -130,8 +107,8 @@ namespace pixelTrack {
       //   - for quadruplets: |Tip| < 0.5 cm, pT > 0.3 GeV, |Zip| < 12.0 cm
       // (see CAHitNtupletGeneratorGPU.cc)
       auto const &region = (nHits > 3) ? quadruplet : triplet;
-      return (std::abs(tracksHelper::tip(tracks, it)) < region.maxTip) and (tracks.pt(it) > region.minPt) and
-             (std::abs(tracksHelper::zip(tracks, it)) < region.maxZip);
+      return (std::abs(reco::tip(tracks, it)) < region.maxTip) and (tracks.pt(it) > region.minPt) and
+             (std::abs(reco::zip(tracks, it)) < region.maxZip);
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int it) const {
@@ -172,7 +149,6 @@ namespace pixelTrack {
   struct QualityCutsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> {
     using TrackSoAView = typename reco::TrackSoA<TrackerTraits>::template Layout<>::View;
     using TrackSoAConstView = typename reco::TrackSoA<TrackerTraits>::template Layout<>::ConstView;
-    using tracksHelper = TracksUtilities<TrackerTraits>;
 
     float maxChi2;
     float minPt;
@@ -180,8 +156,8 @@ namespace pixelTrack {
     float maxZip;
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isHP(const TrackSoAConstView &tracks, int nHits, int it) const {
-      return (std::abs(tracksHelper::tip(tracks, it)) < maxTip) and (tracks.pt(it) > minPt) and
-             (std::abs(tracksHelper::zip(tracks, it)) < maxZip);
+      return (std::abs(reco::tip(tracks, it)) < maxTip) and (tracks.pt(it) > minPt) and
+             (std::abs(reco::zip(tracks, it)) < maxZip);
     }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int it) const {
       return tracks.chi2(it) >= maxChi2;

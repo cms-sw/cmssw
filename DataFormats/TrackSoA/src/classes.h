@@ -6,6 +6,5 @@
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 
 using namespace pixelTopology;
-using namespace reco;
 
 #endif  // DataFormats_TrackSoA_src_classes_h

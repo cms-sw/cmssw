@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -218,11 +219,9 @@ pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone()
 phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
 
 # pixel tracks SoA producer on the cpu, for validation
-pixelTracksAlpakaSerial = pixelTracksAlpaka.clone(
-    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial',
-    alpaka = None
+pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
 )
-pixelTracksAlpakaSerial._TypedParameterizable__type = 'alpaka_serial_sync' + pixelTracksAlpaka._TypedParameterizable__type.removesuffix('@alpaka')
 
 # legacy pixel tracks from SoA
 from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1_cfi import pixelTrackProducerFromSoAAlpakaPhase1 as _pixelTrackProducerFromSoAAlpakaPhase1

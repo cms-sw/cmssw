@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 
 process = cms.Process('Writer')
 
@@ -31,16 +32,9 @@ process.testObjectAnalyzer = cms.EDAnalyzer('TestAlpakaObjectAnalyzer',
 )
 
 # run a second producer explicitly on the cpu
-process.testProducerSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaProducer',
+process.testProducerSerial = makeSerialClone(process.testProducer,
     size = cms.int32(99)
 )
-# an alternative approach would be to use
-#process.testProducerSerial = cms.EDProducer('TestAlpakaProducer@alpaka',
-#    size = cms.int32(99),
-#    alpaka = cms.untracked.PSet(
-#        backend = cms.untracked.string("serial_sync")
-#    )
-#)
 
 # analyse the second set of products
 process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',

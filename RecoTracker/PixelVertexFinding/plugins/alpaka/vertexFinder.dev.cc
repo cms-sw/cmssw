@@ -46,7 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // initialize soa...
           soa[idx].idv() = -1;
 
-          if (helper::isTriplet(tracks_view, idx))
+          if (reco::isTriplet(tracks_view, idx))
             continue;  // no triplets
           if (quality[idx] < ::pixelTrack::Quality::highPurity)
             continue;
@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto& data = pws;
           auto it = alpaka::atomicAdd(acc, &data.ntrks(), 1u, alpaka::hierarchy::Blocks{});
           data[it].itrk() = idx;
-          data[it].zt() = helper::zip(tracks_view, idx);
+          data[it].zt() = reco::zip(tracks_view, idx);
           data[it].ezt2() = tracks_view[idx].covariance()(14);
           data[it].ptt2() = pt * pt;
         }

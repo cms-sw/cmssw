@@ -233,7 +233,6 @@ def customiseForOffline(process):
 
     return process
 
-
 def customizeHLTfor43025(process):
 
     for producer in producers_by_type(process, "PFClusterProducer"):
@@ -270,13 +269,17 @@ def customizeHLTfor43774(process):
                 filt.useAbs = cms.bool(True)
             
     return process
-            
-
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
+
+    # Alpaka HLT
+    from Configuration.ProcessModifiers.alpaka_cff import alpaka 
+    from Configuration.Eras.Modifier_run3_common_cff import run3_common
+    from HLTrigger.Configuration.customizeHLTforAlpaka import customizeHLTforAlpaka
+    (alpaka & run3_common).makeProcessModifier(customizeHLTforAlpaka).apply(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)

@@ -1,23 +1,25 @@
 #ifndef RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
 #define RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
 
-// #define GPU_DEBUG
-#include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include <cstdint>
-#include "CACell.h"
-#include "CAPixelDoublets.h"
-#include "CAStructures.h"
+//#define GPU_DEBUG
+//#define DUMP_GPU_TK_TUPLES
 
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include <cstdint>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
-// #define DUMP_GPU_TK_TUPLES
+#include "CACell.h"
+#include "CAPixelDoublets.h"
+#include "CAStructures.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace caHitNtupletGenerator {
