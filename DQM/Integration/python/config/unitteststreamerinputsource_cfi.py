@@ -12,12 +12,12 @@ from .dqmPythonTypes import *
 check that the input directory exists and there are files in it
 '''
 def checkInputFolder(streamer_folder):
-  if not (os.path.exists(streamer_folder) and os.path.isdir(os.path.join(streamer_folder))):
-    raise IOError("Input folder '%s' does not exist in CMSSW_SEARCH_PATH" % streamer_folder)
+    if not (os.path.exists(streamer_folder) and os.path.isdir(os.path.join(streamer_folder))):
+        raise IOError("Input folder '%s' does not exist in CMSSW_SEARCH_PATH" % streamer_folder)
 
-  items = os.listdir(dqm_streamer_folder)
-  if not items:
-    raise IOError("Input folder '%s' does not contain any file" % streamer_folder)
+    items = os.listdir(dqm_streamer_folder)
+    if not items:
+        raise IOError("Input folder '%s' does not contain any file" % streamer_folder)
 
 # Dedine and register options
 options = VarParsing.VarParsing("analysis")
@@ -49,7 +49,7 @@ options.register('datafnPosition',
                  "Data filename position in the positional arguments array 'data' in json file.")
 
 options.register('streamLabel',
-                 'streamDQM', # default DQM stream value
+                 '',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Name of the stream")
@@ -94,12 +94,32 @@ dqm_streamer_folder = os.path.join(dqm_integration_data,'run'+str(options.runNum
 print("Reading streamer files from:\n ",dqm_streamer_folder)
 checkInputFolder(dqm_streamer_folder)
 
+maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+runType = RunType()
+if not options.runkey.strip():
+    options.runkey = "pp_run"
+
+runType.setRunType(options.runkey.strip())
+
+# stream label
+#  If streamLabel is empty, so not specified as a command-line argument,
+#  use the default value, i.e. "streamHIDQM" for runType==hi_run and "streamDQM" otherwise
+streamLabel = options.streamLabel
+if streamLabel == '':
+    if runType.getRunType() == runType.hi_run:
+        streamLabel = 'streamHIDQM'
+    else:
+        streamLabel = 'streamDQM'
+
 # Set the process source
 source = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(dqm_integration_data),
     SelectEvents = cms.untracked.vstring('*'),
-    streamLabel = cms.untracked.string(options.streamLabel),
+    streamLabel = cms.untracked.string(streamLabel),
     scanOnce = cms.untracked.bool(options.scanOnce),
     datafnPosition = cms.untracked.uint32(options.datafnPosition),
     minEventsPerLumi = cms.untracked.int32(1000),
@@ -110,13 +130,3 @@ source = cms.Source("DQMStreamerReader",
     endOfRunKills  = cms.untracked.bool(False),
     inputFileTransitionsEachEvent = cms.untracked.bool(False)
 )
-
-maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
-)
-
-runType = RunType()
-if not options.runkey.strip():
-  options.runkey = "pp_run"
-
-runType.setRunType(options.runkey.strip())
