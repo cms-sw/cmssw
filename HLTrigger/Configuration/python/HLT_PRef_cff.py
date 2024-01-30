@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_3_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_13_3_0/PRef/V11 (CMSSW_13_3_0)
+# /dev/CMSSW_13_3_0/PRef/V17 (CMSSW_13_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_3_0/PRef/V11')
+  tableName = cms.string('/dev/CMSSW_13_3_0/PRef/V17')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1482,6 +1482,7 @@ fragment.streams = cms.PSet(
     'EmptyBX',
     'HLTPhysics',
     'HcalNZS',
+    'MinimumBias',
     'NoBPTX',
     'ZeroBias' ),
   PhysicsCommissioningRawPrime = cms.vstring( 'CommissioningRawPrime' ),
@@ -1542,7 +1543,8 @@ fragment.datasets = cms.PSet(
     'HLT_HIL1UnpairedBunchBptxPlusForPPRef_v5' ),
   EventDisplay = cms.vstring( 'HLT_AK4PFJet100_v2',
     'HLT_PPRefGEDPhoton30_v2',
-    'HLT_PPRefL3SingleMu7_v2' ),
+    'HLT_PPRefL3SingleMu7_v2',
+    'HLT_ZeroBias_v9' ),
   ExpressAlignment = cms.vstring( 'HLT_HIHT80_Beamspot_ppRef5TeV_v9',
     'HLT_ZeroBias_Beamspot_v10' ),
   ExpressPhysics = cms.vstring( 'HLT_AK4PFJet80_v2',
@@ -1559,6 +1561,9 @@ fragment.datasets = cms.PSet(
   HcalNZS = cms.vstring( 'HLT_HcalNZS_v17',
     'HLT_HcalPhiSym_v19' ),
   L1Accept = cms.vstring( 'DST_Physics_v10' ),
+  MinimumBias = cms.vstring( 'HLT_Physics_v10',
+    'HLT_Random_v3',
+    'HLT_ZeroBias_v9' ),
   NoBPTX = cms.vstring( 'HLT_CDC_L2cosmic_10_er1p0_v6',
     'HLT_CDC_L2cosmic_5p5_er1p0_v6' ),
   OnlineMonitor = cms.vstring( 'HLT_CDC_L2cosmic_10_er1p0_v6',
@@ -7489,9 +7494,9 @@ fragment.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
       ErrorCSC = cms.double( 7.4 )
     ),
     ShowerDigiFillerParameters = cms.PSet( 
-      cscDigiCollectionLabel = cms.InputTag( 'muonCSCDigis','MuonCSCStripDigi' ),
+      cscDigiCollectionLabel = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
       digiMaxDistanceX = cms.double( 25.0 ),
-      dtDigiCollectionLabel = cms.InputTag( "muonDTDigis" )
+      dtDigiCollectionLabel = cms.InputTag( "hltMuonDTDigis" )
     ),
     TrackerKinkFinderParameters = cms.PSet( 
       usePosition = cms.bool( False ),
@@ -7523,9 +7528,9 @@ fragment.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double( 2.0 ),
     fillGlobalTrackQuality = cms.bool( False ),
-    globalTrackQualityInputTag = cms.InputTag( "glbTrackQual" ),
+    globalTrackQualityInputTag = cms.InputTag( "" ),
     selectHighPurity = cms.bool( False ),
-    pvInputTag = cms.InputTag( "offlinePrimaryVertices" ),
+    pvInputTag = cms.InputTag( "" ),
     fillTrackerKink = cms.bool( False ),
     minCaloCompatibility = cms.double( 0.6 ),
     runArbitrationCleaner = cms.bool( False ),
@@ -9292,8 +9297,8 @@ fragment.hltMuons = cms.EDProducer( "MuonIdProducer",
       ErrorCSC = cms.double( 7.4 )
     ),
     ShowerDigiFillerParameters = cms.PSet( 
-      cscDigiCollectionLabel = cms.InputTag( 'muonCSCDigis','MuonCSCStripDigi' ),
-      dtDigiCollectionLabel = cms.InputTag( "muonDTDigis" ),
+      cscDigiCollectionLabel = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
+      dtDigiCollectionLabel = cms.InputTag( "hltMuonDTDigis" ),
       digiMaxDistanceX = cms.double( 25.0 )
     ),
     TrackerKinkFinderParameters = cms.PSet( 
@@ -9326,9 +9331,9 @@ fragment.hltMuons = cms.EDProducer( "MuonIdProducer",
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double( 2.0 ),
     fillGlobalTrackQuality = cms.bool( False ),
-    globalTrackQualityInputTag = cms.InputTag( "glbTrackQual" ),
+    globalTrackQualityInputTag = cms.InputTag( "" ),
     selectHighPurity = cms.bool( False ),
-    pvInputTag = cms.InputTag( "offlinePrimaryVertices" ),
+    pvInputTag = cms.InputTag( "" ),
     fillTrackerKink = cms.bool( False ),
     minCaloCompatibility = cms.double( 0.6 ),
     runArbitrationCleaner = cms.bool( False ),
@@ -17426,7 +17431,8 @@ fragment.hltDatasetEventDisplay = cms.EDFilter( "TriggerResultsFilter",
     throw = cms.bool( True ),
     triggerConditions = cms.vstring( 'HLT_AK4PFJet100_v2',
       'HLT_PPRefGEDPhoton30_v2',
-      'HLT_PPRefL3SingleMu7_v2 / 100' )
+      'HLT_PPRefL3SingleMu7_v2 / 100',
+      'HLT_ZeroBias_v9' )
 )
 fragment.hltPreDatasetEventDisplay = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -17511,6 +17517,20 @@ fragment.hltDatasetL1Accept = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'DST_Physics_v10' )
 )
 fragment.hltPreDatasetL1Accept = cms.EDFilter( "HLTPrescaler",
+    offset = cms.uint32( 0 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltDatasetMinimumBias = cms.EDFilter( "TriggerResultsFilter",
+    usePathStatus = cms.bool( True ),
+    hltResults = cms.InputTag( "" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
+    throw = cms.bool( True ),
+    triggerConditions = cms.vstring( 'HLT_Physics_v10',
+      'HLT_Random_v3',
+      'HLT_ZeroBias_v9' )
+)
+fragment.hltPreDatasetMinimumBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
@@ -18246,6 +18266,7 @@ fragment.Dataset_HLTMonitor = cms.Path( fragment.HLTDatasetPathBeginSequence + f
 fragment.Dataset_HLTPhysics = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetHLTPhysics + fragment.hltPreDatasetHLTPhysics )
 fragment.Dataset_HcalNZS = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetHcalNZS + fragment.hltPreDatasetHcalNZS )
 fragment.Dataset_L1Accept = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetL1Accept + fragment.hltPreDatasetL1Accept )
+fragment.Dataset_MinimumBias = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetMinimumBias + fragment.hltPreDatasetMinimumBias )
 fragment.Dataset_NoBPTX = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetNoBPTX + fragment.hltPreDatasetNoBPTX )
 fragment.Dataset_OnlineMonitor = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetOnlineMonitor + fragment.hltPreDatasetOnlineMonitor )
 fragment.Dataset_PPRefDoubleMuon0 = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetPPRefDoubleMuon + fragment.hltPreDatasetPPRefDoubleMuon0 )
@@ -18285,7 +18306,7 @@ fragment.Dataset_TestEnablesEcalHcalDQM = cms.Path( fragment.HLTDatasetPathBegin
 fragment.Dataset_ZeroBias = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetZeroBias + fragment.hltPreDatasetZeroBias )
 
 
-fragment.schedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.Status_OnCPU, fragment.Status_OnGPU, fragment.AlCa_EcalPhiSym_v15, fragment.AlCa_HIEcalEtaEBonly_v7, fragment.AlCa_HIEcalEtaEEonly_v7, fragment.AlCa_HIEcalPi0EBonly_v7, fragment.AlCa_HIEcalPi0EEonly_v7, fragment.AlCa_HIRPCMuonNormalisation_v6, fragment.AlCa_LumiPixelsCounts_Random_v7, fragment.AlCa_LumiPixelsCounts_ZeroBias_v8, fragment.DQM_PixelReconstruction_v8, fragment.DQM_EcalReconstruction_v8, fragment.DQM_HcalReconstruction_v6, fragment.DST_Physics_v10, fragment.HLT_EcalCalibration_v4, fragment.HLT_HcalCalibration_v6, fragment.HLT_HcalNZS_v17, fragment.HLT_HcalPhiSym_v19, fragment.HLT_Random_v3, fragment.HLT_Physics_v10, fragment.HLT_ZeroBias_v9, fragment.HLT_ZeroBias_Beamspot_v10, fragment.HLT_ZeroBias_FirstCollisionAfterAbortGap_v8, fragment.HLT_IsoTrackHB_v10, fragment.HLT_IsoTrackHE_v10, fragment.HLT_CDC_L2cosmic_10_er1p0_v6, fragment.HLT_CDC_L2cosmic_5p5_er1p0_v6, fragment.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v5, fragment.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v5, fragment.HLT_HIL1NotBptxORForPPRef_v5, fragment.HLT_HIHT80_Beamspot_ppRef5TeV_v9, fragment.HLT_PPRefZeroBias_v2, fragment.HLT_PPRefZeroBiasRawPrime_v3, fragment.HLT_ZDCCommissioning_v2, fragment.HLT_AK4CaloJet40_v2, fragment.HLT_AK4CaloJet60_v2, fragment.HLT_AK4CaloJet70_v2, fragment.HLT_AK4CaloJet80_v2, fragment.HLT_AK4CaloJet100_v2, fragment.HLT_AK4CaloJet120_v2, fragment.HLT_AK4CaloJetFwd40_v2, fragment.HLT_AK4CaloJetFwd60_v2, fragment.HLT_AK4CaloJetFwd70_v2, fragment.HLT_AK4CaloJetFwd80_v2, fragment.HLT_AK4CaloJetFwd100_v2, fragment.HLT_AK4CaloJetFwd120_v2, fragment.HLT_AK4PFJet40_v2, fragment.HLT_AK4PFJet60_v2, fragment.HLT_AK4PFJet80_v2, fragment.HLT_AK4PFJet100_v2, fragment.HLT_AK4PFJet120_v2, fragment.HLT_AK4PFJetFwd40_v2, fragment.HLT_AK4PFJetFwd60_v2, fragment.HLT_AK4PFJetFwd80_v2, fragment.HLT_AK4PFJetFwd100_v2, fragment.HLT_AK4PFJetFwd120_v2, fragment.HLT_PPRefDoubleEle10Gsf_v2, fragment.HLT_PPRefDoubleEle10GsfMass50_v2, fragment.HLT_PPRefDoubleEle15Gsf_v2, fragment.HLT_PPRefDoubleEle15GsfMass50_v2, fragment.HLT_PPRefEle15Ele10Gsf_v2, fragment.HLT_PPRefEle15Ele10GsfMass50_v2, fragment.HLT_PPRefEle10Gsf_v2, fragment.HLT_PPRefEle15Gsf_v2, fragment.HLT_PPRefEle20Gsf_v2, fragment.HLT_PPRefEle30Gsf_v2, fragment.HLT_PPRefEle40Gsf_v2, fragment.HLT_PPRefEle50Gsf_v2, fragment.HLT_PPRefGEDPhoton10_v2, fragment.HLT_PPRefGEDPhoton10_EB_v2, fragment.HLT_PPRefGEDPhoton20_v2, fragment.HLT_PPRefGEDPhoton20_EB_v2, fragment.HLT_PPRefGEDPhoton30_v2, fragment.HLT_PPRefGEDPhoton30_EB_v2, fragment.HLT_PPRefGEDPhoton40_v2, fragment.HLT_PPRefGEDPhoton40_EB_v2, fragment.HLT_PPRefGEDPhoton50_v2, fragment.HLT_PPRefGEDPhoton50_EB_v2, fragment.HLT_PPRefGEDPhoton60_v2, fragment.HLT_PPRefGEDPhoton60_EB_v2, fragment.HLT_PPRefL1DoubleMu0_v2, fragment.HLT_PPRefL1DoubleMu0_Open_v2, fragment.HLT_PPRefL1SingleMu0_Cosmics_v2, fragment.HLT_PPRefL1SingleMu7_v2, fragment.HLT_PPRefL1SingleMu12_v2, fragment.HLT_PPRefL2DoubleMu0_v2, fragment.HLT_PPRefL2DoubleMu0_Open_v2, fragment.HLT_PPRefL2SingleMu7_v2, fragment.HLT_PPRefL2SingleMu12_v2, fragment.HLT_PPRefL2SingleMu15_v2, fragment.HLT_PPRefL2SingleMu20_v2, fragment.HLT_PPRefL3DoubleMu0_v2, fragment.HLT_PPRefL3DoubleMu0_Open_v2, fragment.HLT_PPRefL3SingleMu3_v2, fragment.HLT_PPRefL3SingleMu5_v2, fragment.HLT_PPRefL3SingleMu7_v2, fragment.HLT_PPRefL3SingleMu12_v2, fragment.HLT_PPRefL3SingleMu15_v2, fragment.HLT_PPRefL3SingleMu20_v2, fragment.HLT_PPRefCscCluster_Loose_v2, fragment.HLT_PPRefCscCluster_Medium_v2, fragment.HLT_PPRefCscCluster_Tight_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt25_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt35_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt45_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt60_v2, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, fragment.Dataset_AlCaLumiPixelsCountsExpress, fragment.Dataset_AlCaLumiPixelsCountsPrompt, fragment.Dataset_AlCaP0, fragment.Dataset_AlCaPhiSym, fragment.Dataset_Commissioning, fragment.Dataset_CommissioningRawPrime, fragment.Dataset_CommissioningZDC, fragment.Dataset_DQMGPUvsCPU, fragment.Dataset_DQMOnlineBeamspot, fragment.Dataset_EcalLaser, fragment.Dataset_EmptyBX, fragment.Dataset_EventDisplay, fragment.Dataset_ExpressAlignment, fragment.Dataset_ExpressPhysics, fragment.Dataset_HLTMonitor, fragment.Dataset_HLTPhysics, fragment.Dataset_HcalNZS, fragment.Dataset_L1Accept, fragment.Dataset_NoBPTX, fragment.Dataset_OnlineMonitor, fragment.Dataset_PPRefDoubleMuon0, fragment.Dataset_PPRefDoubleMuon1, fragment.Dataset_PPRefDoubleMuon2, fragment.Dataset_PPRefDoubleMuon3, fragment.Dataset_PPRefExotica, fragment.Dataset_PPRefHardProbes0, fragment.Dataset_PPRefHardProbes1, fragment.Dataset_PPRefHardProbes2, fragment.Dataset_PPRefSingleMuon0, fragment.Dataset_PPRefSingleMuon1, fragment.Dataset_PPRefSingleMuon2, fragment.Dataset_PPRefZeroBias0, fragment.Dataset_PPRefZeroBias1, fragment.Dataset_PPRefZeroBias2, fragment.Dataset_PPRefZeroBias3, fragment.Dataset_PPRefZeroBias4, fragment.Dataset_PPRefZeroBias5, fragment.Dataset_PPRefZeroBias6, fragment.Dataset_PPRefZeroBias7, fragment.Dataset_PPRefZeroBias8, fragment.Dataset_PPRefZeroBias9, fragment.Dataset_PPRefZeroBias10, fragment.Dataset_PPRefZeroBias11, fragment.Dataset_PPRefZeroBias12, fragment.Dataset_PPRefZeroBias13, fragment.Dataset_PPRefZeroBias14, fragment.Dataset_PPRefZeroBias15, fragment.Dataset_PPRefZeroBias16, fragment.Dataset_PPRefZeroBias17, fragment.Dataset_PPRefZeroBias18, fragment.Dataset_PPRefZeroBias19, fragment.Dataset_RPCMonitor, fragment.Dataset_TestEnablesEcalHcal, fragment.Dataset_TestEnablesEcalHcalDQM, fragment.Dataset_ZeroBias, ))
+fragment.schedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.Status_OnCPU, fragment.Status_OnGPU, fragment.AlCa_EcalPhiSym_v15, fragment.AlCa_HIEcalEtaEBonly_v7, fragment.AlCa_HIEcalEtaEEonly_v7, fragment.AlCa_HIEcalPi0EBonly_v7, fragment.AlCa_HIEcalPi0EEonly_v7, fragment.AlCa_HIRPCMuonNormalisation_v6, fragment.AlCa_LumiPixelsCounts_Random_v7, fragment.AlCa_LumiPixelsCounts_ZeroBias_v8, fragment.DQM_PixelReconstruction_v8, fragment.DQM_EcalReconstruction_v8, fragment.DQM_HcalReconstruction_v6, fragment.DST_Physics_v10, fragment.HLT_EcalCalibration_v4, fragment.HLT_HcalCalibration_v6, fragment.HLT_HcalNZS_v17, fragment.HLT_HcalPhiSym_v19, fragment.HLT_Random_v3, fragment.HLT_Physics_v10, fragment.HLT_ZeroBias_v9, fragment.HLT_ZeroBias_Beamspot_v10, fragment.HLT_ZeroBias_FirstCollisionAfterAbortGap_v8, fragment.HLT_IsoTrackHB_v10, fragment.HLT_IsoTrackHE_v10, fragment.HLT_CDC_L2cosmic_10_er1p0_v6, fragment.HLT_CDC_L2cosmic_5p5_er1p0_v6, fragment.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v5, fragment.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v5, fragment.HLT_HIL1NotBptxORForPPRef_v5, fragment.HLT_HIHT80_Beamspot_ppRef5TeV_v9, fragment.HLT_PPRefZeroBias_v2, fragment.HLT_PPRefZeroBiasRawPrime_v3, fragment.HLT_ZDCCommissioning_v2, fragment.HLT_AK4CaloJet40_v2, fragment.HLT_AK4CaloJet60_v2, fragment.HLT_AK4CaloJet70_v2, fragment.HLT_AK4CaloJet80_v2, fragment.HLT_AK4CaloJet100_v2, fragment.HLT_AK4CaloJet120_v2, fragment.HLT_AK4CaloJetFwd40_v2, fragment.HLT_AK4CaloJetFwd60_v2, fragment.HLT_AK4CaloJetFwd70_v2, fragment.HLT_AK4CaloJetFwd80_v2, fragment.HLT_AK4CaloJetFwd100_v2, fragment.HLT_AK4CaloJetFwd120_v2, fragment.HLT_AK4PFJet40_v2, fragment.HLT_AK4PFJet60_v2, fragment.HLT_AK4PFJet80_v2, fragment.HLT_AK4PFJet100_v2, fragment.HLT_AK4PFJet120_v2, fragment.HLT_AK4PFJetFwd40_v2, fragment.HLT_AK4PFJetFwd60_v2, fragment.HLT_AK4PFJetFwd80_v2, fragment.HLT_AK4PFJetFwd100_v2, fragment.HLT_AK4PFJetFwd120_v2, fragment.HLT_PPRefDoubleEle10Gsf_v2, fragment.HLT_PPRefDoubleEle10GsfMass50_v2, fragment.HLT_PPRefDoubleEle15Gsf_v2, fragment.HLT_PPRefDoubleEle15GsfMass50_v2, fragment.HLT_PPRefEle15Ele10Gsf_v2, fragment.HLT_PPRefEle15Ele10GsfMass50_v2, fragment.HLT_PPRefEle10Gsf_v2, fragment.HLT_PPRefEle15Gsf_v2, fragment.HLT_PPRefEle20Gsf_v2, fragment.HLT_PPRefEle30Gsf_v2, fragment.HLT_PPRefEle40Gsf_v2, fragment.HLT_PPRefEle50Gsf_v2, fragment.HLT_PPRefGEDPhoton10_v2, fragment.HLT_PPRefGEDPhoton10_EB_v2, fragment.HLT_PPRefGEDPhoton20_v2, fragment.HLT_PPRefGEDPhoton20_EB_v2, fragment.HLT_PPRefGEDPhoton30_v2, fragment.HLT_PPRefGEDPhoton30_EB_v2, fragment.HLT_PPRefGEDPhoton40_v2, fragment.HLT_PPRefGEDPhoton40_EB_v2, fragment.HLT_PPRefGEDPhoton50_v2, fragment.HLT_PPRefGEDPhoton50_EB_v2, fragment.HLT_PPRefGEDPhoton60_v2, fragment.HLT_PPRefGEDPhoton60_EB_v2, fragment.HLT_PPRefL1DoubleMu0_v2, fragment.HLT_PPRefL1DoubleMu0_Open_v2, fragment.HLT_PPRefL1SingleMu0_Cosmics_v2, fragment.HLT_PPRefL1SingleMu7_v2, fragment.HLT_PPRefL1SingleMu12_v2, fragment.HLT_PPRefL2DoubleMu0_v2, fragment.HLT_PPRefL2DoubleMu0_Open_v2, fragment.HLT_PPRefL2SingleMu7_v2, fragment.HLT_PPRefL2SingleMu12_v2, fragment.HLT_PPRefL2SingleMu15_v2, fragment.HLT_PPRefL2SingleMu20_v2, fragment.HLT_PPRefL3DoubleMu0_v2, fragment.HLT_PPRefL3DoubleMu0_Open_v2, fragment.HLT_PPRefL3SingleMu3_v2, fragment.HLT_PPRefL3SingleMu5_v2, fragment.HLT_PPRefL3SingleMu7_v2, fragment.HLT_PPRefL3SingleMu12_v2, fragment.HLT_PPRefL3SingleMu15_v2, fragment.HLT_PPRefL3SingleMu20_v2, fragment.HLT_PPRefCscCluster_Loose_v2, fragment.HLT_PPRefCscCluster_Medium_v2, fragment.HLT_PPRefCscCluster_Tight_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt25_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt35_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt45_v2, fragment.HLT_PPRefDmesonTrackingGlobal_Dpt60_v2, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, fragment.Dataset_AlCaLumiPixelsCountsExpress, fragment.Dataset_AlCaLumiPixelsCountsPrompt, fragment.Dataset_AlCaP0, fragment.Dataset_AlCaPhiSym, fragment.Dataset_Commissioning, fragment.Dataset_CommissioningRawPrime, fragment.Dataset_CommissioningZDC, fragment.Dataset_DQMGPUvsCPU, fragment.Dataset_DQMOnlineBeamspot, fragment.Dataset_EcalLaser, fragment.Dataset_EmptyBX, fragment.Dataset_EventDisplay, fragment.Dataset_ExpressAlignment, fragment.Dataset_ExpressPhysics, fragment.Dataset_HLTMonitor, fragment.Dataset_HLTPhysics, fragment.Dataset_HcalNZS, fragment.Dataset_L1Accept, fragment.Dataset_MinimumBias, fragment.Dataset_NoBPTX, fragment.Dataset_OnlineMonitor, fragment.Dataset_PPRefDoubleMuon0, fragment.Dataset_PPRefDoubleMuon1, fragment.Dataset_PPRefDoubleMuon2, fragment.Dataset_PPRefDoubleMuon3, fragment.Dataset_PPRefExotica, fragment.Dataset_PPRefHardProbes0, fragment.Dataset_PPRefHardProbes1, fragment.Dataset_PPRefHardProbes2, fragment.Dataset_PPRefSingleMuon0, fragment.Dataset_PPRefSingleMuon1, fragment.Dataset_PPRefSingleMuon2, fragment.Dataset_PPRefZeroBias0, fragment.Dataset_PPRefZeroBias1, fragment.Dataset_PPRefZeroBias2, fragment.Dataset_PPRefZeroBias3, fragment.Dataset_PPRefZeroBias4, fragment.Dataset_PPRefZeroBias5, fragment.Dataset_PPRefZeroBias6, fragment.Dataset_PPRefZeroBias7, fragment.Dataset_PPRefZeroBias8, fragment.Dataset_PPRefZeroBias9, fragment.Dataset_PPRefZeroBias10, fragment.Dataset_PPRefZeroBias11, fragment.Dataset_PPRefZeroBias12, fragment.Dataset_PPRefZeroBias13, fragment.Dataset_PPRefZeroBias14, fragment.Dataset_PPRefZeroBias15, fragment.Dataset_PPRefZeroBias16, fragment.Dataset_PPRefZeroBias17, fragment.Dataset_PPRefZeroBias18, fragment.Dataset_PPRefZeroBias19, fragment.Dataset_RPCMonitor, fragment.Dataset_TestEnablesEcalHcal, fragment.Dataset_TestEnablesEcalHcalDQM, fragment.Dataset_ZeroBias, ))
 
 
 # dummify hltGetConditions in cff's
