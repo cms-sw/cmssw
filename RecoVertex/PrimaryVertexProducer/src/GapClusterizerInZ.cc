@@ -61,6 +61,20 @@ vector<vector<reco::TransientTrack> > GapClusterizerInZ::clusterize(const vector
   return clusters;
 }
 
+vector<TransientVertex> GapClusterizerInZ::vertices(const vector<reco::TransientTrack>& tracks) const {
+  /* repackage track clusters, compatibility with newer clusterizers */
+  std::vector<TransientVertex> primary_vertices;
+  auto trackClusters = clusterize(tracks);
+
+  GlobalError dummyError(0.01, 0, 0.01, 0., 0., 0.01);
+  for (auto& vertexTracks : trackClusters) {
+    GlobalPoint position(0, 0, 0);  // dummy
+    primary_vertices.push_back(TransientVertex(position, dummyError, vertexTracks, 0));
+  }
+
+  return primary_vertices;
+}
+
 void GapClusterizerInZ::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("zSeparation", 1.0);
   desc.addUntracked<bool>("verbose", false);
