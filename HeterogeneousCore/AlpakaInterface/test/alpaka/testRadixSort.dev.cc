@@ -135,7 +135,7 @@ void go(Queue& queue, bool useShared) {
       offsets_h[10] = 3297 + offsets_h[9];
     }
 
-    std::random_shuffle(v_h.data(), v_h.data() + N);
+    std::shuffle(v_h.data(), v_h.data() + N, eng);
 
     auto v_d = cms::alpakatools::make_device_buffer<U[]>(queue, N);
     auto ind_d = cms::alpakatools::make_device_buffer<uint16_t[]>(queue, N);

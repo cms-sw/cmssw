@@ -135,7 +135,7 @@ void go(bool useShared) {
       offsets[10] = 3297 + offsets[9];
     }
 
-    std::random_shuffle(v, v + N);
+    std::shuffle(v, v + N, eng);
 
     auto v_d = cms::cuda::make_device_unique<U[]>(N, nullptr);
     auto ind_d = cms::cuda::make_device_unique<uint16_t[]>(N, nullptr);
