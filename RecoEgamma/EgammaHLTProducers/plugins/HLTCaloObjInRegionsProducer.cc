@@ -15,6 +15,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -263,7 +264,9 @@ bool HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::validIDForGeom(c
 template <typename CaloObjType, typename CaloObjCollType>
 EtaPhiRegionDataBase* HLTCaloObjInRegionsProducer<CaloObjType, CaloObjCollType>::createEtaPhiRegionData(
     const std::string& type, const edm::ParameterSet& para, edm::ConsumesCollector&& consumesColl) {
-  if (type == "L1EGamma") {
+  if (type == "L1P2GTCandidate") {
+    return new EtaPhiRegionData<l1t::P2GTCandidateCollection>(para, consumesColl);
+  } else if (type == "L1EGamma") {
     return new EtaPhiRegionData<l1t::EGammaBxCollection>(para, consumesColl);
   } else if (type == "L1Jet") {
     return new EtaPhiRegionData<l1t::JetBxCollection>(para, consumesColl);
