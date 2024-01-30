@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 
 ## Pixel HLT in Alpaka
-
 def customizeHLTforDQMGPUvsCPUPixel(process):
     '''Ad-hoc changes to test HLT config containing only DQM_PixelReconstruction_v and DQMGPUvsCPU stream
        only up to the Pixel Local Reconstruction
@@ -56,14 +55,14 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 
     # PixelRecHits: monitor of GPU product (Alpaka backend: '')
     process.hltPixelRecHitsSoAMonitorGPU = cms.EDProducer('SiPixelPhase1MonitorRecHitsSoAAlpaka',
-        pixelHitsSrc = cms.InputTag( 'hltSiPixelRecHits' ),
+        pixelHitsSrc = cms.InputTag( 'hltSiPixelRecHitsSoA' ),
         TopFolderName = cms.string( 'SiPixelHeterogeneous/PixelRecHitsGPU' )
     )
 
     # PixelRecHits: 'GPUvsCPU' comparisons
     process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHitsSoAAlpaka',
-        pixelHitsSrcCPU = cms.InputTag( 'hltSiPixelRecHitsCPUSerial' ),
-        pixelHitsSrcGPU = cms.InputTag( 'hltSiPixelRecHits' ),
+        pixelHitsSrcHost = cms.InputTag( 'hltSiPixelRecHitsCPUSerial' ),
+        pixelHitsSrcDevice = cms.InputTag( 'hltSiPixelRecHitsSoA' ),
         topFolderName = cms.string( 'SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU' ),
         minD2cut = cms.double( 1.0E-4 )
     )
@@ -79,7 +78,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
     process.hltPixelTracksSoAMonitorGPU = cms.EDProducer("SiPixelPhase1MonitorTrackSoAAlpaka",
         mightGet = cms.optional.untracked.vstring,
         minQuality = cms.string('loose'),
-        pixelTrackSrc = cms.InputTag('hltPixelTracks'),
+        pixelTrackSrc = cms.InputTag('hltPixelTracksSoA'),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackGPU'),
         useQualityCut = cms.bool(True)
     )
@@ -88,8 +87,8 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
         deltaR2cut = cms.double(0.04),
         mightGet = cms.optional.untracked.vstring,
         minQuality = cms.string('loose'),
-        pixelTrackSrcCPU = cms.InputTag("hltPixelTracksCPUSerial"),
-        pixelTrackSrcGPU = cms.InputTag("hltPixelTracksSoA"),
+        pixelTrackSrcHost = cms.InputTag("hltPixelTracksCPUSerial"),
+        pixelTrackSrcDevice = cms.InputTag("hltPixelTracksSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'),
         useQualityCut = cms.bool(True)
     )
@@ -112,8 +111,8 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
         beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
         dzCut = cms.double(1),
         mightGet = cms.optional.untracked.vstring,
-        pixelVertexSrcCPU = cms.InputTag("hltPixelVerticesCPUSerial"),
-        pixelVertexSrcGPU = cms.InputTag("hltPixelVerticesSoA"),
+        pixelVertexSrcHost = cms.InputTag("hltPixelVerticesCPUSerial"),
+        pixelVertexSrcDevice = cms.InputTag("hltPixelVerticesSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU')
     )
 
@@ -463,6 +462,7 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
         process.hltPixelVertices,
+        process.hltTrimmedPixelVertices 
     )
 
     process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
@@ -540,7 +540,7 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforAlpakaPixelRecoLocal(process)
     process = customizeHLTforAlpakaPixelRecoTracking(process)
     process = customizeHLTforAlpakaPixelRecoVertexing(process)
-    
+    process = customizeHLTforDQMGPUvsCPUPixel(process)    
     process = customizeHLTforAlpakaPixelRecoTheRest(process)
 
     return process
