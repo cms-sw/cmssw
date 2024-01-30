@@ -6,6 +6,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 3 Scout
 
 parser.add_argument("--electronVersion", type=int, help="electron data format version (default: 7)", default=7)
 parser.add_argument("--photonVersion", type=int, help="photon data format version (default: 6)", default=6)
+parser.add_argument("--vertexVersion", type=int, help="photon data format version (default: 4)", default=4)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
 args = parser.parse_args()
@@ -95,9 +96,10 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
         14,  24,  34,  44,  54
     ),
     tracksTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
+    vertexClassVersion = cms.int32(args.vertexVersion),
     expectedVertexFloatingPointValues = cms.vdouble(
-        15.0,   25.0,  35.0,  45.0,  55.0,
-        65.0,   75.0
+        15.0,  25.0,  35.0,  45.0,  55.0,
+        65.0,  75.0,  85.0,  95.0, 105.0
     ),
     expectedVertexIntegralValues = cms.vint32(
         15,  25,  35
