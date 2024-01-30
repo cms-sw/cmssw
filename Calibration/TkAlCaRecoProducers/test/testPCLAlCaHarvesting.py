@@ -83,6 +83,7 @@ process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGainsAAG_dbOu
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripHitEff_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAli_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHG_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHGCombined_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelLA_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelLAMCS_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripLA_dbOutput)
@@ -106,6 +107,7 @@ process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGainsAAG
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripHitEff_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAli_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHG_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHGCombined_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelLA_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelLAMCS_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripLA_metadata)
@@ -164,6 +166,7 @@ process.schedule = cms.Schedule(process.SiStripQuality,
                                 process.SiStripHitEff,
                                 process.SiPixelAli,
                                 process.SiPixelAliHG,
+                                process.SiPixelAliHGCombined,
                                 process.SiPixelLA,
                                 process.SiPixelLAMCS,
                                 process.SiStripLA,
