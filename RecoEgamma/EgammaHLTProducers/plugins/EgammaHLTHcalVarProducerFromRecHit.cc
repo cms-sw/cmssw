@@ -41,7 +41,6 @@ public:
   explicit EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &);
 
 public:
-  void beginRun(edm::Run const &, edm::EventSetup const &);
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -75,7 +74,6 @@ private:
   //Get HCAL thresholds from GT
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
-  HcalPFCuts const *hcalCuts = nullptr;
 };
 
 EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &config)
@@ -124,7 +122,7 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
   }
 
   if (cutsFromDB) {
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 }
 
@@ -153,12 +151,6 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double> >("effectiveAreas", {0.079, 0.25});  // 2016 post-ichep sinEle default
   desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479});   // Barrel, Endcap
   descriptions.add("hltEgammaHLTHcalVarProducerFromRecHit", desc);
-}
-
-void EgammaHLTHcalVarProducerFromRecHit::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
-  if (cutsFromDB) {
-    hcalCuts = &iSetup.getData(hcalCutsToken_);
-  }
 }
 
 void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
@@ -214,6 +206,10 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            iSetup.getData(hcalChannelQualityToken_),
                                                            iSetup.getData(hcalSevLvlComputerToken_),
                                                            iSetup.getData(caloTowerConstituentsMapToken_));
+    const HcalPFCuts *hcalCuts{nullptr};
+    if (cutsFromDB) {
+      hcalCuts = &iSetup.getData(hcalCutsToken_);
+    }
 
     if (useSingleTower_) {
       if (doEtSum_) {  //this is cone-based HCAL isolation with single tower based footprint removal
