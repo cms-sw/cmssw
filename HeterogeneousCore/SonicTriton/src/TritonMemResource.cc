@@ -25,6 +25,19 @@ void TritonMemResource<IO>::set() {
 }
 
 template <typename IO>
+void TritonMemResource<IO>::closeSafe() {
+  CMS_SA_ALLOW try { close(); } catch (TritonException& e) {
+    e.convertToWarning();
+  } catch (cms::Exception& e) {
+    triton_utils::convertToWarning(e);
+  } catch (std::exception& e) {
+    edm::LogWarning("UnknownFailure") << e.what();
+  } catch (...) {
+    edm::LogWarning("UnknownFailure") << "An unknown exception was thrown";
+  }
+}
+
+template <typename IO>
 TritonHeapResource<IO>::TritonHeapResource(TritonData<IO>* data, const std::string& name, size_t size)
     : TritonMemResource<IO>(data, name, size) {}
 
@@ -96,7 +109,7 @@ TritonCpuShmResource<IO>::TritonCpuShmResource(TritonData<IO>* data, const std::
 
 template <typename IO>
 TritonCpuShmResource<IO>::~TritonCpuShmResource() {
-  close();
+  this->closeSafe();
 }
 
 template <typename IO>
@@ -154,7 +167,7 @@ TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::
 
 template <typename IO>
 TritonGpuShmResource<IO>::~TritonGpuShmResource() {
-  close();
+  this->closeSafe();
 }
 
 template <typename IO>

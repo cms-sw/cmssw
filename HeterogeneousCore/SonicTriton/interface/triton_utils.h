@@ -1,6 +1,7 @@
 #ifndef HeterogeneousCore_SonicTriton_triton_utils
 #define HeterogeneousCore_SonicTriton_triton_utils
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Span.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 
@@ -19,6 +20,8 @@ namespace triton_utils {
   bool checkType(inference::DataType dtype) {
     return false;
   }
+  //turn CMS exceptions into warnings
+  void convertToWarning(const cms::Exception& e);
 }  // namespace triton_utils
 
 //explicit specializations (inlined)
