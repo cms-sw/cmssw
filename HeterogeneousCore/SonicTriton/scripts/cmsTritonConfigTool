@@ -263,7 +263,8 @@ def cfg_checksum(args):
     from glob import glob
     config_dir = os.path.dirname(args.config)
     for filename in glob(os.path.join(config_dir,"*/*")):
-        if os.path.islink(os.path.dirname(filename)): continue
+        # evaluate symbolic links
+        filename = os.path.realpath(filename)
         checksum = get_checksum(filename)
         # key = algorithm:[filename relative to config.pbtxt dir]
         filename = os.path.relpath(filename, config_dir)
@@ -324,10 +325,12 @@ def cfg_versioncheck(args):
     missing = []
 
     for path in os.environ['CMSSW_SEARCH_PATH'].split(':'):
-        for dirpath, dirnames, filenames in os.walk(path):
+        if args.verbose: print("Checking: "+path)
+        for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
             for filename in filenames:
                 if filename=="config.pbtxt":
                     filepath = os.path.join(dirpath,filename)
+                    if args.verbose: print(filepath)
                     checksum_args = Namespace(
                         config=filepath, should_return=True,
                         copy=False, json=False, defaults=False, view=False,
@@ -435,6 +438,7 @@ if __name__=="__main__":
     parser_checksum.set_defaults(func=cfg_checksum)
 
     parser_versioncheck = subparsers.add_parser("versioncheck", parents=[_parser_checksum_update], help="check all model checksums")
+    parser_versioncheck.add_argument("--verbose", default=False, action="store_true", help="verbose output (show all files checked)")
     parser_versioncheck.set_defaults(func=cfg_versioncheck)
 
     _parser_copy_req = ArgumentParser(add_help=False, parents=[_parser_copy_view])
