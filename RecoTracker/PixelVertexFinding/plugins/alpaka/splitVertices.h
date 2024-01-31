@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         // copy to local
-        for (auto k : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto k : cms::alpakatools::independent_group_elements(acc, nt)) {
           if (iv[k] == int(kv)) {
             auto old = alpaka::atomicInc(acc, &nq, MAXTK, alpaka::hierarchy::Threads{});
             zz[old] = zt[k] - zv[kv];
