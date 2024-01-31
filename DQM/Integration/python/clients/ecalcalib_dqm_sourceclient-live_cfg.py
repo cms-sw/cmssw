@@ -183,6 +183,8 @@ process.ecalTestPulseMonitorTask.commonParameters.onlineMode = True
 
 process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
 process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalRecHit.timeCalibTag = ':'
+process.ecalRecHit.timeOffsetTag = ':'
 
 process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
