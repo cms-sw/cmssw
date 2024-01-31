@@ -137,8 +137,8 @@ namespace Pythia8 {
           distance++;
         }
         if (iTop == 0) {
-          infoPtr->errorMsg(
-              "Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from top quark, not vetoing");
+          loggerPtr->errorMsg(
+              "PowhegHooksBB4L::doVetoFSREmission", "Emission in resonance not from top quark, not vetoing");
           return doVetoFSR(false, 0, 0);
           //return false;
         }

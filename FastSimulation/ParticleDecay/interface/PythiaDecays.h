@@ -12,6 +12,7 @@ class RawParticle;
 
 namespace gen {
   class P8RndmEngine;
+  typedef std::shared_ptr<P8RndmEngine> P8RndmEnginePtr;
 }
 
 namespace CLHEP {
@@ -34,6 +35,6 @@ public:
 private:
   DaughterParticleList theList;
   std::unique_ptr<Pythia8::Pythia> decayer;
-  std::unique_ptr<gen::P8RndmEngine> p8RndmEngine;
+  gen::P8RndmEnginePtr p8RndmEngine;
 };
 #endif
