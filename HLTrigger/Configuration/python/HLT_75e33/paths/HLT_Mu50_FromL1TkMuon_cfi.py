@@ -68,7 +68,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Mu50_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    hltL1TkSingleMuFiltered22 +
     hltL3fL1TkSingleMu22L3Filtered50Q +
     HLTEndSequence,
     cms.Task(

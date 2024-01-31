@@ -284,8 +284,4 @@ def nanoL1TrigObjCustomizeFull(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
 
-### muon DPG NANO flavour sequences and customize functions
-from DPGAnalysis.MuonTools.muNtupleProducer_cff import *
-from DPGAnalysis.MuonTools.muNtupleProducerBkg_cff import *
-
 from PhysicsTools.NanoAOD.custom_muon_cff import *

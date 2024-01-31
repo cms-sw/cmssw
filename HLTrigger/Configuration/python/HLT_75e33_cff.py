@@ -235,8 +235,18 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForElectr
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
 
-fragment.schedule = cms.Schedule(*[
+fragment.load('L1Trigger.Configuration.GTemulator_cff')
+fragment.l1tGTProducer.GMTTkMuons = cms.InputTag("l1tTkMuonsGmt")
+fragment.GTemulatorTask = cms.Task(fragment.l1tGTProducer, fragment.l1tGTAlgoBlockProducer)
+fragment.GTemulation_step = cms.Path(cms.Sequence(fragment.GTemulatorTask))
+fragment.load('L1Trigger.Phase2L1GT.l1tGTMenu_cff')
+from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import collectAlgorithmPaths
 
+fragment.schedule = cms.Schedule(*[
+    
+    fragment.GTemulation_step,
+    *collectAlgorithmPaths(fragment),
+    
     fragment.L1T_SinglePFPuppiJet230off,
     fragment.L1T_PFPuppiHT450off,
     fragment.L1T_PFPuppiMET220off,

@@ -722,8 +722,12 @@ void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::E
 void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup &) {
   if (!runAtPCL_)
     return;
-  if (this->isMode(myMilleBit))
+  if (this->isMode(myMilleBit)) {
     theMille->resetOutputFile();
+    theBinary.reset();  // GBL output has to be considered since same binary file is used
+    theBinary = std::make_unique<MilleBinary>((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str(),
+                                              theGblDoubleBinary);
+  }
 }
 
 //____________________________________________________

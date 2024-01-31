@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "CUDADataFormats/CaloCommon/interface/Common.h"
-#include "CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h"
+#include "DataFormats/EcalRecHit/interface/RecoTypes.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 namespace ecal {

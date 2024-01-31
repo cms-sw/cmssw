@@ -40,9 +40,28 @@
 
 class EgammaHLTGsfTrackVarProducer : public edm::global::EDProducer<> {
 public:
+  struct GsfTrackExtrapolations {
+    GsfTrackExtrapolations() {}
+    void operator()(const reco::GsfTrack& trk,
+                    const reco::SuperCluster& sc,
+                    const MultiTrajectoryStateTransform& mtsTransform);
+    TrajectoryStateOnSurface innTSOS;
+    TrajectoryStateOnSurface outTSOS;
+    TrajectoryStateOnSurface sclTSOS;
+
+    GlobalVector innMom, outMom;
+    GlobalPoint sclPos;
+  };
+
+public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void fillAbsAbleVar(float& existVal, const float newVal) const {
+    if (std::abs(newVal) < std::abs(existVal)) {
+      existVal = produceAbsValues_ ? std::abs(newVal) : newVal;
+    }
+  }
 
 private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandToken_;
@@ -57,6 +76,7 @@ private:
   const int lowerTrackNrToRemoveCut_;
   const bool useDefaultValuesForBarrel_;
   const bool useDefaultValuesForEndcap_;
+  const bool produceAbsValues_;
 
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapPutToken_;
@@ -67,7 +87,14 @@ private:
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> validHitsMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> nLayerITMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> chi2MapPutToken_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> fbremMapPutToken_;
 };
+
+namespace {
+
+  float calRelDelta(float a, float b, float defaultVal = 0.f) { return a != 0.f ? (a - b) / a : defaultVal; }
+
+}  // namespace
 
 EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
     : recoEcalCandToken_(
@@ -81,6 +108,7 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       lowerTrackNrToRemoveCut_{config.getParameter<int>("lowerTrackNrToRemoveCut")},
       useDefaultValuesForBarrel_{config.getParameter<bool>("useDefaultValuesForBarrel")},
       useDefaultValuesForEndcap_{config.getParameter<bool>("useDefaultValuesForEndcap")},
+      produceAbsValues_{config.getParameter<bool>("produceAbsValues")},
       dEtaMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Deta").setBranchAlias("deta")},
       dEtaSeedMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("DetaSeed").setBranchAlias("detaseed")},
       dPhiMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Dphi").setBranchAlias("dphi")},
@@ -90,7 +118,8 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
       validHitsMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("ValidHits").setBranchAlias("validhits")},
       nLayerITMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("NLayerIT").setBranchAlias("nlayerit")},
-      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")} {}
+      chi2MapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Chi2").setBranchAlias("chi2")},
+      fbremMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("fbrem")} {}
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -101,6 +130,7 @@ void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>(("lowerTrackNrToRemoveCut"), -1);
   desc.add<bool>(("useDefaultValuesForBarrel"), false);
   desc.add<bool>(("useDefaultValuesForEndcap"), false);
+  desc.add<bool>(("produceAbsValues"), false);
 
   descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
 }
@@ -124,6 +154,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
   reco::RecoEcalCandidateIsolationMap validHitsMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap nLayerITMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap chi2Map(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap fbremMap(recoEcalCandHandle);
 
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoEcalCandHandle->size(); ++iRecoEcalCand) {
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle, iRecoEcalCand);
@@ -156,6 +187,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     float dPhiInValue = 999999;
     float oneOverESuperMinusOneOverPValue = 999999;
     float oneOverESeedMinusOneOverPValue = 999999;
+    float fbrem = 999999;
 
     const int nrTracks = gsfTracks.size();
     const bool rmCutsDueToNrTracks = nrTracks <= lowerTrackNrToRemoveCut_ || nrTracks >= upperTrackNrToRemoveCut_;
@@ -163,6 +195,9 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     const bool useDefaultValues = std::abs(recoEcalCandRef->eta()) < 1.479
                                       ? useDefaultValuesForBarrel_ && nrTracks >= 1
                                       : useDefaultValuesForEndcap_ && nrTracks >= 1;
+
+    MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
+    GsfTrackExtrapolations gsfTrackExtrapolations;
 
     if (rmCutsDueToNrTracks || useDefaultValues) {
       nLayerITValue = 100;
@@ -174,30 +209,23 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
       chi2Value = 0;
       oneOverESuperMinusOneOverPValue = 0;
       oneOverESeedMinusOneOverPValue = 0;
+      fbrem = 0;
     } else {
       for (size_t trkNr = 0; trkNr < gsfTracks.size(); trkNr++) {
         GlobalPoint scPos(scRef->x(), scRef->y(), scRef->z());
 
-        GlobalPoint trackExtrapToSC;
-        {
-          auto innTSOS =
-              MultiTrajectoryStateTransform::innerStateOnSurface(*gsfTracks[trkNr], trackerGeometry, &magneticField);
-          auto posTSOS = extrapolator.extrapolate(innTSOS, scPos);
-          multiTrajectoryStateMode::positionFromModeCartesian(posTSOS, trackExtrapToSC);
-        }
+        gsfTrackExtrapolations(*gsfTracks[trkNr], *scRef, mtsTransform);
 
-        EleRelPointPair scAtVtx(scRef->position(), trackExtrapToSC, beamSpotPosition);
+        EleRelPointPair scAtVtx(scRef->position(), gsfTrackExtrapolations.sclPos, beamSpotPosition);
+
+        fbrem = calRelDelta(gsfTrackExtrapolations.innMom.mag(), gsfTrackExtrapolations.outMom.mag(), fbrem);
 
         float trkP = gsfTracks[trkNr]->p();
         if (scRef->energy() != 0 && trkP != 0) {
-          if (std::abs(1 / scRef->energy() - 1 / trkP) < oneOverESuperMinusOneOverPValue) {
-            oneOverESuperMinusOneOverPValue = std::abs(1 / scRef->energy() - 1 / trkP);
-          }
+          fillAbsAbleVar(oneOverESuperMinusOneOverPValue, 1 / scRef->energy() - 1 / trkP);
         }
         if (scRef->seed().isNonnull() && scRef->seed()->energy() != 0 && trkP != 0) {
-          if (std::abs(1 / scRef->seed()->energy() - 1 / trkP) < oneOverESeedMinusOneOverPValue) {
-            oneOverESeedMinusOneOverPValue = std::abs(1 / scRef->seed()->energy() - 1 / trkP);
-          }
+          fillAbsAbleVar(oneOverESeedMinusOneOverPValue, 1 / scRef->seed()->energy() - 1 / trkP);
         }
 
         if (gsfTracks[trkNr]->missingInnerHits() < missingHitsValue) {
@@ -218,19 +246,9 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
           chi2Value = gsfTracks[trkNr]->normalizedChi2();
         }
 
-        if (std::abs(scAtVtx.dEta()) < dEtaInValue) {
-          // we are allowing them to come from different tracks
-          dEtaInValue = std::abs(scAtVtx.dEta());
-        }
-
-        if (std::abs(scAtVtx.dEta()) < dEtaSeedInValue) {
-          dEtaSeedInValue = std::abs(scAtVtx.dEta() - scRef->position().eta() + scRef->seed()->position().eta());
-        }
-
-        if (std::abs(scAtVtx.dPhi()) < dPhiInValue) {
-          // we are allowing them to come from different tracks
-          dPhiInValue = std::abs(scAtVtx.dPhi());
-        }
+        fillAbsAbleVar(dEtaInValue, scAtVtx.dEta());
+        fillAbsAbleVar(dEtaSeedInValue, scAtVtx.dEta() - scRef->position().eta() + scRef->seed()->position().eta());
+        fillAbsAbleVar(dPhiInValue, scAtVtx.dPhi());
       }
     }
 
@@ -243,6 +261,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     validHitsMap.insert(recoEcalCandRef, validHitsValue);
     nLayerITMap.insert(recoEcalCandRef, nLayerITValue);
     chi2Map.insert(recoEcalCandRef, chi2Value);
+    fbremMap.insert(recoEcalCandRef, fbrem);
   }
 
   iEvent.emplace(dEtaMapPutToken_, dEtaMap);
@@ -254,6 +273,18 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
   iEvent.emplace(validHitsMapPutToken_, validHitsMap);
   iEvent.emplace(nLayerITMapPutToken_, nLayerITMap);
   iEvent.emplace(chi2MapPutToken_, chi2Map);
+  iEvent.emplace(fbremMapPutToken_, fbremMap);
+}
+
+void EgammaHLTGsfTrackVarProducer::GsfTrackExtrapolations::operator()(
+    const reco::GsfTrack& trk, const reco::SuperCluster& sc, const MultiTrajectoryStateTransform& mtsTransform) {
+  innTSOS = mtsTransform.innerStateOnSurface(trk);
+  outTSOS = mtsTransform.outerStateOnSurface(trk);
+  sclTSOS = mtsTransform.extrapolatedState(innTSOS, GlobalPoint(sc.x(), sc.y(), sc.z()));
+
+  multiTrajectoryStateMode::momentumFromModeCartesian(innTSOS, innMom);
+  multiTrajectoryStateMode::positionFromModeCartesian(sclTSOS, sclPos);
+  multiTrajectoryStateMode::momentumFromModeCartesian(outTSOS, outMom);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

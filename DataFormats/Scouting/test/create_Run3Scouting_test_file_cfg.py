@@ -87,7 +87,7 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
     ),
     vertexesFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
-        65.0,   75.0
+        65.0,   75.0,  85.0,  95.0,  105.0
     ),
     vertexesIntegralValues = cms.vint32(
         15,  25,  35

@@ -91,10 +91,10 @@
     <Include ref='Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/btl/v2/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/etl/v7/etl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v4/mtdStructureTopology.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v4/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/btl/v3/btl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v8/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v5/mtdStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v5/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml'/>
@@ -111,14 +111,14 @@
     <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecsFilter.xml'/>
     <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecs.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
-    <Include ref='Geometry/MTDSimData/data/v4/mtdsens.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v5/mtdsens.xml'/>
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2026/v1/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/HGCalSimData/data/hgcProdCutsv15.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2026/v2/muonProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
-    <Include ref='Geometry/MTDSimData/data/v4/mtdProdCuts.xml'/>
+    <Include ref='Geometry/MTDSimData/data/v5/mtdProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
 </DDDefinition>

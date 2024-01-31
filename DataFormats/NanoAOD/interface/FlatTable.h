@@ -37,8 +37,8 @@ namespace nanoaod {
 
   class FlatTable {
   public:
+    //Int8, //removed due to mis-interpretation in ROOT/pyroot
     enum class ColumnType {
-      Int8,
       UInt8,
       Int16,
       UInt16,
@@ -140,9 +140,7 @@ namespace nanoaod {
     struct dependent_false : std::false_type {};
     template <typename T>
     static ColumnType defaultColumnType() {
-      if constexpr (std::is_same<T, int8_t>())
-        return ColumnType::Int8;
-      else if constexpr (std::is_same<T, uint8_t>())
+      if constexpr (std::is_same<T, uint8_t>())
         return ColumnType::UInt8;
       else if constexpr (std::is_same<T, int16_t>())
         return ColumnType::Int16;
@@ -194,9 +192,7 @@ namespace nanoaod {
     template <typename T, class This>
     static auto &bigVectorImpl(This &table) {
       // helper function to avoid code duplication, for the two accessor functions that differ only in const-ness
-      if constexpr (std::is_same<T, int8_t>())
-        return table.int8s_;
-      else if constexpr (std::is_same<T, uint8_t>())
+      if constexpr (std::is_same<T, uint8_t>())
         return table.uint8s_;
       else if constexpr (std::is_same<T, int16_t>())
         return table.int16s_;
@@ -220,7 +216,6 @@ namespace nanoaod {
     std::string name_, doc_;
     bool singleton_, extension_;
     std::vector<Column> columns_;
-    std::vector<int8_t> int8s_;
     std::vector<uint8_t> uint8s_;
     std::vector<int16_t> int16s_;
     std::vector<uint16_t> uint16s_;

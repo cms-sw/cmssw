@@ -9,37 +9,20 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelROCsStatusAndMappingWrapper.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTGPU.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 // local includes
-#include "SiPixelClusterThresholds.h"
 #include "SiPixelRawToClusterGPUKernel.h"
 
 class SiPixelPhase2DigiToClusterCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -176,4 +159,5 @@ void SiPixelPhase2DigiToClusterCUDA::produce(edm::Event& iEvent, const edm::Even
 }
 
 // define as framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelPhase2DigiToClusterCUDA);

@@ -5,6 +5,7 @@
 #define L1Trigger_L1CaloTrigger_Phase2L1CaloEGammaUtils
 
 #include <ap_int.h>
+#include <array>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
@@ -389,27 +390,11 @@ namespace p2eg {
   class region3x4 {
   private:
     int idx_ = -1;
-    linkECAL linksECAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array<std::array<linkECAL, TOWER_IN_PHI>, TOWER_IN_ETA> linksECAL;  // 3x4 in towers
 
   public:
     // constructor
     region3x4() { idx_ = -1; }
-
-    // copy constructor
-    region3x4(const region3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          linksECAL[i][j] = other.linksECAL[i][j];
-        }
-      }
-    }
-
-    // overload operator= to use copy constructor
-    region3x4 operator=(const region3x4& other) {
-      const region3x4& newRegion(other);
-      return newRegion;
-    };
 
     // set members
     inline void zeroOut() {
@@ -444,12 +429,6 @@ namespace p2eg {
       fb = 0;
     };
 
-    // copy constructor
-    towerHCAL(const towerHCAL& other) {
-      et = other.et;
-      fb = other.fb;
-    };
-
     // set members
     inline void zeroOut() {
       et = 0;
@@ -470,21 +449,11 @@ namespace p2eg {
   class towers3x4 {
   private:
     int idx_ = -1;
-    towerHCAL towersHCAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array<std::array<towerHCAL, TOWER_IN_PHI>, TOWER_IN_ETA> towersHCAL;  // 3x4 in towers
 
   public:
     // constructor
     towers3x4() { idx_ = -1; };
-
-    // copy constructor
-    towers3x4(const towers3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          towersHCAL[i][j] = other.towersHCAL[i][j];
-        }
-      };
-    };
 
     // set members
     inline void zeroOut() {
@@ -514,8 +483,8 @@ namespace p2eg {
   class card {
   private:
     int idx_ = -1;
-    region3x4 card3x4Regions[N_REGIONS_PER_CARD];
-    towers3x4 card3x4Towers[N_REGIONS_PER_CARD];
+    std::array<region3x4, N_REGIONS_PER_CARD> card3x4Regions;
+    std::array<towers3x4, N_REGIONS_PER_CARD> card3x4Towers;
 
   public:
     // constructor
@@ -527,21 +496,6 @@ namespace p2eg {
         card3x4Towers[i].setIdx(i);
         card3x4Towers[i].zeroOut();
       }
-    };
-
-    // copy constructor
-    card(const card& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < N_REGIONS_PER_CARD; i++) {
-        card3x4Regions[i] = other.card3x4Regions[i];
-        card3x4Towers[i] = other.card3x4Towers[i];
-      }
-    };
-
-    // overload operator= to use copy constructor
-    card operator=(const card& other) {
-      const card& newCard(other);
-      return newCard;
     };
 
     // set members
@@ -605,13 +559,6 @@ namespace p2eg {
       energy = 0;
       phiMax = 0;
       etaMax = 0;
-    }
-
-    crystalMax& operator=(const crystalMax& rhs) {
-      energy = rhs.energy;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      return *this;
     }
   };
 
@@ -689,10 +636,6 @@ namespace p2eg {
     ap_uint<16> data;
 
     tower_t() { data = 0; }
-    tower_t& operator=(const tower_t& rhs) {
-      data = rhs.data;
-      return *this;
-    }
 
     tower_t(ap_uint<12> et, ap_uint<4> hoe) { data = (et) | (((ap_uint<16>)hoe) << 12); }
 
@@ -780,17 +723,6 @@ namespace p2eg {
       etaMax = 0;
       brems = 0;
     }
-
-    clusterInfo& operator=(const clusterInfo& rhs) {
-      seedEnergy = rhs.seedEnergy;
-      energy = rhs.energy;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      brems = rhs.brems;
-      return *this;
-    }
   };
 
   //--------------------------------------------------------//
@@ -849,20 +781,6 @@ namespace p2eg {
       is_looseTkss = cluster_is_looseTkss;
       is_iso = cluster_is_iso;
       is_looseTkiso = cluster_is_looseTkiso;
-    }
-
-    Cluster& operator=(const Cluster& rhs) {
-      data = rhs.data;
-      regionIdx = rhs.regionIdx;
-      calib = rhs.calib;
-      brems = rhs.brems;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      is_ss = rhs.is_ss;
-      is_looseTkss = rhs.is_looseTkss;
-      is_iso = rhs.is_iso;
-      is_looseTkiso = rhs.is_looseTkiso;
-      return *this;
     }
 
     void setRegionIdx(int regIdx) { regionIdx = regIdx; }  // Newly added

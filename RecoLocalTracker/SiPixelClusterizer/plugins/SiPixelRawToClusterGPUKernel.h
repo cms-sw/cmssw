@@ -2,24 +2,23 @@
 #define RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelRawToClusterGPUKernel_h
 
 #include <algorithm>
+
 #include <cuda_runtime.h>
 
+#include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
-#include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
-// #define GPU_DEBUG
-
-// local include(s)
-#include "SiPixelClusterThresholds.h"
+//#define GPU_DEBUG
 
 struct SiPixelROCsStatusAndMapping;
 class SiPixelGainForHLTonGPU;
@@ -131,6 +130,14 @@ namespace pixelgpudetails {
       digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);
       assert(nModules_Clusters_h[2] <= nModules_Clusters_h[1]);
       clusters_d.setNClusters(nModules_Clusters_h[1], nModules_Clusters_h[2]);
+
+#ifdef GPU_DEBUG
+      std::cout << "SiPixelClusterizerCUDA results:" << std::endl
+                << " > no. of digis: " << nDigis << std::endl
+                << " > no. of active modules: " << nModules_Clusters_h[0] << std::endl
+                << " > no. of clusters: " << nModules_Clusters_h[1] << std::endl
+                << " > bpix2 offset: " << nModules_Clusters_h[2] << std::endl;
+#endif
       // need to explicitly deallocate while the associated CUDA
       // stream is still alive
       //

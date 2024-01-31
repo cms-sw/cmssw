@@ -73,6 +73,8 @@ upgradeKeys[2026] = [
     '2026D104PU',
     '2026D105',
     '2026D105PU',
+    '2026D106',
+    '2026D106PU',
 ]
 
 # pre-generation of WF numbers
@@ -894,6 +896,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
 #  - HLT on CPU
 #  - Pixel-only reconstruction on CPU, with DQM and validation
 #  - harvesting
+
 upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
     digi = {
         # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
@@ -1051,6 +1054,26 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
     harvest = None,
     suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',
     offset = 0.508,
+)
+
+# ECAL-only workflow running on CPU or GPU with Alpaka code
+#  - HLT with Alpaka
+#  - ECAL-only reconstruction with Alpaka, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackECALOnlyAlpaka'] = PatatrackWorkflow(
+    digi = {
+        # customize the ECAL Local Reco part of the HLT menu for Alpaka
+        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka 
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+        '--procModifiers': 'alpaka'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+    },
+    suffix = 'Patatrack_ECALOnlyAlpaka',
+    offset = 0.411,
 )
 
 # ECAL-only workflow running on CPU
@@ -1511,6 +1534,53 @@ upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_FullRecoTripletsGPU_Validation',
     offset = 0.597,
+)
+
+
+# Alpaka workflows
+
+upgradeWFs['PatatrackPixelOnlyAlpaka'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka 
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpaka'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyAlpaka',
+    offset = 0.402,
+)
+
+upgradeWFs['PatatrackPixelOnlyAlpakaValidation'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka 
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpakaValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyAlpaka_Validation',
+    offset = 0.403,
+)
+
+upgradeWFs['PatatrackPixelOnlyAlpakaProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka 
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'alpaka',
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyAlpaka_Profiling',
+    offset = 0.404,
 )
 
 # end of Patatrack workflows
@@ -2718,7 +2788,7 @@ upgradeProperties[2017] = {
     },
     '2022HI' : {
         'Geom' : 'DB:Extended',
-        'GT':'auto:phase1_2022_realistic_hi', 
+        'GT':'auto:phase1_2022_realistic_hi',
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb',
         'BeamSpot': 'DBrealistic',
@@ -2726,7 +2796,7 @@ upgradeProperties[2017] = {
     },
     '2022HIRP' : {
         'Geom' : 'DB:Extended',
-        'GT':'auto:phase1_2022_realistic_hi', 
+        'GT':'auto:phase1_2022_realistic_hi',
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
         'BeamSpot': 'DBrealistic',
@@ -2734,7 +2804,7 @@ upgradeProperties[2017] = {
     },
     '2023HI' : {
         'Geom' : 'DB:Extended',
-        'GT':'auto:phase1_2023_realistic_hi', 
+        'GT':'auto:phase1_2023_realistic_hi',
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb',
         'BeamSpot': 'DBrealistic',
@@ -2742,7 +2812,7 @@ upgradeProperties[2017] = {
     },
     '2023HIRP' : {
         'Geom' : 'DB:Extended',
-        'GT':'auto:phase1_2023_realistic_hi', 
+        'GT':'auto:phase1_2023_realistic_hi',
         'HLTmenu': '@fake2',
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
         'BeamSpot': 'DBrealistic',
@@ -2880,8 +2950,15 @@ upgradeProperties[2026] = {
     '2026D105' : {
         'Geom' : 'Extended2026D105',
         'HLTmenu': '@relval2026',
-        'GT' : 'auto:phase2_realistic_T25',
+        'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D106' : {
+        'Geom' : 'Extended2026D106',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }

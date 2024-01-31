@@ -9,6 +9,7 @@ template <int32_t S>
 class PixelVertexWorkSpaceSoAHost : public cms::cuda::PortableHostCollection<PixelVertexWSSoALayout<>> {
 public:
   explicit PixelVertexWorkSpaceSoAHost() : PortableHostCollection<PixelVertexWSSoALayout<>>(S) {}
+
   // Constructor which specifies the SoA size and CUDA stream
   explicit PixelVertexWorkSpaceSoAHost(cudaStream_t stream)
       : PortableHostCollection<PixelVertexWSSoALayout<>>(S, stream) {}

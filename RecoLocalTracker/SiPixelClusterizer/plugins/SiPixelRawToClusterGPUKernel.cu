@@ -26,13 +26,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+
 // local includes
 #include "SiPixelRawToClusterGPUKernel.h"
+#include "gpuCalibPixel.h"
+#include "gpuClusterChargeCut.h"
+#include "gpuClustering.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace pixelgpudetails {
 
@@ -288,7 +289,7 @@ namespace pixelgpudetails {
                                    const uint32_t wordCounter,
                                    const uint32_t *word,
                                    const uint8_t *fedIds,
-                                   SiPixelDigisCUDASOAView digisView,
+                                   SiPixelDigisSoA::View digisView,
                                    cms::cuda::SimpleVector<SiPixelErrorCompact> *err,
                                    bool useQualityInfo,
                                    bool includeErrors) {

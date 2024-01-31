@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/L1Trigger/interface/P2GTAlgoBlock.h"
 
 #include <string>
 #include <vector>
@@ -55,6 +56,10 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
   const edm::EDGetTokenT<reco::ElectronCollection> electronToken_;
+  const edm::InputTag l1GTAlgoBlockTag_;
+  const edm::EDGetTokenT<std::vector<l1t::P2GTAlgoBlock>> algoBlockToken_;
+  const std::string l1GTAlgoName1_;
+  const std::string l1GTAlgoName2_;
   const int triggerType1_;
   const int triggerType2_;
   const double minDR_;         // minimum dR between two objects to be considered a pair

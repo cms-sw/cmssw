@@ -66,6 +66,7 @@ SiPixelAliPedeAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone
 )
 
 SiPixelAliDQMModuleHG = SiPixelAliDQMModule.clone()
+SiPixelAliDQMModuleHG.outputFolder = "AlCaReco/SiPixelAliHG"
 SiPixelAliDQMModuleHG.MillePedeFileReader.fileDir = "HGalignment/"
 SiPixelAliDQMModuleHG.MillePedeFileReader.isHG = True
 

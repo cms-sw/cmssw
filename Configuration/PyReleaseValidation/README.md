@@ -30,6 +30,7 @@ The offsets currently in use are:
 * 0.2: Tracking Run-2 era, `Run2_2017_trackingRun2`
 * 0.3: 0.1 + 0.2
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
+* 0.411: Patatrack, ECAL only, Alpaka
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
 * 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available

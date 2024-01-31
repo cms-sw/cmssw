@@ -166,9 +166,9 @@ void MuDTMuonExtTableProducer::fillTable(edm::Event& ev) {
   std::vector<uint32_t> staMatches_begin;
   std::vector<uint32_t> staMatches_end;
 
-  std::vector<int8_t> matches_wheel;
-  std::vector<int8_t> matches_sector;
-  std::vector<int8_t> matches_station;
+  std::vector<int16_t> matches_wheel;
+  std::vector<int16_t> matches_sector;
+  std::vector<int16_t> matches_station;
 
   std::vector<float> matches_x;
   std::vector<float> matches_y;

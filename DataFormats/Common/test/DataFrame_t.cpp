@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <numeric>
 #include <cstring>
+#include <random>
 
 class TestDataFrame : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestDataFrame);
@@ -121,7 +122,9 @@ void TestDataFrame::sort() {
   std::vector<unsigned int> ids(100, 1);
   ids[0] = 2001;
   std::partial_sum(ids.begin(), ids.end(), ids.begin());
-  std::random_shuffle(ids.begin(), ids.end());
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(ids.begin(), ids.end(), g);
 
   for (int n = 0; n < 100; ++n) {
     frames.push_back(ids[n]);

@@ -14,12 +14,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 // local include(s)
 #include "PixelClusterizerBase.h"
-#include "SiPixelClusterThresholds.h"
+
+//#define GPU_DEBUG
 
 template <typename TrackerTraits>
 class SiPixelDigisClustersFromSoAT : public edm::global::EDProducer<> {
@@ -34,7 +36,7 @@ private:
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 
-  edm::EDGetTokenT<SiPixelDigisSoA> digiGetToken_;
+  edm::EDGetTokenT<legacy::SiPixelDigisSoA> digiGetToken_;
 
   edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> digiPutToken_;
   edm::EDPutTokenT<SiPixelClusterCollectionNew> clusterPutToken_;
@@ -48,7 +50,7 @@ private:
 template <typename TrackerTraits>
 SiPixelDigisClustersFromSoAT<TrackerTraits>::SiPixelDigisClustersFromSoAT(const edm::ParameterSet& iConfig)
     : topoToken_(esConsumes()),
-      digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
+      digiGetToken_(consumes<legacy::SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
       clusterPutToken_(produces<SiPixelClusterCollectionNew>()),
       clusterThresholds_(iConfig.getParameter<int>("clusterThreshold_layer1"),
                          iConfig.getParameter<int>("clusterThreshold_otherLayers")),
@@ -122,7 +124,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
     for (int32_t ic = 0; ic < nclus + 1; ++ic) {
       auto const& acluster = aclusters[ic];
       // in any case we cannot  go out of sync with gpu...
-      if (!std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value and acluster.charge < clusterThreshold)
+      if (acluster.charge < clusterThreshold)
         edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
                                                        << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
                                                        << " size/charge " << acluster.isize << '/' << acluster.charge;
@@ -148,6 +150,10 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
       spc.abort();
   };
 
+#ifdef GPU_DEBUG
+  std::cout << "Dumping all digis. nDigis = " << nDigis << std::endl;
+#endif
+
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
     if (digis.rawIdArr(i) == 0)
@@ -161,6 +167,9 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
     assert(digis.rawIdArr(i) > 109999);
 #endif
     if (detId != digis.rawIdArr(i)) {
+#ifdef GPU_DEBUG
+      std::cout << ">> Closed module --" << detId << "; nclus = " << nclus << std::endl;
+#endif
       // new module
       fillClusters(detId);
 #ifdef EDM_ML_DEBUG
@@ -178,6 +187,12 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
       }
     }
     PixelDigi dig(digis.pdigi(i));
+
+#ifdef GPU_DEBUG
+    std::cout << i << ";" << digis.rawIdArr(i) << ";" << digis.clus(i) << ";" << digis.pdigi(i) << ";" << digis.adc(i)
+              << ";" << dig.row() << ";" << dig.column() << std::endl;
+#endif
+
     if (storeDigis_)
       (*detDigis).data.emplace_back(dig);
       // fill clusters

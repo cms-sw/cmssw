@@ -154,8 +154,8 @@ namespace edmtest {
     if (tracksIntegralValues_.size() != 5) {
       throwWithMessage("tracksIntegralValues must have 5 elements and it does not");
     }
-    if (vertexesFloatingPointValues_.size() != 7) {
-      throwWithMessage("vertexesFloatingPointValues must have 7 elements and it does not");
+    if (vertexesFloatingPointValues_.size() != 10) {
+      throwWithMessage("vertexesFloatingPointValues must have 10 elements and it does not");
     }
     if (vertexesIntegralValues_.size() != 3) {
       throwWithMessage("vertexesIntegralValues must have 3 elements and it does not");
@@ -591,7 +591,10 @@ namespace edmtest {
                                          vertexesIntegralValues_[0] + iOffset,
                                          static_cast<float>(vertexesFloatingPointValues_[6] + offset),
                                          vertexesIntegralValues_[1] + iOffset,
-                                         static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2));
+                                         static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2),
+                                         static_cast<float>(vertexesFloatingPointValues_[7] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[8] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[9] + offset));
     }
     iEvent.put(vertexesPutToken_, std::move(run3ScoutingVertexes));
   }

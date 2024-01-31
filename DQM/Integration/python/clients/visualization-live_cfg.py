@@ -71,7 +71,6 @@ if not unitTest:
     process.source.skipFirstLumis                = True
     process.source.minEventsPerLumi              = 0
     process.source.nextLumiTimeoutMillis         = 10000
-    process.source.streamLabel                   = 'streamDQM'
     if options.BeamSplashRun :
       set_BeamSplashRun_settings( process.source )
 

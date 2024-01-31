@@ -1,0 +1,177 @@
+# "Special" menu
+
+HLTriggerFirstPath	#	menu structure
+HLTriggerFinalPath	#	menu structure
+Status_OnCPU		#	CMSHLT-2206
+Status_OnGPU		#	CMSHLT-2206
+AlCa_EcalPhiSym_v*      #       CMSHLT-2860
+AlCa_EcalEtaEBonly_v*   #       CMSHLT-2860
+AlCa_EcalEtaEEonly_v*   #       CMSHLT-2860
+AlCa_EcalPi0EBonly_v*   #       CMSHLT-2860
+AlCa_EcalPi0EEonly_v*   #       CMSHLT-2860
+AlCa_RPCMuonNormalisation_v*            #       CMSHLT-2860
+AlCa_LumiPixelsCounts_RandomHighRate_v* #       CMSHLT-2860
+AlCa_LumiPixelsCounts_ZeroBiasVdM_v*    #       CMSHLT-2860
+AlCa_LumiPixelsCounts_ZeroBiasGated_v*  #       CMSHLT-2860
+DST_Physics_v*                          #       CMSHLT-2860
+DST_ZeroBias_v*                         #       CMSHLT-2860
+HLT_L1SingleMuOpen_v*                   #       CMSHLT-2860
+HLT_L1SingleMuCosmics_v*  #       CMSHLT-2860
+HLT_L1SingleMuOpen_DT_v*  #       CMSHLT-2860
+HLT_L1SingleMu3_v*        #       CMSHLT-2860
+HLT_L1SingleMu5_v*        #       CMSHLT-2860
+HLT_L1SingleMu7_v*        #       CMSHLT-2860
+HLT_L1DoubleMu0_v*        #       CMSHLT-2860
+HLT_L1SingleJet8erHE_v*   #       CMSHLT-2860
+HLT_L1SingleJet10erHE_v*  #       CMSHLT-2860
+HLT_L1SingleJet12erHE_v*  #       CMSHLT-2860
+HLT_L1SingleJet35_v*      #       CMSHLT-2860
+HLT_L1SingleJet200_v*     #       CMSHLT-2860
+HLT_L1SingleEG8er2p5_v*   #       CMSHLT-2860
+HLT_L1SingleEG10er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG15er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG26er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG28er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG28er2p1_v*  #       CMSHLT-2860
+HLT_L1SingleEG28er1p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG34er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG36er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG38er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG40er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG42er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG45er2p5_v*  #       CMSHLT-2860
+HLT_L1SingleEG50_v*       #       CMSHLT-2860
+HLT_L1SingleJet60_v*      #       CMSHLT-2860
+HLT_L1SingleJet90_v*      #       CMSHLT-2860
+HLT_L1SingleJet120_v*     #       CMSHLT-2860
+HLT_L1SingleJet180_v*     #       CMSHLT-2860
+HLT_L1HTT120er_v*         #       CMSHLT-2860
+HLT_L1HTT160er_v*         #       CMSHLT-2860
+HLT_L1HTT200er_v*         #       CMSHLT-2860
+HLT_L1HTT255er_v*         #       CMSHLT-2860
+HLT_L1HTT280er_v*         #       CMSHLT-2860
+HLT_L1HTT320er_v*         #       CMSHLT-2860
+HLT_L1HTT360er_v*         #       CMSHLT-2860
+HLT_L1HTT400er_v*         #       CMSHLT-2860
+HLT_L1HTT450er_v*         #       CMSHLT-2860
+HLT_L1ETM120_v*           #       CMSHLT-2860
+HLT_L1ETM150_v*           #       CMSHLT-2860
+HLT_L1EXT_HCAL_LaserMon1_v*   #       CMSHLT-2860
+HLT_L1EXT_HCAL_LaserMon4_v*   #       CMSHLT-2860
+HLT_CscCluster_Cosmic_v*      #       CMSHLT-2860
+HLT_EcalCalibration_v*        #       CMSHLT-2860
+HLT_HcalCalibration_v*        #       CMSHLT-2860
+HLT_HcalNZS_v*                #       CMSHLT-2860
+HLT_HcalPhiSym_v*             #       CMSHLT-2860
+HLT_HT60_Beamspot_v*          #       CMSHLT-2860
+HLT_HT300_Beamspot_v*         #       CMSHLT-2860
+HLT_HT300_Beamspot_PixelClusters_WP2_v*    #       CMSHLT-2860
+HLT_PixelClusters_WP2_v*      #       CMSHLT-2860
+HLT_PixelClusters_WP1_v*      #       CMSHLT-2860
+HLT_MinimumBias_HF_v*         #       CMSHLT-2860
+HLT_IsoTrackHB_v*             #       CMSHLT-2860
+HLT_IsoTrackHE_v*             #       CMSHLT-2860
+HLT_L1BptxXOR_v*              #       CMSHLT-2860
+HLT_BptxOR_v*                 #       CMSHLT-2860
+HLT_L1SingleMuCosmics_EMTF_v* #       CMSHLT-2860
+HLT_PPSMaxTracksPerArm1_v*    #       CMSHLT-2860
+HLT_PPSMaxTracksPerRP4_v*     #       CMSHLT-2860
+HLT_PPSRandom_v*              #       CMSHLT-2860
+HLT_Physics_v*                #       CMSHLT-2860
+HLT_L1FatEvents_v*            #       CMSHLT-2860
+HLT_Random_v*                 #       CMSHLT-2860
+HLT_Random_HighRate_v*        #       CMSHLT-2860
+HLT_ZeroBias_v*               #       CMSHLT-2860
+HLT_ZeroBias_Alignment_v*     #       CMSHLT-2860
+HLT_ZeroBias_Beamspot_v*      #       CMSHLT-2860
+HLT_ZeroBias_IsolatedBunches_v*              #       CMSHLT-2860
+HLT_ZeroBias_FirstBXAfterTrain_v*            #       CMSHLT-2860
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v*  #       CMSHLT-2860
+HLT_ZeroBias_FirstCollisionInTrain_v*        #       CMSHLT-2860
+HLT_ZeroBias_LastCollisionInTrain_v*         #       CMSHLT-2860
+HLT_ZeroBias_HighRate_v*            #       CMSHLT-2860
+HLT_ZeroBias_Or_AlwaysTrue_v*	    #       CMSHLT-2860
+HLT_ZeroBias_Gated_v*		    #       CMSHLT-2860
+HLT_SpecialHLTPhysics_v*	    #       CMSHLT-2860
+HLT_SpecialZeroBias_v*		    #       CMSHLT-2860
+
+## EndPaths / FinalPaths ##
+
+ALCALumiPixelsCountsExpressOutput
+ALCALumiPixelsCountsGatedOutput
+ALCALumiPixelsCountsPromptOutput
+ALCAP0Output
+ALCAPHISYMOutput
+ALCAPPSExpressOutput
+ALCAPPSPromptOutput
+CalibrationOutput
+DQMOutput
+DQMCalibrationOutput
+DQMEventDisplayOutput
+DQMOnlineBeamspotOutput
+DQMPPSRandomOutput
+EcalCalibrationOutput
+ExpressOutput
+ExpressAlignmentOutput
+ExpressCosmicsOutput
+NanoDSTOutput
+PhysicsCommissioningOutput
+
+PhysicsSpecialHLTPhysics0Output
+PhysicsSpecialHLTPhysics1Output
+PhysicsSpecialHLTPhysics2Output
+PhysicsSpecialHLTPhysics3Output
+PhysicsSpecialHLTPhysics4Output
+PhysicsSpecialHLTPhysics5Output
+PhysicsSpecialHLTPhysics6Output
+PhysicsSpecialHLTPhysics7Output
+PhysicsSpecialHLTPhysics8Output
+PhysicsSpecialHLTPhysics9Output
+PhysicsSpecialHLTPhysics10Output
+PhysicsSpecialHLTPhysics11Output
+PhysicsSpecialHLTPhysics12Output
+PhysicsSpecialHLTPhysics13Output
+PhysicsSpecialHLTPhysics14Output
+PhysicsSpecialHLTPhysics15Output
+
+PhysicsSpecialRandom0Output
+PhysicsSpecialRandom1Output
+PhysicsSpecialRandom2Output
+PhysicsSpecialRandom3Output
+PhysicsSpecialRandom4Output
+PhysicsSpecialRandom5Output
+PhysicsSpecialRandom6Output
+PhysicsSpecialRandom7Output
+PhysicsSpecialRandom8Output
+PhysicsSpecialRandom9Output
+PhysicsSpecialRandom10Output
+PhysicsSpecialRandom11Output
+PhysicsSpecialRandom12Output
+PhysicsSpecialRandom13Output
+PhysicsSpecialRandom14Output
+PhysicsSpecialRandom15Output
+
+PhysicsSpecialZeroBias0Output
+PhysicsSpecialZeroBias1Output
+PhysicsSpecialZeroBias2Output
+PhysicsSpecialZeroBias3Output
+PhysicsSpecialZeroBias4Output
+PhysicsSpecialZeroBias5Output
+PhysicsSpecialZeroBias6Output
+PhysicsSpecialZeroBias7Output
+PhysicsSpecialZeroBias8Output
+PhysicsSpecialZeroBias9Output
+PhysicsSpecialZeroBias10Output
+PhysicsSpecialZeroBias10Output
+PhysicsSpecialZeroBias11Output
+PhysicsSpecialZeroBias12Output
+PhysicsSpecialZeroBias13Output
+PhysicsSpecialZeroBias14Output
+PhysicsSpecialZeroBias15Output
+RPCMONOutput
+
+######## paths that are different between Special and online_special ################################
+
+HLTAnalyzerEndpath             # only in 'special', not in 'online'
+#RatesMonitoring                # only in 'online', not in 'special'
+#DQMHistograms                  # only in 'online', not in 'special'

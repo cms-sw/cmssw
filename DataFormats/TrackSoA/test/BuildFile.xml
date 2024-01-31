@@ -1,0 +1,6 @@
+<use name="eigen"/>
+<bin file="alpaka/TrackSoAHeterogeneous_test.cc alpaka/TrackSoAHeterogeneous_test.dev.cc" name="TrackSoAHeterogeneousAlpaka_test">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
+</bin>

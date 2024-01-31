@@ -28,7 +28,7 @@
 class MillePedeFileConverter : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
 public:
   explicit MillePedeFileConverter(const edm::ParameterSet&);
-  ~MillePedeFileConverter() override;
+  ~MillePedeFileConverter() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

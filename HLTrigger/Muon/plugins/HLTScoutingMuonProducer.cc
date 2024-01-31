@@ -104,7 +104,10 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                                  dispvtx.tracksSize(),
                                  dispvtx.chi2(),
                                  dispvtx.ndof(),
-                                 dispvtx.isValid());
+                                 dispvtx.isValid(),
+                                 dispvtx.covariance(0, 1),
+                                 dispvtx.covariance(0, 2),
+                                 dispvtx.covariance(1, 2));
     }
   }
 

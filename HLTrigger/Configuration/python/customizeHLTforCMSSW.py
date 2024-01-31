@@ -233,7 +233,6 @@ def customiseForOffline(process):
 
     return process
 
-
 def customizeHLTfor43025(process):
 
     for producer in producers_by_type(process, "PFClusterProducer"):
@@ -261,15 +260,31 @@ def customizeHLTfor43549(process):
 
     return process
 
+def customizeHLTfor43774(process):
+    filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
+    absAbleVar = ["DEta","deta","DetaSeed","Dphi","OneOESuperMinusOneOP","OneOESeedMinusOneOP"]
+    for filt_type in filt_types:
+        for filt in filters_by_type(process, filt_type):
+            if filt.varTag.productInstanceLabel in absAbleVar:
+                filt.useAbs = cms.bool(True)
+            
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
+
+    # Alpaka HLT
+    from Configuration.ProcessModifiers.alpaka_cff import alpaka 
+    from Configuration.Eras.Modifier_run3_common_cff import run3_common
+    from HLTrigger.Configuration.customizeHLTforAlpaka import customizeHLTforAlpaka
+    (alpaka & run3_common).makeProcessModifier(customizeHLTforAlpaka).apply(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
     process = customizeHLTfor43025(process)
     process = customizeHLTfor43549(process)
-    
+    process = customizeHLTfor43774(process)
     return process

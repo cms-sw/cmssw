@@ -37,10 +37,8 @@ process.dqmSaverPB.runNumber = options.runNumber
 process.load("DQMServices.Components.DQMScalInfo_cfi")
 
 # message logger
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
-                                    )
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
 
 # Global tag
 # Condition for P5 cluster
@@ -91,7 +89,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = "rawDataRepacker"
     process.csctfDigis.producer = "rawDataRepacker"
     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalDigisCPU.InputLabel = "rawDataRepacker"
     process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
     process.gctDigis.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"

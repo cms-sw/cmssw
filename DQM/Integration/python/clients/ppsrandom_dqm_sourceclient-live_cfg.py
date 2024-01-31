@@ -5,10 +5,7 @@ from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('CTPPSDQM', Run3)
 
 test = False
-unitTest = False
-
-if 'unitTest=True' in sys.argv:
-  unitTest=True
+unitTest = 'unitTest=True' in sys.argv
 
 # event source
 if unitTest:
@@ -29,7 +26,7 @@ else:
     'drop *',
     'keep FEDRawDataCollection_*_*_*'
   )
-  
+
 process.source.streamLabel = "streamDQMPPSRandom"
 
 # DQM environment

@@ -1197,6 +1197,16 @@ streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstri
     'HLT_HcalPhiSym_v19'
 )
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMinimumBias_selector
+streamPhysicsCommissioning_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetMinimumBias_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetMinimumBias_selector.triggerConditions = cms.vstring(
+    'HLT_Physics_v10',
+    'HLT_Random_v3',
+    'HLT_ZeroBias_v9'
+)
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMonteCarlo_selector
 streamPhysicsCommissioning_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetMonteCarlo_selector.l1tResults = cms.InputTag('')
