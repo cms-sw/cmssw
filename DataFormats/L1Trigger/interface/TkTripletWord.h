@@ -234,7 +234,7 @@ namespace l1t {
                           ditrack_maxz0_t ditrack_maxz0,
                           unassigned_t unassigned);
 
-    template<class packVarType>
+    template <class packVarType>
     inline void packIntoWord(unsigned int& currentOffset, unsigned int wordChunkSize, packVarType& packVar);
 
   private:

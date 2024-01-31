@@ -19,12 +19,14 @@ namespace l1t {
         valid, pt, eta, phi, mass, charge, ditrack_minmass, ditrack_maxmass, ditrack_minz0, ditrack_maxz0, unassigned);
   }
 
-  template<class packVarType>
-  inline void TkTripletWord::packIntoWord(unsigned int& currentOffset, unsigned int wordChunkSize, packVarType& packVar){
-      for (unsigned int b = currentOffset; b < (currentOffset + wordChunkSize); ++b)  {
-         tkTripletWord_.set(b, packVar[b-currentOffset]);
-      }
-      currentOffset += wordChunkSize;
+  template <class packVarType>
+  inline void TkTripletWord::packIntoWord(unsigned int& currentOffset,
+                                          unsigned int wordChunkSize,
+                                          packVarType& packVar) {
+    for (unsigned int b = currentOffset; b < (currentOffset + wordChunkSize); ++b) {
+      tkTripletWord_.set(b, packVar[b - currentOffset]);
+    }
+    currentOffset += wordChunkSize;
   }
 
   void TkTripletWord::setTkTripletWord(valid_t valid,
@@ -50,6 +52,6 @@ namespace l1t {
     packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxMassSize, ditrack_maxmass);
     packIntoWord(offset, TkTripletBitWidths::kDiTrackMinZ0Size, ditrack_minz0);
     packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxZ0Size, ditrack_maxz0);
-}   
+  }
 
 }  //namespace l1t
