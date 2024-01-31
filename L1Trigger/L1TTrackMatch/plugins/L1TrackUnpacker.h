@@ -10,8 +10,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-
 namespace l1trackunpacker {
   //For precision studies
   const unsigned int PT_INTPART_BITS{9};

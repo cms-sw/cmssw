@@ -195,7 +195,9 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   L1track trk2{-99, -99, -99, -99, -99, -99, -99, 0};
   L1track trk3{-99, -99, -99, -99, -99, -99, -99, 0};
 
+  int current_track_idx = -1;
   for (auto current_track : *TTTrackHandle) {
+    current_track_idx += 1;
     double current_track_pt = 0;
     if (use_float_track_precision_)
       current_track_pt = current_track->momentum().perp();
@@ -213,7 +215,7 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
       trk1.MVA = current_track->trkMVA1();
       trk1.Nstubs = current_track->getStubRefs().size();
       trk1.Z0 = current_track->z0();
-      trk1.Index = &(*current_track) - &(*TTTrackHandle->at(0));
+      trk1.Index = current_track_idx;
     } else {
       trk1.Pt = FloatPtFromBits(*current_track);
       trk1.Eta = FloatEtaFromBits(*current_track);
@@ -222,7 +224,7 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
       trk1.MVA = current_track->trkMVA1();
       trk1.Nstubs = current_track->getStubRefs().size();
       trk1.Z0 = FloatZ0FromBits(*current_track);
-      trk1.Index = &(*current_track) - &(*TTTrackHandle->at(0));
+      trk1.Index = current_track_idx;
     }
   }
 
