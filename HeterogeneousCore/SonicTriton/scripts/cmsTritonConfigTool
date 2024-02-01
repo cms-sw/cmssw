@@ -261,9 +261,10 @@ def cfg_checksum(args):
     missing = []
 
     from glob import glob
-    config_dir = os.path.dirname(args.config)
+    # evaluate symbolic links
+    config_dir = os.path.realpath(os.path.dirname(args.config))
     for filename in glob(os.path.join(config_dir,"*/*")):
-        # evaluate symbolic links
+        # evaluate symbolic links again
         filename = os.path.realpath(filename)
         checksum = get_checksum(filename)
         # key = algorithm:[filename relative to config.pbtxt dir]
