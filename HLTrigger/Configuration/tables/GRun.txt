@@ -427,7 +427,6 @@ HLT_IsoMu24_TwoProngs35_v*	#	CMSHLT-1885
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v*	#	CMSHLT-1796
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_v*	#	CMSHLT-1796
 HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*         # CMSHLT-2289
-HLT_IsoMu27_MediumDeepTauPFTauHPS20_eta2p1_SingleL1_v* # CMSHLT-2349
 HLT_ZeroBias_Alignment_v*	#	CMSHLT-1892
 HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896
 HLT_Ele30_WPTight_Gsf_v*	#	CMSHLT-1921
@@ -448,8 +447,6 @@ HLT_PFHT400_SixPFJet32_v*                   # CMSHLT-1857, CMSHLT-2705
 HLT_PFHT400_SixPFJet32_PNet2BTagMean0p50_v* # CMSHLT-2705
 HLT_PFHT450_SixPFJet36_v*                   # CMSHLT-1857, CMSHLT-2705
 HLT_PFHT450_SixPFJet36_PNetBTag0p35_v*      # CMSHLT-2705
-HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v* # CMSHLT-2184
-HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*       # CMSHLT-2184
 HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
 HLT_QuadPFJet103_88_75_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
 HLT_QuadPFJet105_88_76_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
@@ -731,6 +728,17 @@ HLT_PFJet200_TimeGt2p5ns_v*    # CMSHLT-2754
 HLT_Photon50_TimeLtNeg2p5ns_v* # CMSHLT-2754
 HLT_Photon50_TimeGt2p5ns_v*    # CMSHLT-2754
 
+HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
+HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Tight_L2NN_eta2p3_CrossL1_v*		# CMSHLT-2974
+HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3_v*				# CMSHLT-2974
+HLT_DoublePNetTauhPFJet30_Tight_L2NN_eta2p3_v*				# CMSHLT-2974
+HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Loose_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
+HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Medium_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
+HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Tight_L2NN_eta2p3_CrossL1_v*	# CMSHLT-2974
+HLT_SinglePNetTauhPFJet130_Loose_L2NN_eta2p3_v*				# CMSHLT-2974
+HLT_SinglePNetTauhPFJet130_Medium_L2NN_eta2p3_v*			# CMSHLT-2974
+HLT_SinglePNetTauhPFJet130_Tight_L2NN_eta2p3_v*				# CMSHLT-2974
+
 HLT_L1SingleMuCosmics_v* # CMSHLT-2097
 
 HLT_PPSMaxTracksPerArm1_v* # CMSHLT-2179
@@ -796,6 +804,9 @@ ParkingVBF2Output # CMSHLT-2702
 ParkingVBF3Output # CMSHLT-2702
 
 ######## MC paths - template paths only for MC (only in GRun, not in online) ################################
+
+HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v* # CMSHLT-2184, CMSHLT-2830
+HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*       # CMSHLT-2184, CMSHLT-2830
 
 MC_ReducedIterativeTracking_v*                                # CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
 MC_PFMET_v*                                                   # CMSHLT-314
