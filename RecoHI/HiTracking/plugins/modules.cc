@@ -4,16 +4,16 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 // Cluster Vertexing
-//#include "HIPixelClusterVtxProducer.h"
-//DEFINE_FWK_MODULE(HIPixelClusterVtxProducer);
+#include "HIPixelClusterVtxProducer.h"
+DEFINE_FWK_MODULE(HIPixelClusterVtxProducer);
 
 // Median Vertexing
-//#include "HIPixelMedianVtxProducer.h"
-//DEFINE_FWK_MODULE(HIPixelMedianVtxProducer);
+#include "HIPixelMedianVtxProducer.h"
+DEFINE_FWK_MODULE(HIPixelMedianVtxProducer);
 
 // Best Vertex Producer
-//#include "RecoHI/HiTracking/interface/HIBestVertexProducer.h"
-//DEFINE_FWK_MODULE(HIBestVertexProducer);
+#include "RecoHI/HiTracking/interface/HIBestVertexProducer.h"
+DEFINE_FWK_MODULE(HIBestVertexProducer);
 
 // Restricted HI tracking regions
 #include "HITrackingRegionProducer.h"

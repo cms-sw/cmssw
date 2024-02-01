@@ -63,13 +63,13 @@ HiTrackingRegionFactoryFromJetsBlock = tauRegionalPixelSeedGenerator.RegionFacto
 # limited stand-alone muon-seeded tracking region
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import MuonTrackingRegionCommon
-from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionEDProducer as _HiTrackingRegionEDProducer
-HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
-    MuonSrc = "standAloneMuons:UpdatedAtVtx",
-    MuonTrackingRegionBuilder = MuonTrackingRegionCommon.MuonTrackingRegionBuilder.clone(
-        vertexCollection = "hiSelectedPixelVertex",
-        UseVertex = True,
-        Rescale_Dz = 5.0,
-    ),
-    ServiceParameters = MuonServiceProxy.ServiceParameters,
-)
+#from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionEDProducer as _HiTrackingRegionEDProducer
+#HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
+#    MuonSrc = "standAloneMuons:UpdatedAtVtx",
+#    MuonTrackingRegionBuilder = MuonTrackingRegionCommon.MuonTrackingRegionBuilder.clone(
+#        vertexCollection = "hiSelectedPixelVertex",
+#        UseVertex = True,
+#        Rescale_Dz = 5.0,
+#    ),
+#    ServiceParameters = MuonServiceProxy.ServiceParameters,
+#)

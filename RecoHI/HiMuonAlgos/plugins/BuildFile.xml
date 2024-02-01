@@ -1,0 +1,9 @@
+<use name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoMuon/GlobalTrackingTools"/>
+<use name="hepmc"/>
+<library file="*.cc" name="RecoHIHiMuonAlgosPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
