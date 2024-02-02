@@ -1,0 +1,68 @@
+# Cosmics menu (Run 3, 2024)
+# Relevant JIRAs: CMSHLT-2255, CMSHLT-2197, CMSHLT-2287 
+
+HLTriggerFirstPath
+
+Status_OnCPU # CMSHLT-2206
+Status_OnGPU # CMSHLT-2206
+
+HLT_EcalCalibration_v*
+HLT_HcalCalibration_v*
+
+HLT_Physics_v*
+HLT_Random_v*
+HLT_HcalPhiSym_v*
+HLT_HcalNZS_v*
+HLT_L1FatEvents_v*
+# HLT_DQML1SeedsGroup1_v* # CMSHLT-2860
+DST_Physics_v*
+
+DQM_EcalReconstruction_v*  # CMSHLT-2287
+DQM_HcalReconstruction_v*  # CMSHLT-2287
+DQM_PixelReconstruction_v* # CMSHLT-2287
+
+AlCa_RPCMuonNormalisation_v*
+
+HLT_L1SingleMuOpen_v*
+HLT_L1SingleMuOpen_DT_v*
+HLT_L1SingleMuCosmics_v*
+HLT_L1SingleMu3_v*
+HLT_L1SingleMu5_v*
+HLT_L1SingleMu7_v*
+HLT_L1DoubleMu0_v*
+HLT_L1SingleJet8erHE_v*
+HLT_L1SingleJet10erHE_v*
+HLT_L1SingleJet12erHE_v*
+HLT_L1SingleEG10er2p5_v*
+HLT_L1SingleEG15er2p5_v*
+HLT_L1SingleJet35_v*
+HLT_L1SingleJet200_v*
+HLT_L2Mu10_NoVertex_NoBPTX3BX_v*      # CMSHLT-2197
+HLT_L2Mu10_NoVertex_NoBPTX_v*         # CMSHLT-2197
+HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v* # CMSHLT-2197
+HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v* # CMSHLT-2197
+HLT_CscCluster_Cosmic_v*
+HLT_L1EXT_HCAL_LaserMon1_v*
+HLT_L1EXT_HCAL_LaserMon4_v*
+
+HLTriggerFinalPath
+
+## EndPaths / FinalPaths ##
+
+PhysicsCommissioningOutput
+ExpressCosmicsOutput
+CalibrationOutput
+EcalCalibrationOutput
+RPCMONOutput
+
+DQMOutput
+DQMCalibrationOutput
+DQMEventDisplayOutput
+DQMGPUvsCPUOutput
+
+NanoDSTOutput
+
+######## Paths that are different between online and offline ########
+
+RatesMonitoring
+DQMHistograms
