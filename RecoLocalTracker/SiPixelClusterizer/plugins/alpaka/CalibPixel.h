@@ -23,9 +23,7 @@
 namespace calibPixel {
   using namespace cms::alpakatools;
 
-  constexpr uint16_t InvId = std::numeric_limits<uint16_t>::max() - 1;
-  // must be > MaxNumModules
-
+  template <bool debug = false>
   struct CalibDigis {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
@@ -41,52 +39,57 @@ namespace calibPixel {
 
       // zero for next kernels...
       if (cms::alpakatools::once_per_grid(acc)) {
-        clus_view[0].clusModuleStart() = clus_view[0].moduleStart() = 0;
+        clus_view[0].clusModuleStart() = 0;
+        clus_view[0].moduleStart() = 0;
+      }
+      for (auto i : cms::alpakatools::elements_with_stride(acc, phase1PixelTopology::numberOfModules)) {
+        clus_view[i].clusInModule() = 0;
       }
 
-      cms::alpakatools::for_each_element_in_grid_strided(
-          acc, phase1PixelTopology::numberOfModules, [&](uint32_t i) { clus_view[i].clusInModule() = 0; });
-      cms::alpakatools::for_each_element_in_grid_strided(acc, numElements, [&](uint32_t i) {
+      for (auto i : cms::alpakatools::elements_with_stride(acc, numElements)) {
         auto dvgi = view[i];
-        if (dvgi.moduleId() != InvId) {
-          bool isDeadColumn = false, isNoisyColumn = false;
-          int row = dvgi.xx();
-          int col = dvgi.yy();
-          auto ret = SiPixelGainUtilities::getPedAndGain(gains, dvgi.moduleId(), col, row, isDeadColumn, isNoisyColumn);
-          float pedestal = ret.first;
-          float gain = ret.second;
-          if (isDeadColumn | isNoisyColumn) {
-            dvgi.moduleId() = InvId;
-            dvgi.adc() = 0;
-            printf("bad pixel at %d in %d\n", i, dvgi.moduleId());
-          } else {
-            float vcal = dvgi.adc() * gain - pedestal * gain;
+        if (dvgi.moduleId() == ::pixelClustering::invalidModuleId)
+          continue;
 
-            float conversionFactor = dvgi.moduleId() < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
-            float offset = dvgi.moduleId() < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+        bool isDeadColumn = false, isNoisyColumn = false;
+        int row = dvgi.xx();
+        int col = dvgi.yy();
+        auto ret = SiPixelGainUtilities::getPedAndGain(gains, dvgi.moduleId(), col, row, isDeadColumn, isNoisyColumn);
+        float pedestal = ret.first;
+        float gain = ret.second;
+        if (isDeadColumn | isNoisyColumn) {
+          if constexpr (debug)
+            printf("bad pixel at %d in %d\n", i, dvgi.moduleId());
+          dvgi.moduleId() = ::pixelClustering::invalidModuleId;
+          dvgi.adc() = 0;
+        } else {
+          float vcal = dvgi.adc() * gain - pedestal * gain;
+
+          float conversionFactor = dvgi.moduleId() < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
+          float offset = dvgi.moduleId() < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
 #ifdef GPU_DEBUG
-            auto old_adc = dvgi.adc();
+          auto old_adc = dvgi.adc();
 #endif
-            dvgi.adc() = std::max(100, int(vcal * conversionFactor + offset));
+          dvgi.adc() = std::max(100, int(vcal * conversionFactor + offset));
 #ifdef GPU_DEBUG
-            if (cms::alpakatools::once_per_grid(acc)) {
-              printf(
-                  "module %d pixel %d -> old_adc = %d; vcal = %.2f; conversionFactor = %.2f; offset = %.2f; new_adc = "
-                  "%d \n",
-                  dvgi.moduleId(),
-                  i,
-                  old_adc,
-                  vcal,
-                  conversionFactor,
-                  offset,
-                  dvgi.adc());
-            }
-#endif
+          if (cms::alpakatools::once_per_grid(acc)) {
+            printf(
+                "module %d pixel %d -> old_adc = %d; vcal = %.2f; conversionFactor = %.2f; offset = %.2f; new_adc = "
+                "%d \n",
+                dvgi.moduleId(),
+                i,
+                old_adc,
+                vcal,
+                conversionFactor,
+                offset,
+                dvgi.adc());
           }
+#endif
         }
-      });
+      }
     }
   };
+
   struct CalibDigisPhase2 {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,

@@ -12,15 +12,16 @@
 #include <utility>
 
 // CMSSW includes
-#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLTLayout.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 
 // local includes
@@ -34,21 +35,9 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelDetails {
 
-    ////////////////////
-
-    ALPAKA_FN_ACC uint32_t getLink(uint32_t ww) {
-      return ((ww >> ::sipixelconstants::LINK_shift) & ::sipixelconstants::LINK_mask);
+    ALPAKA_FN_ACC bool isBarrel(uint32_t rawId) {
+      return (PixelSubdetector::PixelBarrel == ((rawId >> DetId::kSubdetOffset) & DetId::kSubdetMask));
     }
-
-    ALPAKA_FN_ACC uint32_t getRoc(uint32_t ww) {
-      return ((ww >> ::sipixelconstants::ROC_shift) & ::sipixelconstants::ROC_mask);
-    }
-
-    ALPAKA_FN_ACC uint32_t getADC(uint32_t ww) {
-      return ((ww >> ::sipixelconstants::ADC_shift) & ::sipixelconstants::ADC_mask);
-    }
-
-    ALPAKA_FN_ACC bool isBarrel(uint32_t rawId) { return (1 == ((rawId >> 25) & 0x7)); }
 
     ALPAKA_FN_ACC ::pixelDetails::DetIdGPU getRawId(const SiPixelMappingSoAConstView &cablingMap,
                                                     uint8_t fed,
@@ -56,8 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     uint32_t roc) {
       using namespace ::pixelDetails;
       uint32_t index = fed * MAX_LINK * MAX_ROC + (link - 1) * MAX_ROC + roc;
-      ::pixelDetails::DetIdGPU detId = {
-          cablingMap.rawId()[index], cablingMap.rocInDet()[index], cablingMap.moduleId()[index]};
+      DetIdGPU detId = {cablingMap.rawId()[index], cablingMap.rocInDet()[index], cablingMap.moduleId()[index]};
       return detId;
     }
 
@@ -131,36 +119,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return global;
     }
 
-    ALPAKA_FN_ACC uint8_t conversionError(uint8_t fedId, uint8_t status, bool debug = false) {
+    template <bool debug = false>
+    ALPAKA_FN_ACC uint8_t conversionError(uint8_t fedId, uint8_t status) {
       uint8_t errorType = 0;
 
       switch (status) {
         case 1: {
-          if (debug)
+          if constexpr (debug)
             printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId);
           errorType = 35;
           break;
         }
         case 2: {
-          if (debug)
+          if constexpr (debug)
             printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
           errorType = 36;
           break;
         }
         case 3: {
-          if (debug)
+          if constexpr (debug)
             printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
           errorType = 37;
           break;
         }
         case 4: {
-          if (debug)
+          if constexpr (debug)
             printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
           errorType = 38;
           break;
         }
         default:
-          if (debug)
+          if constexpr (debug)
             printf("Cabling check returned unexpected result, status = %i\n", status);
       };
 
@@ -171,17 +160,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t numRowsInRoc = 80;
       uint32_t numColsInRoc = 52;
 
-      /// row and collumn in ROC representation
+      /// row and column in ROC representation
       return ((rocRow < numRowsInRoc) & (rocCol < numColsInRoc));
     }
 
     ALPAKA_FN_ACC bool dcolIsValid(uint32_t dcol, uint32_t pxid) { return ((dcol < 26) & (2 <= pxid) & (pxid < 162)); }
 
-    ALPAKA_FN_ACC uint8_t checkROC(uint32_t errorWord,
-                                   uint8_t fedId,
-                                   uint32_t link,
-                                   const SiPixelMappingSoAConstView &cablingMap,
-                                   bool debug = false) {
+    template <bool debug = false>
+    ALPAKA_FN_ACC uint8_t
+    checkROC(uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelMappingSoAConstView &cablingMap) {
       uint8_t errorType = (errorWord >> ::pixelDetails::ROC_shift) & ::pixelDetails::ERROR_mask;
       if (errorType < 25)
         return 0;
@@ -201,42 +188,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           break;
         }
         case (26): {
-          if (debug)
+          if constexpr (debug)
             printf("Gap word found (errorType = 26)\n");
           errorFound = true;
           break;
         }
         case (27): {
-          if (debug)
+          if constexpr (debug)
             printf("Dummy word found (errorType = 27)\n");
           errorFound = true;
           break;
         }
         case (28): {
-          if (debug)
+          if constexpr (debug)
             printf("Error fifo nearly full (errorType = 28)\n");
           errorFound = true;
           break;
         }
         case (29): {
-          if (debug)
+          if constexpr (debug)
             printf("Timeout on a channel (errorType = 29)\n");
           if ((errorWord >> ::pixelDetails::OMIT_ERR_shift) & ::pixelDetails::OMIT_ERR_mask) {
-            if (debug)
+            if constexpr (debug)
               printf("...first errorType=29 error, this gets masked out\n");
           }
           errorFound = true;
           break;
         }
         case (30): {
-          if (debug)
+          if constexpr (debug)
             printf("TBM error trailer (errorType = 30)\n");
           int StateMatch_bits = 4;
           int StateMatch_shift = 8;
           uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
           int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
           if (StateMatch != 1 && StateMatch != 8) {
-            if (debug)
+            if constexpr (debug)
               printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
           }
           if (StateMatch == 1)
@@ -245,7 +232,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           break;
         }
         case (31): {
-          if (debug)
+          if constexpr (debug)
             printf("Event number error (errorType = 31)\n");
           errorFound = true;
           break;
@@ -257,11 +244,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return errorFound ? errorType : 0;
     }
 
-    ALPAKA_FN_ACC uint32_t getErrRawID(uint8_t fedId,
-                                       uint32_t errWord,
-                                       uint32_t errorType,
-                                       const SiPixelMappingSoAConstView &cablingMap,
-                                       bool debug = false) {
+    template <bool debug = false>
+    ALPAKA_FN_ACC uint32_t
+    getErrRawID(uint8_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelMappingSoAConstView &cablingMap) {
       uint32_t rID = 0xffffffff;
 
       switch (errorType) {
@@ -272,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         case 40: {
           uint32_t roc = 1;
           uint32_t link = (errWord >> ::pixelDetails::LINK_shift) & ::pixelDetails::LINK_mask;
-          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
+          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
           if (rID_temp != 9999)
             rID = rID_temp;
           break;
@@ -305,7 +290,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           uint32_t roc = 1;
           uint32_t link = chanNmbr;
-          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
+          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
           if (rID_temp != 9999)
             rID = rID_temp;
           break;
@@ -314,7 +299,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         case 38: {
           uint32_t roc = (errWord >> ::pixelDetails::ROC_shift) & ::pixelDetails::ROC_mask;
           uint32_t link = (errWord >> ::pixelDetails::LINK_shift) & ::pixelDetails::LINK_mask;
-          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).RawId;
+          uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
           if (rID_temp != 9999)
             rID = rID_temp;
           break;
@@ -327,6 +312,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     // Kernel to perform Raw to Digi conversion
+    template <bool debug = false>
     struct RawToDigi_kernel {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc,
@@ -338,19 +324,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     SiPixelDigisSoAView digisView,
                                     SiPixelDigiErrorsSoAView err,
                                     bool useQualityInfo,
-                                    bool includeErrors,
-                                    bool debug) const {
-        cms::alpakatools::for_each_element_in_grid_strided(acc, wordCounter, [&](uint32_t iloop) {
-          auto gIndex = iloop;
+                                    bool includeErrors) const {
+        // FIXME there is no guarantee that this is initialised to 0 before any of the atomicInc happens
+        if (cms::alpakatools::once_per_grid(acc))
+          err.size() = 0;
+
+        for (auto gIndex : cms::alpakatools::elements_with_stride(acc, wordCounter)) {
           auto dvgi = digisView[gIndex];
           dvgi.xx() = 0;
           dvgi.yy() = 0;
           dvgi.adc() = 0;
-          bool skipROC = false;
 
-          if (gIndex == 0)
-            err[gIndex].size() = 0;
-
+          // initialise the errors
           err[gIndex].pixelErrors() = SiPixelErrorCompact{0, 0, 0, 0};
 
           uint8_t fedId = fedIds[gIndex / 2];  // +1200;
@@ -358,45 +343,59 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // initialize (too many coninue below)
           dvgi.pdigi() = 0;
           dvgi.rawIdArr() = 0;
-          constexpr uint16_t invalidModuleId = std::numeric_limits<uint16_t>::max() - 1;
-          dvgi.moduleId() = invalidModuleId;
+          dvgi.moduleId() = ::pixelClustering::invalidModuleId;
 
           uint32_t ww = word[gIndex];  // Array containing 32 bit raw data
           if (ww == 0) {
             // 0 is an indicator of a noise/dead channel, skip these pixels during clusterization
-            return;
+            continue;
           }
 
-          uint32_t link = getLink(ww);  // Extract link
-          uint32_t roc = getRoc(ww);    // Extract Roc in link
-          ::pixelDetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
+          uint32_t link = sipixelconstants::getLink(ww);  // Extract link
+          uint32_t roc = sipixelconstants::getROC(ww);    // Extract ROC in link
 
-          uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
-          skipROC = (roc < ::pixelDetails::maxROCIndex) ? false : (errorType != 0);
+          uint8_t errorType = checkROC<debug>(ww, fedId, link, cablingMap);
+          bool skipROC = (roc < ::pixelDetails::maxROCIndex) ? false : (errorType != 0);
           if (includeErrors and skipROC) {
-            uint32_t rID = getErrRawID(fedId, ww, errorType, cablingMap, debug);
-            err[gIndex].pixelErrors() = SiPixelErrorCompact{rID, ww, errorType, fedId};
-            alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Threads{});
-            return;
+            uint32_t rawId = getErrRawID<debug>(fedId, ww, errorType, cablingMap);
+            if (rawId != 0xffffffff)  // Store errors only for valid DetIds
+            {
+              err[gIndex].pixelErrors() = SiPixelErrorCompact{rawId, ww, errorType, fedId};
+              alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Blocks{});
+            }
+            continue;
           }
 
-          uint32_t rawId = detId.RawId;
-          uint32_t rocIdInDetUnit = detId.rocInDet;
-          bool barrel = isBarrel(rawId);
+          // Check for spurious channels
+          if (roc > ::pixelDetails::MAX_ROC or link > ::pixelDetails::MAX_LINK) {
+            uint32_t rawId = getRawId(cablingMap, fedId, link, 1).rawId;
+            if constexpr (debug) {
+              printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
+            }
+            if (roc > ::pixelDetails::MAX_ROC and roc < 25) {
+              uint8_t error = conversionError<debug>(fedId, 2);
+              err[gIndex].pixelErrors() = SiPixelErrorCompact{rawId, ww, error, fedId};
+              alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Blocks{});
+            }
+            continue;
+          }
 
           uint32_t index =
               fedId * ::pixelDetails::MAX_LINK * ::pixelDetails::MAX_ROC + (link - 1) * ::pixelDetails::MAX_ROC + roc;
           if (useQualityInfo) {
             skipROC = cablingMap.badRocs()[index];
             if (skipROC)
-              return;
+              continue;
           }
           skipROC = modToUnp[index];
           if (skipROC)
-            return;
+            continue;
 
-          uint32_t layer = 0;                   //, ladder =0;
-          int side = 0, panel = 0, module = 0;  //disk = 0, blade = 0
+          ::pixelDetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
+          uint32_t rawId = detId.rawId;
+          uint32_t layer = 0;
+          int side = 0, panel = 0, module = 0;
+          bool barrel = isBarrel(rawId);
 
           if (barrel) {
             layer = (rawId >> ::pixelDetails::layerStartBit) & ::pixelDetails::layerMask;
@@ -406,54 +405,50 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // endcap ids
             layer = 0;
             panel = (rawId >> ::pixelDetails::panelStartBit) & ::pixelDetails::panelMask;
-            //disk  = (rawId >> diskStartBit_) & diskMask_;
             side = (panel == 1) ? -1 : 1;
-            //blade = (rawId >> bladeStartBit_) & bladeMask_;
           }
 
-          // ***special case of layer to 1 be handled here
           ::pixelDetails::Pixel localPix;
           if (layer == 1) {
-            uint32_t col = (ww >> ::pixelDetails::COL_shift) & ::pixelDetails::COL_mask;
-            uint32_t row = (ww >> ::pixelDetails::ROW_shift) & ::pixelDetails::ROW_mask;
+            // Special case of barrel layer 1
+            uint32_t col = sipixelconstants::getCol(ww);
+            uint32_t row = sipixelconstants::getRow(ww);
             localPix.row = row;
             localPix.col = col;
-            if (includeErrors) {
-              if (not rocRowColIsValid(row, col)) {
-                uint8_t error = conversionError(fedId, 3, debug);  //use the device function and fill the arrays
-                err[gIndex].pixelErrors() = SiPixelErrorCompact{rawId, ww, error, fedId};
-                alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Threads{});
-                if (debug)
-                  printf("BPIX1  Error status: %i\n", error);
-                return;
-              }
+            if (includeErrors and not rocRowColIsValid(row, col)) {
+              uint8_t error = conversionError<debug>(fedId, 3);
+              err[gIndex].pixelErrors() = SiPixelErrorCompact{rawId, ww, error, fedId};
+              alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Blocks{});
+              if constexpr (debug)
+                printf("BPIX1 Error status: %i\n", error);
+              continue;
             }
           } else {
-            // ***conversion rules for dcol and pxid
-            uint32_t dcol = (ww >> ::pixelDetails::DCOL_shift) & ::pixelDetails::DCOL_mask;
-            uint32_t pxid = (ww >> ::pixelDetails::PXID_shift) & ::pixelDetails::PXID_mask;
+            // Other layers with double columns
+            uint32_t dcol = sipixelconstants::getDCol(ww);
+            uint32_t pxid = sipixelconstants::getPxId(ww);
             uint32_t row = ::pixelDetails::numRowsInRoc - pxid / 2;
             uint32_t col = dcol * 2 + pxid % 2;
             localPix.row = row;
             localPix.col = col;
             if (includeErrors and not dcolIsValid(dcol, pxid)) {
-              uint8_t error = conversionError(fedId, 3, debug);
+              uint8_t error = conversionError<debug>(fedId, 3);
               err[gIndex].pixelErrors() = SiPixelErrorCompact{rawId, ww, error, fedId};
-              alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Threads{});
-              if (debug)
+              alpaka::atomicInc(acc, &err.size(), 0xffffffff, alpaka::hierarchy::Blocks{});
+              if constexpr (debug)
                 printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
-              return;
+              continue;
             }
           }
 
-          ::pixelDetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+          ::pixelDetails::Pixel globalPix = frameConversion(barrel, side, layer, detId.rocInDet, localPix);
           dvgi.xx() = globalPix.row;  // origin shifting by 1 0-159
           dvgi.yy() = globalPix.col;  // origin shifting by 1 0-415
-          dvgi.adc() = getADC(ww);
+          dvgi.adc() = sipixelconstants::getADC(ww);
           dvgi.pdigi() = ::pixelDetails::pack(globalPix.row, globalPix.col, dvgi.adc());
           dvgi.moduleId() = detId.moduleId;
           dvgi.rawIdArr() = rawId;
-        });  // end of stride on grid
+        }  // end of stride on grid
 
       }  // end of Raw to Digi kernel operator()
     };   // end of Raw to Digi struct
@@ -464,7 +459,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
         ALPAKA_ASSERT_OFFLOAD(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
 
-        constexpr int nMaxModules = TrackerTraits::numberOfModules;
+        constexpr int numberOfModules = TrackerTraits::numberOfModules;
         constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
 
 #ifndef NDEBUG
@@ -475,12 +470,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
         // limit to maxHitsInModule;
-        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules, [&](uint32_t i) {
+        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules, [&](uint32_t i) {
           clus_view[i + 1].clusModuleStart() = std::min(maxHitsInModule, clus_view[i].clusInModule());
         });
 
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
-        constexpr auto leftModules = isPhase2 ? 1024 : nMaxModules - 1024;
+        constexpr auto leftModules = isPhase2 ? 1024 : numberOfModules - 1024;
 
         auto &&ws = alpaka::declareSharedVar<uint32_t[32], __COUNTER__>(acc);
 
@@ -496,11 +491,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cms::alpakatools::blockPrefixScan(acc,
                                             clus_view.clusModuleStart() + 3072 + 1,
                                             clus_view.clusModuleStart() + 3072 + 1,
-                                            nMaxModules - 3072,
+                                            numberOfModules - 3072,
                                             ws);
         }
 
-        constexpr auto lastModule = isPhase2 ? 2049u : nMaxModules + 1;
+        constexpr auto lastModule = isPhase2 ? 2049u : numberOfModules + 1;
         cms::alpakatools::for_each_element_in_block_strided(acc, lastModule, 1025u, [&](uint32_t i) {
           clus_view[i].clusModuleStart() += clus_view[1024].clusModuleStart();
         });
@@ -512,7 +507,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           });
           alpaka::syncBlockThreads(acc);
 
-          cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, 3073u, [&](uint32_t i) {
+          cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, 3073u, [&](uint32_t i) {
             clus_view[i].clusModuleStart() += clus_view[3072].clusModuleStart();
           });
           alpaka::syncBlockThreads(acc);
@@ -523,9 +518,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_OFFLOAD(c0 == clus_view[1].moduleStart());
         ALPAKA_ASSERT_OFFLOAD(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
         ALPAKA_ASSERT_OFFLOAD(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
-        ALPAKA_ASSERT_OFFLOAD(clus_view[nMaxModules].moduleStart() >= clus_view[1025].moduleStart());
+        ALPAKA_ASSERT_OFFLOAD(clus_view[numberOfModules].moduleStart() >= clus_view[1025].moduleStart());
 
-        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
+        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, [&](uint32_t i) {
           if (0 != i)
             ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - i].moduleStart());
           // Check BPX2 (1), FP1 (4)
@@ -537,7 +532,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
         // avoid overflow
         constexpr auto MAX_HITS = TrackerTraits::maxNumberOfHits;
-        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
+        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, [&](uint32_t i) {
           if (clus_view[i].clusModuleStart() > MAX_HITS)
             clus_view[i].clusModuleStart() = MAX_HITS;
         });
@@ -587,19 +582,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::memcpy(queue, word_d, wordFed.word(), wordCounter);
         alpaka::memcpy(queue, fedId_d, wordFed.fedId(), wordCounter / 2);
         // Launch rawToDigi kernel
-        alpaka::exec<Acc1D>(queue,
-                            workDiv,
-                            RawToDigi_kernel{},
-                            cablingMap,
-                            modToUnp,
-                            wordCounter,
-                            word_d.data(),
-                            fedId_d.data(),
-                            digis_d->view(),
-                            digiErrors_d->view(),
-                            useQualityInfo,
-                            includeErrors,
-                            debug);
+        if (debug) {
+          alpaka::exec<Acc1D>(queue,
+                              workDiv,
+                              RawToDigi_kernel<true>{},
+                              cablingMap,
+                              modToUnp,
+                              wordCounter,
+                              word_d.data(),
+                              fedId_d.data(),
+                              digis_d->view(),
+                              digiErrors_d->view(),
+                              useQualityInfo,
+                              includeErrors);
+        } else {
+          alpaka::exec<Acc1D>(queue,
+                              workDiv,
+                              RawToDigi_kernel<false>{},
+                              cablingMap,
+                              modToUnp,
+                              wordCounter,
+                              word_d.data(),
+                              fedId_d.data(),
+                              digis_d->view(),
+                              digiErrors_d->view(),
+                              useQualityInfo,
+                              includeErrors);
+        }
 
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
@@ -625,9 +634,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                            threadsPerBlockOrElementsPerThread);
         const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlockOrElementsPerThread);
 
-        alpaka::exec<Acc1D>(
-            queue, workDiv, CalibDigis{}, clusterThresholds, digis_d->view(), clusters_d->view(), gains, wordCounter);
-
+        if (debug) {
+          alpaka::exec<Acc1D>(queue,
+                              workDiv,
+                              CalibDigis<true>{},
+                              clusterThresholds,
+                              digis_d->view(),
+                              clusters_d->view(),
+                              gains,
+                              wordCounter);
+        } else {
+          alpaka::exec<Acc1D>(queue,
+                              workDiv,
+                              CalibDigis<false>{},
+                              clusterThresholds,
+                              digis_d->view(),
+                              clusters_d->view(),
+                              gains,
+                              wordCounter);
+        }
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
         std::cout << "CountModules kernel launch with " << blocks << " blocks of " << threadsPerBlockOrElementsPerThread
@@ -642,8 +667,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
         // TODO
-        // - we are fixing this here since it needs to be needed
-        // at compile time also in the kernel (for_each_element_in_block_strided)
+        // - we are fixing this here since it is used at compile time also in the kernel
         // - put maxIter in the Geometry traits
         constexpr auto threadsOrElementsFindClus = 256;
 
