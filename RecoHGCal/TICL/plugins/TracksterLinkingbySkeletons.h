@@ -17,6 +17,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include <array>
 
 namespace ticl {
 
@@ -31,11 +32,14 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
 
-    float findSkeletonPoints(float percentage,
-                             const float trackster_energy,
-                             const std::vector<unsigned int> vertices,
-                             const hgcal::RecHitTools& rhtools,
-                             const std::vector<reco::CaloCluster>& layerClusters);
+    std::array<ticl::Vector,3> findSkeletonNodes(const ticl::Trackster& trackster, 
+                                  float lower_percentage,
+                                  float upper_percentage,
+                                  const std::vector<reco::CaloCluster>& layerClusters,
+                                  const hgcal::RecHitTools& rhtools);
+
+    bool areCompatible(const ticl::Trackster& myTrackster, const ticl::Trackster& otherTrackster, 
+                       const std::array<ticl::Vector,3>& mySkeleton, const std::array<ticl::Vector,3>& otherSkeleton);
 
     void initialize(const HGCalDDDConstants* hgcons,
                     const hgcal::RecHitTools rhtools,
