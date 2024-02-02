@@ -108,6 +108,7 @@ CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
+DQMGPUvsCPUOutput
 DQMOnlineBeamspotOutput
 DQMPPSRandomOutput
 EcalCalibrationOutput
