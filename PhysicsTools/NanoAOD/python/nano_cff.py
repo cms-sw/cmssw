@@ -284,4 +284,3 @@ def nanoL1TrigObjCustomizeFull(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
 
-from PhysicsTools.NanoAOD.custom_muon_cff import *
