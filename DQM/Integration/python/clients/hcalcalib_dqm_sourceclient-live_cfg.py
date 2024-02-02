@@ -240,11 +240,11 @@ process.p = cms.Path(
 print("Final Source settings:", process.source)
 process.options = cms.untracked.PSet(
 		Rethrow = cms.untracked.vstring(
-#			"ProductNotFound",
+			"ProductNotFound",
 			"TooManyProducts",
 			"TooFewProducts"
-		),
-		SkipEvent = cms.untracked.vstring(
-			'ProductNotFound'
 		)
+#		SkipEvent = cms.untracked.vstring(
+#			'ProductNotFound'
+#		)
 )
