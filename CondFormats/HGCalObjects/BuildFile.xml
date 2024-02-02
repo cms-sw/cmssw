@@ -5,10 +5,7 @@
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="HeterogeneousCore/AlpakaCore"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <flags ALPAKA_BACKENDS="1"/>

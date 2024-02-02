@@ -1,10 +1,6 @@
 #ifndef CondFormats_HGCalObjects_interface_HGCalMappingParameterSoA_h
 #define CondFormats_HGCalObjects_interface_HGCalMappingParameterSoA_h
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <string>
-
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"

@@ -3,7 +3,6 @@
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterSoA.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
 
@@ -11,9 +10,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace hgcal {
 
-    using namespace ::hgcal;
-    using HGCalMappingModuleParamDeviceCollection = PortableCollection<HGCalMappingModuleParamSoA>;
-    using HGCalMappingCellParamDeviceCollection = PortableCollection<HGCalMappingCellParamSoA>;
+    using HGCalMappingModuleParamDeviceCollection = PortableCollection<hgcal::HGCalMappingModuleParamSoA>;
+    using HGCalMappingCellParamDeviceCollection = PortableCollection<hgcal::HGCalMappingCellParamSoA>;
 
   }  // namespace hgcal
 

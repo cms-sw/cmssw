@@ -36,8 +36,6 @@ process.hgCalMappingIndexESSource.si = options.sicells
 process.hgCalMappingIndexESSource.sipm = options.sipmcells
 
 process.load('Configuration.StandardSequences.Accelerators_cff')
-process.load('HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi')
-process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 #process.hgcalMappingModuleIndexerESRecord = cms.ESSource('EmptyESSource',
 #                                                          recordName=cms.string('HGCalMappingModuleIndexerRcd'),
 #                                                          iovIsRunNotTime=cms.bool(True),

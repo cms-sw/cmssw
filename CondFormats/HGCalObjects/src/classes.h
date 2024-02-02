@@ -1,10 +1,3 @@
-#include "CondFormats/HGCalObjects/src/headers.h"
-
-namespace CondFormats_HGCalObjects {
-
-  HGCalDenseIndexerBase ndib();
-  HGCalMappingCellIndexer hmci();
-  FEDReadoutSequence_t frs();
-  HGCalMappingModuleIndexer hmmi();
-
-}  // namespace CondFormats_HGCalObjects
+#include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
