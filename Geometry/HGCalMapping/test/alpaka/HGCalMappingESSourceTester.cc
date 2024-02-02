@@ -1,5 +1,4 @@
 #include <iomanip>  // for std::setw
-#include <future>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,15 +22,17 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
-template <class T>
-double duration(T t0, T t1) {
-  auto elapsed_secs = t1 - t0;
-  typedef std::chrono::duration<float> float_seconds;
-  auto secs = std::chrono::duration_cast<float_seconds>(elapsed_secs);
-  return secs.count();
-}
+namespace {
+  template <class T>
+  double duration(T t0, T t1) {
+    auto elapsed_secs = t1 - t0;
+    typedef std::chrono::duration<float> float_seconds;
+    auto secs = std::chrono::duration_cast<float_seconds>(elapsed_secs);
+    return secs.count();
+  }
 
-inline std::chrono::time_point<std::chrono::steady_clock> now() { return std::chrono::steady_clock::now(); }
+  inline std::chrono::time_point<std::chrono::steady_clock> now() { return std::chrono::steady_clock::now(); }
+}
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -48,7 +49,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     void produce(device::Event&, device::EventSetup const&) override;
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
     edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
     edm::ESGetToken<HGCalMappingCellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
@@ -67,8 +67,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         testCollToken_{produces()} {}
 
   //
-  void HGCalMappingESSourceTester::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
-
   void HGCalMappingESSourceTester::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     //put a dummy collection to the event
     portabletest::TestDeviceCollection testColl{0, iEvent.queue()};
