@@ -14,7 +14,7 @@ HLT_Random_v*
 HLT_HcalPhiSym_v*
 HLT_HcalNZS_v*
 HLT_L1FatEvents_v*
-HLT_DQML1SeedsGroup1_v*
+# HLT_DQML1SeedsGroup1_v* # CMSHLT-2860
 DST_Physics_v*
 
 DQM_EcalReconstruction_v*  # CMSHLT-2287
@@ -33,8 +33,8 @@ HLT_L1DoubleMu0_v*
 HLT_L1SingleJet8erHE_v*
 HLT_L1SingleJet10erHE_v*
 HLT_L1SingleJet12erHE_v*
-HLT_L1SingleEG10_v*
-HLT_L1SingleEG15_v*
+HLT_L1SingleEG10er2p5_v*
+HLT_L1SingleEG15er2p5_v*
 HLT_L1SingleJet35_v*
 HLT_L1SingleJet200_v*
 HLT_L2Mu10_NoVertex_NoBPTX3BX_v*      # CMSHLT-2197
@@ -49,7 +49,7 @@ HLTriggerFinalPath
 
 ## EndPaths / FinalPaths ##
 
-PhysicsOutput
+PhysicsCommissioningOutput
 ExpressCosmicsOutput
 CalibrationOutput
 EcalCalibrationOutput
