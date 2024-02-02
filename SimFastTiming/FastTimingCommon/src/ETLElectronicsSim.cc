@@ -32,7 +32,7 @@ void ETLElectronicsSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs
 void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             ETLDigiCollection& output,
                             CLHEP::HepRandomEngine* hre) const {
-  MTDSimHitData chargeColl, MPVcharge, toa1, toa2, tot;
+  MTDSimHitData chargeColl, toa1, toa2, tot;
 
   std::vector<double> emptyV;
   std::vector<double> radius(1);
@@ -41,7 +41,6 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
   for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
     chargeColl.fill(0.f);
-    MPVcharge.fill(0.f);
     toa1.fill(0.f);
     toa2.fill(0.f);
     tot.fill(0.f);
@@ -58,9 +57,11 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
     //Here we are sampling over all the buckets. However for the ETL there should be only one bucket at i = 0
     for (size_t i = 0; i < it->second.hit_info[0].size(); i++) {
+      if ((it->second).hit_info[0][i] == 0) {
+        continue;
+      }
       if ((it->second).hit_info[0][i] < adcThreshold_MIP_)
         continue;
-
       // time of arrival
       double finalToA = (it->second).hit_info[1][i];
       double finalToC = (it->second).hit_info[1][i];
@@ -69,12 +70,10 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       const unsigned int ibucket = std::floor(finalToA / bxTime_);
       if ((i + ibucket) >= chargeColl.size())
         continue;
-      chargeColl[i + ibucket] += (it->second).hit_info[0][i];
-
-      MPVcharge[i + ibucket] = (it->second).hit_info[2][i];
 
       //Calculate the jitter
-      double SignalToNoise = etlPulseShape_.maximum() * (chargeColl[i] / referenceChargeColl_) / noiseLevel_;
+      double SignalToNoise =
+          etlPulseShape_.maximum() * ((it->second).hit_info[0][i] / referenceChargeColl_) / noiseLevel_;
       double sigmaJitter1 = etlPulseShape_.timeOfMax() / SignalToNoise;
       double sigmaJitter2 = (etlPulseShape_.fallTime() - etlPulseShape_.timeOfMax()) / SignalToNoise;
       //Calculate the distorsion
@@ -82,7 +81,7 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       //Calculate the TDC
       double sigmaTDC = sigmaTDC_;
       //Calculate the Landau Noise
-      chOverMPV[0] = chargeColl[i + ibucket] / MPVcharge[i + ibucket];
+      chOverMPV[0] = (it->second).hit_info[0][i] / (it->second).hit_info[2][i];
       double sigmaLN = formulaLandauNoise_.evaluate(chOverMPV, emptyV);
       double sigmaToA = sqrt(sigmaJitter1 * sigmaJitter1 + sigmaDistorsion * sigmaDistorsion + sigmaTDC * sigmaTDC +
                              sigmaLN * sigmaLN);
@@ -99,20 +98,19 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA += smearing1;
       finalToC += smearing1 + smearing2;
 
-      std::array<float, 3> times =
-          etlPulseShape_.timeAtThr(chargeColl[i] / referenceChargeColl_, iThreshold_MIP_, iThreshold_MIP_);
+      std::array<float, 3> times = etlPulseShape_.timeAtThr(
+          (it->second).hit_info[0][i] / referenceChargeColl_, iThreshold_MIP_, iThreshold_MIP_);
 
       //The signal is below the threshold
       if (times[0] == 0 && times[1] == 0 && times[2] == 0) {
         continue;
       }
-
+      //The signal is considered to be below the threshold
       finalToA += times[0];
       finalToC += times[2];
-
-      //The signal is considered to be below the threshold
       if (finalToA >= finalToC)
         continue;
+      chargeColl[i + ibucket] += (it->second).hit_info[0][i];
 
       if (toa1[i + ibucket] == 0. || (finalToA - ibucket * bxTime_) < toa1[i + ibucket]) {
         toa1[i + ibucket] = finalToA - ibucket * bxTime_;
@@ -149,12 +147,13 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
     const uint32_t adc = std::min((uint32_t)std::floor(chargeColl[it] / adcLSB_MIP_), adcBitSaturation_);
     const uint32_t tdc_time1 = std::min((uint32_t)std::floor(toa[it] / toaLSB_ns_), tdcBitSaturation_);
     const uint32_t tdc_time2 = std::min((uint32_t)std::floor(tot[it] / toaLSB_ns_), tdcBitSaturation_);
-    //If time over threshold is 0 the event is not counted
-    if (tdc_time2 == 0)
-      continue;
+    //If time over threshold is 0 the event is assumed to not pass the threshold
+    bool thres = true;
+    if (tdc_time2 == 0 || chargeColl[it] < adcThreshold_MIP_)
+      thres = false;
 
     ETLSample newSample;
-    newSample.set(chargeColl[it] > adcThreshold_MIP_, false, tdc_time1, tdc_time2, adc, row, col);
+    newSample.set(thres, false, tdc_time1, tdc_time2, adc, row, col);
 
     //ETLSample newSample;
     dataFrame.setSample(it, newSample);

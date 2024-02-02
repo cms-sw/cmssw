@@ -108,6 +108,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     //The following lines check whether the pixel point is actually out of the active area.
     if (topo.isInPixel(simscaled)) {
       charge *= gain[0];
+      MPV_charge *= gain[0];
     } else {
       if (applyDegradation_) {
         double dGapCenter = TMath::Max(TMath::Abs(simscaled.x()), TMath::Abs(simscaled.y()));
@@ -121,7 +122,6 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
     const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
-
     LogDebug("ETLDeviceSim") << "Processing hit in pixel # " << hitidx << " DetId " << etlid.rawId() << " row/col "
                              << (uint32_t)row << " " << (uint32_t)col << " tof " << toa;
 
@@ -137,13 +137,12 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     if (itime >= (int)simHitIt->second.hit_info[0].size())
       continue;
     (simHitIt->second).hit_info[0][itime] += charge;
-
     // Store the time of the first SimHit in the right DataFrame bucket
     const float tof = toa - (itime - 9) * bxTime_;
 
     if ((simHitIt->second).hit_info[1][itime] == 0. || tof < (simHitIt->second).hit_info[1][itime]) {
       (simHitIt->second).hit_info[1][itime] = tof;
     }
-    (simHitIt->second).hit_info[2][itime] = MPV_charge;
+    (simHitIt->second).hit_info[2][itime] += MPV_charge;
   }
 }
