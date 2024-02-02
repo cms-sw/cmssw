@@ -90,11 +90,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
 
   //HLS4ML stuff
-  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;
+  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //config loading method
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
   model = loader.load_model();
-  cout << "loading model... " << AXOL1TLmodelversion << std::endl;
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -116,24 +115,30 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //total # inputs in vector is (4+10+4+1)*3 = 57
   const int NInputs = 57;
 
+  //types of inputs and outputs
+  typedef ap_fixed<18, 13> inputtype;
+  typedef std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8> resulttype;  //v3
+  typedef ap_ufixed<18, 14> losstype;
+  typedef std::pair<resulttype, losstype> pairtype;
+  // typedef std::array<ap_fixed<10, 7>, 13> resulttype;  //deprecated v1 type:
+
   //define zero
-  ap_fixed<18, 13> fillzero = 0.0;
+  inputtype fillzero = 0.0;
 
   //AD vector declaration, will fill later
-  ap_fixed<18, 13> ADModelInput[NInputs] = {};
+  inputtype ADModelInput[NInputs] = {};
 
   //initializing vector by type for my sanity
-  ap_fixed<18, 13> MuInput[MuVecSize];
-  ap_fixed<18, 13> JetInput[JVecSize];
-  ap_fixed<18, 13> EgammaInput[EGVecSize];
-  ap_fixed<18, 13> EtSumInput[EtSumVecSize];
+  inputtype MuInput[MuVecSize];
+  inputtype JetInput[JVecSize];
+  inputtype EgammaInput[EGVecSize];
+  inputtype EtSumInput[EtSumVecSize];
 
   //declare result vectors +score
-  std::array<ap_fixed<10, 7>, 13> result;
-  ap_ufixed<18, 14> loss;
-  std::pair<std::array<ap_fixed<10, 7>, 13>, ap_ufixed<18, 14>>
-      ADModelResult;   //model outputs a pair of the (result vector, loss)
-  float score = -1.0;  //not sure what the best default is hm??
+  resulttype result;
+  losstype loss;
+  pairtype ADModelResult;  //model outputs a pair of the (result vector, loss)
+  float score = -1.0;      //not sure what the best default is hm??
 
   //check number of input objects we actually have (muons, jets etc)
   int NCandMu = candMuVec->size(useBx);
