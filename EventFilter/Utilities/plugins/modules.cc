@@ -1,5 +1,4 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
-#include "EventFilter/Utilities/interface/EvFOutputModule.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 #include "EventFilter/Utilities/interface/DAQSource.h"
@@ -29,7 +28,6 @@ DEFINE_FWK_SERVICE(EvFDaqDirector);
 DEFINE_FWK_MODULE(ExceptionGenerator);
 DEFINE_FWK_MODULE(EvFFEDSelector);
 DEFINE_FWK_MODULE(EvFFEDExcluder);
-DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(DaqFakeReader);
 DEFINE_FWK_INPUT_SOURCE(FedRawDataInputSource);
 DEFINE_FWK_INPUT_SOURCE(DAQSource);
