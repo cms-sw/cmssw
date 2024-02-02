@@ -257,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t elecid(0);
       auto start = now();
       for (int i = 0; i < n_i; i++) {
-        elecid = hgcal::mappingtools::getElectronicsId(zside, fedid, captureblockidx, econdidx, chip, half, seq);
+        elecid = ::hgcal::mappingtools::getElectronicsId(zside, fedid, captureblockidx, econdidx, chip, half, seq);
       }
       auto stop = now();
       log << "Time: " << duration(start, stop) << " seconds.\n";
@@ -280,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t geoid(0);
       auto start = now();
       for (int i = 0; i < n_i; i++) {
-        geoid = hgcal::mappingtools::getSiDetId(zside, plane, u, v, celltype, celliu, celliv);
+        geoid = ::hgcal::mappingtools::getSiDetId(zside, plane, u, v, celltype, celliu, celliv);
       }
       auto stop = now();
       log << "Time: " << duration(start, stop) << " seconds.";
@@ -380,7 +380,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (cells.view()[j].t() != 1)
           continue;
 
-        // uint32_t elecid = hgcal::mappingtools::getElectronicsId(modules.view()[i].zside(),
+        // uint32_t elecid = ::hgcal::mappingtools::getElectronicsId(modules.view()[i].zside(),
         //                                                         modules.view()[i].fedid(),
         //                                                         modules.view()[i].captureblockidx(),
         //                                                         modules.view()[i].econdidx(),
@@ -393,14 +393,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         uint32_t geoid(0);
 
         if (sipm) {
-          geoid = hgcal::mappingtools::getSiPMDetId(modules.view()[i].zside(),
+          geoid = ::hgcal::mappingtools::getSiPMDetId(modules.view()[i].zside(),
                                                     modules.view()[i].plane(),
                                                     modules.view()[i].i2(),
                                                     modules.view()[i].celltype(),
                                                     cells.view()[j].i1(),
                                                     cells.view()[j].i2());
         } else {
-          // geoid = hgcal::mappingtools::getSiDetId(modules.view()[i].zside(),
+          // geoid = ::hgcal::mappingtools::getSiDetId(modules.view()[i].zside(),
           //                                         modules.view()[i].plane(),
           //                                         modules.view()[i].i1(),
           //                                         modules.view()[i].i2(),
