@@ -32,7 +32,7 @@ namespace {
   }
 
   inline std::chrono::time_point<std::chrono::steady_clock> now() { return std::chrono::steady_clock::now(); }
-}
+}  // namespace
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -394,11 +394,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         if (sipm) {
           geoid = ::hgcal::mappingtools::getSiPMDetId(modules.view()[i].zside(),
-                                                    modules.view()[i].plane(),
-                                                    modules.view()[i].i2(),
-                                                    modules.view()[i].celltype(),
-                                                    cells.view()[j].i1(),
-                                                    cells.view()[j].i2());
+                                                      modules.view()[i].plane(),
+                                                      modules.view()[i].i2(),
+                                                      modules.view()[i].celltype(),
+                                                      cells.view()[j].i1(),
+                                                      cells.view()[j].i2());
         } else {
           // geoid = ::hgcal::mappingtools::getSiDetId(modules.view()[i].zside(),
           //                                         modules.view()[i].plane(),
