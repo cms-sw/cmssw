@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <set>
 #include <vector>
 #include <string>
@@ -66,7 +67,7 @@ private:
   std::string name;
   int nchar;
   mpvpv thePVTree;
-  G4VPhysicalVolume* theTopPV;
+  //  std::unique_ptr<G4VPhysicalVolume> theTopPV;
   G4NavigationHistory fHistory;
   bool volumeFound;
   unsigned int levelFound;
@@ -106,7 +107,7 @@ PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
 void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
-  theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
+  G4VPhysicalVolume* theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
   assert(theTopPV);
   // Logical Volume
   G4LogicalVolume* lv = theTopPV->GetLogicalVolume();
@@ -207,8 +208,7 @@ void PrintMaterialBudgetInfo::dumpLaTeXFooter(std::ostream& out) {
       << G4endl;
 }
 
-void PrintMaterialBudgetInfo::dumpHierarchyLeaf(
-    G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
+void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
   if (volumeFound && (leafDepth <= levelFound))
     return;
   if (volumeFound && (leafDepth > levelFound))
@@ -229,7 +229,7 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(
   std::set<G4LogicalVolume*> lvDaughters;
   int NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {
-    G4VPhysicalVolume* pvD = lv->GetDaughter(NoDaughters);
+    G4VPhysicalVolume* pvD = (lv->GetDaughter(NoDaughters));
     lvpvDaughters.insert(mmlvpv::value_type(pvD->GetLogicalVolume(), pvD));
     lvDaughters.insert(pvD->GetLogicalVolume());
   }
@@ -246,8 +246,7 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(
   }
 }
 
-void PrintMaterialBudgetInfo::printInfo(
-    G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
+void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
   double density = lv->GetMaterial()->GetDensity();
   double weight = lv->GetMass(false, false);
 
