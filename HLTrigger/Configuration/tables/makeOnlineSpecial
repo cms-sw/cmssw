@@ -4,7 +4,7 @@
 #
 
 MASTER="/dev/CMSSW_13_3_0/HLT"                 # no version, take the latest one
-TARGET="/online/special/2023/v1.0/HLT" # where to store the online-compliant menu
+TARGET="/online/special/2024/v1.0/HLT" # where to store the online-compliant menu
 TABLES="online_special"
 
 source subtables.sh

@@ -1,0 +1,11 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+
+MASTER="/online/special/2024/v1.0/HLT"      # no version, take the latest one
+TARGET="/online/special/2024/v1.0/Cosmics"  # directory where to store the sub-tables
+TABLES="online_cosmics"                     # which sub-tables to create
+
+source subtables.sh
+createSubtables "v3/run3" "$MASTER" "$TARGET" "$TABLES"

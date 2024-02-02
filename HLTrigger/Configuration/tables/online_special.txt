@@ -95,6 +95,16 @@ HLT_ZeroBias_Gated_v*		    #       CMSHLT-2860
 HLT_SpecialHLTPhysics_v*	    #       CMSHLT-2860
 HLT_SpecialZeroBias_v*		    #       CMSHLT-2860
 
+HLT_L1SingleEG10er2p5_v*	    # CMSHLT-2860
+HLT_L1SingleEG15er2p5_v*	    # CMSHLT-2860
+HLT_L2Mu10_NoVertex_NoBPTX3BX_v*    # CMSHLT-2197
+HLT_L2Mu10_NoVertex_NoBPTX_v*	    # CMSHLT-2197
+HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v* # CMSHLT-2197
+HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v* # CMSHLT-2197
+DQM_EcalReconstruction_v*	      # CMSHLT-2287
+DQM_HcalReconstruction_v*	      # CMSHLT-2287
+DQM_PixelReconstruction_v*	      # CMSHLT-2287
+
 ## EndPaths / FinalPaths ##
 
 ALCALumiPixelsCountsExpressOutput
@@ -108,11 +118,13 @@ CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
+DQMGPUvsCPUOutput
 DQMOnlineBeamspotOutput
 DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
+ExpressCosmicsOutput
 NanoDSTOutput
 PhysicsCommissioningOutput
 
@@ -169,8 +181,8 @@ PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
 RPCMONOutput
 
-######## paths that are different between Special and online_grun ################################
+######## paths that are different between Special and online_special ################################
 
-#HLTAnalyzerEndpath             # only in 'Special', not in 'online'
-RatesMonitoring                # only in 'online', not in 'Special'
-DQMHistograms                  # only in 'online', not in 'Special'
+#HLTAnalyzerEndpath             # only in 'special', not in 'online'
+RatesMonitoring                # only in 'online', not in 'special'
+DQMHistograms                  # only in 'online', not in 'special'
