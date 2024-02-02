@@ -113,6 +113,7 @@ DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
+ExpressCosmicsOutput
 NanoDSTOutput
 PhysicsCommissioningOutput
 
@@ -169,7 +170,7 @@ PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
 RPCMONOutput
 
-######## paths that are different between Special and online_grun ################################
+######## paths that are different between Special and online_special ################################
 
 #HLTAnalyzerEndpath             # only in 'Special', not in 'online'
 RatesMonitoring                # only in 'online', not in 'Special'
