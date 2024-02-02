@@ -4,7 +4,7 @@ then
   os_arch_comp="el9_amd64_gcc13"
 elif [[ `[ -f /etc/redhat-release ] && awk '{print $1}' /etc/redhat-release` == "AlmaLinux" ]]
 then
-  os_arch_comp="el8_amd64_gcc11"
+  os_arch_comp="el8_amd64_gcc12"
 else
   os_arch_comp="slc7_amd64_gcc11"
 fi

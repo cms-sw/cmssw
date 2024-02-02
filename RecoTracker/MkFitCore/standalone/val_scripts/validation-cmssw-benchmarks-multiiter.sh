@@ -53,6 +53,17 @@ case ${inputBin} in
         # that does not work with MIMI at this point.
         export MKFIT_MIMI=1
         ;;
+"Mu_phase2")
+        dir=/ceph/cms/store/user/legianni/generate-phase2/10mu
+        subdir=
+        file=ntuple_pt0p1to1_eta0p0to0p4.bin
+        nevents=100
+        extraargs="--geom CMS-phase2"
+        numiters=1
+        # Pass MIMI flag to ROOT plotting functions -- some will insert STD
+        # that does not work with MIMI at this point.
+        export MKFIT_MIMI=1
+        ;;
 *)
         echo "INPUT BIN IS UNKNOWN"
         exit 12
