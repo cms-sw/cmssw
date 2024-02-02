@@ -119,10 +119,9 @@ void DDPixFwdRotation::execute(DDCompactView&) {
   edm::LogVerbatim("PixelGeom") << " Angle to Cover: " << angleCover;
   CLHEP::HepRotation rpCN(axis, angleCover);
 
-  DDrot(
-      DDName(rotNameCoverToNipple_, rotNS_),
-      std::make_unique<DDRotationMatrix>(
-          rpCN.xx(), rpCN.xy(), rpCN.xz(), rpCN.yx(), rpCN.yy(), rpCN.yz(), rpCN.zx(), rpCN.zy(), rpCN.zz()));
+  DDrot(DDName(rotNameCoverToNipple_, rotNS_),
+        std::make_unique<DDRotationMatrix>(
+            rpCN.xx(), rpCN.xy(), rpCN.xz(), rpCN.yx(), rpCN.yy(), rpCN.yz(), rpCN.zx(), rpCN.zy(), rpCN.zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
   edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple_, rotNS_) << " with "
                                 << rpCN;

@@ -107,7 +107,8 @@ PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
 void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
-  G4VPhysicalVolume* theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
+  G4VPhysicalVolume* theTopPV =
+      G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
   assert(theTopPV);
   // Logical Volume
   G4LogicalVolume* lv = theTopPV->GetLogicalVolume();
@@ -208,7 +209,8 @@ void PrintMaterialBudgetInfo::dumpLaTeXFooter(std::ostream& out) {
       << G4endl;
 }
 
-void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
+void PrintMaterialBudgetInfo::dumpHierarchyLeaf(
+    G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
   if (volumeFound && (leafDepth <= levelFound))
     return;
   if (volumeFound && (leafDepth > levelFound))
@@ -246,7 +248,8 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
   }
 }
 
-void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
+void PrintMaterialBudgetInfo::printInfo(
+    G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& weightOut, std::ostream& texOut) {
   double density = lv->GetMaterial()->GetDensity();
   double weight = lv->GetMass(false, false);
 
