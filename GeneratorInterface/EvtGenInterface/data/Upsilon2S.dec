@@ -1,0 +1,11 @@
+#
+#
+Alias      MyUpsilon(2S)  Upsilon(2S)
+ChargeConj MyUpsilon(2S)  MyUpsilon(2S)
+#
+Decay MyUpsilon(2S)
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+End
+
+
