@@ -1298,10 +1298,14 @@ protected:
     if (sub_version_ == 1)
       get(dnn::footprintCorrection) =
           sp.scale(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
-    else if (sub_version_ == 5)
-      get(dnn::footprintCorrection) =
-          sp.scale(tau_funcs.getFootprintCorrection(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
-
+    else if (sub_version_ == 5) {
+      if (is_online_)
+        get(dnn::footprintCorrection) =
+            sp.scale(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
+      else
+        get(dnn::footprintCorrection) =
+            sp.scale(tau_funcs.getFootprintCorrection(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
+    }
     get(dnn::neutralIsoPtSum) =
         sp.scale(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), tauInputs_indices_[dnn::neutralIsoPtSum]);
     get(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum) =
