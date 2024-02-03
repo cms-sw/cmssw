@@ -12,17 +12,16 @@ public:
   explicit Phase2OTHarvestTrackingParticles(const edm::ParameterSet &);
   ~Phase2OTHarvestTrackingParticles() override;
   void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   // ----------member data ---------------------------
   DQMStore *dbe;
   std::string topFolderName_;
 };
 
-
-Phase2OTHarvestTrackingParticles::Phase2OTHarvestTrackingParticles(const edm::ParameterSet &iConfig) :
-  topFolderName_(iConfig.getParameter<std::string>("TopFolderName"))
-{}
+Phase2OTHarvestTrackingParticles::Phase2OTHarvestTrackingParticles(const edm::ParameterSet &iConfig)
+    : topFolderName_(iConfig.getParameter<std::string>("TopFolderName")) {}
 
 Phase2OTHarvestTrackingParticles::~Phase2OTHarvestTrackingParticles() {}
 
@@ -67,8 +66,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
     MonitorElement *merespt_eta0to0p7_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta0to0p7_pt8toInf");
     MonitorElement *merespt_eta0p7to1_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta0p7to1_pt8toInf");
     MonitorElement *merespt_eta1to1p2_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1to1p2_pt8toInf");
-    MonitorElement *merespt_eta1p2to1p6_pt8toInf =
-        dbe->get(topFolderName_ + "/Resolution/respt_eta1p2to1p6_pt8toInf");
+    MonitorElement *merespt_eta1p2to1p6_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1p2to1p6_pt8toInf");
     MonitorElement *merespt_eta1p6to2_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta1p6to2_pt8toInf");
     MonitorElement *merespt_eta2to2p4_pt8toInf = dbe->get(topFolderName_ + "/Resolution/respt_eta2to2p4_pt8toInf");
 
@@ -502,7 +500,7 @@ void Phase2OTHarvestTrackingParticles::dqmEndJob(DQMStore::IBooker &ibooker, DQM
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void Phase2OTHarvestTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2OTHarvestTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   descriptions.add("Phase2OTHarvestTrackingParticles", desc);

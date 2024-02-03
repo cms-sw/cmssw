@@ -232,8 +232,8 @@ void Phase2OTMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::EventS
 // ------------
 // Creating all histograms for DQM file output
 void Phase2OTMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
-                                                edm::Run const &run,
-                                                edm::EventSetup const &es) {
+                                            edm::Run const &run,
+                                            edm::EventSetup const &es) {
   std::string HistoName;
 
   /// Low-quality tracks (All tracks, including HQ tracks)

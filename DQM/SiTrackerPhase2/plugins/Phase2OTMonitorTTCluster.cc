@@ -190,8 +190,8 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
 // ------------ method called once each job just before starting event loop
 // ------------
 void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
-                                                  edm::Run const &run,
-                                                  edm::EventSetup const &es) {
+                                              edm::Run const &run,
+                                              edm::EventSetup const &es) {
   std::string HistoName;
   const int numDiscs = 5;
 

@@ -200,9 +200,7 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
 }  // end of method
 
 // ------------ method called when starting to processes a run  ------------
-void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker,
-                                               edm::Run const &run,
-                                               edm::EventSetup const &es) {
+void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
   std::string HistoName;
   const int numDiscs = 5;
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Position");

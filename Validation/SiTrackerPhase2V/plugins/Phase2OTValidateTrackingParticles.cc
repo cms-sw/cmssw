@@ -44,7 +44,7 @@ public:
   ~Phase2OTValidateTrackingParticles() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   // Tracking particle distributions
   MonitorElement *trackParts_Eta = nullptr;
   MonitorElement *trackParts_Phi = nullptr;
@@ -112,13 +112,17 @@ public:
   MonitorElement *resd0_eta1p2to1p6 = nullptr;
   MonitorElement *resd0_eta1p6to2 = nullptr;
   MonitorElement *resd0_eta2to2p4 = nullptr;
+
 private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
-  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> ttClusterMCTruthToken_;  // MC truth association map for clusters
-  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> ttStubMCTruthToken_;  // MC truth association map for stubs
-  edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>  ttTrackMCTruthToken_;  // MC truth association map for tracks
+  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>
+      ttClusterMCTruthToken_;  // MC truth association map for clusters
+  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>
+      ttStubMCTruthToken_;  // MC truth association map for stubs
+  edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
+      ttTrackMCTruthToken_;  // MC truth association map for tracks
   int L1Tk_minNStub;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
@@ -461,8 +465,8 @@ void Phase2OTValidateTrackingParticles::analyze(const edm::Event &iEvent, const 
 // ------------ method called once each job just before starting event loop
 // ------------
 void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooker,
-                                                          edm::Run const &run,
-                                                          edm::EventSetup const &es) {
+                                                       edm::Run const &run,
+                                                       edm::EventSetup const &es) {
   // Histogram setup and definitions
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
@@ -1098,7 +1102,7 @@ void Phase2OTValidateTrackingParticles::bookHistograms(DQMStore::IBooker &iBooke
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // OuterTrackerMonitorTrackingParticles
   edm::ParameterSetDescription desc;
   {
@@ -1207,10 +1211,11 @@ void Phase2OTValidateTrackingParticles::fillDescriptions(edm::ConfigurationDescr
     desc.add<edm::ParameterSetDescription>("TH1Res_d0", psd0);
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
-  desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix","MergedTrackTruth"));
-  desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"));
-  desc.add<edm::InputTag>("MCTruthTrackInputTag", edm::InputTag("TTTrackAssociatorFromPixelDigis","Level1TTTracks"));
-  desc.add<edm::InputTag>("MCTruthClusterInputTag", edm::InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"));
+  desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
+  desc.add<edm::InputTag>("MCTruthTrackInputTag", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
+  desc.add<edm::InputTag>("MCTruthClusterInputTag",
+                          edm::InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"));
   desc.add<int>("L1Tk_minNStub", 4);
   desc.add<double>("L1Tk_maxChi2dof", 25.0);
   desc.add<int>("TP_minNStub", 4);

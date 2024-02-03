@@ -7,7 +7,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  
+// Original Author:
 //
 
 // system include files
@@ -49,11 +49,10 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   // TTStub stacks
   // Global position of the stubs
-  MonitorElement *Stub_RZ = nullptr;            // TTStub #rho vs. z
-
+  MonitorElement *Stub_RZ = nullptr;  // TTStub #rho vs. z
 
 private:
   edm::ParameterSet conf_;
@@ -127,8 +126,8 @@ void Phase2OTValidateTTStub::analyze(const edm::Event &iEvent, const edm::EventS
 
 // ------------ method called when starting to processes a run  ------------
 void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker &iBooker,
-                                               edm::Run const &run,
-                                               edm::EventSetup const &es) {
+                                            edm::Run const &run,
+                                            edm::EventSetup const &es) {
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_);
   edm::ParameterSet psTTStub_RZ = conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
@@ -143,7 +142,7 @@ void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker &iBooker,
                            psTTStub_RZ.getParameter<double>("ymax"));
 }
 
-void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // Phase2OTValidateTTStub
   edm::ParameterSetDescription desc;
   {
@@ -157,7 +156,7 @@ void Phase2OTValidateTTStub::fillDescriptions(edm::ConfigurationDescriptions& de
     desc.add<edm::ParameterSetDescription>("TH2TTStub_RZ", psd0);
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTStubV");
-  desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"));
+  desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
   descriptions.add("Phase2OTValidateTTStub", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
