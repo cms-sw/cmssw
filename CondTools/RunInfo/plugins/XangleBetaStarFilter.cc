@@ -9,8 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -22,6 +21,10 @@ public:
 
 private:
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+
+  bool useNewLHCInfo_;
 
   double xangle_min_;
   double xangle_max_;
@@ -37,6 +40,12 @@ private:
 XangleBetaStarFilter::XangleBetaStarFilter(const edm::ParameterSet &iConfig)
     : lhcInfoToken_(
           esConsumes<LHCInfo, LHCInfoRcd>(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
+      lhcInfoPerLSToken_(esConsumes<LHCInfoPerLS, LHCInfoPerLSRcd>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")})),
+      lhcInfoPerFillToken_(esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")})),
+
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
 
       xangle_min_(iConfig.getParameter<double>("xangle_min")),
       xangle_max_(iConfig.getParameter<double>("xangle_max")),
@@ -49,6 +58,10 @@ void XangleBetaStarFilter::fillDescriptions(edm::ConfigurationDescriptions &desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
+  desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
+
+  desc.add<bool>("useNewLHCInfo", false)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
 
   desc.add<double>("xangle_min", 0.);
   desc.add<double>("xangle_max", 1000.);
@@ -62,10 +75,10 @@ void XangleBetaStarFilter::fillDescriptions(edm::ConfigurationDescriptions &desc
 //----------------------------------------------------------------------------------------------------
 
 bool XangleBetaStarFilter::filter(edm::Event & /*iEvent*/, const edm::EventSetup &iSetup) {
-  const auto &lhcInfo = iSetup.getData(lhcInfoToken_);
+  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
 
-  return (xangle_min_ <= lhcInfo.crossingAngle() && lhcInfo.crossingAngle() < xangle_max_) &&
-         (beta_star_min_ <= lhcInfo.betaStar() && lhcInfo.betaStar() < beta_star_max_);
+  return (xangle_min_ <= lhcInfoCombined.crossingAngle() && lhcInfoCombined.crossingAngle() < xangle_max_) &&
+         (beta_star_min_ <= lhcInfoCombined.betaStarX && lhcInfoCombined.betaStarX < beta_star_max_);
 }
 
 //----------------------------------------------------------------------------------------------------

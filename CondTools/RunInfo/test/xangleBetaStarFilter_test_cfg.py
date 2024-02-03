@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 # define global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v28', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '132X_dataRun3_Prompt_v2', '')
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -20,7 +20,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # data source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring("/store/data/Run2018D/EGamma/MINIAOD/12Nov2019_UL2018-v4/280000/FF9D0498-30CA-7241-A85C-6F4F272A7A16.root")
+  fileNames = cms.untracked.vstring("/store/data/Run2023D/AlCaPPSPrompt/ALCARECO/PPSCalMaxTracks-PromptReco-v2/000/370/772/00000/00f29e79-bf03-4a59-b396-46accaa03bfc.root")
 )
 
 #process.maxEvents = cms.untracked.PSet(
@@ -28,18 +28,28 @@ process.source = cms.Source("PoolSource",
 #)
 
 # filter
-process.load("CondTools.RunInfo.xangleBetaStarFilter_cfi")
-process.xangleBetaStarFilter.xangle_min = 150
-process.xangleBetaStarFilter.xangle_max = 170
+process.xangleBetaStarFilter = cms.EDFilter("XangleBetaStarFilter",
+  lhcInfoLabel = cms.string(""),
+  lhcInfoPerLSLabel = cms.string(""),
+  lhcInfoPerFillLabel = cms.string(""),
+
+  useNewLHCInfo = cms.bool(True),
+
+  xangle_min = cms.double(150),
+  xangle_max = cms.double(170)
+  
+)
 
 # plotters
 process.plotterBefore = cms.EDAnalyzer("CTPPSLHCInfoPlotter",
   lhcInfoLabel = cms.string(""),
+  useNewLHCInfo = cms.bool(True),
   outputFile = cms.string("output_before_filter.root")
 )
 
 process.plotterAfter = cms.EDAnalyzer("CTPPSLHCInfoPlotter",
   lhcInfoLabel = cms.string(""),
+  useNewLHCInfo = cms.bool(True),
   outputFile = cms.string("output_after_filter.root")
 )
 
