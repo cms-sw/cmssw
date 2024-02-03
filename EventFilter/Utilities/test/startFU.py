@@ -127,7 +127,7 @@ process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
 process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
 process.HLT_Muon = cms.Path(process.b*process.filter2)
 
-process.streamA = cms.OutputModule("EvFOutputModule",
+process.streamA = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))
 )
 
