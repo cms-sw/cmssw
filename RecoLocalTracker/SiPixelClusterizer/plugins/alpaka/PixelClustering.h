@@ -98,30 +98,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     SiPixelDigisSoAView digi_view,
                                     SiPixelClustersSoAView clus_view,
                                     const unsigned int numElements) const {
-        [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
+        // Make sure the atomicInc below does not overflow
+        static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
 
 #ifdef GPU_DEBUG
         if (cms::alpakatools::once_per_grid(acc)) {
           printf("Starting to count modules to set module starts:");
         }
 #endif
-        cms::alpakatools::for_each_element_in_grid_strided(acc, numElements, [&](uint32_t i) {
+        for (int32_t i : cms::alpakatools::elements_with_stride(acc, numElements)) {
           digi_view[i].clus() = i;
-          if (::pixelClustering::invalidModuleId != digi_view[i].moduleId()) {
-            int j = i - 1;
-            while (j >= 0 and digi_view[j].moduleId() == ::pixelClustering::invalidModuleId)
-              --j;
-            if (j < 0 or digi_view[j].moduleId() != digi_view[i].moduleId()) {
-              // boundary...
-              auto loc = alpaka::atomicInc(
-                  acc, clus_view.moduleStart(), std::decay_t<uint32_t>(nMaxModules), alpaka::hierarchy::Blocks{});
+          if (::pixelClustering::invalidModuleId == digi_view[i].moduleId())
+            continue;
+
+          int32_t j = i - 1;
+          while (j >= 0 and digi_view[j].moduleId() == ::pixelClustering::invalidModuleId)
+            --j;
+          if (j < 0 or digi_view[j].moduleId() != digi_view[i].moduleId()) {
+            // Found a module boundary: count the number of modules in  clus_view[0].moduleStart()
+            auto loc = alpaka::atomicInc(acc,
+                                         &clus_view[0].moduleStart(),
+                                         static_cast<uint32_t>(::pixelClustering::maxNumModules),
+                                         alpaka::hierarchy::Blocks{});
+            ALPAKA_ASSERT_OFFLOAD(loc < TrackerTraits::numberOfModules);
 #ifdef GPU_DEBUG
-              printf("> New module (no. %d) found at digi %d \n", loc, i);
+            printf("> New module (no. %d) found at digi %d \n", loc, i);
 #endif
-              clus_view[loc + 1].moduleStart() = i;
-            }
+            clus_view[loc + 1].moduleStart() = i;
           }
-        });
+        }
       }
     };
 
