@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: dev-splitsensors-3556-2e96df9
+tkLayout revision: master-3588
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Adinda De Wit (adewit on lxplus780.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2023-05-25.17:00:05
-note: see OT800_IT711_2023_05_25.cfg for full config files
+Nazar Bartosik (nbartosi on lxplus811.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2024-01-11.14:28:13
+note: see OT800_IT711_2024_01_11.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">

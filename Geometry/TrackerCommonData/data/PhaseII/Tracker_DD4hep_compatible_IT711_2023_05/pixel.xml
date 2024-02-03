@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: dev-splitsensors-3568-f419281
+tkLayout revision: master-3588
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Adinda De Wit (adewit on lxplus778.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2023-05-30.11:57:52
-note: see OT800_IT711_2023_05_30.cfg for full config files
+Nazar Bartosik (nbartosi on lxplus811.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2024-01-11.14:28:13
+note: see OT800_IT711_2024_01_11.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -50,7 +50,7 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeITLayer1R1BModuleDeadAreaRight" density="1.55107*g/cm3" method="mixture by weight">
+<CompositeMaterial name="hybridcompositeITLayer1R1BModuleDeadAreaRight" density="2.3266*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:tkLayout_Si"/>
 </MaterialFraction>
@@ -2868,12 +2868,12 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rSolid name="pixel:ITLayer1R1BModuleDeadAreaRight"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
-<LogicalPart name="ITLayer1R1BModuleDeadAreaBackOfCentre" category="unspecified">
-<rSolid name="pixel:ITLayer1R1BModuleDeadAreaBackOfCentre"/>
-<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
-</LogicalPart>
 <LogicalPart name="ITLayer1R1BModuleDeadAreaFrontOfCentre" category="unspecified">
 <rSolid name="pixel:ITLayer1R1BModuleDeadAreaFrontOfCentre"/>
+<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
+</LogicalPart>
+<LogicalPart name="ITLayer1R1BModuleDeadAreaBackOfCentre" category="unspecified">
+<rSolid name="pixel:ITLayer1R1BModuleDeadAreaBackOfCentre"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
 <LogicalPart name="ITLayer1R1BModuleDeadAreaLeft" category="unspecified">
@@ -2920,12 +2920,12 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rSolid name="pixel:ITLayer1R2BModuleDeadAreaRight"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
-<LogicalPart name="ITLayer1R2BModuleDeadAreaBackOfCentre" category="unspecified">
-<rSolid name="pixel:ITLayer1R2BModuleDeadAreaBackOfCentre"/>
-<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
-</LogicalPart>
 <LogicalPart name="ITLayer1R2BModuleDeadAreaFrontOfCentre" category="unspecified">
 <rSolid name="pixel:ITLayer1R2BModuleDeadAreaFrontOfCentre"/>
+<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
+</LogicalPart>
+<LogicalPart name="ITLayer1R2BModuleDeadAreaBackOfCentre" category="unspecified">
+<rSolid name="pixel:ITLayer1R2BModuleDeadAreaBackOfCentre"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
 <LogicalPart name="ITLayer1R2BModuleDeadAreaLeft" category="unspecified">
@@ -2972,12 +2972,12 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rSolid name="pixel:ITLayer1R3BModuleDeadAreaRight"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
-<LogicalPart name="ITLayer1R3BModuleDeadAreaBackOfCentre" category="unspecified">
-<rSolid name="pixel:ITLayer1R3BModuleDeadAreaBackOfCentre"/>
-<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
-</LogicalPart>
 <LogicalPart name="ITLayer1R3BModuleDeadAreaFrontOfCentre" category="unspecified">
 <rSolid name="pixel:ITLayer1R3BModuleDeadAreaFrontOfCentre"/>
+<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
+</LogicalPart>
+<LogicalPart name="ITLayer1R3BModuleDeadAreaBackOfCentre" category="unspecified">
+<rSolid name="pixel:ITLayer1R3BModuleDeadAreaBackOfCentre"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
 <LogicalPart name="ITLayer1R3BModuleDeadAreaLeft" category="unspecified">
@@ -3024,12 +3024,12 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rSolid name="pixel:ITLayer1R4BModuleDeadAreaRight"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
-<LogicalPart name="ITLayer1R4BModuleDeadAreaBackOfCentre" category="unspecified">
-<rSolid name="pixel:ITLayer1R4BModuleDeadAreaBackOfCentre"/>
-<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
-</LogicalPart>
 <LogicalPart name="ITLayer1R4BModuleDeadAreaFrontOfCentre" category="unspecified">
 <rSolid name="pixel:ITLayer1R4BModuleDeadAreaFrontOfCentre"/>
+<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
+</LogicalPart>
+<LogicalPart name="ITLayer1R4BModuleDeadAreaBackOfCentre" category="unspecified">
+<rSolid name="pixel:ITLayer1R4BModuleDeadAreaBackOfCentre"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
 <LogicalPart name="ITLayer1R4BModuleDeadAreaLeft" category="unspecified">
@@ -3076,12 +3076,12 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <rSolid name="pixel:ITLayer1R5BModuleDeadAreaRight"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
-<LogicalPart name="ITLayer1R5BModuleDeadAreaBackOfCentre" category="unspecified">
-<rSolid name="pixel:ITLayer1R5BModuleDeadAreaBackOfCentre"/>
-<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
-</LogicalPart>
 <LogicalPart name="ITLayer1R5BModuleDeadAreaFrontOfCentre" category="unspecified">
 <rSolid name="pixel:ITLayer1R5BModuleDeadAreaFrontOfCentre"/>
+<rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
+</LogicalPart>
+<LogicalPart name="ITLayer1R5BModuleDeadAreaBackOfCentre" category="unspecified">
+<rSolid name="pixel:ITLayer1R5BModuleDeadAreaBackOfCentre"/>
 <rMaterial name="pixel:hybridcompositeITLayer1R1BModuleDeadAreaRight"/>
 </LogicalPart>
 <LogicalPart name="ITLayer1R5BModuleDeadAreaLeft" category="unspecified">
@@ -6534,8 +6534,8 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <Box name="ITLayer1R1BModuleHybrid" dx="8.4*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R1BModuleChip" dx="8.9*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R1BModuleDeadAreaRight" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R1BModuleDeadAreaBackOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R1BModuleDeadAreaFrontOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R1BModuleDeadAreaFrontOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R1BModuleDeadAreaBackOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R1BModuleDeadAreaLeft" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R1BModuleDeadAreaFront" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R1BModuleDeadAreaBack" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
@@ -6547,8 +6547,8 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <Box name="ITLayer1R2BModuleHybrid" dx="8.4*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R2BModuleChip" dx="8.9*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R2BModuleDeadAreaRight" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R2BModuleDeadAreaBackOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R2BModuleDeadAreaFrontOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R2BModuleDeadAreaFrontOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R2BModuleDeadAreaBackOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R2BModuleDeadAreaLeft" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R2BModuleDeadAreaFront" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R2BModuleDeadAreaBack" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
@@ -6560,8 +6560,8 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <Box name="ITLayer1R3BModuleHybrid" dx="8.4*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R3BModuleChip" dx="8.9*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R3BModuleDeadAreaRight" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R3BModuleDeadAreaBackOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R3BModuleDeadAreaFrontOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R3BModuleDeadAreaFrontOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R3BModuleDeadAreaBackOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R3BModuleDeadAreaLeft" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R3BModuleDeadAreaFront" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R3BModuleDeadAreaBack" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
@@ -6573,8 +6573,8 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <Box name="ITLayer1R4BModuleHybrid" dx="8.4*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R4BModuleChip" dx="8.9*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R4BModuleDeadAreaRight" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R4BModuleDeadAreaBackOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R4BModuleDeadAreaFrontOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R4BModuleDeadAreaFrontOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R4BModuleDeadAreaBackOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R4BModuleDeadAreaLeft" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R4BModuleDeadAreaFront" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R4BModuleDeadAreaBack" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
@@ -6586,8 +6586,8 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 <Box name="ITLayer1R5BModuleHybrid" dx="8.4*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R5BModuleChip" dx="8.9*mm" dy="21.825*mm" dz="0.25*mm"/>
 <Box name="ITLayer1R5BModuleDeadAreaRight" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R5BModuleDeadAreaBackOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
-<Box name="ITLayer1R5BModuleDeadAreaFrontOfCentre" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R5BModuleDeadAreaFrontOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
+<Box name="ITLayer1R5BModuleDeadAreaBackOfCentre" dx="8.4*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R5BModuleDeadAreaLeft" dx="0.0875*mm" dy="21.825*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R5BModuleDeadAreaFront" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
 <Box name="ITLayer1R5BModuleDeadAreaBack" dx="8.575*mm" dy="0.0875*mm" dz="0.075*mm"/>
@@ -7650,13 +7650,13 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R1BModule"/>
-<rChild name="pixel:ITLayer1R1BModuleDeadAreaBackOfCentre"/>
-<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R1BModuleDeadAreaFrontOfCentre"/>
+<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R1BModule"/>
-<rChild name="pixel:ITLayer1R1BModuleDeadAreaFrontOfCentre"/>
-<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R1BModuleDeadAreaBackOfCentre"/>
+<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R1BModule"/>
@@ -7720,13 +7720,13 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R2BModule"/>
-<rChild name="pixel:ITLayer1R2BModuleDeadAreaBackOfCentre"/>
-<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R2BModuleDeadAreaFrontOfCentre"/>
+<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R2BModule"/>
-<rChild name="pixel:ITLayer1R2BModuleDeadAreaFrontOfCentre"/>
-<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R2BModuleDeadAreaBackOfCentre"/>
+<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R2BModule"/>
@@ -7790,13 +7790,13 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R3BModule"/>
-<rChild name="pixel:ITLayer1R3BModuleDeadAreaBackOfCentre"/>
-<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R3BModuleDeadAreaFrontOfCentre"/>
+<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R3BModule"/>
-<rChild name="pixel:ITLayer1R3BModuleDeadAreaFrontOfCentre"/>
-<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R3BModuleDeadAreaBackOfCentre"/>
+<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R3BModule"/>
@@ -7860,13 +7860,13 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R4BModule"/>
-<rChild name="pixel:ITLayer1R4BModuleDeadAreaBackOfCentre"/>
-<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R4BModuleDeadAreaFrontOfCentre"/>
+<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R4BModule"/>
-<rChild name="pixel:ITLayer1R4BModuleDeadAreaFrontOfCentre"/>
-<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R4BModuleDeadAreaBackOfCentre"/>
+<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R4BModule"/>
@@ -7930,13 +7930,13 @@ note: see OT800_IT711_2023_05_30.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R5BModule"/>
-<rChild name="pixel:ITLayer1R5BModuleDeadAreaBackOfCentre"/>
-<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R5BModuleDeadAreaFrontOfCentre"/>
+<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R5BModule"/>
-<rChild name="pixel:ITLayer1R5BModuleDeadAreaFrontOfCentre"/>
-<Translation x="0*mm" y="0.1375*mm" z="0*mm"/>
+<rChild name="pixel:ITLayer1R5BModuleDeadAreaBackOfCentre"/>
+<Translation x="0*mm" y="-0.1375*mm" z="0*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer1R5BModule"/>
