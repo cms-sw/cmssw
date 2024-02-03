@@ -67,7 +67,6 @@ private:
   std::string name;
   int nchar;
   mpvpv thePVTree;
-  //  std::unique_ptr<G4VPhysicalVolume> theTopPV;
   G4NavigationHistory fHistory;
   bool volumeFound;
   unsigned int levelFound;
@@ -77,7 +76,7 @@ private:
   std::vector<std::string> elementNames;
   std::vector<double> elementTotalWeight;
   std::vector<double> elementWeightFraction;
-  //
+
   std::string stringLaTeXUnderscore(std::string stringname);
   std::string stringLaTeXSuperscript(std::string stringname);
 };
@@ -231,7 +230,7 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(
   std::set<G4LogicalVolume*> lvDaughters;
   int NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {
-    G4VPhysicalVolume* pvD = (lv->GetDaughter(NoDaughters));
+    G4VPhysicalVolume* pvD = lv->GetDaughter(NoDaughters);
     lvpvDaughters.insert(mmlvpv::value_type(pvD->GetLogicalVolume(), pvD));
     lvDaughters.insert(pvD->GetLogicalVolume());
   }
