@@ -230,20 +230,6 @@ def miniAOD_customizeCommon(process):
     process.patTrkMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  TrkMET 
-    
-
-    ## PU JetID
-    process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileUpJetIDTask)
-
-    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
-    process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
-
-    ## Quark Gluon Likelihood
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
-    task.add(process.QGTagger)
-
-    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
     #HF jet shower shape
     process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
