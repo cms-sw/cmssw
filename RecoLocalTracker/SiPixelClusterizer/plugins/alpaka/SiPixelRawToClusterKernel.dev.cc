@@ -260,7 +260,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint32_t roc = 1;
           uint32_t link = (errWord >> ::pixelDetails::LINK_shift) & ::pixelDetails::LINK_mask;
           uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
-          if (rID_temp != 9999)
+          if (rID_temp != ::pixelClustering::invalidModuleId)
             rID = rID_temp;
           break;
         }
@@ -269,7 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           uint32_t roc = (errWord >> ::pixelDetails::ROC_shift) & ::pixelDetails::ROC_mask;
           uint32_t link = (errWord >> ::pixelDetails::LINK_shift) & ::pixelDetails::LINK_mask;
           uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
-          if (rID_temp != 9999)
+          if (rID_temp != ::pixelClustering::invalidModuleId)
             rID = rID_temp;
           break;
         }
