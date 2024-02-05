@@ -231,6 +231,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tTkStubsGmt_*_*',
         'keep *_l1tTkMuonsGmt_*_*',
         'keep *_l1tSAMuonsGmt_*_*',
+	'keep *_l1tPhase2L1CaloEGammaEmulator_*_*',
         ]
     obj.outputCommands += l1Phase2Digis
 
