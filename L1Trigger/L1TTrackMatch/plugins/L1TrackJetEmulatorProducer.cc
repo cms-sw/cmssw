@@ -298,10 +298,10 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       int j = eta_bin_firmwareStyle(L1TrkPtrs_[k]->getTanlWord());  //Function defined in L1TrackJetClustering.h
 
       //This is a quick fix to eta going outside of scope - also including protection against phi going outside
-      //of scope as well. The eta index, j, cannot be less than zero or greater than 23 (the number of eta bins 
-      //minus one). The phi index, i, cannot be less than zero or greater than 26 (the number of phi bins 
+      //of scope as well. The eta index, j, cannot be less than zero or greater than 23 (the number of eta bins
+      //minus one). The phi index, i, cannot be less than zero or greater than 26 (the number of phi bins
       //minus one).
-      if ((j < 0) || (j > (etaBins_-1)) || (i < 0) || (i > (phiBins_-1)))
+      if ((j < 0) || (j > (etaBins_ - 1)) || (i < 0) || (i > (phiBins_ - 1)))
         continue;
 
       if (trkpt < pt_intern(trkPtMax_))
