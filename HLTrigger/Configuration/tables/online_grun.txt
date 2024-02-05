@@ -427,7 +427,6 @@ HLT_IsoMu24_TwoProngs35_v*	#	CMSHLT-1885
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v*	#	CMSHLT-1796
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_v*	#	CMSHLT-1796
 HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*         # CMSHLT-2289
-HLT_IsoMu27_MediumDeepTauPFTauHPS20_eta2p1_SingleL1_v* # CMSHLT-2349
 HLT_ZeroBias_Alignment_v*	#	CMSHLT-1892
 HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896
 HLT_Ele30_WPTight_Gsf_v*	#	CMSHLT-1921
