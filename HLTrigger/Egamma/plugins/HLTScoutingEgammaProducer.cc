@@ -56,6 +56,7 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       DphiMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("DphiMap"))),
       MissingHitsMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("MissingHitsMap"))),
       OneOEMinusOneOPMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("OneOEMinusOneOPMap"))),
+      fBremMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("fBremMap"))),
       EcalPFClusterIsoMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("EcalPFClusterIsoMap"))),
       EleGsfTrackIsoMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("EleGsfTrackIsoMap"))),
       HcalPFClusterIsoMap_(consumes<RecoEcalCandMap>(iConfig.getParameter<edm::InputTag>("HcalPFClusterIsoMap"))),
@@ -174,6 +175,14 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
   // Get 1/E - 1/p Map
   Handle<RecoEcalCandMap> OneOEMinusOneOPMap;
   if (!iEvent.getByToken(OneOEMinusOneOPMap_, OneOEMinusOneOPMap)) {
+    iEvent.put(std::move(outElectrons));
+    iEvent.put(std::move(outPhotons));
+    return;
+  }
+
+  // Get fBrem Map
+  Handle<RecoEcalCandMap> fBremMap;
+  if (!iEvent.getByToken(fBremMap_, fBremMap)) {
     iEvent.put(std::move(outElectrons));
     iEvent.put(std::move(outPhotons));
     return;
@@ -365,7 +374,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  (*OneOEMinusOneOPMap)[candidateRef],
                                  (*MissingHitsMap)[candidateRef],
                                  trkcharge,
-                                 0.0 /* waiting implementation of the track fbrem producer*/,
+                                 (*fBremMap)[candidateRef],
                                  (*EcalPFClusterIsoMap)[candidateRef],
                                  (*HcalPFClusterIsoMap)[candidateRef],
                                  (*EleGsfTrackIsoMap)[candidateRef],
@@ -395,10 +404,11 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("SigmaIEtaIEtaMap", edm::InputTag("hltEgammaClusterShape:sigmaIEtaIEta5x5"));
   desc.add<edm::InputTag>("r9Map", edm::InputTag("hltEgammaR9ID:r95x5"));
   desc.add<edm::InputTag>("HoverEMap", edm::InputTag("hltEgammaHoverE"));
-  desc.add<edm::InputTag>("DetaMap", edm::InputTag("hltEgammaGsfTrackVars:DetaSeed"));
-  desc.add<edm::InputTag>("DphiMap", edm::InputTag("hltEgammaGsfTrackVars:Dphi"));
-  desc.add<edm::InputTag>("MissingHitsMap", edm::InputTag("hltEgammaGsfTrackVars:MissingHits"));
-  desc.add<edm::InputTag>("OneOEMinusOneOPMap", edm::InputTag("hltEgammaGsfTrackVars:OneOESuperMinusOneOP"));
+  desc.add<edm::InputTag>("DetaMap", edm::InputTag("hltEgammaGsfTrackVarsUnseeded:DetaSeed"));
+  desc.add<edm::InputTag>("DphiMap", edm::InputTag("hltEgammaGsfTrackVarsUnseeded:Dphi"));
+  desc.add<edm::InputTag>("MissingHitsMap", edm::InputTag("hltEgammaGsfTrackVarsUnseeded:MissingHits"));
+  desc.add<edm::InputTag>("OneOEMinusOneOPMap", edm::InputTag("hltEgammaGsfTrackVarsUnseeded:OneOESuperMinusOneOP"));
+  desc.add<edm::InputTag>("fBremMap", edm::InputTag("hltEgammaGsfTrackVarsUnseeded:fbrem"));
   desc.add<edm::InputTag>("EcalPFClusterIsoMap", edm::InputTag("hltEgammaEcalPFClusterIso"));
   desc.add<edm::InputTag>("EleGsfTrackIsoMap", edm::InputTag("hltEgammaEleGsfTrackIso"));
   desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltEgammaHcalPFClusterIso"));
