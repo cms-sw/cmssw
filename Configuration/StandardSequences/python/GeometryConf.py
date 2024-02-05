@@ -99,4 +99,6 @@ GeometryConf={
     'DD4hepExtended2026D106' : 'DD4hepExtended2026D106,DD4hepExtended2026D106Reco',
     'Extended2026D107' : 'Extended2026D107,Extended2026D107Reco',
     'DD4hepExtended2026D107' : 'DD4hepExtended2026D107,DD4hepExtended2026D107Reco',
+    'Extended2026D108' : 'Extended2026D108,Extended2026D108Reco',
+    'DD4hepExtended2026D108' : 'DD4hepExtended2026D108,DD4hepExtended2026D108Reco',
     }
