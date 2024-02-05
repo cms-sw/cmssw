@@ -191,8 +191,7 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   std::unique_ptr<reco::TrackExtraCollection> outTracks_ex = std::make_unique<reco::TrackExtraCollection>();
   std::unique_ptr<reco::GsfTrackExtraCollection> outTracks_exgsf = std::make_unique<reco::GsfTrackExtraCollection>();
   std::unique_ptr<TrackingRecHitCollection> outTracks_rh = std::make_unique<TrackingRecHitCollection>();
-  std::unique_ptr<GsfTrackToTrackMapnew> outTracks_refs =
-      std::unique_ptr<GsfTrackToTrackMapnew>(new GsfTrackToTrackMapnew());
+  std::unique_ptr<GsfTrackToTrackMapnew> outTracks_refs = std::make_unique<GsfTrackToTrackMapnew>();
 
   auto rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   auto rTrackExtras_gsf = iEvent.getRefBeforePut<reco::GsfTrackExtraCollection>();
@@ -260,8 +259,7 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   edm::Handle<edm::View<TrajectorySeed>> seedViewsHandle;
   iEvent.getByToken(inputs_rElectronMergedSeedViews_, seedViewsHandle);
 
-  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex_new =
-      std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
+  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex_new = std::make_unique<reco::TrackExtraCollection>();
 
   // fix track extras to new merged seeds
   for (typename reco::TrackExtraCollection::const_iterator tex = outTracks_ex->begin(); tex != outTracks_ex->end();

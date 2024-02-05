@@ -45,12 +45,12 @@
 
 class MuMuForEmbeddingSelector : public edm::stream::EDProducer<> {
 public:
-  explicit MuMuForEmbeddingSelector(const edm::ParameterSet&);
+  explicit MuMuForEmbeddingSelector(const edm::ParameterSet &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::CompositeCandidate>> ZmumuCandidates_;

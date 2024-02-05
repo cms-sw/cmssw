@@ -14,12 +14,12 @@
 
 class DYToMuMuGenFilter : public edm::stream::EDFilter<> {
 public:
-  explicit DYToMuMuGenFilter(const edm::ParameterSet&);
+  explicit DYToMuMuGenFilter(const edm::ParameterSet &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
   edm::InputTag inputTag_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
@@ -34,7 +34,7 @@ DYToMuMuGenFilter::DYToMuMuGenFilter(const edm::ParameterSet &iConfig) {
   genParticleCollection_ = consumes<reco::GenParticleCollection>(inputTag_);
 }
 
-bool DYToMuMuGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool DYToMuMuGenFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(genParticleCollection_, gen_handle);
 
   for (unsigned int i = 0; i < gen_handle->size(); i++) {

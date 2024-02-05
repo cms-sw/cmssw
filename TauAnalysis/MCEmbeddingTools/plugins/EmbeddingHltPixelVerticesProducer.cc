@@ -43,14 +43,14 @@
 class EmbeddingHltPixelVerticesProducer : public edm::stream::EDProducer<> {
 public:
   explicit EmbeddingHltPixelVerticesProducer(const edm::ParameterSet &);
-  ~EmbeddingHltPixelVerticesProducer();
+  ~EmbeddingHltPixelVerticesProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  virtual void beginStream(edm::StreamID) override;
-  virtual void produce(edm::Event &, const edm::EventSetup &) override;
-  virtual void endStream() override;
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endStream() override;
   edm::InputTag vertexPositionLabel;
   // edm::InputTag generalTracks;
 

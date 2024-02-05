@@ -24,7 +24,7 @@ template <typename T1, typename T2, typename T3, typename T4>
 class DoubleCollectionMerger : public edm::stream::EDProducer<> {
 public:
   explicit DoubleCollectionMerger(const edm::ParameterSet &);
-  ~DoubleCollectionMerger();
+  ~DoubleCollectionMerger() override;
 
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;

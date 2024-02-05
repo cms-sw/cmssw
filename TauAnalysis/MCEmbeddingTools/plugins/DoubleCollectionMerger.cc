@@ -24,11 +24,11 @@ DoubleCollectionMerger<T1, T2, T3, T4>::DoubleCollectionMerger(const edm::Parame
     inputs1_[inCollection.instance()].push_back(consumes<MergeCollection1>(inCollection));
     inputs2_[inCollection.instance()].push_back(consumes<MergeCollection2>(inCollection));
   }
-  for (auto toproduce : inputs1_) {
+  for (const auto &toproduce : inputs1_) {
     // std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
     produces<MergeCollection1>(toproduce.first);
   }
-  for (auto toproduce : inputs2_) {
+  for (const auto &toproduce : inputs2_) {
     // std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
     produces<MergeCollection2>(toproduce.first);
   }
@@ -102,7 +102,7 @@ void DoubleCollectionMerger<T1, T2, T3, T4>::fill_output_obj_digiflag(
       std::map<uint32_t, EESrFlag>::iterator it = output_map.find(detIdObject.rawId());
       if (it == output_map.end()) {
         BaseHit1 *akt_flag_obj = &output_map[detIdObject.rawId()];
-        T2 newSrFlag(*obj);
+        const T2 &newSrFlag(*obj);
         *akt_flag_obj = newSrFlag;
       } else {
         // re-determine flag
@@ -145,7 +145,7 @@ void DoubleCollectionMerger<T1, T2, T3, T4>::fill_output_obj_digiflag(
       std::map<uint32_t, EBSrFlag>::iterator it = output_map.find(detIdObject.rawId());
       if (it == output_map.end()) {
         BaseHit2 *akt_flag_obj = &output_map[detIdObject.rawId()];
-        T4 newSrFlag(*obj);
+        const T4 &newSrFlag(*obj);
         *akt_flag_obj = newSrFlag;
       } else {
         // re-determine flag
