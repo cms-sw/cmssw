@@ -79,18 +79,17 @@ private:
   const bool useReco_;
   const bool useClosestVertex_;
   std::vector<double> pTthresholds_;
-  float maxSVdist_;
+  const float maxSVdist_;
 
   // plot configurations
-
-  edm::ParameterSet CosPhiConfiguration_;
-  edm::ParameterSet CosPhi3DConfiguration_;
-  edm::ParameterSet VtxProbConfiguration_;
-  edm::ParameterSet VtxDistConfiguration_;
-  edm::ParameterSet VtxDist3DConfiguration_;
-  edm::ParameterSet VtxDistSigConfiguration_;
-  edm::ParameterSet VtxDist3DSigConfiguration_;
-  edm::ParameterSet DiMuMassConfiguration_;
+  const edm::ParameterSet CosPhiConfiguration_;
+  const edm::ParameterSet CosPhi3DConfiguration_;
+  const edm::ParameterSet VtxProbConfiguration_;
+  const edm::ParameterSet VtxDistConfiguration_;
+  const edm::ParameterSet VtxDist3DConfiguration_;
+  const edm::ParameterSet VtxDistSigConfiguration_;
+  const edm::ParameterSet VtxDist3DSigConfiguration_;
+  const edm::ParameterSet DiMuMassConfiguration_;
 
   // control plots
 
@@ -127,13 +126,14 @@ private:
 
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  //used to select what vertices to read from configuration file
+  //used to select what tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  //used to select what vertices to read from configuration file
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   // either on or the other!
-  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;  //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::TrackCollection>
-      alcaRecoToken_;  //used to select what muon tracks to read from configuration file
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;      // used to select tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection> alcaRecoToken_;  //used to select muon tracks to read from configuration file
 };
 
 //
@@ -350,7 +350,7 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // fill the VtxProb plots
   VtxProbPlots.fillPlots(SVProb, tktk_p4);
 
-  math::XYZPoint MainVertex(0, 0, 0);
+  math::XYZPoint mainVtxPos(0, 0, 0);
   const reco::Vertex* theClosestVertex = nullptr;
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
@@ -362,35 +362,35 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     return;
   }
 
-  reco::Vertex TheMainVertex;
+  reco::Vertex theMainVertex;
   if (!useClosestVertex_ || theClosestVertex == nullptr) {
     // if the closest vertex is not available, or explicitly not chosen
-    TheMainVertex = vertexHandle.product()->front();
+    theMainVertex = vertexHandle.product()->front();
   } else {
-    TheMainVertex = *theClosestVertex;
+    theMainVertex = *theClosestVertex;
   }
 
-  MainVertex.SetXYZ(TheMainVertex.position().x(), TheMainVertex.position().y(), TheMainVertex.position().z());
+  mainVtxPos.SetXYZ(theMainVertex.position().x(), theMainVertex.position().y(), theMainVertex.position().z());
   const math::XYZPoint myVertex(
       aTransientVertex.position().x(), aTransientVertex.position().y(), aTransientVertex.position().z());
   const math::XYZPoint deltaVtx(
-      MainVertex.x() - myVertex.x(), MainVertex.y() - myVertex.y(), MainVertex.z() - myVertex.z());
+      mainVtxPos.x() - myVertex.x(), mainVtxPos.y() - myVertex.y(), mainVtxPos.z() - myVertex.z());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DiMuonVertexValidation")
       << "mm vertex position:" << aTransientVertex.position().x() << "," << aTransientVertex.position().y() << ","
       << aTransientVertex.position().z();
 
-  edm::LogVerbatim("DiMuonVertexValidation") << "main vertex position:" << TheMainVertex.position().x() << ","
-                                             << TheMainVertex.position().y() << "," << TheMainVertex.position().z();
+  edm::LogVerbatim("DiMuonVertexValidation") << "main vertex position:" << theMainVertex.position().x() << ","
+                                             << theMainVertex.position().y() << "," << theMainVertex.position().z();
 #endif
 
-  if (TheMainVertex.isValid()) {
+  if (theMainVertex.isValid()) {
     // Z Vertex distance in the xy plane
 
     VertexDistanceXY vertTool;
-    double distance = vertTool.distance(aTransientVertex, TheMainVertex).value();
-    double dist_err = vertTool.distance(aTransientVertex, TheMainVertex).error();
+    double distance = vertTool.distance(aTransientVertex, theMainVertex).value();
+    double dist_err = vertTool.distance(aTransientVertex, theMainVertex).error();
 
     hSVDist_->Fill(distance * cmToum);
     hSVDistSig_->Fill(distance / dist_err);
@@ -404,8 +404,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     // Z Vertex distance in 3D
 
     VertexDistance3D vertTool3D;
-    double distance3D = vertTool3D.distance(aTransientVertex, TheMainVertex).value();
-    double dist3D_err = vertTool3D.distance(aTransientVertex, TheMainVertex).error();
+    double distance3D = vertTool3D.distance(aTransientVertex, theMainVertex).value();
+    double dist3D_err = vertTool3D.distance(aTransientVertex, theMainVertex).error();
 
     hSVDist3D_->Fill(distance3D * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
@@ -459,14 +459,32 @@ void DiMuonVertexValidation::beginJob() {
   TH1F::SetDefaultSumw2(kTRUE);
   hSVProb_ = fs->make<TH1F>("VtxProb", ";#mu^{+}#mu^{-} vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
 
-  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-#mu^{+}#mu^{-} vertex xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  auto extractRangeValues = [](const edm::ParameterSet& PSetConfiguration_) -> std::pair<double, double> {
+    double min = PSetConfiguration_.getParameter<double>("ymin");
+    double max = PSetConfiguration_.getParameter<double>("ymax");
+    return {min, max};
+  };
 
-  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-#mu^{+}#mu^{-} vertex 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-#mu^{+}#mu^{-} vertex 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  // take the range from the 2D histograms
+  const auto& svDistRng = extractRangeValues(VtxDistConfiguration_);
+  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-#mu^{+}#mu^{-} vertex xy distance [#mum];N(#mu#mu pairs)", 100, svDistRng.first, svDistRng.second);
 
-  hInvMass_ = fs->make<TH1F>("InvMass", ";M(#mu#mu) [GeV];N(#mu#mu pairs)", 70., 50., 120.);
-  hTrackInvMass_ = fs->make<TH1F>("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., 50., 120.);
+  // take the range from the 2D histograms
+  const auto& svDistSigRng = extractRangeValues(VtxDistSigConfiguration_);
+  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, svDistSigRng.first, svDistRng.second);
+
+  // take the range from the 2D histograms
+  const auto& svDist3DRng = extractRangeValues(VtxDist3DConfiguration_);
+  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-#mu^{+}#mu^{-} vertex 3D distance [#mum];N(#mu#mu pairs)", 100, svDist3DRng.first, svDist3DRng.second);
+
+  // take the range from the 2D histograms
+  const auto& svDist3DSigRng = extractRangeValues(VtxDist3DSigConfiguration_);
+  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-#mu^{+}#mu^{-} vertex 3D distance signficance;N(#mu#mu pairs)", 100, svDist3DSigRng.first, svDist3DSigRng.second);
+
+  // take the range from the 2D histograms
+  const auto& massRng = extractRangeValues(DiMuMassConfiguration_);
+  hInvMass_ = fs->make<TH1F>("InvMass", ";M(#mu#mu) [GeV];N(#mu#mu pairs)", 70., massRng.first, massRng.second);
+  hTrackInvMass_ = fs->make<TH1F>("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., massRng.first, massRng.second);
 
   hCosPhi_ = fs->make<TH1F>("CosPhi", ";cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhi3D_ = fs->make<TH1F>("CosPhi3D", ";cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);

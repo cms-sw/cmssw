@@ -869,7 +869,7 @@ private:
     hEta = book<TH1D>("h_Eta", "Track pseudorapidity; track #eta;tracks", 100, -etaMax_, etaMax_);
     hPhi = book<TH1D>("h_Phi", "Track azimuth; track #phi;tracks", 100, -M_PI, M_PI);
 
-    hPhiBarrel = book<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #Phi;tracks", 100, -M_PI, M_PI);
+    hPhiBarrel = book<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #phi;tracks", 100, -M_PI, M_PI);
     hPhiOverlapPlus =
         book<TH1D>("h_PhiOverlapPlus", "hPhiOverlapPlus (0.8<#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
     hPhiOverlapMinus =
@@ -880,7 +880,7 @@ private:
     h_BSx0 = book<TH1F>("h_BSx0", "x-coordinate of reco beamspot;x^{BS}_{0};n_{events}", 100, -0.1, 0.1);
     h_BSy0 = book<TH1F>("h_BSy0", "y-coordinate of reco beamspot;y^{BS}_{0};n_{events}", 100, -0.1, 0.1);
     h_BSz0 = book<TH1F>("h_BSz0", "z-coordinate of reco beamspot;z^{BS}_{0};n_{events}", 100, -1., 1.);
-    h_Beamsigmaz = book<TH1F>("h_Beamsigmaz", "z-coordinate beam width;#sigma_{Z}^{beam};n_{events}", 100, 0., 1.);
+    h_Beamsigmaz = book<TH1F>("h_Beamsigmaz", "z-coordinate beam width;#sigma_{Z}^{beam};n_{events}", 100, 0., 7.);
     h_BeamWidthX = book<TH1F>("h_BeamWidthX", "x-coordinate beam width;#sigma_{X}^{beam};n_{events}", 100, 0., 0.01);
     h_BeamWidthY = book<TH1F>("h_BeamWidthY", "y-coordinate beam width;#sigma_{Y}^{beam};n_{events}", 100, 0., 0.01);
     h_BSdxdz = book<TH1F>("h_BSdxdz", "BeamSpot dxdz;beamspot dx/dz;n_{events}", 100, -0.0003, 0.0003);
@@ -1125,6 +1125,12 @@ private:
       modeByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
       fieldByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
     }
+
+    static const int kappadiffindex = this->index(vTrackHistos_, "h_diff_curvature");
+    vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->index(vTrackHistos_, "h_curvature_neg")],
+                                       vTrackHistos_[this->index(vTrackHistos_, "h_curvature_pos")],
+                                       -1,
+                                       1);
 
     if (phase_ < SiPixelPI::phase::two) {
       if (phase_ == SiPixelPI::phase::zero) {
