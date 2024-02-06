@@ -60,6 +60,8 @@ process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61pEB = 5.
 process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61mEB = 5.
 process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeCalibTag = ':'
 process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeOffsetTag = ':'
+process.ecalRecHit.cpu.timeCalibTag = ':'
+process.ecalRecHit.cpu.timeOffsetTag = ':'
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     cosmics = cms.untracked.uint32(1),

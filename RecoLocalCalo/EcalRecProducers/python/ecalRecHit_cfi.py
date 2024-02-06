@@ -99,6 +99,20 @@ fastSim.toModify(ecalRecHit,
                  recoverEBIsolatedChannels = False
                 )
 
+# use CC timing method for Run3 and Phase 2 (carried over from Run3 era)
+from Configuration.Eras.Modifier_run3_ecal_cff import run3_ecal
+run3_ecal.toModify(ecalRecHit,
+    timeCalibTag = ':CC',
+    timeOffsetTag = ':CC'
+)
+
+# this overrides the modifications made by run3_ecal if both modifiers are active
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
+gpuValidationEcal.toModify(ecalRecHit,
+    timeCalibTag = ':',
+    timeOffsetTag = ':'
+)
+
 # Phase 2 modifications
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 phase2_ecal_devel.toModify(ecalRecHit,
