@@ -134,7 +134,7 @@ private:
   unsigned currentModuleId_;
   bool allowAddModel_;
   bool startedFallback_;
-  CMS_SA_ALLOW mutable std::atomic<int> callFails_;
+  mutable std::atomic<int> callFails_;
   std::string pid_;
   std::unordered_map<std::string, Model> unservedModels_;
   //this represents a many:many:many map

@@ -326,13 +326,12 @@ void TritonService::postEndJob() {
     printFallbackServerLog<edm::LogError>();
     if (rv != 0) {
       std::string stopCat("FallbackFailed");
-      std::stringstream stopMsg;
-      stopMsg << "TritonService: Stopping the fallback server failed with exit code " << rv;
+      std::string stopMsg = fmt::format("TritonService: Stopping the fallback server failed with exit code {}", rv);
       //avoid throwing if the stack is already unwinding
       if (callFails_ > 0)
-        edm::LogWarning(stopCat) << stopMsg.str();
+        edm::LogWarning(stopCat) << stopMsg;
       else
-        throw cms::Exception(stopCat) << stopMsg.str();
+        throw cms::Exception(stopCat) << stopMsg;
     }
   } else if (verbose_) {
     edm::LogInfo("TritonService") << output;
