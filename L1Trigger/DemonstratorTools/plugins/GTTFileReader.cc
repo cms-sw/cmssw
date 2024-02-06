@@ -84,30 +84,32 @@ GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
     fileReaderOutputToCorrelator_ =
         l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                    iConfig.getParameter<std::vector<std::string>>("filesOutputToCorrelator"),
-                                   l1t::demo::kFramesPerTMUXPeriod,
-                                   l1t::demo::kGTTBoardTMUX,
+                                   l1t::demo::gtt::kFramesPerTMUXPeriod,
+                                   l1t::demo::gtt::kGTTBoardTMUX,
                                    kEmptyFramesOutputToCorrelator_,
-                                   l1t::demo::kChannelMapOutputToCorrelator);
+                                   l1t::demo::gtt::kChannelIdsOutputToCorrelator,
+                                   l1t::demo::gtt::kChannelSpecsOutputToCorrelator);
     produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
   }
   if (processInputTracks_) {
     fileReaderInputTracks_ =
         l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                    iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
-                                   l1t::demo::kFramesPerTMUXPeriod,
-                                   l1t::demo::kGTTBoardTMUX,
+                                   l1t::demo::gtt::kFramesPerTMUXPeriod,
+                                   l1t::demo::gtt::kGTTBoardTMUX,
                                    kEmptyFramesInputTracks_,
-                                   l1t::demo::kChannelMapInput);
+                                   l1t::demo::gtt::kChannelIdsInput,
+                                   l1t::demo::gtt::kChannelSpecsInput);
     produces<TTTrackCollection>(l1TrackCollectionName_);
   }
   if (processOutputToGlobalTrigger_) {
     // fileReaderOutputToGlobalTrigger_ =
     //   l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
     // 				 iConfig.getParameter<std::vector<std::string>>("filesOutputToGlobalTrigger"),
-    // 				 l1t::demo::kFramesPerTMUXPeriod,
-    // 				 l1t::demo::kGTTBoardTMUX,
+    // 				 l1t::demo::gtt::kFramesPerTMUXPeriod,
+    // 				 l1t::demo::gtt::kGTTBoardTMUX,
     // 				 kEmptyFramesOutputToGlobalTrigger_,
-    // 				 l1t::demo::kChannelMapInput);
+    // 				 l1t::demo::gtt::kChannelMapInput);
     throw std::invalid_argument("Processing OutputToGlobalTrigger files has not been fully implemented and validated.");
     // need to produce output collections for Prompt and Displaced Jets, HTMiss, ETMiss, Taus, Mesons, Vertices, and Isolated Tracks
   }
@@ -128,7 +130,7 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (processInputTracks_) {
     l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
     auto inputTracks = std::make_unique<TTTrackCollection>();
-    for (size_t i = 0; i < l1t::demo::kTrackTMUX; i++) {
+    for (size_t i = 0; i < l1t::demo::gtt::kTrackTMUX; i++) {
       auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
       for (auto& trackword : iTracks) {
         if (!trackword.getValidWord())
