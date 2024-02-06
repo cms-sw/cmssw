@@ -9,7 +9,7 @@
 #include "L1Trigger/DemonstratorTools/interface/FileFormat.h"
 #include "L1Trigger/DemonstratorTools/interface/Frame.h"
 
-namespace l1t::demo {
+namespace l1t::demo::gtt {
   // map of logical channel ID -> [TMUX period, interpacket-gap & offset; channel indices]
   typedef std::map<LinkId, std::pair<ChannelSpec, std::vector<size_t>>> ChannelMap_t;
 
@@ -80,6 +80,14 @@ namespace l1t::demo {
       /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
       {{"vertices", 0}, {{kGTTBoardTMUX, kGapLengthOutputToCorrelator}, {0}}}};
 
+  static const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsOutputToCorrelator = {
+      /* logical channel within time slice -> vector of channel indices */
+      {{"vertices", 0}, {0}}};
+
+  static const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsOutputToCorrelator = {
+      /* interface name -> {link TMUX, inter-packet gap} */
+      {"vertices", {kGTTBoardTMUX, kGapLengthOutputToCorrelator}}};
+
   //OUTPUTS to Global Trigger
   static const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsOutputToGlobalTrigger = {
       /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
@@ -95,6 +103,6 @@ namespace l1t::demo {
       {"mesons", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerMesons}},
       {"vertices", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerVertices}}};
 
-}  // namespace l1t::demo
+}  // namespace l1t::demo::gtt
 
 #endif
