@@ -604,6 +604,8 @@ HLT_L1MET_DTClusterNoMB1S50_v*      # CMSHLT-2211
 HLT_CscCluster_Loose_v*             # CMSHLT-2211
 HLT_CscCluster_Medium_v*            # CMSHLT-2211
 HLT_CscCluster_Tight_v*             # CMSHLT-2211
+HLT_IsoTrk200_L1SingleMuShower_v*   # CMSHLT-2993
+HLT_IsoTrk400_L1SingleMuShower_v*   # CMSHLT-2993
 HLT_DoubleCscCluster75_v*           # CMSHLT-2811
 HLT_DoubleCscCluster100_v*          # CMSHLT-2811
 HLT_L1CSCShower_DTCluster50_v*      # CMSHLT-2211
