@@ -38,8 +38,6 @@ namespace l1t::demo {
                     const std::map<LinkId, std::vector<size_t>>&,
                     const std::map<std::string, ChannelSpec>&);
 
-    BoardDataReader() = default;
-
     EventData getNextEvent();
 
   private:
