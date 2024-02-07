@@ -74,20 +74,20 @@ private:
   class CommonEventFields {
   public:
     void createFields(RNTupleModel& model) {
-      model.AddField<UInt_t>("run", &m_run);
-      model.AddField<UInt_t>("luminosityBlock", &m_luminosityBlock);
-      model.AddField<std::uint64_t>("event", &m_event);
+      m_run = model.MakeField<UInt_t>("run");
+      m_luminosityBlock = model.MakeField<UInt_t>("luminosityBlock");
+      m_event = model.MakeField<std::uint64_t>("event");
     }
     void fill(const edm::EventID& id) {
-      m_run = id.run();
-      m_luminosityBlock = id.luminosityBlock();
-      m_event = id.event();
+      *m_run = id.run();
+      *m_luminosityBlock = id.luminosityBlock();
+      *m_event = id.event();
     }
 
   private:
-    UInt_t m_run;
-    UInt_t m_luminosityBlock;
-    std::uint64_t m_event;
+    std::shared_ptr<UInt_t> m_run;
+    std::shared_ptr<UInt_t> m_luminosityBlock;
+    std::shared_ptr<std::uint64_t> m_event;
   } m_commonFields;
 
   LumiNTuple m_lumi;
