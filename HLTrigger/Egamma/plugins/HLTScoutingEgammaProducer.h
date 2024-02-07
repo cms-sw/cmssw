@@ -73,6 +73,7 @@ private:
   const edm::EDGetTokenT<RecoEcalCandMap> DphiMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> MissingHitsMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> OneOEMinusOneOPMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> fBremMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> EcalPFClusterIsoMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> EleGsfTrackIsoMap_;
   const edm::EDGetTokenT<RecoEcalCandMap> HcalPFClusterIsoMap_;
