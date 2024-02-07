@@ -412,7 +412,7 @@ namespace mkfit {
   //------------------------------------------------------------------------------
 
   void MkBuilder::seed_post_cleaning(TrackVec &tv) {
-    if (Const::nan_n_silly_check_seeds) {
+    if constexpr (Const::nan_n_silly_check_seeds) {
       int count = 0;
 
       for (int i = 0; i < (int)tv.size(); ++i) {
@@ -421,7 +421,7 @@ namespace mkfit {
                                           "Post-cleaning seed silly value check and fix");
         if (silly) {
           ++count;
-          if (Const::nan_n_silly_remove_bad_seeds) {
+          if constexpr (Const::nan_n_silly_remove_bad_seeds) {
             // XXXX MT
             // Could do somethin smarter here: set as Stopped ?  check in seed cleaning ?
             tv.erase(tv.begin() + i);
@@ -669,7 +669,7 @@ namespace mkfit {
             seed_cand_vec.push_back(std::pair<int, int>(iseed, ic));
             ccand[ic].resetOverlaps();
 
-            if (Const::nan_n_silly_check_cands_every_layer) {
+            if constexpr (Const::nan_n_silly_check_cands_every_layer) {
               if (ccand[ic].hasSillyValues(Const::nan_n_silly_print_bad_cands_every_layer,
                                            Const::nan_n_silly_fixup_bad_cands_every_layer,
                                            "Per layer silly check"))
@@ -683,7 +683,7 @@ namespace mkfit {
       }
     }
 
-    if (Const::nan_n_silly_check_cands_every_layer && silly_count > 0) {
+    if constexpr (Const::nan_n_silly_check_cands_every_layer && silly_count > 0) {
       m_nan_n_silly_per_layer_count += silly_count;
     }
 
@@ -1110,7 +1110,7 @@ namespace mkfit {
         // mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, true);
 
         // For prop-to-plane propagate from the last hit, not layer center.
-        if (Config::usePropToPlane) {
+        if constexpr (Config::usePropToPlane) {
           mkfndr->inputTracksAndHitIdx(eoccs.refCandidates(), seed_cand_idx, itrack, end, false);
         }
 
