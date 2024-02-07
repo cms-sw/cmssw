@@ -1313,7 +1313,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::fill_vertices(double beta, double
         zerror_squared = sumwp / (sumw * sumw);
         y.zvtx[k] = sumwz / sumw;
       }
-      const auto& bs = vertexTracks[0].stateAtBeamLine().beamSpot();
+      const auto bs = vertexTracks[0].stateAtBeamLine().beamSpot();
       GlobalPoint pos(bs.x(y.zvtx[k]), bs.y(y.zvtx[k]), y.zvtx[k]);
       const float xerror_squared = pow(bs.BeamWidthX(), 2);
       const float yerror_squared = pow(bs.BeamWidthY(), 2);
