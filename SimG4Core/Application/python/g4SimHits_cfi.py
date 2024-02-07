@@ -752,9 +752,9 @@ phase2_common.toModify(g4SimHits,
 
 from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 hgcaltb.toModify(g4SimHits,
-                 OnlySDs = ['AHcalSensitiveDetector','CaloTrkProcessing','FP420SensitiveDetector','HFNoseSensitiveDetector','HGCSensitiveDetector','HGCalSensitiveDetector','HGCalTB1601SensitiveDetector','HcalTB06BeamDetector'],
+                 OnlySDs = ['AHcalSensitiveDetector','CaloTrkProcessing','HFNoseSensitiveDetector','HGCSensitiveDetector','HGCalSensitiveDetector','HGCalTB1601SensitiveDetector','HcalTB06BeamDetector'],
                  TrackHits = ['FP420SI'],
-                 CaloHits = ['CalibrationHGCHitsEE','CalibrationHGCHitsHEback','CalibrationHGCHitsHEfront','CaloHitsTk','ChamberHits','EcalHitsEB','EcalHitsEE','EcalHitsES','EcalTBH4BeamHits','FibreHits','HFNoseHits','HcalSensitiveDetector','HGCHitsEE','HGCHitsHEback','HGCHitsHEfront','HcalHits','HcalTB06BeamHits','WedgeHits'],
+                 CaloHits = ['CalibrationHGCHitsEE','CalibrationHGCHitsHEback','CalibrationHGCHitsHEfront','CaloHitsTk','ChamberHits','HFNoseHits','HGCHitsEE','HGCHitsHEback','HGCHitsHEfront','HcalHits','HcalTB06BeamHits','WedgeHits'],
                  NonBeamEvent = True,
                  UseMagneticField = False,
                  CaloSD = dict(
@@ -764,6 +764,14 @@ hgcaltb.toModify(g4SimHits,
                      TestBeam = True ),
                  HCalSD = dict(
                      ForTBHCAL = True)
+)
+
+from Configuration.Eras.Modifier_phase2_hgcalOnly_cff import phase2_hgcalOnly
+phase2_hgcalOnly.toModify(g4SimHits,
+                       OnlySDs = ['CaloTrkProcessing','HGCScintillatorSensitiveDetector','HGCalSensitiveDetector'],
+                       TrackHits = [],
+                       CaloHits = ["CalibrationHGCHitsEE",'CalibrationHGCHitsHEback',"CalibrationHGCHitsHEfront","CaloHitsTk","HGCHitsEE","HGCHitsHEback","HGCHitsHEfront",],
+                       LHCTransport = False
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
