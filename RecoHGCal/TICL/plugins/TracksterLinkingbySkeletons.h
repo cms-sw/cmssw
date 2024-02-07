@@ -32,14 +32,16 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>>& linkedResultTracksters,
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
 
-    std::array<ticl::Vector,3> findSkeletonNodes(const ticl::Trackster& trackster, 
-                                  float lower_percentage,
-                                  float upper_percentage,
-                                  const std::vector<reco::CaloCluster>& layerClusters,
-                                  const hgcal::RecHitTools& rhtools);
+    std::array<ticl::Vector, 3> findSkeletonNodes(const ticl::Trackster& trackster,
+                                                  float lower_percentage,
+                                                  float upper_percentage,
+                                                  const std::vector<reco::CaloCluster>& layerClusters,
+                                                  const hgcal::RecHitTools& rhtools);
 
-    bool areCompatible(const ticl::Trackster& myTrackster, const ticl::Trackster& otherTrackster, 
-                       const std::array<ticl::Vector,3>& mySkeleton, const std::array<ticl::Vector,3>& otherSkeleton);
+    bool areCompatible(const ticl::Trackster& myTrackster,
+                       const ticl::Trackster& otherTrackster,
+                       const std::array<ticl::Vector, 3>& mySkeleton,
+                       const std::array<ticl::Vector, 3>& otherSkeleton);
 
     void initialize(const HGCalDDDConstants* hgcons,
                     const hgcal::RecHitTools rhtools,

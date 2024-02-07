@@ -242,7 +242,7 @@ void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &
 void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription linkingDesc;
-  linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "Skeletons", true));
+  linkingDesc.addNode(edm::PluginDescription<TracksterLinkingPluginFactory>("type", "Passthrough", true));
 
   desc.add<edm::ParameterSetDescription>("linkingPSet", linkingDesc);
   desc.add<std::vector<edm::InputTag>>(
