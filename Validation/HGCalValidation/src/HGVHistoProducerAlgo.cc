@@ -2514,7 +2514,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdSimTSId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInTrackster>> detIdToTracksterId_Map;
   std::vector<int> tracksters_FakeMerge(nTracksters, 0);
-  std::vector<int> tracksters_PurityDuplicate(nTracksters, 0);
+  std::vector<int> tracksters_PurityDuplicate(nSimTracksters, 0);
 
   // This vector contains the ids of the SimTracksters contributing with at least one hit to the Trackster and the reconstruction error
   //stsInTrackster[trackster][STSids]
@@ -3222,10 +3222,10 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       }
 
       if (score3d_iSTS[tstId] < ScoreCutSTStoTSPurDup) {
-        if (tracksters_PurityDuplicate[tstId] < 1)
-          tracksters_PurityDuplicate[tstId]++;  // for Purity
+        if (tracksters_PurityDuplicate[iSTS] < 1)
+          tracksters_PurityDuplicate[iSTS]++;  // for Purity
         if (sts_considered_pure)
-          tracksters_PurityDuplicate[tstId]++;  // for Duplicate
+          tracksters_PurityDuplicate[iSTS]++;  // for Duplicate
         sts_considered_pure = true;
       }
     }  // end of loop through Tracksters related to SimTrackster
@@ -3261,6 +3261,32 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
   }  // end of loop through SimTracksters
 
   // Fill the plots to compute the different metrics linked to
+  // sim-level, namely purity and duplicate-rate
+  for (unsigned int stsId = 0; stsId < nSimTracksters; ++stsId) {
+    const auto& sts = simTSs[stsId];
+    if (sts.vertices().empty())
+      continue;
+    const auto sts_eta = sts.barycenter().eta();
+    const auto sts_phi = sts.barycenter().phi();
+    const auto sts_en = sts.raw_energy();
+    const auto sts_pt = sts.raw_pt();
+
+    if (tracksters_PurityDuplicate[stsId] > 0) {
+      histograms.h_num_caloparticle_eta[valType][count]->Fill(sts_eta);
+      histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
+      histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
+      histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
+
+      if (tracksters_PurityDuplicate[stsId] > 1) {
+        histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
+        histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
+        histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
+        histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
+      }
+    }
+  }
+
+  // Fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate an merge-rate. Should *not*
   // restrict only to the selected caloParaticles.
   for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
@@ -3275,20 +3301,6 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     histograms.h_denom_trackster_phi[valType][count]->Fill(iTS_phi);
     histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
     histograms.h_denom_trackster_pt[valType][count]->Fill(iTS_pt);
-
-    if (tracksters_PurityDuplicate[tstId] > 0) {
-      histograms.h_num_caloparticle_eta[valType][count]->Fill(iTS_eta);
-      histograms.h_num_caloparticle_phi[valType][count]->Fill(iTS_phi);
-      histograms.h_num_caloparticle_en[valType][count]->Fill(iTS_en);
-      histograms.h_num_caloparticle_pt[valType][count]->Fill(iTS_pt);
-
-      if (tracksters_PurityDuplicate[tstId] > 1) {
-        histograms.h_numDup_trackster_eta[valType][count]->Fill(iTS_eta);
-        histograms.h_numDup_trackster_phi[valType][count]->Fill(iTS_phi);
-        histograms.h_numDup_trackster_en[valType][count]->Fill(iTS_en);
-        histograms.h_numDup_trackster_pt[valType][count]->Fill(iTS_pt);
-      }
-    }
 
     if (tracksters_FakeMerge[tstId] > 0) {
       histograms.h_num_trackster_eta[valType][count]->Fill(iTS_eta);
