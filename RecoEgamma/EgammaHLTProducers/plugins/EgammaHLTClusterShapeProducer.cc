@@ -128,11 +128,11 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
     double sigmaee;
     double sigmapp;  //sigmaIphiIphi, needed in e/gamma HLT regression setup
-    
+
     const auto& vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
     sigmaee = sqrt(vCov[0]);
     sigmapp = sqrt(vCov[2]);
-    
+
     //this is full5x5 showershape
     auto const ecalCandLocalCov = lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()));
     auto const sigmaee5x5 = sqrt(ecalCandLocalCov[0]);
