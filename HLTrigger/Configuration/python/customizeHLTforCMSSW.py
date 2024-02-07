@@ -234,6 +234,12 @@ def customiseForOffline(process):
     return process
 
 
+def customizeHLTfor43885(process):
+    for producer in producers_by_type(process, "EgammaHLTClusterShapeProducer"):
+        if hasattr(producer, 'isIeta'):
+            delattr(producer, 'isIeta')
+    return process
+    
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -247,5 +253,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customizeHLTfor43885(process)
 
     return process

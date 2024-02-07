@@ -42,7 +42,6 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterLazyToolsESGetTokens_;
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
-  const bool useIEta_;
   const double multThresEB_;
   const double multThresEE_;
 };
@@ -53,7 +52,6 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
       ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
       ecalClusterLazyToolsESGetTokens_{consumesCollector()},
       ecalPFRechitThresholdsToken_{esConsumes()},
-      useIEta_(config.getParameter<bool>("isIeta")),
       multThresEB_(config.getParameter<double>("multThresEB")),
       multThresEE_(config.getParameter<double>("multThresEE")) {
   //register your products
@@ -130,22 +128,11 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
     double sigmaee;
     double sigmapp;  //sigmaIphiIphi, needed in e/gamma HLT regression setup
-    if (useIEta_) {
-      //this is fractional showershape (sigmaIEtaIEta / sigmaIPhiIPhi)
-      const auto& vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
-      sigmaee = sqrt(vCov[0]);
-      sigmapp = sqrt(vCov[2]);
-    } else {
-      //this is showershape using absolute geometry (sigmaEtaEta / sigmaPhiPhi)
-      //generally not used anymore
-      const auto& vCov = lazyTools.covariances(*(recoecalcandref->superCluster()->seed()));
-      sigmaee = sqrt(vCov[0]);
-      sigmapp = sqrt(vCov[2]);
-      double EtaSC = recoecalcandref->eta();
-      if (EtaSC > 1.479)
-        sigmaee = sigmaee - 0.02 * (EtaSC - 2.3);
-    }
-
+    
+    const auto& vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
+    sigmaee = sqrt(vCov[0]);
+    sigmapp = sqrt(vCov[2]);
+    
     //this is full5x5 showershape
     auto const ecalCandLocalCov = lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()));
     auto const sigmaee5x5 = sqrt(ecalCandLocalCov[0]);
