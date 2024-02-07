@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_3_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
 
-# /dev/CMSSW_13_3_0/Special/V6 (CMSSW_13_3_0)
+# /dev/CMSSW_13_3_0/Special/V7 (CMSSW_13_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTSpecial" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_3_0/Special/V6')
+  tableName = cms.string('/dev/CMSSW_13_3_0/Special/V7')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
