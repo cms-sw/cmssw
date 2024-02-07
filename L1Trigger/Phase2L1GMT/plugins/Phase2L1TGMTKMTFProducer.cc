@@ -49,7 +49,7 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
-  KMTF* kmtf_;
+  std::unique_ptr<KMTF> kmtf_;
   unsigned int Nprompt;
   unsigned int Ndisplaced;
 };
@@ -129,7 +129,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
   for (const auto& track : kmtfOutput.second) {
     kmtfTracks.push_back(track);
     ap_int<7> dxy = track.dxy() * ap_ufixed<8, 1>(1.606);
-    l1t::SAMuon p(track.p4(),
+    l1t::SAMuon p(track.displacedP4(),
                   (track.curvatureAtMuon() < 0),
                   track.ptDisplaced(),
                   track.coarseEta(),
