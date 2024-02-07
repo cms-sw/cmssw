@@ -19,6 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   CAHitNtupletGeneratorKernels<TrackerTraits>::CAHitNtupletGeneratorKernels(Params const &params,
                                                                             uint32_t nhits,
+                                                                            uint32_t offsetBPIX2,
                                                                             Queue &queue)
       : m_params(params),
         //////////////////////////////////////////////////////////
@@ -35,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.caParams_.maxNumberOfDoublets_)},
         // in principle we can use "nhits" to heuristically dimension the workspace...
         device_isOuterHitOfCell_{
-            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1u, nhits))},
+            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1u, nhits - offsetBPIX2))},
         isOuterHitOfCell_{cms::alpakatools::make_device_buffer<OuterHitOfCell>(queue)},
 
         device_theCellNeighbors_{cms::alpakatools::make_device_buffer<CellNeighborsVector>(queue)},
@@ -77,6 +78,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsConstView &hh,
+                                                                  uint32_t offsetBPIX2,
                                                                   TkSoAView &tracks_view,
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
@@ -85,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // zero tuples
     HitContainer::template launchZero<Acc1D>(&(tracks_view.hitIndices()), queue);
 
-    int32_t nhits = hh.metadata().size();
+    uint32_t nhits = hh.metadata().size();
 
 #ifdef NTUPLE_DEBUG
     std::cout << "start tuple building. N hits " << nhits << std::endl;
@@ -94,7 +96,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     //
-    // applying conbinatoric cleaning such as fishbone at this stage is too expensive
+    // applying combinatoric cleaning such as fishbone at this stage is too expensive
     //
 
     const auto nthTot = 64;
@@ -123,11 +125,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->m_params.caParams_);
 
     // do not run the fishbone if there are hits only in BPIX1
-    if (this->m_params.earlyFishbone_) {
+    if (this->m_params.earlyFishbone_ and nhits > offsetBPIX2) {
       const auto nthTot = 128;
       const auto stride = 16;
       const auto blockSize = nthTot / stride;
-      const auto numberOfBlocks = cms::alpakatools::divide_up_by(nhits, blockSize);
+      const auto numberOfBlocks = cms::alpakatools::divide_up_by(nhits - offsetBPIX2, blockSize);
       const Vec2D blks{numberOfBlocks, 1u};
       const Vec2D thrs{blockSize, stride};
       const auto fishboneWorkDiv = cms::alpakatools::make_workdiv<Acc2D>(blks, thrs);
@@ -224,11 +226,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::wait(queue);
 #endif
     // do not run the fishbone if there are hits only in BPIX1
-    if (this->m_params.lateFishbone_) {
+    if (this->m_params.lateFishbone_ and nhits > offsetBPIX2) {
       const auto nthTot = 128;
       const auto stride = 16;
       const auto blockSize = nthTot / stride;
-      const auto numberOfBlocks = cms::alpakatools::divide_up_by(nhits, blockSize);
+      const auto numberOfBlocks = cms::alpakatools::divide_up_by(nhits - offsetBPIX2, blockSize);
       const Vec2D blks{numberOfBlocks, 1u};
       const Vec2D thrs{blockSize, stride};
       const auto workDiv2D = cms::alpakatools::make_workdiv<Acc2D>(blks, thrs);
@@ -250,17 +252,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  void CAHitNtupletGeneratorKernels<TrackerTraits>::buildDoublets(const HitsConstView &hh, Queue &queue) {
-    auto nhits = hh.metadata().size();
-
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::buildDoublets(const HitsConstView &hh,
+                                                                  uint32_t offsetBPIX2,
+                                                                  Queue &queue) {
     using namespace caPixelDoublets;
-
     using CACell = CACellT<TrackerTraits>;
     using OuterHitOfCell = typename CACell::OuterHitOfCell;
     using CellNeighbors = typename CACell::CellNeighbors;
     using CellTracks = typename CACell::CellTracks;
     using OuterHitOfCellContainer = typename CACell::OuterHitOfCellContainer;
 
+    auto nhits = hh.metadata().size();
 #ifdef NTUPLE_DEBUG
     std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
 #endif
@@ -290,7 +292,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     {
       int threadsPerBlock = 128;
       // at least one block!
-      int blocks = std::max(1u, cms::alpakatools::divide_up_by(nhits, threadsPerBlock));
+      int blocks = std::max(1u, cms::alpakatools::divide_up_by(nhits - offsetBPIX2, threadsPerBlock));
       const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
       alpaka::exec<Acc1D>(queue,
@@ -523,14 +525,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
   }
-  // This will make sense when we will be able to run this once per job in Alpaka
-  /*
-template <typename TrackerTraits>
-void CAHitNtupletGeneratorKernels<TrackerTraits>::printCounters() {
+
+  /* This will make sense when we will be able to run this once per job in Alpaka
+
+  template <typename TrackerTraits>
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::printCounters() {
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1,1);
-    alpaka::exec<Acc1D>(queue_,workDiv1D,Kernel_printCounters{},this->counters_.data());
-}
-*/
+    alpaka::exec<Acc1D>(queue_, workDiv1D, Kernel_printCounters{}, this->counters_.data());
+  }
+  */
+
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase1>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::HIonPhase1>;

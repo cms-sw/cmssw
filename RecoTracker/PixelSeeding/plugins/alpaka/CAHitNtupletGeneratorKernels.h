@@ -233,16 +233,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Quality = ::pixelTrack::Quality;
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
 
-    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, Queue& queue);
+    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, uint32_t offsetBPIX2, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
 
-    void launchKernels(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
+    void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, TkSoAView& track_view, Queue& queue);
 
     void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
 
-    void buildDoublets(const HitsConstView& hh, Queue& queue);
+    void buildDoublets(const HitsConstView& hh, uint32_t offsetBPIX2, Queue& queue);
 
     static void printCounters();
 

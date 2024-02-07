@@ -56,7 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto nHits = clusters_d.nClusters();
       auto offsetBPIX2 = clusters_d.offsetBPIX2();
 
-      TrackingRecHitsSoACollection<TrackerTraits> hits_d(nHits, offsetBPIX2, clusters_d->clusModuleStart(), queue);
+      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, nHits, offsetBPIX2, clusters_d->clusModuleStart());
 
       int activeModulesWithDigis = digis_d.nModules();
 
