@@ -32,12 +32,12 @@ void MakeNiceProfile(TProfile *prof);
 //void MakeNicePlotStyle(TH1 *hist);
 void plot2Histograms(TH1 *h1, TH1 *h2, const TString &label1, const TString &label2);
 void plot2Profiles(TProfile *h1, TProfile *h2, const TString &label1, const TString &label2);
-void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels);
+void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm);
 void recurseOverKeys(TDirectory *target1, const TString &label1, const TString &label2);
-void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels);
+void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels, bool isNormalized = false);
 
 /************************************************/
-void loopAndPlot(TString namesandlabels)
+void loopAndPlot(TString namesandlabels, bool doNormalize = false)
 /************************************************/
 {
   std::vector<TString> labels;
@@ -56,7 +56,7 @@ void loopAndPlot(TString namesandlabels)
     }
   }
 
-  recurseOverKeys(sourceFiles[0], labels);
+  recurseOverKeys(sourceFiles[0], labels, doNormalize);
 
   for (const auto &file : sourceFiles) {
     file->Close();
@@ -64,7 +64,7 @@ void loopAndPlot(TString namesandlabels)
 }
 
 /************************************************/
-void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels)
+void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm)
 /************************************************/
 {
   // Figure out where we are
@@ -107,7 +107,7 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels)
 
       //outputFilename=histName;
       //plot2Histograms(htemp1, htemp2, outputFolder+path+"/"+outputFilename+"."+imageType);
-      plotHistograms(histos, labels);
+      plotHistograms(histos, labels, isNorm);
 
     } else if (obj->IsA()->InheritsFrom("TDirectory")) {
       // it's a subdirectory
@@ -122,14 +122,14 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels)
       if ((TString(obj->GetName())).Contains("Residuals"))
         continue;
 
-      recurseOverKeys((TDirectory *)obj, labels);
+      recurseOverKeys((TDirectory *)obj, labels, isNorm);
 
     }  // end of IF a TDriectory
   }
 }
 
 /************************************************/
-void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels) {
+void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels, bool isNormalized) {
   /************************************************/
 
   TGaxis::SetMaxDigits(3);
@@ -142,6 +142,11 @@ void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &label
   int index = 0;
   for (const auto &histo : histos) {
     MakeNicePlotStyle<TH1>(histo);
+
+    if (isNormalized) {
+      Double_t scale = 1. / histo->Integral();
+      histo->Scale(scale);
+    }
 
     histo->SetLineColor(def_colors[index]);
     histo->SetMarkerColor(def_colors[index]);
