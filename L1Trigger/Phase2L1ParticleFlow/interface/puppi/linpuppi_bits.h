@@ -1,17 +1,19 @@
-#ifndef FIRMWARE_LINPUPPI_BITS_H
-#define FIRMWARE_LINPUPPI_BITS_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_LINPUPPI_BITS_H
+#define L1Trigger_Phase2L1ParticleFlow_LINPUPPI_BITS_H
 
-#define LINPUPPI_ptLSB 0.25
-#define LINPUPPI_DR2LSB 1.9e-5
-#define LINPUPPI_dzLSB 0.05
-#define LINPUPPI_pt2LSB LINPUPPI_ptLSB* LINPUPPI_ptLSB
-#define LINPUPPI_pt2DR2_scale LINPUPPI_ptLSB* LINPUPPI_ptLSB / LINPUPPI_DR2LSB
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 
-#define LINPUPPI_sum_bitShift 15
-#define LINPUPPI_x2_bits 6          // decimal bits the discriminator values
-#define LINPUPPI_alpha_bits 5       // decimal bits of the alpha values
-#define LINPUPPI_alphaSlope_bits 5  // decimal bits of the alphaSlope values
-#define LINPUPPI_ptSlope_bits 6     // decimal bits of the ptSlope values
-#define LINPUPPI_weight_bits 8
+namespace linpuppi {
+  typedef ap_ufixed<12, 6, AP_TRN, AP_SAT> sumTerm_t;
+  typedef ap_ufixed<16, 0, AP_RND, AP_SAT> dr2inv_t;
+  typedef ap_fixed<12, 7, AP_TRN, AP_SAT> x2_t;
+  typedef ap_ufixed<7, 2, AP_RND, AP_WRAP> alphaSlope_t;
+  typedef ap_fixed<12, 8, AP_RND, AP_WRAP> alpha_t;
+  typedef ap_ufixed<6, 0, AP_TRN, AP_WRAP> ptSlope_t;
+
+  constexpr float DR2_LSB = l1ct::Scales::ETAPHI_LSB * l1ct::Scales::ETAPHI_LSB;
+  constexpr float PT2DR2_LSB = l1ct::Scales::INTPT_LSB * l1ct::Scales::INTPT_LSB / DR2_LSB;
+  constexpr int SUM_BITSHIFT = sumTerm_t::width - sumTerm_t::iwidth;
+}  // namespace linpuppi
 
 #endif
