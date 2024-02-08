@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('DIGI',Phase2C9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('SIM',Phase2C17I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -24,17 +24,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
-process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1210000/F2E5E947-0CB4-D245-A943-17F2F05709D3.root'),
-       inputCommands=cms.untracked.vstring(
-           'keep *',
-           'drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__RECO',
-           )
-        )
+process.source = cms.Source("EmptySource")
+
 process.options = cms.untracked.PSet(
 
 )
@@ -49,27 +44,22 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ntuple.root")
+    fileName = cms.string("test_triggergeom.root")
     )
+
+
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
-# load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
-process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
-
-
-# load ntuplizer
-process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
-process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
+process.L1THGCaltriggergeomtester = cms.EDAnalyzer(
+    "HGCalTriggerGeomTesterV9Imp3"
+    )
+process.test_step = cms.Path(process.L1THGCaltriggergeomtester)
+process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
-
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
+process.schedule = cms.Schedule(process.test_step,process.endjob_step)

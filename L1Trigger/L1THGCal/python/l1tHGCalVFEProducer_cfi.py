@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.l1tHGCalTriggerGeometryESProducer_cfi import *
-
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
@@ -69,7 +67,6 @@ compression_params_hdm = cms.PSet(
 fCperMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 fCperMIPhe = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
 fCperMIPnose = recoparam.HGCalUncalibRecHit.HGCHFNoseConfig.fCPerMIP
-layerWeights = layercalibparam.TrgLayer_dEdX_weights
 layerWeightsNose = recocalibparam.dEdX.weightsNose
 thicknessCorrectionSi = recocalibparam.HGCalRecHit.thicknessCorrection
 thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
@@ -79,7 +76,7 @@ NTHICKNESS = 3
 calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPee,
-        dEdXweights = layerWeights,
+        dEdXweights = layercalibparam.triggerWeights.weights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
         )
@@ -87,7 +84,7 @@ calibration_params_ee = cms.PSet(
 calibration_params_hesi = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPhe,
-        dEdXweights = layerWeights,
+        dEdXweights = layercalibparam.triggerWeights.weights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
         )
@@ -95,7 +92,7 @@ calibration_params_hesi = cms.PSet(
 calibration_params_hesc = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_sc),
         fCperMIP = cms.vdouble(1.),
-        dEdXweights = layerWeights,
+        dEdXweights = layercalibparam.triggerWeights.weights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSc.value()),
         chargeCollectionEfficiency = cms.PSet(values=cms.vdouble(1.)),
         )
