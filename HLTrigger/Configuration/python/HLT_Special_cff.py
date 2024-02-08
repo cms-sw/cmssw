@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_13_3_0/Special --cff --data --type Special
+# hltGetConfiguration /dev/CMSSW_14_0_0/Special --cff --data --type Special
 
-# /dev/CMSSW_13_3_0/Special/V7 (CMSSW_13_3_0)
+# /dev/CMSSW_14_0_0/Special/V6 (CMSSW_14_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_3_0/Special/V7')
+  tableName = cms.string('/dev/CMSSW_14_0_0/Special/V6')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -5234,6 +5234,8 @@ fragment.hltGemRecHits = cms.EDProducer( "GEMRecHitProducer",
 )
 fragment.hltGemSegments = cms.EDProducer( "GEMSegmentProducer",
     gemRecHitLabel = cms.InputTag( "hltGemRecHits" ),
+    enableGE0 = cms.bool( True ),
+    enableGE12 = cms.bool( False ),
     ge0_name = cms.string( "GE0SegAlgoRU" ),
     algo_name = cms.string( "GEMSegmentAlgorithm" ),
     ge0_pset = cms.PSet( 
@@ -5623,13 +5625,15 @@ fragment.hltPixelConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltSiPixelDigisLegacy' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltPixelConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltSiPixelDigis@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltSiPixelRecHitsSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoA",
     pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsFromLegacyCPUOnly" ),
@@ -5704,14 +5708,16 @@ fragment.hltEcalConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
       'hltEcalUncalibRecHit@cpu' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltEcalConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltEcalDigis@cuda',
       'hltEcalUncalibRecHit@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltL1sDQMHcalReconstruction = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -5999,13 +6005,15 @@ fragment.hltHcalConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltHbhereco@cpu' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltHcalConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltHbhereco@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
-    processProducts = cms.untracked.vstring(  )
+    processProducts = cms.untracked.vstring(  ),
+    verbose = cms.untracked.bool( False )
 )
 fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -6190,7 +6198,8 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     UseRejectedRecoveredEcalHits = cms.bool( False ),
     missingHcalRescaleFactorForEcal = cms.double( 0.0 ),
     AllowMissingInputs = cms.bool( False ),
-    HcalPhase = cms.int32( 1 )
+    HcalPhase = cms.int32( 1 ),
+    usePFThresholdsFromDB = cms.bool( True )
 )
 fragment.hltAK4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     useMassDropTagger = cms.bool( False ),
@@ -8066,6 +8075,7 @@ fragment.hltVerticesPF = cms.EDProducer( "PrimaryVertexProducer",
     TrackLabel = cms.InputTag( "hltPFMuonMerging" ),
     TrackTimeResosLabel = cms.InputTag( "dummy_default" ),
     TrackTimesLabel = cms.InputTag( "dummy_default" ),
+    trackMTDTimeQualityVMapTag = cms.InputTag( "dummy_default" ),
     TkClusParameters = cms.PSet( 
       TkDAClusParameters = cms.PSet( 
         zmerge = cms.double( 0.01 ),
@@ -8081,7 +8091,9 @@ fragment.hltVerticesPF = cms.EDProducer( "PrimaryVertexProducer",
       algorithm = cms.string( "DA_vect" )
     ),
     isRecoveryIteration = cms.bool( False ),
-    recoveryVtxCollection = cms.InputTag( "" )
+    recoveryVtxCollection = cms.InputTag( "" ),
+    useMVACut = cms.bool( False ),
+    minTrackTimeQuality = cms.double( 0.8 )
 )
 fragment.hltVerticesPFSelector = cms.EDFilter( "PrimaryVertexObjectFilter",
     filterParams = cms.PSet( 
