@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalPartialIDTester_cfg.py geometry=D98 type=DDD
+#   cmsRun testHGCalPartialIDTester2_cfg.py geometry=D104 type=DDD
 #
-#   Options for geometry: D104
+#   Options for geometry: D104, D106, D109
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('geometry',
                  "D104",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104")
+                  "geometry of operations: D104, D106, D109")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -32,16 +32,16 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 if (options.type == "DD4hep"):
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('Sim2026',Phase2C17I13M9,dd4hep)
+    process = cms.Process('Sim2026',Phase2C22I13M9,dd4hep)
     geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
 else:
-    process = cms.Process('Sim2026',Phase2C17I13M9)
+    process = cms.Process('Sim2026',Phase2C22I13M9)
     geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T25"
+globalTag = "auto:phase2_realistic_T33"
 inFile = "partial" + options.geometry + ".txt"
 
 print("Geometry file: ", geomFile)
