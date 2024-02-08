@@ -1,0 +1,75 @@
+#!/bin/bash
+
+function die { echo $1: status $2 ; exit $2; }
+
+function compare_files() {
+    local file1_path="$1"
+    local file2_path="$2"
+    local exclude_set=("HLTAnalyzerEndpath" "RatesMonitoring" "DQMHistograms")
+
+    local lines_file1=()
+    local lines_file2=()
+    local not_in_file2=()
+
+    # extract the list of paths to match from the first file
+    while IFS= read -r line; do
+    if [[ ! $line =~ ^# ]]; then
+        # Extract the first word before a space
+        first_word=$(echo "$line" | awk '{print $1}')
+        lines_file1+=("$first_word")
+    fi
+    done < "$file1_path"
+
+    # extract the list of paths to match from the second file
+    while IFS= read -r line; do
+    if [[ ! $line =~ ^# ]]; then
+        # Extract the first word before a space
+        first_word=$(echo "$line" | awk '{print $1}')
+        lines_file2+=("$first_word")
+    fi
+    done < "$file2_path"
+
+    # find the set not in common
+    for line in "${lines_file1[@]}"; do
+        if [[ ! "${lines_file2[@]}" =~ "$line" ]]; then
+            not_in_file2+=("$line")
+        fi
+    done
+
+    # Remove lines from not_in_file2 that contain any substring in exclude_set
+    for pattern in "${exclude_set[@]}"; do
+        not_in_file2=("${not_in_file2[@]//*$pattern*}")
+    done
+
+    # Remove empty elements and empty lines after substitution
+    not_in_file2=("${not_in_file2[@]//''}")
+
+    # Remove empty elements from the array
+    local cleaned_not_in_file2=()
+    for element in "${not_in_file2[@]}"; do
+        if [[ -n "$element" ]]; then
+            cleaned_not_in_file2+=("$element")
+        fi
+    done
+
+    file1_name=$(basename "$file1_path")
+    file2_name=$(basename "$file2_path")
+    
+    if [ ${#cleaned_not_in_file2[@]} -eq 0 ]; then
+        echo "All lines from $file1_name are included in $file2_name."
+        return 0
+    else
+        echo "Lines present in $file1_name but not in $file2_name (excluding the exclusion set):"
+        printf '%s\n' "${not_in_file2[@]}"
+        return 1
+    fi
+}
+
+TABLES_AREA="$CMSSW_BASE/src/HLTrigger/Configuration/tables"
+
+compare_files $TABLES_AREA/online_pion.txt $TABLES_AREA/PIon.txt || die "Failure comparing online_pion and PIon" $?
+compare_files $TABLES_AREA/online_hion.txt $TABLES_AREA/HIon.txt  || die "Failure comparing online_hion and HIon" $?
+compare_files $TABLES_AREA/online_pref.txt $TABLES_AREA/PRef.txt  || die "Failure comparing online_pref and PRef" $?
+compare_files $TABLES_AREA/online_cosmics.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_cosmics and Special" $?
+compare_files $TABLES_AREA/online_special.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_special and Special" $?
+compare_files $TABLES_AREA/online_grun.txt $TABLES_AREA/GRun.txt  || die "Failure comparing online_grun and GRun" $?
