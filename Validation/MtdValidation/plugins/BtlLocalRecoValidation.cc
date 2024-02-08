@@ -1345,7 +1345,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                  -5.,
                                                  5.);
   meCluLocalYPullZGlobMinus_simLC_ =
-      ibook.book1D("BtlCluLocalYPullZGlobMinus",
+      ibook.book1D("BtlCluLocalYPullZGlobMinus_simLC",
                    "BTL cluster local Y pull (wrt MtdSimLayerClusters, glob Z < 0);Y_{RECO}-Y_{SIM}/sigmaY_[RECO]",
                    100,
                    -5.,
@@ -1555,7 +1555,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    -5.,
                    5.);
   meCluLocalYPullZGlobMinus_simLC_fromIndirectHits_ = ibook.book1D(
-      "BtlCluLocalYPullZGlobMinus",
+      "BtlCluLocalYPullZGlobMinus_simLC_fromIndirectHits",
       "BTL cluster local Y pull (wrt MtdSimLayerClusters, non-direct hits, glob Z < 0);Y_{RECO}-Y_{SIM}/sigmaY_[RECO]",
       100,
       -5.,
