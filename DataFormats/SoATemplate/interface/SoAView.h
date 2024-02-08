@@ -232,6 +232,15 @@ namespace cms::soa {
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_LIST_IMPL LAYOUT_MEMBER_NAME)
 
 /**
+ * Generator of view member list.
+ */
+#define _DECLARE_VIEW_OTHER_MEMBER_LIST_IMPL(LAYOUT, MEMBER, NAME) \
+  (const_cast_SoAParametersImpl(other.BOOST_PP_CAT(NAME, Parameters_)).tupleOrPointer())
+
+#define _DECLARE_VIEW_OTHER_MEMBER_LIST(R, DATA, LAYOUT_MEMBER_NAME) \
+  BOOST_PP_EXPAND(_DECLARE_VIEW_OTHER_MEMBER_LIST_IMPL LAYOUT_MEMBER_NAME)
+
+/**
  * Generator of member initializer for copy constructor.
  */
 #define _DECLARE_VIEW_MEMBER_INITIALIZERS_FROM_OTHER_IMPL(LAYOUT, MEMBER, LOCAL_NAME, DATA) \
@@ -390,7 +399,7 @@ namespace cms::soa {
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                          \
   LOCAL_NAME(size_type _soa_impl_index) {                                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (_soa_impl_index >= base_type::elements_)                                                                     \
+      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)")                       \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
@@ -428,7 +437,7 @@ namespace cms::soa {
                 template RestrictQualifier<restrictQualify>::ParamReturnType                                           \
   LOCAL_NAME(size_type _soa_impl_index) const {                                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (_soa_impl_index >= elements_)                                                                                \
+      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)")                         \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
@@ -535,6 +544,9 @@ namespace cms::soa {
     template <cms::soa::SoAColumnType COLUMN_TYPE, class C>                                                            \
     using SoAConstValueWithConf = cms::soa::SoAConstValue<COLUMN_TYPE, C, conditionalAlignment, restrictQualify>;      \
                                                                                                                        \
+    template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                                \
+    friend struct VIEW;                                                                                                \
+                                                                                                                       \
     /**                                                                                                                \
      * Helper/friend class allowing SoA introspection.                                                                 \
      */                                                                                                                \
@@ -582,6 +594,23 @@ namespace cms::soa {
     VIEW(VIEW const&) = default;                                                                                       \
     VIEW& operator=(VIEW const&) = default;                                                                            \
                                                                                                                        \
+    /* Copy constructor for other parameters */                                                                        \
+    template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                             \
+              bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                   \
+              bool OTHER_RESTRICT_QUALIFY,                                                                             \
+              bool OTHER_RANGE_CHECKING>                                                                               \
+    VIEW(VIEW<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY,                          \
+              OTHER_RANGE_CHECKING> const& other): base_type{other.elements_,                                          \
+                _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_OTHER_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)                   \
+              } {}                                                                                                     \
+    /* Copy operator for other parameters */                                                                           \
+    template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                             \
+              bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                   \
+              bool OTHER_RESTRICT_QUALIFY,                                                                             \
+              bool OTHER_RANGE_CHECKING>                                                                               \
+    VIEW& operator=(VIEW<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY,               \
+              OTHER_RANGE_CHECKING> const& other) { static_cast<base_type>(*this) = static_cast<base_type>(other); }   \
+                                                                                                                       \
     /* Movable */                                                                                                      \
     VIEW(VIEW &&) = default;                                                                                           \
     VIEW& operator=(VIEW &&) = default;                                                                                \
@@ -620,7 +649,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     element operator[](size_type _soa_impl_index) {                                                                    \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (_soa_impl_index >= base_type::elements_)                                                                   \
+        if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]")                                        \
       }                                                                                                                \
       return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};        \
@@ -672,6 +701,9 @@ namespace cms::soa {
                                                                                                                        \
     template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                                \
     friend struct VIEW;                                                                                                \
+                                                                                                                       \
+    template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                                \
+    friend struct CONST_VIEW;                                                                                          \
                                                                                                                        \
     /* For CUDA applications, we align to the 128 bytes of the cache lines.                                            \
      * See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0 this is still valid      \
@@ -739,6 +771,23 @@ namespace cms::soa {
     CONST_VIEW(CONST_VIEW const&) = default;                                                                           \
     CONST_VIEW& operator=(CONST_VIEW const&) = default;                                                                \
                                                                                                                        \
+    /* Copy constructor for other parameters */                                                                        \
+    template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                             \
+              bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                   \
+              bool OTHER_RESTRICT_QUALIFY,                                                                             \
+              bool OTHER_RANGE_CHECKING>                                                                               \
+    CONST_VIEW(CONST_VIEW<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY,              \
+              OTHER_RANGE_CHECKING> const& other): CONST_VIEW{other.elements_,                                         \
+                _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_OTHER_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)                   \
+              } {}                                                                                                     \
+    /* Copy operator for other parameters */                                                                           \
+    template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                             \
+              bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                   \
+              bool OTHER_RESTRICT_QUALIFY,                                                                             \
+              bool OTHER_RANGE_CHECKING>                                                                               \
+    CONST_VIEW& operator=(CONST_VIEW<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY,   \
+              OTHER_RANGE_CHECKING> const& other) { *this = other; }                                                   \
+                                                                                                                       \
     /* Movable */                                                                                                      \
     CONST_VIEW(CONST_VIEW &&) = default;                                                                               \
     CONST_VIEW& operator=(CONST_VIEW &&) = default;                                                                    \
@@ -761,7 +810,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     const_element operator[](size_type _soa_impl_index) const {                                                        \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (_soa_impl_index >= elements_)                                                                              \
+        if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]")                                  \
       }                                                                                                                \
       return const_element{                                                                                            \
