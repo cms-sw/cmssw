@@ -27,13 +27,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           putTokenMulti2_{produces()},
           putTokenMulti3_{produces()},
           // create host-side object that gets implicitly copied to all devices of the backend
-          deviceCache_{[&config]() {
-            PortableHostObject<TestAlgo::UpdateInfo> obj(cms::alpakatools::host());
-            *obj = TestAlgo::UpdateInfo{config.getParameter<int32_t>("x"),
-                                        config.getParameter<int32_t>("y"),
-                                        config.getParameter<int32_t>("z")};
-            return obj;
-          }()} {}
+          deviceCache_{
+              PortableHostObject<TestAlgo::UpdateInfo>{cms::alpakatools::host(),
+                                                       TestAlgo::UpdateInfo{config.getParameter<int32_t>("x"),
+                                                                            config.getParameter<int32_t>("y"),
+                                                                            config.getParameter<int32_t>("z")}}} {}
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       auto const& input = iEvent.get(getToken_);
