@@ -20,20 +20,42 @@ public:
   using Buffer = cms::alpakatools::host_buffer<Product>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<Product>;
 
+  static_assert(std::is_trivially_destructible_v<Product>);
+
   PortableHostObject() = delete;
 
   PortableHostObject(edm::Uninitialized) noexcept {}
 
+  // Note that in contrast to the variadic template overload, this
+  // constructor does not initialize the contained object
   PortableHostObject(alpaka_common::DevHost const& host)
       // allocate pageable host memory
       : buffer_{cms::alpakatools::make_host_buffer<Product>()}, product_{buffer_->data()} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 
+  template <typename... Args>
+  PortableHostObject(alpaka_common::DevHost const& host, Args&&... args)
+      // allocate pageable host memory
+      : buffer_{cms::alpakatools::make_host_buffer<Product>()},
+        product_{new(buffer_->data()) Product(std::forward<Args>(args)...)} {
+    assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
+  }
+
+  // Note that in contrast to the variadic template overload, this
+  // constructor does not initialize the contained object
   template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableHostObject(TQueue const& queue)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<Product>(queue)}, product_{buffer_->data()} {
+    assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
+  }
+
+  template <typename TQueue, typename... Args, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  PortableHostObject(TQueue const& queue, Args&&... args)
+      // allocate pinned host memory associated to the given work queue, accessible by the queue's device
+      : buffer_{cms::alpakatools::make_host_buffer<Product>(queue)},
+        product_{new(buffer_->data()) Product(std::forward<Args>(args)...)} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 
