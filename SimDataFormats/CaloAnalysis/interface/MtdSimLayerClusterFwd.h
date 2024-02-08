@@ -5,7 +5,8 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-class MtdSimLayerCluster;
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerCluster.h"
+//class MtdSimLayerCluster;
 typedef std::vector<MtdSimLayerCluster> MtdSimLayerClusterCollection;
 typedef edm::Ref<MtdSimLayerClusterCollection> MtdSimLayerClusterRef;
 typedef edm::RefVector<MtdSimLayerClusterCollection> MtdSimLayerClusterRefVector;
