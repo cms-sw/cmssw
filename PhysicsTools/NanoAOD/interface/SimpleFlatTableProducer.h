@@ -51,18 +51,18 @@ public:
         precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
                        true) {}
   ~FuncVariable() override {}
+
   void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
     std::vector<ValType> vals(selobjs.size());
     for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-      ValType val = func_(*selobjs[i]);
+      vals[i] = func_(*selobjs[i]);
       if constexpr (std::is_same<ValType, float>()) {
         if (this->precision_ == -2) {
           auto prec = precisionFunc_(*selobjs[i]);
-          vals[i] = prec > 0 ? MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec) : val;
-        } else
-          vals[i] = val;
-      } else {
-        vals[i] = val;
+          if (prec > 0) {
+            vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(vals[i], prec);
+          }
+        }
       }
     }
     out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
@@ -92,6 +92,10 @@ public:
       : ExtVariable<ObjType>(aname, cfg),
         skipNonExistingSrc_(skipNonExistingSrc),
         token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
+  virtual ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
+    ValType val = (*vmap)[op];
+    return val;
+  }
   void fill(const edm::Event &iEvent, std::vector<edm::Ptr<ObjType>> selptrs, nanoaod::FlatTable &out) const override {
     edm::Handle<edm::ValueMap<TIn>> vmap;
     iEvent.getByToken(token_, vmap);
@@ -99,7 +103,8 @@ public:
     if (vmap.isValid() || !skipNonExistingSrc_) {
       vals.resize(selptrs.size());
       for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        vals[i] = (*vmap)[selptrs[i]];
+        // calls the overloade method to either get the valuemap value directly, or a function of the object value.
+        vals[i] = this->eval(vmap, selptrs[i]);
       }
     }
     out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
@@ -108,6 +113,36 @@ public:
 protected:
   const bool skipNonExistingSrc_;
   edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
+};
+
+template <typename ObjType, typename TIn, typename StringFunctor, typename VarType, typename ValType = VarType>
+class TypedValueMapVariable : public ValueMapVariable<ObjType, VarType, ValType> {
+public:
+  TypedValueMapVariable(const std::string &aname,
+                        const edm::ParameterSet &cfg,
+                        edm::ConsumesCollector &&cc,
+                        bool skipNonExistingSrc = false)
+      : ValueMapVariable<ObjType, VarType, ValType>(aname, cfg, cc, skipNonExistingSrc),
+        func_(cfg.getParameter<std::string>("expr"), true),
+        precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
+                       true) {}
+
+  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
+    ValType val = func_((*vmap)[op]);
+    if constexpr (std::is_same<ValType, float>()) {
+      if (this->precision_ == -2) {
+        auto prec = precisionFunc_(*op);
+        if (prec > 0) {
+          val = MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec);
+        }
+      }
+    }
+    return val;
+  }
+
+protected:
+  StringFunctor func_;
+  StringObjectFunction<ObjType> precisionFunc_;
 };
 
 // Event producers
@@ -262,7 +297,7 @@ public:
 
   ~SimpleFlatTableProducer() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  static edm::ParameterSetDescription baseDescriptions() {
     edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
 
     desc.ifValue(edm::ParameterDescription<bool>(
@@ -293,9 +328,12 @@ public:
         edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, extvariable), false);
     desc.addOptional<edm::ParameterSetDescription>("externalVariables", extvariables);
 
+    return desc;
+  }
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
-
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
                                                 const edm::Handle<edm::View<T>> &prod) const override {
     std::vector<const T *> selobjs;
@@ -324,6 +362,8 @@ public:
       var->fill(selobjs, *out);
     for (const auto &var : this->extvars_)
       var->fill(iEvent, selptrs, *out);
+    for (const auto &var : this->typedextvars_)
+      var->fill(iEvent, selptrs, *out);
     return out;
   }
 
@@ -341,6 +381,80 @@ protected:
   typedef ValueMapVariable<T, int, int16_t> Int16ExtVar;
   typedef ValueMapVariable<T, int, uint16_t> UInt16ExtVar;
   std::vector<std::unique_ptr<ExtVariable<T>>> extvars_;
+  std::vector<std::unique_ptr<ExtVariable<T>>> typedextvars_;
+};
+
+template <typename T, typename V>
+class SimpleTypedExternalFlatTableProducer : public SimpleFlatTableProducer<T> {
+public:
+  SimpleTypedExternalFlatTableProducer(edm::ParameterSet const &params) : SimpleFlatTableProducer<T>(params) {
+    edm::ParameterSet const &extvarsPSet = params.getParameter<edm::ParameterSet>("externalTypedVariables");
+    for (const std::string &vname : extvarsPSet.getParameterNamesForType<edm::ParameterSet>()) {
+      const auto &varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
+      const std::string &type = varPSet.getParameter<std::string>("type");
+      if (type == "int")
+        this->typedextvars_.push_back(
+            std::make_unique<IntTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "uint")
+        this->typedextvars_.push_back(
+            std::make_unique<UIntTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "float")
+        this->typedextvars_.push_back(
+            std::make_unique<FloatTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "double")
+        this->typedextvars_.push_back(
+            std::make_unique<DoubleTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "uint8")
+        this->typedextvars_.push_back(
+            std::make_unique<UInt8TypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "int16")
+        this->typedextvars_.push_back(
+            std::make_unique<Int16TypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "uint16")
+        this->typedextvars_.push_back(
+            std::make_unique<UInt16TypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "bool")
+        this->typedextvars_.push_back(
+            std::make_unique<BoolTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else
+        throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
+    }
+  }
+  ~SimpleTypedExternalFlatTableProducer() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
+    edm::ParameterSetDescription extvariable;
+    extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
+    extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
+    extvariable.ifValue(
+        edm::ParameterDescription<std::string>(
+            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16", "bool"));
+    extvariable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
+
+    edm::ParameterSetDescription extvariables;
+    extvariables.setComment("a parameters set to define all variable taken form valuemap to fill the flat table");
+    extvariables.addOptionalNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, extvariable), false);
+    desc.addOptional<edm::ParameterSetDescription>("externalTypedVariables", extvariables);
+
+    descriptions.addWithDefaultLabel(desc);
+  }
+
+protected:
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int32_t> IntTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint32_t> UIntTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, float> FloatTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, double, float> DoubleTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringCutObjectSelector<V>, bool> BoolTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, uint8_t> UInt8TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, int16_t> Int16TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, uint16_t> UInt16TypedExtVar;
 };
 
 template <typename T>
