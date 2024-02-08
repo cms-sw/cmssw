@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_14_0_0/HIon/V6 (CMSSW_14_0_0_pre3)
+# /dev/CMSSW_14_0_0/HIon/V7 (CMSSW_14_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTHIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_14_0_0/HIon/V7')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -17486,7 +17486,7 @@ process.hltEle10GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -18031,7 +18031,7 @@ process.hltEle15GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -18255,7 +18255,7 @@ process.hltEle20GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -18466,7 +18466,7 @@ process.hltEle30GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -18690,7 +18690,7 @@ process.hltEle40GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -18901,7 +18901,7 @@ process.hltEle50GsfDphiPPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
