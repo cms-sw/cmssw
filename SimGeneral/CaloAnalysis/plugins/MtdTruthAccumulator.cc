@@ -1,8 +1,7 @@
 // Author: Aurora Perego, Fabio Cossutti - aurora.perego@cern.ch, fabio.cossutti@ts.infn.it
 // Date: 05/2023
 
-//#define DEBUG false
-#define DEBUG true
+#define DEBUG false
 #define PRINT_DEBUG true
 
 #if DEBUG
