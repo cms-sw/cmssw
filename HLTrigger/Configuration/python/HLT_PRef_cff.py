@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_14_0_0/PRef/V6 (CMSSW_14_0_0_pre3)
+# /dev/CMSSW_14_0_0/PRef/V7 (CMSSW_14_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/PRef/V6')
+  tableName = cms.string('/dev/CMSSW_14_0_0/PRef/V7')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -11834,7 +11834,7 @@ fragment.hltEle10GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -12045,7 +12045,7 @@ fragment.hltEle15GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -12266,7 +12266,7 @@ fragment.hltEle20GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -12487,7 +12487,7 @@ fragment.hltEle30GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -12721,7 +12721,7 @@ fragment.hltEle40GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
@@ -12942,7 +12942,7 @@ fragment.hltEle50GsfDphiPPRefFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
-    useAbs = cms.bool( False ),
+    useAbs = cms.bool( True ),
     thrRegularEB = cms.vdouble( 0.1 ),
     thrRegularEE = cms.vdouble( 0.1 ),
     thrOverEEB = cms.vdouble( -1.0 ),
