@@ -122,7 +122,7 @@ public:
                         const edm::ParameterSet &cfg,
                         edm::ConsumesCollector &&cc,
                         bool skipNonExistingSrc = false)
-      : ValueMapVariable<ObjType, VarType, ValType>(aname, cfg, cc, skipNonExistingSrc),
+    : ValueMapVariable<ObjType, VarType, ValType>(aname, cfg, std::move(cc), skipNonExistingSrc),
         func_(cfg.getParameter<std::string>("expr"), true),
         precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
                        true) {}
