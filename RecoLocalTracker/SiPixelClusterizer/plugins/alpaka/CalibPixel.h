@@ -4,18 +4,17 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
-#include <type_traits>
+#include <limits>
 
 #include <alpaka/alpaka.hpp>
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLTLayout.h"
-#include "CondFormats/SiPixelObjects/interface/alpaka/SiPixelGainCalibrationForHLTDevice.h"
 #include "CondFormats/SiPixelObjects/interface/alpaka/SiPixelGainCalibrationForHLTUtilities.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 //#define GPU_DEBUG
@@ -107,9 +106,11 @@ namespace calibPixel {
         clus_view[0].clusModuleStart() = clus_view[0].moduleStart() = 0;
       }
 
-      cms::alpakatools::for_each_element_in_grid_strided(
-          acc, phase2PixelTopology::numberOfModules, [&](uint32_t i) { clus_view[i].clusInModule() = 0; });
-      cms::alpakatools::for_each_element_in_grid_strided(acc, numElements, [&](uint32_t i) {
+      for (uint32_t i : cms::alpakatools::elements_with_stride(acc, phase2PixelTopology::numberOfModules)) {
+        clus_view[i].clusInModule() = 0;
+      }
+
+      for (uint32_t i : cms::alpakatools::elements_with_stride(acc, numElements)) {
         auto dvgi = view[i];
         if (pixelClustering::invalidModuleId != dvgi.moduleId()) {
           const int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
@@ -131,7 +132,7 @@ namespace calibPixel {
           }
           dvgi.adc() = std::min(adc_int, int(std::numeric_limits<uint16_t>::max()));
         }
-      });
+      }
     }
   };
 }  // namespace calibPixel

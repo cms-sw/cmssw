@@ -1,30 +1,33 @@
 // C++ includes
 #include <algorithm>
 #include <cassert>
-#include <chrono>
+#include <cstdint>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <utility>
+#include <type_traits>
 
+// Alpaka includes
 #include <alpaka/alpaka.hpp>
 
 // CMSSW includes
-#include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLTLayout.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 // local includes
 #include "CalibPixel.h"
@@ -442,9 +445,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
         // limit to maxHitsInModule;
-        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules, [&](uint32_t i) {
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules)) {
           clus_view[i + 1].clusModuleStart() = std::min(maxHitsInModule, clus_view[i].clusInModule());
-        });
+        }
 
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
         constexpr auto leftModules = isPhase2 ? 1024 : numberOfModules - 1024;
@@ -468,20 +471,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         constexpr auto lastModule = isPhase2 ? 2049u : numberOfModules + 1;
-        cms::alpakatools::for_each_element_in_block_strided(acc, lastModule, 1025u, [&](uint32_t i) {
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, 1025u, lastModule)) {
           clus_view[i].clusModuleStart() += clus_view[1024].clusModuleStart();
-        });
+        }
         alpaka::syncBlockThreads(acc);
 
         if constexpr (isPhase2) {
-          cms::alpakatools::for_each_element_in_block_strided(acc, 3073u, 2049u, [&](uint32_t i) {
+          for (uint32_t i : cms::alpakatools::independent_group_elements(acc, 2049u, 3073u)) {
             clus_view[i].clusModuleStart() += clus_view[2048].clusModuleStart();
-          });
+          }
           alpaka::syncBlockThreads(acc);
 
-          cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, 3073u, [&](uint32_t i) {
+          for (uint32_t i : cms::alpakatools::independent_group_elements(acc, 3073u, numberOfModules + 1)) {
             clus_view[i].clusModuleStart() += clus_view[3072].clusModuleStart();
-          });
+          }
           alpaka::syncBlockThreads(acc);
         }
 #ifdef GPU_DEBUG
@@ -492,22 +495,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_OFFLOAD(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
         ALPAKA_ASSERT_OFFLOAD(clus_view[numberOfModules].moduleStart() >= clus_view[1025].moduleStart());
 
-        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, [&](uint32_t i) {
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules + 1)) {
           if (0 != i)
-            ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - i].moduleStart());
+            ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - 1].moduleStart());
           // Check BPX2 (1), FP1 (4)
           constexpr auto bpix2 = TrackerTraits::layerStart[1];
           constexpr auto fpix1 = TrackerTraits::layerStart[4];
           if (i == bpix2 || i == fpix1)
             printf("moduleStart %d %d\n", i, clus_view[i].moduleStart());
-        });
+        }
 #endif
         // avoid overflow
         constexpr auto MAX_HITS = TrackerTraits::maxNumberOfHits;
-        cms::alpakatools::for_each_element_in_block_strided(acc, numberOfModules + 1, [&](uint32_t i) {
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules + 1)) {
           if (clus_view[i].clusModuleStart() > MAX_HITS)
             clus_view[i].clusModuleStart() = MAX_HITS;
-        });
+        }
 
       }  // end of FillHitsModuleStart kernel operator()
     };   // end of FillHitsModuleStart struct
