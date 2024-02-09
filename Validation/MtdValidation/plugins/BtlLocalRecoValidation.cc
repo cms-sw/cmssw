@@ -181,6 +181,8 @@ private:
   MonitorElement* meCluYLocalErr_;
 
   // resolution wrt to MtdSimLayerClusters
+  MonitorElement* meCluTrackIdOffset_;
+
   MonitorElement* meCluTimeRes_simLC_;
   MonitorElement* meCluEnergyRes_simLC_;
   MonitorElement* meCluTResvsE_simLC_;
@@ -684,6 +686,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           float xlocal_res = local_point.x() - simClusLocalPos.x();
           float ylocal_res = local_point.y() - simClusLocalPos.y();
 
+          meCluTrackIdOffset_->Fill(float(idOffset));
+
           // -- Fill for direct hits
           if (idOffset == 0) {
             meCluTimeRes_simLC_->Fill(time_res);
@@ -1185,6 +1189,9 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   }
 
   // with MtdSimLayerCluster as truth
+
+  meCluTrackIdOffset_ =
+      ibook.book1D("BtlCluTrackIdOffset", "BTL cluster category (trackId offset); trackId offset", 4, 0.0, 4.0);
   meCluTimeRes_simLC_ = ibook.book1D("BtlCluTimeRes_simLC",
                                      "BTL cluster time resolution (wrt MtdSimLayerClusters);T_{RECO}-T_{SIM} [ns]",
                                      100,
