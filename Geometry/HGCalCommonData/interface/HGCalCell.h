@@ -29,6 +29,24 @@ public:
   static constexpr int32_t cornerCell = 1;
   static constexpr int32_t truncatedCell = 2;
   static constexpr int32_t extendedCell = 3;
+  static constexpr int32_t truncatedMBCell = 4;
+  static constexpr int32_t extendedMBCell = 5;
+  static constexpr int32_t fullWaferCellsCount = 6;
+
+  static constexpr int32_t halfCell = 11;
+  static constexpr int32_t halfTrunCell = 12;
+  static constexpr int32_t halfExtCell = 13;
+  static constexpr int32_t partiaclWaferCellsOffset = 11;
+
+  static constexpr int32_t LDPartial0714Cell = 14;
+  static constexpr int32_t LDPartial0209Cell = 15;
+  static constexpr int32_t LDPartial0007Cell = 16;
+  static constexpr int32_t LDPartial0815Cell = 17;
+  static constexpr int32_t LDPartial1415Cell = 18;
+  static constexpr int32_t LDPartial1515Cell = 19;
+
+  static constexpr int32_t HDPartial0920Cell = 20;
+  static constexpr int32_t HDPartial1021Cell = 21;
 
   static constexpr int32_t undefinedCell = -1;
   static constexpr int32_t centralCell = 0;
@@ -45,6 +63,12 @@ public:
   static constexpr int32_t topRightCorner = 15;
   static constexpr int32_t bottomRightCorner = 16;
 
+  static constexpr int32_t leftCell = 21;
+  static constexpr int32_t rightCell = 22;
+  static constexpr int32_t topCell = 23;
+  static constexpr int32_t bottomCell = 24;
+  static constexpr int32_t partiaclCellsPosOffset = 21;
+
   std::pair<double, double> cellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<double, double> cellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   // Get cell type and orientation index
@@ -55,6 +79,8 @@ public:
   static std::pair<int32_t, int32_t> cellOrient(int32_t placementIndex);
   // Get cell type and position in the list
   static std::pair<int32_t, int32_t> cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex);
+  static std::pair<int32_t, int32_t> cellType(
+      int32_t u, int32_t v, int32_t ncell, int32_t placementIndex, int32_t partialType);
 
 private:
   const double sqrt3By2_ = (0.5 * std::sqrt(3.0));
