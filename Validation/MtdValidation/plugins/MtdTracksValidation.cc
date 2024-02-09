@@ -302,14 +302,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   // Struct to  identify the pixel
   struct ETLPixelId {
     const uint32_t detid_;
-    const uint8_t row_; 
+    const uint8_t row_;
     const uint8_t col_;
     ETLPixelId() : detid_(0), row_(0), col_(0) {}
     ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
     bool operator==(const ETLPixelId& other) const {
       return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
-    }    
-
+    }
   };
 
   struct PixelKey_hash {
@@ -326,7 +325,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<ETLPixelId, MTDHit, PixelKey_hash> m_etlHits;
   std::unordered_map<uint32_t, std::set<unsigned long int>> m_btlTrkPerCell;
-  std::unordered_map<ETLPixelId, std::set<unsigned long int>, PixelKey_hash > m_etlTrkPerCell;
+  std::unordered_map<ETLPixelId, std::set<unsigned long int>, PixelKey_hash> m_etlTrkPerCell;
   std::map<TrackingParticleRef, std::vector<uint32_t>> m_tp2detid;
 
   const auto& tMtd = iEvent.get(tmtdToken_);
@@ -414,12 +413,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         for (auto const& cell : m_etlTrkPerCell) {
- 	  if (m_etlHits[cell.first].energy < depositETLthreshold_) {
+          if (m_etlHits[cell.first].energy < depositETLthreshold_) {
             continue;
           }
           for (auto const& simtrack : cell.second) {
             if (thisTId == simtrack) {
-	      m_tp2detid[tpref].emplace_back(cell.first.detid_);
+              m_tp2detid[tpref].emplace_back(cell.first.detid_);
               break;
             }
           }

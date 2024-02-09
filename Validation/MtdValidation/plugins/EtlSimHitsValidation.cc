@@ -109,14 +109,13 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   // Struct to  identify the pixel
   struct ETLPixelId {
     const uint32_t detid_;
-    const uint8_t row_; 
+    const uint8_t row_;
     const uint8_t col_;
     ETLPixelId() : detid_(0), row_(0), col_(0) {}
     ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
     bool operator==(const ETLPixelId& other) const {
       return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
-    }    
-
+    }
   };
 
   struct PixelKey_hash {
@@ -124,7 +123,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       return std::hash<uint32_t>{}(key.detid_) ^ std::hash<uint8_t>{}(key.row_) ^ std::hash<uint8_t>{}(key.col_);
     }
   };
-  
+
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
@@ -133,8 +132,8 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
-  std::unordered_map< ETLPixelId, MTDHit, PixelKey_hash> m_etlHits[4];
-  std::unordered_map< ETLPixelId, std::set<int>, PixelKey_hash > m_etlTrkPerCell[4];
+  std::unordered_map<ETLPixelId, MTDHit, PixelKey_hash> m_etlHits[4];
+  std::unordered_map<ETLPixelId, std::set<int>, PixelKey_hash> m_etlTrkPerCell[4];
 
   // --- Loop over the ETL SIM hits
 
@@ -205,7 +204,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       // --- Get the SIM hit global position
 
       ETLDetId detId;
-      detId=hit.first.detid_;
+      detId = hit.first.detid_;
       DetId geoId = detId.geographicalId();
       const MTDGeomDet* thedet = geom->idToDet(geoId);
       if (thedet == nullptr)

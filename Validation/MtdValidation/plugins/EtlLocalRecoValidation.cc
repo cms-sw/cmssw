@@ -181,14 +181,13 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // Struct to  identify the pixel
   struct ETLPixelId {
     const uint32_t detid_;
-    const uint8_t row_; 
+    const uint8_t row_;
     const uint8_t col_;
     ETLPixelId() : detid_(0), row_(0), col_(0) {}
     ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
     bool operator==(const ETLPixelId& other) const {
       return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
-    }    
-
+    }
   };
 
   struct PixelKey_hash {
@@ -226,7 +225,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   // --- Loop over the ETL SIM hits
   //std::unordered_map<uint32_t, MTDHit> m_etlSimHits[4];
-  std::unordered_map< ETLPixelId, MTDHit, PixelKey_hash> m_etlSimHits[4];
+  std::unordered_map<ETLPixelId, MTDHit, PixelKey_hash> m_etlSimHits[4];
   for (auto const& simHit : etlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
@@ -253,7 +252,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(id, simHit.localPosition());
     ETLPixelId pixelId(id.rawId(), pixel.first, pixel.second);
     auto simHitIt = m_etlSimHits[idet].emplace(pixelId, MTDHit()).first;
-
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
     (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
@@ -432,17 +430,17 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         // Match the RECO hit to the corresponding SIM hit
         for (const auto& recHit : *etlRecHitsHandle) {
-	  ETLDetId detId(recHit.id().rawId());
+          ETLDetId detId(recHit.id().rawId());
 
-	  DetId geoId = detId.geographicalId();
-	  const MTDGeomDet* thedet = geom->idToDet(geoId);
-	  const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-	  const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+          DetId geoId = detId.geographicalId();
+          const MTDGeomDet* thedet = geom->idToDet(geoId);
+          const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+          const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-	  Local3DPoint local_point(topo.localX(recHit.row()), topo.localY(recHit.column()), 0.);
+          Local3DPoint local_point(topo.localX(recHit.row()), topo.localY(recHit.column()), 0.);
 
-	  std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
-	  ETLPixelId pixelId(detId.rawId(), pixel.first, pixel.second);
+          std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
+          ETLPixelId pixelId(detId.rawId(), pixel.first, pixel.second);
 
           if (m_etlSimHits[idet].count(pixelId) == 0)
             continue;
@@ -457,7 +455,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             continue;
 
           // SIM hit's position in the module reference frame
-	  Local3DPoint local_point_sim(convertMmToCm(m_etlSimHits[idet][pixelId].x),
+          Local3DPoint local_point_sim(convertMmToCm(m_etlSimHits[idet][pixelId].x),
                                        convertMmToCm(m_etlSimHits[idet][pixelId].y),
                                        convertMmToCm(m_etlSimHits[idet][pixelId].z));
 
@@ -550,13 +548,13 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       Local3DPoint local_point(topo.localX(uRecHit.row()), topo.localY(uRecHit.column()), 0.);
       const auto& global_point = thedet->toGlobal(local_point);
-      
+
       std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(detId, local_point);
       ETLPixelId pixelId(detId.rawId(), pixel.first, pixel.second);
 
       // --- Skip UncalibratedRecHits not matched to SimHits
       if (m_etlSimHits[idet].count(pixelId) == 0)
-	continue;
+        continue;
 
       if (thedet == nullptr)
         throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("

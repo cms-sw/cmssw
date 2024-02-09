@@ -80,7 +80,6 @@ private:
   MonitorElement* meHitQvsEta_[4];
   MonitorElement* meHitTvsPhi_[4];
   MonitorElement* meHitTvsEta_[4];
-
 };
 
 // ------------ constructor and destructor --------------
@@ -104,13 +103,13 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   // Struct to  identify the pixel
   struct ETLPixelId {
     const uint32_t detid_;
-    const uint8_t row_; 
+    const uint8_t row_;
     const uint8_t col_;
     ETLPixelId() : detid_(0), row_(0), col_(0) {}
     ETLPixelId(const ETLDetId& id, uint8_t row, uint8_t col) : detid_(id.rawId()), row_(row), col_(col) {}
     bool operator==(const ETLPixelId& other) const {
       return detid_ == other.detid_ && row_ == other.row_ && col_ == other.col_;
-    }    
+    }
   };
 
   struct PixelKey_hash {
@@ -119,8 +118,6 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   };
 
-
-  
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
@@ -130,7 +127,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   std::array<std::unordered_map<ETLPixelId, uint32_t, PixelKey_hash>, 4> ndigiPerLGAD_;
   MTDGeomUtil geomUtil;
-  
+
   unsigned int n_digi_etl[4] = {0, 0, 0, 0};
   for (size_t i = 0; i < 4; i++) {
     ndigiPerLGAD_[i].clear();
