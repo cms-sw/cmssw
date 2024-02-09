@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
-#define RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h
 
 //#define GPU_DEBUG
 //#define DUMP_GPU_TK_TUPLES
@@ -268,6 +268,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::AtomicPairCounter* device_hitToTuple_apc_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCells_;
   };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h

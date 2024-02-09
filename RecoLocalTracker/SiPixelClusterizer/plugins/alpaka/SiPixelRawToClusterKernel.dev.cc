@@ -11,6 +11,8 @@
 #include <string>
 #include <utility>
 
+#include <alpaka/alpaka.hpp>
+
 // CMSSW includes
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"

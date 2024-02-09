@@ -2,6 +2,7 @@
 #define DataFormats_TrackingRecHitSoA_interface_alpaka_TrackingRecHitsSoACollection_h
 
 #include <cstdint>
+#include <type_traits>
 
 #include <alpaka/alpaka.hpp>
 
@@ -11,6 +12,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 

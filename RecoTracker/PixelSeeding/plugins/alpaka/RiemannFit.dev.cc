@@ -1,16 +1,15 @@
-//
-// Author: Felice Pantaleo, CERN
-//
-
-#include <alpaka/alpaka.hpp>
 #include <cstdint>
 
+#include <alpaka/alpaka.hpp>
+
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/RiemannFit.h"
+
 #include "HelixFit.h"
 #include "CAStructures.h"
 

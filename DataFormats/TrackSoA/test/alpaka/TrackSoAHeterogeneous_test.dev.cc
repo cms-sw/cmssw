@@ -1,8 +1,13 @@
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include <type_traits>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 using namespace reco;
 

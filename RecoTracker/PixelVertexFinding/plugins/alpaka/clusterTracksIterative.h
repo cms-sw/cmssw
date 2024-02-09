@@ -4,12 +4,15 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/VertexSoA/interface/ZVertexDefinitions.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoTracker/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
+
 #include "vertexFinder.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

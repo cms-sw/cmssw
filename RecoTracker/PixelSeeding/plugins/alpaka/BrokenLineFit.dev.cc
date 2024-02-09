@@ -1,15 +1,13 @@
-//
-// Author: Felice Pantaleo, CERN
-//
-
 //#define BROKENLINE_DEBUG
 //#define BL_DUMP_HITS
-#include <alpaka/alpaka.hpp>
+
 #include <cstdint>
 
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 

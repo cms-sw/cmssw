@@ -1,15 +1,23 @@
-#include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
-#include "CAHitNtupletGeneratorKernels.h"
-#include "CAHitNtupletGeneratorKernelsImpl.h"
+// C++ headers
 #ifdef DUMP_GPU_TK_TUPLES
 #include <mutex>
 #endif
+
+// Alpaka headers
+#include <alpaka/alpaka.hpp>
+
+// CMSSW headers
+#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+
+// local headers
+#include "CAFishbone.h"
+#include "CAHitNtupletGeneratorKernels.h"
+#include "CAHitNtupletGeneratorKernelsImpl.h"
 
 //#define GPU_DEBUG
 //#define NTUPLE_DEBUG

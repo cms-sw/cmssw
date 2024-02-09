@@ -1,21 +1,22 @@
-#ifndef RecoPixelVertexing_PixelTriplets_CACellT_h
-#define RecoPixelVertexing_PixelTriplets_CACellT_h
-
-//
-// Author: Felice Pantaleo, CERN
-//
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CACell_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CACell_h
 
 // #define ONLY_TRIPLETS_IN_HOLE
 
+#include <cmath>
+#include <limits>
+
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
-#include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "RecoTracker/PixelSeeding/interface/CircleEq.h"
+
 #include "CAStructures.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -387,5 +388,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     hindex_type theOuterHitId;
     hindex_type theFishboneId;
   };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CACellT_h
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CACell_h

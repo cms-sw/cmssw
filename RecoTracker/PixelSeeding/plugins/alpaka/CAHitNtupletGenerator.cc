@@ -1,7 +1,3 @@
-//
-// Original Author: Felice Pantaleo, CERN
-//
-
 //#define GPU_DEBUG
 //#define DUMP_GPU_TK_TUPLES
 
@@ -10,12 +6,15 @@
 #include <functional>
 #include <vector>
 
-#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "CAHitNtupletGenerator.h"
 #include "CAHitNtupletGeneratorKernels.h"

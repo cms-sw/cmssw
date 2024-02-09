@@ -11,6 +11,7 @@
 
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
@@ -63,7 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       const auto [firstElementIdxNoStrideX, endElementIdxNoStrideX] =
           cms::alpakatools::element_index_range_in_block(acc, 0u, dimIndexX);
 
-      // Outermost loop on Y
+      // Outermost parallel loop on the slower dimension (Y or 0 in a 2D grid)
       constexpr uint32_t dimIndexY = 0u;
       const uint32_t gridDimensionY(alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[dimIndexY]);
       const auto [firstElementIdxNoStrideY, endElementIdxNoStrideY] =
@@ -106,6 +107,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           continue;
 
         // here we parallelize in X
+        // Innermost parallel loop on the faster dimension (X or 1 in a 2D grid)
         uint32_t firstElementIdxX = firstElementIdxNoStrideX;
         uint32_t endElementIdxX = endElementIdxNoStrideX;
         for (uint32_t ic = firstElementIdxX; (int)ic < sg - 1; ++ic) {
