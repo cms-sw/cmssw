@@ -19,7 +19,6 @@ from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..tasks.HLTDoubleEle25CaloIdLPMS2UnseededTask_cfi import *
 
 HLTDoubleEle25CaloIdLPMS2UnseededSequence = cms.Sequence(
-    HLTL1Sequence +
     hltEGL1SeedsForDoubleEleNonIsolatedFilter +
     HLTDoFullUnpackingEgammaEcalSequence +
     HLTPFClusteringForEgammaUnseeded +

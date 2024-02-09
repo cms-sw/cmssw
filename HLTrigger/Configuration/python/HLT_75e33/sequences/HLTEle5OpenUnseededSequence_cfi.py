@@ -33,7 +33,6 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..tasks.HLTEle5OpenUnseededTask_cfi import *
 
 HLTEle5OpenUnseededSequence = cms.Sequence(
-    HLTL1Sequence +
     HLTDoFullUnpackingEgammaEcalL1SeededSequence +
     HLTPFClusteringForEgammaUnseeded +
     HLTHgcalTiclPFClusteringForEgammaUnseeded +

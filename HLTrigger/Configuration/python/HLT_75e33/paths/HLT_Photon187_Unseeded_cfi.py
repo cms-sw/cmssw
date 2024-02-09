@@ -7,7 +7,6 @@ from ..sequences.HLTPhoton187UnseededSequence_cfi import *
 
 HLT_Photon187_Unseeded = cms.Path(
     HLTBeginSequence +
-    hltPrePhoton187Unseeded +
     HLTPhoton187UnseededSequence +
     HLTEndSequence
 )
