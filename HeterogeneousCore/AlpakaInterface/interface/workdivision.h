@@ -697,8 +697,8 @@ namespace cms::alpakatools {
    *
    * `uniform_groups(acc, ...)` is a shorthand for `uniform_groups_along<0>(acc, ...)`.
    *
-   * `uniform_groups` should be called consistently by all the threads in a block. All threads in a block see the same
-   * loop iterations, while threads in different blocks may see a different number of iterations.
+   * `uniform_groups(acc, ...)` should be called consistently by all the threads in a block. All threads in a block see
+   * the same loop iterations, while threads in different blocks may see a different number of iterations.
    * If the work division has more blocks than the required number of groups, the first blocks will perform one
    * iteration of the loop, while the other blocks will exit the loop immediately.
    * If the work division has less blocks than the required number of groups, some of the blocks will perform more than
@@ -1000,30 +1000,54 @@ namespace cms::alpakatools {
     return uniform_group_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
 
-  /* independent_groups
+  /* independent_groups_along
    *
-   * `independent_groups(acc, groups)` returns a range than spans the group indices from 0 to `groups`, with one group
-   * per block:
-   *   - the `groups` argument indicates the total number of groups.
+   * `independent_groups_along<Dim>(acc, groups)` returns a one-dimensional iteratable range than spans the group
+   * indices from 0 to `groups`; the groups are assigned to the blocks along the `Dim` dimension. If `groups` is not
+   * specified, it defaults to the number of blocks along the `Dim` dimension.
    *
-   * If the work division has more blocks than `groups`, only the first `groups` blocks will perform one iteration of
-   * the loop, while the other blocks will exit immediately.
-   * If the work division has less blocks than `groups`, some of the blocks will perform more than one iteration, in
-   * order to cover then whole problem space.
+   * In a 1-dimensional kernel, `independent_groups(acc, ...)` is a shorthand for
+   * `independent_groups_along<0>(acc, ...)`.
+   *
+   * In an N-dimensional kernel, dimension 0 is the one that increases more slowly (e.g. the outer loop), followed by
+   * dimension 1, up to dimension N-1 that increases fastest (e.g. the inner loop).
+   * For convenience when converting CUDA or HIP code, `independent_groups_x(acc, ...)`, `_y` and `_z` are shorthands
+   * for `independent_groups_along<N-1>(acc, ...)`, `<N-2>` and `<N-3>`.
+   *
+   * `independent_groups_along<Dim>` should be called consistently by all the threads in a block. All threads in a block
+   * see the same loop iterations, while threads in different blocks may see a different number of iterations.
+   * If the work division has more blocks than the required number of groups, the first blocks will perform one
+   * iteration of the loop, while the other blocks will exit the loop immediately.
+   * If the work division has less blocks than the required number of groups, some of the blocks will perform more than
+   * one iteration, in order to cover then whole problem space.
+   *
+   * For example,
+   *
+   *   for (auto group: independent_groups_along<Dim>(acc, 7))
+   *
+   * will return the group range from 0 to 6, distributed across all blocks in the work division.
+   * If the work division has more than 7 blocks, the first 7 will perform one iteration of the loop, while the other
+   * blocks will exit the loop immediately. For example if the work division has 8 blocks, the blocks from 0 to 6 will
+   * process one group while block 7 will no process any.
+   * If the work division has less than 7 blocks, some of the blocks will perform more than one iteration of the loop,
+   * in order to cover then whole problem space. For example if the work division has 4 blocks, block 0 will process the
+   * groups 0 and 4, block 1 will process groups 1 and 5, group 2 will process groups 2 and 6, and block 3 will process
+   * group 3.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  class independent_groups {
+  template <typename TAcc,
+            std::size_t Dim,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  class independent_groups_along {
   public:
-    ALPAKA_FN_ACC inline independent_groups(TAcc const& acc)
-        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
+    ALPAKA_FN_ACC inline independent_groups_along(TAcc const& acc)
+        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
           extent_{stride_} {}
 
-    // extent is the total number of elements (not blocks)
-    ALPAKA_FN_ACC inline independent_groups(TAcc const& acc, Idx groups)
-        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
+    ALPAKA_FN_ACC inline independent_groups_along(TAcc const& acc, Idx groups)
+        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
           extent_{groups} {}
 
     class const_iterator;
@@ -1034,7 +1058,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
 
     class const_iterator {
-      friend class independent_groups;
+      friend class independent_groups_along;
 
       ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
           : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
@@ -1079,39 +1103,98 @@ namespace cms::alpakatools {
     const Idx extent_;
   };
 
-  /* independent_group_elements
+  /* independent_groups
    *
-   * `independent_group_elements(acc, elements)` returns a range that spans all the elements within the given group:
-   *   - the `elements` argument indicates the number of elements in the current group.
+   * `independent_groups(acc, groups)` returns a one-dimensional iteratable range than spans the group indices from 0 to
+   * `groups`. If `groups` is not specified, it defaults to the number of blocks.
    *
-   * Iterating over the range yields the local element index, between `0` and `elements - 1`. The threads in the block
-   * will perform one or more iterations, depending on the number of elements per thread, and on the number of threads
-   * per block, compared with the total number of elements.
+   * `independent_groups(acc, ...)` is a shorthand for `independent_groups_along<0>(acc, ...)`.
    *
-   * If the problem size is not a multiple of the block size, different threads may execute a different number of
-   * iterations. As a result, it is not safe to call `alpaka::syncBlockThreads()` within this loop. If a block
-   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
+   * `independent_groups(acc, ...)` should be called consistently by all the threads in a block. All threads in a block
+   * see the same loop iterations, while threads in different blocks may see a different number of iterations.
+   * If the work division has more blocks than the required number of groups, the first blocks will perform one
+   * iteration of the loop, while the other blocks will exit the loop immediately.
+   * If the work division has less blocks than the required number of groups, some of the blocks will perform more than
+   * one iteration, in order to cover then whole problem space.
+   *
+   * For example,
+   *
+   *   for (auto group: independent_groups(acc, 7))
+   *
+   * will return the group range from 0 to 6, distributed across all blocks in the work division.
+   * If the work division has more than 7 blocks, the first 7 will perform one iteration of the loop, while the other
+   * blocks will exit the loop immediately. For example if the work division has 8 blocks, the blocks from 0 to 6 will
+   * process one group while block 7 will no process any.
+   * If the work division has less than 7 blocks, some of the blocks will perform more than one iteration of the loop,
+   * in order to cover then whole problem space. For example if the work division has 4 blocks, block 0 will process the
+   * groups 0 and 4, block 1 will process groups 1 and 5, group 2 will process groups 2 and 6, and block 3 will process
+   * group 3.
+   *
+   * Note that `independent_groups(acc, ...)` is only suitable for one-dimensional kernels. For N-dimensional kernels,
+   * use
+   *   - `independent_groups_along<Dim>(acc, ...)` to perform the iteration explicitly along dimension `Dim`;
+   *   - `independent_groups_x(acc, ...)`, `independent_groups_y(acc, ...)`, or `independent_groups_z(acc, ...)` to loop
+   *     along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  class independent_group_elements {
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto independent_groups(TAcc const& acc, TArgs... args) {
+    return independent_groups_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* independent_groups_x, _y, _z
+   *
+   * Like `independent_groups` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest
+   * dimensions.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto independent_groups_x(TAcc const& acc, TArgs... args) {
+    return independent_groups_along<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  ALPAKA_FN_ACC inline auto independent_groups_y(TAcc const& acc, TArgs... args) {
+    return independent_groups_along<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  ALPAKA_FN_ACC inline auto independent_groups_z(TAcc const& acc, TArgs... args) {
+    return independent_groups_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* independent_group_elements_along
+   */
+
+  template <typename TAcc,
+            std::size_t Dim,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  class independent_group_elements_along {
   public:
-    ALPAKA_FN_ACC inline independent_group_elements(TAcc const& acc)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
-          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline independent_group_elements_along(TAcc const& acc)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_},
+          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{stride_} {}
 
-    ALPAKA_FN_ACC inline independent_group_elements(TAcc const& acc, Idx extent)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
-          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline independent_group_elements_along(TAcc const& acc, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_},
+          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{extent} {}
 
-    ALPAKA_FN_ACC inline independent_group_elements(TAcc const& acc, Idx first, Idx extent)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_ + first},
-          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline independent_group_elements_along(TAcc const& acc, Idx first, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          thread_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_ + first},
+          stride_{alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{extent} {}
 
     class const_iterator;
@@ -1122,7 +1205,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
     class const_iterator {
-      friend class independent_group_elements;
+      friend class independent_group_elements_along;
 
       ALPAKA_FN_ACC inline const_iterator(Idx elements, Idx stride, Idx extent, Idx first)
           : elements_{elements},
@@ -1188,6 +1271,43 @@ namespace cms::alpakatools {
     const Idx stride_;
     const Idx extent_;
   };
+
+  /* independent_group_elements
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto independent_group_elements(TAcc const& acc, TArgs... args) {
+    return independent_group_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* independent_group_elements_x, _y, _z
+   *
+   * Like `independent_group_elements` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest
+   * dimensions.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto independent_group_elements_x(TAcc const& acc, TArgs... args) {
+    return independent_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  ALPAKA_FN_ACC inline auto independent_group_elements_y(TAcc const& acc, TArgs... args) {
+    return independent_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  ALPAKA_FN_ACC inline auto independent_group_elements_z(TAcc const& acc, TArgs... args) {
+    return independent_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
+  }
 
   /* once_per_grid
    *
