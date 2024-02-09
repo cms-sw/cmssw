@@ -10,6 +10,7 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToSimTSAssociation_cfi import lay
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociationHFNose as layerClusterCaloParticleAssociationProducerHFNose
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociationHFNose as layerClusterSimClusterAssociationProducerHFNose
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinking, tracksterSimTracksterAssociationPR,tracksterSimTracksterAssociationLinkingbyCLUE3D, tracksterSimTracksterAssociationPRbyCLUE3D, tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU
+from SimCalorimetry.HGCalAssociatorProducers.SimTauProducer_cfi import *
 
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
@@ -38,7 +39,8 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloPartic
                             simTsAssocByEnergyScoreProducer,  simTracksterHitLCAssociatorByEnergyScoreProducer,
                             tracksterSimTracksterAssociationLinking, tracksterSimTracksterAssociationPR,
                             tracksterSimTracksterAssociationLinkingbyCLUE3D, tracksterSimTracksterAssociationPRbyCLUE3D,
-                            tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU
+                            tracksterSimTracksterAssociationLinkingPU, tracksterSimTracksterAssociationPRPU,
+                            SimTauProducer
                             )
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE

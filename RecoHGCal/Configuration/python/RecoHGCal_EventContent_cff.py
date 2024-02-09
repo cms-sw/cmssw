@@ -35,6 +35,7 @@ TICL_FEVT = cms.PSet(
       'keep *_ticlSimTracksters_*_*',
       'keep *_ticlSimTICLCandidates_*_*',
       'keep *_ticlSimTrackstersFromCP_*_*',
+      'keep *_SimTau*_*_*'
       )
     )
 TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)

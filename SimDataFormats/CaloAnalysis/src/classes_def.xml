@@ -52,6 +52,12 @@
   <class name="MtdSimTracksterRefProd"/>
   <class name="MtdSimTracksterContainer"/>
 
+  <class name="SimTauCPLink" ClassVersion="3">
+   <version ClassVersion="3" checksum="213448491"/>
+  </class>
+  <class name="std::vector<SimTauCPLink>"/>
+  <class name="edm::Wrapper<std::vector<SimTauCPLink> >" />
+
   <class name="std::pair<uint64_t,float>"/>
   <class name="std::vector<std::pair<uint64_t,float>>"/>
   <class name="edm::Wrapper<std::vector<std::pair<uint64_t,float>> >"/>
