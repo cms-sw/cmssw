@@ -77,7 +77,8 @@ namespace cms::alpakatools {
 
   /* ElementIndex
    *
-   * an aggregate that containes the .global and .local indices of an element; returned by iterating over elements_in_block.
+   * an aggregate that containes the `.global` and `.local` indices of an element; returned by iterating over the objecs
+   * returned by `elements_in_block` and similar functions.
    */
 
   struct ElementIndex {
@@ -85,51 +86,84 @@ namespace cms::alpakatools {
     Idx local;
   };
 
-  /* elements_with_stride
+  /* uniform_elements_along
    *
-   * `elements_with_stride(acc, [first, ]extent)` returns an iteratable range that spans the element indices required to
-   * cover the given problem size:
-   *   - `first` (optional) is index to the first element; if not specified, the loop starts from 0;
-   *   - `extent` is the total size of the problem, including any elements that may come before `first`.
+   * `uniform_elements_along<Dim>(acc [, first], extent)` returns a one-dimensional iteratable range that spans the
+   * element indices from `first` (inclusive) to `extent` (exlusive) along the `Dim` dimension.
+   * If `first` is not specified, it defaults to 0.
+   * If `extent` is not specified, it defaults to the kernel grid size along the `Dim` dimension.
+   *
+   * In a 1-dimensional kernel, `uniform_elements(acc, ...)` is a shorthand for `uniform_elements_along<0>(acc, ...)`.
+   *
+   * In an N-dimensional kernel, dimension 0 is the one that increases more slowly (e.g. the outer loop), followed
+   * by dimension 1, up to dimension N-1 that increases fastest (e.g. the inner loop).
+   * For convenience when converting CUDA or HIP code, `uniform_elements_x(acc, ...)`, `_y` and `_z` are shorthands for 
+   * `uniform_elements_along<N-1>(acc, ...)`, `<N-2>` and `<N-3>`.
    *
    * To cover the problem space, different threads may execute a different number of iterations. As a result, it is not
-   * safe to call alpaka::syncBlockThreads() within this loop. If a block synchronisation is needed, one should split
-   * the loop into an outer loop on the blocks and an inner loop on the threads, and call the syncronisation only in the
-   * outer loop:
+   * safe to call `alpaka::syncBlockThreads()` and other block-level synchronisations within this loop.
+   * If a block synchronisation is needed, one should split the loop into an outer loop over the groups and an inner
+   * loop over each group's elements, and synchronise only in the outer loop:
    *
-   *  for (auto group : uniform_groups(acc, extent) {
-   *    for (auto element : uniform_group_elements(acc, group, extent) {
+   *  for (auto group : uniform_groups_along<Dim>(acc, extent)) {
+   *    for (auto element : uniform_group_elements_along<Dim>(acc, group, extent)) {
+   *       // first part of the computation
    *       // no synchronisations here
    *       ...
    *    }
+   *    // wait for all threads to complete the first part
    *    alpaka::syncBlockThreads();
-   *    for (auto element : uniform_group_elements(acc, group, extent) {
+   *    for (auto element : uniform_group_elements_along<Dim>(acc, group, extent)) {
+   *       // second part of the computation
    *       // no synchronisations here
    *       ...
    *    }
+   *    // wait for all threads to complete the second part
    *    alpaka::syncBlockThreads();
+   *    ...
    *  }
+   *
+   * Warp-level primitives require that all threads in the warp execute the same function. If `extent` is not a multiple
+   * of the warp size, some of the warps may be incomplete, leading to undefined behaviour - for example, the kernel may
+   * hang. To avoid this problem, round up `extent` to a multiple of the warp size, and check the element index
+   * explicitly inside the loop:
+   *
+   *  for (auto element : uniform_elements_along<N-1>(acc, round_up_by(extent, alpaka::warp::getSize(acc)))) {
+   *    bool flag = false;
+   *    if (element < extent) {
+   *      // do some work and compute a result flag only for the valid elements
+   *      flag = do_some_work();
+   *    }
+   *    // check if any valid element had a positive result
+   *    if (alpaka::warp::any(acc, flag)) {
+   *      // ...
+   *    }
+   *  }
+   *
+   * Note that the use of warp-level primitives is usually suitable only for the fastest-looping dimension, `N-1`.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  class elements_with_stride {
+  template <typename TAcc,
+            std::size_t Dim,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  class uniform_elements_along {
   public:
-    ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline uniform_elements_along(TAcc const& acc)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{stride_} {}
 
-    ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc, Idx extent)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline uniform_elements_along(TAcc const& acc, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{extent} {}
 
-    ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc, Idx first, Idx extent)
-        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_ + first},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u] * elements_},
+    ALPAKA_FN_ACC inline uniform_elements_along(TAcc const& acc, Idx first, Idx extent)
+        : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          first_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_ + first},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[Dim] * elements_},
           extent_{extent} {}
 
     class const_iterator;
@@ -140,7 +174,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(elements_, stride_, extent_, extent_); }
 
     class const_iterator {
-      friend class elements_with_stride;
+      friend class uniform_elements_along;
 
       ALPAKA_FN_ACC inline const_iterator(Idx elements, Idx stride, Idx extent, Idx first)
           : elements_{elements},
@@ -207,19 +241,162 @@ namespace cms::alpakatools {
     const Idx extent_;
   };
 
+  /* uniform_elements
+   *
+   * `uniform_elements(acc [, first], extent)` returns a one-dimensional iteratable range that spans the element indices
+   * from `first` (inclusive) to `extent` (exlusive).
+   * If `first` is not specified, it defaults to 0.
+   * If `extent` is not specified, it defaults to the kernel grid size.
+   *
+   * `uniform_elements(acc, ...)` is a shorthand for `uniform_elements_along<0>(acc, ...)`.
+   *
+   * To cover the problem space, different threads may execute a different number of iterations. As a result, it is not
+   * safe to call `alpaka::syncBlockThreads()` and other block-level synchronisations within this loop.
+   * If a block synchronisation is needed, one should split the loop into an outer loop over the groups and an inner
+   * loop over each group's elements, and synchronise only in the outer loop:
+   *
+   *  for (auto group : uniform_groups(acc, extent)) {
+   *    for (auto element : uniform_group_elements(acc, group, extent)) {
+   *       // first part of the computation
+   *       // no synchronisations here
+   *       ...
+   *    }
+   *    // wait for all threads to complete the first part
+   *    alpaka::syncBlockThreads();
+   *    for (auto element : uniform_group_elements(acc, group, extent)) {
+   *       // second part of the computation
+   *       // no synchronisations here
+   *       ...
+   *    }
+   *    // wait for all threads to complete the second part
+   *    alpaka::syncBlockThreads();
+   *    ...
+   *  }
+   *
+   * Warp-level primitives require that all threads in the warp execute the same function. If `extent` is not a multiple
+   * of the warp size, some of the warps may be incomplete, leading to undefined behaviour - for example, the kernel may
+   * hang. To avoid this problem, round up `extent` to a multiple of the warp size, and check the element index
+   * explicitly inside the loop:
+   *
+   *  for (auto element : uniform_elements(acc, round_up_by(extent, alpaka::warp::getSize(acc)))) {
+   *    bool flag = false;
+   *    if (element < extent) {
+   *      // do some work and compute a result flag only for elements up to extent
+   *      flag = do_some_work();
+   *    }
+   *    // check if any valid element had a positive result
+   *    if (alpaka::warp::any(acc, flag)) {
+   *      // ...
+   *    }
+   *  }
+   *
+   * Note that `uniform_elements(acc, ...)` is only suitable for one-dimensional kernels. For N-dimensional kernels, use
+   *   - `uniform_elements_nd(acc, ...)` to cover an N-dimensional problem space with a single loop;
+   *   - `uniform_elements_along<Dim>(acc, ...)` to perform the iteration explicitly along dimension `Dim`;
+   *   - `uniform_elements_x(acc, ...)`, `uniform_elements_y(acc, ...)`, or `uniform_elements_z(acc, ...)` to loop
+   *     along the fastest, second-fastest, or third-fastest dimension.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto uniform_elements(TAcc const& acc, TArgs... args) {
+    return uniform_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* uniform_elements_x, _y, _z
+   *
+   * Like `uniform_elements` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest dimensions.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto uniform_elements_x(TAcc const& acc, TArgs... args) {
+    return uniform_elements_along<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  ALPAKA_FN_ACC inline auto uniform_elements_y(TAcc const& acc, TArgs... args) {
+    return uniform_elements_along<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  ALPAKA_FN_ACC inline auto uniform_elements_z(TAcc const& acc, TArgs... args) {
+    return uniform_elements_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* elements_with_stride
+   *
+   * `elements_with_stride(acc [, first], extent)` returns a one-dimensional iteratable range that spans the element
+   * indices from `first` (inclusive) to `extent` (exlusive).
+   * If `first` is not specified, it defaults to 0.
+   * If `extent` is not specified, it defaults to the kernel grid size.
+   *
+   * `elements_with_stride(acc, ...)` is a legacy name for `uniform_elements(acc, ...)`.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto elements_with_stride(TAcc const& acc, TArgs... args) {
+    return uniform_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* uniform_elements_nd
+   *
+   * `uniform_elements_nd(acc, extent)` returns an N-dimensional iteratable range that spans the element indices
+   * required to cover the given problem size, indicated by `extent`.
+   *
+   * To cover the problem space, different threads may execute a different number of iterations. As a result, it is not
+   * safe to call `alpaka::syncBlockThreads()` and other block-level synchronisations within this loop.
+   * If a block synchronisation is needed, one should split the loop into an outer loop over the groups and an inner
+   * loop over each group's elements, and synchronise only in the outer loop:
+   *
+   *  for (auto group0 : uniform_groups_along<0>(acc, extent[0])) {
+   *    for (auto group1 : uniform_groups_along<1>(acc, extent[1])) {
+   *      for (auto element0 : uniform_group_elements_along<0>(acc, group0, extent[0])) {
+   *        for (auto element1 : uniform_group_elements_along<1>(acc, group1, extent[1])) {
+   *           // first part of the computation
+   *           // no synchronisations here
+   *           ...
+   *        }
+   *      }
+   *      // wait for all threads to complete the first part
+   *      alpaka::syncBlockThreads();
+   *      for (auto element0 : uniform_group_elements_along<0>(acc, group0, extent[0])) {
+   *        for (auto element1 : uniform_group_elements_along<1>(acc, group1, extent[1])) {
+   *           // second part of the computation
+   *           // no synchronisations here
+   *           ...
+   *        }
+   *      }
+   *      // wait for all threads to complete the second part
+   *      alpaka::syncBlockThreads();
+   *      ...
+   *    }
+   *  }
+   *
+   * For more details, see `uniform_elements_along<Dim>(acc, ...)`.
+   */
+
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
-  class elements_with_stride_nd {
+  class uniform_elements_nd {
   public:
     using Dim = alpaka::Dim<TAcc>;
     using Vec = alpaka::Vec<Dim, Idx>;
 
-    ALPAKA_FN_ACC inline elements_with_stride_nd(TAcc const& acc)
+    ALPAKA_FN_ACC inline uniform_elements_nd(TAcc const& acc)
         : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)},
           thread_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc) * elements_},
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc) * elements_},
           extent_{stride_} {}
 
-    ALPAKA_FN_ACC inline elements_with_stride_nd(TAcc const& acc, Vec extent)
+    ALPAKA_FN_ACC inline uniform_elements_nd(TAcc const& acc, Vec extent)
         : elements_{alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)},
           thread_{alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc) * elements_},
           stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc) * elements_},
@@ -248,7 +425,7 @@ namespace cms::alpakatools {
     }
 
     class const_iterator {
-      friend class elements_with_stride_nd;
+      friend class uniform_elements_nd;
 
     public:
       ALPAKA_FN_ACC inline Vec operator*() const { return index_; }
@@ -274,14 +451,14 @@ namespace cms::alpakatools {
 
     private:
       // construct an iterator pointing to the first element to be processed by the current thread
-      ALPAKA_FN_ACC inline const_iterator(elements_with_stride_nd const* loop, Vec first)
+      ALPAKA_FN_ACC inline const_iterator(uniform_elements_nd const* loop, Vec first)
           : loop_{loop},
             first_{alpaka::elementwise_min(first, loop->extent_)},
             range_{alpaka::elementwise_min(first + loop->elements_, loop->extent_)},
             index_{first_} {}
 
       // construct an end iterator, pointing post the end of the extent
-      ALPAKA_FN_ACC inline const_iterator(elements_with_stride_nd const* loop, at_end_t const&)
+      ALPAKA_FN_ACC inline const_iterator(uniform_elements_nd const* loop, at_end_t const&)
           : loop_{loop}, first_{loop_->extent_}, range_{loop_->extent_}, index_{loop_->extent_} {}
 
       template <size_t I>
@@ -360,8 +537,8 @@ namespace cms::alpakatools {
         index_ = loop_->extent_;
       }
 
-      // const pointer to the elements_with_stride_nd that the iterator refers to
-      const elements_with_stride_nd* loop_;
+      // const pointer to the uniform_elements_nd that the iterator refers to
+      const uniform_elements_nd* loop_;
 
       // modified by the pre/post-increment operator
       Vec first_;  // first element processed by this thread
@@ -376,34 +553,88 @@ namespace cms::alpakatools {
     const Vec extent_;
   };
 
-  /* blocks_with_stride
+  /* elements_with_stride_nd
    *
-   * `blocks_with_stride(acc, size)` returns a range than spans the (virtual) block indices required to cover the given
-   * problem size.
+   * `elements_with_stride_nd(acc, extent)` returns an N-dimensional iteratable range that spans the element indices
+   * required to cover the given problem size, indicated by `extent`.
    *
-   * For example, if size is 1000 and the block size is 16, it will return the range from 1 to 62.
-   * If the work division has more than 63 blocks, only the first 63 will perform one iteration of the loop, and the
-   * other will exit immediately.
-   * If the work division has less than 63 blocks, some of the blocks will perform more than one iteration, in order to
-   * cover then whole problem space.
-   *
-   * All threads in a block see the same loop iterations, while threads in different blocks may see a different number
-   * of iterations.
+   * `elements_with_stride_nd(acc, ...)` is a legacy name for `uniform_elements_nd(acc, ...)`.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  class blocks_with_stride {
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto elements_with_stride_nd(TAcc const& acc) {
+    return uniform_elements_nd<TAcc>(acc);
+  }
+
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto elements_with_stride_nd(TAcc const& acc, alpaka::Vec<alpaka::Dim<TAcc>, Idx> extent) {
+    return uniform_elements_nd<TAcc>(acc, extent);
+  }
+
+  /* uniform_groups_along
+   *
+   * `uniform_groups_along<Dim>(acc, elements)` returns a one-dimensional iteratable range than spans the group indices
+   * required to cover the given problem size along the `Dim` dimension, in units of the block size. `elements`
+   * indicates the total number of elements, across all groups; if not specified, it defaults to the kernel grid size
+   * along the `Dim` dimension.
+   *
+   * In a 1-dimensional kernel, `uniform_groups(acc, ...)` is a shorthand for `uniform_groups_along<0>(acc, ...)`.
+   *
+   * In an N-dimensional kernel, dimension 0 is the one that increases more slowly (e.g. the outer loop), followed by
+   * dimension 1, up to dimension N-1 that increases fastest (e.g. the inner loop).
+   * For convenience when converting CUDA or HIP code, `uniform_groups_x(acc, ...)`, `_y` and `_z` are shorthands for 
+   * `uniform_groups_along<N-1>(acc, ...)`, `<N-2>` and `<N-3>`.
+   *
+   * `uniform_groups_along<Dim>` should be called consistently by all the threads in a block. All threads in a block see
+   * the same loop iterations, while threads in different blocks may see a different number of iterations.
+   * If the work division has more blocks than the required number of groups, the first blocks will perform one
+   * iteration of the loop, while the other blocks will exit the loop immediately.
+   * If the work division has less blocks than the required number of groups, some of the blocks will perform more than
+   * one iteration, in order to cover then whole problem space.
+   *
+   * If the problem size is not a multiple of the block size, the last group will process a number of elements smaller
+   * than the block size. However, also in this case all threads in the block will execute the same number of iterations
+   * of this loop: this makes it safe to use block-level synchronisations in the loop body. It is left to the inner loop
+   * (or the user) to ensure that only the correct number of threads process any data; this logic is implemented by 
+   * `uniform_group_elements_along<Dim>(acc, group, elements)`.
+   *
+   * For example, if the block size is 64 and there are 400 elements
+   *
+   *   for (auto group: uniform_groups_along<Dim>(acc, 400)
+   *
+   * will return the group range from 0 to 6, distributed across all blocks in the work division: group 0 should cover
+   * the elements from 0 to 63, group 1 should cover the elements from 64 to 127, etc., until the last group, group 6,
+   * should cover the elements from 384 to 399. All the threads of the block will process this last group; it is up to
+   * the inner loop to not process the non-existing elements after 399.
+   *
+   * If the work division has more than 7 blocks, the first 7 will perform one iteration of the loop, while the other
+   * blocks will exit the loop immediately. For example if the work division has 8 blocks, the blocks from 0 to 6 will
+   * process one group while block 7 will no process any.
+   *
+   * If the work division has less than 7 blocks, some of the blocks will perform more than one iteration of the loop,
+   * in order to cover then whole problem space. For example if the work division has 4 blocks, block 0 will process the
+   * groups 0 and 4, block 1 will process groups 1 and 5, group 2 will process groups 2 and 6, and block 3 will process
+   * group 3.
+   *
+   * See `uniform_elements_along<Dim>(acc, ...)` for a concrete example using `uniform_groups_along<Dim>` and
+   * `uniform_group_elements_along<Dim>`.
+   */
+
+  template <typename TAcc,
+            std::size_t Dim,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  class uniform_groups_along {
   public:
-    ALPAKA_FN_ACC inline blocks_with_stride(TAcc const& acc)
-        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
+    ALPAKA_FN_ACC inline uniform_groups_along(TAcc const& acc)
+        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
           extent_{stride_} {}
 
     // extent is the total number of elements (not blocks)
-    ALPAKA_FN_ACC inline blocks_with_stride(TAcc const& acc, Idx extent)
-        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
-          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]},
-          extent_{divide_up_by(extent, alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u])} {}
+    ALPAKA_FN_ACC inline uniform_groups_along(TAcc const& acc, Idx extent)
+        : first_{alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
+          stride_{alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[Dim]},
+          extent_{divide_up_by(extent, alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim])} {}
 
     class const_iterator;
     using iterator = const_iterator;
@@ -413,7 +644,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(stride_, extent_, extent_); }
 
     class const_iterator {
-      friend class blocks_with_stride;
+      friend class uniform_groups_along;
 
       ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
           : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
@@ -458,36 +689,167 @@ namespace cms::alpakatools {
     const Idx extent_;
   };
 
-  /* elements_in_block
+  /* uniform_groups
    *
-   * `elements_in_block(acc, block, size)` returns a range that spans all the elements within the given block.
-   * Iterating over the range yields values of type ElementIndex, that contain both .global and .local indices
-   * of the corresponding element.
+   * `uniform_groups(acc, elements)` returns a one-dimensional iteratable range than spans the group indices required to
+   * cover the given problem size, in units of the block size. `elements` indicates the total number of elements, across
+   * all groups; if not specified, it defaults to the kernel grid size.
    *
-   * If the work division has only one element per thread, the loop will perform at most one iteration.
-   * If the work division has more than one elements per thread, the loop will perform that number of iterations,
-   * or less if it reaches size.
+   * `uniform_groups(acc, ...)` is a shorthand for `uniform_groups_along<0>(acc, ...)`.
    *
-   * If the problem size is not a multiple of the block size, different threads may execute a different number of
-   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
-   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
+   * `uniform_groups` should be called consistently by all the threads in a block. All threads in a block see the same
+   * loop iterations, while threads in different blocks may see a different number of iterations.
+   * If the work division has more blocks than the required number of groups, the first blocks will perform one
+   * iteration of the loop, while the other blocks will exit the loop immediately.
+   * If the work division has less blocks than the required number of groups, some of the blocks will perform more than
+   * one iteration, in order to cover then whole problem space.
+   *
+   * If the problem size is not a multiple of the block size, the last group will process a number of elements smaller
+   * than the block size. However, also in this case all threads in the block will execute the same number of iterations
+   * of this loop: this makes it safe to use block-level synchronisations in the loop body. It is left to the inner loop
+   * (or the user) to ensure that only the correct number of threads process any data; this logic is implemented by 
+   * `uniform_group_elements(acc, group, elements)`.
+   *
+   * For example, if the block size is 64 and there are 400 elements
+   *
+   *   for (auto group: uniform_groups(acc, 400)
+   *
+   * will return the group range from 0 to 6, distributed across all blocks in the work division: group 0 should cover
+   * the elements from 0 to 63, group 1 should cover the elements from 64 to 127, etc., until the last group, group 6,
+   * should cover the elements from 384 to 399. All the threads of the block will process this last group; it is up to
+   * the inner loop to not process the non-existing elements after 399.
+   *
+   * If the work division has more than 7 blocks, the first 7 will perform one iteration of the loop, while the other
+   * blocks will exit the loop immediately. For example if the work division has 8 blocks, the blocks from 0 to 6 will
+   * process one group while block 7 will no process any.
+   *
+   * If the work division has less than 7 blocks, some of the blocks will perform more than one iteration of the loop,
+   * in order to cover then whole problem space. For example if the work division has 4 blocks, block 0 will process the
+   * groups 0 and 4, block 1 will process groups 1 and 5, group 2 will process groups 2 and 6, and block 3 will process
+   * group 3.
+   *
+   * See `uniform_elements(acc, ...)` for a concrete example using `uniform_groups` and `uniform_group_elements`.
+   *
+   * Note that `uniform_groups(acc, ...)` is only suitable for one-dimensional kernels. For N-dimensional kernels, use
+   *   - `uniform_groups_along<Dim>(acc, ...)` to perform the iteration explicitly along dimension `Dim`;
+   *   - `uniform_groups_x(acc, ...)`, `uniform_groups_y(acc, ...)`, or `uniform_groups_z(acc, ...)` to loop
+   *     along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  class elements_in_block {
-  public:
-    ALPAKA_FN_ACC inline elements_in_block(TAcc const& acc, Idx block)
-        : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]},
-          local_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] *
-                 alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]},
-          range_{local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u]} {}
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto uniform_groups(TAcc const& acc, TArgs... args) {
+    return uniform_groups_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
 
-    ALPAKA_FN_ACC inline elements_in_block(TAcc const& acc, Idx block, Idx extent)
-        : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]},
+  /* uniform_groups_x, _y, _z
+   *
+   * Like `uniform_groups` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest dimensions.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto uniform_groups_x(TAcc const& acc, TArgs... args) {
+    return uniform_groups_along<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  ALPAKA_FN_ACC inline auto uniform_groups_y(TAcc const& acc, TArgs... args) {
+    return uniform_groups_along<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  ALPAKA_FN_ACC inline auto uniform_groups_z(TAcc const& acc, TArgs... args) {
+    return uniform_groups_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* blocks_with_stride
+   *
+   * `blocks_with_stride(acc, elements)` returns a one-dimensional iteratable range than spans the group indices
+   * required to cover the given problem size, in units of the block size. `elements` indicates the total number of
+   * elements, across all groups; if not specified, it defaults to the kernel grid size.
+   *
+   * `blocks_with_stride(acc, ...)` is a legacy name for `uniform_groups(acc, ...)`.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto blocks_with_stride(TAcc const& acc, TArgs... args) {
+    return uniform_groups_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* uniform_group_elements_along
+   *
+   * `uniform_group_elements_along<Dim>(acc, group, elements)` returns a one-dimensional iteratable range that spans all
+   * the elements within the given `group` along dimension `Dim`, as obtained from `uniform_groups_along<Dim>`, up to
+   * `elements` (exclusive). `elements` indicates the total number of elements across all groups; if not specified, it
+   * defaults to the kernel grid size.
+   *
+   * In a 1-dimensional kernel, `uniform_group_elements(acc, ...)` is a shorthand for
+   * `uniform_group_elements_along<0>(acc, ...)`.
+   *
+   * In an N-dimensional kernel, dimension 0 is the one that increases more slowly (e.g. the outer loop), followed by 
+   * dimension 1, up to dimension N-1 that increases fastest (e.g. the inner loop).
+   * For convenience when converting CUDA or HIP code, `uniform_group_elements_x(acc, ...)`, `_y` and `_z` are
+   * shorthands for `uniform_group_elements_along<N-1>(acc, ...)`, `<N-2>` and `<N-3>`.
+   *
+   * Iterating over the range yields values of type `ElementIndex`, that provide the `.global` and `.local` indices of
+   * the corresponding element. The global index spans a subset of the range from 0 to `elements` (excluded), while the
+   * local index spans the range from 0 to the block size (excluded).
+   *
+   * The loop will perform a number of iterations up to the number of elements per thread, stopping earlier if the
+   * global element index reaches `elements`.
+   *
+   * If the problem size is not a multiple of the block size, different threads may execute a different number of
+   * iterations. As a result, it is not safe to call `alpaka::syncBlockThreads()` within this loop. If a block
+   * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
+   * See `uniform_elements_along<Dim>(acc, ...)` for a concrete example using `uniform_groups_along<Dim>` and
+   * `uniform_group_elements_along<Dim>`.
+   *
+   * Warp-level primitives require that all threads in the warp execute the same function. If `elements` is not a
+   * multiple of the warp size, some of the warps may be incomplete, leading to undefined behaviour - for example, the
+   * kernel may hang. To avoid this problem, round up `elements` to a multiple of the warp size, and check the element
+   * index explicitly inside the loop:
+   *
+   *  for (auto element : uniform_group_elements_along<N-1>(acc, group, round_up_by(elements, alpaka::warp::getSize(acc)))) {
+   *    bool flag = false;
+   *    if (element < elements) {
+   *      // do some work and compute a result flag only for the valid elements
+   *      flag = do_some_work();
+   *    }
+   *    // check if any valid element had a positive result
+   *    if (alpaka::warp::any(acc, flag)) {
+   *      // ...
+   *    }
+   *  }
+   *
+   * Note that the use of warp-level primitives is usually suitable only for the fastest-looping dimension, `N-1`.
+   */
+
+  template <typename TAcc,
+            std::size_t Dim,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value >= Dim>>
+  class uniform_group_elements_along {
+  public:
+    ALPAKA_FN_ACC inline uniform_group_elements_along(TAcc const& acc, Idx block)
+        : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim]},
+          local_{alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
+                 alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]},
+          range_{local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim]} {}
+
+    ALPAKA_FN_ACC inline uniform_group_elements_along(TAcc const& acc, Idx block, Idx extent)
+        : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim]},
           local_{std::min(extent - first_,
-                          alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] *
-                              alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])},
-          range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u])} {}
+                          alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
+                              alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
+          range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
 
     class const_iterator;
     using iterator = const_iterator;
@@ -497,7 +859,7 @@ namespace cms::alpakatools {
     ALPAKA_FN_ACC inline const_iterator end() const { return const_iterator(range_, first_, range_); }
 
     class const_iterator {
-      friend class elements_in_block;
+      friend class uniform_group_elements_along;
 
       ALPAKA_FN_ACC inline const_iterator(Idx local, Idx first, Idx range)
           : index_{local}, first_{first}, range_{range} {}
@@ -544,54 +906,99 @@ namespace cms::alpakatools {
     const Idx range_;
   };
 
-  /* uniform_groups
-   *
-   * `uniform_groups(acc, elements)` returns a range than spans the group indices required to cover the given problem
-   * size, in units of the block size:
-   *   - the `elements` argument indicates the total number of elements, across all groups.
-   *
-   * `uniform_groups` should be called consistently by all the threads in a block. All threads in a block see the same
-   * loop iterations, while threads in different blocks may see a different number of iterations.
-   *
-   * For example, if `size` is 1000 and the block size is 16,
-   *
-   *   for (auto group: uniform_groups(acc, 1000)
-   *
-   * will return the range from 0 to 62, split across all blocks in the work division.
-   *
-   * If the work division has more than 63 blocks, the first 63 will perform one iteration of the loop, while the other
-   * blocks will exit immediately.
-   * If the work division has less than 63 blocks, some of the blocks will perform more than one iteration, in order to
-   * cover then whole problem space.
-   *
-   * If the problem size is not a multiple of the block size, the last group will process a number of elements smaller
-   * than the block size. Also in this case all threads in the block will execute the same number of iterations of this
-   * loop: this makes it safe to use block-level synchronisations in the loop body. It is left to the inner loop (or the
-   * user) to ensure that only the correct number of threads process any data.
-   */
-
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  using uniform_groups = blocks_with_stride<TAcc>;
-
   /* uniform_group_elements
    *
-   * `uniform_group_elements(acc, group, elements)` returns a range that spans all the elements within the given group:
-   *   - the `group` argument indicates the id of the current group, for example as obtained from `uniform_groups`;
-   *   - the `elements` argument indicates the total number of elements, across all groups.
+   * `uniform_group_elements(acc, group, elements)` returns a one-dimensional iteratable range that spans all the
+   * elements within the given `group`, as obtained from `uniform_groups`, up to `elements` (exclusive). `elements`
+   * indicates the total number of elements across all groups; if not specified, it defaults to the kernel grid size.
    *
-   * Iterating over the range yields values of type `ElementIndex`, that contain the `.global` and `.local` indices of
-   * the corresponding element.
+   * `uniform_group_elements(acc, ...)` is a shorthand for `uniform_group_elements_along<0>(acc, ...)`.
    *
-   * The loop will perform a number of iterations up to the number of elements per thread, stopping earlier when the
-   * element index reaches `size`.
+   * Iterating over the range yields values of type `ElementIndex`, that provide the `.global` and `.local` indices of
+   * the corresponding element. The global index spans a subset of the range from 0 to `elements` (excluded), while the
+   * local index spans the range from 0 to the block size (excluded).
+   *
+   * The loop will perform a number of iterations up to the number of elements per thread, stopping earlier if the
+   * global element index reaches `elements`.
    *
    * If the problem size is not a multiple of the block size, different threads may execute a different number of
-   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
+   * iterations. As a result, it is not safe to call `alpaka::syncBlockThreads()` within this loop. If a block
    * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
+   * See `uniform_elements(acc, ...)` for a concrete example using `uniform_groups` and `uniform_group_elements`.
+   *
+   * Warp-level primitives require that all threads in the warp execute the same function. If `elements` is not a
+   * multiple of the warp size, some of the warps may be incomplete, leading to undefined behaviour - for example, the
+   * kernel may hang. To avoid this problem, round up `elements` to a multiple of the warp size, and check the element
+   * index explicitly inside the loop:
+   *
+   *  for (auto element : uniform_group_elements(acc, group, round_up_by(elements, alpaka::warp::getSize(acc)))) {
+   *    bool flag = false;
+   *    if (element < elements) {
+   *      // do some work and compute a result flag only for the valid elements
+   *      flag = do_some_work();
+   *    }
+   *    // check if any valid element had a positive result
+   *    if (alpaka::warp::any(acc, flag)) {
+   *      // ...
+   *    }
+   *  }
+   *
+   * Note that `uniform_group_elements(acc, ...)` is only suitable for one-dimensional kernels. For N-dimensional
+   * kernels, use
+   *   - `uniform_group_elements_along<Dim>(acc, ...)` to perform the iteration explicitly along dimension `Dim`;
+   *   - `uniform_group_elements_x(acc, ...)`, `uniform_group_elements_y(acc, ...)`, or
+   *     `uniform_group_elements_z(acc, ...)` to loop along the fastest, second-fastest, or third-fastest dimension.
    */
 
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  using uniform_group_elements = elements_in_block<TAcc>;
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto uniform_group_elements(TAcc const& acc, TArgs... args) {
+    return uniform_group_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* uniform_group_elements_x, _y, _z
+   *
+   * Like `uniform_group_elements` for N-dimensional kernels, along the fastest, second-fastest, and third-fastest
+   * dimensions.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  ALPAKA_FN_ACC inline auto uniform_group_elements_x(TAcc const& acc, TArgs... args) {
+    return uniform_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 1>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 1)>>
+  ALPAKA_FN_ACC inline auto uniform_group_elements_y(TAcc const& acc, TArgs... args) {
+    return uniform_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 2>(acc, static_cast<Idx>(args)...);
+  }
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
+  ALPAKA_FN_ACC inline auto uniform_group_elements_z(TAcc const& acc, TArgs... args) {
+    return uniform_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
+  }
+
+  /* elements_in_block
+   *
+   * `elements_in_block(acc, group, elements)` returns a one-dimensional iteratable range that spans all the elements
+   * within the given `group`, as obtained from `uniform_groups`, up to `elements` (exclusive). `elements` indicates the
+   * total number of elements across all groups; if not specified, it defaults to the kernel grid size.
+   *
+   * `elements_in_block(acc, ...)` is a legacy for `uniform_group_elements(acc, ...)`.
+   */
+
+  template <typename TAcc,
+            typename... TArgs,
+            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  ALPAKA_FN_ACC inline auto elements_in_block(TAcc const& acc, TArgs... args) {
+    return uniform_group_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
+  }
 
   /* independent_groups
    *
@@ -682,7 +1089,7 @@ namespace cms::alpakatools {
    * per block, compared with the total number of elements.
    *
    * If the problem size is not a multiple of the block size, different threads may execute a different number of
-   * iterations. As a result, it is not safe to call alpaka::syncBlockThreads() within this loop. If a block
+   * iterations. As a result, it is not safe to call `alpaka::syncBlockThreads()` within this loop. If a block
    * synchronisation is needed, one should split the loop, and synchronise the threads between the loops.
    */
 
