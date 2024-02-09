@@ -66,16 +66,23 @@ _endcap_MTDDigitizer = cms.PSet(
     premixStage1MinCharge = cms.double(1e-4),
     premixStage1MaxCharge = cms.double(1e6),
     DeviceSimulation  = cms.PSet(
-        bxTime            = cms.double(25),
-        tofDelay          = cms.double(1),
-        meVPerMIP         = cms.double(0.085), # from HGCal
+        bxTime               = cms.double(25),
+        IntegratedLuminosity = cms.double(1000.0),
+        FluenceVsRadius      = cms.string("1.937*TMath::Power(x,-1.706)"),
+        LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
+        LGADGainDegradation  = cms.string("TMath::Max(1.0, TMath::Min(x, x + 0.05/0.01 * (x - 1) + y * (1 - x)/0.01))"),
+        applyDegradation     = cms.bool(False),
+        tofDelay             = cms.double(1),
+        meVPerMIP            = cms.double(0.085), #from HGCAL
+        MPVMuon             = cms.string("1.21561e-05 + 8.89462e-07 / (x * x)"),
+        MPVPion             = cms.string("1.24531e-05 + 7.16578e-07 / (x * x)"),
+        MPVKaon             = cms.string("1.20998e-05 + 2.47192e-06 / (x * x * x)"),
+        MPVElectron         = cms.string("1.30030e-05 + 1.55166e-07 / (x * x)"),
+        MPVProton           = cms.string("1.13666e-05 + 1.20093e-05 / (x * x)")
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime               = cms.double(25),
         IntegratedLuminosity = cms.double(1000.),      # [1/fb]
-        FluenceVsRadius      = cms.string("1.937*TMath::Power(x,-1.706)"),
-        LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
-        TimeResolution2      = cms.string("0.0225/x"), # [ns^2]
         # n bits for the ADC 
         adcNbits             = cms.uint32(8),
         # n bits for the TDC
@@ -84,8 +91,14 @@ _endcap_MTDDigitizer = cms.PSet(
         adcSaturation_MIP  = cms.double(25),
         # for different thickness
         adcThreshold_MIP   = cms.double(0.025),
+        iThreshold_MIP     = cms.double(0.9525),
         # LSB for time of arrival estimate from TDC in ns
         toaLSB_ns          = cms.double(0.013),
+        referenceChargeColl = cms.double(1.0),
+        noiseLevel          = cms.double(0.3554),
+        sigmaDistorsion     = cms.double(0.0),
+        sigmaTDC            = cms.double(0.010),
+        formulaLandauNoise  = cms.string("TMath::Max(0.020, 0.020 * (0.35 * (x - 1.0) + 1.0))") 
         )
 )
 

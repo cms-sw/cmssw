@@ -12,6 +12,8 @@
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+
 #include <tuple>
 
 namespace CLHEP {
@@ -34,10 +36,19 @@ public:
 private:
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
   const MTDGeometry* geom_;
-
   float MIPPerMeV_;
+  const float integratedLum_;
+  const reco::FormulaEvaluator fluence_;
+  const reco::FormulaEvaluator lgadGain_;
+  const reco::FormulaEvaluator lgadGainDegradation_;
+  const bool applyDegradation_;
   float bxTime_;
   float tofDelay_;
+  const reco::FormulaEvaluator MPVMuon_;
+  const reco::FormulaEvaluator MPVPion_;
+  const reco::FormulaEvaluator MPVKaon_;
+  const reco::FormulaEvaluator MPVElectron_;
+  const reco::FormulaEvaluator MPVProton_;
 };
 
 #endif
