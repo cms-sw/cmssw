@@ -113,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         }
       }
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         if (tracks_view.hitIndices().size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
           printf("ERROR %d, %d\n", idx, tracks_view.hitIndices().size(idx));
         ALPAKA_ASSERT_OFFLOAD(ftracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
@@ -141,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 #endif
       }
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, *nCells)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
         auto const &thisCell = cells[idx];
         if (thisCell.hasFishbone() && !thisCell.isKilled())
           alpaka::atomicAdd(acc, &c.nFishCells, 1ull, alpaka::hierarchy::Blocks{});
@@ -158,7 +158,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       }
 
       // FIXME this loop was up to nHits - isOuterHitOfCell.offset in the CUDA version
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, nHits))
+      for (auto idx : cms::alpakatools::uniform_elements(acc, nHits))
         if ((*isOuterHitOfCell).container[idx].full())  // ++tooManyOuterHitOfCell;
           printf("OuterHitOfCell overflow %d\n", idx);
     }
@@ -174,7 +174,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView<TrackerTraits> tracks_view) const {
       constexpr auto reject = Quality::dup;
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, *nCells)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
         auto const &thisCell = cells[idx];
         if (!thisCell.isKilled())
           continue;
@@ -199,7 +199,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       // quality to mark rejected
       constexpr auto reject = Quality::edup;  /// cannot be loose
       ALPAKA_ASSERT_OFFLOAD(nCells);
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, *nCells)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
         auto const &thisCell = cells[idx];
 
         if (thisCell.tracks().size() < 2)
@@ -242,7 +242,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       ALPAKA_ASSERT_OFFLOAD(nCells);
       const auto ntNCells = (*nCells);
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, ntNCells)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
         auto const &thisCell = cells[idx];
         if (thisCell.tracks().size() < 2)
           continue;
@@ -401,7 +401,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         printf("starting producing ntuplets from %d cells \n", *nCells);
 #endif
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, (*nCells))) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
         auto const &thisCell = cells[idx];
 
         // cut by earlyFishbone
@@ -445,7 +445,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   CACellT<TrackerTraits> *__restrict__ cells,
                                   uint32_t const *nCells) const {
       using Cell = CACellT<TrackerTraits>;
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, (*nCells))) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
         auto &thisCell = cells[idx];
         if (!thisCell.tracks().empty())
           thisCell.setStatusBits(Cell::StatusBit::kInTrack);
@@ -460,7 +460,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   TupleMultiplicity<TrackerTraits> *tupleMultiplicity) const {
-      for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto it : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         auto nhits = tracks_view.hitIndices().size(it);
         if (nhits < 3)
           continue;
@@ -482,7 +482,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   TupleMultiplicity<TrackerTraits> *tupleMultiplicity) const {
-      for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto it : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         auto nhits = tracks_view.hitIndices().size(it);
         if (nhits < 3)
           continue;
@@ -504,7 +504,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   QualityCuts<TrackerTraits> cuts) const {
-      for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto it : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         auto nhits = tracks_view.hitIndices().size(it);
         if (nhits == 0)
           break;  // guard
@@ -549,7 +549,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc, TkSoAView<TrackerTraits> tracks_view, Counters *counters) const {
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         if (tracks_view.hitIndices().size(idx) == 0)
           break;  //guard
         if (tracks_view[idx].quality() < Quality::loose)
@@ -569,7 +569,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   HitToTuple<TrackerTraits> *hitToTuple) const {
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         if (tracks_view.hitIndices().size(idx) == 0)
           break;  // guard
         for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
@@ -585,7 +585,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   TkSoAView<TrackerTraits> tracks_view,
                                   HitToTuple<TrackerTraits> *hitToTuple) const {
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         if (tracks_view.hitIndices().size(idx) == 0)
           break;  // guard
         for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
@@ -602,11 +602,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView<TrackerTraits> tracks_view,
                                   HitsConstView<TrackerTraits> hh) const {
       // copy offsets
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         tracks_view.detIndices().off[idx] = tracks_view.hitIndices().off[idx];
       }
       // fill hit indices
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().size())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().size())) {
         ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().content[idx] < (uint32_t)hh.metadata().size());
         tracks_view.detIndices().content[idx] = hh[tracks_view.hitIndices().content[idx]].detectorIndex();
       }
@@ -625,7 +625,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       if (cms::alpakatools::once_per_grid(acc))
         tracks_view.nTracks() = ntracks;
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, ntracks)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, ntracks)) {
         ALPAKA_ASSERT_OFFLOAD(TracksUtilities<TrackerTraits>::nHits(tracks_view, idx) >= 3);
         tracks_view[idx].nLayers() = TracksUtilities<TrackerTraits>::computeNumberOfLayers(tracks_view, idx);
       }
@@ -640,7 +640,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitToTuple<TrackerTraits> const *__restrict__ hitToTuple,
                                   Counters *counters) const {
       auto &c = *counters;
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple->nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple->nOnes())) {
         if (hitToTuple->size(idx) == 0)
           continue;  // SHALL NOT BE break
         alpaka::atomicAdd(acc, &c.nUsedHits, 1ull, alpaka::hierarchy::Blocks{});
@@ -663,7 +663,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       auto &hitToTuple = *phitToTuple;
       auto const &foundNtuplets = *ptuples;
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple->nbins())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple->nbins())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -705,7 +705,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       // quality to mark rejected
       auto const reject = dupPassThrough ? loose : dup;
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, tuples->nbins())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, tuples->nbins())) {
         if (tuples->size(idx) == 0)
           break;  //guard
         if (quality[idx] <= reject)
@@ -731,7 +731,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       auto &hitToTuple = *phitToTuple;
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -793,7 +793,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       uint32_t l1end = hh.hitsLayerStart()[1];
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -844,7 +844,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       auto &hitToTuple = *phitToTuple;
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -904,7 +904,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
       auto &hitToTuple = *phitToTuple;
 
-      for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
         if (hitToTuple.size(idx) < 2)
           continue;
 
@@ -947,8 +947,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   int iev) const {
       constexpr auto loose = Quality::loose;
 
-      for (auto i : cms::alpakatools::elements_with_stride(
-               acc, firstPrint, std::min(lastPrint, tracks_view.hitIndices().nbins()))) {
+      for (auto i :
+           cms::alpakatools::uniform_elements(acc, firstPrint, std::min(lastPrint, tracks_view.hitIndices().nbins()))) {
         auto nh = tracks_view.hitIndices().size(i);
         if (nh < 3)
           continue;

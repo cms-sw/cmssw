@@ -304,7 +304,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (cms::alpakatools::once_per_grid(acc))
           err.size() = 0;
 
-        for (auto gIndex : cms::alpakatools::elements_with_stride(acc, wordCounter)) {
+        for (auto gIndex : cms::alpakatools::uniform_elements(acc, wordCounter)) {
           auto dvgi = digisView[gIndex];
           dvgi.xx() = 0;
           dvgi.yy() = 0;

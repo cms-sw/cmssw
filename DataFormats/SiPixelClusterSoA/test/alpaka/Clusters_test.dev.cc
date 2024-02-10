@@ -15,7 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelClustersSoAView clust_view) const {
-        for (int32_t j : elements_with_stride(acc, clust_view.metadata().size())) {
+        for (int32_t j : uniform_elements(acc, clust_view.metadata().size())) {
           clust_view[j].moduleStart() = j;
           clust_view[j].clusInModule() = j * 2;
           clust_view[j].moduleId() = j * 3;
@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelClustersSoAConstView clust_view) const {
-        for (uint32_t j : elements_with_stride(acc, clust_view.metadata().size())) {
+        for (uint32_t j : uniform_elements(acc, clust_view.metadata().size())) {
           assert(clust_view[j].moduleStart() == j);
           assert(clust_view[j].clusInModule() == j * 2);
           assert(clust_view[j].moduleId() == j * 3);

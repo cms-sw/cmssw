@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     auto foundClusters = nvFinal;
 
     // zero
-    for (auto i : cms::alpakatools::elements_with_stride(acc, foundClusters)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, foundClusters)) {
       zv[i] = 0;
       wv[i] = 0;
       chi2[i] = 0;
@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     alpaka::syncBlockThreads(acc);
 
     // compute cluster location
-    for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       if (iv[i] > 9990) {
         if constexpr (verbose)
           alpaka::atomicAdd(acc, &noise, 1, alpaka::hierarchy::Threads{});
@@ -73,7 +73,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     alpaka::syncBlockThreads(acc);
     // reuse nn
-    for (auto i : cms::alpakatools::elements_with_stride(acc, foundClusters)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, foundClusters)) {
       ALPAKA_ASSERT_OFFLOAD(wv[i] > 0.f);
       zv[i] /= wv[i];
       nn[i] = -1;  // ndof
@@ -81,7 +81,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     alpaka::syncBlockThreads(acc);
 
     // compute chi2
-    for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       if (iv[i] > 9990)
         continue;
 
@@ -96,7 +96,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     }
     alpaka::syncBlockThreads(acc);
 
-    for (auto i : cms::alpakatools::elements_with_stride(acc, foundClusters)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, foundClusters)) {
       if (nn[i] > 0) {
         wv[i] *= float(nn[i]) / chi2[i];
       }

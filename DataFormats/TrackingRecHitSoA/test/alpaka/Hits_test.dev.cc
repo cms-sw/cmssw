@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         // can be increased to soa.nHits() for debugging
-        for (uint32_t i : cms::alpakatools::elements_with_stride(acc, 10)) {
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, 10)) {
           printf("iPhi %d -> %d\n", i, soa[i].iphi());
         }
       }

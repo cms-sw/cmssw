@@ -25,7 +25,7 @@ namespace cms::alpakatools {
                                   T const *__restrict__ v,
                                   uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
-      for (uint32_t i : elements_with_stride(acc, nt)) {
+      for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
         ALPAKA_ASSERT_OFFLOAD((*off) > 0);
         int32_t ih = off - offsets - 1;
@@ -44,7 +44,7 @@ namespace cms::alpakatools {
                                   T const *__restrict__ v,
                                   uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
-      for (uint32_t i : elements_with_stride(acc, nt)) {
+      for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
         ALPAKA_ASSERT_OFFLOAD((*off) > 0);
         int32_t ih = off - offsets - 1;

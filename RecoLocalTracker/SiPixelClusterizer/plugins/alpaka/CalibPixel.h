@@ -41,11 +41,11 @@ namespace calibPixel {
         clus_view[0].clusModuleStart() = 0;
         clus_view[0].moduleStart() = 0;
       }
-      for (auto i : cms::alpakatools::elements_with_stride(acc, phase1PixelTopology::numberOfModules)) {
+      for (auto i : cms::alpakatools::uniform_elements(acc, phase1PixelTopology::numberOfModules)) {
         clus_view[i].clusInModule() = 0;
       }
 
-      for (auto i : cms::alpakatools::elements_with_stride(acc, numElements)) {
+      for (auto i : cms::alpakatools::uniform_elements(acc, numElements)) {
         auto dvgi = view[i];
         if (dvgi.moduleId() == ::pixelClustering::invalidModuleId)
           continue;
@@ -106,11 +106,11 @@ namespace calibPixel {
         clus_view[0].clusModuleStart() = clus_view[0].moduleStart() = 0;
       }
 
-      for (uint32_t i : cms::alpakatools::elements_with_stride(acc, phase2PixelTopology::numberOfModules)) {
+      for (uint32_t i : cms::alpakatools::uniform_elements(acc, phase2PixelTopology::numberOfModules)) {
         clus_view[i].clusInModule() = 0;
       }
 
-      for (uint32_t i : cms::alpakatools::elements_with_stride(acc, numElements)) {
+      for (uint32_t i : cms::alpakatools::uniform_elements(acc, numElements)) {
         auto dvgi = view[i];
         if (pixelClustering::invalidModuleId != dvgi.moduleId()) {
           const int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);

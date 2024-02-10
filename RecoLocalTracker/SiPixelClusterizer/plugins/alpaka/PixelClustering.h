@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         printf("Starting to count modules to set module starts:");
       }
 #endif
-      for (int32_t i : cms::alpakatools::elements_with_stride(acc, numElements)) {
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, numElements)) {
         digi_view[i].clus() = i;
         if (::pixelClustering::invalidModuleId == digi_view[i].moduleId())
           continue;

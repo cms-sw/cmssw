@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 #endif
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::elements_with_stride(acc, nt)) {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
         auto tuple_idx = local_idx + offset;
         if ((int)tuple_idx >= totTK) {
           ptkids[local_idx] = invalidTkId;
@@ -190,7 +190,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // same as above...
       // look in bin for this hit multiplicity
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::elements_with_stride(acc, nt)) {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
         if (invalidTkId == ptkids[local_idx])
           break;
         auto tkid = ptkids[local_idx];

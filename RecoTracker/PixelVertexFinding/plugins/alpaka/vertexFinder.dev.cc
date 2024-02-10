@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const* quality = tracks_view.quality();
         using helper = TracksUtilities<TrackerTraits>;
 
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.nTracks())) {
+        for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
           [[maybe_unused]] auto nHits = helper::nHits(tracks_view, idx);
           ALPAKA_ASSERT_OFFLOAD(nHits >= 3);
 

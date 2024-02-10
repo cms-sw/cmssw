@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CellTracks<TrackerTraits>* cellTracksContainer) const {
         ALPAKA_ASSERT_OFFLOAD((*isOuterHitOfCell).container);
 
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nHits - isOuterHitOfCell->offset))
+        for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
           (*isOuterHitOfCell).container[i].reset();
 
         if (cms::alpakatools::once_per_grid(acc)) {

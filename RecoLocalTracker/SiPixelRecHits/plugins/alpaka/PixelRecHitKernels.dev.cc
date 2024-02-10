@@ -36,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t* __restrict__ hitsLayerStart) const {
       assert(0 == hitsModuleStart[0]);
 
-      for (int32_t i : cms::alpakatools::elements_with_stride(acc, TrackerTraits::numberOfLayers + 1)) {
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
         hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
 #ifdef GPU_DEBUG
         int old = i == 0 ? 0 : hitsModuleStart[cpeParams->layerGeometry().layerStart[i - 1]];

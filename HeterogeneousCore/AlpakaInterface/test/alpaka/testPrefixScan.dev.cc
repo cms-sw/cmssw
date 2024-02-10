@@ -34,7 +34,7 @@ struct testPrefixScan {
     auto& c = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
     auto& co = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
 
-    for (auto i : elements_with_stride(acc, size)) {
+    for (auto i : uniform_elements(acc, size)) {
       c[i] = 1;
     };
 
@@ -49,7 +49,7 @@ struct testPrefixScan {
     // TODO: not needed? Not in multi kernel version, not in CUDA version
     alpaka::syncBlockThreads(acc);
 
-    for (auto i : elements_with_stride(acc, size)) {
+    for (auto i : uniform_elements(acc, size)) {
       if (0 == i)
         continue;
       if constexpr (!std::is_floating_point_v<T>) {
@@ -109,7 +109,7 @@ struct testWarpPrefixScan {
 struct init {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t* v, uint32_t val, uint32_t n) const {
-    for (auto index : elements_with_stride(acc, n)) {
+    for (auto index : uniform_elements(acc, n)) {
       v[index] = val;
 
       if (index == 0)
@@ -121,7 +121,7 @@ struct init {
 struct verify {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t const* v, uint32_t n) const {
-    for (auto index : elements_with_stride(acc, n)) {
+    for (auto index : uniform_elements(acc, n)) {
       ALPAKA_ASSERT_OFFLOAD(v[index] == index + 1);
 
       if (index == 0)

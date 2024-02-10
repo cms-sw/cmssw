@@ -36,17 +36,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       return;
 
     // fill indexing
-    for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       data.idv()[ws.itrk()[i]] = iv[i];
     };
 
     // can be done asynchronously at the end of previous event
-    for (auto i : cms::alpakatools::elements_with_stride(acc, nvFinal)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, nvFinal)) {
       ptv2[i] = 0;
     };
     alpaka::syncBlockThreads(acc);
 
-    for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+    for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       if (iv[i] <= 9990) {
         alpaka::atomicAdd(acc, &ptv2[iv[i]], ptt2[i], alpaka::hierarchy::Blocks{});
       }

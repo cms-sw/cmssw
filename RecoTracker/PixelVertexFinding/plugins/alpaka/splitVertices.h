@@ -100,7 +100,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
         }
         alpaka::syncBlockThreads(acc);
 
-        for (auto k : cms::alpakatools::elements_with_stride(acc, nq)) {
+        for (auto k : cms::alpakatools::uniform_elements(acc, nq)) {
           auto i = newV[k];
           alpaka::atomicAdd(acc, &znew[i], zz[k] * ww[k], alpaka::hierarchy::Threads{});
           alpaka::atomicAdd(acc, &wnew[i], ww[k], alpaka::hierarchy::Threads{});
@@ -113,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
         }
         alpaka::syncBlockThreads(acc);
 
-        for (auto k : cms::alpakatools::elements_with_stride(acc, nq)) {
+        for (auto k : cms::alpakatools::uniform_elements(acc, nq)) {
           auto d0 = fabs(zz[k] - znew[0]);
           auto d1 = fabs(zz[k] - znew[1]);
           auto newer = d0 < d1 ? 0 : 1;
@@ -145,7 +145,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       if (0 == threadIdxLocal)
         igv = alpaka::atomicAdd(acc, &ws.nvIntermediate(), 1u, alpaka::hierarchy::Blocks{});
       alpaka::syncBlockThreads(acc);
-      for (auto k : cms::alpakatools::elements_with_stride(acc, nq)) {
+      for (auto k : cms::alpakatools::uniform_elements(acc, nq)) {
         if (1 == newV[k])
           iv[it[k]] = igv;
       }
