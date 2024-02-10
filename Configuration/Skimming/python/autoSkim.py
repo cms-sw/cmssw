@@ -3,8 +3,8 @@ autoSkim = {
  # Skim 2023
  'BTagMu' : 'LogError+LogErrorMonitor',
  'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
- 'JetMET0' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+TeVJet+LogError+LogErrorMonitor',
- 'JetMET1' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET0' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET1' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'EGamma0':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'EGamma1':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'Tau' : 'EXODisappTrk+LogError+LogErrorMonitor',
@@ -28,11 +28,11 @@ autoSkim = {
 
  # These should be uncommented when 2022 data reprocessing
  # Dedicated skim for 2022
- 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'EGamma':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'Muon' : 'MUOJME+ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
- 'JetHT' : 'JetHTJetPlusHOFilter+TeVJet+LogError+LogErrorMonitor',
- 'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+TeVJet+LogError+LogErrorMonitor',
+ 'JetHT' : 'JetHTJetPlusHOFilter+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'SingleMuon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
  'DoubleMuon' : 'MUOJME+LogError+LogErrorMonitor',
 
