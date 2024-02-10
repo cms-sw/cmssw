@@ -117,10 +117,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       uint32_t gRow = rowOffset + slopeRow * local.row;
       uint32_t gCol = colOffset + slopeCol * local.col;
+      // inside frameConversion row: gRow, column: gCol
       ::pixelDetails::Pixel global = {gRow, gCol};
       return global;
     }
 
+    // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
     template <bool debug = false>
     ALPAKA_FN_ACC uint8_t conversionError(uint8_t fedId, uint8_t status) {
       uint8_t errorType = 0;
@@ -159,15 +161,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     ALPAKA_FN_ACC bool rocRowColIsValid(uint32_t rocRow, uint32_t rocCol) {
-      uint32_t numRowsInRoc = 80;
-      uint32_t numColsInRoc = 52;
-
       /// row and column in ROC representation
-      return ((rocRow < numRowsInRoc) & (rocCol < numColsInRoc));
+      return ((rocRow < ::pixelDetails::numRowsInRoc) & (rocCol < ::pixelDetails::numColsInRoc));
     }
 
     ALPAKA_FN_ACC bool dcolIsValid(uint32_t dcol, uint32_t pxid) { return ((dcol < 26) & (2 <= pxid) & (pxid < 162)); }
 
+    // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
     template <bool debug = false>
     ALPAKA_FN_ACC uint8_t
     checkROC(uint32_t errorWord, uint8_t fedId, uint32_t link, const SiPixelMappingSoAConstView &cablingMap) {
@@ -177,7 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       bool errorFound = false;
 
       switch (errorType) {
-        case (25): {
+        case 25: {
           errorFound = true;
           uint32_t index =
               fedId * ::pixelDetails::MAX_LINK * ::pixelDetails::MAX_ROC + (link - 1) * ::pixelDetails::MAX_ROC + 1;
@@ -185,29 +185,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (!(link == cablingMap.link()[index] && 1 == cablingMap.roc()[index]))
               errorFound = false;
           }
-          if (debug and errorFound)
-            printf("Invalid ROC = 25 found (errorType = 25)\n");
+          if constexpr (debug)
+            if (errorFound)
+              printf("Invalid ROC = 25 found (errorType = 25)\n");
           break;
         }
-        case (26): {
+        case 26: {
           if constexpr (debug)
             printf("Gap word found (errorType = 26)\n");
-          errorFound = true;
           break;
         }
-        case (27): {
+        case 27: {
           if constexpr (debug)
             printf("Dummy word found (errorType = 27)\n");
-          errorFound = true;
           break;
         }
-        case (28): {
+        case 28: {
           if constexpr (debug)
             printf("Error fifo nearly full (errorType = 28)\n");
           errorFound = true;
           break;
         }
-        case (29): {
+        case 29: {
           if constexpr (debug)
             printf("Timeout on a channel (errorType = 29)\n");
           if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
@@ -218,23 +217,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           errorFound = true;
           break;
         }
-        case (30): {
+        case 30: {
           if constexpr (debug)
             printf("TBM error trailer (errorType = 30)\n");
-          int StateMatch_bits = 4;
-          int StateMatch_shift = 8;
-          uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
-          int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
-          if (StateMatch != 1 && StateMatch != 8) {
+          int stateMatch_bits = 4;
+          int stateMatch_shift = 8;
+          uint32_t stateMatch_mask = ~(~uint32_t(0) << stateMatch_bits);
+          int stateMatch = (errorWord >> stateMatch_shift) & stateMatch_mask;
+          if (stateMatch != 1 && stateMatch != 8) {
             if constexpr (debug)
               printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+            break;
           }
-          if (StateMatch == 1)
+          if (stateMatch == 1)
             errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
           errorFound = true;
           break;
         }
-        case (31): {
+        case 31: {
           if constexpr (debug)
             printf("Event number error (errorType = 31)\n");
           errorFound = true;
@@ -247,6 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return errorFound ? errorType : 0;
     }
 
+    // error decoding and handling copied from EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
     template <bool debug = false>
     ALPAKA_FN_ACC uint32_t
     getErrRawID(uint8_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelMappingSoAConstView &cablingMap) {
