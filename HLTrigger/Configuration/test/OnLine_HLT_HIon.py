@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_14_0_0/HIon/V7 (CMSSW_14_0_0_pre3)
+# /dev/CMSSW_14_0_0/HIon/V8 (CMSSW_14_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTHIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_14_0_0/HIon/V8')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -8898,7 +8898,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
-    AXOL1TLModelVersion = cms.string( "" ),
+    AXOL1TLModelVersion = cms.string( "GTADModel_v3" ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
