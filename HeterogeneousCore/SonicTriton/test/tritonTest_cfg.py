@@ -1,6 +1,6 @@
-from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
 import os, sys, json
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 # module/model correspondence
 models = {
@@ -16,30 +16,34 @@ allowed_modes = ["Async","PseudoAsync","Sync"]
 allowed_compression = ["none","deflate","gzip"]
 allowed_devices = ["auto","cpu","gpu"]
 
-options = VarParsing()
-options.register("maxEvents", -1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Number of events to process (-1 for all)")
-options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string, "name for server (used internally)")
-options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "server address")
-options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int, "server port")
-options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int, "timeout for requests")
-options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "json file containing server address/port")
-options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of threads")
-options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of streams")
-options.register("modules", "TritonGraphProducer", VarParsing.multiplicity.list, VarParsing.varType.string, "list of modules to run (choices: {})".format(', '.join(models)))
-options.register("models","gat_test", VarParsing.multiplicity.list, VarParsing.varType.string, "list of models (same length as modules, or just 1 entry if all modules use same model)")
-options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string, "mode for client (choices: {})".format(', '.join(allowed_modes)))
-options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output")
-options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "briefer output for graph modules")
-options.register("fallbackName", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "name for fallback server")
-options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "unit test mode: reduce input sizes")
-options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "also test gRPC communication if shared memory enabled, or vice versa")
-options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable shared memory")
-options.register("compression", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "enable I/O compression (choices: {})".format(', '.join(allowed_compression)))
-options.register("ssl", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable SSL authentication for server communication")
-options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string, "specify device for fallback server (choices: {})".format(', '.join(allowed_devices)))
-options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "use Docker for fallback server")
-options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of retries for failed request")
-options.parseArguments()
+parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+parser.add_argument("--maxEvents", default=-1, type=int, help="Number of events to process (-1 for all)")
+parser.add_argument("--serverName", default="default", type=str, help="name for server (used internally)")
+parser.add_argument("--address", default="", type=str, help="server address")
+parser.add_argument("--port", default=8001, type=int, help="server port")
+parser.add_argument("--timeout", default=30, type=int, help="timeout for requests")
+parser.add_argument("--timeoutUnit", default="seconds", type=str, help="unit for timeout")
+parser.add_argument("--params", default="", type=str, help="json file containing server address/port")
+parser.add_argument("--threads", default=1, type=int, help="number of threads")
+parser.add_argument("--streams", default=0, type=int, help="number of streams")
+parser.add_argument("--modules", metavar=("MODULES"), default=["TritonGraphProducer"], nargs='+', type=str, choices=list(models), help="list of modules to run (choices: %(choices)s)")
+parser.add_argument("--models", default=["gat_test"], nargs='+', type=str, help="list of models (same length as modules, or just 1 entry if all modules use same model)")
+parser.add_argument("--mode", default="Async", type=str, choices=allowed_modes, help="mode for client")
+parser.add_argument("--verbose", default=False, action="store_true", help="enable all verbose output")
+parser.add_argument("--verboseClient", default=False, action="store_true", help="enable verbose output for clients")
+parser.add_argument("--verboseServer", default=False, action="store_true", help="enable verbose output for server")
+parser.add_argument("--verboseService", default=False, action="store_true", help="enable verbose output for TritonService")
+parser.add_argument("--brief", default=False, action="store_true", help="briefer output for graph modules")
+parser.add_argument("--fallbackName", default="", type=str, help="name for fallback server")
+parser.add_argument("--unittest", default=False, action="store_true", help="unit test mode: reduce input sizes")
+parser.add_argument("--testother", default=False, action="store_true", help="also test gRPC communication if shared memory enabled, or vice versa")
+parser.add_argument("--noShm", default=False, action="store_true", help="disable shared memory")
+parser.add_argument("--compression", default="", type=str, choices=allowed_compression, help="enable I/O compression")
+parser.add_argument("--ssl", default=False, action="store_true", help="enable SSL authentication for server communication")
+parser.add_argument("--device", default="auto", type=str.lower, choices=allowed_devices, help="specify device for fallback server")
+parser.add_argument("--docker", default=False, action="store_true", help="use Docker for fallback server")
+parser.add_argument("--tries", default=0, type=int, help="number of retries for failed request")
+options = parser.parse_args()
 
 if len(options.params)>0:
     with open(options.params,'r') as pfile:
@@ -51,27 +55,12 @@ if len(options.params)>0:
 # check models and modules
 if len(options.modules)!=len(options.models):
     # assigning to VarParsing.multiplicity.list actually appends to existing value(s)
-    if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules)-1)
+    if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules))
     else: raise ValueError("Arguments for modules and models must have same length")
 for im,module in enumerate(options.modules):
-    if module not in models:
-        raise ValueError("Unknown module: {}".format(module))
     model = options.models[im]
     if model not in models[module]:
         raise ValueError("Unsupported model {} for module {}".format(model,module))
-
-# check modes
-if options.mode not in allowed_modes:
-    raise ValueError("Unknown mode: {}".format(options.mode))
-
-# check compression
-if len(options.compression)>0 and options.compression not in allowed_compression:
-    raise ValueError("Unknown compression setting: {}".format(options.compression))
-
-# check devices
-options.device = options.device.lower()
-if options.device not in allowed_devices:
-	raise ValueError("Unknown device: {}".format(options.device))
 
 from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
 process = cms.Process('tritonTest',enableSonicTriton)
@@ -82,8 +71,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("EmptySource")
 
-process.TritonService.verbose = options.verbose
-process.TritonService.fallback.verbose = options.verbose
+process.TritonService.verbose = options.verbose or options.verboseService
+process.TritonService.fallback.verbose = options.verbose or options.verboseServer
 process.TritonService.fallback.useDocker = options.docker
 if len(options.fallbackName)>0:
     process.TritonService.fallback.instanceBaseName = options.fallbackName
@@ -122,12 +111,13 @@ for im,module in enumerate(options.modules):
                 mode = cms.string(options.mode),
                 preferredServer = cms.untracked.string(""),
                 timeout = cms.untracked.uint32(options.timeout),
+                timeoutUnit = cms.untracked.string(options.timeoutUnit),
                 modelName = cms.string(model),
                 modelVersion = cms.string(""),
                 modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(model)),
-                verbose = cms.untracked.bool(options.verbose),
+                verbose = cms.untracked.bool(options.verbose or options.verboseClient),
                 allowedTries = cms.untracked.uint32(options.tries),
-                useSharedMemory = cms.untracked.bool(options.shm),
+                useSharedMemory = cms.untracked.bool(not options.noShm),
                 compression = cms.untracked.string(options.compression),
             )
         )
