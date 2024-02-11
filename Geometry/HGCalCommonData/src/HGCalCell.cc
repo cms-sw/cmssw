@@ -650,7 +650,7 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
       if (((u == 15 && v == 11) || (u == 7 && v == 7)) &&
           ((partialType == HGCalTypes::WaferLDLeft) || (partialType == HGCalTypes::WaferLDRight))) {
         cellt = HGCalCell::halfExtCell;
-        if ((partialType == HGCalTypes::WaferLDLeft)) {
+        if (partialType == HGCalTypes::WaferLDLeft) {
           cellx = HGCalCell::leftCell;
         } else {
           cellx = HGCalCell::rightCell;
@@ -658,22 +658,22 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
       } else if ((u == 7 && v == 11) &&
                  ((partialType == HGCalTypes::WaferLDFive) || (partialType == HGCalTypes::WaferLDThree))) {
         cellt = HGCalCell::halfExtCell;
-        if ((partialType == HGCalTypes::WaferLDFive)) {
+        if (partialType == HGCalTypes::WaferLDFive) {
           cellx = HGCalCell::leftCell;
         } else {
           cellx = HGCalCell::rightCell;
         }
       } else if (2 * v - u == 7) {
         cellt = HGCalCell::halfCell;
-        if ((partialType == HGCalTypes::WaferLDLeft)) {
+        if (partialType == HGCalTypes::WaferLDLeft) {
           cellx = HGCalCell::leftCell;
-        } else if ((partialType == HGCalTypes::WaferLDRight)) {
+        } else if (partialType == HGCalTypes::WaferLDRight) {
           cellx = HGCalCell::rightCell;
         }
       } else if (2 * v - u == 15) {
-        if ((partialType == HGCalTypes::WaferLDFive)) {
+        if (partialType == HGCalTypes::WaferLDFive) {
           cellx = HGCalCell::leftCell;
-        } else if ((partialType == HGCalTypes::WaferLDThree)) {
+        } else if (partialType == HGCalTypes::WaferLDThree) {
           cellx = HGCalCell::rightCell;
         }
         cellt = HGCalCell::halfCell;
@@ -720,14 +720,14 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
         }
       } else if (2 * v - u == 4) {
         cellt = HGCalCell::halfCell;
-        if ((partialType == HGCalTypes::WaferHDLeft)) {
+        if (partialType == HGCalTypes::WaferHDLeft) {
           cellx = HGCalCell::leftCell;
         }
       } else if (2 * v - u == 18) {
         cellt = HGCalCell::halfCell;
-        if ((partialType == HGCalTypes::WaferHDFive)) {
+        if (partialType == HGCalTypes::WaferHDFive) {
           cellx = HGCalCell::leftCell;
-        } else if ((partialType == HGCalTypes::WaferHDRight)) {
+        } else if (partialType == HGCalTypes::WaferHDRight) {
           cellx = HGCalCell::rightCell;
         }
       }
