@@ -108,17 +108,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                apc->get().second,
                nHits);
         if (apc->get().first < TrackerTraits::maxNumberOfQuadruplets) {
-          ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().size(apc->get().first) == 0);
-          ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().size() == apc->get().second);
+          ALPAKA_ASSERT_ACC(tracks_view.hitIndices().size(apc->get().first) == 0);
+          ALPAKA_ASSERT_ACC(tracks_view.hitIndices().size() == apc->get().second);
         }
       }
 
       for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().nOnes())) {
         if (tracks_view.hitIndices().size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
           printf("ERROR %d, %d\n", idx, tracks_view.hitIndices().size(idx));
-        ALPAKA_ASSERT_OFFLOAD(ftracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
+        ALPAKA_ASSERT_ACC(ftracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
         for (auto ih = tracks_view.hitIndices().begin(idx); ih != tracks_view.hitIndices().end(idx); ++ih)
-          ALPAKA_ASSERT_OFFLOAD(int(*ih) < nHits);
+          ALPAKA_ASSERT_ACC(int(*ih) < nHits);
       }
 #endif
 
@@ -198,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   bool dupPassThrough) const {
       // quality to mark rejected
       constexpr auto reject = Quality::edup;  /// cannot be loose
-      ALPAKA_ASSERT_OFFLOAD(nCells);
+      ALPAKA_ASSERT_ACC(nCells);
       for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
         auto const &thisCell = cells[idx];
 
@@ -239,7 +239,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
       constexpr auto loose = Quality::loose;
 
-      ALPAKA_ASSERT_OFFLOAD(nCells);
+      ALPAKA_ASSERT_ACC(nCells);
       const auto ntNCells = (*nCells);
 
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
@@ -431,7 +431,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                           stack,
                                                           params.minHitsPerNtuplet_,
                                                           bpix1Start);
-          ALPAKA_ASSERT_OFFLOAD(stack.empty());
+          ALPAKA_ASSERT_ACC(stack.empty());
         }
       }
     }
@@ -466,10 +466,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           continue;
         if (tracks_view[it].quality() == Quality::edup)
           continue;
-        ALPAKA_ASSERT_OFFLOAD(tracks_view[it].quality() == Quality::bad);
+        ALPAKA_ASSERT_ACC(tracks_view[it].quality() == Quality::bad);
         if (nhits > TrackerTraits::maxHitsOnTrack)  // current limit
           printf("wrong mult %d %d\n", it, nhits);
-        ALPAKA_ASSERT_OFFLOAD(nhits <= TrackerTraits::maxHitsOnTrack);
+        ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
         tupleMultiplicity->count(acc, nhits);
       }
     }
@@ -488,10 +488,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           continue;
         if (tracks_view[it].quality() == Quality::edup)
           continue;
-        ALPAKA_ASSERT_OFFLOAD(tracks_view[it].quality() == Quality::bad);
+        ALPAKA_ASSERT_ACC(tracks_view[it].quality() == Quality::bad);
         if (nhits > TrackerTraits::maxHitsOnTrack)
           printf("wrong mult %d %d\n", it, nhits);
-        ALPAKA_ASSERT_OFFLOAD(nhits <= TrackerTraits::maxHitsOnTrack);
+        ALPAKA_ASSERT_ACC(nhits <= TrackerTraits::maxHitsOnTrack);
         tupleMultiplicity->fill(acc, nhits, it);
       }
     }
@@ -513,7 +513,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (tracks_view[it].quality() == Quality::edup)
           continue;
 
-        ALPAKA_ASSERT_OFFLOAD(tracks_view[it].quality() == Quality::bad);
+        ALPAKA_ASSERT_ACC(tracks_view[it].quality() == Quality::bad);
 
         // mark doublets as bad
         if (nhits < 3)
@@ -607,7 +607,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       }
       // fill hit indices
       for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.hitIndices().size())) {
-        ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().content[idx] < (uint32_t)hh.metadata().size());
+        ALPAKA_ASSERT_ACC(tracks_view.hitIndices().content[idx] < (uint32_t)hh.metadata().size());
         tracks_view.detIndices().content[idx] = hh[tracks_view.hitIndices().content[idx]].detectorIndex();
       }
     }
@@ -626,7 +626,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       if (cms::alpakatools::once_per_grid(acc))
         tracks_view.nTracks() = ntracks;
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntracks)) {
-        ALPAKA_ASSERT_OFFLOAD(TracksUtilities<TrackerTraits>::nHits(tracks_view, idx) >= 3);
+        ALPAKA_ASSERT_ACC(TracksUtilities<TrackerTraits>::nHits(tracks_view, idx) >= 3);
         tracks_view[idx].nLayers() = TracksUtilities<TrackerTraits>::computeNumberOfLayers(tracks_view, idx);
       }
     }

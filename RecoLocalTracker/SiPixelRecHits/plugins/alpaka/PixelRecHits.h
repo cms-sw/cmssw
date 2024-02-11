@@ -38,7 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t nonEmptyModules,
                                     SiPixelClustersSoAConstView clusters,
                                     TrackingRecHitSoAView<TrackerTraits> hits) const {
-        ALPAKA_ASSERT_OFFLOAD(cpeParams);
+        ALPAKA_ASSERT_ACC(cpeParams);
 
         // outer loop: one block per module
         for (uint32_t module : cms::alpakatools::independent_groups(acc, nonEmptyModules)) {
@@ -80,7 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             auto k = clusters[1 + module].moduleStart();
             while (digis[k].moduleId() == invalidModuleId)
               ++k;
-            ALPAKA_ASSERT_OFFLOAD(digis[k].moduleId() == me);
+            ALPAKA_ASSERT_ACC(digis[k].moduleId() == me);
           }
 
           if (me % 100 == 1)
@@ -129,8 +129,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if (cl < startClus || cl >= lastClus)
                 continue;
               cl -= startClus;
-              ALPAKA_ASSERT_OFFLOAD(cl >= 0);
-              ALPAKA_ASSERT_OFFLOAD(cl < maxHitsInIter);
+              ALPAKA_ASSERT_ACC(cl >= 0);
+              ALPAKA_ASSERT_ACC(cl < maxHitsInIter);
               auto x = digis[i].xx();
               auto y = digis[i].yy();
               alpaka::atomicMin(acc, &clusParams.minRow[cl], (uint32_t)x, alpaka::hierarchy::Threads{});
@@ -152,8 +152,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if (cl < startClus || cl >= lastClus)
                 continue;
               cl -= startClus;
-              ALPAKA_ASSERT_OFFLOAD(cl >= 0);
-              ALPAKA_ASSERT_OFFLOAD(cl < maxHitsInIter);
+              ALPAKA_ASSERT_ACC(cl >= 0);
+              ALPAKA_ASSERT_ACC(cl < maxHitsInIter);
               auto x = digis[i].xx();
               auto y = digis[i].yy();
               auto ch = digis[i].adc();

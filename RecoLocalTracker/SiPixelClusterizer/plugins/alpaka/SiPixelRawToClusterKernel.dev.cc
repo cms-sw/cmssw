@@ -432,16 +432,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct FillHitsModuleStart {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
-        ALPAKA_ASSERT_OFFLOAD(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
+        ALPAKA_ASSERT_ACC(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
 
         constexpr int numberOfModules = TrackerTraits::numberOfModules;
         constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
 
 #ifndef NDEBUG
         [[maybe_unused]] const uint32_t blockIdxLocal(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-        ALPAKA_ASSERT_OFFLOAD(0 == blockIdxLocal);
+        ALPAKA_ASSERT_ACC(0 == blockIdxLocal);
         [[maybe_unused]] const uint32_t gridDimension(alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-        ALPAKA_ASSERT_OFFLOAD(1 == gridDimension);
+        ALPAKA_ASSERT_ACC(1 == gridDimension);
 #endif
 
         // limit to maxHitsInModule;
@@ -488,16 +488,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::syncBlockThreads(acc);
         }
 #ifdef GPU_DEBUG
-        ALPAKA_ASSERT_OFFLOAD(0 == clus_view[0].moduleStart());
+        ALPAKA_ASSERT_ACC(0 == clus_view[0].moduleStart());
         auto c0 = std::min(maxHitsInModule, clus_view[1].clusModuleStart());
-        ALPAKA_ASSERT_OFFLOAD(c0 == clus_view[1].moduleStart());
-        ALPAKA_ASSERT_OFFLOAD(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
-        ALPAKA_ASSERT_OFFLOAD(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
-        ALPAKA_ASSERT_OFFLOAD(clus_view[numberOfModules].moduleStart() >= clus_view[1025].moduleStart());
+        ALPAKA_ASSERT_ACC(c0 == clus_view[1].moduleStart());
+        ALPAKA_ASSERT_ACC(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
+        ALPAKA_ASSERT_ACC(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
+        ALPAKA_ASSERT_ACC(clus_view[numberOfModules].moduleStart() >= clus_view[1025].moduleStart());
 
         for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules + 1)) {
           if (0 != i)
-            ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - 1].moduleStart());
+            ALPAKA_ASSERT_ACC(clus_view[i].moduleStart() >= clus_view[i - 1].moduleStart());
           // Check BPX2 (1), FP1 (4)
           constexpr auto bpix2 = TrackerTraits::layerStart[1];
           constexpr auto fpix1 = TrackerTraits::layerStart[4];
