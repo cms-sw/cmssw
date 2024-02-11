@@ -10,7 +10,12 @@
 <test name="test-pede" command="pede -t">
   <use name="millepede"/>
 </test>
-<test name="testPedeCampaign" command="test_pede.sh"/>
-<test name="testPayloadSanity" command="test_payload_sanity.sh">
-  <flags PRE_TEST="testPedeCampaign"/>
+<test name="test_PedeCampaign" command="test_pede.sh"/>
+<test name="test_PayloadSanity" command="test_payload_sanity.sh">
+  <flags PRE_TEST="test_PedeCampaign"/>
 </test>
+<test name="test_ZMuMuMassConstraintParameterFinder" command="test_ZMuMuMassConstraintParameterFinder.sh"/>
+<bin file="testFindMassContraintParameters.cpp" name="test_ExtractMassConstraint">
+  <flags PRE_TEST="test_ZMuMuMassConstraintParameterFinder"/>
+  <use name="rootcore"/>
+</bin>
