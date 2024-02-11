@@ -50,7 +50,7 @@ fi
 
 fallbackName=triton_server_instance_${DEVICE}
 tmpFile=$(mktemp -p ${LOCALTOP} SonicTritonTestXXXXXXXX.log)
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 fallbackName=${fallbackName} >& $tmpFile
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --modules TritonGraphProducer TritonGraphFilter TritonGraphAnalyzer --maxEvents 2 --unittest --verbose --device ${DEVICE} --testother --fallbackName ${fallbackName} >& $tmpFile
 CMSEXIT=$?
 
 cat $tmpFile

@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include <sstream>
@@ -15,6 +16,7 @@ namespace triton_utils {
     return msg.str();
   }
 
+  void convertToWarning(const cms::Exception& e) { edm::LogWarning(e.category()) << e.explainSelf(); }
 }  // namespace triton_utils
 
 template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,
