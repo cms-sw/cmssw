@@ -179,29 +179,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     }
     alpaka::syncBlockThreads(acc);
 
-    // x runs faster
-    const uint32_t blockDimensionX(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[dimIndexX]);
-    const auto& [firstElementIdxNoStrideX, endElementIdxNoStrideX] =
-        cms::alpakatools::element_index_range_in_block(acc, 0u, dimIndexX);
+    // declared outside the loop, as it cannot go backward
+    uint32_t pairLayerId = 0;
 
-    uint32_t pairLayerId = 0;  // cannot go backward
-
-    // Outermost loop on Y
-    const uint32_t gridDimensionY(alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[dimIndexY]);
-    const auto& [firstElementIdxNoStrideY, endElementIdxNoStrideY] =
-        cms::alpakatools::element_index_range_in_grid(acc, 0u, dimIndexY);
-    uint32_t firstElementIdxY = firstElementIdxNoStrideY;
-    uint32_t endElementIdxY = endElementIdxNoStrideY;
-
-    //const uint32_t incY = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 1 : gridDimensionY;
-    for (uint32_t j = firstElementIdxY; j < ntot; j++) {
-      if (not cms::alpakatools::next_valid_element_index_strided(
-              j, firstElementIdxY, endElementIdxY, gridDimensionY, ntot))
-        break;
-
+    // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
+    for (uint32_t j : cms::alpakatools::uniform_elements_y(acc, ntot)) {
+      // move to lower_bound ?
       while (j >= innerLayerCumulativeSize[pairLayerId++])
         ;
-      --pairLayerId;  // move to lower_bound ??
+      --pairLayerId;
 
       ALPAKA_ASSERT_OFFLOAD(pairLayerId < nPairs);
       ALPAKA_ASSERT_OFFLOAD(j < innerLayerCumulativeSize[pairLayerId]);
@@ -218,7 +204,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       ALPAKA_ASSERT_OFFLOAD(i >= offsets[inner]);
       ALPAKA_ASSERT_OFFLOAD(i < offsets[inner + 1]);
 
-      // found hit corresponding to our cuda thread, now do the job
+      // found hit corresponding to our worker thread, now do the job
       if (hh[i].detectorIndex() > pixelClustering::maxNumModules)
         continue;  // invalid
 
@@ -277,21 +263,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto const* __restrict__ e = phiBinner.end(kk + hoff);
         auto const maxpIndex = e - p;
 
-        // Here we parallelize in X
-        uint32_t firstElementIdxX = firstElementIdxNoStrideX;
-        uint32_t endElementIdxX = endElementIdxNoStrideX;
-
-        for (uint32_t pIndex = firstElementIdxX; pIndex < maxpIndex; ++pIndex) {
-          if (not cms::alpakatools::next_valid_element_index_strided(
-                  pIndex, firstElementIdxX, endElementIdxX, blockDimensionX, maxpIndex))
-            break;
-          auto oi = p[pIndex];  // auto oi = __ldg(p); is not allowed since __ldg is device-only
+        // innermost parallel loop, using the block elements along the faster dimension (X or 1 in a 2D grid)
+        for (uint32_t pIndex : cms::alpakatools::independent_group_elements_x(acc, maxpIndex)) {
+          // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
+          auto oi = p[pIndex];
           ALPAKA_ASSERT_OFFLOAD(oi >= offsets[outer]);
           ALPAKA_ASSERT_OFFLOAD(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
 
+          // invalid
           if (mo > pixelClustering::maxNumModules)
-            continue;  //    invalid
+            continue;
 
           if (doZ0Cut && z0cutoff(oi))
             continue;

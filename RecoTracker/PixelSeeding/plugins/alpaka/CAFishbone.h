@@ -58,25 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       uint16_t d[maxCellsPerHit];
       uint8_t l[maxCellsPerHit];
 
-      // index Dim<TAcc>::value - 1 runs faster...
-      constexpr uint32_t dimIndexX = 1u;
-      const uint32_t blockDimensionX(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[dimIndexX]);
-      const auto [firstElementIdxNoStrideX, endElementIdxNoStrideX] =
-          cms::alpakatools::element_index_range_in_block(acc, 0u, dimIndexX);
-
-      // Outermost parallel loop on the slower dimension (Y or 0 in a 2D grid)
-      constexpr uint32_t dimIndexY = 0u;
-      const uint32_t gridDimensionY(alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[dimIndexY]);
-      const auto [firstElementIdxNoStrideY, endElementIdxNoStrideY] =
-          cms::alpakatools::element_index_range_in_grid(acc, 0u, dimIndexY);
-      uint32_t firstElementIdxY = firstElementIdxNoStrideY;
-      uint32_t endElementIdxY = endElementIdxNoStrideY;
-
-      for (uint32_t idy = firstElementIdxY, nt = nHits - layer2Offset; idy < nt; ++idy) {
-        if (not cms::alpakatools::next_valid_element_index_strided(
-                idy, firstElementIdxY, endElementIdxY, gridDimensionY, nt))
-          break;
-
+      // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
+      for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, nHits - layer2Offset)) {
         auto const& vc = isOuterHitOfCell[idy];
         auto size = vc.size();
         if (size < 2)
@@ -106,15 +89,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         if (sg < 2)
           continue;
 
-        // here we parallelize in X
-        // Innermost parallel loop on the faster dimension (X or 1 in a 2D grid)
-        uint32_t firstElementIdxX = firstElementIdxNoStrideX;
-        uint32_t endElementIdxX = endElementIdxNoStrideX;
-        for (uint32_t ic = firstElementIdxX; (int)ic < sg - 1; ++ic) {
-          if (not cms::alpakatools::next_valid_element_index_strided(
-                  ic, firstElementIdxX, endElementIdxX, blockDimensionX, sg - 1))
-            break;
-
+        // innermost parallel loop, using the block elements along the faster dimension (X or 1 in a 2D grid)
+        for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, sg - 1)) {
           auto& ci = cells[cc[ic]];
           for (auto jc = ic + 1; (int)jc < sg; ++jc) {
             auto& cj = cells[cc[jc]];
