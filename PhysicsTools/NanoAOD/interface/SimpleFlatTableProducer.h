@@ -330,8 +330,10 @@ public:
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
-            edm::ParameterDescription<std::string>(
-                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+            edm::ParameterDescription<std::string>("precision",
+                                                   true,
+                                                   edm::Comment("the precision with which to store the value in the "
+                                                                "flat table, as a fucntion of the object evaluated")),
         false);
 
     edm::ParameterSetDescription extvariables;
@@ -437,6 +439,8 @@ public:
     edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
+    extvariable.add<std::string>("expr")->setComment(
+        "a function to define the content of the branch in the flat table");
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
     extvariable.ifValue(
         edm::ParameterDescription<std::string>(
@@ -445,8 +449,10 @@ public:
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
-            edm::ParameterDescription<std::string>(
-                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+            edm::ParameterDescription<std::string>("precision",
+                                                   true,
+                                                   edm::Comment("the precision with which to store the value in the "
+                                                                "flat table, as a fucntion of the object evaluated")),
         false);
 
     edm::ParameterSetDescription extvariables;
