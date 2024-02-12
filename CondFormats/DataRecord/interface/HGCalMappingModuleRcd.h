@@ -7,10 +7,7 @@
 //
 /**\class HGCalMappingModuleRcd HGCalMappingModuleRcd.h CondFormats/DataRecords/interface/HGCalMappingModuleRcd.h
 
- Description: [one line class summary]
-
- Usage:
-    <usage>
+ Description: Record for storing mapping parameters used for Electronics Mapping of HGCal Modules
 
 */
 //

@@ -7,10 +7,7 @@
 //
 /**\class HGCalMappingModuleIndexerRcd HGCalMappingModuleIndexerRcd.h CondFormats/DataRecords/interface/HGCalMappingModuleIndexerRcd.h
 
- Description: [one line class summary]
-
- Usage:
-    <usage>
+ Description: Record for storing indexing parameters used for Electronics Mapping of HGCal Modules
 
 */
 //
