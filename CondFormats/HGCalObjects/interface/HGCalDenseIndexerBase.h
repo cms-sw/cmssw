@@ -25,14 +25,14 @@ public:
     maxIdx_ = std::accumulate(vmax_.begin(), vmax_.end(), 1, std::multiplies<uint32_t>());
   }
 
-  uint32_t denseIndex(std::vector<uint32_t> v) {
+  uint32_t denseIndex(std::vector<uint32_t> v) const {
     uint32_t rtn = v[0];
     for (size_t i = 1; i < n_; i++)
       rtn = rtn * vmax_[i] + v[i];
     return rtn;
   }
 
-  std::vector<uint32_t> unpackDenseIndex(uint32_t rtn) {
+  std::vector<uint32_t> unpackDenseIndex(uint32_t rtn) const {
     std::vector<uint32_t> codes(n_, 0);
 
     const auto rend = vmax_.rend();
@@ -45,12 +45,12 @@ public:
     return codes;
   }
 
-  uint32_t getMaxIndex() { return maxIdx_; }
+  uint32_t getMaxIndex() const { return maxIdx_; }
 
-  ~HGCalDenseIndexerBase() {}
+  ~HGCalDenseIndexerBase() = default;
 
 private:
-  void check(size_t osize) {
+  void check(size_t osize) const {
     if (osize != n_)
       throw cms::Exception("ValueError") << " unable to update indexer max values. Expected " << n_ << " received "
                                          << osize;

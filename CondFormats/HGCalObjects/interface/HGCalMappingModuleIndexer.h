@@ -33,7 +33,7 @@ class HGCalMappingModuleIndexer {
 public:
   HGCalMappingModuleIndexer() : modFedIndexer_({maxCBperFED_, maxECONDperCB_}) {}
 
-  virtual ~HGCalMappingModuleIndexer() {}
+  virtual ~HGCalMappingModuleIndexer() = default;
 
   /**
      @short for a new module it adds it's type to the readaout sequence vector
@@ -162,29 +162,31 @@ public:
      if the index in the readout sequence is unknown alternative methods which take the (capture block, econd idx) are provided
      which will find first what should be the internal dense index (index in the readout sequence)
    */
-  uint32_t getIndexForModule(uint32_t fedid, uint32_t nmod) { return fedReadoutSequences_[fedid].modOffsets_[nmod]; };
-  uint32_t getIndexForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) {
+  uint32_t getIndexForModule(uint32_t fedid, uint32_t nmod) const {
+    return fedReadoutSequences_[fedid].modOffsets_[nmod];
+  };
+  uint32_t getIndexForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModule(fedid, nmod);
   };
-  uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t nmod, uint32_t erxidx) {
+  uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t nmod, uint32_t erxidx) const {
     return fedReadoutSequences_[fedid].erxOffsets_[nmod] + erxidx;
   };
-  uint32_t getIndexForModuleErx(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx) {
+  uint32_t getIndexForModuleErx(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx) const {
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModuleErx(fedid, nmod, erxidx);
   }
-  uint32_t getIndexForModuleData(uint32_t fedid, uint32_t nmod, uint32_t erxidx, uint32_t chidx) {
+  uint32_t getIndexForModuleData(uint32_t fedid, uint32_t nmod, uint32_t erxidx, uint32_t chidx) const {
     return fedReadoutSequences_[fedid].chDataOffsets_[nmod] + erxidx * HGCalMappingCellIndexer::maxChPerErx_ + chidx;
   };
   uint32_t getIndexForModuleData(
-      uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx, uint32_t chidx) {
+      uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx, uint32_t erxidx, uint32_t chidx) const {
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModuleData(fedid, nmod, erxidx, chidx);
   };
 
-  int getTypeForModule(uint32_t fedid, uint32_t nmod) { return fedReadoutSequences_[fedid].readoutTypes_[nmod]; }
-  int getTypeForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) {
+  int getTypeForModule(uint32_t fedid, uint32_t nmod) const { return fedReadoutSequences_[fedid].readoutTypes_[nmod]; }
+  int getTypeForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getTypeForModule(fedid, nmod);
   }
@@ -205,7 +207,7 @@ private:
   /**
      @short given capture block and econd indices returns the dense indexer
    */
-  uint32_t denseIndexingFor(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) {
+  uint32_t denseIndexingFor(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
     if (fedid > nfeds_)
       throw cms::Exception("ValueError") << "FED ID=" << fedid << " is unknown to current mapping";
     uint32_t idx = modFedIndexer_.denseIndex({{captureblockIdx, econdIdx}});

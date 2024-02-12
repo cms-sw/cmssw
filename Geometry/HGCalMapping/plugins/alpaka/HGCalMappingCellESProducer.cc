@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalMappingCellIndexerRcd& iRecord) {
         //get cell indexer
-        HGCalMappingCellIndexer cellIndexer = iRecord.get(cellIndexTkn_);
+        const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
 
         const uint32_t size = cellIndexer.maxDenseIndex();  // channel-level size
         HGCalMappingCellParamHostCollection cellParams(size, cms::alpakatools::host());
