@@ -29,6 +29,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `modelConfigPath`: path to `config.pbtxt` file for the model (using `edm::FileInPath`)
 * `preferredServer`: name of preferred server, for testing (see [Services](#services) below)
 * `timeout`: maximum allowed time for a request (disabled with 0)
+* `timeoutUnit`: seconds, milliseconds, or microseconds (default: seconds)
 * `outputs`: optional, specify which output(s) the server should send
 * `verbose`: enable verbose printouts (default: false)
 * `useSharedMemory`: enable use of shared memory (see [below](#shared-memory)) with local servers (default: true)
@@ -132,6 +133,7 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-C [dir]`: directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)
 * `-D`: dry run: print container commands rather than executing them
 * `-d`: use Docker instead of Apptainer
+* `-E [path]`: include extra path(s) for executables (default: /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin)
 * `-f`: force reuse of (possibly) existing container instance
 * `-g`: use GPU instead of CPU
 * `-i` [name]`: server image name (default: fastml/triton-torchgeo:22.07-py3-geometric)

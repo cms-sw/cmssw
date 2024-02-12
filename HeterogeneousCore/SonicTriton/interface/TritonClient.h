@@ -48,6 +48,7 @@ public:
   void resetBatchMode();
   void reset() override;
   TritonServerType serverType() const { return serverType_; }
+  bool isLocal() const { return isLocal_; }
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
@@ -78,6 +79,7 @@ protected:
   bool verbose_;
   bool useSharedMemory_;
   TritonServerType serverType_;
+  bool isLocal_;
   grpc_compression_algorithm compressionAlgo_;
   triton::client::Headers headers_;
 

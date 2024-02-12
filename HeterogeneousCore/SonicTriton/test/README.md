@@ -16,17 +16,17 @@ The local server will use Apptainer with CPU by default; if a local Nvidia GPU i
 
 Run the image test:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer,TritonImageProducer models=inception_graphdef,densenet_onnx
+cmsRun tritonTest_cfg.py --maxEvents 1 --modules TritonImageProducer TritonImageProducer --models inception_graphdef densenet_onnx
 ```
 
 Run the identity test with ragged batching:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonIdentityProducer models=ragged_io
+cmsRun tritonTest_cfg.py --maxEvents 1 --modules TritonIdentityProducer --models ragged_io
 ```
 
 Run the graph test:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonGraphProducer
+cmsRun tritonTest_cfg.py --maxEvents 1 --modules TritonGraphProducer
 ```
 
 ## Caveats
