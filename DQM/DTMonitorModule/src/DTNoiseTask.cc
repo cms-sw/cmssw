@@ -106,7 +106,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
       // fill the occupancy histo
       // FIXME: needs to be optimized: no need to rescale the histo for each digi
-      TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
+      TH2D* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2D();
       double normalization = 0;
       if (mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId()) != mapEvt.end()) {
         LogVerbatim("DTNoiseTask") << " Last fill: # of events: "
@@ -172,7 +172,7 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
   }
 
   noiseHistos[chId] =
-      ibooker.book2D(histoName, "Noise rate (Hz) per channel", nWires_max, 1, nWires_max + 1, 12, 1, 13);
+      ibooker.book2DD(histoName, "Noise rate (Hz) per channel", nWires_max, 1, nWires_max + 1, 12, 1, 13);
   noiseHistos[chId]->setAxisTitle("wire number", 1);
   noiseHistos[chId]->setBinLabel(1, "SL1-L1", 2);
   noiseHistos[chId]->setBinLabel(2, "SL1-L2", 2);
@@ -262,7 +262,7 @@ void DTNoiseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
        meAndChamber != noiseHistos.end();
        ++meAndChamber) {
     DTChamberId chId = (*meAndChamber).first;
-    TH2F* noise_root = (*meAndChamber).second->getTH2F();
+    TH2D* noise_root = (*meAndChamber).second->getTH2D();
     double upperLimit = tTrigStMap[chId] - safeMargin;
 
     double normalization = 0;

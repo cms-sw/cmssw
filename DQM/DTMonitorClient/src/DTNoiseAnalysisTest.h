@@ -66,6 +66,11 @@ private:
 
   // paramaters from cfg
   int noisyCellDef;
+  bool isCosmics;
+  bool doSynchNoise;
+  bool detailedAnalysis;
+  double maxSynchNoiseRate;
+  double noiseSafetyFactor;
 
   // wheel summary histograms
   std::map<int, MonitorElement*> noiseHistos;
@@ -75,9 +80,15 @@ private:
   MonitorElement* summarySynchNoiseHisto;
   MonitorElement* glbSummarySynchNoiseHisto;
 
-  bool doSynchNoise;
-  bool detailedAnalysis;
-  double maxSynchNoiseRate;
+  //values based on F. Romana research, estimate the background rate per chamber and set a threshold to spot noisy wires with a safety factor
+  static constexpr float cellW = 4.2;    //cm
+  static constexpr float instLumi = 20;  //E33 cm-2 s-1, reference for Run3
+  static constexpr std::array<std::array<float, 4>, 3> kW_MB = {
+      {{{0.41, 0.08, 0.01, 0.15}},
+       {{0.17, 0.04, 0.01, 0.15}},
+       {{0.06, 0.02, 0.01, 0.15}}}};  // in units of E33 cm-2 s-1, 3 wheel types x 4 MB stations
+  static constexpr std::array<std::array<float, 4>, 2> lenghtSL_MB = {
+      {{{206, 252, 302, 0}}, {{240, 240, 240, 240}}}};  //Theta and Phi SL1 SL3
 };
 
 #endif
