@@ -1079,7 +1079,7 @@ upgradeWFs['PatatrackECALOnlyAlpaka'] = PatatrackWorkflow(
         '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
     },
     suffix = 'Patatrack_ECALOnlyAlpaka',
-    offset = 0.411,
+    offset = 0.412,
 )
 
 # ECAL-only workflow running on CPU

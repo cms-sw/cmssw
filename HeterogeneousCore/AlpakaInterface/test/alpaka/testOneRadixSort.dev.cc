@@ -85,7 +85,7 @@ namespace {
       //      __shared__ uint16_t sws[2048];
       //      __shared__ float z[2048];
       //      __shared__ int iz[2048];
-      for (auto itrack : elements_with_stride(acc, elements)) {
+      for (auto itrack : uniform_elements(acc, elements)) {
         z[itrack] = gpu_input[itrack];
         iz[itrack] = 10000 * gpu_input[itrack];
         // order[itrack] = itrack;
@@ -95,7 +95,7 @@ namespace {
       alpaka::syncBlockThreads(acc);
 
       //verify
-      for (auto itrack : elements_with_stride(acc, elements - 1)) {
+      for (auto itrack : uniform_elements(acc, elements - 1)) {
         auto ntrack = order[itrack];
         auto mtrack = order[itrack + 1];
         assert(truncate<2>(z[ntrack]) <= truncate<2>(z[mtrack]));
@@ -123,7 +123,7 @@ namespace {
       radixSort<TAcc, int, 4>(acc, iz, order, sws, elements);
       alpaka::syncBlockThreads(acc);
 
-      for (auto itrack : elements_with_stride(acc, elements - 1)) {
+      for (auto itrack : uniform_elements(acc, elements - 1)) {
         auto ntrack = order[itrack];
         auto mtrack = order[itrack + 1];
         assert(iz[ntrack] <= iz[mtrack]);

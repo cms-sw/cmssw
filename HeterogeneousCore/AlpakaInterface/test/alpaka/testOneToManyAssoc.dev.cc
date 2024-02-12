@@ -36,7 +36,7 @@ struct countMultiLocal {
                                 TK const* __restrict__ tk,
                                 Multiplicity* __restrict__ assoc,
                                 uint32_t n) const {
-    for (auto i : elements_with_stride(acc, n)) {
+    for (auto i : uniform_elements(acc, n)) {
       auto& local = alpaka::declareSharedVar<Multiplicity::CountersOnly, __COUNTER__>(acc);
       const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
       const bool oncePerSharedMemoryAccess = (threadIdxLocal == 0);
@@ -59,7 +59,7 @@ struct countMulti {
                                 TK const* __restrict__ tk,
                                 Multiplicity* __restrict__ assoc,
                                 uint32_t n) const {
-    for (auto i : elements_with_stride(acc, n)) {
+    for (auto i : uniform_elements(acc, n)) {
       assoc->count(acc, 2 + i % 4);
     }
   }
@@ -68,7 +68,7 @@ struct countMulti {
 struct verifyMulti {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, Multiplicity* __restrict__ m1, Multiplicity* __restrict__ m2) const {
-    for ([[maybe_unused]] auto i : elements_with_stride(acc, Multiplicity{}.totOnes())) {
+    for ([[maybe_unused]] auto i : uniform_elements(acc, Multiplicity{}.totOnes())) {
       ALPAKA_ASSERT_OFFLOAD(m1->off[i] == m2->off[i]);
     }
   }
@@ -80,7 +80,7 @@ struct count {
                                 TK const* __restrict__ tk,
                                 AssocRandomAccess* __restrict__ assoc,
                                 uint32_t n) const {
-    for (auto i : elements_with_stride(acc, 4 * n)) {
+    for (auto i : uniform_elements(acc, 4 * n)) {
       auto k = i / 4;
       auto j = i - 4 * k;
       ALPAKA_ASSERT_OFFLOAD(j < 4);
@@ -100,7 +100,7 @@ struct fill {
                                 TK const* __restrict__ tk,
                                 AssocRandomAccess* __restrict__ assoc,
                                 uint32_t n) const {
-    for (auto i : elements_with_stride(acc, 4 * n)) {
+    for (auto i : uniform_elements(acc, 4 * n)) {
       auto k = i / 4;
       auto j = i - 4 * k;
       ALPAKA_ASSERT_OFFLOAD(j < 4);
@@ -125,7 +125,7 @@ struct fillBulk {
   template <typename TAcc, typename Assoc>
   ALPAKA_FN_ACC void operator()(
       const TAcc& acc, AtomicPairCounter* apc, TK const* __restrict__ tk, Assoc* __restrict__ assoc, uint32_t n) const {
-    for (auto k : elements_with_stride(acc, n)) {
+    for (auto k : uniform_elements(acc, n)) {
       auto m = tk[k][3] < MaxElem ? 4 : 3;
       assoc->bulkFill(acc, *apc, &tk[k][0], m);
     }

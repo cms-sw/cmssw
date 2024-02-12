@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"

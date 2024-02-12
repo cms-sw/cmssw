@@ -1,7 +1,10 @@
-#ifndef RecoPixelVertexing_PixelTriplets_HelixFit_h
-#define RecoPixelVertexing_PixelTriplets_HelixFit_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h
 
 #include <alpaka/alpaka.hpp>
+
+#include <Eigen/Core>
+
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
@@ -10,7 +13,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 #include "CAStructures.h"
+
 namespace riemannFit {
+
   // TODO: Can this be taken from TrackerTraits or somewhere else?
   // in case of memory issue can be made smaller
   constexpr uint32_t maxNumberOfConcurrentFits = 32 * 1024;
@@ -89,5 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const bool fitNas4_;
   };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_HelixFit_h
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h

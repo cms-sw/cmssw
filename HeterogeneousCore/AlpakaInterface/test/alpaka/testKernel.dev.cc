@@ -17,7 +17,7 @@ struct VectorAddKernel {
   template <typename TAcc, typename T>
   ALPAKA_FN_ACC void operator()(
       TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
-    for (auto index : cms::alpakatools::elements_with_stride(acc, size)) {
+    for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index] = in1[index] + in2[index];
     }
   }
@@ -31,7 +31,7 @@ struct VectorAddKernelSkip {
                                 T* __restrict__ out,
                                 size_t first,
                                 size_t size) const {
-    for (auto index : cms::alpakatools::elements_with_stride(acc, first, size)) {
+    for (auto index : cms::alpakatools::uniform_elements(acc, first, size)) {
       out[index] = in1[index] + in2[index];
     }
   }
@@ -41,7 +41,7 @@ struct VectorAddKernel1D {
   template <typename TAcc, typename T>
   ALPAKA_FN_ACC void operator()(
       TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec1D size) const {
-    for (auto ndindex : cms::alpakatools::elements_with_stride_nd(acc, size)) {
+    for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = ndindex[0];
       out[index] = in1[index] + in2[index];
     }
@@ -52,7 +52,7 @@ struct VectorAddKernel2D {
   template <typename TAcc, typename T>
   ALPAKA_FN_ACC void operator()(
       TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec2D size) const {
-    for (auto ndindex : cms::alpakatools::elements_with_stride_nd(acc, size)) {
+    for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = ndindex[0] * size[1] + ndindex[1];
       out[index] = in1[index] + in2[index];
     }
@@ -63,7 +63,7 @@ struct VectorAddKernel3D {
   template <typename TAcc, typename T>
   ALPAKA_FN_ACC void operator()(
       TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec3D size) const {
-    for (auto ndindex : cms::alpakatools::elements_with_stride_nd(acc, size)) {
+    for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = (ndindex[0] * size[1] + ndindex[1]) * size[2] + ndindex[2];
       out[index] = in1[index] + in2[index];
     }
@@ -84,7 +84,7 @@ struct VectorAddBlockKernel {
     T* buffer = alpaka::getDynSharedMem<T>(acc);
     // the outer loop is needed to repeat the "block" as many times as needed to cover the whole problem space
     // the inner loop is needed for backends that use more than one element per thread
-    for (auto block : cms::alpakatools::blocks_with_stride(acc, size)) {
+    for (auto block : cms::alpakatools::uniform_groups(acc, size)) {
       // only one thread per block: initialise the shared memory
       if (cms::alpakatools::once_per_block(acc)) {
         // not really necessary, just to show how to use "once_per_block"
@@ -94,19 +94,19 @@ struct VectorAddBlockKernel {
       // synchronise all threads in the block
       alpaka::syncBlockThreads(acc);
       // read the first set of data into shared memory
-      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+      for (auto index : cms::alpakatools::uniform_group_elements(acc, block, size)) {
         buffer[index.local] = in1[index.global];
       }
       // synchronise all threads in the block
       alpaka::syncBlockThreads(acc);
       // add the second set of data into shared memory
-      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+      for (auto index : cms::alpakatools::uniform_group_elements(acc, block, size)) {
         buffer[index.local] += in2[index.global];
       }
       // synchronise all threads in the block
       alpaka::syncBlockThreads(acc);
       // store the results into global memory
-      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+      for (auto index : cms::alpakatools::uniform_group_elements(acc, block, size)) {
         out[index.global] = buffer[index.local];
       }
     }
@@ -142,7 +142,7 @@ struct VectorAddKernelBlockSerial {
     // block size
     auto const blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
     // the loop is used to repeat the "block" as many times as needed to cover the whole problem space
-    for (auto block : cms::alpakatools::blocks_with_stride(acc, size)) {
+    for (auto block : cms::alpakatools::uniform_groups(acc, size)) {
       // the operations are performed by a single thread in each "logical" block
       const auto first = blockSize * block;
       const auto range = std::min<size_t>(first + blockSize, size);

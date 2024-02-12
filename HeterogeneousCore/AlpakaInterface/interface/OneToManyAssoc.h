@@ -96,20 +96,15 @@ namespace cms::alpakatools {
     struct zeroAndInit {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, View view) const {
-        auto h = view.assoc;
         ALPAKA_ASSERT_OFFLOAD((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
         ALPAKA_ASSERT_OFFLOAD((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-
-        auto first = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0];
-
-        if (0 == first) {
+        auto h = view.assoc;
+        if (cms::alpakatools::once_per_block(acc)) {
           h->psws = 0;
           h->initStorage(view);
         }
         alpaka::syncBlockThreads(acc);
-        // TODO use for_each_element_in_grid_strided (or similar)
-        for (int i = first, nt = h->totOnes(); i < nt;
-             i += alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0]) {
+        for (int i : cms::alpakatools::independent_group_elements(acc, h->totOnes())) {
           h->off[i] = 0;
         }
       }

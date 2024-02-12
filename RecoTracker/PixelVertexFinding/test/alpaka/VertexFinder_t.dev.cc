@@ -3,11 +3,14 @@
 #include <iostream>
 #include <random>
 #include <vector>
+
 #include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+
 // TrackUtilities only included in order to compile SoALayout with Eigen columns
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #ifdef USE_DBSCAN
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/clusterTracksDBSCAN.h"
 #define CLUSTERIZE ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder::ClusterTracksDBSCAN
@@ -18,11 +21,9 @@
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/clusterTracksByDensity.h"
 #define CLUSTERIZE ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder::ClusterTracksByDensityKernel
 #endif
-
 #include "RecoTracker/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
 #include "RecoTracker/PixelVertexFinding/plugins/PixelVertexWorkSpaceSoAHostAlpaka.h"
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/PixelVertexWorkSpaceSoADeviceAlpaka.h"
-
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/fitVertices.h"
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/sortByPt2.h"
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/splitVertices.h"

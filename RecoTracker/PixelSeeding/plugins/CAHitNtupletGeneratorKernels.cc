@@ -1,6 +1,6 @@
-#include "RecoTracker/PixelSeeding/plugins/CAHitNtupletGeneratorKernelsImpl.h"
-
 #include <mutex>
+
+#include "CAHitNtupletGeneratorKernelsImpl.h"
 
 namespace {
   // cuda atomics are NOT atomics on CPU so protect stat update with a mutex

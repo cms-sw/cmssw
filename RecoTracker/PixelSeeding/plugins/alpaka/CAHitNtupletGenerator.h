@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_Alpaka_CAHitNtupletGenerator_h
-#define RecoPixelVertexing_PixelTriplets_Alpaka_CAHitNtupletGenerator_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGenerator_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGenerator_h
 
 #include <alpaka/alpaka.hpp>
 
@@ -11,10 +11,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
-#include "CAHitNtupletGeneratorKernels.h"
 #include "CACell.h"
+#include "CAHitNtupletGeneratorKernels.h"
 #include "HelixFit.h"
 
 namespace edm {
@@ -83,4 +84,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGenerator_h
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGenerator_h

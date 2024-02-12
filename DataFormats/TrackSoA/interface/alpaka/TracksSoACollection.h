@@ -1,15 +1,17 @@
-#ifndef DataFormats_Track_interface_alpaka_TracksSoACollection_h
-#define DataFormats_Track_interface_alpaka_TracksSoACollection_h
+#ifndef DataFormats_TrackSoA_interface_alpaka_TracksSoACollection_h
+#define DataFormats_TrackSoA_interface_alpaka_TracksSoACollection_h
 
-#include <cstdint>
+#include <type_traits>
+
 #include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/TrackSoA/interface/TracksSoA.h"
-#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 // TODO: The class is created via inheritance of the PortableCollection.
 // This is generally discouraged, and should be done via composition.
@@ -49,4 +51,4 @@ ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionPhase1, pix
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionPhase2, pixelTrack::TracksHostPhase2);
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(pixelTrack::TracksSoACollectionHIonPhase1, pixelTrack::TracksHostHIonPhase1);
 
-#endif  // DataFormats_Track_interface_alpaka_TracksSoACollection_h
+#endif  // DataFormats_TrackSoA_interface_alpaka_TracksSoACollection_h
