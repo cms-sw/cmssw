@@ -231,6 +231,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tTkStubsGmt_*_*',
         'keep *_l1tTkMuonsGmt_*_*',
         'keep *_l1tSAMuonsGmt_*_*',
+        'keep *_l1tTkMuonsGmtLowPtFix_*_*', # in the long run this should be removed, but these fix objects will be used for now.
         ]
     obj.outputCommands += l1Phase2Digis
 
