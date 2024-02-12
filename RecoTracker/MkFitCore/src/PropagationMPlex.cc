@@ -228,9 +228,11 @@ namespace {
 
   // this version does not assume to know which elements are 0 or 1, so it does the full multiplication
   void MultHelixPropFull(const MPlexLL& A, const MPlexLS& B, MPlexLL& C) {
-#pragma omp simd
     for (int n = 0; n < NN; ++n) {
       for (int i = 0; i < 6; ++i) {
+// optimization reports indicate only the inner two loops are good
+// candidates for vectorization
+#pragma omp simd
         for (int j = 0; j < 6; ++j) {
           C(n, i, j) = 0.;
           for (int k = 0; k < 6; ++k)
@@ -242,9 +244,11 @@ namespace {
 
   // this version does not assume to know which elements are 0 or 1, so it does the full mupltiplication
   void MultHelixPropTranspFull(const MPlexLL& A, const MPlexLL& B, MPlexLS& C) {
-#pragma omp simd
     for (int n = 0; n < NN; ++n) {
       for (int i = 0; i < 6; ++i) {
+// optimization reports indicate only the inner two loops are good
+// candidates for vectorization
+#pragma omp simd
         for (int j = 0; j < 6; ++j) {
           C(n, i, j) = 0.;
           for (int k = 0; k < 6; ++k)
@@ -1280,7 +1284,7 @@ namespace mkfit {
       // const float thetaMSC2 = thetaMSC*thetaMSC;
       const float thetaMSC = 0.0136f * (1.f + 0.038f * std::log(radL)) / (beta * p);  // eq 32.15
       const float thetaMSC2 = thetaMSC * thetaMSC * radL;
-      if (Config::usePtMultScat) {
+      if constexpr (Config::usePtMultScat) {
         outErr.At(n, 3, 3) += thetaMSC2 * pz * pz * ipt2 * ipt2;
         outErr.At(n, 3, 5) -= thetaMSC2 * pz * ipt2;
         outErr.At(n, 4, 4) += thetaMSC2 * p2 * ipt2;
