@@ -291,6 +291,7 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   // now prepare the output LA
   std::shared_ptr<SiStripLorentzAngle> OutLorentzAngle = std::make_shared<SiStripLorentzAngle>();
 
+  bool isPayloadChanged{false};
   for (const auto& loc : iHists_.moduleLocationType_) {
     if (debug_) {
       edm::LogInfo(moduleDescription().moduleName()) << "modId: " << loc.first << " " << loc.second;
@@ -298,22 +299,28 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
     if (!(loc.second).empty()) {
       OutLorentzAngle->putLorentzAngle(loc.first, std::abs(LAMap_[loc.second].first / theMagField_));
+      isPayloadChanged = true;
     } else {
       OutLorentzAngle->putLorentzAngle(loc.first, iHists_.la_db_[loc.first]);
     }
   }
 
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if (mydbservice.isAvailable()) {
-    try {
-      mydbservice->writeOneIOV(*OutLorentzAngle, mydbservice->currentTime(), recordName_);
-    } catch (const cond::Exception& er) {
-      edm::LogError("SiStripLorentzAngleDB") << er.what();
-    } catch (const std::exception& er) {
-      edm::LogError("SiStripLorentzAngleDB") << "caught std::exception " << er.what();
+  if (isPayloadChanged) {
+    // fill the DB object record
+    edm::Service<cond::service::PoolDBOutputService> mydbservice;
+    if (mydbservice.isAvailable()) {
+      try {
+	mydbservice->writeOneIOV(*OutLorentzAngle, mydbservice->currentTime(), recordName_);
+      } catch (const cond::Exception& er) {
+	edm::LogError("SiStripLorentzAngleDB") << er.what();
+      } catch (const std::exception& er) {
+	edm::LogError("SiStripLorentzAngleDB") << "caught std::exception " << er.what();
+      }
+    } else {
+      edm::LogError("SiStripLorentzAngleDB") << "Service is unavailable";
     }
   } else {
-    edm::LogError("SiStripLorentzAngleDB") << "Service is unavailable";
+    edm::LogPrint("SiStripLorentzAngleDB") << __PRETTY_FUNCTION__ << " there is no new valid measurement to append! ";
   }
 }
 
