@@ -3,20 +3,22 @@
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+
 #include <TF1.h>
+
+#include <cmath>
+#include <cstdlib>
 
 namespace tau {
   class TauWPThreshold {
   public:
     explicit TauWPThreshold(const std::string& cut_str) {
       bool simple_value = false;
-      try {
-        size_t pos = 0;
-        value_ = std::stod(cut_str, &pos);
-        simple_value = (pos == cut_str.size());
-      } catch (std::invalid_argument&) {
-      } catch (std::out_of_range&) {
-      }
+      const char* cut_cstr = cut_str.c_str();
+      char* end_cstr{};
+      value_ = std::strtod(cut_cstr, &end_cstr);
+      // simple number if end_cstr is empty and not equal to initial string (cut_cstr), and returned value is finite
+      simple_value = !*end_cstr && cut_cstr != end_cstr && std::isfinite(value_);
       if (!simple_value) {
         static const std::string prefix =
             "[&](double *x, double *p) { const int decayMode = p[0];"
