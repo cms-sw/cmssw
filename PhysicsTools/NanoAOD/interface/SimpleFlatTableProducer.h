@@ -127,7 +127,7 @@ public:
   }
 };
 
-template <typename ObjType, typename TIn, typename StringFunctor, typename VarType, typename ValType = VarType>
+template <typename ObjType, typename TIn, typename StringFunctor, typename ValType>
 class TypedValueMapVariable : public ValueMapVariableBase<ObjType, TIn, ValType> {
 public:
   TypedValueMapVariable(const std::string &aname,
@@ -468,11 +468,11 @@ protected:
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int32_t> IntTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint32_t> UIntTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, float> FloatTypedExtVar;
-  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, double, float> DoubleTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, double> DoubleTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringCutObjectSelector<V>, bool> BoolTypedExtVar;
-  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, uint8_t> UInt8TypedExtVar;
-  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, int16_t> Int16TypedExtVar;
-  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int, uint16_t> UInt16TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint8_t> UInt8TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int16_t> Int16TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint16_t> UInt16TypedExtVar;
 };
 
 template <typename T>
