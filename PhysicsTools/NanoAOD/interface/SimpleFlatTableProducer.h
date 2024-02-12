@@ -356,14 +356,14 @@ public:
       if (singleton_) {
         assert(prod->size() == 1);
         selobjs.push_back(&(*prod)[0]);
-        if (!extvars_.empty())
+        if (!extvars_.empty() || !typedextvars_.empty())
           selptrs.emplace_back(prod->ptrAt(0));
       } else {
         for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
           const auto &obj = (*prod)[i];
           if (cut_(obj)) {
             selobjs.push_back(&obj);
-            if (!extvars_.empty())
+            if (!extvars_.empty() || !typedextvars_.empty())
               selptrs.emplace_back(prod->ptrAt(i));
           }
           if (selobjs.size() >= maxLen_)
