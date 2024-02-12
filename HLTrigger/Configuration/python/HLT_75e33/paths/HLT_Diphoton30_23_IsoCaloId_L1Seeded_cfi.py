@@ -7,7 +7,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Diphoton30_23_IsoCaloId_L1Seeded = cms.Path(
     HLTBeginSequence +
-    hltPreDiphoton3023IsoCaloIdL1Seeded +
     HLTDiphoton3023IsoCaloIdL1SeededSequence +
     HLTEndSequence
 )
