@@ -104,7 +104,7 @@ namespace tfaot {
   std::tuple<Outputs...> Model<W>::run(size_t batchSize, Inputs&&... inputs) {
     // check number of inputs
     size_t nInputs = sizeof...(Inputs);
-    if (nInputs != wrapper_->nResults()) {
+    if (nInputs != wrapper_->nArgs()) {
       throw cms::Exception("InputMismatch")
           << "model '" << name() << "' received " << nInputs << " inputs, but " << wrapper_->nArgs() << " are expected";
     }
