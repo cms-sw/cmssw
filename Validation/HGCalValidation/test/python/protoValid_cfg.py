@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun protoValid_cfg.py geometry=D88 type=hgcalSimHitStudy defaultInput=1
+#   cmsRun protoValid_cfg.py geometry=D99 type=hgcalSimHitStudy defaultInput=1
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D98, D99, D108, D94, D103, D104, D106, D109
 #               type hgcalGeomCheck, hgcalSimHitStudy, hgcalDigiStudy,
 #                    hgcalRecHitStudy, hgcalSiliconValidation
 #               defaultInput 1, 0
@@ -16,10 +16,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "D99",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D98, D99, D108, D94, D103, D104, D106, D109")
 options.register('type',
                  "hgcalGeomCheck",
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -39,8 +39,21 @@ print(options)
 ############################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('PROD',Phase2C17I13M9)
+if (options.geometry == "D94"):
+    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+    process = cms.Process('PROD',Phase2C20I13M9)
+elif (options.geometry == "D104"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('PROD',PhaseC22I13M9)
+elif (options.geometry == "D106"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('PROD',PhaseC22I13M9)
+elif (options.geometry == "D109"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('PROD',PhaseC22I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('PROD',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 fileCheck = "testHGCalSimWatcher" + options.geometry + ".root"
@@ -68,8 +81,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['phase2_realistic']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
