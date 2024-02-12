@@ -82,20 +82,18 @@ public:
                     std::vector<edm::Ptr<ObjType>> selptrs,
                     nanoaod::FlatTable &out) const = 0;
 };
+
 template <typename ObjType, typename TIn, typename ValType = TIn>
-class ValueMapVariable : public ExtVariable<ObjType> {
+class ValueMapVariableBase : public ExtVariable<ObjType> {
 public:
-  ValueMapVariable(const std::string &aname,
-                   const edm::ParameterSet &cfg,
-                   edm::ConsumesCollector &&cc,
-                   bool skipNonExistingSrc = false)
+  ValueMapVariableBase(const std::string &aname,
+                       const edm::ParameterSet &cfg,
+                       edm::ConsumesCollector &&cc,
+                       bool skipNonExistingSrc = false)
       : ExtVariable<ObjType>(aname, cfg),
         skipNonExistingSrc_(skipNonExistingSrc),
         token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
-  virtual ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
-    ValType val = (*vmap)[op];
-    return val;
-  }
+  virtual ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const = 0;
   void fill(const edm::Event &iEvent, std::vector<edm::Ptr<ObjType>> selptrs, nanoaod::FlatTable &out) const override {
     edm::Handle<edm::ValueMap<TIn>> vmap;
     iEvent.getByToken(token_, vmap);
@@ -115,14 +113,28 @@ protected:
   edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
 };
 
+template <typename ObjType, typename TIn, typename ValType = TIn>
+class ValueMapVariable : public ValueMapVariableBase<ObjType, TIn, ValType> {
+public:
+  ValueMapVariable(const std::string &aname,
+                   const edm::ParameterSet &cfg,
+                   edm::ConsumesCollector &&cc,
+                   bool skipNonExistingSrc = false)
+      : ValueMapVariableBase<ObjType, TIn, ValType>(aname, cfg, std::move(cc), skipNonExistingSrc) {}
+  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
+    ValType val = (*vmap)[op];
+    return val;
+  }
+};
+
 template <typename ObjType, typename TIn, typename StringFunctor, typename VarType, typename ValType = VarType>
-class TypedValueMapVariable : public ValueMapVariable<ObjType, VarType, ValType> {
+class TypedValueMapVariable : public ValueMapVariableBase<ObjType, TIn, ValType> {
 public:
   TypedValueMapVariable(const std::string &aname,
                         const edm::ParameterSet &cfg,
                         edm::ConsumesCollector &&cc,
                         bool skipNonExistingSrc = false)
-      : ValueMapVariable<ObjType, VarType, ValType>(aname, cfg, std::move(cc), skipNonExistingSrc),
+      : ValueMapVariableBase<ObjType, TIn, ValType>(aname, cfg, std::move(cc), skipNonExistingSrc),
         func_(cfg.getParameter<std::string>("expr"), true),
         precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
                        true) {}
