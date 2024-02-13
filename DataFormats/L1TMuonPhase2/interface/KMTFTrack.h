@@ -1,5 +1,5 @@
-#ifndef DataFormatsL1TMuonPhase2_KMTFTrack_h
-#define DataFormatsL1TMuonPhase2_KMTFTrack_h
+#ifndef DataFormats_L1TMuonPhase2_KMTFTrack_h
+#define DataFormats_L1TMuonPhase2_KMTFTrack_h
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
