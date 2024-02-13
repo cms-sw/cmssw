@@ -10,8 +10,6 @@
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
-#include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
