@@ -1,5 +1,5 @@
-#ifndef PHASE2GMT_TRACKER_PLUS_STUBS
-#define PHASE2GMT_TRACKER_PLUS_STUBS
+#ifndef L1Trigger_Phase2L1GMT_TPS_h
+#define L1Trigger_Phase2L1GMT_TPS_h
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TrackConverter.h"
