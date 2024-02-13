@@ -33,38 +33,31 @@ private:
   
 
   //various needed vars
-  int _nTaus;
-  bool _HW;
+  int nTaus_;
+  bool HW_;
   bool fUseJets_;
-  bool _debug;
+  bool debug_;
   
-  edm::InputTag srcL1PFCands_;
   edm::EDGetTokenT<l1t::PFCandidateCollection> tokenL1PFCands_;    
   //jets
-  edm::InputTag srcL1PFJets_;
   edm::EDGetTokenT<std::vector<reco::CaloJet>> tokenL1PFJets_;
   //functions
   std::vector<l1t::PFTau> processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts, std::vector<edm::Ptr<reco::CaloJet>>&  jets) const;
 
-  static std::vector<L1HPSPFTauEmu::Particle> convertJetsToHW(std::vector<edm::Ptr<reco::CaloJet>>& edmJets); 
-  static std::vector<L1HPSPFTauEmu::Particle> convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles);
-  static std::vector<l1t::PFTau> convertHWToEDM(std::vector<L1HPSPFTauEmu::Tau> hwTaus);
+  static std::vector<l1HPSPFTauEmu::Particle> convertJetsToHW(std::vector<edm::Ptr<reco::CaloJet>>& edmJets); 
+  static std::vector<l1HPSPFTauEmu::Particle> convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles);
+  static std::vector<l1t::PFTau> convertHWToEDM(std::vector<l1HPSPFTauEmu::Tau> hwTaus);
   
 };
 
 L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
-   : _nTaus(cfg.getParameter<int>("nTaus")),
-     _HW(cfg.getParameter<bool>("HW")),
-     fUseJets_(cfg.getParameter<bool>("useJets")),
-     _debug(cfg.getParameter<bool>("debug")){ //,
-      srcL1PFCands_ = cfg.getParameter<edm::InputTag>("srcL1PFCands");
-      tokenL1PFCands_ = consumes<l1t::PFCandidateCollection>(srcL1PFCands_);   
-      
-      srcL1PFJets_ = cfg.getParameter<edm::InputTag>("srcL1PFJets");
-      tokenL1PFJets_ = consumes<std::vector<reco::CaloJet>>(srcL1PFJets_); 
+   :  nTaus_(cfg.getParameter<int>("nTaus")),
+      HW_(cfg.getParameter<bool>("HW")),
+      fUseJets_(cfg.getParameter<bool>("useJets")),
+      debug_(cfg.getParameter<bool>("debug")),
+      tokenL1PFCands_(consumes(cfg.getParameter<edm::InputTag>("srcL1PFCands"))),      
+      tokenL1PFJets_(consumes(cfg.getParameter<edm::InputTag>("srcL1PFJets"))){
       produces<l1t::PFTauCollection>("HPSTaus");
-      
-      produces<l1t::PFCandidateCollection>("SelPFCands");
 
      }
 
@@ -76,7 +69,7 @@ void L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("HW", true);
   desc.add<bool>("useJets",false);
   desc.add<bool>("debug", false);   
-  desc.add<edm::InputTag>("srcL1PFJets", edm::InputTag("l1tPhase1JetProducer","UncalibratedPhase1L1TJetFromPfCandidates"));
+  desc.add<edm::InputTag>("srcL1PFJets", edm::InputTag("l1tPhase1JetCalibrator9x9trimmed","Phase1L1TJetFromPfCandidates"));
   descriptions.add("L1HPSPFTauProducer", desc);
 }
 
@@ -85,13 +78,10 @@ void L1HPSPFTauProducer::produce(edm::StreamID,
                                  edm::Event& iEvent,
                                  const edm::EventSetup& iSetup) const {
 
-  std::unique_ptr<l1t::PFTauCollection> newPFTauCollection(new l1t::PFTauCollection);
-  std::unique_ptr<l1t::PFCandidateCollection> selParticles(new l1t::PFCandidateCollection);
-  edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
-  iEvent.getByToken(tokenL1PFCands_, l1PFCandidates);
+  auto newPFTauCollection = std::make_unique<l1t::PFTauCollection>();
+  auto l1PFCandidates = iEvent.getHandle(tokenL1PFCands_);
   //add jets even if not used, for simplicity
-  edm::Handle<std::vector<reco::CaloJet>> l1PFJets;
-  iEvent.getByToken(tokenL1PFJets_, l1PFJets);
+  auto l1PFJets = iEvent.getHandle(tokenL1PFJets_);
   //
 
   //adding collection
@@ -126,7 +116,7 @@ std::vector<l1t::PFTau> L1HPSPFTauProducer::processEvent_HW(std::vector<edm::Ptr
     //convert and call emulator
     
  
-    using namespace L1HPSPFTauEmu;
+    using namespace l1HPSPFTauEmu;
     
     std::vector<Particle> particles = convertEDMToHW(work);
     
@@ -142,11 +132,11 @@ std::vector<l1t::PFTau> L1HPSPFTauProducer::processEvent_HW(std::vector<edm::Ptr
     
 }
 
-std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertJetsToHW(std::vector<edm::Ptr<reco::CaloJet>>& edmJets){
-  using namespace L1HPSPFTauEmu;
+std::vector<l1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertJetsToHW(std::vector<edm::Ptr<reco::CaloJet>>& edmJets){
+  using namespace l1HPSPFTauEmu;
   std::vector<Particle> hwJets;
   std::for_each(edmJets.begin(), edmJets.end(), [&](edm::Ptr<reco::CaloJet>& edmJet){
-  	L1HPSPFTauEmu::Particle jPart;
+  	l1HPSPFTauEmu::Particle jPart;
         jPart.hwPt = l1ct::Scales::makePtFromFloat(edmJet->pt());
         jPart.hwEta = edmJet->eta() * etaphi_base;
         jPart.hwPhi = edmJet->phi() * etaphi_base;
@@ -158,8 +148,8 @@ std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertJetsToHW(std::ve
 
 
 //conversion to and from HW bitwise 
-std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles){
-    using namespace L1HPSPFTauEmu;
+std::vector<l1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles){
+    using namespace l1HPSPFTauEmu;
     std::vector<Particle> hwParticles;
     
     std::for_each(edmParticles.begin(), edmParticles.end(), [&](edm::Ptr<l1t::PFCandidate>& edmParticle){
@@ -178,8 +168,8 @@ std::vector<L1HPSPFTauEmu::Particle> L1HPSPFTauProducer::convertEDMToHW(std::vec
     
 }
 
-std::vector<l1t::PFTau> L1HPSPFTauProducer::convertHWToEDM(std::vector<L1HPSPFTauEmu::Tau> hwTaus){
-    using namespace L1HPSPFTauEmu;
+std::vector<l1t::PFTau> L1HPSPFTauProducer::convertHWToEDM(std::vector<l1HPSPFTauEmu::Tau> hwTaus){
+    using namespace l1HPSPFTauEmu;
     std::vector<l1t::PFTau> edmTaus;
 
     //empty array for the PFTau format, since it's used for PuppiTaus but not here

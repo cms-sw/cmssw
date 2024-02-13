@@ -5,5 +5,5 @@ l1HPSPFTauEmuProducer = cms.EDProducer("L1HPSPFTauProducer",
                          nTaus        = cms.int32(16),
                          debug        = cms.bool(False),
                          useJets      = cms.bool(False),
-                         srcL1PFJets = cms.InputTag("l1tPhase1JetProducer:UncalibratedPhase1L1TJetFromPfCandidates")
+                         srcL1PFJets = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed:Phase1L1TJetFromPfCandidates")
                         )

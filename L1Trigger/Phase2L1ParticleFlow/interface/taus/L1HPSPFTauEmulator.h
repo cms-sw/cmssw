@@ -10,12 +10,12 @@
 #include "DataFormats/L1TParticleFlow/interface/taus.h"
 #include "DataFormats/L1TParticleFlow/interface/puppi.h"
 
-namespace L1HPSPFTauEmu {
+namespace l1HPSPFTauEmu {
 
   //mapping the eta phi onto bits
 
-  static float etaphi_base = 720. / M_PI;
-  static float dz_base = 0.05;
+  constexpr float etaphi_base = 720. / M_PI;
+  constexpr float dz_base = 0.05;
   typedef l1ct::pt_t pt_t;
   typedef l1ct::glbeta_t etaphi_t;
 
@@ -42,14 +42,14 @@ namespace L1HPSPFTauEmu {
   };
 
   //constants
-  static const detaphi_t strip_phi = 0.20 * etaphi_base;
-  static const detaphi_t strip_eta = 0.05 * etaphi_base;
+  const detaphi_t strip_phi = 0.20 * etaphi_base;
+  const detaphi_t strip_eta = 0.05 * etaphi_base;
 
-  static const pt_t min_leadChargedPfCand_pt = l1ct::Scales::makePtFromFloat(1.);
-  static const detaphi_t isoConeSize = 0.4 * etaphi_base;
-  static const detaphi_t delta_Rclean = 0.4 * etaphi_base;
-  static const dz_t dzCut = 0.4 / dz_base;
-  static const etaphi_t etaCutoff = 2.4 * etaphi_base;
+  const pt_t min_leadChargedPfCand_pt = l1ct::Scales::makePtFromFloat(1.);
+  const detaphi_t isoConeSize = 0.4 * etaphi_base;
+  const detaphi_t delta_Rclean = 0.4 * etaphi_base;
+  const dz_t dzCut = 0.4 / dz_base;
+  const etaphi_t etaCutoff = 2.4 * etaphi_base;
 
   template <int W, int I, ap_q_mode _AP_Q, ap_o_mode _AP_O>
   ap_ufixed<W, I> fp_abs(ap_fixed<W, I, _AP_Q, _AP_O> x) {
@@ -182,7 +182,7 @@ namespace L1HPSPFTauEmu {
   inline Tau makeHPSTauHW(const std::vector<Particle>& parts,
                           const Particle seed,
                           const pt_t total_pt /*, Config config*/) {
-    using namespace L1HPSPFTauEmu;
+    using namespace l1HPSPFTauEmu;
 
     ap_uint<20> scone2 = setSConeSize2(total_pt);
 
@@ -268,7 +268,7 @@ namespace L1HPSPFTauEmu {
   }
 
   inline std::vector<Tau> emulateEvent(std::vector<Particle>& parts, std::vector<Particle>& jets, bool jEnable) {
-    using namespace L1HPSPFTauEmu;
+    using namespace l1HPSPFTauEmu;
 
     std::vector<Particle> parts_copy;
     parts_copy.resize(parts.size());
@@ -421,6 +421,6 @@ namespace L1HPSPFTauEmu {
     return cleaned_taus;
   }
 
-};  // namespace L1HPSPFTauEmu
+};  // namespace l1HPSPFTauEmu
 
 #endif
