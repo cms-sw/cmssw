@@ -1,5 +1,5 @@
-#ifndef KMTFMODULE_H
-#define KMTFMODULE_H
+#ifndef L1Trigger_Phase2L1GMT_KMTF_h
+#define L1Trigger_Phase2L1GMT_KMTF_h
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "L1Trigger/Phase2L1GMT/interface/KMTFCore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
