@@ -34,11 +34,10 @@ namespace edm {
       std::rethrow_exception(e);
     }
     if (!file_) {
-      return;
+      throw edm::Exception(errors::FileOpenError) << "TFile::Open failed.";
     }
     if (file_->IsZombie()) {
-      file_ = nullptr;  // propagate_const<T> has no reset() function
-      return;
+      throw edm::Exception(errors::FileOpenError) << "TFile::Open returned zombie.";
     }
 
     logFileAction("  Successfully opened file ", fileName);
