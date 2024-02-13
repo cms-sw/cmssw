@@ -12,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
 #include <functional>
+#include <type_traits>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
@@ -45,7 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(TRecord const&), edm::es::Label const& label = {}) {
       auto cc = Base::setWhatProduced(iThis, iMethod, label);
       using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
-      if constexpr (not detail::useESProductDirectly<TProduct>) {
+      if constexpr (not detail::useESProductDirectly) {
         // for device backends add the copy to device
         auto tokenPtr = std::make_shared<edm::ESGetToken<TProduct, TRecord>>();
         auto ccDev = setWhatProducedDevice<TRecord>(
@@ -69,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          TReturn (T ::*iMethod)(device::Record<TRecord> const&),
                          edm::es::Label const& label = {}) {
       using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
-      if constexpr (detail::useESProductDirectly<TProduct>) {
+      if constexpr (detail::useESProductDirectly) {
         return Base::setWhatProduced(
             [iThis, iMethod](TRecord const& record) {
               auto const& devices = cms::alpakatools::devices<Platform>();
