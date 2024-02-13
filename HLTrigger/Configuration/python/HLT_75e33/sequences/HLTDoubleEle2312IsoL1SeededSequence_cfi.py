@@ -34,7 +34,6 @@ from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..tasks.HLTDoubleEle2312IsoL1SeededTask_cfi import *
 
 HLTDoubleEle2312IsoL1SeededSequence = cms.Sequence(
-    HLTL1Sequence +
     hltEGL1SeedsForDoubleEleIsolatedFilter +
     HLTDoFullUnpackingEgammaEcalL1SeededSequence +
     HLTPFClusteringForEgammaL1Seeded +

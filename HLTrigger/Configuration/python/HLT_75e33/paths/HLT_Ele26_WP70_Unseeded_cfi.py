@@ -7,7 +7,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Ele26_WP70_Unseeded = cms.Path(
     HLTBeginSequence +
-    hltPreEle26WP70Unseeded +
     HLTEle26WP70UnseededSequence +
     HLTEndSequence
 )

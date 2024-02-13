@@ -8,7 +8,7 @@ hltRechitInRegionsECAL = cms.EDProducer("HLTEcalRecHitsInRegionsProducer",
         maxDeltaR = cms.double(0.35),
         maxEt = cms.double(999999.0),
         minEt = cms.double(5.0),
-        type = cms.string('L1EGamma')
+        type = cms.string('L1P2GTCandidate')
     )),
     inputCollTags = cms.VInputTag("hltEcalRecHitL1Seeded:EcalRecHitsEB", "hltEcalRecHitL1Seeded:EcalRecHitsEE"),
     outputProductNames = cms.vstring(
