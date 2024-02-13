@@ -104,7 +104,7 @@ void SiPixelCompareVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
     auto yc = y0 + dydz * zc;
     zc += z0;
 
-    auto ndofHost = vsoaHost.view()[sic].ndof();
+    auto ndofHost = vsoaHost.view<reco::ZVertexTracksSoA>()[sic].ndof();
     auto chi2Host = vsoaHost.view()[sic].chi2();
 
     const int32_t notFound = -1;
@@ -130,7 +130,7 @@ void SiPixelCompareVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
     auto xg = x0 + dxdz * zg;
     auto yg = y0 + dydz * zg;
     zg += z0;
-    auto ndofDevice = vsoaDevice.view()[closestVtxidx].ndof();
+    auto ndofDevice = vsoaDevice.view<reco::ZVertexTracksSoA>()[closestVtxidx].ndof();
     auto chi2Device = vsoaDevice.view()[closestVtxidx].chi2();
 
     hx_->Fill(xc - x0, xg - x0);
