@@ -136,15 +136,15 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 
 int L1MetPfProducer::EncodePdgId(int pdgId) const {
   switch (abs(pdgId)) {
-    case 211:
+    case 211:  // charged hadron (pion)
       return 1;
-    case 130:
+    case 130:  // neutral hadron (kaon)
       return 2;
-    case 22:
+    case 22:  // photon
       return 3;
-    case 13:
+    case 13:  // muon
       return 4;
-    case 11:
+    case 11:  // electron
       return 5;
     default:
       return 0;
