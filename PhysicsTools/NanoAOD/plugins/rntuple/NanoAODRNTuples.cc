@@ -9,8 +9,13 @@
 #include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriteOptions;
-using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
+using ROOT::Experimental::RNTupleWriter;
+#define MakeRNTupleWriter std::make_unique<RNTupleWriter>
+#else
+#define MakeRNTupleWriter ROOT::Experimental::Internal::CreateRNTupleWriter
+#endif
 
 #include "RNTupleFieldPtr.h"
 #include "SummaryTableOutputFields.h"
@@ -23,8 +28,7 @@ void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   // m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file);
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-                                             std::make_unique<RPageSinkFile>("LuminosityBlocks", file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model), std::make_unique<RPageSinkFile>("LuminosityBlocks", file, options));
 }
 
 void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
@@ -54,7 +58,7 @@ void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model), std::make_unique<RPageSinkFile>("Runs", file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model), std::make_unique<RPageSinkFile>("Runs", file, options));
 }
 
 void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
@@ -83,8 +87,8 @@ void PSetNTuple::createFields(TFile& file) {
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(
-      std::move(model), std::make_unique<RPageSinkFile>(edm::poolNames::parameterSetsTreeName(), file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model),
+                               std::make_unique<RPageSinkFile>(edm::poolNames::parameterSetsTreeName(), file, options));
 }
 
 void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
@@ -115,8 +119,8 @@ void MetadataNTuple::createFields(TFile& file) {
   m_procHist = model->MakeCollection(edm::poolNames::processHistoryBranchName(), std::move(procHistModel));
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(
-      std::move(model), std::make_unique<RPageSinkFile>(edm::poolNames::metaDataTreeName(), file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model),
+                               std::make_unique<RPageSinkFile>(edm::poolNames::metaDataTreeName(), file, options));
 }
 
 void MetadataNTuple::fill(const edm::ProcessHistoryRegistry& procHist, TFile& file) {

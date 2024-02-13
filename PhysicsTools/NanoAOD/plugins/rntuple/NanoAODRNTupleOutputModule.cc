@@ -19,8 +19,13 @@
 #include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriteOptions;
-using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
+using ROOT::Experimental::RNTupleWriter;
+#define MakeRNTupleWriter std::make_unique<RNTupleWriter>
+#else
+#define MakeRNTupleWriter ROOT::Experimental::Internal::CreateRNTupleWriter
+#endif
 
 #include "TObjString.h"
 
@@ -206,8 +211,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   // TODO use Append
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
-  m_ntuple =
-      std::make_unique<RNTupleWriter>(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
