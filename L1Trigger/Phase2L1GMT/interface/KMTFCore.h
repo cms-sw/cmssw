@@ -3,8 +3,8 @@ Kalman Filter L1 Muon algorithm
 Tyler Lam (UCLA)
 Sep. 2021
 */
-#ifndef KMTFCore_H
-#define KMTFCore_H
+#ifndef L1Trigger_Phase2L1GMT_KMTFCore_h
+#define L1Trigger_Phase2L1GMT_KMTFCore_h
 #include "L1Trigger/Phase2L1GMT/interface/KMTFLUTs.h"
 #include "DataFormats/L1TMuonPhase2/interface/KMTFTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
