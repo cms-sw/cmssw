@@ -1,17 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-
+from HeterogeneousCore.AlpakaCore.functions import *
 
 ## PF HLT in Alpaka
 def customizeHLTforAlpakaParticleFlowClustering(process):
     '''Customization to introduce Particle Flow Reconstruction in Alpaka
     '''
-
-    process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi")
-    process.load("RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi")
-    process.load("RecoParticleFlow.PFClusterProducer.pfClusterParamsESProducer_cfi")
-    process.load("RecoParticleFlow.PFRecHitProducer.pfRecHitHCALParamsESProducer_cfi")
-    process.load("RecoParticleFlow.PFRecHitProducer.pfRecHitHCALTopologyESProducer_cfi")
-
     process.hltPFRecHitHCALParamsRecordSource = cms.ESSource('EmptyESSource',
             recordName = cms.string('PFRecHitHCALParamsRecord'),
             iovIsRunNotTime = cms.bool(True),
@@ -30,42 +23,59 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
             firstValid = cms.vuint32(1)
             )
 
-    process.hltHBHERecHitToSoA = cms.EDProducer("HCALRecHitsSoAProducer",
-            src = cms.InputTag("hltHbheReco"),
+    process.hltHBHERecHitToSoA = cms.EDProducer("HCALRecHitSoAProducer@alpaka",
+            src = cms.InputTag("hltHbhereco"),
             synchronise = cms.untracked.bool(False)
             )
 
-    '''
-    #If needed, set thresholds here? (DB thresholds are bundled with topology)
-    process.hltPFRecHitHCALParamsESProducer = cms.ESProducer("PFRecHitHCALParamsESProducer",
-            energyThresholdsHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-            energyThresholdsHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
-            )
-    '''
+    process.hltPFRecHitHCALTopologyESProducer = cms.ESProducer('PFRecHitHCALTopologyESProducer@alpaka',
+      usePFThresholdsFromDB = cms.bool(True),
+      appendToDataLabel = cms.string(''),
+    )
 
-    '''
-    process.hltPFRecHitHCALTopologyESProducer = cms.ESProducer("PFRecHitHCALTopologyESProducer",
-            usePFThresholdsFromDB = cms.bool(True)
-            )
-    '''
-    process.hltPFRecHitSoAProducerHCAL = cms.EDProducer("PFRechitSoAProducerHCAL",
+
+    process.hltPFRecHitHCALParamsESProducer = cms.ESProducer('PFRecHitHCALParamsESProducer@alpaka',
+      energyThresholdsHB = cms.vdouble(
+        0.1,
+        0.2,
+        0.3,
+        0.3
+      ),
+      energyThresholdsHE = cms.vdouble(
+        0.1,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2
+      ),
+      appendToDataLabel = cms.string(''),
+    )
+
+    process.hltPFRecHitSoAProducerHCAL = cms.EDProducer("PFRecHitSoAProducerHCAL@alpaka",
             producers = cms.VPSet(
                 cms.PSet(
                     src = cms.InputTag("hltHBHERecHitToSoA"),
-                    params = cms.ESInputTag("pfRecHitHCALParamsESProducer:"),
+                    params = cms.ESInputTag("hltPFRecHitHCALParamsESProducer:"),
                     )
                 ),
-            topology = cms.ESInputTag("pfRecHitHCALTopologyESProducer:"),
+            topology = cms.ESInputTag("hltPFRecHitHCALTopologyESProducer:"),
             synchronise = cms.untracked.bool(False)
             )
+
+    process.hltPFRecHitSoAProducerHCALCPUSerial = makeSerialClone(process.hltPFRecHitSoAProducerHCAL)
+
 
     process.hltLegacyPFRecHitProducer = cms.EDProducer("LegacyPFRecHitProducer",
             src = cms.InputTag("hltPFRecHitSoAProducerHCAL")
             )
 
-    #Is there an easier way to do this?
-    '''
-    process.hltPFClusterParamsESProducer = cms.ESProducer("PFClusterParamsESProducer",
+    process.hltLegacyPFRecHitProducerCPUSerial = process.hltLegacyPFRecHitProducer.clone(
+            src = cms.InputTag("hltPFRecHitSoAProducerHCALCPUSerial")
+            )
+
+    process.hltPFClusterParamsESProducer = cms.ESProducer("PFClusterParamsESProducer@alpaka",
             seedFinder = cms.PSet(
               nNeighbours = cms.int32(4),
               thresholdsByDetector = cms.VPSet(
@@ -173,12 +183,16 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
               )
             ),
             )
-    '''
-    process.hltPFClusterSoAProducer = cms.EDProducer("PFClusterSoAProducer",
+
+    process.hltPFClusterSoAProducer = cms.EDProducer("PFClusterSoAProducer@alpaka",
             pfRecHits = cms.InputTag("hltPFRecHitSoAProducerHCAL"),
-            topology = cms.ESInputTag("pfRecHitHCALTopologyESProducer:"),
-            pfClusterParams = cms.ESInputTag("pfClusterParamsESProducer:"),
+            topology = cms.ESInputTag("hltPFRecHitHCALTopologyESProducer:"),
+            pfClusterParams = cms.ESInputTag("hltPFClusterParamsESProducer:"),
             synchronise = cms.bool(False)
+            )
+
+    process.hltPFClusterSoAProducerCPUSerial = makeSerialClone(process.hltPFClusterSoAProducer,
+            pfRecHits = cms.InputTag("hltPFRecHitSoAProducerHCALCPUSerial"),
             )
 
     process.hltLegacyPFClusterProducer = cms.EDProducer("LegacyPFClusterProducer",
@@ -200,25 +214,42 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
             )
 
     #Define the task (I assume the name has to be the same as the default task)
-    process.pfClusteringHBHEHFTask = cms.ConditionalTask(
-            process.hltPFRecHitHCALParamsRecordSource,      #HBHE RecHit and Cluster replaced with the following:
-            process.hltPFRecHitHCALTopologyRecordSource,
-            process.hltPFClusterParamsRecordSource,
-            process.hltHBHERecHitToSoA,
-            process.pfRecHitHCALParamsESProducer,
-            process.pfRecHitHCALTopologyESProducer,
-            process.hltPFRecHitSoAProducerHCAL,
-            process.hltLegacyPFRecHitProducer,
-            process.pfClusterParamsESProducer,
-            process.hltPFClusterSoAProducer,
-            process.hltLegacyPFClusterProducer,
-            process.hltParticleFlowClusterHCAL,
-            process.particleFlowRecHitHF,                           #HF remains unchanged
-            process.particleFlowClusterHF
+    process.HLTPFHcalRecHits = cms.Sequence(
+            process.hltHBHERecHitToSoA+
+            process.hltPFRecHitSoAProducerHCAL+
+            process.hltPFRecHitSoAProducerHCALCPUSerial+
+            process.hltLegacyPFRecHitProducer+
+            process.hltLegacyPFRecHitProducerCPUSerial
             )
 
-    return process
+    process.HLTPFHcalClustering = cms.Sequence(
+            process.HLTPFHcalRecHits+
+            process.hltPFClusterSoAProducer+
+            process.hltPFClusterSoAProducerCPUSerial+
+            process.hltLegacyPFClusterProducer+
+            process.hltParticleFlowClusterHCAL
+            )
 
+    #Some Sequences contain all the modules of process.HLTPFHcalClustering Sequence instead of the Sequence itself
+    #find these Sequences and replace all the modules with the Sequence
+    def replaceItemsInSequence(process, itemsToReplace, replacingSequence):
+        for sequence, items in process.sequences.items():
+            #Find Sequences containing all the items in itemsToReplace
+            containsAll = all(items.contains(item) for item in itemsToReplace)
+            if(containsAll):
+                for item in itemsToReplace:
+                    #remove items that will be replaced by replacingSequence
+                    if(item != itemsToReplace[-1]):
+                        items.remove(item)
+                    else:
+                        #if last item, replace it with the Sequence
+                        items.replace(item, replacingSequence)
+        return process
+
+    itemsList = [process.hltParticleFlowRecHitHBHE, process.hltParticleFlowClusterHBHE,process.hltParticleFlowClusterHCAL]
+    process = replaceItemsInSequence(process, itemsList, process.HLTPFHcalClustering)
+
+    return process
 
 ## Pixel HLT in Alpaka
 def customizeHLTforDQMGPUvsCPUPixel(process):
@@ -365,7 +396,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
     '''
-    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka',
+    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka', 
         CablingMapLabel = cms.string(''),
         UseQualityInfo = cms.bool(False),
         appendToDataLabel = cms.string(''),
@@ -381,7 +412,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         )
     )
 
-    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka',
+    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka', 
         appendToDataLabel = cms.string(''),
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string('')
@@ -681,7 +712,7 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
         process.hltPixelVertices,
-        process.hltTrimmedPixelVertices
+        process.hltTrimmedPixelVertices 
     )
 
     process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
@@ -749,7 +780,7 @@ def customizeHLTforAlpakaPixelRecoTheRest(process):
         track_pt_max = cms.double(10.0),
         track_pt_min = cms.double(1.0)
     )
-
+    
     return process
 
 def customizeHLTforAlpakaPixelReco(process):
@@ -759,7 +790,7 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforAlpakaPixelRecoLocal(process)
     process = customizeHLTforAlpakaPixelRecoTracking(process)
     process = customizeHLTforAlpakaPixelRecoVertexing(process)
-    process = customizeHLTforDQMGPUvsCPUPixel(process)
+    process = customizeHLTforDQMGPUvsCPUPixel(process)    
     process = customizeHLTforAlpakaPixelRecoTheRest(process)
 
     return process
@@ -767,7 +798,7 @@ def customizeHLTforAlpakaPixelReco(process):
 ## ECAL HLT in Alpaka
 
 def customizeHLTforAlpakaEcalLocalReco(process):
-
+    
     if hasattr(process, 'hltEcalDigisGPU'):
         process.hltEcalDigisPortable = cms.EDProducer("EcalRawToDigiPortable@alpaka",
             FEDs = process.hltEcalDigisGPU.FEDs,
@@ -865,7 +896,7 @@ def customizeHLTforAlpaka(process):
 
     process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
     process.load('Configuration.StandardSequences.Accelerators_cff')
-
+    
     process = customizeHLTforAlpakaEcalLocalReco(process)
     process = customizeHLTforAlpakaPixelReco(process)
     process = customizeHLTforAlpakaParticleFlowClustering(process)
