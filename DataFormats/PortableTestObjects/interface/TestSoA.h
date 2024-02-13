@@ -34,6 +34,34 @@ namespace portabletest {
 
   using TestSoA = TestSoALayout<>;
 
+  GENERATE_SOA_LAYOUT(TestSoALayout2,
+                      // columns: one value per element
+                      SOA_COLUMN(double, x2),
+                      SOA_COLUMN(double, y2),
+                      SOA_COLUMN(double, z2),
+                      SOA_COLUMN(int32_t, id2),
+                      // scalars: one value for the whole structure
+                      SOA_SCALAR(double, r2),
+                      // Eigen columns
+                      // the typedef is needed because commas confuse macros
+                      SOA_EIGEN_COLUMN(Matrix, m2))
+
+  using TestSoA2 = TestSoALayout2<>;
+
+  GENERATE_SOA_LAYOUT(TestSoALayout3,
+                      // columns: one value per element
+                      SOA_COLUMN(double, x3),
+                      SOA_COLUMN(double, y3),
+                      SOA_COLUMN(double, z3),
+                      SOA_COLUMN(int32_t, id3),
+                      // scalars: one value for the whole structure
+                      SOA_SCALAR(double, r3),
+                      // Eigen columns
+                      // the typedef is needed because commas confuse macros
+                      SOA_EIGEN_COLUMN(Matrix, m3))
+
+  using TestSoA3 = TestSoALayout3<>;
+
 }  // namespace portabletest
 
 #endif  // DataFormats_PortableTestObjects_interface_TestSoA_h

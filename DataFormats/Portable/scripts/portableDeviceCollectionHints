@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import sys
+
+# Get collectionand SoAs names
+if len(sys.argv) != 2:
+  raise RuntimeError("Expecting one portable collection name.")
+
+collectionName = sys.argv[1]
+
+print("In <module>/src/alpaka/classes_cuda_def.xml (with necessary includes in <module>/src/aplaka/classes_cuda.h):\n")
+print("<lcgdict>")
+print("  <!-- Declaration of dictionary entries for the device side structures. By nature (located device-side),")
+print("       they are not persistent. -->")
+print("  <class name=\"alpaka_cuda_async::%s\" persistent=\"false\"/>" % collectionName)
+print("  <class name=\"edm::DeviceProduct<alpaka_cuda_async::%s>\" persistent=\"false\"/>" % collectionName)
+print("  <class name=\"edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::%s>>\" persistent=\"false\"/>" % collectionName)
+print("<lcgdict/>\n")
+
+print("In <module>/src/alpaka/classes_rocm_def.xml (with necessary includes in <module>/src/aplaka/classes_rocm.h):\n")
+print("<lcgdict>")
+print("  <!-- Declaration of dictionary entries for the device side structures. By nature (located device-side),")
+print("       they are not persistent. -->")
+print("  <class name=\"alpaka_rocm_async::%s\" persistent=\"false\"/>" % collectionName)
+print("  <class name=\"edm::DeviceProduct<alpaka_rocm_async::%s>\" persistent=\"false\"/>" % collectionName)
+print("  <class name=\"edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::%s>>\" persistent=\"false\"/>" % collectionName)
+print("<lcgdict/>\n")
