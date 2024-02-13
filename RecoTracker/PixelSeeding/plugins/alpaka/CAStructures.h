@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_CAStructures_h
-#define RecoPixelVertexing_PixelTriplets_CAStructures_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
@@ -49,4 +49,4 @@ namespace caStructures {
 
 }  // namespace caStructures
 
-#endif
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h

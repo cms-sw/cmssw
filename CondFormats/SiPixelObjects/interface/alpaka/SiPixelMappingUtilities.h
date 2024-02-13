@@ -1,11 +1,18 @@
 #ifndef CondFormats_SiPixelObjects_interface_alpaka_SiPixelMappingUtilities_h
 #define CondFormats_SiPixelObjects_interface_alpaka_SiPixelMappingUtilities_h
 
-#include <cstdint>
+#include <set>
+#include <vector>
+
 #include <alpaka/alpaka.hpp>
-#include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
+
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

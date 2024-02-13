@@ -4,12 +4,15 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/VertexSoA/interface/ZVertexDefinitions.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoTracker/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
+
 #include "vertexFinder.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -58,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
         auto& hws = alpaka::declareSharedVar<Hist::Counter[32], __COUNTER__>(acc);
 
-        for (auto j : cms::alpakatools::elements_with_stride(acc, Hist::totbins())) {
+        for (auto j : cms::alpakatools::uniform_elements(acc, Hist::totbins())) {
           hist.off[j] = 0;
         }
         alpaka::syncBlockThreads(acc);
@@ -71,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_OFFLOAD(static_cast<int>(nt) <= hist.capacity());
 
         // fill hist  (bin shall be wider than "eps")
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           ALPAKA_ASSERT_OFFLOAD(i < ::zVertex::MAXTRACKS);
           int iz = int(zt[i] * 10.);  // valid if eps<=0.1
           iz = std::clamp(iz, INT8_MIN, INT8_MAX);
@@ -92,13 +95,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         ALPAKA_ASSERT_OFFLOAD(hist.size() == nt);
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           hist.fill(acc, izt[i], uint16_t(i));
         }
         alpaka::syncBlockThreads(acc);
 
         // count neighbours
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           if (ezt2[i] > er2mx)
             continue;
           auto loop = [&](uint32_t j) {
@@ -124,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool more = true;
         while (alpaka::syncBlockThreadsPredicate<alpaka::BlockOr>(acc, more)) {
           if (1 == nloops % 2) {
-            for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+            for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
               auto m = iv[i];
               while (m != iv[m])
                 m = iv[m];
@@ -132,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
           } else {
             more = false;
-            for (auto k : cms::alpakatools::elements_with_stride(acc, hist.size())) {
+            for (auto k : cms::alpakatools::uniform_elements(acc, hist.size())) {
               auto p = hist.begin() + k;
               auto i = (*p);
               auto be = std::min(Hist::bin(izt[i]) + 1, int(hist.nbins() - 1));
@@ -164,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }  // while
 
         // collect edges (assign to closest cluster of closest point??? here to closest point)
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           //    if (nn[i]==0 || nn[i]>=minT) continue;    // DBSCAN edge rule
           if (nn[i] >= minT)
             continue;  // DBSCAN edge rule
@@ -189,7 +192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // find the number of different clusters, identified by a tracks with clus[i] == i;
         // mark these tracks with a negative id.
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           if (iv[i] == int(i)) {
             if (nn[i] >= minT) {
               auto old = alpaka::atomicInc(acc, &foundClusters, 0xffffffff, alpaka::hierarchy::Threads{});
@@ -204,7 +207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ALPAKA_ASSERT_OFFLOAD(foundClusters < ::zVertex::MAXVTX);
 
         // propagate the negative id to all the tracks in the cluster.
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           if (iv[i] >= 0) {
             // mark each track in a cluster with the same id as the first one
             iv[i] = iv[iv[i]];
@@ -213,7 +216,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         // adjust the cluster id to be a positive value starting from 0
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
+        for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
           iv[i] = -iv[i] - 1;
         }
 

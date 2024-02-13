@@ -1,16 +1,15 @@
-//
-// Author: Felice Pantaleo, CERN
-//
-
-#include <alpaka/alpaka.hpp>
 #include <cstdint>
 
+#include <alpaka/alpaka.hpp>
+
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/RiemannFit.h"
+
 #include "HelixFit.h"
 #include "CAStructures.h"
 
@@ -56,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::elements_with_stride(acc, nt)) {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
         auto tuple_idx = local_idx + offset;
         if (tuple_idx >= tupleMultiplicity->size(nHits))
           break;
@@ -112,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // look in bin for this hit multiplicity
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::elements_with_stride(acc, nt)) {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
         auto tuple_idx = local_idx + offset;
         if (tuple_idx >= tupleMultiplicity->size(nHits))
           break;
@@ -159,7 +158,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // look in bin for this hit multiplicity
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::elements_with_stride(acc, nt)) {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
         auto tuple_idx = local_idx + offset;
         if (tuple_idx >= tupleMultiplicity->size(nHits))
           break;

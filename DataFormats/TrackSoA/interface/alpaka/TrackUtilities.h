@@ -1,9 +1,14 @@
-#ifndef DataFormats_Track_interface_alpaka_TrackUtilities_h
-#define DataFormats_Track_interface_alpaka_TrackUtilities_h
+#ifndef DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h
+#define DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h
 
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 // Methods that operate on View and ConstView of the TrackSoA, and cannot be class methods.
 template <typename TrackerTraits>
@@ -170,4 +175,4 @@ namespace pixelTrack {
 template struct TracksUtilities<pixelTopology::Phase1>;
 template struct TracksUtilities<pixelTopology::Phase2>;
 
-#endif
+#endif  // DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h

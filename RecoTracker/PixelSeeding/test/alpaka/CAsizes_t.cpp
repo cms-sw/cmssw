@@ -1,7 +1,9 @@
-#include "RecoTracker/PixelSeeding/plugins/alpaka/CACell.h"
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include <typeinfo>
 #include <iostream>
+#include <typeinfo>
+
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "RecoTracker/PixelSeeding/plugins/alpaka/CACell.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
@@ -13,6 +15,7 @@ void print() {
 int main() {
   using namespace pixelTopology;
   using namespace caStructures;
+
   //for Phase-I
   print<CACellT<Phase1>>();
   print<CellNeighborsT<Phase1>>();
@@ -21,11 +24,9 @@ int main() {
   print<TuplesContainerT<Phase1>>();
   print<HitToTupleT<Phase1>>();
   print<TupleMultiplicityT<Phase1>>();
-
   print<CellNeighborsVectorT<Phase1>>();
 
   //for Phase-II
-
   print<CACellT<Phase2>>();
   print<CellNeighborsT<Phase2>>();
   print<CellTracksT<Phase2>>();
@@ -33,7 +34,6 @@ int main() {
   print<TuplesContainerT<Phase2>>();
   print<HitToTupleT<Phase2>>();
   print<TupleMultiplicityT<Phase2>>();
-
   print<CellNeighborsVectorT<Phase2>>();
 
   return 0;

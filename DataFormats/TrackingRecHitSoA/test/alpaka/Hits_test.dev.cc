@@ -1,8 +1,13 @@
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include <type_traits>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 using namespace alpaka;
 
@@ -12,14 +17,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testTrackingRecHitSoA {
 
     template <typename TrackerTraits>
-    class TestFillKernel {
-    public:
+    struct TestFillKernel {
       template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc, TrackingRecHitSoAView<TrackerTraits> soa) const {
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
         const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
 
-        if (i == 0 and j == 0) {
+        if (cms::alpakatools::once_per_grid(acc)) {
           soa.offsetBPIX2() = 22;
           soa[10].xLocal() = 1.11;
         }
@@ -30,22 +34,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 
     template <typename TrackerTraits>
-    class ShowKernel {
-    public:
+    struct ShowKernel {
       template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc, TrackingRecHitSoAConstView<TrackerTraits> soa) const {
-        const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-        const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-
-        if (i == 0 and j == 0) {
-          printf("nbins = %d \n", soa.phiBinner().nbins());
-          printf("offsetBPIX %d ->%d \n", i, soa.offsetBPIX2());
-          printf("nHits %d ->%d \n", i, soa.metadata().size());
-          //printf("hitsModuleStart %d ->%d \n", i, soa.hitsModuleStart().at(28));
+        if (cms::alpakatools::once_per_grid(acc)) {
+          printf("nbins = %d\n", soa.phiBinner().nbins());
+          printf("offsetBPIX = %d\n", soa.offsetBPIX2());
+          printf("nHits = %d\n", soa.metadata().size());
+          //printf("hitsModuleStart[28] = %d\n", soa[28].hitsModuleStart());
         }
 
-        if (i < 10)  // can be increased to soa.nHits() for debugging
-          printf("iPhi %d ->%d \n", i, soa[i].iphi());
+        // can be increased to soa.nHits() for debugging
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, 10)) {
+          printf("iPhi %d -> %d\n", i, soa[i].iphi());
+        }
       }
     };
 

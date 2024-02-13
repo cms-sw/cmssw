@@ -1,10 +1,14 @@
-#ifndef RecoPixelVertexing_PixelTriplets_alpaka_CAPixelDoublets_h
-#define RecoPixelVertexing_PixelTriplets_alpaka_CAPixelDoublets_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAPixelDoublets_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CAPixelDoublets_h
+
+#include <type_traits>
 
 #include <alpaka/alpaka.hpp>
 
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+
 #include "CAPixelDoubletsAlgos.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -25,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CellTracks<TrackerTraits>* cellTracksContainer) const {
         ALPAKA_ASSERT_OFFLOAD((*isOuterHitOfCell).container);
 
-        for (auto i : cms::alpakatools::elements_with_stride(acc, nHits))
+        for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
           (*isOuterHitOfCell).container[i].reset();
 
         if (cms::alpakatools::once_per_grid(acc)) {
@@ -66,6 +70,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             acc, nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, *isOuterHitOfCell, cuts);
       }
     };
+
   }  // namespace caPixelDoublets
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAPixelDoublets_h
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAPixelDoublets_h

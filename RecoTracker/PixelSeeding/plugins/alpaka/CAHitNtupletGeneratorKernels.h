@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
-#define RecoPixelVertexing_PixelTriplets_CAHitNtupletGeneratorKernels_h
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h
 
 //#define GPU_DEBUG
 //#define DUMP_GPU_TK_TUPLES
@@ -233,16 +233,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Quality = ::pixelTrack::Quality;
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
 
-    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, Queue& queue);
+    CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, uint32_t offsetBPIX2, Queue& queue);
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.data(); }
 
-    void launchKernels(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
+    void launchKernels(const HitsConstView& hh, uint32_t offsetBPIX2, TkSoAView& track_view, Queue& queue);
 
     void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
 
-    void buildDoublets(const HitsConstView& hh, Queue& queue);
+    void buildDoublets(const HitsConstView& hh, uint32_t offsetBPIX2, Queue& queue);
 
     static void printCounters();
 
@@ -268,6 +268,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::AtomicPairCounter* device_hitToTuple_apc_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCells_;
   };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernels_h

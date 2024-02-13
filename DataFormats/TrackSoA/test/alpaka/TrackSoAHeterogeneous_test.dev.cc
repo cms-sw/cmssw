@@ -1,8 +1,13 @@
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include <type_traits>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 using namespace reco;
 
@@ -22,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           tracks_view.nTracks() = nTracks;
         }
 
-        for (int32_t j : elements_with_stride(acc, nTracks)) {
+        for (int32_t j : uniform_elements(acc, nTracks)) {
           tracks_view[j].pt() = (float)j;
           tracks_view[j].eta() = (float)j;
           tracks_view[j].chi2() = (float)j;
@@ -45,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (cms::alpakatools::once_per_grid(acc)) {
           ALPAKA_ASSERT(tracks_view.nTracks() == nTracks);
         }
-        for (int32_t j : elements_with_stride(acc, tracks_view.nTracks())) {
+        for (int32_t j : uniform_elements(acc, tracks_view.nTracks())) {
           ALPAKA_ASSERT(abs(tracks_view[j].pt() - (float)j) < .0001);
           ALPAKA_ASSERT(abs(tracks_view[j].eta() - (float)j) < .0001);
           ALPAKA_ASSERT(abs(tracks_view[j].chi2() - (float)j) < .0001);

@@ -1,6 +1,6 @@
 #include <mutex>
 
-#include "RecoTracker/PixelSeeding/plugins/CAHitNtupletGeneratorKernelsImpl.h"
+#include "CAHitNtupletGeneratorKernelsImpl.h"
 
 //#define GPU_DEBUG
 //#define NTUPLE_DEBUG

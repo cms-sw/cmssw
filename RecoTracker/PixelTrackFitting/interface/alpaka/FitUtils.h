@@ -1,8 +1,14 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_alpaka_FitUtils_h
-#define RecoPixelVertexing_PixelTrackFitting_alpaka_FitUtils_h
+#ifndef RecoTracker_PixelTrackFitting_interface_alpaka_FitUtils_h
+#define RecoTracker_PixelTrackFitting_interface_alpaka_FitUtils_h
+
 #include <alpaka/alpaka.hpp>
+
+#include <Eigen/Core>
+
 #include "DataFormats/Math/interface/choleskyInversion.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
+
 namespace riemannFit {
 
   constexpr double epsilon = 1.e-4;  //!< used in numerical derivative (J2 in Circle_fit())
@@ -250,4 +256,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }  // namespace riemannFit
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h
+
+#endif  // RecoTracker_PixelTrackFitting_interface_alpaka_FitUtils_h

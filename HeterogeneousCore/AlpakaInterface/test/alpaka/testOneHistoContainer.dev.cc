@@ -29,19 +29,19 @@ struct mykernel {
     auto& ws = alpaka::declareSharedVar<typename Hist::Counter[32], __COUNTER__>(acc);
 
     // set off zero
-    for (auto j : elements_with_stride(acc, Hist::totbins())) {
+    for (auto j : uniform_elements(acc, Hist::totbins())) {
       hist.off[j] = 0;
     }
     alpaka::syncBlockThreads(acc);
 
     // set bins zero
-    for (auto j : elements_with_stride(acc, Hist::totbins())) {
+    for (auto j : uniform_elements(acc, Hist::totbins())) {
       hist.content[j] = 0;
     }
     alpaka::syncBlockThreads(acc);
 
     // count
-    for (auto j : elements_with_stride(acc, N)) {
+    for (auto j : uniform_elements(acc, N)) {
       hist.count(acc, v[j]);
     }
     alpaka::syncBlockThreads(acc);
@@ -56,18 +56,18 @@ struct mykernel {
     ALPAKA_ASSERT_OFFLOAD(N == hist.size());
 
     // verify
-    for ([[maybe_unused]] auto j : elements_with_stride(acc, Hist::nbins())) {
+    for ([[maybe_unused]] auto j : uniform_elements(acc, Hist::nbins())) {
       ALPAKA_ASSERT_OFFLOAD(hist.off[j] <= hist.off[j + 1]);
     }
     alpaka::syncBlockThreads(acc);
 
-    for (auto j : elements_with_stride(acc, 32)) {
+    for (auto j : uniform_elements(acc, 32)) {
       ws[j] = 0;  // used by prefix scan...
     }
     alpaka::syncBlockThreads(acc);
 
     // fill
-    for (auto j : elements_with_stride(acc, N)) {
+    for (auto j : uniform_elements(acc, N)) {
       hist.fill(acc, v[j], j);
     }
     alpaka::syncBlockThreads(acc);
@@ -77,7 +77,7 @@ struct mykernel {
 
     // bin
 #ifndef NDEBUG
-    for (auto j : elements_with_stride(acc, hist.size() - 1)) {
+    for (auto j : uniform_elements(acc, hist.size() - 1)) {
       auto p = hist.begin() + j;
       ALPAKA_ASSERT_OFFLOAD((*p) < N);
       [[maybe_unused]] auto k1 = Hist::bin(v[*p]);
@@ -87,7 +87,7 @@ struct mykernel {
 #endif
 
     // forEachInWindow
-    for (auto i : elements_with_stride(acc, hist.size())) {
+    for (auto i : uniform_elements(acc, hist.size())) {
       auto p = hist.begin() + i;
       auto j = *p;
 #ifndef NDEBUG

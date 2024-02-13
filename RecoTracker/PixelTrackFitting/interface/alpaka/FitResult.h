@@ -1,11 +1,9 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_FitResult_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_FitResult_h
+#ifndef RecoTracker_PixelTrackFitting_interface_alpaka_FitResult_h
+#define RecoTracker_PixelTrackFitting_interface_alpaka_FitResult_h
 
-#include <cmath>
 #include <cstdint>
 
 #include <Eigen/Core>
-#include <Eigen/Eigenvalues>
 
 namespace riemannFit {
 
@@ -61,4 +59,5 @@ namespace riemannFit {
   };                  // __attribute__((aligned(16)));
 
 }  // namespace riemannFit
-#endif
+
+#endif  // RecoTracker_PixelTrackFitting_interface_alpaka_FitResult_h

@@ -18,7 +18,7 @@ struct update {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(
       const TAcc &acc, AtomicPairCounter *dc, uint32_t *ind, uint32_t *cont, uint32_t n) const {
-    for (auto i : elements_with_stride(acc, n)) {
+    for (auto i : uniform_elements(acc, n)) {
       auto m = i % 11;
       m = m % 6 + 1;  // max 6, no 0
       auto c = dc->inc_add(acc, m);
