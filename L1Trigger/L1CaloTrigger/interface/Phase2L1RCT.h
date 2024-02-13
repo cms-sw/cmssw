@@ -1041,7 +1041,7 @@ inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg
       int index = j + 4 * i;
       towerEt[index] = 0;
       for (int k = 0; k < 5; k++) {
-        towerEt[index] += (towerEtN[i][j][k] >> 2);
+        towerEt[index] += towerEtN[i][j][k];
       }
     }
   }
@@ -1223,7 +1223,7 @@ inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYST
   for (int i = 0; i < 3; i++) {
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
-  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]) >> 2;
+  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]);
 
   return cluster_tmp;
 }
@@ -1298,7 +1298,7 @@ inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYST
   for (int i = 0; i < 3; i++) {
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
-  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]) >> 2;
+  cluster_tmp.energy = (eta_slice[0] + eta_slice[1] + eta_slice[2]);
 
   return cluster_tmp;
 }
@@ -1389,7 +1389,7 @@ inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTA
     eta_slice[i] = phi0eta[i] + phi1eta[i] + phi2eta[i] + phi3eta[i] + phi4eta[i];
   }
 
-  cluster_tmp.energy = (eta_slice[1] + eta_slice[2] + eta_slice[3]) >> 2;
+  cluster_tmp.energy = (eta_slice[1] + eta_slice[2] + eta_slice[3]);
 
   // Get the energy totals in the 5x5 and also in two 2x5
   et5x5Tot = (eta_slice[0] + eta_slice[1] + eta_slice[2] + eta_slice[3] + eta_slice[4]);
@@ -1401,8 +1401,8 @@ inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTA
   else
     etSum2x5 = et2x5_2Tot;
 
-  cluster_tmp.et5x5 = et5x5Tot >> 2;
-  cluster_tmp.et2x5 = etSum2x5 >> 2;
+  cluster_tmp.et5x5 = et5x5Tot;
+  cluster_tmp.et2x5 = etSum2x5;
 
   return cluster_tmp;
 }
@@ -1503,7 +1503,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
           dPhi = (phi1 > phi2) ? (phi1 - phi2) : (phi2 - phi1);
 
           if (dPhi < 2) {
-            ap_uint<15> totalEnergy = c1.clusterEnergy() + c2.clusterEnergy();
+            ap_uint<12> totalEnergy = c1.clusterEnergy() + c2.clusterEnergy();
             ap_uint<15> totalEt2x5 = c1.uint_et2x5() + c2.uint_et2x5();
             ap_uint<15> totalEt5x5 = c1.uint_et5x5() + c2.uint_et5x5();
 
@@ -1521,6 +1521,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     totalEt5x5,
                                     totalEt2x5,
                                     c1.getBrems(),
+                                    c1.getCalib(),
                                     c1.getIsSS(),
                                     c1.getIsLooseTkss(),
                                     rct_is_iso,
@@ -1535,6 +1536,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     0,
                                     0,
                                     0,
+                                    1.0,
                                     false,
                                     false,
                                     rct_is_iso,
@@ -1553,6 +1555,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     0,
                                     0,
                                     0,
+                                    1.0,
                                     false,
                                     false,
                                     rct_is_iso,
@@ -1567,6 +1570,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     totalEt5x5,
                                     totalEt2x5,
                                     c2.getBrems(),
+                                    c2.getCalib(),
                                     c2.getIsSS(),
                                     c2.getIsLooseTkss(),
                                     rct_is_iso,
