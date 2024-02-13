@@ -94,6 +94,7 @@ Calorimeters:
 * C21: HGCal (v17 version of HGCal geometry as in C19 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in 2026D101)
 * C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in 2026D104)
 * C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in 2026D106)
+* C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in 2026D109)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -151,3 +152,4 @@ Several detector combinations have been generated:
 * D106 = T35+C23+M11+I17+O9+F8
 * D107 = T32+C17+M11+I17+O9+F8
 * D108 = T35+C19+M11+I17+O9+F8
+* D109 = T35+C24+M11+I17+O9+F8
