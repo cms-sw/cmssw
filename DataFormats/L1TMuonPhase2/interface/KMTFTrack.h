@@ -44,7 +44,7 @@ namespace l1t {
           rankDisp_(0),
           idFlag_(0) {}
 
-    ~KMTFTrack() override {}
+    ~KMTFTrack() = default;
 
     KMTFTrack(const l1t::MuonStubRef& seed, int phi, int phiB)
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
