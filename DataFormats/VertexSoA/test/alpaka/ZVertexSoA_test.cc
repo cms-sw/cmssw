@@ -49,7 +49,7 @@ int main() {
       // Instantiate vertices on device. PortableCollection allocates
       // SoA on device automatically.
       ZVertexSoACollection zvertex_d(queue);
-      testZVertexSoAT::runKernels(zvertex_d.view(), queue);
+      testZVertexSoAT::runKernels(zvertex_d.view(), zvertex_d.view<reco::ZVertexTracksSoA>(), queue);
 
       // Instantate vertices on host. This is where the data will be
       // copied to from device.
@@ -68,11 +68,13 @@ int main() {
                 << "sortInd\t"
                 << "nvFinal\n";
 
+      auto vtx_v = zvertex_h.view<reco::ZVertexSoA>();
+      auto trk_v = zvertex_h.view<reco::ZVertexTracksSoA>();
       for (int i = 0; i < 10; ++i) {
-        std::cout << (int)zvertex_h.view()[i].idv() << '\t' << zvertex_h.view()[i].zv() << '\t'
-                  << zvertex_h.view()[i].wv() << '\t' << zvertex_h.view()[i].chi2() << '\t'
-                  << zvertex_h.view()[i].ptv2() << '\t' << (int)zvertex_h.view()[i].ndof() << '\t'
-                  << (int)zvertex_h.view()[i].sortInd() << '\t' << (int)zvertex_h.view().nvFinal() << '\n';
+        auto vi = vtx_v[i];
+        auto ti = trk_v[i];
+        std::cout << (int)ti.idv() << "\t" << vi.zv() << "\t" << vi.wv() << "\t" << vi.chi2() << "\t" << vi.ptv2()
+                  << "\t" << (int)ti.ndof() << "\t" << vi.sortInd() << "\t" << (int)vtx_v.nvFinal() << std::endl;
       }
     }
   }

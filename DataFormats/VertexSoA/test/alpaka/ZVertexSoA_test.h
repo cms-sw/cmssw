@@ -6,7 +6,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT {
 
-  void runKernels(reco::ZVertexSoAView zvertex_view, Queue& queue);
+  void runKernels(reco::ZVertexSoAView zvertex_view, reco::ZVertexTracksSoAView ztracks_view, Queue& queue);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testZVertexSoAT
 
