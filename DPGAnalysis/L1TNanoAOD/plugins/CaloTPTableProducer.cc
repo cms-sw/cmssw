@@ -65,15 +65,15 @@ private:
   //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
-  const double ecalLSB_; 
-  
+  const double ecalLSB_;
+
   const edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPsToken_;
   const std::string ecalTPsName_;
 
   const edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPsToken_;
   const std::string hcalTPsName_;
 
-  const edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;  
+  const edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
 };
 
 //
@@ -87,16 +87,13 @@ private:
 //
 // constructors and destructor
 //
-CaloTPTableProducer::CaloTPTableProducer(const edm::ParameterSet& iConfig) 
-  :
-  ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
-  ecalTPsToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPsSrc"))),
-  ecalTPsName_(iConfig.getParameter<std::string>("ecalTPsName")),
-  hcalTPsToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalTPsSrc"))),
-  hcalTPsName_(iConfig.getParameter<std::string>("hcalTPsName")),
-  decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>())
-{
-
+CaloTPTableProducer::CaloTPTableProducer(const edm::ParameterSet& iConfig)
+    : ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
+      ecalTPsToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPsSrc"))),
+      ecalTPsName_(iConfig.getParameter<std::string>("ecalTPsName")),
+      hcalTPsToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalTPsSrc"))),
+      hcalTPsName_(iConfig.getParameter<std::string>("hcalTPsName")),
+      decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()) {
   produces<nanoaod::FlatTable>("EcalTP");
   produces<nanoaod::FlatTable>("HcalTP");
 
@@ -127,23 +124,23 @@ void CaloTPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPsToken_, hcalTPs);
 
-  vector<int>ecalTPieta;
-  vector<int>ecalTPCaliphi;
-  vector<int>ecalTPiphi;
-  vector<float>ecalTPet;
-  vector<int>ecalTPcompEt;
-  vector<int>ecalTPfineGrain;
+  vector<int> ecalTPieta;
+  vector<int> ecalTPCaliphi;
+  vector<int> ecalTPiphi;
+  vector<float> ecalTPet;
+  vector<int> ecalTPcompEt;
+  vector<int> ecalTPfineGrain;
   int nECALTP(0);
   if (ecalTPs.isValid()) {
     for (const auto& itr : *(ecalTPs.product())) {
       short ieta = (short)itr.id().ieta();
-      
+
       unsigned short cal_iphi = (unsigned short)itr.id().iphi();
       unsigned short iphi = (72 + 18 - cal_iphi) % 72;
       unsigned short compEt = itr.compressedEt();
       double et = ecalLSB_ * compEt;
       unsigned short fineGrain = (unsigned short)itr.fineGrain();
-      
+
       if (compEt > 0) {
         ecalTPieta.push_back(ieta);
         ecalTPCaliphi.push_back(cal_iphi);
@@ -163,40 +160,37 @@ void CaloTPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   ecalTPTable->addColumn<int16_t>("compEt", ecalTPcompEt, "");
   ecalTPTable->addColumn<int16_t>("fineGrain", ecalTPfineGrain, "");
 
-
-
-  vector<int>hcalTPieta;
-  vector<int>hcalTPCaliphi;
-  vector<int>hcalTPiphi;
-  vector<float>hcalTPet;
-  vector<int>hcalTPcompEt;
-  vector<int>hcalTPfineGrain;
+  vector<int> hcalTPieta;
+  vector<int> hcalTPCaliphi;
+  vector<int> hcalTPiphi;
+  vector<float> hcalTPet;
+  vector<int> hcalTPcompEt;
+  vector<int> hcalTPfineGrain;
   int nHCALTP(0);
   if (hcalTPs.isValid()) {
     for (auto itr : (*hcalTPs.product())) {
-      
       int ver = itr.id().version();
       short ieta = (short)itr.id().ieta();
       unsigned short absIeta = (unsigned short)abs(ieta);
       unsigned short cal_iphi = (unsigned short)itr.id().iphi();
       unsigned short iphi = (72 + 18 - cal_iphi) % 72;
-      
+
       unsigned short compEt = itr.SOI_compressedEt();
       double et = decoder->hcaletValue(itr.id(), itr.t0());
       unsigned short fineGrain = (unsigned short)itr.SOI_fineGrain();
-      
+
       if (compEt > 0 && (absIeta < 29 || ver == 1)) {
-	hcalTPieta.push_back(ieta);
-	hcalTPCaliphi.push_back(cal_iphi);
-	hcalTPiphi.push_back(iphi);
-	hcalTPet.push_back(et);
-	hcalTPcompEt.push_back(compEt);
-	hcalTPfineGrain.push_back(fineGrain);
-	nHCALTP++;
+        hcalTPieta.push_back(ieta);
+        hcalTPCaliphi.push_back(cal_iphi);
+        hcalTPiphi.push_back(iphi);
+        hcalTPet.push_back(et);
+        hcalTPcompEt.push_back(compEt);
+        hcalTPfineGrain.push_back(fineGrain);
+        nHCALTP++;
       }
     }
   }
-  
+
   auto hcalTPTable = std::make_unique<nanoaod::FlatTable>(nHCALTP, hcalTPsName_, false);
   hcalTPTable->addColumn<int16_t>("ieta", hcalTPieta, "");
   hcalTPTable->addColumn<int16_t>("Caliphi", hcalTPCaliphi, "");
@@ -205,11 +199,8 @@ void CaloTPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   hcalTPTable->addColumn<int16_t>("compEt", hcalTPcompEt, "");
   hcalTPTable->addColumn<int16_t>("fineGrain", hcalTPfineGrain, "");
 
-
   iEvent.put(std::move(ecalTPTable), "HcalTP");
   iEvent.put(std::move(hcalTPTable), "EcalTP");
-
-
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
