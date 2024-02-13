@@ -1,5 +1,5 @@
-#ifndef KMTFLUTS_H
-#define KMTFLUTS_H
+#ifndef L1Trigger_Phase2L1GMT_KMTFLUTS_h
+#define L1Trigger_Phase2L1GMT_KMTFLUTS_h
 #include <cstdlib>
 #include "TH1.h"
 #include "TFile.h"
