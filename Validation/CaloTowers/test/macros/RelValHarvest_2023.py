@@ -17,7 +17,7 @@ parser.add_option("-2", "--2023", action="store_true", dest="get2023", default=F
 #getDataSets if used to discover and download the datasets. It is seperated as a function so that we can easily switch between
 #MC and DATA datasets
 
-def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
+def getDataSets( dsFlags = {'RelValMinBias_14TeV__':'MinBias'},
                  curl = "/usr/bin/curl -O -L --capath %(CERT_DIR)s --key %(USER_PROXY)s --cert %(USER_PROXY)s https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/%(relValDIR)s",
                  ofnBlank = "HcalRecHitValidationRelVal_%(sample)s_%(label)s_%(info)s.root",
                  label = "CMSSW_X_Y_Z",
@@ -28,12 +28,12 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
                  printDS = False,
                  camType = "MC"):
                
-    print ("Taking filenames from directory %s"%relValDIR)
+    print("Taking filenames from directory ",relValDIR)
 
     # retrieve the list of datasets
     if not os.path.isfile(relValDIR):
         curlCommand = curl%{"CERT_DIR":X509_CERT_DIR, "USER_PROXY":X509_USER_PROXY, "relValDIR":relValDIR}
-        print (curlCommand)
+        print(curlCommand)
         os.system(curlCommand)
 
     # open raw input file 
@@ -48,55 +48,61 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
                 if str in line:
                     # extract dataset path
                     path = line.split('\'')[1].strip()
-                    #print ("Getting DQM output from dataset: %s"%path)
-                    if (path.find("Ideal") > 0 or path.find("design") > 0 or path.find("FastSim") > 0 or path.find("DQM") < 0 or path.find("Pixel") > 0 ):  #skip for unnecessary samples
-                        continue
-                    print (path.split("/")[-1]) #path
-                    if printDS:
-                        continue
+                    #print("Getting DQM output from dataset: %s"%path)
+                 #   if (path.find("Ideal") > 0 or path.find("design") > 0  or path.find("DQM") < 0 or path.find("Pixel") > 0 or path.find("2021") > 0 or path.find("FastSim") > 0 or path.find("asymptotic") > 0):  #skip for unnecessary samples
+                    if (path.find("2023") < 0):
+                        continue    
+                        print(path.split("/")[-1]) #path
+                        if printDS:
+                           continue
 
                     # construct file name
                     fname = path.split("/")[-1]
-
+                    #print "smDebug2: ",fname
                     # create file name for use with hcal scripts
                     info = fname.split("__")[2].replace(label, "").strip("-")
-
+                    #print "smDebug3: ",info
                     #The Data sample have an additional piece put in. We strip it out so that the MC and DATA code can be common
 
-                    if camType == "DATA":
-                        iparts = info.split("_")
-                        info = ""
-                        skip = False
-                        for fragment in iparts:
-                            if skip:
-                                info = info.strip("_")
-                                skip = False
-                                continue
-                            if fragment == "RelVal":
-                                skip = True
-                                continue
-                            info += fragment
-                            info += "_"
-                        info = info.strip("_")
+                    # if camType == "DATA":
+                    #     iparts = info.split("_")
+		    #     info = ""
+		    #     skip = False
+		    #     for fragment in iparts:
+                    #         if skip:
+                    #             info = info.strip("_")
+                    #             skip = False
+                    #             continue
+                    #         if fragment == "RelVal":
+                    #             skip = True
+                    #             continue
+                    #         info += fragment
+                    #         info += "_"
+                    #     info = info.strip("_")
 
                     ofn = ofnBlank%{"sample":dsFlags[str],"label":slabel,"info":info}
-                    print ("ofn = ",ofn)
+                    if camType == "DATA":
+                        ofn = ofn.replace("zb","")
+                        ofn = ofn.replace("jetHT","")
+                    print("ofn = ",ofn)
                     #Check if file exists already
                     if not os.path.isfile(ofn):
                         # copy file with curl
                         curlCommand = curl%{"CERT_DIR":X509_CERT_DIR,"USER_PROXY":X509_USER_PROXY, "relValDIR":relValDIR} + "/" + fname
-                        print (curlCommand)
+                        print(curlCommand)
                         os.system(curlCommand)
 
                         # Rename file for use with HCAL scripts
                         mvCommand = "mv %(fn)s %(ofn)s"%{"fn":fname,"ofn":ofn}
-                        print (mvCommand)
+                        print(mvCommand)
                         os.system(mvCommand)
-                        #print ""
+                        print("")
+                        # sys.exit();
+                        
 
     fin.close();
     rmCommand = "rm %(ofn)s"%{"ofn":relValDIR}
-    print (rmCommand)
+    print(rmCommand)
     os.system(rmCommand)
 
     if printDS:
@@ -116,28 +122,20 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
 
 
 # This is a dictionary of flags to pull out the datasets of interest mapped to the desired name from the hcal script
-dsMCFlags = {'RelValTTbar_13__':'TTbar', 'RelValQCD_Pt_80_120_13__':'QCD', 'RelValQCD_Pt_3000_3500_13__':'HighPtQCD', 'RelValMinBias_13__':'MinBias'}
-ds2023Flags = {'RelValTTbar_14TeV__':'TTbar', 'RelValMinBias_14TeV__':'MinBias'}
+dsMCFlags = {'RelValTTbar_14TeV__':'TTbar', 'RelValMinBias_14TeV__':'MinBias'}
+#ds2023Flags = {'RelValTTbar_14TeV__':'TTbar', 'RelValMinBias_14TeV__':'MinBias'}
 
-#dsDATAFlags = {'301998__JetHT__':'JetHT', '301998__ZeroBias__':'ZeroBias'}  #Original
-#dsDATAFlags = {'305064__JetHT__':'JetHT','305064__ZeroBias__':'ZeroBias'} # 2017F
-dsDATAFlags = {'297557__JetHT__':'JetHT','297557__ZeroBias__':'ZeroBias'} # 2017B
-#dsDATAFlags = {'274199__JetHT__':'JetHT','274199__ZeroBias__':'ZeroBias','297227__JetHT__':'JetHT','297227__ZeroBias__':'ZeroBias'} #2016B & 2017B dataset
+dsDATAFlags = {'297557__JetHT__':'JetHT','297557__ZeroBias__':'ZeroBias', #2017B
+               '315489__JetHT__':'JetHT','315489__ZeroBias__':'ZeroBias', #2018A
+               '317435__JetHT__':'JetHT','317435__ZeroBias__':'ZeroBias', #2018B
+               '319450__JetHT__':'JetHT','319450__ZeroBias__':'ZeroBias', #2018C
+               '320822__JetHT__':'JetHT','320822__ZeroBias__':'ZeroBias'} # 2018D
 
-#dsDATAFlags = {'274199__JetHT__':'JetHT','274199__ZeroBias__':'ZeroBias','297227__JetHT__':'JetHT','297227__ZeroBias__':'ZeroBias','302663__JetHT__':'JetHT','302663__ZeroBias__':'ZeroBias'} #2016B & 2017B & 2017D dataset
-
-
-#dsDATAFlags = {'274199__JetHT__':'JetHT','274199__ZeroBias__':'ZeroBias','297557__JetHT__':'JetHT','297557__ZeroBias__':'ZeroBias','305064__JetHT__':'JetHT','305064__ZeroBias__':'ZeroBias'} #2016B & 2017B & 2017D dataset
-#dsDATAFlags = {'256677__SingleMuon__':'SingleMuon'} #New_original
-#dsDATAFlags = {'254790__JetHT__':'JetHT','254790__ZeroBias__':'ZeroBias','254790__SingleMuon__':'SingleMuon'} #New_new
-# filename prefix 
-#fnPrefix = "DQM_V0001_R000000001"
-#MinBiasPrefix = "DQM_V0001_R000149011"
-#JetPrefix = "DQM_V0001_R000191226"
 
 # blank curl command 
 curlMC = "/usr/bin/curl -O -L --capath %(CERT_DIR)s --key %(USER_PROXY)s --cert %(USER_PROXY)s https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/%(relValDIR)s"
 curlDATA = "/usr/bin/curl -O -L --capath %(CERT_DIR)s --key %(USER_PROXY)s --cert %(USER_PROXY)s https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelValData/%(relValDIR)s"
+print("SMdebug: Curl MC ") 
 # output file name blank
 ofnBlank = "HcalRecHitValidationRelVal_%(sample)s_%(label)s_%(info)s.root"
 
@@ -147,16 +145,16 @@ dfTextFile = "%s"
 
 # ensure all required parameters are included
 if len(args) < 1:
-    print ("Usage: ./RelValHarvest.py -M (or -D) fullReleaseName")
-    print ("fullReleaseName : CMSSW_7_4_0_pre8")
+    print("Usage: ./RelValHarvest.py -M (or -D) fullReleaseName")
+    print("fullReleaseName : CMSSW_7_4_0_pre8")
     exit(0)
 
 #Make sure a Dataset is specified
 if not options.getMC and not options.getDATA and not options.get2023:
-    print ("You must specify a dataset:")
-    print ("    -M : Monte Carlo")
-    print ("    -D : Data")
-    print ("    -2 : 2023")
+    print("You must specify a dataset:")
+    print("    -M : Monte Carlo")
+    print("    -D : Data")
+    print("    -2 : 2023")
     exit(0)
 
 # gather input parameter
@@ -168,8 +166,8 @@ match = pattern.match(label)
 if match:
     slabel = match.group().replace('CMSSW','').replace("_","")
 else:
-    print (label, " is an invalid CMMSW release name.")
-    print ("Please provide a release name in the form: CMSSW_X_Y_Z")
+    print(label, " is an invalid CMMSW release name.")
+    print("Please provide a release name in the form: CMSSW_X_Y_Z")
     exit(0)
 
 # gather necessary proxy info for curl

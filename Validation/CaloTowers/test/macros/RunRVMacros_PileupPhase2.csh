@@ -1,4 +1,4 @@
-#!/bin/env tcsh
+#!/bin/tcsh
 
 #Check to see if the CMS environment is set up
 if ($?CMSSW_BASE != 1) then
@@ -43,16 +43,17 @@ mkdir TTbar/CaloTowers
 mkdir TTbar/RecHits
 mkdir TTbar/RBX
 
-cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
+cat ../html_indices/RelVal_RecHitsPhase2.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
 
-cp ../html_indices/RelVal_CaloTowers.html TTbar/CaloTowers/index.html
-cp ../html_indices/RelVal_HcalDigis.html  TTbar/HcalDigis/index.html
+cp ../html_indices/RelVal_CaloTowersPhase2.html TTbar/CaloTowers/index.html
+cp ../html_indices/RelVal_HcalDigisPhase2.html  TTbar/HcalDigis/index.html
 cp ../html_indices/RBX.html               TTbar/RBX/index.html
 
 cd ../
 
 #Process Startup TTbar
 #root -b -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}_PileUp.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}_PileUp.root'","InputRelVal_Medium.txt",'${harvest}')'
+cp InputRelVal.json-phase2-01Dec2021 InputRelVal.json
 ./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root rangeMediumPileup
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal_PileUp/TTbar/HcalDigis/
