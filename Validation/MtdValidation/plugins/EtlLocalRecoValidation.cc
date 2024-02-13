@@ -510,13 +510,10 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       // --- Fill the cluster resolution histograms using MtdSimLayerClusters as mtd truth
       edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> clusterRef = edmNew::makeRefTo(etlRecCluHandle, &cluster);
-      auto it = std::find_if(
-          r2sAssociationMap.begin(),
-          r2sAssociationMap.end(),
-          [&](const std::pair<FTLClusterRef, std::vector<MtdSimLayerClusterRef>>& p) { return p.first == clusterRef; });
-
-      if (it != r2sAssociationMap.end()) {
-        std::vector<MtdSimLayerClusterRef> simClustersRefs = (*it).second;
+      auto itp = r2sAssociationMap.equal_range(clusterRef);
+      if (itp.first != itp.second) {
+        std::vector<MtdSimLayerClusterRef> simClustersRefs =
+            (*itp.first).second;  // the range of itp.first, itp.second should be always 1
         for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
           auto simClusterRef = simClustersRefs[i];
 

@@ -27,7 +27,7 @@ reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
 
   const auto& simClusters = *simClusH.product();
 
-  // -- create temporary map  DetId, SimClusterRef (praticamente ... il DetSetVector dei poveri)
+  // -- create temporary map  DetId, SimClusterRef
   std::map<uint32_t, std::vector<MtdSimLayerClusterRef>> simClusIdsMap;
   for (auto simClusIt = simClusters.begin(); simClusIt != simClusters.end(); simClusIt++) {
     const auto& simClus = *simClusIt;
@@ -134,6 +134,7 @@ reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
     }    // -- end loop over detsetclus
   }
 
+  outputCollection.sort();
   return outputCollection;
 }
 
@@ -239,5 +240,6 @@ reco::SimToRecoCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl
 
   }  // -- end loop over sim clusters
 
+  outputCollection.sort();
   return outputCollection;
 }
