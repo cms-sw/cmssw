@@ -19,6 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using namespace cms::alpakatools;
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
 
   class Init {

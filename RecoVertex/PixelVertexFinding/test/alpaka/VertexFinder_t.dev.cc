@@ -87,21 +87,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                     vertexFinder::VtxSoAView pdata,
+                                    vertexFinder::TrkSoAView ptrkdata,
                                     vertexFinder::WsSoAView pws,
                                     int minT,      // min number of neighbours to be "seed"
                                     float eps,     // max absolute distance to cluster
                                     float errmax,  // max error to be "seed"
                                     float chi2max  // max normalized distance to cluster,
       ) const {
-        vertexFinder::clusterTracksByDensity(acc, pdata, pws, minT, eps, errmax, chi2max);
+        vertexFinder::clusterTracksByDensity(acc, pdata, ptrkdata, pws, minT, eps, errmax, chi2max);
         alpaka::syncBlockThreads(acc);
-        vertexFinder::fitVertices(acc, pdata, pws, 50.);
+        vertexFinder::fitVertices(acc, pdata, ptrkdata, pws, 50.);
         alpaka::syncBlockThreads(acc);
-        vertexFinder::splitVertices(acc, pdata, pws, 9.f);
+        vertexFinder::splitVertices(acc, pdata, ptrkdata, pws, 9.f);
         alpaka::syncBlockThreads(acc);
-        vertexFinder::fitVertices(acc, pdata, pws, 5000.);
+        vertexFinder::fitVertices(acc, pdata, ptrkdata, pws, 5000.);
         alpaka::syncBlockThreads(acc);
-        vertexFinder::sortByPt2(acc, pdata, pws);
+        vertexFinder::sortByPt2(acc, pdata, ptrkdata, pws);
         alpaka::syncBlockThreads(acc);
       }
     };
@@ -157,14 +158,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               workDivClusterizer,
                               VertexFinderOneKernel{},
                               vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
                               ws_d.view(),
                               kk,
                               par[0],
                               par[1],
                               par[2]);
 #else
-          alpaka::exec<Acc1D>(
-              queue, workDivClusterizer, CLUSTERIZE{}, vertices_d.view(), ws_d.view(), kk, par[0], par[1], par[2]);
+          alpaka::exec<Acc1D>(queue,
+                              workDivClusterizer,
+                              CLUSTERIZE{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view(),
+                              kk,
+                              par[0],
+                              par[1],
+                              par[2]);
 #endif
           alpaka::wait(queue);
           alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_print{}, vertices_d.view(), ws_d.view());
@@ -172,8 +182,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           auto workDivFitter = make_workdiv<Acc1D>(1, 1024 - 256);
 
-          alpaka::exec<Acc1D>(
-              queue, workDivFitter, vertexFinder::FitVerticesKernel{}, vertices_d.view(), ws_d.view(), 50.f);
+          alpaka::exec<Acc1D>(queue,
+                              workDivFitter,
+                              vertexFinder::FitVerticesKernel{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view(),
+                              50.f);
 
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
@@ -184,8 +199,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
 
           for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view().ndof()[j]);
+            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
+              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
             auto mx =
                 std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
@@ -193,14 +208,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       << *mx.second << std::endl;
           }
 
-          alpaka::exec<Acc1D>(
-              queue, workDivFitter, vertexFinder::FitVerticesKernel{}, vertices_d.view(), ws_d.view(), 50.f);
+          alpaka::exec<Acc1D>(queue,
+                              workDivFitter,
+                              vertexFinder::FitVerticesKernel{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view(),
+                              50.f);
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
 
           for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view().ndof()[j]);
+            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
+              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
             auto mx =
                 std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
@@ -211,17 +231,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto workDivSplitter = make_workdiv<Acc1D>(1024, 64);
 
           // one vertex per block!!!
-          alpaka::exec<Acc1D>(
-              queue, workDivSplitter, vertexFinder::SplitVerticesKernel{}, vertices_d.view(), ws_d.view(), 9.f);
+          alpaka::exec<Acc1D>(queue,
+                              workDivSplitter,
+                              vertexFinder::SplitVerticesKernel{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view(),
+                              9.f);
           alpaka::memcpy(queue, ws_h.buffer(), ws_d.buffer());
           alpaka::wait(queue);
           std::cout << "after split " << ws_h.view().nvIntermediate() << std::endl;
 
-          alpaka::exec<Acc1D>(
-              queue, workDivFitter, vertexFinder::FitVerticesKernel{}, vertices_d.view(), ws_d.view(), 5000.f);
+          alpaka::exec<Acc1D>(queue,
+                              workDivFitter,
+                              vertexFinder::FitVerticesKernel{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view(),
+                              5000.f);
 
           auto workDivSorter = make_workdiv<Acc1D>(1, 256);
-          alpaka::exec<Acc1D>(queue, workDivSorter, vertexFinder::SortByPt2Kernel{}, vertices_d.view(), ws_d.view());
+          alpaka::exec<Acc1D>(queue,
+                              workDivSorter,
+                              vertexFinder::SortByPt2Kernel{},
+                              vertices_d.view(),
+                              vertices_d.view<reco::ZVertexTracksSoA>(),
+                              ws_d.view());
           alpaka::memcpy(queue, vertices_h.buffer(), vertices_d.buffer());
           alpaka::wait(queue);
 
@@ -231,8 +266,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
 
           for (auto j = 0U; j < vertices_h.view().nvFinal(); ++j)
-            if (vertices_h.view().ndof()[j] > 0)
-              vertices_h.view().chi2()[j] /= float(vertices_h.view().ndof()[j]);
+            if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
+              vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
             auto mx =
                 std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
@@ -279,7 +314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
 
         }  // loop on events
-      }    // lopp on ave vert
+      }  // loop on ave vert
     }
   }  // namespace vertexfinder_t
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

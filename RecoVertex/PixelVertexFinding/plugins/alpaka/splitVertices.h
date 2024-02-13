@@ -16,12 +16,11 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(const TAcc& acc,
-                                                                                   VtxSoAView& data,
-                                                                                   WsSoAView& ws,
-                                                                                   float maxChi2) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(
+      const TAcc& acc, VtxSoAView& data, TrkSoAView& trkdata, WsSoAView& ws, float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
     constexpr uint32_t MAXTK = 512;
 
@@ -33,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     // one vertex per block
     for (auto kv : cms::alpakatools::independent_groups(acc, data.nvFinal())) {
-      int32_t ndof = data[kv].ndof();
+      int32_t ndof = trkdata[kv].ndof();
       if (ndof < 4)
         continue;
       if (data[kv].chi2() < maxChi2 * float(ndof))
@@ -141,8 +140,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   class SplitVerticesKernel {
   public:
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView data, WsSoAView ws, float maxChi2) const {
-      splitVertices(acc, data, ws, maxChi2);
+    ALPAKA_FN_ACC void operator()(
+        const TAcc& acc, VtxSoAView data, TrkSoAView trkdata, WsSoAView ws, float maxChi2) const {
+      splitVertices(acc, data, trkdata, ws, maxChi2);
     }
   };
 

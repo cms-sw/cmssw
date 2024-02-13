@@ -18,12 +18,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void fitVertices(const TAcc& acc,
                                                                                  VtxSoAView& pdata,
+                                                                                 TrkSoAView& ptrkdata,
                                                                                  WsSoAView& pws,
                                                                                  float chi2Max  // for outlier rejection
   ) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
     auto& __restrict__ data = pdata;
+    auto& __restrict__ trkdata = ptrkdata;
     auto& __restrict__ ws = pws;
     auto nt = ws.ntrks();
     float const* __restrict__ zt = ws.zt();
@@ -34,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     uint32_t& nvFinal = data.nvFinal();
     uint32_t& nvIntermediate = ws.nvIntermediate();
 
-    int32_t* __restrict__ nn = data.ndof();
+    int32_t* __restrict__ nn = trkdata.ndof();
     int32_t* __restrict__ iv = ws.iv();
 
     ALPAKA_ASSERT_ACC(nvFinal <= nvIntermediate);
@@ -126,10 +128,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   VtxSoAView pdata,
+                                  TrkSoAView ptrkdata,
                                   WsSoAView pws,
                                   float chi2Max  // for outlier rejection
     ) const {
-      fitVertices(acc, pdata, pws, chi2Max);
+      fitVertices(acc, pdata, ptrkdata, pws, chi2Max);
     }
   };
 
