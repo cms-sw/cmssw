@@ -1,0 +1,21 @@
+import FWCore.ParameterSet.Config as cms
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.common_cff import *
+from DPGAnalysis.L1TNanoAOD.l1tnanotables_cff import * 
+
+def addEmulCaloTPsandLayer1(process): 
+    """
+    Add reemulated TT/clusters to NANOAOD
+    """
+    #process.l1EmulCaloTPsNanoTask = cms.Task(l1EmulCaloTPTable)
+    #process.l1EmulCaloLayer1NanoTask = cms.Task(l1EmulCaloTowerTable,l1EmulCaloClusterTable)
+
+
+    
+    process.nanoTableTaskCommon.add(process.l1EmulCaloTPsNanoTask)
+    process.nanoTableTaskCommon.add(process.l1EmulCaloLayer1NanoTask)
+    #process.testseq = cms.Sequence(process.l1EmulCaloTPsNanoTask)
+    #process.testseqtwo = cms.Sequence(process.l1EmulCaloLayer1NanoTask)
+    
+
+    return process
