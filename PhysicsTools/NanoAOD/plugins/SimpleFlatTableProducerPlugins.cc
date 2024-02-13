@@ -60,6 +60,9 @@ typedef SimpleFlatTableProducer<Run3ScoutingElectron> SimpleRun3ScoutingElectron
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 typedef SimpleFlatTableProducer<Run3ScoutingTrack> SimpleRun3ScoutingTrackFlatTableProducer;
 
+#include "DataFormats/VertexReco/interface/TrackTimeLifeInfo.h"
+typedef SimpleFlatTableProducer<TrackTimeLifeInfo> SimpleTrackTimeLifeInfoFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidate2CandidateFlatTableProducer);
@@ -81,3 +84,4 @@ DEFINE_FWK_MODULE(SimpleRun3ScoutingPhotonFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleRun3ScoutingMuonFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleRun3ScoutingElectronFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleRun3ScoutingTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTrackTimeLifeInfoFlatTableProducer);
