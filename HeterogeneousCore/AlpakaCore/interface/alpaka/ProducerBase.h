@@ -101,7 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // can think of it later if really needed
     template <typename TProduct, typename TToken, edm::Transition Tr>
     edm::EDPutTokenT<TToken> deviceProduces(std::string instanceName) {
-      if constexpr (detail::useProductDirectly<TProduct>) {
+      if constexpr (detail::useProductDirectly) {
         return Base::template produces<TToken, Tr>(std::move(instanceName));
       } else {
         edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(instanceName);
