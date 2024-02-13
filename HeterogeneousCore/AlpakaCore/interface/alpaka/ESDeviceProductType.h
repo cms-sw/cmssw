@@ -13,7 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::detail {
    */
   template <typename TProduct>
   struct ESDeviceProductType {
-    using type = std::conditional_t<std::is_same_v<Platform, alpaka::PltfCpu>,
+    using type = std::conditional_t<std::is_same_v<Platform, alpaka::PlatformCpu>,
                                     // host backends can use TProduct directly
                                     TProduct,
                                     // all device backends need to be wrapped

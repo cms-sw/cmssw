@@ -69,7 +69,7 @@ struct verifyMulti {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, Multiplicity* __restrict__ m1, Multiplicity* __restrict__ m2) const {
     for ([[maybe_unused]] auto i : uniform_elements(acc, Multiplicity{}.totOnes())) {
-      ALPAKA_ASSERT_OFFLOAD(m1->off[i] == m2->off[i]);
+      ALPAKA_ASSERT_ACC(m1->off[i] == m2->off[i]);
     }
   }
 };
@@ -83,7 +83,7 @@ struct count {
     for (auto i : uniform_elements(acc, 4 * n)) {
       auto k = i / 4;
       auto j = i - 4 * k;
-      ALPAKA_ASSERT_OFFLOAD(j < 4);
+      ALPAKA_ASSERT_ACC(j < 4);
       if (k >= n) {
         return;
       }
@@ -103,7 +103,7 @@ struct fill {
     for (auto i : uniform_elements(acc, 4 * n)) {
       auto k = i / 4;
       auto j = i - 4 * k;
-      ALPAKA_ASSERT_OFFLOAD(j < 4);
+      ALPAKA_ASSERT_ACC(j < 4);
       if (k >= n) {
         return;
       }
@@ -117,7 +117,7 @@ struct fill {
 struct verify {
   template <typename TAcc, typename Assoc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, Assoc* __restrict__ assoc) const {
-    ALPAKA_ASSERT_OFFLOAD(assoc->size() < Assoc{}.capacity());
+    ALPAKA_ASSERT_ACC(assoc->size() < Assoc{}.capacity());
   }
 };
 
@@ -138,7 +138,7 @@ struct verifyBulk {
     if (::toSigned(apc->get().first) >= Assoc::ctNOnes()) {
       printf("Overflow %d %d\n", apc->get().first, Assoc::ctNOnes());
     }
-    ALPAKA_ASSERT_OFFLOAD(toSigned(assoc->size()) < Assoc::ctCapacity());
+    ALPAKA_ASSERT_ACC(toSigned(assoc->size()) < Assoc::ctCapacity());
   }
 };
 
@@ -197,8 +197,8 @@ int main() {
         }
         ++z;
       }
-      ALPAKA_ASSERT_OFFLOAD(n <= MaxElem);
-      ALPAKA_ASSERT_OFFLOAD(j <= N);
+      ALPAKA_ASSERT_ACC(n <= MaxElem);
+      ALPAKA_ASSERT_ACC(j <= N);
     }
     std::cout << "filled with " << n << " elements " << double(ave) / n << ' ' << imax << ' ' << nz << std::endl;
 
@@ -239,7 +239,7 @@ int main() {
       ave += x;
       imax = std::max(imax, int(x));
     }
-    ALPAKA_ASSERT_OFFLOAD(0 == ara_h->size(n));
+    ALPAKA_ASSERT_ACC(0 == ara_h->size(n));
     std::cout << "found with " << n << " elements " << double(ave) / n << ' ' << imax << ' ' << z << std::endl;
 
     // now the inverse map (actually this is the direct....)
@@ -289,11 +289,11 @@ int main() {
       if (!(x == 4 || x == 3)) {
         std::cout << "i=" << i << " x=" << x << std::endl;
       }
-      ALPAKA_ASSERT_OFFLOAD(x == 4 || x == 3);
+      ALPAKA_ASSERT_ACC(x == 4 || x == 3);
       ave += x;
       imax = std::max(imax, int(x));
     }
-    ALPAKA_ASSERT_OFFLOAD(0 == as_h->size(N));
+    ALPAKA_ASSERT_ACC(0 == as_h->size(N));
     std::cout << "found with ave occupancy " << double(ave) / N << ' ' << imax << std::endl;
 
     // here verify use of block local counters

@@ -33,8 +33,8 @@ namespace pixelClustering {
 
       constexpr int startBPIX2 = TrackerTraits::layerStart[1];
 
-      ALPAKA_ASSERT_OFFLOAD(TrackerTraits::numberOfModules < maxNumModules);
-      ALPAKA_ASSERT_OFFLOAD(startBPIX2 < TrackerTraits::numberOfModules);
+      ALPAKA_ASSERT_ACC(TrackerTraits::numberOfModules < maxNumModules);
+      ALPAKA_ASSERT_ACC(startBPIX2 < TrackerTraits::numberOfModules);
 
       auto endModule = clus_view[0].moduleStart();
       for (auto module : cms::alpakatools::independent_groups(acc, endModule)) {
@@ -53,7 +53,7 @@ namespace pixelClustering {
           // reached the end of the module while skipping the invalid pixels, skip this module
           continue;
         }
-        ALPAKA_ASSERT_OFFLOAD(thisModuleId < TrackerTraits::numberOfModules);
+        ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
         uint32_t nclus = clus_view[thisModuleId].clusInModule();
         if (nclus == 0)
@@ -87,7 +87,7 @@ namespace pixelClustering {
             printf("start cluster charge cut for module %d in block %d\n", thisModuleId, module);
 #endif
 
-        ALPAKA_ASSERT_OFFLOAD(nclus <= maxNumClustersPerModules);
+        ALPAKA_ASSERT_ACC(nclus <= maxNumClustersPerModules);
         for (auto i : cms::alpakatools::independent_group_elements(acc, nclus)) {
           charge[i] = 0;
         }
@@ -136,7 +136,7 @@ namespace pixelClustering {
             alpaka::syncBlockThreads(acc);
           }
         }
-        ALPAKA_ASSERT_OFFLOAD(nclus >= newclusId[nclus - 1]);
+        ALPAKA_ASSERT_ACC(nclus >= newclusId[nclus - 1]);
 
         clus_view[thisModuleId].clusInModule() = newclusId[nclus - 1];
 

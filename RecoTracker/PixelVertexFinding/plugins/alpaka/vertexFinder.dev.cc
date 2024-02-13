@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
           [[maybe_unused]] auto nHits = helper::nHits(tracks_view, idx);
-          ALPAKA_ASSERT_OFFLOAD(nHits >= 3);
+          ALPAKA_ASSERT_ACC(nHits >= 3);
 
           // initialize soa...
           soa[idx].idv() = -1;

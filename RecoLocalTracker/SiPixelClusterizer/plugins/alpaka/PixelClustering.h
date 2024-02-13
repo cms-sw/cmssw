@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                        &clus_view[0].moduleStart(),
                                        static_cast<uint32_t>(::pixelClustering::maxNumModules),
                                        alpaka::hierarchy::Blocks{});
-          ALPAKA_ASSERT_OFFLOAD(loc < TrackerTraits::numberOfModules);
+          ALPAKA_ASSERT_ACC(loc < TrackerTraits::numberOfModules);
 #ifdef GPU_DEBUG
           printf("> New module (no. %d) found at digi %d \n", loc, i);
 #endif
@@ -143,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
       for (uint32_t module : cms::alpakatools::independent_groups(acc, lastModule)) {
         auto firstPixel = clus_view[1 + module].moduleStart();
         uint32_t thisModuleId = digi_view[firstPixel].moduleId();
-        ALPAKA_ASSERT_OFFLOAD(thisModuleId < TrackerTraits::numberOfModules);
+        ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
         if (thisModuleId % 100 == 1)
@@ -182,8 +182,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         }
         alpaka::syncBlockThreads(acc);
 
-        ALPAKA_ASSERT_OFFLOAD((lastPixel == numElements) or
-                              ((lastPixel < numElements) and (digi_view[lastPixel].moduleId() != thisModuleId)));
+        ALPAKA_ASSERT_ACC((lastPixel == numElements) or
+                          ((lastPixel < numElements) and (digi_view[lastPixel].moduleId() != thisModuleId)));
         // limit to maxPixInModule  (FIXME if recurrent (and not limited to simulation with low threshold) one will need to implement something cleverer)
         if (cms::alpakatools::once_per_block(acc)) {
           if (lastPixel - firstPixel > TrackerTraits::maxPixInModule) {
@@ -195,7 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
         }
         alpaka::syncBlockThreads(acc);
-        ALPAKA_ASSERT_OFFLOAD(lastPixel - firstPixel <= TrackerTraits::maxPixInModule);
+        ALPAKA_ASSERT_ACC(lastPixel - firstPixel <= TrackerTraits::maxPixInModule);
 
 #ifdef GPU_DEBUG
         auto& totGood = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
@@ -254,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         hist.finalize(acc, ws);
         alpaka::syncBlockThreads(acc);
 #ifdef GPU_DEBUG
-        ALPAKA_ASSERT_OFFLOAD(hist.size() == totGood);
+        ALPAKA_ASSERT_ACC(hist.size() == totGood);
         if (thisModuleId % 100 == 1)
           if (cms::alpakatools::once_per_block(acc))
             printf("histo size %d\n", hist.size());
@@ -299,11 +299,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // with blockDimension = threadPerBlock * elementsPerThread.
         // Hence, maxIter can be tuned accordingly to the workdiv.
         constexpr unsigned int maxIterGPU = 16;
-        ALPAKA_ASSERT_OFFLOAD((hist.size() / blockDimension) < maxIterGPU);
+        ALPAKA_ASSERT_ACC((hist.size() / blockDimension) < maxIterGPU);
 
         // NB: can be tuned.
         constexpr uint32_t maxElements = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 256 : 1;
-        ALPAKA_ASSERT_OFFLOAD((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
+        ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
 
         constexpr unsigned int maxIter = maxIterGPU * maxElements;
 
@@ -321,23 +321,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // fill the nearest neighbours
         uint32_t k = 0;
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, hist.size())) {
-          ALPAKA_ASSERT_OFFLOAD(k < maxIter);
+          ALPAKA_ASSERT_ACC(k < maxIter);
           auto p = hist.begin() + j;
           auto i = *p + firstPixel;
-          ALPAKA_ASSERT_OFFLOAD(digi_view[i].moduleId() != ::pixelClustering::invalidModuleId);
-          ALPAKA_ASSERT_OFFLOAD(digi_view[i].moduleId() == thisModuleId);  // same module
+          ALPAKA_ASSERT_ACC(digi_view[i].moduleId() != ::pixelClustering::invalidModuleId);
+          ALPAKA_ASSERT_ACC(digi_view[i].moduleId() == thisModuleId);  // same module
           auto bin = Hist::bin(digi_view[i].yy() + 1);
           auto end = hist.end(bin);
           ++p;
-          ALPAKA_ASSERT_OFFLOAD(0 == nnn[k]);
+          ALPAKA_ASSERT_ACC(0 == nnn[k]);
           for (; p < end; ++p) {
             auto m = *p + firstPixel;
-            ALPAKA_ASSERT_OFFLOAD(m != i);
-            ALPAKA_ASSERT_OFFLOAD(int(digi_view[m].yy()) - int(digi_view[i].yy()) >= 0);
-            ALPAKA_ASSERT_OFFLOAD(int(digi_view[m].yy()) - int(digi_view[i].yy()) <= 1);
+            ALPAKA_ASSERT_ACC(m != i);
+            ALPAKA_ASSERT_ACC(int(digi_view[m].yy()) - int(digi_view[i].yy()) >= 0);
+            ALPAKA_ASSERT_ACC(int(digi_view[m].yy()) - int(digi_view[i].yy()) <= 1);
             if (std::abs(int(digi_view[m].xx()) - int(digi_view[i].xx())) <= 1) {
               auto l = nnn[k]++;
-              ALPAKA_ASSERT_OFFLOAD(l < maxNeighbours);
+              ALPAKA_ASSERT_ACC(l < maxNeighbours);
               nn[k][l] = *p;
             }
           }
@@ -360,13 +360,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           more = false;
           uint32_t k = 0;
           for (uint32_t j : cms::alpakatools::independent_group_elements(acc, hist.size())) {
-            ALPAKA_ASSERT_OFFLOAD(k < maxIter);
+            ALPAKA_ASSERT_ACC(k < maxIter);
             auto p = hist.begin() + j;
             auto i = *p + firstPixel;
             for (int kk = 0; kk < nnn[k]; ++kk) {
               auto l = nn[k][kk];
               auto m = l + firstPixel;
-              ALPAKA_ASSERT_OFFLOAD(m != i);
+              ALPAKA_ASSERT_ACC(m != i);
               // FIXME ::Threads ?
               auto old = alpaka::atomicMin(acc, &digi_view[m].clus(), digi_view[i].clus(), alpaka::hierarchy::Blocks{});
               if (old != digi_view[i].clus()) {
@@ -404,7 +404,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
             if (cms::alpakatools::once_per_block(acc))
               n0 = nloops;
             alpaka::syncBlockThreads(acc);
-            ALPAKA_ASSERT_OFFLOAD(alpaka::syncBlockThreadsPredicate<alpaka::BlockAnd>(acc, nloops == n0));
+            ALPAKA_ASSERT_ACC(alpaka::syncBlockThreadsPredicate<alpaka::BlockAnd>(acc, nloops == n0));
             if (thisModuleId % 100 == 1)
               if (cms::alpakatools::once_per_block(acc))
                 printf("# loops %d\n", nloops);

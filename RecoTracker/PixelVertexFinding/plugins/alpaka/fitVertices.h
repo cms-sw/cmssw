@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     int32_t* __restrict__ nn = data.ndof();
     int32_t* __restrict__ iv = ws.iv();
 
-    ALPAKA_ASSERT_OFFLOAD(nvFinal <= nvIntermediate);
+    ALPAKA_ASSERT_ACC(nvFinal <= nvIntermediate);
     nvFinal = nvIntermediate;
     auto foundClusters = nvFinal;
 
@@ -64,8 +64,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
           alpaka::atomicAdd(acc, &noise, 1, alpaka::hierarchy::Threads{});
         continue;
       }
-      ALPAKA_ASSERT_OFFLOAD(iv[i] >= 0);
-      ALPAKA_ASSERT_OFFLOAD(iv[i] < int(foundClusters));
+      ALPAKA_ASSERT_ACC(iv[i] >= 0);
+      ALPAKA_ASSERT_ACC(iv[i] < int(foundClusters));
       auto w = 1.f / ezt2[i];
       alpaka::atomicAdd(acc, &zv[iv[i]], zt[i] * w, alpaka::hierarchy::Threads{});
       alpaka::atomicAdd(acc, &wv[iv[i]], w, alpaka::hierarchy::Threads{});
@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     alpaka::syncBlockThreads(acc);
     // reuse nn
     for (auto i : cms::alpakatools::uniform_elements(acc, foundClusters)) {
-      ALPAKA_ASSERT_OFFLOAD(wv[i] > 0.f);
+      ALPAKA_ASSERT_ACC(wv[i] > 0.f);
       zv[i] /= wv[i];
       nn[i] = -1;  // ndof
     }

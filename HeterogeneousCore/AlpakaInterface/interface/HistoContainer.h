@@ -27,10 +27,10 @@ namespace cms::alpakatools {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
-        ALPAKA_ASSERT_OFFLOAD((*off) > 0);
+        ALPAKA_ASSERT_ACC((*off) > 0);
         int32_t ih = off - offsets - 1;
-        ALPAKA_ASSERT_OFFLOAD(ih >= 0);
-        ALPAKA_ASSERT_OFFLOAD(ih < int(nh));
+        ALPAKA_ASSERT_ACC(ih >= 0);
+        ALPAKA_ASSERT_ACC(ih < int(nh));
         h->count(acc, v[i], ih);
       }
     }
@@ -46,10 +46,10 @@ namespace cms::alpakatools {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
-        ALPAKA_ASSERT_OFFLOAD((*off) > 0);
+        ALPAKA_ASSERT_ACC((*off) > 0);
         int32_t ih = off - offsets - 1;
-        ALPAKA_ASSERT_OFFLOAD(ih >= 0);
-        ALPAKA_ASSERT_OFFLOAD(ih < int(nh));
+        ALPAKA_ASSERT_ACC(ih >= 0);
+        ALPAKA_ASSERT_ACC(ih < int(nh));
         h->fill(acc, v[i], i, ih);
       }
     }
@@ -102,7 +102,7 @@ namespace cms::alpakatools {
     int bs = Hist::bin(value);
     int be = std::min(int(Hist::nbins() - 1), bs + n);
     bs = std::max(0, bs - n);
-    ALPAKA_ASSERT_OFFLOAD(be >= bs);
+    ALPAKA_ASSERT_ACC(be >= bs);
     for (auto pj = hist.begin(bs); pj < hist.end(be); ++pj) {
       func(*pj);
     }
@@ -113,7 +113,7 @@ namespace cms::alpakatools {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInWindow(Hist const &hist, V wmin, V wmax, Func const &func) {
     auto bs = Hist::bin(wmin);
     auto be = Hist::bin(wmax);
-    ALPAKA_ASSERT_OFFLOAD(be >= bs);
+    ALPAKA_ASSERT_ACC(be >= bs);
     for (auto pj = hist.begin(bs); pj < hist.end(be); ++pj) {
       func(*pj);
     }
@@ -164,36 +164,36 @@ namespace cms::alpakatools {
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t) {
       uint32_t b = bin(t);
-      ALPAKA_ASSERT_OFFLOAD(b < nbins());
+      ALPAKA_ASSERT_ACC(b < nbins());
       Base::atomicIncrement(acc, this->off[b]);
     }
 
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j) {
       uint32_t b = bin(t);
-      ALPAKA_ASSERT_OFFLOAD(b < nbins());
+      ALPAKA_ASSERT_ACC(b < nbins());
       auto w = Base::atomicDecrement(acc, this->off[b]);
-      ALPAKA_ASSERT_OFFLOAD(w > 0);
+      ALPAKA_ASSERT_ACC(w > 0);
       this->content[w - 1] = j;
     }
 
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t, uint32_t nh) {
       uint32_t b = bin(t);
-      ALPAKA_ASSERT_OFFLOAD(b < nbins());
+      ALPAKA_ASSERT_ACC(b < nbins());
       b += histOff(nh);
-      ALPAKA_ASSERT_OFFLOAD(b < totbins());
+      ALPAKA_ASSERT_ACC(b < totbins());
       Base::atomicIncrement(acc, this->off[b]);
     }
 
     template <typename TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j, uint32_t nh) {
       uint32_t b = bin(t);
-      ALPAKA_ASSERT_OFFLOAD(b < nbins());
+      ALPAKA_ASSERT_ACC(b < nbins());
       b += histOff(nh);
-      ALPAKA_ASSERT_OFFLOAD(b < totbins());
+      ALPAKA_ASSERT_ACC(b < totbins());
       auto w = Base::atomicDecrement(acc, this->off[b]);
-      ALPAKA_ASSERT_OFFLOAD(w > 0);
+      ALPAKA_ASSERT_ACC(w > 0);
       this->content[w - 1] = j;
     }
   };

@@ -8,8 +8,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     tupleMultiplicity_ = tupleMultiplicity;
     outputSoa_ = helix_fit_results;
 
-    ALPAKA_ASSERT_OFFLOAD(tuples_);
-    ALPAKA_ASSERT_OFFLOAD(tupleMultiplicity_);
+    ALPAKA_ASSERT_ACC(tuples_);
+    ALPAKA_ASSERT_ACC(tupleMultiplicity_);
   }
 
   template <typename TrackerTraits>

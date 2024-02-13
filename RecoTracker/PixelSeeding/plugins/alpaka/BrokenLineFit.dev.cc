@@ -42,17 +42,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       constexpr uint32_t hitsInFit = N;
       constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
-      ALPAKA_ASSERT_OFFLOAD(hitsInFit <= nHitsL);
-      ALPAKA_ASSERT_OFFLOAD(nHitsL <= nHitsH);
-      ALPAKA_ASSERT_OFFLOAD(phits);
-      ALPAKA_ASSERT_OFFLOAD(pfast_fit);
-      ALPAKA_ASSERT_OFFLOAD(foundNtuplets);
-      ALPAKA_ASSERT_OFFLOAD(tupleMultiplicity);
+      ALPAKA_ASSERT_ACC(hitsInFit <= nHitsL);
+      ALPAKA_ASSERT_ACC(nHitsL <= nHitsH);
+      ALPAKA_ASSERT_ACC(phits);
+      ALPAKA_ASSERT_ACC(pfast_fit);
+      ALPAKA_ASSERT_ACC(foundNtuplets);
+      ALPAKA_ASSERT_ACC(tupleMultiplicity);
 
       // look in bin for this hit multiplicity
       int totTK = tupleMultiplicity->end(nHitsH) - tupleMultiplicity->begin(nHitsL);
-      ALPAKA_ASSERT_OFFLOAD(totTK <= int(tupleMultiplicity->size()));
-      ALPAKA_ASSERT_OFFLOAD(totTK >= 0);
+      ALPAKA_ASSERT_ACC(totTK <= int(tupleMultiplicity->size()));
+      ALPAKA_ASSERT_ACC(totTK >= 0);
 
 #ifdef BROKENLINE_DEBUG
       const uint32_t threadIdx(alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u]);
@@ -70,14 +70,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         // get it from the ntuple container (one to one to helix)
         auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
-        ALPAKA_ASSERT_OFFLOAD(static_cast<int>(tkid) < foundNtuplets->nOnes());
+        ALPAKA_ASSERT_ACC(static_cast<int>(tkid) < foundNtuplets->nOnes());
 
         ptkids[local_idx] = tkid;
 
         auto nHits = foundNtuplets->size(tkid);
 
-        ALPAKA_ASSERT_OFFLOAD(nHits >= nHitsL);
-        ALPAKA_ASSERT_OFFLOAD(nHits <= nHitsH);
+        ALPAKA_ASSERT_ACC(nHits >= nHitsL);
+        ALPAKA_ASSERT_ACC(nHits <= nHitsH);
 
         riemannFit::Map3xNd<N> hits(phits + local_idx);
         riemannFit::Map4d fast_fit(pfast_fit + local_idx);
@@ -109,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int j = int(n + 0.5f);  // round
           if (hitsInFit - 1 == i)
             j = nHits - 1;  // force last hit to ensure max lever arm.
-          ALPAKA_ASSERT_OFFLOAD(j < int(nHits));
+          ALPAKA_ASSERT_ACC(j < int(nHits));
           n += incr;
           auto hit = hitId[j];
           float ge[6];
@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto const &dp = cpeParams->detParams(hh.detectorIndex(hit));
           auto status = hh[hit].chargeAndStatus().status;
           int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
-          ALPAKA_ASSERT_OFFLOAD(qbin >= 0 && qbin < 5);
+          ALPAKA_ASSERT_ACC(qbin >= 0 && qbin < 5);
           bool nok = (status.isBigY | status.isOneY);
           // compute cotanbeta and use it to recompute error
           dp.frame.rotation().multiply(dx, dy, dz, ux, uy, uz);
@@ -161,10 +161,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         brokenline::fastFit(acc, hits, fast_fit);
 
         // no NaN here....
-        ALPAKA_ASSERT_OFFLOAD(fast_fit(0) == fast_fit(0));
-        ALPAKA_ASSERT_OFFLOAD(fast_fit(1) == fast_fit(1));
-        ALPAKA_ASSERT_OFFLOAD(fast_fit(2) == fast_fit(2));
-        ALPAKA_ASSERT_OFFLOAD(fast_fit(3) == fast_fit(3));
+        ALPAKA_ASSERT_ACC(fast_fit(0) == fast_fit(0));
+        ALPAKA_ASSERT_ACC(fast_fit(1) == fast_fit(1));
+        ALPAKA_ASSERT_ACC(fast_fit(2) == fast_fit(2));
+        ALPAKA_ASSERT_ACC(fast_fit(3) == fast_fit(3));
       }
     }
   };
@@ -181,10 +181,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit) const {
-      ALPAKA_ASSERT_OFFLOAD(results_view.pt());
-      ALPAKA_ASSERT_OFFLOAD(results_view.eta());
-      ALPAKA_ASSERT_OFFLOAD(results_view.chi2());
-      ALPAKA_ASSERT_OFFLOAD(pfast_fit);
+      ALPAKA_ASSERT_ACC(results_view.pt());
+      ALPAKA_ASSERT_ACC(results_view.eta());
+      ALPAKA_ASSERT_ACC(results_view.chi2());
+      ALPAKA_ASSERT_ACC(pfast_fit);
       constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
       // same as above...
@@ -195,7 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           break;
         auto tkid = ptkids[local_idx];
 
-        ALPAKA_ASSERT_OFFLOAD(tkid < TrackerTraits::maxNumberOfTuples);
+        ALPAKA_ASSERT_ACC(tkid < TrackerTraits::maxNumberOfTuples);
 
         riemannFit::Map3xNd<N> hits(phits + local_idx);
         riemannFit::Map4d fast_fit(pfast_fit + local_idx);
@@ -247,7 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,
       Queue &queue) {
-    ALPAKA_ASSERT_OFFLOAD(tuples_);
+    ALPAKA_ASSERT_ACC(tuples_);
 
     uint32_t blockSize = 64;
     uint32_t numberOfBlocks = cms::alpakatools::divide_up_by(maxNumberOfConcurrentFits_, blockSize);
