@@ -30,8 +30,6 @@ public:
 
 // Instantiations and specializations for FTLRecHitRef and reco::CaloClusterPtr
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 typedef edmNew::DetSetVector<MTDTrackingRecHit> MTDTrackingDetSetVector;
-typedef edm::OwnVector<MTDTrackingRecHit> MTDTrackingOwnVector;
 
 #endif
