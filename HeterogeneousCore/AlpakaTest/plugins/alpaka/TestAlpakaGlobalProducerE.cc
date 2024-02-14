@@ -24,16 +24,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TestAlpakaGlobalProducerE(edm::ParameterSet const& config)
         : esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
           getToken_(consumes(config.getParameter<edm::InputTag>("source"))),
-          putToken_{produces()} {}
+          getTokenMulti2_(consumes(config.getParameter<edm::InputTag>("source"))),
+          getTokenMulti3_(consumes(config.getParameter<edm::InputTag>("source"))),
+          putToken_{produces()},
+          putTokenMulti2_{produces()},
+          putTokenMulti3_{produces()} {}
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       auto const& esData = iSetup.getData(esToken_);
       auto const& input = iEvent.get(getToken_);
+      auto const& inputMulti2 = iEvent.get(getTokenMulti2_);
+      auto const& inputMulti3 = iEvent.get(getTokenMulti3_);
 
       // run the algorithm, potentially asynchronously
       auto deviceProduct = algo_.update(iEvent.queue(), input, esData);
+      auto deviceProductMulti2 = algo_.updateMulti2(iEvent.queue(), inputMulti2, esData);
+      auto deviceProductMulti3 = algo_.updateMulti3(iEvent.queue(), inputMulti3, esData);
 
       iEvent.emplace(putToken_, std::move(deviceProduct));
+      iEvent.emplace(putTokenMulti2_, std::move(deviceProductMulti2));
+      iEvent.emplace(putTokenMulti3_, std::move(deviceProductMulti3));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -47,7 +57,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     const device::ESGetToken<AlpakaESTestDataEDevice, AlpakaESTestRecordC> esToken_;
     const device::EDGetToken<portabletest::TestDeviceCollection> getToken_;
+    const device::EDGetToken<portabletest::TestDeviceMultiCollection2> getTokenMulti2_;
+    const device::EDGetToken<portabletest::TestDeviceMultiCollection3> getTokenMulti3_;
     const device::EDPutToken<portabletest::TestDeviceCollection> putToken_;
+    const device::EDPutToken<portabletest::TestDeviceMultiCollection2> putTokenMulti2_;
+    const device::EDPutToken<portabletest::TestDeviceMultiCollection3> putTokenMulti3_;
 
     // implementation of the algorithm
     TestAlgo algo_;

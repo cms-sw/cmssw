@@ -22,11 +22,17 @@ namespace traits {
     using CollectionType = PortableHostCollection<T>;
   };
 
+  template <typename TDev, typename T0, typename... Args>
+  class PortableMultiCollectionTrait;
 }  // namespace traits
 
 // type alias for a generic SoA-based product
 template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
 using PortableCollection = typename traits::PortableCollectionTrait<T, TDev>::CollectionType;
+
+// type alias for a generic SoA-based product
+template <typename TDev, typename T0, typename... Args>
+using PortableMultiCollection = typename traits::PortableMultiCollectionTrait<TDev, T0, Args...>::CollectionType;
 
 // define how to copy PortableCollection between host and device
 namespace cms::alpakatools {
@@ -40,12 +46,33 @@ namespace cms::alpakatools {
     }
   };
 
+  template <typename TDev, typename T0, typename... Args>
+  struct CopyToHost<PortableDeviceMultiCollection<TDev, T0, Args...>> {
+    template <typename TQueue>
+    static auto copyAsync(TQueue& queue, PortableDeviceMultiCollection<TDev, T0, Args...> const& srcData) {
+      PortableHostMultiCollection<T0, Args...> dstData(srcData.sizes(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
+    }
+  };
+
   template <typename TLayout>
   struct CopyToDevice<PortableHostCollection<TLayout>> {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
       PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
+    }
+  };
+
+  template <typename TDev, typename T0, typename... Args>
+  struct CopyToDevice<PortableHostMultiCollection<TDev, T0, Args...>> {
+    template <typename TQueue>
+    static auto copyAsync(TQueue& queue, PortableHostMultiCollection<TDev, T0, Args...> const& srcData) {
+      using TDevice = typename alpaka::trait::DevType<TQueue>::type;
+      PortableDeviceMultiCollection<TDev, T0, Args...> dstData(srcData.sizes(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }
