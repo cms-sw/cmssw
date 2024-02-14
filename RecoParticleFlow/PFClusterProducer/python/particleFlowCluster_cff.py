@@ -44,6 +44,9 @@ pfClusteringHBHEHFOnlyTask = cms.Task(particleFlowRecHitHBHEOnly,
                                       particleFlowClusterHF,
                                       particleFlowClusterHCALOnly)
 
+#--- Legacy HCAL Only Task
+pfClusteringHBHEHFOnlyLegacyTask = pfClusteringHBHEHFOnlyTask.copy()
+
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
 
