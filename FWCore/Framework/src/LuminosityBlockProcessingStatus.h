@@ -87,8 +87,8 @@ namespace edm {
     EventProcessingState eventProcessingState() const { return eventProcessingState_; }
     void setEventProcessingState(EventProcessingState val) { eventProcessingState_ = val; }
 
-    bool haveStartedNextLumiOrEndedRun() const { return startedNextLumiOrEndedRun_; }
-    void startNextLumiOrEndRun() { startedNextLumiOrEndedRun_ = true; }
+    bool haveStartedNextLumiOrEndedRun() const { return startedNextLumiOrEndedRun_.load(); }
+    void startNextLumiOrEndRun() { startedNextLumiOrEndedRun_.store(true); }
 
     bool didGlobalBeginSucceed() const { return globalBeginSucceeded_; }
     void globalBeginDidSucceed() { globalBeginSucceeded_ = true; }
@@ -107,7 +107,7 @@ namespace edm {
     edm::Timestamp endTime_{};
     std::atomic<char> endTimeSetStatus_{0};
     EventProcessingState eventProcessingState_{EventProcessingState::kProcessing};
-    bool startedNextLumiOrEndedRun_{false};  //read/write in m_sourceQueue
+    std::atomic<bool> startedNextLumiOrEndedRun_{false};
     bool globalBeginSucceeded_{false};
     bool cleaningUpAfterException_{false};
   };

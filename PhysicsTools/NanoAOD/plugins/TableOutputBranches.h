@@ -42,7 +42,6 @@ private:
         : name(aname), title(atitle), rootTypeCode(rootType), branch(branchptr) {}
   };
   TBranch *m_counterBranch = nullptr;
-  std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
   std::vector<NamedBranchPtr> m_int16Branches;
   std::vector<NamedBranchPtr> m_uint16Branches;

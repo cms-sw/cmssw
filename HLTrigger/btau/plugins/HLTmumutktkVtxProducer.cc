@@ -23,7 +23,6 @@ using namespace reco;
 using namespace std;
 using namespace trigger;
 
-// ----------------------------------------------------------------------
 HLTmumutktkVtxProducer::HLTmumutktkVtxProducer(const edm::ParameterSet& iConfig)
     : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       muCandTag_(iConfig.getParameter<edm::InputTag>("MuCand")),
@@ -44,14 +43,12 @@ HLTmumutktkVtxProducer::HLTmumutktkVtxProducer(const edm::ParameterSet& iConfig)
       maxTrkTrkMass_(iConfig.getParameter<double>("MaxTrkTrkMass")),
       minD0Significance_(iConfig.getParameter<double>("MinD0Significance")),
       oppositeSign_(iConfig.getParameter<bool>("OppositeSign")),
-      overlapDR_(iConfig.getParameter<double>("OverlapDR")),
+      // minimum delta-R^2 threshold (with sign) for non-overlapping tracks
+      overlapDR2_(iConfig.getParameter<double>("OverlapDR") * std::abs(iConfig.getParameter<double>("OverlapDR"))),
       beamSpotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_)) {
   produces<VertexCollection>();
 }
-
-// ----------------------------------------------------------------------
-HLTmumutktkVtxProducer::~HLTmumutktkVtxProducer() = default;
 
 void HLTmumutktkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -74,7 +71,6 @@ void HLTmumutktkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.add("HLTmumutktkVtxProducer", desc);
 }
 
-// ----------------------------------------------------------------------
 void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double MuMass(0.106);
   const double MuMass2(MuMass * MuMass);
@@ -278,9 +274,7 @@ FreeTrajectoryState HLTmumutktkVtxProducer::initialFreeState(const reco::Track& 
 }
 
 bool HLTmumutktkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& trackref2) {
-  if (deltaR(trackref1->eta(), trackref1->phi(), trackref2->eta(), trackref2->phi()) < overlapDR_)
-    return true;
-  return false;
+  return (reco::deltaR2(trackref1->eta(), trackref1->phi(), trackref2->eta(), trackref2->phi()) < overlapDR2_);
 }
 
 bool HLTmumutktkVtxProducer::checkPreviousCand(const TrackRef& trackref,

@@ -2,15 +2,13 @@
  *
  * See header file for documentation
  *
-
-
  *
  *  \author Jacopo Bernardini
  *
  */
-
-#include <vector>
+#include <cmath>
 #include <string>
+#include <vector>
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -50,9 +48,6 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
 }
 
 template <typename T>
-HLTJetSortedVBFFilter<T>::~HLTJetSortedVBFFilter() = default;
-
-template <typename T>
 void HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
@@ -74,13 +69,12 @@ void HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& 
 template <typename T>
 float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator& jet,
                                         const reco::JetTagCollection& jetTags) {
-  float minDr = 0.1;
+  float minDr2 = 0.01f;
   float tmpCSV = -20;
   for (auto jetb = jetTags.begin(); (jetb != jetTags.end()); ++jetb) {
-    float tmpDr = reco::deltaR(*jet, *(jetb->first));
-
-    if (tmpDr < minDr) {
-      minDr = tmpDr;
+    float tmpDr2 = reco::deltaR2(*jet, *(jetb->first));
+    if (tmpDr2 < minDr2) {
+      minDr2 = tmpDr2;
       tmpCSV = jetb->second;
     }
   }

@@ -77,8 +77,6 @@ namespace pos {
 
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelROCName& pixelroc);
 
-    const PixelROCName& operator=(const PixelROCName& aROC);
-
     const bool operator<(const PixelROCName& aROC) const { return id_ < aROC.id_; }
 
     const bool operator==(const PixelROCName& aROC) const { return id_ == aROC.id_; }

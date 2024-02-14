@@ -200,6 +200,8 @@ namespace mkfit {
           s.sortHitsByLayer();  // sort seed hits for the matched hits (I hope it works here)
       }
 
+      m_event->setCurrentSeedTracks(seeds);
+
       builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
       builder.findTracksCloneEngine();
@@ -265,6 +267,8 @@ namespace mkfit {
 
       printf("Shell::ProcessEvent post remove-duplicates: %d comb-cands\n", (int) out_tracks.size());
 
+      m_event->resetCurrentSeedTracks();
+
       builder.end_event();
     }
 
@@ -321,7 +325,9 @@ namespace mkfit {
     reco tracks labels are seed indices.
     seed labels are sim track indices
     --
-    mkfit labels are seed indices in given iteration after cleaning (at seed load-time)
+    mkfit labels are seed indices in given iteration after cleaning (at seed load-time).
+          This is no longer true -- was done like that in branch where this code originated from.
+          It seems the label is the same as seed label.
   */
 
   int Shell::LabelFromHits(Track &t, bool replace, float good_frac) {

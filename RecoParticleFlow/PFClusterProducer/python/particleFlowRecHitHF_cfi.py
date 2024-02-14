@@ -27,6 +27,7 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
                   ),
                   cms.PSet(
                       name = cms.string("PFRecHitQTestHCALThresholdVsDepth"),
+                      usePFThresholdsFromDB = cms.bool(False),
                       cuts = cms.VPSet(
                              cms.PSet(
                                  depth = cms.vint32(1,2),

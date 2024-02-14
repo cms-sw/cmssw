@@ -431,6 +431,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
@@ -469,6 +470,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
@@ -507,6 +509,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
@@ -545,6 +548,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
@@ -583,6 +587,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
@@ -621,6 +626,7 @@
     <rParent name="hgcalwafer:HGCalEEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
@@ -659,6 +665,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
@@ -697,6 +704,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
@@ -735,6 +743,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
@@ -773,6 +782,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
@@ -811,6 +821,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
@@ -849,6 +860,7 @@
     <rParent name="hgcalwafer:HGCalHEWafer"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferMode"        value="1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>

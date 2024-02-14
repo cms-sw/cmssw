@@ -2,6 +2,7 @@
 <use name="stdcxx-fs"/>
 <use name="tbb"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1ScoutingRawData"/>
 <use name="DataFormats/TCDS"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="FWCore/Framework"/>

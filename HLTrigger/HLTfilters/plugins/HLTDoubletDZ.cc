@@ -41,6 +41,27 @@ HLTDoubletDZ<T1, T2>::HLTDoubletDZ(edm::ParameterSet const& iConfig)
 {}
 
 template <>
+HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::HLTDoubletDZ(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      originTag1_(iConfig.getParameter<std::vector<edm::InputTag>>("originTag1")),
+      originTag2_(iConfig.getParameter<std::vector<edm::InputTag>>("originTag2")),
+      electronToken_(edm::EDGetTokenT<reco::ElectronCollection>()),
+      l1GTAlgoBlockTag_(iConfig.template getParameter<edm::InputTag>("l1GTAlgoBlockTag")),
+      algoBlockToken_(consumes<std::vector<l1t::P2GTAlgoBlock>>(l1GTAlgoBlockTag_)),
+      l1GTAlgoName1_(iConfig.template getParameter<std::string>("l1GTAlgoName1")),
+      l1GTAlgoName2_(iConfig.template getParameter<std::string>("l1GTAlgoName2")),
+      triggerType1_(iConfig.getParameter<int>("triggerType1")),
+      triggerType2_(iConfig.getParameter<int>("triggerType2")),
+      minDR_(iConfig.getParameter<double>("MinDR")),
+      minDR2_(minDR_ * minDR_),
+      maxDZ_(iConfig.getParameter<double>("MaxDZ")),
+      min_N_(iConfig.getParameter<int>("MinN")),
+      minPixHitsForDZ_(iConfig.getParameter<int>("MinPixHitsForDZ")),
+      checkSC_(iConfig.getParameter<bool>("checkSC")),
+      same_(l1GTAlgoName1_ == l1GTAlgoName2_)  // same collections to be compared?
+{}
+
+template <>
 HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::HLTDoubletDZ(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       originTag1_(iConfig.getParameter<std::vector<edm::InputTag>>("originTag1")),
@@ -165,6 +186,26 @@ HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau>::HLTDoubletDZ(const edm::ParameterSet
       checkSC_(false),
       same_(inputTag1_.encode() == inputTag2_.encode())  // same collections to be compared?
 {}
+
+template <>
+void HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::fillDescriptions(
+    edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<std::vector<edm::InputTag>>("originTag1", {edm::InputTag("hltOriginal1")});
+  desc.add<std::vector<edm::InputTag>>("originTag2", {edm::InputTag("hltOriginal2")});
+  desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag("l1tGTAlgoBlockProducer"));
+  desc.add<std::string>("l1GTAlgoName1", "");
+  desc.add<std::string>("l1GTAlgoName2", "");
+  desc.add<int>("triggerType1", 0);
+  desc.add<int>("triggerType2", 0);
+  desc.add<double>("MinDR", -1.0);
+  desc.add<double>("MaxDZ", 0.2);
+  desc.add<int>("MinPixHitsForDZ", 0);
+  desc.add<bool>("checkSC", false);
+  desc.add<int>("MinN", 1);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 template <typename T1, typename T2>
 void HLTDoubletDZ<T1, T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -347,6 +388,84 @@ bool HLTDoubletDZ<T1, T2>::getCollections(edm::Event const& iEvent,
   return false;
 }
 
+template <>
+bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::getCollections(
+    edm::Event const& iEvent,
+    std::vector<l1t::P2GTCandidateRef>& coll1,
+    std::vector<l1t::P2GTCandidateRef>& coll2,
+    trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  const std::vector<l1t::P2GTAlgoBlock>& algos = iEvent.get(algoBlockToken_);
+
+  if (!algos.empty()) {
+    for (const l1t::P2GTAlgoBlock& algo : algos) {
+      if (algo.algoName() == l1GTAlgoName1_ && algo.decisionBeforeBxMaskAndPrescale()) {
+        const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
+        for (const l1t::P2GTCandidateRef& obj : objects) {
+          if ((triggerType1_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
+              (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
+              (triggerType1_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
+            coll1.push_back(obj);
+          }
+        }
+      }
+      if (algo.algoName() == l1GTAlgoName2_ && algo.decisionBeforeBxMaskAndPrescale()) {
+        const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
+        for (const l1t::P2GTCandidateRef& obj : objects) {
+          if ((triggerType2_ == trigger::TriggerObjectType::TriggerL1TkMu && obj->isMuon()) ||
+              (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEle && obj->isElectron()) ||
+              (triggerType2_ == trigger::TriggerObjectType::TriggerL1TkEm && obj->isPhoton())) {
+            coll2.push_back(obj);
+          }
+        }
+      }
+    }
+  }
+
+  if (!coll1.empty() && !coll2.empty()) {
+    const trigger::size_type n1(coll1.size());
+    const trigger::size_type n2(coll2.size());
+
+    if (saveTags()) {
+      edm::InputTag tagOld;
+      for (unsigned int i = 0; i < originTag1_.size(); ++i) {
+        filterproduct.addCollectionTag(originTag1_[i]);
+      }
+      tagOld = edm::InputTag();
+      for (trigger::size_type i1 = 0; i1 != n1; ++i1) {
+        const edm::ProductID pid(coll1[i1].id());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const std::string& label(prov.moduleLabel());
+        const std::string& instance(prov.productInstanceName());
+        const std::string& process(prov.processName());
+        edm::InputTag tagNew(edm::InputTag(label, instance, process));
+        if (tagOld.encode() != tagNew.encode()) {
+          filterproduct.addCollectionTag(tagNew);
+          tagOld = tagNew;
+        }
+      }
+      for (unsigned int i = 0; i < originTag2_.size(); ++i) {
+        filterproduct.addCollectionTag(originTag2_[i]);
+      }
+      tagOld = edm::InputTag();
+      for (trigger::size_type i2 = 0; i2 != n2; ++i2) {
+        const edm::ProductID pid(coll2[i2].id());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const std::string& label(prov.moduleLabel());
+        const std::string& instance(prov.productInstanceName());
+        const std::string& process(prov.processName());
+        edm::InputTag tagNew(edm::InputTag(label, instance, process));
+        if (tagOld.encode() != tagNew.encode()) {
+          filterproduct.addCollectionTag(tagNew);
+          tagOld = tagNew;
+        }
+      }
+    }
+
+    return true;
+  } else
+    return false;
+}
+
 template <typename T1, typename T2>
 bool HLTDoubletDZ<T1, T2>::haveSameSuperCluster(T1 const& c1, T2 const& c2) const {
   return (c1.superCluster().isNonnull() and c2.superCluster().isNonnull() and (c1.superCluster() == c2.superCluster()));
@@ -372,6 +491,12 @@ bool HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau>::haveSameSuperCluster(l1t::HPSPF
 template <typename C1, typename C2>
 bool HLTDoubletDZ<C1, C2>::passCutMinDeltaR(C1 const& c1, C2 const& c2) const {
   return (minDR_ < 0 or reco::deltaR2(c1, c2) >= minDR2_);
+}
+
+template <>
+bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::passCutMinDeltaR(l1t::P2GTCandidate const& c1,
+                                                                            l1t::P2GTCandidate const& c2) const {
+  return (minDR_ < 0 or reco::deltaR2(c1, c2) > minDR2_);
 }
 
 template <>
@@ -445,6 +570,21 @@ namespace {
 template <typename T1, typename T2>
 bool HLTDoubletDZ<T1, T2>::computeDZ(edm::Event const&, T1 const& c1, T2 const& c2) const {
   return ((std::abs(c1.vz() - c2.vz()) <= maxDZ_) and passCutMinDeltaR(c1, c2));
+}
+
+template <>
+bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::computeDZ(edm::Event const& iEvent,
+                                                                     l1t::P2GTCandidate const& c1,
+                                                                     l1t::P2GTCandidate const& c2) const {
+  if (maxDZ_ > 0 && std::abs(c1.vz() - c2.vz()) > maxDZ_) {
+    return false;
+  }
+
+  if (not passCutMinDeltaR(c1, c2)) {
+    return false;
+  }
+
+  return true;
 }
 
 template <>
@@ -595,6 +735,45 @@ bool HLTDoubletDZ<T1, T2>::hltFilter(edm::Event& iEvent,
   return false;
 }
 
+template <>
+bool HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>::hltFilter(
+    edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  bool accept(false);
+
+  std::vector<l1t::P2GTCandidateRef> coll1;
+  std::vector<l1t::P2GTCandidateRef> coll2;
+
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) {
+    int n(0);
+    l1t::P2GTCandidateRef r1;
+    l1t::P2GTCandidateRef r2;
+
+    for (unsigned int i1 = 0; i1 != coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {
+        I = i1 + 1;
+      }
+      for (unsigned int i2 = I; i2 != coll2.size(); i2++) {
+        r2 = coll2[i2];
+
+        if (!computeDZ(iEvent, *r1, *r2))
+          continue;
+
+        n++;
+        filterproduct.addObject(triggerType1_, r1);
+        filterproduct.addObject(triggerType2_, r2);
+      }
+    }
+
+    accept = accept || (n >= min_N_);
+  }
+  return accept;
+}
+
 using HLT2ElectronElectronDZ = HLTDoubletDZ<reco::Electron, reco::Electron>;
 using HLT2MuonMuonDZ = HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>;
 using HLT2ElectronMuonDZ = HLTDoubletDZ<reco::Electron, reco::RecoChargedCandidate>;
@@ -604,6 +783,7 @@ using HLT2PhotonMuonDZ = HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoCharged
 using HLT2L1TkMuonL1TkMuonDZ = HLTDoubletDZ<l1t::TrackerMuon, l1t::TrackerMuon>;
 using HLT2L1PFTauL1PFTauDZ = HLTDoubletDZ<l1t::PFTau, l1t::PFTau>;
 using HLT2L1HPSPFTauL1HPSPFTauDZ = HLTDoubletDZ<l1t::HPSPFTau, l1t::HPSPFTau>;
+using HLT2L1P2GTCandL1P2GTCandDZ = HLTDoubletDZ<l1t::P2GTCandidate, l1t::P2GTCandidate>;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
@@ -615,3 +795,4 @@ DEFINE_FWK_MODULE(HLT2MuonPhotonDZ);
 DEFINE_FWK_MODULE(HLT2L1TkMuonL1TkMuonDZ);
 DEFINE_FWK_MODULE(HLT2L1PFTauL1PFTauDZ);
 DEFINE_FWK_MODULE(HLT2L1HPSPFTauL1HPSPFTauDZ);
+DEFINE_FWK_MODULE(HLT2L1P2GTCandL1P2GTCandDZ);

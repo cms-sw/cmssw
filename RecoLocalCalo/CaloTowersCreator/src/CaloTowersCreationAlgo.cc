@@ -353,6 +353,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold,
   // nalgo=N;
 }
 
+void CaloTowersCreationAlgo::setThresFromDB(const HcalPFCuts* cuts) { hcalCuts = cuts; }
+
 void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo,
                                          const CaloTowerConstituentsMap* ctmap,
                                          const HcalTopology* htopo,
@@ -1271,7 +1273,12 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId& detId, double& t
     int depth = hcalDetId.depth();
 
     if (subdet == HcalBarrel) {
-      threshold = (depth == 1) ? theHBthreshold1 : (depth == 2) ? theHBthreshold2 : theHBthreshold;
+      if (hcalCuts == nullptr) {  // this means cutsFromDB is false
+        threshold = (depth == 1) ? theHBthreshold1 : (depth == 2) ? theHBthreshold2 : theHBthreshold;
+      } else {  // hcalCuts is not nullptr, i.e. cutsFromDB is true
+        const HcalPFCut* item = hcalCuts->getValues(hcalDetId.rawId());
+        threshold = item->noiseThreshold();
+      }
       weight = theHBweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theHBGrid, theHBWeights, ROOT::Math::Interpolation::kAKIMA);
@@ -1282,14 +1289,24 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId& detId, double& t
     else if (subdet == HcalEndcap) {
       // check if it's single or double tower
       if (hcalDetId.ietaAbs() < theHcalTopology->firstHEDoublePhiRing()) {
-        threshold = (depth == 1) ? theHESthreshold1 : theHESthreshold;
+        if (hcalCuts == nullptr) {  // this means cutsFromDB is false
+          threshold = (depth == 1) ? theHESthreshold1 : theHESthreshold;
+        } else {  // hcalCuts is not nullptr, i.e. cutsFromDB is true
+          const HcalPFCut* item = hcalCuts->getValues(hcalDetId.rawId());
+          threshold = item->noiseThreshold();
+        }
         weight = theHESweight;
         if (weight <= 0.) {
           ROOT::Math::Interpolator my(theHESGrid, theHESWeights, ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHESEScale);
         }
       } else {
-        threshold = (depth == 1) ? theHEDthreshold1 : theHEDthreshold;
+        if (hcalCuts == nullptr) {  // this means cutsFromDB is false
+          threshold = (depth == 1) ? theHEDthreshold1 : theHEDthreshold;
+        } else {  // hcalCuts is not nullptr, i.e. cutsFromDB is true
+          const HcalPFCut* item = hcalCuts->getValues(hcalDetId.rawId());
+          threshold = item->noiseThreshold();
+        }
         weight = theHEDweight;
         if (weight <= 0.) {
           ROOT::Math::Interpolator my(theHEDGrid, theHEDWeights, ROOT::Math::Interpolation::kAKIMA);

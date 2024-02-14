@@ -8,7 +8,7 @@
 template <int32_t S>
 class PixelVertexWorkSpaceSoADevice : public cms::cuda::PortableDeviceCollection<PixelVertexWSSoALayout<>> {
 public:
-  PixelVertexWorkSpaceSoADevice() = default;
+  explicit PixelVertexWorkSpaceSoADevice() = default;
 
   // Constructor which specifies the SoA size and CUDA stream
   explicit PixelVertexWorkSpaceSoADevice(cudaStream_t stream)

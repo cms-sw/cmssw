@@ -3,5 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.ModifierChain_trackingMkFitProd_cff import trackingMkFitProd
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+from Configuration.ProcessModifiers.displacedRegionalTracking_cff import displacedRegionalTracking
 
-run2_2017_noTrackingModifier = Run2_2017.copyAndExclude([trackingPhase1,trackingMkFitProd])
+run2_2017_noTrackingModifier = Run2_2017.copyAndExclude([trackingPhase1,trackingMkFitProd,seedingDeepCore,displacedRegionalTracking])

@@ -4,8 +4,8 @@ import sys
 process = cms.Process("MERGETWOFILES")
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring("file:"+sys.argv[2],
-                                                              "file:"+sys.argv[3]),
+                            fileNames = cms.untracked.vstring("file:"+sys.argv[1],
+                                                              "file:"+sys.argv[2]),
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 

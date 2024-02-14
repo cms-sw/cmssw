@@ -54,16 +54,6 @@ public:
     return std::make_pair(part1, part2);
   }
 
-  /// assignement operator
-  MaterialAccountingStep& operator=(const MaterialAccountingStep& step) {
-    m_length = step.m_length;
-    m_radiationLengths = step.m_radiationLengths;
-    m_energyLoss = step.m_energyLoss;
-    m_in = step.m_in;
-    m_out = step.m_out;
-    return *this;
-  }
-
   /// add a step
   MaterialAccountingStep& operator+=(const MaterialAccountingStep& step) {
     m_length += step.m_length;

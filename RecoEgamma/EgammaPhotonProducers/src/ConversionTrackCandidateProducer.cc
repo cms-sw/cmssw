@@ -43,7 +43,8 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include <vector>
 
 class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
@@ -77,6 +78,8 @@ private:
   const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken_;
   const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevlvToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
+  const EcalPFRecHitThresholds* thresholds = nullptr;
 
   double hOverEConeSize_;
   double maxHOverE_;
@@ -114,6 +117,10 @@ private:
 
   std::unique_ptr<ElectronHcalHelper> hcalHelper_;
 
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts const* hcalCuts = nullptr;
+
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                         const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
@@ -149,7 +156,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
       navToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SimpleNavigationSchool"))),
       theCaloGeomToken_(esConsumes()),
       sevlvToken_(esConsumes()),
-
+      ecalPFRechitThresholdsToken_{esConsumes()},
       theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(
           config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
       outInSeedFinder_{config, consumesCollector()},
@@ -162,6 +169,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSCAssociationCollection_ = config.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSCAssociationCollection_ = config.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
+  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  }
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   maxHOverE_ = config.getParameter<double>("maxHOverE");
   minSCEt_ = config.getParameter<double>("minSCEt");
@@ -224,6 +235,10 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   theTrajectoryBuilder_->setNavigationSchool(navigation);
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
+
+  if (cutsFromDB) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -279,6 +294,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
     validEndcapSCHandle = false;
   }
 
+  thresholds = &theEventSetup.getData(ecalPFRechitThresholdsToken_);
+
   // get the geometry from the event setup:
   theCaloGeom_ = theEventSetup.getHandle(theCaloGeomToken_);
 
@@ -327,7 +344,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   auto const refprodOutInTrackC = theEvent.put(std::move(outInTrackCandidate_p), OutInTrackCandidateCollection_);
   //std::cout  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
   //
-  //std::cout  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
+  //std::cout << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
   auto const refprodInOutTrackC = theEvent.put(std::move(inOutTrackCandidate_p), InOutTrackCandidateCollection_);
   //std::cout  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
 
@@ -371,7 +388,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalCuts) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 
@@ -389,7 +406,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
       ecalIso.doSeverityChecks(&ecalRecHits, severitiesexclEE_);
     }
 
-    double ecalIsolation = ecalIso.getEtSum(sc);
+    double ecalIsolation = ecalIso.getEtSum(sc, *thresholds);
     if (ecalIsolation > ecalIsoCut_offset_ + ecalIsoCut_slope_ * scEt)
       continue;
 
@@ -454,6 +471,7 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<bool>("usePFThresholdsFromDB", false);
   desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   desc.add<double>("minSCEt", 20.0);

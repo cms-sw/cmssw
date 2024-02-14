@@ -66,10 +66,6 @@ private:
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSource;
@@ -347,30 +343,6 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     twrList[twr]->setHFLUT(&hfLUT[hfPhiMap[iphi]]);
   }
 }
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  L1TCaloLayer1::endRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  L1TCaloLayer1::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  L1TCaloLayer1::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

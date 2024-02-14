@@ -27,6 +27,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4AffineTransform.hh"
 
+#include <DD4hep/Filter.h>
+
 #include "TrackingMaterialProducer.h"
 
 // Uncomment the following #define directive to have the full list of
@@ -48,7 +50,7 @@ static const G4LogicalVolume* GetVolume(const std::string& name) {
 #endif
 
   for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume) {
-    if ((const std::string&)(*volume)->GetName() == name)
+    if ((const std::string)(dd4hep::dd::noNamespace((*volume)->GetName())) == name)
       return (*volume);
   }
   return nullptr;
@@ -189,8 +191,9 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
 
 bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
   for (int d = touchable->GetHistoryDepth() - 1; d >= 0; --d) {
-    if (std::find(m_selectedNames.begin(), m_selectedNames.end(), touchable->GetVolume(d)->GetName()) !=
-        m_selectedNames.end())
+    if (std::find(m_selectedNames.begin(),
+                  m_selectedNames.end(),
+                  (std::string)(dd4hep::dd::noNamespace(touchable->GetVolume(d)->GetName()))) != m_selectedNames.end())
       return true;
   }
   return false;

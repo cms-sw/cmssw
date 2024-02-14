@@ -492,7 +492,7 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
     // sectors of the impinging particle (theTrack) and of the particle that produced
     // the 'hits' retrieved from shower library
     unsigned int rotatedUnitID = rotateUnitID(unitID, theTrack, hits);
-    currentID.setID(rotatedUnitID, time, primaryID, 0);
+    currentID[0].setID(rotatedUnitID, time, primaryID, 0);
     processHit(aStep);
   }  //  End of loop over hits
   return isKilled;

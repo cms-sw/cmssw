@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tTrackVertexAssociationProducer = cms.EDProducer('L1TrackVertexAssociationProducer',
+  l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted"),
   l1SelectedTracksInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),
   l1SelectedTracksEmulationInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"),
   # If no vertex collection is provided, then the DeltaZ cuts will not be run
@@ -16,10 +17,12 @@ l1tTrackVertexAssociationProducer = cms.EDProducer('L1TrackVertexAssociationProd
   useDisplacedTracksDeltaZOverride = cms.double(-1.0), # override the deltaZ cut value for displaced tracks
   processSimulatedTracks = cms.bool(True), # return selected tracks after cutting on the floating point values
   processEmulatedTracks = cms.bool(True), # return selected tracks after cutting on the bitwise emulated values
+  fwNTrackSetsTVA = cms.uint32(94), # firmware limit on number of GTT converted tracks considered for primary vertex association
   debug = cms.int32(0) # Verbosity levels: 0, 1, 2, 3, 4
 )
 
 l1tTrackVertexAssociationProducerExtended = l1tTrackVertexAssociationProducer.clone(
+  l1TracksInputTag = ("l1tGTTInputProducerExtended","Level1TTTracksExtendedConverted"),
   l1SelectedTracksInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelected"),
   l1SelectedTracksEmulationInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelectedEmulation"),
   outputCollectionName = cms.string("Level1TTTracksExtendedSelectedAssociated"),
@@ -38,8 +41,8 @@ l1tTrackVertexAssociationProducerForJets = l1tTrackVertexAssociationProducer.clo
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
-                    deltaZMaxEtaBounds = cms.vdouble(0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4), # these values define the bin boundaries in |eta|
-                    deltaZMax = cms.vdouble(999.0, 999.0, 999.0, 999.0, 999.0, 999.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
+                    deltaZMaxEtaBounds = cms.vdouble(0.0, 2.4), # these values define the bin boundaries in |eta|
+                    deltaZMax = cms.vdouble(0.55), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     ),
 )
 
@@ -49,8 +52,8 @@ l1tTrackVertexAssociationProducerExtendedForJets = l1tTrackVertexAssociationProd
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
-                    deltaZMaxEtaBounds = cms.vdouble(0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4), # these values define the bin boundaries in |eta|
-                    deltaZMax = cms.vdouble(999.0, 999.0, 999.0, 999.0, 999.0, 999.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
+                    deltaZMaxEtaBounds = cms.vdouble(0.0, 2.4), # these values define the bin boundaries in |eta|
+                    deltaZMax = cms.vdouble(5.0), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
                     ),
 )
 

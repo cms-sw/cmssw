@@ -1,1 +1,2 @@
 <test name="RecoPPSLocalNewT2" command="testNT2.sh"/>
+<test name="TestCTPPSReconstruction" command="2023_lhcinfo_test_recoCTPPS.sh"/>

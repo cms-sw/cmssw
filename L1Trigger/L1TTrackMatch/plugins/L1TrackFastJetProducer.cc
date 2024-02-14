@@ -1,7 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //
-// Producer of TkJet,                                                    //
+// Producer of TrackFastJet,                                             //
 // Cluster L1 tracks using fastjet                                       //
+//                                                                       //
+// Updates: Claire Savard (claire.savard@colorado.edu), Nov. 2023        //
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
@@ -9,6 +11,7 @@
 #include <memory>
 
 // user include files
+#include "DataFormats/Common/interface/RefVector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,6 +55,7 @@ class L1TrackFastJetProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
+  typedef edm::RefVector<L1TTTrackCollectionType> L1TTTrackRefCollectionType;
 
   explicit L1TrackFastJetProducer(const edm::ParameterSet&);
   ~L1TrackFastJetProducer() override;
@@ -59,49 +63,20 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  //virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  //virtual void endJob();
 
-  // track selection criteria
-  const float trkZMax_;          // in [cm]
-  const float trkChi2dofMax_;    // maximum track chi2dof
-  const double trkBendChi2Max_;  // maximum track bendchi2
-  const float trkPtMin_;         // in [GeV]
-  const float trkEtaMax_;        // in [rad]
-  const int trkNStubMin_;        // minimum number of stubs
-  const int trkNPSStubMin_;      // minimum number of PS stubs
-  const double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
-  const double coneSize_;        // Use anti-kt with this cone size
-  const bool doTightChi2_;
-  const float trkPtTightChi2_;
-  const float trkChi2dofTightChi2_;
-  const bool displaced_;  //use prompt/displaced tracks
+  // jet configurations
+  const double coneSize_;  // Use anti-kt with this cone size
+  const bool displaced_;   //use prompt/displaced tracks
 
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
-  edm::EDGetTokenT<VertexCollection> pvToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
 };
 
 // constructor
 L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
-    : trkZMax_((float)iConfig.getParameter<double>("trk_zMax")),
-      trkChi2dofMax_((float)iConfig.getParameter<double>("trk_chi2dofMax")),
-      trkBendChi2Max_(iConfig.getParameter<double>("trk_bendChi2Max")),
-      trkPtMin_((float)iConfig.getParameter<double>("trk_ptMin")),
-      trkEtaMax_((float)iConfig.getParameter<double>("trk_etaMax")),
-      trkNStubMin_((int)iConfig.getParameter<int>("trk_nStubMin")),
-      trkNPSStubMin_((int)iConfig.getParameter<int>("trk_nPSStubMin")),
-      deltaZ0Cut_((float)iConfig.getParameter<double>("deltaZ0Cut")),
-      coneSize_((float)iConfig.getParameter<double>("coneSize")),
-      doTightChi2_(iConfig.getParameter<bool>("doTightChi2")),
-      trkPtTightChi2_((float)iConfig.getParameter<double>("trk_ptTightChi2")),
-      trkChi2dofTightChi2_((float)iConfig.getParameter<double>("trk_chi2dofTightChi2")),
+    : coneSize_((float)iConfig.getParameter<double>("coneSize")),
       displaced_(iConfig.getParameter<bool>("displaced")),
-      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      pvToken_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
-      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
+      trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<InputTag>("L1TrackInputTag"))) {
   if (displaced_)
     produces<TkJetCollection>("L1TrackFastJetsExtended");
   else
@@ -116,71 +91,22 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::unique_ptr<TkJetCollection> L1TrackFastJets(new TkJetCollection);
 
   // L1 tracks
-  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
+  edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
-  std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator iterL1Track;
-
-  // Tracker Topology
-  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
-
-  edm::Handle<l1t::VertexCollection> L1PrimaryVertexHandle;
-  iEvent.getByToken(pvToken_, L1PrimaryVertexHandle);
 
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, coneSize_);
   std::vector<fastjet::PseudoJet> JetInputs;
 
-  float recoVtx = L1PrimaryVertexHandle->begin()->z0();
-  unsigned int this_l1track = 0;
-  for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
-    this_l1track++;
-    float trk_pt = iterL1Track->momentum().perp();
-    float trk_z0 = iterL1Track->z0();
-    float trk_chi2dof = iterL1Track->chi2Red();
-    float trk_bendchi2 = iterL1Track->stubPtConsistency();
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-        theStubs = iterL1Track->getStubRefs();
-    int trk_nstub = (int)theStubs.size();
-
-    if (std::abs(trk_z0) > trkZMax_)
-      continue;
-    if (std::abs(iterL1Track->momentum().eta()) > trkEtaMax_)
-      continue;
-    if (trk_pt < trkPtMin_)
-      continue;
-    if (trk_nstub < trkNStubMin_)
-      continue;
-    if (trk_chi2dof > trkChi2dofMax_)
-      continue;
-    if (trk_bendchi2 > trkBendChi2Max_)
-      continue;
-    if (doTightChi2_ && (trk_pt > trkPtTightChi2_ && trk_chi2dof > trkChi2dofTightChi2_))
-      continue;
-
-    int trk_nPS = 0;
-    for (int istub = 0; istub < trk_nstub; istub++) {
-      DetId detId(theStubs.at(istub)->getDetId());
-      bool tmp_isPS = false;
-      if (detId.det() == DetId::Detector::Tracker) {
-        if (detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3)
-          tmp_isPS = true;
-        else if (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9)
-          tmp_isPS = true;
-      }
-      if (tmp_isPS)
-        trk_nPS++;
-    }
-    if (trk_nPS < trkNPSStubMin_)
-      continue;
-    if (std::abs(recoVtx - trk_z0) > deltaZ0Cut_)
-      continue;
+  for (unsigned int this_l1track = 0; this_l1track < TTTrackHandle->size(); this_l1track++) {
+    edm::Ptr<L1TTTrackType> iterL1Track(TTTrackHandle, this_l1track);
 
     fastjet::PseudoJet psuedoJet(iterL1Track->momentum().x(),
                                  iterL1Track->momentum().y(),
                                  iterL1Track->momentum().z(),
                                  iterL1Track->momentum().mag());
-    JetInputs.push_back(psuedoJet);                     // input tracks for clustering
-    JetInputs.back().set_user_index(this_l1track - 1);  // save track index in the collection
-  }                                                     // end loop over tracks
+    JetInputs.push_back(psuedoJet);                 // input tracks for clustering
+    JetInputs.back().set_user_index(this_l1track);  // save track index in the collection
+  }                                                 // end loop over tracks
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =
@@ -213,16 +139,14 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     iEvent.put(std::move(L1TrackFastJets), "L1TrackFastJets");
 }
 
-//void L1TrackFastJetProducer::beginJob() {}
-
-//void L1TrackFastJetProducer::endJob() {}
-
 void L1TrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>(
+      "L1PVertexInputTag",
+      edm::InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"));
+  desc.add<double>("coneSize", 0.5);
+  desc.add<bool>("displaced", false);
 }
 
 //define this as a plug-in

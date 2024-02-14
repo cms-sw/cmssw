@@ -1,12 +1,12 @@
-#ifndef HLTMuonTrackSelector_h
-#define HLTMuonTrackSelector_h
+#ifndef HLTrigger_Muon_HLTMuonTrackSelector_h
+#define HLTrigger_Muon_HLTMuonTrackSelector_h
 
 /*
 * class HLTMuonTrackSelector
 * 
 * Select tracks matched to the reco::Muon
 * 
-* base on RecoTracker/FinalTrackSelectors/plugins/TrackCollectionFilterCloner.cc
+* based on RecoTracker/FinalTrackSelectors/plugins/TrackCollectionFilterCloner.cc
 * 
 * Author: Kyeongpil Lee (kplee@cern.ch)
 * 
@@ -30,7 +30,7 @@
 class HLTMuonTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit HLTMuonTrackSelector(const edm::ParameterSet &);
-  ~HLTMuonTrackSelector() override;
+  ~HLTMuonTrackSelector() override = default;
 
   using MVACollection = std::vector<float>;
 
@@ -47,4 +47,4 @@ private:
   const bool flag_copyMVA;
 };
 
-#endif  //HLTMuonTrackSelector_h
+#endif

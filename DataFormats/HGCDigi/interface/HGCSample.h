@@ -35,6 +35,7 @@ public:
   HGCSample() : value_(0) {}
   HGCSample(uint32_t value) : value_(value) {}
   HGCSample(const HGCSample& o) : value_(o.value_) {}
+  HGCSample& operator=(const HGCSample&) = default;
 
   /**
      @short setters

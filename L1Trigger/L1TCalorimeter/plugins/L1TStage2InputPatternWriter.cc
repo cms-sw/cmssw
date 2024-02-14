@@ -44,19 +44,12 @@
 class L1TStage2InputPatternWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TStage2InputPatternWriter(const edm::ParameterSet&);
-  ~L1TStage2InputPatternWriter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetToken m_towerToken;
@@ -116,11 +109,6 @@ L1TStage2InputPatternWriter::L1TStage2InputPatternWriter(const edm::ParameterSet
   nLink_ = nChan_ * nQuad_;
   data_.resize(nLink_);
   LogDebug("L1TDebug") << "Preparing for " << nLink_ << " links" << std::endl;
-}
-
-L1TStage2InputPatternWriter::~L1TStage2InputPatternWriter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -221,9 +209,6 @@ void L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::E
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void L1TStage2InputPatternWriter::beginJob() {}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void L1TStage2InputPatternWriter::endJob() {
   //frames per event
@@ -298,38 +283,6 @@ void L1TStage2InputPatternWriter::endJob() {
     outFiles[itFile].close();
   }
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-L1TStage2InputPatternWriter::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-L1TStage2InputPatternWriter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-L1TStage2InputPatternWriter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-L1TStage2InputPatternWriter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TStage2InputPatternWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

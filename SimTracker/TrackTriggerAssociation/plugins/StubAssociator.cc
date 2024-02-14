@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -34,18 +34,12 @@ namespace tt {
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class StubAssociator : public stream::EDProducer<> {
+  class StubAssociator : public global::EDProducer<> {
   public:
     explicit StubAssociator(const ParameterSet&);
-    ~StubAssociator() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
-    void endJob() {}
-
-    // helper classe to store configurations
-    const Setup* setup_ = nullptr;
+    void produce(StreamID, Event&, const EventSetup&) const override;
     // ED input token of TTStubs
     EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
     // ED input token of TTClusterAssociation
@@ -65,20 +59,16 @@ namespace tt {
     putTokenReconstructable_ = produces<StubAssociation>(iConfig.getParameter<string>("BranchReconstructable"));
     putTokenSelection_ = produces<StubAssociation>(iConfig.getParameter<string>("BranchSelection"));
     // book ES product
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Setup, SetupRcd>();
   }
 
-  void StubAssociator::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-  }
+  void StubAssociator::produce(StreamID, Event& iEvent, const EventSetup& iSetup) const {
+    auto const& setup = iSetup.getData(esGetTokenSetup_);
 
-  void StubAssociator::produce(Event& iEvent, const EventSetup& iSetup) {
     // associate TTStubs with TrackingParticles
-    Handle<TTStubDetSetVec> handleTTStubDetSetVec;
-    iEvent.getByToken<TTStubDetSetVec>(getTokenTTStubDetSetVec_, handleTTStubDetSetVec);
-    Handle<TTClusterAssMap> handleTTClusterAssMap;
-    Handle<TTStubAssMap> handleTTStubAssMap;
-    iEvent.getByToken<TTClusterAssMap>(getTokenTTClusterAssMap_, handleTTClusterAssMap);
+    Handle<TTStubDetSetVec> handleTTStubDetSetVec = iEvent.getHandle(getTokenTTStubDetSetVec_);
+    auto const& ttClusterAssMap = iEvent.get(getTokenTTClusterAssMap_);
+
     map<TPPtr, vector<TTStubRef>> mapTPPtrsTTStubRefs;
     auto isNonnull = [](const TPPtr& tpPtr) { return tpPtr.isNonnull(); };
     for (TTStubDetSetVec::const_iterator ttModule = handleTTStubDetSetVec->begin();
@@ -88,8 +78,7 @@ namespace tt {
         const TTStubRef ttStubRef = makeRefTo(handleTTStubDetSetVec, ttStub);
         set<TPPtr> tpPtrs;
         for (unsigned int iClus = 0; iClus < 2; iClus++) {
-          const vector<TPPtr>& assocPtrs =
-              handleTTClusterAssMap->findTrackingParticlePtrs(ttStubRef->clusterRef(iClus));
+          const vector<TPPtr>& assocPtrs = ttClusterAssMap.findTrackingParticlePtrs(ttStubRef->clusterRef(iClus));
           copy_if(assocPtrs.begin(), assocPtrs.end(), inserter(tpPtrs, tpPtrs.begin()), isNonnull);
         }
         for (const TPPtr& tpPtr : tpPtrs)
@@ -97,13 +86,13 @@ namespace tt {
       }
     }
     // associate reconstructable TrackingParticles with TTStubs
-    StubAssociation reconstructable(setup_);
-    StubAssociation selection(setup_);
+    StubAssociation reconstructable(&setup);
+    StubAssociation selection(&setup);
     for (const auto& p : mapTPPtrsTTStubRefs) {
-      if (!setup_->useForReconstructable(*p.first) || !setup_->reconstructable(p.second))
+      if (!setup.useForReconstructable(*p.first) || !setup.reconstructable(p.second))
         continue;
       reconstructable.insert(p.first, p.second);
-      if (setup_->useForAlgEff(*p.first))
+      if (setup.useForAlgEff(*p.first))
         selection.insert(p.first, p.second);
     }
     iEvent.emplace(putTokenReconstructable_, std::move(reconstructable));

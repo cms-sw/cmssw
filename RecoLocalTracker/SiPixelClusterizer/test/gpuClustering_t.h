@@ -16,12 +16,13 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #endif  // __CUDACC__
 
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelClusterThresholds.h"
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
+
+// local includes, for testing only
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 
 int main(void) {
 #ifdef __CUDACC__

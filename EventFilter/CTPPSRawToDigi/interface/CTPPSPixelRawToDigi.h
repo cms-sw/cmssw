@@ -15,7 +15,7 @@
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
-#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -46,7 +46,7 @@ private:
 
   std::string mappingLabel_;
 
-  CTPPSPixelErrorSummary eSummary_;
+  CTPPSRawToDigiErrorSummary eSummary_;
 
   bool includeErrors_;
   bool isRun3_;

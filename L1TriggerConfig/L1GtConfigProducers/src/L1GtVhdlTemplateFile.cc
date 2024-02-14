@@ -34,18 +34,6 @@ L1GtVhdlTemplateFile::L1GtVhdlTemplateFile(const std::string &filename) {
     std::cout << "Error while opening file: " << filename << std::endl;
 }
 
-//copy constructor
-L1GtVhdlTemplateFile::L1GtVhdlTemplateFile(const L1GtVhdlTemplateFile &rhs) {
-  lines_ = rhs.lines_;
-  intern_ = rhs.intern_;
-  parameterMap_ = rhs.parameterMap_;
-}
-
-// destructor
-L1GtVhdlTemplateFile::~L1GtVhdlTemplateFile() {
-  // empty
-}
-
 const bool L1GtVhdlTemplateFile::findAndReplaceString(std::string &paramString,
                                                       const std::string &searchString,
                                                       const std::string &replaceString) {

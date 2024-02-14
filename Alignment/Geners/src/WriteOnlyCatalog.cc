@@ -1,4 +1,4 @@
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/WriteOnlyCatalog.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
@@ -16,7 +16,7 @@ namespace gs {
                                                  const unsigned long long off) {
     const unsigned long long id = count_ ? largestId_ + 1 : smallestId_;
     lastEntry_ =
-        CPP11_auto_ptr<const CatalogEntry>(new CatalogEntry(descriptor, id, compressionCode, itemLen, loc, off));
+        std::unique_ptr<const CatalogEntry>(new CatalogEntry(descriptor, id, compressionCode, itemLen, loc, off));
     if (lastEntry_->write(os_)) {
       ++count_;
       largestId_ = id;
@@ -53,7 +53,7 @@ namespace gs {
     ClassId rId(in, 1);
     ClassId locId(in, 1);
 
-    CPP11_auto_ptr<WriteOnlyCatalog> cat(new WriteOnlyCatalog(dynamic_cast<std::ostream &>(in)));
+    std::unique_ptr<WriteOnlyCatalog> cat(new WriteOnlyCatalog(dynamic_cast<std::ostream &>(in)));
     bool firstEntry = true;
     for (in.peek(); !in.eof(); in.peek()) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);

@@ -131,7 +131,7 @@ if REFIT:
 else:
     print( "NO REFIT")
 
-process.load("Alignment.OfflineValidation.eopElecTreeWriter_cfi")
+process.load("Alignment.OfflineValidation.energyOverMomentumTreeElec_cfi")
 
 if REFIT:
     print( "REFIT")

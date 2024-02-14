@@ -31,7 +31,7 @@ for value in extracted_values:
     data = {
         "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS",
         "destinationTags": {
-            "SimBeamSpot_" + value + "_v0_mc": {}
+            "SimBeamSpot_" + value + "_v1_mc": {}
         },
         "inputTag": value,
         "since": None,

@@ -3,7 +3,6 @@
 <use name="DataFormats/ProtonReco"/>
 <use name="DataFormats/CTPPSReco"/>
 <use name="DataFormats/CTPPSDetId"/>
-<use name="CondFormats/RunInfo"/>
 <use name="CondFormats/PPSObjects"/>
 <export>
   <lib name="1"/>

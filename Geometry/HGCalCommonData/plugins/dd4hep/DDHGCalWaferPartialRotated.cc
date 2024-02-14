@@ -25,6 +25,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::string parentName = args.parentName();
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
+  const auto& waferMode = args.value<int>("WaferMode");
   const auto& waferSize = args.value<double>("WaferSize");
   const auto& waferThick = args.value<double>("WaferThickness");
   const auto& waferTag = args.value<std::string>("WaferTag");
@@ -33,7 +34,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: Module " << parentName << " made of " << material
                                 << " T " << cms::convert2mm(thick) << " Wafer 2r " << cms::convert2mm(waferSize)
                                 << " Half Separation " << cms::convert2mm(waferSepar) << " T "
-                                << cms::convert2mm(waferThick);
+                                << cms::convert2mm(waferThick) << " Mode " << waferMode;
 #endif
   const auto& tags = args.value<std::vector<std::string>>("Tags");
   const auto& partialTypes = args.value<std::vector<int>>("PartialTypes");
@@ -87,7 +88,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       // First the mother
       std::string mother = parentName + placementIndexTags[m] + waferTag + tags[k];
       std::vector<std::pair<double, double>> wxy =
-          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0, (waferMode > 0));
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -119,7 +120,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       double zi(-0.5 * thick), thickTot(0.0);
       for (unsigned int l = 0; l < layers.size(); l++) {
         unsigned int i = layers[l];
-        wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0);
+        wxy = HGCalWaferMask::waferXY(
+            partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0, (waferMode > 0));
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);

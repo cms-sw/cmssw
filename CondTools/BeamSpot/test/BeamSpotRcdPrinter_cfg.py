@@ -13,12 +13,18 @@ options.register('startIOV',
                  1406713458589700, # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.int, # string, int, or float
-                 "location of the input data")
+                 "starting IOV since")
 options.register('endIOV',
                  1406876667347162, # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.int, # string, int, or float
-                 "location of the input data")
+                 "ending IOV since")
+options.register('verbose',
+                 True, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "verbose output to screen")
+
 options.parseArguments()
 
 process.MessageLogger = cms.Service( "MessageLogger",
@@ -41,6 +47,7 @@ process.load("CondTools.BeamSpot.BeamSpotRcdPrinter_cfi")
 process.BeamSpotRcdPrinter.tagName  = options.inputTag
 process.BeamSpotRcdPrinter.startIOV = options.startIOV
 process.BeamSpotRcdPrinter.endIOV   = options.endIOV
+process.BeamSpotRcdPrinter.verbose  = options.verbose
 process.BeamSpotRcdPrinter.output   = "summary.txt"
 
 ### 2018 Prompt

@@ -15,7 +15,7 @@ namespace edm {
     explicit OneLumiPoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
 
   private:
-    ItemType getNextItemType() override;
+    ItemTypeInfo getNextItemType() override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
 
     void readEvent_(EventPrincipal& eventPrincipal) override {
@@ -37,9 +37,9 @@ namespace edm {
     return ret;
   }
 
-  InputSource::ItemType OneLumiPoolSource::getNextItemType() {
+  InputSource::ItemTypeInfo OneLumiPoolSource::getNextItemType() {
     auto type = PoolSource::getNextItemType();
-    if (type == IsLumi) {
+    if (type == ItemType::IsLumi) {
       if (seenFirstLumi_) {
         do {
           edm::HistoryAppender historyAppender;
@@ -50,7 +50,7 @@ namespace edm {
           LuminosityBlockPrincipal temp(prodReg, procConfig, &historyAppender, 0);
           readLuminosityBlock_(temp);
           type = PoolSource::getNextItemType();
-        } while (type == IsLumi);
+        } while (type == ItemType::IsLumi);
       } else {
         seenFirstLumi_ = true;
       }

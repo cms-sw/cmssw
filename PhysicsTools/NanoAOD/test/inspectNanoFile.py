@@ -429,21 +429,21 @@ def _maybeOpen(filename):
     return open(filename, 'w') if filename != "-" else sys.stdout
 
 if __name__ == '__main__':
-    from optparse import OptionParser
-    parser = OptionParser(usage="%prog [options] inputFile")
-    parser.add_option("-j", "--json", dest="json", type="string", default=None, help="Write out json file")
-    parser.add_option("-d", "--doc", dest="doc", type="string", default=None, help="Write out html doc")
-    parser.add_option("-s", "--size", dest="size", type="string", default=None, help="Write out html size report")
-    parser.add_option("--docmd", dest="docmd", type="string", default=None, help="Write out markdown doc")
-    parser.add_option("--sizemd", dest="sizemd", type="string", default=None, help="Write out markdown size report")
-    (options, args) = parser.parse_args()
-    if len(args) != 1: raise RuntimeError("Please specify one input file")
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("-j", "--json", dest="json", type=str, default=None, help="Write out json file")
+    parser.add_argument("-d", "--doc", dest="doc", type=str, default=None, help="Write out html doc")
+    parser.add_argument("-s", "--size", dest="size", type=str, default=None, help="Write out html size report")
+    parser.add_argument("--docmd", dest="docmd", type=str, default=None, help="Write out markdown doc")
+    parser.add_argument("--sizemd", dest="sizemd", type=str, default=None, help="Write out markdown size report")
+    parser.add_argument("inputFile", type=str)
+    options = parser.parse_args()
 
-    if args[0].endswith(".root"):
-        filedata = FileData(inspectRootFile(args[0]))
-    elif args[0].endswith(".json"):
-        filedata = FileData(json.load(open(args[0],'r')))
-    else: raise RuntimeError("Input file %s is not a root or json file" % args[0])
+    if options.inputFile.endswith(".root"):
+        filedata = FileData(inspectRootFile(options.inputFile))
+    elif options.inputFile.endswith(".json"):
+        filedata = FileData(json.load(open(options.inputFile,'r')))
+    else: raise RuntimeError("Input file %s is not a root or json file" % options.inputFile)
     
     if options.json:
         json.dump(filedata._json, _maybeOpen(options.json), indent=4)

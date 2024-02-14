@@ -7,7 +7,7 @@ status=0
   
 rm -f u5_errors.log u5_default.log u5_noreset.log u5_reset.log 
 
-cmsRun --multithread -p ${SCRAM_TEST_PATH}/u5_cfg.py || exit $?
+cmsRun --multithread ${SCRAM_TEST_PATH}/u5_cfg.py || exit $?
  
 for file in u5_errors.log u5_default.log u5_noreset.log u5_reset.log
 do

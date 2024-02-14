@@ -7,13 +7,15 @@
 
 namespace edm {
 
-  ESModuleCallingContext::ESModuleCallingContext(edm::eventsetup::ComponentDescription const* componentDescription)
-      : componentDescription_(componentDescription), parent_(), state_(State::kInvalid) {}
+  ESModuleCallingContext::ESModuleCallingContext(edm::eventsetup::ComponentDescription const* componentDescription,
+                                                 std::uintptr_t id)
+      : componentDescription_(componentDescription), parent_(), id_(id), state_(State::kInvalid) {}
 
   ESModuleCallingContext::ESModuleCallingContext(edm::eventsetup::ComponentDescription const* componentDescription,
+                                                 std::uintptr_t id,
                                                  State state,
                                                  ESParentContext const& parent)
-      : componentDescription_(componentDescription), parent_(parent), state_(state) {}
+      : componentDescription_(componentDescription), parent_(parent), id_(id), state_(state) {}
 
   void ESModuleCallingContext::setContext(State state, ESParentContext const& parent) {
     state_ = state;

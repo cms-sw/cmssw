@@ -43,6 +43,7 @@ public:
   ~TSGForOIDNN() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void beginJob() override;
 
 private:
   /// Labels for input collections
@@ -151,6 +152,8 @@ private:
                         const TrajectoryStateOnSurface& tsos_IP,
                         const TrajectoryStateOnSurface& tsos_MuS) const;
 
+  void initializeTensorflow() const;
+
   /// Container for DNN outupts
   struct StrategyParameters {
     int nHBd, nHLIP, nHLMuS, sf;
@@ -243,6 +246,50 @@ TSGForOIDNN::~TSGForOIDNN() {
     } else {
       tensorflow::closeSession(tf_session_);
     }
+  }
+}
+
+void TSGForOIDNN::beginJob() { initializeTensorflow(); }
+
+namespace {
+  std::unordered_map<std::string, float> dummyFeatureMap() {
+    std::unordered_map<std::string, float> the_map;
+    the_map["pt"] = 2.0;
+    the_map["eta"] = 0.5;
+    the_map["phi"] = 1.0;
+    the_map["validHits"] = 0.;
+    the_map["tsos_IP_eta"] = -999;
+    the_map["tsos_IP_phi"] = -999;
+    the_map["tsos_IP_pt"] = -999;
+    the_map["tsos_IP_pt_eta"] = -999;
+    the_map["tsos_IP_pt_phi"] = -999;
+    the_map["err0_IP"] = -999;
+    the_map["err1_IP"] = -999;
+    the_map["err2_IP"] = -999;
+    the_map["err3_IP"] = -999;
+    the_map["err4_IP"] = -999;
+    the_map["tsos_IP_valid"] = 0.0;
+    the_map["tsos_MuS_eta"] = -999;
+    the_map["tsos_MuS_phi"] = -999;
+    the_map["tsos_MuS_pt"] = -999;
+    the_map["tsos_MuS_pt_eta"] = -999;
+    the_map["tsos_MuS_pt_phi"] = -999;
+    the_map["err0_MuS"] = -999;
+    the_map["err1_MuS"] = -999;
+    the_map["err2_MuS"] = -999;
+    the_map["err3_MuS"] = -999;
+    the_map["err4_MuS"] = -999;
+    the_map["tsos_MuS_valid"] = 0.0;
+    return the_map;
+  }
+}  // namespace
+
+void TSGForOIDNN::initializeTensorflow() const {
+  if (getStrategyFromDNN_ and not useRegressor_) {
+    // Container for DNN outputs
+    StrategyParameters strPars;
+    bool dnnSuccess = false;
+    evaluateClassifier(dummyFeatureMap(), tf_session_, metadata_, strPars, dnnSuccess);
   }
 }
 

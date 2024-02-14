@@ -33,7 +33,6 @@ namespace CLHEP {
 class DetId;
 class GaussianTailNoiseGenerator;
 class SiG4UniversalFluctuation;
-class SiPixelFedCablingMap;
 class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
@@ -93,7 +92,6 @@ protected:
   const SiPixelQuality* siPixelBadModule_;
 
   // Accessing Map and Geom:
-  const SiPixelFedCablingMap* fedCablingMap_;
   const TrackerGeometry* geom_;
   struct SubdetEfficiencies {
     SubdetEfficiencies(const edm::ParameterSet& conf);

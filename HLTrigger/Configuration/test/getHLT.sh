@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ConfDB directory hosting the HLT configurations
-CONFDBDIR="/dev/CMSSW_13_2_0"
+CONFDBDIR="/dev/CMSSW_13_3_0"
 
 # ConfDB configurations to use
 #  - if no explicit version, the most recent one is taken
@@ -17,6 +17,7 @@ declare -A TABLES=(
   ["HIon"]="${CONFDBDIR}/HIon"
   ["PIon"]="${CONFDBDIR}/PIon"
   ["PRef"]="${CONFDBDIR}/PRef"
+  ["Special"]="${CONFDBDIR}/Special"
 )
 
 # command-line arguments

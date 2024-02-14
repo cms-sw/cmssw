@@ -89,8 +89,11 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST(getFromTest);
   CPPUNIT_TEST(getFromLambdaTest);
   CPPUNIT_TEST(getfromShareTest);
+  CPPUNIT_TEST(getfromShareTestNull);
   CPPUNIT_TEST(getfromUniqueTest);
+  CPPUNIT_TEST(getfromUniqueTestNull);
   CPPUNIT_TEST(getfromOptionalTest);
+  CPPUNIT_TEST(getfromOptionalTestNull);
   CPPUNIT_TEST(decoratorTest);
   CPPUNIT_TEST(dependsOnTest);
   CPPUNIT_TEST(labelTest);
@@ -108,8 +111,11 @@ public:
   void getFromTest();
   void getFromLambdaTest();
   void getfromShareTest();
+  void getfromShareTestNull();
   void getfromUniqueTest();
+  void getfromUniqueTestNull();
   void getfromOptionalTest();
+  void getfromOptionalTestNull();
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
@@ -144,14 +150,19 @@ private:
 
   class OptionalProducer : public ESProducer {
   public:
-    OptionalProducer() { setWhatProduced(this); }
+    OptionalProducer(bool produce = true) : produce_(produce) { setWhatProduced(this); }
     std::optional<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++data_.value_;
-      return data_;
+      if (produce_) {
+        return data_;
+      } else {
+        return {};
+      }
     }
 
   private:
     DummyData data_{0};
+    const bool produce_;
   };
 
   class MultiRegisterProducer : public ESProducer {
@@ -170,26 +181,36 @@ private:
 
   class ShareProducer : public ESProducer {
   public:
-    ShareProducer() { setWhatProduced(this); }
+    ShareProducer(bool produce = true) : produce_(produce) { setWhatProduced(this); }
     std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
-      return ptr_;
+      if (produce_) {
+        return ptr_;
+      } else {
+        return nullptr;
+      }
     }
 
   private:
     std::shared_ptr<DummyData> ptr_{std::make_shared<DummyData>(0)};
+    const bool produce_;
   };
 
   class UniqueProducer : public ESProducer {
   public:
-    UniqueProducer() { setWhatProduced(this); }
+    UniqueProducer(bool produce = true) : produce_(produce) { setWhatProduced(this); }
     std::unique_ptr<DummyData> produce(const DummyRecord&) {
       ++data_.value_;
-      return std::make_unique<DummyData>(data_);
+      if (produce_) {
+        return std::make_unique<DummyData>(data_);
+      } else {
+        return nullptr;
+      }
     }
 
   private:
     DummyData data_;
+    const bool produce_;
   };
 
   class LabelledProducer : public ESProducer {
@@ -327,6 +348,34 @@ void testEsproducer::getfromShareTest() {
   }
 }
 
+void testEsproducer::getfromShareTestNull() {
+  SynchronousEventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+  std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<ShareProducer>(false);
+  provider.add(pResolverProv);
+
+  auto pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+
+  edm::ESParentContext parentC;
+  for (int iTime = 1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToResolverIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    CPPUNIT_ASSERT_THROW(eventSetup.getHandle(consumer.m_token), cms::Exception);
+    CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+  }
+}
+
 void testEsproducer::getfromUniqueTest() {
   SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
@@ -356,6 +405,34 @@ void testEsproducer::getfromUniqueTest() {
   }
 }
 
+void testEsproducer::getfromUniqueTestNull() {
+  SynchronousEventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+  std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<UniqueProducer>(false);
+  provider.add(pResolverProv);
+
+  auto pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+
+  edm::ESParentContext parentC;
+  for (int iTime = 1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToResolverIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    CPPUNIT_ASSERT_THROW(eventSetup.getHandle(consumer.m_token), cms::Exception);
+    CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+  }
+}
+
 void testEsproducer::getfromOptionalTest() {
   SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
@@ -381,6 +458,33 @@ void testEsproducer::getfromOptionalTest() {
     edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == pDummy->value_);
+  }
+}
+
+void testEsproducer::getfromOptionalTestNull() {
+  SynchronousEventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+  provider.add(std::make_shared<OptionalProducer>(false));
+
+  auto pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+
+  edm::ESParentContext parentC;
+  for (int iTime = 1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToResolverIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    CPPUNIT_ASSERT_THROW(eventSetup.getHandle(consumer.m_token), cms::Exception);
+    CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
   }
 }
 

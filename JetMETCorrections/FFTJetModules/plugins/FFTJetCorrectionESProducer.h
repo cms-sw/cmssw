@@ -60,7 +60,7 @@ static void buildCorrectorSequence(const FFTJetCorrectorParameters& tablePars,
   typedef typename CorrectorSequence::jet_type jet_type;
 
   // Load the archive stored in the FFTJetCorrectorParameters object
-  CPP11_auto_ptr<gs::StringArchive> ar;
+  std::unique_ptr<gs::StringArchive> ar;
   {
     std::istringstream is(tablePars.str());
     if (isArchiveCompressed)

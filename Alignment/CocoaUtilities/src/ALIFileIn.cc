@@ -9,8 +9,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 #include <cstdlib>
-#include <strstream>
-//#include <strstream.h>
+#include <sstream>
 
 //#include <algo.h>
 
@@ -112,7 +111,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist) {
     }
 
     //---------- Convert line read to istrstream to split it in words
-    std::istrstream istr_line(ltemp);
+    std::istringstream istr_line(ltemp);
 
     //--------- count how many words are there in ltemp (this sohuld not be needed, but sun compiler has problems) !! this has to be nvestigated...
     ALIint NoWords = 0;

@@ -64,7 +64,9 @@ public:
     MAXTCDSuTCAFEDID_ = MAXTCDSuTCAFEDID;
   }
 
-  void makeDirectoryEntries(std::vector<std::string> const& baseDirs, std::string const& runDir) override {}
+  void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
+                            std::vector<int> const& numSources,
+                            std::string const& runDir) override {}
 
   std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName, bool) const override {
     return std::make_pair(true, std::vector<std::string>());
@@ -171,7 +173,9 @@ public:
     MAXTCDSuTCAFEDID_ = MAXTCDSuTCAFEDID;
   }
 
-  void makeDirectoryEntries(std::vector<std::string> const& baseDirs, std::string const& runDir) override;
+  void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
+                            std::vector<int> const& numSources,
+                            std::string const& runDir) override;
 
   std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName,
                                                                   bool fileListMode) const override;

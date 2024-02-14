@@ -26,13 +26,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+
 // local includes
 #include "SiPixelRawToClusterGPUKernel.h"
+#include "gpuCalibPixel.h"
+#include "gpuClusterChargeCut.h"
+#include "gpuClustering.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace pixelgpudetails {
 
@@ -191,13 +192,11 @@ namespace pixelgpudetails {
       case (26): {
         if constexpr (debug)
           printf("Gap word found (errorType = 26)\n");
-        errorFound = true;
         break;
       }
       case (27): {
         if constexpr (debug)
           printf("Dummy word found (errorType = 27)\n");
-        errorFound = true;
         break;
       }
       case (28): {
@@ -212,6 +211,7 @@ namespace pixelgpudetails {
         if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
           if constexpr (debug)
             printf("...2nd errorType=29 error, skip\n");
+          break;
         }
         errorFound = true;
         break;
@@ -226,6 +226,7 @@ namespace pixelgpudetails {
         if (stateMatch != 1 && stateMatch != 8) {
           if constexpr (debug)
             printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+          break;
         }
         if (stateMatch == 1)
           errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
@@ -288,7 +289,7 @@ namespace pixelgpudetails {
                                    const uint32_t wordCounter,
                                    const uint32_t *word,
                                    const uint8_t *fedIds,
-                                   SiPixelDigisCUDASOAView digisView,
+                                   SiPixelDigisSoA::View digisView,
                                    cms::cuda::SimpleVector<SiPixelErrorCompact> *err,
                                    bool useQualityInfo,
                                    bool includeErrors) {
@@ -323,18 +324,20 @@ namespace pixelgpudetails {
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC) {
         uint32_t rID = getErrRawID<debug>(fedId, ww, errorType, cablingMap);
-        err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
+        if (rID != 0xffffffff)  // store errors only for valid DetIds
+          err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
         continue;
       }
 
       // check for spurious channels
       if (roc > MAX_ROC or link > MAX_LINK) {
+        uint32_t rawId = getRawId(cablingMap, fedId, link, 1).rawId;
         if constexpr (debug) {
-          printf("spurious roc %d found on link %d, detector %d (index %d)\n",
-                 roc,
-                 link,
-                 getRawId(cablingMap, fedId, link, 1).rawId,
-                 gIndex);
+          printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
+        }
+        if (roc > MAX_ROC and roc < 25) {
+          uint8_t error = conversionError<debug>(fedId, 2);
+          err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
         }
         continue;
       }

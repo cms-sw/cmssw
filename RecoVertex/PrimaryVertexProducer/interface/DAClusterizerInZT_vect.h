@@ -11,6 +11,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
@@ -264,7 +265,7 @@ public:
   std::vector<std::vector<reco::TransientTrack> > clusterize(
       const std::vector<reco::TransientTrack> &tracks) const override;
 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks) const;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks) const override;
 
   track_t fill(const std::vector<reco::TransientTrack> &tracks) const;
 

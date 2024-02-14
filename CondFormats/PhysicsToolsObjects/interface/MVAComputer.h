@@ -34,6 +34,9 @@ namespace PhysicsTools {
         bitsInLast = other.bitsInLast;
         return *this;
       }
+      BitSet(const BitSet &other) = default;
+      BitSet() = default;
+      ~BitSet() = default;
 
       std::vector<unsigned char> store;
       unsigned int bitsInLast;
@@ -68,6 +71,7 @@ namespace PhysicsTools {
       inline Variable() {}
       inline Variable(const std::string &name) : name(name) {}
       inline ~Variable() {}
+      Variable &operator=(const Variable &other) = default;
 
       std::string name;
 

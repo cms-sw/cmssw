@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # Customise the Pixel-only reconstruction to run on GPU
 #
 # Run the unpacker, clustering, ntuplets, track fit and vertex reconstruction on GPU.
+# CUDA and Alpaka co-living here for the moment
+
 def customizePixelOnlyForProfilingGPUOnly(process):
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
-      eventProducts = cms.untracked.vstring('pixelTracksCUDA', 'pixelVerticesCUDA')
+      eventProducts = cms.untracked.vstring('pixelTracksCUDA', 'pixelVerticesCUDA', '*DeviceProduct_pixelTracksAlpaka_*_*', '*DeviceProduct_pixelVerticesAlpaka_*_*')
   )
 
   process.consume_step = cms.EndPath(process.consumer)
@@ -25,10 +27,8 @@ def customizePixelOnlyForProfilingGPUOnly(process):
 # tracks and vertices on the CPU in SoA format, without conversion to legacy format.
 def customizePixelOnlyForProfilingGPUWithHostCopy(process):
 
-  #? process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
-
   process.consumer = cms.EDAnalyzer("GenericConsumer",
-      eventProducts = cms.untracked.vstring('pixelTracksSoA', 'pixelVerticesSoA')
+      eventProducts = cms.untracked.vstring('pixelTracksSoA', 'pixelVerticesSoA', 'pixelTracksAlpaka', 'pixelVerticesAlpaka')
   )
 
   process.consume_step = cms.EndPath(process.consumer)

@@ -24,7 +24,9 @@ ticl::SeedingRegionByL1::SeedingRegionByL1(const edm::ParameterSet &conf, edm::C
       minAbsEta_(conf.getParameter<double>("minAbsEta")),
       maxAbsEta_(conf.getParameter<double>("maxAbsEta")),
       endcapScalings_(conf.getParameter<std::vector<double>>("endcapScalings")),
-      quality_(conf.getParameter<int>("quality")) {}
+      quality_(conf.getParameter<int>("quality")),
+      qualityIsMask_(conf.getParameter<bool>("qualityIsMask")),
+      applyQuality_(conf.getParameter<bool>("applyQuality")) {}
 
 void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
                                           const edm::EventSetup &es,
@@ -35,8 +37,20 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
   for (size_t indx = 0; indx < (*l1TrkEms).size(); indx++) {
     const auto &l1TrkEm = (*l1TrkEms)[indx];
     double offlinePt = this->tkEmOfflineEt(l1TrkEm.pt());
+    bool passQuality(false);
+
+    if (applyQuality_) {
+      if (qualityIsMask_) {
+        passQuality = (l1TrkEm.hwQual() & quality_);
+      } else {
+        passQuality = (l1TrkEm.hwQual() == quality_);
+      }
+    } else {
+      passQuality = true;
+    }
+
     if ((offlinePt < minPt_) || (std::abs(l1TrkEm.eta()) < minAbsEta_) || (std::abs(l1TrkEm.eta()) > maxAbsEta_) ||
-        (l1TrkEm.EGRef()->hwQual() != quality_)) {
+        !passQuality) {
       continue;
     }
 
@@ -64,5 +78,7 @@ void ticl::SeedingRegionByL1::fillPSetDescription(edm::ParameterSetDescription &
   desc.add<double>("maxAbsEta", 4.0);
   desc.add<std::vector<double>>("endcapScalings", {3.17445, 1.13219, 0.0});
   desc.add<int>("quality", 5);
+  desc.add<bool>("qualityIsMask", false);
+  desc.add<bool>("applyQuality", false);
   SeedingRegionAlgoBase::fillPSetDescription(desc);
 }

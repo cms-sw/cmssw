@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
@@ -96,6 +97,31 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
     pixelVerticesCUDA,
     # transfer the pixel vertices in SoA format to the CPU and convert them to legacy format
     pixelVerticesTask.copy()
+))
+
+## pixel vertex reconstruction with Alpaka
+
+# pixel vertex SoA producer with alpaka on the device
+from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase1_cfi import pixelVertexProducerAlpakaPhase1 as _pixelVerticesAlpakaPhase1
+from RecoTracker.PixelVertexFinding.pixelVertexProducerAlpakaPhase2_cfi import pixelVertexProducerAlpakaPhase2 as _pixelVerticesAlpakaPhase2
+pixelVerticesAlpaka = _pixelVerticesAlpakaPhase1.clone()
+phase2_tracker.toReplaceWith(pixelVerticesAlpaka,_pixelVerticesAlpakaPhase2.clone())
+
+from RecoTracker.PixelVertexFinding.pixelVertexFromSoAAlpaka_cfi import pixelVertexFromSoAAlpaka as _pixelVertexFromSoAAlpaka
+alpaka.toReplaceWith(pixelVertices, _pixelVertexFromSoAAlpaka.clone())
+
+# pixel vertex SoA producer with alpaka on the cpu, for validation
+pixelVerticesAlpakaSerial = makeSerialClone(pixelVerticesAlpaka,
+    pixelTrackSrc = 'pixelTracksAlpakaSerial'
+)
+
+alpaka.toReplaceWith(pixelVerticesTask, cms.Task(
+    # Build the pixel vertices in SoA format with alpaka on the device
+    pixelVerticesAlpaka,
+    # Build the pixel vertices in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelVerticesAlpakaSerial,
+    # Convert the pixel vertices from SoA format (on the host) to the legacy format
+    pixelVertices
 ))
 
 # Tasks and Sequences

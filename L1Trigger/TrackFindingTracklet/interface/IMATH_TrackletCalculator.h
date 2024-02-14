@@ -147,9 +147,9 @@ namespace trklet {
     VarParam plus2{globals_, "plus2", 2., 10};
     VarParam minus1{globals_, "minus1", -1., 10};
 
-    VarParam r1mean{globals_, "r1mean", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
-    VarParam r2mean{globals_, "r2mean", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
-    VarParam r12mean{globals_, "r12mean", "Kr", 2 * settings_.rmax(trklet::N_DISK - 1), settings_.kr()};
+    VarParam r1mean{globals_, "r1mean", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
+    VarParam r2mean{globals_, "r2mean", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
+    VarParam r12mean{globals_, "r12mean", "Kr", 2 * settings_.rmax(N_DISK - 1), settings_.kr()};
 
     //inputs
     VarDef r1{globals_, "r1", "Kr", settings_.drmax(), settings_.kr()};
@@ -161,22 +161,22 @@ namespace trklet {
     VarDef phi1{globals_, "phi1", "Kphi", settings_.dphisector() / 0.75, settings_.kphi1()};
     VarDef phi2{globals_, "phi2", "Kphi", settings_.dphisector() / 0.75, settings_.kphi1()};
 
-    VarDef rproj0{globals_, "rproj0", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
-    VarDef rproj1{globals_, "rproj1", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
-    VarDef rproj2{globals_, "rproj2", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
-    VarDef rproj3{globals_, "rproj3", "Kr", settings_.rmax(trklet::N_LAYER - 1), settings_.kr()};
+    VarDef rproj0{globals_, "rproj0", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
+    VarDef rproj1{globals_, "rproj1", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
+    VarDef rproj2{globals_, "rproj2", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
+    VarDef rproj3{globals_, "rproj3", "Kr", settings_.rmax(N_LAYER - 1), settings_.kr()};
 
-    VarDef zproj0{globals_, "zproj0", "Kz", settings_.zmax(trklet::N_DISK - 1), settings_.kz()};
-    VarDef zproj1{globals_, "zproj1", "Kz", settings_.zmax(trklet::N_DISK - 1), settings_.kz()};
-    VarDef zproj2{globals_, "zproj2", "Kz", settings_.zmax(trklet::N_DISK - 1), settings_.kz()};
-    VarDef zproj3{globals_, "zproj3", "Kz", settings_.zmax(trklet::N_DISK - 1), settings_.kz()};
-    VarDef zproj4{globals_, "zproj4", "Kz", settings_.zmax(trklet::N_DISK - 1), settings_.kz()};
+    VarDef zproj0{globals_, "zproj0", "Kz", settings_.zmax(N_DISK - 1), settings_.kz()};
+    VarDef zproj1{globals_, "zproj1", "Kz", settings_.zmax(N_DISK - 1), settings_.kz()};
+    VarDef zproj2{globals_, "zproj2", "Kz", settings_.zmax(N_DISK - 1), settings_.kz()};
+    VarDef zproj3{globals_, "zproj3", "Kz", settings_.zmax(N_DISK - 1), settings_.kz()};
+    VarDef zproj4{globals_, "zproj4", "Kz", settings_.zmax(N_DISK - 1), settings_.kz()};
 
     //calculations
 
     //tracklet
-    VarAdd r1abs{globals_, "r1abs", &r1, &r1mean, settings_.rmax(trklet::N_LAYER - 1)};
-    VarAdd r2abs{globals_, "r2abs", &r2, &r2mean, settings_.rmax(trklet::N_LAYER - 1)};
+    VarAdd r1abs{globals_, "r1abs", &r1, &r1mean, settings_.rmax(N_LAYER - 1)};
+    VarAdd r2abs{globals_, "r2abs", &r2, &r2mean, settings_.rmax(N_LAYER - 1)};
 
     VarSubtract dr{globals_, "dr", &r2, &r1};
 

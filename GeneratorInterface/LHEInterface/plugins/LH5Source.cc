@@ -34,8 +34,10 @@ LH5Source::LH5Source(const edm::ParameterSet& params, const edm::InputSourceDesc
     : ProducerSourceFromFiles(params, desc, false),
       //      reader_(new LH5Reader(params)),
       reader_(new LH5Reader(fileNames(0), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
-      lheProvenanceHelper_(
-          edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
+      lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)),
+                           edm::TypeID(typeid(LHERunInfoProduct)),
+                           productRegistryUpdate(),
+                           *branchIDListHelper()),
       phid_() {
   nextEvent();
   lheProvenanceHelper_.lheAugment(nullptr);
@@ -72,7 +74,7 @@ void LH5Source::nextEvent() {
   auto runInfoThis = partonLevel_->getRunInfo();
   if (runInfoThis != runInfoLast_) {
     runInfoLast_ = runInfoThis;
-    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfoThis->getHEPRUP()));
+    std::unique_ptr<LHERunInfoProduct> product = std::make_unique<LHERunInfoProduct>(*runInfoThis->getHEPRUP());
     fillRunInfoProduct(*runInfoThis, *product);
 
     if (runInfoProductLast_) {
@@ -115,7 +117,7 @@ void LH5Source::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipa
 void LH5Source::putRunInfoProduct(edm::RunPrincipal& iRunPrincipal) {
   if (runInfoProductLast_) {
     auto product = std::make_unique<LHERunInfoProduct>(*runInfoProductLast_);
-    std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
+    std::unique_ptr<edm::WrapperBase> rdp = std::make_unique<edm::Wrapper<LHERunInfoProduct>>(std::move(product));
     iRunPrincipal.put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
   }
 }
@@ -137,10 +139,13 @@ void LH5Source::readEvent_(edm::EventPrincipal& eventPrincipal) {
   assert(eventCached() || processingMode() != RunsLumisAndEvents);
   edm::EventAuxiliary aux(eventID(), processGUID(), edm::Timestamp(presentTime()), false);
   aux.setProcessHistoryID(phid_);
-  eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry().getMapped(aux.processHistoryID()));
+  eventPrincipal.fillEventPrincipal(aux,
+                                    processHistoryRegistry().getMapped(aux.processHistoryID()),
+                                    edm::EventSelectionIDVector(),
+                                    lheProvenanceHelper_.branchListIndexes_);
 
-  std::unique_ptr<LHEEventProduct> product(
-      new LHEEventProduct(*partonLevel_->getHEPEUP(), partonLevel_->originalXWGTUP()));
+  std::unique_ptr<LHEEventProduct> product =
+      std::make_unique<LHEEventProduct>(*partonLevel_->getHEPEUP(), partonLevel_->originalXWGTUP());
   if (partonLevel_->getPDF()) {
     product->setPDF(*partonLevel_->getPDF());
   }
@@ -154,7 +159,7 @@ void LH5Source::readEvent_(edm::EventPrincipal& eventPrincipal) {
                 partonLevel_->getComments().end(),
                 std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
-  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<LHEEventProduct>(std::move(product)));
+  std::unique_ptr<edm::WrapperBase> edp = std::make_unique<edm::Wrapper<LHEEventProduct>>(std::move(product));
   eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_,
                      std::move(edp),
                      lheProvenanceHelper_.eventProductProvenance_);

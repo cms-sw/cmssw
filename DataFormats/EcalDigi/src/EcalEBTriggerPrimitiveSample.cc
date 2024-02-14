@@ -1,4 +1,5 @@
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveSample.h"
+#include <iostream>
 
 EcalEBTriggerPrimitiveSample::EcalEBTriggerPrimitiveSample() : theSample(0) {}
 EcalEBTriggerPrimitiveSample::EcalEBTriggerPrimitiveSample(uint16_t data) : theSample(data) {}

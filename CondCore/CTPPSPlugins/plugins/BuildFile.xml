@@ -13,3 +13,8 @@
   <use name="CondCore/CondDB"/>
   <use name="boost_python"/>
 </library>
+<library file="DAQMapping_PayloadInspector.cc" name="TotemDAQMapping_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>

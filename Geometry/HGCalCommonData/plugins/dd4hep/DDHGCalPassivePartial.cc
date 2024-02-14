@@ -77,7 +77,7 @@ struct HGCalPassivePartial {
         // First the mother
         std::string mother = parentName + placementIndexTags[m] + tags[k];
         std::vector<std::pair<double, double>> wxy =
-            HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], (waferSize + waferSepar), 0.0, 0.0, 0.0);
+            HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], (waferSize + waferSepar), 0.0, 0.0, 0.0, false);
         std::vector<double> xM, yM;
         for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
           xM.emplace_back(wxy[i].first);

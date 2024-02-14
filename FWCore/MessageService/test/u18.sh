@@ -7,7 +7,7 @@ status=0
   
 rm -f u18_system.log u18_everything.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u18_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u18_cfg.py || exit $?
  
 for file in u18_system.log u18_everything.log
 do

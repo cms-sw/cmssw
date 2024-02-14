@@ -252,23 +252,26 @@ namespace edm {
     ServiceWeakToken weakToken = iToken;
 
     //Need to make the services available early so other services can see them
-    auto task = make_waiting_task([this, iTask, weakToken, &iPrincipal, iTransformIndex, parent = mcc.parent()](
-                                      std::exception_ptr const* iExcept) mutable {
-      if (iExcept) {
-        iTask.doneWaiting(*iExcept);
-        return;
-      }
-      implDoTransformAsync(iTask, iTransformIndex, iPrincipal, parent, weakToken);
-    });
+    auto task = make_waiting_task(
+        [this, iTask, weakToken, &iPrincipal, iTransformIndex, mcc](std::exception_ptr const* iExcept) mutable {
+          //post prefetch signal
+          actReg_->postModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
+          if (iExcept) {
+            iTask.doneWaiting(*iExcept);
+            return;
+          }
+          implDoTransformAsync(iTask, iTransformIndex, iPrincipal, mcc.parent(), weakToken);
+        });
 
-    //NOTE: need different ModuleCallingContext. The ProductResolver will copy the context in order to get
-    // a longer lifetime than this function call.
+    //pre prefetch signal
+    actReg_->preModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
     iPrincipal.prefetchAsync(
         WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), false, iToken, &mcc);
   }
 
   void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
     ModuleCallingContext temp(iDesc,
+                              0,
                               moduleCallingContext_.state(),
                               moduleCallingContext_.parent(),
                               moduleCallingContext_.previousModuleOnThread());

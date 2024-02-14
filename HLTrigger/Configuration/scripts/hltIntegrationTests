@@ -392,9 +392,6 @@ fi
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
-# check for multi-threading
-edmCheckMultithreading hlt.py | grep legacy
-
 log "Preparing single-trigger configurations"
 for TRIGGER in $TRIGGERS; do
   cat > "${TRIGGER}".py << @EOF

@@ -24,7 +24,7 @@ class MuDigiBaseProducer : public SimpleFlatTableProducerBase<DIGI_T, MuonDigiCo
 
   using IntDetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int>;
   using UIntDetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, unsigned int>;
-  using Int8DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int8_t>;
+  using Int16DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int16_t>;
   using UInt8DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, uint8_t>;
 
   std::vector<std::unique_ptr<Variable<DETECTOR_T>>> detIdVars_;
@@ -44,8 +44,8 @@ public:
         detVarPtr = std::move(std::make_unique<IntDetVar>(name, varCfg));
       } else if (type == "uint") {
         detVarPtr = std::move(std::make_unique<UIntDetVar>(name, varCfg));
-      } else if (type == "int8") {
-        detVarPtr = std::move(std::make_unique<Int8DetVar>(name, varCfg));
+      } else if (type == "int16") {
+        detVarPtr = std::move(std::make_unique<Int16DetVar>(name, varCfg));
       } else if (type == "uint8") {
         detVarPtr = std::move(std::make_unique<UInt8DetVar>(name, varCfg));
       } else {
@@ -69,7 +69,7 @@ public:
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
 
     variable.ifValue(edm::ParameterDescription<std::string>("type", "int", true, comType),
-                     edm::allowedValues<std::string>("int", "uint", "int8", "uint8"));
+                     edm::allowedValues<std::string>("int", "uint", "int16", "uint8"));
 
     edm::ParameterSetDescription variables;
 

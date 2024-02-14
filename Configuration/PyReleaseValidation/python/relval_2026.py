@@ -16,7 +16,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 numWFIB = []
 numWFIB.extend([20034.0]) #2026D86
 numWFIB.extend([20834.0]) #2026D88
-numWFIB.extend([20834.501,20834.502]) #2026D88 Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU (to remove when available in D98)
 numWFIB.extend([22034.0]) #2026D91
 numWFIB.extend([22434.0]) #2026D92
 numWFIB.extend([22834.0]) #2026D93
@@ -27,17 +26,25 @@ numWFIB.extend([24434.0]) #2026D97
 numWFIB.extend([24834.0,24834.911,24834.103]) #2026D98 DDD XML, DD4hep XML, aging
 numWFIB.extend([25061.97]) #2026D98 premixing stage1 (NuGun+PU)
 numWFIB.extend([24834.5,24834.9]) #2026D98 pixelTrackingOnly, vector hits
+numWFIB.extend([24834.501,24834.502]) #2026D98 Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
 numWFIB.extend([25034.99,25034.999]) #2026D98 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test)
 numWFIB.extend([24834.21,25034.21,25034.9921]) #2026D98 prodlike, prodlike PU, prodlike premix stage1+stage2
 numWFIB.extend([25034.114]) #2026D98 PU, with 10% OT ineffiency 
 numWFIB.extend([25234.0,25234.911]) #2026D99 DDD XML, DD4hep XML
 numWFIB.extend([25634.0]) #2026D100
 numWFIB.extend([26034.0]) #2026D101
+numWFIB.extend([26434.0]) #2026D102
+numWFIB.extend([26834.0]) #2026D103
+numWFIB.extend([27234.0]) #2026D104
+numWFIB.extend([27634.0]) #2026D105
+numWFIB.extend([28034.0]) #2026D106
 
 #Additional sample for short matrix and IB
 #CloseByPGun for HGCAL
 numWFIB.extend([24896.0]) #CE_E_Front_120um D98
 numWFIB.extend([24900.0]) #CE_H_Coarse_Scint D98
+# NuGun 
+numWFIB.extend([24861.0]) #Nu Gun 2026D98
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

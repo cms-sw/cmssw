@@ -41,7 +41,7 @@ namespace edm {
 
     std::shared_ptr<FileBlock> readFile_();
     void endJob();
-    InputSource::ItemType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
+    InputSource::ItemTypeInfo getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
     void skipEventsAtBeginning(int offset);
     void skipEvents(int offset);
     bool goToEvent(EventID const& eventID);

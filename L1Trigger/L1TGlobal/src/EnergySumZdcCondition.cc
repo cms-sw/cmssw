@@ -122,6 +122,22 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
   }
 
   const EnergySumZdcTemplate::ObjectParameter objPar = (*(m_gtEnergySumZdcTemplate->objectParameter()))[iCondition];
+  l1t::EtSum::EtSumType type;
+  switch ((m_gtEnergySumZdcTemplate->objectType())[0]) {
+    case gtZDCP:
+      type = l1t::EtSum::EtSumType::kZDCP;
+      break;
+    case gtZDCM:
+      type = l1t::EtSum::EtSumType::kZDCM;
+      break;
+    default:
+      edm::LogError("L1TGlobal")
+          << "\n  Error: "
+          << "Unmatched object type from template to EtSumZdcType, (m_gtEnergySumZdcTemplate->objectType())[0] = "
+          << (m_gtEnergySumZdcTemplate->objectType())[0] << std::endl;
+      type = l1t::EtSum::EtSumType::kZDCP;
+      break;
+  }
 
   // Definition in CondFormats/L1TObjects/interface/L1GtCondition.h:
   // condGEqVal indicates the operator used for the condition (>=, =): true for >=
@@ -136,23 +152,23 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
   for (int iEtSum = 0; iEtSum < numberObjectsZdc; ++iEtSum) {
     l1t::EtSum candZdc = *(candVecZdc->at(useBx, iEtSum));
 
-    if (l1t::EtSum::EtSumType::kZDCP == candZdc.getType())
-      candZdcPlus = *(candVecZdc->at(useBx, iEtSum));
-    else if (l1t::EtSum::EtSumType::kZDCM == candZdc.getType())
-      candZdcMinus = *(candVecZdc->at(useBx, iEtSum));
-
-    LogDebug("L1TGlobal") << "CANDZdc: " << candZdc.hwPt() << ", " << useBx << ", " << candZdc.getType();
+    if (candZdc.getType() != type)
+      continue;
 
     if (candZdc.getType() == l1t::EtSum::EtSumType::kZDCP) {
+      candZdcPlus = *(candVecZdc->at(useBx, iEtSum));
       candZDCPEsum = candZdcPlus.hwPt();
       myres = checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candZDCPEsum, condGEqVal);
     } else if (candZdc.getType() == l1t::EtSum::EtSumType::kZDCM) {
+      candZdcMinus = *(candVecZdc->at(useBx, iEtSum));
       candZDCMEsum = candZdcMinus.hwPt();
       myres = checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candZDCMEsum, condGEqVal);
     } else {
       LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed ZDC checkThreshold" << std::endl;
       return false;
     }
+
+    LogDebug("L1TGlobal") << "CANDZdc: " << candZdc.hwPt() << ", " << useBx << ", " << candZdc.getType();
 
     LogDebug("L1TGlobal")
         << "----------------------------------------------> ZDC EtSumType object from EnergySumZdcTemplate"

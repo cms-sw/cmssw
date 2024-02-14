@@ -21,6 +21,8 @@
 <use name="boost"/>
 <use name="root"/>
 <use name="rootrflx"/>
+<use name="hls"/>
+<use name="conifer"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>

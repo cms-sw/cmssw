@@ -27,6 +27,8 @@ So this recHit-based rho producer, FixedGridRhoProducerFastjetFromRecHit, can be
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class FixedGridRhoProducerFastjetFromRecHit : public edm::stream::EDProducer<> {
 public:
@@ -37,7 +39,7 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   std::array<double, 4> getHitP4(const DetId &detId, const double hitE, const CaloGeometry &caloGeometry) const;
-  bool passedHcalNoiseCut(const HBHERecHit &hit) const;
+  bool passedHcalNoiseCut(const HBHERecHit &hit, const HcalPFCuts *) const;
   bool passedEcalNoiseCut(const EcalRecHit &hit, const EcalPFRecHitThresholds &thresholds) const;
 
   fastjet::GridMedianBackgroundEstimator bge_;
@@ -55,6 +57,11 @@ private:
 
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRecHitThresholdsToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
+  // following are needed to grab HCal thresholds from GT
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  const bool cutsFromDB_;
+  HcalPFCuts const *paramPF_ = nullptr;
 };
 
 FixedGridRhoProducerFastjetFromRecHit::FixedGridRhoProducerFastjetFromRecHit(const edm::ParameterSet &iConfig)
@@ -67,10 +74,14 @@ FixedGridRhoProducerFastjetFromRecHit::FixedGridRhoProducerFastjetFromRecHit(con
       skipHCAL_(iConfig.getParameter<bool>("skipHCAL")),
       skipECAL_(iConfig.getParameter<bool>("skipECAL")),
       ecalPFRecHitThresholdsToken_{esConsumes()},
-      caloGeometryToken_{esConsumes()} {
+      caloGeometryToken_{esConsumes()},
+      cutsFromDB_(iConfig.getParameter<bool>("usePFThresholdsFromDB")) {
   if (skipHCAL_ && skipECAL_) {
     throw cms::Exception("FixedGridRhoProducerFastjetFromRecHit")
         << "skipHCAL and skipECAL both can't be True. Please make at least one of them False.";
+  }
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
   produces<double>();
 }
@@ -89,12 +100,17 @@ void FixedGridRhoProducerFastjetFromRecHit::fillDescriptions(edm::ConfigurationD
   desc.add<std::vector<double> >("eThresHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.add<double>("maxRapidity", 2.5);
   desc.add<double>("gridSpacing", 0.55);
+  desc.add<bool>("usePFThresholdsFromDB", true);
   descriptions.addWithDefaultLabel(desc);
 }
 
 FixedGridRhoProducerFastjetFromRecHit::~FixedGridRhoProducerFastjetFromRecHit() = default;
 
 void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  if (cutsFromDB_) {
+    paramPF_ = &iSetup.getData(hcalCutsToken_);
+  }
+
   std::vector<fastjet::PseudoJet> inputs;
   auto const &thresholds = iSetup.getData(ecalPFRecHitThresholdsToken_);
   auto const &caloGeometry = iSetup.getData(caloGeometryToken_);
@@ -103,7 +119,7 @@ void FixedGridRhoProducerFastjetFromRecHit::produce(edm::Event &iEvent, const ed
     auto const &hbheRecHits = iEvent.get(hbheRecHitsTag_);
     inputs.reserve(inputs.size() + hbheRecHits.size());
     for (const auto &hit : hbheRecHits) {
-      if (passedHcalNoiseCut(hit)) {
+      if (passedHcalNoiseCut(hit, paramPF_)) {
         const auto &hitp4 = getHitP4(hit.id(), hit.energy(), caloGeometry);
         inputs.emplace_back(fastjet::PseudoJet(hitp4[0], hitp4[1], hitp4[2], hitp4[3]));
       }
@@ -147,11 +163,17 @@ std::array<double, 4> FixedGridRhoProducerFastjetFromRecHit::getHitP4(const DetI
 }
 
 //HCAL noise cleaning cuts.
-bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit) const {
-  const auto thisDetId = hit.id();
-  const auto thisDepth = thisDetId.depth();
-  return (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1]) ||
-         (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1]);
+bool FixedGridRhoProducerFastjetFromRecHit::passedHcalNoiseCut(const HBHERecHit &hit,
+                                                               const HcalPFCuts *hcalcuts) const {
+  if (hcalcuts != nullptr) {  // using hcal cuts from DB
+    const HcalPFCut *item = hcalcuts->getValues(hit.id().rawId());
+    return (hit.energy() > item->noiseThreshold());
+  } else {  // using hcal cuts from config file
+    const auto thisDetId = hit.id();
+    const auto thisDepth = thisDetId.depth();
+    return (thisDetId.subdet() == HcalBarrel && hit.energy() > eThresHB_[thisDepth - 1]) ||
+           (thisDetId.subdet() == HcalEndcap && hit.energy() > eThresHE_[thisDepth - 1]);
+  }
 }
 
 //ECAL noise cleaning cuts using per-crystal PF-recHit thresholds.

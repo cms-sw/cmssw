@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" type="text/css" href="transitions.css"></link>
+        <script type="module" src="transitions.js"></script>
+        <script type="module" src="data.js"></script>
+    </head>
+    <body>
+        <title>Tracer Output</title>
+        <div class="container">
+	        <div class="name_div">
+	           <canvas id = "name_view"></canvas>
+	        </div>
+	        <div class="graph_div">
+	            <canvas id="graph_view"></canvas>
+	       </div>
+	       <div class="time_div">
+	          <canvas id = "time_view"></canvas>
+	       </div>
+	        <div class="selected">
+	            <p id="selected_paragraph">Selected:</p>
+	        </div>
+			<div class="controls">
+				<button id="zoom_out">--&gt; &lt;--</button>
+				<button id="zoom_in">&lt;-- --&gt;</button>
+				<p>&lt;CTRL&gt;+scroll to zoom</p>
+			</div>
+	    </div>
+    </body>
+</html>

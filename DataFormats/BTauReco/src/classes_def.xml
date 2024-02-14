@@ -302,7 +302,6 @@
   <class name="std::vector<Measurement1D>"/>
 
   <!-- RefToBase stuff -->
-  <class name="edm::RefToBase<reco::BaseTagInfo>" />
   <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
   <class name="edm::reftobase::IndirectHolder<reco::BaseTagInfo>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef>" />

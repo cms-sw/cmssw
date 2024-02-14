@@ -7,16 +7,6 @@ import FWCore.ParameterSet.Config as cms
 print(f'{sys.argv=}')
 # NTOE when running cmsRun, __file__ is not defined
 
-cfg_idx = -1
-for idx, each in enumerate(sys.argv):
-    if each.endswith('runGEMCSCCoincidenceRateAnalyzer_cfg.py'):
-        cfg_idx = idx
-if cfg_idx < 0:
-    raise RuntimeError(f'cfg not found: {sys.argv=}')
-
-print(f'{sys.argv[:cfg_idx + 1]} are interpreted as arguments for cmsRun.')
-print(f'parsing argumnets from {sys.argv[cfg_idx + 1:]}.')
-
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-e', '--era', type=str, default='Phase2C17I13M9', help='era')
@@ -28,7 +18,7 @@ default_data_dir = Path('/eos/cms/store/relval/CMSSW_12_6_0_pre2/RelValSingleMuP
 default_input_files = ['file:' + str(each) for each in default_data_dir.glob('**/*.root')]
 parser.add_argument('-i', '--input-files', type=str, nargs='+', default=default_input_files, help='input files')
 parser.add_argument('-o', '--output-file', type=str, default='output.root', help='output file')
-args = parser.parse_args(sys.argv[cfg_idx + 1:])
+args = parser.parse_args()
 
 for key, value in vars(args).items():
     print(f'{key}={value}')

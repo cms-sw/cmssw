@@ -124,6 +124,8 @@ def miniAOD_customizeCommon(process):
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
     pp_on_AA.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
+    from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+    run3_upc.toModify(process.selectedPatMuons, cut = "")
 
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
@@ -305,7 +307,8 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff'
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff'
                     ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -417,9 +420,10 @@ def miniAOD_customizeCommon(process):
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJets_cfi')
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppijets_task)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -475,7 +479,7 @@ def miniAOD_customizeCommon(process):
         process.load('RecoMET.METProducers.pfMetPuppi_cfi')
         _rerun_puppimet_task = task.copy()
         _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppimet_task)
+        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppimet_task)
     
         runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                             jetCollUnskimmed="slimmedJetsPuppi",

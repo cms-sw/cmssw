@@ -1,8 +1,6 @@
 #ifndef RecoLocalCalo_HcalRecAlgos_interface_HcalMahiPulseOffsetsGPU_h
 #define RecoLocalCalo_HcalRecAlgos_interface_HcalMahiPulseOffsetsGPU_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
@@ -17,7 +15,7 @@ public:
 
 #ifndef __CUDACC__
   // rearrange reco params
-  HcalMahiPulseOffsetsGPU(edm::ParameterSet const&);
+  HcalMahiPulseOffsetsGPU(std::vector<int> const& values);
 
   // will trigger deallocation of Product thru ~Product
   ~HcalMahiPulseOffsetsGPU() = default;

@@ -196,7 +196,7 @@ namespace edm {
                                                          size_t iTransformIndex,
                                                          EventPrincipal const& iEvent,
                                                          ActivityRegistry*,
-                                                         ModuleCallingContext const* iMCC,
+                                                         ModuleCallingContext iMCC,
                                                          ServiceWeakToken const&) {}
 
     template <typename T>

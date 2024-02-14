@@ -25,9 +25,26 @@ options.register('streams',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of streams to run")
+options.register ('tracks',
+                  'donotload', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Whether to load tracks from buffers and how to treat them in the processing chain ('donotload', 'load', 'overwrite')")
+options.register ('vertices',
+                  'donotload', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Whether to load vertices from buffers and how to treat them in the processing chain ('donotload', 'load', 'overwrite')")
+options.register ('readerformat',
+                  'EMPv2', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "File format of loaded tracks and vertices (APx, EMPv2)")
 options.parseArguments()
 
 inputFiles = []
+inputBuffers = []
+inputTrackBuffers = []
 for filePath in options.inputFiles:
     if filePath.endswith(".root"):
         inputFiles.append(filePath)
@@ -36,10 +53,17 @@ for filePath in options.inputFiles:
         filePath = filePath.replace("/", ".")
         inputFilesImport = getattr(__import__(filePath.strip(".py"),fromlist=["readFiles"]),"readFiles")
         inputFiles.extend( inputFilesImport )
+        if options.vertices:
+            inputBuffersImport = getattr(__import__(filePath.strip(".py"),fromlist=["correlator_source"]),"correlator_source").fileNames
+            inputBuffers.extend( inputBuffersImport )
+        if options.tracks:
+            inputTrackBuffersImport = getattr(__import__(filePath.strip(".py"),fromlist=["track_source"]),"track_source").fileNames
+            inputTrackBuffers.extend( inputTrackBuffersImport )
     else:
         inputFiles += FileUtils.loadListFromFile(filePath)
 
 # PART 2: SETUP MAIN CMSSW PROCESS 
+
 
 process = cms.Process("GTTFileWriter")
 
@@ -69,8 +93,20 @@ process.load('L1Trigger.L1TTrackMatch.l1tTrackJetsEmulation_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi')
 process.load('L1Trigger.DemonstratorTools.l1tGTTFileWriter_cfi')
-                                                            
+process.load('L1Trigger.DemonstratorTools.l1tGTTFileReader_cfi')
+
+process.l1tGTTFileReader.processOutputToCorrelator = cms.bool((options.vertices in ['load', 'overwrite']))
+process.l1tGTTFileReader.processInputTracks = cms.bool((options.tracks in ['load', 'overwrite']))
+process.l1tGTTFileReader.processOutputToGlobalTrigger = cms.bool(False) #NotImplemented
+process.l1tGTTFileReader.filesOutputToCorrelator = inputBuffers if (options.vertices in ['load', 'overwrite']) else cms.vstring("L1GTTOutputToCorrelatorFile_0.txt")
+process.l1tGTTFileReader.filesInputTracks = inputTrackBuffers if (options.tracks in ['load', 'overwrite']) else cms.vstring("L1GTTInputFile_0.txt")
+process.l1tGTTFileReader.filesOutputToGlobalTrigger = cms.vstring("L1GTTOutputToGlobalTriggerFile_0.txt")
+process.l1tGTTFileReader.format = cms.untracked.string(options.readerformat)
+
 process.l1tGTTInputProducer.debug = cms.int32(options.debug)
+if (options.tracks in ['overwrite']):
+    process.l1tGTTInputProducer.l1TracksInputTag = cms.InputTag("l1tGTTFileReader", "Level1TTTracks")
+    process.l1tGTTInputProducer.setTrackWordBits = cms.bool(False)
 
 process.l1tTrackSelectionProducer.processSimulatedTracks = cms.bool(False)
 process.l1tVertexFinderEmulator.VertexReconstruction.VxMinTrackPt = cms.double(0.0)
@@ -89,6 +125,7 @@ process.l1tTrackSelectionProducerForJets.cutSet = cms.PSet(
     nStubsMin = cms.int32(4), # number of stubs must be greater than or equal to this value
     nPSStubsMin = cms.int32(0), # the number of stubs in the PS Modules must be greater than or equal to this value
     
+    promptMVAMin = cms.double(-1.0), # MVA must be greater than this value
     reducedBendChi2Max = cms.double(2.25), # bend chi2 must be less than this value
     reducedChi2RZMax = cms.double(5.0), # chi2rz/dof must be less than this value
     reducedChi2RPhiMax = cms.double(20.0), # chi2rphi/dof must be less than this value
@@ -103,15 +140,7 @@ process.l1tTrackVertexAssociationProducerForJets.cutSet = cms.PSet(
 process.l1tTrackerEmuHTMiss.debug = (options.debug > 0)
 
 #Disable internal track selection
-process.l1tTrackJetsEmulation.MaxDzTrackPV = cms.double(10000.0)
-process.l1tTrackJetsEmulation.trk_zMax = cms.double(10000.0)    # maximum track z
-process.l1tTrackJetsEmulation.trk_ptMax = cms.double(10000.0)    # maximumum track pT before saturation [GeV]
-process.l1tTrackJetsEmulation.trk_ptMin = cms.double(0.0)     # minimum track pt [GeV]
-process.l1tTrackJetsEmulation.trk_etaMax = cms.double(10000.0)    # maximum track eta
-process.l1tTrackJetsEmulation.nStubs4PromptChi2=cms.double(10000.0) #Prompt track quality flags for loose/tight
-process.l1tTrackJetsEmulation.nStubs4PromptBend=cms.double(10000.0)
-process.l1tTrackJetsEmulation.nStubs5PromptChi2=cms.double(10000.0)
-process.l1tTrackJetsEmulation.nStubs5PromptBend=cms.double(10000.0)
+process.l1tTrackJetsEmulation.trk_zMax = cms.double(20.46912512)    # maximum track z from TrackWord
 
 if options.debug:
     process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000000000)
@@ -121,10 +150,16 @@ if options.debug:
     )
 
 process.l1tGTTFileWriter.format = cms.untracked.string(options.format) #FIXME Put all this into the default GTTFileWriter
-process.l1tGTTFileWriter.tracks = cms.untracked.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")
+if options.tracks == 'overwrite':
+    process.l1tGTTFileWriter.tracks = cms.untracked.InputTag("l1tGTTFileReader", "Level1TTTracks")
+else:
+    process.l1tGTTFileWriter.tracks = cms.untracked.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")
 process.l1tGTTFileWriter.convertedTracks = cms.untracked.InputTag("l1tGTTInputProducer", "Level1TTTracksConverted")
 process.l1tGTTFileWriter.selectedTracks = cms.untracked.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation")
-process.l1tGTTFileWriter.vertices = cms.untracked.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation")
+if options.vertices == 'overwrite':
+    process.l1tGTTFileWriter.vertices = cms.untracked.InputTag("l1tGTTFileReader", "L1VerticesFirmware")
+else:
+    process.l1tGTTFileWriter.vertices = cms.untracked.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation")
 process.l1tGTTFileWriter.vertexAssociatedTracks = cms.untracked.InputTag("l1tTrackVertexAssociationProducer", "Level1TTTracksSelectedAssociatedEmulation")
 process.l1tGTTFileWriter.jets = cms.untracked.InputTag("l1tTrackJetsEmulation","L1TrackJets")
 process.l1tGTTFileWriter.htmiss = cms.untracked.InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss")
@@ -137,8 +172,10 @@ process.l1tGTTFileWriter.vertexAssociatedTracksFilename = cms.untracked.string("
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-
-process.p = cms.Path(process.l1tGTTFileWriter)
+if options.tracks in ['load', 'overwrite'] or options.vertices in ['load', 'overwrite']:
+    process.p = cms.Path(process.l1tGTTFileReader * process.l1tGTTFileWriter)
+else:
+    process.p = cms.Path(process.l1tGTTFileWriter)
 process.p.associate(cms.Task(process.l1tGTTInputProducer, 
                              process.l1tTrackSelectionProducer,
                              process.l1tVertexFinderEmulator, 

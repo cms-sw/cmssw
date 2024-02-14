@@ -76,6 +76,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
   const HGCalGeometry* geom = &geomR;
   const HGCalDDDConstants& hgdc = geom->topology().dddConstants();
   HGCalGeometryMode::GeometryMode mode = hgdc.geomMode();
+  bool v17OrLess = hgdc.v17OrLess();
   edm::LogVerbatim("HGCalGeomX") << nameDetector_ << "\n Mode = " << mode;
   if (hgdc.waferHexagon8()) {
     double r = hgdc.waferParameters(true).first;
@@ -190,7 +191,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
           ++bad;
           // Need debug information here
           hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true, false);
-          HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
+          HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, v17OrLess, true);
           for (unsigned int i = 0; i < 24; ++i) {
             double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
             edm::LogVerbatim("HGCalGeomX")

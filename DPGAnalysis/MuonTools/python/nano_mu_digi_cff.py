@@ -11,20 +11,20 @@ dtDigiFlatTableProducer.doc = "DT digi information"
 
 dtDigiFlatTableProducer.variables = cms.PSet(
         time = Var("time()", float, doc = "digi time"),
-        wire = Var("wire()", "int8", doc="wire - [1:X] range"
+        wire = Var("wire()", "int16", doc="wire - [1:X] range"
                                       "<br />(X varies for different chambers SLs and layers)")
 )
 
 dtDigiFlatTableProducer.detIdVariables = cms.PSet(
-        wheel = DetIdVar("wheel()", "int8", doc = "wheel  -  [-2:2] range"),
-        sector = DetIdVar("sector()", "int8", doc = "sector - [1:14] range"
+        wheel = DetIdVar("wheel()", "int16", doc = "wheel  -  [-2:2] range"),
+        sector = DetIdVar("sector()", "int16", doc = "sector - [1:14] range"
                                             "<br />sector 13 used for the second MB4 of sector 4"
                                             "<br />sector 14 used for the second MB4 of sector 10"),
-        station = DetIdVar("station()", "int8", doc = "station - [1:4] range"),
-        superLayer = DetIdVar("superLayer()", "int8", doc = "superlayer - [1:3] range"
+        station = DetIdVar("station()", "int16", doc = "station - [1:4] range"),
+        superLayer = DetIdVar("superLayer()", "int16", doc = "superlayer - [1:3] range"
                                                     "<br />SL 1 and 3 are phi SLs"
                                                     "<br />SL 2 is theta SL"),
-        layer = DetIdVar("layer()", "int8", doc = "layer  -  [1:4] range")
+        layer = DetIdVar("layer()", "int16", doc = "layer  -  [1:4] range")
 )
 
 
@@ -40,18 +40,18 @@ rpcDigiFlatTableProducer.variables = cms.PSet(
 )
 
 rpcDigiFlatTableProducer.detIdVariables = cms.PSet(
-        region = DetIdVar("region()", "int8", doc = "0: barrel, +/-1: endcap"),
-        ring = DetIdVar("ring()", "int8", doc = "ring id:"
+        region = DetIdVar("region()", "int16", doc = "0: barrel, +/-1: endcap"),
+        ring = DetIdVar("ring()", "int16", doc = "ring id:"
                                         "<br />wheel number in barrel - [-2:+2] range"
                                         "<br />ring number in endcap - [1:3] range"),
-        station = DetIdVar("station()", "int8", doc = "chambers at same R in barrel, chambers at same Z ion endcap"),
-        layer = DetIdVar("layer()", "int8", doc = "layer id:"
+        station = DetIdVar("station()", "int16", doc = "chambers at same R in barrel, chambers at same Z ion endcap"),
+        layer = DetIdVar("layer()", "int16", doc = "layer id:"
                                           "<br />barrel stations 1 and 2, have two layers of chambers "
                                           "(layer 1 is the inner chamber and layer 2 is the outer chamber)"),
-        sector = DetIdVar("sector()", "int8", doc = "group of chambers at same phi"),
-        subsector = DetIdVar("subsector()", "int8", doc = "Some sectors are divided along the phi direction in subsectors "
+        sector = DetIdVar("sector()", "int16", doc = "group of chambers at same phi"),
+        subsector = DetIdVar("subsector()", "int16", doc = "Some sectors are divided along the phi direction in subsectors "
                                                   "(from 1 to 4 in Barrel, from 1 to 6 in Endcap)"),
-        roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition):"
+        roll = DetIdVar("roll()", "int16", doc = "roll id (also known as eta partition):"
                                         "<br />each chamber is divided along the strip direction"),
         rawId = DetIdVar("rawId()", "uint", doc = "unique detector unit ID")
 )
@@ -63,19 +63,19 @@ gemDigiFlatTableProducer.src = "muonGEMDigis"
 gemDigiFlatTableProducer.doc = "GEM digi information"
 
 gemDigiFlatTableProducer.variables = cms.PSet(
-        strip = Var("strip()", "int8", doc = "index of the readout strip associated to the digi"),
-        bx = Var("bx()", "int8", doc="bunch crossing associated to the digi")
+        strip = Var("strip()", "int16", doc = "index of the readout strip associated to the digi"),
+        bx = Var("bx()", "int16", doc="bunch crossing associated to the digi")
 )
 
 gemDigiFlatTableProducer.detIdVariables = cms.PSet(
-        station = DetIdVar("station()", "int8", doc = "GEM station <br />(always 1 for GE1/1)"),
-        region = DetIdVar("region()", "int8", doc = "GE11 region where the digi is detected"
+        station = DetIdVar("station()", "int16", doc = "GEM station <br />(always 1 for GE1/1)"),
+        region = DetIdVar("region()", "int16", doc = "GE11 region where the digi is detected"
                                             "<br />(int, positive endcap: +1, negative endcap: -1)"),
-        roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition)"
+        roll = DetIdVar("roll()", "int16", doc = "roll id (also known as eta partition)"
                                         "<br />(partitions numbered from 1 to 8)"),
-        chamber = DetIdVar("chamber()", "int8", doc = "GE11 superchamber where the hit is reconstructed"
+        chamber = DetIdVar("chamber()", "int16", doc = "GE11 superchamber where the hit is reconstructed"
                                               "<br />(chambers numbered from 0 to 35)"),
-        layer = DetIdVar("layer()", "int8", doc = "GE11 layer where the hit is reconstructed"
+        layer = DetIdVar("layer()", "int16", doc = "GE11 layer where the hit is reconstructed"
                                           "<br />(layer1: 1, layer2: 2)")        
 )
 
@@ -98,11 +98,11 @@ warnings = Var("warnings()", "uint16", doc = "code for GEM OH warnings<br /> non
 )
 
 gemohStatusFlatTableProducer.detIdVariables = cms.PSet(
-        station = DetIdVar("station()", "int8", doc = "GEM station <br />always 1 for GE1/1)"),
-        region = DetIdVar("region()", "int8", doc = "region with which the GEMOHStatus is associated"
+        station = DetIdVar("station()", "int16", doc = "GEM station <br />always 1 for GE1/1)"),
+        region = DetIdVar("region()", "int16", doc = "region with which the GEMOHStatus is associated"
                                             "<br />int, positive endcap: +1, negative endcap: -1"),
-        chamber = DetIdVar("chamber()", "int8", doc = "chamber with which the GEMOHStatus is associated"),
-        layer = DetIdVar("layer()", "int8", doc = "layer with which the GEMOHStatus is associated<br /> either 1 or 2 for GE1/1 and GE2/1")
+        chamber = DetIdVar("chamber()", "int16", doc = "chamber with which the GEMOHStatus is associated"),
+        layer = DetIdVar("layer()", "int16", doc = "layer with which the GEMOHStatus is associated<br /> either 1 or 2 for GE1/1 and GE2/1")
 )
 
 
@@ -113,17 +113,17 @@ cscWireDigiFlatTableProducer.src = "muonCSCDigis:MuonCSCWireDigi"
 cscWireDigiFlatTableProducer.doc = "CSC wire digi information"
 
 cscWireDigiFlatTableProducer.variables = cms.PSet(
-        timeBin = Var("getTimeBin()", "int8", doc = ""),
-        wireGroup = Var("getWireGroup()", "int8", doc=""),
-        wireGroupBX = Var("getWireGroupBX()", "int8", doc="")
+        timeBin = Var("getTimeBin()", "int16", doc = ""),
+        wireGroup = Var("getWireGroup()", "int16", doc=""),
+        wireGroupBX = Var("getWireGroupBX()", "int16", doc="")
 )
 
 cscWireDigiFlatTableProducer.detIdVariables = cms.PSet(
-        endcap = DetIdVar("endcap()", "int8", doc = ""),
-        station = DetIdVar("station()", "int8", doc = ""),
-        ring = DetIdVar("ring()", "int8", doc = ""),
-        chamber = DetIdVar("chamber()", "int8", doc = ""),
-        layer = DetIdVar("layer()", "int8", doc = "")
+        endcap = DetIdVar("endcap()", "int16", doc = ""),
+        station = DetIdVar("station()", "int16", doc = ""),
+        ring = DetIdVar("ring()", "int16", doc = ""),
+        chamber = DetIdVar("chamber()", "int16", doc = ""),
+        layer = DetIdVar("layer()", "int16", doc = "")
 )
 
 from DPGAnalysis.MuonTools.cscAlctDigiFlatTableProducer_cfi import cscAlctDigiFlatTableProducer
@@ -133,16 +133,16 @@ cscAlctDigiFlatTableProducer.src = "muonCSCDigis:MuonCSCALCTDigi:"
 cscAlctDigiFlatTableProducer.doc = "CSC ALCT digi information"
 
 cscAlctDigiFlatTableProducer.variables = cms.PSet(
-        keyWireGroup = Var("getKeyWG()", "int8", doc = ""),
-        bx = Var("getBX()", "int8", doc="")
+        keyWireGroup = Var("getKeyWG()", "int16", doc = ""),
+        bx = Var("getBX()", "int16", doc="")
 )
 
 cscAlctDigiFlatTableProducer.detIdVariables = cms.PSet(
-        endcap = DetIdVar("endcap()", "int8", doc = ""),
-        station = DetIdVar("station()", "int8", doc = ""),
-        ring = DetIdVar("ring()", "int8", doc = ""),
-        chamber = DetIdVar("chamber()", "int8", doc = ""),
-        layer = DetIdVar("layer()", "int8", doc = "")
+        endcap = DetIdVar("endcap()", "int16", doc = ""),
+        station = DetIdVar("station()", "int16", doc = ""),
+        ring = DetIdVar("ring()", "int16", doc = ""),
+        chamber = DetIdVar("chamber()", "int16", doc = ""),
+        layer = DetIdVar("layer()", "int16", doc = "")
 )
 
 muDigiProducers = cms.Sequence(dtDigiFlatTableProducer

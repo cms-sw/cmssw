@@ -102,3 +102,17 @@ def custom_3dclustering_XYHistoMax(process,
     process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
+
+def custom_3dclustering_seedArea(process,
+                                   seed_threshold=cms.double(8.5)):
+    parameters_c3d = histoMax_C3d_seeding_params.clone(seeds_norm_by_area = True,
+                                                        threshold_histo_multicluster = seed_threshold)
+    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    return process
+
+def custom_3dclustering_seedNoArea(process,
+                                   seed_threshold=cms.double(20)):
+    parameters_c3d = histoMax_C3d_seeding_params.clone(seeds_norm_by_area = False,
+                                                        threshold_histo_multicluster = seed_threshold)
+    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    return process

@@ -34,6 +34,7 @@ namespace l1ct {
 
     enum class BarrelSetup { Full54, Full27, Central18, Central9, Phi18, Phi9 };
     MultififoRegionizerEmulator(BarrelSetup barrelSetup,
+                                unsigned int ntklinks,
                                 unsigned int nHCalLinks,
                                 unsigned int nECalLinks,
                                 unsigned int nclocks,

@@ -12,8 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
@@ -53,7 +52,10 @@ private:
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
   edm::ESGetToken<PPSAssociationCuts, PPSAssociationCutsRcd> ppsAssociationCutsToken_;
 
@@ -243,7 +245,11 @@ CTPPSProtonReconstructionEfficiencyEstimatorData::CTPPSProtonReconstructionEffic
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
 
-      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
+
       opticsESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
       ppsAssociationCutsToken_(
           esConsumes(ESInputTag("", iConfig.getParameter<std::string>("ppsAssociationCutsLabel")))),
@@ -283,7 +289,10 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::fillDescriptions(edm::Con
   desc.add<edm::InputTag>("tagTracks", edm::InputTag())->setComment("input tag for local lite tracks");
   desc.add<edm::InputTag>("tagRecoProtonsMultiRP", edm::InputTag())->setComment("input tag for multi-RP reco protons");
 
-  desc.add<string>("lhcInfoLabel", "")->setComment("label of LHCInfo data");
+  desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
+  desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
+  desc.add<bool>("useNewLHCInfo", false)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
   desc.add<string>("opticsLabel", "")->setComment("label of optics data");
   desc.add<string>("ppsAssociationCutsLabel", "")->setComment("label of PPSAssociationCuts data");
 
@@ -311,7 +320,7 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::fillDescriptions(edm::Con
 
   desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
 
-  descriptions.add("ctppsProtonReconstructionEfficiencyEstimatorData", desc);
+  descriptions.add("ctppsProtonReconstructionEfficiencyEstimatorDataDefault", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -321,7 +330,8 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
   std::ostringstream os;
 
   // get conditions
-  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
+  const LHCInfoCombined lhcInfoCombined(
+      iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
   const auto &opticalFunctions = iSetup.getData(opticsESToken_);
   const auto &ppsAssociationCuts = iSetup.getData(ppsAssociationCutsToken_);
 
@@ -660,8 +670,10 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
         evp.idx_N = i;
         evp.idx_F = j;
 
-        evp.x_cut = ass_cut.isSatisfied(ass_cut.qX, tr_i.x(), tr_i.y(), lhcInfo.crossingAngle(), tr_i.x() - tr_j.x());
-        evp.y_cut = ass_cut.isSatisfied(ass_cut.qY, tr_i.x(), tr_i.y(), lhcInfo.crossingAngle(), tr_i.y() - tr_j.y());
+        evp.x_cut =
+            ass_cut.isSatisfied(ass_cut.qX, tr_i.x(), tr_i.y(), lhcInfoCombined.crossingAngle(), tr_i.x() - tr_j.x());
+        evp.y_cut =
+            ass_cut.isSatisfied(ass_cut.qY, tr_i.x(), tr_i.y(), lhcInfoCombined.crossingAngle(), tr_i.y() - tr_j.y());
 
         evp.match = evp.x_cut && evp.y_cut;
 

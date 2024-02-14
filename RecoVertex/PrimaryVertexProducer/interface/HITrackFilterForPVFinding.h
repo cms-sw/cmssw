@@ -39,7 +39,6 @@ public:
   }
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc) {
-    TrackFilterForPVFinding::fillPSetDescription(desc);
     desc.add<int>("numTracksThreshold", 0);  // HI only
     desc.add<int>("maxNumTracksThreshold", std::numeric_limits<int>::max());
     desc.add<double>("minPtTight", 0.0);

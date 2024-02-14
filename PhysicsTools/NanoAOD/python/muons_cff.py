@@ -119,6 +119,11 @@ run2_muon_2016.toModify(
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+muonBSConstrain = cms.EDProducer("MuonBeamspotConstraintValueMapProducer",
+    src = cms.InputTag("linkedObjects","muons"),
+)
+
 muonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","muons"),
     name = cms.string("Muon"),
@@ -159,6 +164,7 @@ muonTable = simpleCandidateFlatTableProducer.clone(
         softId = Var("passed('SoftCutBasedId')",bool,doc="soft cut-based ID"),
         softMvaId = Var("passed('SoftMvaId')",bool,doc="soft MVA ID"),
         softMva = Var("softMvaValue()",float,doc="soft MVA ID score",precision=6),
+        softMvaRun3 = Var("softMvaRun3Value()",float,doc="soft MVA Run3 ID score",precision=6),
         highPtId = Var("?passed('CutBasedIdGlobalHighPt')?2:passed('CutBasedIdTrkHighPt')","uint8",doc="high-pT cut-based ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)"),
         pfIsoId = Var("passed('PFIsoVeryLoose')+passed('PFIsoLoose')+passed('PFIsoMedium')+passed('PFIsoTight')+passed('PFIsoVeryTight')+passed('PFIsoVeryVeryTight')","uint8",doc="PFIso ID from miniAOD selector (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)"),
         tkIsoId = Var("?passed('TkIsoTight')?2:passed('TkIsoLoose')","uint8",doc="TkIso ID (1=TkIsoLoose, 2=TkIsoTight)"),
@@ -175,9 +181,15 @@ muonTable = simpleCandidateFlatTableProducer.clone(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
         fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:muFsrIndex"), "int16", doc="Index of the lowest-dR/ET2 among associated FSR photons"),
+        bsConstrainedPt = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedPt"),float, doc="pT with beamspot constraint",precision=-1),
+        bsConstrainedPtErr = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedPtErr"),float, doc="pT error with beamspot constraint ",precision=6),
+        bsConstrainedChi2 = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedChi2"),float, doc="chi2 of beamspot constraint",precision=6),
     ),
 )
 
+# Increase precision of eta and phi
+muonTable.variables.eta.precision = 16
+muonTable.variables.phi.precision = 16
 
 (run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(muonTable.variables,mvaMuID=None).toModify(
      muonTable.variables, mvaMuID = Var("userFloat('mvaIDMuon')", float, doc="MVA-based ID score",precision=6))
@@ -212,8 +224,5 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
-muonTablesTask = cms.Task(muonMVATTH,muonMVALowPt,muonTable,muonMVAID)
-
-
-
+muonTablesTask = cms.Task(muonMVATTH,muonMVALowPt,muonBSConstrain,muonTable,muonMVAID)
 

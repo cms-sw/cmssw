@@ -5,6 +5,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include "Math/GenVector/VectorUtil.h"
 #include "TMath.h"
@@ -33,7 +35,8 @@ public:
 
   void buildClusters(const reco::PFClusterCollection&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection& outclus) override;
+                     reco::PFClusterCollection& outclus,
+                     const HcalPFCuts*) override;
 
 private:
   const unsigned _maxIterations;
@@ -55,14 +58,18 @@ private:
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
 
-  void seedPFClustersFromTopo(const reco::PFCluster&, const std::vector<bool>&, reco::PFClusterCollection&) const;
+  void seedPFClustersFromTopo(const reco::PFCluster&,
+                              const std::vector<bool>&,
+                              reco::PFClusterCollection&,
+                              const HcalPFCuts*) const;
 
   void growPFClusters(const reco::PFCluster&,
                       const std::vector<bool>&,
                       const unsigned toleranceScaling,
                       const unsigned iter,
                       double dist,
-                      reco::PFClusterCollection&) const;
+                      reco::PFClusterCollection&,
+                      const HcalPFCuts* hcalCuts) const;
   void clusterTimeResolution(reco::PFCluster& cluster, double& res) const;
   void clusterTimeResolutionFromSeed(reco::PFCluster& cluster, double& res) const;
   double dist2Time(const reco::PFCluster&, const reco::PFRecHitRef&, int cell_layer, double prev_timeres2) const;
@@ -146,13 +153,14 @@ PFlow2DClusterizerWithTime::PFlow2DClusterizerWithTime(const edm::ParameterSet& 
 
 void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& input,
                                                const std::vector<bool>& seedable,
-                                               reco::PFClusterCollection& output) {
+                                               reco::PFClusterCollection& output,
+                                               const HcalPFCuts* hcalCuts) {
   reco::PFClusterCollection clustersInTopo;
   for (const auto& topocluster : input) {
     clustersInTopo.clear();
-    seedPFClustersFromTopo(topocluster, seedable, clustersInTopo);
+    seedPFClustersFromTopo(topocluster, seedable, clustersInTopo, hcalCuts);
     const unsigned tolScal = std::pow(std::max(1.0, clustersInTopo.size() - 1.0), 2.0);
-    growPFClusters(topocluster, seedable, tolScal, 0, tolScal, clustersInTopo);
+    growPFClusters(topocluster, seedable, tolScal, 0, tolScal, clustersInTopo, hcalCuts);
     // step added by Josh Bendavid, removes low-fraction clusters
     // did not impact position resolution with fraction cut of 1e-7
     // decreases the size of each pf cluster considerably
@@ -160,12 +168,12 @@ void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& 
     // recalculate the positions of the pruned clusters
     if (_convergencePosCalc) {
       // if defined, use the special position calculation for convergence tests
-      _convergencePosCalc->calculateAndSetPositions(clustersInTopo);
+      _convergencePosCalc->calculateAndSetPositions(clustersInTopo, hcalCuts);
     } else {
       if (clustersInTopo.size() == 1 && _allCellsPosCalc) {
-        _allCellsPosCalc->calculateAndSetPosition(clustersInTopo.back());
+        _allCellsPosCalc->calculateAndSetPosition(clustersInTopo.back(), hcalCuts);
       } else {
-        _positionCalc->calculateAndSetPositions(clustersInTopo);
+        _positionCalc->calculateAndSetPositions(clustersInTopo, hcalCuts);
       }
     }
     for (auto& clusterout : clustersInTopo) {
@@ -176,7 +184,8 @@ void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& 
 
 void PFlow2DClusterizerWithTime::seedPFClustersFromTopo(const reco::PFCluster& topo,
                                                         const std::vector<bool>& seedable,
-                                                        reco::PFClusterCollection& initialPFClusters) const {
+                                                        reco::PFClusterCollection& initialPFClusters,
+                                                        const HcalPFCuts* hcalCuts) const {
   const auto& recHitFractions = topo.recHitFractions();
   for (const auto& rhf : recHitFractions) {
     if (!seedable[rhf.recHitRef().key()])
@@ -186,9 +195,9 @@ void PFlow2DClusterizerWithTime::seedPFClustersFromTopo(const reco::PFCluster& t
     current.addRecHitFraction(rhf);
     current.setSeed(rhf.recHitRef()->detId());
     if (_convergencePosCalc) {
-      _convergencePosCalc->calculateAndSetPosition(current);
+      _convergencePosCalc->calculateAndSetPosition(current, hcalCuts);
     } else {
-      _positionCalc->calculateAndSetPosition(current);
+      _positionCalc->calculateAndSetPosition(current, hcalCuts);
     }
   }
 }
@@ -198,7 +207,8 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
                                                 const unsigned toleranceScaling,
                                                 const unsigned iter,
                                                 double diff,
-                                                reco::PFClusterCollection& clusters) const {
+                                                reco::PFClusterCollection& clusters,
+                                                const HcalPFCuts* hcalCuts) const {
   if (iter >= _maxIterations) {
     LOGDRESSED("PFlow2DClusterizerWithTime:growAndStabilizePFClusters")
         << "reached " << _maxIterations << " iterations, terminated position "
@@ -216,9 +226,9 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
     clus_prev_pos.emplace_back(repp.rho(), repp.eta(), repp.phi());
     if (_convergencePosCalc) {
       if (clusters.size() == 1 && _allCellsPosCalc) {
-        _allCellsPosCalc->calculateAndSetPosition(cluster);
+        _allCellsPosCalc->calculateAndSetPosition(cluster, hcalCuts);
       } else {
-        _positionCalc->calculateAndSetPosition(cluster);
+        _positionCalc->calculateAndSetPosition(cluster, hcalCuts);
       }
     }
     double resCluster2;
@@ -243,7 +253,15 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
     if (cell_layer == PFLayer::HCAL_BARREL2 && std::abs(refhit->positionREP().eta()) > 0.34) {
       cell_layer *= 100;
     }
-    const double recHitEnergyNorm = _recHitEnergyNorms.find(cell_layer)->second;
+    double recHitEnergyNorm = _recHitEnergyNorms.find(cell_layer)->second;
+    if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in the producer code
+      if ((cell_layer == PFLayer::HCAL_BARREL1) || (cell_layer == PFLayer::HCAL_ENDCAP)) {
+        HcalDetId thisId = refhit->detId();
+        const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+        recHitEnergyNorm = item->noiseThreshold();
+      }
+    }
+
     math::XYZPoint topocellpos_xyz(refhit->position());
     dist2.clear();
     frac.clear();
@@ -307,12 +325,12 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
   double diff2 = 0.0;
   for (unsigned i = 0; i < clusters.size(); ++i) {
     if (_convergencePosCalc) {
-      _convergencePosCalc->calculateAndSetPosition(clusters[i]);
+      _convergencePosCalc->calculateAndSetPosition(clusters[i], hcalCuts);
     } else {
       if (clusters.size() == 1 && _allCellsPosCalc) {
-        _allCellsPosCalc->calculateAndSetPosition(clusters[i]);
+        _allCellsPosCalc->calculateAndSetPosition(clusters[i], hcalCuts);
       } else {
-        _positionCalc->calculateAndSetPosition(clusters[i]);
+        _positionCalc->calculateAndSetPosition(clusters[i], hcalCuts);
       }
     }
     const double delta2 = reco::deltaR2(clusters[i].positionREP(), clus_prev_pos[i]);
@@ -326,7 +344,7 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
   clus_chi2.clear();
   clus_chi2_nhits.clear();
   clus_prev_timeres2.clear();
-  growPFClusters(topo, seedable, toleranceScaling, iter + 1, diff, clusters);
+  growPFClusters(topo, seedable, toleranceScaling, iter + 1, diff, clusters, hcalCuts);
 }
 
 void PFlow2DClusterizerWithTime::prunePFClusters(reco::PFClusterCollection& clusters) const {

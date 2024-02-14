@@ -166,6 +166,9 @@ private:
   float extetaboundary_;
 
   std::vector<tensorflow::Session*> tfSessions_;
+
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB_;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -210,6 +213,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
   desc.add<int>("maxHcalRecHitSeverity", 999999);
   desc.add<bool>("hcalRun2EffDepth", false);
+  desc.add<bool>("usePFThresholdsFromDB", false);
 
   // Isolation algos configuration
   desc.add("trkIsol03Cfg", EleTkIsolFromCands::pSetDescript());
@@ -409,6 +413,12 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       resetMvaValuesUsingPFCandidates_(cfg.getParameter<bool>("resetMvaValuesUsingPFCandidates")) {
   if (resetMvaValuesUsingPFCandidates_) {
     egmPFCandidateCollection_ = consumes(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
+  }
+
+  //Retrieve HCAL PF thresholds - from config or from DB
+  cutsFromDB_ = cfg.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
   }
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
@@ -727,6 +737,11 @@ bool GsfElectronProducer::isPreselected(GsfElectron const& ele) const {
 
 // ------------ method called to produce the data  ------------
 void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
+    hcalCuts = &setup.getData(hcalCutsToken_);
+  }
+
   // check configuration
   if (!ecalSeedingParametersChecked_) {
     ecalSeedingParametersChecked_ = true;
@@ -740,7 +755,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
-  auto electrons = algo_->completeElectrons(event, setup, globalCache());
+  auto electrons = algo_->completeElectrons(event, setup, globalCache(), hcalCuts);
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
     for (auto& el : electrons) {

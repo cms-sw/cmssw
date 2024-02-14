@@ -1,5 +1,5 @@
-#ifndef HLTJetCollectionsForLeptonPlusJets_h
-#define HLTJetCollectionsForLeptonPlusJets_h
+#ifndef HLTrigger_JetMET_HLTJetCollectionsForLeptonPlusJets_h
+#define HLTrigger_JetMET_HLTJetCollectionsForLeptonPlusJets_h
 
 /** \class HLTJetCollectionsForLeptonPlusJets
  *
@@ -17,16 +17,10 @@
  */
 
 // user include files
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -40,7 +34,7 @@ template <typename jetType>
 class HLTJetCollectionsForLeptonPlusJets : public edm::stream::EDProducer<> {
 public:
   explicit HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet&);
-  ~HLTJetCollectionsForLeptonPlusJets() override;
+  ~HLTJetCollectionsForLeptonPlusJets() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -51,8 +45,7 @@ private:
   edm::InputTag hltLeptonTag;
   edm::InputTag sourceJetTag;
 
-  double minDeltaR_;  //min dR for jets and leptons not to match
-
-  // ----------member data ---------------------------
+  double minDeltaR2_;  // min dR^2 (with sign) for jets and leptons not to match
 };
-#endif  //HLTJetCollectionsForLeptonPlusJets_h
+
+#endif

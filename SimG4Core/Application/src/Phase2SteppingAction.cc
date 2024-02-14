@@ -1,5 +1,5 @@
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
-
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
@@ -13,10 +13,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-//#define DebugLog
-
-Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
-    : steppingVerbose(sv), hasWatcher(hasW) {
+Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
+                                           const edm::ParameterSet& p,
+                                           bool hasW,
+                                           bool dd4hep)
+    : steppingVerbose(sv), hasWatcher(hasW), dd4hep_(dd4hep) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
@@ -32,6 +33,11 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
+  cmseName_ = (G4String)(p.getParameter<std::string>("CMSName"));
+  trackerName_ = (G4String)(p.getParameter<std::string>("TrackerName"));
+  caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
+  btlName_ = (G4String)(p.getParameter<std::string>("BTLName"));
+  cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -40,7 +46,9 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
-      << " MaxNumberOfSteps = " << maxNumberOfSteps;
+      << " MaxNumberOfSteps = " << maxNumberOfSteps << "\n"
+      << "                 Names of special volumes: " << cmseName_ << "  " << trackerName_ << "  " << caloName_ << "  "
+      << btlName_;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -168,13 +176,13 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
                                          << " IdAtBTLentrance = " << trkinfo->mcTruthID();
 #endif
       } else {
         trkinfo->setBTLlooper();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
 #endif
       }
@@ -183,7 +191,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromBTLtoT()) {
         trkinfo->setFromBTLtoT();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
 #endif
       }
@@ -193,21 +201,33 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
       }
-    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == cmse) {
+    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() != calo) {
+      bool backscattering(false);
+      if (postStep->GetPhysicalVolume() == tracker) {
+        backscattering = true;
+      } else if (postStep->GetPhysicalVolume() == cmse) {
+        // simple protection to avoid possible steps from calo towards the outer part of the detector, if allowed by geometry
+        // to be removed as soon as tracker-calo boundary becomes again the default
+        if (preStep->GetPosition().mag2() > postStep->GetPosition().mag2()) {
+          backscattering = true;
+        }
+      }
       // store transition calo -> cmse to tag backscattering
-      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->isInTrkFromBackscattering()) {
-        trkinfo->setInTrkFromBackscattering();
-#ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for backscattering from CALO "
-                                         << trkinfo->isInTrkFromBackscattering();
+      if (backscattering) {
+        TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+        if (!trkinfo->isInTrkFromBackscattering()) {
+          trkinfo->setInTrkFromBackscattering();
+#ifdef EDM_ML_DEBUG
+          LogDebug("SimG4CoreApplication")
+              << "Setting flag for backscattering from CALO " << trkinfo->isInTrkFromBackscattering();
 #endif
+        }
       }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
     isKilled = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     PrintKilledTrack(theTrack, tstat);
 #endif
   }
@@ -236,14 +256,14 @@ bool Phase2SteppingAction::isLowEnergy(const G4LogicalVolume* lv, const G4Track*
 bool Phase2SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
-    const G4String& pvname = pvcite->GetName();
-    if (pvname == "Tracker" || pvname == "tracker:Tracker_1") {
+    const std::string& pvname = (std::string)(DD4hep2DDDName::namePV(pvcite->GetName(), dd4hep_));
+    if (pvname == trackerName_) {
       tracker = pvcite;
-    } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
+    } else if (pvname == caloName_) {
       calo = pvcite;
-    } else if (pvname == "BarrelTimingLayer" || pvname == "btl:BarrelTimingLayer_1") {
+    } else if (pvname == btlName_) {
       btl = pvcite;
-    } else if (pvname == "CMSE" || pvname == "cms:CMSE_1") {
+    } else if (pvname == cmseName_) {
       cmse = pvcite;
     }
     if (tracker && calo && btl && cmse)
@@ -256,9 +276,9 @@ bool Phase2SteppingAction::initPointer() {
   if (numberEkins > 0) {
     ekinVolumes.resize(numberEkins, nullptr);
     for (auto const& lvcite : *lvs) {
-      const G4String& lvname = lvcite->GetName();
+      std::string lvname = (std::string)(DD4hep2DDDName::nameMatterLV(lvcite->GetName(), dd4hep_));
       for (unsigned int i = 0; i < numberEkins; ++i) {
-        if (lvname == (G4String)(ekinNames[i])) {
+        if (lvname == ekinNames[i]) {
           ekinVolumes[i] = lvcite;
           break;
         }

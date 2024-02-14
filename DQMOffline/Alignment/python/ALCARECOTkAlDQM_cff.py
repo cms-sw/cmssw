@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi
+import DQM.TrackingMonitor.V0Monitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 import DQMOffline.Alignment.DiMuonVertexMonitor_cfi
 import DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi
@@ -78,7 +79,11 @@ ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi
     muonTracks = 'ALCARECO'+__trackCollName,
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
-    maxSVdist = 50
+    maxSVdist = 50,
+    SVDistConfig = dict(maxDeltaEta = 3.7, title = 'PV - Z Vertex distance'),
+    SVDistSigConfig = dict(maxDeltaEta = 3.7, title = 'PV - Z Vertex distance significance'),
+    SVDist3DConfig = dict(maxDeltaEta = 3.7, title = 'PV - Z Vertex 3D distance'),
+    SVDist3DSigConfig = dict(maxDeltaEta = 3.7, title = 'PV - Z Vertex 3D distance significance')
 )
 
 ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -166,10 +171,10 @@ ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuon
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50,
     CosPhi3DConfig = dict(maxDeltaEta = 1.3),
-    SVDistConfig = dict(maxDeltaEta = 1.3),
-    SVDistSigConfig = dict(maxDeltaEta = 1.3),
-    SVDist3DConfig = dict(maxDeltaEta = 1.3),
-    SVDist3DSigConfig = dict(maxDeltaEta = 1.3)
+    SVDistConfig = dict(maxDeltaEta = 1.3, title = 'PV - J/#psi Vertex distance'),
+    SVDistSigConfig = dict(maxDeltaEta = 1.3, title = 'PV - J/#psi Vertex distance significance'),
+    SVDist3DConfig = dict(maxDeltaEta = 1.3, title = 'PV - J/#psi Vertex 3D distance'),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.3, title = 'PV - J/#psi Vertex 3D distance significance')
 )
 
 ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -241,10 +246,10 @@ ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiM
     FolderName = "AlCaReco/"+__selectionName,
     maxSVdist = 50,
     CosPhi3DConfig = dict(maxDeltaEta = 1.6),
-    SVDistConfig = dict(maxDeltaEta = 1.6),
-    SVDistSigConfig = dict(maxDeltaEta = 1.6),
-    SVDist3DConfig = dict(maxDeltaEta = 1.6),
-    SVDist3DSigConfig = dict(maxDeltaEta = 1.6)
+    SVDistConfig = dict(maxDeltaEta = 1.6, title = 'PV - #Upsilon Vertex distance'),
+    SVDistSigConfig = dict(maxDeltaEta = 1.6, title = 'PV - #Upsilon Vertex distance significance'),
+    SVDist3DConfig = dict(maxDeltaEta = 1.6, title = 'PV - #Upsilon Vertex 3D distance'),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.6, title = 'PV - #Upsilon Vertex 3D distance significance')
 )
 
 ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -359,6 +364,96 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 )
 
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM )
+
+########################################################
+#############---  TkAlKshorts ---#######################
+########################################################
+__selectionName = 'TkAlKShortTracks'
+ALCARECOTkAlKShortTracksTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    doSIPPlots = True,
+    doDCAPlots = True,
+    doDCAwrt000Plots = True,
+    doDCAwrtPVPlots = True,
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlKShortTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+# Added module for V0Monitoring
+ALCARECOTkAlKShortMonitor = DQM.TrackingMonitor.V0Monitor_cfi.v0Monitor.clone(
+    FolderName = "AlCaReco/"+__selectionName+"/KsCandidates",
+    v0         = "generalV0Candidates:Kshort")
+
+ALCARECOTkAlKShortMonitor.histoPSet.massPSet = cms.PSet(nbins = cms.int32 (100),
+                                                        xmin  = cms.double(0.400),
+                                                        xmax  = cms.double(0.600))
+
+ALCARECOTkAlKShortTracksDQM = cms.Sequence( ALCARECOTkAlKShortTracksTrackingDQM + ALCARECOTkAlKShortTracksTkAlDQM + ALCARECOTkAlKShortMonitor)
+
+########################################################
+#############---  TkAlLambdas ---#######################
+########################################################
+__selectionName = 'TkAlLambdaTracks'
+ALCARECOTkAlLambdaTracksTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    doSIPPlots = True,
+    doDCAPlots = True,
+    doDCAwrt000Plots = True,
+    doDCAwrtPVPlots = True,
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlLambdaTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+# Added module for V0Monitoring
+ALCARECOLambdaMonitor = DQM.TrackingMonitor.V0Monitor_cfi.v0Monitor.clone(
+    FolderName = "AlCaReco/"+__selectionName+"/LambdaCandidates",
+    v0 = "generalV0Candidates:Lambda")
+
+ALCARECOLambdaMonitor.histoPSet.massPSet = cms.PSet(nbins = cms.int32(100),
+                                            xmin  = cms.double(1.050),
+                                            xmax  = cms.double(1.250))
+
+ALCARECOTkAlLambdaTracksDQM = cms.Sequence( ALCARECOTkAlLambdaTracksTrackingDQM + ALCARECOTkAlLambdaTracksTkAlDQM + ALCARECOLambdaMonitor)
 
 ########################################################
 #############---  TkAlJetHT ---#######################

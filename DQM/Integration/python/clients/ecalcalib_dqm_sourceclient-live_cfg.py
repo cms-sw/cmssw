@@ -159,10 +159,8 @@ process.preScaler.prescaleFactor = 1
 
 process.source.streamLabel = "streamDQMCalibration"
 
-
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
-
 
 process.ecalLaserLedMonitorTask.verbosity = 0
 process.ecalLaserLedMonitorTask.collectionTags.EBLaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"

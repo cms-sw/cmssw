@@ -13,6 +13,9 @@ public:
                      float eta,
                      float phi,
                      float m,
+                     float rawEnergy,
+                     float preshowerEnergy,
+                     float corrEcalEnergyError,
                      float sigmaIetaIeta,
                      float hOverE,
                      float ecalIso,
@@ -22,6 +25,8 @@ public:
                      float sMin,
                      float sMaj,
                      uint32_t seedId,
+                     uint32_t nClusters,
+                     uint32_t nCrystals,
                      std::vector<float> energyMatrix,
                      std::vector<uint32_t> detIds,
                      std::vector<float> timingMatrix,
@@ -30,6 +35,9 @@ public:
         eta_(eta),
         phi_(phi),
         m_(m),
+        rawEnergy_(rawEnergy),
+        preshowerEnergy_(preshowerEnergy),
+        corrEcalEnergyError_(corrEcalEnergyError),
         sigmaIetaIeta_(sigmaIetaIeta),
         hOverE_(hOverE),
         ecalIso_(ecalIso),
@@ -39,6 +47,8 @@ public:
         sMin_(sMin),
         sMaj_(sMaj),
         seedId_(seedId),
+        nClusters_(nClusters),
+        nCrystals_(nCrystals),
         energyMatrix_(std::move(energyMatrix)),
         detIds_(std::move(detIds)),
         timingMatrix_(std::move(timingMatrix)),
@@ -49,6 +59,9 @@ public:
         eta_(0),
         phi_(0),
         m_(0),
+        rawEnergy_(0),
+        preshowerEnergy_(0),
+        corrEcalEnergyError_(0),
         sigmaIetaIeta_(0),
         hOverE_(0),
         ecalIso_(0),
@@ -58,6 +71,8 @@ public:
         sMin_(0),
         sMaj_(0),
         seedId_(0),
+        nClusters_(0),
+        nCrystals_(0),
         energyMatrix_(0),
         timingMatrix_(0),
         rechitZeroSuppression_(false) {}
@@ -67,6 +82,9 @@ public:
   float eta() const { return eta_; }
   float phi() const { return phi_; }
   float m() const { return m_; }
+  float rawEnergy() const { return rawEnergy_; }
+  float preshowerEnergy() const { return preshowerEnergy_; }
+  float corrEcalEnergyError() const { return corrEcalEnergyError_; }
   float sigmaIetaIeta() const { return sigmaIetaIeta_; }
   float hOverE() const { return hOverE_; }
   float ecalIso() const { return ecalIso_; }
@@ -76,6 +94,8 @@ public:
   float sMin() const { return sMin_; }
   float sMaj() const { return sMaj_; }
   uint32_t seedId() const { return seedId_; }
+  uint32_t nClusters() const { return nClusters_; }
+  uint32_t nCrystals() const { return nCrystals_; }
   std::vector<float> const& energyMatrix() const { return energyMatrix_; }
   std::vector<uint32_t> const& detIds() const { return detIds_; }
   std::vector<float> const& timingMatrix() const { return timingMatrix_; }
@@ -86,6 +106,9 @@ private:
   float eta_;
   float phi_;
   float m_;
+  float rawEnergy_;
+  float preshowerEnergy_;
+  float corrEcalEnergyError_;
   float sigmaIetaIeta_;
   float hOverE_;
   float ecalIso_;
@@ -95,6 +118,8 @@ private:
   float sMin_;
   float sMaj_;
   uint32_t seedId_;
+  uint32_t nClusters_;
+  uint32_t nCrystals_;
   std::vector<float> energyMatrix_;
   std::vector<uint32_t> detIds_;
   std::vector<float> timingMatrix_;

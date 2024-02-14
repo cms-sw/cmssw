@@ -90,7 +90,7 @@ namespace edm {
       //Setup various singletons
       (void)oneTimeInitialization();
 
-      ProcessDescImpl desc(iConfig.pythonConfiguration());
+      ProcessDescImpl desc(iConfig.pythonConfiguration(), false);
 
       auto psetPtr = desc.parameterSet();
       moduleTypeResolverMaker_ = makeModuleTypeResolverMaker(*psetPtr);
@@ -413,11 +413,11 @@ namespace edm {
       // Since the test os also allowed to do so, it can lead to problems.
       //pathsAndConsumesOfModules.initialize(schedule_.get(), preg_);
 
+      espController_->finishConfiguration();
+      actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
       //NOTE: this may throw
       //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
       actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext_);
-
-      espController_->finishConfiguration();
 
       schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
       actReg_->postBeginJobSignal_();

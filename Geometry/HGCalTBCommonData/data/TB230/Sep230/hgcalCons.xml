@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalCons.xml" eval="true">
+   <Constant name="MinimumTileSize"        value="10.0*mm"/>
+   <Vector name="RadiusMixBoundary" type="numeric" nEntries="2">
+     0.0*mm, 0.0*mm </Vector>
+   <Vector name="ZRanges" type="numeric" nEntries="2">
+     [hgcal:zHGCalEE1], [hgcal:zHGCalEE2] </Vector>
+  <Vector name="LayerCenter" type="numeric" nEntries="2">
+    0, 0 </Vector>
+</ConstantsSection>
+
+<SpecParSection label="hgcalCons.xml" eval="true">
+  <SpecPar name="HGCalEELayer">
+    <PartSelector path="//HGCalEELayer.*"/>    
+    <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Cassette" eval="false"/>
+    <Parameter name="LevelZSide"          value="3"/>
+    <Parameter name="LevelTop"            value="9"/>
+    <Parameter name="LevelTop"            value="12"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="FirstMixedLayer"     value="-1"/>
+    <Parameter name="LayerOffset"         value="0"/>
+    <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="UseSimWt"            value="0"/>
+    <Parameter name="WaferMaskMode"       value="5"/>
+    <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
+    <Parameter name="Cassettes"           value="0"/>
+    <Parameter name="Radius100to200"      value="0.0*mm"/>
+    <Parameter name="Radius100to200"      value="0.0*mm"/>
+    <Parameter name="Radius100to200"      value="0.0*mm"/>
+    <Parameter name="Radius100to200"      value="0.0*mm"/> 
+    <Parameter name="Radius100to200"      value="0.0*mm"/>
+    <Parameter name="Radius200to300"      value="0.0*mm"/>
+    <Parameter name="Radius200to300"      value="0.0*mm"/>
+    <Parameter name="Radius200to300"      value="0.0*mm"/>
+    <Parameter name="Radius200to300"      value="0.0*mm"/>
+    <Parameter name="Radius200to300"      value="0.0*mm"/>
+    <Parameter name="RadiusCuts"          value="0"/>
+    <Parameter name="RadiusCuts"          value="2"/>
+    <Parameter name="RadiusCuts"          value="0.2"/>
+    <Parameter name="RadiusCuts"          value="0.0*mm"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="SlopeBottom"         value="0"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCalEE1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCalEE2]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rHGCalEE1]"/>
+    <Parameter name="RMinFront"           value="[hgcal:rHGCalEE1]"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="SlopeTop"            value="0"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCalEE1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCalEE2]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rHGCalEE2]"/>
+    <Parameter name="RMaxFront"           value="[hgcal:rHGCalEE2]"/>
+  </SpecPar>
+  <SpecPar name="HGCalEESensitive">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+  </SpecPar>
+  <SpecPar name="HGCal">
+    <PartSelector path="//HGCalEECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
+    <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
+    <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
+    <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>
+    <Parameter name="GuardRingOffset"     value="[hgcal:GuardRingOffset]"/>
+    <Parameter name="MouseBite"           value="[hgcal:MouseBite]"/>
+    <Parameter name="UseOffset"           value="0"/>
+    <Parameter name="NumberOfCellsFine"   value="[hgcal:NumberOfCellsCoarse]"/>
+    <Parameter name="NumberOfCellsCoarse" value="[hgcal:NumberOfCellsCoarse]"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

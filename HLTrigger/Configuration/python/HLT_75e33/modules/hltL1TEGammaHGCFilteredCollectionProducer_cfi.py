@@ -6,7 +6,7 @@ hltL1TEGammaHGCFilteredCollectionProducer = cms.EDProducer("L1TEGammaFilteredCol
     maxBX = cms.int32(1),
     minBX = cms.int32(-1),
     minPt = cms.double(5.0),
-    qualIsMask = cms.bool(False),
-    quality = cms.int32(5),
+    qualIsMask = cms.bool(True),
+    quality = cms.int32(1),
     scalings = cms.vdouble(3.17445, 1.13219, 0.0)
 )

@@ -246,7 +246,7 @@
     <Include ref='Geometry/MuonCommonData/data/rpcf/2021/v2/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/gem21/2023/v1/gem21.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gem21/2023/v2/gem21.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v3/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/2021/v5/muonNumbering.xml'/>
@@ -261,8 +261,8 @@
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumirotations.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v2/zdc.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/rpd/2021/v1/rpd.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box/v3/RP_Box_000.xml'/>
@@ -369,14 +369,14 @@
     <Include ref='Geometry/ForwardCommonData/data/bhmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/pltsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bcm1fsens.xml'/>
-    <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
+    <Include ref='Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml'/>
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2021/v2/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/ESProdCuts.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v3/muonProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml'/>
-    <Include ref='Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml'/>
+    <Include ref='Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
 </DDDefinition>

@@ -21,9 +21,7 @@ int main() {
   for (int i = 0; i < devices; ++i) {
     hipDeviceProp_t properties;
     hipCheck(hipGetDeviceProperties(&properties, i));
-    std::stringstream arch;
-    arch << "gfx" << properties.gcnArch;
-    std::cout << std::setw(4) << i << "    " << std::setw(8) << arch.str() << "    " << properties.name;
+    std::cout << std::setw(4) << i << "    " << std::setw(8) << properties.gcnArchName << "    " << properties.name;
     if (not isRocmDeviceSupported(i)) {
       std::cout << " (unsupported)";
     }

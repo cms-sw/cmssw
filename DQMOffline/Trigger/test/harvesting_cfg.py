@@ -19,10 +19,7 @@ parser.add_argument('-s', '--nStreams', type = int, help = 'Number of EDM stream
 parser.add_argument('-i', '--inputFiles', nargs = '+', help = 'List of DQMIO input files',
                     default = ['file:testHLTFiltersDQMonitor_DQMIO.root'])
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove('--')
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 # Process
 process = cms.Process('HARVESTING')

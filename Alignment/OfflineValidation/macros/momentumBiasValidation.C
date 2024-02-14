@@ -40,8 +40,8 @@ namespace eop {
     double mean = f1->GetParameter(1);
     double deviation = f1->GetParameter(2);
 
-    double lowLim;
-    double upLim;
+    double lowLim{mean - (2.0 * deviation)};
+    double upLim{mean + (2.0 * deviation)};
     double newmean;
 
     double degrade = 0.05;

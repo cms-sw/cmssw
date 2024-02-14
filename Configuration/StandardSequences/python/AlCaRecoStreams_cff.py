@@ -33,6 +33,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 # AlCaReco for track based alignment using JetHT events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_cff import *
+# AlCaReco for track based alignment using V0s
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlV0s_cff import *
 
 ###############################################################
 # Tracker Calibration
@@ -166,6 +168,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleM
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHGDiMuon_cff import *
 
 from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
@@ -196,6 +199,8 @@ pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUp
 pathALCARECOTkAlUpsilonMuMuPA = cms.Path(seqALCARECOTkAlUpsilonMuMuPA*ALCARECOTkAlUpsilonMuMuPADQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOTkAlJetHT = cms.Path(seqALCARECOTkAlJetHT*ALCARECOTkAlJetHTDQM)
+pathALCARECOTkAlK0s = cms.Path(seqALCARECOTkAlK0s*ALCARECOTkAlKShortTracksDQM)
+pathALCARECOTkAlLambdas = cms.Path(seqALCARECOTkAlLambdas*ALCARECOTkAlLambdaTracksDQM)
 pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
 pathALCARECOSiPixelCalSingleMuonLoose = cms.Path(seqALCARECOSiPixelCalSingleMuonLoose)
 pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuonTight * ALCARECOSiPixelCalSingleMuonTightDQM)
@@ -290,6 +295,8 @@ pathALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Path(seqALCARECOPromptCalib
 pathALCARECOPromptCalibProdSiPixelLorentzAngleMCS = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngleMCS)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdSiPixelAliHG = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHG)
+pathALCARECOPromptCalibProdSiPixelAliHGMinBias = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHG)
+pathALCARECOPromptCalibProdSiPixelAliHGDiMu = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHGDiMu)
 pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
 pathALCARECOPromptCalibProdEcalPedestals = cms.Path(seqALCARECOPromptCalibProdEcalPedestals)
 pathALCARECOPromptCalibProdLumiPCC = cms.Path(seqALCARECOPromptCalibProdLumiPCC)
@@ -407,6 +414,15 @@ ALCARECOStreamTkAlUpsilonMuMuPA = cms.FilteredStream(
         paths  = (pathALCARECOTkAlUpsilonMuMuPA),
         content = OutALCARECOTkAlUpsilonMuMuPA.outputCommands,
         selectEvents = OutALCARECOTkAlUpsilonMuMuPA.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+ALCARECOStreamTkAlV0s = cms.FilteredStream(
+        responsible = 'Marco Musich',
+        name = 'TkAlV0s',
+        paths  = (pathALCARECOTkAlK0s,pathALCARECOTkAlLambdas),
+        content =  OutALCARECOTkAlV0s.outputCommands,
+        selectEvents = OutALCARECOTkAlV0s.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
@@ -1064,6 +1080,15 @@ ALCARECOStreamPromptCalibProdSiPixelAliHG = cms.FilteredStream(
 	paths  = (pathALCARECOPromptCalibProdSiPixelAliHG),
 	content = OutALCARECOPromptCalibProdSiPixelAliHG.outputCommands,
 	selectEvents = OutALCARECOPromptCalibProdSiPixelAliHG.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamPromptCalibProdSiPixelAliHGComb = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'PromptCalibProdSiPixelAliHGComb',
+	paths  = (pathALCARECOPromptCalibProdSiPixelAliHGMinBias,pathALCARECOPromptCalibProdSiPixelAliHGDiMu),
+	content = OutALCARECOPromptCalibProdSiPixelAliHGComb.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdSiPixelAliHGComb.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

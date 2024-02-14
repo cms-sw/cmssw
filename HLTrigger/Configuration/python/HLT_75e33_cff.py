@@ -105,6 +105,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_Unseeded_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele115_NonIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu24_FromL1TkMuon_cfi")
@@ -234,8 +235,18 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForElectr
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
 
-fragment.schedule = cms.Schedule(*[
+fragment.load('L1Trigger.Configuration.GTemulator_cff')
+fragment.l1tGTProducer.GMTTkMuons = cms.InputTag("l1tTkMuonsGmt")
+fragment.GTemulatorTask = cms.Task(fragment.l1tGTProducer, fragment.l1tGTAlgoBlockProducer)
+fragment.GTemulation_step = cms.Path(cms.Sequence(fragment.GTemulatorTask))
+fragment.load('L1Trigger.Phase2L1GT.l1tGTMenu_cff')
+from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import collectAlgorithmPaths
 
+fragment.schedule = cms.Schedule(*[
+    
+    fragment.GTemulation_step,
+    *collectAlgorithmPaths(fragment),
+    
     fragment.L1T_SinglePFPuppiJet230off,
     fragment.L1T_PFPuppiHT450off,
     fragment.L1T_PFPuppiMET220off,
@@ -280,6 +291,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_DoubleEle25_CaloIdL_PMS2_Unseeded,
     fragment.HLT_Diphoton30_23_IsoCaloId_Unseeded,
     fragment.HLT_Ele32_WPTight_L1Seeded,
+    fragment.HLT_Ele115_NonIso_L1Seeded,
     fragment.HLT_Ele26_WP70_L1Seeded,
     fragment.HLT_Photon108EB_TightID_TightIso_L1Seeded,
     fragment.HLT_Photon187_L1Seeded,
@@ -288,7 +300,8 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_Diphoton30_23_IsoCaloId_L1Seeded,
 
     fragment.HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1,
-    fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
+    ### Removed temporarily until solution of https://github.com/cms-sw/cmssw/issues/42862
+    #fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
 
     ### Removed temporarily until final decision on L1T tau Phase-2
     #fragment.L1T_DoubleNNTau52,

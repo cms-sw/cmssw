@@ -7,7 +7,7 @@ status=0
   
 rm -f u15_infos.log u15_debugs.log  
 
-cmsRun -p ${SCRAM_TEST_PATH}/u15_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u15_cfg.py || exit $?
  
 for file in u15_infos.log u15_debugs.log    
 do

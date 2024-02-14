@@ -28,7 +28,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -40,16 +39,23 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/WeightedMeanFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-//#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexFitterBase.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/SequentialPrimaryVertexFitterAdapter.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/AdaptiveChisquarePrimaryVertexFitter.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/WeightedMeanFitter.h"
+
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+// vertex timing
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexTimeAlgorithmBase.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexTimeAlgorithmFromTracksPID.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexTimeAlgorithmLegacy4D.h"
+
 //
 // class declaration
 //
@@ -75,11 +81,12 @@ private:
 
   // vtx fitting algorithms
   struct algo {
-    VertexFitter<5>* fitter;
+    PrimaryVertexFitterBase* pv_fitter;
     VertexCompatibleWithBeam* vertexSelector;
     std::string label;
     bool useBeamConstraint;
     double minNdof;
+    VertexTimeAlgorithmBase* pv_time_estimator;
   };
 
   std::vector<algo> algorithms;
@@ -94,7 +101,11 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> trkToken;
   edm::EDGetTokenT<edm::ValueMap<float> > trkTimesToken;
   edm::EDGetTokenT<edm::ValueMap<float> > trkTimeResosToken;
+  edm::EDGetTokenT<edm::ValueMap<float> > trackMTDTimeQualityToken;
 
-  bool f4D;
-  bool weightFit;
+  bool useTransientTrackTime_;
+  bool useMVASelection_;
+  edm::ValueMap<float> trackMTDTimeQualities_;
+  edm::ValueMap<float> trackTimes_;
+  double minTrackTimeQuality_;
 };

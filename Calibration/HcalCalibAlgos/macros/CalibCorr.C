@@ -112,28 +112,32 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug = false
   if (debug) {
     std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << " Flag " << truncateFlag << std::endl;
   }
+  int truncate0 = ((truncateFlag / 1) % 10);
+  int truncate1 = ((truncateFlag / 10) % 10);
   int subdet, depth, zside, ieta, iphi;
   unpackDetId(detId, subdet, zside, ieta, iphi, depth);
-  if (truncateFlag == 1) {
+  if (truncate1 == 1)
+    zside = 1;
+  if (truncate0 == 1) {
     //Ignore depth index of ieta values of 15 and 16 of HB
     if ((subdet == 1) && (ieta > 14))
       depth = 1;
-  } else if (truncateFlag == 2) {
+  } else if (truncate0 == 2) {
     //Ignore depth index of all ieta values
     depth = 1;
-  } else if (truncateFlag == 3) {
+  } else if (truncate0 == 3) {
     //Ignore depth index for depth > 1 in HE
     if ((subdet == 2) && (depth > 1))
       depth = 2;
     else
       depth = 1;
-  } else if (truncateFlag == 4) {
+  } else if (truncate0 == 4) {
     //Ignore depth index for depth > 1 in HB
     if ((subdet == 1) && (depth > 1))
       depth = 2;
     else
       depth = 1;
-  } else if (truncateFlag == 5) {
+  } else if (truncate0 == 5) {
     //Ignore depth index for depth > 1 in HB and HE
     if (depth > 1)
       depth = 2;
@@ -174,16 +178,17 @@ unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
 bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
 
 int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int truncate0 = ((truncateFlag / 1) % 10);
   int d(depth);
-  if (truncateFlag == 5) {
+  if (truncate0 == 5) {
     d = (depth == 1) ? 1 : 2;
-  } else if (truncateFlag == 4) {
+  } else if (truncate0 == 4) {
     d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 3) {
+  } else if (truncate0 == 3) {
     d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
-  } else if (truncateFlag == 2) {
+  } else if (truncate0 == 2) {
     d = 1;
-  } else if (truncateFlag == 1) {
+  } else if (truncate0 == 1) {
     d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
   }
   return d;
@@ -372,6 +377,23 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       const double CONST_COR_COEF[6] = {0.980941, 0.973156, 0.970749, 0.726582, 0.532628, 0.473727};
       const double LINEAR_COR_COEF[6] = {-0.0770642, -0.178295, -0.241338, -0.122956, -0.122346, -0.112574};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0401732, 0.00989908, 0.0108291, 0.0100508};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 10) {  // MAHI (Jan, 2023)
+      const double CONST_COR_COEF[6] = {0.987967, 0.983376, 0.954840, 0.676950, 0.513111, 0.430349};
+      const double LINEAR_COR_COEF[6] = {-0.0399269, -0.101755, -0.156848, -0.0969012 - 0.107831, -0.0911755};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0133473, 0.00727513, 0.00863409, 0.00727055};
       const int PU_IETA_1 = 7;
       const int PU_IETA_2 = 16;
       const int PU_IETA_3 = 25;

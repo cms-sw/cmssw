@@ -42,9 +42,10 @@ TEST_CASE("Configuration", s_tag) {
   const std::string baseConfig_cuda = makeConfig(test1, test2, "'gpu-nvidia'");
 
   SECTION("Configuration hash is not changed") {
-    auto pset_auto = edm::readConfig(baseConfig_auto);
-    auto pset_cpu = edm::readConfig(baseConfig_cpu);
-    auto pset_cuda = edm::readConfig(baseConfig_cuda);
+    std::unique_ptr<edm::ParameterSet> pset_auto, pset_cpu, pset_cuda;
+    edm::makeParameterSets(baseConfig_auto, pset_auto);
+    edm::makeParameterSets(baseConfig_cpu, pset_cpu);
+    edm::makeParameterSets(baseConfig_cuda, pset_cuda);
     pset_auto->registerIt();
     pset_cpu->registerIt();
     pset_cuda->registerIt();

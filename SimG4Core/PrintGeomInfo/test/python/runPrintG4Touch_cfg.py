@@ -1,29 +1,22 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun grunPrintG4Touch_cfg.py geometry=D98 type=DDD
+#   cmsRun grunPrintG4Touch_cfg.py geometry=2021
 #
-#   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99, D100,
-#                        D101
-#   Options for type DDD, DD4hep
+#   Options for geometry 2016, 2017, 2018, 2021, 2023
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101")
-options.register('type',
-                 "DDD",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "type of operations: DDD, DD4hep")
+                  "geometry of operations: 2016, 2017, 2018, 2021, 2023")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -32,24 +25,21 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-if (options.type == "DD4hep"):
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
-    if (options.geometry == "D94"):
-        from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-        process = cms.Process('PrintG4Solids',Phase2C20I13M9,dd4hep)
-    else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('PrintG4Solids',Phase2C17I13M9,dd4hep)
+geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+
+if (options.geometry == "2016"):
+    from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+    process = cms.Process('PrintG4Touch',Run2_2016)
+elif (options.geometry == "2017"):
+    from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+    process = cms.Process('PrintG4Touch',Run2_2017)
+elif (options.geometry == "2018"):
+    from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+    process = cms.Process('PrintG4Touch',Run2_2018)
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-    if (options.geometry == "D94"):
-        from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-        process = cms.Process('PrintG4Solids',Phase2C20I13M9)
-    else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('PrintG4Solids',Phase2C17I13M9)
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('PrintG4Touch',Run3_DDD)
 
 print("Geometry file Name: ", geomFile)
 
@@ -94,13 +84,8 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.LHCTransport = False
 
-if (options.type == "DD4hep"):
-    dd4hep = True
-else:
-    dd4hep = False
-
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-    dd4hep         = cms.untracked.bool(dd4hep),
+    dd4hep         = cms.untracked.bool(False),
     verbosity      = cms.untracked.bool(False),
     type           = cms.string('PrintG4Touch')
 ))

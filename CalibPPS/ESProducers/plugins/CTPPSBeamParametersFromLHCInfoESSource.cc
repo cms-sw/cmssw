@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
@@ -31,7 +31,10 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
 
   CTPPSBeamParameters defaultParameters_;
 };
@@ -39,8 +42,12 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(const edm::ParameterSet& iConfig)
-    : lhcInfoToken_(
-          setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))) {
+    : useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")) {
+  auto cc = setWhatProduced(this);
+  lhcInfoToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")));
+  lhcInfoPerLSToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")));
+  lhcInfoPerFillToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")));
+
   defaultParameters_.setBeamDivergenceX45(iConfig.getParameter<double>("beamDivX45"));
   defaultParameters_.setBeamDivergenceY45(iConfig.getParameter<double>("beamDivX56"));
   defaultParameters_.setBeamDivergenceX56(iConfig.getParameter<double>("beamDivY45"));
@@ -62,13 +69,16 @@ CTPPSBeamParametersFromLHCInfoESSource::CTPPSBeamParametersFromLHCInfoESSource(c
 
 std::unique_ptr<CTPPSBeamParameters> CTPPSBeamParametersFromLHCInfoESSource::produce(
     const CTPPSBeamParametersRcd& iRecord) {
-  LHCInfo const& lhcInfo = iRecord.get(lhcInfoToken_);
+  auto lhcInfoCombined =
+      LHCInfoCombined::createLHCInfoCombined<CTPPSBeamParametersRcd,
+                                             edm::mpl::Vector<LHCInfoRcd, LHCInfoPerFillRcd, LHCInfoPerLSRcd>>(
+          iRecord, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
 
   auto bp = std::make_unique<CTPPSBeamParameters>(defaultParameters_);
 
-  const auto beamMom = lhcInfo.energy();
-  const auto betaStar = lhcInfo.betaStar() * 1E2;      // conversion m --> cm
-  const auto xangle = lhcInfo.crossingAngle() * 1E-6;  // conversion mu rad --> rad
+  const auto beamMom = lhcInfoCombined.energy;
+  const auto betaStar = lhcInfoCombined.betaStarX * 1E2;       // conversion m --> cm
+  const auto xangle = lhcInfoCombined.crossingAngle() * 1E-6;  // conversion mu rad --> rad
 
   bp->setBeamMom45(beamMom);
   bp->setBeamMom56(beamMom);
@@ -92,6 +102,9 @@ void CTPPSBeamParametersFromLHCInfoESSource::fillDescriptions(edm::Configuration
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("lhcInfoLabel", "");
+  desc.add<std::string>("lhcInfoPerLSLabel", "");
+  desc.add<std::string>("lhcInfoPerFillLabel", "");
+  desc.add<bool>("useNewLHCInfo", false);
 
   // beam divergence (rad)
   desc.add<double>("beamDivX45", 0.1);
@@ -112,7 +125,7 @@ void CTPPSBeamParametersFromLHCInfoESSource::fillDescriptions(edm::Configuration
   desc.add<double>("vtxStddevY", 2.e-2);
   desc.add<double>("vtxStddevZ", 2.e-2);
 
-  descriptions.add("ctppsBeamParametersFromLHCInfoESSource", desc);
+  descriptions.add("ctppsBeamParametersFromLHCInfoESSourceDefault", desc);
 }
 
 //----------------------------------------------------------------------------------------------------

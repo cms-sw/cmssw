@@ -278,21 +278,23 @@ namespace edm {
     std::map<std::string, int> cumulates_;
     bool listContent_;
     bool listProvenance_;
+    bool listPathStatus_;
   };
 
   //
   // constructors and destructor
   //
   EventContentAnalyzer::EventContentAnalyzer(ParameterSet const& iConfig)
-      : indentation_(iConfig.getUntrackedParameter("indentation", std::string("++"))),
-        verboseIndentation_(iConfig.getUntrackedParameter("verboseIndentation", std::string("  "))),
-        moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels", std::vector<std::string>())),
-        verbose_(iConfig.getUntrackedParameter("verbose", false) || !moduleLabels_.empty()),
-        getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels", std::vector<std::string>())),
-        getData_(iConfig.getUntrackedParameter("getData", false) || !getModuleLabels_.empty()),
+      : indentation_(iConfig.getUntrackedParameter<std::string>("indentation")),
+        verboseIndentation_(iConfig.getUntrackedParameter<std::string>("verboseIndentation")),
+        moduleLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("verboseForModuleLabels")),
+        verbose_(iConfig.getUntrackedParameter<bool>("verbose") || !moduleLabels_.empty()),
+        getModuleLabels_(iConfig.getUntrackedParameter<std::vector<std::string>>("getDataForModuleLabels")),
+        getData_(iConfig.getUntrackedParameter<bool>("getData") || !getModuleLabels_.empty()),
         evno_(1),
-        listContent_(iConfig.getUntrackedParameter("listContent", true)),
-        listProvenance_(iConfig.getUntrackedParameter("listProvenance", false)) {
+        listContent_(iConfig.getUntrackedParameter<bool>("listContent")),
+        listProvenance_(iConfig.getUntrackedParameter<bool>("listProvenance")),
+        listPathStatus_(iConfig.getUntrackedParameter<bool>("listPathStatus")) {
     //now do what ever initialization is needed
     sort_all(moduleLabels_);
     sort_all(getModuleLabels_);
@@ -347,7 +349,7 @@ namespace edm {
       std::string const& className = provenance->className();
       const std::string kPathStatus("edm::PathStatus");
       const std::string kEndPathStatus("edm::EndPathStatus");
-      if (className == kPathStatus || className == kEndPathStatus) {
+      if (not listPathStatus_ and (className == kPathStatus || className == kEndPathStatus)) {
         continue;
       }
       std::string const& friendlyName = provenance->friendlyClassName();
@@ -448,36 +450,39 @@ namespace edm {
     ParameterDescriptionNode* np;
 
     std::string defaultString("++");
-    np = desc.addOptionalUntracked<std::string>("indentation", defaultString);
+    np = desc.addUntracked<std::string>("indentation", defaultString);
     np->setComment("This string is printed at the beginning of every line printed during event processing.");
 
-    np = desc.addOptionalUntracked<bool>("verbose", false);
+    np = desc.addUntracked<bool>("verbose", false);
     np->setComment("If true, the contents of products are printed.");
 
     defaultString = "  ";
-    np = desc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
+    np = desc.addUntracked<std::string>("verboseIndentation", defaultString);
     np->setComment(
         "This string is used to further indent lines when printing the contents of products in verbose mode.");
 
     std::vector<std::string> defaultVString;
 
-    np = desc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
+    np = desc.addUntracked<std::vector<std::string>>("verboseForModuleLabels", defaultVString);
     np->setComment("If this vector is not empty, then only products with module labels on this list are printed.");
 
-    np = desc.addOptionalUntracked<bool>("getData", false);
+    np = desc.addUntracked<bool>("getData", false);
     np->setComment("If true the products will be retrieved using getByLabel.");
 
-    np = desc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
+    np = desc.addUntracked<std::vector<std::string>>("getDataForModuleLabels", defaultVString);
     np->setComment(
         "If this vector is not empty, then only products with module labels on this list are retrieved by getByLabel.");
 
-    np = desc.addOptionalUntracked<bool>("listContent", true);
+    np = desc.addUntracked<bool>("listContent", true);
     np->setComment("If true then print a list of all the event content.");
 
-    np = desc.addOptionalUntracked<bool>("listProvenance", false);
+    np = desc.addUntracked<bool>("listProvenance", false);
     np->setComment("If true, and if listContent or verbose is true, print provenance information for each product");
 
+    desc.addUntracked<bool>("listPathStatus", false)
+        ->setComment("If true, also show PathStatus/EndPathStatus data products.");
     descriptions.add("printContent", desc);
+    descriptions.addDefault(desc);
   }
 }  // namespace edm
 

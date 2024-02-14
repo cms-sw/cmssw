@@ -7,5 +7,6 @@ ecalDrivenElectronSeeds = _ecalSeeds.ecalDrivenElectronSeedsDefault.clone(
     hbheRecHits = egammaHBHERecHit.hbheRecHits,
     recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
     recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    usePFThresholdsFromDB = egammaHBHERecHit.usePFThresholdsFromDB,
     maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity
 )

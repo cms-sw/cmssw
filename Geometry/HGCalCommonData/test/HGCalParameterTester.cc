@@ -156,6 +156,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
     myPrint("LayerCenter", phgp->layerCenter_, 20);
+    myPrint("LayerType", phgp->layerType_, 20);
     edm::LogVerbatim("HGCalGeom") << "Layer Rotation " << phgp->layerRotation_ << "   with " << phgp->layerRotV_.size()
                                   << "  parameters";
     for (unsigned int k = 0; k < phgp->layerRotV_.size(); ++k)
@@ -167,6 +168,20 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "CalibCellRadiusHD " << phgp->calibCellRLD_;
     myPrint("CalibCellFullLD", phgp->calibCellFullLD_, 12);
     myPrint("CalibCellPartLD", phgp->calibCellPartLD_, 12);
+    myPrint("cassetteShift", phgp->cassetteShift_, 8);
+
+    edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
+    if (phgp->waferMaskMode_ > 1) {
+      edm::LogVerbatim("HGCalGeom") << "WaferInfo with " << phgp->waferInfoMap_.size() << " elements";
+      unsigned int kk(0);
+      std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = phgp->waferInfoMap_.begin();
+      for (; itr != phgp->waferInfoMap_.end(); ++itr, ++kk)
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "["
+                                      << HGCalWaferIndex::waferLayer(itr->first) << ", "
+                                      << HGCalWaferIndex::waferU(itr->first) << ", "
+                                      << HGCalWaferIndex::waferV(itr->first) << "] (" << (itr->second).type << ", "
+                                      << (itr->second).part << ", " << (itr->second).orient << ")";
+    }
 
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
@@ -219,20 +234,6 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
-    myPrint("cassetteShift", phgp->cassetteShift_, 8);
-
-    edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
-    if (phgp->waferMaskMode_ > 1) {
-      edm::LogVerbatim("HGCalGeom") << "WaferInfo with " << phgp->waferInfoMap_.size() << " elements";
-      unsigned int kk(0);
-      std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = phgp->waferInfoMap_.begin();
-      for (; itr != phgp->waferInfoMap_.end(); ++itr, ++kk)
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "["
-                                      << HGCalWaferIndex::waferLayer(itr->first) << ", "
-                                      << HGCalWaferIndex::waferU(itr->first) << ", "
-                                      << HGCalWaferIndex::waferV(itr->first) << "] (" << (itr->second).type << ", "
-                                      << (itr->second).part << ", " << (itr->second).orient << ")";
-    }
   } else {
     // Tpaezoid (scintillator) type
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
@@ -260,6 +261,22 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("radiusLayer[1]", phgp->radiusLayer_[1], 10);
     myPrint("iradMinBH", phgp->iradMinBH_, 20);
     myPrint("iradMaxBH", phgp->iradMaxBH_, 20);
+    edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
+    if (phgp->waferMaskMode_ > 1) {
+      myPrint("tileRingR", phgp->tileRingR_, 4);
+      myPrint("tileRingRange", phgp->tileRingRange_, 8);
+      edm::LogVerbatim("HGCalGeom") << "TileInfo with " << phgp->tileInfoMap_.size() << " elements";
+      unsigned int kk(0);
+      std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();
+      for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "[" << HGCalTileIndex::tileLayer(itr->first)
+                                      << ", " << HGCalTileIndex::tileRing(itr->first) << ", "
+                                      << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
+                                      << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
+                                      << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
+                                      << (itr->second).hex[3] << ")" << std::dec;
+    }
+
     myPrint("slopeTop", phgp->slopeTop_, 10);
     myPrint("zFrontTop", phgp->zFrontTop_, 10);
     myPrint("rMaxFront", phgp->rMaxFront_, 10);
@@ -303,22 +320,6 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
-
-    edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
-    if (phgp->waferMaskMode_ > 1) {
-      myPrint("tileRingR", phgp->tileRingR_, 4);
-      myPrint("tileRingRange", phgp->tileRingRange_, 8);
-      edm::LogVerbatim("HGCalGeom") << "TileInfo with " << phgp->tileInfoMap_.size() << " elements";
-      unsigned int kk(0);
-      std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();
-      for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
-        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << itr->first << "[" << HGCalTileIndex::tileLayer(itr->first)
-                                      << ", " << HGCalTileIndex::tileRing(itr->first) << ", "
-                                      << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
-                                      << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
-                                      << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
-                                      << (itr->second).hex[3] << ")" << std::dec;
-    }
   }
 
   auto finish = std::chrono::high_resolution_clock::now();

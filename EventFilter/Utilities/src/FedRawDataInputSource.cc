@@ -32,7 +32,7 @@
 
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/SourceCommon.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 
@@ -362,11 +362,14 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   if (!currentFile_.get()) {
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
     setMonState(inWaitInput);
-    if (!fileQueue_.try_pop(currentFile_)) {
-      //sleep until wakeup (only in single-buffer mode) or timeout
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout || !currentFile_.get())
-        return evf::EvFDaqDirector::noFile;
+    {
+      IdleSourceSentry ids(fms_);
+      if (!fileQueue_.try_pop(currentFile_)) {
+        //sleep until wakeup (only in single-buffer mode) or timeout
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout || !currentFile_.get())
+          return evf::EvFDaqDirector::noFile;
+      }
     }
     status = currentFile_->status_;
     if (status == evf::EvFDaqDirector::runEnded) {
@@ -469,10 +472,13 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   if (singleBufferMode_) {
     //should already be there
     setMonState(inWaitChunk);
-    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      usleep(10000);
-      if (currentFile_->parent_->exceptionState() || setExceptionState_)
-        currentFile_->parent_->threadError();
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        usleep(10000);
+        if (currentFile_->parent_->exceptionState() || setExceptionState_)
+          currentFile_->parent_->threadError();
+      }
     }
     setMonState(inChunkReceived);
 
@@ -528,10 +534,13 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
   else {
     //wait for the current chunk to become added to the vector
     setMonState(inWaitChunk);
-    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      usleep(10000);
-      if (setExceptionState_)
-        threadError();
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        usleep(10000);
+        if (setExceptionState_)
+          threadError();
+      }
     }
     setMonState(inChunkReceived);
 
@@ -575,9 +584,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         //copy event to a chunk start and move pointers
 
         setMonState(inWaitChunk);
-
-        chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_] + msgSize);
-
+        {
+          IdleSourceSentry ids(fms_);
+          chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_] + msgSize);
+        }
         setMonState(inChunkReceived);
 
         assert(chunkEnd);

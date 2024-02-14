@@ -238,7 +238,7 @@ DAClusterizerInZT_vect::track_t DAClusterizerInZT_vect::fill(const vector<reco::
     double t_dt2 =
         std::pow(tk.dtErrorExt(), 2.) +
         std::pow(vertexSizeTime_, 2.);  // the ~injected~ timing error, need to add a small minimum vertex size in time
-    if ((tk.dtErrorExt() > 0.3) || (std::abs(t_t) > t0Max_)) {
+    if ((tk.dtErrorExt() > TransientTrackBuilder::defaultInvalidTrackTimeReso) || (std::abs(t_t) > t0Max_)) {
       t_dt2 = 0;  // tracks with no time measurement
     } else {
       t_dt2 = 1. / t_dt2;
@@ -1560,7 +1560,7 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
 
 void DAClusterizerInZT_vect::fillPSetDescription(edm::ParameterSetDescription& desc) {
   DAClusterizerInZ_vect::fillPSetDescription(desc);
-  desc.add<double>("tmerge", 0.01);           // 4D only
+  desc.add<double>("tmerge", 0.1);            // 4D only
   desc.add<double>("dtCutOff", 4.);           // 4D only
   desc.add<double>("t0Max", 1.0);             // 4D only
   desc.add<double>("vertexSizeTime", 0.008);  // 4D only

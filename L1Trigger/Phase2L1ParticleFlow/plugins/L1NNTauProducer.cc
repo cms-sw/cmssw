@@ -29,8 +29,9 @@ public:
   static void globalEndJob(const tensorflow::SessionCache*){};
 
 private:
+  // There is te software and hardware emulator for the tau, default is the Hardware.
   std::unique_ptr<TauNNId> fTauNNId_;
-  std::unique_ptr<TauNNIdHW> fTauNNIdHW_;
+  std::unique_ptr<TauNNIdHW> fTauNNIdHW_;  // Default
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void process_SW(const l1t::PFCandidateCollection& parts, std::unique_ptr<l1t::PFTauCollection>& iTaus);
@@ -212,6 +213,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   L1TauEmu::z0_t z0 = 0;
   L1TauEmu::dxy_t dxy = 0;
 
+  // Reconstruct the Tau Cone
   for (unsigned i0 = 0; i0 < parts.size(); i0++) {
     if (L1TauEmu::inCone(seed, (parts[i0]), rCone2)) {
       if (parts[i0].id() == l1t::PFCandidate::Electron || parts[i0].id() == l1t::PFCandidate::ChargedHadron ||
@@ -246,17 +248,19 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   if (pt < fSeedPt_)
     return;
 
-  result_t NN = fTauNNIdHW_->compute(seed, parts);
-  input_t* lNNVector = fTauNNIdHW_->NNVectorVar();
+  // Tau NN Inference
+  Tau_NN_Result NN_ouput = fTauNNIdHW_->compute(seed, parts);
 
+  // Needed for making PFTau
+  input_t* lNNVector = fTauNNIdHW_->NNVectorVar();
   float pNNVec[80];
   for (unsigned i0 = 0; i0 < 80; i0++)
     pNNVec[i0] = float(lNNVector[i0]);
 
   //Firmware Tau
   l1ct::Tau l1ctTau;
-  l1ctTau.hwPt = l1ct::pt_t(pt);                         //l1gt is <16,11> and currently <16,14>
-  l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());  // seed.eta() and seed.phi() are in physical coordinates
+  l1ctTau.hwPt = l1ct::pt_t(pt * NN_ouput.nn_pt_correction);  //l1gt is <16,11> and currently <16,14>
+  l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());       // seed.eta() and seed.phi() are in physical coordinates
   l1ctTau.hwPhi = l1ct::Scales::makeGlbPhi(seed.phi());
 
   l1ctTau.hwSeedPt = seed.pt();
@@ -264,7 +268,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   l1ctTau.hwCharge = seed.charge();
 
   l1ctTau.hwType = l1ct::Tau::type_t(lId);
-  l1ctTau.hwRawId = ap_uint<10>(NN * 1024);  //NN Output is ap_fixed<16, 8> so need to cast.
+  l1ctTau.hwRawId = ap_uint<10>(NN_ouput.nn_id * 1024);  //NN Output is ap_fixed<16, 6> so need to cast.
 
   //Convert to GT format and pack to encodedTau of PFTau
   l1gt::Tau l1gtTau = l1ctTau.toGT();
@@ -277,7 +281,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
                                       l1gt::Scales::floatPhi(l1gtTau.v3.phi),
                                       float(mass));
 
-  l1t::PFTau l1PFTau(tempP4, pNNVec, NN, 0, lId);
+  l1t::PFTau l1PFTau(tempP4, pNNVec, NN_ouput.nn_id, 0, lId);
   l1PFTau.setZ0(float(z0) * 0.05);    //L1TauEmu::z0_base);
   l1PFTau.setDxy(float(dxy) * 0.05);  //L1TauEmu::dxy_base);
 

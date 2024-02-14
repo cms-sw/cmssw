@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4LogicalVolume.hh"
@@ -122,7 +123,7 @@ void DreamSD::initMap(const std::string &sd) {
     const cms::DDFilter filter("ReadOutName", sd);
     cms::DDFilteredView fv((*cpvDD4hep_), filter);
     while (fv.firstChild()) {
-      std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
+      std::string name = DD4hep2DDDName::noNameSpace(static_cast<std::string>(fv.name()));
       std::vector<double> paras(fv.parameters());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape "
@@ -179,7 +180,7 @@ void DreamSD::fillMap(const std::string &name, double length, double width) {
   for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     edm::LogVerbatim("EcalSim") << name << " vs " << (*lvcite)->GetName();
     std::string namex = static_cast<std::string>((*lvcite)->GetName());
-    if (name == static_cast<std::string>(dd4hep::dd::noNamespace(namex))) {
+    if (name == DD4hep2DDDName::noNameSpace(static_cast<std::string>(namex))) {
       lv = (*lvcite);
       break;
     }
@@ -421,7 +422,7 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
 bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
   std::string pbWO2Name("E_PbWO4");
   std::string name = static_cast<std::string>(aMaterial->GetName());
-  if (static_cast<std::string>(dd4hep::dd::noNamespace(name)) != pbWO2Name) {  // Wrong material!
+  if (DD4hep2DDDName::noNameSpace(name) != pbWO2Name) {  // Wrong material!
     edm::LogWarning("EcalSim") << "This is not the right material: "
                                << "expecting " << pbWO2Name << ", got " << aMaterial->GetName();
     return false;

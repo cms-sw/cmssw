@@ -9,6 +9,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <memory>
 
@@ -27,10 +29,13 @@ public:
 private:
   // inputs
   edm::EDGetTokenT<reco::PFClusterCollection> _clustersLabel;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   // options
   // the actual algorithm
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
   std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
+  bool cutsFromDB;
+  HcalPFCuts const* paramPF = nullptr;
 };
 
 DEFINE_FWK_MODULE(PFMultiDepthClusterProducer);
@@ -49,9 +54,15 @@ DEFINE_FWK_MODULE(PFMultiDepthClusterProducer);
 
 PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf) {
   _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource"));
+  cutsFromDB = conf.getParameter<bool>("usePFThresholdsFromDB");
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
 
   edm::ConsumesCollector&& cc = consumesCollector();
+
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  }
+
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
     _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
@@ -67,6 +78,9 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
 }
 
 void PFMultiDepthClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
+  if (cutsFromDB) {
+    paramPF = &es.getData(hcalCutsToken_);
+  }
   _pfClusterBuilder->update(es);
 }
 
@@ -79,7 +93,7 @@ void PFMultiDepthClusterProducer::produce(edm::Event& e, const edm::EventSetup& 
   std::vector<bool> seedable;
 
   auto pfClusters = std::make_unique<reco::PFClusterCollection>();
-  _pfClusterBuilder->buildClusters(*inputClusters, seedable, *pfClusters);
+  _pfClusterBuilder->buildClusters(*inputClusters, seedable, *pfClusters, paramPF);
   LOGVERB("PFMultiDepthClusterProducer::produce()") << *_pfClusterBuilder;
 
   if (_energyCorrector) {

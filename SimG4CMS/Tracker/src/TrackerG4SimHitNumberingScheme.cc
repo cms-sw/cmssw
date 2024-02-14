@@ -1,8 +1,8 @@
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DD4hep/Filter.h"
+
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
 #include "G4VTouchable.hh"
@@ -62,9 +62,11 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
   int levels = v->GetHistoryDepth();
 
   for (int k = 0; k <= levels; ++k) {
-    if (dd4hep::dd::noNamespace(v->GetVolume(k)->GetLogicalVolume()->GetName()) != "TOBInactive") {
-      st.emplace_back(
-          std::pair<int, std::string>(v->GetVolume(k)->GetCopyNo(), v->GetVolume(k)->GetLogicalVolume()->GetName()));
+    if (DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName())) !=
+        "TOBInactive") {
+      st.emplace_back(std::pair<int, std::string>(
+          v->GetVolume(k)->GetCopyNo(),
+          DD4hep2DDDName::noNameSpace(static_cast<std::string>(v->GetVolume(k)->GetLogicalVolume()->GetName()))));
 #ifdef EDM_ML_DEBUG
       debugint.emplace_back(v->GetVolume(k)->GetCopyNo());
       debugstring.emplace_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
@@ -72,9 +74,9 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
     }
   }
 #ifdef EDM_ML_DEBUG
-  LogDebug("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint.size();
+  edm::LogVerbatim("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint.size();
   for (u_int32_t jj = 0; jj < debugstring.size(); jj++)
-    LogDebug("TrackerSimDebugNumbering") << " " << debugstring[jj];
+    edm::LogVerbatim("TrackerSimDebugNumbering") << " " << debugstring[jj];
 #endif
 }
 
@@ -87,7 +89,7 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
 
 #ifdef EDM_ML_DEBUG
   dumpG4VPV(v);
-  LogDebug("TrackerSimDebugNumbering") << " Returning: " << directMap_[st];
+  edm::LogVerbatim("TrackerSimDebugNumbering") << " Returning: " << directMap_[st];
 #endif
 
   return directMap_[st];
@@ -96,9 +98,9 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
 void TrackerG4SimHitNumberingScheme::dumpG4VPV(const G4VTouchable* v) {
   int levels = v->GetHistoryDepth();
 
-  LogDebug("TrackerSimDebugNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
+  edm::LogVerbatim("TrackerSimDebugNumbering") << " NAME : " << v->GetVolume()->GetLogicalVolume()->GetName();
   for (int k = 0; k <= levels; k++) {
-    LogDebug("TrackerSimInfoNumbering") << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy "
-                                        << v->GetVolume(k)->GetCopyNo();
+    edm::LogVerbatim("TrackerSimInfoNumbering")
+        << " Hist: " << v->GetVolume(k)->GetLogicalVolume()->GetName() << " Copy " << v->GetVolume(k)->GetCopyNo();
   }
 }

@@ -2,15 +2,15 @@
 #define SimTransport_Hector_h
 
 // user include files
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // HepMC headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
@@ -19,12 +19,12 @@
 // SimpleConfigurable replacement
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// Hector headers
+//Hector headers
 #include "H_BeamLine.h"
-#include "H_BeamParticle.h"
 #include "H_RecRPObject.h"
-#include <map>
+#include "H_BeamParticle.h"
 #include <string>
+#include <map>
 
 class TRandom3;
 
@@ -41,8 +41,7 @@ public:
 
   /*!Clears ApertureFlags, prepares Hector for a next event*/
   void clearApertureFlags();
-  /*!Clears BeamParticle, prepares Hector for a next Aperture check or/and a
-   * next event*/
+  /*!Clears BeamParticle, prepares Hector for a next Aperture check or/and a next event*/
   void clear();
   /*!Adds the stable protons from the event \a ev to a beamline*/
   void add(const HepMC::GenEvent *ev, const edm::EventSetup &es);
@@ -57,8 +56,7 @@ public:
 
   /*!Prints properties of all particles in a beamline*/
   void print() const;
-  /*!Return vector of the particle lines (HepMC::GenParticle::barcode()) in a
-   * beamline*/
+  /*!Return vector of the particle lines (HepMC::GenParticle::barcode()) in a beamline*/
   // std::vector<unsigned int> part_list() const;
 
   //    bool isCharged(const HepMC::GenParticle * p);
@@ -67,12 +65,9 @@ public:
 
   std::vector<LHCTransportLink> &getCorrespondenceMap() { return theCorrespondenceMap; }
 
-  /*
-      private:
-      //  edm::ParameterSet m_pBeamLine;
-      */
 private:
   const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
+
   // Defaults
   double lengthfp420;
   double lengthzdc;
@@ -120,8 +115,8 @@ private:
   std::map<unsigned int, double> m_pz;
   std::map<unsigned int, bool> m_isCharged;
 
-  string beam1filename;
-  string beam2filename;
+  std::string beam1filename;
+  std::string beam2filename;
 
   bool m_verbosity;
   bool m_FP420Transport;

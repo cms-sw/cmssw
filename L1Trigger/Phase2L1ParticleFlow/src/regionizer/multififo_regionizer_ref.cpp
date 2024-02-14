@@ -34,6 +34,7 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::Parame
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const std::string& barrelSetup,
                                                                const edm::ParameterSet& iConfig)
     : MultififoRegionizerEmulator(parseBarrelSetup(barrelSetup),
+                                  iConfig.getParameter<uint32_t>("nTkLinks"),
                                   iConfig.getParameter<uint32_t>("nHCalLinks"),
                                   iConfig.getParameter<uint32_t>("nECalLinks"),
                                   iConfig.getParameter<uint32_t>("nClocks"),
@@ -71,6 +72,7 @@ edm::ParameterSetDescription l1ct::MultififoRegionizerEmulator::getParameterSetD
   description.ifValue(edm::ParameterDescription<std::string>("barrelSetup", "Full54", true),
                       edm::allowedValues<std::string>("Full54", "Full27"));
   description.add<uint32_t>("nClocks", 54);
+  description.add<uint32_t>("nTkLinks", 2);
   description.add<uint32_t>("nHCalLinks", 2);
   description.add<uint32_t>("nECalLinks", 1);
   description.add<uint32_t>("nTrack", 22);
@@ -154,6 +156,7 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
 }
 
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barrelSetup,
+                                                               unsigned int ntklinks,
                                                                unsigned int nHCalLinks,
                                                                unsigned int nECalLinks,
                                                                unsigned int nclocks,
@@ -168,7 +171,7 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barre
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS((barrelSetup == BarrelSetup::Phi18 || barrelSetup == BarrelSetup::Phi9) ? 5 : 9),
       NCALO_SECTORS((barrelSetup == BarrelSetup::Phi18 || barrelSetup == BarrelSetup::Phi9) ? 2 : 3),
-      NTK_LINKS(2),
+      NTK_LINKS(ntklinks),
       NCALO_LINKS(2),
       HCAL_LINKS(nHCalLinks),
       ECAL_LINKS(nECalLinks),
@@ -237,13 +240,13 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barre
       } else if (barrelSetup == BarrelSetup::Central18 || barrelSetup == BarrelSetup::Central9) {
         nTFEtaSlices = 2;
       }
-      unsigned int ireg0 = phisectors * ietaslice, il0 = 6 * (nTFEtaSlices - 1) * ie;
+      unsigned int ireg0 = phisectors * ietaslice, il0 = 3 * NTK_LINKS * (nTFEtaSlices - 1) * ie;
       if (barrelSetup == BarrelSetup::Phi18 || barrelSetup == BarrelSetup::Phi9) {
         for (unsigned int iregphi = 0; iregphi < (nregions_ / etaslices); ++iregphi) {
           for (unsigned int il = 0; il < NTK_LINKS; ++il) {
             tkRoutes_.emplace_back((iregphi + 1) + NTK_SECTORS * ie, il, iregphi + ireg0, il0 + il);
-            tkRoutes_.emplace_back((iregphi + 0) + NTK_SECTORS * ie, il, iregphi + ireg0, il0 + il + 2);
-            tkRoutes_.emplace_back((iregphi + 2) + NTK_SECTORS * ie, il, iregphi + ireg0, il0 + il + 4);
+            tkRoutes_.emplace_back((iregphi + 0) + NTK_SECTORS * ie, il, iregphi + ireg0, il0 + il + NTK_LINKS);
+            tkRoutes_.emplace_back((iregphi + 2) + NTK_SECTORS * ie, il, iregphi + ireg0, il0 + il + 2 * NTK_LINKS);
           }
         }
       } else {
@@ -251,8 +254,8 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barre
           for (unsigned int il = 0; il < NTK_LINKS; ++il) {  // max tracks per sector per clock
             unsigned int isp = (is + 1) % NTK_SECTORS, ism = (is + NTK_SECTORS - 1) % NTK_SECTORS;
             tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, is + ireg0, il0 + il);
-            tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, isp + ireg0, il0 + il + 2);
-            tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, ism + ireg0, il0 + il + 4);
+            tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, isp + ireg0, il0 + il + NTK_LINKS);
+            tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, ism + ireg0, il0 + il + 2 * NTK_LINKS);
           }
         }
       }

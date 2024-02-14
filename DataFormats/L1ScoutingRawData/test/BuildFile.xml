@@ -1,0 +1,11 @@
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1ScoutingRawData"/>
+
+<library name="testSDSRawDataCollection" file="TestWriteSDSRawDataCollection.cc,TestReadSDSRawDataCollection.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestSDSRawDataCollectionFormat" command="TestSDSRawDataCollectionFormat.sh"/>

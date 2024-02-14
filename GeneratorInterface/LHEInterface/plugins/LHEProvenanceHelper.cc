@@ -6,6 +6,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -17,7 +19,8 @@
 namespace edm {
   LHEProvenanceHelper::LHEProvenanceHelper(TypeID const& eventProductType,
                                            TypeID const& runProductType,
-                                           ProductRegistry& productRegistry)
+                                           ProductRegistry& productRegistry,
+                                           BranchIDListHelper& branchIDListHelper)
       : eventProductBranchDescription_(BranchDescription(InEvent,
                                                          "source",
                                                          "LHEFile"
@@ -44,7 +47,8 @@ namespace edm {
                                                        false)),
         eventProductProvenance_(eventProductBranchDescription_.branchID()),
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
-        processParameterSet_() {
+        processParameterSet_(),
+        branchListIndexes_(1, 0) {
     // Add the products to the product registry
     auto ep = eventProductBranchDescription_;
     ep.setIsProvenanceSetOnRead();
@@ -52,6 +56,8 @@ namespace edm {
     auto rp = runProductBranchDescription_;
     rp.setIsProvenanceSetOnRead();
     productRegistry.copyProduct(rp);
+    BranchIDList bli(1UL, ep.branchID().id());
+    branchIDListHelper.updateFromInput({{bli}});
   }
 
   ParameterSet LHEProvenanceHelper::fillCommonProcessParameterSet() {

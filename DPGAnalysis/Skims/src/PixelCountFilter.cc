@@ -8,8 +8,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
+#include "CommonTools/UtilAlgos/interface/CollectionInCollectionFilter.h"
 
-typedef ObjectCountFilter<SiPixelClusterCollectionNew>::type PixelCountFilter;
+typedef CollectionInCollectionFilter<SiPixelClusterCollectionNew>::type PixelCountFilter;
 
 DEFINE_FWK_MODULE(PixelCountFilter);

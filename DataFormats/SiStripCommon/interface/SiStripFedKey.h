@@ -78,6 +78,9 @@ public:
   /** Default constructor */
   SiStripFedKey();
 
+  /** Assignment operator */
+  SiStripFedKey& operator=(const SiStripFedKey&) = default;
+
   // ---------- Public interface to member data ----------
 
   /** Returns FED id. */

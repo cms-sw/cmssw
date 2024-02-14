@@ -23,16 +23,26 @@
 #include <zlib.h>
 
 namespace edm {
-  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps,
+  StreamerOutputModuleCommon::Parameters StreamerOutputModuleCommon::parameters(ParameterSet const& ps) {
+    Parameters ret;
+    ret.hltTriggerSelections = EventSelector::getEventSelectionVString(ps);
+    ret.compressionAlgoStr = ps.getUntrackedParameter<std::string>("compression_algorithm");
+    ret.compressionLevel = ps.getUntrackedParameter<int>("compression_level");
+    ret.lumiSectionInterval = ps.getUntrackedParameter<int>("lumiSection_interval");
+    ret.useCompression = ps.getUntrackedParameter<bool>("use_compression");
+    return ret;
+  }
+
+  StreamerOutputModuleCommon::StreamerOutputModuleCommon(Parameters const& p,
                                                          SelectedProducts const* selections,
                                                          std::string const& moduleLabel)
       :
 
         serializer_(selections),
-        useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
-        compressionAlgoStr_(ps.getUntrackedParameter<std::string>("compression_algorithm")),
-        compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
-        lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")),
+        useCompression_(p.useCompression),
+        compressionAlgoStr_(p.compressionAlgoStr),
+        compressionLevel_(p.compressionLevel),
+        lumiSectionInterval_(p.lumiSectionInterval),
         hltsize_(0),
         host_name_(),
         hltTriggerSelections_(),
@@ -85,7 +95,7 @@ namespace edm {
 
     // 25-Jan-2008, KAB - pull out the trigger selection request
     // which we need for the INIT message
-    hltTriggerSelections_ = EventSelector::getEventSelectionVString(ps);
+    hltTriggerSelections_ = p.hltTriggerSelections;
 
     Strings const& hltTriggerNames = edm::getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
@@ -217,18 +227,15 @@ namespace edm {
     std::vector<unsigned char> hltbits;
     setHltMask(e, triggerResults, hltbits);
 
-    uint32 lumi;
-    if (lumiSectionInterval_ == 0) {
-      lumi = e.luminosityBlock();
-    } else {
+    uint32 lumi = e.luminosityBlock();
+    if (lumiSectionInterval_ != 0) {
       struct timeval now;
       struct timezone dummyTZ;
       gettimeofday(&now, &dummyTZ);
       double timeInSec =
           static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec) / 1000000.0) - timeInSecSinceUTC;
       // what about overflows?
-      if (lumiSectionInterval_ > 0)
-        lumi = static_cast<uint32>(timeInSec / lumiSectionInterval_) + 1;
+      lumi = static_cast<uint32>(timeInSec / std::abs(lumiSectionInterval_)) + 1;
     }
 
     serializer_.serializeEvent(sbuf, e, selectorCfg, compressionAlgo_, compressionLevel_, reserve_size);

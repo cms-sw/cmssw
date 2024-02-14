@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -27,29 +27,25 @@
 // class declaration
 //
 
-class GEMChamberMasker : public edm::stream::EDProducer<> {
+class GEMChamberMasker : public edm::global::EDProducer<> {
 public:
   explicit GEMChamberMasker(const edm::ParameterSet&);
-  ~GEMChamberMasker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
-  edm::InputTag digiTag_;
-  bool ge11Minus_;
-  bool ge11Plus_;
-  bool ge21Minus_;
-  bool ge21Plus_;
+  const edm::InputTag digiTag_;
+  const bool ge11Minus_;
+  const bool ge11Plus_;
+  const bool ge21Minus_;
+  const bool ge21Plus_;
 
-  edm::EDGetTokenT<GEMDigiCollection> m_digiTag;
-  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObj;
-  std::map<unsigned int, float> m_maskedGEMIDs;
+  const edm::EDGetTokenT<GEMDigiCollection> m_digiTag;
+  const edm::EDPutTokenT<GEMDigiCollection> m_putToken;
+  const edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObj;
 };
 
 //
@@ -68,28 +64,28 @@ GEMChamberMasker::GEMChamberMasker(const edm::ParameterSet& iConfig)
       ge11Minus_(iConfig.getParameter<bool>("ge11Minus")),
       ge11Plus_(iConfig.getParameter<bool>("ge11Plus")),
       ge21Minus_(iConfig.getParameter<bool>("ge21Minus")),
-      ge21Plus_(iConfig.getParameter<bool>("ge21Plus")) {
-  m_digiTag = consumes<GEMDigiCollection>(digiTag_);
-  m_agingObj = esConsumes<MuonSystemAging, MuonSystemAgingRcd, edm::Transition::BeginRun>();
-  produces<GEMDigiCollection>();
-}
-
-GEMChamberMasker::~GEMChamberMasker() {}
+      ge21Plus_(iConfig.getParameter<bool>("ge21Plus")),
+      m_digiTag(consumes(digiTag_)),
+      m_putToken(produces()),
+      m_agingObj(esConsumes()) {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void GEMChamberMasker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  std::unique_ptr<GEMDigiCollection> filteredDigis(new GEMDigiCollection());
+  GEMDigiCollection filteredDigis;
+
+  auto const& agingObj = iSetup.getData(m_agingObj);
+
+  auto const& maskedGEMIDs = agingObj.m_GEMChambEffs;
 
   if (!digiTag_.label().empty()) {
-    edm::Handle<GEMDigiCollection> gemDigis;
-    iEvent.getByToken(m_digiTag, gemDigis);
+    GEMDigiCollection const& gemDigis = iEvent.get(m_digiTag);
 
-    for (const auto& gemLayerId : (*gemDigis)) {
+    for (const auto& gemLayerId : gemDigis) {
       auto chambId = gemLayerId.first.chamberId();
 
       bool keepDigi = (!ge11Minus_ && chambId.station() == 1 && chambId.region() < 0) ||
@@ -98,26 +94,14 @@ void GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                       (!ge21Plus_ && chambId.station() == 2 && chambId.region() > 0);
 
       uint32_t rawId = chambId.rawId();
-      if (keepDigi || m_maskedGEMIDs.find(rawId) == m_maskedGEMIDs.end()) {
-        filteredDigis->put(gemLayerId.second, gemLayerId.first);
+      if (keepDigi || maskedGEMIDs.find(rawId) == maskedGEMIDs.end()) {
+        filteredDigis.put(gemLayerId.second, gemLayerId.first);
       }
     }
   }
 
-  iEvent.put(std::move(filteredDigis));
+  iEvent.emplace(m_putToken, std::move(filteredDigis));
 }
-
-// ------------ method called when starting to processes a run  ------------
-
-void GEMChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  edm::ESHandle<MuonSystemAging> agingObj = iSetup.getHandle(m_agingObj);
-
-  m_maskedGEMIDs = agingObj->m_GEMChambEffs;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-
-void GEMChamberMasker::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 void GEMChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

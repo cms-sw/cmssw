@@ -60,6 +60,7 @@
 #include "G4ScoringManager.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4GDMLParser.hh"
+#include "G4Threading.hh"
 
 #include <atomic>
 #include <memory>
@@ -327,23 +328,28 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   auto sensDets = sim::attachSD(
       m_sdMakers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
 
-  m_tls->sensTkDets.swap(sensDets.first);
-  m_tls->sensCaloDets.swap(sensDets.second);
+  m_tls->sensTkDets = sensDets.first;
+  m_tls->sensCaloDets = sensDets.second;
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: Sensitive Detectors are built in thread " << thisID << " found "
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // geometry dump
-  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML");
+  G4String writeFile = (G4String)m_p.getUntrackedParameter<std::string>("FileNameGDML");
   if (!writeFile.empty()) {
     std::call_once(applyOnceGDML, [this]() { m_dumpGDML = true; });
+    edm::LogVerbatim("SimG4CoreApplication") << "DumpGDML:" << m_dumpGDML;
     if (m_dumpGDML) {
+      G4int thID = G4Threading::G4GetThreadId();
+      edm::LogVerbatim("SimG4CoreApplication") << "ThreadID=" << thID;
+      G4Threading::G4SetThreadId(-1);
       G4GDMLParser gdml;
       gdml.SetRegionExport(true);
       gdml.SetEnergyCutsExport(true);
       gdml.SetSDExport(true);
       gdml.Write(writeFile, worldPV, true);
+      G4Threading::G4SetThreadId(thID);
     }
   }
 
@@ -434,12 +440,13 @@ void RunManagerMTWorker::initializeUserActions() {
 
   // different stepping actions for Run2,3 and Phase2
   G4UserSteppingAction* userSteppingAction;
+  bool dd4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   if (m_isPhase2) {
-    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers, dd4hep);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   } else {
-    auto ptr = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    auto ptr = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers, dd4hep);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   }

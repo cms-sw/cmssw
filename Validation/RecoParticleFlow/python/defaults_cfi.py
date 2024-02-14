@@ -15,6 +15,11 @@ def genjet_distribution_name(ietabin):
     eta_string = "{0:.1f}".format(etabins[ietabin+1]).replace(".", "")
     return "genjet_pt_eta{0}".format(eta_string)
 
+def recojet_distribution_name(ietabin):
+    eta_string = "{0:.1f}".format(etabins[ietabin+1]).replace(".", "")
+    return "recojet_pt_eta{0}".format(eta_string)
+
+
 jetResponseDir = 'ParticleFlow/JetResponse/'
 genjetDir = 'ParticleFlow/GenJets/'
 
@@ -32,6 +37,7 @@ muHighOffset = 100
 
 npvLowOffset = 0
 npvHighOffset = 100
+pvzHighOffset = 100
 
 eBinsOffset = 1000
 eLowOffset = 0

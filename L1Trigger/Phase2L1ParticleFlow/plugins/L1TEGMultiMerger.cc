@@ -23,11 +23,6 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  struct RefRemapper {
-    BXVector<edm::Ref<BXVector<l1t::EGamma>>> oldRefs;
-    std::map<edm::Ref<BXVector<l1t::EGamma>>, edm::Ref<BXVector<l1t::EGamma>>> old2newRefMap;
-  };
-
   template <class T>
   class InstanceMerger {
   public:
@@ -41,51 +36,26 @@ private:
       prod->produces<T>(instanceLabel_);
     }
 
-    void produce(edm::Event& iEvent, RefRemapper& refRemapper) const {
+    void produce(edm::Event& iEvent) const {
       edm::Handle<T> handle;
       auto out = std::make_unique<T>();
       for (const auto& token : tokens_) {
         iEvent.getByToken(token, handle);
-        populate(out, handle, refRemapper);
+        populate(out, handle);
       }
-      remapRefs(iEvent, out, refRemapper);
       iEvent.put(std::move(out), instanceLabel_);
     }
 
   private:
     template <class TT>
-    void remapRefs(edm::Event& iEvent, std::unique_ptr<TT>& out, RefRemapper& refRemapper) const {
-      for (auto& egobj : *out) {
-        auto newref = refRemapper.old2newRefMap.find(egobj.EGRef());
-        if (newref != refRemapper.old2newRefMap.end()) {
-          egobj.setEGRef(newref->second);
-        }
-      }
-    }
-
-    void remapRefs(edm::Event& iEvent, std::unique_ptr<BXVector<l1t::EGamma>>& out, RefRemapper& refRemapper) const {
-      edm::RefProd<BXVector<l1t::EGamma>> ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(instanceLabel_);
-      edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
-      for (std::size_t ix = 0; ix < out->size(); ix++) {
-        refRemapper.old2newRefMap[refRemapper.oldRefs[ix]] = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
-      }
-    }
-
-    template <class TT>
-    void populate(std::unique_ptr<TT>& out, const edm::Handle<TT>& in, RefRemapper& refRemapper) const {
+    void populate(std::unique_ptr<TT>& out, const edm::Handle<TT>& in) const {
       out->insert(out->end(), in->begin(), in->end());
     }
 
-    void populate(std::unique_ptr<BXVector<l1t::EGamma>>& out,
-                  const edm::Handle<BXVector<l1t::EGamma>>& in,
-                  RefRemapper& refRemapper) const {
-      edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
+    void populate(std::unique_ptr<BXVector<l1t::EGamma>>& out, const edm::Handle<BXVector<l1t::EGamma>>& in) const {
       for (int bx = in->getFirstBX(); bx <= in->getLastBX(); bx++) {
         for (auto egee_itr = in->begin(bx); egee_itr != in->end(bx); egee_itr++) {
           out->push_back(bx, *egee_itr);
-          // this to ensure that the old ref and the new object have the same index in the BXVector collection so that we can still match them
-          // no matter which BX we will insert next
-          refRemapper.oldRefs.push_back(bx, edm::Ref<BXVector<l1t::EGamma>>(in, idx++));
         }
       }
     }
@@ -114,13 +84,12 @@ L1TEGMultiMerger::L1TEGMultiMerger(const edm::ParameterSet& conf) {
 L1TEGMultiMerger::~L1TEGMultiMerger() {}
 
 void L1TEGMultiMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  RefRemapper refmapper;
   for (const auto& egMerger : tkEGMerger)
-    egMerger.produce(iEvent, refmapper);
+    egMerger.produce(iEvent);
   for (const auto& eleMerger : tkEleMerger)
-    eleMerger.produce(iEvent, refmapper);
+    eleMerger.produce(iEvent);
   for (const auto& emMerger : tkEmMerger)
-    emMerger.produce(iEvent, refmapper);
+    emMerger.produce(iEvent);
 }
 
 void L1TEGMultiMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

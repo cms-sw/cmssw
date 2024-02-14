@@ -18,6 +18,17 @@ mkdir $W_DIR/plots_LA
 getPayloadData.py \
      --plugin pluginSiPixelLorentzAngle_PayloadInspector \
      --plot plot_SiPixelLorentzAngleValuesBarrelCompareTwoTags \
+     --tag SiPixelLorentzAngle_phase2_T19_v1_mc \
+     --tagtwo SiPixelLorentzAngle_phase2_T15_v5_mc \
+     --time_type Run \
+     --iovs '{"start_iov": "1", "end_iov": "1"}' \
+     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+     --db Prod \
+     --test ;
+
+getPayloadData.py \
+     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+     --plot plot_SiPixelLorentzAngleValuesBarrelCompareTwoTags \
      --tag SiPixelLorentzAngleSim_phase1_BoR3_HV350_Tr2000 \
      --tagtwo SiPixelLorentzAngle_phase1_EEoR3_HV800_Tr2000  \
      --time_type Run \

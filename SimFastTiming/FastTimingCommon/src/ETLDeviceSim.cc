@@ -29,6 +29,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
 
   //loop over sorted hits
   const int nchits = hitRefs.size();
+  LogTrace("ETLDeviceSim") << "Processing " << nchits << " SIM hits";
   for (int i = 0; i < nchits; ++i) {
     const int hitidx = std::get<0>(hitRefs[i]);
     const uint32_t id = std::get<1>(hitRefs[i]);
@@ -44,7 +45,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       continue;  // to be ignored at RECO level
 
     ETLDetId etlid(detId);
-    DetId geoId = ETLDetId(etlid.mtdSide(), etlid.mtdRR(), etlid.module(), etlid.modType());
+    DetId geoId = ETLDetId(etlid);
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
     if (thedet == nullptr) {
       throw cms::Exception("ETLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()
@@ -64,10 +65,15 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     //The following lines check whether the pixel point is actually out of the active area.
     //If that is the case it simply ignores the point but in the future some more sophisticated function could be applied.
     if (!topo.isInPixel(simscaled)) {
+      LogDebug("ETLDeviceSim") << "Skipping hit ouf of pixel # " << hitidx << " DetId " << etlid.rawId() << " tof "
+                               << toa;
       continue;
     }
     const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
+
+    LogDebug("ETLDeviceSim") << "Processing hit in pixel # " << hitidx << " DetId " << etlid.rawId() << " row/col "
+                             << (uint32_t)row << " " << (uint32_t)col << " tof " << toa;
 
     auto simHitIt =
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;

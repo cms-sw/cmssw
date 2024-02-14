@@ -1,28 +1,19 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import ROOT
 ROOT.gROOT.SetBatch(True)
 
 import sys
 
-from optparse import OptionParser
-parser = OptionParser(usage = "usage: %prog [options] inputFile fraction outputFile",
-                      version = "%prog $Id:$")
-(options, args) = parser.parse_args()
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("inputFile", type=str)
+parser.add_argument("fraction", type=float)
+parser.add_argument("outputFile", type=str)
+options = parser.parse_args()
 
-if len(args) <= 2: 
-    parser.print_usage()
-    sys.exit(2)
-    
-try:
-    frac = float(args[1])
-except TypeError:
-    parser.print_usage()
-    print("fraction must be a floating point number (e.g. 0.5)")
-    sys.exit(2)
-
-input  = ROOT.TFile(args[0])
-output = ROOT.TFile(args[2], "RECREATE")
+frac = options.fraction
+input  = ROOT.TFile(options.inputFile)
+output = ROOT.TFile(options.outputFile, "RECREATE")
 for k in input.GetListOfKeys():
     print(k.GetName(), k.GetClassName())
     if k.GetClassName() == "TDirectoryFile":

@@ -3,7 +3,7 @@ from Configuration.Eras.Era_Run3_cff import Run3
 
 process = cms.Process('RECODQM', Run3)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 process.verbosity = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # minimum of logs
@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag.globaltag = "130X_dataRun3_Prompt_forLHCInfo_Candidate_2023_08_08_10_52_01"
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data')
 
 # local RP reconstruction chain with standard settings
 process.load("RecoPPS.Configuration.recoCTPPS_cff")

@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="alpaka_cuda_async::reco::CaloRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::reco::CaloRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::reco::CaloRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::reco::PFRecHitDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::reco::PFRecHitDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::reco::PFRecHitDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::reco::PFClusterDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::reco::PFClusterDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::reco::PFClusterDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::reco::PFRecHitFractionDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::reco::PFRecHitFractionDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::reco::PFRecHitFractionDeviceCollection>>" persistent="false"/>
+</lcgdict>
+

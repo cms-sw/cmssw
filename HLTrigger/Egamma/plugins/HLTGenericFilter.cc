@@ -33,6 +33,7 @@ HLTGenericFilter<T1>::HLTGenericFilter(const edm::ParameterSet& iConfig) : HLTFi
   energyLowEdges_ = iConfig.template getParameter<std::vector<double>>("energyLowEdges");
   lessThan_ = iConfig.template getParameter<bool>("lessThan");
   useEt_ = iConfig.template getParameter<bool>("useEt");
+  useAbs_ = iConfig.template getParameter<bool>("useAbs");
   thrRegularEB_ = iConfig.template getParameter<std::vector<double>>("thrRegularEB");
   thrRegularEE_ = iConfig.template getParameter<std::vector<double>>("thrRegularEE");
   thrOverEEB_ = iConfig.template getParameter<std::vector<double>>("thrOverEEB");
@@ -88,6 +89,7 @@ void HLTGenericFilter<T1>::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<double>>("energyLowEdges", {0.0});  // No energy-dependent cuts by default
   desc.add<bool>("lessThan", true);
   desc.add<bool>("useEt", false);
+  desc.add<bool>("useAbs", false);
   desc.add<std::vector<double>>("thrRegularEB", {0.0});
   desc.add<std::vector<double>>("thrRegularEE", {0.0});
   desc.add<std::vector<double>>("thrOverEEB", {-1.0});
@@ -177,7 +179,11 @@ bool HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent,
     T1Ref ref = recoCands[i];
     typename T1IsolationMap::const_iterator mapi = (*depMap).find(ref);
 
-    float vali = mapi->val;
+    //should we do the abs before or after the rho corr?
+    //note: its very unlikely to rho correct a variable that wants to be abs
+    //decided yes as it seems slightly better this way but can not think of a use case either way
+    float vali = useAbs_ ? std::abs(mapi->val) : mapi->val;
+
     float EtaSC = ref->eta();
 
     // Pick the right EA and do rhoCorr
@@ -191,7 +197,6 @@ bool HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent,
       energy = getEt(ref);
     else
       energy = getEnergy(ref);
-    //if (energy < 0.) energy = 0.; // require energy to be positive (needed?)
 
     // Pick the right cut threshold
     double cutRegularEB_ = 9999., cutRegularEE_ = 9999.;

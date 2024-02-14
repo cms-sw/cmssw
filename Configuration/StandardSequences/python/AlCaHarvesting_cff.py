@@ -11,6 +11,7 @@ from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvesterMCS_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHG_cff import *
+from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHGCombined_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
 from CalibTracker.SiPixelQuality.SiPixelStatusHarvester_cfi import *
@@ -188,6 +189,15 @@ ALCAHARVESTSiPixelAliHG_dbOutput = cms.PSet(record = cms.string('TrackerAlignmen
                                           )
 
 # --------------------------------------------------------------------------------------
+# SiPixel Alignment HG combined
+ALCAHARVESTSiPixelAliHGCombined_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentHGCombinedRcd'))
+
+ALCAHARVESTSiPixelAliHGCombined_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentHGCombinedRcd'),
+                                                    tag = cms.string('SiPixelAliHGCombined_pcl'),
+                                                    timetype   = cms.untracked.string('runnumber')
+                                                    )
+
+# --------------------------------------------------------------------------------------
 # SiPixel Lorentz Angle
 ALCAHARVESTSiPixelLA_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcd'))
 
@@ -296,6 +306,7 @@ SiStripHitEff = cms.Path(ALCAHARVESTSiStripHitEfficiency)
 SiStripLA      = cms.Path(ALCAHARVESTSiStripLorentzAngle)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 SiPixelAliHG     = cms.Path(ALCAHARVESTSiPixelAliHG)
+SiPixelAliHGCombined = cms.Path(ALCAHARVESTSiPixelAliHGCombined)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
 SiPixelLAMCS      = cms.Path(ALCAHARVESTSiPixelLorentzAngleMCS)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)

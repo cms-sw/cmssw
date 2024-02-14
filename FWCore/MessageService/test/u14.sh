@@ -7,7 +7,7 @@ status=0
   
 rm -f u14_errors.log u14_warnings.log u14_infos.log u14_debugs.log u14_default.log u14_job_report.mxml 
 
-cmsRun -j u14_job_report.mxml -p ${SCRAM_TEST_PATH}/u14_cfg.py || exit $?
+cmsRun -j u14_job_report.mxml ${SCRAM_TEST_PATH}/u14_cfg.py || exit $?
  
 for file in u14_errors.log u14_warnings.log u14_infos.log u14_debugs.log u14_default.log u14_job_report.mxml   
 do

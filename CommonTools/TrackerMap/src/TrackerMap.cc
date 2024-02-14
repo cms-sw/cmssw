@@ -3360,7 +3360,6 @@ int TrackerMap::module(int fedId, int fedCh) {
     return (apvpair->mod->idex);
   }
   return (0);
-  std::cout << "*** error in FedTrackerMap module method ***";
 }
 void TrackerMap::fill_fed_channel(int fedId, int fedCh, float qty) {
   int key = fedId * 1000 + fedCh;

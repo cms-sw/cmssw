@@ -42,13 +42,17 @@ Data formats, for both Event and EventSetup, should be placed following their us
   * For EventSetup data products [the registration macro `TYPELOOKUP_DATA_REG`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToRegisterESData) should be placed in `Package/SubPackage/src/ES_<type name>.cc`.
 * The device-side data formats are defined in `Package/SubPackage/interface/alpaka/` directory
   * The device-side data format classes should be either templated over the device type, or defined in the `ALPAKA_ACCELERATOR_NAMESPACE` namespace.
+  * For host backends (`serial`), the "device-side" data format class must be the same as the aforementioned host-only data format class
+    * Use `ASSERT_DEVICE_MATCHES_HOST_COLLECTION(<device collection type>, <host collection type>);` macro to ensure that, see an example in [../../DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h](TestDeviceCollection.h)
+    * This equality is necessary for the [implicit data transfers](#implicit-data-transfers) to function properly
   * For Event data products the ROOT dictionary should be defined in `DataFormats/SubPackage/src/alpaka/classes_<platform>{.h,_def.xml}`
     * The `classes_<platform>_def.xml` should declare the dictionaries for the data product type `T`, `edm::DeviceProduct<T>`, and `edm::Wrapper<edm::DeviceProduct<T>>`. All these dictionaries must be declared as transient with `persistent="false"` attribute.
     * The list of `<platform>` includes currently: `cuda`, `rocm`
   * For EventSetup data products the registration macro should be placed in `Package/SubPackage/src/alpaka/ES_<type name>.cc`
      * Data products defined in `ALPAKA_ACCELERATOR_NAMESPACE` should use `TYPELOOKUP_ALPAKA_DATA_REG` macro
      * Data products templated over the device type should use `TYPELOOKUP_ALPAKA_TEMPLATED_DATA_REG` macro
- * For Event data products the `DataFormats/SubPackage/BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="cuda rocm"/>` (unless the package has something that is really specific for `serial` backend that is not generally applicable on host)
+* For Event data products the `DataFormats/SubPackage/BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="!serial"/>`
+  * unless the package has something that is really specific for `serial` backend that is not generally applicable on host
 
 Note that even if for Event data formats the examples above used `DataFormats` package, Event data formats are allowed to be defined in other packages too in some circumstances. For full details please see [SWGuideCreatingNewProducts](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCreatingNewProducts).
 
@@ -121,7 +125,9 @@ The `...` can in principle be any of the module abilities listed in the linked T
 
 New base classes (or other functionality) can be added based on new use cases that come up.
 
-The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`). 
+The Alpaka-based ESProducers should use the `ESProducer` base class (`#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"`). Note that the Alpaka-based ESProducer constructor must pass the argument `edm::ParameterSet` object to the constructor of the `ESProducer` base class.
+
+Note that currently Alpaka-based ESSources are not supported. If you need to produce EventSetup data products into a Record for which there is no ESSource yet, use [`EmptyESSource`](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEDMParametersForModules#EmptyESSource).
 
 
 ### Event, EventSetup, Records
@@ -256,7 +262,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Base class is defined in ALPAKA_ACCELEATOR_NAMESPACE as well (note, no edm:: prefix!)
   class ExampleAlpakaESProducer : public ESProducer {
   public:
-    ExampleAlpakaESProducer(edm::ParameterSet const& iConfig) {
+    ExampleAlpakaESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       // register the production function
       auto cc = setWhatProduced(this);
       // register consumed ESProduct(s)
@@ -308,7 +314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Base class is defined in ALPAKA_ACCELEATOR_NAMESPACE as well (note, no edm:: prefix!)
   class ExampleAlpakaDeriveESProducer : public ESProducer {
   public:
-    ExampleAlpakaDeriveESProducer(edm::ParameterSet const& iConfig) {
+    ExampleAlpakaDeriveESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       // register the production function
       auto cc = setWhatProduced(this);
       // register consumed ESProduct(s)
@@ -353,13 +359,12 @@ In all cases the configuration must load the necessary `ProcessAccelerator` obje
 ```python
 ## Load explicitly
 # One ProcessAccelerator for each accelerator technology
-process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
+process.load("Configuration.StandardSequences.Accelerators_cff")
 
 # And one ProcessAccelerator for Alpaka
+# (eventually to be absorbed to Accelerators_cff)
 process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
 
-## Or, just load
-process.load("Configuration.StandardSequences.Accelerators_cff")
 ```
 
 ### Explicit module type (non-portable)
@@ -408,3 +413,60 @@ process.producerCPU = cms.EDProducer("ExampleAlpakaProducer@alpaka",
 The `@alpaka` postfix in the module type tells the system the module's exact class type should be resolved at run time. The type (or backend) is set according to the value of `process.options.accelerators` and the set of accelerators available in the machine. If the backend is set explicitly in the module's `alpaka` PSet, the module of that backend will be used.
 
 This approach is portable also across CMSSW builds that support different sets of accelerators, as long as only the host backends (if any) are specified explicitly in the `alpaka` PSet.
+
+
+#### Examples on explicitly setting the backend
+
+##### For individual modules
+
+The explicitly-set backend must be one of those allowed by the job-wide `process.options.accelerators` setting. This setting overrides the `ProcessAcceleratorAlpaka` setting described in the next paragraph.
+
+```python
+process.producerCPU = cms.EDProducer("ExampleAlpakaProducer@alpaka",
+    ...
+    alpaka = cms.untracked.PSet(
+        backend = cms.untracked.string("serial_sync") # or "cuda_async" or "rocm_async"
+    )
+)
+```
+
+##### For all Alpaka modules
+
+The explicitly-set backend must be one of those allowed by the job-wide `process.options.accelerators` setting. This `ProcessAcceleratorAlpaka` setting can be further overridden for individual modules as described in the previous paragraph.
+
+```python
+process.ProcessAcceleratorAlpaka.setBackend("serial_sync") # or "cuda_async" or "rocm_async"
+```
+
+##### For entire job (i.e. also for non-Alpaka modules)
+```python
+process.options.accelerators = ["cpu"] # or "gpu-nvidia" or "gpu-amd"
+```
+
+
+## Unit tests
+
+Unit tests that depend on Alpaka and define `<flags ALPAKA_BACKENDS="1"/>`, e.g. as a binary along
+```xml
+<bin name="<unique test binary name>" file="<comma-separated list of files">
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+```
+or as a command (e.g. `cmsRun` or a shell script) to run
+
+```xml
+<test name="<unique name of the test>" command="<command to run>">
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
+```
+
+will be run as part of `scram build runtests` according to the
+availability of the hardware:
+- `serial_sync` version is run always
+- `cuda_async` version is run if NVIDIA GPU is present (i.e. `cudaIsEnabled` returns 0)
+- `rocm_async` version is run if AMD GPU is present (i.e. `rocmIsEnabled` returns 0)
+
+Tests for specific backend (or hardware) can be explicitly specified to be run by setting `USER_UNIT_TESTS=cuda` or `USER_UNIT_TESTS=rocm` environment variable. Tests not depending on the hardware are skipped. If the corresponding hardware is not available, the tests will fail.
+

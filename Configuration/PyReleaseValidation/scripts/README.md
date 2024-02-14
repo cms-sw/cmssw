@@ -289,3 +289,102 @@ matrix>
 All commands come with dynamic TAB-completion. There's also a transient history
 of the commands issued within a single session. Transient means that, after a
 session is closed, the history is lost.
+
+### Limited Matrix for (also) PR Testing
+
+The "limited" predefined set of workflows is used in PR integration testing. Here the workflows run.
+
+MC workflows for pp collisions:
+
+| **WF** 	| **Fragment/Input** 	| **Conditions** 	| **Era** 	| **Notes** 	|  	
+|---	|---	|---	|---	|---	|	
+| |  	|  	|  	|  	|  	
+| **Run1** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 5.1 	|  	TTbar_8TeV_TuneCUETP8M1 | run1_mc 	|  	| *FastSim* 	|  	
+| 8 	| RelValBeamHalo 	| run1_mc 	|  	| Cosmics 	|  	
+| 9.0 	| RelValHiggs200ChargedTaus 	| run1_mc 	|  	|  	|  	
+| 25 	| RelValTTbar 	| run1_mc 	|  	|  	|  	
+| 101.0 	| SingleElectronE120EHCAL 	| run1_mc 	|  	| + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn 	|  	
+| |  	|  	|  	|  	|  	
+| **Run2** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 7.3 	| UndergroundCosmicSPLooseMu 	| run2_2018 	|  	|  	|  	
+| 1306.0 	| RelValSingleMuPt1_UP15 	| run2_mc 	| Run2_2016 	| with miniAOD 	|  	
+| 1330 	| RelValZMM_13 	| run2_mc 	| Run2_2016 	|  	|  	
+| 135.4 	| ZEE_13TeV_TuneCUETP8M1 	| run2_mc 	| Run2_2016 	| *FastSim* 	|  	
+| 25202.0 	| RelValTTbar_13 	| run2_mc 	| Run2_2016 	|  AVE_35_BX_25ns 	|  	
+| 250202.181 | RelValTTbar_13 (PREMIX) 	| phase1_2018_realistic 	| Run2_2018 	|  	|  	|  
+| |  	|  	|  	|  	|  	
+| **Run3** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 11634.0 	| TTbar_14TeV 	| phase1_2022_realistic 	| Run3 	|  	|  	
+| 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3_FastSim 	| *FastSim*  |  	
+| 12434.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
+| 12446.0 	| RelValZEE_14 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
+| 12634.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 12434.7 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	| mkFit 	|  	
+| 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
+| 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 2500.4 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| NanoAOD from existing MINI 	|  	
+| | | | | | 
+| **Phase2** 	|  	|  	|  	|  	**Geometry** |  	
+| |  	|  	|  	|  	|  	
+| 24834.0 	| RelValTTbar_14TeV 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	| (Phase-2 baseline) 	
+| 24834.911 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T25 	| Phase2C17I13M9 	| DD4hepExtended2026D98 	| DD4Hep (HLLHC14TeV BeamSpot) 	
+| 25034.999 	| RelValTTbar_14TeV (PREMIX) 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	| AVE_50_BX_25ns_m3p3 	
+| 24896.0 	| RelValCloseByPGun_CE_E_Front_120um 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	|  	
+| 24900.0 	| RelValCloseByPGun_CE_H_Coarse_Scint 	| phase2_realistic_T25 	| Phase2C17I13M9 	| Extended2026D98 	|  	
+| 23234.0 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T21 	| Phase2C20I13M9 	| Extended2026D94 	| (exercise with HFNose) 	
+
+pp Data reRECO workflows:
+
+| Data 	|  	|  	|  	|  	|  	
+|---	|---	|---	|---	|---	|	
+| **WF** 	| **Input** 	| **Conditions** 	| **Era** 	| **Notes** 	|  	
+| |  	|  	|  	|  	|  	
+| **Run1** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 4.22 	| Run2011A Cosmics 	|  	run1_data |  	|  	*Cosmics* |
+| 4.53 	| Run2012B Photon 	| run1_hlt_Fake 	| | + miniAODs 	|  	
+| 1000 	| Run2011A MinimumBias Prompt 	| run1_data 	| | + RecoTLR.customisePrompt 	|  	
+| 1001 	| Run2011A 	MinimumBias  |  	run1_data |  	| Data+Express | 	
+| |  	|  	|  	|  	|  	
+| **Run2** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 136.731 	| Run2016B SinglePhoton 	|  	|  	|  	|  	
+| 136.7611 	| Run2016E JetHT (reMINIAOD) 	| run2_data 	| Run2_2016_HIPM 	| + run2_miniAOD_80XLegacy 	custom |  	
+| 136.8311 	| Run2017F JetHT (reMINIAOD) 	| run2_data 	| Run2_2017 	| + run2_miniAOD_94XFall17 	custom |  	
+| 136.88811 	| Run2018D JetHT (reMINIAOD) 	| run2_data 	| Run2_2018 	| + run2_miniAOD_UL_preSummer20 (UL MINI) custom |  	
+| 136.793 	| Run2017C DoubleEG 	| run2_hlt_relval 	| Run2_2017 	| HLT:@relval2017|  	
+| 136.874 	| Run2018C EGamma 	| run2_hlt_relval 	| Run2_2018 	| HLT@relval2018 	|  	
+| |  	|  	|  	|  	|  	
+| **Run3** 	|  	|  	|  	|  	|  	
+| |  	|  	|  	|  	|  	
+| 2021 	|  	|  	|  	|  	|  	
+| 139.001 	| Run2021 	MinimumBias 	| run3_hlt_relval 	| Run3 	| HLT@relval2022 (Commissioning2021) |	
+| 2022 	|  	|  	|  	|  	|  	
+| 140.023 	| Run2022B ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 140.043 	| Run2022C ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 140.063 	| Run2022D ZeroBias 	|  	run3_hlt_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 2023 	|  	|  	|  	|  	|  	
+| 141.044 	| Run2023D JetMET0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  
+| 141.042 	| Run2023D ZeroBias 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
+| 141.046 	| Run2023D EGamma0 	| run3_hlt_relval 	| Run3_2023 	| HLT@relval2024 	|  	
+
+
+And Heavy Ion workflows:
+
+| **HIon** 	|  	|  	|  	|  	|  	
+|---	|---	|---	|---	|---	|	
+| **WF** 	| **Fragment/Input** 	| **Conditions** 	| **Era** 	| **Notes** 	| 
+|  	|  	|  	|  	|  	| 	
+| **Data** 	|  	|  	|  	|  	|  
+|  	|  	|  	|  	|  	|	
+| 140.53 	| HIRun2011 HIMinBiasUPC 	| run1_data 	|  	|  	  	
+| 140.56 	| HIRun2018A HIHardProbes 	| run2_data_promptlike_hi 	| Run2_2018_pp_on_AA 	|  	  	
+|  	|  	|  	|  	|  	|
+| **MC** 	|  	|  	|  	|  	|  
+|  	|  	|  	|  	|  	|  	
+| 158.01 	| RelValHydjetQ_B12_5020GeV_2018_ppReco (reMINIAOD) | phase1_2018_realistic_hi 	| Run2_2018_pp_on_AA 	| (HI MC with pp-like reco) 	|  	  	
+| 312.0 	| Pyquen_ZeemumuJets_pt10_2760GeV 	|  phase1_2022_realistic_hi	| Run3_pp_on_PbPb 	| PU = HiMixGEN 	|  

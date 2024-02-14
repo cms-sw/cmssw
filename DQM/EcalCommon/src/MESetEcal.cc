@@ -173,7 +173,7 @@ namespace ecaldqm {
           } else {
             binning::AxisSpecs *specs[] = {&xaxis, &yaxis};
             for (int iSpec(0); iSpec < 2; iSpec++) {
-              if (!specs[iSpec]->edges.empty()) {
+              if (specs[iSpec]->edges.empty()) {
                 specs[iSpec]->edges = std::vector<float>(specs[iSpec]->nbins + 1);
                 int nbins(specs[iSpec]->nbins);
                 double low(specs[iSpec]->low), high(specs[iSpec]->high);

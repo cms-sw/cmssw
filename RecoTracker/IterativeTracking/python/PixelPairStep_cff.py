@@ -92,6 +92,8 @@ highBetaStar_2018.toModify(pixelPairStepTrackingRegions,RegionPSet = dict(
      originRadius = 0.2,
      fixedError   = 4.
 ))
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+(highBetaStar_2018 & run3_upc).toModify(pixelPairStepTrackingRegions,RegionPSet = dict(originRadius = 0.015))
 fastSim.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(VertexCollection = 'firstStepPrimaryVerticesBeforeMixing'))
 
 # SEEDS

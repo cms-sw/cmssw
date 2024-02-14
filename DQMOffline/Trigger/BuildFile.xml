@@ -1,5 +1,4 @@
 <use name="CommonTools/TriggerUtils"/>
-<use name="CommonTools/Utils"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/EgammaCandidates"/>

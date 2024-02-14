@@ -22,14 +22,12 @@ offlineTesting=not live
 
 TAG ="PixelPhase1" 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siPixelDigis',
-                                         'siStripClusters', 
-                                         'SiPixelRawDataErrorSource', 
-                                         'SiPixelDigiSource'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.debugModules = cms.untracked.vstring('siPixelDigis',
+                                                           'siStripClusters', 
+                                                           'SiPixelRawDataErrorSource', 
+                                                           'SiPixelDigiSource')
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
 
 #----------------------------
 # Event Source
@@ -185,8 +183,8 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
         
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
-    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
-    process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 450
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfStripClusters = 450
 
     
 

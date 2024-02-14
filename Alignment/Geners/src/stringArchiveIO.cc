@@ -41,7 +41,7 @@ namespace gs {
     std::ifstream is(filename, std::ios_base::binary);
     if (!is.is_open())
       throw IOOpeningFailure("gs::readStringArchive", filename);
-    CPP11_auto_ptr<StringArchive> ar = read_item<StringArchive>(is);
+    std::unique_ptr<StringArchive> ar = read_item<StringArchive>(is);
     return ar.release();
   }
 
@@ -73,7 +73,7 @@ namespace gs {
     std::ifstream is(filename, std::ios_base::binary);
     if (!is.is_open())
       throw IOOpeningFailure("gs::readCompressedStringArchive", filename);
-    CPP11_auto_ptr<StringArchive> ar = read_compressed_item<StringArchive>(is);
+    std::unique_ptr<StringArchive> ar = read_compressed_item<StringArchive>(is);
     return ar.release();
   }
 
@@ -85,7 +85,7 @@ namespace gs {
          << "StringArchive item with id " << id << " not found";
       throw gs::IOInvalidArgument(os.str());
     }
-    CPP11_auto_ptr<StringArchive> p = ref.get(0);
+    std::unique_ptr<StringArchive> p = ref.get(0);
     return p.release();
   }
 

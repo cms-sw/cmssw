@@ -2,7 +2,6 @@
 #include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <sstream>
-#include <strstream>
 
 /*
 UnitConverter::UnitConverter(const G4BestUnit & bu)
@@ -23,7 +22,7 @@ UnitConverter::UnitConverter(ALIdouble val, const ALIstring& category)
 UnitConverter::~UnitConverter() { delete bu_; }
 
 std::string UnitConverter::ucstring() {
-  std::ostrstream str;
+  std::ostringstream str;
 
   if (angl_) {
     str.precision(11);
@@ -42,7 +41,7 @@ std::string UnitConverter::ucstring() {
 /*
 ostream & operator<<(ostream & os, const UnitConverter & uc)
 {
-  ostrstream temp;
+  std::ostringstream temp;
   //temp << uc.bu_;
   //temp << '\0';
   //string s(temp.str());

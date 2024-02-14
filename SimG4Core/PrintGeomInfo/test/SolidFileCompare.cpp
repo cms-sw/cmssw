@@ -36,8 +36,10 @@ std::pair<std::string, std::string> splitInto2(const std::string& list) {
 }
 
 void CompareFiles(const char* fileFile1, const char* fileFile2, int debug) {
-  std::map<std::string, std::string> solidFile1, solidFile2;
-  std::map<std::string, int> solidFile1Dup, solidFile2Dup;
+  std::map<std::string, std::string> solidFile1;
+  std::map<std::string, std::string> solidFile2;
+  std::map<std::string, int> solidFile1Dup;
+  std::map<std::string, int> solidFile2Dup;
   char buffer[1000];
   std::string name;
   std::ifstream fInput1(fileFile1);
@@ -78,26 +80,24 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int debug) {
 
   std::cout << "\n" << solidFile1Dup.size() << " more than one entry for a given name in " << fileFile1 << std::endl;
   int i1(0);
-  std::map<std::string, int>::iterator itr;
-  for (itr = solidFile1Dup.begin(); itr != solidFile1Dup.end(); ++itr, ++i1)
+  for (std::map<std::string, int>::iterator itr = solidFile1Dup.begin(); itr != solidFile1Dup.end(); ++itr, ++i1)
     std::cout << "[" << i1 << "] " << itr->first << " # " << itr->second << std::endl;
 
   std::cout << "\n" << solidFile1Dup.size() << " more than one entry for a given name in " << fileFile2 << std::endl;
   int i2(0);
-  for (itr = solidFile2Dup.begin(); itr != solidFile2Dup.end(); ++itr, ++i2)
+  for (std::map<std::string, int>::iterator itr = solidFile2Dup.begin(); itr != solidFile2Dup.end(); ++itr, ++i2)
     std::cout << "[" << i2 << "] " << itr->first << " # " << itr->second << std::endl;
 
   std::cout << "\nEntry in " << fileFile1 << " vs entry in " << fileFile2 << std::endl;
   int k3(0);
   std::vector<std::string> v1;
-  std::map<std::string, std::string>::iterator ktr;
-  for (ktr = solidFile1.begin(); ktr != solidFile1.end(); ++ktr) {
+  for (std::map<std::string, std::string>::iterator ktr = solidFile1.begin(); ktr != solidFile1.end(); ++ktr) {
     if (solidFile2.find(ktr->first) == solidFile2.end())
       v1.emplace_back(ktr->first);
     else if (solidFile2[ktr->first] == ktr->second)
       ++k3;
     else
-      std::cout << itr->first << " in File1 " << ktr->second << "\n         in File2 " << solidFile2[ktr->first]
+      std::cout << ktr->first << " in File1 " << ktr->second << "\n         in File2 " << solidFile2[ktr->first]
                 << std::endl;
   }
   std::cout << "\n" << k3 << " entries match between " << fileFile1 << " and " << fileFile2 << std::endl;
@@ -108,7 +108,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int debug) {
 
   int k4(0);
   std::vector<std::string> v2;
-  for (ktr = solidFile2.begin(); ktr != solidFile2.end(); ++ktr) {
+  for (std::map<std::string, std::string>::iterator ktr = solidFile2.begin(); ktr != solidFile2.end(); ++ktr) {
     if (solidFile1.find(ktr->first) == solidFile1.end())
       v2.emplace_back(ktr->first);
     else if (solidFile1[ktr->first] == ktr->second)

@@ -285,6 +285,8 @@ namespace pat {
     /// Soft Muon MVA
     float softMvaValue() const { return softMvaValue_; }
     void setSoftMvaValue(float softmva) { softMvaValue_ = softmva; }
+    float softMvaRun3Value() const { return softMvaRun3Value_; }
+    void setSoftMvaRun3Value(float softmva) { softMvaRun3Value_ = softmva; }
 
     /// Muon MVA ID
     float mvaIDValue() const { return mvaIDValue_; }
@@ -414,6 +416,7 @@ namespace pat {
     /// Muon MVA
     float mvaIDValue_;
     float softMvaValue_;
+    float softMvaRun3Value_ = 0;
 
     /// Inverse beta
     float inverseBeta_;

@@ -59,8 +59,6 @@ private:
   bool TTTrackAllowOneFalse2SStub;
 
   /// Mandatory methods
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 };  /// Close class
@@ -90,22 +88,13 @@ TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
 
     produces<TTTrackAssociationMap<T> >(iTag.instance());
   }
+  /// Print some information when loaded
+  edm::LogInfo("TTStubAssociator< ") << "TTTrackAssociator< " << templateNameFinder<T>() << " > loaded.";
 }
 
 /// Destructor
 template <typename T>
 TTTrackAssociator<T>::~TTTrackAssociator() {}
-
-/// Begin run
-template <typename T>
-void TTTrackAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  /// Print some information when loaded
-  edm::LogInfo("TTStubAssociator< ") << "TTTrackAssociator< " << templateNameFinder<T>() << " > loaded.";
-}
-
-/// End run
-template <typename T>
-void TTTrackAssociator<T>::endRun(const edm::Run& run, const edm::EventSetup& iSetup) {}
 
 /// Implement the producer
 template <>

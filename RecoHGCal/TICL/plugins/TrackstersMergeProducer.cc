@@ -100,6 +100,7 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
   const bool optimiseAcrossTracksters_;
+  const bool useMTDTiming_;
   const int eta_bin_window_;
   const int phi_bin_window_;
   const double pt_sigma_high_;
@@ -156,6 +157,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       propagator_token_(
           esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(edm::ESInputTag("", propName_))),
       optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
+      useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       eta_bin_window_(ps.getParameter<int>("eta_bin_window")),
       phi_bin_window_(ps.getParameter<int>("phi_bin_window")),
       pt_sigma_high_(ps.getParameter<double>("pt_sigma_high")),
@@ -261,13 +263,25 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   const auto &layerClusters = evt.get(clusters_token_);
   const auto &layerClustersTimes = evt.get(clustersTime_token_);
   const auto &muons = evt.get(muons_token_);
-  const auto &trackTime = evt.get(tracks_time_token_);
-  const auto &trackTimeErr = evt.get(tracks_time_err_token_);
-  const auto &trackTimeQual = evt.get(tracks_time_quality_token_);
+  edm::Handle<edm::ValueMap<float>> trackTime_h;
+  edm::Handle<edm::ValueMap<float>> trackTimeErr_h;
+  edm::Handle<edm::ValueMap<float>> trackTimeQual_h;
+  if (useMTDTiming_) {
+    evt.getByToken(tracks_time_token_, trackTime_h);
+    evt.getByToken(tracks_time_err_token_, trackTimeErr_h);
+    evt.getByToken(tracks_time_quality_token_, trackTimeQual_h);
+  }
 
   // Linking
-  linkingAlgo_->linkTracksters(
-      track_h, trackTime, trackTimeErr, trackTimeQual, muons, trackstersclue3d_h, *resultCandidates, *resultFromTracks);
+  linkingAlgo_->linkTracksters(track_h,
+                               trackTime_h,
+                               trackTimeErr_h,
+                               trackTimeQual_h,
+                               muons,
+                               trackstersclue3d_h,
+                               useMTDTiming_,
+                               *resultCandidates,
+                               *resultFromTracks);
 
   // Print debug info
   LogDebug("TrackstersMergeProducer") << "Results from the linking step : " << std::endl
@@ -280,9 +294,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     auto track_ptr = cand.trackPtr();
     auto trackster_ptrs = cand.tracksters();
 
-#ifdef EDM_ML_DEBUG
     auto track_idx = track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
     track_idx = (track_ptr.isNull()) ? -1 : track_idx;
+#ifdef EDM_ML_DEBUG
     LogDebug("TrackstersMergeProducer") << "PDG ID " << cand.pdgId() << " charge " << cand.charge() << " p " << cand.p()
                                         << std::endl;
     LogDebug("TrackstersMergeProducer") << "track id (p) : " << track_idx << " ("
@@ -292,6 +306,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
     // Merge included tracksters
     ticl::Trackster outTrackster;
+    outTrackster.setTrackIdx(track_idx);
     auto updated_size = 0;
     for (const auto &ts_ptr : trackster_ptrs) {
 #ifdef EDM_ML_DEBUG
@@ -335,8 +350,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     }
 
     outTrackster.zeroProbabilities();
-    if (!track_ptr.isNull())
-      outTrackster.setSeed(track_h.id(), track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get());
     if (!outTrackster.vertices().empty()) {
       resultTrackstersMerged->push_back(outTrackster);
     }
@@ -534,19 +547,17 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
   for (auto &cand : resultCandidates) {
     if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
       float time = 0.f;
-      float timeErr = 0.f;
+      float invTimeErr = 0.f;
       for (const auto &tr : cand.tracksters()) {
         if (tr->timeError() > 0) {
           auto invTimeESq = pow(tr->timeError(), -2);
           time += tr->time() * invTimeESq;
-          timeErr += invTimeESq;
+          invTimeErr += invTimeESq;
         }
       }
-      if (timeErr > 0) {
-        timeErr = 1. / timeErr;
-
-        cand.setTime(time * timeErr);
-        cand.setTimeError(sqrt(timeErr));
+      if (invTimeErr > 0) {
+        cand.setTime(time / invTimeErr);
+        cand.setTimeError(sqrt(1.f / invTimeErr));
       }
     }
   }
@@ -596,6 +607,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<std::string>("detector", "HGCAL");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<bool>("optimiseAcrossTracksters", true);
+  desc.add<bool>("useMTDTiming", true);
   desc.add<int>("eta_bin_window", 1);
   desc.add<int>("phi_bin_window", 1);
   desc.add<double>("pt_sigma_high", 2.);

@@ -52,8 +52,10 @@ bestchoice_ndata_centralized = [
         ]
 
 
+# Values taken from ECON-T working document v9 (March 2022)
+# https://edms.cern.ch/file/2206779/1/ECON-T_specification_working_doc_v9_2mar2022.pdf
 bestchoice_ndata_decentralized = [
-        1, 3, 6, 9, 14, 18, 23, 27, 32, 37, 41, 46, 0, 0, 0, 0,
+        1, 4, 6, 9, 14, 18, 23, 28, 32, 37, 41, 46, 48, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,

@@ -69,11 +69,6 @@ namespace edm {
       this->ValueMap<int>::swap(other);
       ref_.swap(other.ref_);
     }
-    Association& operator=(Association const& rhs) {
-      Association temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
 
     class Filler : public helper::Filler<Association<C> > {
       typedef helper::Filler<Association<C> > base;

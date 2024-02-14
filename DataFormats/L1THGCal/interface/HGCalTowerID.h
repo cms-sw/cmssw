@@ -28,8 +28,6 @@ namespace l1t {
 
     unsigned short rawId() const { return rawId_; }
 
-  private:
-    uint32_t rawId_;
     static const int subDetMask = 0x1;  // two for now 0 is HGC and 1 is HFNose
     static const int subDetShift = 16;
     static const int zsideMask = 0x1;
@@ -37,6 +35,9 @@ namespace l1t {
     static const int coordMask = 0x007F;
     static const int coord1Shift = 7;
     static const int coord2Shift = 0;
+
+  private:
+    uint32_t rawId_;
   };
 
   struct HGCalTowerCoord {

@@ -1,13 +1,45 @@
+###############################################################################
+# Way to use this:
+#   cmsRun ttbar.py geometry=V18
+#   Options for geometry V17Shift, V18
+# 
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V18",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V17Shift, V18")
+
+### get and parse the command line arguments
+ 
+options.parseArguments()
+print(options)
+
+####################################################################
+
+if (options.geometry == "V18"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("PROD",Phase2C22I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("PROD",Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+print("Geometry file: ", geomFile)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load("Configuration.Geometry.GeometryExtended2026D49Reco_cff")
+process.load(geomFile)
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -18,6 +50,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cout = dict()
     process.MessageLogger.G4cerr = dict()
     process.MessageLogger.HGCSim = dict()
+    process.MessageLogger.CaloSim = dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

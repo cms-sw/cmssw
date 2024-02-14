@@ -9,15 +9,15 @@
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
-#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "CAStructures.h"
 #include "GPUCACell.h"
 
-// #define GPU_DEBUG
-// #define NTUPLE_DEBUG
+//#define GPU_DEBUG
+//#define NTUPLE_DEBUG
 
 namespace gpuPixelDoublets {
 
@@ -287,8 +287,8 @@ namespace gpuPixelDoublets {
       }
 //      #endif
 #ifdef GPU_DEBUG
-      if (tooMany > 0)
-        printf("OuterHitOfCell full for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f\n",
+      if (tooMany > 0 || tot > 0)
+        printf("OuterHitOfCell for %d in layer %d/%d, %d,%d %d, %d %.3f %.3f %s\n",
                i,
                inner,
                outer,
@@ -297,7 +297,8 @@ namespace gpuPixelDoublets {
                tooMany,
                iphicut,
                TrackerTraits::minz[pairLayerId],
-               TrackerTraits::maxz[pairLayerId]);
+               TrackerTraits::maxz[pairLayerId],
+               tooMany > 0 ? "FULL!!" : "not full.");
 #endif
     }  // loop in block...
   }

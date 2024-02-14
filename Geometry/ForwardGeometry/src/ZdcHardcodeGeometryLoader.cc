@@ -23,7 +23,10 @@ ZdcHardcodeGeometryLoader::ReturnType ZdcHardcodeGeometryLoader::load(DetId::Det
     fill(HcalZDCDetId::EM, hg);
     fill(HcalZDCDetId::LUM, hg);
     fill(HcalZDCDetId::HAD, hg);
-    //      fill(HcalZDCDetId::RPD ,hg ); // line will be needed in next version of code, but is commented out for now in order to ensure run1 compatability.
+    if (m_zdcAddRPD)
+      fill(
+          HcalZDCDetId::RPD,
+          hg);  // line will be needed in next version of code, but is commented out for now in order to ensure run1 compatability.
   }
   return hg;
 }
@@ -33,7 +36,8 @@ ZdcHardcodeGeometryLoader::ReturnType ZdcHardcodeGeometryLoader::load() {
   fill(HcalZDCDetId::EM, hg);
   fill(HcalZDCDetId::LUM, hg);
   fill(HcalZDCDetId::HAD, hg);
-  //   fill(HcalZDCDetId::RPD ,hg );
+  if (m_zdcAddRPD)
+    fill(HcalZDCDetId::RPD, hg);
   return hg;
 }
 
@@ -57,7 +61,7 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, ReturnType g
     geom->allocatePar(ZdcGeometry::k_NumberOfParametersPerShape * ZdcGeometry::k_NumberOfShapes,
                       ZdcGeometry::k_NumberOfParametersPerShape);
 
-  edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
+  edm::LogVerbatim("ZdcGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
 
   // for each new HcalZdcDetId, make a CaloCellGeometry
 
@@ -73,6 +77,7 @@ void ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId, ReturnType g
 
   const int channel(detId.channel());
 
+  edm::LogVerbatim("ZdcGeometry") << "ZDCGeometry::Cell: " << detId << " Section " << section << " channel " << channel;
   //********* Here are all the hardcoded numbers you need to know, in **cm**
   //********* Most are from the zdc.xml and zdclum.xml files ******
 

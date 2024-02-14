@@ -21,9 +21,10 @@ l1Menus = {
     'FULL'         : ( ','.join( [ 'L1Menu_Collisions2023_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-07-11 15:33:37.000"] ), ),
     'GRun'         : ( ','.join( [ 'L1Menu_Collisions2023_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-07-11 15:33:37.000"] ), ),
     '2023v12'      : ( ','.join( [ 'L1Menu_Collisions2023_v1_2_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-06-13 14:12:00.000"] ), ),
-    'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2022_v1_1_0-d1_xml'            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2022-10-26 10:46:29.000"] ), ),
+    'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2023_v1_1_5_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-10-24 16:59:55.000"] ), ),
     'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v3_m2_xml'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-11-22 11:11:00.000"] ), ),
-    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2023_v1_0_0_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-08-30 08:07:26.000"] ), ),
+    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2023_v1_1_2_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-09-21 19:00:00.000"] ), ),
+    'Special'      : ( ','.join( [ 'L1Menu_Collisions2023_v1_3_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-07-11 15:33:37.000"] ), ),
 }
 
 hltGTs = {
@@ -40,6 +41,7 @@ hltGTs = {
     'run3_mc_HIon'           : ('phase1_2023_realistic_hi',l1Menus['HIon']),
     'run3_mc_PIon'           : ('phase1_2023_realistic'   ,l1Menus['PIon']),
     'run3_mc_PRef'           : ('phase1_2023_realistic'   ,l1Menus['PRef']),
+    'run3_mc_Special'        : ('phase1_2023_realistic'   ,l1Menus['Special']),
 
     'run1_hlt_Fake'          : ('run2_hlt_relval'         ,l1Menus['Fake']),
     'run2_hlt_Fake'          : ('run2_hlt_relval'         ,l1Menus['Fake']),
@@ -51,6 +53,7 @@ hltGTs = {
     'run3_hlt_HIon'          : ('run3_hlt'                ,l1Menus['HIon']),
     'run3_hlt_PIon'          : ('run3_hlt'                ,l1Menus['PIon']),
     'run3_hlt_PRef'          : ('run3_hlt'                ,l1Menus['PRef']),
+    'run3_hlt_Special'       : ('run3_hlt'                ,l1Menus['Special']),
 
     'run1_data_Fake'         : ('run2_data'               ,l1Menus['Fake']),
     'run2_data_Fake'         : ('run2_data'               ,l1Menus['Fake']),
@@ -62,6 +65,7 @@ hltGTs = {
     'run3_data_HIon'         : ('run3_data_prompt'        ,l1Menus['HIon']),
     'run3_data_PIon'         : ('run3_data_prompt'        ,l1Menus['PIon']),
     'run3_data_PRef'         : ('run3_data_prompt'        ,l1Menus['PRef']),
+    'run3_data_Special'      : ('run3_data_prompt'        ,l1Menus['Special']),
 
 }
 

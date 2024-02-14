@@ -115,6 +115,11 @@ void TriggerSummaryProducerRAW::produce(edm::StreamID, edm::Event& iEvent, const
         << "TriggerSummaryProducerRaw::addFilterObjects(   )"
         << "\n fobs[ifob]->l1tmuonShowerIds().size() = " << fobs[ifob]->l1tmuonShowerIds().size()
         << "\n fobs[ifob]->l1tmuonShowerRefs().size() = " << fobs[ifob]->l1tmuonShowerRefs().size();
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tp2gtcandSize() = " << fobs[ifob]->l1tp2gtcandSize()
+        << "\n fobs[ifob]->l1tp2gtcandIds().size() = " << fobs[ifob]->l1tp2gtcandIds().size()
+        << "\n fobs[ifob]->11tp2gtcandRefs().size() = " << fobs[ifob]->l1tp2gtcandRefs().size();
     product.addFilterObject(tag, *fobs[ifob]);
   }
 

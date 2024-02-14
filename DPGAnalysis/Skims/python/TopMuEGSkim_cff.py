@@ -21,6 +21,10 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 hltBtagTopMuEGSelection = cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
      HLTPaths = cms.vstring(
+    # 2022
+    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v*',
+    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5_v*',
+    # 2023
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepJet_1p5_v*',  # DeepCSV paths not available anymore. See https://its.cern.ch/jira/browse/CMSHLT-2592 
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PNet2BTagMean0p50_v*',  # Taken from HLTrigger/Configuration/python/HLTrigger_Datasets_GRun_cff.py
      ), 

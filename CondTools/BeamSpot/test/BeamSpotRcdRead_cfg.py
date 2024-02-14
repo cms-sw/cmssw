@@ -41,8 +41,10 @@ process.dbInput = cms.ESSource("PoolDBESSource",
 ####################################################################
 # Load and configure analyzer
 ####################################################################
-process.load("CondTools.BeamSpot.BeamSpotRcdRead_cfi")
-process.BeamSpotRead.rawFileName = 'reference_prompt_BeamSpotObjects_PCL_byLumi_v0_prompt.txt'
+from CondTools.BeamSpot.beamSpotRcdReader_cfi import beamSpotRcdReader
+process.BeamSpotRead = beamSpotRcdReader.clone(
+    rawFileName = 'reference_prompt_BeamSpotObjects_PCL_byLumi_v0_prompt.txt'
+)
 
 ####################################################################
 # Output file

@@ -1,5 +1,6 @@
 <test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient-legacy" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" />  <!-- To be removed once https://github.com/cms-sw/cmssw/issues/43108 is solved -->
+<test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py 370580"/>
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
@@ -22,10 +23,11 @@
 <test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-sistrip_approx_dqm_sourceclient" command="runtest.sh sistrip_approx_dqm_sourceclient-live_cfg.py 362321 hi_run"/>
 <test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-ecalgpu_dqm_sourceclient" command="runtest.sh ecalgpu_dqm_sourceclient-live_cfg.py 369956"/>
-<test name="TestDQMOnlineClient-hcalgpu_dqm_sourceclient" command="runtest.sh hcalgpu_dqm_sourceclient-live_cfg.py 369956"/>
-<test name="TestDQMOnlineClient-pixelgpu_dqm_sourceclient" command="runtest.sh pixelgpu_dqm_sourceclient-live_cfg.py 369956"/>
+<test name="TestDQMOnlineClient-ecalgpu_dqm_sourceclient" command="runtest.sh ecalgpu_dqm_sourceclient-live_cfg.py 373710"/>
+<test name="TestDQMOnlineClient-hcalgpu_dqm_sourceclient" command="runtest.sh hcalgpu_dqm_sourceclient-live_cfg.py 373710"/>
+<test name="TestDQMOnlineClient-pixelgpu_dqm_sourceclient" command="runtest.sh pixelgpu_dqm_sourceclient-live_cfg.py 373710"/>
 <!-- streamDQMCalibration is required -->
 <!-- <test name="TestDQMOnlineClient-ecalcalib_dqm_sourceclient" command="runtest.sh ecalcalib_dqm_sourceclient-live_cfg.py" /> -->
 <!-- streamDQMCalibration is required -->

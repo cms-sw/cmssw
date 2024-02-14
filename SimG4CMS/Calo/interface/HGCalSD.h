@@ -12,6 +12,7 @@
 #include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 #include "SimG4CMS/Calo/interface/HGCGuardRingPartial.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCellOffset.h"
 #include <string>
 
 class HGCalDDDConstants;
@@ -35,29 +36,39 @@ protected:
   void update(const BeginOfJob *) override;
   void initRun() override;
   bool filterHit(CaloG4Hit *, double) override;
+  void processSecondHit(const G4Step *, const G4Track *) override;
 
 private:
   uint32_t setDetUnitId(int, int, int, int, G4ThreeVector &);
   bool isItinFidVolume(const G4ThreeVector &);
+  bool calibCell(const uint32_t &id);
 
+  std::string myName_;
   const HGCalDDDConstants *hgcons_;
+  edm::ParameterSet const &ps_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCGuardRing> guardRing_;
   std::unique_ptr<HGCGuardRingPartial> guardRingPartial_;
   std::unique_ptr<HGCMouseBite> mouseBite_;
+  std::unique_ptr<HGCalCellOffset> cellOffset_;
   DetId::Detector mydet_;
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   double eminHit_, slopeMin_, distanceFromEdge_;
-  double mouseBiteCut_, weight_;
+  double waferSize_, mouseBiteCut_, guardRingOffset_, weight_;
   int levelT1_, levelT2_, cornerMinMask_;
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_, checkID_;
   int useSimWt_, verbose_;
-  bool dd4hep_;
+  bool dd4hep_, calibCells_;
+  double calibCellRHD_, calibCellRLD_;
+  std::vector<int> calibCellFullHD_, calibCellPartHD_;
+  std::vector<int> calibCellFullLD_, calibCellPartLD_;
   const double tan30deg_, cos30deg_;
   std::vector<double> angles_;
   std::string missingFile_;
+  bool calibCell_;
+  double fraction_;
 };
 
 #endif  // HGCalSD_h

@@ -29,8 +29,15 @@ namespace cond {
 
     public:
       // more or less compliant with typical iterator semantics...
-      class Iterator : public std::iterator<std::input_iterator_tag, cond::RunInfo_t> {
+      class Iterator {
       public:
+        // C++17 compliant iterator definition
+        using iterator_category = std::input_iterator_tag;
+        using value_type = cond::RunInfo_t;
+        using difference_type = void;  // Not used
+        using pointer = void;          // Not used
+        using reference = void;        // Not used
+
         //
         Iterator();
         explicit Iterator(RunInfoData::const_iterator current);

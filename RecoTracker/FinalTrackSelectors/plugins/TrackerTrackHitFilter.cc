@@ -62,6 +62,9 @@
  *     minimumHits             = Minimum hits that the output TrackCandidate must have to be saved
  *     replaceWithInactiveHits = instead of discarding hits, replace them with a invalid "inactive" hits,
  *                               so multiple scattering is accounted for correctly.
+ *     truncateTracks          = determines if recHits collection is to be truncated to provide tracks with
+ *                               layersRemaining number of layers after refitting
+ *     layersRemaining         = number of tracker layers with measurement remaining after truncating track
  *     stripFrontInvalidHits   = strip invalid hits at the beginning of the track
  *     stripBackInvalidHits    = strip invalid hits at the end of the track
  *     stripAllInvalidHits     = remove ALL invald hits (might be a problem for multiple scattering, use with care!)
@@ -87,6 +90,8 @@ namespace reco {
                                  const Trajectory *itt,
                                  std::vector<TrackingRecHit *> &hits);
       void produceFromTrack(const edm::EventSetup &iSetup, const Track *itt, std::vector<TrackingRecHit *> &hits);
+      unsigned int getSequLayer(const reco::Track &tk, unsigned int prevSequLayers, std::vector<bool> isNotValidVec);
+      bool isFirstValidHitInLayer(const reco::Track &tk, std::vector<bool> isNotValidVec);
 
       static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -124,6 +129,9 @@ namespace reco {
       edm::EventNumber_t iEvt;
 
       size_t minimumHits_;
+
+      unsigned int layersRemaining_;
+      bool truncateTracks_;
 
       bool replaceWithInactiveHits_;
       bool stripFrontInvalidHits_;
@@ -301,6 +309,8 @@ namespace reco {
     TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig)
         : src_(iConfig.getParameter<edm::InputTag>("src")),
           minimumHits_(iConfig.getParameter<uint32_t>("minimumHits")),
+          layersRemaining_(iConfig.getParameter<uint32_t>("layersRemaining")),
+          truncateTracks_(iConfig.getParameter<bool>("truncateTracks")),
           replaceWithInactiveHits_(iConfig.getParameter<bool>("replaceWithInactiveHits")),
           stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
           stripBackInvalidHits_(iConfig.getParameter<bool>("stripBackInvalidHits")),
@@ -561,6 +571,54 @@ namespace reco {
       iEvent.put(std::move(output));
     }
 
+    bool TrackerTrackHitFilter::isFirstValidHitInLayer(const reco::Track &tk, std::vector<bool> isNotValidVec) {
+      reco::HitPattern hp = tk.hitPattern();
+
+      int vecSize = static_cast<int>(isNotValidVec.size());
+      // If hit is not valid, it will not count as a tracker layer with measurement -> don't increase sequLayers
+      if (isNotValidVec[vecSize - 1])
+        return false;
+
+      // If very first valid layer -> increase sequLayers
+      if (vecSize == 1)
+        return true;
+
+      uint32_t pHit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, vecSize - 1);
+      uint32_t thisLayer = hp.getLayer(pHit);
+      uint32_t thisSubStruct = hp.getSubStructure(pHit);
+
+      // This loop compares the previous hits substructure and layer with current hit. If hits in the same layer
+      // and substructure and previous hit is valid, skip layer. If previous hit is not valid, even if in same layer
+      // and substructure, check the previous previous hit. Repeat process for every previous hit until reaching
+      // a valid hit or different layer/substructure
+      for (int j = 0; j < vecSize; ++j) {
+        if (vecSize > (j + 1)) {
+          uint32_t nHit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, vecSize - (j + 2));
+          uint32_t prevLayer = hp.getLayer(nHit);
+          uint32_t prevSubStruct = hp.getSubStructure(nHit);
+          if ((thisLayer == prevLayer) && (thisSubStruct == prevSubStruct)) {
+            if (isNotValidVec[vecSize - (j + 2)] == false) {
+              return false;
+            }
+          } else {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    unsigned int TrackerTrackHitFilter::getSequLayer(const reco::Track &tk,
+                                                     unsigned int prevSequLayers,
+                                                     std::vector<bool> isNotValidVec) {
+      unsigned int sequLayers = 0;
+      sequLayers = isFirstValidHitInLayer(tk, isNotValidVec) ? prevSequLayers + 1 : prevSequLayers;
+
+      return sequLayers;
+    }
+
     TrackCandidate TrackerTrackHitFilter::makeCandidate(const reco::Track &tk,
                                                         std::vector<TrackingRecHit *>::iterator hitsBegin,
                                                         std::vector<TrackingRecHit *>::iterator hitsEnd) {
@@ -586,8 +644,29 @@ namespace reco {
       TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
       TrackCandidate::RecHitContainer ownHits;
       ownHits.reserve(hitsEnd - hitsBegin);
+      const reco::HitPattern &hp = tk.hitPattern();
+      unsigned int sequLayers = 0;
+      std::vector<bool> isNotValidVec;
+      isNotValidVec.clear();
+      bool breakHitLoop = false;
+      if (int(int(hp.numberOfValidHits()) - int(hp.numberOfAllHits(reco::HitPattern::TRACK_HITS))) != 0) {
+        breakHitLoop = true;
+      }
       for (; hitsBegin != hitsEnd; ++hitsBegin) {
-        //if(! (*hitsBegin)->isValid() ) std::cout<<"Putting in the trackcandidate an INVALID HIT !"<<std::endl;
+        // Only perform hit checking and verification of number of layers if recHits are to be truncated
+        if (truncateTracks_) {
+          if (breakHitLoop)
+            break;
+
+          if (!(*hitsBegin)->isValid()) {
+            isNotValidVec.push_back(true);
+          } else {
+            isNotValidVec.push_back(false);
+          }
+          sequLayers = getSequLayer(tk, sequLayers, isNotValidVec);
+          if (sequLayers > layersRemaining_)
+            break;
+        }
         ownHits.push_back(*hitsBegin);
       }
 
@@ -1040,6 +1119,12 @@ namespace reco {
           ->setComment(
               " instead of removing hits replace them with inactive hits, so you still consider the multiple "
               "scattering");
+      desc.add<bool>("truncateTracks", false)
+          ->setComment(
+              "determines if recHits collection is to be truncated to provide tracks with layersRemaining number of "
+              "layers after refitting");
+      desc.add<uint32_t>("layersRemaining", 8)
+          ->setComment("number of tracker layers with measurement remaining after truncating track");
       desc.add<bool>("stripFrontInvalidHits", false)
           ->setComment("strip invalid & inactive hits from any end of the track");
       desc.add<bool>("stripBackInvalidHits", false)

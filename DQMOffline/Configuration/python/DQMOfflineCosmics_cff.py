@@ -8,6 +8,7 @@ from DQMOffline.Ecal.ecal_dqm_source_offline_cosmic_cff import *
 from DQM.HcalTasks.OfflineSourceSequence_cosmic import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_Cosmic_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
+from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
@@ -30,6 +31,8 @@ DQMOfflineCosmicsTrackerStrip = cms.Sequence( SiStripDQMTier0 )
 
 DQMOfflineCosmicsTrackerPixel = cms.Sequence( siPixelOfflineDQM_cosmics_source )
 
+DQMOfflineCosmicsTrackerPhase2 = cms.Sequence( trackerphase2DQMSource )
+
 #tnp modules are meant for collisions only (DT has separate cff for cosmics)
 if cscSources.contains(cscTnPEfficiencyMonitor):
     cscSources.remove(cscTnPEfficiencyMonitor)
@@ -42,10 +45,10 @@ DQMOfflineCosmicsMuonDPG = cms.Sequence( dtSourcesCosmics *
                                   cscSources )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 _run3_GEM_DQMOfflineCosmicsMuonDPG = DQMOfflineCosmicsMuonDPG.copy()
 _run3_GEM_DQMOfflineCosmicsMuonDPG += gemSourcesCosmics
-run3_GEM.toReplaceWith(DQMOfflineCosmicsMuonDPG, _run3_GEM_DQMOfflineCosmicsMuonDPG)
-
+(run3_GEM & ~phase2_common).toReplaceWith(DQMOfflineCosmicsMuonDPG, _run3_GEM_DQMOfflineCosmicsMuonDPG)
 
 DQMOfflineCosmicsCASTOR = cms.Sequence( castorSources )
 
@@ -57,6 +60,14 @@ DQMOfflineCosmicsPreDPG = cms.Sequence( DQMOfflineCosmicsDCS *
 					DQMOfflineCosmicsMuonDPG *
                                         DQMOfflineCosmicsCASTOR
 					)
+
+# No Strip detector in Phase-2 Tracker
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(DQMOfflineCosmicsPreDPG,DQMOfflineCosmicsPreDPG.copyAndExclude([DQMOfflineCosmicsTrackerStrip,  DQMOfflineCosmicsTrackerPixel]))
+         
+_DQMOfflineCosmicsPreDPG = DQMOfflineCosmicsPreDPG.copy()
+_DQMOfflineCosmicsPreDPG += DQMOfflineCosmicsTrackerPhase2
+phase2_tracker.toReplaceWith(DQMOfflineCosmicsPreDPG,_DQMOfflineCosmicsPreDPG)
 
 DQMOfflineCosmicsDPG = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                      DQMMessageLogger )
@@ -92,9 +103,13 @@ DQMOfflineCosmicsPrePOG = cms.Sequence( DQMOfflineCosmicsTracking *
 #					DQMOfflineCosmicsPhysics
                                         )
 
+phase2_common.toReplaceWith(DQMOfflineCosmicsPrePOG,DQMOfflineCosmicsPrePOG.copyAndExclude([DQMOfflineCosmicsTrigger]))
+
 DQMOfflineCosmicsPOG = cms.Sequence( DQMOfflineCosmicsPrePOG *
                                      DQMMessageLogger )
 
 DQMOfflineCosmics = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                   DQMOfflineCosmicsPrePOG *
                                   DQMMessageLogger )
+
+PostDQMOffline = cms.Sequence()

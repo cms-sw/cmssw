@@ -10,7 +10,6 @@
 // #include "FWCore/Utilities/interface/Exception.h"
 // #include "FWCore/Utilities/interface/thread_safety_macros.h"
 // #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
@@ -136,12 +135,21 @@ std::vector<float> OnlineDQMDigiAD::Serialize2DVector(const std::vector<std::vec
 
 std::vector<std::vector<float>> OnlineDQMDigiAD::Map1DTo2DVector(const std::vector<float> &input_1d_vec,
                                                                  const int numSplits) {
+  if (numSplits <= 0)
+    throw std::invalid_argument("numSplits must be greater than 0.");
+
   std::size_t const splitted_size = input_1d_vec.size() / numSplits;
-  // check splitted_size*numSplits == input_1d_vec.size()
+
+  if (splitted_size * numSplits != input_1d_vec.size())
+    throw std::invalid_argument("Conversion is not allowed! The input vector length " +
+                                std::to_string(input_1d_vec.size()) + " must be divisible by the numSplits " +
+                                std::to_string(numSplits) + ".");
+
   std::vector<std::vector<float>> output_2d_vec;
 
-  for (size_t i = 0; i < input_1d_vec.size(); i += numSplits - 1) {
-    std::vector<float> chunch_vec(input_1d_vec.begin() + i, input_1d_vec.begin() + i + splitted_size);
+  for (int i = 0; i < numSplits; i++) {
+    std::vector<float> chunch_vec(input_1d_vec.begin() + i * splitted_size,
+                                  input_1d_vec.begin() + (i + 1) * splitted_size);
     output_2d_vec.push_back(chunch_vec);
   }
   return output_2d_vec;
@@ -162,10 +170,11 @@ std::vector<float> OnlineDQMDigiAD::PrepareONNXDQMMapVectors(
 }
 
 std::vector<std::vector<std::vector<float>>> OnlineDQMDigiAD::ONNXOutputToDQMHistMap(
-    const std::vector<std::vector<float>> &ad_model_output_vectors, const int selOutputIdx) {
+    const std::vector<std::vector<float>> &ad_model_output_vectors,
+    const int numDepth,
+    const int numDIeta,
+    const int selOutputIdx) {
   // each output_vector is a serialized 3d hist map
-  const unsigned short numDepth = 7;
-  const unsigned short numDIeta = 64;
 
   const std::vector<float> &output_vector = ad_model_output_vectors[selOutputIdx];
   std::vector<std::vector<float>> output_2d_vec = Map1DTo2DVector(output_vector, numDepth);

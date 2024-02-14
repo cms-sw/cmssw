@@ -1,22 +1,20 @@
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestData.h"
 #include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestRecords.h"
 #include "HeterogeneousCore/AlpakaTest/interface/ESTestData.h"
 #include "HeterogeneousCore/AlpakaTest/interface/alpaka/AlpakaESTestData.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
-   * This class demonstrates and ESProducer on the data model 1 that
-   * consumes a standard host ESProduct and converts the data into
-   * PortableCollection, and implicitly transfers the data product to device
+   * This class demonstrates an ESProducer that uses the
+   * PortableCollection-based data model, and that consumes a standard
+   * host ESProduct and converts the data into PortableCollection, and
+   * implicitly transfers the data product to device
    */
   class TestAlpakaESProducerC : public ESProducer {
   public:

@@ -73,6 +73,11 @@ namespace cscdqm {
     HistoDef(const HistoId p_id) : id(p_id) {}
 
     /**
+       * @brief  Copy constructor
+       */
+    HistoDef(const HistoDef&) = default;
+
+    /**
        * @brief  Base virtual destructor
        */
     virtual ~HistoDef() {}

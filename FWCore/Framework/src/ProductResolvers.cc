@@ -159,13 +159,12 @@ namespace edm {
   }
 
   namespace {
-    cms::Exception& extendException(cms::Exception& e, BranchDescription const& bd, ModuleCallingContext const* mcc) {
+    void extendException(cms::Exception& e, BranchDescription const& bd, ModuleCallingContext const* mcc) {
       e.addContext(std::string("While reading from source ") + bd.className() + " " + bd.moduleLabel() + " '" +
                    bd.productInstanceName() + "' " + bd.processName());
       if (mcc) {
         edm::exceptionContext(e, *mcc);
       }
-      return e;
     }
   }  // namespace
   ProductResolverBase::Resolution DelayedReaderInputProductResolver::resolveProduct_(
@@ -197,10 +196,12 @@ namespace edm {
             //another thread could have beaten us here
             setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
           } catch (cms::Exception& e) {
-            throw extendException(e, branchDescription(), mcc);
+            extendException(e, branchDescription(), mcc);
+            throw;
           } catch (std::exception const& e) {
             auto newExcept = edm::Exception(errors::StdException) << e.what();
-            throw extendException(newExcept, branchDescription(), mcc);
+            extendException(newExcept, branchDescription(), mcc);
+            throw newExcept;
           }
         }
       }
@@ -299,10 +300,12 @@ namespace edm {
                   //another thread could have finished this while we were waiting
                   setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
                 } catch (cms::Exception& e) {
-                  throw extendException(e, branchDescription(), mcc);
+                  extendException(e, branchDescription(), mcc);
+                  throw;
                 } catch (std::exception const& e) {
                   auto newExcept = edm::Exception(errors::StdException) << e.what();
-                  throw extendException(newExcept, branchDescription(), mcc);
+                  extendException(newExcept, branchDescription(), mcc);
+                  throw newExcept;
                 }
               }
             }
@@ -566,7 +569,8 @@ namespace edm {
 
       //This gives a lifetime greater than this call
       ParentContext parent(mcc);
-      mcc_ = ModuleCallingContext(worker_->description(), ModuleCallingContext::State::kPrefetching, parent, nullptr);
+      mcc_ = ModuleCallingContext(
+          worker_->description(), index_ + 1, ModuleCallingContext::State::kPrefetching, parent, nullptr);
 
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
       worker_->doTransformAsync(WaitingTaskHolder(*waitTask.group(), t),

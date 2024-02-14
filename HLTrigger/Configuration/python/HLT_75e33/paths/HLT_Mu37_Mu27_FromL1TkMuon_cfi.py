@@ -26,6 +26,7 @@ from ..modules.hltIter2Phase2L3FromL1TkMuonPixelHitDoublets_cfi import *
 from ..modules.hltIter2Phase2L3FromL1TkMuonPixelHitTriplets_cfi import *
 from ..modules.hltIter2Phase2L3FromL1TkMuonPixelLayerTriplets_cfi import *
 from ..modules.hltIter2Phase2L3FromL1TkMuonPixelSeeds_cfi import *
+from ..modules.hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered_cfi import *
 from ..modules.hltIter2Phase2L3FromL1TkMuonTrackCutClassifier_cfi import *
 from ..modules.hltIter2Phase2L3FromL1TkMuonTrackSelectionHighPurity_cfi import *
 from ..modules.hltL2MuonFromL1TkMuonCandidates_cfi import *
@@ -70,8 +71,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Mu37_Mu27_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    hltL1TkDoubleMuFiltered7 +
-    hltL1TkSingleMuFiltered15 +
     hltDoubleMuon7DZ1p0 +
     hltL3fL1DoubleMu155fPreFiltered27 +
     hltL3fL1DoubleMu155fFiltered37 +
@@ -99,6 +98,7 @@ HLT_Mu37_Mu27_FromL1TkMuon = cms.Path(
         hltIter2Phase2L3FromL1TkMuonPixelHitTriplets,
         hltIter2Phase2L3FromL1TkMuonPixelLayerTriplets,
         hltIter2Phase2L3FromL1TkMuonPixelSeeds,
+        hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered,
         hltIter2Phase2L3FromL1TkMuonTrackCutClassifier,
         hltIter2Phase2L3FromL1TkMuonTrackSelectionHighPurity,
         hltL2MuonFromL1TkMuonCandidates,

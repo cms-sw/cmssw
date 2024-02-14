@@ -134,8 +134,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
   for (const auto& hit : *pcalohits.product()) {
     if (hit.encodedEt() > 0)  // hit.encodedEt() returns an int corresponding to 2x the crystal Et
     {
-      // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
-      float et = hit.encodedEt() * p2eg::ECAL_LSB;
+      // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to multiply by 0.125 (input LSB)
+      float et = hit.encodedEt() * 0.125;
       if (et < p2eg::cut_500_MeV) {
         continue;  // Reject hits with < 500 MeV ET
       }
@@ -147,7 +147,9 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       ehit.setId(hit.id());
       ehit.setPosition(GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z()));
       ehit.setEnergy(et);
-      ehit.setEt_uint((ap_uint<10>)hit.encodedEt());  // also save the uint Et
+      ehit.setEt_uint(
+          (ap_uint<10>)hit.encodedEt() >>
+          2);  // also save the uint Et, this is to convert between 0.125 (in MC production) and 0.5 (in firmware based code)
       ehit.setPt();
       ecalhits.push_back(ehit);
     }
@@ -417,8 +419,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
     // Cluster shower shape flags
     //-------------------------------------------//
     for (auto& c : cluster_list_merged[cc]) {
-      c.is_ss = p2eg::passes_ss(c.getPt(), (c.getEt2x5() / c.getEt5x5()));
-      c.is_looseTkss = p2eg::passes_looseTkss(c.getPt(), (c.getEt2x5() / c.getEt5x5()));
+      c.is_ss = p2eg::passes_ss(c.getPt(), c.realEta(cc), (c.getEt2x5() / c.getEt5x5()));
+      c.is_looseTkss = p2eg::passes_looseTkss(c.getPt(), c.realEta(cc), (c.getEt2x5() / c.getEt5x5()));
     }
 
     //-------------------------------------------//
@@ -440,7 +442,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       for (int jj = 0; jj < p2eg::n_towers_cardPhi; ++jj) {  // 4 towers per card in phi
         ap_uint<12> ecalEt = towerECALCard[ii][jj][cc].et();
         ap_uint<12> hcalEt = towerHCALCard[ii][jj][cc].et();
-        towerECALCard[ii][jj][cc].getHoverE(ecalEt, hcalEt);
+        towerECALCard[ii][jj][cc].addHoverEToTower(ecalEt, hcalEt);
       }
     }
 
@@ -482,9 +484,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       for (int jj = 0; jj < p2eg::n_towers_cardPhi; ++jj) {  // 4 towers per card in phi
 
         l1tp2::CaloTower l1CaloTower;
-        // Divide by 8.0 to get ET as float (GeV)
         l1CaloTower.setEcalTowerEt(towerECALCard[ii][jj][cc].et() * p2eg::ECAL_LSB);
-        // HCAL TPGs encoded ET: multiply by the LSB (0.5) to convert to GeV
         l1CaloTower.setHcalTowerEt(towerHCALCard[ii][jj][cc].et() * p2eg::HCAL_LSB);
         int absToweriEta = p2eg::getAbsID_iEta_fromFirmwareCardTowerLink(cc, ii, jj);
         int absToweriPhi = p2eg::getAbsID_iPhi_fromFirmwareCardTowerLink(cc, ii, jj);
@@ -525,7 +525,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
           p2eg::tower_t t0_ecal = towerECALCard[iTower][iLink][rcc];
           p2eg::tower_t t0_hcal = towerHCALCard[iTower][iLink][rcc];
           p2eg::RCTtower_t t;
-          t.et = t0_ecal.et() + p2eg::convertHcalETtoEcalET(t0_hcal.et());
+          t.et = t0_ecal.et() + t0_hcal.et();
           t.hoe = t0_ecal.hoe();
           // Not needed for GCT firmware but will be written into GCT CMSSW outputs : 12 bits each
           t.ecalEt = t0_ecal.et();

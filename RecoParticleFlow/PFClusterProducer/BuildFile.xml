@@ -18,6 +18,15 @@
 <use name="vdt_headers"/>
 <use name="rootmath"/>
 <use name="root"/>
+<use name="eigen"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="Geometry/Records"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>

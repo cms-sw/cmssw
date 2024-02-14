@@ -35,17 +35,9 @@
 class BooleanFlagFilter : public edm::global::EDFilter<> {
 public:
   explicit BooleanFlagFilter(const edm::ParameterSet&);
-  ~BooleanFlagFilter() override;
 
 private:
-  //virtual void beginJob() override;
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  //virtual void endJob() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<bool> inputToken_;
@@ -69,11 +61,6 @@ BooleanFlagFilter::BooleanFlagFilter(const edm::ParameterSet& iConfig) {
   reverse_ = iConfig.getParameter<bool>("reverseDecision");
 }
 
-BooleanFlagFilter::~BooleanFlagFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -95,53 +82,6 @@ bool BooleanFlagFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
 
   return result;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-/*
-void 
-BooleanFlagFilter::beginJob()
-{
-}
-*/
-
-// ------------ method called once each job just after ending the event loop  ------------
-/*
-void 
-BooleanFlagFilter::endJob() {
-}
-*/
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-BooleanFlagFilter::beginRun(edm::Run const&, edm::EventSetup const&)
-{ 
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-BooleanFlagFilter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-BooleanFlagFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-BooleanFlagFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BooleanFlagFilter);

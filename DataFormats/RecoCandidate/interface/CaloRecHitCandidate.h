@@ -10,13 +10,13 @@
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ptr.h"
 
 namespace reco {
 
   class CaloRecHitCandidate : public LeafCandidate {
   public:
-    typedef edm::RefToBase<CaloRecHit> CaloRecHitRef;
+    typedef edm::Ptr<CaloRecHit> CaloRecHitRef;
     /// default constructor
     CaloRecHitCandidate() : LeafCandidate() {}
     /// constructor from values
@@ -41,7 +41,7 @@ namespace reco {
     CaloRecHitRef caloRecHit_;
   };
   /// get default Track component
-  GET_DEFAULT_CANDIDATE_COMPONENT(CaloRecHitCandidate, edm::RefToBase<CaloRecHit>, caloRecHit);
+  GET_DEFAULT_CANDIDATE_COMPONENT(CaloRecHitCandidate, edm::Ptr<CaloRecHit>, caloRecHit);
 
 }  // namespace reco
 

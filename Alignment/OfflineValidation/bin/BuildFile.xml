@@ -17,5 +17,7 @@
 <bin name="PVtrends" file="PVtrends.cc,Options.cc" />
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
 <bin name="Zmumumerge" file="Zmumumerge.cc,Options.cc" />
+<bin name="DiMuonVmerge" file="DiMuonVmerge.cc,Options.cc" />
+<bin name="MTSmerge" file="MTSmerge.cc,Options.cc" />
 <bin name="haddws" file="haddws.C" />
 <bin name="jetHtPlotter" file="jetHtPlotter.cc,JetHtPlotConfiguration.cc,Options.cc" />

@@ -17,7 +17,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 
 using namespace edm;
 using namespace sipixelobjects;
@@ -32,8 +31,6 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_LorentzAngle_DB_)  // Get Lorentz angle from DB record
     siPixelLorentzAngle_ = &es.getData(siPixelLorentzAngleToken_);
 
-  // gets the map and geometry from the DB (to kill ROCs)
-  fedCablingMap_ = &es.getData(fedCablingMapToken_);
   geom_ = &es.getData(geomToken_);
   if (useChargeReweighting_) {
     theSiPixelChargeReweightingAlgorithm_->init(es);
@@ -57,7 +54,6 @@ PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf, 
       apply_timewalk_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<bool>("ApplyTimewalk")),
       timewalk_model_(
           conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<edm::ParameterSet>("TimewalkModel")),
-      fedCablingMapToken_(iC.esConsumes()),
       geomToken_(iC.esConsumes()) {
   if (use_deadmodule_DB_)
     siPixelBadModuleToken_ = iC.esConsumes();
@@ -260,63 +256,6 @@ bool PixelDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInf
 // -- Read Bad Channels from the Condidion DB and kill channels/module accordingly
 //
 void PixelDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
-  bool isbad = false;
-  uint32_t detID = pixdet->geographicalId().rawId();
-  int ncol = pixdet->specificTopology().ncolumns();
-  if (ncol < 0)
-    return;
-  std::vector<SiPixelQuality::disabledModuleType> disabledModules = siPixelBadModule_->getBadComponentList();
-
-  SiPixelQuality::disabledModuleType badmodule;
-  for (const auto& mod : disabledModules) {
-    if (detID == mod.DetID) {
-      isbad = true;
-      badmodule = mod;
-      break;
-    }
-  }
-
-  if (!isbad)
-    return;
-
-  signal_map_type& theSignal = _signal[detID];  // check validity
-  if (badmodule.errorType == 0) {               // this is a whole dead module.
-    for (auto& s : theSignal)
-      s.second.set(0.);  // reset amplitude
-  } else {               // all other module types: half-modules and single ROCs.
-    // Get Bad ROC position:
-    // follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc
-    std::vector<GlobalPixel> badrocpositions;
-    for (size_t j = 0; j < static_cast<size_t>(ncol); j++) {
-      if (siPixelBadModule_->IsRocBad(detID, j)) {
-        std::vector<CablingPathToDetUnit> path = fedCablingMap_->pathToDetUnit(detID);
-        for (auto const& p : path) {
-          const PixelROC* myroc = fedCablingMap_->findItem(p);
-          if (myroc->idInDetUnit() == j) {
-            LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
-            GlobalPixel global = myroc->toGlobal(LocalPixel(local));
-            badrocpositions.push_back(global);
-            break;
-          }
-        }
-      }
-    }
-
-    for (auto& s : theSignal) {
-      std::pair<int, int> ip;
-      if (pixelFlag_)
-        ip = PixelDigi::channelToPixel(s.first);
-      else
-        ip = Phase2TrackerDigi::channelToPixel(s.first);
-
-      for (auto const& p : badrocpositions) {
-        for (auto& k : badPixels_) {
-          if (p.row == k.getParameter<int>("row") && ip.first == k.getParameter<int>("row") &&
-              std::abs(ip.second - p.col) < k.getParameter<int>("col")) {
-            s.second.set(0.);
-          }
-        }
-      }
-    }
-  }
+  throw cms::Exception("PixelDigitizerAlgorithm") << "Trying to kill modules from the pixel digitizer."
+                                                  << " This method is not yet implemented!";
 }

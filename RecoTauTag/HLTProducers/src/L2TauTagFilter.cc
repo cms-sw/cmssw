@@ -56,7 +56,7 @@ public:
     }
     for (size_t l1_idx = 0; l1_idx < l1Taus.size(); l1_idx++) {
       if (L2Outcomes[l1_idx] >= discrWP_ || l1Taus[l1_idx]->pt() > l1PtTh_) {
-        filterproduct.addObject(nTauPassed, l1Taus[l1_idx]);
+        filterproduct.addObject(trigger::TriggerL1Tau, l1Taus[l1_idx]);
         nTauPassed++;
       }
     }

@@ -1,0 +1,10 @@
+<use name="DataFormats/SiStripCluster"/>
+
+<library name="testSiStripApproximateClusterCollection" file="TestReadSiStripApproximateClusterCollection.cc,TestWriteSiStripApproximateClusterCollection.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestSiStripApproximateClusterCollection" command="TestSiStripApproximateClusterCollection.sh"/>

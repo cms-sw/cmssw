@@ -14,9 +14,6 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
   for (size_t i = 0; i < tab.nColumns(); i++) {
     const std::string &var = tab.columnName(i);
     switch (tab.columnType(i)) {
-      case nanoaod::FlatTable::ColumnType::Int8:
-        m_int8Branches.emplace_back(var, tab.columnDoc(i), "B");
-        break;
       case nanoaod::FlatTable::ColumnType::UInt8:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
         break;
@@ -65,8 +62,7 @@ void TableOutputBranches::branch(TTree &tree) {
     }
   }
   std::string varsize = m_singleton ? "" : "[n" + m_baseName + "]";
-  for (std::vector<NamedBranchPtr> *branches : {&m_int8Branches,
-                                                &m_uint8Branches,
+  for (std::vector<NamedBranchPtr> *branches : {&m_uint8Branches,
                                                 &m_int16Branches,
                                                 &m_uint16Branches,
                                                 &m_int32Branches,
@@ -115,8 +111,6 @@ void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree 
                            "Mismatch in number of entries between extension and main table for " + tab.name());
     }
   }
-  for (auto &pair : m_int8Branches)
-    fillColumn<int8_t>(pair, tab);
   for (auto &pair : m_uint8Branches)
     fillColumn<uint8_t>(pair, tab);
   for (auto &pair : m_int16Branches)

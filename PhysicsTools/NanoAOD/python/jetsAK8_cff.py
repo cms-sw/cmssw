@@ -54,7 +54,7 @@ run2_jme_2016.toModify(
     tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI"
 )
 
-(run2_jme_2017 | run2_jme_2018).toModify(
+(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
     tightJetIdAK8.filterParams, version = "RUN2ULPUPPI"
 ).toModify(
     tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI"
@@ -132,6 +132,13 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", "int16",
             doc="index of second subjet"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
+        chMultiplicity = Var("?isPFJet()?chargedMultiplicity():-1","int16",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("?isPFJet()?neutralMultiplicity():-1","int16",doc="(Puppi-weighted) Number of neutral particles in the jet"),
+        chHEF = Var("?isPFJet()?chargedHadronEnergyFraction():-1", float, doc="charged Hadron Energy Fraction", precision=6),
+        neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=6),
+        chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=6),
+        neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=6),
+        muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=6),
     ),
     externalVariables = cms.PSet(
         lsf3 = ExtVar(cms.InputTag("lepInAK8JetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
@@ -142,11 +149,19 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
 
 run2_nanoAOD_ANY.toModify(
     fatJetTable.variables,
-    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+    # Remove for V9
+    chMultiplicity = None,
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    muEF = None
 )
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     fatJetTable.variables,
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     particleNet_QCD = None,
     particleNet_QCD2HF = None,
     particleNet_QCD1HF = None,
@@ -159,11 +174,18 @@ run2_nanoAOD_ANY.toModify(
     particleNet_XttVsQCD = None,
     particleNet_XtmVsQCD = None,
     particleNet_XteVsQCD = None,
+    # Remove for V11 and earlier versions
+    chMultiplicity = None,
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    muEF = None
 )
 
 (run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
     fatJetTable.variables,
- 
     # Restore taggers that were decommisionned for Run-3
     deepTag_TvsQCD = Var("bDiscriminator('pfDeepBoostedDiscriminatorsJetTags:TvsQCD')",float,doc="DeepBoostedJet tagger top vs QCD discriminator",precision=10),
     deepTag_WvsQCD = Var("bDiscriminator('pfDeepBoostedDiscriminatorsJetTags:WvsQCD')",float,doc="DeepBoostedJet tagger W vs QCD discriminator",precision=10),
@@ -186,8 +208,6 @@ run2_nanoAOD_ANY.toModify(
     particleNetLegacy_Xcc = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXcc')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->cc score. For X->cc vs QCD tagging, use Xcc/(Xcc+QCD)",precision=10),
     particleNetLegacy_Xqq = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXqq')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->qq (uds) score. For X->qq vs QCD tagging, use Xqq/(Xqq+QCD). For W vs QCD tagging, use (Xcc+Xqq)/(Xcc+Xqq+QCD)",precision=10),
     particleNetLegacy_QCD = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDbb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDcc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDothers')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw QCD score",precision=10),
-
-    
 )
 
 ##############################################################
@@ -267,10 +287,11 @@ run2_nanoAOD_106Xv2.toModify(
 subJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
     name = cms.string("SubJet"),
-    doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
+    doc  = cms.string("slimmedJetsAK8PFPuppiSoftDropPacked::SubJets, i.e. soft-drop subjets for ak8 fat jets for boosted analysis"),
     variables = cms.PSet(P4Vars,
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
+        area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Subjets:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
         tau2 = Var("userFloat('NjettinessAK8Subjets:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
         tau3 = Var("userFloat('NjettinessAK8Subjets:tau3')",float, doc="Nsubjettiness (3 axis)",precision=10),
@@ -283,6 +304,11 @@ subJetTable = simpleCandidateFlatTableProducer.clone(
 run2_nanoAOD_ANY.toModify(
     subJetTable.variables,
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+)
+
+(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    subJetTable.variables,
+    area = None,
 )
 
 #jets are not as precise as muons

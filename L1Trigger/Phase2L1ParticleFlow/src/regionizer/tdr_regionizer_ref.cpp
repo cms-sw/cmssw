@@ -75,9 +75,11 @@ void l1ct::TDRRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedI
         netaInBR_, nphiInBR_, nmu_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
   }
 
-  dbgCout() << "in.track.size() = " << in.track.size() << std::endl;
-  dbgCout() << "in.hadcalo.size() = " << in.hadcalo.size() << std::endl;
-  dbgCout() << "in.emcalo.size() = " << in.emcalo.size() << std::endl;
+  if (debug_) {
+    dbgCout() << "in.track.size() = " << in.track.size() << std::endl;
+    dbgCout() << "in.hadcalo.size() = " << in.hadcalo.size() << std::endl;
+    dbgCout() << "in.emcalo.size() = " << in.emcalo.size() << std::endl;
+  }
 
   if (ntk_) {
     for (unsigned int i = 0; i < nBigRegions_; i++) {

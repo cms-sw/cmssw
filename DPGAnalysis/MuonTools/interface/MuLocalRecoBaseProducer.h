@@ -40,7 +40,7 @@ class MuRecObjBaseProducer
 
   using IntDetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int>;
   using UIntDetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, unsigned int>;
-  using Int8DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int8_t>;
+  using Int16DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, int16_t>;
   using UInt8DetVar = FuncVariable<DETECTOR_T, StringObjectFunction<DETECTOR_T>, uint8_t>;
 
   std::vector<std::unique_ptr<Variable<DETECTOR_T>>> detIdVars_;
@@ -67,8 +67,8 @@ public:
         detVarPtr = std::move(std::make_unique<IntDetVar>(name, varCfg));  // CB can improve?
       } else if (type == "uint") {
         detVarPtr = std::move(std::make_unique<UIntDetVar>(name, varCfg));
-      } else if (type == "int8") {
-        detVarPtr = std::move(std::make_unique<Int8DetVar>(name, varCfg));
+      } else if (type == "int16") {
+        detVarPtr = std::move(std::make_unique<Int16DetVar>(name, varCfg));
       } else if (type == "uint8") {
         detVarPtr = std::move(std::make_unique<UInt8DetVar>(name, varCfg));
       } else {
@@ -124,7 +124,7 @@ public:
 
     edm::Comment comType{"the c++ type of the branch in the flat table"};
     detIdVar.ifValue(edm::ParameterDescription<std::string>{"type", "int", true, comType},
-                     edm::allowedValues<std::string>("int", "uint", "int8", "uint8"));
+                     edm::allowedValues<std::string>("int", "uint", "int16", "uint8"));
 
     edm::Comment comPrecision{"the precision with which to store the value in the flat table"};
     globalGeomVar.addOptionalNode(edm::ParameterDescription<int>{"precision", true, comPrecision}, false);

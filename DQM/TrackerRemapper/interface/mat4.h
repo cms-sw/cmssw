@@ -46,6 +46,8 @@ public:
       data[i] = mat[i];
   }
 
+  mat4& operator=(const mat4& mat) = default;
+
   mat4& operator&(const mat4& mat) {
     if (this != &mat) {
       for (unsigned i = 0; i < 12; ++i)

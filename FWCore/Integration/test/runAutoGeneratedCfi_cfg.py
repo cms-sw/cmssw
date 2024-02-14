@@ -19,6 +19,14 @@ from FWCore.Integration.testProducerWithPsetDesc_cfi import *
 process.testProducerWithPsetDesc = testProducerWithPsetDesc
 process.testProducerWithPsetDesc.plugin1.type = cms.string("edmtestAnotherOneMaker")
 
+process.testProducerWithPsetDesc.plugin4.pluginRecursive.type = cms.string("edmtestAnotherOneMaker")
+
+psetFor5 = cms.PSet(
+  type = cms.string("edmtestAnotherOneMaker")
+)
+
+process.testProducerWithPsetDesc.plugin5[1].pluginRecursive = psetFor5
+
 process.p1 = cms.Path(process.testProducerWithPsetDesc)
 
 # also run a test module using a helper plugin

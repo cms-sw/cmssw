@@ -73,7 +73,10 @@ void HGCalGeometry::newCell(
   } else {
     cells = m_topology.dddConstants().numberCellsHexagon(id.iLay, id.iSec1, id.iSec2, false);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCSiliconDetId(detId) << " GEOM " << HGCSiliconDetId(geomId);
+    if (detId.det() == DetId::Forward)
+      edm::LogVerbatim("HGCalGeom") << "NewCell " << HFNoseDetId(detId) << " GEOM " << HFNoseDetId(geomId);
+    else
+      edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCSiliconDetId(detId) << " GEOM " << HGCSiliconDetId(geomId);
 #endif
   }
   const uint32_t cellIndex(m_topology.detId2denseGeomId(geomId));
@@ -136,7 +139,10 @@ void HGCalGeometry::newCell(
             m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG
             ++cellSelect;
-            edm::LogVerbatim("HGCalGeom") << "Valid Id [" << u << ", " << v << "] " << HGCSiliconDetId(idc);
+            if (idc.det() == DetId::Forward)
+              edm::LogVerbatim("HGCalGeom") << "Valid Id [" << u << ", " << v << "] " << HFNoseDetId(idc);
+            else
+              edm::LogVerbatim("HGCalGeom") << "Valid Id [" << u << ", " << v << "] " << HGCSiliconDetId(idc);
 #endif
           }
         }
@@ -217,10 +223,15 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
                                       << lcoord.y() << " ID " << id.iLay << ":" << id.iSec1 << ":" << id.iCell1
                                       << " Global " << glob;
     } else {
-      if (debug)
-        edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay
-                                      << " Wafer " << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":"
-                                      << id.iCell2;
+      if (debug) {
+        if (detid.det() == DetId::Forward)
+          edm::LogVerbatim("HGCalGeom") << "getPosition for " << HFNoseDetId(detid) << " Layer " << id.iLay << " Wafer "
+                                        << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":" << id.iCell2;
+        else
+          edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay
+                                        << " Wafer " << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":"
+                                        << id.iCell2;
+      }
       xy = m_topology.dddConstants().locateCell(
           id.zSide, id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, false, debug);
       double xx = id.zSide * xy.first;

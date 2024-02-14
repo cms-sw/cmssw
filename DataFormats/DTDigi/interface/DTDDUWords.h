@@ -90,8 +90,6 @@ public:
   /// Constructor
   DTROSWordType(const uint32_t index) { word_ = index; }
 
-  DTROSWordType(const DTROSWordType& obj) { *this = obj; }
-
   DTROSWordType() : word_(0){};
 
   /// Destructor
@@ -203,8 +201,6 @@ public:
   /// Constructor
   DTROSHeaderWord() {}
 
-  DTROSHeaderWord(const DTROSHeaderWord& obj) { *this = obj; }
-
   DTROSHeaderWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -236,8 +232,6 @@ public:
   /// Constructor
   DTROSTrailerWord() {}
 
-  DTROSTrailerWord(const DTROSTrailerWord& obj) { *this = obj; }
-
   DTROSTrailerWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -268,8 +262,6 @@ public:
   /// Constructor
   DTROSErrorWord() {}
 
-  DTROSErrorWord(const DTROSErrorWord& obj) { *this = obj; }
-
   DTROSErrorWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -299,8 +291,6 @@ class DTROSDebugWord {
 public:
   /// Constructor
   DTROSDebugWord() {}
-
-  DTROSDebugWord(const DTROSDebugWord& obj) { *this = obj; }
 
   DTROSDebugWord(const uint32_t index) : word_(index) {}
 
@@ -343,8 +333,6 @@ public:
   /// Constructor
   DTROBHeaderWord() {}
 
-  DTROBHeaderWord(const DTROBHeaderWord& obj) { *this = obj; }
-
   DTROBHeaderWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -375,8 +363,6 @@ public:
   /// Constructor
   DTROBTrailerWord() {}
 
-  DTROBTrailerWord(const DTROBTrailerWord& obj) { *this = obj; }
-
   DTROBTrailerWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -406,8 +392,6 @@ class DTTDCHeaderWord {
 public:
   /// Constructor
   DTTDCHeaderWord() {}
-
-  DTTDCHeaderWord(const DTTDCHeaderWord& obj) { *this = obj; }
 
   DTTDCHeaderWord(const uint32_t index) : word_(index) {}
 
@@ -442,8 +426,6 @@ public:
   /// Constructor
   DTTDCTrailerWord() {}
 
-  DTTDCTrailerWord(const DTTDCTrailerWord& obj) { *this = obj; }
-
   DTTDCTrailerWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -476,8 +458,6 @@ class DTTDCMeasurementWord {
 public:
   /// Constructor
   DTTDCMeasurementWord() {}
-
-  DTTDCMeasurementWord(const DTTDCMeasurementWord& obj) { *this = obj; }
 
   DTTDCMeasurementWord(const uint32_t index) : word_(index) {}
 
@@ -512,8 +492,6 @@ public:
   /// Constructor
   DTTDCErrorWord() {}
 
-  DTTDCErrorWord(const DTTDCErrorWord& obj) { *this = obj; }
-
   DTTDCErrorWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -545,8 +523,6 @@ public:
   /// Constructor
   DTLocalTriggerHeaderWord() {}
 
-  DTLocalTriggerHeaderWord(const DTLocalTriggerHeaderWord& obj) { *this = obj; }
-
   DTLocalTriggerHeaderWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -575,8 +551,6 @@ public:
   /// Constructor
   DTLocalTriggerTrailerWord() {}
 
-  DTLocalTriggerTrailerWord(const DTLocalTriggerTrailerWord& obj) { *this = obj; }
-
   DTLocalTriggerTrailerWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -603,8 +577,6 @@ class DTLocalTriggerDataWord {
 public:
   /// Constructor
   DTLocalTriggerDataWord() {}
-
-  DTLocalTriggerDataWord(const DTLocalTriggerDataWord& obj) { *this = obj; }
 
   DTLocalTriggerDataWord(const uint32_t index) : word_(index) {}
 
@@ -640,8 +612,6 @@ public:
   /// Constructor
   DTDDUFirstStatusWord() {}
 
-  DTDDUFirstStatusWord(const DTDDUFirstStatusWord& obj) { *this = obj; }
-
   DTDDUFirstStatusWord(const unsigned char index) : word_(index) {}
 
   /// Destructor
@@ -671,8 +641,6 @@ class DTDDUSecondStatusWord {
 public:
   /// Constructor
   DTDDUSecondStatusWord() {}
-
-  DTDDUSecondStatusWord(const DTDDUSecondStatusWord& obj) { *this = obj; }
 
   DTDDUSecondStatusWord(const uint32_t index) : word_(index) {}
 
@@ -714,8 +682,6 @@ public:
   /// Constructor
   DTLocalTriggerSectorCollectorHeaderWord() {}
 
-  DTLocalTriggerSectorCollectorHeaderWord(const DTLocalTriggerSectorCollectorHeaderWord& obj) { *this = obj; }
-
   DTLocalTriggerSectorCollectorHeaderWord(const uint32_t index) : word_(index) {}
 
   /// Destructor
@@ -744,8 +710,6 @@ class DTLocalTriggerSectorCollectorSubHeaderWord {
 public:
   /// Constructor
   DTLocalTriggerSectorCollectorSubHeaderWord() {}
-
-  DTLocalTriggerSectorCollectorSubHeaderWord(const DTLocalTriggerSectorCollectorSubHeaderWord& obj) { *this = obj; }
 
   DTLocalTriggerSectorCollectorSubHeaderWord(const uint32_t index) : word_(index) {}
 

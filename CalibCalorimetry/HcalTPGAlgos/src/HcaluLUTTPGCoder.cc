@@ -29,10 +29,12 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
 const float HcaluLUTTPGCoder::lsb_ = 1. / 16;
+const float HcaluLUTTPGCoder::zdc_lsb_ = 50.;
 
 const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE10_ZDC_LUT_BITMASK;
 
 constexpr double MaximumFractionalError = 0.002;  // 0.2% error allowed from this source
 
@@ -57,6 +59,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       nHFEta_{},
       maxDepthHF_{},
       sizeHF_{},
+      sizeZDC_{},
       cosh_ieta_28_HE_low_depths_{},
       cosh_ieta_28_HE_high_depths_{},
       cosh_ieta_29_HE_{},
@@ -99,7 +102,8 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   nHFEta_ = (lastHFEta_ - firstHFEta_ + 1);
   maxDepthHF_ = topo_->maxDepth(HcalForward);
   sizeHF_ = 2 * nHFEta_ * nFi_ * maxDepthHF_;
-  size_t nluts = (size_t)(sizeHB_ + sizeHE_ + sizeHF_ + 1);
+  sizeZDC_ = 2 * 9;
+  size_t nluts = (size_t)(sizeHB_ + sizeHE_ + sizeHF_ + sizeZDC_ * 2 + 1);
   inputLUT_ = std::vector<HcaluLUTTPGCoder::Lut>(nluts);
   gain_ = std::vector<float>(nluts, 0.);
   ped_ = std::vector<float>(nluts, 0.);
@@ -136,6 +140,13 @@ int HcaluLUTTPGCoder::getLUTId(HcalSubdetector id, int ieta, int iphi, int depth
       retval += maxDepthHF_ * nFi_ * (ieta - firstHFEta_);
     else
       retval += maxDepthHF_ * nFi_ * (ieta + lastHFEta_ + nHFEta_);
+  } else if (id == HcalOther) {
+    retval = sizeHB_ + sizeHE_ + sizeHF_;
+    retval += depth;
+    if (iphi != 1)
+      retval += 5;
+    if (ieta <= 0)
+      retval += 9;
   }
   return retval;
 }
@@ -147,6 +158,18 @@ int HcaluLUTTPGCoder::getLUTId(uint32_t rawid) const {
 
 int HcaluLUTTPGCoder::getLUTId(const HcalDetId& detid) const {
   return getLUTId(detid.subdet(), detid.ieta(), detid.iphi(), detid.depth());
+}
+
+int HcaluLUTTPGCoder::getLUTId(const HcalZDCDetId& detid) const {
+  if (detid.section() == HcalZDCDetId::EM) {
+    return getLUTId(HcalOther, detid.zside(), 1, detid.channel());
+  } else if (detid.section() == HcalZDCDetId::HAD) {
+    return getLUTId(HcalOther, detid.zside(), 2, detid.channel());
+  } else if (detid.section() == HcalZDCDetId::LUM) {
+    return getLUTId(HcalOther, detid.zside(), 3, detid.channel());
+  } else {
+    return getLUTId(HcalOther, detid.zside(), 4, detid.channel());
+  }
 }
 
 void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
@@ -273,9 +296,11 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
           std::vector<unsigned int>* lut = _xml->getLutFast(detid);
           if (lut == nullptr)
             throw cms::Exception("PROBLEM: No inputLUT_ in xml file for ") << detid << std::endl;
-          if (lut->size() != INPUT_LUT_SIZE)
+          if (lut->size() != UPGRADE_LUT_SIZE)
             throw cms::Exception("PROBLEM: Wrong inputLUT_ size in xml file for ") << detid << std::endl;
-          for (unsigned int i = 0; i < INPUT_LUT_SIZE; ++i)
+          Lut& lutRaw = inputLUT_[id];
+          lutRaw.resize(UPGRADE_LUT_SIZE, 0);
+          for (unsigned int i = 0; i < UPGRADE_LUT_SIZE; ++i)
             inputLUT_[id][i] = (LutElement)lut->at(i);
         }
       }
@@ -364,7 +389,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       continue;
 
     int aieta = abs(hcalTTDetId.ieta());
-
     // The absence of TT channels in the HcalTPChannelParameters
     // is intepreted as to not use the new filter
     int weight = -1.0;
@@ -384,180 +408,262 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   }
 
   for (const auto& id : metadata->getAllChannels()) {
-    if (not(id.det() == DetId::Hcal and topo_->valid(id)))
-      continue;
+    if (id.det() == DetId::Hcal and topo_->valid(id)) {
+      HcalDetId cell(id);
+      HcalSubdetector subdet = cell.subdet();
 
-    HcalDetId cell(id);
-    HcalSubdetector subdet = cell.subdet();
+      if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward and subdet != HcalOther)
+        continue;
 
-    if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward)
-      continue;
+      const HcalQIECoder* channelCoder = conditions.getHcalCoder(cell);
+      const HcalQIEShape* shape = conditions.getHcalShape(cell);
+      HcalCoderDb coder(*channelCoder, *shape);
+      const HcalLutMetadatum* meta = metadata->getValues(cell);
 
-    const HcalQIECoder* channelCoder = conditions.getHcalCoder(cell);
-    const HcalQIEShape* shape = conditions.getHcalShape(cell);
-    HcalCoderDb coder(*channelCoder, *shape);
-    const HcalLutMetadatum* meta = metadata->getValues(cell);
+      // defaults for energy requirement for bits 12-15 are high / low to avoid FG bit 0-4 being set when not intended
+      unsigned int bit12_energy = 0;
+      unsigned int bit13_energy = 0;
+      unsigned int bit14_energy = 999;
+      unsigned int bit15_energy = 999;
 
-    unsigned int bit12_energy =
-        0;  // defaults for energy requirement for bits 12-15 are high / low to avoid FG bit 0-4 being set when not intended
-    unsigned int bit13_energy = 0;
-    unsigned int bit14_energy = 999;
-    unsigned int bit15_energy = 999;
-
-    bool is2018OrLater = topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
-                         topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy;
-    if (is2018OrLater or topo_->dddConstants()->isPlan1(cell)) {
-      bit12_energy = 16;  // depths 1,2 max energy
-      bit13_energy = 80;  // depths 3+ min energy
-      bit14_energy = 64;  // prompt min energy
-      bit15_energy = 64;  // delayed min energy
-    }
-
-    int lutId = getLUTId(cell);
-    Lut& lut = inputLUT_[lutId];
-    float ped = 0;
-    float gain = 0;
-    uint32_t status = 0;
-
-    if (LUTGenerationMode_) {
-      const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
-      for (auto capId : {0, 1, 2, 3}) {
-        ped += calibrations.effpedestal(capId);
-        gain += calibrations.LUTrespcorrgain(capId);
+      bool is2018OrLater = topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
+                           topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy;
+      if (is2018OrLater or topo_->dddConstants()->isPlan1(cell)) {
+        bit12_energy = 16;  // depths 1,2 max energy
+        bit13_energy = 80;  // depths 3+ min energy
+        bit14_energy = 64;  // prompt min energy
+        bit15_energy = 64;  // delayed min energy
       }
-      ped /= 4.0;
-      gain /= 4.0;
 
-      //Get Channel Quality
-      const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
-      status = channelStatus->getValue();
+      int lutId = getLUTId(cell);
+      Lut& lut = inputLUT_[lutId];
+      float ped = 0;
+      float gain = 0;
+      uint32_t status = 0;
 
-    } else {
-      const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
-      ped = myL1TObj->getPedestal();
-      gain = myL1TObj->getRespGain();
-      status = myL1TObj->getFlag();
-    }  // LUTGenerationMode_
+      if (LUTGenerationMode_) {
+        const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
+        for (auto capId : {0, 1, 2, 3}) {
+          ped += calibrations.effpedestal(capId);
+          gain += calibrations.LUTrespcorrgain(capId);
+        }
+        ped /= 4.0;
+        gain /= 4.0;
 
-    ped_[lutId] = ped;
-    gain_[lutId] = gain;
-    bool isMasked = ((status & bitToMask_) > 0);
-    float rcalib = meta->getRCalib();
+        //Get Channel Quality
+        const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
+        status = channelStatus->getValue();
 
-    auto adc2fC = [channelCoder, shape](unsigned int adc) {
-      float fC = 0;
-      for (auto capId : {0, 1, 2, 3})
-        fC += channelCoder->charge(*shape, adc, capId);
-      return fC / 4;
-    };
+      } else {
+        const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+        ped = myL1TObj->getPedestal();
+        gain = myL1TObj->getRespGain();
+        status = myL1TObj->getFlag();
+      }  // LUTGenerationMode_
 
-    int qieType = conditions.getHcalQIEType(cell)->getValue();
+      ped_[lutId] = ped;
+      gain_[lutId] = gain;
+      bool isMasked = ((status & bitToMask_) > 0);
+      float rcalib = meta->getRCalib();
 
-    const size_t SIZE = qieType == QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
-    const int MASK = qieType == QIE8 ? QIE8_LUT_BITMASK : qieType == QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
-    double linearLSB = linearLSB_QIE8_;
-    if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
-      linearLSB = linearLSB_QIE11Overlap_;
-    else if (qieType == QIE11)
-      linearLSB = linearLSB_QIE11_;
+      auto adc2fC = [channelCoder, shape](unsigned int adc) {
+        float fC = 0;
+        for (auto capId : {0, 1, 2, 3})
+          fC += channelCoder->charge(*shape, adc, capId);
+        return fC / 4;
+      };
 
-    lut.resize(SIZE, 0);
+      int qieType = conditions.getHcalQIEType(cell)->getValue();
 
-    // Input LUT for HB/HE/HF
-    if (subdet == HcalBarrel || subdet == HcalEndcap) {
-      int granularity = meta->getLutGranularity();
+      const size_t SIZE = qieType == QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
+      const int MASK = qieType == QIE8 ? QIE8_LUT_BITMASK : qieType == QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
+      double linearLSB = linearLSB_QIE8_;
+      if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
+        linearLSB = linearLSB_QIE11Overlap_;
+      else if (qieType == QIE11)
+        linearLSB = linearLSB_QIE11_;
 
-      double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
+      lut.resize(SIZE, 0);
 
-      if (qieType == QIE11) {
-        if (overrideDBweightsAndFilterHB_ and cell.ietaAbs() <= lastHBRing)
-          correctionPhaseNS = containPhaseNSHB_;
-        else if (overrideDBweightsAndFilterHE_ and cell.ietaAbs() > lastHBRing)
-          correctionPhaseNS = containPhaseNSHE_;
-      }
-      for (unsigned int adc = 0; adc < SIZE; ++adc) {
-        if (isMasked)
-          lut[adc] = 0;
-        else {
-          double nonlinearityCorrection = 1.0;
-          double containmentCorrection = 1.0;
-          // SiPM nonlinearity was not corrected in 2017
-          // and containment corrections  were not
-          // ET-dependent prior to 2018
-          if (is2018OrLater) {
-            double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
-            // Use the 1-TS containment correction to estimate the charge of the pulse
-            // from the individual samples
-            double correctedCharge = containmentCorrection1TS * adc2fC(adc);
-            double containmentCorrection2TSCorrected =
-                pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
-            if (qieType == QIE11) {
-              // When contain1TS_ is set, it should still only apply for QIE11-related things
-              if ((((contain1TSHB_ and overrideDBweightsAndFilterHB_) or newHBtp) and cell.ietaAbs() <= lastHBRing) or
-                  (((contain1TSHE_ and overrideDBweightsAndFilterHE_) or newHEtp) and cell.ietaAbs() > lastHBRing)) {
-                containmentCorrection = containmentCorrection1TS;
+      // Input LUT for HB/HE/HF
+      if (subdet == HcalBarrel || subdet == HcalEndcap) {
+        int granularity = meta->getLutGranularity();
+
+        double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
+
+        if (qieType == QIE11) {
+          if (overrideDBweightsAndFilterHB_ and cell.ietaAbs() <= lastHBRing)
+            correctionPhaseNS = containPhaseNSHB_;
+          else if (overrideDBweightsAndFilterHE_ and cell.ietaAbs() > lastHBRing)
+            correctionPhaseNS = containPhaseNSHE_;
+        }
+        for (unsigned int adc = 0; adc < SIZE; ++adc) {
+          if (isMasked)
+            lut[adc] = 0;
+          else {
+            double nonlinearityCorrection = 1.0;
+            double containmentCorrection = 1.0;
+            // SiPM nonlinearity was not corrected in 2017
+            // and containment corrections  were not
+            // ET-dependent prior to 2018
+            if (is2018OrLater) {
+              double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
+              // Use the 1-TS containment correction to estimate the charge of the pulse
+              // from the individual samples
+              double correctedCharge = containmentCorrection1TS * adc2fC(adc);
+              double containmentCorrection2TSCorrected =
+                  pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+              if (qieType == QIE11) {
+                // When contain1TS_ is set, it should still only apply for QIE11-related things
+                if ((((contain1TSHB_ and overrideDBweightsAndFilterHB_) or newHBtp) and cell.ietaAbs() <= lastHBRing) or
+                    (((contain1TSHE_ and overrideDBweightsAndFilterHE_) or newHEtp) and cell.ietaAbs() > lastHBRing)) {
+                  containmentCorrection = containmentCorrection1TS;
+                } else {
+                  containmentCorrection = containmentCorrection2TSCorrected;
+                }
+
+                const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
+                HcalSiPMnonlinearity corr(
+                    conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
+                const double fcByPE = siPMParameter.getFCByPE();
+                const double effectivePixelsFired = correctedCharge / fcByPE;
+                nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
               } else {
                 containmentCorrection = containmentCorrection2TSCorrected;
               }
+            }
+            if (allLinear_)
+              lut[adc] = (LutElement)std::min(
+                  std::max(0,
+                           int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection /
+                               linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
+                  MASK);
+            else
+              lut[adc] =
+                  (LutElement)std::min(std::max(0,
+                                                int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
+                                                    containmentCorrection / nominalgain_ / granularity)),
+                                       MASK);
 
-              const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
-              HcalSiPMnonlinearity corr(
-                  conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
-              const double fcByPE = siPMParameter.getFCByPE();
-              const double effectivePixelsFired = correctedCharge / fcByPE;
-              nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
-            } else {
-              containmentCorrection = containmentCorrection2TSCorrected;
+            unsigned int linearizedADC =
+                lut[adc];  // used for bits 12, 13, 14, 15 for Group 0 LUT for LLP time and depth bits that rely on linearized energies
+
+            if (qieType == QIE11) {
+              if (subdet == HcalBarrel) {  // edit since bits 12-15 not supported in HE yet
+                if ((linearizedADC < bit12_energy and cell.depth() <= 2) or (cell.depth() >= 3))
+                  lut[adc] |= 1 << 12;
+                if (linearizedADC >= bit13_energy and cell.depth() >= 3)
+                  lut[adc] |= 1 << 13;
+                if (linearizedADC >= bit14_energy)
+                  lut[adc] |= 1 << 14;
+                if (linearizedADC >= bit15_energy)
+                  lut[adc] |= 1 << 15;
+              }
+            }
+
+            //Zeroing the 4th depth in the trigger towers where |ieta| = 16 to match the behavior in the uHTR firmware in Run3, where the 4th depth is not included in the sum over depths when constructing the TP energy for this tower.
+            if (abs(cell.ieta()) == 16 && cell.depth() == 4 &&
+                topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2021) {
+              lut[adc] = 0;
             }
           }
-          if (allLinear_)
-            lut[adc] = (LutElement)std::min(
-                std::max(0,
-                         int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection /
-                             linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
-                MASK);
-          else
-            lut[adc] = (LutElement)std::min(std::max(0,
-                                                     int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                         containmentCorrection / nominalgain_ / granularity)),
-                                            MASK);
-
-          unsigned int linearizedADC =
-              lut[adc];  // used for bits 12, 13, 14, 15 for Group 0 LUT for LLP time and depth bits that rely on linearized energies
-
-          if (qieType == QIE11) {
-            if (subdet == HcalBarrel) {  // edit since bits 12-15 not supported in HE yet
-              if ((linearizedADC < bit12_energy and cell.depth() <= 2) or (cell.depth() >= 3))
-                lut[adc] |= 1 << 12;
-              if (linearizedADC >= bit13_energy and cell.depth() >= 3)
-                lut[adc] |= 1 << 13;
-              if (linearizedADC >= bit14_energy)
-                lut[adc] |= 1 << 14;
-              if (linearizedADC >= bit15_energy)
-                lut[adc] |= 1 << 15;
-            }
-          }
-
-          //Zeroing the 4th depth in the trigger towers where |ieta| = 16 to match the behavior in the uHTR firmware in Run3, where the 4th depth is not included in the sum over depths when constructing the TP energy for this tower.
-          if (abs(cell.ieta()) == 16 && cell.depth() == 4 &&
-              topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2021) {
+        }
+      } else if (subdet == HcalForward) {
+        for (unsigned int adc = 0; adc < SIZE; ++adc) {
+          if (isMasked)
             lut[adc] = 0;
+          else {
+            lut[adc] = std::min(
+                std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
+            if (adc > FG_HF_thresholds_[0])
+              lut[adc] |= QIE10_LUT_MSB0;
+            if (adc > FG_HF_thresholds_[1])
+              lut[adc] |= QIE10_LUT_MSB1;
           }
         }
       }
-    } else if (subdet == HcalForward) {
+    } else if (id.det() == DetId::Calo && id.subdetId() == HcalZDCDetId::SubdetectorId) {
+      HcalZDCDetId cell(id.rawId());
+
+      if (cell.section() != HcalZDCDetId::EM && cell.section() != HcalZDCDetId::HAD)
+        continue;
+
+      const HcalQIECoder* channelCoder = conditions.getHcalCoder(cell);
+      const HcalQIEShape* shape = conditions.getHcalShape(cell);
+      const HcalPedestal* effPedestals = conditions.getEffectivePedestal(cell);
+      HcalCoderDb coder(*channelCoder, *shape);
+      const HcalLutMetadatum* meta = metadata->getValues(cell);
+
+      auto tpParam = conditions.getHcalTPChannelParameter(cell, false);
+      int weight = tpParam->getauxi1();
+
+      int lutId = getLUTId(cell);
+      int lutId_ootpu = lutId + sizeZDC_;
+      Lut& lut = inputLUT_[lutId];
+      Lut& lut_ootpu = inputLUT_[lutId_ootpu];
+      float ped = 0;
+      float gain = 0;
+      float pedWidth = 0;
+      uint32_t status = 0;
+
+      if (LUTGenerationMode_) {
+        const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
+        for (auto capId : {0, 1, 2, 3}) {
+          ped += calibrations.effpedestal(capId);
+          gain += calibrations.LUTrespcorrgain(capId);
+          pedWidth += effPedestals->getWidth(capId);
+        }
+        ped /= 4.0;
+        gain /= 4.0;
+        pedWidth /= 4.0;
+
+        const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
+        status = channelStatus->getValue();
+
+      } else {
+        const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+        ped = myL1TObj->getPedestal();
+        gain = myL1TObj->getRespGain();
+        status = myL1TObj->getFlag();
+      }  // LUTGenerationMode_
+
+      ped_[lutId] = ped;
+      gain_[lutId] = gain;
+      bool isMasked = ((status & bitToMask_) > 0);
+      float rcalib = meta->getRCalib();
+
+      auto adc2fC = [channelCoder, shape](unsigned int adc) {
+        float fC = 0;
+        for (auto capId : {0, 1, 2, 3})
+          fC += channelCoder->charge(*shape, adc, capId);
+        return fC / 4;
+      };
+
+      int qieType = conditions.getHcalQIEType(cell)->getValue();
+
+      const size_t SIZE = qieType == QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
+      const int MASK = QIE10_ZDC_LUT_BITMASK;
+
+      lut.resize(SIZE, 0);
+      lut_ootpu.resize(SIZE, 0);
+
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
-        if (isMasked)
+        if (isMasked) {
           lut[adc] = 0;
-        else {
-          lut[adc] =
-              std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
-          if (adc > FG_HF_thresholds_[0])
-            lut[adc] |= QIE10_LUT_MSB0;
-          if (adc > FG_HF_thresholds_[1])
-            lut[adc] |= QIE10_LUT_MSB1;
+          lut_ootpu[adc] = 0;
+        } else {
+          if ((adc2fC(adc) - ped) < (pedWidth * 5.)) {
+            lut[adc] = 0;
+            lut_ootpu[adc] = 0;
+          } else {
+            lut[adc] = std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / zdc_lsb_)), MASK);
+            lut_ootpu[adc] =
+                std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * weight / (zdc_lsb_ * 256))), MASK);
+          }
         }
       }
+    } else {
+      continue;
     }
   }
 }
@@ -578,11 +684,22 @@ void HcaluLUTTPGCoder::adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics
   }
 }
 
-void HcaluLUTTPGCoder::adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const {
-  int lutId = getLUTId(HcalDetId(df.id()));
-  const Lut& lut = inputLUT_.at(lutId);
-  for (int i = 0; i < df.samples(); i++) {
-    ics[i] = (lut.at(df[i].adc()) & QIE10_LUT_BITMASK);
+void HcaluLUTTPGCoder::adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics, bool ootpu_lut) const {
+  DetId detId = DetId(df.detid());
+  if (detId.det() == DetId::Hcal) {
+    int lutId = getLUTId(HcalDetId(df.id()));
+    const Lut& lut = inputLUT_.at(lutId);
+    for (int i = 0; i < df.samples(); i++) {
+      ics[i] = (lut.at(df[i].adc()) & QIE10_LUT_BITMASK);
+    }
+  } else {
+    int lutId = getLUTId(HcalZDCDetId(df.id()));
+    if (ootpu_lut)
+      lutId = lutId + sizeZDC_;
+    const Lut& lut = inputLUT_.at(lutId);
+    for (int i = 0; i < df.samples(); i++) {
+      ics[i] = (lut.at(df[i].adc()) & QIE10_ZDC_LUT_BITMASK);
+    }
   }
 }
 
@@ -624,6 +741,14 @@ float HcaluLUTTPGCoder::getLUTGain(HcalDetId id) const {
 std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(HcalDetId id) const {
   int lutId = getLUTId(id);
   return inputLUT_.at(lutId);
+}
+
+std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(HcalZDCDetId id, bool ootpu_lut) const {
+  int lutId = getLUTId(id);
+  if (ootpu_lut)
+    return inputLUT_.at(lutId + sizeZDC_);
+  else
+    return inputLUT_.at(lutId);
 }
 
 void HcaluLUTTPGCoder::lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const {

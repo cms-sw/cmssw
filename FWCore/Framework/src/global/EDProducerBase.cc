@@ -93,11 +93,11 @@ namespace edm {
     void EDProducerBase::doTransformAsync(WaitingTaskHolder iTask,
                                           size_t iTransformIndex,
                                           EventPrincipal const& iEvent,
-                                          ActivityRegistry*,
-                                          ModuleCallingContext const* iMCC,
+                                          ActivityRegistry* iAct,
+                                          ModuleCallingContext iMCC,
                                           ServiceWeakToken const& iToken) {
       EventForTransformer ev(iEvent, iMCC);
-      transformAsync_(iTask, iTransformIndex, ev, iToken);
+      transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
     size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
@@ -105,6 +105,7 @@ namespace edm {
     void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
                                          std::size_t iIndex,
                                          edm::EventForTransformer& iEvent,
+                                         edm::ActivityRegistry* iAct,
                                          ServiceWeakToken const& iToken) const {}
 
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {

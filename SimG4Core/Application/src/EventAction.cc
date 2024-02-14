@@ -2,7 +2,6 @@
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
-#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -23,8 +22,6 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
-  m_trackManager->reset();
-
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
 
@@ -41,17 +38,17 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
 void EventAction::EndOfEventAction(const G4Event* anEvent) {
   if (m_printRandom) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << " EndOfEvent " << anEvent->GetEventID() << " Random number: " << G4UniformRand();
+        << "EventACtion::EndOfEventAction: " << anEvent->GetEventID() << " Random number: " << G4UniformRand();
   }
   if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str())) {
     edm::LogWarning("SimG4CoreApplication")
-        << "EndOfEventAction: termination signal received at event " << anEvent->GetEventID();
+        << "EventACtion::EndOfEventAction: termination signal received at event " << anEvent->GetEventID();
     // soft abort run
     m_runInterface->abortRun(true);
   }
   if (anEvent->GetNumberOfPrimaryVertex() == 0) {
-    edm::LogWarning("SimG4CoreApplication") << "EndOfEventAction: event " << anEvent->GetEventID()
-                                            << " must have failed (no G4PrimaryVertices found) and will be skipped ";
+    edm::LogWarning("SimG4CoreApplication") << "EventACtion::EndOfEventAction: event " << anEvent->GetEventID()
+                                            << " must have failed (no G4PrimaryVertices found) and will be skipped";
     return;
   }
 

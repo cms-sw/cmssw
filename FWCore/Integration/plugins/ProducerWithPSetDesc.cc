@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <limits>
+#include <memory>
 #include <string>
 #include <iostream>
 
@@ -32,6 +33,12 @@ namespace edmtest {
   };
 
   using AnotherIntFactory = edmplugin::PluginFactory<AnotherIntMakerBase*(edm::ParameterSet const&)>;
+
+}  // namespace edmtest
+
+EDM_REGISTER_VALIDATED_PLUGINFACTORY(edmtest::AnotherIntFactory, "edmtestAnotherIntFactory");
+
+namespace edmtest {
 
   struct AnotherOneMaker : public AnotherIntMakerBase {
     explicit AnotherOneMaker(edm::ParameterSet const&) {}
@@ -47,10 +54,34 @@ namespace edmtest {
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<int>("value", 5); }
     int value_;
   };
+
+  struct AnotherMakerWithRecursivePlugin : public AnotherIntMakerBase {
+    explicit AnotherMakerWithRecursivePlugin(edm::ParameterSet const& iPSet)
+        : value_{iPSet.getParameter<int>("value")} {
+      auto recursivePluginPSet = iPSet.getParameter<edm::ParameterSet>("pluginRecursive");
+      recursivePluginHelper_ =
+          AnotherIntFactory::get()->create(recursivePluginPSet.getParameter<std::string>("type"), recursivePluginPSet);
+    }
+    int value() const final { return value_; };
+
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<int>("value", 5);
+
+      edm::ParameterSetDescription pluginDesc;
+      pluginDesc.addNode(edm::PluginDescription<AnotherIntFactory>("type", true));
+      iDesc.add<edm::ParameterSetDescription>("pluginRecursive", pluginDesc);
+    }
+
+    std::unique_ptr<AnotherIntMakerBase> recursivePluginHelper_;
+    int value_;
+  };
+
 }  // namespace edmtest
-EDM_REGISTER_VALIDATED_PLUGINFACTORY(edmtest::AnotherIntFactory, "edmtestAnotherIntFactory");
 DEFINE_EDM_VALIDATED_PLUGIN(edmtest::AnotherIntFactory, edmtest::AnotherOneMaker, "edmtestAnotherOneMaker");
 DEFINE_EDM_VALIDATED_PLUGIN(edmtest::AnotherIntFactory, edmtest::AnotherValueMaker, "edmtestAnotherValueMaker");
+DEFINE_EDM_VALIDATED_PLUGIN(edmtest::AnotherIntFactory,
+                            edmtest::AnotherMakerWithRecursivePlugin,
+                            "edmtestAnotherMakerWithRecursivePlugin");
 
 namespace edmtest {
 
@@ -465,6 +496,30 @@ namespace edmtest {
       assert(psetAllowed.getUntrackedParameter<std::vector<std::string>>("testAllowedLabelsUntracked").empty());
       assert(!psetAllowed.exists("testOptAllowedLabels"));
       assert(!psetAllowed.exists("testOptAllowedLabelsUntracked"));
+    }
+
+    auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
+    pluginHelper_ = AnotherIntFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+
+    auto plugin1PSet = ps.getParameter<edm::ParameterSet>("plugin1");
+    pluginHelper1_ = AnotherIntFactory::get()->create(plugin1PSet.getParameter<std::string>("type"), plugin1PSet);
+
+    std::vector<edm::ParameterSet> vpset2 = ps.getParameter<std::vector<edm::ParameterSet>>("plugin2");
+    for (auto const& pset2 : vpset2) {
+      pluginHelpers2_.emplace_back(AnotherIntFactory::get()->create(pset2.getParameter<std::string>("type"), pset2));
+    }
+
+    std::vector<edm::ParameterSet> vpset3 = ps.getParameter<std::vector<edm::ParameterSet>>("plugin3");
+    for (auto const& pset3 : vpset3) {
+      pluginHelpers3_.emplace_back(AnotherIntFactory::get()->create(pset3.getParameter<std::string>("type"), pset3));
+    }
+
+    auto plugin4PSet = ps.getParameter<edm::ParameterSet>("plugin4");
+    pluginHelper4_ = AnotherIntFactory::get()->create(plugin4PSet.getParameter<std::string>("type"), plugin4PSet);
+
+    std::vector<edm::ParameterSet> vpset5 = ps.getParameter<std::vector<edm::ParameterSet>>("plugin5");
+    for (auto const& pset5 : vpset5) {
+      pluginHelpers5_.emplace_back(AnotherIntFactory::get()->create(pset5.getParameter<std::string>("type"), pset5));
     }
 
     produces<ThingCollection>();
@@ -1056,6 +1111,26 @@ namespace edmtest {
     vDefaultsPlugins3.push_back(vpsetDefault1);
 
     iDesc.addVPSet("plugin3", pluginDesc3, vDefaultsPlugins3);
+
+    edm::ParameterSetDescription pluginDesc4;
+    pluginDesc4.addNode(
+        edm::PluginDescription<AnotherIntFactory>("type", "edmtestAnotherMakerWithRecursivePlugin", true));
+    iDesc.add<edm::ParameterSetDescription>("plugin4", pluginDesc4);
+
+    edm::ParameterSetDescription pluginDesc5;
+    pluginDesc5.addNode(
+        edm::PluginDescription<AnotherIntFactory>("type", "edmtestAnotherMakerWithRecursivePlugin", true));
+    std::vector<edm::ParameterSet> vDefaultsPlugins5;
+    {
+      edm::ParameterSet vpsetDefault0;
+      vpsetDefault0.addParameter<std::string>("type", "edmtestAnotherOneMaker");
+      vDefaultsPlugins5.push_back(vpsetDefault0);
+      edm::ParameterSet vpsetDefault1;
+      vpsetDefault1.addParameter<std::string>("type", "edmtestAnotherMakerWithRecursivePlugin");
+      vpsetDefault1.addParameter<int>("value", 11);
+      vDefaultsPlugins5.push_back(vpsetDefault1);
+    }
+    iDesc.addVPSet("plugin5", pluginDesc5, vDefaultsPlugins5);
 
     // ------------------------------------------
 

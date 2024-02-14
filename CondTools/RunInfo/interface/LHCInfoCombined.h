@@ -43,7 +43,7 @@ public:
   void setFromPerLS(const LHCInfoPerLS& infoPerLS);
   void setFromPerFill(const LHCInfoPerFill& infoPerFill);
 
-  float crossingAngle();
+  float crossingAngle() const;
   static constexpr float crossingAngleInvalid = -1.;
   bool isCrossingAngleInvalid();
 

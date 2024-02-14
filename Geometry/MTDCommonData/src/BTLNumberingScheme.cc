@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
@@ -34,12 +32,15 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   };
 
   if (nLevels == kBTLcrystalLevel || isDD4hepOK) {
-    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1))
-                        << ", " << bareBaseName(baseNumber.getLevelName(2)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(3)) << ", " << bareBaseName(baseNumber.getLevelName(4))
-                        << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7))
-                        << ", " << bareBaseName(baseNumber.getLevelName(8));
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << "[" << baseNumber.getCopyNumber(0) << "], "
+                        << bareBaseName(baseNumber.getLevelName(1)) << "[" << baseNumber.getCopyNumber(1) << "], "
+                        << bareBaseName(baseNumber.getLevelName(2)) << "[" << baseNumber.getCopyNumber(2) << "], "
+                        << bareBaseName(baseNumber.getLevelName(3)) << "[" << baseNumber.getCopyNumber(3) << "], "
+                        << bareBaseName(baseNumber.getLevelName(4)) << "[" << baseNumber.getCopyNumber(4) << "], "
+                        << bareBaseName(baseNumber.getLevelName(5)) << "[" << baseNumber.getCopyNumber(5) << "], "
+                        << bareBaseName(baseNumber.getLevelName(6)) << "[" << baseNumber.getCopyNumber(6) << "], "
+                        << bareBaseName(baseNumber.getLevelName(7)) << "[" << baseNumber.getCopyNumber(7) << "], "
+                        << bareBaseName(baseNumber.getLevelName(8)) << "[" << baseNumber.getCopyNumber(8) << "]";
 
     // barphiflat scenario
 
@@ -99,7 +100,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
         return 0;
       }
     } else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos) {
-      // v2 scenario
+      // v2 or v3 scenario
 
       crystal = baseNumber.getCopyNumber(0);
       modCopy = baseNumber.getCopyNumber(1);
@@ -116,7 +117,16 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
         modCopy = negModCopy[modCopy - 1];
       }
 
-      modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(2)).back());
+      bool isV2(baseNumber.getLevelName(0).back() != 'l');
+
+      if (isV2) {
+        // V2: the type is embedded in crystal name
+        modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(2)).back());
+      } else {
+        // V3: build type and RU number per type from global RU number
+        modtyp = globalru2type[runitCopy - 1];
+        runitCopy = globalru2ru[runitCopy - 1];
+      }
 
       // error checking
 
@@ -171,11 +181,14 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos) {
     // v2 scenario, geographicalId per module
     // for tracking navigation geometry
-    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1))
-                        << ", " << bareBaseName(baseNumber.getLevelName(2)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(3)) << ", " << bareBaseName(baseNumber.getLevelName(4))
-                        << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7));
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << "[" << baseNumber.getCopyNumber(0) << "], "
+                        << bareBaseName(baseNumber.getLevelName(1)) << "[" << baseNumber.getCopyNumber(1) << "], "
+                        << bareBaseName(baseNumber.getLevelName(2)) << "[" << baseNumber.getCopyNumber(2) << "], "
+                        << bareBaseName(baseNumber.getLevelName(3)) << "[" << baseNumber.getCopyNumber(3) << "], "
+                        << bareBaseName(baseNumber.getLevelName(4)) << "[" << baseNumber.getCopyNumber(4) << "], "
+                        << bareBaseName(baseNumber.getLevelName(5)) << "[" << baseNumber.getCopyNumber(5) << "], "
+                        << bareBaseName(baseNumber.getLevelName(6)) << "[" << baseNumber.getCopyNumber(6) << "], "
+                        << bareBaseName(baseNumber.getLevelName(7)) << "[" << baseNumber.getCopyNumber(7) << "]";
 
     modCopy = baseNumber.getCopyNumber(0);
     runitCopy = baseNumber.getCopyNumber(1);
@@ -191,7 +204,16 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       modCopy = negModCopy[modCopy - 1];
     }
 
-    modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(1)).back());
+    bool isV2(baseNumber.getLevelName(0).back() != 'e');
+
+    if (isV2) {
+      // V2: the type is embedded in crystal name
+      modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(1)).back());
+    } else {
+      // V3: build type and RU number per type from global RU number
+      modtyp = globalru2type[runitCopy - 1];
+      runitCopy = globalru2ru[runitCopy - 1];
+    }
 
     // error checking
 

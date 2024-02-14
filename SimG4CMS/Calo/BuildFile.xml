@@ -1,5 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="SimGeneral/GFlash"/>
+<use name="SimG4Core/Geometry"/>
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/Notification"/>
 <use name="DataFormats/EcalDetId"/>
@@ -22,7 +23,6 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="boost"/>
 <use name="clhep"/>
-<use name="dd4hep"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
 <use name="root"/>

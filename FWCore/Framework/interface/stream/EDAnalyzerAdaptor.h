@@ -73,9 +73,11 @@ namespace edm {
       bool wantsProcessBlocks() const final { return T::HasAbility::kWatchProcessBlock; }
       bool wantsInputProcessBlocks() const final { return T::HasAbility::kInputProcessBlockCache; }
       bool wantsGlobalRuns() const final { return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache; }
+      bool wantsStreamRuns() const final { return T::HasAbility::kWatchRuns; }
       bool wantsGlobalLuminosityBlocks() const final {
         return T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache;
       }
+      bool wantsStreamLuminosityBlocks() const final { return T::HasAbility::kWatchLuminosityBlocks; }
 
     private:
       using MyGlobal = CallGlobal<T>;

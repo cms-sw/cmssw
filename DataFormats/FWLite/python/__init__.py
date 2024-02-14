@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
-from __future__ import print_function
 import ROOT
 import inspect
 import sys
-import optparse
 from FWCore.ParameterSet.VarParsing import VarParsing
 from builtins import int
 

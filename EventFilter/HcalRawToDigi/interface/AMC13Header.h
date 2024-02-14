@@ -39,8 +39,8 @@ namespace hcal {
     inline bool AMCMore(int i) const { return ((modulesHeaders[i] >> 61) & 0x1) != 0; }
     /** Segmented data? */
     inline bool AMCSegmented(int i) const { return ((modulesHeaders[i] >> 60) & 0x1) != 0; }
-    /** Was the length as expected? */
-    inline bool AMCLengthOk(int i) const { return ((modulesHeaders[i] >> 62) & 0x1) != 0; }
+    /** Was the length as expected? (logic appears inverted in firmware) */
+    inline bool AMCLengthOk(int i) const { return ((modulesHeaders[i] >> 62) & 0x1) == 0; }
     /** Was the CRC correct as received by the AMC13? */
     inline bool AMCCRCOk(int i) const { return ((modulesHeaders[i] >> 56) & 0x1) != 0; }
     /** Is there data for this AMC? */

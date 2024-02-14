@@ -4,9 +4,10 @@
 #include <string>
 
 namespace DD4hep2DDDName {
-  std::string_view nameMatterLV(const std::string& name, bool dd4hep);
+  std::string noNameSpace(const std::string& name);
+  std::string nameMatterLV(const std::string& name, bool dd4hep);
   std::string nameSolid(const std::string& name, bool dd4hep);
-  std::string_view namePV(const std::string& name, bool dd4hep);
+  std::string namePV(const std::string& name, bool dd4hep);
 };  // namespace DD4hep2DDDName
 
 #endif

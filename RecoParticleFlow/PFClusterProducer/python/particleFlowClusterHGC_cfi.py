@@ -60,6 +60,7 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
 particleFlowClusterHGCal = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
+    usePFThresholdsFromDB = cms.bool(False),
     recHitCleaners = cms.VPSet(),
     seedCleaners   = cms.VPSet(),
     seedFinder = _passThruSeeds_HGCal,

@@ -158,21 +158,21 @@ namespace edm {
     }
     if (!doItAgain && !parameterSets_.empty()) {
       for (auto const& k : parameterSets_) {
-        std::list<std::string> pieces;
+        std::vector<std::string_view> pieces;
         split(std::back_inserter(pieces), k.first, '<', ';', '>');
-        for (std::list<std::string>::iterator i = pieces.begin(), e = pieces.end(); i != e; ++i) {
-          std::string removeName = i->substr(i->find('+'));
+        for (auto const& i : pieces) {
+          std::string_view removeName = i.substr(i.find('+'));
           if (removeName.size() >= 4) {
             if (removeName[1] == 'P') {
               std::string psetString(removeName.begin() + 3, removeName.end() - 1);
-              parameterSets_.push_back(std::make_pair(psetString, ParameterSetID()));
+              parameterSets_.emplace_back(std::move(psetString), ParameterSetID());
               doItAgain = true;
             } else if (removeName[1] == 'p') {
-              std::string pvec = std::string(removeName.begin() + 3, removeName.end() - 1);
-              StringList temp;
+              std::string_view pvec = removeName.substr(3, removeName.size() - 4);
+              std::vector<std::string_view> temp;
               split(std::back_inserter(temp), pvec, '{', ',', '}');
-              for (StringList::const_iterator j = temp.begin(), f = temp.end(); j != f; ++j) {
-                parameterSets_.push_back(std::make_pair(*j, ParameterSetID()));
+              for (auto const& j : temp) {
+                parameterSets_.emplace_back(j, ParameterSetID());
               }
               doItAgain = true;
             }

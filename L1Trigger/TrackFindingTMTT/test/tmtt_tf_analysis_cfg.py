@@ -40,7 +40,7 @@ options = VarParsing.VarParsing ('analysis')
 
 if GEOMETRY == "D88":
   # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1130_D76.PU200_TTbar_14TeV_cfi import *
+  #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
 
   # Or read .root files from directory on local computer:
@@ -48,11 +48,11 @@ if GEOMETRY == "D88":
   #inputMC=getCMSlocaldata(dirName)
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_11_3_0_pre6-PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/GEN-SIM-DIGI-RAW"
+  #dataName="/RelValTTbar_14TeV/CMSSW_12_6_0-PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/GEN-SIM-DIGI-RAW"
   #inputMC=getCMSdata(dataName)
 
   # Or read specified .root file:
-  inputMC = ["/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"]
+  inputMC = ["/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"]
 
 else:
   print("this is not a valid geometry!!!")

@@ -131,7 +131,7 @@ void momentumElectronBiasValidation(TString variable,
   std::vector<TString> labels;  // list of input labels
   if (!checkArguments(
           variable, path, alignmentWithLabel, outputType, radius, verbose, givenMin, givenMax, mode, files, labels))
-    return;
+    exit(EXIT_FAILURE);
   else {
     std::cout << "-> Number of files: " << files.size() << std::endl;
   }

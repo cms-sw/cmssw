@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-minIov = 368023
+minIov = 1
 maxIov = 999999999
-subSystemName = "TotemT2"
+subSystemName = ""
 
 process = cms.Process('test')
 
@@ -25,41 +25,43 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = subSystemName
 process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(7)
-process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
+process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = False
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
     validityRange = cms.EventRange(f"{minIov}:min - {maxIov}:max"),
-    mappingFileNames = cms.vstring('CondFormats/PPSObjects/xml/mapping_totem_nt2_2023_final.xml'),
+    mappingFileNames = cms.vstring(),
     maskFileNames = cms.vstring(),
   )
 )
 
 # load a mapping from DB
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = "sqlite_file:CTPPSTotemT2_DAQMapping.db"
+process.CondDB.connect = "sqlite_file:CTPPS_AnalysisMask.db"
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
     toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string('TotemReadoutRcd'),
-            tag = cms.string('DiamondDAQMapping'),
-            label = cms.untracked.string(subSystemName)
-        ),
-        cms.PSet(
-            record = cms.string('TotemAnalysisMaskRcd'),
-            tag = cms.string('AnalysisMask'),
-            label = cms.untracked.string(subSystemName)
-        )
-    )
-)
+      cms.PSet(
+      record = cms.string('TotemAnalysisMaskRcd'),
+      tag = cms.string('AnalysisMask'),
+      label = cms.untracked.string(subSystemName)),
+    ))
+
+
+
+
+
+
+
 
 # prefer to read mapping from DB than from XML or otherwise
-process.es_prefer_totemTimingMapping = cms.ESPrefer("TotemDAQMappingESSourceXML",                 "totemDAQMappingESSourceXML", TotemReadoutRcd=cms.vstring("TotemDAQMapping/TotemT2"))
+process.es_prefer_totemTimingMapping = cms.ESPrefer("TotemDAQMappingESSourceXML", "totemDAQMappingESSourceXML",                 TotemReadoutRcd=cms.vstring(f"TotemAnalysisMask/"))
 
 # print the mapping
 process.writeTotemDAQMapping = cms.EDAnalyzer("WriteTotemDAQMapping",
   subSystem = cms.untracked.string(subSystemName),
-  fileName = cms.untracked.string("all_TotemT2_xml.txt")
+  fileName = cms.untracked.string("all__xml.txt"),
+  readMap = cms.untracked.bool(False),
+  readMask = cms.untracked.bool(True),
 )
 
 process.path = cms.Path(

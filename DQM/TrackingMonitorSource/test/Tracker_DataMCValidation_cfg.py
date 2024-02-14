@@ -4,13 +4,33 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step1 -s DQM -n 1 --eventcontent DQM --conditions auto:com10 --filein /store/relval/CMSSW_7_1_2/MinimumBias/RECO/GR_R_71_V7_dvmc_RelVal_mb2012Cdvmc-v1/00000/00209DF4-3708-E411-9FA7-0025905A6126.root --data --no_exec --python_filename=test_step1_cfg.py
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process('DQM')
+
+options = VarParsing.VarParsing('analysis')
+options.register('globalTag',
+                 "132X_mcRun3_2023_realistic_v2", # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "input file name")
+options.register('sequenceType',
+                 "electrons",
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "type of sequence to run")
+options.register('isRECO',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is the input sample RECO or AOD, assume AOD")
+options.parseArguments()
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -19,15 +39,13 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
   secondaryFileNames = cms.untracked.vstring(),
-  fileNames = cms.untracked.vstring([
-     '/store/relval/CMSSW_7_4_0_pre5/RelValZEE_13/GEN-SIM-RECO/PU50ns_MCRUN2_73_V6-v1/00000/2A3A05D7-BFA0-E411-A89D-00261894395F.root'
-  ])
+                            fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
 process.options = cms.untracked.PSet(
@@ -56,14 +74,51 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'START71_V8A::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 
 # Tracker Data MC validation suite
 process.load('DQM.TrackingMonitorSource.TrackingDataMCValidation_Standalone_cff')
-process.analysis_step = cms.Path(  process.standaloneValidationElec)
+
+# Set the flag is this is AOD or RECO analysis
+process.standaloneTrackMonitor.isRECO = options.isRECO
+process.standaloneTrackMonitorK0.isRECO = options.isRECO
+process.standaloneTrackMonitorLambda.isRECO = options.isRECO
+process.standaloneTrackMonitorElec.isRECO = options.isRECO
+process.standaloneTrackMonitorMuon.isRECO = options.isRECO
+process.standaloneTrackMonitorTTbar.isRECO = options.isRECO
+
+minbias_analysis_step = cms.Path(process.standaloneValidationMinbias)
+k0_analysis_step =  cms.Path(process.standaloneValidationK0s)
+lambda_analysis_step =  cms.Path(process.standaloneValidationLambdas)
+zee_analysis_step = cms.Path(process.standaloneValidationElec)
+zmm_analysis_step = cms.Path(process.standaloneValidationMuon)
+ttbar_analysis_step = cms.Path(process.standaloneValidationTTbar)
+
+if(options.sequenceType == "electrons"):
+    process.analysis_step = zee_analysis_step
+elif (options.sequenceType == "muons") :
+    process.analysis_step = zmm_analysis_step
+elif (options.sequenceType == "ttbar") :
+    process.analysis_step = ttbar_analysis_step
+elif (options.sequenceType == "minbias") :
+    process.analysis_step = minbias_analysis_step
+elif (options.sequenceType == "V0s") :
+    process.analysis_1_step = k0_analysis_step
+    process.analysis_2_step = lambda_analysis_step
+else :
+    raise RuntimeError("Unrecognized sequenceType given option: %. Exiting" % options.sequenceType)
+
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.analysis_step, process.endjob_step, process.DQMoutput_step)
+if (options.sequenceType == "V0s"):
+    process.schedule = cms.Schedule(process.analysis_1_step, process.analysis_2_step, process.endjob_step, process.DQMoutput_step)
+else:
+    process.schedule = cms.Schedule(process.analysis_step, process.endjob_step, process.DQMoutput_step)
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8

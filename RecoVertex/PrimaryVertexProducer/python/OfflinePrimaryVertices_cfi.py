@@ -1,51 +1,45 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+from RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi import primaryVertexProducer
 
-offlinePrimaryVertices = cms.EDProducer(
-    "PrimaryVertexProducer",
+offlinePrimaryVertices = primaryVertexProducer.clone()
 
-    verbose = cms.untracked.bool(False),
-    TrackLabel = cms.InputTag("generalTracks"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    
-    TkFilterParameters = cms.PSet(
-        algorithm=cms.string('filter'),
-        maxNormalizedChi2 = cms.double(10.0),
-        minPixelLayersWithHits=cms.int32(2),
-        minSiliconLayersWithHits = cms.int32(5),
-        maxD0Significance = cms.double(4.0), 
-        maxD0Error = cms.double(1.0), 
-        maxDzError = cms.double(1.0), 
-        minPt = cms.double(0.0),
-        maxEta = cms.double(2.4),
-        trackQuality = cms.string("any")
-    ),
+DA_vectParameters = cms.PSet(primaryVertexProducer.TkClusParameters.clone())
 
-    TkClusParameters = DA_vectParameters,
+from Configuration.ProcessModifiers.vertexInBlocks_cff import vertexInBlocks
+vertexInBlocks.toModify(offlinePrimaryVertices,
+    TkClusParameters = dict(
+        TkDAClusParameters = dict(
+        runInBlocks = True,
+        block_size = 128,
+        overlap_frac = 0.5
+        )
+    )
+)
 
-    vertexCollections = cms.VPSet(
-     [cms.PSet(label=cms.string(""),
-               algorithm=cms.string("AdaptiveVertexFitter"),
-               chi2cutoff = cms.double(2.5),
-               minNdof=cms.double(0.0),
-               useBeamConstraint = cms.bool(False),
-               maxDistanceToBeam = cms.double(1.0)
-               ),
-      cms.PSet(label=cms.string("WithBS"),
-               algorithm = cms.string('AdaptiveVertexFitter'),
-               chi2cutoff = cms.double(2.5),
-               minNdof=cms.double(2.0),
-               useBeamConstraint = cms.bool(True),
-               maxDistanceToBeam = cms.double(1.0),
-               )
-      ]
-    ),
-    
-    isRecoveryIteration = cms.bool(False),
-    recoveryVtxCollection = cms.InputTag("")
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(phase2_tracker & vertexInBlocks).toModify(offlinePrimaryVertices,
+    TkClusParameters = dict(
+        TkDAClusParameters = dict(
+        block_size = 512,
+        overlap_frac = 0.5)
+    )
+)
 
-                                        
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(offlinePrimaryVertices,
+    TkClusParameters = dict(
+        TkDAClusParameters = dict(
+            Tmin = 4.0,
+            Tpurge = 1.0,
+            Tstop = 1.0,
+            vertexSize = 0.01,
+            d0CutOff = 4.,
+            dzCutOff = 5.,
+            zmerge = 2.e-2,
+            uniquetrkweight = 0.9
+        )
+    )
 )
 
 from Configuration.ProcessModifiers.weightedVertexing_cff import weightedVertexing
@@ -97,11 +91,8 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
                    maxNumTracksThreshold = cms.int32(1000),
                    minPtTight = cms.double(1.0)
                ),
-               TkClusParameters = cms.PSet(
-                 algorithm = cms.string("gap"),
-                 TkGapClusParameters = cms.PSet(
-                   zSeparation = cms.double(1.0)        
-                 )
+               TkClusParameters = dict(
+                 algorithm = "gap"
                )
 )
     
@@ -121,4 +112,3 @@ highBetaStar_2018.toModify(offlinePrimaryVertices,
          1: dict(chi2cutoff = 4.0, minNdof = -2.0),
      }
 )
-

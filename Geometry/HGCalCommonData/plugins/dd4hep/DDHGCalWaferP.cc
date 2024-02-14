@@ -76,7 +76,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     // First the mother
     std::string mother = parentName + tags[k];
     std::vector<std::pair<double, double>> wxy =
-        HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0);
+        HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0, true);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);
@@ -103,7 +103,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     // Then the layers
     dd4hep::Rotation3D rotation;
-    wxy = HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0);
+    wxy = HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0, true);
     std::vector<double> xL, yL;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xL.emplace_back(wxy[i].first);

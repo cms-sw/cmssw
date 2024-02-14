@@ -90,6 +90,7 @@ namespace edm {
 
   void ActivityRegistry::connectGlobals(ActivityRegistry& iOther) {
     preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
+    eventSetupConfigurationSignal_.connect(std::cref(iOther.eventSetupConfigurationSignal_));
     beginProcessingSignal_.connect(std::cref(iOther.beginProcessingSignal_));
     endProcessingSignal_.connect(std::cref(iOther.endProcessingSignal_));
     postBeginJobSignal_.connect(std::cref(iOther.postBeginJobSignal_));
@@ -100,6 +101,9 @@ namespace edm {
 
     preSourceSignal_.connect(std::cref(iOther.preSourceSignal_));
     postSourceSignal_.connect(std::cref(iOther.postSourceSignal_));
+
+    preSourceNextTransitionSignal_.connect(std::cref(iOther.preSourceNextTransitionSignal_));
+    postSourceNextTransitionSignal_.connect(std::cref(iOther.postSourceNextTransitionSignal_));
 
     preSourceLumiSignal_.connect(std::cref(iOther.preSourceLumiSignal_));
     postSourceLumiSignal_.connect(std::cref(iOther.postSourceLumiSignal_));
@@ -182,6 +186,9 @@ namespace edm {
     preEventSignal_.connect(std::cref(iOther.preEventSignal_));
     postEventSignal_.connect(std::cref(iOther.postEventSignal_));
 
+    preClearEventSignal_.connect(std::cref(iOther.preClearEventSignal_));
+    postClearEventSignal_.connect(std::cref(iOther.postClearEventSignal_));
+
     prePathEventSignal_.connect(std::cref(iOther.prePathEventSignal_));
     postPathEventSignal_.connect(std::cref(iOther.postPathEventSignal_));
 
@@ -241,6 +248,15 @@ namespace edm {
 
     preModuleEventAcquireSignal_.connect(std::cref(iOther.preModuleEventAcquireSignal_));
     postModuleEventAcquireSignal_.connect(std::cref(iOther.postModuleEventAcquireSignal_));
+
+    preModuleTransformPrefetchingSignal_.connect(std::cref(iOther.preModuleTransformPrefetchingSignal_));
+    postModuleTransformPrefetchingSignal_.connect(std::cref(iOther.postModuleTransformPrefetchingSignal_));
+
+    preModuleTransformSignal_.connect(std::cref(iOther.preModuleTransformSignal_));
+    postModuleTransformSignal_.connect(std::cref(iOther.postModuleTransformSignal_));
+
+    preModuleTransformAcquiringSignal_.connect(std::cref(iOther.preModuleTransformAcquiringSignal_));
+    postModuleTransformAcquiringSignal_.connect(std::cref(iOther.postModuleTransformAcquiringSignal_));
 
     preModuleEventDelayedGetSignal_.connect(std::cref(iOther.preModuleEventDelayedGetSignal_));
     postModuleEventDelayedGetSignal_.connect(std::cref(iOther.postModuleEventDelayedGetSignal_));
@@ -329,6 +345,7 @@ namespace edm {
 
   void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
     copySlotsToFrom(preallocateSignal_, iOther.preallocateSignal_);
+    copySlotsToFrom(eventSetupConfigurationSignal_, iOther.eventSetupConfigurationSignal_);
     copySlotsToFrom(beginProcessingSignal_, iOther.beginProcessingSignal_);
     copySlotsToFrom(endProcessingSignal_, iOther.endProcessingSignal_);
     copySlotsToFrom(preBeginJobSignal_, iOther.preBeginJobSignal_);
@@ -340,6 +357,9 @@ namespace edm {
 
     copySlotsToFrom(preSourceSignal_, iOther.preSourceSignal_);
     copySlotsToFromReverse(postSourceSignal_, iOther.postSourceSignal_);
+
+    copySlotsToFrom(preSourceNextTransitionSignal_, iOther.preSourceNextTransitionSignal_);
+    copySlotsToFromReverse(postSourceNextTransitionSignal_, iOther.postSourceNextTransitionSignal_);
 
     copySlotsToFrom(preSourceLumiSignal_, iOther.preSourceLumiSignal_);
     copySlotsToFromReverse(postSourceLumiSignal_, iOther.postSourceLumiSignal_);
@@ -407,6 +427,9 @@ namespace edm {
     copySlotsToFrom(preEventSignal_, iOther.preEventSignal_);
     copySlotsToFromReverse(postEventSignal_, iOther.postEventSignal_);
 
+    copySlotsToFrom(preClearEventSignal_, iOther.preClearEventSignal_);
+    copySlotsToFromReverse(postClearEventSignal_, iOther.postClearEventSignal_);
+
     copySlotsToFrom(prePathEventSignal_, iOther.prePathEventSignal_);
     copySlotsToFromReverse(postPathEventSignal_, iOther.postPathEventSignal_);
 
@@ -471,6 +494,15 @@ namespace edm {
 
     copySlotsToFrom(preModuleEventAcquireSignal_, iOther.preModuleEventAcquireSignal_);
     copySlotsToFromReverse(postModuleEventAcquireSignal_, iOther.postModuleEventAcquireSignal_);
+
+    copySlotsToFrom(preModuleTransformPrefetchingSignal_, iOther.preModuleTransformPrefetchingSignal_);
+    copySlotsToFromReverse(postModuleTransformPrefetchingSignal_, iOther.postModuleTransformPrefetchingSignal_);
+
+    copySlotsToFrom(preModuleTransformSignal_, iOther.preModuleTransformSignal_);
+    copySlotsToFromReverse(postModuleTransformSignal_, iOther.postModuleTransformSignal_);
+
+    copySlotsToFrom(preModuleTransformAcquiringSignal_, iOther.preModuleTransformAcquiringSignal_);
+    copySlotsToFromReverse(postModuleTransformAcquiringSignal_, iOther.postModuleTransformAcquiringSignal_);
 
     copySlotsToFrom(preModuleEventDelayedGetSignal_, iOther.preModuleEventDelayedGetSignal_);
     copySlotsToFromReverse(postModuleEventDelayedGetSignal_, iOther.postModuleEventDelayedGetSignal_);

@@ -8,8 +8,6 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& 
   produces<l1t::RegionalMuonCandBxCollection>("EMTF");  // EMTF tracks output to uGMT
 }
 
-L1TMuonEndCapTrackProducer::~L1TMuonEndCapTrackProducer() {}
-
 void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create pointers to output products
   auto out_hits_tmp = std::make_unique<EMTFHitCollection>();  // before zero suppression

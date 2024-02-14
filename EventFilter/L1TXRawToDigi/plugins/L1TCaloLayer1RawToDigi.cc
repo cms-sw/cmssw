@@ -67,14 +67,11 @@ using namespace edm;
 class L1TCaloLayer1RawToDigi : public stream::EDProducer<> {
 public:
   explicit L1TCaloLayer1RawToDigi(const ParameterSet&);
-  ~L1TCaloLayer1RawToDigi() override;
 
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(StreamID) override;
   void produce(Event&, const EventSetup&) override;
-  void endStream() override;
 
   void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<EcalTrigPrimDigiCollection>& ecalTPGs);
 
@@ -83,11 +80,6 @@ private:
   void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
   void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<L1CaloRegionCollection>& regions);
-
-  //virtual void beginRun(Run const&, EventSetup const&) override;
-  //virtual void endRun(Run const&, EventSetup const&) override;
-  //virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-  //virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   // ----------member data ---------------------------
 
@@ -121,8 +113,6 @@ L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const ParameterSet& iConfig)
 
   consumes<FEDRawDataCollection>(fedRawDataLabel);
 }
-
-L1TCaloLayer1RawToDigi::~L1TCaloLayer1RawToDigi() {}
 
 //
 // member functions
@@ -377,44 +367,6 @@ void L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi,
     }
   }
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void L1TCaloLayer1RawToDigi::beginStream(StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void L1TCaloLayer1RawToDigi::endStream() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-  void
-  L1TCaloLayer1RawToDigi::beginRun(Run const&, EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  L1TCaloLayer1RawToDigi::endRun(Run const&, EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  L1TCaloLayer1RawToDigi::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  L1TCaloLayer1RawToDigi::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
-  {
-  }
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1RawToDigi::fillDescriptions(ConfigurationDescriptions& descriptions) {

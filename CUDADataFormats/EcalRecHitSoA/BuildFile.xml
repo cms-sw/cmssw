@@ -3,6 +3,7 @@
 <use name="CUDADataFormats/CaloCommon"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/EcalRecHit"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
 <export>

@@ -65,13 +65,15 @@ public:
 
     edm::LogInfo msg("TestPortableAnalyzer");
     msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
-    msg << "  data @ " << product.buffer().get() << ",\n"
-        << "  x    @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
-        << "  y    @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
-        << "  z    @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
-        << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size()) << ",\n"
-        << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-        << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
+    msg << "  data  @ " << product.buffer().get() << ",\n"
+        << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
+        << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
+        << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
+        << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size()) << ",\n"
+        << "  r     @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
+        << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags(), view.metadata().size())
+        << ",\n"
+        << "  m     @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
         << " } ... } \n";
     msg << std::hex << "  [y - x] = 0x"
         << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
@@ -85,11 +87,16 @@ public:
         << "  [r - id] = 0x"
         << reinterpret_cast<intptr_t>(view.metadata().addressOf_r()) -
                reinterpret_cast<intptr_t>(view.metadata().addressOf_id())
-        << "  [m - r] = 0x"
+        << "  [flags - r] = 0x"
+        << reinterpret_cast<intptr_t>(view.metadata().addressOf_flags()) -
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_r())
+        << "  [m - flags] = 0x"
         << reinterpret_cast<intptr_t>(view.metadata().addressOf_m()) -
-               reinterpret_cast<intptr_t>(view.metadata().addressOf_r());
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_flags());
 
     const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
+    const portabletest::Array flags = {{6, 4, 2, 0}};
+
     assert(view.r() == 1.);
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
       auto vi = view[i];
@@ -97,7 +104,8 @@ public:
       assert(vi.y() == 0.);
       assert(vi.z() == 0.);
       assert(vi.id() == i);
-      //assert(vi.m() == matrix * i);
+      assert(vi.flags() == flags);
+      assert(vi.m() == matrix * i);
     }
   }
 

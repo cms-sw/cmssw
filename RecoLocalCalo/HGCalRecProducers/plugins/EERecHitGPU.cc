@@ -25,7 +25,6 @@ class EERecHitGPU : public edm::stream::EDProducer<> {
 public:
   explicit EERecHitGPU(const edm::ParameterSet &ps);
   ~EERecHitGPU() override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -105,8 +104,6 @@ void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
     edm::LogError("WrongSize") << this->assert_error_message_(
         "weights", HGCeeUncalibRecHitConstantData::ee_weights, vdata_.weights_.size());
 }
-
-void EERecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
 void EERecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};

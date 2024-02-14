@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.RawToDigi_cff import *
 
+from Configuration.ProcessModifiers.gpu_cff import gpu
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
 scalersRawToDigi.scalersInputTag = 'rawDataRepacker'
 csctfDigis.producer = 'rawDataRepacker'
 dttfDigis.DTTF_FED_Source = 'rawDataRepacker'
@@ -10,7 +13,9 @@ gtDigis.DaqGtInputTag = 'rawDataRepacker'
 gtEvmDigis.EvmGtInputTag = 'rawDataRepacker'
 siPixelDigis.cpu.InputLabel = 'rawDataRepacker'
 siStripDigis.ProductLabel = 'rawDataRepacker'
-ecalDigis.cpu.InputLabel = 'rawDataRepacker'
+ecalDigisCPU.InputLabel = 'rawDataRepacker'
+gpu.toModify(ecalDigisGPU, InputLabel = 'rawDataRepacker')
+alpaka.toModify(ecalDigisPortable, InputLabel = 'rawDataRepacker')
 ecalPreshowerDigis.sourceTag = 'rawDataRepacker'
 hcalDigis.InputLabel = 'rawDataRepacker'
 muonCSCDigis.InputObjects = 'rawDataRepacker'

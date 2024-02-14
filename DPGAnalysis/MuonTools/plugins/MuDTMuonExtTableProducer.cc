@@ -166,9 +166,9 @@ void MuDTMuonExtTableProducer::fillTable(edm::Event& ev) {
   std::vector<uint32_t> staMatches_begin;
   std::vector<uint32_t> staMatches_end;
 
-  std::vector<int8_t> matches_wheel;
-  std::vector<int8_t> matches_sector;
-  std::vector<int8_t> matches_station;
+  std::vector<int16_t> matches_wheel;
+  std::vector<int16_t> matches_sector;
+  std::vector<int16_t> matches_station;
 
   std::vector<float> matches_x;
   std::vector<float> matches_y;
@@ -329,7 +329,16 @@ void MuDTMuonExtTableProducer::fillTable(edm::Event& ev) {
     tabMatches->setDoc("RECO muon matches_* vectors");
 
     addColumn(tabMatches, "x", matches_x, "x position of the extrapolated track on the matched DT chamber");
-    addColumn(tabMatches, "y", matches_y, "x position of the extrapolated track on the matched DT chamber");
+    addColumn(tabMatches, "y", matches_y, "y position of the extrapolated track on the matched DT chamber");
+
+    addColumn(tabMatches,
+              "edgeX",
+              matches_edgeX,
+              "distance in x of the extrapolated track to the matched DT chamber border (<0 == inside the chamber)");
+    addColumn(tabMatches,
+              "edgeY",
+              matches_edgeY,
+              "distance in y of the extrapolated track to the matched DT chamber border (<0 == inside the chamber)");
 
     addColumn(tabMatches, "wheel", matches_wheel, "matched DT chamber wheel");
     addColumn(tabMatches, "sector", matches_sector, "matched DT chamber sector");
