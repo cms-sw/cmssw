@@ -218,6 +218,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tLayer1EG_*_*',
         'keep *_l1tLayer2EG_*_*',
         'keep *_l1tMETPFProducer_*_*',
+        'keep *_l1tMETMLProducer_*_*',
         'keep *_l1tNNTauProducer_*_*',
         'keep *_l1tNNTauProducerPuppi_*_*',
         'keep *_l1tHPSPFTauProducerPF_*_*',
