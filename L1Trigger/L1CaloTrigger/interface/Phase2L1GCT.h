@@ -68,22 +68,15 @@ inline void p2eg::doProximityAndBremsStitching(const p2eg::RCTcard_t (&inputCard
             }
 
             // Next, check for brems correction: clusters need to be next to each other in TOWERS only (not crystals) across an RCT card boundary.
-            // And the sub-leading cluster must have a significant (>10%) energy of the larger cluster, in order for them to be combined.
             if (towerPhi1 == topTowerPhi) {
               if (towerPhi2 == botTowerPhi) {
                 if ((dPhi <= 5) && (dEta < 2)) {
                   if (one > two) {
-                    if (two >
-                        (0.10 * one)) {  // Only stitch if the sub-leading cluster has a significant amount of energy
-                      outputCards[i].RCTtoGCTfiber[j].RCTclusters[k].et = one + two;
-                      outputCards[i + 1].RCTtoGCTfiber[j1].RCTclusters[k1].et = 0;
-                    }
+                    outputCards[i].RCTtoGCTfiber[j].RCTclusters[k].et = one + two;
+                    outputCards[i + 1].RCTtoGCTfiber[j1].RCTclusters[k1].et = 0;
                   } else {
-                    if (one >
-                        (0.10 * two)) {  // Only stitch if the sub-leading cluster has a significant amount of energy
-                      outputCards[i].RCTtoGCTfiber[j].RCTclusters[k].et = 0;
-                      outputCards[i + 1].RCTtoGCTfiber[j1].RCTclusters[k1].et = one + two;
-                    }
+                    outputCards[i].RCTtoGCTfiber[j].RCTclusters[k].et = 0;
+                    outputCards[i + 1].RCTtoGCTfiber[j1].RCTclusters[k1].et = one + two;
                   }
                 }
               }
