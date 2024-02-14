@@ -32,7 +32,7 @@ public:
     map_.emplace_back(recoClus, simClusVect);
   }
 
-  void sort() { std::sort(map_.begin(), map_.end(), compare); }
+  void post_insert() { std::sort(map_.begin(), map_.end(), compare); }
 
   bool empty() const { return map_.empty(); }
   size_t size() const { return map_.size(); }
