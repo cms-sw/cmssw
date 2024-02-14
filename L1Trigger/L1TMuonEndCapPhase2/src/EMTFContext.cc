@@ -11,10 +11,7 @@
 using namespace emtf::phase2;
 
 EMTFContext::EMTFContext(const edm::ParameterSet& pset, edm::ConsumesCollector i_consumes_collector)
-    :  // Parameter Set
-      pset_(pset),
-
-      // Helpers
+    :  // Helpers
       geometry_translator_(i_consumes_collector),
 
       // EMTF

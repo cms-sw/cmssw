@@ -12,5 +12,5 @@ l1tGMTFilteredMuons = cms.EDProducer('Phase2L1TGMTFilter',
                     ptBarrelMin = cms.int32(8),
                     ptEndcapMin = cms.int32(8),
                     etaBE = cms.double(0.9)
-                                     
+
 )

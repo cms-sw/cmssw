@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFConfiguration.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFConstants.h"
@@ -15,8 +14,7 @@ using namespace emtf::phase2;
 
 RPCTPCollector::RPCTPCollector(const EMTFContext& context, edm::ConsumesCollector& i_consumes_collector)
     : context_(context),
-      input_token_(i_consumes_collector.consumes<RPCTag::rechit_collection_type>(
-          context.pset_.getParameter<edm::InputTag>("RPCInput"))) {}
+      input_token_(i_consumes_collector.consumes<RPCTag::rechit_collection_type>(context.config_.rpc_input_)) {}
 
 void RPCTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) const {
   // Constants
