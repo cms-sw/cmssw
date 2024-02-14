@@ -92,15 +92,15 @@ void PATLeptonTimeLifeInfoProducer<T>::produce(edm::Event& evt, const edm::Event
   // Get transient track builder
   const TransientTrackBuilder& transTrackBuilder = es.getData(transTrackBuilderToken_);
 
-  auto infos = std::make_unique<std::vector<TrackTimeLifeInfo>>();
-  infos->reserve(leptons->size());
+  std::vector<TrackTimeLifeInfo> infos;
+  infos.reserve(leptons->size());
 
   for (const auto& lepton : *leptons) {
     TrackTimeLifeInfo info;
 
     // Do nothing for lepton not passing selection
     if (!selector_(lepton)) {
-      infos->push_back(info);
+      infos.push_back(info);
       continue;
     }
     size_t pv_idx = 0;
@@ -123,11 +123,17 @@ void PATLeptonTimeLifeInfoProducer<T>::produce(edm::Event& evt, const edm::Event
 
     // Fit SV and set related info for taus or do nothing for other lepton types
     produceAndFillSVInfo(lepton, transTrackBuilder, pv, info);
-    infos->push_back(info);
+    infos.push_back(info);
   }  // end of lepton loop
 
+  // Build the valuemap
+  auto infoMap = std::make_unique<TrackTimeLifeInfoMap>();
+  TrackTimeLifeInfoMap::Filler filler(*infoMap);
+  filler.insert(leptons, infos.begin(), infos.end());
+  filler.fill();
+
   // Store output into the event
-  evt.put(std::move(infos));
+  evt.put(std::move(infoMap));
 }
 
 template <>
