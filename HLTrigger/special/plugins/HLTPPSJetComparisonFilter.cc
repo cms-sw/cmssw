@@ -20,8 +20,7 @@ Matching can be done on the xi and/or mass+rapidity variables, using the do_xi a
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -37,7 +36,10 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> const lhcInfoRcdToken_;
+  const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
+  const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+  const bool useNewLHCInfo_;
 
   edm::ParameterSet param_;
 
@@ -46,8 +48,6 @@ private:
 
   edm::InputTag forwardProtonInputTag_;  // Input tag identifying the forward proton collection
   edm::EDGetTokenT<std::vector<reco::ForwardProton>> recoProtonSingleRPToken_;
-
-  std::string lhcInfoLabel_;
 
   double maxDiffxi_;
   double maxDiffm_;
@@ -69,7 +69,10 @@ void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions 
   desc.add<edm::InputTag>("forwardProtonInputTag", edm::InputTag("ctppsProtons", "singleRP"))
       ->setComment("input tag of the forward proton collection");
 
-  desc.add<std::string>("lhcInfoLabel", std::string(""))->setComment("label used for LHCInfo");
+  desc.add<std::string>("lhcInfoLabel", "")->setComment("label used for LHCInfo");
+  desc.add<std::string>("lhcInfoPerLSLabel", "")->setComment("label of the LHCInfoPerLS record");
+  desc.add<std::string>("lhcInfoPerFillLabel", "")->setComment("label of the LHCInfoPerFill record");
+  desc.add<bool>("useNewLHCInfo", true)->setComment("flag whether to use new LHCInfoPer* records or old LHCInfo");
 
   desc.add<double>("maxDiffxi", 1.)
       ->setComment("maximum relative deviation of RP xi from dijet xi. Used with do_xi option");
@@ -92,14 +95,16 @@ void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions 
 HLTPPSJetComparisonFilter::~HLTPPSJetComparisonFilter() = default;
 
 HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iConfig)
-    : lhcInfoRcdToken_(esConsumes()),
+    : lhcInfoToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+      useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
+
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
       jet_token_(consumes<reco::PFJetCollection>(jetInputTag_)),
 
       forwardProtonInputTag_(iConfig.getParameter<edm::InputTag>("forwardProtonInputTag")),
       recoProtonSingleRPToken_(consumes<std::vector<reco::ForwardProton>>(forwardProtonInputTag_)),
-
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
 
       maxDiffxi_(iConfig.getParameter<double>("maxDiffxi")),
       maxDiffm_(iConfig.getParameter<double>("maxDiffm")),
@@ -113,8 +118,8 @@ HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iC
 // member functions
 //
 bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-  auto const &hLHCInfo = iSetup.getHandle(lhcInfoRcdToken_);
-  float sqs = 2. * hLHCInfo->energy();  // get sqrt(s)
+  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
+  float sqs = 2. * lhcInfoCombined.energy;  // get sqrt(s)
 
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByToken(jet_token_, jets);  // get jet collection
