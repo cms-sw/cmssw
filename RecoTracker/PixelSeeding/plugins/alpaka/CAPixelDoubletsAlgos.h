@@ -155,7 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
     auto const& __restrict__ phiBinner = hh.phiBinner();
     uint32_t const* __restrict__ offsets = hh.hitsLayerStart().data();
-    ALPAKA_ASSERT_OFFLOAD(offsets);
+    ALPAKA_ASSERT_ACC(offsets);
 
     auto layerSize = [=](uint8_t li) { return offsets[li + 1] - offsets[li]; };
 
@@ -189,20 +189,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         ;
       --pairLayerId;
 
-      ALPAKA_ASSERT_OFFLOAD(pairLayerId < nPairs);
-      ALPAKA_ASSERT_OFFLOAD(j < innerLayerCumulativeSize[pairLayerId]);
-      ALPAKA_ASSERT_OFFLOAD(0 == pairLayerId || j >= innerLayerCumulativeSize[pairLayerId - 1]);
+      ALPAKA_ASSERT_ACC(pairLayerId < nPairs);
+      ALPAKA_ASSERT_ACC(j < innerLayerCumulativeSize[pairLayerId]);
+      ALPAKA_ASSERT_ACC(0 == pairLayerId || j >= innerLayerCumulativeSize[pairLayerId - 1]);
 
       uint8_t inner = TrackerTraits::layerPairs[2 * pairLayerId];
       uint8_t outer = TrackerTraits::layerPairs[2 * pairLayerId + 1];
-      ALPAKA_ASSERT_OFFLOAD(outer > inner);
+      ALPAKA_ASSERT_ACC(outer > inner);
 
       auto hoff = PhiBinner::histOff(outer);
       auto i = (0 == pairLayerId) ? j : j - innerLayerCumulativeSize[pairLayerId - 1];
       i += offsets[inner];
 
-      ALPAKA_ASSERT_OFFLOAD(i >= offsets[inner]);
-      ALPAKA_ASSERT_OFFLOAD(i < offsets[inner + 1]);
+      ALPAKA_ASSERT_ACC(i >= offsets[inner]);
+      ALPAKA_ASSERT_ACC(i < offsets[inner + 1]);
 
       // found hit corresponding to our worker thread, now do the job
       if (hh[i].detectorIndex() > pixelClustering::maxNumModules)
@@ -267,8 +267,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         for (uint32_t pIndex : cms::alpakatools::independent_group_elements_x(acc, maxpIndex)) {
           // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
           auto oi = p[pIndex];
-          ALPAKA_ASSERT_OFFLOAD(oi >= offsets[outer]);
-          ALPAKA_ASSERT_OFFLOAD(oi < offsets[outer + 1]);
+          ALPAKA_ASSERT_ACC(oi >= offsets[outer]);
+          ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
 
           // invalid

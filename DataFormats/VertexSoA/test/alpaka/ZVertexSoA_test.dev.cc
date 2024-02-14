@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const& acc, reco::ZVertexSoAView zvertex_view) const {
         if (cms::alpakatools::once_per_grid(acc)) {
-          ALPAKA_ASSERT_OFFLOAD(zvertex_view.nvFinal() == 420);
+          ALPAKA_ASSERT_ACC(zvertex_view.nvFinal() == 420);
         }
 
         for (int32_t j : elements_with_stride(acc, zvertex_view.nvFinal())) {

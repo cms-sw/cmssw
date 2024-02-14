@@ -43,8 +43,8 @@ struct testPrefixScan {
     blockPrefixScan(acc, c, co, size, ws);
     blockPrefixScan(acc, c, size, ws);
 
-    ALPAKA_ASSERT_OFFLOAD(1 == c[0]);
-    ALPAKA_ASSERT_OFFLOAD(1 == co[0]);
+    ALPAKA_ASSERT_ACC(1 == c[0]);
+    ALPAKA_ASSERT_ACC(1 == co[0]);
 
     // TODO: not needed? Not in multi kernel version, not in CUDA version
     alpaka::syncBlockThreads(acc);
@@ -59,9 +59,9 @@ struct testPrefixScan {
         if (!((c[i] == c[i - 1] + 1) && (c[i] == i + 1) && (c[i] == co[i])))
           printf("c[%d]=%f, co[%d]=%f\n", i, c[i], i, co[i]);
       }
-      ALPAKA_ASSERT_OFFLOAD(c[i] == c[i - 1] + 1);
-      ALPAKA_ASSERT_OFFLOAD(c[i] == i + 1);
-      ALPAKA_ASSERT_OFFLOAD(c[i] == co[i]);
+      ALPAKA_ASSERT_ACC(c[i] == c[i - 1] + 1);
+      ALPAKA_ASSERT_ACC(c[i] == i + 1);
+      ALPAKA_ASSERT_ACC(c[i] == co[i]);
     }
   }
 };
@@ -74,7 +74,7 @@ struct testWarpPrefixScan {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t size) const {
     if constexpr (!requires_single_thread_per_block_v<TAcc>) {
-      ALPAKA_ASSERT_OFFLOAD(size <= 32);
+      ALPAKA_ASSERT_ACC(size <= 32);
       auto& c = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
       auto& co = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
 
@@ -90,18 +90,18 @@ struct testWarpPrefixScan {
 
       alpaka::syncBlockThreads(acc);
 
-      ALPAKA_ASSERT_OFFLOAD(1 == c[0]);
-      ALPAKA_ASSERT_OFFLOAD(1 == co[0]);
+      ALPAKA_ASSERT_ACC(1 == c[0]);
+      ALPAKA_ASSERT_ACC(1 == co[0]);
       if (i != 0) {
         if (c[i] != c[i - 1] + 1)
           printf(format_traits<T>::failed_msg, size, i, blockDimension, c[i], c[i - 1]);
-        ALPAKA_ASSERT_OFFLOAD(c[i] == c[i - 1] + 1);
-        ALPAKA_ASSERT_OFFLOAD(c[i] == static_cast<T>(i + 1));
-        ALPAKA_ASSERT_OFFLOAD(c[i] == co[i]);
+        ALPAKA_ASSERT_ACC(c[i] == c[i - 1] + 1);
+        ALPAKA_ASSERT_ACC(c[i] == static_cast<T>(i + 1));
+        ALPAKA_ASSERT_ACC(c[i] == co[i]);
       }
     } else {
       // We should never be called outsie of the GPU.
-      ALPAKA_ASSERT_OFFLOAD(false);
+      ALPAKA_ASSERT_ACC(false);
     }
   }
 };
@@ -122,7 +122,7 @@ struct verify {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, uint32_t const* v, uint32_t n) const {
     for (auto index : uniform_elements(acc, n)) {
-      ALPAKA_ASSERT_OFFLOAD(v[index] == index + 1);
+      ALPAKA_ASSERT_ACC(v[index] == index + 1);
 
       if (index == 0)
         printf("verify\n");

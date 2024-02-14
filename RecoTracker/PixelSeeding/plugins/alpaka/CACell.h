@@ -301,11 +301,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       if constexpr (DEPTH <= 0) {
         printf("ERROR: CACellT::find_ntuplets reached full depth!\n");
-        ALPAKA_ASSERT_OFFLOAD(false);
+        ALPAKA_ASSERT_ACC(false);
       } else {
         auto doubletId = this - cells;
         tmpNtuplet.push_back_unsafe(doubletId);
-        ALPAKA_ASSERT_OFFLOAD(tmpNtuplet.size() <= int(TrackerTraits::maxHitsOnTrack - 3));
+        ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxHitsOnTrack - 3));
 
         bool last = true;
         for (unsigned int otherCell : outerNeighbors()) {

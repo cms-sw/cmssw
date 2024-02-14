@@ -280,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     // in principle we can use "nhits" to heuristically dimension the workspace...
-    ALPAKA_ASSERT_OFFLOAD(this->device_isOuterHitOfCell_.data());
+    ALPAKA_ASSERT_ACC(this->device_isOuterHitOfCell_.data());
 
     alpaka::exec<Acc1D>(
         queue,

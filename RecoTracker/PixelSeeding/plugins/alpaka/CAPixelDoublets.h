@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     CellNeighbors<TrackerTraits>* cellNeighborsContainer,
                                     CellTracksVector<TrackerTraits>* cellTracks,
                                     CellTracks<TrackerTraits>* cellTracksContainer) const {
-        ALPAKA_ASSERT_OFFLOAD((*isOuterHitOfCell).container);
+        ALPAKA_ASSERT_ACC((*isOuterHitOfCell).container);
 
         for (auto i : cms::alpakatools::uniform_elements(acc, nHits - isOuterHitOfCell->offset))
           (*isOuterHitOfCell).container[i].reset();
@@ -36,10 +36,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cellNeighbors->construct(TrackerTraits::maxNumOfActiveDoublets, cellNeighborsContainer);
           cellTracks->construct(TrackerTraits::maxNumOfActiveDoublets, cellTracksContainer);
           [[maybe_unused]] auto i = cellNeighbors->extend(acc);
-          ALPAKA_ASSERT_OFFLOAD(0 == i);
+          ALPAKA_ASSERT_ACC(0 == i);
           (*cellNeighbors)[0].reset();
           i = cellTracks->extend(acc);
-          ALPAKA_ASSERT_OFFLOAD(0 == i);
+          ALPAKA_ASSERT_ACC(0 == i);
           (*cellTracks)[0].reset();
         }
       }
