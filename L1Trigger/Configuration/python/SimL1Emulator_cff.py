@@ -102,13 +102,13 @@ l1tTowerCalibration = l1tTowerCalibrationProducer.clone(
   L1HgcalTowersInputTag = ("l1tHGCalTowerProducer","HGCalTowerProcessor",""),
   l1CaloTowers = ("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")
 )
-# ----    Produce the L1CaloJets
+# ----    Produce the simulated L1CaloJets
 from L1Trigger.L1CaloTrigger.l1tCaloJetProducer_cfi import *
 l1tCaloJet = l1tCaloJetProducer.clone (
     l1CaloTowers = ("l1tTowerCalibration","L1CaloTowerCalibratedCollection",""),
     L1CrystalClustersInputTag = ("l1tEGammaClusterEmuProducer", "","")
 )
-# ----    Produce the CaloJet HTT Sums
+# ----    Produce the simulated CaloJet HTT Sums
 from L1Trigger.L1CaloTrigger.l1tCaloJetHTTProducer_cfi import *
 l1tCaloJetHTT = l1tCaloJetHTTProducer.clone(
     BXVCaloJetsInputTag = ("L1CaloJet", "CaloJets") 
@@ -120,10 +120,14 @@ _phase2_siml1emulator.add(l1tNNCaloTauProducer)
 from L1Trigger.L1CaloTrigger.l1tNNCaloTauEmulator_cfi import *
 _phase2_siml1emulator.add(l1tNNCaloTauEmulator)
 
+# ---- Produce the emulated CaloJets and Taus
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloJetEmulator_cfi import *
 
 _phase2_siml1emulator.add(l1tTowerCalibration)
 _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
+_phase2_siml1emulator.add(l1tPhase2CaloJetEmulator)
+
 
 # ########################################################################
 # Phase-2 L1T - TrackTrigger dependent modules
