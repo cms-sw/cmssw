@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <vector>
 #include <map>
+#include <ostream>
 
 namespace tfaot {
 
@@ -21,22 +22,22 @@ namespace tfaot {
     explicit BatchRule(size_t batchSize, const std::vector<size_t>& sizes, size_t lastPadding = 0);
 
     // destructor
-    ~BatchRule() {}
+    ~BatchRule() = default;
 
     // getter for the batch size
-    inline size_t getBatchSize() const { return batchSize_; }
+    size_t getBatchSize() const { return batchSize_; }
 
     // getter for available sizes
-    inline const std::vector<size_t>& getSizes() const { return sizes_; }
+    const std::vector<size_t>& getSizes() const { return sizes_; }
 
     // getter for the last padding value
-    inline size_t getLastPadding() const { return lastPadding_; }
+    size_t getLastPadding() const { return lastPadding_; }
 
     // returns the number of available sizes
-    inline size_t nSizes() const { return sizes_.size(); }
+    size_t nSizes() const { return sizes_.size(); }
 
     // getter for the registered size at index i
-    inline size_t getSize(size_t i) const { return sizes_[i]; }
+    size_t getSize(size_t i) const { return sizes_[i]; }
 
   private:
     size_t batchSize_;
@@ -51,16 +52,16 @@ namespace tfaot {
   class BatchStrategy {
   public:
     // constructor
-    explicit BatchStrategy(){};
+    explicit BatchStrategy() = default;
 
     // destructor
-    ~BatchStrategy(){};
+    ~BatchStrategy() = default;
 
     // registers a new rule for a batch size
-    inline void setRule(const BatchRule& rule) { rules_.insert_or_assign(rule.getBatchSize(), rule); }
+    void setRule(const BatchRule& rule) { rules_.insert_or_assign(rule.getBatchSize(), rule); }
 
     // returns whether a rule was already registered for a certain batch size
-    inline bool hasRule(size_t batchSize) const { return rules_.find(batchSize) != rules_.end(); }
+    bool hasRule(size_t batchSize) const { return rules_.find(batchSize) != rules_.end(); }
 
     // returns a rule registered previously for a certain batch size
     const BatchRule& getRule(size_t batchSize) const;

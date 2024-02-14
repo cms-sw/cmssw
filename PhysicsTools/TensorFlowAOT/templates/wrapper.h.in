@@ -30,20 +30,20 @@ namespace ${NAMESPACE} {
     ${CLASS_NAME}& operator=(const ${CLASS_NAME}&) = delete;
 
     // destructor
-    ~${CLASS_NAME}();
+    ~${CLASS_NAME}() override;
 
     // registered batch sizes
-    inline const std::vector<size_t>& batchSizes() const {
-      static std::vector<size_t> batchSizes = {${BATCH_SIZES_CSV}};
+    const std::vector<size_t>& batchSizes() const {
+      static const std::vector<size_t> batchSizes = {${BATCH_SIZES_CSV}};
       return batchSizes;
     }
 
     // number of input arguments
-    inline size_t nArgs() const { return ${N_ARGS}; }
+    size_t nArgs() const { return ${N_ARGS}; }
 
     // number of elements in arguments per batch size
-    inline const std::map<size_t, std::vector<size_t>>& argCounts() const {
-      static std::map<size_t, std::vector<size_t>> argCounts = {
+    const std::map<size_t, std::vector<size_t>>& argCounts() const {
+      static const std::map<size_t, std::vector<size_t>> argCounts = {
           // foreach=MODEL lines=1
           {${BATCH_SIZE}, {${ARG_COUNTS_CSV}}},
       };
@@ -51,8 +51,8 @@ namespace ${NAMESPACE} {
     }
 
     // number of elements in arguments, divided by batch size
-    inline const std::vector<size_t>& argCountsNoBatch() const {
-      static std::vector<size_t> argCountsNoBatch = {${ARG_COUNTS_NO_BATCH_CSV}};
+    const std::vector<size_t>& argCountsNoBatch() const {
+      static const std::vector<size_t> argCountsNoBatch = {${ARG_COUNTS_NO_BATCH_CSV}};
       return argCountsNoBatch;
     }
 
@@ -65,11 +65,11 @@ namespace ${NAMESPACE} {
     const T* argData(size_t batchSize, size_t argIndex) const;
 
     // number for output results
-    inline size_t nResults() const { return ${N_RES}; }
+    size_t nResults() const { return ${N_RES}; }
 
     // number of elements in results per batch size
-    inline const std::map<size_t, std::vector<size_t>>& resultCounts() const {
-      static std::map<size_t, std::vector<size_t>> resultCounts = {
+    const std::map<size_t, std::vector<size_t>>& resultCounts() const {
+      static const std::map<size_t, std::vector<size_t>> resultCounts = {
           // foreach=MODEL lines=1
           {${BATCH_SIZE}, {${RES_COUNTS_CSV}}},
       };
@@ -77,8 +77,8 @@ namespace ${NAMESPACE} {
     }
 
     // number of elements in results, divided by batch size
-    inline const std::vector<size_t>& resultCountsNoBatch() const {
-      static std::vector<size_t> resultCountsNoBatch = {${RES_COUNTS_NO_BATCH_CSV}};
+    const std::vector<size_t>& resultCountsNoBatch() const {
+      static const std::vector<size_t> resultCountsNoBatch = {${RES_COUNTS_NO_BATCH_CSV}};
       return resultCountsNoBatch;
     }
 

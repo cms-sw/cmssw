@@ -7,6 +7,10 @@
  * Author: Marcel Rieger, Bogdan Wiederspan
  */
 
+#include <type_traits>
+#include <utility>
+#include <vector>
+
 #include "tensorflow/compiler/tf2xla/xla_compiled_cpu_function.h"
 #include "tensorflow/core/platform/types.h"
 

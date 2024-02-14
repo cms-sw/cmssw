@@ -34,22 +34,22 @@ namespace tfaot {
     Wrapper& operator=(const Wrapper&) = delete;
 
     // destructor
-    virtual ~Wrapper(){};
+    virtual ~Wrapper() = default;
 
     // getter for the name
-    inline const std::string& name() const { return name_; }
+    const std::string& name() const { return name_; }
 
     // getter for the allocation mode
-    inline AllocMode allocMode() const { return allocMode_; }
+    AllocMode allocMode() const { return allocMode_; }
 
     // getter for the compiled batch sizes
     virtual const std::vector<size_t>& batchSizes() const = 0;
 
     // returns the number of compiled batch sizes
-    inline size_t nBatchSizes() const { return batchSizes().size(); }
+    size_t nBatchSizes() const { return batchSizes().size(); }
 
     // returns whether a compiled model exists for a certain batch size
-    inline bool hasBatchSize(size_t batchSize) const {
+    bool hasBatchSize(size_t batchSize) const {
       const auto& bs = batchSizes();
       return std::find(bs.begin(), bs.end(), batchSize) != bs.end();
     }
@@ -114,19 +114,19 @@ namespace tfaot {
 
   protected:
     // throws an exception for the case where an unknown batch size was requested
-    inline void unknownBatchSize(size_t batchSize, const std::string& method) const {
+    void unknownBatchSize(size_t batchSize, const std::string& method) const {
       throw cms::Exception("UnknownBatchSize")
           << "batch size " << batchSize << " not known to model '" << name_ << "' in '" << method << "'";
     }
 
     // throws an exception for the case where an unknown argument index was requested
-    inline void unknownArgument(size_t argIndex, const std::string& method) const {
+    void unknownArgument(size_t argIndex, const std::string& method) const {
       throw cms::Exception("UnknownArgument")
           << "argument " << argIndex << " not known to model '" << name_ << "' in '" << method << "'";
     }
 
     // throws an exception for the case where an unknown result index was requested
-    inline void unknownResult(size_t resultIndex, const std::string& method) const {
+    void unknownResult(size_t resultIndex, const std::string& method) const {
       throw cms::Exception("UnknownResult")
           << "result " << resultIndex << " not known to model '" << name_ << "' in '" << method << "'";
     }

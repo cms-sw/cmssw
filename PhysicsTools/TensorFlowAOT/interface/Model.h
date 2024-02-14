@@ -7,6 +7,7 @@
  * Author: Marcel Rieger, Bogdan Wiederspan
  */
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TensorFlowAOT/interface/Util.h"
 #include "PhysicsTools/TensorFlowAOT/interface/Batching.h"
 
@@ -23,16 +24,16 @@ namespace tfaot {
     ~Model(){};
 
     // getter for the name
-    inline const std::string& name() const { return wrapper_->name(); }
+    const std::string& name() const { return wrapper_->name(); }
 
     // setter for the batch strategy
-    inline void setBatchStrategy(const BatchStrategy& strategy) { batchStrategy_ = strategy; }
+    void setBatchStrategy(const BatchStrategy& strategy) { batchStrategy_ = strategy; }
 
     // getter for the batch strategy
-    inline const BatchStrategy& getBatchStrategy() const { return batchStrategy_; }
+    const BatchStrategy& getBatchStrategy() const { return batchStrategy_; }
 
     // adds a new batch rule to the strategy
-    inline void setBatchRule(size_t batchSize, const std::vector<size_t>& sizes, size_t lastPadding = 0) {
+    void setBatchRule(size_t batchSize, const std::vector<size_t>& sizes, size_t lastPadding = 0) {
       batchStrategy_.setRule(BatchRule(batchSize, sizes, lastPadding));
     }
 
@@ -83,9 +84,14 @@ namespace tfaot {
                                   size_t argIndex,
                                   const std::vector<T>& batchData) {
     size_t count = wrapper_->argCountNoBatch(argIndex);
+    if (batchData.size() != count) {
+      throw cms::Exception("InputMismatch")
+          << "model '" << name() << "' received " << batchData.size() << " elements for argument " << argIndex
+          << ", but " << count << " are expected";
+    }
     T* argPtr = wrapper_->template argData<T>(batchSize, argIndex) + batchIndex * count;
-    const T* inPtr = &(batchData[0]);
-    std::copy(inPtr, inPtr + count, argPtr);
+    auto beg = batchData.cbegin();
+    std::copy(beg, beg + count, argPtr);
   }
 
   template <class W>
