@@ -1,7 +1,7 @@
 # Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# using:
+# Revision: 1.19
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: step1 --conditions 111X_mcRun4_realistic_T15_v3 -n 2 --era Phase2C9 --eventcontent FEVTDEBUGHLT --runUnscheduled file:/eos/cms/store/relval/CMSSW_11_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v2/10000/01054EE2-1B51-C449-91A2-5202A60D16A3.root -s RAW2DIGI,L1TrackTrigger,L1 --datatier FEVTDEBUGHLT --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000,L1Trigger/Configuration/customisePhase2TTNoMC.customisePhase2TTNoMC,Configuration/DataProcessing/Utils.addMonitoring --geometry Extended2026D49 --fileout file:/tmp/step1_Reprocess_TrackTrigger_L1.root --no_exec --nThreads 8 --python step1_L1_ProdLike.py --filein das:/TT_TuneCP5_14TeV-powheg-pythia8/Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2/GEN-SIM-DIGI-RAW
 import FWCore.ParameterSet.Config as cms
 
@@ -80,8 +80,9 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('reprocess.root'),
     outputCommands = cms.untracked.vstring(
         "drop *_*_*_*",
-        "keep *_gmt*Muons_*_*",
-        "keep *_gmtStubs_*_*",
+        "keep *_l1tGMTMuons_*_*",
+        "keep *_l1tGMTStubs_*_*",
+        "keep *_l1tFwdMuonsGmt_*_*",
         "keep *_genParticles_*_*",
         "keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*",
         "keep *_l1tTkMuons_*_*"
@@ -98,7 +99,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 ##
 #Calibrate Digis
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
-process.CalibratedDigis.dtDigiTag = "simMuonDTDigis" 
+process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
 
 #DTTriggerPhase2
@@ -129,19 +130,19 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.aging
-from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000 
+from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
 
 #call to customisation function customise_aging_1000 imported from SLHCUpgradeSimulations.Configuration.aging
 #process = customise_aging_1000(process)
 
 # Automatic addition of the customisation function from L1Trigger.Configuration.customisePhase2TTNoMC
-from L1Trigger.Configuration.customisePhase2TTNoMC import customisePhase2TTNoMC 
+from L1Trigger.Configuration.customisePhase2TTNoMC import customisePhase2TTNoMC
 
 #call to customisation function customisePhase2TTNoMC imported from L1Trigger.Configuration.customisePhase2TTNoMC
 process = customisePhase2TTNoMC(process)
 
 # Automatic addition of the customisation function from Configuration.DataProcessing.Utils
-from Configuration.DataProcessing.Utils import addMonitoring 
+from Configuration.DataProcessing.Utils import addMonitoring
 
 #call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
 process = addMonitoring(process)

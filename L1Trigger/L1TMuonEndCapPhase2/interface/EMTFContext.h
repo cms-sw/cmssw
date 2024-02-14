@@ -32,9 +32,6 @@ namespace emtf::phase2 {
     // Event configuration
     void update(const edm::Event&, const edm::EventSetup&);
 
-    // Parameter Set
-    const edm::ParameterSet& pset_;
-
     // Helpers
     GeometryTranslator geometry_translator_;
 
