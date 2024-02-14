@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/Special --cff --data --type Special
 
-# /dev/CMSSW_14_0_0/Special/V9 (CMSSW_14_0_0_pre3)
+# /dev/CMSSW_14_0_0/Special/V10 (CMSSW_14_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/Special/V9')
+  tableName = cms.string('/dev/CMSSW_14_0_0/Special/V10')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
