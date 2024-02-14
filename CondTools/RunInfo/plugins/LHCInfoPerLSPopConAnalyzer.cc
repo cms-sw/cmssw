@@ -4,6 +4,7 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
+#include "CondTools/RunInfo/interface/LHCInfoHelper.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -17,15 +18,6 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <sstream>
-#include <sstream>
-#include <string>
-#include <utility>
-#include <vector>
 
 using std::make_pair;
 using std::pair;
@@ -173,8 +165,13 @@ public:
     cond::Time_t lastSince = tagInfo().lastInterval.since;
     if (tagInfo().isEmpty()) {
       // for a new or empty tag, an empty payload should be added on top with since=1
-      addEmptyPayload(1);
-      lastSince = 1;
+      if (m_endFillMode) {
+        addEmptyPayload(1);
+        lastSince = 1;
+      } else {
+        addEmptyPayload(cond::time::lumiTime(1, 1));
+        lastSince = cond::time::lumiTime(1, 1);
+      }
     } else {
       edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
                            << m_name << "::getNewObjects";
@@ -329,8 +326,13 @@ public:
       }
       m_tmpBuffer.clear();
       m_lsIdMap.clear();
-      if (m_prevPayload->fillNumber() and !ongoingFill)
-        addEmptyPayload(m_endFillTime);
+      if (m_prevPayload->fillNumber() and !ongoingFill) {
+        if (m_endFillMode) {
+          addEmptyPayload(m_endFillTime);
+        } else {
+          addEmptyPayload(cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));
+        }
+      }
     }
   }
   std::string id() const override { return m_name; }
@@ -384,7 +386,13 @@ private:
     thisLumiSectionInfo->setLumiSection(std::stoul(row.get<std::string>("lumisection_number")));
     thisLumiSectionInfo->setRunNumber(std::stoull(row.get<std::string>("run_number")));
     m_lsIdMap[make_pair(thisLumiSectionInfo->runNumber(), thisLumiSectionInfo->lumiSection())] = make_pair(-1, -1);
-    m_tmpBuffer.emplace_back(make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+    if (m_endFillMode) {
+      m_tmpBuffer.emplace_back(make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+    } else {
+      m_tmpBuffer.emplace_back(
+          make_pair(cond::time::lumiTime(thisLumiSectionInfo->runNumber(), thisLumiSectionInfo->lumiSection()),
+                    thisLumiSectionInfo));
+    }
   }
 
   size_t bufferAllLS(const cond::OMSServiceResult& queryResult) {

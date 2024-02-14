@@ -81,9 +81,15 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
+# Write different time-types tags depending on the O2O mode
+if options.mode == 'endFill':
+  timetype = 'timestamp'
+else:
+  timetype = 'lumiid'
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           CondDBConnection,
-                                          timetype = cms.untracked.string('timestamp'),
+                                          timetype = cms.untracked.string(timetype),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('LHCInfoPerFillRcd'),
                                                                      tag = cms.string( options.tag )
                                                                      )
