@@ -1,6 +1,7 @@
 #ifndef L1Trigger_L1TMuonEndCapPhase2_EMTFConfiguration_h
 #define L1Trigger_L1TMuonEndCapPhase2_EMTFConfiguration_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFfwd.h"
 
 namespace emtf::phase2 {
@@ -41,6 +42,12 @@ namespace emtf::phase2 {
     int rpc_bx_shift_;
     int gem_bx_shift_;
     int me0_bx_shift_;
+
+    edm::InputTag csc_input_;
+    edm::InputTag rpc_input_;
+    edm::InputTag gem_input_;
+    edm::InputTag me0_input_;
+    edm::InputTag ge0_input_;
 
     // Primitive Selectoin
     bool include_neighbor_en_;
