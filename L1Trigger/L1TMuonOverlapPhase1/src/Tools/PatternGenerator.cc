@@ -66,7 +66,6 @@ void PatternGenerator::initPatternGen() {
     else if (edmCfg.getParameter<string>("patternGenerator") == "deltaPhiVsPhiRef")
       statBinsCnt2 = omtfConfig->nPhiBins() / omtfConfig->nProcessors();
     //for 2D distribution, phiB vs phiDist, but if done for 8 ref layers, consumes too much memory
-
     //if(statBinsCnt2 > 10 && omtfConfig->nRefLayers() > 2)
     //  throw cms::Exception("PatternGenerator::initPatternGen(): statBinsCnt2 and omtfConfig->nRefLayers() too big, will consume too much memory");
 
@@ -82,9 +81,6 @@ void PatternGenerator::initPatternGen() {
 
   edm::LogImportant("l1tOmtfEventPrint") << "PatternGenerator::initPatternGen():" << __LINE__
                                          << " goldenPatterns.size() " << goldenPatterns.size() << std::endl;
-
-  //GoldenPatternResult::setFinalizeFunction(3); TODO why it was this one????
-  // edm::LogImportant("l1tOmtfEventPrint") << "reseting golden pattern !!!!!" << std::endl;
 
   //setting all pdf to 1, this will cause that  when the OmtfProcessor process the input, the result will be based only on the number of fired layers,
   //and then the omtfCand will come from the processor that has the biggest number of fired layers
@@ -125,14 +121,6 @@ void PatternGenerator::initPatternGen() {
       else
         ptDeltaPhiHists[iCharge].push_back(nullptr);
     }
-  }*/
-
-  /* cannot be called  here, will cause crash
-  edm::LogImportant("OMTFReconstruction")<<" PatternGenerator constructor - patterns after modification "<<std::endl;
-  for(auto& gp : goldenPatterns) {
-    edm::LogImportant("OMTFReconstruction")<<gp->key()<<" "
-        <<omtfConfig->getPatternPtRange(gp->key().theNumber).ptFrom
-        <<" - "<<omtfConfig->getPatternPtRange(gp->key().theNumber).ptTo<<" GeV"<<std::endl;
   }*/
 }
 
@@ -242,10 +230,6 @@ void PatternGenerator::updateStatUsingMatcher2() {
           omtfConfig->getProcIndx(matchingResult.muonCand->processor(), matchingResult.muonCand->trackFinderType());
 
       //edm::LogImportant("l1tOmtfEventPrint")<<"\n" <<__FUNCTION__<<": "<<__LINE__<<" exptCandGp "<<exptCandGp->key()<<" candProcIndx "<<candProcIndx<<" ptSim "<<ptSim<<" chargeSim "<<chargeSim<<std::endl;
-      /*
-  unsigned int iCharge = omtfCand->getCharge();
-  if (iCharge != 1)
-    iCharge = 0;*/
 
       int pdfMiddle = 1 << (omtfConfig->nPdfAddrBits() - 1);
       LogTrace("l1tOmtfEventPrint") << "updateStatUsingMatcher2 " << __LINE__ << std::endl;
@@ -303,12 +287,6 @@ void PatternGenerator::updateStatUsingMatcher2() {
 
               int phiDist = gpResult.getStubResults()[iLayer].getPdfBin() + meanDistPhi - pdfMiddle;
               //removing the shift applied in the GoldenPatternBase::process1Layer1RefLayer
-
-              /*
-          if(ptDeltaPhiHists[iCharge][iLayer] != nullptr &&
-              (iLayer == refLayerLogicNum || omtfConfig->getLogicToLogic().at(iLayer) == (int)refLayerLogicNum) )
-            ptDeltaPhiHists[iCharge][iLayer]->Fill(ttAlgoMuon->getPt(), phiDist); //TODO correct
-               */
 
               int lutMiddle = exptCandGp->getStatistics()[iLayer][refLayer].size() / 2;
 
@@ -483,40 +461,6 @@ void PatternGenerator::upadatePdfs() {
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
         } else
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
-
-        /*
-        if ((gp->key().thePt <= 10) && (iLayer == 1) ) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
-          gp->setDistPhiBitShift(2, iLayer, iRefLayer);
-        } else if ((gp->key().thePt <= 10) && ( (iRefLayer == 0 || iRefLayer == 2) && (iLayer == 1 || iLayer == 3))) {  //iRefLayer: MB1, MB2, iLayer: MB1 and MB2 phiB
-          gp->setDistPhiBitShift(2, iLayer, iRefLayer);
-        } else if ((gp->key().thePt <= 10) && (iRefLayer == 5 && (iLayer == 5))) {  //iRefLayer: MB3, iLayer: MB3 phiB
-          gp->setDistPhiBitShift(2, iLayer, iRefLayer);
-        } else if ((gp->key().thePt <= 10) && (iRefLayer == 2 && (iLayer == 10))) {  //iRefLayer: MB2, iLayer: RB1_in
-          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        } else if ((gp->key().thePt <= 10) && (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //DT phiB
-          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        } else if ((gp->key().thePt >= 11 && gp->key().thePt <= 17) && (iLayer == 1))  //MB1 phiB
-          //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
-          //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
-          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        else
-          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
-
-        //watch out: the shift in a given layer must be the same for patterns in one group
-        //todo  make the setting of the shift on the group base
-        //TODO set the DistPhiBitShift
-        /*if( (gp->key().thePt <= 10) && (iLayer == 3 || iLayer == 5 ) && (iRefLayer == 0 || iRefLayer == 2 || iRefLayer == 6 || iRefLayer == 7)) {
-          gp->setDistPhiBitShift(3, iLayer, iRefLayer);
-        }
-        else if( (gp->key().thePt <= 10) && ( iLayer == 1 || iLayer == 3 || iLayer == 5 ) ) {
-          gp->setDistPhiBitShift(2, iLayer, iRefLayer);
-        }
-        else if( ( (gp->key().thePt <= 10) && (iLayer == 7 ||iLayer == 8 || iLayer == 17 ) ) ) {
-          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        }
-        else if( (gp->key().thePt <= 10) && (iLayer == 10 || iLayer == 11 || iLayer == 12 || iLayer == 13) && (iRefLayer == 1)) {
-          gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        }*/
       }
     }
   }
@@ -656,17 +600,12 @@ void PatternGenerator::upadatePdfs() {
 
                 if (iBinStat >= 0 && iBinStat < (int)gp->getStatistics()[iLayer][iRefLayer].size()) {
                   pdfVal += gp->getStatistics()[iLayer][iRefLayer][iBinStat][0];
-                  //cout<<__FUNCTION__<<": "<<__LINE__<<" "<<gp->key()<<" iLayer "<<iLayer<<" iBinStat "<<iBinStat<<" iBinPdf "<<iBinPdf<<" statVal "<<gp->getStatistics()[iLayer][iRefLayer][iBinStat][0]<<endl;
                 }
               }
               if (norm > minHitCnt) {
                 pdfVal /= (norm * statBinGroupSize);
               } else
                 pdfVal = 0;
-              /*edm::LogImportant("l1tOmtfEventPrint")
-                                << __FUNCTION__ << ": " << __LINE__ << " " << gp->key() << "calculating pdf: iLayer " << iLayer
-                                << " iRefLayer " << iRefLayer //<< " norm " << std::setw(5) << norm
-                                << " pdfVal " << pdfVal << endl;*/
             } else {  //iBinPdf == 0 i.e. no hit
               int iBinStat = 0;
               if (norm > 0) {
@@ -688,7 +627,6 @@ void PatternGenerator::upadatePdfs() {
             }
 
             gp->setPdfValue(digitisedVal, iLayer, iRefLayer, iBinPdf);
-            //cout<<__FUNCTION__<<": "<<__LINE__<<" "<<gp->key()<<" iLayer "<<iLayer<<" iBinPdf "<<iBinPdf<<" pdfVal "<<pdfVal<<" digitisedVal "<<digitisedVal<<endl;
           }
         }
       }

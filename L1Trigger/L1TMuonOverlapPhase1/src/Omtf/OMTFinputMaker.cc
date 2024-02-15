@@ -92,8 +92,6 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
   unsigned int iLayer = config->getHwToLogicLayer().at(hwNumber);
   unsigned int iInput = OMTFinputMaker::getInputNumber(config, rawid, iProcessor, procTyp);
 
-  //edm::LogVerbatim("l1tOmtfEventPrint")<<"addCSCstubs iProcessor "<<iProcessor<<" procTyp "<<procTyp<< std::endl;
-
   float r = 0;
   MuonStub stub;
   stub.type = MuonStub::CSC_PHI_ETA;

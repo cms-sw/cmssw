@@ -30,7 +30,6 @@ EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
       inputInProcs(omtfConfig->processorCnt()),
       algoMuonsInProcs(omtfConfig->processorCnt()),
       gbCandidatesInProcs(omtfConfig->processorCnt()) {
-  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" omtfConfig->nProcessors() "<<omtfConfig->nProcessors()<<std::endl;
   if (edmCfg.exists("simTracksTag"))
     simTracksTag = edmCfg.getParameter<edm::InputTag>("simTracksTag");
   else
@@ -102,10 +101,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
     for (auto& matchingResult : matchingResults) {
       //TODO choose a condition, to print the desired candidates
-      if (matchingResult.muonCand)
-      //&& matchingResult.muonCand->hwQual() >= 12 &&
-      //matchingResult.muonCand->hwPt() > 38)
-      {  //&& matchingResult.genPt < 20
+      if (matchingResult.muonCand) {
         dump = true;
 
         bool runStubsSimHitsMatcher = false;

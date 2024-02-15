@@ -138,7 +138,6 @@ void GoldenPatternResult::finalise0() {
 ////////////////////////////////////////////
 //for the algo version with thresholds
 void GoldenPatternResult::finalise1() {
-  //cout<<__FUNCTION__<<":"<<__LINE__<<endl;
   for (unsigned int iLogicLayer = 0; iLogicLayer < stubResults.size(); ++iLogicLayer) {
     //in this version we do not require that both phi and phiB is fired (non-zero), we thread them just independent
     //watch out that then the number of fired layers is bigger, and the cut on the minimal number of fired layers does not work in the same way as when the dt chamber is counted as one layer
@@ -265,7 +264,6 @@ void GoldenPatternResult::finalise8() {
     unsigned int connectedLayer = omtfConfig->getLogicToLogic().at(iLogicLayer);
     if (omtfConfig->isBendingLayer(iLogicLayer)) {  //the DT phiB layer is counted only when the phi layer is fired
       if ((firedLayerBits & (1 << iLogicLayer)) && (firedLayerBits & (1 << connectedLayer))) {
-        // && (stubResults[iLogicLayer].getMuonStub()->qualityHw >= 4) this is not needed, as the rejecting the low quality phiB hits is on the input of the algorithm
         firedLayerCnt++;
       } else {
         firedLayerBits &= ~(1 << iLogicLayer);
@@ -294,21 +292,20 @@ void GoldenPatternResult::finalise9() {
           firedLayerBits &= ~(1 << iLogicLayer);
           stubResults[iLogicLayer].setValid(false);
           //there was hit, but it did not fit to the pdf - this is not possible here, since the bending layer is fired here
-          //therefore the below line is has no sense
-          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;;
-          //so in this case simply:
-          //pdfSum += 0;
+          //therefore there is no sense to apply the penalty when the stubResults[iLogicLayer].getPdfVal() == 0
+          //so in this case simply pdfSum += 0;
         }
       } else {
-        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
         if (stubResults[iLogicLayer].getPdfVal() == 0)
-          pdfSum -= 32;
+          //there is a hit, but does not fit to the pdf (therefore in firedLayerBits is 0, but getPdfVal() is not 0), so apply the penalty (-32)
+          //N.B it is possible only with the patterns having "no hit value" and with noHitValueInPdf = True
+          pdfSum -= 32;  // penaly
         else
           pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
       }
     } else {
       if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
-        pdfSum -= 32;
+        pdfSum -= 32;  // penaly
       else
         pdfSum += stubResults[iLogicLayer].getPdfVal();
       if (firedLayerBits & (1 << iLogicLayer)) {  //pdfSum is counted always
@@ -333,20 +330,19 @@ void GoldenPatternResult::finalise10() {
         } else {
           firedLayerBits &= ~(1 << iLogicLayer);
           stubResults[iLogicLayer].setValid(false);
-          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;; //there was hit, but it did not fire to the pdf - this is not possible here, since the banding layer if fired here
-          //so in this case simply:
-          //pdfSum += 0;
+          //there is no sense to apply the penalty in this case,
+          //because as the layer is fired, the stubResults[iLogicLayer].getPdfVal() cannot be 0
+          //so in this case simply pdfSum += 0;
         }
       } else {
-        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
-        /*if (stubResults[iLogicLayer].getPdfVal() == 0)
-          pdfSum -= 32; //has no sense with extrapolation from the ref layer using the phiB
-        else*/
-        pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
+        //the penalty is not applied here when the phiB does not fit to the pdf
+        //because when extrapolation from the ref layer using the phiB is applied
+        //it "normal" for the displaced muons to not fit to the pdf
+        pdfSum += stubResults[iLogicLayer].getPdfVal();
       }
     } else {
       if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
-        pdfSum -= 32;
+        pdfSum -= 32;  // penaly
       else
         pdfSum += stubResults[iLogicLayer].getPdfVal();
       if (firedLayerBits & (1 << iLogicLayer)) {  //pdfSum is counted always
@@ -402,20 +398,19 @@ void GoldenPatternResult::finalise11() {
         } else {
           firedLayerBits &= ~(1 << iLogicLayer);
           stubResults[iLogicLayer].setValid(false);
-          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;; //there was hit, but it did not fire to the pdf - this is not possible here, since the banding layer if fired here
-          //so in this case simply:
-          //pdfSum += 0;
+          //there is no sense to apply the penalty in this case,
+          //because as the layer is fired, the stubResults[iLogicLayer].getPdfVal() cannot be 0
+          //so in this case simply pdfSum += 0;
         }
       } else {
-        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
-        /*if (stubResults[iLogicLayer].getPdfVal() == 0)
-          pdfSum -= 32; //has no sense with extrapolation from the ref layer using the phiB
-        else*/
+        //the penalty is not applied here when the phiB does not fit to the pdf
+        //because when extrapolation from the ref layer using the phiB is applied
+        //it "normal" for the displaced muons to not fit to the pdf
         pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
       }
     } else {
       if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
-        pdfSum -= 32;
+        pdfSum -= 32;  // penaly
       else
         pdfSum += stubResults[iLogicLayer].getPdfVal();
       if (firedLayerBits & (1 << iLogicLayer)) {  //pdfSum is counted always

@@ -349,11 +349,9 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
   LogTrace("l1tOmtfEventPrint") << "refPhi " << refPhi << " refPhiB " << refPhiB << " targetStubPhi " << targetStubPhi
                                 << " targetStubQuality " << targetStubQuality << std::endl;
 
-  //double hsPhiPitch = 2 * M_PI / omtfConfig->nPhiBins();  //rad/halfStrip
-
   int phiExtr = 0;  //delta phi extrapolated
 
-  float rRefLayer = 431.133;  //MB1 i.e. refLogicLayer = 0
+  float rRefLayer = 431.133;  //[cm], MB1 i.e. refLogicLayer = 0
   if (refLogicLayer == 2)
     rRefLayer = 512.401;  //MB2
   else if (refLogicLayer != 0) {
@@ -364,6 +362,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
 
   if (targetLayer == 0 || targetLayer == 2 || targetLayer == 4 || (targetLayer >= 10 && targetLayer <= 14)) {
+    //all units are cm. Values from the CMS geometry
     float rTargetLayer = 512.401;  //MB2
 
     if (targetLayer == 0)
@@ -392,6 +391,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
     }
 
     float d = rTargetLayer - rRefLayer;
+    //formula in the form as in the slides explaining the extrapolation algorithm
     //float deltaPhiExtr = d/rTargetLayer * refPhiB / omtfConfig->dtPhiBUnitsRad(); //[rad]
     //phiExtr = round(deltaPhiExtr / omtfConfig->omtfPhiUnit()); //[halfStrip]
 
@@ -435,6 +435,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
 
     float rME = targetStubR;
     if (!useEndcapStubsRInExtr) {
+      //all units are cm. This are the average R values for a given chamber (more or less middle of the chamber, but taking into account the OMTF eta range)
       if (targetLayer == 6 || targetLayer == 15)  //ME1/3, RE1/3,
         rME = 600.;
       else if (targetLayer == 7 || targetLayer == 15) {  //ME2/2, RE2/3,
@@ -453,6 +454,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
     }
 
     float d = rME - rRefLayer;
+    //formula in the form as in the slides explaining the extrapolation algorithm
     //float deltaPhiExtr = d / rME * refPhiB / omtfConfig->dtPhiBUnitsRad();  //[rad]
     //phiExtr = round(deltaPhiExtr / omtfConfig->omtfPhiUnit()); //[halfStrip]
 
@@ -509,7 +511,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
     int deltaPhi = targetStubPhi - refPhi;  //[halfStrip]
 
     int scaleFactor = this->myOmtfConfig->omtfPhiUnit() * this->myOmtfConfig->dtPhiBUnitsRad() * 512;
-    //= 305 for phase-1, 512 is multiplier
+    //= 305 for phase-1, 512 is multiplier so that scaleFactor is non-zero integer
 
     deltaPhi = (deltaPhi * scaleFactor) / 512;  //here deltaPhi is converted to the phi_b hw scale
 
@@ -694,13 +696,10 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
     int phiRef = refStub->phiHw;
     int etaRef = refStub->etaHw;
 
-    //I am not sure it is needed here
-    //if (this->myOmtfConfig->getBendingLayers().count(iLayer))  //this iLayer is a bending layer
-    //  phiRef = 0;
-
+    //calculating the phiExtrp in the case the RefLayer is MB1, to include it in the  candidate phi of candidate
     int phiExtrp = 0;
     if ((this->myOmtfConfig->usePhiBExtrapolationMB1() && aRefHitDef.iRefLayer == 0)) {
-      //||(this->myOmtfConfig->getUsePhiBExtrapolationMB2() && aRefHitDef.iRefLayer == 2) ) {  //TODO here extrapolation from the layer 2 to the layer 2 has no sense, it is 0
+      //||(this->myOmtfConfig->getUsePhiBExtrapolationMB2() && aRefHitDef.iRefLayer == 2) ) {  //the extrapolation from the layer 2 to the layer 2 has no sense, so phiExtrp is 0
       LogTrace("l1tOmtfEventPrint") << "\n"
                                     << __FUNCTION__ << ":" << __LINE__
                                     << "extrapolating ref hit to get the phi of the candidate" << std::endl;

@@ -24,7 +24,7 @@ XMLEventWriter::XMLEventWriter(const OMTFConfiguration* aOMTFConfig, std::string
   eventNum = 0;
 
   unsigned int version = aOMTFConfig->patternsVersion();
-  unsigned int mask16bits = 0xFFFF;
+  const unsigned int mask16bits = 0xFFFF;
 
   version &= mask16bits;
 

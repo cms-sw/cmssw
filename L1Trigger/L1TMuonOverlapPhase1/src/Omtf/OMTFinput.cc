@@ -34,8 +34,6 @@ int OMTFinput::getPhiHw(unsigned int iLayer, unsigned int iInput) const {
 }
 
 const int OMTFinput::getHitEta(unsigned int iLayer, unsigned int iInput) const {
-  /*  assert(iLayer < muonStubsInLayers.size());
-  assert(iInput < muonStubsInLayers[iLayer].size());*/
   if (this->myOmtfConfig->isBendingLayer(iLayer)) {
     MuonStubPtr stub = getMuonStub(iLayer - 1, iInput);
     if (stub)

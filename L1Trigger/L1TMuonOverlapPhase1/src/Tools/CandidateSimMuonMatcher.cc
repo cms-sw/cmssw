@@ -25,8 +25,6 @@
 #include "TFile.h"
 #include "TH1D.h"
 
-//#include "CLHEP/Units/GlobalPhysicalConstants.h"
-
 double hwGmtPhiToGlobalPhi(int phi) {
   double phiGmtUnit = 2. * M_PI / 576.;
   return phi * phiGmtUnit;
@@ -88,7 +86,7 @@ void CandidateSimMuonMatcher::observeProcesorEmulation(unsigned int iProcessor,
 
 bool simTrackIsMuonInOmtf(const SimTrack& simTrack) {
   if (std::abs(simTrack.type()) == 13 ||
-      std::abs(simTrack.type()) == 1000015) {  //|| tpPtr->pt() > 20 //todo 1000015 is stau
+      std::abs(simTrack.type()) == 1000015) {  // 1000015 is stau, todo use other selection (e.g. pt>20) if needed
     //only muons
   } else
     return false;
@@ -102,9 +100,9 @@ bool simTrackIsMuonInOmtf(const SimTrack& simTrack) {
                                 << simTrack.momentum().eta() << " phi " << std::setw(9) << simTrack.momentum().phi()
                                 << std::endl;
 
-  //higher margin for matching must be used than actual OMTF region (i.e. 0.82 - 1.24),
+  //some margin for matching must be used on top of actual OMTF region,
+  //i.e. (0.82-1.24)=>(0.72-1.3),
   //otherwise many candidates are marked as ghosts
-  //if( (std::abs(simTrack.momentum().eta()) >= 0.82 ) && (std::abs(simTrack.momentum().eta()) <= 1.24) ) {
   if ((std::abs(simTrack.momentum().eta()) >= 0.72) && (std::abs(simTrack.momentum().eta()) <= 1.3)) {
   } else
     return false;
@@ -121,7 +119,7 @@ bool simTrackIsMuonInOmtfBx0(const SimTrack& simTrack) {
 
 bool simTrackIsMuonInBx0(const SimTrack& simTrack) {
   if (std::abs(simTrack.type()) == 13 ||
-      std::abs(simTrack.type()) == 1000015) {  //|| tpPtr->pt() > 20 //todo 1000015 is stau
+      std::abs(simTrack.type()) == 1000015) {  // 1000015 is stau, todo use other selection (e.g. pt>20) if needed
     //only muons
     if (simTrack.eventId().bunchCrossing() == 0)
       return true;
@@ -131,7 +129,8 @@ bool simTrackIsMuonInBx0(const SimTrack& simTrack) {
 
 bool trackingParticleIsMuonInBx0(const TrackingParticle& trackingParticle) {
   if (std::abs(trackingParticle.pdgId()) == 13 ||
-      std::abs(trackingParticle.pdgId()) == 1000015) {  //|| tpPtr->pt() > 20 //todo 1000015 is stau
+      std::abs(trackingParticle.pdgId()) ==
+          1000015) {  // 1000015 is stau, todo use other selection (e.g. pt>20) if needed
     //only muons
     if (trackingParticle.eventId().bunchCrossing() == 0)
       return true;
@@ -140,16 +139,11 @@ bool trackingParticleIsMuonInBx0(const TrackingParticle& trackingParticle) {
 }
 
 bool trackingParticleIsMuonInOmtfBx0(const TrackingParticle& trackingParticle) {
-  /*if(trackingParticle.eventId().event() != 0)
-      LogTrace("l1tOmtfEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()
-              <<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi()<<" event "<<trackingParticle.eventId().event()
-              <<" bx "<<trackingParticle.eventId().bunchCrossing()<<" eventNot0"<<std::endl;*/
-
   if (trackingParticle.eventId().bunchCrossing() != 0)
     return false;
 
   if (std::abs(trackingParticle.pdgId()) == 13 || std::abs(trackingParticle.pdgId()) == 1000015) {
-    // 1000015 is stau, todo use other selection if needed
+    // 1000015 is stau, todo use other selection (e.g. pt>20) if needed
     //only muons
   } else
     return false;
@@ -175,9 +169,9 @@ bool trackingParticleIsMuonInOmtfBx0(const TrackingParticle& trackingParticle) {
                                   << std::setw(9) << trackingParticle.momentum().phi() << " trackId "
                                   << trackingParticle.g4Tracks().at(0).trackId();
 
-  //higher margin for matching must be used than actual OMTF region (i.e. 0.82 - 1.24),
+  //some margin for matching must be used on top of actual OMTF region,
+  //i.e. (0.82-1.24)=>(0.72-1.3),
   //otherwise many candidates are marked as ghosts
-  //if( (std::abs(simTrack.momentum().eta()) >= 0.82 ) && (std::abs(trackingParticle.momentum().eta()) <= 1.24) ) {
   if ((std::abs(trackingParticle.momentum().eta()) >= 0.72) && (std::abs(trackingParticle.momentum().eta()) <= 1.3)) {
   } else
     return false;
@@ -239,7 +233,6 @@ std::vector<const l1t::RegionalMuonCand*> CandidateSimMuonMatcher::ghostBust(
   if (gbCandidates.size() != mtfCands->size(0)) {
     edm::LogError("l1tOmtfEventPrint") << "CandidateSimMuonMatcher::ghostBust(): gbCandidates.size() "
                                        << gbCandidates.size() << " != mtfCands.size() " << mtfCands->size();
-    //throw cms::Exception("gbCandidates.size() != mtfCands->size()");
   }
 
   boost::dynamic_bitset<> isKilled(mtfCands->size(0), false);
@@ -356,11 +349,10 @@ TrajectoryStateOnSurface CandidateSimMuonMatcher::propagate(const SimTrack& simT
   SimVertex simVertex;
   int vtxInd = simTrack.vertIndex();
   if (vtxInd < 0) {
-    std::cout << "Track with no vertex, defaulting to (0,0,0)" << std::endl;
+    edm::LogImportant("l1tOmtfEventPrint") << "Track with no vertex, defaulting to (0,0,0)";
   } else {
     simVertex = simVertices->at(vtxInd);
     if (((int)simVertex.vertexId()) != vtxInd) {
-      std::cout << "simVertex.vertexId() != vtxInd !!!!!!!!!!!!!!!!!" << std::endl;
       edm::LogImportant("l1tOmtfEventPrint") << "simVertex.vertexId() != vtxInd. simVertex.vertexId() "
                                              << simVertex.vertexId() << " vtxInd " << vtxInd << " !!!!!!!!!!!!!!!!!";
     }
@@ -620,7 +612,7 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(std::vector<const l1t
     }
 
     //checking if the propagated track is inside the OMTF range, TODO - tune the range!!!!!!!!!!!!!!!!!
-    //eta 0.7 is the beginning of the MB2,
+    //eta 0.7 is the beginning of the MB2, while 1.31 is mid of RE2 + some margin
     //the eta range wider than the nominal OMTF region is needed, as in any case muons outside this region are seen by the OMTF
     //so it better to train the nn suich that is able to measure its pt, as it may affect the rate
     if ((std::abs(tsof.globalPosition().eta()) >= 0.7) && (std::abs(tsof.globalPosition().eta()) <= 1.31)) {
@@ -705,8 +697,8 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(
                                   << tsof.globalPosition().eta();
 
     //checking if the propagated track is inside the OMTF range, TODO - tune the range!!!!!!!!!!!!!!!!!
-    //eta 0.7 is the beginning of the MB2,
-    if ((std::abs(tsof.globalPosition().eta()) >= 0.7) && (std::abs(tsof.globalPosition().eta()) <= 1.3)) {
+    //eta 0.7 is the beginning of the MB2, while 1.31 is mid of RE2 + some margin
+    if ((std::abs(tsof.globalPosition().eta()) >= 0.7) && (std::abs(tsof.globalPosition().eta()) <= 1.31)) {
       LogTrace("l1tOmtfEventPrint")
           << "CandidateSimMuonMatcher::match trackingParticle IS in OMTF region, matching to the omtfCands";
     } else {
