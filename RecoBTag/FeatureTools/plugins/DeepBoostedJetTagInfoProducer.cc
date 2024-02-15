@@ -94,6 +94,8 @@ private:
   const reco::Vertex *pv_ = nullptr;
   const static float min_track_pt_property_;
   const static int min_valid_pixel_hits_;
+  const int covarianceVersion_;
+  const std::vector<int> covariancePackingSchemas_;
 
   std::map<reco::CandidatePtr::key_type, float> puppi_wgt_cache;
 
@@ -229,6 +231,8 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
       use_pvasq_value_map_(false),
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
+      covariancePackingSchemas_(iConfig.getParameter<std::vector<int>>("covariancePackingSchemas")),
       use_scouting_features_(iConfig.getParameter<bool>("use_scouting_features")) {
   const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
@@ -333,6 +337,8 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("trkPt_value_map", edm::InputTag(""));
   desc.add<edm::InputTag>("trkEta_value_map", edm::InputTag(""));
   desc.add<edm::InputTag>("trkPhi_value_map", edm::InputTag(""));
+  desc.add<int>("covarianceVersion", 0)->setComment("so far: 0 is Phase0, 1 is Phase1");
+  desc.add<std::vector<int>>("covariancePackingSchemas", {8, 264, 520, 776, 0});
   descriptions.add("pfDeepBoostedJetTagInfos", desc);
 }
 
@@ -826,7 +832,7 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
                                              pv_ass.key());
             candidate.setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(
                 btagbtvdeep::vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, pv_ass)));
-            candidate.setCovarianceVersion(0);
+            candidate.setCovarianceVersion(covarianceVersion_);
             pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
             int nlost = track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
             if (nlost == 0) {
@@ -842,19 +848,19 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
                 std::find(whiteListTk.begin(), whiteListTk.end(), reco_cand->trackRef()) != whiteListTk.end()) {
               candidate.setFirstHit(track->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
               if (abs(cand->pdgId()) == 22)
-                candidate.setTrackProperties(*track, 0, 0);
+                candidate.setTrackProperties(*track, covariancePackingSchemas_[4], covarianceVersion_);
               else {
                 if (track->hitPattern().numberOfValidPixelHits() > min_valid_pixel_hits_)
-                  candidate.setTrackProperties(*track, 8, 0);
+                  candidate.setTrackProperties(*track, covariancePackingSchemas_[0], covarianceVersion_);
                 else
-                  candidate.setTrackProperties(*track, 264, 0);
+                  candidate.setTrackProperties(*track, covariancePackingSchemas_[1], covarianceVersion_);
               }
             } else {
               if (candidate.pt() > min_track_pt_property_) {
                 if (track->hitPattern().numberOfValidPixelHits() > 0)
-                  candidate.setTrackProperties(*track, 520, 0);
+                  candidate.setTrackProperties(*track, covariancePackingSchemas_[2], covarianceVersion_);
                 else
-                  candidate.setTrackProperties(*track, 776, 0);
+                  candidate.setTrackProperties(*track, covariancePackingSchemas_[3], covarianceVersion_);
               }
             }
             candidate.setTrackHighPurity(reco_cand->trackRef().isNonnull() and
