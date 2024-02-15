@@ -4,7 +4,7 @@
 Copied from GEMCode/GEMValidation
 """
 
-from ROOT import *
+from ROOT import TFile, gStyle, TCanvas, gPad, TH1F
 
 import os
 import sys

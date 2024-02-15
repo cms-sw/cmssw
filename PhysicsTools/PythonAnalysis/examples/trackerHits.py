@@ -1,6 +1,7 @@
 # first load cmstools and ROOT classes
 from PhysicsTools.PythonAnalysis import *
-from ROOT import *
+from ROOT import gSystem, gROOT, TFile, TH1F, TCanvas
+import ROOT
 
 gSystem.Load("libFWCoreFWLite.so")
 ROOT.FWLiteEnabler.enable()

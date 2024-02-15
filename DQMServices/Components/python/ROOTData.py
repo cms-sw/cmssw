@@ -1,5 +1,5 @@
 from __future__ import print_function
-from ROOT import *
+from ROOT import gDirectory, TBufferFile, TClass
 from array import array
 
 #-------------------------------------------------------------------------------

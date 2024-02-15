@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sys
 import os
-from ROOT import *
+from ROOT import gROOT, gStyle, gPad, TCanvas TClass, TGraph, TFile, TArrow, TLatex
 from copy import deepcopy
 from array import array
 
@@ -12,9 +12,9 @@ gROOT.SetBatch()        # don't pop up canvases
 #Find Data files
 
 def getFileInPath(rfile):
-   import os 
-   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
-     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)                                                                          
+   import os
+   for dir in os.environ['CMSSW_SEARCH_PTH'].split(":"):
+     if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)
    return None
 
 
@@ -29,8 +29,8 @@ detIDsFileName = getFileInPath('DQM/SiStripMonitorClient/data/detids.dat')
 baseRootDirs = ["DQMData/Run 292154/PixelPhase1/Run summary/Phase1_MechanicalView"
                 ,"DQMData/Run 292154/PixelPhase1/Run summary/Tracks"
                 ]
-                
-                    
+
+
 maxPxBarrel = 4
 maxPxForward = 3
 barrelLadderShift = [0, 14, 44, 90]
@@ -58,21 +58,21 @@ limits = ["num_digis 0.01 90 1 0",
           "size 0.01 15 0 0",]
 
 class TH2PolyOfflineMaps:
-  
+
   ###
   # LOTS OF CODE BORROWED FROM: PYTHONBINREADER, PIXELTRACKERMAP
   ###
-  
+
   ############################################################################
-  
+
   def __TraverseDirTree(self, dir):
-    
+
     try:
       currPath = (dir.GetPath().split(":/"))[1]
     except:
       print("Exception raised: Path not found in the input file")
       return
-  
+
     for obj in dir.GetListOfKeys():
       if not obj.IsFolder():
         if obj.ReadObjectAny(TClass.GetClass("TH2")):
@@ -80,7 +80,7 @@ class TH2PolyOfflineMaps:
           name = th2.GetName()
           if 6 < th2.GetNbinsX() < 10 and name.find("per") != -1 and name.find("Lumisection") == -1: #take only module lvl plots
             print(''.join([dir.GetPath(), '/', name]))
-            
+
             # fix when there are plots starting with the same strings in different directories
             prefix = ""
             for i in self.dirs:
@@ -91,8 +91,8 @@ class TH2PolyOfflineMaps:
             th2.SetName(prefix + th2.GetName())
             self.listOfNumHistograms.append(th2)
       else:
-        self.__TraverseDirTree(obj.ReadObj())     
-  
+        self.__TraverseDirTree(obj.ReadObj())
+
   def __GetPartStr(self, isXlowerThanZero, isYlowerThanZero):
     if isXlowerThanZero and isYlowerThanZero:
       return "mO"
@@ -102,15 +102,15 @@ class TH2PolyOfflineMaps:
       return "pO"
     if isXlowerThanZero == False and isYlowerThanZero == False:
       return "pI"
-      
+
   def __GetBarrelSector(self, layer, signedLadder, signedModule): #adapted from PixelBarrelName
     theLadder = abs(signedLadder)
     theModule = abs(signedModule)
-    
+
     sector = 0
-    
+
     if layer == 1:
-    
+
       if theLadder == 1:
         if theModule >= 2:
           return 1
@@ -158,23 +158,23 @@ class TH2PolyOfflineMaps:
     elif layer == 4:
       sector = (theLadder + 3) // 4
       return sector
-  
+
   def __BuildOnlineBarrelName(self, signedModule, signedLadder, layer): #in Phase1 it is assumed that there are only full modules
     thePart = self.__GetPartStr(signedModule < 0, signedLadder < 0)
     theSector = str(self.__GetBarrelSector(layer, signedLadder, signedModule))
     return "BPix_B" + thePart + "_SEC" + theSector + "_LYR" + str(layer) + "_LDR" + str(abs(signedLadder)) + "F_MOD" + str(abs(signedModule))
-  
+
   def __BuildOnlineDiskName(self, signedDisk, signedBlade, panel, ring):
     thePart = self.__GetPartStr(signedDisk < 0, signedBlade < 0)
-    return "FPix_B" + thePart + "_D" + str(abs(signedDisk)) + "_BLD" + str(abs(signedBlade)) + "_PNL" + str(panel) + "_RNG" + str(ring) 
-  
+    return "FPix_B" + thePart + "_D" + str(abs(signedDisk)) + "_BLD" + str(abs(signedBlade)) + "_PNL" + str(panel) + "_RNG" + str(ring)
+
   def __GroupHistograms(self):
     currentGroupName = ""
     groupOfHists = []
     self.groupedHistograms = []
-    
+
     ##### GROUP ALL LAYERS/RINGS HAVING SIMILAR INFORMATION
-    for obj in self.listOfNumHistograms:  
+    for obj in self.listOfNumHistograms:
       objName = obj.GetName()
       objNameSplit = objName.split("_")
       objNameCollected = ''.join(objNameSplit[0:-1])
@@ -182,11 +182,11 @@ class TH2PolyOfflineMaps:
         if len(groupOfHists):
           self.groupedHistograms.append(groupOfHists)
           groupOfHists = []
-          
+
         currentGroupName = objNameCollected
       groupOfHists.append(obj)
     self.groupedHistograms.append(groupOfHists) #the last group
-    
+
   def __AddNamedBins(self, geoFile, tX, tY, sX, sY, applyModuleRotation = False):
 
     for line in geoFile:
@@ -209,18 +209,18 @@ class TH2PolyOfflineMaps:
       #close polygon
       x.append(x[0])
       y.append(y[0])
-      
+
       if applyModuleRotation:
         bin = TGraph(verNum, y, x)
       else:
         bin = TGraph(verNum, x, y)
       # bin = TGraph(verNum, y, x) # rotation by 90 deg (so that it had the same layout as for the strips)
       bin.SetName(detId)
-      
+
       self.__BaseTrackerMap.AddBin(bin)
-    
+
   def __CreateTrackerBaseMap(self):
-  
+
     self.__BaseTrackerMap = TH2Poly("Summary", "", -10, 160, -70, 70)
     # self.__BaseTrackerMap = TH2Poly("Summary", "Tracker Map", 0, 0, 0, 0)
     self.__BaseTrackerMap.SetFloat(1)
@@ -228,37 +228,37 @@ class TH2PolyOfflineMaps:
     self.__BaseTrackerMap.GetYaxis().SetTitle("")
     self.__BaseTrackerMap.SetOption("COLZ L")
     self.__BaseTrackerMap.SetStats(0)
-  
+
     # BARREL FIRST
     for i in range(maxPxBarrel):
       with open(self.geometryFilenames[i], "r") as geoFile:
         currBarrelTranslateX = 0
         currBarrelTranslateY = barrelLadderShift[i]
-        
+
         self.__AddNamedBins(geoFile, currBarrelTranslateX, currBarrelTranslateY, 1, 1, True)
-      
+
       # break # debug only 1st layer
-      
+
     # MINUS FORWARD
     for i in range(-maxPxForward, 0):
       with open(self.geometryFilenames[maxPxBarrel + maxPxForward + i], "r") as geoFile:
         currForwardTranslateX = forwardDiskXShift[-i - 1]
         currForwardTranslateY = -forwardDiskYShift
-        
+
         self.__AddNamedBins(geoFile, currForwardTranslateX, currForwardTranslateY, 1, 1)
-        
+
     # PLUS FORWARD
     for i in range(maxPxForward):
       with open(self.geometryFilenames[maxPxBarrel + maxPxForward + i], "r") as geoFile:
         currForwardTranslateX = forwardDiskXShift[i]
         currForwardTranslateY = forwardDiskYShift
-        
+
         self.__AddNamedBins(geoFile, currForwardTranslateX, currForwardTranslateY, 1, 1)
-   
+
     # self.__BaseTrackerMap.Fill("305139728", 2)
-    
+
     print("Base Tracker Map: constructed")
-    
+
   ############################################################################
   def __init__(self, inputDQMName, outputDirName, minMaxFileName, limits,  modDicName, runNumber, dirs, dirsAliases):
 #  def __init__(self, inputDQMName, outputDirName, minMaxFileName, limitsFileName, modDicName, runNumber, dirs, dirsAliases):
@@ -268,57 +268,57 @@ class TH2PolyOfflineMaps:
 #    self.limitsFileName = limitsFileName
     self.detIDsFileName = modDicName
     self.limits = limits
-    
+
     self.runNumber = runNumber
     self.dirs = dirs
     self.dirsAliases = dirsAliases
-    
+
     self.inputFile = TFile(self.inputFileName)
     self.listOfNumHistograms = []
     self.availableNames = []
-    
+
     self.maxLadderToLayer = {6:1, 14:2, 22:3, 32:4}
     self.maxBladeToRing = {11:1, 17:2}
-    
+
     self.geometryFilenames = []
     for i in range(maxPxBarrel):
-       self.geometryFilenames.append(getFileInPath("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_" + str(i + 1))) 
+       self.geometryFilenames.append(getFileInPath("DQM/SiStripMonitorClient/data/Geometry/vertices_barrel_" + str(i + 1)))
 #      self.geometryFilenames.append("DATA/Geometry/vertices_barrel_" + str(i + 1))
     for i in range(-maxPxForward, maxPxForward + 1):
       if i == 0:
         continue #there is no 0 disk
       self.geometryFilenames.append(getFileInPath("DQM/SiStripMonitorClient/data/Geometry/vertices_forward_" + str(i)))
 #      self.geometryFilenames.append("DATA/Geometry/vertices_forward_" + str(i))
-    
+
     self.internalData = {}
-    
+
     if self.inputFile.IsOpen():
       print("%s opened successfully!" % (self.inputFileName))
       #Get all neeeded histograms
       for dir in self.dirs:
         self.__TraverseDirTree(self.inputFile.Get(dir))
       # print("Histograms to read %d" % (len(self.listOfNumHistograms)))
-      
+
       self.detDict = {}
-      
+
       with open(self.detIDsFileName, "r") as detIDs:  # create dictionary online -> rawid
         for entry in detIDs:
           items = entry.replace("\n", " ").split(" ")
           self.detDict.update({items[1] : int(items[0])})
           # init internal data structure
           self.internalData.update({int(items[0]) : {}})
-          
-      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.items())    
-      
+
+      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.items())
+
       self.__GroupHistograms()
-      
+
       self.__CreateTrackerBaseMap()
-      
+
     else:
       print("Unable to open file %s" % (self.inputFileName))
-      
+
     ### CREATE LIMITS DICTIONARY
-    
+
     self.limitsDic = {}
     for y in limits:
 
@@ -326,7 +326,7 @@ class TH2PolyOfflineMaps:
 
       if len(lineSpl) < 5:
         continue
-        
+
       currName = lineSpl[0]
       zMin = float(lineSpl[1])
       zMax = float(lineSpl[2])
@@ -349,11 +349,11 @@ class TH2PolyOfflineMaps:
         for obj in group:
           nbinsX = obj.GetNbinsX()
           nbinsY = obj.GetNbinsY()
-          
+
           if nbinsX == 9: # BARREL
             maxX = nbinsX // 2
             maxY = nbinsY // 2
-            
+
             for x in range(-maxX, maxX + 1):
               if x == 0:
                 continue
@@ -361,12 +361,12 @@ class TH2PolyOfflineMaps:
                 if y == 0:
                   continue
                 onlineName = self.__BuildOnlineBarrelName(x, y, self.maxLadderToLayer[maxY])
-                self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, y + maxY + 1)})         
-                
+                self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, y + maxY + 1)})
+
           elif nbinsX == 7: # FORWARD
             maxX = nbinsX // 2
             maxY = nbinsY // 4
-                  
+
             for x in range(-maxX, maxX + 1):
               if x == 0:
                 continue
@@ -375,12 +375,12 @@ class TH2PolyOfflineMaps:
                   continue
                 for panel in range(1, 3):
                   onlineName = self.__BuildOnlineDiskName(x, y, panel, self.maxBladeToRing[maxY])
-                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + (3-panel))})  
+                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + (3-panel))})
           else:
             print("Unrecognized plot")
       else:
         print("Histograms saved to internal data structure")
-        
+
   def DumpData(self):
     for key in self.internalData:
       print("#"*20)
@@ -388,13 +388,13 @@ class TH2PolyOfflineMaps:
       module = self.internalData[key]
       for d in module:
         print((d, module[d]))
-    
+
     print(len(self.internalData))
-    
+
     for i in self.availableNames:
       print(i)
     print(len(self.availableNames))
-      
+
   def PrintTrackerMaps(self):
     monitoredValues = []
     gStyle.SetPalette(1)
@@ -402,24 +402,24 @@ class TH2PolyOfflineMaps:
       monitoredValues = self.internalData[key].keys()
       # print(monitoredValues)
       break
-    
+
     if os.path.exists(self.outputDirName) == False: # check whether directory exists
       os.system("mkdir " + self.outputDirName)
-    
+
     with open(self.outputDirName + self.minMaxFileName, "w") as minMaxFile:
-    
+
       for mv in monitoredValues:
         currentHist = deepcopy(self.__BaseTrackerMap)
         # currentHist.SetTitle("Run " + self.runNumber + ": Tracker Map for " + mv) // to make it compatible between ROOT v.
         histoTitle = "Run " + self.runNumber + ": Tracker Map for " + mv
-          
+
         applyLogScale = False
         applyAbsValue = False
         if mv in self.limitsDic:
           limitsElem = self.limitsDic[mv]
-          
+
           print(mv + " found in limits dictionary - applying custom limits...")
-          
+
           currentHist.SetMinimum(limitsElem["zMin"])
           currentHist.SetMaximum(limitsElem["zMax"])
           applyLogScale = limitsElem["isLog"]
@@ -440,26 +440,26 @@ class TH2PolyOfflineMaps:
              currentHist.Fill(str(nameId), abs(val))
           else:
              currentHist.Fill(str(nameId), val)
-          
+
         listOfVals = sorted(listOfVals, key = lambda item: item[0])
-        
+
         minMaxFile.write("\n" + mv + "\n\n")
-        
+
         minMaxFile.write("MIN:\n")
         for i in range(extremeBinsNum):
           minMaxFile.write("\t" + str(listOfVals[i][1]) + " " + str(listOfVals[i][2]) + " " + str(listOfVals[i][0]) + "\n")
-        
+
         minMaxFile.write("MAX:\n")
         for i in range(extremeBinsNum):
           minMaxFile.write("\t" + str(listOfVals[-i - 1][1]) + " " + str(listOfVals[-i - 1][2]) + " " + str(listOfVals[-i - 1][0]) + "\n")
-        
+
         #Canvas name = MyT for both Pixel and Strip Tracker Maps
         c1 = TCanvas("MyT", "MyT", plotWidth , plotHeight)
-        
+
         if applyLogScale:
           c1.SetLogz()
 
-        currentHist.Draw("AC COLZ L")        
+        currentHist.Draw("AC COLZ L")
 
         gPad.Update()
         palette = currentHist.FindObject("palette");
@@ -471,10 +471,10 @@ class TH2PolyOfflineMaps:
         ### IMPORTANT - REALTIVE POSITIONING IS MESSY IN CURRENT VERION OF PYROOT
         ### IT CAN CHANGE FROM VERSION TO VERSION, SO YOU HAVE TO ADJUST IT FOR YOUR NEEDS
         ### !!!!!!!!!!!!!
-              
+
         # draw axes (z, phi -> BARREL; x, y -> FORWARD)
         ###################################################
-        
+
         ### z arrow
         arrow = TArrow(0.05, 27.0, 0.05, -30.0, 0.02, "|>")
         arrow.SetLineWidth(4)
@@ -493,33 +493,33 @@ class TH2PolyOfflineMaps:
         yArrow.Draw()
 
         ###################################################
-        
-        # add some captions        
+
+        # add some captions
         txt = TLatex()
         txt.SetNDC()
         txt.SetTextFont(1)
         txt.SetTextColor(1)
         txt.SetTextAlign(22)
         txt.SetTextAngle(0)
-        
+
         # draw new-style title
         txt.SetTextSize(0.05)
         txt.DrawLatex(0.5, 0.95, histoTitle)
-        
+
         txt.SetTextSize(0.03)
-        
+
         txt.DrawLatex(0.5, 0.125, "-DISK")
         txt.DrawLatex(0.5, 0.075, "NUMBER ->")
         txt.DrawLatex(0.5, 0.875, "+DISK")
-        
+
         txt.DrawLatex(0.17, 0.35, "+z")
         txt.DrawLatexNDC(0.36, 0.685, "+phi") # WAY TO FORCE IT TO DRAW LATEX CORRECTLY NOT FOUND ('#' DOESN'T WORK)
         txt.DrawLatex(0.38, 0.73, "+x")
         txt.DrawLatex(0.26, 0.875, "+y")
-        
+
         txt.SetTextAngle(90)
         txt.DrawLatex(0.17, 0.5, "BARREL")
-  
+
         #save to the png
         c1.Print(self.outputDirName + mv + ".png")
 
@@ -578,7 +578,7 @@ class TH2PolyOfflineMaps:
     if self.inputFile :
       if self.inputFile.IsOpen():
         self.inputFile.Close()
-      
+
 #--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--
 for i in range(1, len(sys.argv), 1):
   if i == 1:
@@ -599,13 +599,13 @@ print(deductedRunNumber)
 baseRootDirs = ["DQMData/Run " + deductedRunNumber + "/PixelPhase1/Run summary/Phase1_MechanicalView"    #maybe read it from the input file???
                 ,"DQMData/Run " + deductedRunNumber + "/PixelPhase1/Run summary/Tracks"
                 ]
-                
+
 baseRootDirsAliases = {baseRootDirs[0]:""
                     , baseRootDirs[1]:"T"
                     }
 
-readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limits, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)   
-#readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limitsFileName, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)  
+readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limits, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)
+#readerObj = TH2PolyOfflineMaps(inputFileName, outputDirectoryName, minMaxFileName, limitsFileName, detIDsFileName, deductedRunNumber, baseRootDirs, baseRootDirsAliases)
 readerObj.ReadHistograms()
 # readerObj.DumpData()
 readerObj.PrintTrackerMaps()

@@ -2,7 +2,7 @@ from __future__ import print_function
 # has to be called with python -i interactiveExample.py
 
 from PhysicsTools.PythonAnalysis import *
-from ROOT import *
+from ROOT import gSystem, TFile
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
@@ -26,19 +26,19 @@ print("Start looping over some events")
 for event in events:
       photons = event.photons
       print("  Number of photons in event %i: %i" % (event, len(photons)))
-      if event > 2: break  # workaround will become obsolete 
+      if event > 2: break  # workaround will become obsolete
 
 
 
 #####################################################
 # all following commands have been used interactively
 #
-## accessing photons 
+## accessing photons
 # print photon[0]
 #
 ## looping over the photons. what's there?
 #for photon in photons:
-#  print photon.energy() 
+#  print photon.energy()
 #
 ## selecting photons
 #selectedPhotons = [p for p in photons if p.energy()> 3]
@@ -52,7 +52,7 @@ for event in events:
 #  print alias
 #
 ## how to learn about an object
-#help(photon[0])  
+#help(photon[0])
 #
 ## how to leave the session
 #

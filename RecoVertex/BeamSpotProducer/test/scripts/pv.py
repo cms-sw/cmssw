@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-#import ROOT
 from __future__ import print_function
+import ROOT
 from builtins import range
-from ROOT import *
+from ROOT import gROOT, gSystem, TFile, TH1I, TCanvas, TFitterMinuit
 #gROOT, TFile, TCanvas, TH1F, TH1I, TLegend, TH2F, gPad
 
 #from ROOT import TCanvas, TH1F, TH1I

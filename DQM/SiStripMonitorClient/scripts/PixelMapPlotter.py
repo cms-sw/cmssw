@@ -1,10 +1,11 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import ROOT
 import sys
 import getopt
-from ROOT import *
+import ROOT
+from ROOT import TBox, TLatex
 
 from copy import deepcopy
 
