@@ -11,9 +11,12 @@ from RecoParticleFlow.PFClusterProducer.pfClusterParamsESProducer_cfi import pfC
 from RecoParticleFlow.PFClusterProducer.pfClusterSoAProducer_cfi import pfClusterSoAProducer as _pfClusterSoAProducer
 from RecoParticleFlow.PFClusterProducer.legacyPFClusterProducer_cfi import legacyPFClusterProducer as _legacyPFClusterProducer
 
-from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import pfClusteringHBHEHFTask, particleFlowClusterHBHE, particleFlowRecHitHBHE, particleFlowClusterHCAL
-
+from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import pfClusteringHBHEHFTask, pfClusteringHBHEHFOnlyTask, particleFlowClusterHBHE, particleFlowRecHitHBHE, particleFlowClusterHCAL, particleFlowClusterHBHEOnly, particleFlowRecHitHBHEOnly, particleFlowClusterHCALOnly
+#Full Reco
 _alpaka_pfClusteringHBHEHFTask = pfClusteringHBHEHFTask.copy()
+#HCAL Only
+_alpaka_pfClusteringHBHEHFOnlyTask = pfClusteringHBHEHFOnlyTask.copy()
+
 
 pfRecHitHCALParamsRecordSource = cms.ESSource('EmptyESSource',
             recordName = cms.string('PFRecHitHCALParamsRecord'),
@@ -75,23 +78,86 @@ legacyPFClusterProducer = _legacyPFClusterProducer.clone(
         PFRecHitsLabelIn = 'pfRecHitSoAProducerHCAL'
     )
 
-
+#Full Reco
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(pfClusterParamsRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(hbheRecHitToSoA)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsESProducer)
+_alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitSoAProducerHCAL)
 _alpaka_pfClusteringHBHEHFTask.add(legacyPFRecHitProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfClusterParamsESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfClusterSoAProducer)
+_alpaka_pfClusteringHBHEHFTask.add(legacyPFClusterProducer)
 
 _alpaka_pfClusteringHBHEHFTask.remove(particleFlowRecHitHBHE)
 _alpaka_pfClusteringHBHEHFTask.remove(particleFlowClusterHBHE)
 _alpaka_pfClusteringHBHEHFTask.remove(particleFlowClusterHCAL)
-_alpaka_pfClusteringHBHEHFTask.add(particleFlowClusterHBHE)
 _alpaka_pfClusteringHBHEHFTask.add(particleFlowClusterHCAL)
 
-alpaka.toReplaceWith(particleFlowClusterHBHE, legacyPFClusterProducer)
+alpaka.toModify(particleFlowClusterHCAL, clustersSource = "legacyPFClusterProducer")
 
 alpaka.toReplaceWith(pfClusteringHBHEHFTask, _alpaka_pfClusteringHBHEHFTask)
+
+#HCAL Only
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+
+hbheOnlyRecHitToSoA = _hcalRecHitSoAProducer.clone(
+        src = "hbheprereco"
+    )
+run3_HB.toModify(hbheOnlyRecHitToSoA,
+        src = "hbhereco"
+    )
+
+pfRecHitSoAProducerHBHEOnly = _pfRecHitSoAProducerHCAL.clone(
+        producers = cms.VPSet(
+            cms.PSet(
+                src = cms.InputTag("hbheOnlyRecHitToSoA"),
+                params = cms.ESInputTag("pfRecHitHCALParamsESProducer:"),
+            )
+        ),
+        topology = "pfRecHitHCALTopologyESProducer:",
+        synchronise = cms.untracked.bool(False)
+    )
+
+legacyPFRecHitProducerHBHEOnly = _legacyPFRecHitProducer.clone(
+        src = "pfRecHitSoAProducerHBHEOnly"
+    )
+
+pfClusterSoAProducerHBHEOnly = _pfClusterSoAProducer.clone(
+        pfRecHits = 'pfRecHitSoAProducerHBHEOnly',
+        topology = "pfRecHitHCALTopologyESProducer:",
+        pfClusterParams = 'pfClusterParamsESProducer:',
+        synchronise = cms.bool(False)
+    )
+
+legacyPFClusterProducerHBHEOnly = _legacyPFClusterProducer.clone(
+        src = 'pfClusterSoAProducerHBHEOnly',
+        pfClusterParams = 'pfClusterParamsESProducer:',
+        pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
+        recHitsSource = 'legacyPFRecHitProducerHBHEOnly',
+        PFRecHitsLabelIn = 'pfRecHitSoAProducerHBHEOnly'
+    )
+
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsRecordSource)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyRecordSource)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterParamsRecordSource)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(hbheOnlyRecHitToSoA)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsESProducer)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyESProducer)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitSoAProducerHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(legacyPFRecHitProducerHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterParamsESProducer)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterSoAProducerHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(legacyPFClusterProducerHBHEOnly)
+
+_alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowRecHitHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowClusterHBHEOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.remove(particleFlowClusterHCALOnly)
+_alpaka_pfClusteringHBHEHFOnlyTask.add(particleFlowClusterHCALOnly)
+
+alpaka.toModify(particleFlowClusterHCALOnly, clustersSource = "legacyPFClusterProducerHBHEOnly")
+
+alpaka.toReplaceWith(pfClusteringHBHEHFOnlyTask, _alpaka_pfClusteringHBHEHFOnlyTask)

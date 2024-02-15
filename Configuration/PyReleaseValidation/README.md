@@ -34,6 +34,10 @@ The offsets currently in use are:
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
+* 0.422: Alpaka, HCAL only, portable
+* 0.423: Alpaka, HCAL only, portable vs CPU validation
+* 0.424: Alpaka, HCAL only, portable profiling
+* 0.492: Alpaka, full reco with pixel quadruplets
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
 * 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
