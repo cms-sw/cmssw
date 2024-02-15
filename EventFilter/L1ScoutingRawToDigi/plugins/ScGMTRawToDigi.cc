@@ -101,9 +101,6 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
         continue;
       }
       uint32_t qual = (bl->mu[i].f >> ugmt::shiftsMuon::qual) & ugmt::masksMuon::qual;
-      if (qual == 0) {
-        continue;
-      }
 
       // extract integer value for extrapolated phi
       int32_t iphiext = ((bl->mu[i].f >> ugmt::shiftsMuon::phiext) & ugmt::masksMuon::phiext);
@@ -157,7 +154,6 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
 
   }  // end orbit while loop
 
-  //muons->flatten();
 }
 
 void ScGMTRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
