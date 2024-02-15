@@ -68,7 +68,15 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bo
 /************************************************/
 {
   // Figure out where we are
-  TString path((char *)strstr(target1->GetPath(), ":"));
+  TString fullPath = target1->GetPath();
+
+  // Check if the prefix "root://eoscms.cern.ch/" is present and remove it
+  TString prefixToRemove = "root://eoscms.cern.ch/";
+  if (fullPath.BeginsWith(prefixToRemove)) {
+    fullPath.Remove(0, prefixToRemove.Length());
+  }
+
+  TString path((char *)strstr(fullPath.Data(), ":"));
   path.Remove(0, 2);
 
   sourceFiles[0]->cd(path);
