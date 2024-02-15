@@ -4,7 +4,7 @@ from __future__ import print_function
 import ROOT
 import sys
 import getopt
-from ROOT import TBox, TLatex
+from ROOT import TBox, TLatex, TClass
 
 from copy import deepcopy
 
