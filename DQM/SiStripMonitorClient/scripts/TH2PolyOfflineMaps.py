@@ -13,7 +13,7 @@ gROOT.SetBatch()        # don't pop up canvases
 
 def getFileInPath(rfile):
    import os
-   for dir in os.environ['CMSSW_SEARCH_PTH'].split(":"):
+   for dir in os.environ['CMSSW_SEARCH_PATH'].split(":"):
      if os.path.exists(os.path.join(dir,rfile)): return os.path.join(dir,rfile)
    return None
 
