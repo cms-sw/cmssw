@@ -92,10 +92,7 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
 
     if (aRefLayerLogicNum < bRefLayerLogicNum) {
       return false;
-    }
-    // if(a->getQ() > b->getQ())
-    //   return false;
-    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() > b->getPdfSum())
+    } else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() > b->getPdfSum())
       return false;
     else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getPdfSum() == b->getPdfSum() &&
              a->getPatternNum() > b->getPatternNum())
@@ -134,8 +131,6 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
     if (!muIN1->isValid() || muIN1->isKilled())
       continue;
 
-    //refHitCleanCandsFixedEta.push_back(muIN1);
-    //for (unsigned int iMu2 = iMu1+1; iMu2 < refHitCleanCandsFixedEta.size(); iMu2++) {
     for (unsigned int iMu2 = refHitCleanCandsFixedEta.size() - 1; iMu2 >= iMu1 + 1; iMu2--) {
       auto& muIN2 = refHitCleanCandsFixedEta[iMu2];
       if (muIN2->isValid() &&
@@ -168,7 +163,6 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
   for (const auto& mu : refHitCleanCandsFixedEta) {
     if (mu->isValid() && !(mu->isKilled()))
       refHitCleanCands.emplace_back(mu);
-    //refHitCleanCands.back()->setEta(mu.fixedEta);
     if (refHitCleanCands.size() >= 3)
       break;
   }
