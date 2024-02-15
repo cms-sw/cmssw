@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
 
-offlinePrimaryVerticesFromCosmicTracks = _mod.primaryVertexProducer.clone(
+offlinePrimaryVerticesFromCosmicTracks = offlinePrimaryVertices.clone(
     TrackLabel    = "ctfWithMaterialTracksP5",
     beamSpotLabel = "offlineBeamSpot",
-                                        
+
     TkFilterParameters = dict(
         maxNormalizedChi2 = 5.0,
         minSiliconLayersWithHits = 7, ## hits > 7
@@ -15,11 +15,11 @@ offlinePrimaryVerticesFromCosmicTracks = _mod.primaryVertexProducer.clone(
         minPixelLayersWithHits = 2, ## hits > 2
     ),
 
-    TkClusParameters = dict(
-        algorithm   = "gap",
-        TkGapClusParameters = dict( 
-            zSeparation = 0.1 ## 1 mm max separation betw. clusters
-        )
+    TkClusParameters = cms.PSet(
+      algorithm = cms.string("gap"),
+      TkGapClusParameters = cms.PSet(
+        zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+      )
     ),
 
     vertexCollections = cms.VPSet(

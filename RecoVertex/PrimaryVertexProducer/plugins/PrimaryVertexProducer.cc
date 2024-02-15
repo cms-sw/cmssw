@@ -421,8 +421,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<bool>("verbose", false);
   {
     edm::ParameterSetDescription psd0;
-    TrackFilterForPVFinding::fillPSetDescription(psd0);
-    HITrackFilterForPVFinding::fillPSetDescription(psd0);  // HI only
+    HITrackFilterForPVFinding::fillPSetDescription(psd0);  // extension of TrackFilterForPVFinding
     desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
   }
   desc.add<edm::InputTag>("beamSpotLabel", edm::InputTag("offlineBeamSpot"));
@@ -435,14 +434,21 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     edm::ParameterSetDescription psd0;
     {
       edm::ParameterSetDescription psd1;
-      DAClusterizerInZT_vect::fillPSetDescription(psd1);
-      psd0.add<edm::ParameterSetDescription>("TkDAClusParameters", psd1);
+      DAClusterizerInZ_vect::fillPSetDescription(psd1);
 
       edm::ParameterSetDescription psd2;
-      GapClusterizerInZ::fillPSetDescription(psd2);
-      psd0.add<edm::ParameterSetDescription>("TkGapClusParameters", psd2);
+      DAClusterizerInZT_vect::fillPSetDescription(psd2);
+
+      edm::ParameterSetDescription psd3;
+      GapClusterizerInZ::fillPSetDescription(psd3);
+
+      psd0.ifValue(
+          edm::ParameterDescription<std::string>("algorithm", "DA_vect", true),
+          "DA_vect" >> edm::ParameterDescription<edm::ParameterSetDescription>("TkDAClusParameters", psd1, true) or
+              "DA2D_vect" >>
+                  edm::ParameterDescription<edm::ParameterSetDescription>("TkDAClusParameters", psd2, true) or
+              "gap" >> edm::ParameterDescription<edm::ParameterSetDescription>("TkGapClusParameters", psd3, true));
     }
-    psd0.add<std::string>("algorithm", "DA_vect");
     desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
   }
 
@@ -451,7 +457,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("useMVACut", false);
   desc.add<double>("minTrackTimeQuality", 0.8);
 
-  descriptions.add("primaryVertexProducer", desc);
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
