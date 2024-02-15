@@ -37,9 +37,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
-// #include "CondFormats/RunInfo/interface/LHCInfo.h"
-// #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
@@ -220,7 +217,6 @@ private:
 
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
-  // edm::ESGetToken<LHCInfo, LHCInfoRcd> ctppsLhcInfoToken_;
 
   bool excludeMultipleHits_;
   const bool extract_digi_info_;
@@ -594,7 +590,6 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
           ps.getUntrackedParameter<edm::InputTag>("tagDiamondLocalTracks"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
-      // ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
       extract_digi_info_(ps.getParameter<bool>("extractDigiInfo")),
       centralOOT_(-999),
@@ -725,7 +720,6 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   event.getByToken(tokenDiamondTrack_, diamondLocalTracks);
 
   const CTPPSGeometry* ctppsGeometry = &iSetup.getData(ctppsGeometryEventToken_);
-  // const LHCInfo* hLhcInfo = &iSetup.getData(ctppsLhcInfoToken_);
 
   // check validity
   bool valid = true;
@@ -990,7 +984,6 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (plotOffline_ && !perLSsaving_) {
         // potPlots_[detId_pot].trackTimeVsLS->Fill(event.luminosityBlock(),track.time());
         potPlots_[detId_pot].trackTimeVsBX->Fill(event.bunchCrossing(), track.time());
-        //potPlots_[detId_pot].trackTimeVsXAngle->Fill(hLhcInfo->crossingAngle(), track.time());
       }
     }
   }
