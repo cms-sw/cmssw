@@ -150,14 +150,15 @@ _phase2_siml1emulator.add(l1tVertexFinderEmulator)
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
 from L1Trigger.Phase2L1GMT.gmt_cfi  import *
-l1tTkStubsGmt = l1tGMTStubs.clone()
-l1tTkMuonsGmt = l1tGMTMuons.clone(
-    srcStubs  = 'l1tTkStubsGmt'
-)
-l1tSAMuonsGmt = l1tStandaloneMuons.clone()
-_phase2_siml1emulator.add( l1tTkStubsGmt )
-_phase2_siml1emulator.add( l1tTkMuonsGmt )
-_phase2_siml1emulator.add( l1tSAMuonsGmt )
+# l1tTkStubsGmt = l1tGMTStubs.clone()
+# l1tTkMuonsGmt = l1tGMTTkMuons.clone(
+    # srcStubs  = 'l1tTkStubsGmt'
+# )
+# l1tSAMuonsGmt = l1tGMTSAMuons.clone()
+
+# _phase2_siml1emulator.add( l1tTkStubsGmt )
+# _phase2_siml1emulator.add( l1tTkMuonsGmt )
+# _phase2_siml1emulator.add( l1tSAMuonsGmt )
 
 ## fix for low-pt muons, this collection is a copy of the l1tTkMuonsGmt collection 
 ## in which we only keep those low pt muons with an SA muon associated to it. 

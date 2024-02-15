@@ -19,29 +19,51 @@ data = {
     'MinBias200_c':'/MinBias_TuneCP5_14TeV-pythia8/Phase2HLTTDRWinter20DIGI-PU200_withNewMB_110X_mcRun4_realistic_v3_ext1-v2/GEN-SIM-DIGI-RAW'
 }
 
+data_Fall22 = {
+    'DYToLL'         : '/DYToLL_M-50_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'DsToTauTo3Mu'   : '/DsToTauTo3Mu_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'MinBias'        : '/MinBias_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'Mu_0to200'      : '/SingleMuon_Pt-0To200_Eta-1p4To3p1-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'Mu_to500'       : '/SingleMuon_Pt-200To500_Eta-1p4To3p1-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'TTTo2L2Nu'      : '/TTTo2L2Nu_TuneCP5_14TeV-powheg-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'TTToSemiLepton' : '/TTToSemiLepton_TuneCP5_14TeV-powheg-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'TauTo3Mu'       : '/TauTo3Mu_TuneCP5_14TeV-pythia8/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'GNN' : '/DSTau3Mu_pCut1_14TeV_Pythia8/jschulte-PhaseIIMTDTDRAutumn18DR-PU200_103X_upgrade2023_realistic_v2_GEN-SIM-DIGI-RAW_part3-v1-0b09b1d51eb1b176460746cc4e457a22/USER'
+}
 
-for tag,dataset in  data.iteritems():
+data_Spring23= {
+    'DYToLL'         : '/DYToLL_M-50_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9-v3/GEN-SIM-DIGI-RAW-MINIAOD',
+    'DsToTauTo3Mu'   : '/DsToTauTo3Mu_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-PU200_131X_mcRun4_realistic_v5-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'MinBias'        : '/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9_ext1-v2/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'Mu_0to200'      : '/SingleMuon_Pt-0To200_Eta-1p4To3p1-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'Mu_to500'       : '/SingleMuon_Pt-200To500_Eta-1p4To3p1-gun/Phase2Fall22DRMiniAOD-PU200_125X_mcRun4_realistic_v2-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    'TTTo2L2Nu'      : '/TTTo2L2Nu_TuneCP5_14TeV-powheg-pythia8/Phase2Spring23DIGIRECOMiniAOD-PU200_Trk1GeV_131X_mcRun4_realistic_v5-v1/GEN-SIM-DIGI-RAW-MINIAOD',
+    # 'GNN' : '/DSTau3Mu_pCut1_14TeV_Pythia8/jschulte-PhaseIIMTDTDRAutumn18DR-PU200_103X_upgrade2023_realistic_v2_GEN-SIM-DIGI-RAW_part3-v1-0b09b1d51eb1b176460746cc4e457a22/USER'
+}
+
+
+for tag,dataset in  data_Spring23.iteritems():
     FILE="""
 from CRABClient.UserUtilities import config
 config = config()
 config.General.requestName = 'skim_{tag}'
-config.General.workArea = 'crab_projects'
+config.General.workArea = 'crab_projects_Spring_v3'
 config.General.transferOutputs = True
-config.General.transferLogs = False
+config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'runGMT.py'
 config.Data.inputDataset = '{dataset}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
-config.Data.outLFNDirBase = '/store/user/bachtis/L1TF4'
-config.Data.publication = True
+config.Data.unitsPerJob = 2
+config.Data.outLFNDirBase = '/store/group/lpctrig/benwu/GMT_Ntupler/Spring22_GMT_v3'
+config.Data.publication = False
 config.Data.ignoreLocality = True
 config.Data.outputDatasetTag = 'PHASEII_{tag}'
 config.Site.storageSite = 'T3_US_FNALLPC'
 config.Site.whitelist = ['T2_US_*']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxMemoryMB = 4000
+config.JobType.maxMemoryMB = 5000
 """.format(tag=tag,dataset=dataset)
     f=open("crab_{tag}.py".format(tag=tag),"w")
     print(FILE)

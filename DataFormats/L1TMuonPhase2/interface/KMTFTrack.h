@@ -301,7 +301,8 @@ namespace l1t {
           break;
 
         default:
-          printf("Critical ERROR on setting the Kalman gain\n");
+          throw cms::Exception("WrongCondition")
+            <<"Critical ERROR on setting the Kalman gain\n";
       }
     }
 
