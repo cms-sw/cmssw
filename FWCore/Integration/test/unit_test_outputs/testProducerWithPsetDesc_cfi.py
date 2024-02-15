@@ -240,7 +240,8 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     )
   ),
   wildcardPset = cms.PSet(
-    p_uint_opt = cms.uint32(0)
+    p_uint_opt = cms.uint32(0),
+    allowAnyLabel_ = cms.optional.int32
   ),
   switchPset = cms.PSet(
     iswitch = cms.int32(1),
