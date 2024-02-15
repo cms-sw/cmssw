@@ -86,7 +86,7 @@ if (process.runType.getRunType() == process.runType.pp_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    pass
+    process.dtNoiseAnalysisMonitor.isCosmics = True
 
 
 #----------------------------
