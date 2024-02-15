@@ -7,7 +7,7 @@
 
 #include "testBase.h"
 
-#include "PhysicsTools/TensorFlowAOT/interface/AOT.h"
+#include "PhysicsTools/TensorFlowAOT/interface/Model.h"
 
 #include "test_models/simplemodel/include/simplemodel.h"
 #include "test_models/multimodel/include/multimodel.h"
