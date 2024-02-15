@@ -100,10 +100,8 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string& docName) {
   theDoc = domImpl->createDocument(nullptr, _toDOMS(docName), nullptr);
   theTopElement = theDoc->getDocumentElement();
 
-  unsigned int version = myOMTFConfig->patternsVersion();
-  unsigned int mask16bits = 0xFFFF;
-
-  version &= mask16bits;
+  const unsigned int mask16bits = 0xFFFF;
+  const unsigned int version = (myOMTFConfig->patternsVersion() & mask16bits);
 
   std::ostringstream stringStr;
   stringStr.str("");
@@ -541,14 +539,6 @@ void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternType>& golden
       if (!gp) {
         throw cms::Exception("OMTF::XMLConfigWriter::writeGPs: the gps are not GoldenPatterns ");
       }
-      /*cout<<gp->key()<<endl;;
-      for(unsigned int iLayer = 0; iLayer<myOMTFConfig->nLayers(); ++iLayer) {
-        for(unsigned int iRefLayer=0; iRefLayer<myOMTFConfig->nRefLayers(); ++iRefLayer) {
-          if(gp->getPdf()[iLayer][iRefLayer][0] != 0) {
-            cout<<"iLayer "<<iLayer<<" iRefLayer "<<iRefLayer<<" pdf[0] "<<gp->getPdf()[iLayer][iRefLayer][0]<<"!!!!!!!!!!!!!!!!!!!!\n";
-          }
-        }
-      }*/
       gps[i] = gp;
     }
     writeGPData(gps[0], gps[1], gps[2], gps[3]);

@@ -50,7 +50,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
   //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<key()<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;
 
   int phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw);
-  int phiDistMin = myOmtfConfig->nPhiBins();  //1<<(myOmtfConfig->nPdfAddrBits()); //"infinite" value for the beginning
+  int phiDistMin = myOmtfConfig->nPhiBins();
 
   ///Select hit closest to the mean of probability
   ///distribution in given layer
@@ -79,12 +79,10 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
       continue;  //empty itHits are marked with nPhiBins() in OMTFProcessor::restrictInput
 
     int phiDist = this->myOmtfConfig->foldPhi(hitPhi - extrapolatedPhi[iStub] - phiMean - phiRefHit);
-    //for standard omtf foldPhi is not needed, but if one processor works for full phi then it is
-    //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0)
     /*LogTrace("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
     LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__
-    		<<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer
-    		<<" hitPhi "<<hitPhi<<" phiMean "<<phiMean<<" phiRefHit "<<phiRefHit<<" phiDist "<<phiDist<<std::endl;*/
+               <<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer
+               <<" hitPhi "<<hitPhi<<" phiMean "<<phiMean<<" phiRefHit "<<phiRefHit<<" phiDist "<<phiDist<<std::endl;*/
 
     //firmware works on the sign-value, shift must be done on std::abs(phiDist)
     int sign = phiDist < 0 ? -1 : 1;
@@ -110,14 +108,13 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
   /*  debug
   if(phiDistMin != 128 && iRefLayer == 0 && iLayer == 1)*/
   /*LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" iRefLayer "<<iRefLayer<<" iLayer "<<iLayer<<" selectedStub "<<*selectedStub
-		  <<" phiDistMin "<<phiDistMin<<" phiMean "<<phiMean<<" shift "<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;*/
+                 <<" phiDistMin "<<phiDistMin<<" phiMean "<<phiMean<<" shift "<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;*/
 
   ///Check if phiDistMin is within pdf range -63 +63
   ///in firmware here the arithmetic "value and sign" is used, therefore the range is -63 +63, and not -64 +63
   if (std::abs(phiDistMin) > ((1 << (myOmtfConfig->nPdfAddrBits() - 1)) - 1)) {
     return StubResult(0, false, phiDistMin + pdfMiddle, iLayer, selectedStub);
 
-    //return GoldenPatternResult::LayerResult(this->pdfValue(iLayer, iRefLayer, 0), false, phiDistMin + pdfMiddle, selHit);
     //in some algorithms versions with thresholds we use the bin 0 to store the pdf value returned when there was no hit.
     //in the version without thresholds, the value in the bin 0 should be 0
   }
