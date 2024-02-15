@@ -46,8 +46,10 @@ namespace edmtest {
     edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenFromAcquireIntESProducer_;
     std::vector<int> expectedESAcquireTestResults_;
     edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenUniquePtrTestValue_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenLambdaUniquePtrTestValue_;
     int expectedUniquePtrTestValue_;
     edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenOptionalTestValue_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenLambdaOptionalTestValue_;
     int expectedOptionalTestValue_;
   };
 
@@ -63,9 +65,11 @@ namespace edmtest {
     }
     if (expectedUniquePtrTestValue_ != 0) {
       esTokenUniquePtrTestValue_ = esConsumes(edm::ESInputTag("", "uniquePtr"));
+      esTokenLambdaUniquePtrTestValue_ = esConsumes(edm::ESInputTag("", "uniquePtrLambda"));
     }
     if (expectedOptionalTestValue_ != 0) {
       esTokenOptionalTestValue_ = esConsumes(edm::ESInputTag("", "optional"));
+      esTokenLambdaOptionalTestValue_ = esConsumes(edm::ESInputTag("", "optionalLambda"));
     }
   }
 
@@ -113,12 +117,22 @@ namespace edmtest {
             << "ConcurrentIOVAnalyzer::analyze,"
             << " value for unique_ptr test from EventSetup does not match expected value";
       }
+      if (eventSetup.getData(esTokenLambdaUniquePtrTestValue_).value() != expectedUniquePtrTestValue_) {
+        throw cms::Exception("TestFailure")
+            << "ConcurrentIOVAnalyzer::analyze,"
+            << " value for lambda unique_ptr test from EventSetup does not match expected value";
+      }
     }
 
     if (expectedOptionalTestValue_ != 0) {
       if (eventSetup.getData(esTokenOptionalTestValue_).value() != expectedOptionalTestValue_) {
         throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
                                             << " value for optional test from EventSetup does not match expected value";
+      }
+      if (eventSetup.getData(esTokenLambdaOptionalTestValue_).value() != expectedOptionalTestValue_) {
+        throw cms::Exception("TestFailure")
+            << "ConcurrentIOVAnalyzer::analyze,"
+            << " value for lambda optional test from EventSetup does not match expected value";
       }
     }
 
