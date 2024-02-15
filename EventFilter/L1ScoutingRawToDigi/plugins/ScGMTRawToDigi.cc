@@ -153,7 +153,6 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
     }  // end of bx
 
   }  // end orbit while loop
-
 }
 
 void ScGMTRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
