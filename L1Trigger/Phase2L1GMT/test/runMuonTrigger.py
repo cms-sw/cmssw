@@ -24,24 +24,25 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/user/bachtis/L1T/DYToLL_M-50_TuneCP5_14TeV-pythia8/PHASEII_DY200a/230803_231922/0000/skim_10.root'
+        "file:/uscms_data/d2/lpctrig/benwu/GMTEmulator/TT2L2Nu_PU200_Spring23.root",
+# '/store/user/bachtis/L1T/DYToLL_M-50_TuneCP5_14TeV-pythia8/PHASEII_DY200a/230803_231922/0000/skim_10.root'
 #'/store/mc/Phase2Fall22DRMiniAOD/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2-v1/30000/001ec7cf-71d4-4eb4-9002-078d21560b2f.root'
     ),
     secondaryFileNames = cms.untracked.vstring()
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
+    # FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    # SkipEvent = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -93,6 +94,11 @@ process.FEVTDEBUGHLTEventContent.outputCommands = [
     'keep *_simBmtfDigis_*_*',
     'keep *_simEmtfDigis_*_*',
     'keep *_simGmtStage2Digis_*_*',
+    "keep *_gmt*Muons_*_*",
+    "keep *_gmtStubs_*_*",
+    "keep *_genParticles_*_*",
+    "keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*",
+    "keep *_l1tTkMuons_*_*",
     'keep *_simOmtfDigis_*_*',
     'keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*'
 ]
@@ -118,7 +124,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '125X_mcRun4_realistic_v2', '')
 
 
-process.L1simulation_step = cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis*process.l1tStubsGmt*process.l1tKMTFMuonsGmt*process.l1tFwdMuonsGmt*process.l1tSAMuonsGmt*process.l1tTkMuonsGmt)
+process.load("L1Trigger.Phase2L1GMT.gmt_cff")
+process.L1simulation_step = cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis*process.phase2GMT)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)

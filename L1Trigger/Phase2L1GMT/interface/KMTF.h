@@ -17,7 +17,7 @@ namespace Phase2L1GMT {
 
   private:
     int verbose_;
-    KMTFCore* trackMaker_;
+    std::unique_ptr<KMTFCore> trackMaker_;
     void overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other, bool eq, bool vertex);
     std::vector<l1t::KMTFTrack> cleanRegion(const std::vector<l1t::KMTFTrack>& tracks2,
                                             const std::vector<l1t::KMTFTrack>& tracks3,

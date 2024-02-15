@@ -475,8 +475,8 @@ void KMTF::sort(std::vector<l1t::KMTFTrack>& in, bool vertex) {
   in = out;
 }
 
-class SeedSorter {
-public:
-  SeedSorter() {}
-  bool operator()(const l1t::MuonStubRef& a, const l1t::MuonStubRef& b) { return (a->id() < b->id()); }
-};
+//class SeedSorter {
+//public:
+  //SeedSorter() {}
+  //bool operator()(const l1t::MuonStubRef& a, const l1t::MuonStubRef& b) { return (a->id() < b->id()); }
+//};

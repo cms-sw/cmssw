@@ -30,7 +30,7 @@ namespace Phase2L1GMT {
     std::vector<l1t::KMTFTrack> clean(const std::vector<l1t::KMTFTrack>& tracks, uint seed, bool vertex);
 
   private:
-    KMTFLUTs* lutService_;
+    std::unique_ptr<KMTFLUTs> lutService_;
 
     std::pair<bool, uint> match(const l1t::MuonStubRef& seed, const l1t::MuonStubRefVector& stubs, int step);
 
