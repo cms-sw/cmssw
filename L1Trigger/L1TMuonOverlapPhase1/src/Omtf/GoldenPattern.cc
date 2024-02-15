@@ -4,7 +4,6 @@
 #include <iomanip>
 
 int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB) const {
-  //return meanDistPhi[iLayer][iRefLayer][0];
   return (((meanDistPhi[iLayer][iRefLayer][1] * refLayerPhiB) >> myOmtfConfig->nPdfAddrBits()) +
           meanDistPhi[iLayer][iRefLayer][0]);
   //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
@@ -14,7 +13,6 @@ int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer,
 ////////////////////////////////////////////////////
 int GoldenPattern::propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer) {
   unsigned int iLayer = 2;  //MB2
-  //if(etaRef>101) iLayer = 7;//RE2
   return phiRef + meanDistPhi[iLayer][iRefLayer][0];
   //FIXME if the meanDistPhiAlpha is non-zero, then meanDistPhi is alone not good for propagation of the phi
   //other value should be used, or the ref_layer phiB should be included
@@ -41,17 +39,6 @@ std::ostream &operator<<(std::ostream &out, const GoldenPattern &aPattern) {
     }
     out << ")" << std::endl;
   }
-
-  /*  if(aPattern.meanDistPhiCounts.size()){
-    out<<"Counts number per layer:"<<std::endl;
-    for (unsigned int iRefLayer=0;iRefLayer<aPattern.meanDistPhi[0].size();++iRefLayer){
-      out<<"Ref layer: "<<iRefLayer<<" (";
-      for (unsigned int iLayer=0;iLayer<aPattern.meanDistPhi.size();++iLayer){   
-        out<<aPattern.meanDistPhiCounts[iLayer][iRefLayer]<<"\t";
-      }
-      out<<")"<<std::endl;
-    }
-  }*/
 
   unsigned int nPdfAddrBits = 7;
   out << "PDF per layer:" << std::endl;

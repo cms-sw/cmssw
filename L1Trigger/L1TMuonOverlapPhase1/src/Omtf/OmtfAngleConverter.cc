@@ -108,25 +108,6 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
   //const DTChamberId dTChamberId(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
   DTTrigGeom trig_geom(_geodt->chamber(dTChamberId), false);
 
-  /* debug printout to check the geometry of the chambers
-  Local2DPoint chamberMiddleLP(0, 0);
-  GlobalPoint chamberMiddleGP = _geodt->chamber(dTChamberId)->toGlobal(chamberMiddleLP);
-  float phin = (dTChamberId.sector()-1)*Geom::pi()/6;
-  float phiRF = _geodt->chamber(dTChamberId)->position().phi();
-  float deltaPhi = phiRF - phin;
-
-  LogTrace("l1tOmtfEventPrint")<<"OmtfAngleConverter::getGlobalEta "<<dTChamberId
-    <<" perp "<<chamberMiddleGP.perp()
-    //<<" chamber()->position().perp() "<<_geodt->chamber(dTChamberId)->position().perp()
-    <<" x "<<_geodt->chamber(dTChamberId)->position().x()
-    <<" y "<<_geodt->chamber(dTChamberId)->position().y()
-    <<" z "<<_geodt->chamber(dTChamberId)->position().z()
-    <<" - phiRF "<<phiRF << " rad "<< phiRF * 180. / M_PI<<" deg "
-    <<" - phin "<<phin<< " rad "<< phin * 180. / M_PI<<" deg "
-    <<" - deltaPhi "<<deltaPhi<<" r "<<chamberMiddleGP.perp() * cos(deltaPhi);
-    //<<" distSL "<<trig_geom.distSL();
-  */
-
   // super layer one is the theta superlayer in a DT chamber
   // station 4 does not have a theta super layer
   // the BTI index from the theta trigger is an OR of some BTI outputs
@@ -226,16 +207,11 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
 
   r = final_gp.perp();
 
-  //edm::LogVerbatim("l1tOmtfEventPrint")<<id<<" ETA_CSC st: " << id.station()<< "ri: "<<id.ring()<<" eta: " <<  final_gp.eta()
-  //           <<" etaCode_simple: " <<  etaVal2Code( final_gp.eta() )<< " keyWG: "<<keyWG <<" etaKeyWG2Code: "<<etaKeyWG2Code(id,keyWG)<< std::endl;
-
   if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::bits)
     return OMTFConfiguration::eta2Bits(abs(etaKeyWG2Code(id, keyWG)));
   else if (config->getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP1Scale) {
     const LocalPoint lpWg = layer_geom->localCenterOfWireGroup(keyWG);
     const GlobalPoint gpWg = layer->surface().toGlobal(lpWg);
-
-    //edm::LogVerbatim("l1tOmtfEventPrint")<<"gpWg.eta() " << gpWg.eta()<<" etaToHwEta(gpWg.eta()) "<<config->etaToHwEta(gpWg.eta()) << std::endl;
 
     return config->etaToHwEta(abs(gpWg.eta()));
   } else {
@@ -250,23 +226,7 @@ int OmtfAngleConverter::getGlobalEtaRpc(unsigned int rawid, const unsigned int &
   const LocalPoint lp = roll->centreOfStrip((int)strip);
   const GlobalPoint gp = roll->toGlobal(lp);
 
-  if (id.region() == 0) {  //barrel
-    /* //debug printout to check the geometry of the chambers
-    float phin = (id.sector()-1)*Geom::pi()/6;
-    float phiHit = gp.phi();
-    float deltaPhi = phiHit - phin;
-
-    LogTrace("l1tOmtfEventPrint")<<"OmtfAngleConverter::getGlobalEtaRpc "<<id
-        <<" perp "<<gp.perp()
-        //<<" chamber()->position().perp() "<<_geodt->chamber(dTChamberId)->position().perp()
-        <<" x "<<gp.x()
-        <<" y "<<gp.y()
-        <<" z "<<gp.z()
-        <<" - phiRF "<<phiHit << " rad "<< phiHit * 180. / M_PI<<" deg "
-        <<" - phin "<<phin<< " rad "<< phin * 180. / M_PI<<" deg "
-        <<" - deltaPhi "<<deltaPhi<<" r "<<gp.perp() * cos(deltaPhi);
-        */
-  } else {
+  if (id.region() != 0) {  //outside barrel
     r = gp.perp();
   }
 
