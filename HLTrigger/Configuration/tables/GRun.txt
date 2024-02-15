@@ -429,7 +429,7 @@ HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896
 HLT_Ele30_WPTight_Gsf_v*	#	CMSHLT-1921
 HLT_Mu3_L1SingleMu5orSingleMu7_v*	#	CMSHLT-1924
 HLT_CDC_L2cosmic_10_er1p0_v*	#	CMSHLT-1967
-HLT_PFHT400_FivePFJet_100_100_60_30_30_v*				#	CMSHLT-1978
+HLT_PFHT400_FivePFJet_120_120_60_30_30_v*				# CMSHLT-3023
 HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1_v*                                #       CMSHLT-2209
 HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v*           #       CMSHLT-2209
 HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1_v*                     #       CMSHLT-2209
@@ -438,8 +438,8 @@ HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v*                     
 HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1_v*                            #       CMSHLT-2209
 HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1_v*                                      #       CMSHLT-2209
 HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v*			# CMSHLT-2184
-HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
-HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
+HLT_PFHT400_FivePFJet_120_120_60_30_30_PNet2BTag_5p6_v*                                 # CMSHLT-3023
+HLT_PFHT400_FivePFJet_120_120_60_30_30_PNet2BTag_4p3_v*                                 # CMSHLT-3023
 HLT_PFHT400_SixPFJet32_v*                   # CMSHLT-1857, CMSHLT-2705
 HLT_PFHT400_SixPFJet32_PNet2BTagMean0p50_v* # CMSHLT-2705
 HLT_PFHT450_SixPFJet36_v*                   # CMSHLT-1857, CMSHLT-2705
