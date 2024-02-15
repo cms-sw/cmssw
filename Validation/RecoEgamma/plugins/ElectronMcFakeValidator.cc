@@ -23,6 +23,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,6 +49,8 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
       consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
+  electronCoreCollectionEndcaps_ =
+      consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollectionEndcaps"));
   electronTrackCollection_ =
       consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_ =
@@ -2452,6 +2456,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
   auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
+  auto gsfElectronCoresEndcaps = iEvent.getHandle(electronCoreCollectionEndcaps_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
 
@@ -2478,18 +2483,8 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle OK";
   }
 
-  edm::LogInfo("ElectronMcFakeValidator::analyze")
-      << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
-  edm::LogInfo("ElectronMcSignalValidator::analyze")
-      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
-
-  h1_recEleNum_->Fill((*gsfElectrons).size());
-  h1_recCoreNum_->Fill((*gsfElectronCores).size());
-  h1_recTrackNum_->Fill((*gsfElectronTracks).size());
-  h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
-  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
-
   reco::GsfElectronCollection::const_iterator gsfIter;
+  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter; // 
   std::vector<reco::GsfElectron>::const_iterator gsfIter3;
   std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
@@ -2511,6 +2506,40 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       localCollection.push_back(*gsfIter);
     }
   }
+
+  //===============================================
+  // get a vector with EB & EE for Core
+  //===============================================
+  std::vector<reco::GsfElectronCore> localCoreCollection;
+
+  // looking for EB
+
+  for (gsfCoreIter = gsfElectronCores->begin(); gsfCoreIter != gsfElectronCores->end(); gsfCoreIter++) {
+    if (gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalBarrel) {
+      localCoreCollection.push_back(*gsfCoreIter);
+    }
+  }
+
+  // looking for EE
+  for (gsfCoreIter = gsfElectronCoresEndcaps->begin(); gsfCoreIter != gsfElectronCoresEndcaps->end(); gsfCoreIter++) {
+    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) || (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
+      localCoreCollection.push_back(*gsfCoreIter);
+    }
+  }
+
+  //===============================================
+  // Analyze
+  //===============================================
+  edm::LogInfo("ElectronMcFakeValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
+
+  h1_recEleNum_->Fill((localCollection).size());
+  h1_recCoreNum_->Fill(localCoreCollection.size());
+  h1_recTrackNum_->Fill((*gsfElectronTracks).size());
+  h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
+  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
 
   // all rec electrons
   for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {

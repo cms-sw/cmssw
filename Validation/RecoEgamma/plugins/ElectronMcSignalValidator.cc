@@ -22,6 +22,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -56,6 +58,8 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
       consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
+  electronCoreCollectionEndcaps_ =
+      consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollectionEndcaps"));
   electronTrackCollection_ =
       consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_ =
@@ -3271,6 +3275,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
   auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
+  auto gsfElectronCoresEndcaps = iEvent.getHandle(electronCoreCollectionEndcaps_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
   auto genParticles = iEvent.getHandle(mcTruthCollection_);
@@ -3291,23 +3296,13 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle OK";
   }
 
-  edm::LogInfo("ElectronMcSignalValidator::analyze")
-      << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
-  edm::LogInfo("ElectronMcSignalValidator::analyze")
-      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
-
-  h1_recEleNum->Fill((*gsfElectrons).size());
-  h1_recCoreNum->Fill((*gsfElectronCores).size());
-  h1_recTrackNum->Fill((*gsfElectronTracks).size());
-  h1_recSeedNum->Fill((*gsfElectronSeeds).size());
-  h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
-
-  reco::GsfElectronCollection::const_iterator gsfIter;
+  reco::GsfElectronCollection::const_iterator gsfIter; // 
+  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter; // 
   std::vector<reco::GsfElectron>::const_iterator gsfIter3;
   std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
   //===============================================
-  // get a vector with EB  & EE
+  // get a vector with EB & EE
   //===============================================
   std::vector<reco::GsfElectron> localCollection;
 
@@ -3324,6 +3319,40 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       localCollection.push_back(*gsfIter);
     }
   }
+
+  //===============================================
+  // get a vector with EB & EE for Core
+  //===============================================
+  std::vector<reco::GsfElectronCore> localCoreCollection;
+
+  // looking for EB
+
+  for (gsfCoreIter = gsfElectronCores->begin(); gsfCoreIter != gsfElectronCores->end(); gsfCoreIter++) {
+    if (gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalBarrel) {
+      localCoreCollection.push_back(*gsfCoreIter);
+    }
+  }
+
+  // looking for EE
+  for (gsfCoreIter = gsfElectronCoresEndcaps->begin(); gsfCoreIter != gsfElectronCoresEndcaps->end(); gsfCoreIter++) {
+    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) || (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
+      localCoreCollection.push_back(*gsfCoreIter);
+    }
+  }
+
+  //===============================================
+  // Analyze
+  //===============================================
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
+
+  h1_recEleNum->Fill((localCollection).size());
+  h1_recCoreNum->Fill(localCoreCollection.size());
+  h1_recTrackNum->Fill((*gsfElectronTracks).size());
+  h1_recSeedNum->Fill((*gsfElectronSeeds).size());
+  h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
 
   //===============================================
   // all rec electrons
