@@ -21,18 +21,26 @@ namespace ${NAMESPACE} {
   class ${CLASS_NAME} : public tfaot::Wrapper {
   public:
     // default constructor
-    explicit ${CLASS_NAME}(const std::string& name = "${NAMESPACE}_${CLASS_NAME}");
+    explicit ${CLASS_NAME}(const std::string& name = "${NAMESPACE}_${CLASS_NAME}")
+      : tfaot::Wrapper(name)
+      // foreach=MODEL lines=1
+      , xla_function_bs${BATCH_SIZE}_(allocMode())
+    {
+    }
 
-    // remove copy constructor
+    // disable copy constructor
     ${CLASS_NAME}(const ${CLASS_NAME}&) = delete;
 
-    // remove assigment operator
+    // disable assigment operator
     ${CLASS_NAME}& operator=(const ${CLASS_NAME}&) = delete;
 
-    // destructor
-    ~${CLASS_NAME}() override;
+    // disable move operator
+    ${CLASS_NAME}& operator=(${CLASS_NAME}&&) = delete;
 
-    // registered batch sizes
+    // destructor
+    ~${CLASS_NAME}() = default;
+
+    // registered batch sizes, sorted by default
     const std::vector<size_t>& batchSizes() const {
       static const std::vector<size_t> batchSizes = {${BATCH_SIZES_CSV}};
       return batchSizes;
@@ -94,28 +102,16 @@ namespace ${NAMESPACE} {
     bool runSilent(size_t batchSize);
 
   private:
-    // model pointers
+    // xla function instances
     // foreach=MODEL lines=1
-    std::unique_ptr<${NAMESPACE}::${CLASS_NAME}_bs${BATCH_SIZE}> model_bs${BATCH_SIZE}_;
+    ${NAMESPACE}::${CLASS_NAME}_bs${BATCH_SIZE} xla_function_bs${BATCH_SIZE}_;
   };
-
-  ${CLASS_NAME}::${CLASS_NAME}(const std::string& name) : tfaot::Wrapper(name) {
-    // create models
-    // foreach=MODEL lines=1
-    model_bs${BATCH_SIZE}_ = std::make_unique<${NAMESPACE}::${CLASS_NAME}_bs${BATCH_SIZE}>(allocMode());
-  }
-
-  ${CLASS_NAME}::~${CLASS_NAME}() {
-    // reset model pointers
-    // foreach=MODEL lines=1
-    model_bs${BATCH_SIZE}_.reset();
-  }
 
   template <typename T>
   T* ${CLASS_NAME}::argData(size_t batchSize, size_t argIndex) {
     // foreach=MODEL lines=2
     if (batchSize == ${BATCH_SIZE})
-      return static_cast<T*>(model_bs${BATCH_SIZE}_->arg_data(argIndex));
+      return static_cast<T*>(xla_function_bs${BATCH_SIZE}_.arg_data(argIndex));
     unknownBatchSize(batchSize, "argData()");
     return nullptr;
   }
@@ -124,7 +120,7 @@ namespace ${NAMESPACE} {
   const T* ${CLASS_NAME}::argData(size_t batchSize, size_t argIndex) const {
     // foreach=MODEL lines=2
     if (batchSize == ${BATCH_SIZE})
-      return static_cast<const T*>(model_bs${BATCH_SIZE}_->arg_data(argIndex));
+      return static_cast<const T*>(xla_function_bs${BATCH_SIZE}_.arg_data(argIndex));
     unknownBatchSize(batchSize, "const argData()");
     return nullptr;
   }
@@ -133,7 +129,7 @@ namespace ${NAMESPACE} {
   T* ${CLASS_NAME}::resultData(size_t batchSize, size_t resultIndex) {
     // foreach=MODEL lines=2
     if (batchSize == ${BATCH_SIZE})
-      return static_cast<T*>(model_bs${BATCH_SIZE}_->result_data(resultIndex));
+      return static_cast<T*>(xla_function_bs${BATCH_SIZE}_.result_data(resultIndex));
     unknownBatchSize(batchSize, "resultData()");
     return nullptr;
   }
@@ -142,7 +138,7 @@ namespace ${NAMESPACE} {
   const T* ${CLASS_NAME}::resultData(size_t batchSize, size_t resultIndex) const {
     // foreach=MODEL lines=2
     if (batchSize == ${BATCH_SIZE})
-      return static_cast<const T*>(model_bs${BATCH_SIZE}_->result_data(resultIndex));
+      return static_cast<const T*>(xla_function_bs${BATCH_SIZE}_.result_data(resultIndex));
     unknownBatchSize(batchSize, "const resultData()");
     return nullptr;
   }
@@ -150,7 +146,7 @@ namespace ${NAMESPACE} {
   bool ${CLASS_NAME}::runSilent(size_t batchSize) {
     // foreach=MODEL lines=2
     if (batchSize == ${BATCH_SIZE})
-      return model_bs${BATCH_SIZE}_->Run();
+      return xla_function_bs${BATCH_SIZE}_.Run();
     unknownBatchSize(batchSize, "runSilent()");
     return false;
   }

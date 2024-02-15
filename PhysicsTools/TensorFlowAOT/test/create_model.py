@@ -16,6 +16,9 @@ def create_model(model_dir, multi_tensor=False):
     # get tensorflow (suppressing the usual device warnings and logs)
     tf = cmsml.tensorflow.import_tf()[0]
 
+    # set random seeds to get deterministic results for testing
+    tf.keras.utils.set_random_seed(1)
+
     # define architecture
     n_in, n_out, n_layers, n_units = 4, 2, 5, 128
 

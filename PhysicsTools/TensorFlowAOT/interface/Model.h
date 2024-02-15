@@ -8,6 +8,7 @@
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include "PhysicsTools/TensorFlowAOT/interface/Util.h"
 #include "PhysicsTools/TensorFlowAOT/interface/Batching.h"
 
@@ -21,7 +22,7 @@ namespace tfaot {
     explicit Model() : wrapper_(std::make_unique<W>()) {}
 
     // destructor
-    ~Model(){};
+    ~Model() { wrapper_.reset(); };
 
     // getter for the name
     const std::string& name() const { return wrapper_->name(); }

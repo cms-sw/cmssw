@@ -2,24 +2,25 @@
 #define PHYSICSTOOLS_TENSORFLOWAOT_WRAPPER_H
 
 /*
- * AOT wrapper interface for interacting with models compiled for different batch sizes.
+ * AOT wrapper interface for interacting with xla functions compiled for different batch sizes.
  *
  * Author: Marcel Rieger, Bogdan Wiederspan
  */
 
 #include <map>
+#include <algorithm>
 
 #include "tensorflow/compiler/tf2xla/xla_compiled_cpu_function.h"
 #include "tensorflow/core/platform/types.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 
-#include "PhysicsTools/TensorFlowAOT/interface/Util.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "PhysicsTools/TensorFlowAOT/interface/Util.h"
 
 namespace tfaot {
 
-  // object that wraps multiple variants of the same model, but each compiled for a different
+  // object that wraps multiple variants of the same xla function, but each compiled for a different
   // batch size, and providing access to arguments (inputs) and results (outputs) by index
   class Wrapper {
   public:
@@ -30,8 +31,11 @@ namespace tfaot {
     // disable copy constructor
     Wrapper(const Wrapper&) = delete;
 
-    // disable assignment constructor
+    // disable assignment operator
     Wrapper& operator=(const Wrapper&) = delete;
+
+    // disable move operator
+    Wrapper& operator=(Wrapper&&) = delete;
 
     // destructor
     virtual ~Wrapper() = default;
@@ -48,10 +52,11 @@ namespace tfaot {
     // returns the number of compiled batch sizes
     size_t nBatchSizes() const { return batchSizes().size(); }
 
-    // returns whether a compiled model exists for a certain batch size
+    // returns whether a compiled xla function exists for a certain batch size
+    // (batchSizes is sorted by default)
     bool hasBatchSize(size_t batchSize) const {
       const auto& bs = batchSizes();
-      return std::find(bs.begin(), bs.end(), batchSize) != bs.end();
+      return std::binary_search(bs.begin(), bs.end(), batchSize);
     }
 
     // getter for the number of arguments (inputs)
@@ -63,21 +68,22 @@ namespace tfaot {
     // number of elements in arguments, divided by batch size
     virtual const std::vector<size_t>& argCountsNoBatch() const = 0;
 
-    // returns a pointer to the argument data at a certain index for the model at some batch size
+    // returns a pointer to the argument data at a certain index for the xla function at some batch
+    // size
     template <typename T>
     T* argData(size_t batchSize, size_t argIndex);
 
-    // returns a const pointer to the argument data at a certain index for the model at some batch
-    // size
+    // returns a const pointer to the argument data at a certain index for the xla function at some
+    // batch size
     template <typename T>
     const T* argData(size_t batchSize, size_t argIndex) const;
 
-    // returns the total number of values in the argument data at a certain index for the model at
-    // some batch size
+    // returns the total number of values in the argument data at a certain index for the xla
+    // function at some batch size
     int argCount(size_t batchSize, size_t argIndex) const;
 
     // returns the number of values excluding the leading batch axis in the argument data at a
-    // certain index for the model at some batch size
+    // certain index for the xla function at some batch size
     int argCountNoBatch(size_t argIndex) const;
 
     // getter for the number of results (outputs)
@@ -89,27 +95,28 @@ namespace tfaot {
     // number of elements in results, divided by batch size
     virtual const std::vector<size_t>& resultCountsNoBatch() const = 0;
 
-    // returns a pointer to the result data at a certain index for the model at some batch size
+    // returns a pointer to the result data at a certain index for the xla function at some batch
+    // size
     template <typename T>
     T* resultData(size_t batchSize, size_t resultIndex);
 
-    // returns a const pointer to the result data at a certain index for the model at some batch
-    // size
+    // returns a const pointer to the result data at a certain index for the xla function at some
+    // batch size
     template <typename T>
     const T* resultData(size_t batchSize, size_t resultIndex) const;
 
-    // returns the total number of values in the result data at a certain index for the model at
-    // some batch size
+    // returns the total number of values in the result data at a certain index for the xla function
+    // at some batch size
     int resultCount(size_t batchSize, size_t resultIndex) const;
 
     // returns the number of values excluding the leading batch axis in the result data at a
-    // certain index for the model at some batch size
+    // certain index for the xla function at some batch size
     int resultCountNoBatch(size_t resultIndex) const;
 
-    // evaluates the model at some batch size and returns whether the call succeeded
+    // evaluates the xla function at some batch size and returns whether the call succeeded
     virtual bool runSilent(size_t batchSize) = 0;
 
-    // evaluates the model at some batch size and throws an exception in case of an error
+    // evaluates the xla function at some batch size and throws an exception in case of an error
     void run(size_t batchSize);
 
   protected:

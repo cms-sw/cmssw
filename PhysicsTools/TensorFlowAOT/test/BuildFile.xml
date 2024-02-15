@@ -1,14 +1,4 @@
-<bin name="testTFAOTCompilation" file="testRunner.cpp,testCompilation.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlowAOT"/>
-</bin>
-
-<bin name="testTFAOTDevWorkflow" file="testRunner.cpp,testDevWorkflow.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlowAOT"/>
-</bin>
+<test name="testAOTTools" command="python3 ${LOCALTOP}/src/PhysicsTools/TensorFlowAOT/test/testAOTTools.py"/>
 
 <!--
 interface tests are disabled as they require dynamically compiled targets at build time, which is
