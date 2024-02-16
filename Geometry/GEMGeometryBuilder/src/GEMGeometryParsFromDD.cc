@@ -81,7 +81,7 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
       edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot determine presence of GE 2/1";
     }
   }
-  bool demonstratorGeometry = nGE21 == 1;
+  bool demonstratorGeometry = nGE21 % 2 == 1;
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
@@ -296,7 +296,7 @@ void GEMGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
       nGE21++;
     }
   }
-  bool demonstratorGeometry = nGE21 == 1;
+  bool demonstratorGeometry = nGE21 % 2 == 1;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
                                << demonstratorGeometry;
