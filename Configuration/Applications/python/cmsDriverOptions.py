@@ -246,15 +246,14 @@ def OptionsFromItems(items):
         options.prefix = "igprof -t cmsRun -%s" % profilerType
 
     if options.heap_profile:
-        if options.prefix:
+        if options.heap_profile and options.prefix:
             raise Exception("--heap_profile and --prefix are incompatible")
-        profilerType = 'pp'
-        options.prefix = "MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out cmsRunJE "
+        options.prefix = "env MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out LD_PRELOAD=libjemalloc-prof.so "
 
     if options.maxmem_profile:
-        if options.prefix:
+        if options.maxmem_profile and options.prefix:
             raise Exception("--maxmem_profile and --prefix are incompatible")
-        options.prefix = "LD_PRELOAD=\"libPerfToolsAllocMonitorPreload.so libPerfToolsMaxMemoryPreload.so\" cmsRun "
+        options.prefix = 'env LD_PRELOAD="libPerfToolsAllocMonitorPreload.so libPerfToolsMaxMemoryPreload.so" '
 
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
