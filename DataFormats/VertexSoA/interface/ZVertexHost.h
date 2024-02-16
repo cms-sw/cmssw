@@ -10,8 +10,11 @@
 #include "DataFormats/VertexSoA/interface/ZVertexDefinitions.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
+// This alias is needed to feed the SET_PORTABLEHOSTMULTICOLLECTION_READ_RULES macro without commas.
+using ZVertexHostSoABase = PortableHostCollection2<reco::ZVertexSoA, reco::ZVertexTracksSoA>;
+
 template <int32_t NVTX, int32_t NTRK>
-class ZVertexHostSoA : public PortableHostCollection2<reco::ZVertexSoA, reco::ZVertexTracksSoA> {
+class ZVertexHostSoA : public ZVertexHostSoABase {
 public:
   ZVertexHostSoA() = default;
 
