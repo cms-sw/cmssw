@@ -248,6 +248,8 @@ def checkHLTfor43774(process):
                 if (filt.useAbs != cms.bool(True)):
                     print('# TSG WARNING: check value of parameter "useAbs" in',filt,'(expect True but is False)!')
 
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
