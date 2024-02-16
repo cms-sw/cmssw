@@ -424,7 +424,7 @@ expertSettings.add_argument("--profile",
 
 expertSettings.add_argument("--heap_profile",
                             help="add the JeProfService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
-                            default="False",
+                            default=False,
                             action="store_true",
                             dest="heap_profile")
 
