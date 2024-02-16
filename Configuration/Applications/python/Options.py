@@ -428,6 +428,12 @@ expertSettings.add_argument("--heap_profile",
                             type=str,
                             dest="heap_profile")
 
+expertSettings.add_argument("--maxmem_profile",
+                            help="add the PerfTools/MaxMemoryPreload Service",
+                            default=None,
+                            type=str,
+                            dest="maxmem_profile")
+
 expertSettings.add_argument("--io",
                             help="Create a json file with io informations",
                             default=None,
