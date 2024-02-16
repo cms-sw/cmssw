@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 import sys
-from ROOT import TTree, TFile, gROOT
+from ROOT import TTree, TFile, gROOT, TClass
 from array import array
 from copy import deepcopy
 
