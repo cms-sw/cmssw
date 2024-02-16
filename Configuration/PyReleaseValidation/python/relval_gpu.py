@@ -13,7 +13,11 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 
 # mc WFs to run in IB:
 
-# mc 2023   Patatrack pixel-only quadruplets:                   ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
+# mc 2023   Alpaka pixel-only quadruplets:                      ZMM: any backend, any backend vs cpu validation, profiling
+#           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
+#           Alpaka ECAL-only:                                   TTbar: any backend
+#           Alpaka pixel-only quadruplets:                      Single Nu E10: any backend
+#           Patatrack pixel-only quadruplets:                   ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
 #           Patatrack pixel-only triplets:                      ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
 #           Patatrack pixel-only quadruplets:                   TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
 #           Patatrack pixel-only triplets:                      TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
@@ -23,10 +27,17 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           Patatrack pixel-only triplets, ECAL, HCAL:          TTbar - on GPU (optional), GPU-vs-CPU validation, profiling (to be implemented)
 #           full reco with Patatrack pixel-only quadruplets:    TTbar - on GPU (optional), GPU-vs-CPU validation
 #           full reco with Patatrack pixel-only triplets:       TTbar - on GPU (optional), GPU-vs-CPU validation
-#           Patatrack Single Nu E10 on GPU (optional)
-# mc 2026   Patatrack Single Nu E10 on GPU (optional)
+#           Patatrack pixel-only quadruplets:                   Single Nu E10 on GPU (optional)
+# mc 2026   Patatrack pixel-only quadruplets:                   Single Nu E10 on GPU (optional)
 numWFIB = [
-           # 2023
+           # 2023, Alpaka-based
+           12450.402, 12450.403, 12450.404,
+           #12450.406, 12450.407, 12450.408,
+           12434.402, 12434.403, 12434.404,
+           #12434.406, 12434.407, 12434.408,
+           12434.412, #12434.413, 12434.414,
+           12461.402,
+           # 2023, CUDA-based
            12450.502, 12450.503, 12450.504,
            12450.506, 12450.507, 12450.508,
            12434.502, 12434.503, 12434.504,
@@ -37,7 +48,8 @@ numWFIB = [
            12434.586, 12434.587, # 12434.588,
            12434.592, 12434.593,
            12434.596, 12434.597,
-           12461.502, 
+           12461.502,
+           # 2026, CUDA-based
            24861.502
         ]
 

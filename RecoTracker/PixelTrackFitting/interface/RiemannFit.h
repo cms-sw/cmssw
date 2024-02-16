@@ -1,6 +1,9 @@
 #ifndef RecoTracker_PixelTrackFitting_RiemannFit_h
 #define RecoTracker_PixelTrackFitting_RiemannFit_h
 
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
+
 #include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 
 namespace riemannFit {

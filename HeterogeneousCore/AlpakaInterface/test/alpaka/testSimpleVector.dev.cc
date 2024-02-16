@@ -15,7 +15,7 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 struct vector_pushback {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, SimpleVector<int>* foo) const {
-    for (auto index : elements_with_stride(acc))
+    for (auto index : uniform_elements(acc))
       foo->push_back(acc, index);
   }
 };
@@ -30,7 +30,7 @@ struct vector_reset {
 struct vector_emplace_back {
   template <typename TAcc>
   ALPAKA_FN_ACC void operator()(const TAcc& acc, SimpleVector<int>* foo) const {
-    for (auto index : elements_with_stride(acc))
+    for (auto index : uniform_elements(acc))
       foo->emplace_back(acc, index);
   }
 };

@@ -1,10 +1,9 @@
-#ifndef CondFormats_SiPixelObjects_SiPixelMappingHost_h
-#define CondFormats_SiPixelObjects_SiPixelMappingHost_h
+#ifndef CondFormats_SiPixelObjects_interface_SiPixelMappingHost_h
+#define CondFormats_SiPixelObjects_interface_SiPixelMappingHost_h
 
-#include <alpaka/alpaka.hpp>
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 using SiPixelMappingHost = PortableHostCollection<SiPixelMappingSoA>;
 
-#endif  // CondFormats_SiPixelObjects_SiPixelMappingHost_h
+#endif  // CondFormats_SiPixelObjects_interface_SiPixelMappingHost_h

@@ -1,16 +1,24 @@
 // C++ headers
-#include <algorithm>
-#include <numeric>
+#include <cassert>
+#include <cstdint>
+#include <type_traits>
 
 // Alpaka headers
 #include <alpaka/alpaka.hpp>
 
 // CMSSW headers
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
-#include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
+// local headers
 #include "PixelRecHitKernel.h"
 #include "PixelRecHits.h"
 
@@ -28,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t* __restrict__ hitsLayerStart) const {
       assert(0 == hitsModuleStart[0]);
 
-      for (int32_t i : cms::alpakatools::elements_with_stride(acc, TrackerTraits::numberOfLayers + 1)) {
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, TrackerTraits::numberOfLayers + 1)) {
         hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
 #ifdef GPU_DEBUG
         int old = i == 0 ? 0 : hitsModuleStart[cpeParams->layerGeometry().layerStart[i - 1]];
@@ -56,13 +64,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto nHits = clusters_d.nClusters();
       auto offsetBPIX2 = clusters_d.offsetBPIX2();
 
-      TrackingRecHitsSoACollection<TrackerTraits> hits_d(nHits, offsetBPIX2, clusters_d->clusModuleStart(), queue);
+      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, nHits, offsetBPIX2, clusters_d->clusModuleStart());
 
       int activeModulesWithDigis = digis_d.nModules();
 
       // protect from empty events
       if (activeModulesWithDigis) {
         int threadsPerBlock = 128;
+        // note: the kernel should work with an arbitrary number of blocks
         int blocks = activeModulesWithDigis;
         const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
@@ -77,6 +86,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             bs_d,
                             digis_d.view(),
                             digis_d.nDigis(),
+                            digis_d.nModules(),
                             clusters_d.view(),
                             hits_d.view());
 #ifdef GPU_DEBUG
