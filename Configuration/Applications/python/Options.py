@@ -429,7 +429,7 @@ expertSettings.add_argument("--heap_profile",
                             dest="heap_profile")
 
 expertSettings.add_argument("--maxmem_profile",
-                            help="add the PerfTools/MaxMemoryPreload Service",
+                            help="add the PerfTools/MaxMemoryPreload monitor",
                             default=None,
                             type=str,
                             dest="maxmem_profile")
