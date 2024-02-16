@@ -253,7 +253,7 @@ def OptionsFromItems(items):
     if options.maxmem_profile:
         if options.prefix:
             raise Exception("--maxmem_profile and --prefix are incompatible")
-        options.prefix = "env LD_PRELOAD=libPerfToolsAllocMonitorPreload.so env LD_PRELOAD=libPerfToolsMaxMemoryPreload.so "
+        options.prefix = "env LD_PRELOAD=libPerfToolsAllocMonitorPreload.so:libPerfToolsMaxMemoryPreload.so "
 
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
