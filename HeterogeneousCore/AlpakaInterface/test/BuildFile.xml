@@ -19,6 +19,20 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
+<bin name="alpakaCopyBufferToDevice" file="alpaka/testCopyBufferToDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="alpakaMoveToDeviceAsync" file="alpaka/testMoveToDeviceAsync.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
 <bin name="alpakaTestBackend" file="testBackend.cc">
   <use name="catch2"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
