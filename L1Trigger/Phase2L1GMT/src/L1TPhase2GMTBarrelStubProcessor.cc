@@ -161,7 +161,8 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
         }
       }
     }
-    std::cout << os.str() << std::endl;
+    if (verbose_ == 2)
+      std::cout << os.str() << std::endl;
   }
 
   if (verbose_) {

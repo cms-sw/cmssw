@@ -430,12 +430,23 @@ match_t TPSAlgorithm::getBest(const std::vector<match_t> matches) {
   return best;
 }
 
+void TPSAlgorithm::matchingInfos(std::vector<match_t> matchInfo,
+                                 PreTrackMatchedMuon& muon,
+                                 ap_uint<BITSMATCHQUALITY>& quality) {
+  if (!matchInfo.empty()) {
+    match_t b = getBest(matchInfo);
+    if (b.valid != 0) {
+      muon.addStub(b.stubRef, b.valid);
+      if (b.isGlobal)
+        muon.addMuonRef(b.muRef);
+      quality += b.quality;
+    }
+  }
+}
+
 PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, const l1t::MuonStubRefVector& stubs) {
-  std::vector<match_t> matchInfo0;
-  std::vector<match_t> matchInfo1;
-  std::vector<match_t> matchInfo2;
-  std::vector<match_t> matchInfo3;
-  std::vector<match_t> matchInfo4;
+  std::vector<std::vector<match_t> > matchInfos;
+  matchInfos.reserve(5);
 
   if (verbose_ == 1 && !stubs.empty()) {
     printf("-----------processing new track----------\n");
@@ -444,16 +455,12 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
   for (const auto& stub : stubs) {
     match_t m = propagateAndMatch(track, stub, 0);
     if (m.valid != 0) {
-      if (stub->tfLayer() == 0)
-        matchInfo0.push_back(m);
-      else if (stub->tfLayer() == 1)
-        matchInfo1.push_back(m);
-      else if (stub->tfLayer() == 2)
-        matchInfo2.push_back(m);
-      else if (stub->tfLayer() == 3)
-        matchInfo3.push_back(m);
-      else if (stub->tfLayer() == 4)
-        matchInfo4.push_back(m);
+      for (unsigned i = 0; i < 6; ++i) {
+        if (stub->tfLayer() == i) {
+          matchInfos.at(i).push_back(m);
+          break;
+        }
+      }
     }
   }
 
@@ -462,51 +469,8 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
   ap_uint<BITSMATCHQUALITY> quality = 0;
   PreTrackMatchedMuon muon(track.charge(), track.pt(), track.eta(), track.phi(), track.z0(), track.d0());
 
-  if (!matchInfo0.empty()) {
-    match_t b = getBest(matchInfo0);
-    if (b.valid != 0) {
-      muon.addStub(b.stubRef, b.valid);
-      if (b.isGlobal)
-        muon.addMuonRef(b.muRef);
-      quality += b.quality;
-    }
-  }
-  if (!matchInfo1.empty()) {
-    match_t b = getBest(matchInfo1);
-    if (b.valid != 0) {
-      muon.addStub(b.stubRef, b.valid);
-      if (b.isGlobal)
-        muon.addMuonRef(b.muRef);
-      quality += b.quality;
-    }
-  }
-  if (!matchInfo2.empty()) {
-    match_t b = getBest(matchInfo2);
-    if (b.valid != 0) {
-      muon.addStub(b.stubRef, b.valid);
-      if (b.isGlobal)
-        muon.addMuonRef(b.muRef);
-      quality += b.quality;
-    }
-  }
-  if (!matchInfo3.empty()) {
-    match_t b = getBest(matchInfo3);
-    if (b.valid != 0) {
-      muon.addStub(b.stubRef, b.valid);
-      if (b.isGlobal)
-        muon.addMuonRef(b.muRef);
-      quality += b.quality;
-    }
-  }
-  if (!matchInfo4.empty()) {
-    match_t b = getBest(matchInfo4);
-    if (b.valid != 0) {
-      muon.addStub(b.stubRef, b.valid);
-      if (b.isGlobal)
-        muon.addMuonRef(b.muRef);
-      quality += b.quality;
-    }
-  }
+  for (auto&& m : matchInfos)
+    matchingInfos(m, muon, quality);
 
   muon.setOfflineQuantities(track.offline_pt(), track.offline_eta(), track.offline_phi());
   muon.setTrkPtr(track.trkPtr());
@@ -516,7 +480,6 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
   ap_uint<8> addr = ptAddr | (etaAddr << 4);
   ap_uint<8> qualityCut = lt_tpsID[addr];
 
-  //  if (quality >= qualityCut) {//change the ID for now
   if (!muon.stubs().empty()) {  //change the ID for now
     muon.setValid(true);
     muon.setQuality(quality + ptPenalty);
@@ -554,27 +517,28 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
 ap_uint<5> TPSAlgorithm::cleanMuon(const PreTrackMatchedMuon& mu, const PreTrackMatchedMuon& other, bool eq) {
   ap_uint<5> valid = 0;
   ap_uint<5> overlap = 0;
-  if (mu.stubID0() != 4095) {
+  constexpr int bittest = 0xfff;  // 4095, corresponding to 11bits
+  if (mu.stubID0() != bittest) {
     valid = valid | 0x1;
     if (mu.stubID0() == other.stubID0())
       overlap = overlap | 0x1;
   }
-  if (mu.stubID1() != 4095) {
+  if (mu.stubID1() != bittest) {
     valid = valid | 0x2;
     if (mu.stubID1() == other.stubID1())
       overlap = overlap | 0x2;
   }
-  if (mu.stubID2() != 4095) {
+  if (mu.stubID2() != bittest) {
     valid = valid | 0x4;
     if (mu.stubID2() == other.stubID2())
       overlap = overlap | 0x4;
   }
-  if (mu.stubID3() != 4095) {
+  if (mu.stubID3() != bittest) {
     valid = valid | 0x8;
     if (mu.stubID3() == other.stubID3())
       overlap = overlap | 0x8;
   }
-  if (mu.stubID4() != 4095) {
+  if (mu.stubID4() != bittest) {
     valid = valid | 0x10;
     if (mu.stubID4() == other.stubID4())
       overlap = overlap | 0x10;

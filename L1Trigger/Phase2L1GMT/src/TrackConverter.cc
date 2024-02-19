@@ -4,7 +4,7 @@ using namespace Phase2L1GMT;
 
 TrackConverter::TrackConverter(const edm::ParameterSet& iConfig) : verbose_(iConfig.getParameter<int>("verbose")) {}
 
-TrackConverter::~TrackConverter() {}
+TrackConverter::~TrackConverter() = default;
 
 std::vector<ConvertedTTTrack> TrackConverter::convertTracks(
     const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks) {
@@ -32,8 +32,6 @@ ConvertedTTTrack TrackConverter::convert(const edm::Ptr<TTTrack<Ref_Phase2Tracke
   ap_uint<BITSETA - 1> absEta = etaLUT[etaLookup(absTanL)];
   ap_int<BITSETA> eta = tanLambda > 0 ? ap_int<BITSETA>(absEta) : ap_int<BITSETA>(-absEta);
 
-  //ap_int<BITSPHI> phiSec = ap_int<BITSPHI>(phi) -
-  //                         ap_int<BITSPHI>((track->phiSector() * 40 * M_PI / 180.) * (1 << (BITSPHI - 1)) / (M_PI));
   ap_int<BITSPHI> phi = ap_int<BITSPHI>(phisec + track->phiSector() * 910);
 
   wordtype word = 0;

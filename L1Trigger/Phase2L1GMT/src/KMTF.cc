@@ -1,9 +1,10 @@
 #include "L1Trigger/Phase2L1GMT/interface/KMTF.h"
 using namespace Phase2L1GMT;
 
-KMTF::KMTF(int verbose, const edm::ParameterSet& iConfig) : verbose_(verbose), trackMaker_(new KMTFCore(iConfig)) {}
+KMTF::KMTF(int verbose, const edm::ParameterSet& iConfig)
+    : verbose_(verbose), trackMaker_(std::make_unique<KMTFCore>(iConfig)) {}
 
-KMTF::~KMTF() {}
+KMTF::~KMTF() = default;
 
 std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::process(
     const l1t::MuonStubRefVector& stubsAll, int bx, unsigned int MAXN) {
@@ -475,8 +476,3 @@ void KMTF::sort(std::vector<l1t::KMTFTrack>& in, bool vertex) {
   in = out;
 }
 
-//class SeedSorter {
-//public:
-  //SeedSorter() {}
-  //bool operator()(const l1t::MuonStubRef& a, const l1t::MuonStubRef& b) { return (a->id() < b->id()); }
-//};

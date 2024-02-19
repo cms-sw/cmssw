@@ -40,12 +40,8 @@ public:
   explicit Phase2L1TGMTKMTFProducer(const edm::ParameterSet&);
   ~Phase2L1TGMTKMTFProducer() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
@@ -75,7 +71,7 @@ Phase2L1TGMTKMTFProducer::Phase2L1TGMTKMTFProducer(const edm::ParameterSet& iCon
   produces<std::vector<l1t::KMTFTrack> >("kmtfTracks");
 }
 
-Phase2L1TGMTKMTFProducer::~Phase2L1TGMTKMTFProducer() {}
+Phase2L1TGMTKMTFProducer::~Phase2L1TGMTKMTFProducer() = default;
 
 //
 // member functions
@@ -159,25 +155,6 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.put(std::move(prompt_ptr), "prompt");
   iEvent.put(std::move(displaced_ptr), "displaced");
   iEvent.put(std::move(kmtf_ptr), "kmtfTracks");
-}
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void Phase2L1TGMTKMTFProducer::beginStream(edm::StreamID) {
-  // please remove this method if not needed
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void Phase2L1TGMTKMTFProducer::endStream() {
-  // please remove this method if not needed
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void Phase2L1TGMTKMTFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

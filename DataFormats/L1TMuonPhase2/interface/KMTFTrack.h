@@ -44,7 +44,7 @@ namespace l1t {
           rankDisp_(0),
           idFlag_(0) {}
 
-    ~KMTFTrack() = default;
+    ~KMTFTrack() override = default;
 
     KMTFTrack(const l1t::MuonStubRef& seed, int phi, int phiB)
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
@@ -301,8 +301,7 @@ namespace l1t {
           break;
 
         default:
-          throw cms::Exception("WrongCondition")
-            <<"Critical ERROR on setting the Kalman gain\n";
+          throw cms::Exception("WrongCondition") << "Critical ERROR on setting the Kalman gain\n";
       }
     }
 

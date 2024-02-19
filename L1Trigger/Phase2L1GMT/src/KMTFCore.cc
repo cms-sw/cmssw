@@ -77,7 +77,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       combinatorics = combos4_;
       break;
     default:
-      printf("Something really bad happend\n");
+      throw cms::Exception("KMTFCore") << "Something really bad happend\n";
   }
 
   l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed));
@@ -453,10 +453,6 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   int phiB = track.bendingAngle();
   unsigned int step = track.step();
 
-  //energy loss term only for MU->VERTEX
-  //int offset=int(charge*eLoss_[step-1]*K*K);
-  //  if (fabs(offset)>4096)
-  //      offset=4096*offset/fabs(offset);
   int charge = 1;
   if (K != 0)
     charge = K / fabs(K);

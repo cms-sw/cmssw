@@ -1,9 +1,5 @@
 #include "L1Trigger/Phase2L1GMT/interface/SAMuonCleaner.h"
 
-SAMuonCleaner::SAMuonCleaner() {}
-
-SAMuonCleaner::~SAMuonCleaner() {}
-
 void SAMuonCleaner::overlapCleanTrack(l1t::SAMuon& source, const l1t::SAMuon& other, bool eq) {
   int rank1 = source.hwQual();
   int rank2 = other.hwQual();

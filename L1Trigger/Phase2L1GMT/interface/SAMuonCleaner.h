@@ -1,9 +1,12 @@
+#ifndef L1Trigger_Phase2L1GMT_SAMuonCleaner_h
+#define L1Trigger_Phase2L1GMT_SAMuonCleaner_h
+
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 
 class SAMuonCleaner {
 public:
-  SAMuonCleaner();
-  ~SAMuonCleaner();
+  SAMuonCleaner() = default;
+  ~SAMuonCleaner() = default;
 
   std::vector<l1t::SAMuon> cleanTFMuons(const std::vector<l1t::SAMuon>& muons);
 
@@ -17,3 +20,5 @@ private:
   void swap(std::vector<l1t::SAMuon>&, int i, int j);
   void sort(std::vector<l1t::SAMuon>& in);
 };
+
+#endif
