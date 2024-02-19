@@ -3,11 +3,11 @@ process = cms.Process("TEST")
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('python')
-options.register('modules','Geometry/HGCalMapping/data/modulelocator_test.txt',mytype=VarParsing.varType.string,
+options.register('modules','Geometry/HGCalMapping/ModuleMaps/modulelocator_test.txt',mytype=VarParsing.varType.string,
                  info="Path to module mapper. Absolute, or relative to CMSSW src directory")
-options.register('sicells','Geometry/HGCalMapping/data/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
+options.register('sicells','Geometry/HGCalMapping/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
                  info="Path to Si cell mapper. Absolute, or relative to CMSSW src directory")
-options.register('sipmcells','Geometry/HGCalMapping/data/channels_sipmontile.hgcal.txt',mytype=VarParsing.varType.string,
+options.register('sipmcells','Geometry/HGCalMapping/CellMaps/channels_sipmontile.hgcal.txt',mytype=VarParsing.varType.string,
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
 
