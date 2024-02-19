@@ -18,7 +18,6 @@
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/Utilities"/>
 <use   name="PhysicsTools/IsolationAlgos"/>
-<use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/TensorFlow"/>
 <use   name="PhysicsTools/ONNXRuntime"/>
 <use   name="Geometry/CaloTopology"/>
