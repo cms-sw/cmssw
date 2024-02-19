@@ -20,6 +20,7 @@ class GluedGeomDet;
 #include <cfloat>
 #include <functional>
 #include <memory>
+#include <vector>
 
 class SiStripRecHitMatcher {
 public:
@@ -88,7 +89,7 @@ public:
   void match(const SiStripRecHit2D* monoRH,
              SimpleHitIterator begin,
              SimpleHitIterator end,
-             edm::OwnVector<SiStripMatchedRecHit2D>& collector,
+             std::vector<std::unique_ptr<SiStripMatchedRecHit2D>>& collector,
              const GluedGeomDet* gluedDet,
              LocalVector trackdirection) const;
 
