@@ -84,6 +84,8 @@ namespace edmtest {
     const unsigned int secondsToWaitForWork_;
     std::vector<TestValue*> uniqueTestPointers_;
     std::vector<TestValue*> optionalTestPointers_;
+    std::vector<TestValue*> lambdaUniqueTestPointers_;
+    std::vector<TestValue*> lambdaOptionalTestPointers_;
   };
 
   AcquireIntESProducer::AcquireIntESProducer(edm::ParameterSet const& pset)
@@ -103,6 +105,42 @@ namespace edmtest {
                             &AcquireIntESProducer::acquireOptional,
                             &AcquireIntESProducer::produceOptional,
                             edm::es::Label("optional"));
+
+    setWhatAcquiredProducedWithLambda(
+        [this](ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
+          usleep(200000);
+          auto returnValue = std::make_unique<TestValue>(kAcquireTestValueUniquePtr1);
+          lambdaUniqueTestPointers_[record.iovIndex()] = returnValue.get();
+          return returnValue;
+        },
+        [this](ESTestRecordI const& record, auto testValue) {
+          usleep(200000);
+          if (testValue.get() != lambdaUniqueTestPointers_[record.iovIndex()]) {
+            throw cms::Exception("TestFailure") << "AcquireIntESProducer::<lambda produceUniquePtr>"
+                                                << " unexpected value passed in as argument";
+          }
+          return std::make_unique<ESTestDataI>(kAcquireTestValueUniquePtr2);
+        },
+        edm::es::Label("uniquePtrLambda"));
+
+    setWhatAcquiredProducedWithLambda(
+        [this](ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
+          usleep(200000);
+          std::vector<TestValue> testVector;
+          testVector.push_back(kAcquireTestValueOptional1);
+          auto returnValue = std::make_optional<std::vector<TestValue>>(std::move(testVector));
+          lambdaOptionalTestPointers_[record.iovIndex()] = &returnValue.value()[0];
+          return returnValue;
+        },
+        [this](ESTestRecordI const& record, std::optional<std::vector<TestValue>> testValue) {
+          usleep(200000);
+          if (&testValue.value()[0] != lambdaOptionalTestPointers_[record.iovIndex()]) {
+            throw cms::Exception("TestFailure") << "AcquireIntESProducer::<lambda produceOptional>"
+                                                << " unexpected value passed in as argument";
+          }
+          return std::make_unique<ESTestDataI>(kAcquireTestValueOptional2);
+        },
+        edm::es::Label("optionalLambda"));
   }
 
   AcquireIntESProducer::~AcquireIntESProducer() {
@@ -120,6 +158,8 @@ namespace edmtest {
       server_->start();
       uniqueTestPointers_.resize(nConcurrentIOVs);
       optionalTestPointers_.resize(nConcurrentIOVs);
+      lambdaUniqueTestPointers_.resize(nConcurrentIOVs);
+      lambdaOptionalTestPointers_.resize(nConcurrentIOVs);
     }
   }
 
