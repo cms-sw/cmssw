@@ -252,7 +252,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepFlavourSeq
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloMETReconstruction_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDiphoton3023IsoCaloIdL1SeededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDiphoton3023IsoCaloIdUnseededSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDiphoton3024IsoCaloIdUnseededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDoFullUnpackingEgammaEcalL1SeededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDoFullUnpackingEgammaEcalSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDoLocalHcalSequence_cfi")
