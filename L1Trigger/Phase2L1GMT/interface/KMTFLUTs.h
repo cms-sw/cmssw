@@ -106,7 +106,6 @@ namespace Phase2L1GMT {
     }
 
     uint coarseEta(uint mask) {
-      //    printf("histo=%f  out=%d\n\n",coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask)),uint((1<<12)*coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask))/M_PI));
       return uint((1 << 12) * coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask)) / M_PI);
     }
 

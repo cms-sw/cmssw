@@ -1,5 +1,5 @@
-#ifndef PHASE2GMT_TRACKCONVERTER
-#define PHASE2GMT_TRACKCONVERTER
+#ifndef L1Trigger_Phase2L1GMT_TrackConverter_h
+#define L1Trigger_Phase2L1GMT_TrackConverter_h
 
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"

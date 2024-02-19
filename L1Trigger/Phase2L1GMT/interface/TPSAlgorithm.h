@@ -1,5 +1,5 @@
-#ifndef PHASE2GMT_TPSALGORITHM
-#define PHASE2GMT_TPSALGORITHM
+#ifndef L1Trigger_Phase2GMT_TPSAlgorithm_h
+#define L1Trigger_Phase2GMT_TPSAlgorithm_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
@@ -68,6 +68,7 @@ namespace Phase2L1GMT {
     match_t getBest(const std::vector<match_t> matches);
     PreTrackMatchedMuon processTrack(const ConvertedTTTrack&, const l1t::MuonStubRefVector&);
     ap_uint<5> cleanMuon(const PreTrackMatchedMuon& mu, const PreTrackMatchedMuon& other, bool eq);
+    void matchingInfos(std::vector<match_t> matchInfo, PreTrackMatchedMuon& muon, ap_uint<BITSMATCHQUALITY>& quality);
     std::vector<PreTrackMatchedMuon> clean(std::vector<PreTrackMatchedMuon>& muons);
   };
 }  // namespace Phase2L1GMT

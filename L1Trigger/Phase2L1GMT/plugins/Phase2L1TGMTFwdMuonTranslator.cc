@@ -27,12 +27,9 @@ class Phase2L1TGMTFwdMuonTranslator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTFwdMuonTranslator(const edm::ParameterSet&);
   ~Phase2L1TGMTFwdMuonTranslator() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   l1t::SAMuon Convertl1tMuon(const l1t::Muon& mu, const int bx_);
   l1t::MuonStubRefVector selectLayerBX(const l1t::MuonStubRefVector& all, int bx, uint layer);
@@ -59,7 +56,7 @@ Phase2L1TGMTFwdMuonTranslator::Phase2L1TGMTFwdMuonTranslator(const edm::Paramete
   produces<std::vector<l1t::SAMuon> >("prompt").setBranchAlias("prompt");
 }
 
-Phase2L1TGMTFwdMuonTranslator::~Phase2L1TGMTFwdMuonTranslator() {}
+Phase2L1TGMTFwdMuonTranslator::~Phase2L1TGMTFwdMuonTranslator() = default;
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -76,6 +73,8 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   }
 
   std::vector<SAMuon> prompt;
+
+  //  TODO: Will receive hybrid stubs from OMTF/EMTF
   //  std::vector<l1t::MuonStub> hybridStubs;
   //  edm::RefProd stubRefProd = iEvent.getRefBeforePut<std::vector<l1t::MuonStub> >("hybridStubs");
   //  l1t::MuonStubRef::key_type idxStub =0;
@@ -122,6 +121,7 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon(const l1t::Muon& mu, const 
   bstart = wordconcat<wordtype>(word, bstart, qual, 8);
 
   SAMuon samuon(mu.p4(), charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());
+  // TFMuonIndex() from Phase-1 uGMT. Will update this interface
   if (mu.tfMuonIndex() >= 0 && mu.tfMuonIndex() <= 17)
     samuon.setTF(tftype::emtf_pos);
   else if (mu.tfMuonIndex() >= 18 && mu.tfMuonIndex() <= 35)
@@ -174,25 +174,6 @@ void Phase2L1TGMTFwdMuonTranslator::associateStubs(l1t::SAMuon& mu, const l1t::M
       mu.addStub(selectedStubs[bestStubINT]);
     }
   }
-}
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void Phase2L1TGMTFwdMuonTranslator::beginStream(edm::StreamID) {
-  // please remove this method if not needed
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void Phase2L1TGMTFwdMuonTranslator::endStream() {
-  // please remove this method if not needed
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void Phase2L1TGMTFwdMuonTranslator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

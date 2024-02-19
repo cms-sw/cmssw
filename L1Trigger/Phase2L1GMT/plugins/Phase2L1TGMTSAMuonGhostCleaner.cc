@@ -26,12 +26,9 @@ class Phase2L1TGMTSAMuonGhostCleaner : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTSAMuonGhostCleaner(const edm::ParameterSet&);
   ~Phase2L1TGMTSAMuonGhostCleaner() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > barrelTokenPrompt_;
@@ -59,7 +56,7 @@ Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::Parame
   produces<std::vector<l1t::SAMuon> >("displaced");
 }
 
-Phase2L1TGMTSAMuonGhostCleaner::~Phase2L1TGMTSAMuonGhostCleaner() {}
+Phase2L1TGMTSAMuonGhostCleaner::~Phase2L1TGMTSAMuonGhostCleaner() = default;
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -121,25 +118,6 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
   std::unique_ptr<std::vector<l1t::SAMuon> > disp_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalDisp);
   iEvent.put(std::move(prompt_ptr), "prompt");
   iEvent.put(std::move(disp_ptr), "displaced");
-}
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void Phase2L1TGMTSAMuonGhostCleaner::beginStream(edm::StreamID) {
-  // please remove this method if not needed
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void Phase2L1TGMTSAMuonGhostCleaner::endStream() {
-  // please remove this method if not needed
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void Phase2L1TGMTSAMuonGhostCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(Phase2L1TGMTSAMuonGhostCleaner);
