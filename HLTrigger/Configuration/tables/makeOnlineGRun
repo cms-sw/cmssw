@@ -3,7 +3,7 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_13_0_0/HLT"                 # no version, take the latest one
+MASTER="/dev/CMSSW_14_0_0/HLT"                 # no version, take the latest one
 TARGET="/online/collisions/2023/2e34/v1.2/HLT" # where to store the online-compliant menu
 TABLES="online_grun"
 
