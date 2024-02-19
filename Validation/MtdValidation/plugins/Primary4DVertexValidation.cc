@@ -253,6 +253,7 @@ private:
   bool use_only_charged_tracks_;
   bool debug_;
   bool optionalPlots_;
+  bool use3dNoTime_;
 
   const double minProbHeavy_;
   const double trackweightTh_;
@@ -454,6 +455,7 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       debug_(iConfig.getUntrackedParameter<bool>("debug")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
+      use3dNoTime_(iConfig.getUntrackedParameter<bool>("use3dNoTime")),
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
       trackweightTh_(iConfig.getParameter<double>("trackweightTh")),
       mvaTh_(iConfig.getParameter<double>("mvaTh")),
@@ -1001,7 +1003,7 @@ void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Trac
       countScale0++;
     }
     if (scale != 0) {
-    fjInputs_.push_back(fastjet::PseudoJet(recotr.px() * scale, recotr.py() * scale, recotr.pz() * scale, std::sqrt(recotr.p() * recotr.p() + mass * mass) * scale));
+      fjInputs_.push_back(fastjet::PseudoJet(recotr.px() * scale, recotr.py() * scale, recotr.pz() * scale, std::sqrt(recotr.p() * recotr.p() + mass * mass) * scale));
     }
   }
   fastjet::ClusterSequence sequence(fjInputs_, fastjet::JetDefinition(fastjet::antikt_algorithm, 0.4));
@@ -1542,14 +1544,16 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             bool no_PID, is_Pi, is_K, is_P;
             int PartID = 211; // pion
             isParticle(*iTrack, minProbHeavy_, probPi, probK, probP, no_PIDtype, no_PID, is_Pi, is_K, is_P);
-            if (no_PID || is_Pi) {
-              PartID = 211;
-            }
-            else if (is_K) {
-              PartID = 321;
-            }
-            else if (is_P) {
-              PartID = 2212;
+            if (!use3dNoTime_) {
+              if (no_PID || is_Pi) {
+                PartID = 211;
+              }
+              else if (is_K) {
+                PartID = 321;
+              }
+              else if (is_P) {
+                PartID = 2212;
+              }
             }
             const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
             double mass = PData->mass().value();
@@ -2119,6 +2123,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("useOnlyChargedTracks", true);
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("optionalPlots", false);
+  desc.addUntracked<bool>("use3dNoTime", false);
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.01);
   desc.add<double>("minProbHeavy", 0.75);
