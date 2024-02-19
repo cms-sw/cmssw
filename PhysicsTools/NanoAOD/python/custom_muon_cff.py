@@ -329,12 +329,21 @@ def AddTriggerObjectBits(process):
 
     return process
 
+def IncreaseGenPrecesion(process):
+    
+    process.genParticleTable.variables.pt = Var("pt",  float, precision=16)
+    process.genParticleTable.variables.eta = Var("eta",  float,precision=16)
+    process.genParticleTable.variables.phi = Var("phi", float,precision=16)
+    
+    return process
+
 def PrepMuonCustomNanoAOD(process):
     
     process = Custom_Muon_Task(process)
     process = AddPFTracks(process)
     process = AddVariablesForMuon(process)
     process = AddTriggerObjectBits(process)
+    process = IncreaseGenPrecesion(process)
 
 
     return process
