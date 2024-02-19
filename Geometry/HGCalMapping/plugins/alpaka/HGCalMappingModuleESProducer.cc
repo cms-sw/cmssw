@@ -36,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<std::string>("filename", "Geometry/HGCalMapping/data/modulelocator.txt");
+        desc.add<std::string>("filename", "Geometry/HGCalMapping/ModuleMaps/modulelocator.txt");
         desc.add<edm::ESInputTag>("moduleindexer", edm::ESInputTag(""))->setComment("Dense module index tool");
         descriptions.addWithDefaultLabel(desc);
       }
