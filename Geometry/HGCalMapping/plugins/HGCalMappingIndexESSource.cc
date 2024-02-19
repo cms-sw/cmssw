@@ -44,9 +44,9 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("modules", "Geometry/HGCalMapping/data/modulelocator.txt");
-    desc.add<std::string>("si", "Geometry/HGCalMapping/data/WaferCellMapTraces.txt");
-    desc.add<std::string>("sipm", "Geometry/HGCalMapping/data/channels_sipmontile.hgcal.txt");
+    desc.add<std::string>("modules", "Geometry/HGCalMapping/ModuleMaps/modulelocator.txt");
+    desc.add<std::string>("si", "Geometry/HGCalMapping/CellMaps/WaferCellMapTraces.txt");
+    desc.add<std::string>("sipm", "Geometry/HGCalMapping/CellMaps/channels_sipmontile.hgcal.txt");
     descriptions.addWithDefaultLabel(desc);
   }
 
