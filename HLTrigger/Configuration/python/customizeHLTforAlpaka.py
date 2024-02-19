@@ -66,13 +66,8 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     process.hltPFRecHitSoAProducerHCALCPUSerial = makeSerialClone(process.hltPFRecHitSoAProducerHCAL)
 
-
     process.hltLegacyPFRecHitProducer = cms.EDProducer("LegacyPFRecHitProducer",
             src = cms.InputTag("hltPFRecHitSoAProducerHCAL")
-            )
-
-    process.hltLegacyPFRecHitProducerCPUSerial = process.hltLegacyPFRecHitProducer.clone(
-            src = cms.InputTag("hltPFRecHitSoAProducerHCALCPUSerial")
             )
 
     process.hltPFClusterParamsESProducer = cms.ESProducer("PFClusterParamsESProducer@alpaka",
@@ -204,6 +199,7 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
             PFRecHitsLabelIn = cms.InputTag("hltPFRecHitSoAProducerHCAL")
             )
 
+
     #Same as default except change the clusterSource
     process.hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
             clustersSource = cms.InputTag("hltLegacyPFClusterProducer"),
@@ -217,18 +213,16 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
     process.HLTPFHcalRecHits = cms.Sequence(
             process.hltHBHERecHitToSoA+
             process.hltPFRecHitSoAProducerHCAL+
-            process.hltPFRecHitSoAProducerHCALCPUSerial+
-            process.hltLegacyPFRecHitProducer+
-            process.hltLegacyPFRecHitProducerCPUSerial
+            process.hltLegacyPFRecHitProducer
             )
 
     process.HLTPFHcalClustering = cms.Sequence(
             process.HLTPFHcalRecHits+
             process.hltPFClusterSoAProducer+
-            process.hltPFClusterSoAProducerCPUSerial+
             process.hltLegacyPFClusterProducer+
             process.hltParticleFlowClusterHCAL
             )
+
 
     #Some Sequences contain all the modules of process.HLTPFHcalClustering Sequence instead of the Sequence itself
     #find these Sequences and replace all the modules with the Sequence
@@ -248,6 +242,21 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     itemsList = [process.hltParticleFlowRecHitHBHE, process.hltParticleFlowClusterHBHE,process.hltParticleFlowClusterHCAL]
     process = replaceItemsInSequence(process, itemsList, process.HLTPFHcalClustering)
+
+    process.HLTPFClusterHBHECPUSerial = cms.Sequence(process.hltHBHERecHitToSoA+process.hltPFRecHitSoAProducerHCALCPUSerial+process.hltPFClusterSoAProducerCPUSerial)
+
+    # Add CPUSerial sequences to DQM_HcalReconstruction_v6 Path
+    dqmHcalRecoPathName = "DQM_HcalReconstruction_v6"
+    dqmHcalPath= getattr(process, dqmHcalRecoPathName)
+    dqmHcalRecoPathIndex = dqmHcalPath.index(process.hltHcalConsumerGPU) + 1
+    dqmHcalPath.insert(dqmHcalRecoPathIndex , process.HLTPFClusterHBHECPUSerial)
+
+    # modify EventContent of DQMGPUvsCPU stream
+    if hasattr(process, 'hltOutputDQMGPUvsCPU'):
+        process.hltOutputDQMGPUvsCPU.outputCommands.extend([
+            'keep *_hltPFClusterSoAProducer_*_*',
+            'keep *_hltPFClusterSoAProducerCPUSerial_*_*',
+        ])
 
     return process
 
