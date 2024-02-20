@@ -81,124 +81,134 @@ run2_nanoAOD_ANY.toModify(
 # Customization sequences and functions
 #
 # electrons
-electronTimeLifeInfos = patElectronTimeLifeInfoProducer.clone(
-    selection = 'pt > 15',
-    pvSource = prod_common.pvSource,
-    pvChoice = prod_common.pvChoice
-)
-vars = cms.PSet(
+electronVars = cms.PSet(
     ipVars,
     trackVars
 )
-for var in vars.parameters_():
-    setattr(getattr(vars, var), "src", cms.InputTag("electronTimeLifeInfos"))
-electronTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
-    doc = cms.string("Additional time-life info for non-prompt electrons"),
-    extension = True,
-    externalTypedVariables = vars
-)
-electronTimeLifeInfoTask = cms.Task(
-    electronTimeLifeInfos,
-    electronTimeLifeInfoTable
-)
-# refit PV with beam-spot constraint that is not present in Run-2 samples
-_electronTimeLifeInfoTaskRun2 = electronTimeLifeInfoTask.copy()
-_electronTimeLifeInfoTaskRun2.add(refittedPV)
-run2_nanoAOD_ANY.toReplaceWith(electronTimeLifeInfoTask, _electronTimeLifeInfoTaskRun2)
+for var in electronVars.parameters_():
+    setattr(getattr(electronVars, var), "src", cms.InputTag("electronTimeLifeInfos"))
 def addTimeLifeInfoToElectrons(process):
-    process.electronTimeLifeInfoTable.name = process.electronTable.name
-    process.electronTimeLifeInfoTable.src = process.electronTable.src
-    process.electronTimeLifeInfos.src = process.electronTable.src
+    process.electronTimeLifeInfos = patElectronTimeLifeInfoProducer.clone(
+        src = process.electronTable.src,
+        selection = 'pt > 15',
+        pvSource = prod_common.pvSource,
+        pvChoice = prod_common.pvChoice
+    )
+    process.electronTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+        name = process.electronTable.name,
+        src = process.electronTable.src,
+        doc = cms.string("Additional time-life info for non-prompt electrons"),
+        extension = True,
+        externalTypedVariables = electronVars
+    )
+    process.electronTimeLifeInfoTask = cms.Task(
+        process.electronTimeLifeInfos,
+        process.electronTimeLifeInfoTable
+    )
+    # refit PV with beam-spot constraint that is not present in Run-2 samples
+    if not hasattr(process,'refittedPV'):
+        setattr(process,'refittedPV',refittedPV)
+    _electronTimeLifeInfoTaskRun2 = process.electronTimeLifeInfoTask.copy()
+    _electronTimeLifeInfoTaskRun2.add(process.refittedPV)
+    run2_nanoAOD_ANY.toReplaceWith(process.electronTimeLifeInfoTask,
+                                   _electronTimeLifeInfoTaskRun2)
     process.electronTablesTask.add(process.electronTimeLifeInfoTask)
     return process
 
 # muons
-muonTimeLifeInfos = patMuonTimeLifeInfoProducer.clone(
-    selection = 'pt > 15',
-    pvSource = prod_common.pvSource,
-    pvChoice = prod_common.pvChoice
-)
-vars = cms.PSet(
+muonVars = cms.PSet(
     ipVars,
     trackVars
 )
-for var in vars.parameters_():
-    setattr(getattr(vars, var), "src", cms.InputTag("muonTimeLifeInfos"))
-muonTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
-    doc = cms.string("Additional time-life info for non-prompt muon"),
-    extension = True,
-    externalTypedVariables = vars
-)
-muonTimeLifeInfoTask = cms.Task(
-    muonTimeLifeInfos,
-    muonTimeLifeInfoTable
-)
-# refit PV with beam-spot constraint that is not present in Run-2 samples
-_muonTimeLifeInfoTaskRun2 = muonTimeLifeInfoTask.copy()
-_muonTimeLifeInfoTaskRun2.add(refittedPV)
-run2_nanoAOD_ANY.toReplaceWith(muonTimeLifeInfoTask, _muonTimeLifeInfoTaskRun2)
+for var in muonVars.parameters_():
+    setattr(getattr(muonVars, var), "src", cms.InputTag("muonTimeLifeInfos"))
 def addTimeLifeInfoToMuons(process):
-    process.muonTimeLifeInfoTable.name = process.muonTable.name
-    process.muonTimeLifeInfoTable.src = process.muonTable.src
-    process.muonTimeLifeInfos.src = process.muonTable.src
+    process.muonTimeLifeInfos = patMuonTimeLifeInfoProducer.clone(
+        src = process.muonTable.src,
+        selection = 'pt > 15',
+        pvSource = prod_common.pvSource,
+        pvChoice = prod_common.pvChoice
+    )
+    process.muonTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+        name = process.muonTable.name,
+        src = process.muonTable.src,
+        doc = cms.string("Additional time-life info for non-prompt muon"),
+        extension = True,
+        externalTypedVariables = muonVars
+    )
+    process.muonTimeLifeInfoTask = cms.Task(
+        process.muonTimeLifeInfos,
+        process.muonTimeLifeInfoTable
+    )
+    # refit PV with beam-spot constraint that is not present in Run-2 samples
+    if not hasattr(process,'refittedPV'):
+        setattr(process,'refittedPV',refittedPV)
+    _muonTimeLifeInfoTaskRun2 = process.muonTimeLifeInfoTask.copy()
+    _muonTimeLifeInfoTaskRun2.add(process.refittedPV)
+    run2_nanoAOD_ANY.toReplaceWith(process.muonTimeLifeInfoTask,
+                                   _muonTimeLifeInfoTaskRun2)
     process.muonTablesTask.add(process.muonTimeLifeInfoTask)
     return process
 
 # taus
-tauTimeLifeInfos = patTauTimeLifeInfoProducer.clone(
-    pvSource = prod_common.pvSource,
-    pvChoice = prod_common.pvChoice
-)
-vars = cms.PSet(
+tauVars = cms.PSet(
     svVars,
     ipVars,
     trackVars
 )
-for var in vars.parameters_():
-    setattr(getattr(vars, var), "src", cms.InputTag("tauTimeLifeInfos"))
-tauTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
-    doc = cms.string("Additional tau time-life info"),
-    extension = True,
-    externalTypedVariables = vars
-)
-tauTimeLifeInfoTask = cms.Task(
-    tauTimeLifeInfos,
-    tauTimeLifeInfoTable
-)
-# refit PV with beam-spot constraint that is not present in Run-2 samples
-_tauTimeLifeInfoTaskRun2 = tauTimeLifeInfoTask.copy()
-_tauTimeLifeInfoTaskRun2.add(refittedPV)
-run2_nanoAOD_ANY.toReplaceWith(tauTimeLifeInfoTask,_tauTimeLifeInfoTaskRun2)
+for var in tauVars.parameters_():
+    setattr(getattr(tauVars, var), "src", cms.InputTag("tauTimeLifeInfos"))
 def addTimeLifeInfoToTaus(process):
-    process.tauTimeLifeInfoTable.name = process.tauTable.name
-    process.tauTimeLifeInfoTable.src = process.tauTable.src
-    process.tauTimeLifeInfos.src = process.tauTable.src
+    process.tauTimeLifeInfos = patTauTimeLifeInfoProducer.clone(
+        src = process.tauTable.src,
+        pvSource = prod_common.pvSource,
+        pvChoice = prod_common.pvChoice
+    )
+    process.tauTimeLifeInfoTable = simpleCandidate2TrackTimeLifeInfoFlatTableProducer.clone(
+        name = process.tauTable.name,
+        src = process.tauTable.src,
+        doc = cms.string("Additional tau time-life info"),
+        extension = True,
+        externalTypedVariables = tauVars
+    )
+    process.tauTimeLifeInfoTask = cms.Task(
+        process.tauTimeLifeInfos,
+        process.tauTimeLifeInfoTable
+    )
+    # refit PV with beam-spot constraint that is not present in Run-2 samples
+    if not hasattr(process,'refittedPV'):
+        setattr(process,'refittedPV',refittedPV)
+    _tauTimeLifeInfoTaskRun2 = process.tauTimeLifeInfoTask.copy()
+    _tauTimeLifeInfoTaskRun2.add(process.refittedPV)
+    run2_nanoAOD_ANY.toReplaceWith(process.tauTimeLifeInfoTask,
+                                   _tauTimeLifeInfoTaskRun2)
     process.tauTablesTask.add(process.tauTimeLifeInfoTask)
     return process
 
 # Vertices
-pvbsTable = simpleVertexFlatTableProducer.clone(
-    src = prod_common.pvSource,
-    name = "PVBS",
-    doc = "main primary vertex with beam-spot",
-    maxLen = 1,
-    variables = cms.PSet(
-        pvCovVars,
-        x = Var("position().x()", float, doc = "position x coordinate, in cm", precision = 10),
-        y = Var("position().y()", float, doc = "position y coordinate, in cm", precision = 10),
-        z = Var("position().z()", float, doc = "position z coordinate, in cm", precision = 16),
-        ndof = Var("ndof()", float, doc = "number of degrees of freedom", precision = 8),
-        chi2 = Var("normalizedChi2()", float, doc = "reduced chi2, i.e. chi2/ndof", precision = 8),
-    ),
-)
-pvbsTableTask = cms.Task(pvbsTable)
-# refit PV with beam-spot constraint that is not present in Run-2 samples
-_pvbsTableTaskRun2 = pvbsTableTask.copy()
-_pvbsTableTaskRun2.add( refittedPV )
-run2_nanoAOD_ANY.toReplaceWith(
-    pvbsTableTask, _pvbsTableTaskRun2
-)
 def addExtendVertexInfo(process):
+    process.pvbsTable = simpleVertexFlatTableProducer.clone(
+        src = prod_common.pvSource,
+        name = "PVBS",
+        doc = "main primary vertex with beam-spot",
+        maxLen = 1,
+        variables = cms.PSet(
+            pvCovVars,
+            x = Var("position().x()", float, doc = "position x coordinate, in cm", precision = 10),
+            y = Var("position().y()", float, doc = "position y coordinate, in cm", precision = 10),
+            z = Var("position().z()", float, doc = "position z coordinate, in cm", precision = 16),
+            ndof = Var("ndof()", float, doc = "number of degrees of freedom", precision = 8),
+            chi2 = Var("normalizedChi2()", float, doc = "reduced chi2, i.e. chi2/ndof", precision = 8),
+        ),
+    )
+    process.pvbsTableTask = cms.Task(process.pvbsTable)
+    # refit PV with beam-spot constraint that is not present in Run-2 samples
+    if not hasattr(process,'refittedPV'):
+        setattr(process,'refittedPV',refittedPV)
+    _pvbsTableTaskRun2 = process.pvbsTableTask.copy()
+    _pvbsTableTaskRun2.add(process.refittedPV)
+    run2_nanoAOD_ANY.toReplaceWith(process.pvbsTableTask,
+                                   _pvbsTableTaskRun2)
     process.vertexTablesTask.add(process.pvbsTableTask)
     return process
 

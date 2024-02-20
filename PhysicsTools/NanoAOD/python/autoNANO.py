@@ -37,7 +37,6 @@ autoNANO = {
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'},
     # Add lepton time-life info tables through customize combined with PHYS
-    'AddLepTimeLife' : {'customize': 'addTimeLifeInfo'},
     'LepTimeLife' : {'sequence': '@PHYS',
-                     'customize': '@PHYS+@AddLepTimeLife'},
+                     'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
 }
