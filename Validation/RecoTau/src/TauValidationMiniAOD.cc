@@ -504,7 +504,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  std::cout<<" >>> TauValidationMiniAOD >>>"<<std::endl;
   // create a handle to the tau collection
   edm::Handle<pat::TauCollection> taus;
   bool isTau = iEvent.getByToken(tauCollection_, taus);
