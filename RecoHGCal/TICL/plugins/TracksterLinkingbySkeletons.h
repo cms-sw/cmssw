@@ -51,14 +51,14 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<double>("track_time_quality_threshold", 0.5);
       iDesc.add<double>("wind", 1.5);
-      iDesc.add<double>("angle0", 1.523599);
-      iDesc.add<double>("angle1", 1.349006);
-      iDesc.add<double>("angle2", 1.174532);
-      iDesc.add<double>("maxConeHeight", 500.);
-      iDesc.add<double>("pcaQuality", 0.97);
-      iDesc.add<unsigned int>("pcaQualityLCSize", 5);
-      iDesc.add<double>("dotProdCut", 0.975);
-      iDesc.add<double>("maxDistSkeletonsSq", 2500.);
+      iDesc.add<unsigned int>("min_num_lcs", 7);
+      iDesc.add<double>("min_trackster_energy", 5.);
+      iDesc.add<double>("pca_quality_th", 0.9);
+      iDesc.add<double>("alignement_projective_th", 3);
+      iDesc.add<double>("dot_prod_th", 0.97);
+      iDesc.add<double>("min_distance_z", 10.);
+      iDesc.add<double>("max_distance_closest_points", 50);
+      iDesc.add<double>("max_z_distance_closest_ponts", 20.);
       TracksterLinkingAlgoBase::fillPSetDescription(iDesc);
     }
 
@@ -71,14 +71,15 @@ namespace ticl {
 
     float timing_quality_threshold_;
     float del_;
-    float angle_first_cone_;
-    float angle_second_cone_;
-    float angle_third_cone_;
-    float pcaQ_;
-    unsigned int pcaQLCSize_;
-    float dotCut_;
-    float maxDistSkeletonsSq_;
-    float max_height_cone_;
+    unsigned int min_num_lcs_;
+    float min_trackster_energy_;
+    float pca_quality_th_;
+    float alignement_projective_th_;
+    float dot_prod_th_;
+    float min_distance_z_;
+    float max_distance_closest_points_;
+    float max_z_distance_closest_ponts_;
+
     const HGCalDDDConstants* hgcons_;
 
     std::unique_ptr<GeomDet> firstDisk_[2];
