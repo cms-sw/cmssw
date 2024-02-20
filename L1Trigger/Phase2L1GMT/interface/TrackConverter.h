@@ -11,7 +11,7 @@ namespace Phase2L1GMT {
   class TrackConverter {
   public:
     TrackConverter(const edm::ParameterSet& iConfig);
-    ~TrackConverter();
+    ~TrackConverter() = default;
 
     std::vector<ConvertedTTTrack> convertTracks(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks);
 

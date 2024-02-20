@@ -10,8 +10,6 @@ TPS::TPS(const edm::ParameterSet& iConfig)
       tps_(new TPSAlgorithm(iConfig.getParameter<edm::ParameterSet>("trackMatching"))),
       isolation_(new Isolation(iConfig.getParameter<edm::ParameterSet>("isolation"))) {}
 
-TPS::~TPS() = default;
-
 std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks,
                                                 const l1t::MuonStubRefVector& muonStubs) {
   //Split tracks to the links as they come

@@ -26,7 +26,7 @@ using namespace l1t;
 class Phase2L1TGMTFwdMuonTranslator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTFwdMuonTranslator(const edm::ParameterSet&);
-  ~Phase2L1TGMTFwdMuonTranslator() override;
+  ~Phase2L1TGMTFwdMuonTranslator() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -55,8 +55,6 @@ Phase2L1TGMTFwdMuonTranslator::Phase2L1TGMTFwdMuonTranslator(const edm::Paramete
       stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))) {
   produces<std::vector<l1t::SAMuon> >("prompt").setBranchAlias("prompt");
 }
-
-Phase2L1TGMTFwdMuonTranslator::~Phase2L1TGMTFwdMuonTranslator() = default;
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

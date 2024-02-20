@@ -4,8 +4,6 @@ using namespace Phase2L1GMT;
 
 TrackConverter::TrackConverter(const edm::ParameterSet& iConfig) : verbose_(iConfig.getParameter<int>("verbose")) {}
 
-TrackConverter::~TrackConverter() = default;
-
 std::vector<ConvertedTTTrack> TrackConverter::convertTracks(
     const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks) {
   std::vector<ConvertedTTTrack> out;
