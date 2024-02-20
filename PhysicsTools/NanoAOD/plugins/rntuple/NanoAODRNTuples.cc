@@ -10,7 +10,11 @@
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriteOptions;
 using ROOT::Experimental::RNTupleWriter;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
 using ROOT::Experimental::Detail::RPageSinkFile;
+#else
+using ROOT::Experimental::Internal::RPageSinkFile;
+#endif
 
 #include "RNTupleFieldPtr.h"
 #include "SummaryTableOutputFields.h"
