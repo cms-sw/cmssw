@@ -17,9 +17,9 @@ public:
 
   HGCalDenseIndexerBase(int n) : n_(n), maxIdx_(0), vmax_(n, 0) {}
 
-  HGCalDenseIndexerBase(std::vector<uint32_t> o) : n_(o.size()) { updateRanges(o); }
+  HGCalDenseIndexerBase(std::vector<uint32_t> const &o) : n_(o.size()) { updateRanges(o); }
 
-  void updateRanges(std::vector<uint32_t> o) {
+  void updateRanges(std::vector<uint32_t> const &o) {
     check(o.size());
     vmax_ = o;
     maxIdx_ = std::accumulate(vmax_.begin(), vmax_.end(), 1, std::multiplies<uint32_t>());
