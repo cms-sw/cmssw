@@ -25,7 +25,7 @@ using namespace l1t;
 class Phase2L1TGMTSAMuonGhostCleaner : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTSAMuonGhostCleaner(const edm::ParameterSet&);
-  ~Phase2L1TGMTSAMuonGhostCleaner() override;
+  ~Phase2L1TGMTSAMuonGhostCleaner() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -55,8 +55,6 @@ Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::Parame
   produces<std::vector<l1t::SAMuon> >("prompt");
   produces<std::vector<l1t::SAMuon> >("displaced");
 }
-
-Phase2L1TGMTSAMuonGhostCleaner::~Phase2L1TGMTSAMuonGhostCleaner() = default;
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

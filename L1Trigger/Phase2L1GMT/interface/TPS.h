@@ -11,7 +11,7 @@ namespace Phase2L1GMT {
   class TPS {
   public:
     TPS(const edm::ParameterSet& iConfig);
-    ~TPS();
+    ~TPS() = default;
     std::vector<l1t::TrackerMuon> processEvent(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >&,
                                                const l1t::MuonStubRefVector&);
 

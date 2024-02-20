@@ -38,7 +38,7 @@ using namespace l1t;
 class Phase2L1TGMTKMTFProducer : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTKMTFProducer(const edm::ParameterSet&);
-  ~Phase2L1TGMTKMTFProducer() override;
+  ~Phase2L1TGMTKMTFProducer() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -70,8 +70,6 @@ Phase2L1TGMTKMTFProducer::Phase2L1TGMTKMTFProducer(const edm::ParameterSet& iCon
   produces<std::vector<l1t::SAMuon> >("displaced").setBranchAlias("displaced");
   produces<std::vector<l1t::KMTFTrack> >("kmtfTracks");
 }
-
-Phase2L1TGMTKMTFProducer::~Phase2L1TGMTKMTFProducer() = default;
 
 //
 // member functions
