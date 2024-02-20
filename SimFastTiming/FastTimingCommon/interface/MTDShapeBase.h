@@ -21,8 +21,6 @@ public:
   double timeToRise() const override { return 0.; }
 
   std::array<float, 3> timeAtThr(const float scale, const float threshold1, const float threshold2) const;
-  float maximum() const;
-  float fallTime() const;
 
   static constexpr unsigned int kReadoutTimeInterval = 28;  // in nsec
   static constexpr unsigned int kNBinsPerNSec = 100;        // granularity of internal array
@@ -42,7 +40,6 @@ private:
   const double qNSecPerBin_;
   unsigned int indexOfMax_;
   double timeOfMax_;
-  float fallTime_;
   DVec shape_;
 };
 
