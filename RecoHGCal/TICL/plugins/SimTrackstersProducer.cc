@@ -28,6 +28,8 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimTrackster.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -85,6 +87,7 @@ private:
 
   const edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
+  const edm::EDGetTokenT<MtdSimTracksterCollection> MTDSimTrackstersToken_;
 
   const edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
   const edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
@@ -114,6 +117,7 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
       filtered_layerclusters_mask_token_(consumes(ps.getParameter<edm::InputTag>("filtered_mask"))),
       simclusters_token_(consumes(ps.getParameter<edm::InputTag>("simclusters"))),
       caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
+      MTDSimTrackstersToken_(consumes<MtdSimTracksterCollection>(ps.getParameter<edm::InputTag>("MtdSimTracksters"))),
       associatorMapSimClusterToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterSimClusterAssociator"))),
       associatorMapCaloParticleToReco_token_(
@@ -146,6 +150,7 @@ void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));
   desc.add<edm::InputTag>("simclusters", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("caloparticles", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("MtdSimTracksters", edm::InputTag("mix", "MergedMtdTruthST"));
   desc.add<edm::InputTag>("layerClusterSimClusterAssociator",
                           edm::InputTag("layerClusterSimClusterAssociationProducer"));
   desc.add<edm::InputTag>("layerClusterCaloParticleAssociator",
@@ -248,6 +253,9 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   edm::Handle<std::vector<CaloParticle>> caloParticles_h;
   evt.getByToken(caloparticles_token_, caloParticles_h);
   const auto& caloparticles = *caloParticles_h;
+
+  edm::Handle<MtdSimTracksterCollection> MTDSimTracksters_h;
+  evt.getByToken(MTDSimTrackstersToken_, MTDSimTracksters_h);
 
   const auto& simClustersToRecoColl = evt.get(associatorMapSimClusterToReco_token_);
   const auto& caloParticlesToRecoColl = evt.get(associatorMapCaloParticleToReco_token_);
@@ -422,6 +430,13 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   edm::OrphanHandle<std::vector<Trackster>> simTracksters_h = evt.put(std::move(result));
 
+  // map between simTrack and Mtd SimTracksters to loop on them only one
+  std::unordered_map<unsigned int, const MtdSimTrackster*> SimTrackToMtdST;
+  for (unsigned int i = 0; i < MTDSimTracksters_h->size(); ++i) {
+    const auto& simTrack = (*MTDSimTracksters_h)[i].g4Tracks()[0];
+    SimTrackToMtdST[simTrack.trackId()] = &((*MTDSimTracksters_h)[i]);
+  }
+
   result_ticlCandidates->resize(result_fromCP->size());
   std::vector<int> toKeep;
   for (size_t i = 0; i < simTracksters_h->size(); ++i) {
@@ -457,8 +472,15 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     float rawEnergy = 0.f;
     float regressedEnergy = 0.f;
 
-    cand.setTime(simVertices[cp.g4Tracks()[0].vertIndex()].position().t() * pow(10, 9));
-    cand.setTimeError(0);
+    const auto& simTrack = cp.g4Tracks()[0];
+    auto pos = SimTrackToMtdST.find(simTrack.trackId());
+    if (pos != SimTrackToMtdST.end()) {
+      auto MTDst = pos->second;
+      // TODO: once the associators have been implemented check if the MTDst is associated with a reco before adding the MTD time
+      cand.setMTDTime(MTDst->time(), 0);
+    }
+
+    cand.setTime(simVertices[cp.g4Tracks()[0].vertIndex()].position().t() * pow(10, 9), 0);
 
     for (const auto& trackster : cand.tracksters()) {
       rawEnergy += trackster->raw_energy();

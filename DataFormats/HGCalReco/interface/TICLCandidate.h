@@ -24,10 +24,12 @@ public:
 
   TICLCandidate(const edm::Ptr<ticl::Trackster>& trackster)
       : LeafCandidate(),
-        idProbabilities_{},
         tracksters_({trackster}),
+        idProbabilities_{},
         time_(trackster->time()),
         timeError_(trackster->timeError()),
+        MTDtime_{0.f},
+        MTDtimeError_{-1.f},
         rawEnergy_(0.f) {}
 
   TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
@@ -36,7 +38,7 @@ public:
       edm::LogError("TICLCandidate") << "At least one between track and trackster must be valid\n";
 
     if (tracksterPtr.isNonnull()) {
-      tracksters_.push_back(std::move(tracksterPtr));
+      tracksters_.push_back(tracksterPtr);
       auto const& trackster = tracksters_[0].get();
       idProbabilities_ = trackster->id_probabilities();
       if (trackPtr_.isNonnull()) {
@@ -79,8 +81,18 @@ public:
   inline float time() const { return time_; }
   inline float timeError() const { return timeError_; }
 
-  void setTime(float time) { time_ = time; };
-  void setTimeError(float timeError) { timeError_ = timeError; }
+  void setTime(float time, float timeError) {
+    time_ = time;
+    timeError_ = timeError;
+  };
+
+  inline float MTDtime() const { return MTDtime_; }
+  inline float MTDtimeError() const { return MTDtimeError_; }
+
+  void setMTDTime(float time, float timeError) {
+    MTDtime_ = time;
+    MTDtimeError_ = timeError;
+  };
 
   inline const edm::Ptr<reco::Track> trackPtr() const { return trackPtr_; }
   void setTrackPtr(const edm::Ptr<reco::Track>& trackPtr) { trackPtr_ = trackPtr; }
@@ -114,17 +126,17 @@ public:
   inline void setIdProbability(ParticleType type, float value) { idProbabilities_[int(type)] = value; }
 
 private:
-  std::array<float, 8> idProbabilities_;
+  // vector of Ptr so Tracksters can come from different collections
+  // and there can be derived classes
   std::vector<edm::Ptr<ticl::Trackster> > tracksters_;
   edm::Ptr<reco::Track> trackPtr_;
+  // Since it contains multiple tracksters, duplicate the probability interface
+  std::array<float, 8> idProbabilities_;
 
   float time_;
   float timeError_;
+  float MTDtime_;
+  float MTDtimeError_;
   float rawEnergy_;
-
-  // vector of Ptr so Tracksters can come from different collections
-  // and there can be derived classes
-
-  // Since it contains multiple tracksters, duplicate the probability interface
 };
 #endif

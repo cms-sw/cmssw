@@ -4,10 +4,9 @@ from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 
 from RecoHGCal.TICL.CLUE3DEM_cff import *
 from RecoHGCal.TICL.CLUE3DHAD_cff import *
-from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
+from RecoHGCal.TICL.pfTICLProducerV5_cfi import pfTICLProducerV5 as _pfTICLProducerV5
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
-from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
@@ -32,6 +31,7 @@ from RecoHGCal.TICL.CLUE3DHAD_cff import ticlTrackstersCLUE3DHAD
 from RecoHGCal.TICL.CLUE3DHighStep_cff import ticlTrackstersCLUE3DHigh
 from RecoHGCal.TICL.TrkEMStep_cff import ticlTrackstersTrkEM, filteredLayerClustersHFNoseTrkEM
 
+from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 
 def customiseForTICLv5(process, enableDumper = False):
 
@@ -66,6 +66,9 @@ def customiseForTICLv5(process, enableDumper = False):
         ticlCLUE3DHADStepTask,
     )
 
+    process.mtdSoA = _mtdSoAProducer.clone()
+    process.mtdSoATask = cms.Task(process.mtdSoA)
+
     process.ticlTracksterLinks = _tracksterLinksProducer.clone()
     process.ticlTracksterLinksTask = cms.Task(process.ticlTracksterLinks)
 
@@ -94,6 +97,7 @@ def customiseForTICLv5(process, enableDumper = False):
         label_tst = cms.InputTag("mergedTrackstersProducer")
         )
     process.iterTICLTask = cms.Task(process.ticlLayerTileTask,
+                                     process.mtdSoATask,
                                      process.ticlIterationsTask,
                                      process.ticlTracksterLinksTask,
                                      process.ticlCandidateTask)
@@ -106,7 +110,7 @@ def customiseForTICLv5(process, enableDumper = False):
     process.tracksterSimTracksterAssociationLinkingPU.label_tst = cms.InputTag("ticlTracksterLinks")
     process.tracksterSimTracksterAssociationPRPU.label_tst = cms.InputTag("ticlTracksterLinks")
     process.mergeTICLTask = cms.Task()
-    process.pfTICL.ticlCandidateSrc = cms.InputTag("ticlCandidate") 
+    process.pfTICL = _pfTICLProducerV5.clone()
     process.hgcalAssociators = cms.Task(process.mergedTrackstersProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,
@@ -139,7 +143,8 @@ def customiseForTICLv5(process, enableDumper = False):
             saveAssociations=True,
             trackstersclue3d = cms.InputTag('mergedTrackstersProducer'),
             ticlcandidates = cms.InputTag("ticlCandidate"),
-            trackstersmerged = cms.InputTag("ticlCandidate")
+            trackstersmerged = cms.InputTag("ticlCandidate"),
+            trackstersInCand = cms.InputTag("ticlCandidate")
         )
         process.TFileService = cms.Service("TFileService",
                                            fileName=cms.string("histo.root")

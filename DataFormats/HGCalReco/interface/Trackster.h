@@ -40,8 +40,8 @@ namespace ticl {
         : barycenter_({0.f, 0.f, 0.f}),
           regressed_energy_(0.f),
           raw_energy_(0.f),
-          time_(0.f),
           boundTime_(0.f),
+          time_(0.f),
           timeError_(-1.f),
           id_probabilities_{},
           raw_pt_(0.f),
@@ -176,8 +176,8 @@ namespace ticl {
     float regressed_energy_;
     float raw_energy_;
     // -99, -1 if not available. ns units otherwise
-    float time_;
     float boundTime_;
+    float time_;
     float timeError_;
 
     // trackster ID probabilities

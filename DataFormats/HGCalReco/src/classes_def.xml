@@ -1,6 +1,7 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="11">
+  <class name="ticl::Trackster" ClassVersion="12">
+    <version ClassVersion="12" checksum="2111726404"/>
     <version ClassVersion="11" checksum="2995118904"/>
     <version ClassVersion="10" checksum="556627704"/>
     <version ClassVersion="9" checksum="1001808235"/>
@@ -52,11 +53,30 @@
   <class name="edm::Wrapper<TICLSeedingRegion>" />
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
-  <class name="TICLCandidate" ClassVersion="4">
+  <class name="TICLCandidate" ClassVersion="5">
+   <version ClassVersion="5" checksum="2260471800"/>
    <version ClassVersion="4" checksum="3155265136"/>
    <version ClassVersion="3" checksum="450468662"/>
   </class>
   <class name="std::vector<TICLCandidate>" />
   <class name="edm::Wrapper<TICLCandidate>" />
   <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
+
+  <class name="MtdSoA"/>
+  <class name="MtdSoA::View"/>
+
+  <class name="MtdHostCollection"/>
+  <read
+    sourceClass="MtdHostCollection"
+    targetClass="MtdHostCollection"
+    version="[1-]"
+    source="MtdSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    MtdHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<MtdHostCollection>" splitLevel="0"/> 
+
 </lcgdict>

@@ -18,12 +18,14 @@ from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoHGCal.TICL.ticlCandidateProducer_cfi import ticlCandidateProducer as _ticlCandidateProducer
 
+from RecoHGCal.TICL.mtdSoAProducer_cfi import mtdSoAProducer as _mtdSoAProducer
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
 ticlTracksterLinks = _tracksterLinksProducer.clone()
 ticlCandidate = _ticlCandidateProducer.clone()
+mtdSoA = _mtdSoAProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
@@ -34,7 +36,7 @@ ticlIterationsTask = cms.Task(
     ticlCLUE3DHighStepTask
 )
 
-ticlCandidateTask = cms.Task(ticlCandidate)
+ticlCandidateTask = cms.Task(mtdSoA, ticlCandidate)
 
 
 from Configuration.ProcessModifiers.fastJetTICL_cff import fastJetTICL

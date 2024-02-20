@@ -1,5 +1,7 @@
 #include <vector>
 #include <array>
+#include "DataFormats/HGCalReco/interface/MtdSoA.h"
+#include "DataFormats/HGCalReco/interface/MtdHostCollection.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"

@@ -18,7 +18,7 @@ namespace ticl {
     ~GeneralInterpretationAlgo() override;
 
     void makeCandidates(const Inputs &input,
-                        const TrackTimingInformation &inputTiming,
+                        edm::Handle<MtdHostCollection> inputTiming_h,
                         std::vector<Trackster> &resultTracksters,
                         std::vector<int> &resultCandidate) override;
 
@@ -51,6 +51,7 @@ namespace ticl {
                                  const Trackster &trackster,
                                  const float &tkTime,
                                  const float &tkTimeErr,
+                                 const float &tkQual,
                                  const float &tkBeta,
                                  const GlobalPoint &tkMtdPos,
                                  bool useMTDTiming);
@@ -59,8 +60,7 @@ namespace ticl {
     const float maxDeltaT_ = 3.0f;
     const float del_tk_ts_layer1_;
     const float del_tk_ts_int_;
-    const float del_ts_em_had_;
-    const float del_ts_had_had_;
+    const float timing_quality_threshold_;
 
     const HGCalDDDConstants *hgcons_;
 

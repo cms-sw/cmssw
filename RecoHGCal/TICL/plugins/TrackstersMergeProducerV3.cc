@@ -677,8 +677,7 @@ void TrackstersMergeProducerV3::assignTimeToCandidates(std::vector<TICLCandidate
       if (timeErr > 0) {
         timeErr = 1. / timeErr;
 
-        cand.setTime(time * timeErr);
-        cand.setTimeError(sqrt(timeErr));
+        cand.setTime(time * timeErr, sqrt(timeErr));
       }
     }
   }

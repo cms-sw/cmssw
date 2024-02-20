@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/HGCalReco/interface/MtdHostCollection.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
@@ -65,20 +66,22 @@ namespace ticl {
     struct TrackTimingInformation {
       const edm::Handle<edm::ValueMap<float>> tkTime_h;
       const edm::Handle<edm::ValueMap<float>> tkTimeErr_h;
+      const edm::Handle<edm::ValueMap<float>> tkQuality_h;
       const edm::Handle<edm::ValueMap<float>> tkBeta_h;
       const edm::Handle<edm::ValueMap<float>> tkPath_h;
       const edm::Handle<edm::ValueMap<GlobalPoint>> tkMtdPos_h;
 
       TrackTimingInformation(const edm::Handle<edm::ValueMap<float>> tkT,
                              const edm::Handle<edm::ValueMap<float>> tkTE,
+                             const edm::Handle<edm::ValueMap<float>> tkQ,
                              const edm::Handle<edm::ValueMap<float>> tkB,
                              const edm::Handle<edm::ValueMap<float>> tkP,
                              const edm::Handle<edm::ValueMap<GlobalPoint>> mtdPos)
-          : tkTime_h(tkT), tkTimeErr_h(tkTE), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
+          : tkTime_h(tkT), tkTimeErr_h(tkTE), tkQuality_h(tkQ), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
     };
 
     virtual void makeCandidates(const Inputs& input,
-                                const TrackTimingInformation& inputTiming,
+                                edm::Handle<MtdHostCollection> inputTiming_h,
                                 std::vector<Trackster>& resultTracksters,
                                 std::vector<int>& resultCandidate) = 0;
 
