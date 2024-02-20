@@ -22,5 +22,4 @@
 class HGCalElectronicsMappingRcd : public edm::eventsetup::EventSetupRecordImplementation<HGCalElectronicsMappingRcd> {
 };
 
-
 #endif
