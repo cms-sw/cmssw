@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/Special --full --data --type Special --unprescale --process HLTSpecial --globaltag auto:run3_hlt_Special --input file:RelVal_Raw_Special_DATA.root
 
-# /dev/CMSSW_14_0_0/Special/V15 (CMSSW_14_0_0)
+# /dev/CMSSW_14_0_0/Special/V17 (CMSSW_14_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTSpecial" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/Special/V15')
+  tableName = cms.string('/dev/CMSSW_14_0_0/Special/V17')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -10677,7 +10677,7 @@ process.hltDatasetExpressPhysics = cms.EDFilter( "TriggerResultsFilter",
       'HLT_ZeroBias_FirstCollisionAfterAbortGap_v8',
       'HLT_ZeroBias_IsolatedBunches_v8',
       'HLT_ZeroBias_Or_AlwaysTrue_v1',
-      'HLT_ZeroBias_v9' )
+      'HLT_ZeroBias_v9 / 2' )
 )
 process.hltPreDatasetExpressPhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),

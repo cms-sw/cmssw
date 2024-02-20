@@ -236,7 +236,6 @@ HIDQMOutput
 HIDQMEventDisplayOutput
 HIDQMGPUvsCPUOutput        # CMSHLT-2287, CMSHLT-2343, CMSHLT-2882
 HIDQMOnlineBeamspotOutput
-HIHLTMonitorOutput
 CalibrationOutput
 EcalCalibrationOutput
 HIExpressOutput
