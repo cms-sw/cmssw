@@ -124,31 +124,13 @@ def applySubstructure( process, postfix="" ) :
                      jetSource = cms.InputTag('ak8PFJetsPuppi'+postfix),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-                     btagDiscriminators = ([
-                         'pfCombinedSecondaryVertexV2BJetTags',
-                         'pfCombinedInclusiveSecondaryVertexV2BJetTags',
-                         'pfCombinedMVAV2BJetTags',
-                         'pfDeepCSVJetTags:probb',
-                         'pfDeepCSVJetTags:probc',
-                         'pfDeepCSVJetTags:probudsg',
-                         'pfDeepCSVJetTags:probbb',
-                         'pfBoostedDoubleSecondaryVertexAK8BJetTags']),
+                     btagDiscriminators = None,
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src = [] # start with empty list of user floats
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cut = cms.string("pt > 100")
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cutLoose = cms.string("pt > 30")
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).nLoose = cms.uint32(3)
-
-    from Configuration.Eras.Modifier_run3_common_cff import run3_common
-    run3_common.toModify(process.patJetsAK8Puppi,
-                         discriminatorSources = cms.VInputTag(
-                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probb"),
-                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probc"),
-                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probudsg"),
-                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probbb")
-                         )
-    )
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     addToProcessAndTask('ak8PFJetsPuppiTracksAssociatorAtVertex'+postfix, cms.EDProducer("JetTracksAssociatorAtVertex",

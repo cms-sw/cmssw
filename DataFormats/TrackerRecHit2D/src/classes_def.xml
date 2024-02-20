@@ -60,17 +60,8 @@
    <version ClassVersion="10" checksum="414205262"/>
   </class>
 
-  <class name="std::vector<SiStripMatchedRecHit2D*>"/>
-  <class name="edm::OwnVector<SiStripMatchedRecHit2D,edm::ClonePolicy<SiStripMatchedRecHit2D> >"/>
-  <class name="edm::OwnVector<SiStripMatchedRecHit2D,edm::ClonePolicy<SiStripMatchedRecHit2D> >::const_iterator"/>
-
   <class name="edm::OwnVector<BaseTrackerRecHit>" persistent="false"/>
   <class name="edm::Wrapper<edm::OwnVector<BaseTrackerRecHit> >" persistent="false"/>
-
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> >"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> >::id_iterator"/>
-
-  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
 
   <class name="std::vector<SiPixelRecHit>"/>
 
