@@ -12,6 +12,7 @@ from PhysicsTools.PatAlgos.patMuonTimeLifeInfoProducer_cfi import patMuonTimeLif
 from PhysicsTools.PatAlgos.patTauTimeLifeInfoProducer_cfi import patTauTimeLifeInfoProducer
 from PhysicsTools.NanoAOD.simpleCandidate2TrackTimeLifeInfoFlatTableProducer_cfi import simpleCandidate2TrackTimeLifeInfoFlatTableProducer
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
 # common settings of lepton life-time info producer
 prod_common = cms.PSet(
@@ -77,6 +78,39 @@ refittedPV = patRefitVertexProducer.clone(
 run2_nanoAOD_ANY.toModify(
     prod_common, pvSource = "refittedPV")
 
+# Definition of DQM plots
+ipVarsPlots = cms.VPSet(
+    Plot1D('ipLength', 'ipLength', 25, -0.25, 0.25, 'signed lenght of impact parameter (3d)'),
+    Plot1D('ipLengthSig', 'ipLengthSig', 60, -5, 10, 'signed significance of impact parameter'),
+    Plot1D('IPx', 'IPx', 40, -0.02, 0.02, 'x coordinate of impact parameter vector'),
+    Plot1D('IPy', 'IPy', 40, -0.02, 0.02, 'y coordinate of impact parameter vector'),
+    Plot1D('IPz', 'IPz', 40, -0.02, 0.02, 'z coordinate of impact parameter vector')
+)
+trackVarsPlots = cms.VPSet(
+    Plot1D('track_qoverp', 'track_qoverp', 40, -0.2, 0.2, 'track q/p'),
+    Plot1D('track_lambda', 'track_lambda', 30, -1.5, 1.5, 'track lambda'),
+    Plot1D('track_phi', 'track_phi', 20, -3.14159, 3.14159, 'track phi'),
+    Plot1D('track_dxy', 'track_dxy', 20, -0.1, 0.1, 'track dxy'),
+    Plot1D('track_dsz', 'track_dsz', 20, -10, 10, 'track dsz'),
+    NoPlot('bField_z')
+)
+#no plots for track covariance elements, but store placeholders
+for i in range(0,5):
+    for j in range(i,5):
+        trackVarsPlots.append(NoPlot('track_cov'+str(j)+str(i)))
+svVarsPlots = cms.VPSet(
+    Plot1D('hasRefitSV', 'hasRefitSV', 2, 0, 2, 'has SV refit using miniAOD quantities'),
+    Plot1D('refitSVx', 'refitSVx', 20, -0.1, 0.1, 'x coordinate of refitted SV'),
+    Plot1D('refitSVy', 'refitSVy', 20, -0.1, 0.1, 'y coordinate of refitted SV'),
+    Plot1D('refitSVz', 'refitSVz', 20, -20, 20, 'z coordinate of refitted SV'),
+    Plot1D('refitSVchi2', 'refitSVchi2', 20, 0, 100, 'chi2 of SV fit'),
+    Plot1D('refitSVndof', 'refitSVndof', 10, 0, 10, 'ndof of SV fit')
+)
+#no plots for SV covariance elements, but store placeholders
+for i in range(0,3):
+    for j in range(i,3):
+        svVarsPlots.append(NoPlot('refitSVcov'+str(j)+str(i)))
+
 #
 # Customization sequences and functions
 #
@@ -113,6 +147,10 @@ def addTimeLifeInfoToElectrons(process):
     run2_nanoAOD_ANY.toReplaceWith(process.electronTimeLifeInfoTask,
                                    _electronTimeLifeInfoTaskRun2)
     process.electronTablesTask.add(process.electronTimeLifeInfoTask)
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
+        process.nanoDQM.vplots.Electron.plots.extend(ipVarsPlots)
+        process.nanoDQM.vplots.Electron.plots.extend(trackVarsPlots)
     return process
 
 # muons
@@ -148,6 +186,10 @@ def addTimeLifeInfoToMuons(process):
     run2_nanoAOD_ANY.toReplaceWith(process.muonTimeLifeInfoTask,
                                    _muonTimeLifeInfoTaskRun2)
     process.muonTablesTask.add(process.muonTimeLifeInfoTask)
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
+        process.nanoDQM.vplots.Muon.plots.extend(ipVarsPlots)
+        process.nanoDQM.vplots.Muon.plots.extend(trackVarsPlots)
     return process
 
 # taus
@@ -183,6 +225,11 @@ def addTimeLifeInfoToTaus(process):
     run2_nanoAOD_ANY.toReplaceWith(process.tauTimeLifeInfoTask,
                                    _tauTimeLifeInfoTaskRun2)
     process.tauTablesTask.add(process.tauTimeLifeInfoTask)
+    # add DQM plots if needed
+    if hasattr(process,'nanoDQM'):
+        process.nanoDQM.vplots.Tau.plots.extend(ipVarsPlots)
+        process.nanoDQM.vplots.Tau.plots.extend(trackVarsPlots)
+        process.nanoDQM.vplots.Tau.plots.extend(svVarsPlots)
     return process
 
 # Vertices
@@ -211,9 +258,6 @@ def addExtendVertexInfo(process):
                                    _pvbsTableTaskRun2)
     process.vertexTablesTask.add(process.pvbsTableTask)
     return process
-
-# DQM
-#FIXME!
 
 # Full
 def addTimeLifeInfo(process):
