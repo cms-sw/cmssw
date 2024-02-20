@@ -114,24 +114,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             //get dense index and fill the values
             int idx = cellIndexer.denseIndex(typecode, chip, half, seq);
-            cellParams.view()[idx].valid() = true;
-            cellParams.view()[idx].isHD() = isHD;
-            cellParams.view()[idx].iscalib() = iscalib;
-            cellParams.view()[idx].isSiPM() = isSiPM;
-            cellParams.view()[idx].typeidx() = typeidx;
-            cellParams.view()[idx].chip() = chip;
-            cellParams.view()[idx].half() = half;
-            cellParams.view()[idx].seq() = seq;
-            cellParams.view()[idx].rocpin() = rocpin;
-            cellParams.view()[idx].cellidx() = cellidx;
-            cellParams.view()[idx].triglink() = triglink;
-            cellParams.view()[idx].trigcell() = trigcell;
-            cellParams.view()[idx].i1() = i1;
-            cellParams.view()[idx].i2() = i2;
-            cellParams.view()[idx].t() = t;
-            cellParams.view()[idx].trace() = trace;
-            cellParams.view()[idx].eleid() = eleid;
-            cellParams.view()[idx].detid() = detid;
+            auto cell = cellParams.view()[idx];
+            cell.valid() = true;
+            cell.isHD() = isHD;
+            cell.iscalib() = iscalib;
+            cell.isSiPM() = isSiPM;
+            cell.typeidx() = typeidx;
+            cell.chip() = chip;
+            cell.half() = half;
+            cell.seq() = seq;
+            cell.rocpin() = rocpin;
+            cell.cellidx() = cellidx;
+            cell.triglink() = triglink;
+            cell.trigcell() = trigcell;
+            cell.i1() = i1;
+            cell.i2() = i2;
+            cell.t() = t;
+            cell.trace() = trace;
+            cell.eleid() = eleid;
+            cell.detid() = detid;
           }
         }
 

@@ -87,21 +87,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
           }
 
-          moduleParams.view()[idx].valid() = true;
-          moduleParams.view()[idx].zside() = (zside > 0);
-          moduleParams.view()[idx].isSiPM() = isSiPM;
-          moduleParams.view()[idx].celltype() = celltype;
-          moduleParams.view()[idx].plane() = plane;
-          moduleParams.view()[idx].i1() = i1;
-          moduleParams.view()[idx].i2() = i2;
-          moduleParams.view()[idx].typeidx() = typeidx;
-          moduleParams.view()[idx].fedid() = fedid;
-          moduleParams.view()[idx].slinkidx() = slinkidx;
-          moduleParams.view()[idx].captureblock() = captureblock;
-          moduleParams.view()[idx].econdidx() = econdidx;
-          moduleParams.view()[idx].captureblockidx() = captureblockidx;
-          moduleParams.view()[idx].eleid() = eleid;
-          moduleParams.view()[idx].detid() = detid;
+          auto module = moduleParams.view()[idx];
+          module.valid() = true;
+          module.zside() = (zside > 0);
+          module.isSiPM() = isSiPM;
+          module.celltype() = celltype;
+          module.plane() = plane;
+          module.i1() = i1;
+          module.i2() = i2;
+          module.typeidx() = typeidx;
+          module.fedid() = fedid;
+          module.slinkidx() = slinkidx;
+          module.captureblock() = captureblock;
+          module.econdidx() = econdidx;
+          module.captureblockidx() = captureblockidx;
+          module.eleid() = eleid;
+          module.detid() = detid;
         }
 
         return moduleParams;
