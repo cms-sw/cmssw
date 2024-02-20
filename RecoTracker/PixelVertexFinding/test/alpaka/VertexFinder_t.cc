@@ -1,33 +1,28 @@
-#include <alpaka/alpaka.hpp>
-#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include <cstdlib>
+#include <iostream>
+
+#include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 
-#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
-#include "DataFormats/VertexSoA/interface/alpaka/ZVertexSoACollection.h"
-#include "DataFormats/VertexSoA/interface/ZVertexDevice.h"
+#include "VertexFinder_t.h"
 
-#include "RecoTracker/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
-#include "RecoTracker/PixelVertexFinding/plugins/PixelVertexWorkSpaceSoAHostAlpaka.h"
-#include "RecoTracker/PixelVertexFinding/plugins/alpaka/PixelVertexWorkSpaceSoADeviceAlpaka.h"
-
-using namespace std;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-
-  namespace vertexfinder_t {
-    void runKernels(Queue& queue);
+int main() {
+  // get the list of devices on the current platform
+  auto const& devices = cms::alpakatools::devices<Platform>();
+  if (devices.empty()) {
+    std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
+      "the test will be skipped.\n";
+    exit(EXIT_FAILURE);
   }
 
-};  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+  // run the test on all the available devices
+  for (auto const& device : devices) {
+    Queue queue(device);
+    vertexfinder_t::runKernels(queue);
+  }
 
-int main() {
-  const auto host = cms::alpakatools::host();
-  const auto device = cms::alpakatools::devices<Platform>()[0];
-  Queue queue(device);
-
-  vertexfinder_t::runKernels(queue);
-  return 0;
+  return EXIT_SUCCESS;
 }
