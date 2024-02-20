@@ -6,8 +6,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
@@ -28,17 +27,16 @@ public:
     setWhatProduced(this, &HGCalMappingIndexESSource::produceCellMapIndexer);
     setWhatProduced(this, &HGCalMappingIndexESSource::produceModuleMapIndexer);
 
-    findingRecord<HGCalMappingModuleIndexerRcd>();
-    findingRecord<HGCalMappingCellIndexerRcd>();
+    findingRecord<HGCalElectronicsMappingRcd>();
 
     buildCellMapperIndexer();
     buildModuleMapperIndexer();
   }
 
-  std::unique_ptr<HGCalMappingModuleIndexer> produceModuleMapIndexer(const HGCalMappingModuleIndexerRcd&) {
+  std::unique_ptr<HGCalMappingModuleIndexer> produceModuleMapIndexer(const HGCalElectronicsMappingRcd&) {
     return std::make_unique<HGCalMappingModuleIndexer>(modIndexer_);
   }
-  std::unique_ptr<HGCalMappingCellIndexer> produceCellMapIndexer(const HGCalMappingCellIndexerRcd&) {
+  std::unique_ptr<HGCalMappingCellIndexer> produceCellMapIndexer(const HGCalElectronicsMappingRcd&) {
     return std::make_unique<HGCalMappingCellIndexer>(cellIndexer_);
   }
 
