@@ -7,7 +7,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalMappingModuleParamHostCollection> produce(const HGCalMappingModuleIndexerRcd& iRecord) {
+      std::optional<HGCalMappingModuleParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
         //get cell and module indexer
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
+      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
       const std::string filename_;
     };
 

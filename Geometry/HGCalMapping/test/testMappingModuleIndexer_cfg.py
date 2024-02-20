@@ -30,20 +30,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #ESSources/Producers for the logical mapping
+#indexers
 process.load('Geometry.HGCalMapping.hgCalMappingIndexESSource_cfi')
 process.hgCalMappingIndexESSource.modules = options.modules
 process.hgCalMappingIndexESSource.si = options.sicells
 process.hgCalMappingIndexESSource.sipm = options.sipmcells
 
+#cells and modules info
 process.load('Configuration.StandardSequences.Accelerators_cff')
-#process.hgcalMappingModuleIndexerESRecord = cms.ESSource('EmptyESSource',
-#                                                          recordName=cms.string('HGCalMappingModuleIndexerRcd'),
-#                                                          iovIsRunNotTime=cms.bool(True),
-#                                                          firstValid=cms.vuint32(1) )
-#process.hgcalMappingModuleESRecord = cms.ESSource('EmptyESSource',
-#                                                   recordName=cms.string('HGCalMappingModuleRcd'),
-#                                                   iovIsRunNotTime=cms.bool(True),
-#                                                   firstValid=cms.vuint32(1) )
 process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
                                                       filename=cms.string(options.modules),
                                                       moduleindexer=cms.ESInputTag('') )
