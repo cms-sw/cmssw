@@ -19,6 +19,8 @@
 //       Date:       April 6th, 2020
 // Updated By:       Gourab Saha
 //       Date:       July 4th, 2023
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 #include "Validation/RecoTau/interface/TauValidationMiniAOD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,6 +41,8 @@ TauValidationMiniAOD::TauValidationMiniAOD(const edm::ParameterSet &iConfig) {
   primaryVertexCollectionToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<InputTag>("PVCollection"));
   // Input genetated particle collection:
   prunedGenToken_ = consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<InputTag>("GenCollection"));
+  // MC or Data
+  isMC_ = iConfig.getParameter<bool>("isMC");
 }
 
 TauValidationMiniAOD::~TauValidationMiniAOD() {}
@@ -62,6 +66,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   MonitorElement *dmMigration, *ntau_vs_dm;
   MonitorElement *pTOverProng_dm0, *pTOverProng_dm1p2, *pTOverProng_dm5, *pTOverProng_dm6, *pTOverProng_dm10,
       *pTOverProng_dm11;
+  MonitorElement *fractemp;
 
   // ---------------------------- Book, Map Summary Histograms -------------------------------
 
@@ -105,11 +110,12 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau: DM = 11", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
 
-  dmMigration = ibooker.book2D("dmMigration", "DM Migration", 15, -0.5, 14.5, 15, -0.5, 14.5);
-  dmMigration->setXTitle("Generated tau DM");
-  dmMigration->setYTitle("Reconstructed tau DM");
-  dmMigrationMap.insert(std::make_pair("", dmMigration));
-
+  if (isMC_) {
+    dmMigration = ibooker.book2D("dmMigration", "DM Migration", 15, -0.5, 14.5, 15, -0.5, 14.5);
+    dmMigration->setXTitle("Generated tau DM");
+    dmMigration->setYTitle("Reconstructed tau DM");
+    dmMigrationMap.insert(std::make_pair("", dmMigration));
+  }
   histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
                                    ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pTOverProng"))
                                    : histoInfo(50, 0, 1000);
@@ -268,10 +274,11 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                  decayModeHinfo.max);
   decayModeMap.insert(std::make_pair("pftau", decayModeTemp));
 
-  decayModeTemp = ibooker.book1D(
-      "tau_decayMode_gen", "DecayMode: Generated tau", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
-  decayModeMap.insert(std::make_pair("gentau", decayModeTemp));
-
+  if (isMC_) {
+    decayModeTemp = ibooker.book1D(
+        "tau_decayMode_gen", "DecayMode: Generated tau", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
+    decayModeMap.insert(std::make_pair("gentau", decayModeTemp));
+  }
   // book the deepTau histograms
   byDeepTau2018v2p5VSerawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSeraw",
                                                "byDeepTau2018v2p5VSeraw",
@@ -294,13 +301,34 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   byDeepTau2018v2p5VSjetrawMap.insert(std::make_pair("", byDeepTau2018v2p5VSjetrawTemp));
   byDeepTau2018v2p5VSmurawMap.insert(std::make_pair("", byDeepTau2018v2p5VSmurawTemp));
 
+  histoInfo fracInfo = histoInfo(25, 0.0, 1.0);
+  fractemp = ibooker.book1D("tau_emFraction", "EM Energy Fraction", fracInfo.nbins, fracInfo.min, fracInfo.max);
+  fracMap.insert(
+      std::make_pair("em", fractemp));  // TMath::Max(tau.ecalEnergy()/(tau.ecalEnergy() + tau.hcalEnergy()), float(0.))
+  fractemp = ibooker.book1D("tau_hcFraction", "HCal Energy Fraction", fracInfo.nbins, fracInfo.min, fracInfo.max);
+  fracMap.insert(
+      std::make_pair("hc", fractemp));  // TMath::Max(tau.hcalEnergy()/(tau.ecalEnergy() + tau.hcalEnergy()), float(0.))
+  //fractemp = ibooker.book1D("tau_emFraction_2", "EM Energy Fraction", fracInfo.nbins, fracInfo.min, fracInfo.max);
+  //fracMap.insert(std::make_pair("em_2", fractemp)); // tau.emFraction()
+  //fractemp = ibooker.book1D("tau_emFraction_3", "EM Energy Fraction", fracInfo.nbins, fracInfo.min, fracInfo.max);
+  //fracMap.insert(std::make_pair("em_3", fractemp)); // tau.emFraction_MVA()
+
+  fractemp = ibooker.book1D("tau_hadrEoP", "", 50, 0.0, 5.0);
+  fracMap.insert(std::make_pair("hadrEoP", fractemp));  // tau.hcalEnergyLeadChargedHadrCand()/packedLeadTauCand->p()
+
+  ptTemp = ibooker.book1D("tau_leadTrkPt", "Leading track pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  ptMap.insert(std::make_pair("leadTrkPt", ptTemp));  // tau.leadChargedHadrCand.pt()
+
   qcd = "QCD";
-  real_data = "RealData";
-  real_eledata = "RealElectronsData";
-  real_mudata = "RealMuonsData";
   ztt = "ZTT";
   zee = "ZEE";
   zmm = "ZMM";
+  real_data = "JETHT";
+  real_eledata = "DoubleElectron";
+  real_mudata = "DoubleMuon";
+  //real_data = "RealData";
+  //real_eledata = "RealElectronsData";
+  //real_mudata = "RealMuonsData";
 
   // ---------------------------- /vsJet/ ---------------------------------------------
   if (extensionName_.compare(qcd) == 0 || extensionName_.compare(real_data) == 0 || extensionName_.compare(ztt) == 0) {
@@ -476,6 +504,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  std::cout<<" >>> TauValidationMiniAOD >>>"<<std::endl;
   // create a handle to the tau collection
   edm::Handle<pat::TauCollection> taus;
   bool isTau = iEvent.getByToken(tauCollection_, taus);
@@ -506,9 +535,10 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
   std::vector<const reco::GenParticle *> GenTaus;
 
   // dR match reference object to tau
-  for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
-       RefJet != ReferenceCollection->end();
-       RefJet++) {
+  //for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
+  //     RefJet != ReferenceCollection->end();
+  //     RefJet++) {
+  for (const auto &RefJet : *ReferenceCollection) {
     float dRmin = 0.15;
     int matchedTauIndex = -99;
     float gendRmin = 0.15;
@@ -518,12 +548,14 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
 
-      float dR = deltaR2(tau->eta(), tau->phi(), RefJet->eta(), RefJet->phi());
+      float dR = deltaR2(tau->eta(), tau->phi(), RefJet.eta(), RefJet.phi());
+      //std::cout<<dR<<"\n";
       if (dR < dRmin) {
         dRmin = dR;
         matchedTauIndex = iTau;
       }
     }
+
     if (dRmin < 0.15) {
       pat::TauRef matchedTau(taus, matchedTauIndex);
 
@@ -569,52 +601,65 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       // fill decay mode population plot
       ntau_vs_dmMap.find("")->second->Fill(taus->size(), matchedTau->decayMode());
 
+      // energy fractions
+      fracMap.find("em")->second->Fill(matchedTau->ecalEnergy() /
+                                       (matchedTau->ecalEnergy() + matchedTau->hcalEnergy()));
+      //fracMap.find("em2")->second->Fill(matchedTau->emFraction());
+      //fracMap.find("em3")->second->Fill(matchedTau->emFraction_MVA());
+      fracMap.find("hc")->second->Fill(matchedTau->hcalEnergy() /
+                                       (matchedTau->ecalEnergy() + matchedTau->hcalEnergy()));
+      pat::PackedCandidate const *packedLeadTauCand =
+          dynamic_cast<pat::PackedCandidate const *>(matchedTau->leadChargedHadrCand().get());
+      fracMap.find("hadrEoP")->second->Fill(matchedTau->hcalEnergyLeadChargedHadrCand() / packedLeadTauCand->p());
+      ptMap.find("leadTrkPt")->second->Fill(matchedTau->leadChargedHadrCand()->pt());
+
       //Fill decay mode migration 2D histogragms
       //First do a gen Matching
-      unsigned genindex = 0;
-      for (const auto &genParticle : *genParticles) {
-        if (abs(genParticle.pdgId()) == 15) {
-          float gendR = deltaR2(matchedTau->eta(), matchedTau->phi(), genParticle.eta(), genParticle.phi());
-          if (gendR < gendRmin) {
-            gendRmin = gendR;
-            genmatchedTauIndex = genindex;
-          }
-        }
-        genindex = genindex + 1;
-      }
-
-      if (gendRmin < 0.15) {
-        int nPi0s = 0;
-        int nPis = 0;
-        auto &gentau = genParticles->at(genmatchedTauIndex);
-        for (unsigned idtr = 0; idtr < gentau.numberOfDaughters(); idtr++) {
-          const reco::GenParticle *dtr = dynamic_cast<const reco::GenParticle *>(gentau.daughter(idtr));
-          int dtrpdgID = std::abs(dtr->pdgId());
-          int dtrstatus = dtr->status();
-          if (dtrpdgID == 12 || dtrpdgID == 14 || dtrpdgID == 16)
-            continue;
-          if (dtrpdgID == 111 || dtrpdgID == 311)
-            nPi0s++;
-          else if (dtrpdgID == 211 || dtrpdgID == 321)
-            nPis++;
-          else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
-            for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
-              const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
-              int dtr2pdgID = std::abs(dtr2->pdgId());
-              if (dtr2pdgID == 12 || dtr2pdgID == 14 || dtr2pdgID == 16)
-                continue;
-              if (dtr2pdgID == 111 || dtr2pdgID == 311)
-                nPi0s++;
-              else if (dtr2pdgID == 211 || dtr2pdgID == 321)
-                nPis++;
+      if (isMC_) {
+        unsigned genindex = 0;
+        for (const auto &genParticle : *genParticles) {
+          if (abs(genParticle.pdgId()) == 15) {
+            float gendR = deltaR2(matchedTau->eta(), matchedTau->phi(), genParticle.eta(), genParticle.phi());
+            if (gendR < gendRmin) {
+              gendRmin = gendR;
+              genmatchedTauIndex = genindex;
             }
           }
+          genindex = genindex + 1;
         }
-        int genTau_dm = findDecayMode(nPis, nPi0s);
-        decayModeMap.find("gentau")->second->Fill(genTau_dm);
-        dmMigrationMap.find("")->second->Fill(genTau_dm, matchedTau->decayMode());
-      }
 
+        if (gendRmin < 0.15) {
+          int nPi0s = 0;
+          int nPis = 0;
+          auto &gentau = genParticles->at(genmatchedTauIndex);
+          for (unsigned idtr = 0; idtr < gentau.numberOfDaughters(); idtr++) {
+            const reco::GenParticle *dtr = dynamic_cast<const reco::GenParticle *>(gentau.daughter(idtr));
+            int dtrpdgID = std::abs(dtr->pdgId());
+            int dtrstatus = dtr->status();
+            if (dtrpdgID == 12 || dtrpdgID == 14 || dtrpdgID == 16)
+              continue;
+            if (dtrpdgID == 111 || dtrpdgID == 311)
+              nPi0s++;
+            else if (dtrpdgID == 211 || dtrpdgID == 321)
+              nPis++;
+            else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
+              for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
+                const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
+                int dtr2pdgID = std::abs(dtr2->pdgId());
+                if (dtr2pdgID == 12 || dtr2pdgID == 14 || dtr2pdgID == 16)
+                  continue;
+                if (dtr2pdgID == 111 || dtr2pdgID == 311)
+                  nPi0s++;
+                else if (dtr2pdgID == 211 || dtr2pdgID == 321)
+                  nPis++;
+              }
+            }
+          }
+          int genTau_dm = findDecayMode(nPis, nPi0s);
+          decayModeMap.find("gentau")->second->Fill(genTau_dm);
+          dmMigrationMap.find("")->second->Fill(genTau_dm, matchedTau->decayMode());
+        }
+      }
       // count number of taus passing each discriminator's selection cut
       unsigned j = 0;
       for (const auto &it : discriminators_) {

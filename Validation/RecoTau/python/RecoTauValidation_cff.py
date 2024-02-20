@@ -30,16 +30,19 @@ tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
     ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
-    RefCollection = "CleanedPFJets",
-    ExtensionName = 'JETHT'
+    RefCollection = "CleanedPFJets", #"kinematicSelectedPFJets",
+    ExtensionName = 'JETHT',
+    isMC = False
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
     RefCollection = "ElZLegs:theProbeLeg",
-    ExtensionName = 'DoubleElectron'
+    ExtensionName = 'DoubleElectron',
+    isMC = False
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
     RefCollection = "MuZLegs:theProbeLeg",
-    ExtensionName = 'DoubleMuon'
+    ExtensionName = 'DoubleMuon',
+    isMC = False
 )
 
 
@@ -123,17 +126,55 @@ efficienciesTauValidationMiniAODRealMuonsData = cms.EDProducer("TauDQMHistEffPro
 )
 
 tauValidationSequenceMiniAOD = cms.Sequence(
+    # --ZTT
     produceDenominatorZTT
     *tauValidationMiniAODZTT
+    # --ZEE
     *produceDenominatorZEE
     *tauValidationMiniAODZEE
+    # --ZMM
     *produceDenominatorZMM
     *tauValidationMiniAODZMM
+    # --QCD
     *produceDenominatorQCD
     *tauValidationMiniAODQCD
+    # --RealData
+    *produceDenominatorRealData
     *tauValidationMiniAODRealData
+    # --RealElectronData
+    *produceDenominatorRealElectronsData
     *tauValidationMiniAODRealElectronsData
+    # --RealMuonData
+    *produceDenominatorRealMuonsData
     *tauValidationMiniAODRealMuonsData
 )
+
+tauValidationSequenceMiniAODonMC = cms.Sequence(
+    # --ZTT
+    produceDenominatorZTT
+    *tauValidationMiniAODZTT
+    # --ZEE
+    *produceDenominatorZEE
+    *tauValidationMiniAODZEE
+    # --ZMM
+    *produceDenominatorZMM
+    *tauValidationMiniAODZMM
+    # --QCD
+    *produceDenominatorQCD
+    *tauValidationMiniAODQCD
+)
+
+tauValidationSequenceMiniAODonDATA = cms.Sequence(
+    # --RealData
+    produceDenominatorRealData
+    *tauValidationMiniAODRealData
+    # --RealElectronData
+    *produceDenominatorRealElectronsData
+    *tauValidationMiniAODRealElectronsData
+    # --RealMuonData
+    *produceDenominatorRealMuonsData
+    *tauValidationMiniAODRealMuonsData
+)
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))

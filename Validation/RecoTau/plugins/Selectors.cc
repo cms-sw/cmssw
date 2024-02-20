@@ -35,6 +35,16 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
+//#include "DataFormats/PatCandidates/interface/CandKinResolution.h" // new
+//#include "DataFormats/PatCandidates/interface/CompositeCandidate.h" // new
+
+#include "DataFormats/PatCandidates/interface/Jet.h"       // new
+#include "DataFormats/PatCandidates/interface/Electron.h"  // new
+#include "DataFormats/PatCandidates/interface/Muon.h"      // new
+#include "DataFormats/TrackReco/interface/Track.h"         // new
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
+
 #include <vector>
 #include <iostream>
 
@@ -49,6 +59,22 @@ typedef SingleObjectSelector<edm::View<reco::GsfElectron>,
                              StringCutObjectSelector<reco::GsfElectron>,
                              reco::GsfElectronCollection>
     TauValElectronSelector;
+
+// -- new -- [GS] //
+typedef SingleObjectSelector<pat::JetCollection, StringCutObjectSelector<pat::Jet> > TauValPatJetSelector;
+typedef SingleObjectSelector<pat::ElectronCollection, StringCutObjectSelector<pat::Electron>, pat::ElectronCollection>
+    TauValPatElectronSelector;
+typedef SingleObjectSelector<pat::MuonCollection, StringCutObjectSelector<pat::Muon> > TauValPatMuonSelector;
+typedef SingleObjectSelector<std::vector<pat::PackedCandidate>, StringCutObjectSelector<pat::PackedCandidate> >
+    PFTrackSelector;
+//typedef CandidateProducer<std::vector<pat::PackedCandidate>, std::vector<pat::PackedCandidate> >
+//    ConcreteChargedPFCandidateProducer;
+DEFINE_FWK_MODULE(TauValPatJetSelector);
+DEFINE_FWK_MODULE(TauValPatElectronSelector);
+DEFINE_FWK_MODULE(TauValPatMuonSelector);
+DEFINE_FWK_MODULE(PFTrackSelector);
+//DEFINE_FWK_MODULE(ConcreteChargedPFCandidateProducer);
+// -------------- //
 
 DEFINE_FWK_MODULE(TauValPFJetSelector);
 DEFINE_FWK_MODULE(TauValJetSelector);
@@ -94,12 +120,14 @@ bool ElectronIdFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Even
   // Loop over electrons
   for (unsigned int i = 0; i < electrons->size(); i++) {
     edm::Ref<reco::GsfElectronCollection> electronRef(electrons, i);
+    //edm::Ref<pat::ElectronCollection> electronRef(electrons, i);
     if ((eIDmap[electronRef]) == eid_)
       product->push_back((*electrons)[i]);
   }
 
   //cout << "Putting in the event" << endl;
   std::unique_ptr<reco::GsfElectronCollection> collection(product);
+  //std::unique_ptr<pat::ElectronCollection> collection(product);
   iEvent.put(std::move(collection));
   return true;
 }
