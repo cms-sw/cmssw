@@ -32,7 +32,7 @@ typedefsDict = \
 equivDict = \
      [
          {'SelectorUtils': ['VersionedSelector']},
-         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
+         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
