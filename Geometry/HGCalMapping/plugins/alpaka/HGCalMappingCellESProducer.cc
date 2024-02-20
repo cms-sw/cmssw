@@ -43,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {        
+      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
         //get cell indexer
         const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
 
