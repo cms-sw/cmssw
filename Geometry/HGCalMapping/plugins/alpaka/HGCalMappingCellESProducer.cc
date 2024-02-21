@@ -8,7 +8,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
-#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
@@ -37,13 +38,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<std::vector<std::string> >("filelist", {});
+        desc.add<std::vector<std::string> >("filelist", std::vector<std::string>({}))
+            ->setComment("list of files with the readout cells of each module");
         desc.add<edm::ESInputTag>("cellindexer", edm::ESInputTag(""))->setComment("Dense cell index tool");
         descriptions.addWithDefaultLabel(desc);
       }
 
       //
-      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
+      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalMappingCellRcd& iRecord) {
         //get cell indexer
         const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
 
@@ -74,7 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (iline == 2) {
               std::istringstream stream0(line);
               stream0 >> typecode;
-              isSiPM = {typecode.find("TM") != std::string::npos ? true : false};
+              isSiPM = typecode.find("TM") != std::string::npos;
             }
 
             std::istringstream stream(line);
@@ -140,7 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
+      edm::ESGetToken<HGCalMappingCellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
       const std::vector<std::string> filelist_;
     };
 

@@ -7,7 +7,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
@@ -28,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       //
       HGCalMappingModuleESProducer(const edm::ParameterSet& iConfig)
-          : ESProducer(iConfig), filename_(iConfig.getParameter<std::string>("filename")) {
+          : ESProducer(iConfig), filename_(iConfig.getParameter<edm::FileInPath>("filename")) {
         auto cc = setWhatProduced(this);
         moduleIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
       }
@@ -36,13 +37,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<std::string>("filename", "Geometry/HGCalMapping/ModuleMaps/modulelocator.txt");
+        desc.add<edm::FileInPath>("filename")->setComment("module locator file");
         desc.add<edm::ESInputTag>("moduleindexer", edm::ESInputTag(""))->setComment("Dense module index tool");
         descriptions.addWithDefaultLabel(desc);
       }
 
       //
-      std::optional<HGCalMappingModuleParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
+      std::optional<HGCalMappingModuleParamHostCollection> produce(const HGCalMappingModuleRcd& iRecord) {
         //get cell and module indexer
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
@@ -53,8 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           moduleParams.view()[i].valid() = false;
 
         // load module mapping parameters
-        edm::FileInPath fip(filename_);
-        std::ifstream file(fip.fullPath());
+        std::ifstream file(filename_.fullPath());
         std::string line, typecode;
         size_t iline(0);
         int plane, i1, i2, zside, celltype;
@@ -110,8 +110,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
-      const std::string filename_;
+      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
+      const edm::FileInPath filename_;
     };
 
   }  // namespace hgcal

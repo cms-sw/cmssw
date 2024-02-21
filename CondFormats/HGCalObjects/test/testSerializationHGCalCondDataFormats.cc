@@ -7,7 +7,7 @@ int main() {
   //dense indexers
   testSerialization<HGCalDenseIndexerBase>();
   testSerialization<HGCalMappingCellIndexer>();
-  testSerialization<FEDReadoutSequence_t>();
+  testSerialization<HGCalFEDReadoutSequence_t>();
   testSerialization<HGCalMappingModuleIndexer>();
 
   return 0;
