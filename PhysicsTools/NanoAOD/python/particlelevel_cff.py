@@ -89,17 +89,6 @@ tautagger = cms.EDProducer("GenJetTauTaggerProducer",
     src = rivetLeptonTable.src,
 )
 
-rivetMetTable = simpleSingletonCandidateFlatTableProducer.clone(
-    src = cms.InputTag("particleLevel:mets"),
-    name = cms.string("MET"),
-    doc = cms.string("MET from Rivet-based ParticleLevelProducer in fiducial volume abs(eta)<5"),
-    extension = cms.bool(True),
-    variables = cms.PSet(
-       fiducialGenPt  = Var("pt",  float, precision=10),
-       fiducialGenPhi = Var("phi", float, precision=10),
-    ),
-)
-
 HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
     src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
     name = cms.string("HTXS"),
@@ -130,4 +119,5 @@ lheInfoTable = cms.EDProducer("LHETablesProducer",
  )
 
 particleLevelTask = cms.Task(mergedGenParticles,genParticles2HepMC,particleLevel,tautagger,genParticles2HepMCHiggsVtx,rivetProducerHTXS)
-particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,rivetMetTable,HTXSCategoryTable,lheInfoTable)
+particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,
+        HTXSCategoryTable,lheInfoTable)
