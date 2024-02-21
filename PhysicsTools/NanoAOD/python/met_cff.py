@@ -26,7 +26,7 @@ pfmetTable = simpleSingletonCandidateFlatTableProducer.clone(
 
 rawMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     src = pfmetTable.src,
-    name = cms.string("RawPFMET"),
+    name = cms.string("RawMET"),
     doc = cms.string("raw PF MET"),
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
        pt  = Var("uncorPt",  float, doc="pt", precision=10),
@@ -122,6 +122,6 @@ metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
 )
 
 
-metTablesTask = cms.Task(pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
+metTablesTask = cms.Task( pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
         deepMetResolutionTuneTable, deepMetResponseTuneTable )
 metMCTask = cms.Task( metMCTable )
