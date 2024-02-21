@@ -44,6 +44,9 @@ public:
 
   std::map<std::string, dqm::reco::MonitorElement*> hp_;
 
+  dqm::reco::MonitorElement* h2_byLayerLA_;
+  dqm::reco::MonitorElement* h2_byLayerDiff_;
+
   // info
   std::map<std::string, int> nlayers_;
   std::vector<std::string> modtypes_;
