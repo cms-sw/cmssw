@@ -15,7 +15,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
 
-#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
@@ -49,20 +52,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void produce(device::Event&, device::EventSetup const&) override;
 
-    edm::ESWatcher<HGCalElectronicsMappingRcd> cfgWatcher_;
-    edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
-    device::ESGetToken<hgcal::HGCalMappingCellParamDeviceCollection, HGCalElectronicsMappingRcd> cellTkn_;
-    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
-    device::ESGetToken<hgcal::HGCalMappingModuleParamDeviceCollection, HGCalElectronicsMappingRcd> moduleTkn_;
+    edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
+    edm::ESGetToken<HGCalMappingCellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
+    device::ESGetToken<hgcal::HGCalMappingCellParamDeviceCollection, HGCalMappingCellRcd> cellTkn_;
+    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
+    device::ESGetToken<hgcal::HGCalMappingModuleParamDeviceCollection, HGCalMappingModuleRcd> moduleTkn_;
     const device::EDPutToken<portabletest::TestDeviceCollection> testCollToken_;
   };
 
   //
   HGCalMappingESSourceTester::HGCalMappingESSourceTester(const edm::ParameterSet& iConfig)
-      : cellIndexTkn_(esConsumes<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd>()),
-        cellTkn_(esConsumes(edm::ESInputTag(""))),
-        moduleIndexTkn_(esConsumes<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd>()),
-        moduleTkn_(esConsumes(edm::ESInputTag(""))),
+      : cellIndexTkn_(esConsumes()),
+        cellTkn_(esConsumes()),
+        moduleIndexTkn_(esConsumes()),
+        moduleTkn_(esConsumes()),
         testCollToken_{produces()} {}
 
   //

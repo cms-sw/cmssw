@@ -6,7 +6,9 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
@@ -21,30 +23,33 @@
 class HGCalMappingIndexESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   explicit HGCalMappingIndexESSource(const edm::ParameterSet& iConfig)
-      : module_filename_(iConfig.getParameter<std::string>("modules")),
-        si_filename_(iConfig.getParameter<std::string>("si")),
-        sipm_filename_(iConfig.getParameter<std::string>("sipm")) {
+      : module_filename_(iConfig.getParameter<edm::FileInPath>("modules")),
+        si_filename_(iConfig.getParameter<edm::FileInPath>("si")),
+        sipm_filename_(iConfig.getParameter<edm::FileInPath>("sipm")) {
     setWhatProduced(this, &HGCalMappingIndexESSource::produceCellMapIndexer);
     setWhatProduced(this, &HGCalMappingIndexESSource::produceModuleMapIndexer);
 
-    findingRecord<HGCalElectronicsMappingRcd>();
+    findingRecord<HGCalMappingModuleIndexerRcd>();
+    findingRecord<HGCalMappingCellIndexerRcd>();
 
     buildCellMapperIndexer();
     buildModuleMapperIndexer();
   }
 
-  std::unique_ptr<HGCalMappingModuleIndexer> produceModuleMapIndexer(const HGCalElectronicsMappingRcd&) {
-    return std::make_unique<HGCalMappingModuleIndexer>(modIndexer_);
+  std::shared_ptr<HGCalMappingModuleIndexer> produceModuleMapIndexer(const HGCalMappingModuleIndexerRcd&) {
+    return std::shared_ptr<HGCalMappingModuleIndexer>(&modIndexer_, edm::do_nothing_deleter());
   }
-  std::unique_ptr<HGCalMappingCellIndexer> produceCellMapIndexer(const HGCalElectronicsMappingRcd&) {
-    return std::make_unique<HGCalMappingCellIndexer>(cellIndexer_);
+
+  std::shared_ptr<HGCalMappingCellIndexer> produceCellMapIndexer(const HGCalMappingCellIndexerRcd&) {
+    return std::shared_ptr<HGCalMappingCellIndexer>(&cellIndexer_, edm::do_nothing_deleter());
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("modules", "Geometry/HGCalMapping/ModuleMaps/modulelocator.txt");
-    desc.add<std::string>("si", "Geometry/HGCalMapping/CellMaps/WaferCellMapTraces.txt");
-    desc.add<std::string>("sipm", "Geometry/HGCalMapping/CellMaps/channels_sipmontile.hgcal.txt");
+    desc.add<edm::FileInPath>("modules")->setComment("module locator file");
+    desc.add<edm::FileInPath>("si")->setComment("file containing the mapping of the readout cells in Si modules");
+    desc.add<edm::FileInPath>("sipm")->setComment(
+        "file containing the mapping of the readout cells in SiPM-on-tile modules");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -58,16 +63,16 @@ private:
   void buildCellMapperIndexer();
   void buildModuleMapperIndexer();
 
-  const std::string module_filename_, si_filename_, sipm_filename_;
-  HGCalMappingModuleIndexer modIndexer_;
   HGCalMappingCellIndexer cellIndexer_;
+  HGCalMappingModuleIndexer modIndexer_;
+
+  const edm::FileInPath module_filename_, si_filename_, sipm_filename_;
 };
 
 //
 void HGCalMappingIndexESSource::buildCellMapperIndexer() {
   // load Si cell specific module mapping parameters
-  edm::FileInPath fip(si_filename_);
-  std::ifstream file(fip.fullPath());
+  std::ifstream file(si_filename_.fullPath());
 
   size_t iline(0);
   std::string line, typecode;
@@ -83,8 +88,7 @@ void HGCalMappingIndexESSource::buildCellMapperIndexer() {
   }
 
   // load SiPM cell specific module mapping parameters
-  fip = edm::FileInPath(sipm_filename_);
-  file = std::ifstream(fip.fullPath());
+  file = std::ifstream(sipm_filename_.fullPath());
   iline = 0;
   while (std::getline(file, line)) {
     iline++;
@@ -113,8 +117,7 @@ void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
   auto nwords = defaultTypeNWords;
 
   // load module mapping parameters and find ranges
-  edm::FileInPath fip(module_filename_);
-  std::ifstream file(fip.fullPath());
+  std::ifstream file(module_filename_.fullPath());
   std::string line, typecode;
   size_t iline(0);
   int plane, u, v, zside;
