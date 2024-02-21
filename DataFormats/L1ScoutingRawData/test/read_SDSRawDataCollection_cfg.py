@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("READ")
+process = cms.Process("READRAW")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[1]))
 process.maxEvents.input = 1
