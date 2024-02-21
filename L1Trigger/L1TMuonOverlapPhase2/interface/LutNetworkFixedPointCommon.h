@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_LUTNETWORKFIXEDPOINTCOMMON_H_
-#define INTERFACE_LUTNETWORKFIXEDPOINTCOMMON_H_
+#ifndef L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointCommon_h
+#define L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointCommon_h
 
 #include <ap_fixed.h>
 #include <ap_int.h>
@@ -38,25 +38,12 @@ namespace lutNN {
   if ((var) != tree.get<int>((keyPath) + "." + #var)) \
     throw std::runtime_error((keyPath) + "." + #var + " has different value in the file then given");
 
-  /*template<typename arrayType>
-void saveLut(boost::property_tree::ptree& tree, std::string keyPath, const arrayType& lut) {
-    std::ostringstream ostr;
-    for(auto& a : lut) {
-        ostr<<std::hex<<a.bits_to_uint64()<<", ";
-    }
-
-    tree.put(keyPath + ".lutArray." + , ostr.str());
-}*/
-
   class LutNetworkFixedPointRegressionBase {
   public:
     virtual ~LutNetworkFixedPointRegressionBase(){};
 
     virtual void save(const std::string& filename) = 0;
     virtual void load(const std::string& filename) = 0;
-
-    /*    template <typename InputType>
-    void run(std::vector<InputType>& inputs, InputType noHitVal, std::vector<double>& nnResult) = 0;*/
 
     virtual void run(std::vector<float>& inputs, float noHitVal, std::vector<double>& nnResult) = 0;
 
@@ -66,4 +53,4 @@ void saveLut(boost::property_tree::ptree& tree, std::string keyPath, const array
 
 }  // namespace lutNN
 
-#endif /* INTERFACE_LUTNETWORKFIXEDPOINTCOMMON_H_ */
+#endif /* L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointCommon_h */

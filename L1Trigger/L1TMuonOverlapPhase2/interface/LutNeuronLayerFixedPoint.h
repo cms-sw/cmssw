@@ -7,8 +7,8 @@
 // Description : Fixed point LUT layer
 //============================================================================
 
-#ifndef INTERFACE_LUTNEURONLAYERFIXEDPOINT_H_
-#define INTERFACE_LUTNEURONLAYERFIXEDPOINT_H_
+#ifndef L1Trigger_L1TMuonOverlapPhase2_LutNeuronlayerFixedPoint_h
+#define L1Trigger_L1TMuonOverlapPhase2_LutNeuronlayerFixedPoint_h
 
 #include <ap_fixed.h>
 #include <ap_int.h>
@@ -21,15 +21,20 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/LutNetworkFixedPointCommon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace lutNN {
   // constexpr for ceil(log2) from stackoverflow
   constexpr size_t floorlog2(size_t i) {
-    assert(i > 0);  // argument of floorlog2 must be grater than 0
+    if (!(i > 0))
+      throw cms::Exception("Incorrect input")
+          << "Argument of floorlog2 must be grater than 0, while " << i << " used.\n";
     return i == 1 ? 0 : 1 + floorlog2(i >> 1);
   }
   constexpr size_t ceillog2(size_t i) {
-    assert(i > 0);  // argument of ceillog2 must be grater than 0
+    if (!(i > 0))
+      throw cms::Exception("Incorrect input")
+          << "Argument of ceillog2 must be grater than 0, while " << i << " used.\n";
     return i == 1 ? 0 : floorlog2(i - 1) + 1;
   }
 
@@ -187,4 +192,4 @@ namespace lutNN {
 
 } /* namespace lutNN */
 
-#endif /* INTERFACE_LUTNEURONLAYERFIXEDPOINT_H_ */
+#endif /* L1Trigger_L1TMuonOverlapPhase2_LutNeuronlayerFixedPoint_h */

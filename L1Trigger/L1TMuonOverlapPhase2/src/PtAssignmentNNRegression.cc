@@ -166,10 +166,6 @@ bool omtfHitToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int 
   return false;
 }
 
-PtAssignmentNNRegression::~PtAssignmentNNRegression() {
-  // TODO Auto-generated destructor stub
-}
-
 std::vector<float> PtAssignmentNNRegression::getPts(AlgoMuons::value_type& algoMuon,
                                                     std::vector<std::unique_ptr<IOMTFEmulationObserver>>& observers) {
   LogTrace("l1tOmtfEventPrint") << " " << __FUNCTION__ << ":" << __LINE__ << std::endl;

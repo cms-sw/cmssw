@@ -5,8 +5,8 @@
  *      Author: Karol Bunkowski, kbunkow@cern.ch
  */
 
-#ifndef INTERFACE_LUTNETWORKFIXEDPOINTREGRESSION2OUTPUTS_H_
-#define INTERFACE_LUTNETWORKFIXEDPOINTREGRESSION2OUTPUTS_H_
+#ifndef L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointRegression2Outputs_h
+#define L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointRegression2Outputs_h
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/LutNeuronLayerFixedPoint.h"
 
@@ -238,4 +238,4 @@ namespace lutNN {
 
 } /* namespace lutNN */
 
-#endif /* INTERFACE_LUTNETWORKFIXEDPOINTREGRESSION2OUTPUTS_H_ */
+#endif /* L1Trigger_L1TMuonOverlapPhase2_LutNetworkFixedPointRegression2Outputs_h */
