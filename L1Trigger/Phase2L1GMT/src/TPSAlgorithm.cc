@@ -136,6 +136,21 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& 
 }
 
 propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) {
+  static ap_uint<BITSPROPCOORD> lt_prop_coord1[5][512] = { { lt_prop_coord1_0, lt_prop_coord1_1, lt_prop_coord1_2, lt_prop_coord1_3, lt_prop_coord1_4 } };
+  static ap_uint<BITSPROPCOORD> lt_prop_coord2[5][512] = { { lt_prop_coord2_0, lt_prop_coord2_1, lt_prop_coord2_2, lt_prop_coord2_3, lt_prop_coord2_4 } };
+
+  static ap_uint<BITSPROPSIGMACOORD_A> lt_res0_coord1[5][512] = { { lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4 } };
+  static ap_uint<BITSPROPSIGMACOORD_B> lt_res1_coord1[5][512] = { { lt_res1_coord1_0, lt_res1_coord1_1, lt_res1_coord1_2, lt_res1_coord1_3, lt_res1_coord1_4 } };
+  static ap_uint<BITSPROPSIGMACOORD_A> lt_res0_coord2[5][512] = { { lt_res0_coord2_0, lt_res0_coord2_1, lt_res0_coord2_2, lt_res0_coord2_3, lt_res0_coord2_4 } };
+  static ap_uint<BITSPROPSIGMACOORD_B> lt_res1_coord2[5][512] = { { lt_res1_coord2_0, lt_res1_coord2_1, lt_res1_coord2_2, lt_res1_coord2_3, lt_res1_coord2_4 } };
+
+  static ap_uint<BITSPROPSIGMAETA_A> lt_res0_eta1[5][512] = { { lt_res0_eta1_0, lt_res0_eta1_1, lt_res0_eta1_2, lt_res0_eta1_3, lt_res0_eta1_4 } };
+  static ap_uint<BITSPROPSIGMAETA_A> lt_res1_eta1[5][512] = { { lt_res1_eta_0, lt_res1_eta_1, lt_res1_eta_2, lt_res1_eta_3, lt_res1_eta_4 } };
+
+  static ap_uint<BITSPROPSIGMAETA_A> lt_res0_eta2[5][512] = { { lt_res0_eta2_0, lt_res0_eta2_1, lt_res0_eta2_2, lt_res0_eta2_3, lt_res0_eta2_4 } };
+
+  static uint barrellimit[5] = { barrelLimit0_, barrelLimit1_, barrelLimit2_, barrelLimit3_, barrelLimit4_ };
+
   ap_uint<BITSPROPCOORD> prop_coord1 = 0;
   ap_uint<BITSPROPCOORD> prop_coord2 = 0;
   ap_uint<BITSPROPSIGMACOORD_A> res0_coord1 = 0;
@@ -149,65 +164,18 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   uint reducedAbsEta = track.abseta() / 8;
 
-  if (layer == 0) {
-    prop_coord1 = lt_prop_coord1_0[reducedAbsEta];
-    prop_coord2 = lt_prop_coord2_0[reducedAbsEta];
-    res0_coord1 = lt_res0_coord1_0[reducedAbsEta];
-    res1_coord1 = lt_res1_coord1_0[reducedAbsEta];
-    res0_coord2 = lt_res0_coord2_0[reducedAbsEta];
-    res1_coord2 = lt_res1_coord2_0[reducedAbsEta];
-    res0_eta1 = lt_res0_eta1_0[reducedAbsEta];
-    res1_eta = lt_res1_eta_0[reducedAbsEta];
-    res0_eta2 = lt_res0_eta2_0[reducedAbsEta];
-    is_barrel = reducedAbsEta < barrelLimit0_ ? 1 : 0;
-  } else if (layer == 1) {
-    prop_coord1 = lt_prop_coord1_1[reducedAbsEta];
-    prop_coord2 = lt_prop_coord2_1[reducedAbsEta];
-    res0_coord1 = lt_res0_coord1_1[reducedAbsEta];
-    res1_coord1 = lt_res1_coord1_1[reducedAbsEta];
-    res0_coord2 = lt_res0_coord2_1[reducedAbsEta];
-    res1_coord2 = lt_res1_coord2_1[reducedAbsEta];
-    res0_eta1 = lt_res0_eta1_1[reducedAbsEta];
-    res1_eta = lt_res1_eta_1[reducedAbsEta];
-    res0_eta2 = lt_res0_eta2_1[reducedAbsEta];
-    is_barrel = reducedAbsEta < barrelLimit1_ ? 1 : 0;
-
-  } else if (layer == 2) {
-    prop_coord1 = lt_prop_coord1_2[reducedAbsEta];
-    prop_coord2 = lt_prop_coord2_2[reducedAbsEta];
-    res0_coord1 = lt_res0_coord1_2[reducedAbsEta];
-    res1_coord1 = lt_res1_coord1_2[reducedAbsEta];
-    res0_coord2 = lt_res0_coord2_2[reducedAbsEta];
-    res1_coord2 = lt_res1_coord2_2[reducedAbsEta];
-    res0_eta1 = lt_res0_eta1_2[reducedAbsEta];
-    res1_eta = lt_res1_eta_2[reducedAbsEta];
-    res0_eta2 = lt_res0_eta2_2[reducedAbsEta];
-    is_barrel = reducedAbsEta < barrelLimit2_ ? 1 : 0;
-
-  } else if (layer == 3) {
-    prop_coord1 = lt_prop_coord1_3[reducedAbsEta];
-    prop_coord2 = lt_prop_coord2_3[reducedAbsEta];
-    res0_coord1 = lt_res0_coord1_3[reducedAbsEta];
-    res1_coord1 = lt_res1_coord1_3[reducedAbsEta];
-    res0_coord2 = lt_res0_coord2_3[reducedAbsEta];
-    res1_coord2 = lt_res1_coord2_3[reducedAbsEta];
-    res0_eta1 = lt_res0_eta1_3[reducedAbsEta];
-    res1_eta = lt_res1_eta_3[reducedAbsEta];
-    res0_eta2 = lt_res0_eta2_3[reducedAbsEta];
-    is_barrel = reducedAbsEta < barrelLimit3_ ? 1 : 0;
-
-  } else if (layer == 4) {
-    prop_coord1 = lt_prop_coord1_4[reducedAbsEta];
-    prop_coord2 = lt_prop_coord2_4[reducedAbsEta];
-    res0_coord1 = lt_res0_coord1_4[reducedAbsEta];
-    res1_coord1 = lt_res1_coord1_4[reducedAbsEta];
-    res0_coord2 = lt_res0_coord2_4[reducedAbsEta];
-    res1_coord2 = lt_res1_coord2_4[reducedAbsEta];
-    res0_eta1 = lt_res0_eta1_4[reducedAbsEta];
-    res1_eta = lt_res1_eta_4[reducedAbsEta];
-    res0_eta2 = lt_res0_eta2_4[reducedAbsEta];
-    is_barrel = 0;
-  }
+  //Propagate to layers
+  assert(layer >= 0 && layer < 5);
+  prop_coord1 = lt_prop_coord1[layer][reducedAbsEta];
+  prop_coord2 = lt_prop_coord2[layer][reducedAbsEta];
+  res0_coord1 = lt_res0_coord1[layer][reducedAbsEta];
+  res1_coord1 = lt_res1_coord1[layer][reducedAbsEta];
+  res0_coord2 = lt_res0_coord2[layer][reducedAbsEta];
+  res1_coord2 = lt_res1_coord2[layer][reducedAbsEta];
+  res0_eta1 = lt_res0_eta1[layer][reducedAbsEta];
+  res1_eta = lt_res1_eta1[layer][reducedAbsEta];
+  res0_eta2 = lt_res0_eta2[layer][reducedAbsEta];
+  is_barrel = reducedAbsEta < barrellimit[layer] ? 1 : 0;
 
   propagation_t out;
   ap_int<BITSTTCURV> curvature = track.curvature();
