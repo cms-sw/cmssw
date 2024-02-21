@@ -35,7 +35,7 @@ class HGCalMappingModuleIndexer {
 public:
   HGCalMappingModuleIndexer() : modFedIndexer_({maxCBperFED_, maxECONDperCB_}) {}
 
-  virtual ~HGCalMappingModuleIndexer() = default;
+  ~HGCalMappingModuleIndexer() = default;
 
   /**
      @short for a new module it adds it's type to the readaout sequence vector
