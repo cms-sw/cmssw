@@ -271,53 +271,26 @@
 
 <test name="TestXMLSafeException" command="run_XMLException.sh"/>
 
-<bin name="TestFWCoreFrameworkProductSelector" file="ProductSelector_t.cpp">
+<bin name="TestFWCoreFrameworkProductSelector" file="test_catch2_main.cc,ProductSelector_t.cpp">
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
+  <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkEventSelector" file="EventSelector_t.cpp">
+<bin name="TestFWCoreFrameworkEventSelector" file="test_catch2_main.cc,EventSel*_t.cpp">
   <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
+  <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkEventSelWildcard" file="EventSelWildcard_t.cpp">
-  <use name="DataFormats/Common"/>
+<bin name="TestFWCoreTriggerResultsBasedEventSelectorUtilities" file="test_catch2_main.cc,TriggerResultsBasedEventSelectorUtilities_t.cpp">
   <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-
-<bin name="TestFWCoreFrameworkEventSelExc" file="EventSelExc_t.cpp">
-  <use name="DataFormats/Common"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-
-<bin name="TestFWCoreFrameworkEventSelOverlap" file="EventSelOverlap_t.cpp">
-  <use name="DataFormats/Common"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-
-<bin name="TestFWCoreFrameworkRegistryTemplate" file="RegistryTemplate_t.cpp">
-  <use name="DataFormats/Provenance"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-
-<bin name="TestFWCoreOutputModuleUtilities" file="OutputModuleUtilities_t.cpp">
-  <use name="FWCore/Framework"/>
+  <use name="catch2"/>
 </bin>
 
 <bin name="TestFWCoreFrameworkStatemachine" file="statemachine_t.cc">
