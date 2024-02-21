@@ -211,7 +211,6 @@ public:
   constexpr static uint32_t maxCBperFED_ = 10;
   ///< max number of ECON-Ds processed by a main buffer/capture block
   constexpr static uint32_t maxECONDperCB_ = 12;
-  std::vector<std::string> SiPMtypes_;
 
 private:
   /**
