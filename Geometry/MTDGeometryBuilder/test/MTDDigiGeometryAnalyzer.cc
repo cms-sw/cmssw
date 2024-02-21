@@ -238,6 +238,8 @@ void MTDDigiGeometryAnalyzer::checkPixelsAcceptance(const GeomDetUnit& det) {
     double ax = CLHEP::RandFlat::shoot(-width * 0.5, width * 0.5);
     double ay = CLHEP::RandFlat::shoot(-length * 0.5, length * 0.5);
     LocalPoint hit(ax, ay, 0);
+    auto const indici = topo.pixelIndex(hit);
+    assert(indici.first < topo.nrows() && indici.second < topo.ncolumns());  // sanity check on the index definition
     if (topo.isInPixel(hit)) {
       inpixel++;
     }
