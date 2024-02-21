@@ -11,7 +11,7 @@
     <field name="di_" mapping="blob"/>
   </class> 
 
-  <class name="FEDReadoutSequence_t" class_version="0">
+  <class name="HGCalFEDReadoutSequence_t" class_version="0">
     <field name="readoutTypes_" mapping="blob"/>
     <field name="modOffsets_" mapping="blob"/>
     <field name="erxOffsets_" mapping="blob"/>

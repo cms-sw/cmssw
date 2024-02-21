@@ -156,7 +156,7 @@ public:
   std::vector<uint32_t> offsets_;
   std::vector<HGCalDenseIndexerBase> di_;
 
-  virtual ~HGCalMappingCellIndexer() {}
+  ~HGCalMappingCellIndexer() {}
 
   COND_SERIALIZABLE;
 };

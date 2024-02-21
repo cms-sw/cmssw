@@ -9,19 +9,21 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /**
    @short this structure holds the indices and types in the readout sequence
    as the 12 capture blocks may not all be used and the each capture block may also be under-utilized
    a lookup table is used to hold the compact index
  */
-struct FEDReadoutSequence_t {
+struct HGCalFEDReadoutSequence_t {
   uint32_t id;
-  std::vector<int> moduleLUT_;  ///>look-up table (capture block, econd idx) -> internal dense index
-  std::vector<int>
-      readoutTypes_;  ///>dense sequence of modules in the readout: the type is the one in use in the cell mapping
-  std::vector<uint32_t> modOffsets_, erxOffsets_,
-      chDataOffsets_;  ///>dense sequence of offsets for modules, e-Rx and channel data
+  ///>look-up table (capture block, econd idx) -> internal dense index
+  std::vector<int> moduleLUT_;
+  ///>dense sequence of modules in the readout: the type is the one in use in the cell mapping
+  std::vector<int> readoutTypes_;
+  ///>dense sequence of offsets for modules, e-Rx and channel data
+  std::vector<uint32_t> modOffsets_, erxOffsets_, chDataOffsets_;
   COND_SERIALIZABLE;
 };
 
@@ -51,7 +53,7 @@ public:
     if (fedid >= fedReadoutSequences_.size()) {
       fedReadoutSequences_.resize(fedid + 1);
     }
-    FEDReadoutSequence_t &frs = fedReadoutSequences_[fedid];
+    HGCalFEDReadoutSequence_t &frs = fedReadoutSequences_[fedid];
     frs.id = fedid;
 
     //assign position, resize if needed, and fill the type code
@@ -146,13 +148,16 @@ public:
      @short decodes silicon or sipm type and cell type for the detector id 
      from the typecode string
    */
-  std::pair<bool, int> convertTypeCode(std::string typecode) {
+  static std::pair<bool, int> convertTypeCode(std::string_view typecode) {
+    if (typecode.size() < 5)
+      throw cms::Exception("InvalidHGCALTypeCode") << typecode << " is invalid for decoding readout cell type";
+
     bool isSiPM = {typecode.find("TM") != std::string::npos ? true : false};
     int celltype;
     if (isSiPM) {
       celltype = 0;  // Assign SiPM type coarse or molded with next version of modulelocator
     } else {
-      celltype = {typecode[4] == 1 ? 0 : typecode[4] == 2 ? 1 : 2};
+      celltype = {typecode[4] == '1' ? 0 : typecode[4] == '2' ? 1 : 2};
     }
     return std::pair<bool, bool>(isSiPM, celltype);
   }
@@ -191,16 +196,21 @@ public:
     return getTypeForModule(fedid, nmod);
   }
 
-  HGCalDenseIndexerBase modFedIndexer_;                    ///< internal indexer
-  std::vector<FEDReadoutSequence_t> fedReadoutSequences_;  ///< the sequence of FED readout sequence descriptors
-  std::vector<uint32_t> globalTypesCounter_, globalTypesNErx_,
-      globalTypesNWords_;  ///< global counters for types of modules, number of e-Rx and words
-  std::vector<uint32_t> moduleOffsets_, erxOffsets_,
-      dataOffsets_;  ///< base offsets to apply per module type with different granularity : module, e-Rx, channel data
-  uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_;  ///< global counters (sizes of vectors)
+  ///< internal indexer
+  HGCalDenseIndexerBase modFedIndexer_;
+  ///< the sequence of FED readout sequence descriptors
+  std::vector<HGCalFEDReadoutSequence_t> fedReadoutSequences_;
+  ///< global counters for types of modules, number of e-Rx and words
+  std::vector<uint32_t> globalTypesCounter_, globalTypesNErx_, globalTypesNWords_;
+  ///< base offsets to apply per module type with different granularity : module, e-Rx, channel data
+  std::vector<uint32_t> moduleOffsets_, erxOffsets_, dataOffsets_;
+  ///< global counters (sizes of vectors)
+  uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_;
 
-  constexpr static uint32_t maxCBperFED_ = 10;    ///< max number of main buffers/capture blocks per FED
-  constexpr static uint32_t maxECONDperCB_ = 12;  ///< max number of ECON-Ds processed by a main buffer/capture block
+  ///< max number of main buffers/capture blocks per FED
+  constexpr static uint32_t maxCBperFED_ = 10;
+  ///< max number of ECON-Ds processed by a main buffer/capture block
+  constexpr static uint32_t maxECONDperCB_ = 12;
   std::vector<std::string> SiPMtypes_;
 
 private:
