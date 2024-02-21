@@ -135,8 +135,9 @@ std::pair<uint8_t, uint8_t> MTDGeomUtil::pixelInModule(const DetId& id, const Lo
                                                << detId.rawId() << ") is invalid!" << std::dec << std::endl;
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
-    const auto& thepixel = topo.pixel(local_point);
-    uint8_t row(thepixel.first), col(thepixel.second);
+    const auto& thepixel = topo.pixelIndex(local_point);
+    uint8_t row = static_cast<uint8_t>(thepixel.first);
+    uint8_t col = static_cast<uint8_t>(thepixel.second);
     return std::pair<uint8_t, uint8_t>(row, col);
   } else {
     BTLDetId detId(id);
@@ -148,8 +149,9 @@ std::pair<uint8_t, uint8_t> MTDGeomUtil::pixelInModule(const DetId& id, const Lo
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     auto topo_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
-    const auto& thepixel = topo.pixel(topo_point);
-    uint8_t row(thepixel.first), col(thepixel.second);
+    const auto& thepixel = topo.pixelIndex(topo_point);
+    uint8_t row = static_cast<uint8_t>(thepixel.first);
+    uint8_t col = static_cast<uint8_t>(thepixel.second);
     return std::pair<uint8_t, uint8_t>(row, col);
   }
 }
