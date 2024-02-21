@@ -9,6 +9,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include "catch.hpp"
 
 struct Dummy {
   Dummy() : id() {}
@@ -115,15 +116,13 @@ template <typename R>
 void test_sort(R r) {
   //std::cout << "Check sort for " << typeid(R).name() << std::endl;
   //std::cout << "Before sort: " << std::endl;
-  assert(!std::is_sorted(r.begin(), r.end(), DummySorter()));
+  REQUIRE(!std::is_sorted(r.begin(), r.end(), DummySorter()));
   //for(typename R::const_iterator it = r.begin(), ed = r.end(); it != ed; ++it) { std::cout << " - " << *it << std::endl; }
   std::sort(r.begin(), r.end(), DummySorter());
   //std::cout << "After sort: " << std::endl;
   //for(typename R::const_iterator it = r.begin(), ed = r.end(); it != ed; ++it) { std::cout << " - " << *it << std::endl; }
   //std::cout << "End check " << std::endl;
-  if (!std::is_sorted(r.begin(), r.end(), DummySorter())) {
-    std::cout << "Sort for " << typeid(R).name() << " compiles but doesn't sort!" << std::endl;
-  }
+  REQUIRE(std::is_sorted(r.begin(), r.end(), DummySorter()));
 }
 
 template <typename T>
@@ -199,7 +198,7 @@ DISABLE_CONST_ITR_IS_CONST(edm::RefVector<Coll>)
 DISABLE_SORT_BARE(edm::PtrVector<Dummy>)
 DISABLE_SORT_BARE(edm::RefVector<Coll>)
 
-int main(int, char**) try {
+TEST_CASE("test boost::range", "[boost::range]") {
   dummies_.clear();
   for (int i = 0; i < 12; ++i)
     dummies_.push_back(Dummy(i));
@@ -207,11 +206,4 @@ int main(int, char**) try {
   test(RefVector<Coll>());
   test(PtrVector<Dummy>());
   test(OwnVector<Dummy>());
-  return 0;
-} catch (cms::Exception const& e) {
-  std::cerr << e.explainSelf() << std::endl;
-  return 1;
-} catch (std::exception const& e) {
-  std::cerr << e.what() << std::endl;
-  return 1;
 }

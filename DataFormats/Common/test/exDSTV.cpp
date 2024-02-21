@@ -2,18 +2,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <functional>
+#include "catch.hpp"
 
-struct T {
-  float v;
-};
+namespace {
+  struct T {
+    float v;
+  };
+}  // namespace
 
 typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
 typedef DSTV::FastFiller FF;
 
-void print0(DST const& d) { std::cout << d[0].v << std::endl; }
-
-int main() try {
+TEST_CASE("test edmNew::DetSetVector", "[edmNew::DetSetVector]") {
   DSTV dstv;
 
   {
@@ -26,20 +27,18 @@ int main() try {
     ff.push_back(T());
     ff.push_back(T());
   }
-  std::cout << dstv.size() << std::endl;
-  std::cout << dstv.dataSize() << std::endl;
-  std::cout << dstv.detsetSize(0) << std::endl;
+  REQUIRE(dstv.size() == 2);
+  REQUIRE(dstv.dataSize() == 3);
+  REQUIRE(dstv.detsetSize(0) == 1);
 
   DST d1 = *dstv.find(2);
   d1[0].v = 3.14;
   DST d2 = dstv.insert(4, 3);
   d2[0].v = 4.15;
 
-  std::for_each(dstv.begin(), dstv.end(), std::function<void(DST const&)>(print0));
-
-  return 0;
-} catch (cms::Exception const& e) {
-  std::cerr << e.explainSelf() << std::endl;
-} catch (std::exception const& e) {
-  std::cerr << e.what() << std::endl;
+  SECTION("iterator") {
+    int i = 0;
+    std::vector<float> values = {2.1, 3.14, 4.15};
+    std::for_each(dstv.begin(), dstv.end(), [&i, &values](auto const& value) { REQUIRE(value[0].v == values[i++]); });
+  }
 }
