@@ -59,9 +59,6 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
       }
     }
   }
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
-  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);std::endl;
-  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);
 
   for (auto& obs : observers)
     obs->addProcesorData("linkData", procDataTree);
@@ -92,35 +89,32 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
       stub.qualityHw = 0;
   }
 
-  if (stub.qualityHw < config->getMinDtPhiQuality())
+  if (stub.qualityHw < config.getMinDtPhiQuality())
     return;
 
-  unsigned int hwNumber = config->getLayerNumber(detid.rawId());
-  if (config->getHwToLogicLayer().find(hwNumber) == config->getHwToLogicLayer().end())
+  unsigned int hwNumber = config.getLayerNumber(detid.rawId());
+  if (config.getHwToLogicLayer().find(hwNumber) == config.getHwToLogicLayer().end())
     return;
 
-  auto iter = config->getHwToLogicLayer().find(hwNumber);
+  auto iter = config.getHwToLogicLayer().find(hwNumber);
   unsigned int iLayer = iter->second;
-  unsigned int iInput = OMTFinputMaker::getInputNumber(config, detid.rawId(), iProcessor, procTyp);
+  unsigned int iInput = OMTFinputMaker::getInputNumber(&config, detid.rawId(), iProcessor, procTyp);
   //MuonStub& stub = muonStubsInLayers[iLayer][iInput];
 
   stub.type = MuonStub::DT_PHI_ETA;
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
-  stub.phiHw = angleConverter->getProcessorPhi(
-      OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
-  //stub.etaHw  =  angleConverter->getGlobalEta(digi, dtThDigis);
+  stub.phiHw = angleConverter.getProcessorPhi(
+      OMTFinputMaker::getProcessorPhiZero(&config, iProcessor), procTyp, digi.scNum(), digi.phi());
 
   //TODO the dtThDigis are not good yet,so passing an empty container to the angleConverter
   //then it should return middle of chambers
   //remove when the dtThDigis are fixed on the DT side
   L1MuDTChambThContainer dtThDigisEmpty;
-  stub.etaHw = angleConverter->getGlobalEta(detid, &dtThDigisEmpty, digi.bxNum() - 20);
-  //stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum() - 20);
+  stub.etaHw = angleConverter.getGlobalEta(detid, &dtThDigisEmpty, digi.bxNum() - 20);
   //in phase2, the phiB is 13 bits, and range is [-2, 2 rad] so 4 rad, 2^13 units/(4 rad) =  1^11/rad.
   //need to convert them to 512units==1rad (to use OLD PATTERNS...)
-  stub.phiBHw = digi.phiBend() * config->dtPhiBUnitsRad() / 2048;
-  //the cut if (stub.qualityHw >= config->getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
+  stub.phiBHw = digi.phiBend() * config.dtPhiBUnitsRad() / 2048;
+  //the cut if (stub.qualityHw >= config.getMinDtPhiBQuality()) is done in the ProcessorBase<GoldenPatternType>::restrictInput
   //as is is done like that in the firmware
 
   // need to shift 20-BX to roll-back the shift introduced by the DT TPs
@@ -130,13 +124,13 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
   stub.logicLayer = iLayer;
   stub.detId = detid;
 
-  OmtfName board(iProcessor, config);
+  OmtfName board(iProcessor, &config);
   LogTrace("l1tOmtfEventPrint") << board.name() << " L1Phase2MuDTPhDigi: detid " << detid << " digi "
                                 << " whNum " << digi.whNum() << " scNum " << digi.scNum() << " stNum " << digi.stNum()
                                 << " slNum " << digi.slNum() << " quality " << digi.quality() << " rpcFlag "
                                 << digi.rpcFlag() << " phi " << digi.phi() << " phiBend " << digi.phiBend()
                                 << std::endl;
-  OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  OMTFinputMaker::addStub(&config, muonStubsInLayers, iLayer, iInput, stub);
 }
 
 void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers,
@@ -150,7 +144,7 @@ void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsIn
 bool DtPhase2DigiToStubsConverterOmtf::acceptDigi(const DTChamberId& dTChamberId,
                                                   unsigned int iProcessor,
                                                   l1t::tftype procType) {
-  return OMTFinputMaker::acceptDtDigi(config, dTChamberId, iProcessor, procType);
+  return OMTFinputMaker::acceptDtDigi(&config, dTChamberId, iProcessor, procType);
 }
 
 InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
@@ -160,15 +154,6 @@ InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
                                    std::unique_ptr<OmtfAngleConverter> angleConverter)
     : OMTFinputMaker(edmParameterSet, muStubsInputTokens, config, std::move(angleConverter)) {
   edm::LogImportant("OMTFReconstruction") << "constructing InputMakerPhase2" << std::endl;
-
-  /*  if(!edmParameterSet.getParameter<bool>("dropDTPrimitives"))
-    digiToStubsConverters.emplace_back(std::make_unique<DtDigiToStubsConverterOmtf>(config, &angleConverter, muStubsInputTokens.inputTokenDtPh, muStubsInputTokens.inputTokenDtTh));
-
-  if(!edmParameterSet.getParameter<bool>("dropCSCPrimitives"))
-    digiToStubsConverters.emplace_back(std::make_unique<CscDigiToStubsConverterOmtf>(config, &angleConverter, muStubsInputTokens.inputTokenCSC));
-
-  if(!edmParameterSet.getParameter<bool>("dropRPCPrimitives"))
-    digiToStubsConverters.emplace_back(std::make_unique<RpcDigiToStubsConverterOmtf>(config, &angleConverter, &rpcClusterization, muStubsInputTokens.inputTokenRPC));*/
 
   if (edmParameterSet.exists("usePhase2DTPrimitives") && edmParameterSet.getParameter<bool>("usePhase2DTPrimitives")) {
     if (edmParameterSet.getParameter<bool>("dropDTPrimitives") != true)
@@ -180,8 +165,4 @@ InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
     digiToStubsConverters.emplace_back(std::make_unique<DtPhase2DigiToStubsConverterOmtf>(
         config, this->angleConverter.get(), inputTokenDTPhPhase2, muStubsInputTokens.inputTokenDtTh));
   }
-}
-
-InputMakerPhase2::~InputMakerPhase2() {
-  // TODO Auto-generated destructor stub
 }

@@ -11,7 +11,7 @@ class L1TMuonOverlapPhase2TrackProducer : public edm::one::EDProducer<edm::one::
 public:
   L1TMuonOverlapPhase2TrackProducer(const edm::ParameterSet&);
 
-  ~L1TMuonOverlapPhase2TrackProducer() override;
+  ~L1TMuonOverlapPhase2TrackProducer() override = default;
 
   void beginJob() override;
 
@@ -24,8 +24,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  //edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit;  //TODO remove
-
   MuStubsInputTokens muStubsInputTokens;
 
   edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> omtfParamsEsToken;

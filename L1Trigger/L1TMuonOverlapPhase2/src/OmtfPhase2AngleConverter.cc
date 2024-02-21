@@ -1,7 +1,7 @@
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfPhase2AngleConverter.h"
 
 int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int dtScNum, int dtPhi) const {
-  int dtPhiBins = 65536;                    //65536. for [-0.5,0.5] radians
+  constexpr int dtPhiBins = 65536;          //65536. for [-0.5,0.5] radians
   double hsPhiPitch = 2 * M_PI / nPhiBins;  // width of phi Pitch, related to halfStrip at CSC station 2
 
   int sector = dtScNum + 1;  //NOTE: there is a inconsistency in DT sector numb. Thus +1 needed to get detector numb.
