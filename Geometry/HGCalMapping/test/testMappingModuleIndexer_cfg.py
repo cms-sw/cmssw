@@ -33,17 +33,6 @@ process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModule
                                                       filename=cms.FileInPath(options.modules),
                                                       moduleindexer=cms.ESInputTag('') )
 
-if hasattr(process, 'MessageLogger'):
-    process.MessageLogger.debugModules.extend(["HGCalMapping*"])
-    process.MessageLogger.cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG'),
-    )
-    process.MessageLogger.cout = cms.untracked.PSet(
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    )
-
 
 #tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
