@@ -30,6 +30,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0, 1, '1-(muon-subtracted raw pt)/(raw pt)'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
+                Plot1D('EmEF', 'EmEF', 20, 0., 1., "charged+neutral Electromagnetic Energy Fraction"),
             )
         ),
         DeepMETResolutionTune = cms.PSet(
