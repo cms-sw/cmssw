@@ -33,24 +33,24 @@ private:
   // quantization controllers
   typedef ap_ufixed<14, 12, AP_RND, AP_WRAP> pt_t;  // LSB is 0.25 and max is 4 TeV
   typedef ap_int<12> phi_t;                         // LSB is pi/720 ~ 0.0044 and max is +/-8.9
-  const float ptLSB_ = 0.25;                        // GeV
-  const float phiLSB_ = M_PI / 720;                 // rad
+  static constexpr float ptLSB_ = 0.25;             // GeV
+  static constexpr float phiLSB_ = M_PI / 720;      // rad
 
   // derived, helper types
   typedef ap_fixed<pt_t::width + 1, pt_t::iwidth + 1, AP_RND, AP_SAT> pxy_t;
   typedef ap_fixed<2 * pt_t::width, 2 * pt_t::iwidth, AP_RND, AP_SAT> pt2_t;
   // derived, helper constants
-  const float maxPt_ = ((1 << pt_t::width) - 1) * ptLSB_;
+  static constexpr float maxPt_ = ((1 << pt_t::width) - 1) * ptLSB_;
   const phi_t hwPi_ = round(M_PI / phiLSB_);
   const phi_t hwPiOverTwo_ = round(M_PI / (2 * phiLSB_));
 
   typedef ap_ufixed<pt_t::width, 0> inv_t;  // can't easily use the MAXPT/pt trick with ap_fixed
 
   // to make configurable...
-  const int dropBits_ = 2;
-  const int dropFactor_ = (1 << dropBits_);
-  const int invTableBits_ = 10;
-  const int invTableSize_ = (1 << invTableBits_);
+  static constexpr int dropBits_ = 2;
+  static constexpr int dropFactor_ = (1 << dropBits_);
+  static constexpr int invTableBits_ = 10;
+  static constexpr int invTableSize_ = (1 << invTableBits_);
 
   // hls4ml emulator objects
   bool useMlModel_;
@@ -58,23 +58,25 @@ private:
   std::string modelVersion_;
   typedef ap_fixed<32, 16> input_t;
   typedef ap_fixed<32, 16> result_t;
-  int numContInputs_ = 4;
-  int numPxPyInputs_ = 2;
-  int numCatInputs_ = 2;
-  int numInputs_ = numContInputs_ + numPxPyInputs_ + numCatInputs_;
+  static constexpr int numContInputs_ = 4;
+  static constexpr int numPxPyInputs_ = 2;
+  static constexpr int numCatInputs_ = 2;
+  static constexpr int numInputs_ = numContInputs_ + numPxPyInputs_ + numCatInputs_;
 
   void Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool debug = false) const;
   void PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug = false) const;
 
   int EncodePdgId(int pdgId) const;
 
-  void CalcMetHLS(std::vector<float> pt, std::vector<float> phi, reco::Candidate::PolarLorentzVector& metVector) const;
-  void CalcMlMet(std::vector<float> pt,
-                 std::vector<float> eta,
-                 std::vector<float> phi,
-                 std::vector<float> puppiWeight,
-                 std::vector<int> pdgId,
-                 std::vector<int> charge,
+  void CalcMetHLS(const std::vector<float>& pt,
+                  const std::vector<float>& phi,
+                  reco::Candidate::PolarLorentzVector& metVector) const;
+  void CalcMlMet(const std::vector<float>& pt,
+                 const std::vector<float>& eta,
+                 const std::vector<float>& phi,
+                 const std::vector<float>& puppiWeight,
+                 const std::vector<int>& pdgId,
+                 const std::vector<int>& charge,
                  reco::Candidate::PolarLorentzVector& metVector) const;
 };
 
@@ -151,12 +153,12 @@ int L1MetPfProducer::EncodePdgId(int pdgId) const {
   }
 }
 
-void L1MetPfProducer::CalcMlMet(std::vector<float> pt,
-                                std::vector<float> eta,
-                                std::vector<float> phi,
-                                std::vector<float> puppiWeight,
-                                std::vector<int> pdgId,
-                                std::vector<int> charge,
+void L1MetPfProducer::CalcMlMet(const std::vector<float>& pt,
+                                const std::vector<float>& eta,
+                                const std::vector<float>& phi,
+                                const std::vector<float>& puppiWeight,
+                                const std::vector<int>& pdgId,
+                                const std::vector<int>& charge,
                                 reco::Candidate::PolarLorentzVector& metVector) const {
   const int inputSize = maxCands_ * numInputs_;
 
@@ -194,8 +196,8 @@ void L1MetPfProducer::CalcMlMet(std::vector<float> pt,
   metVector.SetEta(0);
 }
 
-void L1MetPfProducer::CalcMetHLS(std::vector<float> pt,
-                                 std::vector<float> phi,
+void L1MetPfProducer::CalcMetHLS(const std::vector<float>& pt,
+                                 const std::vector<float>& phi,
                                  reco::Candidate::PolarLorentzVector& metVector) const {
   pxy_t hw_px = 0;
   pxy_t hw_py = 0;
