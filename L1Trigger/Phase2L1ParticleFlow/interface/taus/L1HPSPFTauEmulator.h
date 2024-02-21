@@ -274,13 +274,15 @@ namespace l1HPSPFTauEmu {
     parts_copy.resize(parts.size());
     std::transform(parts.begin(), parts.end(), parts_copy.begin(), [](const Particle& part) { return part; });
     //sorting by pt
-    std::sort(parts_copy.begin(), parts_copy.end(), [](Particle i, Particle j) { return (i.hwPt > j.hwPt); });
+    std::sort(
+        parts_copy.begin(), parts_copy.end(), [](const Particle& i, const Particle& j) { return (i.hwPt > j.hwPt); });
 
     //sorting jets by pt
     std::vector<Particle> jets_copy;
     jets_copy.resize(jets.size());
     std::transform(jets.begin(), jets.end(), jets_copy.begin(), [](const Particle& jet) { return jet; });
-    std::sort(jets_copy.begin(), jets_copy.end(), [](Particle i, Particle j) { return (i.hwPt > j.hwPt); });
+    std::sort(
+        jets_copy.begin(), jets_copy.end(), [](const Particle& i, const Particle& j) { return (i.hwPt > j.hwPt); });
 
     std::vector<Tau> taus;
     std::vector<Tau> cleaned_taus;
@@ -329,7 +331,7 @@ namespace l1HPSPFTauEmu {
       }
     }
     for (std::vector<int>::size_type i = 0; i != seeds.size(); i++) {
-      Particle seed = seeds.at(i);
+      Particle seed = seeds[i];
 
       std::vector<Particle> iso_parts;
 
@@ -351,7 +353,7 @@ namespace l1HPSPFTauEmu {
     //add in the jet taus
     if (jEnable) {
       for (std::vector<int>::size_type i = 0; i != jseeds.size(); i++) {
-        Particle jseed = jseeds.at(i);
+        Particle jseed = jseeds[i];
         std::vector<Particle> iso_parts;
         iso_parts.reserve(30);
         pt_t total_pt = 0;
@@ -380,7 +382,7 @@ namespace l1HPSPFTauEmu {
       }
     }
 
-    std::sort(taus.begin(), taus.end(), [](Tau i, Tau j) { return (i.hwPt > j.hwPt); });
+    std::sort(taus.begin(), taus.end(), [](const Tau& i, const Tau& j) { return (i.hwPt > j.hwPt); });
 
     int taus_max = taus.size();
 

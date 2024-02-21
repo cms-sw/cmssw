@@ -91,7 +91,7 @@ void L1HPSPFTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 
   taus = processEvent_HW(particles, jets);
 
-  std::sort(taus.begin(), taus.end(), [](l1t::PFTau i, l1t::PFTau j) { return (i.pt() > j.pt()); });
+  std::sort(taus.begin(), taus.end(), [](const l1t::PFTau& i, const l1t::PFTau& j) { return (i.pt() > j.pt()); });
   newPFTauCollection->swap(taus);
   iEvent.put(std::move(newPFTauCollection), "HPSTaus");
 }
