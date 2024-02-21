@@ -7,8 +7,8 @@ from Configuration.StandardSequences.Reconstruction_cff import *
 #from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 
 # 2010-like PV reconstruction 
-import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
-offlinePrimaryVerticesGAP = _mod.primaryVertexProducer.clone(
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
+offlinePrimaryVerticesGAP = offlinePrimaryVertices.clone(
        TrackLabel = "generalTracks",             # label of tracks to be used
        TkFilterParameters = dict(
                     maxNormalizedChi2 = 20.0,    #
@@ -53,7 +53,7 @@ offlinePrimaryVerticesD0s51mm = offlinePrimaryVerticesGAP.clone(
     )
 )
 
-offlinePrimaryVerticesDA100um = _mod.primaryVertexProducer.clone(
+offlinePrimaryVerticesDA100um = offlinePrimaryVertices.clone(
     TrackLabel = "generalTracks",
     TkFilterParameters = dict(
         maxNormalizedChi2 = 20.0,
