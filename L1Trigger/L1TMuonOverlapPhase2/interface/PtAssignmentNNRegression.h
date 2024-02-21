@@ -5,20 +5,18 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_OMTF_PTASSIGNMENTNN_H_
-#define INTERFACE_OMTF_PTASSIGNMENTNN_H_
+#ifndef L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h
+#define L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/PtAssignmentBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/LutNetworkFixedPointRegression2Outputs.h"
-
-//#include "lutNN/lutNN2/interface/ClassifierToRegression.h"
 
 class PtAssignmentNNRegression : public PtAssignmentBase {
 public:
   PtAssignmentNNRegression(const edm::ParameterSet& edmCfg,
                            const OMTFConfiguration* omtfConfig,
                            std::string networkFile);
-  ~PtAssignmentNNRegression() override;
+  ~PtAssignmentNNRegression() override = default;
 
   std::vector<float> getPts(AlgoMuons::value_type& algoMuon,
                             std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
@@ -27,4 +25,4 @@ private:
   unique_ptr<lutNN::LutNetworkFixedPointRegressionBase> lutNetworkFP;
 };
 
-#endif /* INTERFACE_OMTF_PTASSIGNMENTNN_H_ */
+#endif /* L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h */

@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef L1TMUONOVERLAPPHASE2_OMTFEMULATION_H_
-#define L1TMUONOVERLAPPHASE2_OMTFEMULATION_H_
+#ifndef L1Trigger_L1TMuonOverlapPhase2_OmtfEmulation_h
+#define L1Trigger_L1TMuonOverlapPhase2_OmtfEmulation_h
 
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -21,7 +21,7 @@ public:
 
   void beginJob();
 
-  ~OmtfEmulation() override;
+  ~OmtfEmulation() override = default;
 
   void addObservers(const MuonGeometryTokens& muonGeometryTokens,
                     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
@@ -33,4 +33,4 @@ private:
   unique_ptr<PtAssignmentBase> ptAssignment;
 };
 
-#endif /* L1TMUONOVERLAPPHASE2_OMTFEMULATION_H_ */
+#endif /* L1Trigger_L1TMuonOverlapPhase2_OmtfEmulation_h */
