@@ -36,6 +36,8 @@ puppi = _mod.PuppiProducer.clone(
                        DeltaZCutForChargedFromPUVtxs = primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs,
                        PtMaxNeutralsStartSlope = 20.,
                        PtMaxPhotons = 20.,
+                       UseFromPV2Recovery = True,
+                       PtMinForFromPV2Recovery = 4.,
                        clonePackedCands   = False, # should only be set to True for MiniAOD
                        algos          = { 
                         0: dict( 
