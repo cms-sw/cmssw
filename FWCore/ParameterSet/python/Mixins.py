@@ -176,9 +176,12 @@ class _Parameterizable(object):
             #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
             for block in arg:
                 # Allow __PSet for testing
-                if type(block).__name__ not in ["PSet", "__PSet"]:
+                if type(block).__name__ not in ["PSet", "__PSet", "dict"]:
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
-                self.__setParameters(block.parameters_())
+                if isinstance(block,dict):
+                    kargs = block
+                else:
+                    self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
         self._isModified = False
         
