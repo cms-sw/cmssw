@@ -63,6 +63,12 @@ for plot in nanoDQM.vplots.FatJet.plots:
         _FatJet_Run2_plots.append(plot)
 _FatJet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
+    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
+    Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
+    Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
+    Plot1D('btagDDBvLV2', 'btagDDBvLV2', 20, 0, 1, 'DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD'),
+    Plot1D('btagDDCvBV2', 'btagDDCvBV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb'),
+    Plot1D('btagDDCvLV2', 'btagDDCvLV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD'),
     Plot1D('deepTagMD_H4qvsQCD', 'deepTagMD_H4qvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger H->4q vs QCD discriminator'),
     Plot1D('deepTagMD_HbbvsQCD', 'deepTagMD_HbbvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger H->bb vs QCD discriminator'),
     Plot1D('deepTagMD_TvsQCD', 'deepTagMD_TvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger top vs QCD discriminator'),
@@ -91,6 +97,14 @@ for plot in _FatJet_Run2_plots:
     if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value() \
     and 'Multiplicity' not in plot.name.value() and 'EF' not in plot.name.value():
         _FatJet_EarlyRun3_plots.append(plot)
+_FatJet_EarlyRun3_plots.extend([
+    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
+    Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
+    Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
+    Plot1D('btagDDBvLV2', 'btagDDBvLV2', 20, 0, 1, 'DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD'),
+    Plot1D('btagDDCvBV2', 'btagDDCvBV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb'),
+    Plot1D('btagDDCvLV2', 'btagDDCvLV2', 20, 0, 1, 'DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD'),
+])
 
 _Jet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
@@ -111,6 +125,7 @@ for plot in nanoDQM.vplots.Jet.plots:
     if 'PNet' not in plot.name.value() and 'Multiplicity' not in plot.name.value() \
     and 'hfHEF' not in plot.name.value() and 'hfEmEF' not in plot.name.value():
         _Jet_EarlyRun3_plots.append(plot)
+
 
 _SubJet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
