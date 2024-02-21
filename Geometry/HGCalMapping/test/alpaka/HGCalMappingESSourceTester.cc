@@ -1,4 +1,3 @@
-#include <iomanip>  // for std::setw
 #include <cstdio>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
