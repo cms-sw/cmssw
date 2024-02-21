@@ -132,7 +132,7 @@ public:
 
   FreeTrajectoryState simTrackToFts(const TrackingParticle& trackingParticle);
 
-  TrajectoryStateOnSurface atStation2(FreeTrajectoryState ftsStart, float eta) const;
+  TrajectoryStateOnSurface atStation2(const FreeTrajectoryState& ftsStart) const;
 
   TrajectoryStateOnSurface propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices);
 
