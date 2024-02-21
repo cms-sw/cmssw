@@ -1,4 +1,4 @@
-<bin name="TestDataFormatsPortableOnHost" file="test_catch2_main.cc,portableCollectionOnHost.cc,portableObjectOnHost.cc">
+<bin name="TestDataFormatsPortableOnHost" file="test_catch2_*.cc">
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
   <use name="catch2"/>
