@@ -334,7 +334,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) < fDZCut))
               pReco.id = 1;
-            else if (fUseFromPV2Recovery && lPack->fromPV() == (pat::PackedCandidate::PVTight) && (pReco.pt > fPtMinForFromPV2Recovery))
+            else if (fUseFromPV2Recovery && lPack->fromPV() == (pat::PackedCandidate::PVTight) &&
+                     (pReco.pt > fPtMinForFromPV2Recovery))
               pReco.id = 1;
             else if ((fUseDZforPileup) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) >= fDZCut))
               pReco.id = 2;
