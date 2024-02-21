@@ -245,18 +245,26 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     process.HLTPFClusterHBHECPUSerial = cms.Sequence(process.hltHBHERecHitToSoA+process.hltPFRecHitSoAProducerHCALCPUSerial+process.hltPFClusterSoAProducerCPUSerial)
 
-    # Add CPUSerial sequences to DQM_HcalReconstruction_v6 Path
-    dqmHcalRecoPathName = "DQM_HcalReconstruction_v6"
-    dqmHcalPath= getattr(process, dqmHcalRecoPathName)
-    dqmHcalRecoPathIndex = dqmHcalPath.index(process.hltHcalConsumerGPU) + 1
-    dqmHcalPath.insert(dqmHcalRecoPathIndex , process.HLTPFClusterHBHECPUSerial)
-
     # modify EventContent of DQMGPUvsCPU stream
     if hasattr(process, 'hltOutputDQMGPUvsCPU'):
         process.hltOutputDQMGPUvsCPU.outputCommands.extend([
             'keep *_hltPFClusterSoAProducer_*_*',
             'keep *_hltPFClusterSoAProducerCPUSerial_*_*',
         ])
+
+    # Add CPUSerial sequences to DQM_HcalReconstruction_v Path
+    dqmHcalRecoPathName = None
+    for pathName in process.paths_():
+        if pathName.startswith('DQM_HcalReconstruction_v'):
+            dqmHcalRecoPathName = pathName
+            break
+
+    if dqmHcalRecoPathName == None:
+        return process
+
+    dqmHcalPath = getattr(process, dqmHcalRecoPathName)
+    dqmHcalRecoPathIndex = dqmHcalPath.index(process.hltHcalConsumerGPU) + 1
+    dqmHcalPath.insert(dqmHcalRecoPathIndex , process.HLTPFClusterHBHECPUSerial)
 
     return process
 
