@@ -1,22 +1,22 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalSimHitSTudy_cfg.py geometry=D93
+#   cmsRun testHGCalSimHitSTudy_cfg.py geometry=D99
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D98, D99, D108, D94, D103, D104, D106, D109
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "D99",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D98, D99, D108, D94, D103, D104, D106, D109")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -25,21 +25,30 @@ print(options)
 
 ####################################################################
 # Use the options
-
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('HGCSimHitStudy',Phase2C17I13M9)
-if (options.geometry == "D93"):
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    fileName = 'HGCSimHitV17n.root'
-elif (options.geometry == "D92"):
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'HGCSimHitV17.root'
+if (options.geometry == "D94"):
+    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+    process = cms.Process('Client',Phase2C20I13M9)
+elif (options.geometry == "D104"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('Client',PhaseC22I13M9)
+elif (options.geometry == "D106"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('Client',PhaseC22I13M9)
+elif (options.geometry == "D109"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('Client',PhaseC22I13M9)
 else:
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'HGCSimHitV16.root'
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('Client',Phase2C17I13M9)
 
-print("Output file: ", fileName)
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+fileName = "hgcalSimHit" + options.geometry + ".root"
 
+print("Geometry file:  ", geomFile)
+print("Output file:    ", fileName)
+
+# import of standard configurations
+process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -48,9 +57,9 @@ process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['phase2_realistic']
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
