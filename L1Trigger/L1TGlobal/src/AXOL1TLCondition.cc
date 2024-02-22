@@ -94,6 +94,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 
   //if model version is not valid, do not evaluate the condition
   if (m_AXOL1TLmodelversion == "NONE") {
+    LogDebug("AXOL1TLCondition") << "Warning: AXOL1TL model version not found, not evaluating condition!" << useBx
+                                 << std::endl;
     return false;
   }
 
