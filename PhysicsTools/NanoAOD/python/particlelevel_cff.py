@@ -89,6 +89,13 @@ tautagger = cms.EDProducer("GenJetTauTaggerProducer",
     src = rivetLeptonTable.src,
 )
 
+rivetMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+    src = cms.InputTag("particleLevel:mets"),
+    name = cms.string("FiducialMET"),
+    doc = cms.string("MET from Rivet-based ParticleLevelProducer in fiducial volume abs(eta)<5"),
+    variables = cms.PSet(PTVars),
+)
+
 HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
     src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
     name = cms.string("HTXS"),
