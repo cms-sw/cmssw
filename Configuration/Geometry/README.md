@@ -31,8 +31,9 @@ Calorimeters:
 * C1: 2021 baseline
 
 Muon system:
-* M1: 2021 baseline
+* M1: 2021 baseline with additional chambers in GE21 and iRPC31/41
 * M2: 2023 GE21 shifted in position
+* M3: 2024 with additional chambers in GE21 and iRPC31
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -53,11 +54,17 @@ Several detector combinations have been generated:
 * 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
 * 2023 = T3+C1+M2+P7+O6+F3
-* 2023ZeroMaterial = T4+C1+M1+P7+O4+F2
-* 2023FlatMinus05Percent = T5+C1+M1+P7+O5+F2
-* 2023FlatMinus10Percent = T6+C1+M1+P7+O5+F2
-* 2023FlatPlus05Percent = T7+C1+M1+P7+O5+F2
-* 2023FlatPlus10Percent = T8+C1+M1+P7+O5+F2
+* 2023ZeroMaterial = T4+C1+M2+P7+O4+F2
+* 2023FlatMinus05Percent = T5+C1+M2+P7+O5+F2
+* 2023FlatMinus10Percent = T6+C1+M2+P7+O5+F2
+* 2023FlatPlus05Percent = T7+C1+M2+P7+O5+F2
+* 2023FlatPlus10Percent = T8+C1+M2+P7+O5+F2
+* 2024 = T3+C1+M3+P7+O6+F3
+* 2024ZeroMaterial = T4+C1+M3+P7+O4+F2
+* 2024FlatMinus05Percent = T5+C1+M3+P7+O5+F2
+* 2024FlatMinus10Percent = T6+C1+M3+P7+O5+F2
+* 2024FlatPlus05Percent = T7+C1+M3+P7+O5+F2
+* 2024FlatPlus10Percent = T8+C1+M3+P7+O5+F2
 
 # Phase 2 Geometries
 
