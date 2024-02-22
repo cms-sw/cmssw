@@ -136,7 +136,7 @@ class PowhegHooksBB4L : public UserHooks {
             // extract the radtype from the event comment
             stringstream ss;
             // use eventattribute as comments not filled when using edm input
-            ss << infoPtr->getEventComments();
+            ss << infoPtr->getEventAttribute("#rwgt");
             string temp;
             ss >> temp >> radtype;
             assert(temp == "#rwgt");
