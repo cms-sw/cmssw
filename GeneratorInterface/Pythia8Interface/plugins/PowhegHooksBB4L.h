@@ -72,7 +72,7 @@
 // POWHEG-BOX-RES definition. Nevertheless, it can be activated using
 // POWHEG:bb4l:ScaleResonance:veto = 1. Additionally one MUST switch off the
 // other veto by calling on POWHEG:bb4l:FSREmission:veto = 0.
-// 
+//
 // The following settings are at the disposal of the user to control the
 // behaviour of the hook
 //   - On/off switches for the veto:
@@ -89,11 +89,11 @@
 //    the resonance rest frame
 //    - POWHEG:bb4l:FSREmission:vetoDipoleFrame: emission scale is calculated
 //    using POWHEG definitions in the dipole frame
-//    - POWHEG:bb4l:FSREmission:pTpythiaVeto: emission scale is calculated 
+//    - POWHEG:bb4l:FSREmission:pTpythiaVeto: emission scale is calculated
 //    using Pythia definitions
 //   - Other flags:
 //    - POWHEG:bb4l:FSREmission:vetoQED: decides whether or not QED emission
-//    off quarks should also be vetoed (not implemented in the case of 
+//    off quarks should also be vetoed (not implemented in the case of
 //    the ScaleResonance:veto)
 //    - POWHEG:bb4l:DEBUG: enables debug printouts on standard output
 
@@ -105,14 +105,10 @@
 
 namespace Pythia8 {
 
-class PowhegHooksBB4L : public UserHooks {
-
+  class PowhegHooksBB4L : public UserHooks {
   public:
-
     PowhegHooksBB4L() {}
-    ~PowhegHooksBB4L() {
-      std::cout << "Number of FSR vetoed in BB4l = " << nInResonanceFSRveto << std::endl;
-    }
+    ~PowhegHooksBB4L() { std::cout << "Number of FSR vetoed in BB4l = " << nInResonanceFSRveto << std::endl; }
 
     //--- Initialization -------------------------------------------------------
     bool initAfterBeams() {
@@ -130,7 +126,7 @@ class PowhegHooksBB4L : public UserHooks {
     }
 
     //--- PROCESS LEVEL HOOK ---------------------------------------------------
-    // This hook gets triggered for each event before the shower starts, i.e. at 
+    // This hook gets triggered for each event before the shower starts, i.e. at
     // the LHE level. We use it to calculate the scales of resonances.
     inline bool canVetoProcessLevel() { return true; }
     inline bool doVetoProcessLevel(Event &e) {
@@ -143,14 +139,19 @@ class PowhegHooksBB4L : public UserHooks {
       assert(temp == "#rwgt");
       // we only calculate resonance scales for btilde events (radtype==1)
       // remnant events are not vetoed
-      if (!vetoAllRadtypes && radtype==2) return false;
+      if (!vetoAllRadtypes && radtype == 2)
+        return false;
       // find last top and the last anti-top in the record
       int i_top = -1, i_atop = -1, i_wp = -1, i_wm = -1;
       for (int i = 0; i < e.size(); i++) {
-        if (e[i].id() == 6) i_top = i;
-        if (e[i].id() == -6) i_atop = i;
-        if (e[i].id() == 24) i_wp = i;
-        if (e[i].id() == -24) i_wm = i;
+        if (e[i].id() == 6)
+          i_top = i;
+        if (e[i].id() == -6)
+          i_atop = i;
+        if (e[i].id() == 24)
+          i_wp = i;
+        if (e[i].id() == -24)
+          i_wm = i;
       }
       // if found calculate the resonance scale
       topresscale = findresscale(i_top, e);
@@ -169,11 +170,9 @@ class PowhegHooksBB4L : public UserHooks {
     // a FSR emission.
     inline bool canVetoFSREmission() { return vetoFSREmission; }
     inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
-
       // FSR VETO INSIDE THE RESONANCE (if it is switched on)
       if (inResonance && vetoFSREmission) {
-
-        // get the participants of the splitting: the recoiler, the radiator and the emitted 
+        // get the participants of the splitting: the recoiler, the radiator and the emitted
         int iRecAft = e.size() - 1;
         int iEmt = e.size() - 2;
         int iRadAft = e.size() - 3;
@@ -182,66 +181,68 @@ class PowhegHooksBB4L : public UserHooks {
         // find the resonance the radiator originates from
         int iRes = e[iRadBef].mother1();
         int distance = 1;
-        while ( iRes > 0 && (abs(e[iRes].id()) !=6 && abs(e[iRes].id()) != 24) ) {
+        while (iRes > 0 && (abs(e[iRes].id()) != 6 && abs(e[iRes].id()) != 24)) {
           iRes = e[iRes].mother1();
-          distance ++;
+          distance++;
         }
         if (iRes == 0) {
-          infoPtr->errorMsg("Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from the top quark or from the W boson, not vetoing");
-          return doVetoFSR(false,0);
+          infoPtr->errorMsg(
+              "Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from the top quark or from the "
+              "W boson, not vetoing");
+          return doVetoFSR(false, 0);
         }
         int iResId = e[iRes].id();
 
         // calculate the scale of the emission
         double scale;
         //using pythia pT definition ...
-        if(pTpythiaVeto)
+        if (pTpythiaVeto)
           scale = pTpythia(e, iRadAft, iEmt, iRecAft);
         //.. or using POWHEG pT definition
-        else{
+        else {
           Vec4 pr(e[iRadAft].p()), pe(e[iEmt].p()), pres(e[iRes].p()), prec(e[iRecAft].p()), psystem;
           // The computation of the POWHEG pT can be done in the top rest frame or in the diple one.
           // pdipole = pemt +prec +prad (after the emission)
-            // For the first emission off the top resonance pdipole = pw +pb (before the emission) = ptop
-          if(vetoDipoleFrame)
-            psystem = pr+pe+prec;
+          // For the first emission off the top resonance pdipole = pw +pb (before the emission) = ptop
+          if (vetoDipoleFrame)
+            psystem = pr + pe + prec;
           else
             psystem = pres;
-  
+
           // gluon splitting into two partons
           if (e[iRadBef].id() == 21)
-              scale = gSplittingScale(psystem, pr, pe);
+            scale = gSplittingScale(psystem, pr, pe);
           // quark emitting a gluon (or a photon)
-          else if (abs(e[iRadBef].id()) <= 5 && ((e[iEmt].id() == 21) && ! vetoQED) )
-              scale = qSplittingScale(psystem, pr, pe);
+          else if (abs(e[iRadBef].id()) <= 5 && ((e[iEmt].id() == 21) && !vetoQED))
+            scale = qSplittingScale(psystem, pr, pe);
           // other stuff (which we should not veto)
           else {
-              scale = 0;
+            scale = 0;
           }
         }
-        
+
         // compare the current splitting scale to the correct resonance scale
         if (iResId == 6) {
-          if ( debug && scale > topresscale)
-            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+          if (debug && scale > topresscale)
+            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; "
+                 << scale << endl;
           return doVetoFSR(scale > topresscale, scale);
-        }
-        else if (iResId == -6){
-          if ( debug && scale > atopresscale)
-            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+        } else if (iResId == -6) {
+          if (debug && scale > atopresscale)
+            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; "
+                 << scale << endl;
           return doVetoFSR(scale > atopresscale, scale);
-        }
-        else if (iResId == 24) {
-          if ( debug && scale > wpresscale)
-            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+        } else if (iResId == 24) {
+          if (debug && scale > wpresscale)
+            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; "
+                 << scale << endl;
           return doVetoFSR(scale > wpresscale, scale);
-        }
-        else if (iResId == -24){
-          if ( debug && scale > wmresscale)
-            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+        } else if (iResId == -24) {
+          if (debug && scale > wmresscale)
+            cout << iResId << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; "
+                 << scale << endl;
           return doVetoFSR(scale > wmresscale, scale);
-        }
-        else {
+        } else {
           infoPtr->errorMsg("Error in PowhegHooksBB4L::doVetoFSREmission: unimplemented case");
           exit(-1);
         }
@@ -253,8 +254,9 @@ class PowhegHooksBB4L : public UserHooks {
       }
     }
 
-    inline bool doVetoFSR(bool condition, double scale)  {
-      if (!vetoAllRadtypes && radtype==2) return false;
+    inline bool doVetoFSR(bool condition, double scale) {
+      if (!vetoAllRadtypes && radtype == 2)
+        return false;
       if (condition) {
         nInResonanceFSRveto++;
         return true;
@@ -266,13 +268,13 @@ class PowhegHooksBB4L : public UserHooks {
     // called before each resonance decay shower
     inline bool canSetResonanceScale() { return scaleResonanceVeto; }
     // if the resonance is the (anti)top or W+/W- set the scale to:
-    // - if radtype=2 (remnant): resonance virtuality 
-    // - if radtype=1 (btilde): 
+    // - if radtype=2 (remnant): resonance virtuality
+    // - if radtype=1 (btilde):
     //  - (a)topresscale/wp(m)resscale for tops and Ws
     //  - a large number otherwise
     // if is not the top, set it to a big number
     inline double scaleResonance(int iRes, const Event &e) {
-      if(!vetoAllRadtypes && radtype == 2)
+      if (!vetoAllRadtypes && radtype == 2)
         return sqrt(e[iRes].m2Calc());
       else {
         if (e[iRes].id() == 6)
@@ -291,10 +293,10 @@ class PowhegHooksBB4L : public UserHooks {
     //--- Internal helper functions --------------------------------------------
     // Calculates the scale of the hardest emission from within the resonance system
     // translated by Markus Seidel modified by Tomas Jezo
-    inline double findresscale( const int iRes, const Event& event) {
-
+    inline double findresscale(const int iRes, const Event &event) {
       // return large scale if the resonance position is ill defined
-      if (iRes < 0) return 1e30;
+      if (iRes < 0)
+        return 1e30;
 
       // get number of resonance decay products
       int nDau = event[iRes].daughterList().size();
@@ -308,16 +310,19 @@ class PowhegHooksBB4L : public UserHooks {
       // evolved all the way down to pTmin
       else if (nDau < 3) {
         return pTmin;
-      }      
+      }
       // iRes is a (anti-)top quark
       else if (abs(event[iRes].id()) == 6) {
         // find top daughters
         int idw = -1, idb = -1, idg = -1;
         for (int i = 0; i < nDau; i++) {
           int iDau = event[iRes].daughterList()[i];
-          if (abs(event[iDau].id()) == 24) idw = iDau;
-          if (abs(event[iDau].id()) ==  5) idb = iDau;
-          if (abs(event[iDau].id()) == 21) idg = iDau;
+          if (abs(event[iDau].id()) == 24)
+            idw = iDau;
+          if (abs(event[iDau].id()) == 5)
+            idb = iDau;
+          if (abs(event[iDau].id()) == 21)
+            idg = iDau;
         }
 
         // Get daughter 4-vectors in resonance frame
@@ -329,7 +334,7 @@ class PowhegHooksBB4L : public UserHooks {
         pg.bstback(event[iRes].p());
 
         // Calculate scale and return it
-        return sqrt(2*pg*pb*pg.e()/pb.e());
+        return sqrt(2 * pg * pb * pg.e() / pb.e());
       }
       // iRes is a W+(-) boson
       else if (abs(event[iRes].id()) == 24) {
@@ -337,11 +342,14 @@ class PowhegHooksBB4L : public UserHooks {
         int idq = -1, ida = -1, idg = -1;
         for (int i = 0; i < nDau; i++) {
           int iDau = event[iRes].daughterList()[i];
-          if    (event[iDau].id() == 21) idg = iDau;
-          else if (event[iDau].id()  >  0) idq = iDau;
-          else if (event[iDau].id()  <  0) ida = iDau;
+          if (event[iDau].id() == 21)
+            idg = iDau;
+          else if (event[iDau].id() > 0)
+            idq = iDau;
+          else if (event[iDau].id() < 0)
+            ida = iDau;
         }
-        
+
         // Get daughter 4-vectors in resonance frame
         Vec4 pq(event[idq].p());
         pq.bstback(event[iRes].p());
@@ -349,15 +357,15 @@ class PowhegHooksBB4L : public UserHooks {
         pa.bstback(event[iRes].p());
         Vec4 pg(event[idg].p());
         pg.bstback(event[iRes].p());
-        
+
         // Calculate scale
         Vec4 pw = pq + pa + pg;
-        double q2 = pw*pw;
-        double csi = 2*pg.e()/sqrt(q2);
-        double yq = 1 - pg*pq/(pg.e()*pq.e());
-        double ya = 1 - pg*pa/(pg.e()*pa.e());
-        // and return it 
-        return sqrt(min(1-yq,1-ya)*pow2(csi)*q2/2);
+        double q2 = pw * pw;
+        double csi = 2 * pg.e() / sqrt(q2);
+        double yq = 1 - pg * pq / (pg.e() * pq.e());
+        double ya = 1 - pg * pa / (pg.e() * pa.e());
+        // and return it
+        return sqrt(min(1 - yq, 1 - ya) * pow2(csi) * q2 / 2);
       }
       // in any other case just return a high scale equivalent to
       // unrestricted shower
@@ -368,19 +376,24 @@ class PowhegHooksBB4L : public UserHooks {
     // id wildcard is specified as 0 if match is obtained, the positions and the momenta of these particles are returned in vectors `positions` and `momenta`
     // respectively
     // if exitOnExtraLegs==true, it will exit if the decay has more particles than expected, but not less
-    inline bool match_decay(int iparticle, const Event &e, const vector<int> &ids, vector<int> &positions, vector<Vec4> &momenta, bool exitOnExtraLegs = true){
+    inline bool match_decay(int iparticle,
+                            const Event &e,
+                            const vector<int> &ids,
+                            vector<int> &positions,
+                            vector<Vec4> &momenta,
+                            bool exitOnExtraLegs = true) {
       // compare sizes
       if (e[iparticle].daughterList().size() != ids.size()) {
         if (exitOnExtraLegs && e[iparticle].daughterList().size() > ids.size()) {
           cout << "extra leg" << endl;
           exit(-1);
         }
-        return false; 
+        return false;
       }
       // compare content
       for (unsigned i = 0; i < e[iparticle].daughterList().size(); i++) {
         int di = e[iparticle].daughterList()[i];
-        if (ids[i] != 0 && e[di].id() != ids[i]) 
+        if (ids[i] != 0 && e[di].id() != ids[i])
           return false;
       }
       // reset the positions and momenta vectors (because they may be reused)
@@ -395,41 +408,37 @@ class PowhegHooksBB4L : public UserHooks {
       return true;
     }
 
-    inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
+    inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2) {
       p1.bstback(pt);
       p2.bstback(pt);
-      return sqrt( 2*p1*p2*p2.e()/p1.e() );
+      return sqrt(2 * p1 * p2 * p2.e() / p1.e());
     }
 
-    inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
+    inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2) {
       p1.bstback(pt);
-      p2.bstback(pt);   
-      return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e()+p2.e(),2)) );
+      p2.bstback(pt);
+      return sqrt(2 * p1 * p2 * p1.e() * p2.e() / (pow(p1.e() + p2.e(), 2)));
     }
 
     // Routines to calculate the pT (according to pTdefMode) in a FS splitting:
     // i (radiator before) -> j (emitted after) k (radiator after)
     // For the Pythia pT definition, a recoiler (after) must be specified.
     // (INSPIRED BY pythia8F77_31.cc double pTpythia)
-    inline double pTpythia(const Event &e, int RadAfterBranch, int EmtAfterBranch,
-             int RecAfterBranch)
-    {
-
+    inline double pTpythia(const Event &e, int RadAfterBranch, int EmtAfterBranch, int RecAfterBranch) {
       // Convenient shorthands for later
       Vec4 radVec = e[RadAfterBranch].p();
       Vec4 emtVec = e[EmtAfterBranch].p();
       Vec4 recVec = e[RecAfterBranch].p();
-      int  radID  = e[RadAfterBranch].id();
+      int radID = e[RadAfterBranch].id();
 
       // Calculate virtuality of splitting
       Vec4 Q(radVec + emtVec);
       double Qsq = Q.m2Calc();
 
       // Mass term of radiator
-      double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ?
-      pow2(particleDataPtr->m0(radID)) : 0.;
+      double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ? pow2(particleDataPtr->m0(radID)) : 0.;
 
-      // z values for FSR 
+      // z values for FSR
       double z, pTnow;
       // Construct 2 -> 3 variables
       Vec4 sum = radVec + recVec + emtVec;
@@ -437,9 +446,8 @@ class PowhegHooksBB4L : public UserHooks {
 
       double x1 = 2. * (sum * radVec) / m2Dip;
       double x3 = 2. * (sum * emtVec) / m2Dip;
-      z   = x1 / (x1 + x3);
+      z = x1 / (x1 + x3);
       pTnow = z * (1. - z);
-
 
       // Virtuality
       pTnow *= (Qsq - m2Rad);
@@ -447,9 +455,8 @@ class PowhegHooksBB4L : public UserHooks {
       if (pTnow < 0.) {
         cout << "Warning: pTpythia was negative" << endl;
         return -1.;
-      }
-      else
-          return(sqrt(pTnow));
+      } else
+        return (sqrt(pTnow));
     }
 
     // Functions to return statistics about the veto
@@ -473,10 +480,10 @@ class PowhegHooksBB4L : public UserHooks {
     // internal: resonance scales
     double topresscale, atopresscale, wpresscale, wmresscale;
     int radtype;
-};
+  };
 
-//==========================================================================
+  //==========================================================================
 
-} // end namespace Pythia8
+}  // end namespace Pythia8
 
-#endif // end Pythia8_PowhegHooksBB4L_H
+#endif  // end Pythia8_PowhegHooksBB4L_H
