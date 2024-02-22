@@ -124,6 +124,7 @@ class PowhegHooksBB4L : public UserHooks {
             scaleResonanceVeto = settingsPtr->flag("POWHEG:bb4l:ScaleResonance:veto");
             debug = settingsPtr->flag("POWHEG:bb4l:DEBUG");
             pTmin = settingsPtr->parm("POWHEG:bb4l:pTminVeto");
+            vetoAllRadtypes = settingsPtr->flag("POWHEG:bb4l:vetoAllRadtypes");
             nInResonanceFSRveto = 0;
             return true;
         }
@@ -142,7 +143,7 @@ class PowhegHooksBB4L : public UserHooks {
             assert(temp == "#rwgt");
             // we only calculate resonance scales for btilde events (radtype==1)
             // remnant events are not vetoed
-            if (radtype==2) return false;
+            if (!vetoAllRadtypes && radtype==2) return false;
             // find last top and the last anti-top in the record
             int i_top = -1, i_atop = -1, i_wp = -1, i_wm = -1;
             for (int i = 0; i < e.size(); i++) {
@@ -253,7 +254,7 @@ class PowhegHooksBB4L : public UserHooks {
         }
 
         inline bool doVetoFSR(bool condition, double scale)  {
-            if (radtype==2) return false;
+            if (!vetoAllRadtypes && radtype==2) return false;
             if (condition) {
                 nInResonanceFSRveto++;
                 return true;
@@ -271,7 +272,7 @@ class PowhegHooksBB4L : public UserHooks {
         //    - a large number otherwise
         // if is not the top, set it to a big number
         inline double scaleResonance(int iRes, const Event &e) {
-            if(radtype == 2)
+            if(!vetoAllRadtypes && radtype == 2)
                 return sqrt(e[iRes].m2Calc());
             else {
                 if (e[iRes].id() == 6)
@@ -466,6 +467,7 @@ class PowhegHooksBB4L : public UserHooks {
         bool vetoDipoleFrame;
         bool pTpythiaVeto;
         double pTmin;
+        bool vetoAllRadtypes;
         // veto counter
         int nInResonanceFSRveto;
         // internal: resonance scales
