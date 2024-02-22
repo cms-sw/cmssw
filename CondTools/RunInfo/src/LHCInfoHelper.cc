@@ -20,8 +20,9 @@ cond::Time_t cond::lhcInfoHelper::getFillLastLumiIOV(const cond::OMSService& oms
 
   // Get query result
   auto queryResult = query->result();
-  if (queryResult.empty())
+  if (queryResult.empty()) {
     throw cms::Exception("OMSQueryFailure") << "OMS query of fill " << fillId << " returned empty result!\n";
+  }
 
   // Return the final IOV
   auto lastRun = queryResult.back().get<int>("run_number");
