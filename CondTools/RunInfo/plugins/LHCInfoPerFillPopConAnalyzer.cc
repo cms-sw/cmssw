@@ -360,9 +360,16 @@ public:
         }
       }
 
+      // In duringFill mode, convert the timestamp-type IOVs to lumiid-type IOVs
+      // before transferring the payloads from the buffer to the final collection
+      if (!m_endFillMode) {
+        convertBufferedIovsToLumiid(m_timestampToLumiid);
+      }
+
       size_t niovs = theLHCInfoPerFillImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
       edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
       m_tmpBuffer.clear();
+      m_timestampToLumiid.clear();
       if (m_prevPayload->fillNumber() and !ongoingFill) {
         if (m_endFillMode) {
           addEmptyPayload(endFillTime);
@@ -398,22 +405,35 @@ private:
     }
   }
 
+  // Add payload to buffer and store corresponding lumiid IOV in m_timestampToLumiid map
   void addPayloadToBuffer(cond::OMSServiceResultRef& row) {
-    auto lumiTime = row.get<boost::posix_time::ptime>("start_time");
+    auto startTime = row.get<boost::posix_time::ptime>("start_time");
     auto delivLumi = row.get<float>("delivered_lumi");
     auto recLumi = row.get<float>("recorded_lumi");
+    auto runNumber = std::stoull(row.get<std::string>("run_number"));
+    auto lsNumber = std::stoul(row.get<std::string>("lumisection_number"));
+    auto lumiid = cond::time::lumiTime(runNumber, lsNumber);
+
     LHCInfoPerFill* thisLumiSectionInfo = m_fillPayload->cloneFill();
-    if (m_endFillMode) {
-      m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
-    } else {
-      m_tmpBuffer.emplace_back(
-          std::make_pair(cond::time::lumiTime(std::stoull(row.get<std::string>("run_number")),
-                                              std::stoul(row.get<std::string>("lumisection_number"))),
-                         thisLumiSectionInfo));
+    m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(startTime), thisLumiSectionInfo));
+    if (!m_endFillMode) {
+      m_timestampToLumiid.insert(std::make_pair(cond::time::from_boost(startTime), lumiid));
     }
     LHCInfoPerFill& payload = *thisLumiSectionInfo;
     payload.setDelivLumi(delivLumi);
     payload.setRecLumi(recLumi);
+  }
+
+  void convertBufferedIovsToLumiid(std::map<cond::Time_t, cond::Time_t> timestampToLumiid) {
+    for (auto& item : m_tmpBuffer) {
+      // Check if the lumiid IOV corresponding to the timestamp is present in the map
+      if (timestampToLumiid.find(item.first) == timestampToLumiid.end()) {
+        throw cms::Exception("LHCInfoPerFillPopConSourceHandler")
+            << "Can't find corresponding lumiid IOV for timestamp " << item.first << "\n";
+      }
+      // Update the buffer with the lumiid-type IOV
+      item.first = timestampToLumiid.at(item.first);
+    }
   }
 
   size_t getLumiData(const cond::OMSService& oms,
@@ -740,4 +760,6 @@ private:
   std::shared_ptr<LHCInfoPerFill> m_prevPayload;
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerFill>>> m_tmpBuffer;
   bool m_lastPayloadEmpty = false;
+  // to hold correspondance between timestamp-type IOVs and lumiid-type IOVs
+  std::map<cond::Time_t, cond::Time_t> m_timestampToLumiid;
 };
