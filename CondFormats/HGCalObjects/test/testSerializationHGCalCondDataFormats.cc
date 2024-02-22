@@ -1,7 +1,5 @@
 #include "CondFormats/Serialization/interface/Test.h"
-#include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/src/headers.h"
 
 int main() {
   //dense indexers
