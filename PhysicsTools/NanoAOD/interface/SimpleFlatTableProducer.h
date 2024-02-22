@@ -101,7 +101,7 @@ public:
     if (vmap.isValid() || !skipNonExistingSrc_) {
       vals.resize(selptrs.size());
       for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        // calls the overloade method to either get the valuemap value directly, or a function of the object value.
+        // calls the overloaded method to either get the valuemap value directly, or a function of the object value.
         vals[i] = this->eval(vmap, selptrs[i]);
       }
     }
@@ -121,7 +121,7 @@ public:
                    edm::ConsumesCollector &&cc,
                    bool skipNonExistingSrc = false)
       : ValueMapVariableBase<ObjType, TIn, ValType>(aname, cfg, std::move(cc), skipNonExistingSrc) {}
-  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
+  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const override {
     ValType val = (*vmap)[op];
     return val;
   }
@@ -139,7 +139,7 @@ public:
         precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
                        true) {}
 
-  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const {
+  ValType eval(const edm::Handle<edm::ValueMap<TIn>> &vmap, const edm::Ptr<ObjType> &op) const override {
     ValType val = func_((*vmap)[op]);
     if constexpr (std::is_same<ValType, float>()) {
       if (this->precision_ == -2) {
@@ -333,7 +333,7 @@ public:
             edm::ParameterDescription<std::string>("precision",
                                                    true,
                                                    edm::Comment("the precision with which to store the value in the "
-                                                                "flat table, as a fucntion of the object evaluated")),
+                                                                "flat table, as a function of the object evaluated")),
         false);
 
     edm::ParameterSetDescription extvariables;
@@ -452,7 +452,7 @@ public:
             edm::ParameterDescription<std::string>("precision",
                                                    true,
                                                    edm::Comment("the precision with which to store the value in the "
-                                                                "flat table, as a fucntion of the object evaluated")),
+                                                                "flat table, as a function of the object evaluated")),
         false);
 
     edm::ParameterSetDescription extvariables;
@@ -577,7 +577,7 @@ public:
   ~FirstObjectSimpleFlatTableProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc = desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
 

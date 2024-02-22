@@ -107,7 +107,7 @@ def miniAOD_customizeCommon(process):
 
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    
+
     process.phPFIsoDepositChargedPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositChargedAllPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositNeutralPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
@@ -117,9 +117,9 @@ def miniAOD_customizeCommon(process):
     process.patOOTPhotons.photonSource = cms.InputTag("reducedEgamma","reducedOOTPhotons")
     process.patOOTPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     #
-    process.selectedPatJets.cut = cms.string("pt > 10")
+    process.selectedPatJets.cut = cms.string("pt > 15")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))")
-    
+
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
@@ -136,7 +136,7 @@ def miniAOD_customizeCommon(process):
 
     def _applySubstructure(process):
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-        
+
         from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
         applySubstructure( process )
     (~pp_on_AA).toModify(process, _applySubstructure)
@@ -230,20 +230,6 @@ def miniAOD_customizeCommon(process):
     process.patTrkMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  TrkMET 
-    
-
-    ## PU JetID
-    process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileUpJetIDTask)
-
-    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
-    process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
-
-    ## Quark Gluon Likelihood
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
-    task.add(process.QGTagger)
-
-    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
     #HF jet shower shape
     process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
@@ -261,8 +247,6 @@ def miniAOD_customizeCommon(process):
             'pfDeepCSVDiscriminatorsJetTags:CvsB',
             'pfDeepCSVDiscriminatorsJetTags:CvsL',
         ])
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-    (~pp_on_AA_2018).toModify(process, _add_deepFlavour)
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",

@@ -1,6 +1,8 @@
 /*
  *  CMSSW
  */
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -19,9 +21,6 @@ using namespace edm;
 //------------------------------------------------------
 // This is a sample VALUE class, almost the simplest possible.
 //------------------------------------------------------
-namespace {
-  bool is_null(const void* iPtr) { return iPtr == nullptr; }
-}  // namespace
 
 struct Empty {};
 
@@ -92,7 +91,7 @@ void check_outer_collection_order(coll_type const& c) {
   for (; i != e; ++i, ++prev) {
     // We don't use CPPUNIT_ASSERT because it gives us grossly
     // insufficient context if a failure occurs.
-    assert(prev->id < i->id);
+    REQUIRE(prev->id < i->id);
   }
 }
 
@@ -110,7 +109,7 @@ void check_inner_collection_order(detset const& d) {
     //
     // We don't check that *prev < *i because they might be equal.
     // We don't want to require an op<= or op==.
-    assert(!(*i < *prev));
+    REQUIRE(!(*i < *prev));
   }
 }
 
@@ -134,24 +133,11 @@ void check_ids(coll_type const& c) {
   for (coll_type::const_iterator i = c.begin(), e = c.end(); i != e; ++i) {
     all_ids.push_back(i->id);
   }
-  assert(c.size() == all_ids.size());
+  REQUIRE(c.size() == all_ids.size());
 
   std::vector<det_id_type> nice_ids;
   c.getIds(nice_ids);
-  assert(all_ids == nice_ids);
-}
-
-void detsetTest() {
-  //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
-  detset d;
-  Value v1(1.1);
-  Value v2(2.2);
-  d.id = edm::det_id_type(3);
-  d.data.push_back(v1);
-  d.data.push_back(v2);
-  std::sort(d.data.begin(), d.data.end());
-  check_inner_collection_order(d);
-  //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
+  REQUIRE(all_ids == nice_ids);
 }
 
 namespace {
@@ -179,256 +165,240 @@ namespace {
   };
 }  // namespace
 
-void refTest() {
-  coll_type c;
-  detset d3;
-  Value v1(1.1);
-  Value v2(2.2);
-  d3.id = edm::det_id_type(3);
-  d3.data.push_back(v1);
-  d3.data.push_back(v2);
-  c.insert(d3);
-  detset d1;
-  Value v1a(4.1);
-  Value v2a(3.2);
-  d1.id = edm::det_id_type(1);
-  d1.data.push_back(v1a);
-  d1.data.push_back(v2a);
-  c.insert(d1);
-  c.post_insert();
-
-  auto pC = std::make_unique<coll_type>(c);
-  edm::Wrapper<coll_type> wrapper(std::move(pC));
-  DSVGetter<coll_type> theGetter;
-  theGetter.prod_ = &wrapper;
-
-  typedef edm::Ref<coll_type, detset> RefDetSet;
-  typedef edm::Ref<coll_type, Value> RefDet;
-
-  {
-    RefDetSet refSet(edm::ProductID(1, 1), 0, &theGetter);
-    assert(!(d1 < *refSet) && !(*refSet < d1));
-  }
-  {
-    RefDetSet refSet(edm::ProductID(1, 1), 1, &theGetter);
-    assert(!(d3 < *refSet) && !(*refSet < d3));
-  }
-  {
-    RefDet refDet(edm::ProductID(1, 1), RefDet::key_type(3, 0), &theGetter);
-    assert(!(v1 < *refDet) && !(*refDet < v1));
-  }
-
-  {
-    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(3), c[3].data.begin());
-    assert(!(v1 < *refDet) && !(*refDet < v1));
-  }
-
-  try {
-    //bad detid
-    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(12), c[3].data.begin());
-
-    assert("Failed to throw required exception" == 0);
-  } catch (edm::Exception const& x) {
-    //std::cout <<x.what()<<std::endl;
-    // Test we have the right exception category
-    assert(x.categoryCode() == edm::errors::InvalidReference);
-  }
-
-  try {
-    //bad iterator
-    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(1), c[3].data.begin());
-
-    assert("Failed to throw required exception" == 0);
-  } catch (edm::Exception const& x) {
-    //std::cout <<x.what()<<std::endl;
-    // Test we have the right exception category
-    assert(x.categoryCode() == edm::errors::InvalidReference);
-  }
-}
-
-void work() {
-  detsetTest();
-  refTest();
-
-  coll_type c1;
-  c1.post_insert();
-  sanity_check(c1);
-  assert(c1.size() == 0);
-  assert(c1.empty());
-
-  coll_type c2(c1);
-  assert(c2.size() == c1.size());
-  sanity_check(c2);
-  coll_type c;
-  sanity_check(c);
-  {
+TEST_CASE("test DetSetVector", "[DetSetVector]") {
+  SECTION("detsetTest") {
+    //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
     detset d;
     Value v1(1.1);
     Value v2(2.2);
     d.id = edm::det_id_type(3);
     d.data.push_back(v1);
     d.data.push_back(v2);
-    c.insert(d);
-    c.post_insert();
+    std::sort(d.data.begin(), d.data.end());
+    check_inner_collection_order(d);
+    //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
   }
-  sanity_check(c);
-  assert(c.size() == 1);
-  {
-    detset d;
-    Value v1(4.1);
-    Value v2(3.2);
-    d.id = edm::det_id_type(1);
-    d.data.push_back(v1);
-    d.data.push_back(v2);
-    c.insert(d);
-    c.post_insert();
-  }
-  sanity_check(c);
-  assert(c.size() == 2);
 
-  {
-    detset d;
+  SECTION("refTest") {
+    coll_type c;
+    detset d3;
     Value v1(1.1);
-    Value v2(1.2);
-    Value v3(2.2);
-    d.id = edm::det_id_type(10);
-    d.data.push_back(v3);
-    d.data.push_back(v2);
-    d.data.push_back(v1);
-    c.insert(d);
+    Value v2(2.2);
+    d3.id = edm::det_id_type(3);
+    d3.data.push_back(v1);
+    d3.data.push_back(v2);
+    c.insert(d3);
+    detset d1;
+    Value v1a(4.1);
+    Value v2a(3.2);
+    d1.id = edm::det_id_type(1);
+    d1.data.push_back(v1a);
+    d1.data.push_back(v2a);
+    c.insert(d1);
     c.post_insert();
-  }
-  sanity_check(c);
-  assert(c.size() == 3);
 
-  coll_type another;
-  c.swap(another);
-  assert(c.empty());
-  assert(another.size() == 3);
-  sanity_check(c);
-  sanity_check(another);
+    auto pC = std::make_unique<coll_type>(c);
+    edm::Wrapper<coll_type> wrapper(std::move(pC));
+    DSVGetter<coll_type> theGetter;
+    theGetter.prod_ = &wrapper;
 
-  c.swap(another);
-  assert(c.size() == 3);
+    typedef edm::Ref<coll_type, detset> RefDetSet;
+    typedef edm::Ref<coll_type, Value> RefDet;
 
-  {
-    // We should not find anything with ID=11
-    coll_type::iterator i = c.find(edm::det_id_type(11));
-    assert(i == c.end());
+    {
+      RefDetSet refSet(edm::ProductID(1, 1), 0, &theGetter);
+      REQUIRE((!(d1 < *refSet) && !(*refSet < d1)));
+    }
+    {
+      RefDetSet refSet(edm::ProductID(1, 1), 1, &theGetter);
+      REQUIRE((!(d3 < *refSet) && !(*refSet < d3)));
+    }
+    {
+      RefDet refDet(edm::ProductID(1, 1), RefDet::key_type(3, 0), &theGetter);
+      REQUIRE((!(v1 < *refDet) && !(*refDet < v1)));
+    }
 
-    coll_type::const_iterator ci = static_cast<coll_type const&>(c).find(edm::det_id_type(11));
-    assert(ci == c.end());
-  }
-  {
-    // We should find  ID=10
-    coll_type::iterator i = c.find(edm::det_id_type(10));
-    assert(i != c.end());
-    assert(i->id == 10);
-    assert(i->data.size() == 3);
-  }
+    {
+      TestHandle<coll_type> pc2(&c, ProductID(1, 1));
+      RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(3), c[3].data.begin());
+      REQUIRE((!(v1 < *refDet) && !(*refDet < v1)));
+    }
 
-  {
-    // We should not find ID=100; op[] should throw.
-    try {
-      coll_type::reference r = c[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
-      assert(is_null(&r));  // to silence warning of unused r
-    } catch (edm::Exception const& x) {
-      // Test we have the right exception category
-      assert(x.categoryCode() == edm::errors::InvalidReference);
-    } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
+    using namespace Catch::Matchers;
+    SECTION("bad detid") {
+      TestHandle<coll_type> pc2(&c, ProductID(1, 1));
+      REQUIRE_THROWS_MATCHES(
+          makeRefToDetSetVector(pc2, det_id_type(12), c[3].data.begin()),
+          edm::Exception,
+          Predicate<edm::Exception>(
+              [](auto const& iExcept) { return iExcept.categoryCode() == edm::errors::InvalidReference; },
+              "Exception has wrong category"));
+    }
+
+    SECTION("bad iterator") {
+      TestHandle<coll_type> pc2(&c, ProductID(1, 1));
+      REQUIRE_THROWS_MATCHES(
+          makeRefToDetSetVector(pc2, det_id_type(1), c[3].data.begin()),
+          edm::Exception,
+          Predicate<edm::Exception>([](auto const& x) { return x.categoryCode() == edm::errors::InvalidReference; },
+                                    "Exception has wrong category"));
     }
   }
 
-  {
-    // We should not find ID=100; op[] should throw.
-    try {
-      coll_type::const_reference r = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
-      assert("Failed to throw required exception" == 0);
-      assert(is_null(&r));  // to silence warning of unused r
-    } catch (edm::Exception const& x) {
-      // Test we have the right exception category
-      assert(x.categoryCode() == edm::errors::InvalidReference);
-    } catch (...) {
-      assert("Failed to throw correct exception type" == 0);
-    }
-  }
-  {
-    // We should find id = 3
-    coll_type const& rc = c;
-    coll_type::const_reference r = rc[3];
-    assert(r.id == edm::det_id_type(3));
-    assert(r.data.size() == 2);
+  SECTION("work") {
+    coll_type c1;
+    c1.post_insert();
+    sanity_check(c1);
+    REQUIRE(c1.size() == 0);
+    REQUIRE(c1.empty());
 
-    coll_type::reference r2 = c[3];
-    assert(r2.id == edm::det_id_type(3));
-    assert(r2.data.size() == 2);
-  }
-
-  {
-    // We should not find id = 17, but a new empty DetSet should be
-    // inserted, carrying the correct DetId.
-    coll_type::size_type oldsize = c.size();
-    coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
-    coll_type::size_type newsize = c.size();
-    assert(newsize > oldsize);
-    assert(newsize == (oldsize + 1));
-    assert(r.id == edm::det_id_type(17));
-    assert(r.data.size() == 0);
-    r.data.push_back(Value(10.1));
-    r.data.push_back(Value(9.1));
-    r.data.push_back(Value(4.0));
-    r.data.push_back(Value(4.0));
-    c.post_insert();
+    coll_type c2(c1);
+    REQUIRE(c2.size() == c1.size());
+    sanity_check(c2);
+    coll_type c;
     sanity_check(c);
-  }
-  {
-    // Make sure we can swap in a vector.
-    unsigned int const numDetSets = 20;
-    unsigned int const detSetSize = 14;
-    std::vector<detset> v;
-    for (unsigned int i = 0; i < numDetSets; ++i) {
-      detset d(i);
-      for (unsigned int j = 0; j < detSetSize; ++j) {
-        d.data.push_back(Value(100 * i + 1.0 / j));
-      }
-      v.push_back(d);
+    {
+      detset d;
+      Value v1(1.1);
+      Value v2(2.2);
+      d.id = edm::det_id_type(3);
+      d.data.push_back(v1);
+      d.data.push_back(v2);
+      c.insert(d);
+      c.post_insert();
     }
-    assert(v.size() == numDetSets);
-    coll_type c3(v);
-    c3.post_insert();
-    assert(v.size() == 0);
-    assert(c3.size() == numDetSets);
-    sanity_check(c3);
+    sanity_check(c);
+    REQUIRE(c.size() == 1);
+    {
+      detset d;
+      Value v1(4.1);
+      Value v2(3.2);
+      d.id = edm::det_id_type(1);
+      d.data.push_back(v1);
+      d.data.push_back(v2);
+      c.insert(d);
+      c.post_insert();
+    }
+    sanity_check(c);
+    REQUIRE(c.size() == 2);
 
-    coll_type c4;
-    c4 = c3;
-    assert(c4.size() == numDetSets);
-    sanity_check(c3);
-    sanity_check(c4);
+    {
+      detset d;
+      Value v1(1.1);
+      Value v2(1.2);
+      Value v3(2.2);
+      d.id = edm::det_id_type(10);
+      d.data.push_back(v3);
+      d.data.push_back(v2);
+      d.data.push_back(v1);
+      c.insert(d);
+      c.post_insert();
+    }
+    sanity_check(c);
+    REQUIRE(c.size() == 3);
 
-    check_ids(c3);
+    coll_type another;
+    c.swap(another);
+    REQUIRE(c.empty());
+    REQUIRE(another.size() == 3);
+    sanity_check(c);
+    sanity_check(another);
+
+    c.swap(another);
+    REQUIRE(c.size() == 3);
+
+    {
+      // We should not find anything with ID=11
+      coll_type::iterator i = c.find(edm::det_id_type(11));
+      REQUIRE(i == c.end());
+
+      coll_type::const_iterator ci = static_cast<coll_type const&>(c).find(edm::det_id_type(11));
+      REQUIRE(ci == c.end());
+    }
+    {
+      // We should find  ID=10
+      coll_type::iterator i = c.find(edm::det_id_type(10));
+      REQUIRE(i != c.end());
+      REQUIRE(i->id == 10);
+      REQUIRE(i->data.size() == 3);
+    }
+    using namespace Catch::Matchers;
+    {
+      // We should not find ID=100; op[] should throw.
+      SECTION("op[] should throw") {
+        REQUIRE_THROWS_MATCHES(
+            c[edm::det_id_type(100)],
+            edm::Exception,
+            Predicate<edm::Exception>([](auto const& x) { return x.categoryCode() == edm::errors::InvalidReference; },
+                                      "Exception has wrong category"));
+      }
+    }
+
+    {
+      // We should not find ID=100; op[] should throw.
+      SECTION("coll_type op[] should throw") {
+        REQUIRE_THROWS_MATCHES(
+            static_cast<coll_type const&>(c)[edm::det_id_type(100)],
+            edm::Exception,
+            Predicate<edm::Exception>([](auto const& x) { return x.categoryCode() == edm::errors::InvalidReference; },
+                                      "Exception has wrong category"));
+      }
+    }
+    {
+      // We should find id = 3
+      coll_type const& rc = c;
+      coll_type::const_reference r = rc[3];
+      REQUIRE(r.id == edm::det_id_type(3));
+      REQUIRE(r.data.size() == 2);
+
+      coll_type::reference r2 = c[3];
+      REQUIRE(r2.id == edm::det_id_type(3));
+      REQUIRE(r2.data.size() == 2);
+    }
+
+    {
+      // We should not find id = 17, but a new empty DetSet should be
+      // inserted, carrying the correct DetId.
+      coll_type::size_type oldsize = c.size();
+      coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
+      coll_type::size_type newsize = c.size();
+      REQUIRE(newsize > oldsize);
+      REQUIRE(newsize == (oldsize + 1));
+      REQUIRE(r.id == edm::det_id_type(17));
+      REQUIRE(r.data.size() == 0);
+      r.data.push_back(Value(10.1));
+      r.data.push_back(Value(9.1));
+      r.data.push_back(Value(4.0));
+      r.data.push_back(Value(4.0));
+      c.post_insert();
+      sanity_check(c);
+    }
+    {
+      // Make sure we can swap in a vector.
+      unsigned int const numDetSets = 20;
+      unsigned int const detSetSize = 14;
+      std::vector<detset> v;
+      for (unsigned int i = 0; i < numDetSets; ++i) {
+        detset d(i);
+        for (unsigned int j = 0; j < detSetSize; ++j) {
+          d.data.push_back(Value(100 * i + 1.0 / j));
+        }
+        v.push_back(d);
+      }
+      REQUIRE(v.size() == numDetSets);
+      coll_type c3(v);
+      c3.post_insert();
+      REQUIRE(v.size() == 0);
+      REQUIRE(c3.size() == numDetSets);
+      sanity_check(c3);
+
+      coll_type c4;
+      c4 = c3;
+      REQUIRE(c4.size() == numDetSets);
+      sanity_check(c3);
+      sanity_check(c4);
+
+      check_ids(c3);
+    }
   }
-}
-
-int main() {
-  int rc = -1;
-  try {
-    work();
-    rc = 0;
-  } catch (edm::Exception const& x) {
-    //std::cerr << "Exception: " << x << '\n';
-    rc = 1;
-  } catch (std::exception& x) {
-    //std::cerr << "standard exception: " << x.what() << '\n';
-    rc = 3;
-  } catch (...) {
-    //std::cerr << "Unknown exception\n";
-    rc = 2;
-  }
-  return rc;
 }

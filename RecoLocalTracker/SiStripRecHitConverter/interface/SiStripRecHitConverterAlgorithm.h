@@ -12,6 +12,8 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
+#include <memory>
+
 namespace edm {
   class ConsumesCollector;
   class ParameterSet;

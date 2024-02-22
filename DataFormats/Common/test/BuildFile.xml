@@ -14,16 +14,11 @@
 <bin name="testDataFormatsCommon" file="testRunner.cpp,testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.cppunit.cc,DetSetRefVector_t.cppunit.cc,reftobase_t.cppunit.cc,reftobasevector_t.cppunit.cc,cloningptr_t.cppunit.cc,ptr_t.cppunit.cc,ptrvector_t.cppunit.cc,containermask_t.cppunit.cc,reftobaseprod_t.cppunit.cc,handle_t.cppunit.cc">
 </bin>
 
-<bin file="DetSetVector_t.cpp">
-</bin>
-
-<bin file="OwnVector_t.cpp">
+<bin name="testDataFormatsCommonCatch2" file="DetSetVector_t.cpp,exDSTV.cpp,exTrie.cpp,OwnVector_t.cpp,Wrapper_t.cpp,testBoostRange.cpp">
+<use name="catch2"/>
 </bin>
 
 <bin file="DictionaryTools_t.cpp">
-</bin>
-
-<bin file="Wrapper_t.cpp">
 </bin>
 
 <bin file="traits_t.cpp">
@@ -54,16 +49,7 @@
 <bin file="MapOfVectors_t.cpp">
 </bin>
 
-<bin file="exDSTV.cpp">
-</bin>
-
 <bin file="Trie_t.cpp">
-</bin>
-
-<bin file="exTrie.cpp">
-</bin>
-
-<bin file="testBoostRange.cpp">
 </bin>
 
 <bin name="testMultiAssociation" file="testRunner.cpp,testMultiAssociation.cc">

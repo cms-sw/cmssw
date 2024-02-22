@@ -161,13 +161,13 @@ class _AllowedParameterTypes(object):
             self.__dict__['_default'] = self._setValueWithType(default)
     def dumpPython(self, options=PrintOptions()):
         specialImportRegistry.registerUse(self)
-        return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
+        return "allowed("+','.join( ("cms."+t.__name__ if not isinstance(t, _PSetTemplate) else "cms."+t.dumpPython() for t in self.__types))+')'
     def __call__(self,value):
         chosenType = None
         for t in self.__types:
-            if isinstance(value, t):
+            if not isinstance(t, _PSetTemplate) and isinstance(value, t):
                 return value
-            if (not issubclass(t,PSet)) and t._isValid(value):
+            if t._isValid(value):
                 if chosenType is not None:
                     raise RuntimeError("Ambiguous type conversion for 'allowed' parameter")
                 chosenType = t
@@ -176,7 +176,10 @@ class _AllowedParameterTypes(object):
         return chosenType(value)
     def _setValueWithType(self, valueWithType):
         for t in self.__types:
-            if isinstance(valueWithType, t):
+            if isinstance(t, _PSetTemplate):
+                if isinstance(valueWithType, PSet):
+                    return valueWithType
+            elif isinstance(valueWithType, t):
                 return valueWithType
         raise TypeError("type {bad} is not one of 'allowed' types {types}".format(bad=str(type(valueWithType)), types = ",".join( (str(t) for t in self.__types))) )
             
@@ -185,16 +188,19 @@ class _AllowedParameterTypes(object):
 class _PSetTemplate(object):
     def __init__(self, *args, **kargs):
         self._pset = PSet(*args,**kargs)
-        self.__dict__['_PSetTemplate__value'] = None
     def __call__(self, value):
         self.__dict__
         return self._pset.clone(**value)
+    def _isValid(self, value):
+        return isinstance(value,dict) or isinstance(value, PSet)
     def dumpPython(self, options=PrintOptions()):
-        v =self.__dict__.get('_ProxyParameter__value',None)
-        if v is not None:
-            return v.dumpPython(options)
         return "PSetTemplate(\n"+_Parameterizable.dumpPython(self._pset, options)+options.indentation()+")"
+    def _setValueWithType(self, valueWithType):
+        if not isinstance(valueWithType, PSet):
+            raise TypeError("type {bad} is not a PSet".format(bas=str(type(valueWithType))))
+        return valueWithType
 
+PSetTemplate = _PSetTemplate
 
 class _ProxyParameterFactory(object):
     """Class type for ProxyParameter types to allow nice syntax"""
@@ -916,7 +922,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return hasattr(self,"refToPSet_")
     @staticmethod
     def _isValid(value):
-        return True
+        return isinstance(value,PSet) or isinstance(value,dict)
     def setValue(self,value):
         if isinstance(value,dict):
             for k,v in value.items():
@@ -1946,6 +1952,10 @@ if __name__ == "__main__":
             p1.aPSet = dict(a=5)
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
             self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(aPSet=required.PSetTemplate(a=required.int32))
+            p1.aPSet = PSet(a=int32(5))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
             p1 = PSet(aPSet=required.untracked.PSetTemplate(a=required.int32))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.untracked.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
             p1.aPSet = dict(a=5)
@@ -2032,6 +2042,9 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
             self.assertTrue(p1.aValue.isCompatibleCMSType(string))
             self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
+            p1 = PSet(aValue = required.allowed(int32, string))
+            #assign wrong type
+            self.assertRaises(TypeError, lambda: setattr(p1, 'aValue', double(3.1)))
 
             p1 = PSet(aValue = required.allowed(int32, string, default=int32(3)))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(3)\n)')
@@ -2058,6 +2071,31 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
+            p2 = PSet(aValue=optional.allowed(int32,PSet))
+            p2.aValue = dict(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSetTemplate(\n    b = cms.optional.int32\n))\n)')
+            p2.aValue = 2
+            self.assertEqual(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            p2.aValue = PSet(b = int32(3))
+            self.assertEqual(p2.aValue.b.value(),3)
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            p2.aValue = dict(b = 3)
+            self.assertEqual(p2.aValue.b.value(),3)
+            self.assertEqual(p2.dumpPython(), 'cms.PSet(\n    aValue = cms.PSet(\n        b = cms.int32(3)\n    )\n)')
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            self.assertRaises(TypeError, lambda: setattr(p2, "aValue", dict(i = 1)) )
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            self.assertRaises(TypeError, lambda: setattr(p2, "aValue", double(3.14)) )
+            self.assertRaises(ValueError, lambda: setattr(p2, "aValue", dict(b=3.14)) )
+            p2 = PSet(aValue=optional.allowed(int32,PSetTemplate(b=optional.int32)))
+            p2.aValue = PSet(b=double(3.14))
+            self.assertEqual(p2.aValue.b.value(),3.14)
+
+
 
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
@@ -2065,6 +2103,9 @@ if __name__ == "__main__":
             self.assertEqual(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            p2.aValue = dict(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
 
             p3 = PSet(aValue=required.allowed(int32,uint32))

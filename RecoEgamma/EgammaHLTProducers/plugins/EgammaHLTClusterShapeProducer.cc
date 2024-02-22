@@ -72,7 +72,6 @@ void EgammaHLTClusterShapeProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
   desc.add<edm::InputTag>(("ecalRechitEB"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>(("ecalRechitEE"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
-  desc.add<bool>(("isIeta"), true);
   desc.add<double>(("multThresEB"), EgammaLocalCovParamDefaults::kMultThresEB);
   desc.add<double>(("multThresEE"), EgammaLocalCovParamDefaults::kMultThresEE);
   descriptions.add(("hltEgammaHLTClusterShapeProducer"), desc);

@@ -25,22 +25,23 @@
 
 using namespace std;
 
-// Three implementations were tested: char-by-char (this version),
-// using std::string::find + std::string::replace and std::regex_replace.
-// First one takes ~60 ns per iteration, second one ~85 ns,
-// and the regex implementation takes nearly 1 us
-std::string globToRegex(const std::string& s) {
-  std::string out;
-  out.reserve(s.size());
-  for (auto ch : s) {
-    if (ch == '*') {
-      out.push_back('.');
-      out.push_back('*');
+namespace {
+  // Three implementations were tested: char-by-char (this version),
+  // using std::string::find + std::string::replace and std::regex_replace.
+  // First one takes ~60 ns per iteration, second one ~85 ns,
+  // and the regex implementation takes nearly 1 us
+  std::string globToRegex(const std::string& s) {
+    std::string out;
+    out.reserve(s.size());
+    for (auto ch : s) {
+      if (ch == '*') {
+        out.push_back('.');
+      }
+      out.push_back(ch);
     }
-    out.push_back(ch);
+    return out;
   }
-  return out;
-}
+}  // namespace
 
 class DQMHistNormalizer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:

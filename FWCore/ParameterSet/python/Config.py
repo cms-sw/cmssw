@@ -2446,6 +2446,7 @@ if __name__=="__main__":
             self.assertRaises(ValueError, p.__setattr__, "a", EDAlias())
 
         def testProcessDumpPython(self):
+            self.maxDiff = None
             self.assertEqual(Process("test").dumpPython(),
 """import FWCore.ParameterSet.Config as cms
 

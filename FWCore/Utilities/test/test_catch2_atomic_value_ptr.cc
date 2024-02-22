@@ -1,3 +1,4 @@
+#include "catch.hpp"
 #include "FWCore/Utilities/interface/atomic_value_ptr.h"
 
 #include <memory>
@@ -35,49 +36,43 @@ public:
 std::atomic<int> simple::count{0};
 std::atomic<int> simple::count1{0};
 
-int main() {
-  assert(simple::count == 0);
+TEST_CASE("test atomic_value_ptr", "[atomic_value_ptr]") {
+  REQUIRE(simple::count == 0);
   {
     edm::atomic_value_ptr<simple> a(new simple(10));
-    assert(simple::count == 1);
+    REQUIRE(simple::count == 1);
     edm::atomic_value_ptr<simple> b(a);
-    assert(simple::count == 2);
+    REQUIRE(simple::count == 2);
 
-    assert(*a == *b);
-    assert(a->isSame(*b) == false);
+    REQUIRE(*a == *b);
+    REQUIRE(a->isSame(*b) == false);
   }  // a and b destroyed
-  assert(simple::count == 0);
+  REQUIRE(simple::count == 0);
 
   {
     auto c = std::make_unique<simple>(11);
     auto d = std::make_unique<simple>(11);
-    assert(c.get() != nullptr);
-    assert(d.get() != nullptr);
+    REQUIRE(c.get() != nullptr);
+    REQUIRE(d.get() != nullptr);
     simple* pc = c.get();
     simple* pd = d.get();
 
     edm::atomic_value_ptr<simple> e(std::move(c));
-    assert(c.get() == nullptr);
-    assert(*d == *e);
-    assert(e.operator->() == pc);
+    REQUIRE(c.get() == nullptr);
+    REQUIRE(*d == *e);
+    REQUIRE(e.operator->() == pc);
 
     edm::atomic_value_ptr<simple> f;
-    if (f) {
-      assert(0);
-    } else {
-    }
+    REQUIRE(not f);
     f = std::move(d);
-    assert(d.get() == nullptr);
-    assert(*e == *f);
-    assert(f.operator->() == pd);
-    if (f) {
-    } else {
-      assert(0);
-    }
+    REQUIRE(d.get() == nullptr);
+    REQUIRE(*e == *f);
+    REQUIRE(f.operator->() == pd);
+    REQUIRE(f);
 
-    assert(simple::count == 2);
-    assert(simple::count1 == 4);
+    REQUIRE(simple::count == 2);
+    REQUIRE(simple::count1 == 4);
   }
-  assert(simple::count == 0);
-  assert(simple::count1 == 4);
+  REQUIRE(simple::count == 0);
+  REQUIRE(simple::count1 == 4);
 }

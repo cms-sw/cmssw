@@ -22,8 +22,18 @@ namespace traits {
     using CollectionType = PortableHostCollection<T>;
   };
 
+  // trait for a generic multi-SoA-based product
   template <typename TDev, typename T0, typename... Args>
-  class PortableMultiCollectionTrait;
+  struct PortableMultiCollectionTrait {
+    using CollectionType = PortableDeviceMultiCollection<TDev, T0, Args...>;
+  };
+
+  // specialise for host device
+  template <typename T0, typename... Args>
+  struct PortableMultiCollectionTrait<alpaka_common::DevHost, T0, Args...> {
+    using CollectionType = PortableHostMultiCollection<T0, Args...>;
+  };
+
 }  // namespace traits
 
 // type alias for a generic SoA-based product

@@ -7,20 +7,12 @@
 
 static const edm::TypeID s_TrigResultsType(typeid(edm::TriggerResults));
 
-namespace {
+namespace trigger_results_based_event_selector_utils {
   //--------------------------------------------------------
   // Remove whitespace (spaces and tabs) from a std::string.
   void remove_whitespace(std::string& s) {
     s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
     s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
-  }
-
-  void test_remove_whitespace() {
-    std::string a("noblanks");
-    std::string b("\t   no   blanks    \t");
-
-    remove_whitespace(b);
-    assert(a == b);
   }
 
   //--------------------------------------------------------
@@ -40,40 +32,11 @@ namespace {
       output.second = trimmed_path_spec.substr(colon + 1, trimmed_path_spec.size());
     }
   }
+}  // namespace trigger_results_based_event_selector_utils
 
-  void test_parse_path_spec() {
-    std::vector<std::string> paths;
-    paths.push_back("a:p1");
-    paths.push_back("b:p2");
-    paths.push_back("  c");
-    paths.push_back("ddd\t:p3");
-    paths.push_back("eee:  p4  ");
-
-    std::vector<parsed_path_spec_t> parsed(paths.size());
-    for (size_t i = 0; i < paths.size(); ++i) {
-      parse_path_spec(paths[i], parsed[i]);
-    }
-
-    assert(parsed[0].first == "a");
-    assert(parsed[0].second == "p1");
-    assert(parsed[1].first == "b");
-    assert(parsed[1].second == "p2");
-    assert(parsed[2].first == "c");
-    assert(parsed[2].second.empty());
-    assert(parsed[3].first == "ddd");
-    assert(parsed[3].second == "p3");
-    assert(parsed[4].first == "eee");
-    assert(parsed[4].second == "p4");
-  }
-}  // namespace
+using namespace trigger_results_based_event_selector_utils;
 
 namespace edm {
-  namespace test {
-    void run_all_output_module_tests() {
-      test_remove_whitespace();
-      test_parse_path_spec();
-    }
-  }  // namespace test
 
   namespace detail {
 

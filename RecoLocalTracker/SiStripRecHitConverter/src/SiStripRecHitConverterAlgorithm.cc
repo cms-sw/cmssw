@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <vector>
+
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf,
                                                                  edm::ConsumesCollector iC)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
@@ -50,11 +52,11 @@ void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
   }
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output) {
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster>> input, products& output) {
   run(input, output, LocalVector(0., 0., 0.));
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle,
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster>> inputhandle,
                                           products& output,
                                           LocalVector trackdirection) {
   for (auto const& DS : *inputhandle) {
@@ -90,7 +92,7 @@ namespace {
   struct CollectorHelper {
     size_t nmatch;
 
-    typedef edm::OwnVector<SiStripMatchedRecHit2D> CollectorMatched;
+    using CollectorMatched = std::vector<std::unique_ptr<SiStripMatchedRecHit2D>>;
     typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
 
     Collector& m_collector;
@@ -104,15 +106,9 @@ namespace {
 
     static inline SiStripRecHit2D const& monoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) { return *iter; }
 
-    struct Add {
-      Add(CollectorHelper& ih) : h(ih) {}
-      CollectorHelper& h;
-      void operator()(SiStripMatchedRecHit2D const& rh) { h.m_collectorMatched.push_back(rh); }
-    };
-
     CollectorHelper& collector() { return *this; }
 
-    void operator()(SiStripMatchedRecHit2D const& rh) { m_collectorMatched.push_back(rh); }
+    void operator()(SiStripMatchedRecHit2D const& rh) { m_collectorMatched.emplace_back(rh.clone()); }
 
     CollectorHelper(Collector& i_collector,
                     CollectorMatched& i_collectorMatched,
@@ -127,10 +123,7 @@ namespace {
     void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
       if (!m_collectorMatched.empty()) {
         nmatch += m_collectorMatched.size();
-        for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
-                                                                    edm = m_collectorMatched.end();
-             itm != edm;
-             ++itm) {
+        for (auto const& itm : m_collectorMatched) {
           m_collector.push_back(*itm);
           // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
           m_matchedSteroClusters.push_back(itm->stereoClusterRef().key());
@@ -146,7 +139,7 @@ namespace {
 
 void SiStripRecHitConverterAlgorithm::match(products& output, LocalVector trackdirection) const {
   int nmatch = 0;
-  edm::OwnVector<SiStripMatchedRecHit2D> collectorMatched;  // gp/FIXME: avoid this
+  std::vector<std::unique_ptr<SiStripMatchedRecHit2D>> collectorMatched;
 
   // Remember the ends of the collections, as we will use them a lot
   SiStripRecHit2DCollection::const_iterator edStereoDet = output.stereo->end();
@@ -218,10 +211,7 @@ void SiStripRecHitConverterAlgorithm::match(products& output, LocalVector trackd
           &(*it), stereoSimpleHits.begin(), stereoSimpleHits.end(), collectorMatched, gluedDet, trackdirection);
       if (collectorMatched.size() > 0) {
         nmatch += collectorMatched.size();
-        for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = collectorMatched.begin(),
-                                                                    edm = collectorMatched.end();
-             itm != edm;
-             ++itm) {
+        for (auto const& itm : collectorMatched) {
           collector.push_back(*itm);
           // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
           matchedSteroClusters.push_back(itm->stereoClusterRef().key());
