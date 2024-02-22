@@ -90,7 +90,14 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
 
   //HLS4ML stuff
-  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //config loading method
+  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
+
+  //if model version is not valid, do not evaluate the condition
+  if (m_AXOL1TLmodelversion == "NONE") {
+    return false;
+  }
+
+  //otherwise load model and run inference
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
   model = loader.load_model();
@@ -249,9 +256,12 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   return condResult;
 }
 
-//in order to set model version from config
+//in order to set model version from menu->triggermenuparser->globalproducer->globalboard->here
 void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
-  m_AXOL1TLmodelversion = modelversionname;
+  //cases for model version. if version can't be found, then condition returns false
+  if (modelversionname == "v3") {
+    m_AXOL1TLmodelversion = "GTADModel_v3";
+  }
 }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {

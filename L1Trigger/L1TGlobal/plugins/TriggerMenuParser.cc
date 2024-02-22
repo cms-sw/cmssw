@@ -167,6 +167,14 @@ void l1t::TriggerMenuParser::setVecCorrelationWithOverlapRemovalTemplate(
   m_vecCorrelationWithOverlapRemovalTemplate = vecCorrelationWithOverlapRemovalTempl;
 }
 
+//set the AXO model version so it can be fetched from the GlobalProducer
+void l1t::TriggerMenuParser::setAXOL1TLModelVersion(const std::string& axol1tlmodelversion) {
+  if (m_axol1tlModelVersion.empty()) {  //only fills if has not yet been set
+    std::cout << "filling model version" << std::endl;
+    m_axol1tlModelVersion = axol1tlmodelversion;
+  }
+}
+
 // set the vectors containing the conditions for correlation templates
 //
 void l1t::TriggerMenuParser::setCorMuonTemplate(const std::vector<std::vector<MuonTemplate> >& corMuonTempl) {
@@ -322,7 +330,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
           parseEnergySumZdc(condition, chipNr, false);
 
           //parse AXOL1TL
-        } else if (condition.getType() == esConditionType::AnomalyDetectionTrigger) {
+        } else if (condition.getType() == esConditionType::Axol1tlTrigger) {
           parseAXOL1TL(condition, chipNr);
 
           //parse Muons
@@ -2752,19 +2760,32 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   int lowerThresholdInd = 0;
   int upperThresholdInd = -1;
 
-  const std::vector<L1TUtmCut>& cuts = object.getCuts();
-  for (size_t kk = 0; kk < cuts.size(); kk++) {
-    const L1TUtmCut& cut = cuts.at(kk);
+  //save model and threshold
+  std::string model = "NONE";
 
-    switch (cut.getCutType()) {
-      case esCutType::AnomalyScore:
-        lowerThresholdInd = cut.getMinimum().value;
-        upperThresholdInd = cut.getMaximum().value;
-        break;
-      default:
-        break;
-    }  //end switch
-  }    //end cut loop
+  if (object.getType() == tmeventsetup::Axol1tl) {
+    const std::vector<L1TUtmCut>& cuts = object.getCuts();
+    for (size_t kk = 0; kk < cuts.size(); kk++) {
+      const L1TUtmCut& cut = cuts.at(kk);
+
+      std::cout << "cut type " << cut.getCutType() << std::endl;
+
+      //save model
+      if (cut.getCutType() == tmeventsetup::Model) {
+        model = cut.getData();
+        std::cout << "saved model " << model << std::endl;
+      }
+      //save score
+      switch (cut.getCutType()) {
+        case esCutType::Score:
+          lowerThresholdInd = cut.getMinimum().value;
+          upperThresholdInd = cut.getMaximum().value;
+          break;
+        default:
+          break;
+      }  //end switch
+    }    //end cut loop
+  }      //end if getType
 
   //fill object params
   objParameter[0].minAXOL1TLThreshold = lowerThresholdInd;
@@ -2777,6 +2798,7 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   axol1tlCond.setCondChipNr(chipNr);
   axol1tlCond.setCondRelativeBx(relativeBx);
   axol1tlCond.setConditionParameter(objParameter);
+  axol1tlCond.setModelVersion(model);
 
   if (edm::isDebugEnabled()) {
     std::ostringstream myCoutStream;
@@ -2791,6 +2813,9 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   }
 
   (m_vecAXOL1TLTemplate[chipNr]).push_back(axol1tlCond);
+
+  //if class model version variable has not been filled yet, fill it
+  l1t::TriggerMenuParser::setAXOL1TLModelVersion(model);
 
   return true;
 }
