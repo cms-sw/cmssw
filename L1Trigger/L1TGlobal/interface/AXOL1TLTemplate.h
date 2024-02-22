@@ -52,7 +52,7 @@ public:
 public:
   inline const std::vector<ObjectParameter>* objectParameter() const { return &m_objectParameter; }
 
-  inline const std::string* modelVersion() const { return &m_modelVersion; }
+  inline const std::string& modelVersion() const { return m_modelVersion; }
 
   /// set functions
   void setConditionParameter(const std::vector<ObjectParameter>& objParameter);
