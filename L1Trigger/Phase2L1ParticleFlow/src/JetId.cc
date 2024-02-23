@@ -81,15 +81,12 @@ ap_fixed<16, 6> JetId::EvaluateNNFixed() {
     modelInput[i] = NNvectorVar_[i];
   }
   ap_fixed<16, 6> modelResult = -1;
-  //for (int i = 0; i < 1; i++) {
-  //  modelResult[i] = -1;
-  //}
 
   modelRef_->prepare_input(modelInput);
   modelRef_->predict();
   modelRef_->read_result(modelResult);
   return modelResult;
-}  //end EvaluateNN
+}  //end EvaluateNNFixed
 
 float JetId::compute(const l1t::PFJet &iJet, float vz, bool useRawPt) {
   for (int i0 = 0; i0 < fNParticles_; i0++) {
