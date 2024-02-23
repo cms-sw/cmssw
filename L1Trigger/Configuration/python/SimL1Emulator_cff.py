@@ -211,7 +211,7 @@ L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tP
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
 from L1Trigger.Phase2L1ParticleFlow.L1HPSPFTauProducer_cfi import *
-_phase2_siml1emulator.add(l1HPSPFTauEmuProducer)
+_phase2_siml1emulator.add(L1HPSPFTauProducer)
 
 # PF MET
 # ########################################################################

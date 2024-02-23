@@ -220,7 +220,7 @@ def _appendPhase2Digis(obj):
         'keep *_l1tMETPFProducer_*_*',
         'keep *_l1tNNTauProducer_*_*',
         'keep *_l1tNNTauProducerPuppi_*_*',
-        'keep *_l1tHPSPFTauEmuProducer_*_*',
+        'keep *_L1HPSPFTauProducer_*_*',
         'keep *_l1tBJetProducerPuppi_*_*',
         'keep *_l1tBJetProducerPuppiCorrectedEmulator_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
