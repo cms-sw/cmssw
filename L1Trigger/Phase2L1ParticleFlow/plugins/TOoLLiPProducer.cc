@@ -98,7 +98,7 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
   desc.add<std::string>("TOoLLiPVersion",
-                        std::string("/src/L1Trigger/Phase2L1ParticleFlow/test/TOoLLip_emulator_v1.so"));
+                        std::string("TOoLLiP_v1"));
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);
