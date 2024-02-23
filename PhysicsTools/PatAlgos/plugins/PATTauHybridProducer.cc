@@ -385,7 +385,7 @@ void PATTauHybridProducer::fillTauFromJet(reco::PFTau& pfTau, const reco::JetBas
     pfTau.setleadChargedHadrCand(pfGammas[0]);
     pfTau.setleadCand(pfGammas[0]);
     pfGammasSig.push_back(pfGammas[0]);
-    pfChs.erase(pfGammas.begin());
+    pfGammas.erase(pfGammas.begin());
   }
   // Clean gamma candidates from low-pt ones
   for (CandPtrs::iterator it = pfGammas.begin(); it != pfGammas.end();) {
