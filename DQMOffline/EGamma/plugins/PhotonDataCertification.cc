@@ -78,14 +78,25 @@ float PhotonDataCertification::invMassZtest(string path, TString name, DQMStore:
   TH1F* TestHist = TestElem->getTH1F();
   if (TestHist == nullptr)
     return 0;
+
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-  RooRealVar mass("mass", "Mass_{2#gamma}", 0, 200, "GeV");
+  // Previously, the range of the mass variable was from 0 to 200 GeV. However,
+  // the fit was restricted to the range 80 to 100 GeV anyway. It's easier to
+  // define the RooFit variable in only that range to begin with: it avoids
+  // some overhead from the RooFit::Range() command argument in fitTo(), and we
+  // can easily check whether there are entries in the fit range by calling
+  // sumEntries() on the RooDataHist (note that when creating a RooDataHist
+  // from a TH1, all bins that are not in the variable range are skipped).
+  RooRealVar mass("mass", "Mass_{2#gamma}", 80, 100, "GeV");
   RooRealVar mRes("M_{Z}", "Z Mass", ZMass, 70, 110);
   RooRealVar gamma("#Gamma", "#Gamma", ZWidth, 0, 10.0);
   RooBreitWigner BreitWigner("BreitWigner", "Breit-Wigner", mass, mRes, gamma);
   RooDataHist test(name, name, mass, TestHist);
 
-  BreitWigner.fitTo(test, RooFit::Range(80, 100), RooFit::PrintLevel(-1000));
+  // Only fit if the histogram is not empty
+  if (test.sumEntries() > 0.0) {
+    BreitWigner.fitTo(test, RooFit::PrintLevel(-1000));
+  }
 
   if (std::abs(mRes.getValV() - ZMass) < ZWidth) {
     return 1.0;
