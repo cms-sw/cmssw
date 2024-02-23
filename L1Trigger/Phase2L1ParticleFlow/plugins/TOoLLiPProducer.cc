@@ -16,7 +16,6 @@
 #include <cmath>
 #include <vector>
 
-//HLS4ML compiled emulator modeling
 #include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
@@ -42,7 +41,6 @@ private:
   int const fNParticles_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> const fVtxEmu_;
 
-  //HLS4ML emulator objects
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
 };
@@ -56,11 +54,9 @@ TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))),
       loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("TOoLLiPVersion"))) {
-  //load model and feed to JetID
   model = loader.load_model();
   fJetId_ = std::make_unique<JetId>(
       cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_);
-  //produces<float>("L1LLPScores");
   produces<edm::ValueMap<float>>("L1PFLLPJets");
 }
 
@@ -101,7 +97,6 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  //change for LLP
   desc.add<std::string>("TOoLLiPVersion",
                         std::string("/src/L1Trigger/Phase2L1ParticleFlow/test/TOoLLip_emulator_v1.so"));
   desc.add<std::string>("NNInput", "input:0");
