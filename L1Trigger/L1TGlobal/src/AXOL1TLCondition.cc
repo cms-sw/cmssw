@@ -93,7 +93,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
 
   //if model version is not valid, do not evaluate the condition
-  if (m_AXOL1TLmodelversion == "NONE") {
+  if (m_AXOL1TLmodelversion.empty()) {
     LogDebug("AXOL1TLCondition") << "Warning: AXOL1TL model version not found, not evaluating condition!" << std::endl;
     return false;
   }
