@@ -150,7 +150,6 @@ namespace Phase2L1GMT {
 
     for (auto &mu : trkMus) {
       int accum = 0;
-      int iso_ = 0;
       std::vector<unsigned> overlaps;
       for (auto t : convertedTracks) {
         unsigned ovrl = compute_trk_iso(mu, t);
