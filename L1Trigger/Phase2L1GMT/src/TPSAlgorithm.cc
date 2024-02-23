@@ -28,8 +28,8 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanNeighbor(const std::vector<P
     return out;
 
   if (verbose_ == 1) {
-    printf("-----Cleaning Up Muons in the neighbours\n");
-    printf("Before:\n");
+    edm::LogInfo("TPSAlgo") << "-----Cleaning Up Muons in the neighbours";
+    edm::LogInfo("TPSAlgo") << "Before:";
   }
 
   for (uint i = 0; i < muons.size(); ++i) {
@@ -45,11 +45,11 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::cleanNeighbor(const std::vector<P
     }
     if (mask) {
       if (verbose_ == 1)
-        printf("kept\n");
+        edm::LogInfo("TPSAlgo") << "kept";
       out.push_back(muons[i]);
     } else {
       if (verbose_ == 1)
-        printf("discarded\n");
+        edm::LogInfo("TPSAlgo") << "discarded";
     }
   }
   return out;
@@ -76,7 +76,7 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::convert(std::vector<PreTrackMatchedM
     out.push_back(muon);
 
     if (verbose_ == 1) {
-      printf("Final Muon:");
+      edm::LogInfo("TPSAlgo") << "Final Muon:" << std::flush;
       muon.print();
     }
   }
@@ -136,20 +136,29 @@ std::vector<l1t::TrackerMuon> TPSAlgorithm::sort(std::vector<l1t::TrackerMuon>& 
 }
 
 propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer) {
-  static ap_uint<BITSPROPCOORD> lt_prop_coord1[5][512] = { { lt_prop_coord1_0, lt_prop_coord1_1, lt_prop_coord1_2, lt_prop_coord1_3, lt_prop_coord1_4 } };
-  static ap_uint<BITSPROPCOORD> lt_prop_coord2[5][512] = { { lt_prop_coord2_0, lt_prop_coord2_1, lt_prop_coord2_2, lt_prop_coord2_3, lt_prop_coord2_4 } };
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord1 = {
+      {lt_prop_coord1_0, lt_prop_coord1_1, lt_prop_coord1_2, lt_prop_coord1_3, lt_prop_coord1_4}};
+  static const std::array<const ap_uint<BITSPROPCOORD>*, 5> lt_prop_coord2 = {
+      {lt_prop_coord2_0, lt_prop_coord2_1, lt_prop_coord2_2, lt_prop_coord2_3, lt_prop_coord2_4}};
 
-  static ap_uint<BITSPROPSIGMACOORD_A> lt_res0_coord1[5][512] = { { lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4 } };
-  static ap_uint<BITSPROPSIGMACOORD_B> lt_res1_coord1[5][512] = { { lt_res1_coord1_0, lt_res1_coord1_1, lt_res1_coord1_2, lt_res1_coord1_3, lt_res1_coord1_4 } };
-  static ap_uint<BITSPROPSIGMACOORD_A> lt_res0_coord2[5][512] = { { lt_res0_coord2_0, lt_res0_coord2_1, lt_res0_coord2_2, lt_res0_coord2_3, lt_res0_coord2_4 } };
-  static ap_uint<BITSPROPSIGMACOORD_B> lt_res1_coord2[5][512] = { { lt_res1_coord2_0, lt_res1_coord2_1, lt_res1_coord2_2, lt_res1_coord2_3, lt_res1_coord2_4 } };
+  static const std::array<const ap_uint<BITSPROPSIGMACOORD_A>*, 5> lt_res0_coord1 = {
+      {lt_res0_coord1_0, lt_res0_coord1_1, lt_res0_coord1_2, lt_res0_coord1_3, lt_res0_coord1_4}};
+  static const std::array<const ap_uint<BITSPROPSIGMACOORD_B>*, 5> lt_res1_coord1 = {
+      {lt_res1_coord1_0, lt_res1_coord1_1, lt_res1_coord1_2, lt_res1_coord1_3, lt_res1_coord1_4}};
+  static const std::array<const ap_uint<BITSPROPSIGMACOORD_A>*, 5> lt_res0_coord2 = {
+      {lt_res0_coord2_0, lt_res0_coord2_1, lt_res0_coord2_2, lt_res0_coord2_3, lt_res0_coord2_4}};
+  static const std::array<const ap_uint<BITSPROPSIGMACOORD_B>*, 5> lt_res1_coord2 = {
+      {lt_res1_coord2_0, lt_res1_coord2_1, lt_res1_coord2_2, lt_res1_coord2_3, lt_res1_coord2_4}};
 
-  static ap_uint<BITSPROPSIGMAETA_A> lt_res0_eta1[5][512] = { { lt_res0_eta1_0, lt_res0_eta1_1, lt_res0_eta1_2, lt_res0_eta1_3, lt_res0_eta1_4 } };
-  static ap_uint<BITSPROPSIGMAETA_A> lt_res1_eta1[5][512] = { { lt_res1_eta_0, lt_res1_eta_1, lt_res1_eta_2, lt_res1_eta_3, lt_res1_eta_4 } };
+  static const std::array<const ap_uint<BITSPROPSIGMAETA_A>*, 5> lt_res0_eta1 = {
+      {lt_res0_eta1_0, lt_res0_eta1_1, lt_res0_eta1_2, lt_res0_eta1_3, lt_res0_eta1_4}};
+  static const std::array<const ap_uint<BITSPROPSIGMAETA_A>*, 5> lt_res1_eta1 = {
+      {lt_res1_eta_0, lt_res1_eta_1, lt_res1_eta_2, lt_res1_eta_3, lt_res1_eta_4}};
 
-  static ap_uint<BITSPROPSIGMAETA_A> lt_res0_eta2[5][512] = { { lt_res0_eta2_0, lt_res0_eta2_1, lt_res0_eta2_2, lt_res0_eta2_3, lt_res0_eta2_4 } };
+  static const std::array<const ap_uint<BITSPROPSIGMAETA_A>*, 5> lt_res0_eta2 = {
+      {lt_res0_eta2_0, lt_res0_eta2_1, lt_res0_eta2_2, lt_res0_eta2_3, lt_res0_eta2_4}};
 
-  static uint barrellimit[5] = { barrelLimit0_, barrelLimit1_, barrelLimit2_, barrelLimit3_, barrelLimit4_ };
+  static const uint barrellimit[5] = {barrelLimit0_, barrelLimit1_, barrelLimit2_, barrelLimit3_, barrelLimit4_};
 
   ap_uint<BITSPROPCOORD> prop_coord1 = 0;
   ap_uint<BITSPROPCOORD> prop_coord2 = 0;
@@ -165,7 +174,7 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   uint reducedAbsEta = track.abseta() / 8;
 
   //Propagate to layers
-  assert(layer >= 0 && layer < 5);
+  assert(layer < 5);
   prop_coord1 = lt_prop_coord1[layer][reducedAbsEta];
   prop_coord2 = lt_prop_coord2[layer][reducedAbsEta];
   res0_coord1 = lt_res0_coord1[layer][reducedAbsEta];
@@ -230,24 +239,17 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   out.is_barrel = is_barrel;
 
   if (verbose_ == 1) {
-    printf("Propagating to layer %d:is barrel=%d  coords=%d+-%d , %d +-%d etas = %d +- %d +-%d\n",
-           int(layer),
-           out.is_barrel.to_int(),
-           out.coord1.to_int(),
-           out.sigma_coord1.to_int(),
-           out.coord2.to_int(),
-           out.sigma_coord2.to_int(),
-           out.eta.to_int(),
-           out.sigma_eta1.to_int(),
-           out.sigma_eta2.to_int());
-    printf("----- breakout of sigma 1 : constant=%d slope=%d before division=%d\n",
-           res0_coord1.to_int(),
-           res1_coord1.to_int(),
-           s1k.to_int());
-    printf("----- breakout of sigma 2 : constant=%d slope=%d before division=%d\n",
-           res0_coord2.to_int(),
-           res1_coord2.to_int(),
-           s2k.to_int());
+    edm::LogInfo("TPSAlgo") << "Propagating to layer " << int(layer) << ":is barrel=" << out.is_barrel.to_int()
+                            << "  coords=" << out.coord1.to_int() << "+-" << out.sigma_coord1.to_int() << " , "
+                            << out.coord2.to_int() << " +-" << out.sigma_coord2.to_int()
+                            << " etas = " << out.eta.to_int() << " +- " << out.sigma_eta1.to_int() << " +-"
+                            << out.sigma_eta2.to_int();
+
+    edm::LogInfo("TPSAlgo") << "----- breakout of sigma 1 : constant=" << res0_coord1.to_int()
+                            << " slope=" << res1_coord1.to_int() << " before division=" << s1k.to_int();
+
+    edm::LogInfo("TPSAlgo") << "----- breakout of sigma 2 : constant=" << res0_coord2.to_int()
+                            << " slope=" << res1_coord2.to_int() << " before division=" << s2k.to_int();
   }
   return out;
 }
@@ -274,8 +276,9 @@ ap_uint<BITSSIGMACOORD + 1> TPSAlgorithm::deltaCoord(const ap_int<BITSSTUBCOORD>
 
 match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) {
   if (verbose_ == 1) {
-    printf(
-        "Matching to coord1=%d coord2=%d eta1=%d eta2=%d\n", stub->coord1(), stub->coord2(), stub->eta1(), stub->eta2());
+    edm::LogInfo("TPSAlgo") << "Matching to coord1=" << stub->coord1() << " coord2=" << stub->coord2()
+                            << " eta1=" << stub->eta1() << " eta2=" << stub->eta2();
+
     stub->print();
   }
   //Matching of Coord1
@@ -287,10 +290,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     coord1Matched = 0;
   }
   if (verbose_ == 1)
-    printf("Coord1 matched=%d delta=%d res=%d\n",
-           coord1Matched.to_int(),
-           deltaCoord1.to_int(),
-           prop.sigma_coord1.to_int());
+    edm::LogInfo("TPSAlgo") << "Coord1 matched=" << coord1Matched.to_int() << " delta=" << deltaCoord1.to_int()
+                            << " res=" << prop.sigma_coord1.to_int();
 
   //Matching of Coord2
   ap_uint<1> coord2Matched;
@@ -301,10 +302,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     coord2Matched = 0;
   }
   if (verbose_ == 1)
-    printf("Coord2 matched=%d delta=%d res=%d\n",
-           coord2Matched.to_int(),
-           deltaCoord2.to_int(),
-           prop.sigma_coord2.to_int());
+    edm::LogInfo("TPSAlgo") << "Coord2 matched=" << coord2Matched.to_int() << " delta=" << deltaCoord2.to_int()
+                            << " res=" << prop.sigma_coord2.to_int();
 
   //Matching of Eta1
 
@@ -325,7 +324,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     eta1Matched = 0;
 
   if (verbose_ == 1)
-    printf("eta1 matched=%d delta=%d res=%d\n", eta1Matched.to_int(), deltaEta1.to_int(), prop_sigma_eta1.to_int());
+    edm::LogInfo("TPSAlgo") << "eta1 matched=" << eta1Matched.to_int() << " delta=" << deltaEta1.to_int()
+                            << " res=" << prop_sigma_eta1.to_int();
 
   //Matching of Eta2
 
@@ -340,7 +340,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   out.id = trackID;
 
   if (verbose_ == 1)
-    printf("eta2 matched=%d delta=%d res=%d\n", eta2Matched.to_int(), deltaEta2.to_int(), prop.sigma_eta2.to_int());
+    edm::LogInfo("TPSAlgo") << "eta2 matched=" << eta2Matched.to_int() << " delta=" << deltaEta2.to_int()
+                            << " res=" << prop.sigma_eta2.to_int();
 
   //Note I divided by 4 because of the new coordinate. Make it automatic
 
@@ -378,7 +379,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     }
   }
   if (verbose_ == 1)
-    printf("GlobalMatchQuality = %d\n", out.quality.to_int());
+    edm::LogInfo("TPSAlgo") << "GlobalMatchQuality = " << out.quality.to_int();
   out.stubRef = stub;
   return out;
 }
@@ -413,22 +414,16 @@ void TPSAlgorithm::matchingInfos(std::vector<match_t> matchInfo,
 }
 
 PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, const l1t::MuonStubRefVector& stubs) {
-  std::vector<std::vector<match_t> > matchInfos;
-  matchInfos.reserve(5);
+  std::array<std::vector<match_t>, 6> matchInfos;
 
   if (verbose_ == 1 && !stubs.empty()) {
-    printf("-----------processing new track----------\n");
+    edm::LogInfo("TPSAlgo") << "-----------processing new track----------";
     track.print();
   }
   for (const auto& stub : stubs) {
     match_t m = propagateAndMatch(track, stub, 0);
-    if (m.valid != 0) {
-      for (unsigned i = 0; i < 6; ++i) {
-        if (stub->tfLayer() == i) {
-          matchInfos.at(i).push_back(m);
-          break;
-        }
-      }
+    if (m.valid != 0 && stub->tfLayer() < 6) {
+      matchInfos[stub->tfLayer()].push_back(m);
     }
   }
 
@@ -461,23 +456,23 @@ PreTrackMatchedMuon TPSAlgorithm::processTrack(const ConvertedTTTrack& track, co
 
   if (verbose_ == 1 && !stubs.empty()) {  //patterns for HLS
 
-    printf("TPS %d", track.trkPtr()->phiSector());
+    edm::LogInfo("TPSAlgo") << "TPS " << track.trkPtr()->phiSector() << std::flush;
     track.printWord();
 
     for (uint i = 0; i < 16; ++i) {
       if (stubs.size() > i) {
-        printf("remember to implement printout of muon\n");
+        edm::LogInfo("TPSAlgo") << "remember to implement printout of muon";
       } else {
-        printf("%08x", 0);
-        printf("%016lx", 0x1ff000000000000);
-        printf("%016lx", 0x1ff000000000000);
-        printf("%016lx", 0x1ff000000000000);
-        printf("%016lx", 0x1ff000000000000);
-        printf("%016lx", 0x1ff000000000000);
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(8) << 0 << std::flush;
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(16) << 0x1ff000000000000 << std::flush;
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(16) << 0x1ff000000000000 << std::flush;
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(16) << 0x1ff000000000000 << std::flush;
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(16) << 0x1ff000000000000 << std::flush;
+        edm::LogInfo("TPSAlgo") << std::hex << std::setw(16) << 0x1ff000000000000 << std::flush;
       }
     }
     muon.printWord();
-    printf("\n");
+    edm::LogInfo("TPSAlgo") << std::endl;
   }
   return muon;
 }
@@ -523,8 +518,8 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::clean(std::vector<PreTrackMatched
   if (muons.empty())
     return out;
   if (verbose_ == 1) {
-    printf("-----Cleaning Up Muons in the same Nonant\n");
-    printf("Before:\n");
+    edm::LogInfo("TPSAlgo") << "-----Cleaning Up Muons in the same Nonant";
+    edm::LogInfo("TPSAlgo") << "Before:";
   }
   for (uint i = 0; i < muons.size(); ++i) {
     if (verbose_ == 1)
@@ -538,11 +533,11 @@ std::vector<PreTrackMatchedMuon> TPSAlgorithm::clean(std::vector<PreTrackMatched
     }
     if (mask) {
       if (verbose_ == 1)
-        printf("kept\n");
+        edm::LogInfo("TPSAlgo") << "kept";
       out.push_back(muons[i]);
     } else {
       if (verbose_ == 1)
-        printf("discarded\n");
+        edm::LogInfo("TPSAlgo") << "discarded";
     }
   }
   return out;

@@ -279,65 +279,34 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
   l1t::MuonStubCollection combinedStubs = combineStubs(cscStubs, rpcStubs);
 
   if (verbose_) {
-    printf("CSC Stubs\n");
+    edm::LogInfo("EndcapStub") << "CSC Stubs";
     for (const auto& stub : cscStubs)
-      printf(
-          "CSC Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
-    printf("RPC Stubs\n");
+      edm::LogInfo("EndcapStub") << "CSC Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
+
+    edm::LogInfo("EndcapStub") << "RPC Stubs";
     for (const auto& stub : rpcStubs)
-      printf(
-          "RPC Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("EndcapStub") << "RPC Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
+
     for (const auto& stub : combinedStubs)
-      printf(
-          "Combined Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("EndcapStub") << "Combined Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
   }
 
   return combinedStubs;

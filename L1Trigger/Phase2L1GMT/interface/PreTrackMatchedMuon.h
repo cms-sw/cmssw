@@ -115,27 +115,31 @@ namespace Phase2L1GMT {
     }
 
     uint64_t lsb() const {
-      uint64_t w = charge_ & 0x1;
-      w = w | (twos_complement(pt_, BITSPT) << 1);
-      w = w | (twos_complement(phi_, BITSPHI) << (BITSPT + 1));
-      w = w | (twos_complement(eta_, BITSETA) << (BITSPHI + BITSPT + 1));
-      w = w | (twos_complement(z0_, BITSZ0) << (BITSETA + BITSPHI + BITSPT + 1));
-      w = w | (twos_complement(d0_, BITSD0) << (BITSZ0 + BITSETA + BITSPHI + BITSPT + 1));
-      return w;
+      wordtype w = 0;
+      int bstart = 0;
+      bstart = wordconcat<wordtype>(w, bstart, charge_ & 0x1, 1);
+      bstart = wordconcat<wordtype>(w, bstart, pt_, BITSPT);
+      bstart = wordconcat<wordtype>(w, bstart, phi_, BITSPHI);
+      bstart = wordconcat<wordtype>(w, bstart, eta_, BITSETA);
+      bstart = wordconcat<wordtype>(w, bstart, z0_, BITSZ0);
+      bstart = wordconcat<wordtype>(w, bstart, d0_, BITSD0);
+      return w.to_int();
     }
 
     uint64_t msb() const {
-      uint64_t w2 = 0;
-      w2 = twos_complement(stubID0_, BITSSTUBID);
-      w2 = w2 | (twos_complement(stubID1_, BITSSTUBID) << BITSSTUBID);
-      w2 = w2 | (twos_complement(stubID2_, BITSSTUBID) << (2 * BITSSTUBID));
-      w2 = w2 | (twos_complement(stubID3_, BITSSTUBID) << (3 * BITSSTUBID));
-      w2 = w2 | (twos_complement(stubID4_, BITSSTUBID) << (4 * BITSSTUBID));
-      w2 = w2 | (twos_complement(isGlobal_, 1) << (5 * BITSSTUBID));
-      w2 = w2 | (twos_complement(beta_, BITSMUONBETA) << (5 * BITSSTUBID + 1));
-      w2 = w2 | (twos_complement(quality_, BITSMATCHQUALITY) << (BITSMUONBETA + 5 * BITSSTUBID + 1));
-      w2 = w2 | (twos_complement(valid_, 1) << (BITSMATCHQUALITY + BITSMUONBETA + 5 * BITSSTUBID + 1));
-      return w2;
+      wordtype w2 = 0;
+      int bstart = 0;
+      bstart = wordconcat<wordtype>(w2, bstart, stubID0_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID1_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID2_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID3_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, stubID4_, BITSSTUBID);
+      bstart = wordconcat<wordtype>(w2, bstart, isGlobal_, 1);
+      bstart = wordconcat<wordtype>(w2, bstart, beta_, BITSMUONBETA);
+      bstart = wordconcat<wordtype>(w2, bstart, quality_, BITSMATCHQUALITY);
+      bstart = wordconcat<wordtype>(w2, bstart, valid_, 1);
+
+      return w2.to_int();
     }
 
     void printWord() const {

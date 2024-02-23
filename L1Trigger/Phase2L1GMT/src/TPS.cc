@@ -13,30 +13,25 @@ TPS::TPS(const edm::ParameterSet& iConfig)
 std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks,
                                                 const l1t::MuonStubRefVector& muonStubs) {
   //Split tracks to the links as they come
-  std::vector<std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> > > loctracks;
-  loctracks.reserve(9);
+  std::array<std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >, 9> loctracks;
   for (unsigned i = 0; i < 9; ++i)
-    loctracks.push_back(associateTracksWithNonant(tracks, i));
+    loctracks[i] = associateTracksWithNonant(tracks, i);
 
   //Convert TT tracks to our internal tracking format
-  std::vector<std::vector<ConvertedTTTrack> > convertedTracks;
-  convertedTracks.reserve(9);
-  for (unsigned i = 0; i < 9; ++i) {
-    convertedTracks.push_back(tt_track_converter_->convertTracks(loctracks.at(i)));
-  }
+  std::array<std::vector<ConvertedTTTrack>, 9> convertedTracks;
+  for (unsigned i = 0; i < 9; ++i)
+    convertedTracks[i] = tt_track_converter_->convertTracks(loctracks.at(i));
 
   //Transition stubs to different nonants with overlap
-  std::vector<l1t::MuonStubRefVector> stubs;
-  stubs.reserve(9);
+  std::array<l1t::MuonStubRefVector, 9> stubs;
   for (int i = 0; i < 9; ++i)
-    stubs.push_back(associateStubsWithNonant(muonStubs, i));
+    stubs[i] = associateStubsWithNonant(muonStubs, i);
 
   //run track - muon matching per nonant
-  std::vector<std::vector<PreTrackMatchedMuon> > mus;
-  mus.reserve(9);
-  for (int i = 0; i < 9; ++i) {
-    mus.push_back(tps_->processNonant(convertedTracks.at(i), stubs.at(i)));
-  }
+  std::array<std::vector<PreTrackMatchedMuon>, 9> mus;
+  for (int i = 0; i < 9; ++i)
+    mus[i] = tps_->processNonant(convertedTracks.at(i), stubs.at(i));
+
   //clean neighboring nonants
   std::vector<std::vector<PreTrackMatchedMuon> > muCleaneds;
   muCleaneds.push_back(tps_->cleanNeighbor(mus[0], mus[8], mus[1], true));
@@ -47,8 +42,8 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
   muCleaneds.push_back(tps_->cleanNeighbor(mus[5], mus[4], mus[6], false));
   muCleaneds.push_back(tps_->cleanNeighbor(mus[6], mus[5], mus[7], true));
   muCleaneds.push_back(tps_->cleanNeighbor(mus[7], mus[6], mus[8], false));
-  muCleaneds.push_back(
-      tps_->cleanNeighbor(mus[8], mus[7], mus[0], false));  //ARGH! 9 sectors - so some duplicates very rarely
+  //ARGH! 9 sectors - so some duplicates very rarely
+  muCleaneds.push_back(tps_->cleanNeighbor(mus[8], mus[7], mus[0], false));
 
   //merge all the collections
   std::vector<PreTrackMatchedMuon> mergedCleaned;
@@ -58,19 +53,20 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
 
   std::vector<l1t::TrackerMuon> trackMatchedMuonsNoIso = tps_->convert(mergedCleaned, 32);
 
+  //sorter here:
+  std::vector<l1t::TrackerMuon> sortedTrackMuonsNoIso = tps_->sort(trackMatchedMuonsNoIso, 12);
+
+  tps_->SetQualityBits(sortedTrackMuonsNoIso);
+
   //Isolation and tau3mu will read those muons and all 9 collections of convertedTracks*
   std::vector<ConvertedTTTrack> mergedconvertedTracks;
   for (auto&& v : convertedTracks) {
     mergedconvertedTracks.insert(mergedconvertedTracks.end(), v.begin(), v.end());
   }
 
-  //sorter here:
-  std::vector<l1t::TrackerMuon> sortedTrackMuonsNoIso = tps_->sort(trackMatchedMuonsNoIso, 12);
-
-  tps_->SetQualityBits(sortedTrackMuonsNoIso);
-
   isolation_->isolation_allmu_alltrk(sortedTrackMuonsNoIso, mergedconvertedTracks);
 
+  // To be enable when tau->3mu rate study is ready
   //tauto3mu_->GetTau3Mu(sortedTrackMuonsNoIso, mergedconvertedTracks);
 
   tps_->outputGT(sortedTrackMuonsNoIso);

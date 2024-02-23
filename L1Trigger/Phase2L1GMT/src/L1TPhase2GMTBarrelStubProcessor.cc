@@ -162,30 +162,19 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
       }
     }
     if (verbose_ == 2)
-      std::cout << os.str() << std::endl;
+      edm::LogInfo("BarrelStub") << os.str() << std::endl;
   }
 
   if (verbose_) {
-    printf("Barrel Stubs\n");
+    edm::LogInfo("BarrelStub") << "Barrel Stubs";
     for (const auto& stub : out)
-      printf(
-          "Barrel Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("BarrelStub") << "Barrel Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
   }
 
   return out;
