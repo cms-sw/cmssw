@@ -64,7 +64,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
         G4PhysicalVolumeStore::Clean();
         isG4Alive = false;
       } else if (m_masterThreadState == ThreadState::Destruct) {
-	// Stop master thread started
+        // Stop master thread started
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
           throw cms::Exception("LogicError") << "OscarMTMasterThread: Geant4 is still alive, master thread "
