@@ -2760,7 +2760,7 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   int upperThresholdInd = -1;
 
   //save model and threshold
-  std::string model = "NONE";
+  std::string model = "";
 
   if (object.getType() == tmeventsetup::Axol1tl) {
     const std::vector<L1TUtmCut>& cuts = object.getCuts();
