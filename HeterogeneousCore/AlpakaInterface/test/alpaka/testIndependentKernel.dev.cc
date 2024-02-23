@@ -6,6 +6,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
+#include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -122,8 +123,8 @@ TEST_CASE("Test alpaka kernels for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESP
     // get the list of devices on the current platform
     auto const& devices = cms::alpakatools::devices<Platform>();
     if (devices.empty()) {
-      INFO("No devices available on the platform " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE));
-      REQUIRE(not devices.empty());
+      FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
+           "the test will be skipped.");
     }
 
     // launch the independent work kernel with a small block size and a small number of blocks;
