@@ -15,6 +15,7 @@
 <use name="hls"/>
 <use name="hls4mLEmulatorExtras"/>
 <use name="TOoLLiP"/>
+<use name="L1METML"/>
 <export>
   <lib name="1"/>
 </export>

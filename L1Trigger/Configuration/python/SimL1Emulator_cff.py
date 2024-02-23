@@ -94,7 +94,7 @@ _phase2_siml1emulator.add(l1tEGammaClusterEmuProducer)
 from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
 _phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
 
-# Barrel and EndCap CaloJet/HT
+# Barrel and EndCap CaloJet/HT/NNCaloTau
 # ########################################################################
 # ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
 from L1Trigger.L1CaloTrigger.l1tTowerCalibrationProducer_cfi import *
@@ -102,22 +102,32 @@ l1tTowerCalibration = l1tTowerCalibrationProducer.clone(
   L1HgcalTowersInputTag = ("l1tHGCalTowerProducer","HGCalTowerProcessor",""),
   l1CaloTowers = ("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")
 )
-# ----    Produce the L1CaloJets
+# ----    Produce the simulated L1CaloJets
 from L1Trigger.L1CaloTrigger.l1tCaloJetProducer_cfi import *
 l1tCaloJet = l1tCaloJetProducer.clone (
     l1CaloTowers = ("l1tTowerCalibration","L1CaloTowerCalibratedCollection",""),
     L1CrystalClustersInputTag = ("l1tEGammaClusterEmuProducer", "","")
 )
-# ----    Produce the CaloJet HTT Sums
+# ----    Produce the simulated CaloJet HTT Sums
 from L1Trigger.L1CaloTrigger.l1tCaloJetHTTProducer_cfi import *
 l1tCaloJetHTT = l1tCaloJetHTTProducer.clone(
     BXVCaloJetsInputTag = ("L1CaloJet", "CaloJets") 
 )
+# ----    Produce the NNCaloTau
+from L1Trigger.L1CaloTrigger.l1tNNCaloTauProducer_cfi import *
+_phase2_siml1emulator.add(l1tNNCaloTauProducer)
 
+from L1Trigger.L1CaloTrigger.l1tNNCaloTauEmulator_cfi import *
+_phase2_siml1emulator.add(l1tNNCaloTauEmulator)
+
+# ---- Produce the emulated CaloJets and Taus
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloJetEmulator_cfi import *
 
 _phase2_siml1emulator.add(l1tTowerCalibration)
 _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
+_phase2_siml1emulator.add(l1tPhase2CaloJetEmulator)
+
 
 # ########################################################################
 # Phase-2 L1T - TrackTrigger dependent modules
@@ -210,11 +220,8 @@ from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
 L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
-from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import *
-_phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
-
-from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
-_phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
+from L1Trigger.Phase2L1ParticleFlow.L1HPSPFTauProducer_cfi import *
+_phase2_siml1emulator.add(l1HPSPFTauEmuProducer)
 
 # PF MET
 # ########################################################################
@@ -223,6 +230,7 @@ _phase2_siml1emulator.add(L1TPFJetsEmulationTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
 _phase2_siml1emulator.add(l1tMETPFProducer)
+_phase2_siml1emulator.add(l1tMETMLProducer)
 
 
 # NNTaus
