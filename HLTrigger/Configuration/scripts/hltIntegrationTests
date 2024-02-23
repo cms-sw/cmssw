@@ -334,7 +334,7 @@ else
     --max-events ${SIZE} --no-prescale --no-output
     ${DATA} --input ${INPUT} ${EXTRA} ${DBPROXYOPTS}"
   HLTGETCMD=$(echo "${HLTGETCMD}" | xargs)
-  log "Creating HLT menu from ConfDB configuration:\n> ${HLTGETCMD}"
+  log "Creating HLT menu from ConfDB configuration\n> ${HLTGETCMD}"
   ${HLTGETCMD} > hlt.py
   # unset EXTRA environment variable (used later in cmsRun jobs)
   unset HLTGETCMD EXTRA
@@ -385,26 +385,41 @@ process.options.accelerators = [ "$ACCELERATOR" ]
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 
+# find number of cms.Paths in the HLT menu (incl. Dataset Paths)
+NUM_PATHS=$(python3 -c """
+import sys
+# redefine sys.argv (necessary to import
+# cfg file if the latter uses VarParsing)
+sys.argv = ['python3', 'hlt.py']
+from hlt import cms,process
+try:
+  print(len(process.paths_()))
+except:
+  print(0)
+""")
+log "\nThe HLT menu contains ${NUM_PATHS} Paths (incl. Dataset Paths)"
+
 # list of trigger Paths to be tested standalone (always exclude HLTriggerFinalPath)
-log "Preparing list of trigger Paths to be tested standalone (paths.txt)"
+log "\nPreparing list of Paths to be tested standalone (paths.txt)"
 [ "${PATHS}" ] || PATHS="*"
 PATHS+=",-HLTriggerFinalPath"
+log " - Path selection: \"${PATHS}\""
 TRIGGERS=$(hltListPaths hlt.py -p --no-dep --select-paths "${PATHS}")
 echo "${TRIGGERS[@]}" > paths.txt
 
 # print some info
 if [ "${SELECTION}" == "complex" ]; then
-  log "Will run full menu and $(echo $TRIGGERS | wc -w) triggers standalone over $(echo ${EVENTS} | tr ',' '\n' | wc -l) events, with ${JOBS} jobs in parallel"
+  log "\nWill run full menu and $(echo $TRIGGERS | wc -w) Paths standalone over $(echo ${EVENTS} | tr ',' '\n' | wc -l) events, with ${JOBS} jobs in parallel"
 elif [ "${SIZE}" == "-1" ]; then
-  log "Will run full menu and $(echo ${TRIGGERS} | wc -w) triggers standalone over all events, with ${JOBS} jobs in parallel"
+  log "\nWill run full menu and $(echo ${TRIGGERS} | wc -w) Paths standalone over all events, with ${JOBS} jobs in parallel"
 else
-  log "Will run full menu and $(echo ${TRIGGERS} | wc -w) triggers standalone over ${SIZE} events, with ${JOBS} jobs in parallel"
+  log "\nWill run full menu and $(echo ${TRIGGERS} | wc -w) Paths standalone over ${SIZE} events, with ${JOBS} jobs in parallel"
 fi
 
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
-log "Preparing single-trigger configurations"
+log "\nPreparing single-Path configurations"
 for TRIGGER in $TRIGGERS; do
   cat > "${TRIGGER}".py << @EOF
 from hlt import *
@@ -436,7 +451,7 @@ if [ "${SETUP}" ]; then
     # this is the hltGetConfiguration behaviour and would be confusing if you had to
     # specify converter/db on the setup menu on hltIntegrationTests but not on hltGetConfiguration
     read SETUP_Vx SETUP_DB _ <<< $(parse_HLT_menu "${MENU}")
-    log "Creating setup_cff from ConfDB configuration: ${SETUP_Vx}/${SETUP_DB}:${SETUP}"
+    log "\nCreating setup_cff from ConfDB configuration: ${SETUP_Vx}/${SETUP_DB}:${SETUP}"
     hltConfigFromDB --${SETUP_Vx} --${SETUP_DB} ${DBPROXYOPTS} --cff --configName "$SETUP" \
       --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
     sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in ${TRIGGERS}; do echo "${TRIGGER}".py; done)
@@ -472,7 +487,7 @@ hlt.done: hlt.py
 	@cmsRun \$*.py ${EXTRA} >& \$*.log < /dev/zero && touch \$*.done
 @EOF
 
-log "Running..."
+log "\nRunning..."
 # if the whole hlt job runs with multithreading, run it by itself
 # otherwise, run it in parallel with the single-trigger jobs
 if ((THREADS > 0)); then
@@ -483,7 +498,7 @@ else
 fi
 
 # compare HLT results
-log "Comparing the results of running each path by itself with those from the full menu"
+log "\nComparing the results of running each path by itself with those from the full menu"
 hltCompareResults
 STATUS=$?
 log "--------------------------"
