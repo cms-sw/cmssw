@@ -224,6 +224,8 @@ def _appendPhase2Digis(obj):
         'keep *_l1tHPSPFTauProducerPuppi_*_*',
         'keep *_l1tBJetProducerPuppi_*_*',
         'keep *_l1tBJetProducerPuppiCorrectedEmulator_*_*',
+        'keep *_l1tTOoLLiPProducer_*_*',
+        'keep *_l1tTOoLLiPProducerCorrectedEmulator_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_l1tTTTracksFromExtendedTrackletEmulation_*_*',
