@@ -68,6 +68,7 @@ using testParameterSetDescription::testDesc;
 
 TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
   SECTION("testWildcards") {
+    using Catch::Matchers::Equals;
     {
       edm::ParameterSetDescription set;
       edm::ParameterWildcard<int> w("*", edm::RequireZeroOrMore, true);
@@ -80,6 +81,15 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addParameter<unsigned>("z", 1);
       testDesc(w, set, pset, true, false);
+
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.int32"));
+      }
     }
 
     {
@@ -92,6 +102,15 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addUntrackedParameter<unsigned>("y", 1);
       testDesc(w, set, pset, false, false);
+
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.untracked.uint32"));
+      }
     }
 
     {
@@ -128,6 +147,15 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addParameter<double>("y", 1);
       testDesc(w, set, pset, true, true);
+
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.double"));
+      }
     }
 
     {
@@ -153,6 +181,15 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addParameter<edm::ParameterSet>("nested2", nestedPset);
       testDesc(w, set, pset, true, true);
+
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.PSetTemplate()"));
+      }
     }
 
     {
@@ -193,6 +230,16 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addParameter<edm::ParameterSet>("nested2", nestedPset);
       testDesc(w, set, pset, true, true);
+
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(),
+                     Equals("\nallowAnyLabel_ = cms.required.PSetTemplate(\n  n1 = cms.untracked.uint32(1)\n)"));
+      }
     }
 
     {
@@ -236,6 +283,14 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       testDesc(w, set, pset, true, true);
       pset.addParameter<std::vector<edm::ParameterSet>>("nested2", nestedVPset);
       testDesc(w, set, pset, true, true);
+      SECTION("cfi generation") {
+        std::ostringstream os;
+        bool startWithComma = false;
+        bool wroteSomething = false;
+        w.writeCfi(os, false, startWithComma, 0, wroteSomething);
+
+        REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.VPSet"));
+      }
     }
 
     {

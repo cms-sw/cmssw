@@ -129,13 +129,17 @@ namespace edm {
     using std::placeholders::_1;
     bool wroteSomething = false;
 
-    for_all(entries_,
-            std::bind(&ParameterSetDescription::writeNode,
-                      _1,
-                      std::ref(os),
-                      std::ref(startWithComma),
-                      indentation,
-                      std::ref(wroteSomething)));
+    bool seenWildcard = false;
+    for (auto const& entry : entries_) {
+      //only add the first seen wildcard to the cfi. This avoids possible ambiguities.
+      if (entry.node()->isWildcard()) {
+        if (seenWildcard == true) {
+          continue;
+        }
+        seenWildcard = true;
+      }
+      writeNode(entry, os, startWithComma, indentation, wroteSomething);
+    }
 
     if (wroteSomething) {
       char oldFill = os.fill();
