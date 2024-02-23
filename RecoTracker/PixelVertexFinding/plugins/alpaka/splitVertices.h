@@ -16,16 +16,16 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(const TAcc& acc,
-                                                                                   VtxSoAView& pdata,
-                                                                                   WsSoAView& pws,
-                                                                                   float maxChi2) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(
+      const TAcc& acc, VtxSoAView& pdata, TrkSoAView ptrkdata, WsSoAView& pws, float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
     const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
 
     auto& __restrict__ data = pdata;
+    auto& __restrict__ trkdata = ptrkdata;
     auto& __restrict__ ws = pws;
     auto nt = ws.ntrks();
     float const* __restrict__ zt = ws.zt();
@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     float const* __restrict__ chi2 = data.chi2();
     uint32_t& nvFinal = data.nvFinal();
 
-    int32_t const* __restrict__ nn = data.ndof();
+    int32_t const* __restrict__ nn = trkdata.ndof();
     int32_t* __restrict__ iv = ws.iv();
 
     ALPAKA_ASSERT_ACC(zt);
@@ -156,8 +156,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   class SplitVerticesKernel {
   public:
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc, VtxSoAView pdata, WsSoAView pws, float maxChi2) const {
-      splitVertices(acc, pdata, pws, maxChi2);
+    ALPAKA_FN_ACC void operator()(
+        const TAcc& acc, VtxSoAView pdata, TrkSoAView ptrkdata, WsSoAView pws, float maxChi2) const {
+      splitVertices(acc, pdata, ptrkdata, pws, maxChi2);
     }
   };
 

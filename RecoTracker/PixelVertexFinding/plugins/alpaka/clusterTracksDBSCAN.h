@@ -18,6 +18,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   using VtxSoAView = ::reco::ZVertexSoAView;
+  using TrkSoAView = ::reco::ZVertexTracksSoAView;
   using WsSoAView = ::vertexFinder::PixelVertexWorkSpaceSoAView;
   // this algo does not really scale as it works in a single block...
   // enough for <10K tracks we have
@@ -26,6 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   VtxSoAView pdata,
+                                  TrkSoAView ptrkdata,
                                   WsSoAView pws,
                                   int minT,      // min number of neighbours to be "core"
                                   float eps,     // max absolute distance to cluster
@@ -41,6 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       auto er2mx = errmax * errmax;
 
       auto& __restrict__ data = pdata;
+      auto& __restrict__ trkdata = ptrkdata;
       auto& __restrict__ ws = pws;
       auto nt = ws.ntrks();
       float const* __restrict__ zt = ws.zt();
@@ -50,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       uint32_t& nvIntermediate = ws.nvIntermediate();
 
       uint8_t* __restrict__ izt = ws.izt();
-      int32_t* __restrict__ nn = data.ndof();
+      int32_t* __restrict__ nn = trkdata.ndof();
       int32_t* __restrict__ iv = ws.iv();
 
       ALPAKA_ASSERT_ACC(zt);

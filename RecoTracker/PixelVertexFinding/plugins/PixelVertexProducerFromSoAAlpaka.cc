@@ -103,7 +103,7 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     err(2, 2) *= 2.;  // artifically inflate error
     //Copy also the tracks (no intention to be efficient....)
     for (auto k = 0U; k < indToEdm.size(); ++k) {
-      if (soa.view()[k].idv() == int16_t(i))
+      if (soa.view<reco::ZVertexTracksSoA>()[k].idv() == int16_t(i))
         itrk.push_back(k);
     }
     auto nt = itrk.size();
@@ -117,7 +117,8 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       itrk.clear();
       continue;
     }  // remove outliers
-    (*vertexes).emplace_back(reco::Vertex::Point(x, y, z), err, soa.view()[i].chi2(), soa.view()[i].ndof(), nt);
+    (*vertexes).emplace_back(
+        reco::Vertex::Point(x, y, z), err, soa.view()[i].chi2(), soa.view<reco::ZVertexTracksSoA>()[i].ndof(), nt);
     auto &v = (*vertexes).back();
     v.reserve(itrk.size());
     for (auto it : itrk) {
