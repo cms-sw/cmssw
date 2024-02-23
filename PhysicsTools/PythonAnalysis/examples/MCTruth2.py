@@ -1,6 +1,6 @@
 from __future__ import print_function
 from PhysicsTools.PythonAnalysis import *
-from ROOT import *
+from ROOT import gSystem
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")

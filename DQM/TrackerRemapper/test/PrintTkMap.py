@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sys
 import os
-from ROOT import *
+from ROOT import gROOT, TArrow, TCanvas, TGraph, TH2Poly, gPad, TLatex
 from copy import deepcopy
 from array import array
 

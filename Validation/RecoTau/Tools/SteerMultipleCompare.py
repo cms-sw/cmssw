@@ -4,7 +4,7 @@ from __future__ import print_function
 import sys
 import os
 import re
-from ROOT import *
+from ROOT import gROOT, TFile
 import MultipleCompare as MultipleCompare
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 import sys
-from ROOT import *
 import os
 from subprocess import call
 import os.path

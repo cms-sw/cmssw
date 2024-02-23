@@ -1,5 +1,5 @@
 from __future__ import print_function
-from ROOT import *
+from ROOT import gPad, gStyle, TCanvas
 import re
 
 files = ['DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root']
