@@ -72,7 +72,7 @@ private:
   /// variables containing the parameters
   std::vector<ObjectParameter> m_objectParameter;
 
-  ///modelversion
+  /// model version
   std::string m_modelVersion;
 };
 
