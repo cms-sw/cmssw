@@ -42,6 +42,8 @@ private:
   static std::vector<l1HPSPFTauEmu::Particle> convertJetsToHW(std::vector<edm::Ptr<reco::CaloJet>>& edmJets);
   static std::vector<l1HPSPFTauEmu::Particle> convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles);
   static std::vector<l1t::PFTau> convertHWToEDM(std::vector<l1HPSPFTauEmu::Tau> hwTaus);
+  //ADD
+  edm::EDPutTokenT<l1t::PFTauCollection> tauToken_;
 };
 
 L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
@@ -50,9 +52,8 @@ L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
       fUseJets_(cfg.getParameter<bool>("useJets")),
       debug_(cfg.getParameter<bool>("debug")),
       tokenL1PFCands_(consumes(cfg.getParameter<edm::InputTag>("srcL1PFCands"))),
-      tokenL1PFJets_(consumes(cfg.getParameter<edm::InputTag>("srcL1PFJets"))) {
-  produces<l1t::PFTauCollection>("HPSTaus");
-}
+      tokenL1PFJets_(consumes(cfg.getParameter<edm::InputTag>("srcL1PFJets"))),
+      tauToken_{produces()} {}
 
 void L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -68,7 +69,6 @@ void L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void L1HPSPFTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  auto newPFTauCollection = std::make_unique<l1t::PFTauCollection>();
   auto l1PFCandidates = iEvent.getHandle(tokenL1PFCands_);
   //add jets even if not used, for simplicity
   auto l1PFJets = iEvent.getHandle(tokenL1PFJets_);
@@ -92,8 +92,8 @@ void L1HPSPFTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   taus = processEvent_HW(particles, jets);
 
   std::sort(taus.begin(), taus.end(), [](const l1t::PFTau& i, const l1t::PFTau& j) { return (i.pt() > j.pt()); });
-  newPFTauCollection->swap(taus);
-  iEvent.put(std::move(newPFTauCollection), "HPSTaus");
+
+  iEvent.emplace(tauToken_, std::move(taus));
 }
 
 std::vector<l1t::PFTau> L1HPSPFTauProducer::processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& work,
