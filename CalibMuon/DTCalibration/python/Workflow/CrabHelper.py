@@ -5,6 +5,7 @@ import sys
 import os
 from importlib import import_module
 import subprocess
+import shutil
 import time
 from . import tools
 
@@ -51,6 +52,7 @@ class CrabHelper(object):
         print(self.crab_config_filepath)
         task = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                             initUpdate = False)
+        
         if self.options.no_exec:
             log.info("Nothing to check in no-exec mode")
             return True
@@ -94,8 +96,7 @@ class CrabHelper(object):
 
     def voms_proxy_time_left(self):
         process = subprocess.Popen(['voms-proxy-info', '-timeleft'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+                                   stdout=subprocess.PIPE)
         stdout = process.communicate()[0]
         if process.returncode != 0:
             return 0
@@ -105,14 +106,15 @@ class CrabHelper(object):
     def voms_proxy_create(self, passphrase = None):
         voms = 'cms'
         if passphrase:
-            p = subprocess.Popen(['voms-proxy-init', '--voms', voms, '--valid', '192:00'],
+            p = subprocess.Popen([shutil.which('voms-proxy-init'), '--voms', voms, '--valid', '192:00'],
+                                 executable = '/bin/bash',
                                  stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
             stdout = p.communicate(input=passphrase+'\n')[0]
             retcode = p.returncode
             if not retcode == 0:
                 raise ProxyError('Proxy initialization command failed: %s'%stdout)
         else:
-            retcode = subprocess.call(['voms-proxy-init', '--voms', voms, '--valid', '192:00'])
+            retcode = subprocess.call([shutil.which('voms-proxy-init'), '--voms', voms, '--valid', '192:00'])
         if not retcode == 0:
             raise ProxyError('Proxy initialization command failed.')
 
