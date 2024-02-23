@@ -18,19 +18,19 @@ options.register ("daqSourceMode",
                   "DAQ source data mode")
 
 options.register ("buBaseDir",
-                  "/dev/shm",
+                  "ramdisk",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "BU base directory")
 
 options.register ("fuBaseDir",
-                  "/tmp/",
+                  "data",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "BU base directory")
 
 options.register ("fffBaseDir",
-                  "/dev/shm",
+                  "/tmp",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "FFF base directory")
@@ -81,7 +81,7 @@ process.Timing = cms.Service("Timing",
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     useFileBroker = cms.untracked.bool(False),
     buBaseDirsAll = cms.untracked.vstring(
-        options.buBaseDir
+        options.fffBaseDir+"/"+options.buBaseDir
     ),
     buBaseDirsNumStreams = cms.untracked.vint32(
         2
@@ -100,9 +100,13 @@ except Exception as ex:
   print(str(ex))
   pass
 
-ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
+buDir = options.fffBaseDir+"/"+options.buBaseDir+("/run%06d" % options.runNumber)
+if not os.path.isdir(buDir):
+    os.makedirs(buDir)
+os.system("touch " + buDir + "/" + "fu.lock")
+
 flist = [
-   ram_dir_path + "run" + str(options.runNumber) + "_ls0340_index000028.raw"
+   buDir+"/" + "run" + str(options.runNumber) + "_ls0340_index000028.raw"
 ]
 
 process.source = cms.Source("DAQSource",
@@ -117,29 +121,22 @@ process.source = cms.Source("DAQSource",
     maxBufferedFiles = cms.untracked.uint32(2),
     fileListMode = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(*flist)
-
 )
 
-fuDir = options.fuBaseDir+("/run%06d" % options.runNumber)
-buDir = options.buBaseDir+("/run%06d" % options.runNumber)
-for d in fuDir, buDir, options.fuBaseDir, options.buBaseDir:
-  if not os.path.isdir(d):
-    os.makedirs(d)
-os.system("touch " + buDir + "/" + "fu.lock")
+import EventFilter.L1ScoutingRawToDigi.ScGMTRawToDigi_cfi
+process.GmtUnpacker = EventFilter.L1ScoutingRawToDigi.ScGMTRawToDigi_cfi.ScGmtUnpacker.clone()
 
-process.GmtUnpacker = cms.EDProducer('ScGMTRawToDigi',
-  srcInputTag = cms.InputTag('rawDataCollector'),
-  debug = cms.untracked.bool(False)
+import EventFilter.L1ScoutingRawToDigi.ScCaloRawToDigi_cfi
+process.CaloUnpacker = EventFilter.L1ScoutingRawToDigi.ScCaloRawToDigi_cfi.ScCaloUnpacker.clone()
+
+rawToDigiTask = cms.Task(
+  process.GmtUnpacker,process.CaloUnpacker
 )
 
-process.CaloUnpacker = cms.EDProducer('ScCaloRawToDigi',
-  srcInputTag = cms.InputTag('rawDataCollector'),
-  enableAllSums = cms.untracked.bool(True),
-  debug = cms.untracked.bool(False)
-)
+process.p = cms.Path(rawToDigiTask)
 
 process.outputZB = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:/dev/shm/PoolOutputTest.root'),
+    fileName = cms.untracked.string('file:' + options.fffBaseDir + '/PoolOutputTest.root'),
     outputCommands = cms.untracked.vstring(
         "drop *",
         "keep *_GmtUnpacker_*_*",
@@ -148,12 +145,6 @@ process.outputZB = cms.OutputModule("PoolOutputModule",
     #compressionAlgorithm = cms.untracked.string("ZSTD"),
     #compressionLevel = cms.untracked.int32(4)
 )
-
-rawToDigiTask = cms.Task(
-  process.GmtUnpacker,process.CaloUnpacker
-)
-
-process.p = cms.Path(rawToDigiTask)
 
 process.ep = cms.EndPath(
     process.outputZB
