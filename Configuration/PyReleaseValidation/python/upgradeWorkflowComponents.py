@@ -787,16 +787,9 @@ upgradeWFs['photonDRN'].step3 = {
 
 
 # Patatrack workflows (NoPU and PU):
-#   - 2018 conditions, TTbar
-#   - 2018 conditions, Z->mumu
-#   - 2022 conditions (labelled "2021"), TTbar
-#   - 2022 conditions (labelled "2021"), NuGun
-#   - 2022 conditions (labelled "2021"), Z->mumu
-#   - 2023 conditions, TTbar
-#   - 2023 conditions, NuGun
-#   - 2023 conditions, Z->mumu
-#   - 2026 conditions, TTbar
-#   - 2026 conditions, NuGu
+#   - TTbar_14, ZMM_14", ZEE_14, ZTT_14, NuGun, SingleMu, QCD_Pt15To7000_Flat for
+#       > 2021, 2022, 2023, 2024 and 2026 conditions, TTbar
+#   - Hydjet for HI conditions
 class PatatrackWorkflow(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, mini = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
@@ -850,17 +843,11 @@ class PatatrackWorkflow(UpgradeWorkflow):
 
     def condition(self, fragment, stepList, key, hasHarvest):
         # select only a subset of the workflows
+        years = ['2021','2023','2024','2026']
+        fragments = ["TTbar_14","ZMM_14","ZEE_14","ZTT_14","NuGun","SingleMu","QCD_Pt15To7000_Flat"]
         selected = [
-            ('2018' in key and fragment == "TTbar_13"),
-            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
-            ('2023' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
-            ('2021' in key and fragment == "NuGun"),
-            ('2023' in key and fragment == "NuGun"),
-            ('2018' in key and fragment == "ZMM_13"),
-            ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
-            ('2023' in key and fragment == "ZMM_14" and 'FS' not in key),
-            ('2026' in key and (fragment == "TTbar_14TeV" or fragment=="NuGun")),
-            (('HI' in key) and 'Hydjet' in fragment and "PixelOnly" in self.suffix )
+            (any(y in key for y in years) and ('FS' not in key) and any( f in fragment for f in fragments)),
+            (('HI' in key) and ('Hydjet' in fragment) and ("PixelOnly" in self.suffix) )
         ]
         result = any(selected) and hasHarvest
 
