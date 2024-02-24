@@ -80,6 +80,7 @@ if __name__ == '__main__':
                     # Run3
                     11634.0,    # TTbar_14TeV                   2021
                     13234.0,    # RelValTTbar_14TeV             2021 FastsSim
+                    12434.0,    # RelValTTbar_14TeV             2023
                     12834.0,    # RelValTTbar_14TeV             2024
                     12846.0,    # RelValZEE_13                  2024
                     13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
