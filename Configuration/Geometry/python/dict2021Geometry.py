@@ -1497,7 +1497,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
         ],
         2 : [
-            'Geometry/MuonCommonData/data/muonNumbering/2021/v6/muonNumbering.xml',
+            'Geometry/MuonCommonData/data/muonNumbering/2024/v1/muonNumbering.xml',
         ],
         3 : [
             'Geometry/MuonSimData/data/muonSens/2021/v4/muonSens.xml',
