@@ -28,8 +28,8 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
-    'JME' : { 'sequence': '',
-              'customize': 'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_MC'},
+    'JME' : { 'sequence': '@PHYS',
+              'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_MC'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : {'customize' : 'PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
     # MUDPG flavours: use their own sequence
