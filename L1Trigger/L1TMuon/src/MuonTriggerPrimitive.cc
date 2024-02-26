@@ -495,11 +495,12 @@ void TriggerPrimitive::print(std::ostream& out) const {
       out << "Pad high      : " << _gem.pad_hi << std::endl;
       break;
     case kME0:
-      try {
+      if (detId<DetId>().subdetId() == MuonSubdetId::ME0) {
         out << detId<ME0DetId>() << std::endl;
-      } catch (...) {
+      } else {
         out << detId<GEMDetId>() << std::endl;
       }
+
       out << "Local BX      : " << _me0.bx << std::endl;
       out << "Chamber id    : " << _me0.chamberid << std::endl;
       out << "Quality       : " << _me0.quality << std::endl;
