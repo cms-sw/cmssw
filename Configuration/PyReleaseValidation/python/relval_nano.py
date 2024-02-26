@@ -192,6 +192,9 @@ steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@MUPOG ', '-n' : '1000'},
 steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.2']])
 
+steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
+                                    steps['NANO_mc13.2']])
+
 ##13.X INPUT
 steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 
@@ -258,6 +261,7 @@ _wfn.next()
 workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['muPOGNANO_mc13.2', ['TTBarMINIAOD13.2', 'muPOGNANO_mc13.2']]
 workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
+workflows[_wfn()] = ['jmeNANO_mc13.2', ['TTBarMINIAOD13.2', 'jmeNANO_mc13.2']]
 
 _wfn.next()
 ################
