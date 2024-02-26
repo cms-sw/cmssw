@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_14_0_0/PIon/V17 (CMSSW_14_0_0)
+# /dev/CMSSW_14_0_0/PIon/V37 (CMSSW_14_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/PIon/V17')
+  tableName = cms.string('/dev/CMSSW_14_0_0/PIon/V37')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1515,6 +1515,12 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
       ),
       cms.PSet(  refreshTime = cms.uint64( 2 ),
         record = cms.string( "BeamSpotOnlineHLTObjectsRcd" )
+      ),
+      cms.PSet(  refreshTime = cms.uint64( 40 ),
+        record = cms.string( "LHCInfoPerLSRcd" )
+      ),
+      cms.PSet(  refreshTime = cms.uint64( 40 ),
+        record = cms.string( "LHCInfoPerFillRcd" )
       )
     ),
     DumpStat = cms.untracked.bool( False ),
@@ -2021,7 +2027,7 @@ process.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterp
   lhcInfoPerFillLabel = cms.string( "" ),
   lhcInfoPerLSLabel = cms.string( "" ),
   opticsLabel = cms.string( "" ),
-  useNewLHCInfo = cms.bool( False ),
+  useNewLHCInfo = cms.bool( True ),
   appendToDataLabel = cms.string( "" )
 )
 process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
