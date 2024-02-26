@@ -4,6 +4,9 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
+#include <alpaka/alpaka.hpp>
+
+#include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -43,9 +46,8 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestAtomicPair), s_
   SECTION("AtomicPairCounter") {
     auto const &devices = cms::alpakatools::devices<Platform>();
     if (devices.empty()) {
-      std::cout << "No devices available on the platform " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-                << ", the test will be skipped.\n";
-      REQUIRE(not devices.empty());
+      FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "backend, "
+           "the test will be skipped.");
     }
 
     // run the test on each device

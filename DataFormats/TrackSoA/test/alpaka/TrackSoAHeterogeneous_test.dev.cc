@@ -9,6 +9,8 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
+#include "TrackSoAHeterogeneous_test.h"
+
 using namespace reco;
 
 using Quality = pixelTrack::Quality;
