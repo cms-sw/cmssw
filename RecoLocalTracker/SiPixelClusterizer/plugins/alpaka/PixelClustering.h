@@ -130,6 +130,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
   template <typename TrackerTraits>
   struct FindClus {
+    // assume that we can cover the whole module with up to 16 blockDimension-wide iterations
+    static constexpr uint32_t maxIterGPU = 16;
+
+    // this must be larger than maxPixInModule / maxIterGPU, and should be a multiple of the warp size
+    static constexpr uint32_t maxElementsPerBlock =
+        cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
+
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   SiPixelDigisSoAView digi_view,
@@ -292,17 +299,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 #endif
 
         [[maybe_unused]] const uint32_t blockDimension = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-        // Assume that we can cover the whole module with up to 16 blockDimension-wide iterations
-        // This maxIter value was tuned for GPU, with 256 or 512 threads per block.
-        // Hence, also works for CPU case, with 256 or 512 elements per thread.
-        // Real constrainst is maxIter = hist.size() / blockDimension,
-        // with blockDimension = threadPerBlock * elementsPerThread.
-        // Hence, maxIter can be tuned accordingly to the workdiv.
-        constexpr unsigned int maxIterGPU = 16;
+        // assume that we can cover the whole module with up to maxIterGPU blockDimension-wide iterations
         ALPAKA_ASSERT_ACC((hist.size() / blockDimension) < maxIterGPU);
 
-        // NB: can be tuned.
-        constexpr uint32_t maxElements = cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? 256 : 1;
+        // number of elements per thread
+        constexpr uint32_t maxElements =
+            cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? maxElementsPerBlock : 1;
         ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
 
         constexpr unsigned int maxIter = maxIterGPU * maxElements;
