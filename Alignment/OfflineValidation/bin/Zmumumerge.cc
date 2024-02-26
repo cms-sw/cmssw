@@ -75,13 +75,25 @@ public:
 };
 
 FitOut ZMassBinFit_OldTool(TH1D* th1d_input, TString s_name = "zmumu_fitting", TString output_path = "./") {
-  double xMin(75), xMax(105), xMean(91);
-  double sigma = 2;
-  double sigmaMin = 0.1;
-  double sigmaMax = 10;
+  // silence messages
+  RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
 
-  FitWithRooFit* fitter = new FitWithRooFit();
-  double sigma2(0.1), sigma2Min(0.), sigma2Max(10.), useChi2(false);
+  double xMean = 91.1876;
+  double xMin = th1d_input->GetXaxis()->GetXmin();
+  double xMax = th1d_input->GetXaxis()->GetXmax();
+
+  double sigma(2.);
+  double sigmaMin(0.1);
+  double sigmaMax(10.);
+
+  double sigma2(0.1);
+  double sigma2Min(0.);
+  double sigma2Max(10.);
+
+  std::unique_ptr<FitWithRooFit> fitter = std::make_unique<FitWithRooFit>();
+
+  bool useChi2(false);
+
   fitter->useChi2_ = useChi2;
   fitter->initMean(xMean, xMin, xMax);
   fitter->initSigma(sigma, sigmaMin, sigmaMax);
@@ -89,8 +101,6 @@ FitOut ZMassBinFit_OldTool(TH1D* th1d_input, TString s_name = "zmumu_fitting", T
   fitter->initAlpha(1.5, 0.05, 10.);
   fitter->initN(1, 0.01, 100.);
   fitter->initFGCB(0.4, 0., 1.);
-
-  fitter->initMean(91.1876, xMin, xMax);
   fitter->initGamma(2.4952, 0., 10.);
   fitter->gamma()->setConstant(kTRUE);
   fitter->initMean2(0., -20., 20.);
@@ -109,6 +119,7 @@ FitOut ZMassBinFit_OldTool(TH1D* th1d_input, TString s_name = "zmumu_fitting", T
   fitter->initA4(0., -10., 10.);
   fitter->initA5(0., -10., 10.);
   fitter->initA6(0., -10., 10.);
+
   TCanvas* c1 = new TCanvas();
   c1->Clear();
   c1->SetLeftMargin(0.15);
@@ -121,9 +132,10 @@ FitOut ZMassBinFit_OldTool(TH1D* th1d_input, TString s_name = "zmumu_fitting", T
 
   FitOut fitRes(
       fitter->mean()->getValV(), fitter->mean()->getError(), fitter->sigma()->getValV(), fitter->sigma()->getError());
+
   return fitRes;
 }
-void Draw_th1d(TH1D* th1d_input, TString variable_name) {
+void Draw_th1d(TH1D* th1d_input, TString variable_name, TString output_path) {
   TCanvas* c = new TCanvas();
   c->cd();
   gStyle->SetOptStat(0);
@@ -137,12 +149,13 @@ void Draw_th1d(TH1D* th1d_input, TString variable_name) {
   th1d_input->GetYaxis()->SetTitle("Mass mean (GeV)");
   th1d_input->Draw();
   tlxg->DrawLatexNDC(0.2, 0.8, Form("%s", GT.Data()));
-  c->Print(Form("%s/fitResultPlot/mass_VS_%s.pdf", GT.Data(), variable_name.Data()));
+  c->Print(Form("%s/fitResultPlot/mass_VS_%s.pdf", output_path.Data(), variable_name.Data()));
 }
 
 const static int variables_number = 8;
 const TString tstring_variables_name[variables_number] = {
     "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
+
 void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path) {
   TH2D* th2d_mass_variables[variables_number];
   TFile* inputfile = TFile::Open(inputfile_name.Data());
@@ -154,7 +167,7 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
 
   gSystem->Exec(Form("mkdir -p %s", output_path.Data()));
   gSystem->Exec(Form("mkdir -p %s/fitResultPlot", output_path.Data()));
-  TFile* outpufile = TFile::Open(Form("%s/fitting_output.root", output_path.Data()), "recreate");
+  TFile* outputfile = TFile::Open(Form("%s/fitting_output.root", output_path.Data()), "RECREATE");
   TH1D* th1d_variables_meanmass[variables_number];
   TH1D* th1d_variables_entries[variables_number];
   const int variables_rebin[variables_number] = {1, 1, 1, 1, 1, 1, 1, 1};
@@ -169,8 +182,8 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
       if (i == 7 and j > 25) {
         continue;
       }
-      cout << "th1d_variables_meanmass[i]->GetNbinsX()=" << th1d_variables_meanmass[i]->GetNbinsX() << endl;
-      cout << "th2d_mass_variables[i]->GetNbinsY()=" << th2d_mass_variables[i]->GetNbinsY() << endl;
+      //cout << __LINE__ << " th1d_variables_meanmass[i]->GetNbinsX()=" << th1d_variables_meanmass[i]->GetNbinsX() << endl;
+      //cout << __LINE__ << " th2d_mass_variables[i]->GetNbinsY()=" << th2d_mass_variables[i]->GetNbinsY() << endl;
       th1d_variables_meanmass[i]->SetBinContent(j, 0);
       th1d_variables_meanmass[i]->SetBinError(j, 0);
 
@@ -181,25 +194,39 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
       TString s_name = Form("%s_%d", tstring_variables_name[i].Data(), j);
 
       FitOut fitR = ZMassBinFit_OldTool(th1d_i, s_name, output_path);
+
       th1d_variables_meanmass[i]->SetBinContent(j, fitR.mean);
       th1d_variables_meanmass[i]->SetBinError(j, fitR.mean_err);
     }
+
     th1d_variables_meanmass[i]->GetXaxis()->SetRangeUser(xaxis_range[i][0], xaxis_range[i][1]);
-    Draw_th1d(th1d_variables_meanmass[i], tstring_variables_name[i]);
-    outpufile->cd();
+    Draw_th1d(th1d_variables_meanmass[i], tstring_variables_name[i], output_path);
+    outputfile->cd();
     th1d_variables_meanmass[i]->Write(th1d_name);
 
     TString th1d_name_entries = Form("th1d_entries_%s", tstring_variables_name[i].Data());
     th1d_variables_entries[i] = th2d_mass_variables[i]->ProjectionY(th1d_name_entries, 0, -1, "d");
     th1d_variables_entries[i]->GetXaxis()->SetTitle(tstring_variables_name[i].Data());
     th1d_variables_entries[i]->GetYaxis()->SetTitle("Entry");
-    outpufile->cd();
+    outputfile->cd();
     th1d_variables_entries[i]->Write(th1d_name_entries);
   }
 
-  outpufile->Write();
-  outpufile->Close();
-  delete outpufile;
+  if (outputfile->IsOpen()) {
+    // Get the path (current working directory) in which the file is going to be written
+    const char* path = outputfile->GetPath();
+
+    if (path) {
+      std::cout << "File is going to be written in the directory: " << path << " for input file: " << inputfile_name
+                << std::endl;
+    } else {
+      std::cerr << "Error: Unable to determine the path." << std::endl;
+    }
+
+    //outputfile->Write();
+    outputfile->Close();
+    delete outputfile;
+  }
 }
 
 const static int max_file_number = 10;
@@ -261,7 +288,16 @@ int Zmumumerge(int argc, char* argv[]) {
   pt::read_json(options.config, main_tree);
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
+
   for (const auto& childTree : alignments) {
+    // do not consider the nodes with a "file" to merge
+    if (childTree.second.find("file") == childTree.second.not_found()) {
+      std::cerr << "Ignoring alignment: " << childTree.second.get<std::string>("title") << ".\nNo file to merged found!"
+                << std::endl;
+      continue;
+    } else {
+      std::cout << "Storing alignment: " << childTree.second.get<std::string>("title") << std::endl;
+    }
     vec_single_file_path.push_back(childTree.second.get<std::string>("file"));
     vec_single_file_name.push_back(childTree.second.get<std::string>("file") + "/Zmumu.root");
     vec_color.push_back(childTree.second.get<int>("color"));
@@ -271,6 +307,7 @@ int Zmumumerge(int argc, char* argv[]) {
 
     //Fitting_GetMassmeanVSvariables(childTree.second.get<std::string>("file") + "/Zmumu.root", childTree.second.get<std::string>("file"));
   }
+
   TString merge_output = main_tree.get<std::string>("output");
   //=============================================
   vector<TString> vec_single_fittingoutput;
@@ -300,6 +337,7 @@ int Zmumumerge(int argc, char* argv[]) {
         th1d_name_entries,
         merge_output + Form("/entries_%s_GTs.pdf", tstring_variables_name[idx_variable].Data()));
   }
+
   //=============================================
   return EXIT_SUCCESS;
 }
