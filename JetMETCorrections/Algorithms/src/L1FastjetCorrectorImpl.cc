@@ -70,5 +70,6 @@ double L1FastjetCorrectorImpl::correction(const reco::Jet& fJet) const {
   values.setJetE(fJet.energy());
   values.setJetA(fJet.jetArea());
   values.setRho(rho_);
+  values.setJetPhi(fJet.phi());
   return corrector_->getCorrection(values);
 }
