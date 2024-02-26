@@ -2484,7 +2484,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   }
 
   reco::GsfElectronCollection::const_iterator gsfIter;
-  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter; // 
+  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter;  //
   std::vector<reco::GsfElectron>::const_iterator gsfIter3;
   std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
@@ -2522,7 +2522,8 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
 
   // looking for EE
   for (gsfCoreIter = gsfElectronCoresEndcaps->begin(); gsfCoreIter != gsfElectronCoresEndcaps->end(); gsfCoreIter++) {
-    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) || (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
+    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) ||
+        (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
       localCoreCollection.push_back(*gsfCoreIter);
     }
   }
