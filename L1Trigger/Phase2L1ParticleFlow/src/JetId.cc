@@ -40,8 +40,6 @@ JetId::JetId(const std::string &iInput, const std::string &iOutput, const BJetTF
   fOutput_ = iOutput;
 }
 
-JetId::~JetId() {}
-
 void JetId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
