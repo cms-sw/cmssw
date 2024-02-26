@@ -210,8 +210,8 @@ from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
 L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
 _phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
-from L1Trigger.Phase2L1ParticleFlow.L1HPSPFTauProducer_cfi import *
-_phase2_siml1emulator.add(L1HPSPFTauProducer)
+from L1Trigger.Phase2L1ParticleFlow.l1tHPSPFTauProducer_cfi import *
+_phase2_siml1emulator.add(l1tHPSPFTauProducer)
 
 # PF MET
 # ########################################################################

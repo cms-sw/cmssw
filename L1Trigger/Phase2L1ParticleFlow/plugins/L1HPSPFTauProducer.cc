@@ -65,7 +65,7 @@ void L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("debug", false);
   desc.add<edm::InputTag>("srcL1PFJets",
                           edm::InputTag("l1tPhase1JetCalibrator9x9trimmed", "Phase1L1TJetFromPfCandidates"));
-  descriptions.add("L1HPSPFTauProducer", desc);
+  descriptions.add("l1tHPSPFTauProducer", desc);
 }
 
 void L1HPSPFTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
