@@ -39,6 +39,7 @@
 #include <boost/range/adaptor/indexed.hpp>
 
 #include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
+#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 
 using namespace RooFit;
 using namespace std;
@@ -155,6 +156,14 @@ void Draw_th1d(TH1D* th1d_input, TString variable_name, TString output_path) {
 const static int variables_number = 8;
 const TString tstring_variables_name[variables_number] = {
     "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
+const TString tstring_variables_name_label[variables_number] = {"cos #theta_{CS}",
+                                                                "#Delta #eta",
+                                                                "#eta_{#mu^{-}}",
+                                                                "#eta_{#mu^{+}}",
+                                                                "#phi_{CS}",
+                                                                "#phi_{#mu^{-}}",
+                                                                "#phi_{#mu^{+}}",
+                                                                "p_{T}"};
 
 void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path) {
   TH2D* th2d_mass_variables[variables_number];
@@ -182,8 +191,10 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
       if (i == 7 and j > 25) {
         continue;
       }
-      //cout << __LINE__ << " th1d_variables_meanmass[i]->GetNbinsX()=" << th1d_variables_meanmass[i]->GetNbinsX() << endl;
-      //cout << __LINE__ << " th2d_mass_variables[i]->GetNbinsY()=" << th2d_mass_variables[i]->GetNbinsY() << endl;
+      std::cout << __PRETTY_FUNCTION__
+                << " th1d_variables_meanmass[i]->GetNbinsX()=" << th1d_variables_meanmass[i]->GetNbinsX() << endl;
+      std::cout << __PRETTY_FUNCTION__ << " th2d_mass_variables[i]->GetNbinsY()=" << th2d_mass_variables[i]->GetNbinsY()
+                << endl;
       th1d_variables_meanmass[i]->SetBinContent(j, 0);
       th1d_variables_meanmass[i]->SetBinError(j, 0);
 
@@ -222,8 +233,6 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
     } else {
       std::cerr << "Error: Unable to determine the path." << std::endl;
     }
-
-    //outputfile->Write();
     outputfile->Close();
     delete outputfile;
   }
@@ -234,10 +243,13 @@ void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
                                  const vector<TString>& label_names,
                                  const vector<int>& colors,
                                  const vector<int>& styles,
+                                 const TString& Rlabel,
                                  const TString& th1d_name,
+                                 const TString& xlabel,
+                                 const TString& ylabel,
                                  const TString& output_name) {
   if (file_names.empty() || label_names.empty()) {
-    cout << "Provided an empty list of file and label names" << std::endl;
+    std::cout << "Provided an empty list of file and label names" << std::endl;
     return;
   }
 
@@ -252,24 +264,96 @@ void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
     th1d_input[filename.index()]->SetTitle("");
   }
 
-  TCanvas* c = new TCanvas();
-  TLegend* lg = new TLegend(0.2, 0.7, 0.5, 0.95);
-  c->cd();
+  int W = 800;
+  int H = 800;
+  // references for T, B, L, R
+  float T = 0.08 * H;
+  float B = 0.12 * H;
+  float L = 0.12 * W;
+  float R = 0.04 * W;
+
+  // Form the canvas name by appending th1d_name
+  TString canvasName;
+  canvasName.Form("canv_%s", th1d_name.Data());
+
+  // Create a new canvas with the formed name
+  TCanvas* canv = new TCanvas(canvasName, canvasName, W, H);
+  canv->SetFillColor(0);
+  canv->SetBorderMode(0);
+  canv->SetFrameFillStyle(0);
+  canv->SetFrameBorderMode(0);
+  canv->SetLeftMargin(L / W + 0.05);
+  canv->SetRightMargin(R / W);
+  canv->SetTopMargin(T / H);
+  canv->SetBottomMargin(B / H);
+  canv->SetTickx(0);
+  canv->SetTicky(0);
+  canv->SetGrid();
+  canv->cd();
+
   gStyle->SetOptStat(0);
+
+  TLegend* lg = new TLegend(0.3, 0.7, 0.7, 0.9);
+  lg->SetFillStyle(0);
+  lg->SetLineColor(0);
+  lg->SetEntrySeparation(0.05);
+
+  double ymin;
+  double ymax;
+
+  for (auto const& labelname : label_names | boost::adaptors::indexed(0)) {
+    double temp_ymin = th1d_input[labelname.index()]->GetMinimum();
+    double temp_ymax = th1d_input[labelname.index()]->GetMaximum();
+    if (labelname.index() == 0) {
+      ymin = temp_ymin;
+      ymax = temp_ymax;
+    }
+    if (temp_ymin <= ymin) {
+      ymin = temp_ymin;
+    }
+    if (temp_ymax >= ymax) {
+      ymax = temp_ymax;
+    }
+  }
 
   for (auto const& labelname : label_names | boost::adaptors::indexed(0)) {
     th1d_input[labelname.index()]->SetMarkerColor(colors[labelname.index()]);
     th1d_input[labelname.index()]->SetLineColor(colors[labelname.index()]);
     th1d_input[labelname.index()]->SetMarkerStyle(styles[labelname.index()]);
-    th1d_input[labelname.index()]->Draw("same");
+    th1d_input[labelname.index()]->GetXaxis()->SetTitle(xlabel);
+    th1d_input[labelname.index()]->GetYaxis()->SetTitle(ylabel);
+    th1d_input[labelname.index()]->GetYaxis()->SetTitleOffset(2.0);
     lg->AddEntry(th1d_input[labelname.index()], labelname.value());
+
+    TString label_meanmass_plot = "Mean M_{#mu#mu} (GeV)";
+    if (ylabel.EqualTo(label_meanmass_plot)) {
+      double ycenter = (ymax + ymin) / 2.0;
+      double yrange = (ymax - ymin) * 2;
+      double Ymin = ycenter - yrange;
+      double Ymax = ycenter + yrange * 1.10;
+      th1d_input[labelname.index()]->SetAxisRange(Ymin, Ymax, "Y");
+      th1d_input[labelname.index()]->Draw("PEX0same");
+    } else {
+      double Ymin = ymin - ymin * 0.07;
+      double Ymax = ymax + ymax * 0.35;
+      th1d_input[labelname.index()]->SetAxisRange(Ymin, Ymax, "Y");
+      th1d_input[labelname.index()]->Draw("HIST E1 same");
+    }
   }
+
+  CMS_lumi(canv, 0, 3, Rlabel);
+
   lg->Draw("same");
-  c->SaveAs(output_name);
+
+  canv->Update();
+  canv->RedrawAxis();
+  canv->GetFrame()->Draw();
+  canv->SaveAs(output_name);
+
   if (output_name.Contains(".pdf")) {
     TString output_name_png(output_name);  // output_name is const, copy to modify
     output_name_png.Replace(output_name_png.Index(".pdf"), 4, ".png");
-    c->SaveAs(output_name_png);
+    canv->SaveAs(output_name_png);
   }
 }
 
@@ -280,6 +364,7 @@ int Zmumumerge(int argc, char* argv[]) {
   vector<TString> vec_title;
   vector<int> vec_color;
   vector<int> vec_style;
+  vector<TString> vec_right_title;
 
   Options options;
   options.helper(argc, argv);
@@ -302,6 +387,11 @@ int Zmumumerge(int argc, char* argv[]) {
     vec_single_file_name.push_back(childTree.second.get<std::string>("file") + "/Zmumu.root");
     vec_color.push_back(childTree.second.get<int>("color"));
     vec_style.push_back(childTree.second.get<int>("style"));
+    if (childTree.second.find("customrighttitle") == childTree.second.not_found()) {
+      vec_right_title.push_back("");
+    } else {
+      vec_right_title.push_back(childTree.second.get<std::string>("customrighttitle"));
+    }
     vec_global_tag.push_back(childTree.second.get<std::string>("globaltag"));
     vec_title.push_back(childTree.second.get<std::string>("title"));
 
@@ -321,20 +411,29 @@ int Zmumumerge(int argc, char* argv[]) {
   cout << "files_number=" << files_number << endl;
   for (int idx_variable = 0; idx_variable < variables_number; idx_variable++) {
     TString th1d_name = Form("th1d_meanmass_%s", tstring_variables_name[idx_variable].Data());
+
     Draw_TH1D_forMultiRootFiles(
         vec_single_fittingoutput,
         vec_title,
         vec_color,
         vec_style,
+        vec_right_title[0],
         th1d_name,
+        tstring_variables_name_label[idx_variable].Data(),
+        "Mean M_{#mu#mu} (GeV)",
         merge_output + Form("/meanmass_%s_GTs.pdf", tstring_variables_name[idx_variable].Data()));
+
     TString th1d_name_entries = Form("th1d_entries_%s", tstring_variables_name[idx_variable].Data());
+
     Draw_TH1D_forMultiRootFiles(
         vec_single_fittingoutput,
         vec_title,
         vec_color,
         vec_style,
+        vec_right_title[0],
         th1d_name_entries,
+        tstring_variables_name_label[idx_variable].Data(),
+        "Events",
         merge_output + Form("/entries_%s_GTs.pdf", tstring_variables_name[idx_variable].Data()));
   }
 
