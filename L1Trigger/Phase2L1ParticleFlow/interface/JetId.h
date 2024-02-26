@@ -27,7 +27,7 @@ public:
         const std::shared_ptr<hls4mlEmulator::Model> model,
         int iNParticles);
   JetId(const std::string &iInput, const std::string &iOutput, const BJetTFCache *cache, int iNParticles);
-  ~JetId();
+  ~JetId() = default;
 
   void setNNVectorVar();
   float EvaluateNN();
