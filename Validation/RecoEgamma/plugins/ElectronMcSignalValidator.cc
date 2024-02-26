@@ -3296,8 +3296,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle OK";
   }
 
-  reco::GsfElectronCollection::const_iterator gsfIter; // 
-  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter; // 
+  reco::GsfElectronCollection::const_iterator gsfIter;          //
+  reco::GsfElectronCoreCollection::const_iterator gsfCoreIter;  //
   std::vector<reco::GsfElectron>::const_iterator gsfIter3;
   std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
@@ -3335,7 +3335,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   // looking for EE
   for (gsfCoreIter = gsfElectronCoresEndcaps->begin(); gsfCoreIter != gsfElectronCoresEndcaps->end(); gsfCoreIter++) {
-    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) || (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
+    if ((gsfCoreIter->superCluster()->seed()->seed().subdetId() == EcalEndcap) ||
+        (EcalTools::isHGCalDet(gsfCoreIter->superCluster()->seed()->seed().det()))) {
       localCoreCollection.push_back(*gsfCoreIter);
     }
   }
