@@ -131,7 +131,7 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 
   l1t::EtSum theMET(metVector, l1t::EtSum::EtSumType::kTotalHt, 0, 0, 0, 0);
 
-  std::unique_ptr<std::vector<l1t::EtSum>> metCollection(new std::vector<l1t::EtSum>(0));
+  auto metCollection = std::make_unique<std::vector<l1t::EtSum>>(0);
   metCollection->push_back(theMET);
   iEvent.put(std::move(metCollection));
 }
