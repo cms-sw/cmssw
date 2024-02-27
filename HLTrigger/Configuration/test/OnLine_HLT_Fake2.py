@@ -6,9 +6,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
-
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/Fake2/V7')
+  tableName = cms.string("/dev/CMSSW_14_0_0/Fake2/V7")
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
