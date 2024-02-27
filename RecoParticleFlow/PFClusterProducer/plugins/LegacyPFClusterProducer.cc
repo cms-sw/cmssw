@@ -64,9 +64,9 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("PFRecHitsLabelIn");
-    desc.add<edm::InputTag>("recHitsSource");
+    desc.add<edm::InputTag>("src", edm::InputTag("pfClusterSoAProducer"));
+    desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("pfRecHitSoAProducerHCAL"));
+    desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
     desc.add<bool>("usePFThresholdsFromDB", true);
     {
       edm::ParameterSetDescription pfClusterBuilder;
