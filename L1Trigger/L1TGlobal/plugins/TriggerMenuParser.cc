@@ -147,6 +147,10 @@ void l1t::TriggerMenuParser::setVecAXOL1TLTemplate(const std::vector<std::vector
   m_vecAXOL1TLTemplate = vecAXOL1TLTempl;
 }
 
+void l1t::TriggerMenuParser::setVecCICADATemplate(const std::vector<std::vector<CICADATemplate> >& vecCICADATempl) {
+  m_vecCICADATemplate = vecCICADATempl;
+}
+
 void l1t::TriggerMenuParser::setVecExternalTemplate(
     const std::vector<std::vector<ExternalTemplate> >& vecExternalTempl) {
   m_vecExternalTemplate = vecExternalTempl;
@@ -227,6 +231,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_vecEnergySumTemplate.resize(m_numberConditionChips);
   m_vecEnergySumZdcTemplate.resize(m_numberConditionChips);
   m_vecAXOL1TLTemplate.resize(m_numberConditionChips);
+  m_vecCICADATemplate.resize(m_numberConditionChips);
   m_vecExternalTemplate.resize(m_numberConditionChips);
 
   m_vecCorrelationTemplate.resize(m_numberConditionChips);
@@ -326,6 +331,9 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::AnomalyDetectionTrigger) {
           parseAXOL1TL(condition, chipNr);
 
+          //parse CICADA
+        } else if (condition.getType() == esConditionType::CicadaTrigger) {
+          parseCICADA(condition, chipNr);
           //parse Muons
         } else if (condition.getType() == esConditionType::SingleMuon ||
                    condition.getType() == esConditionType::DoubleMuon ||
@@ -2899,6 +2907,75 @@ bool l1t::TriggerMenuParser::parseExternal(L1TUtmCondition condExt, unsigned int
   } else {
     (m_vecExternalTemplate[chipNr]).push_back(externalCond);
   }
+
+  return true;
+}
+
+// Parse the CICADA condition and insert the entry into the conditions mapping
+bool l1t::TriggerMenuParser::parseCICADA(L1TUtmCondition condCICADA, unsigned int chipNr) {
+  using namespace tmeventsetup;
+
+  std::string condition = "cicada";
+  std::string type = l1t2string(condCICADA.getType());
+  std::string name = l1t2string(condCICADA.getName());
+
+  LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
+                                << "     (in parseCICADA) " << std::endl
+                                << " condition = " << condition << std::endl
+                                << " type      = " << type << std::endl
+                                << " name      = " << name << std::endl;
+  const int nrObj = 1;
+  GtConditionType cType = TypeCICADA;
+
+  std::vector<CICADATemplate::ObjectParameter> objParameter(nrObj);
+
+  if (int(condCICADA.getObjects().size()) != nrObj) {
+    edm::LogError("TriggerMenuParser") << " condCICADA objects: nrObj = " << nrObj
+                                       << "condCICADA.getObjects().size() = " << condCICADA.getObjects().size()
+                                       << std::endl;
+    return false;
+  }
+
+  L1TUtmObject object = condCICADA.getObjects().at(0);
+  int relativeBx = object.getBxOffset();
+  bool gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
+
+  float lowerThresholdInd = 0;  //May need to be float to match CICADA?
+  float upperThresholdInd = -1;
+
+  const std::vector<L1TUtmCut>& cuts = object.getCuts();
+  for (size_t kk = 0; kk < cuts.size(); kk++) {
+    const L1TUtmCut& cut = cuts.at(kk);
+
+    switch (cut.getCutType()) {
+      case esCutType::CicadaScore:
+        lowerThresholdInd = cut.getMinimum().value;
+        upperThresholdInd = cut.getMaximum().value;
+    }
+  }
+
+  objParameter[0].minCICADAThreshold = lowerThresholdInd;
+  objParameter[0].maxCICADAThreshold = upperThresholdInd;
+
+  CICADATemplate cicadaCond(name);
+  cicadaCond.setCondType(cType);
+  cicadaCond.setCondGEq(gEq);
+  cicadaCond.setCondChipNr(chipNr);
+  cicadaCond.setCondRelativeBx(relativeBx);
+  cicadaCond.setConditionParameter(objParameter);
+
+  if (edm::isDebugEnabled()) {
+    std::ostringstream myCoutStream;
+    cicadaCond.print(myCoutStream);
+    LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
+  }
+
+  if (!insertConditionIntoMap(cicadaCond, chipNr)) {
+    edm::LogError("TriggerMenuParser") << "   Error: duplicate CICADA condition (" << name << ")" << std::endl;
+    return false;
+  }
+
+  (m_vecCICADATemplate[chipNr]).push_back(cicadaCond);
 
   return true;
 }
