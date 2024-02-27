@@ -51,6 +51,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("EtSumZdcInputTag", edm::InputTag(""))
       ->setComment("InputTag for ZDC EtSums Plus and Minus (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag>("CICADAInputTag", edm::InputTag(""))
+      ->setComment("InputTag for CICADA Anomaly Detection (required parameter: default value is invalid)");
   desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
       ->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
   desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("hltGtStage2Digis"))
@@ -109,6 +111,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_jetInputTag(parSet.getParameter<edm::InputTag>("JetInputTag")),
       m_sumInputTag(parSet.getParameter<edm::InputTag>("EtSumInputTag")),
       m_sumZdcInputTag(parSet.getParameter<edm::InputTag>("EtSumZdcInputTag")),
+      m_CICADAInputTag(parSet.getParameter<edm::InputTag>("CICADAInputTag")),
       m_extInputTag(parSet.getParameter<edm::InputTag>("ExtInputTag")),
 
       m_produceL1GtDaqRecord(parSet.getParameter<bool>("ProduceL1GtDaqRecord")),
@@ -140,6 +143,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_sumZdcInputToken = consumes<BXVector<EtSum>>(m_sumZdcInputTag);
+  m_CICADAInputToken = consumes<float>(m_CICADAInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   if (m_useMuonShowers)
     m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
@@ -379,6 +383,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                                gtParser.vecEnergySumTemplate(),
                                                gtParser.vecEnergySumZdcTemplate(),
                                                gtParser.vecAXOL1TLTemplate(),
+                                               gtParser.vecCICADATemplate(),
                                                gtParser.vecExternalTemplate(),
                                                gtParser.vecCorrelationTemplate(),
                                                gtParser.vecCorrelationThreeBodyTemplate(),
@@ -524,6 +529,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   bool receiveJet = true;
   bool receiveEtSums = true;
   bool receiveEtSumsZdc = true;
+  bool receiveCICADA = true;
   bool receiveExt = true;
 
   /*  *** Boards need redefining *****
@@ -614,6 +620,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                   m_jetInputToken,
                                   m_sumInputToken,
                                   m_sumZdcInputToken,
+                                  m_CICADAInputToken,
                                   receiveEG,
                                   m_nrL1EG,
                                   receiveTau,
@@ -621,7 +628,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                                   receiveJet,
                                   m_nrL1Jet,
                                   receiveEtSums,
-                                  receiveEtSumsZdc);
+                                  receiveEtSumsZdc,
+                                  receiveCICADA);
 
   m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu);
 
