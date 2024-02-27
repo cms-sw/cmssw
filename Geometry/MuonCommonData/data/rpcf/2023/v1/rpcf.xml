@@ -546,18 +546,6 @@
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR3XXN"/>
-    <String name="ChildName" value="RT3G"/>
-    <String name="RotNameSpace" value="rotations"/>
-    <Numeric name="n" value="2"/>
-    <Numeric name="startCopyNo" value="16"/>
-    <Numeric name="incrCopyNo"  value="2"/>
-    <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="230*deg"/>
-    <Numeric name="zoffset"     value="2.2*cm"/>
-</Algorithm>
-
-<Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RTXU"/>
     <String name="RotNameSpace" value="rotations"/>
