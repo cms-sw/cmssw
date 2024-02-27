@@ -30,6 +30,8 @@ public:
   explicit Phase2L1TGMTFwdMuonTranslator(const edm::ParameterSet&);
   ~Phase2L1TGMTFwdMuonTranslator() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -277,8 +279,14 @@ void Phase2L1TGMTFwdMuonTranslator::fillDescriptions(edm::ConfigurationDescripti
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  // Input Collections
+  desc.add<edm::InputTag>("muons", edm::InputTag("simGmtStage2Digis"));
+  desc.add<edm::InputTag>("stubs", edm::InputTag("gmtStubs"));
+  desc.add<edm::InputTag>("emtfTracks", edm::InputTag("simEmtfDigisPhase2"));
+
+  // Register
+  descriptions.add("Phase2L1TGMTFwdMuonTranslator", desc);
 }
 
 //define this as a plug-in
