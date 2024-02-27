@@ -17,6 +17,9 @@
 // standard includes
 #include <iostream>
 
+// style
+#include "Alignment/OfflineValidation/macros/CMS_lumi.h"
+
 // 2 file case
 TFile *sourceFile1, *sourceFile2;
 
@@ -32,12 +35,19 @@ void MakeNiceProfile(TProfile *prof);
 //void MakeNicePlotStyle(TH1 *hist);
 void plot2Histograms(TH1 *h1, TH1 *h2, const TString &label1, const TString &label2);
 void plot2Profiles(TProfile *h1, TProfile *h2, const TString &label1, const TString &label2);
-void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm);
+void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm, const TString &Rlabel);
 void recurseOverKeys(TDirectory *target1, const TString &label1, const TString &label2);
-void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels, bool isNormalized = false);
+void plotHistograms(std::vector<TH1 *> histos,
+                    const std::vector<TString> &labels,
+                    bool isNormalized = false,
+                    const TString &Rlabel = "");
+void plotHistogramsInv(std::vector<TH1 *> histos,
+                       std::vector<TH1 *> invHistos,
+                       const std::vector<TString> &labels,
+                       const TString &Rlabel = "");
 
 /************************************************/
-void loopAndPlot(TString namesandlabels, bool doNormalize = false)
+void loopAndPlot(TString namesandlabels, const TString &Rlabel = "", bool doNormalize = false)
 /************************************************/
 {
   std::vector<TString> labels;
@@ -53,10 +63,11 @@ void loopAndPlot(TString namesandlabels, bool doNormalize = false)
     } else {
       std::cout << "Please give file name and legend entry in the following form:\n"
                 << " filename1=legendentry1,filename2=legendentry2\n";
+      return;
     }
   }
 
-  recurseOverKeys(sourceFiles[0], labels, doNormalize);
+  recurseOverKeys(sourceFiles[0], labels, doNormalize, Rlabel);
 
   for (const auto &file : sourceFiles) {
     file->Close();
@@ -64,7 +75,7 @@ void loopAndPlot(TString namesandlabels, bool doNormalize = false)
 }
 
 /************************************************/
-void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm)
+void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bool isNorm, const TString &Rlabel)
 /************************************************/
 {
   // Figure out where we are
@@ -95,7 +106,6 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bo
     if (obj->IsA()->InheritsFrom("TH1")) {
       if (obj->IsA()->InheritsFrom("TH2"))
         continue;
-
       // **************************
       // Plot & Save this Histogram
       std::vector<TH1 *> histos;
@@ -112,11 +122,28 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bo
         }
         histos.push_back(htemp);
       }
-
-      //outputFilename=histName;
-      //plot2Histograms(htemp1, htemp2, outputFolder+path+"/"+outputFilename+"."+imageType);
-      plotHistograms(histos, labels, isNorm);
-
+      // If it is a CosPhi histogram, plot it together with the inverted histogram
+      if (histName == "CosPhi" or histName == "CosPhi3D") {
+        TString histName2;
+        if (histName == "CosPhi") {
+          histName2 = "CosPhiInv";
+        } else if (histName == "CosPhi3D") {
+          histName2 = "CosPhiInv3D";
+        }
+        std::vector<TH1 *> invHistos;
+        for (const auto &file : sourceFiles) {
+          TH1 *htemp2;
+          if (path != "") {
+            file->GetObject(path + "/" + histName2, htemp2);
+          } else {
+            file->GetObject(histName2, htemp2);
+          }
+          invHistos.push_back(htemp2);
+        }
+        plotHistogramsInv(histos, invHistos, labels, Rlabel);
+      }
+      // do now all the normal plotting
+      plotHistograms(histos, labels, isNorm, Rlabel);
     } else if (obj->IsA()->InheritsFrom("TDirectory")) {
       // it's a subdirectory
 
@@ -130,21 +157,46 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bo
       if ((TString(obj->GetName())).Contains("Residuals"))
         continue;
 
-      recurseOverKeys((TDirectory *)obj, labels, isNorm);
+      recurseOverKeys((TDirectory *)obj, labels, isNorm, Rlabel);
 
     }  // end of IF a TDriectory
   }
 }
 
 /************************************************/
-void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &labels, bool isNormalized) {
-  /************************************************/
-
+void plotHistograms(std::vector<TH1 *> histos,
+                    const std::vector<TString> &labels,
+                    bool isNormalized,
+                    const TString &Rlabel)
+/************************************************/
+{
   TGaxis::SetMaxDigits(3);
 
-  auto c1 = new TCanvas(Form("c1_%s", histos[0]->GetName()), "A ratio example", 1000, 800);
-  c1->SetTicks(0, 1);
+  int W = 800;
+  int H = 800;
+  // references for T, B, L, R
+  float T = 0.08 * H;
+  float B = 0.12 * H;
+  float L = 0.12 * W;
+  float R = 0.04 * W;
+
+  auto c1 = new TCanvas(Form("c1_%s", histos[0]->GetName()), "A ratio example", W, H);
+  c1->SetFillColor(0);
+  c1->SetBorderMode(0);
+  c1->SetFrameFillStyle(0);
+  c1->SetFrameBorderMode(0);
+  c1->SetLeftMargin(L / W + 0.05);
+  c1->SetRightMargin(R / W);
+  c1->SetTopMargin(T / H);
+  c1->SetBottomMargin(B / H);
+  c1->SetTickx(0);
+  c1->SetTicky(0);
+  c1->SetGrid();
+  c1->cd();
+
   gStyle->SetOptStat(0);
+
+  c1->SetTicks(0, 1);
 
   TObjArray *array = new TObjArray(histos.size());
   int index = 0;
@@ -236,7 +288,142 @@ void plotHistograms(std::vector<TH1 *> histos, const std::vector<TString> &label
   //rp->GetLowerPad()->cd();
   //c1->Update();
 
+  CMS_lumi(c1, 0, 3, Rlabel);
   c1->SaveAs(TString(histos[0]->GetName()) + ".png");
+  delete c1;
+}
+
+/************************************************/
+void plotHistogramsInv(std::vector<TH1 *> histos,
+                       std::vector<TH1 *> invHistos,
+                       const std::vector<TString> &labels,
+                       const TString &Rlabel)
+/************************************************/
+{
+  TGaxis::SetMaxDigits(4);
+
+  int W = 800;
+  int H = 800;
+  // references for T, B, L, R
+  float T = 0.08 * H;
+  float B = 0.12 * H;
+  float L = 0.12 * W;
+  float R = 0.04 * W;
+
+  auto c1 = new TCanvas(Form("c1_%s", histos[0]->GetName()), "A ratio example", W, H);
+  c1->SetFillColor(0);
+  c1->SetBorderMode(0);
+  c1->SetFrameFillStyle(0);
+  c1->SetFrameBorderMode(0);
+  c1->SetLeftMargin(L / W + 0.05);
+  c1->SetRightMargin(R / W);
+  c1->SetTopMargin(T / H);
+  c1->SetBottomMargin(B / H);
+  c1->SetTickx(0);
+  c1->SetTicky(0);
+  c1->SetGrid();
+  c1->cd();
+
+  gStyle->SetOptStat(0);
+
+  c1->SetTicks(0, 1);
+
+  TObjArray *array = new TObjArray(histos.size());
+  //~ int index = 0;
+  for (unsigned int i = 0; i < histos.size(); i++) {
+    const Double_t bin1 = histos[i]->GetBinContent(1);
+    const Double_t invBin1 = invHistos[i]->GetBinContent(invHistos[i]->GetNbinsX());
+    if (bin1 != invBin1) {
+      std::cout << "Something went wrong, inverted histograms are not mirrored" << std::endl;
+    }
+    MakeNicePlotStyle<TH1>(histos[i]);
+    MakeNicePlotStyle<TH1>(invHistos[i]);
+
+    histos[i]->SetLineColor(def_colors[i]);
+    histos[i]->SetMarkerColor(def_colors[i]);
+    histos[i]->SetMarkerStyle(20);
+
+    invHistos[i]->SetLineColor(def_colors[i]);
+    invHistos[i]->SetMarkerStyle(kOpenCross);
+    invHistos[i]->SetMarkerSize(1.2);
+    invHistos[i]->SetMarkerColor(def_colors[i]);
+    invHistos[i]->GetXaxis()->SetTitle(histos[0]->GetXaxis()->GetTitle());
+    array->Add(histos[i]);
+  }
+
+  std::pair<Double_t, Double_t> extrema = getExtrema(array);
+  delete array;
+  float min = (extrema.first > 0) ? (extrema.first) * 0.7 : (extrema.first) * 1.3;
+  histos[0]->GetYaxis()->SetRangeUser(min, extrema.second * 1.3);
+
+  TRatioPlot *rp{nullptr};
+
+  for (unsigned int i = 0; i < histos.size(); i++) {
+    invHistos[i]->SetLineWidth(2);
+    if (i == 0) {
+      rp = new TRatioPlot(invHistos[0], histos[0]);
+      rp->SetLeftMargin(0.15);
+      rp->SetRightMargin(0.05);
+      rp->SetSeparationMargin(0.01);
+      rp->SetLowBottomMargin(0.35);
+      rp->Draw("hist");
+    } else {
+      rp->GetUpperPad()->cd();
+      invHistos[i]->Draw("same hist");
+      histos[i]->Draw("same p0");
+    }
+  }
+
+  if (!rp) {
+    std::cerr << "TRatioPlot could not be initialized, exiting!" << std::endl;
+    return;
+  }
+
+  rp->GetUpperPad()->cd();
+
+  // Draw the legend
+  TLegend *infoBox = new TLegend(0.4, 0.75, 0.65, 0.90, "");
+  infoBox->SetShadowColor(0);  // 0 = transparent
+  infoBox->SetFillColor(kWhite);
+  infoBox->SetTextSize(0.035);
+
+  for (unsigned int i = 0; i < histos.size(); i++) {
+    infoBox->AddEntry(histos[i], labels[i], "P");
+  }
+  infoBox->Draw("same");
+
+  MakeNicePlotStyle<TGraph>(rp->GetLowerRefGraph());
+  rp->GetLowerRefGraph()->GetYaxis()->SetTitle("ratio");
+  rp->GetLowerRefGraph()->SetMinimum(0.3);
+  rp->GetLowerRefGraph()->SetMaximum(1.7);
+  rp->GetLowerRefGraph()->SetLineColor(def_colors[0]);
+  rp->GetLowerRefGraph()->SetMarkerColor(def_colors[0]);
+
+  for (unsigned int i = 1; i < histos.size(); i++) {
+    TLine *line = new TLine(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
+    auto c2 = new TCanvas(Form("c2_%s_%i", histos[i]->GetName(), i), "A ratio example 2", 800, 800);
+    c2->cd();
+    auto rp2 = new TRatioPlot(invHistos[i], histos[i]);
+    rp2->Draw();
+    TGraph *g = rp2->GetLowerRefGraph();
+    // if(g)
+    MakeNicePlotStyle<TGraph>(g);
+    g->SetLineColor(def_colors[i]);
+    g->SetMarkerColor(def_colors[i]);
+    //~ g->GetXaxis()->SetTitle(histos[0]->GetXaxis()->GetTitle());
+
+    c1->cd();
+    rp->GetLowerPad()->cd();
+    line->Draw("same");
+    if (g)
+      g->Draw("same P");
+    c1->Update();
+    delete c2;
+  }
+
+  CMS_lumi(c1, 0, 3, Rlabel);
+  c1->SaveAs(TString(histos[0]->GetName()) + "_mirrored.png");
+  c1->SaveAs(TString(histos[0]->GetName()) + "_mirrored.pdf");
   delete c1;
 }
 
