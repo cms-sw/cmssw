@@ -13,7 +13,8 @@
 <use name="tensorflow"/>
 <use name="roottmva"/>
 <use name="hls"/>
-<use name="hls4mlEmulatorExtras"/>
+<use name="hls4mLEmulatorExtras"/>
+<use name="TOoLLiP"/>
 <use name="L1METML"/>
 <export>
   <lib name="1"/>
