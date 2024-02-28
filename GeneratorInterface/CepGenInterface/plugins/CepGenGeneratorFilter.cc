@@ -1,5 +1,5 @@
 // CepGen-CMSSW interfacing module
-//   2022-2023, Laurent Forthomme
+//   2022-2024, Laurent Forthomme
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/CepGenInterface/interface/CepGenGeneratorFilter.h"

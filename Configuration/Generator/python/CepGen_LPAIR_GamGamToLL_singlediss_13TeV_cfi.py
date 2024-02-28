@@ -18,9 +18,7 @@ generator = cms.EDFilter("CepGenGeneratorFilter",
             pair = cms.uint32(13)
         )
     ),
-    modifierModules = cms.PSet(
-        pythia6 = cms.PSet()
-    ),
+    modifierModules = cepgenPythia6BeamFragmenter,
     outputModules = cepgenOutputModules,
     maxEventsToPrint = cms.untracked.int32(0),
     verbosity = cms.untracked.int32(0)

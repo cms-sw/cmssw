@@ -27,23 +27,22 @@ CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig, edm
       proc_params_(cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("process"))) {
   // specify the overall module verbosity
   cepgen::utils::Logger::get().setLevel(
-      (cepgen::utils::Logger::Level)iConfig.getUntrackedParameter<int>("verbosity", 0));
+      static_cast<cepgen::utils::Logger::Level>(iConfig.getUntrackedParameter<int>("verbosity", 0)));
 
   // build the process
   edm::LogInfo("CepGenEventGenerator") << "Process to be generated: " << proc_params_ << ".";
 
-  const auto modif_mods = cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("modifierModules"));
+  const auto modif_mods = cepgen::fromParameterSet(
+      iConfig.getUntrackedParameter<edm::ParameterSet>("modifierModules", edm::ParameterSet{}));
   edm::LogInfo("CepGenEventGenerator") << "Event modifier modules: " << modif_mods << ".";
   for (const auto& mod : modif_mods.keys())
     modif_modules_.emplace_back(std::make_pair(mod, modif_mods.get<cepgen::ParametersList>(mod)));
 
-  const auto output_mods = cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("outputModules"));
+  const auto output_mods =
+      cepgen::fromParameterSet(iConfig.getUntrackedParameter<edm::ParameterSet>("outputModules", edm::ParameterSet{}));
   edm::LogInfo("CepGenEventGenerator") << "Output modules: " << output_mods << ".";
   for (const auto& mod : output_mods.keys())
     output_modules_.emplace_back(std::make_pair(mod, output_mods.get<cepgen::ParametersList>(mod)));
-
-  src_ = iC.consumes<CrossingFrame<edm::HepMCProduct> >(
-      iConfig.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("mix", "generatorSmeared")));
 }
 
 CepGenEventGenerator::~CepGenEventGenerator() { edm::LogInfo("CepGenEventGenerator") << "Destructor called."; }
@@ -67,8 +66,14 @@ bool CepGenEventGenerator::initializeForInternalPartons() {
   gen_->runParameters().setProcess(cepgen::ProcessFactory::get().build(pproc));
   if (!gen_->runParameters().hasProcess())
     throw cms::Exception("CepGenEventGenerator") << "Failed to retrieve a process from the configuration";
-  for (const auto& mod : modif_modules_)
-    gen_->runParameters().addModifier(cepgen::EventModifierFactory::get().build(mod.first, mod.second));
+  for (const auto& mod : modif_modules_) {
+    auto modifier = cepgen::EventModifierFactory::get().build(mod.first, mod.second);
+    for (const auto& cfg : mod.second.get<std::vector<std::string> >("preConfiguration"))
+      modifier->readString(cfg);
+    for (const auto& cfg : mod.second.get<std::vector<std::string> >("processConfiguration"))
+      modifier->readString(cfg);
+    gen_->runParameters().addModifier(std::move(modifier));
+  }
   for (const auto& mod : output_modules_)
     gen_->runParameters().addEventExporter(cepgen::EventExporterFactory::get().build(mod.first, mod.second));
 

@@ -1,5 +1,5 @@
 // CepGen-CMSSW interfacing module
-//   2022-2023, Laurent Forthomme
+//   2022-2024, Laurent Forthomme
 
 #ifndef GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
 #define GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include <CepGen/Generator.h>
 
@@ -37,7 +36,6 @@ namespace gen {
     const cepgen::ParametersList proc_params_;
     std::vector<std::pair<std::string, cepgen::ParametersList> > modif_modules_, output_modules_;
     const std::vector<std::string> shared_resources_;
-    edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > src_;
     HepMC::GenCrossSection xsec_;
   };
 }  // namespace gen

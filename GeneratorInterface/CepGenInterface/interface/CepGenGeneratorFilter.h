@@ -1,5 +1,5 @@
 // CepGen-CMSSW interfacing module
-//   2022-2023, Laurent Forthomme
+//   2022-2024, Laurent Forthomme
 
 #ifndef GeneratorInterface_CepGenInterface_CepGenGeneratorFilter_h
 #define GeneratorInterface_CepGenInterface_CepGenGeneratorFilter_h

@@ -29,6 +29,8 @@ namespace cepgen {
           params.set<Limits>(cepgen_param, Limits{vec.at(0), vec.at(1)});
         params.set(cepgen_param, iConfig.getParameter<std::vector<double> >(param));
       }
+      if (iConfig.existsAs<std::vector<std::string> >(param))
+        params.set(cepgen_param, iConfig.getParameter<std::vector<std::string> >(param));
       if (iConfig.existsAs<edm::ParameterSet>(param))
         params.set(cepgen_param, fromParameterSet(iConfig.getParameter<edm::ParameterSet>(param)));
     }
