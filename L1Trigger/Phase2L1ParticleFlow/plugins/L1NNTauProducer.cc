@@ -97,10 +97,6 @@ void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     process_SW(*l1PFCandidates, lTaus);
   }
 
-  if (lTaus->empty()) {
-    PFTau dummy;
-    lTaus->push_back(dummy);
-  }
   std::sort(lTaus->begin(), lTaus->end(), [](l1t::PFTau i, l1t::PFTau j) { return (i.pt() > j.pt()); });
   iEvent.put(std::move(lTaus), "L1PFTausNN");
 }
@@ -259,7 +255,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
 
   //Firmware Tau
   l1ct::Tau l1ctTau;
-  l1ctTau.hwPt = l1ct::pt_t(pt * NN_ouput.nn_pt_correction);  //l1gt is <16,11> and currently <16,14>
+  l1ctTau.hwPt = l1ct::pt_t(pt);  //l1gt is <16,11> and currently <16,14>
   l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());       // seed.eta() and seed.phi() are in physical coordinates
   l1ctTau.hwPhi = l1ct::Scales::makeGlbPhi(seed.phi());
 

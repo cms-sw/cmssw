@@ -10,7 +10,7 @@
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
-typedef ap_ufixed<16, 14> pt_t;
+typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;
 typedef ap_fixed<10, 4> etaphi_t;
 
 // Tau NN returns two values
@@ -25,7 +25,7 @@ namespace L1TauEmu {
   //This way, the least significant bit of etaphi_t is exactly 0.01
   //Even though 0.01 is not a power of 2
   static constexpr float etaphi_base = 100. / 64;
-  typedef ap_ufixed<16, 14> pt_t;        // 1 unit = 0.25 GeV;
+  typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;        // 1 unit = 0.25 GeV;
   typedef ap_fixed<10, 4> etaphi_t;      // 1 unit = 0.01;
   typedef ap_fixed<12, 6> detaphi_t;     // type for the difference between etas or phis
   typedef ap_fixed<18, 9> detaphi2_t;    // type for detaphi_t squared
