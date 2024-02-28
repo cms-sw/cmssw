@@ -21,7 +21,11 @@ public:
 
   virtual unsigned int nPhiBins() const = 0;
 
+  virtual unsigned int nProcessors() const = 0;
+
   virtual double hwPtToGev(int hwPt) const = 0;
+
+  virtual double hwUPtToGev(int hwPt) const = 0;
 
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   virtual int ptGevToHw(double ptGev) const = 0;
@@ -79,6 +83,23 @@ public:
     return this->fixCscGeometryOffset = fixCscGeometryOffset;
   }
 
+  enum class StubEtaEncoding {
+    //in the firmware the eta is encoded as fired bits in the 9bit word, this is DT phase-1 encoding.
+    //In the emulator in most of the places eta value is used, but with the DT-like binning, i.e. only certain values are valid, see OMTFConfiguration::eta2Bits()
+    //this is the OMTF run2 option
+    bits = 0,
+    //the phase1 eta scale is used, but all hw values are valid, i.e. the DT-phase one binnig is NOT used
+    valueP1Scale = 1,
+  };
+
+  StubEtaEncoding getStubEtaEncoding() const { return stubEtaEncoding; }
+
+  void setStubEtaEncoding(StubEtaEncoding stubEtaEncoding) { this->stubEtaEncoding = stubEtaEncoding; }
+
+  //[unit/rad] for DT segment phiB, as it is at the level of the algorithm
+  //in the link data it can be different, and it is converted in the DtDigiToStubsConverterOmtf::addDTphiDigi
+  double dtPhiBUnitsRad() const { return dtPhiBUnitsRad_; }
+
 private:
   int cscLctCentralBx_ = 8;  //CSCConstants::LCT_CENTRAL_BX;
 
@@ -93,7 +114,11 @@ private:
 
   int minDtPhiBQuality = 2;  //used on the top of the minDtPhiQuality
 
+  double dtPhiBUnitsRad_ = 512;  //[unit/rad] for DT segment phiB, it is at the level of the algorithm, not inputs
+
   bool fixCscGeometryOffset = false;
+
+  StubEtaEncoding stubEtaEncoding = StubEtaEncoding::bits;
 };
 
 #endif /* L1T_OmtfP1_PROCCONFIGURATIONBASE_H_ */

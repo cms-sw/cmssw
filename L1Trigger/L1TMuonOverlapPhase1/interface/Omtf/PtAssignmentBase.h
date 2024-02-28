@@ -9,6 +9,7 @@
 #define L1T_OmtfP1_PTASSIGNMENTBASE_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
 
 /*
  * base class for the objects providing an alternative pt assignment on top of the OMTF golden pattern (like neural network)
@@ -19,7 +20,8 @@ public:
   PtAssignmentBase(const OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig){};
   virtual ~PtAssignmentBase();
 
-  virtual std::vector<float> getPts(const AlgoMuons::value_type& algoMuon) = 0;
+  virtual std::vector<float> getPts(AlgoMuons::value_type& algoMuon,
+                                    std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) = 0;
 
 protected:
   const OMTFConfiguration* omtfConfig = nullptr;
