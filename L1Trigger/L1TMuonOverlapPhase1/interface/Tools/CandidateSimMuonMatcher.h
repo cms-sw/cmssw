@@ -86,6 +86,8 @@ public:
   double genPhi = 0;
 
   const SimTrack* simTrack = nullptr;
+  const SimVertex* simVertex = nullptr;
+
   const TrackingParticle* trackingParticle = nullptr;
 };
 
@@ -122,15 +124,15 @@ public:
   //ghost busts at the same time the  mtfCands and the gbCandidates
   //gbCandidates - all gbCandidates from all processors, should be one-to-one as the mtfCands,
   //and the ghostBustedProcMuons are one-to-onr to the returned RegionalMuonCands
-  static std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands,
-                                                             const AlgoMuons& gbCandidates,
-                                                             AlgoMuons& ghostBustedProcMuons);
+  std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands,
+                                                      const AlgoMuons& gbCandidates,
+                                                      AlgoMuons& ghostBustedProcMuons);
 
   FreeTrajectoryState simTrackToFts(const SimTrack& simTrack, const SimVertex& simVertex);
 
   FreeTrajectoryState simTrackToFts(const TrackingParticle& trackingParticle);
 
-  TrajectoryStateOnSurface atStation2(FreeTrajectoryState ftsStart, float eta) const;
+  TrajectoryStateOnSurface atStation2(const FreeTrajectoryState& ftsStart) const;
 
   TrajectoryStateOnSurface propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices);
 

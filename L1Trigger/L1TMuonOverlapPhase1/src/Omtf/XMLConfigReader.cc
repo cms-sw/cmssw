@@ -401,7 +401,6 @@ std::unique_ptr<GoldenPatternType> XMLConfigReader::buildGP(DOMElement *aGPEleme
       throw cms::Exception("OMTF::XMLConfigReader: aItemElement is 0");
     std::string strVal = _toString(aItemElement->getAttribute(xmlTresh));
     thresholds[iItem] = std::stof(strVal);
-    //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" strVal "<<strVal<<" thresholds[iItem] "<<thresholds[iItem]<<std::endl;
   }
 
   ///Loop over layers
@@ -440,10 +439,6 @@ std::unique_ptr<GoldenPatternType> XMLConfigReader::buildGP(DOMElement *aGPEleme
 
     ///PDF vector
     nItems = aLayerElement->getElementsByTagName(xmlPDF)->getLength();
-
-    //debug
-    //if(nItems!=aConfig.nRefLayers()*exp2(aConfig.nPdfAddrBits()))
-    //LogTrace("l1tOmtfEventPrint")<<" iPt "<<iPt<<" iLayer "<<iLayer<<" nLayers "<<nLayers<<" nItems "<<nItems<<" nRefLayers "<<aConfig.nRefLayers()<<" nPdfAddrBits "<<aConfig.nPdfAddrBits()<<std::endl;
 
     assert(nItems == aConfig.nRefLayers() * exp2(aConfig.nPdfAddrBits()));
     for (unsigned int iRefLayer = 0; iRefLayer < (unsigned)aConfig.nRefLayers(); ++iRefLayer) {

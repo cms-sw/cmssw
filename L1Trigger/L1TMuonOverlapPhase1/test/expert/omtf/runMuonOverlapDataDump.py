@@ -187,7 +187,6 @@ process.simOmtfDigis.bxMin = cms.int32(0)
 process.simOmtfDigis.bxMax = cms.int32(0)
 
 process.simOmtfDigis.dumpResultToXML = cms.bool(False)
-process.simOmtfDigis.dumpResultToROOT = cms.bool(False)
 process.simOmtfDigis.dumpHitsToROOT = cms.bool(True)
 process.simOmtfDigis.dumpHitsFileName = cms.string(dumpHitsFileName + '.root')
 process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
@@ -205,6 +204,9 @@ process.simOmtfDigis.generatePatterns = cms.bool(False)
 process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
 process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
 process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
+
+process.simOmtfDigis.minCSCStubRME12 = cms.int32(410) #[cm]
+process.simOmtfDigis.minCSCStubR = cms.int32(490) #[cm]
 
 process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(5) #valid values are 0, 1, 2, 3, 5
 #process.simOmtfDigis.sorterType = cms.string("byLLH") #TODO
