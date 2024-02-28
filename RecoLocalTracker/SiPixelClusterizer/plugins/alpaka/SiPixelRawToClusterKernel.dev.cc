@@ -641,25 +641,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-        // TODO
-        // - we are fixing this here since it is used at compile time also in the kernel
-        // - put maxIter in the Geometry traits
-        constexpr auto threadsOrElementsFindClus = 256;
-
+        const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
         const auto workDivMaxNumModules =
-            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsOrElementsFindClus);
-        // NB: With present FindClus() / chargeCut() algorithm,
-        // threadPerBlock (GPU) or elementsPerThread (CPU) = 256 show optimal performance.
-        // Though, it does not have to be the same number for CPU/GPU cases.
-
+            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
 #ifdef GPU_DEBUG
-        std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << threadsOrElementsFindClus
+        std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                   << " threadsPerBlockOrElementsPerThread\n";
 #endif
-
         alpaka::exec<Acc1D>(
             queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
-
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
 #endif
@@ -740,14 +730,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
       alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-      /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
-
-      const auto threadsPerBlockFindClus = 256;
-      const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
-
+      const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
+      const auto workDivMaxNumModules =
+          cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
-      std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << threadsPerBlockFindClus
+      std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
       alpaka::exec<Acc1D>(
