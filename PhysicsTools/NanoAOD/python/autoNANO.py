@@ -35,6 +35,9 @@ autoNANO = {
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                   'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
+    #EGM flavours: add variables through customize
+    'EGM' : {'sequence': '@PHYS',
+             'customize' : '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
                 'customize': '@PHYS+@L1'}
