@@ -68,7 +68,7 @@ void AXOL1TLTemplate::copy(const AXOL1TLTemplate& cp) {
   m_condChipNr = cp.condChipNr();
   m_condRelativeBx = cp.condRelativeBx();
 
-  m_modelVersion = *(cp.modelVersion());  // new for utm 0.12.0
+  m_modelVersion = cp.modelVersion();  // new for utm 0.12.0
   m_objectParameter = *(cp.objectParameter());
 }
 
