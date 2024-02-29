@@ -23,12 +23,6 @@ siPixelDigiErrorsSoA = _siPixelDigiErrorsSoAFromCUDA.clone(
 from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
 siPixelDigiErrors = _siPixelDigiErrorsFromSoA.clone()
 
-# Alpaka modifier
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoAAlpaka_cfi import siPixelDigiErrorsFromSoAAlpaka as _siPixelDigiErrorsFromSoAAlpaka
-
-alpaka.toReplaceWith(siPixelDigiErrors, _siPixelDigiErrorsFromSoAAlpaka.clone())
-
 # use the Phase 1 settings
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelDigiErrors,
@@ -38,6 +32,18 @@ phase1Pixel.toModify(siPixelDigiErrors,
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (gpu & ~phase2_tracker).toReplaceWith(siPixelDigisTask, cms.Task(
+    # copy the pixel digis (except errors) and clusters to the host
+    siPixelDigisSoA,
+    # copy the pixel digis errors to the host
+    siPixelDigiErrorsSoA,
+    # convert the pixel digis errors to the legacy format
+    siPixelDigiErrors,
+    # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
+    siPixelDigisTask.copy()
+))
+
+from Configuration.ProcessModifiers.alpakaCUDAValidationPixel_cff import alpakaCUDAValidationPixel
+alpakaCUDAValidationPixel.toReplaceWith(siPixelDigisTask, cms.Task(
     # copy the pixel digis (except errors) and clusters to the host
     siPixelDigisSoA,
     # copy the pixel digis errors to the host

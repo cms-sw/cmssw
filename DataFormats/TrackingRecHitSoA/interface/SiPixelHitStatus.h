@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace reco{
+namespace reco {
 
   // more information on bit fields : https://en.cppreference.com/w/cpp/language/bit_field
   struct SiPixelHitStatus {
@@ -13,12 +13,12 @@ namespace reco{
     bool isOneY : 1;   //  ∈[0,1]
     uint8_t qBin : 3;  //  ∈[0,1,...,7]
   };
-  
+
   struct SiPixelHitStatusAndCharge {
     SiPixelHitStatus status;
     uint32_t charge : 24;
   };
 
-}
+}  // namespace reco
 
 #endif

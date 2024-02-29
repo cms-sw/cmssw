@@ -98,20 +98,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto ptMax = pset.getParameter<double>("chi2MaxPt");
 
         coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
-        return ::reco::pixelTrack::QualityCutsT<TrackerTraits>{// polynomial coefficients for the pT-dependent chi2 cut
-                                                         {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
-                                                         // max pT used to determine the chi2 cut
-                                                         (float)ptMax,
-                                                         // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
-                                                         (float)pset.getParameter<double>("chi2Scale"),
-                                                         // regional cuts for triplets
-                                                         {(float)pset.getParameter<double>("tripletMaxTip"),
-                                                          (float)pset.getParameter<double>("tripletMinPt"),
-                                                          (float)pset.getParameter<double>("tripletMaxZip")},
-                                                         // regional cuts for quadruplets
-                                                         {(float)pset.getParameter<double>("quadrupletMaxTip"),
-                                                          (float)pset.getParameter<double>("quadrupletMinPt"),
-                                                          (float)pset.getParameter<double>("quadrupletMaxZip")}};
+        return ::reco::pixelTrack::QualityCutsT<TrackerTraits>{
+            // polynomial coefficients for the pT-dependent chi2 cut
+            {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
+            // max pT used to determine the chi2 cut
+            (float)ptMax,
+            // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
+            (float)pset.getParameter<double>("chi2Scale"),
+            // regional cuts for triplets
+            {(float)pset.getParameter<double>("tripletMaxTip"),
+             (float)pset.getParameter<double>("tripletMinPt"),
+             (float)pset.getParameter<double>("tripletMaxZip")},
+            // regional cuts for quadruplets
+            {(float)pset.getParameter<double>("quadrupletMaxTip"),
+             (float)pset.getParameter<double>("quadrupletMinPt"),
+             (float)pset.getParameter<double>("quadrupletMaxZip")}};
       }
     };
 

@@ -966,6 +966,26 @@ upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
     offset = 0.504,
 )
 
+# Pixel-only quadruplets workflow running on CPU and GPU for both CUDA and Alpaka
+# This should be removed together with the rest of the CUDA code
+#  - HLT on GPU (required)
+#  - Pixel-only reconstruction on both CPU and GPU, with DQM and validation for GPU-vs-CPU/Alpaka-vs-CUDA comparisons
+#  - harvesting
+upgradeWFs['PatatrackPixelOnlyAlpakaCUDAValidation'] = PatatrackWorkflow(
+    digi = {
+        '--customise': 'HLTriggerOffline/Common/customizeHLTforAlpakavsCUDA.customizeHLTforAlpakavsCUDA',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'alpakaCUDAValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyAlpakaCUDAValidation',
+    offset = 0.5041,
+)
+
 # Pixel-only triplets workflow running on CPU
 #  - HLT on CPU
 #  - Pixel-only reconstruction on CPU, with DQM and validation

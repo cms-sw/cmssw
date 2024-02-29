@@ -99,8 +99,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct ParamsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> : public AlgoParams {
       using TT = TrackerTraits;
       using QualityCuts = ::reco::pixelTrack::QualityCutsT<TT>;  //track quality cuts
-      using CellCuts = caPixelDoublets::CellCutsT<TT>;     //cell building cuts
-      using CAParams = CAParamsT<TT>;                      //params to be used on device
+      using CellCuts = caPixelDoublets::CellCutsT<TT>;           //cell building cuts
+      using CAParams = CAParamsT<TT>;                            //params to be used on device
 
       ParamsT(AlgoParams const& commonCuts,
               CellCuts const& cellCuts,

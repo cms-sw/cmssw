@@ -13,7 +13,7 @@ template <typename TrackerTraits>
 class TrackingRecHitHost : public PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>> {
 public:
   using hitSoA = reco::TrackingRecHitSoA<TrackerTraits>;
-  
+
   //Need to decorate the class with the inherited portable accessors being now a template
   using PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>::view;
   using PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>::const_view;

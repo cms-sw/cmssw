@@ -143,9 +143,9 @@ namespace reco {
         float pt = std::min<float>(tracks.pt(it), chi2MaxPt);
         float chi2Cut = chi2Scale * (chi2Coeff[0] + roughLog(pt) * chi2Coeff[1]);
         if (tracks.chi2(it) >= chi2Cut) {
-  #ifdef NTUPLE_FIT_DEBUG
+#ifdef NTUPLE_FIT_DEBUG
           printf("Bad chi2 %d pt %f eta %f chi2 %f\n", it, tracks.pt(it), tracks.eta(it), tracks.chi2(it));
-  #endif
+#endif
           return true;
         }
         return false;
@@ -177,6 +177,6 @@ namespace reco {
   template struct TracksUtilities<pixelTopology::Phase1>;
   template struct TracksUtilities<pixelTopology::Phase2>;
 
-}
+}  // namespace reco
 
 #endif  // DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h

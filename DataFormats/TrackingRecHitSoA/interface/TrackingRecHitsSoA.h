@@ -54,6 +54,6 @@ namespace reco {
   template <typename TrackerTraits>
   using TrackingRecHitSoAConstView = typename TrackingRecHitSoA<TrackerTraits>::template Layout<>::ConstView;
 
-}
+}  // namespace reco
 
 #endif

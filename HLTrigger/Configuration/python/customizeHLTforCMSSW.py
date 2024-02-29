@@ -259,7 +259,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseForOffline(process)
 
     # Alpaka HLT
-    from Configuration.ProcessModifiers.alpaka_cff import alpaka 
+    from Configuration.ProcessModifiers.alpaka_cff import alpaka
     from Configuration.Eras.Modifier_run3_common_cff import run3_common
     from HLTrigger.Configuration.customizeHLTforAlpaka import customizeHLTforAlpaka
     (alpaka & run3_common).makeProcessModifier(customizeHLTforAlpaka).apply(process)

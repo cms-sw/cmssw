@@ -13,7 +13,7 @@ template <typename TrackerTraits, typename TDev>
 class TrackingRecHitDevice : public PortableDeviceCollection<reco::TrackingRecHitLayout<TrackerTraits>, TDev> {
 public:
   using hitSoA = reco::TrackingRecHitSoA<TrackerTraits>;
-  
+
   //Need to decorate the class with the inherited portable accessors being now a template
   using PortableDeviceCollection<reco::TrackingRecHitLayout<TrackerTraits>, TDev>::view;
   using PortableDeviceCollection<reco::TrackingRecHitLayout<TrackerTraits>, TDev>::const_view;
@@ -24,7 +24,8 @@ public:
   // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
   template <typename TQueue>
   explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
-      : PortableDeviceCollection<reco::TrackingRecHitLayout<TrackerTraits>, TDev>(nHits, queue), offsetBPIX2_{offsetBPIX2} {
+      : PortableDeviceCollection<reco::TrackingRecHitLayout<TrackerTraits>, TDev>(nHits, queue),
+        offsetBPIX2_{offsetBPIX2} {
     const auto device = alpaka::getDev(queue);
 
     auto start_h = cms::alpakatools::make_host_view(hitsModuleStart, TrackerTraits::numberOfModules + 1);

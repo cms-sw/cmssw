@@ -124,6 +124,26 @@ alpaka.toReplaceWith(pixelVerticesTask, cms.Task(
     pixelVertices
 ))
 
+from Configuration.ProcessModifiers.alpakaCUDAValidationPixel_cff import alpakaCUDAValidationPixel
+
+alpakaCUDAValidationPixel.toModify(pixelVerticesSoA,
+    cuda = _pixelVerticesSoA.clone(
+        src = cms.InputTag("pixelVerticesCUDA")
+    )
+)
+
+alpakaCUDAValidationPixel.toModify(pixelVerticesSoA.cpu,
+    pixelTrackSrc = "pixelTracksSoA@cpu"
+)
+
+alpakaCUDAValidationPixel.toReplaceWith(pixelVerticesTask, cms.Task(
+                        # Reconstruct and convert the pixel tracks with alpaka on host and device
+                        pixelVerticesTask.copy(),
+                        # build pixel vertices in SoA format on the GPU
+                        pixelVerticesCUDA,
+                        # this is an alias for the SoA on GPU or CPU to be used for DQM
+                        pixelVerticesSoA))
+
 # Tasks and Sequences
 recopixelvertexingTask = cms.Task(
     pixelTracksTask,

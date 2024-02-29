@@ -159,12 +159,29 @@ alpaka.toModify(siPixelClustersPreSplitting,
     )
 )
 
+# These produce pixelDigiErrors in Alpaka; they are constructed here because they need
+# siPixelClustersPreSplittingAlpaka* as input
+from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoAAlpaka_cfi import siPixelDigiErrorsFromSoAAlpaka as _siPixelDigiErrorsFromSoAAlpaka
+siPixelDigiErrorsAlpaka = _siPixelDigiErrorsFromSoAAlpaka.clone(
+    digiErrorSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpaka'),
+    fmtErrorsSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpaka'),
+    UsePhase1 = cms.bool(True)
+)
+
+siPixelDigiErrorsAlpakaSerial = siPixelDigiErrorsAlpaka.clone(
+    digiErrorSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpakaSerial'),
+    fmtErrorsSoASrc = cms.InputTag('siPixelClustersPreSplittingAlpakaSerial')
+)
+
 # Run 3
 alpaka.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # reconstruct the pixel clusters with alpaka
     siPixelClustersPreSplittingAlpaka,
     # reconstruct the pixel clusters with alpaka on the cpu (if requested by the validation)
     siPixelClustersPreSplittingAlpakaSerial,
+    # reconstruct pixel digis errors legacy with alpaka on serial and device
+    siPixelDigiErrorsAlpaka,
+    siPixelDigiErrorsAlpakaSerial,
     # convert from host SoA to legacy formats (digis and clusters)
     siPixelDigisClustersPreSplitting,
     # EDAlias for the clusters
@@ -177,8 +194,56 @@ alpaka.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     siPixelClustersPreSplittingAlpaka,
     # reconstruct the pixel clusters with alpaka from copied digis on the cpu (if requested by the validation)
     siPixelClustersPreSplittingAlpakaSerial,
+    # reconstruct pixel digis legacy with alpaka on the serial and device
+    siPixelDigiErrorsAlpaka,
+    siPixelDigiErrorsAlpakaSerial,
     # convert the pixel digis (except errors) and clusters to the legacy format
     siPixelDigisClustersPreSplitting,
     # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
     siPixelClustersPreSplitting)
 )
+
+### Alpaka vs CUDA validation
+
+from Configuration.ProcessModifiers.alpakaCUDAValidationPixel_cff import alpakaCUDAValidationPixel
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+
+siPixelClustersPreSplittingCPU = _siPixelClusters.clone(
+    payloadType = cms.string('HLT'),
+    src = cms.InputTag('siPixelDigis@cpu')
+)
+
+siPixelDigisClustersPreSplittingCUDA = _siPixelDigisClustersFromSoAPhase1.clone()
+
+run3_common.toModify(siPixelDigisClustersPreSplittingCUDA,
+                     clusterThreshold_layer1 = 4000)
+
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
+
+# SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
+alpakaCUDAValidationPixel.toModify(siPixelDigis,
+    cuda = cms.EDAlias(
+        siPixelDigiErrors = cms.VPSet(
+            cms.PSet(type = cms.string("DetIdedmEDCollection")),
+            cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
+            cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
+        ),
+        siPixelDigisClustersPreSplittingCUDA = cms.VPSet(
+            cms.PSet(type = cms.string("PixelDigiedmDetSetVector"))
+        )
+    )
+)
+
+alpakaCUDAValidationPixel.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
+                        # Reconstruct and convert the pixel clusters with alpaka on host and device
+                        siPixelClustersPreSplittingTask.copy(),
+                        # conditions used *only* by the modules running on GPU
+                        siPixelGainCalibrationForHLTGPU,
+                        siPixelROCsStatusAndMappingWrapperESProducer,
+                        # reconstruct pixel digis and clusters in legacy format for CUDA
+                        siPixelDigisClustersPreSplittingCUDA,
+                        # reconstruct the pixel clusters on the cpu
+                        siPixelClustersPreSplittingCPU,
+                        # reconstruct the pixel digis and clusters on the gpu
+                        siPixelClustersPreSplittingCUDA
+                        ))
