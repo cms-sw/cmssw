@@ -243,6 +243,7 @@ _wfn.next()
 ################
 #13.0 workflows
 workflows[_wfn()] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['EGMNANOmc130X', ['TTBarMINIAOD13.0', 'EGMNano_mc13.0']]
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
@@ -250,7 +251,6 @@ workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO
 workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
 workflows[_wfn()] = ['muPOGNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
-workflows[_wfn()] = ['EGMNANOmc130X', ['TTBarMINIAOD13.0', 'EGMNano_mc13.0']]
 
 _wfn.next()
 ################
