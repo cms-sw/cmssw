@@ -78,14 +78,15 @@ if __name__ == '__main__':
                     250202.181, # RelValTTbar_13                PREMIX   
 
                     # Run3
-                    11634.0,    # TTbar_14TeV 
-                    13234.0,    # RelValTTbar_14TeV             FastsSim
-                    12434.0,    # RelValTTbar_14TeV
-                    12446.0,    # RelValZEE_13
-                    12634.0,    # RelValTTbar_14TeV             PU = Run3_Flat55To75_PoissonOOTPU
-                    12434.7,    # RelValTTbar_14TeV             mkFit
+                    11634.0,    # TTbar_14TeV                   2021
+                    13234.0,    # RelValTTbar_14TeV             2021 FastsSim
+                    12434.0,    # RelValTTbar_14TeV             2023
+                    12834.0,    # RelValTTbar_14TeV             2024
+                    12846.0,    # RelValZEE_13                  2024
+                    13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
+                    12834.7,    # RelValTTbar_14TeV             2024 mkFit
                     14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
-                    14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU 
+                    14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
                     2500.4,     # RelValTTbar_14TeV             NanoAOD from existing MINI
 
                     # Phase2
