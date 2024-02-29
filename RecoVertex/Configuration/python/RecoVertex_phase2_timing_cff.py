@@ -2,19 +2,18 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.Configuration.RecoVertex_cff import unsortedOfflinePrimaryVertices, trackWithVertexRefSelector, trackRefsForJets, sortedPrimaryVertices, offlinePrimaryVertices, offlinePrimaryVerticesWithBS,vertexrecoTask
 
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone(
-    TkClusParameters = dict(
-        algorithm = "DA2D_vect", 
-        TkDAClusParameters = dict(
-            Tmin = 4.0, 
-            Tpurge = 4.0, 
-            Tstop = 2.0
-        ),
+    TkClusParameters = cms.PSet(algorithm = cms.string("DA2D_vect"),
+        TkDAClusParameters = cms.PSet(
+            Tmin = cms.double(4.0),
+            Tpurge = cms.double(4.0),
+            Tstop = cms.double(2.0),
+        )
     ),
     TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),
     TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
     vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D'))),
                          1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('legacy4D')))}
-)
+    )
 trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(
     vertexTag = "unsortedOfflinePrimaryVertices4D",
     ptMax = 9e99,
@@ -68,8 +67,7 @@ tofPID3D=tofPIDProducer.clone(vtxsSrc='unsortedOfflinePrimaryVertices')
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify(tofPID, vtxsSrc='unsortedOfflinePrimaryVertices4D', vertexReassignment=False)
 phase2_timing_layer.toModify(tofPID3D, vertexReassignment=False)
-phase2_timing_layer.toModify(unsortedOfflinePrimaryVertices, 
+phase2_timing_layer.toModify(unsortedOfflinePrimaryVertices,
     vertexCollections = {0: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID'))),
                          1: dict(vertexTimeParameters = cms.PSet( algorithm = cms.string('fromTracksPID')))}
 )
-
