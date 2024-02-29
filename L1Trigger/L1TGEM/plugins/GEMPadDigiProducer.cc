@@ -81,7 +81,7 @@ void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& ev
   geometry_ = &*hGeom;
   // check the number of parititions
   if (geometry_->hasGE21()) {
-    use16GE21_ = (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() ==
+    use16GE21_ = (geometry_->chamber(GEMDetId(1, 1, 2, 2, 16, 0))->nEtaPartitions() ==
                   GEMPadDigi::NumberPartitions::GE21SplitStrip);
   }
 
@@ -211,12 +211,12 @@ void GEMPadDigiProducer::checkGeometry() const {
   if (geometry_->hasGE21()) {
     if (!use16GE21_) {
       // check that GE2/1 has 8-eta partitions
-      if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE21) {
+      if (geometry_->chamber(GEMDetId(1, 1, 2, 2, 16, 0))->nEtaPartitions() != GEMPadDigi::NumberPartitions::GE21) {
         edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (8 partition) appears corrupted";
       }
     } else {
       // check that GE2/1 has 16-eta partitions
-      if (geometry_->chamber(GEMDetId(1, 1, 2, 1, 1, 0))->nEtaPartitions() !=
+      if (geometry_->chamber(GEMDetId(1, 1, 2, 2, 16, 0))->nEtaPartitions() !=
           GEMPadDigi::NumberPartitions::GE21SplitStrip) {
         edm::LogError("GEMPadDigiProducer") << "GE2/1 geometry (16 partition) appears corrupted";
       }
