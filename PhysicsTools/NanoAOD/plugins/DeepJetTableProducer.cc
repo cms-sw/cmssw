@@ -24,7 +24,6 @@ using namespace btagbtvdeep;
 
 // To store the gen info to get the truth flavour of the jet
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/NanoAOD/interface/BTV_flavor.h"
 
@@ -36,159 +35,19 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  int jet_flavour(const pat::Jet& jet,
-                  const std::vector<reco::GenParticle>& gToBB,
-                  const std::vector<reco::GenParticle>& gToCC,
-                  const std::vector<reco::GenParticle>& neutrinosLepB,
-                  const std::vector<reco::GenParticle>& neutrinosLepB_C,
-                  const std::vector<reco::GenParticle>& alltaus,
-                  bool usePhysForLightAndUndefined) {
-    int hflav = abs(jet.hadronFlavour());
-    int pflav = abs(jet.partonFlavour());
-    int physflav = 0;
-    if (!(jet.genJet())) {
-      if (pflav == 0)
-        return 999;
-      else
-        return 1000;
-    }
-    if (jet.genParton())
-      physflav = abs(jet.genParton()->pdgId());
-    std::size_t nbs = jet.jetFlavourInfo().getbHadrons().size();
-    std::size_t ncs = jet.jetFlavourInfo().getcHadrons().size();
-
-    unsigned int nbFromGSP(0);
-    for (const reco::GenParticle& p : gToBB) {
-      double dr2(reco::deltaR2(jet, p));
-      if (dr2 < jetR_ * jetR_)
-        ++nbFromGSP;
-    }
-
-    unsigned int ncFromGSP(0);
-    for (const reco::GenParticle& p : gToCC) {
-      double dr2(reco::deltaR2(jet, p));
-      if (dr2 < jetR_ * jetR_)
-        ++ncFromGSP;
-    }
-
-    //std::cout << " jet pt = " << jet.pt() << " hfl = " << hflav << " pfl = " << pflav << " genpart = " << physflav
-    //  << " nbFromGSP = " << nbFromGSP << " ncFromGSP = " << ncFromGSP
-    //  << " nBhadrons " << nbs << " nCHadrons " << ncs << std::endl;
-    if (hflav == 5) {  //B jet
-      if (nbs > 1) {
-        if (nbFromGSP > 0)
-          return 511;
-        else
-          return 510;
-      } else if (nbs == 1) {
-        for (std::vector<reco::GenParticle>::const_iterator it = neutrinosLepB.begin(); it != neutrinosLepB.end();
-             ++it) {
-          if (reco::deltaR2(it->eta(), it->phi(), jet.eta(), jet.phi()) < 0.4 * 0.4) {
-            return 520;
-          }
-        }
-        for (std::vector<reco::GenParticle>::const_iterator it = neutrinosLepB_C.begin(); it != neutrinosLepB_C.end();
-             ++it) {
-          if (reco::deltaR2(it->eta(), it->phi(), jet.eta(), jet.phi()) < 0.4 * 0.4) {
-            return 521;
-          }
-        }
-        return 500;
-      } else {
-        if (usePhysForLightAndUndefined) {
-          if (physflav == 21)
-            return 0;
-          else if (physflav == 3)
-            return 2;
-          else if (physflav == 2 || physflav == 1)
-            return 1;
-          else
-            return 1000;
-        } else
-          return 1000;
-      }
-    } else if (hflav == 4) {  //C jet
-      if (ncs > 1) {
-        if (ncFromGSP > 0)
-          return 411;
-        else
-          return 410;
-      } else
-        return 400;
-    } else {                   //not a heavy jet
-      if (!alltaus.empty()) {  //check for tau in a simplistic way
-        bool ishadrtaucontained = true;
-        for (const auto& p : alltaus) {
-          size_t ndau = p.numberOfDaughters();
-          for (size_t i = 0; i < ndau; i++) {
-            const reco::Candidate* dau = p.daughter(i);
-            int daupid = std::abs(dau->pdgId());
-            if (daupid == 13 || daupid == 11) {
-              ishadrtaucontained = false;
-              break;
-            }
-            if (daupid != 12 && daupid != 14 && daupid != 16 && reco::deltaR2(*dau, jet) > jetR_ * jetR_) {
-              ishadrtaucontained = false;
-              break;
-            }
-          }
-        }
-        if (ishadrtaucontained)
-          return 600;
-      }
-      if (std::abs(pflav) == 4 || std::abs(pflav) == 5 || nbs || ncs) {
-        if (usePhysForLightAndUndefined) {
-          if (physflav == 21)
-            return 0;
-          else if (physflav == 3)
-            return 2;
-          else if (physflav == 2 || physflav == 1)
-            return 1;
-          else
-            return 1000;
-        } else
-          return 1000;
-      } else if (usePhysForLightAndUndefined) {
-        if (physflav == 21)
-          return 0;
-        else if (physflav == 3)
-          return 2;
-        else if (physflav == 2 || physflav == 1)
-          return 1;
-        else
-          return 1000;
-      } else {
-        if (pflav == 21)
-          return 0;
-        else if (pflav == 3)
-          return 2;
-        else if (pflav == 2 || pflav == 1)
-          return 1;
-        else
-          return 1000;
-      }
-    }
-  }
-
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const std::string nameDeepJet_;
   const std::string idx_nameDeepJet_;
-  const bool storeAK4Truth_;
-
-  const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  const unsigned int n_cpf_ = 25;
+  const unsigned int n_npf_ = 25;
+  const unsigned int n_sv_ = 12;
 
   edm::EDGetTokenT<edm::View<T>> jet_token_;
 
   typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
   const edm::EDGetTokenT<TagInfoCollection> tag_info_src_;
-
-  constexpr static unsigned n_cpf_ = 3;
-  constexpr static unsigned n_npf_ = 3;
-  constexpr static unsigned n_sv_ = 4;  // 5
-
-  constexpr static double jetR_ = 0.4;
 
   constexpr static bool usePhysForLightAndUndefined = false;
 };
@@ -200,8 +59,9 @@ template <typename T>
 DeepJetTableProducer<T>::DeepJetTableProducer(const edm::ParameterSet& iConfig)
     : nameDeepJet_(iConfig.getParameter<std::string>("nameDeepJet")),
       idx_nameDeepJet_(iConfig.getParameter<std::string>("idx_nameDeepJet")),
-      storeAK4Truth_(iConfig.getParameter<bool>("storeAK4Truth")),
-      genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genparticles"))),
+      n_cpf_(iConfig.getParameter<unsigned int>("n_cpf")),
+      n_npf_(iConfig.getParameter<unsigned int>("n_npf")),
+      n_sv_(iConfig.getParameter<unsigned int>("n_sv")),
       jet_token_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("jets"))),
       tag_info_src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("tagInfo_src"))) {
   produces<nanoaod::FlatTable>(nameDeepJet_);
@@ -217,20 +77,10 @@ void DeepJetTableProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   // only necessary to explicitly check correct matching of jets
   // std::vector<int> jetIdx_dj;
 
-  edm::Handle<reco::GenParticleCollection> genParticlesHandle;
-  iEvent.getByToken(genParticlesToken_, genParticlesHandle);
-
   auto jets = iEvent.getHandle(jet_token_);
 
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(tag_info_src_, tag_infos);
-
-  std::vector<reco::GenParticle> neutrinosLepB;
-  std::vector<reco::GenParticle> neutrinosLepB_C;
-
-  std::vector<reco::GenParticle> gToBB;
-  std::vector<reco::GenParticle> gToCC;
-  std::vector<reco::GenParticle> alltaus;
 
   unsigned nJets = jets->size();
 
@@ -238,8 +88,6 @@ void DeepJetTableProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   std::vector<int> jet_N_NPFCands(nJets);
   std::vector<int> jet_N_PVs(nJets);
   std::vector<int> jet_N_SVs(nJets);
-
-  std::vector<unsigned> jet_FlavSplit(nJets);
 
   // should default to 0 if less than nCpf cpf with information
   std::vector<std::vector<float>> Cpfcan_BtagPf_trackEtaRel_nCpf(n_cpf_, std::vector<float>(nJets));
@@ -291,70 +139,14 @@ void DeepJetTableProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   std::vector<std::vector<float>> sv_deltaR_nSV(n_sv_, std::vector<float>(nJets));
   std::vector<std::vector<float>> sv_enratio_nSV(n_sv_, std::vector<float>(nJets));
 
-  if (storeAK4Truth_) {
-    neutrinosLepB.clear();
-    neutrinosLepB_C.clear();
-    gToBB.clear();
-    gToCC.clear();
-    alltaus.clear();
-
-    for (const reco::Candidate& genC : *genParticlesHandle) {
-      const reco::GenParticle& gen = static_cast<const reco::GenParticle&>(genC);
-      if (abs(gen.pdgId()) == 12 || abs(gen.pdgId()) == 14 || abs(gen.pdgId()) == 16) {
-        const reco::GenParticle* mother = static_cast<const reco::GenParticle*>(gen.mother());
-        if (mother != nullptr) {
-          if ((abs(mother->pdgId()) > 500 && abs(mother->pdgId()) < 600) ||
-              (abs(mother->pdgId()) > 5000 && abs(mother->pdgId()) < 6000)) {
-            neutrinosLepB.emplace_back(gen);
-          }
-          if ((abs(mother->pdgId()) > 400 && abs(mother->pdgId()) < 500) ||
-              (abs(mother->pdgId()) > 4000 && abs(mother->pdgId()) < 5000)) {
-            neutrinosLepB_C.emplace_back(gen);
-          }
-        } else {
-          std::cout << "No mother" << std::endl;
-        }
-      }
-
-      int id(std::abs(gen.pdgId()));
-      int status(gen.status());
-
-      if (id == 21 && status >= 21 && status <= 59) {  //// Pythia8 hard scatter, ISR, or FSR
-        if (gen.numberOfDaughters() == 2) {
-          const reco::Candidate* d0 = gen.daughter(0);
-          const reco::Candidate* d1 = gen.daughter(1);
-          if (std::abs(d0->pdgId()) == 5 && std::abs(d1->pdgId()) == 5 && d0->pdgId() * d1->pdgId() < 0 &&
-              reco::deltaR2(*d0, *d1) < jetR_ * jetR_)
-            gToBB.push_back(gen);
-          if (std::abs(d0->pdgId()) == 4 && std::abs(d1->pdgId()) == 4 && d0->pdgId() * d1->pdgId() < 0 &&
-              reco::deltaR2(*d0, *d1) < jetR_ * jetR_)
-            gToCC.push_back(gen);
-        }
-      }
-
-      if (id == 15 && false) {
-        alltaus.push_back(gen);
-      }
-    }
-  }
-
   if (!tag_infos->empty()) {
     for (unsigned i_jet = 0; i_jet < nJets; ++i_jet) {
-      if (storeAK4Truth_) {
-        // from DeepNTuples
-        const auto& jet = jets->at(i_jet);
-
-        jet_FlavSplit[i_jet] =
-            jet_flavour(jet, gToBB, gToCC, neutrinosLepB, neutrinosLepB_C, alltaus, usePhysForLightAndUndefined);
-      }
-
       // jet loop reads tag info instead of constituent info
 
       const auto& taginfo = (*tag_infos)[i_jet];
       const auto& features = taginfo.features();
 
       // jet.pt and jet.eta as well as other jet variables (ShallowTagInfo) already included (via DeepCSV)
-
       // number of elements in different collections
       jet_N_CPFCands[i_jet] = features.c_pf_features.size();
       jet_N_NPFCands[i_jet] = features.n_pf_features.size();
@@ -433,30 +225,6 @@ void DeepJetTableProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   djTable->addColumn<int>("DeepJet_nNpfcand", jet_N_NPFCands, "Number of neutral PF candidates in the jet");
   djTable->addColumn<int>("DeepJet_nsv", jet_N_SVs, "Number of secondary vertices in the jet");
   djTable->addColumn<int>("DeepJet_npv", jet_N_PVs, "Number of primary vertices");
-
-  //if (true) {
-  if (storeAK4Truth_) {
-    //std::cout << "Start filling table with truth info" << std::endl;
-    djTable->addColumn<int>("FlavSplit",
-                            jet_FlavSplit,
-                            "Flavour of the jet, numerical codes: "
-                            "isG: 0, "
-                            "isUD: 1, "
-                            "isS: 2, "
-                            "isC: 400, "
-                            "isCC: 410, "
-                            "isGCC: 411, "
-                            "isB: 500, "
-                            "isBB: 510, "
-                            "isGBB: 511, "
-                            "isLeptonicB: 520, "
-                            "isLeptonicB_C: 521, "
-                            "isTAU: 600, "
-                            "isPU: 999,"
-                            "isUndefined: 1000. "
-                            "May be combined to form coarse labels for tagger training and flavour dependent attacks "
-                            "using the loss surface.");
-  }
 
   // ============================================================== Cpfs ===================================================================
   for (unsigned int p = 0; p < n_cpf_; p++) {
@@ -630,15 +398,15 @@ void DeepJetTableProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDeepJet", "Jet");
   desc.add<std::string>("idx_nameDeepJet", "djIdx");
-  desc.add<bool>("storeAK4Truth", false);
-  desc.add<edm::InputTag>("genparticles", edm::InputTag("prunedGenParticles"));
+
+  desc.add<unsigned int>("n_cpf", 3);
+  desc.add<unsigned int>("n_npf", 3);
+  desc.add<unsigned int>("n_sv", 4);
   desc.add<edm::InputTag>("jets", edm::InputTag("slimmedJetsPuppi"));
   desc.add<edm::InputTag>("tagInfo_src", edm::InputTag("pfDeepFlavourTagInfosPuppiWithDeepInfo"));
   descriptions.addWithDefaultLabel(desc);
 }
 
 typedef DeepJetTableProducer<pat::Jet> PatJetDeepJetTableProducer;
-//typedef DeepJetTableProducer<reco::GenJet> GenJetDeepJetTableProducer;
 
 DEFINE_FWK_MODULE(PatJetDeepJetTableProducer);
-//DEFINE_FWK_MODULE(GenJetDeepJetTableProducer);

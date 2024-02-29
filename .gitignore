@@ -11,10 +11,6 @@ __init__.py
 *.orig
 
 
-
-
-
-
 # ignore files under the top level $CMSSW_BASE/src directory, but not its subdirectories
 /*
 !/*/
