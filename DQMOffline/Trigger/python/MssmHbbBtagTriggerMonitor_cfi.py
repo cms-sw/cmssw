@@ -19,7 +19,7 @@ triggerFlagPSet = cms.PSet(
 )
 
 mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
-    dirname = cms.string("HLT/HIG/MssmHbb/"),
+    dirname = cms.string("HLT/SUS/MssmHbb/"),
     requireValidHLTPaths = cms.bool(True),
     processname = cms.string("HLT"),
     jetPtMin = cms.double(40),
@@ -43,28 +43,28 @@ mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
 ## Full hadronic
 
 mssmHbbBtagTriggerMonitorFH40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets40_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_DoublePFJets40_PNetBTag_0p11",
     jetPtMin = 40,
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets40_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorFH100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets100_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_DoublePFJets100_PNetBTag_0p11",
     jetPtMin = 100,
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets100_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorFH200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets200_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_DoublePFJets200_PNetBTag_0p11",
     jetPtMin = 200,
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets200_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets350_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_DoublePFJets350_PNetBTag_0p11",
     jetPtMin = 350,
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets350_PNetBTag_0p11_v*'])
@@ -73,30 +73,30 @@ mssmHbbBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
 ## Semileptonic
 
 mssmHbbBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets40_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_Mu12_DoublePFJets40_PNetBTag_0p11",
     jetPtMin = 40,
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets40_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets100_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_Mu12_DoublePFJets100_PNetBTag_0p11",
     jetPtMin = 100,
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets100_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets200_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_Mu12_DoublePFJets200_PNetBTag_0p11",
     jetPtMin = 200,
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
     genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets200_PNetBTag_0p11_v*'])
 )
 
 mssmHbbBtagTriggerMonitorSL350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets40_PNetBTag_0p11",
+    dirname = "HLT/SUS/MssmHbb/control/btag/HLT_Mu12_DoublePFJets350_PNetBTag_0p11",
     jetPtMin = 350,
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),
-    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets40_PNetBTag_0p11_v*'])
+    genericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets350_PNetBTag_0p11_v*'])
 )
 
