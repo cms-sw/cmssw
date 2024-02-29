@@ -32,7 +32,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterParamsHostCollection.h"
 
 class LegacyPFClusterProducer : public edm::stream::EDProducer<> {
 public:
@@ -40,7 +39,6 @@ public:
       : pfClusterSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         pfRecHitFractionSoAToken_(consumes(config.getParameter<edm::InputTag>("src"))),
         InputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
-        pfClusParamsToken_(esConsumes(config.getParameter<edm::ESInputTag>("pfClusterParams"))),
         legacyPfClustersToken_(produces()),
         recHitsLabel_(consumes(config.getParameter<edm::InputTag>("recHitsSource"))),
         hcalCutsToken_(esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"))),
@@ -66,10 +64,9 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("PFRecHitsLabelIn");
-    desc.add<edm::ESInputTag>("pfClusterParams");
-    desc.add<edm::InputTag>("recHitsSource");
+    desc.add<edm::InputTag>("src", edm::InputTag("pfClusterSoAProducer"));
+    desc.add<edm::InputTag>("PFRecHitsLabelIn", edm::InputTag("pfRecHitSoAProducerHCAL"));
+    desc.add<edm::InputTag>("recHitsSource", edm::InputTag("legacyPFRecHitProducer"));
     desc.add<bool>("usePFThresholdsFromDB", true);
     {
       edm::ParameterSetDescription pfClusterBuilder;
@@ -183,7 +180,6 @@ private:
   const edm::EDGetTokenT<reco::PFClusterHostCollection> pfClusterSoAToken_;
   const edm::EDGetTokenT<reco::PFRecHitFractionHostCollection> pfRecHitFractionSoAToken_;
   const edm::EDGetTokenT<reco::PFRecHitHostCollection> InputPFRecHitSoA_Token_;
-  const edm::ESGetToken<reco::PFClusterParamsHostCollection, JobConfigurationGPURecord> pfClusParamsToken_;
   const edm::EDPutTokenT<reco::PFClusterCollection> legacyPfClustersToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> recHitsLabel_;
   const edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;

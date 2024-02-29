@@ -192,7 +192,6 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     process.hltLegacyPFClusterProducer = cms.EDProducer("LegacyPFClusterProducer",
             src = cms.InputTag("hltPFClusterSoAProducer"),
-            pfClusterParams = cms.ESInputTag("pfClusterParamsESProducer:"),
             pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
             usePFThresholdsFromDB = cms.bool(True),
             recHitsSource = cms.InputTag("hltLegacyPFRecHitProducer"),
@@ -413,7 +412,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
     '''
-    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka', 
+    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka',
         CablingMapLabel = cms.string(''),
         UseQualityInfo = cms.bool(False),
         appendToDataLabel = cms.string(''),
@@ -429,7 +428,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         )
     )
 
-    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka', 
+    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka',
         appendToDataLabel = cms.string(''),
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string('')
@@ -729,7 +728,7 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
         process.hltPixelVertices,
-        process.hltTrimmedPixelVertices 
+        process.hltTrimmedPixelVertices
     )
 
     process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
@@ -797,7 +796,7 @@ def customizeHLTforAlpakaPixelRecoTheRest(process):
         track_pt_max = cms.double(10.0),
         track_pt_min = cms.double(1.0)
     )
-    
+
     return process
 
 def customizeHLTforAlpakaPixelReco(process):
@@ -807,7 +806,7 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforAlpakaPixelRecoLocal(process)
     process = customizeHLTforAlpakaPixelRecoTracking(process)
     process = customizeHLTforAlpakaPixelRecoVertexing(process)
-    process = customizeHLTforDQMGPUvsCPUPixel(process)    
+    process = customizeHLTforDQMGPUvsCPUPixel(process)
     process = customizeHLTforAlpakaPixelRecoTheRest(process)
 
     return process
@@ -815,7 +814,7 @@ def customizeHLTforAlpakaPixelReco(process):
 ## ECAL HLT in Alpaka
 
 def customizeHLTforAlpakaEcalLocalReco(process):
-    
+
     if hasattr(process, 'hltEcalDigisGPU'):
         process.hltEcalDigisPortable = cms.EDProducer("EcalRawToDigiPortable@alpaka",
             FEDs = process.hltEcalDigisGPU.FEDs,
@@ -913,7 +912,7 @@ def customizeHLTforAlpaka(process):
 
     process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
     process.load('Configuration.StandardSequences.Accelerators_cff')
-    
+
     process = customizeHLTforAlpakaEcalLocalReco(process)
     process = customizeHLTforAlpakaPixelReco(process)
     process = customizeHLTforAlpakaParticleFlowClustering(process)
