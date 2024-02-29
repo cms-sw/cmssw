@@ -294,7 +294,6 @@ namespace edm {
 
     void throwAboutModulesRequiringLuminosityBlockSynchronization() const;
     void warnAboutModulesRequiringRunSynchronization() const;
-    void warnAboutLegacyModules() const;
 
     bool needToCallNext() const { return needToCallNext_; }
     void setNeedToCallNext(bool val) { needToCallNext_ = val; }
