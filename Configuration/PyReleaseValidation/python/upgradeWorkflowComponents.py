@@ -2817,7 +2817,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2023',
         'Era' : 'Run3_2023',
         'BeamSpot': 'DBrealistic',
-        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+        'ScenToRun' : ['GenSim','Digi','RecoNanoFakeHLT','HARVESTNanoFakeHLT','ALCA'],
     },
     '2024' : {
         'Geom' : 'DB:Extended',
