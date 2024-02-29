@@ -8,7 +8,6 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include <vector>
@@ -20,7 +19,7 @@ public:
       : produceCollection_(conf.getParameter<bool>("produceTrackCollection")),
         produceMask_(conf.getParameter<bool>("produceMask")),
         tracksToken_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
-        inputTrkRegionToken_(consumes<edm::OwnVector<TrackingRegion>>(conf.getParameter<edm::InputTag>("regions"))),
+        inputTrkRegionToken_(consumes(conf.getParameter<edm::InputTag>("regions"))),
         outputTracksToken_(produceCollection_ ? produces<reco::TrackCollection>()
                                               : edm::EDPutTokenT<reco::TrackCollection>{}),
         outputMaskToken_(produceMask_ ? produces<std::vector<bool>>() : edm::EDPutTokenT<std::vector<bool>>{}) {}
@@ -46,7 +45,7 @@ private:
     MaskCollection mask(tracks.size(), false);  // output mask
 
     for (auto const& region : regions) {
-      region.checkTracks(tracks, mask);
+      region->checkTracks(tracks, mask);
     }
 
     if (produceCollection_) {
@@ -71,7 +70,7 @@ private:
   const bool produceCollection_;
   const bool produceMask_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-  const edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> inputTrkRegionToken_;
+  const edm::EDGetTokenT<std::vector<std::unique_ptr<TrackingRegion>>> inputTrkRegionToken_;
   const edm::EDPutTokenT<reco::TrackCollection> outputTracksToken_;
   const edm::EDPutTokenT<std::vector<bool>> outputMaskToken_;
 };

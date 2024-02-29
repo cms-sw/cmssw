@@ -10,13 +10,15 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
+
+#include <memory>
+#include <vector>
 
 namespace {
   class ImplBase;
@@ -260,7 +262,7 @@ namespace {
     public:
       class const_iterator {
       public:
-        using internal_iterator_type = edm::OwnVector<TrackingRegion>::const_iterator;
+        using internal_iterator_type = std::vector<std::unique_ptr<TrackingRegion>>::const_iterator;
         using value_type = RegionLayers;
         using difference_type = internal_iterator_type::difference_type;
 
@@ -268,7 +270,7 @@ namespace {
                        const std::vector<SeedingLayerSetsHits::SeedingLayerSet>* layerPairs)
             : iter_(iter), layerPairs_(layerPairs) {}
 
-        value_type operator*() const { return value_type(&(*iter_), layerPairs_); }
+        value_type operator*() const { return value_type(&(**iter_), layerPairs_); }
 
         const_iterator& operator++() {
           ++iter_;
@@ -289,7 +291,7 @@ namespace {
       };
 
       EventTmp(const SeedingLayerSetsHits* seedingLayerSetsHits,
-               const edm::OwnVector<TrackingRegion>* regions,
+               const std::vector<std::unique_ptr<TrackingRegion>>* regions,
                const std::vector<unsigned>& layerPairBegins)
           : seedingLayerSetsHits_(seedingLayerSetsHits), regions_(regions) {
         // construct the pairs from the sets
@@ -349,7 +351,7 @@ namespace {
 
     private:
       const SeedingLayerSetsHits* seedingLayerSetsHits_;
-      const edm::OwnVector<TrackingRegion>* regions_;
+      const std::vector<std::unique_ptr<TrackingRegion>>* regions_;
       std::vector<SeedingLayerSetsHits::SeedingLayerSet> layerPairs;
     };
 
@@ -359,7 +361,7 @@ namespace {
                           edm::ConsumesCollector iC)
         : layerPairBegins_(layerPairBegins),
           seedingLayerToken_(iC.consumes<SeedingLayerSetsHits>(seedingLayerTag)),
-          regionToken_(iC.consumes<edm::OwnVector<TrackingRegion>>(regionTag)) {}
+          regionToken_(iC.consumes(regionTag)) {}
 
     EventTmp beginEvent(const edm::Event& iEvent) const {
       edm::Handle<SeedingLayerSetsHits> hlayers;
@@ -370,16 +372,14 @@ namespace {
             << "HitPairEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 2, got "
             << layers->numberOfLayersInSet()
             << ". This is likely caused by a configuration error of this module, or SeedingLayersEDProducer.";
-      edm::Handle<edm::OwnVector<TrackingRegion>> hregions;
-      iEvent.getByToken(regionToken_, hregions);
-
-      return EventTmp(layers, hregions.product(), *layerPairBegins_);
+      auto const& regions = iEvent.get(regionToken_);
+      return EventTmp(layers, &regions, *layerPairBegins_);
     }
 
   private:
     const std::vector<unsigned>* layerPairBegins_;
     edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
-    edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> regionToken_;
+    edm::EDGetTokenT<std::vector<std::unique_ptr<TrackingRegion>>> regionToken_;
   };
 
   /////
