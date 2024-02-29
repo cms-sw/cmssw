@@ -26,7 +26,7 @@ pfmetTable = simpleSingletonCandidateFlatTableProducer.clone(
 
 rawMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     src = pfmetTable.src,
-    name = cms.string("RawMET"),
+    name = cms.string("RawPFMET"),
     doc = cms.string("raw PF MET"),
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
        pt  = Var("uncorPt",  float, doc="pt", precision=10),
