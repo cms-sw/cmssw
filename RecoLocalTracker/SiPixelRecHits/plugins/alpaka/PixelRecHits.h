@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t numElements,
                                     uint32_t nonEmptyModules,
                                     SiPixelClustersSoAConstView clusters,
-                                    TrackingRecHitSoAView<TrackerTraits> hits) const {
+                                    reco::TrackingRecHitSoAView<TrackerTraits> hits) const {
         ALPAKA_ASSERT_ACC(cpeParams);
 
         // outer loop: one block per module

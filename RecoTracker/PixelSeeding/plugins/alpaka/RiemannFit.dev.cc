@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                   TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
-                                  TrackingRecHitSoAConstView<TrackerTraits> hh,
+                                  reco::TrackingRecHitSoAConstView<TrackerTraits> hh,
                                   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -174,7 +174,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         riemannFit::fromCircleToPerigee(acc, circle_fit[local_idx]);
 
-        TracksUtilities<TrackerTraits>::copyFromCircle(results_view,
+        reco::TracksUtilities<TrackerTraits>::copyFromCircle(results_view,
                                                        circle_fit[local_idx].par,
                                                        circle_fit[local_idx].cov,
                                                        line_fit.par,
@@ -208,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchRiemannKernels(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+  void HelixFit<TrackerTraits>::launchRiemannKernels(const reco::TrackingRecHitSoAConstView<TrackerTraits> &hv,
                                                      pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
                                                      uint32_t nhits,
                                                      uint32_t maxNumberOfTuples,

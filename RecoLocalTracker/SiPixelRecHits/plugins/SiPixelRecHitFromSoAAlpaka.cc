@@ -23,7 +23,7 @@
 
 template <typename TrackerTraits>
 class SiPixelRecHitFromSoAAlpaka : public edm::global::EDProducer<> {
-  using HitModuleStartArray = typename TrackingRecHitSoA<TrackerTraits>::HitModuleStartArray;
+  using HitModuleStartArray = typename reco::TrackingRecHitSoA<TrackerTraits>::HitModuleStartArray;
   using hindex_type = typename TrackerTraits::hindex_type;
   using HMSstorage = typename std::vector<hindex_type>;
 

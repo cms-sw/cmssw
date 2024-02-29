@@ -577,7 +577,7 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
                                                         const TracksHost& patatracks_tsoa,
                                                         std::vector<int>& trkGood,
                                                         std::vector<int>& vtxGood) {
-  using patatrackHelpers = TracksUtilities<pixelTopology::Phase1>;
+  using patatrackHelpers = reco::TracksUtilities<pixelTopology::Phase1>;
   const auto maxTracks = patatracks_tsoa.view().metadata().size();
   const int nv = patavtx_soa.view().nvFinal();
   trkGood.clear();
@@ -604,7 +604,7 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
         pTSquaredSum[vtx_ass_to_track] += patatrackPt * patatrackPt;
       }
     }
-    if (nHits > 0 and quality[trk_idx] >= pixelTrack::Quality::loose) {
+    if (nHits > 0 and quality[trk_idx] >= reco::pixelTrack::Quality::loose) {
       trkGood.push_back(trk_idx);
     }
   }
@@ -629,7 +629,7 @@ std::pair<float, float> L2TauNNProducerAlpaka::impactParameter(int it,
   /* dxy and dz */
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
-  TracksUtilities<pixelTopology::Phase1>::copyToDense(patatracks_tsoa.view(), ipar, icov, it);
+  reco::TracksUtilities<pixelTopology::Phase1>::copyToDense(patatracks_tsoa.view(), ipar, icov, it);
   riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
   LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
   float sp = std::sin(patatrackPhi);
@@ -659,7 +659,7 @@ void L2TauNNProducerAlpaka::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
                                            const reco::BeamSpot& beamspot,
                                            const MagneticField* magfi) {
   using NNInputs = L2TauTagNNv1::NNInputs;
-  using patatrackHelpers = TracksUtilities<pixelTopology::Phase1>;
+  using patatrackHelpers = reco::TracksUtilities<pixelTopology::Phase1>;
   float deta, dphi;
   int eta_idx = 0;
   int phi_idx = 0;

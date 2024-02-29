@@ -98,7 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     struct ParamsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> : public AlgoParams {
       using TT = TrackerTraits;
-      using QualityCuts = ::pixelTrack::QualityCutsT<TT>;  //track quality cuts
+      using QualityCuts = ::reco::pixelTrack::QualityCutsT<TT>;  //track quality cuts
       using CellCuts = caPixelDoublets::CellCutsT<TT>;     //cell building cuts
       using CAParams = CAParamsT<TT>;                      //params to be used on device
 
@@ -149,7 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     struct ParamsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> : public AlgoParams {
       using TT = TrackerTraits;
-      using QualityCuts = ::pixelTrack::QualityCutsT<TT>;
+      using QualityCuts = ::reco::pixelTrack::QualityCutsT<TT>;
       using CellCuts = caPixelDoublets::CellCutsT<TT>;
       using CAParams = CAParamsT<TT>;
 
@@ -198,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned long long nZeroTrackCells;
     };
 
-    using Quality = ::pixelTrack::Quality;
+    using Quality = ::reco::pixelTrack::Quality;
 
   }  // namespace caHitNtupletGenerator
 
@@ -206,14 +206,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class CAHitNtupletGeneratorKernels {
   public:
     using TrackerTraits = TTTraits;
-    using QualityCuts = ::pixelTrack::QualityCutsT<TrackerTraits>;
+    using QualityCuts = ::reco::pixelTrack::QualityCutsT<TrackerTraits>;
     using CellCuts = caPixelDoublets::CellCutsT<TrackerTraits>;
     using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
     using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
     using Counters = caHitNtupletGenerator::Counters;
 
-    using HitsView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsView = reco::TrackingRecHitSoAView<TrackerTraits>;
+    using HitsConstView = reco::TrackingRecHitSoAConstView<TrackerTraits>;
     using TkSoAView = reco::TrackSoAView<TrackerTraits>;
 
     using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
@@ -230,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using CACell = CACellT<TrackerTraits>;
 
-    using Quality = ::pixelTrack::Quality;
+    using Quality = ::reco::pixelTrack::Quality;
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
 
     CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, uint32_t offsetBPIX2, Queue& queue);

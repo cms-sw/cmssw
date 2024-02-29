@@ -25,7 +25,7 @@ namespace pixelCPEforDevice {
 
   constexpr float micronsToCm = 1.0e-4f;
 
-  using Status = SiPixelHitStatus;
+  using Status = reco::SiPixelHitStatus;
   using Frame = SOAFrame<float>;
   using Rotation = SOARotation<float>;
 

@@ -33,7 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
     using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
 
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsConstView = reco::TrackingRecHitSoAConstView<TrackerTraits>;
     using hindex_type = typename TrackerTraits::hindex_type;
     using tindex_type = typename TrackerTraits::tindex_type;
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
@@ -41,8 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
 
     using HitContainer = typename reco::TrackSoA<TrackerTraits>::HitContainer;
-    using Quality = ::pixelTrack::Quality;
-    static constexpr auto bad = ::pixelTrack::Quality::bad;
+    using Quality = ::reco::pixelTrack::Quality;
+    static constexpr auto bad = ::reco::pixelTrack::Quality::bad;
 
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 

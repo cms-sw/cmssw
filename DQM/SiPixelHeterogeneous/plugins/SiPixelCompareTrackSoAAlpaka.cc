@@ -71,7 +71,7 @@ private:
   const edm::EDGetTokenT<PixelTrackSoA> tokenSoATrackDevice_;
   const std::string topFolderName_;
   const bool useQualityCut_;
-  const pixelTrack::Quality minQuality_;
+  const reco::pixelTrack::Quality minQuality_;
   const float dr2cut_;
   MonitorElement* hnTracks_;
   MonitorElement* hnLooseAndAboveTracks_;
@@ -118,7 +118,7 @@ SiPixelCompareTrackSoAAlpaka<T>::SiPixelCompareTrackSoAAlpaka(const edm::Paramet
       tokenSoATrackDevice_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcDevice"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
-      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
+      minQuality_(reco::pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
       dr2cut_(iConfig.getParameter<double>("deltaR2cut")) {}
 
 //
@@ -126,7 +126,7 @@ SiPixelCompareTrackSoAAlpaka<T>::SiPixelCompareTrackSoAAlpaka(const edm::Paramet
 //
 template <typename T>
 void SiPixelCompareTrackSoAAlpaka<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using helper = TracksUtilities<T>;
+  using helper = reco::TracksUtilities<T>;
   const auto& tsoaHandleHost = iEvent.getHandle(tokenSoATrackHost_);
   const auto& tsoaHandleDevice = iEvent.getHandle(tokenSoATrackDevice_);
   if (not tsoaHandleHost or not tsoaHandleDevice) {

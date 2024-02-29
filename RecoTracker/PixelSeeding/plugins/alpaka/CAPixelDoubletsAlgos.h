@@ -151,7 +151,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     const float minRadius = hardPtCut * 87.78f;
     const float minRadius2T4 = 4.f * minRadius * minRadius;
 
-    using PhiBinner = typename TrackingRecHitSoA<TrackerTraits>::PhiBinner;
+    using PhiBinner = typename reco::TrackingRecHitSoA<TrackerTraits>::PhiBinner;
 
     auto const& __restrict__ phiBinner = hh.phiBinner();
     uint32_t const* __restrict__ offsets = hh.hitsLayerStart().data();

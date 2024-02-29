@@ -5,9 +5,7 @@
   <class name="reco::TrackSoAView<pixelTopology::Phase1>"/>
 
   <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::Phase1>>"/>
-  <class name="pixelTrack::TracksHostPhase1" ClassVersion="3">
-    <version ClassVersion="3" checksum="794224446"/>
-  </class>
+  <class name="pixelTrack::TracksHostPhase1"/>
   <class name="edm::Wrapper<pixelTrack::TracksHostPhase1>" splitLevel="0"/>
 
   <class name="reco::TrackSoA<pixelTopology::Phase2>"/>
@@ -16,9 +14,7 @@
   <class name="reco::TrackSoAView<pixelTopology::Phase2>"/>
 
   <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::Phase2>>"/>
-  <class name="pixelTrack::TracksHostPhase2" ClassVersion="3">
-    <version ClassVersion="3" checksum="3813159454"/>
-  </class>
+  <class name="pixelTrack::TracksHostPhase2"/>
   <class name="edm::Wrapper<pixelTrack::TracksHostPhase2>" splitLevel="0"/>
 
   <class name="reco::TrackSoA<pixelTopology::HIonPhase1>"/>
@@ -27,8 +23,6 @@
   <class name="reco::TrackSoAView<pixelTopology::HIonPhase1>"/>
 
   <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::HIonPhase1>>"/>
-  <class name="pixelTrack::TracksHostHIonPhase1" ClassVersion="3">
-    <version ClassVersion="3" checksum="3935456462"/>
-  </class>
+  <class name="pixelTrack::TracksHostHIonPhase1"/>
   <class name="edm::Wrapper<pixelTrack::TracksHostHIonPhase1>" splitLevel="0"/>
 </lcgdict>

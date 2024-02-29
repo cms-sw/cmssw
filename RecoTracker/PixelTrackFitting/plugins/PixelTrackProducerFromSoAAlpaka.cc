@@ -47,7 +47,7 @@
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
   using TrackSoAHost = TracksHost<TrackerTraits>;
-  using TracksHelpers = TracksUtilities<TrackerTraits>;
+  using TracksHelpers = reco::TracksUtilities<TrackerTraits>;
   using HMSstorage = std::vector<uint32_t>;
   using IndToEdm = std::vector<uint32_t>;
 
@@ -70,7 +70,7 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttTopoToken_;
 
   int32_t const minNumberOfHits_;
-  pixelTrack::Quality const minQuality_;
+  reco::pixelTrack::Quality const minQuality_;
 };
 
 template <typename TrackerTraits>
@@ -82,12 +82,12 @@ PixelTrackProducerFromSoAAlpaka<TrackerTraits>::PixelTrackProducerFromSoAAlpaka(
       idealMagneticFieldToken_(esConsumes()),
       ttTopoToken_(esConsumes()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
-      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
-  if (minQuality_ == pixelTrack::Quality::notQuality) {
+      minQuality_(reco::pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
+  if (minQuality_ == reco::pixelTrack::Quality::notQuality) {
     throw cms::Exception("PixelTrackConfiguration")
-        << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
+        << iConfig.getParameter<std::string>("minQuality") + " is not a reco::pixelTrack::Quality";
   }
-  if (minQuality_ < pixelTrack::Quality::dup) {
+  if (minQuality_ < reco::pixelTrack::Quality::dup) {
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " not supported";
   }
@@ -123,7 +123,7 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
                                                  reco::TrackBase::tight,
                                                  reco::TrackBase::tight,
                                                  reco::TrackBase::highPurity};
-  assert(reco::TrackBase::highPurity == recoQuality[int(pixelTrack::Quality::highPurity)]);
+  assert(reco::TrackBase::highPurity == recoQuality[int(reco::pixelTrack::Quality::highPurity)]);
 
 #ifdef GPU_DEBUG
   std::cout << "Converting soa helix in reco tracks" << std::endl;

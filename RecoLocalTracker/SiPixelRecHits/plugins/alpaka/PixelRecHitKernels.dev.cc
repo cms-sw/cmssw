@@ -106,7 +106,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Use a view since it's runtime sized and can't use the implicit definition
           // see HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h:100
-          typename TrackingRecHitSoA<TrackerTraits>::PhiBinnerView hrv_d;
+          typename reco::TrackingRecHitSoA<TrackerTraits>::PhiBinnerView hrv_d;
           hrv_d.assoc = &(hits_d.view().phiBinner());
           hrv_d.offSize = -1;
           hrv_d.offStorage = nullptr;

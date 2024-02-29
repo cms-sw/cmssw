@@ -27,11 +27,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CAHitNtupletGenerator {
   public:
-    using HitsView = TrackingRecHitSoAView<TrackerTraits>;
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsView = reco::TrackingRecHitSoAView<TrackerTraits>;
+    using HitsConstView = reco::TrackingRecHitSoAConstView<TrackerTraits>;
     using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
     using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
-    using hindex_type = typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
+    using hindex_type = typename reco::TrackingRecHitSoA<TrackerTraits>::hindex_type;
 
     using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
     using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
@@ -46,9 +46,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
     using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
 
-    using Quality = ::pixelTrack::Quality;
+    using Quality = ::reco::pixelTrack::Quality;
 
-    using QualityCuts = ::pixelTrack::QualityCutsT<TrackerTraits>;
+    using QualityCuts = ::reco::pixelTrack::QualityCutsT<TrackerTraits>;
     using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
     using Counters = caHitNtupletGenerator::Counters;
 

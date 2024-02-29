@@ -10,26 +10,26 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 template <typename TrackerTraits>
-class TrackingRecHitHost : public PortableHostCollection<TrackingRecHitLayout<TrackerTraits>> {
+class TrackingRecHitHost : public PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>> {
 public:
-  using hitSoA = TrackingRecHitSoA<TrackerTraits>;
-
-  // Need to decorate the class with the inherited portable accessors being now a template
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::view;
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::const_view;
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::buffer;
+  using hitSoA = reco::TrackingRecHitSoA<TrackerTraits>;
+  
+  //Need to decorate the class with the inherited portable accessors being now a template
+  using PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>::view;
+  using PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>::const_view;
+  using PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>::buffer;
 
   TrackingRecHitHost() = default;
 
   // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
   template <typename TQueue>
   explicit TrackingRecHitHost(TQueue queue, uint32_t nHits)
-      : PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {}
+      : PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {}
 
   // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
   template <typename TQueue>
   explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
-      : PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {
+      : PortableHostCollection<reco::TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {
     std::copy(hitsModuleStart, hitsModuleStart + TrackerTraits::numberOfModules + 1, view().hitsModuleStart().data());
     view().offsetBPIX2() = offsetBPIX2;
   }
