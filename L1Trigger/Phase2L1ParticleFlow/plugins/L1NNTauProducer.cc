@@ -255,7 +255,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
 
   //Firmware Tau
   l1ct::Tau l1ctTau;
-  l1ctTau.hwPt = l1ct::pt_t(pt);  //l1gt is <16,11> and currently <16,14>
+  l1ctTau.hwPt = l1ct::pt_t(pt * NN_ouput.nn_pt_correction);  //l1gt is <16,11> and currently <16,14>
   l1ctTau.hwEta = l1ct::Scales::makeGlbEta(seed.eta());       // seed.eta() and seed.phi() are in physical coordinates
   l1ctTau.hwPhi = l1ct::Scales::makeGlbPhi(seed.phi());
 
