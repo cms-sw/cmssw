@@ -41,9 +41,9 @@ TString lumi_sqrtS = "";
 bool writeExraLumi = false;
 bool drawLogo = false;
 
-void CMS_lumi(TPad* pad, int iPeriod = 3, int iPosX = 10);
+void CMS_lumi(TPad* pad, int iPeriod = 3, int iPosX = 10, TString RLabel = "");
 
-inline void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
+inline void CMS_lumi(TPad* pad, int iPeriod, int iPosX, TString RLabel) {
   bool outOfFrame = false;
   if (iPosX / 10 == 0) {
     outOfFrame = true;
@@ -139,7 +139,11 @@ inline void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
   latex.SetTextFont(42);
   latex.SetTextAlign(31);
   latex.SetTextSize(lumiTextSize * t);
-  latex.DrawLatex(1 - r, 1 - t + lumiTextOffset * t, lumiText);
+  if (RLabel != "") {
+    latex.DrawLatex(1 - r, 1 - t + lumiTextOffset * t, RLabel);
+  } else {
+    latex.DrawLatex(1 - r, 1 - t + lumiTextOffset * t, lumiText);
+  }
 
   if (outOfFrame) {
     latex.SetTextFont(cmsTextFont);

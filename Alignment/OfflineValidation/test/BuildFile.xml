@@ -6,6 +6,9 @@
   <test name="PVall" command="testingScripts/test_unitPV.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
+  <test name="Zmumuall" command="testingScripts/test_unitZmumu.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
   <test name="SplitVall" command="testingScripts/test_unitSplitV.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
