@@ -72,7 +72,6 @@ pfClusterSoAProducer = _pfClusterSoAProducer.clone(
 
 legacyPFClusterProducer = _legacyPFClusterProducer.clone(
         src = 'pfClusterSoAProducer',
-        pfClusterParams = 'pfClusterParamsESProducer:',
         pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
         recHitsSource = 'legacyPFRecHitProducer',
         PFRecHitsLabelIn = 'pfRecHitSoAProducerHCAL'
@@ -135,7 +134,6 @@ pfClusterSoAProducerHBHEOnly = _pfClusterSoAProducer.clone(
 
 legacyPFClusterProducerHBHEOnly = _legacyPFClusterProducer.clone(
         src = 'pfClusterSoAProducerHBHEOnly',
-        pfClusterParams = 'pfClusterParamsESProducer:',
         pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder,
         recHitsSource = 'legacyPFRecHitProducerHBHEOnly',
         PFRecHitsLabelIn = 'pfRecHitSoAProducerHBHEOnly'
