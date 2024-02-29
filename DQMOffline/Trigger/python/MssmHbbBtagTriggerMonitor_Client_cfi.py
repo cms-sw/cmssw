@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/HIG/MssmHbb/control/btag/*",
+        "HLT/SUS/MssmHbb/control/btag/*",
     ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
