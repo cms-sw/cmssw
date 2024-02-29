@@ -37,5 +37,8 @@ autoNANO = {
                   'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS',
-                'customize': '@PHYS+@L1'}
+                'customize': '@PHYS+@L1'},
+    # Add lepton time-life info tables through customize combined with PHYS
+    'LepTimeLife' : {'sequence': '@PHYS',
+                     'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
 }
