@@ -406,10 +406,8 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
  
     MSSMHbb  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
-            "HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
-            "HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
-            "HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
+            "HLT_DoublePFJets116MaxDeta1p6_PNet2BTag_0p11_v",
+            "HLT_DoublePFJets128MaxDeta1p6_PNet2BTag_0p11_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
@@ -420,10 +418,8 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
  
     MSSMHbbmu  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
-            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
-            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
-            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
+            "HLT_Mu12_DoublePFJets40MaxDeta1p6_PNet2BTag_0p11_v",
+            "HLT_Mu12_DoublePFJets54MaxDeta1p6_PNet2BTag_0p11_v",
             ),
         recMuonLabel  = cms.string("muons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
@@ -455,8 +451,8 @@ hltHiggsValidator_run3.VBFHbb_2btag.jetTagLabel = "pfDeepCSVJetTags:probb"
 hltHiggsValidator_run3.ZnnHbb.jetTagLabel = "pfDeepCSVJetTags:probb"
 hltHiggsValidator_run3.X4b.jetTagLabel = "pfDeepCSVJetTags:probb"
 hltHiggsValidator_run3.AHttH.jetTagLabel = "pfDeepCSVJetTags:probb"
-hltHiggsValidator_run3.MSSMHbb.jetTagLabel = "pfDeepCSVJetTags:probb"
-hltHiggsValidator_run3.MSSMHbbmu.jetTagLabel = "pfDeepCSVJetTags:probb"
+hltHiggsValidator_run3.MSSMHbb.jetTagLabel = "pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll"
+hltHiggsValidator_run3.MSSMHbbmu.jetTagLabel = "pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll"
 
 run3_common.toReplaceWith( hltHiggsValidator, hltHiggsValidator_run3)
 
