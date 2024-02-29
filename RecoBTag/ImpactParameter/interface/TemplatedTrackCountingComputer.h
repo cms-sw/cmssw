@@ -97,9 +97,9 @@ protected:
           if (tkip.variableJTA(varJTApars)[i])
             significances.insert(significance);
         } else  // no using variable JTA, use the default method
-            if (m_deltaR <= 0 ||
-                ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
-          significances.insert(significance);
+          if (m_deltaR <= 0 ||
+              ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
+            significances.insert(significance);
       }
     }
 

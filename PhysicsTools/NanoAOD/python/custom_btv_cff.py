@@ -1,31 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import Var
-#from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger, hfJetShowerShapeforNanoAOD
 from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable, subJetTable
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import addToProcessAndTask, getPatAlgosToolsTask
 from PhysicsTools.NanoAOD.common_cff import Var, CandVars
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
-
+from PhysicsTools.NanoAOD.btvMC_cff import * 
 ## Move PFNano (https://github.com/cms-jet/PFNano/) to NanoAOD
 
-
 ## From: https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addBTV.py
-## Define customized GenParticles 
-def customize_BTV_GenTable(process):
-    process.finalGenParticles.select += [
-        "keep (4 <= abs(pdgId) <= 5) && statusFlags().isLastCopy()", # BTV: keep b/c quarks in their last copy
-        "keep (abs(pdgId) == 310 || abs(pdgId) == 3122) && statusFlags().isLastCopy()", # BTV: keep K0s and Lambdas in their last copy
-    ]
-    process.genParticleTable.variables = cms.PSet(
-        process.genParticleTable.variables,
-        vx = Var("vx", "float", doc="x coordinate of vertex position"),
-        vy = Var("vy", "float", doc="y coordinate of vertex position"),
-        vz = Var("vz", "float", doc="z coordinate of vertex position"),
-        genPartIdxMother2 = Var("?numberOfMothers>1?motherRef(1).key():-1", "int", doc="index of the second mother particle, if valid"),
-    )
-
 def update_jets_AK4(process):
     # Based on ``nanoAOD_addDeepInfo``
     # in https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/nano_cff.py
@@ -449,16 +433,10 @@ def get_ParticleTransformerAK4_outputs():
 
     return ParticleTransformerAK4OutputVars
 
-def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
-    if addAK4:
-        process = update_jets_AK4(process)
-    if addAK8:
-        process = update_jets_AK8(process)
-        process = update_jets_AK8_subjet(process)
-
+def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
     process.customizeJetTask = cms.Task()
     process.schedule.associate(process.customizeJetTask)
-
+    
     CommonVars = cms.PSet(
         Proba=Var("bDiscriminator('pfJetProbabilityBJetTags')",
                   float,
@@ -489,89 +467,90 @@ def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
     )
 
     # AK4
-    process.customJetExtTable = cms.EDProducer(
-        "SimpleCandidateFlatTableProducer",
-        src=jetPuppiTable.src,
-        cut=jetPuppiTable.cut,
-        name=jetPuppiTable.name,
-        doc=jetPuppiTable.doc,
-        singleton=cms.bool(False),  # the number of entries is variable
-        extension=cms.bool(True),  # this is the extension table for Jets
-        variables=cms.PSet(
-            CommonVars,
-            HadronCountingVars if runOnMC else cms.PSet(), # hadrons from Generator only relevant for MC
-            get_DeepCSV_vars(),
-            get_DeepJet_outputs(),  # outputs are added in any case, inputs only if requested
-            get_ParticleNetAK4_outputs(),
-            get_ParticleTransformerAK4_outputs(),
-        ))
-
-    # disable the ParT branches in default jetPuppi table
-    from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_122, run3_nanoAOD_124
-    (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-        process.jetPuppiTable.variables,
-        btagRobustParTAK4B = None,
-        btagRobustParTAK4CvL = None,
-        btagRobustParTAK4CvB = None,
-        btagRobustParTAK4QG = None,
-    )
-    
-    
-    # from Run3 onwards, always set storeAK4Truth to True for MC
-    process.customAK4ConstituentsForDeepJetTable = cms.EDProducer("PatJetDeepJetTableProducer",
-                                                                      jets = cms.InputTag("linkedObjects","jets"),
-                                                                      storeAK4Truth = cms.bool(runOnMC),
-                                                                      )
-    
-    # AK8
-    process.customFatJetExtTable = cms.EDProducer(
-        "SimpleCandidateFlatTableProducer",
-        src=fatJetTable.src,
-        cut=fatJetTable.cut,
-        name=fatJetTable.name,
-        doc=fatJetTable.doc,
-        singleton=cms.bool(False),  # the number of entries is variable
-        extension=cms.bool(True),  # this is the extension table for FatJets
-        variables=cms.PSet(
-            CommonVars,
-            #HadronCountingVars if runOnMC else cms.PSet(), # only necessary before 106x
-            get_DDX_vars() ,
-        ))
-
-    # Subjets
-    process.customSubJetExtTable = cms.EDProducer(
-        "SimpleCandidateFlatTableProducer",
-        src=subJetTable.src,
-        cut=subJetTable.cut,
-        name=subJetTable.name,
-        doc=subJetTable.doc,
-        singleton=cms.bool(False),  # the number of entries is variable
-        extension=cms.bool(True),  # this is the extension table for FatJets
-        variables=cms.PSet(
-            CommonVars,
-            #HadronCountingVars if runOnMC else cms.PSet(), # only necessary before 106x
-    ))
-
-    process.customSubJetMCExtTable = cms.EDProducer(
-    "SimpleCandidateFlatTableProducer",
-    src = subJetTable.src,
-    cut = subJetTable.cut,
-        name = subJetTable.name,
-        doc=subJetTable.doc,
-        singleton = cms.bool(False),
-        extension = cms.bool(True),
-        variables = cms.PSet(
-        subGenJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1",
-        int,
-        doc="index of matched gen Sub jet"),
-       )
-    )
-
     if addAK4:
+        if scheme == "btvSF":
+            _n_cpf = 3 
+            _n_npf = 3
+            _n_sv = 4
+        elif scheme == "DeepJet":
+            _n_cpf = 25 
+            _n_npf = 25
+            _n_sv = 4
+        elif scheme == "RobustParTAK4":
+            _n_cpf = 25 
+            _n_npf = 25
+            _n_sv = 12
+        process = update_jets_AK4(process)
+            
+        process.customJetExtTable = cms.EDProducer(
+            "SimpleCandidateFlatTableProducer",
+            src=jetPuppiTable.src,
+            cut=jetPuppiTable.cut,
+            name=jetPuppiTable.name,
+            doc=jetPuppiTable.doc,
+            singleton=cms.bool(False),  # the number of entries is variable
+            extension=cms.bool(True),  # this is the extension table for Jets
+            variables=cms.PSet(
+                CommonVars,
+                get_DeepCSV_vars(),
+                get_DeepJet_outputs(),  # outputs are added in any case, inputs only if requested
+                get_ParticleNetAK4_outputs(),
+                get_ParticleTransformerAK4_outputs(),
+            ))
+
+        # disable the ParT branches in default jetPuppi table
+        from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_122, run3_nanoAOD_124
+        (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+            process.jetPuppiTable.variables,
+            btagRobustParTAK4B = None,
+            btagRobustParTAK4CvL = None,
+            btagRobustParTAK4CvB = None,
+            btagRobustParTAK4QG = None,
+        )
+    
+    
+         # from Run3 onwards, always set storeAK4Truth to True for MC
+        process.customAK4ConstituentsForDeepJetTable = cms.EDProducer("PatJetDeepJetTableProducer",
+                                                                        jets = cms.InputTag("linkedObjects","jets"),
+                                                                        n_cpf=cms.uint32(_n_cpf),
+                                                                        n_npf=cms.uint32(_n_npf),
+                                                                        n_sv=cms.uint32(_n_sv)
+                                                                      )
         process.customizeJetTask.add(process.customJetExtTable)
         process.customizeJetTask.add(process.customAK4ConstituentsForDeepJetTable)
-
+    # AK8
     if addAK8:
+        process = update_jets_AK8(process)
+        process = update_jets_AK8_subjet(process)
+        process.customFatJetExtTable = cms.EDProducer(
+            "SimpleCandidateFlatTableProducer",
+            src=fatJetTable.src,
+            cut=fatJetTable.cut,
+            name=fatJetTable.name,
+            doc=fatJetTable.doc,
+            singleton=cms.bool(False),  # the number of entries is variable
+            extension=cms.bool(True),  # this is the extension table for FatJets
+            variables=cms.PSet(
+                CommonVars,
+                #HadronCountingVars if runOnMC else cms.PSet(), # only necessary before 106x
+                get_DDX_vars() ,
+            ))
+
+
+        # Subjets
+        process.customSubJetExtTable = cms.EDProducer(
+            "SimpleCandidateFlatTableProducer",
+            src=subJetTable.src,
+            cut=subJetTable.cut,
+            name=subJetTable.name,
+            doc=subJetTable.doc,
+            singleton=cms.bool(False),  # the number of entries is variable
+            extension=cms.bool(True),  # this is the extension table for FatJets
+            variables=cms.PSet(
+                CommonVars,
+                #HadronCountingVars if runOnMC else cms.PSet(), # only necessary before 106x
+        ))
+
         process.customizeJetTask.add(process.customFatJetExtTable)
         process.customizeJetTask.add(process.customSubJetExtTable)
         if runOnMC:
@@ -582,8 +561,8 @@ def add_BTV(process, runOnMC=False, addAK4=False, addAK8=False):
         customize_BTV_GenTable(process)
 
 #  From https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addPFCands_cff.py
-def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False):
-    process.customizedPFCandsTask = cms.Task( )
+def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
+    process.customizedPFCandsTask = cms.Task()
     process.schedule.associate(process.customizedPFCandsTask)
 
     process.finalJetsAK8Constituents = cms.EDProducer("PatJetConstituentPtrSelector",
@@ -599,19 +578,20 @@ def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False
     elif not addAK8:
         candList = cms.VInputTag(cms.InputTag("finalJetsAK4Constituents", "constituents"))
         process.customizedPFCandsTask.add(process.finalJetsAK4Constituents)
-        process.finalJetsConstituents = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        candInput = cms.InputTag("finalJetsConstituents")
+        process.finalJetsConstituentsTable = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
+        candInput = cms.InputTag("finalJetsConstituentsTable")
     elif not addAK4:
         candList = cms.VInputTag(cms.InputTag("finalJetsAK8Constituents", "constituents"))
         process.customizedPFCandsTask.add(process.finalJetsAK8Constituents)
-        process.finalJetsConstituents = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        candInput = cms.InputTag("finalJetsConstituents")
+        process.finalJetsConstituentsTable = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
+        candInput = cms.InputTag("finalJetsConstituentsTable")
     else:
         candList = cms.VInputTag(cms.InputTag("finalJetsAK4Constituents", "constituents"), cms.InputTag("finalJetsAK8Constituents", "constituents"))
         process.customizedPFCandsTask.add(process.finalJetsAK4Constituents)
         process.customizedPFCandsTask.add(process.finalJetsAK8Constituents)
-        process.finalJetsConstituents = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        candInput = cms.InputTag("finalJetsConstituents")
+        process.finalJetsConstituentsTable = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
+        candInput = cms.InputTag("finalJetsConstituentsTable")
+    
     process.customConstituentsExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                                         src = candInput,
                                                         cut = cms.string(""), #we should not filter after pruning
@@ -660,12 +640,15 @@ def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False
                                                         nameSV = cms.string("JetSVs"),
                                                         idx_nameSV = cms.string("sVIdx"),
                                                         )
-    if not allPF:
-        process.customizedPFCandsTask.add(process.finalJetsConstituents)
     process.customizedPFCandsTask.add(process.customConstituentsExtTable)
+
+    if not allPF:
+        process.customizedPFCandsTask.add(process.finalJetsConstituentsTable)
     # linkedObjects are WIP for Run3
-    process.customizedPFCandsTask.add(process.customAK8ConstituentsTable)
-    process.customizedPFCandsTask.add(process.customAK4ConstituentsTable)
+    if addAK8:
+        process.customizedPFCandsTask.add(process.customAK8ConstituentsTable)
+    if addAK4: 
+        process.customizedPFCandsTask.add(process.customAK4ConstituentsTable)
     
     if runOnMC:
 
@@ -731,18 +714,27 @@ def addPFCands(process, runOnMC=False, allPF = False, addAK4=False, addAK8=False
 
 ## Switches for BTV nano
 # Default(store SFs PFCands+TaggerInputs) for both AK4 & AK8 jets
-# nanoAOD_addbtagAK4_switch, nanoAOD_addbtagAK8_switch True, nanoAOD_allPF_switch  False
+# btvNano_addAK4_switch, btvNano_addAK8_switch True, btvNano_addPF_switch  False, TaggerInput = "btvSF"
 
-nanoAOD_allPF_switch = False  # Add all PF candidates, use for training
-nanoAOD_addbtagAK4_switch = True # AK4 SFs vars
-nanoAOD_addbtagAK8_switch = False # AK8 SFs vars
+btvNano_switch = cms.PSet(
+    btvNano_addAK4_switch = cms.untracked.bool(True),
+    btvNano_addAK8_switch = cms.untracked.bool(False),
+    btvNano_addallPF_switch = cms.untracked.bool(False),
+    TaggerInput = cms.string("btvSF")
+  )
 
-def PrepBTVCustomNanoAOD_MC(process):    
-    addPFCands(process, True, nanoAOD_allPF_switch,nanoAOD_addbtagAK4_switch,nanoAOD_addbtagAK8_switch)
-    add_BTV(process, True,nanoAOD_addbtagAK4_switch,nanoAOD_addbtagAK8_switch)
-    return process
-def PrepBTVCustomNanoAOD_DATA(process):
-    # only run if SFvar or allPFCands
-    addPFCands(process, False, nanoAOD_allPF_switch,nanoAOD_addbtagAK4_switch,nanoAOD_addbtagAK8_switch)
-    add_BTV(process, False,nanoAOD_addbtagAK4_switch,nanoAOD_addbtagAK8_switch)
+def BTVCustomNanoAOD(process):
+    addPFCands(process,btvNano_switch.btvNano_addallPF_switch,btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch)
+    add_BTV(process, btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch,btvNano_switch.TaggerInput)
+    ### for MC
+    customize_BTV_GenTable(process)
+    if btvNano_switch.btvNano_addallPF_switch:
+        process.nanoSequenceMC+=allPFPFCandsMCSequence
+    else:
+        if btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch :
+            process.nanoSequenceMC+=process.nanoSequenceMC+ak4ak8PFCandsMCSequence
+        elif btvNano_switch.btvNano_addAK4_switch and not btvNano_switch.btvNano_addAK8_switch :
+            process.nanoSequenceMC+=ak4onlyPFCandsMCSequence
+        elif not btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch:
+            process.nanoSequenceMC+=ak8onlyPFCandsMCSequence
     return process
