@@ -102,18 +102,17 @@ namespace Rivet {
       // useDecayPhotons=true allows for photons with tau ancestor,
       // photons from hadrons are vetoed by the PromptFinalState;
       // will be default DressedLeptons behaviour for Rivet >= 2.5.4
-      DressedLeptons dressed_leptons(
+      DressedLeptons prompt_dressed_leptons(
           prompt_photons, prompt_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
-      if (not _usePromptFinalStates)
-        dressed_leptons = DressedLeptons(photons, charged_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
-      declare(dressed_leptons, "DressedLeptons");
+      DressedLeptons dressed_leptons(photons, charged_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
+      declare(_usePromptFinalStates ? prompt_dressed_leptons : dressed_leptons, "DressedLeptons");
 
       declare(photons, "Photons");
 
       // Jets
       VetoedFinalState fsForJets(fs);
       if (_usePromptFinalStates and _excludePromptLeptonsFromJetClustering)
-        fsForJets.addVetoOnThisFinalState(dressed_leptons);
+        fsForJets.addVetoOnThisFinalState(prompt_dressed_leptons);
       JetAlg::Invisibles invisiblesStrategy = JetAlg::Invisibles::DECAY;
       if (_excludeNeutrinosFromJetClustering)
         invisiblesStrategy = JetAlg::Invisibles::NONE;
