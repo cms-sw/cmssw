@@ -179,6 +179,7 @@ private:
       float dZ =
           abs(floor(((t.getZ0() + z0_binning_[1]) / (binWidth))) - floor(((v.z0() + z0_binning_[1]) / (binWidth))));
 
+      // The following constants <14, 9>, <22, 9> are defined by the quantisation of the Neural Network
       ap_uint<14> ptEmulationBits = t.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1,
                                                      TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<14, 9> ptEmulation;
