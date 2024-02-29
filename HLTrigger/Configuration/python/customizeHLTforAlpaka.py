@@ -190,6 +190,10 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
             pfRecHits = cms.InputTag("hltPFRecHitSoAProducerHCALCPUSerial"),
             )
 
+    ## failsafe for fake menus
+    if(not hasattr(process,'hltParticleFlowClusterHBHE')):
+        return process
+
     process.hltLegacyPFClusterProducer = cms.EDProducer("LegacyPFClusterProducer",
             src = cms.InputTag("hltPFClusterSoAProducer"),
             pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
@@ -724,6 +728,10 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         src = cms.InputTag("hltPixelVerticesCPUSerial")
     )
 
+    ## failsafe for fake menus
+    if(not hasattr(process,'hltTrimmedPixelVertices')):
+        return process
+
     process.HLTRecopixelvertexingTask = cms.ConditionalTask(
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
@@ -904,7 +912,9 @@ def customizeHLTforAlpakaEcalLocalReco(process):
         if hasattr(process, 'hltEcalUncalibRecHitSoA'):
             delattr(process, 'hltEcalUncalibRecHitSoA')
 
-    process.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask(process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask, process.HLTPreshowerTask)
+        ## failsafe for fake menus
+        if hasattr(process, 'HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask') and hasattr(process, 'HLTPreshowerTask'):
+            process.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask(process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask, process.HLTPreshowerTask)
 
     return process
 
