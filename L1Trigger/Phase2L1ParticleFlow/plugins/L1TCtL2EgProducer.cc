@@ -370,7 +370,7 @@ l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso,
                  constituentsPtrs[egiso.src_idx].first,
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
-  tkem.setHwQual(gteg.quality);
+  tkem.setHwQual(gteg.qualityFlags);
   tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
   tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
   tkem.setPuppiIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PuppiIso));
@@ -390,12 +390,13 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
                         constituentsPtrs[egele.src_idx].first,
                         constituentsPtrs[egele.src_idx].second,
                         egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
-  tkele.setHwQual(gteg.quality);
+  tkele.setHwQual(gteg.qualityFlags);
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
   tkele.setEgBinaryWord(gteg.pack(), l1t::TkElectron::HWEncoding::GT);
   tkele.setIdScore(egele.floatIDScore());
   tkele.setCharge(egele.intCharge());
+  tkele.setTrkzVtx(l1gt::Scales::floatZ0(gteg.z0));
   return tkele;
 }
 
