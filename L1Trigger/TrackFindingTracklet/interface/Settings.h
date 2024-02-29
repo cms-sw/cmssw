@@ -893,7 +893,9 @@ namespace trklet {
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
-    // If set to true this will generate debub printout in text files
+    // If set to true this creates txt files, which the ROOT macros in 
+    // https://github.com/cms-L1TK/TrackPerf/tree/master/PatternReco
+    // can then use to study truncation of individual algo steps within tracklet chain.
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
                                                             {"TE", false},
                                                             {"CT", false},

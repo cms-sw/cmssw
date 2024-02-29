@@ -15,3 +15,8 @@ Both can be run via makeHists.csh .
 
 The optional "NewKF" track fit can be run by changing L1TRKALGO=HYBRID_NEWKF. It corresponds to the curent FW, but is is not yet the default, as only a basic duplicate track removal is available for it. It is configured via 
 TrackTrigger/python/ProducerSetup_cfi.py, (which also configures the DTC).
+
+For experts
+============
+
+1) To make plots to monitor data rates assicuated to truncation after each step in the tracklet pattern reco algo, set writeMonitorData_ = true in Settings.h . This creates txt files, which the ROOT macros in https://github.com/cms-L1TK/TrackPerf/tree/master/PatternReco can then use to study truncation of individual algo steps within tracklet chain.
