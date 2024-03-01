@@ -384,7 +384,7 @@ private:
     auto lumiTime = row.get<boost::posix_time::ptime>("start_time");
     LHCInfoPerLS* thisLumiSectionInfo = new LHCInfoPerLS(*m_fillPayload);
     thisLumiSectionInfo->setLumiSection(std::stoul(row.get<std::string>("lumisection_number")));
-    thisLumiSectionInfo->setRunNumber(std::stoull(row.get<std::string>("run_number")));
+    thisLumiSectionInfo->setRunNumber(std::stoul(row.get<std::string>("run_number")));
     m_lsIdMap[make_pair(thisLumiSectionInfo->runNumber(), thisLumiSectionInfo->lumiSection())] = make_pair(-1, -1);
     if (m_endFillMode) {
       m_tmpBuffer.emplace_back(make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
