@@ -205,12 +205,10 @@ public:
       : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
         m_startTime(),
         m_endTime(),
-        m_samplingInterval((unsigned int)pset.getUntrackedParameter<unsigned int>("samplingInterval", 300)),
         m_endFillMode(pset.getUntrackedParameter<bool>("endFill", true)),
         m_name(pset.getUntrackedParameter<std::string>("name", "LHCInfoPerFillPopConSourceHandler")),
         m_connectionString(pset.getUntrackedParameter<std::string>("connectionString", "")),
         m_ecalConnectionString(pset.getUntrackedParameter<std::string>("ecalConnectionString", "")),
-        m_dipSchema(pset.getUntrackedParameter<std::string>("DIPSchema", "")),
         m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
         m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
         m_fillPayload(),
@@ -227,13 +225,10 @@ public:
         m_endTime = now;
     }
   }
-  //L1: try with different m_dipSchema
-  //L2: try with different m_name
-  ~LHCInfoPerFillPopConSourceHandler() override = default;
-  void getNewObjects() override {
-    //reference to the last payload in the tag
-    Ref previousFill;
 
+  ~LHCInfoPerFillPopConSourceHandler() override = default;
+
+  void getNewObjects() override {
     //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
     if (tagInfo().size == 0) {
       edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
@@ -261,18 +256,6 @@ public:
                            << m_name << "::getNewObjects";
     }
 
-    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
-    cond::Time_t targetSince = 0;
-    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
-    if (!m_startTime.is_not_a_date_time()) {
-      targetSince = cond::time::from_boost(m_startTime);
-    }
-    if (lastSince > targetSince)
-      targetSince = lastSince;
-
-    edm::LogInfo(m_name) << "Starting sampling at "
-                         << boost::posix_time::to_simple_string(cond::time::to_boost(targetSince));
-
     //retrieve the data from the relational database source
     cond::persistency::ConnectionPool connection;
     //configure the connection
@@ -294,14 +277,23 @@ public:
       session3.transaction().commit();
     }
 
+    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
+    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
+
+    cond::Time_t startTimestamp = m_startTime.is_not_a_date_time() ? 0 : cond::time::from_boost(m_startTime);
+    cond::Time_t nextFillSearchTimestamp =
+        std::max(startTimestamp, m_endFillMode ? lastSince : m_prevPayload->createTime());
+
+    edm::LogInfo(m_name) << "Starting sampling at "
+                         << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+
     while (true) {
-      if (targetSince >= executionTimeIov) {
+      if (nextFillSearchTimestamp >= executionTimeIov) {
         edm::LogInfo(m_name) << "Sampling ended at the time "
                              << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
         break;
       }
-      bool updateEcal = false;
-      boost::posix_time::ptime targetTime = cond::time::to_boost(targetSince);
+      boost::posix_time::ptime nextFillSearchTime = cond::time::to_boost(nextFillSearchTimestamp);
       boost::posix_time::ptime startSampleTime;
       boost::posix_time::ptime endSampleTime;
 
@@ -309,12 +301,12 @@ public:
       oms.connect(m_omsBaseUrl);
       auto query = oms.query("fills");
 
-      edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(targetTime);
+      edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
       query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
-      if (targetTime > cond::time::to_boost(m_prevPayload->createTime())) {
-        query->filterGE("start_time", targetTime);
+      if (nextFillSearchTime > cond::time::to_boost(m_prevPayload->createTime())) {
+        query->filterGE("start_time", nextFillSearchTime);
       } else {
-        query->filterGT("start_time", targetTime);
+        query->filterGT("start_time", nextFillSearchTime);
       }
 
       query->filterLT("start_time", m_endTime);
@@ -337,12 +329,12 @@ public:
         edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at "
                              << cond::time::to_boost(startFillTime);
         endSampleTime = executionTime;
-        targetSince = executionTimeIov;
+        nextFillSearchTimestamp = executionTimeIov;
       } else {
         edm::LogInfo(m_name) << "Found fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime)
                              << " ending at " << cond::time::to_boost(endFillTime);
         endSampleTime = cond::time::to_boost(endFillTime);
-        targetSince = endFillTime;
+        nextFillSearchTimestamp = endFillTime;
       }
       if (m_endFillMode || ongoingFill) {
         getDipData(oms, startSampleTime, endSampleTime);
@@ -355,7 +347,7 @@ public:
           getCTPPSData(session, startSampleTime, endSampleTime);
           session.transaction().commit();
           session2.transaction().start(true);
-          getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
+          getEcalData(session2, startSampleTime, endSampleTime);
           session2.transaction().commit();
         }
       }
@@ -636,8 +628,7 @@ private:
 
   bool getEcalData(cond::persistency::Session& session,
                    const boost::posix_time::ptime& lowerTime,
-                   const boost::posix_time::ptime& upperTime,
-                   bool update) {
+                   const boost::posix_time::ptime& upperTime) {
     //run the sixth query against the CMS_DCS_ENV_PVSS_COND schema
     //Initializing the CMS_DCS_ENV_PVSS_COND schema.
     coral::ISchema& ECAL = session.nominalSchema();
@@ -712,7 +703,7 @@ private:
         }
         changeTime = cond::time::from_boost(chTime);
         cond::Time_t iovTime = changeTime;
-        if (!update and changeTime == firstTime)
+        if (changeTime == firstTime)
           iovTime = lowerLumi;
         coral::Attribute const& dipValAttribute = ECALDataCursor.currentRow()[std::string("DIP_value")];
         coral::Attribute const& valueNumberAttribute = ECALDataCursor.currentRow()[std::string("VALUE_NUMBER")];
@@ -730,7 +721,6 @@ private:
               theLHCInfoPerFillImpl::setElementData(it->first, dipVal, elementNr, value, payload, initializedVectors);
             }
           }
-          //}
         }
       }
     }
@@ -748,13 +738,11 @@ private:
   // starting date for sampling
   boost::posix_time::ptime m_startTime;
   boost::posix_time::ptime m_endTime;
-  // sampling interval in seconds
-  unsigned int m_samplingInterval;
   bool m_endFillMode = true;
   std::string m_name;
   //for reading from relational database source
   std::string m_connectionString, m_ecalConnectionString;
-  std::string m_dipSchema, m_authpath;
+  std::string m_authpath;
   std::string m_omsBaseUrl;
   std::unique_ptr<LHCInfoPerFill> m_fillPayload;
   std::shared_ptr<LHCInfoPerFill> m_prevPayload;

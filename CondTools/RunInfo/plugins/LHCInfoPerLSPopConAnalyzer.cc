@@ -119,17 +119,16 @@ namespace theLHCInfoPerLSImpl {
   }
 
 }  // namespace theLHCInfoPerLSImpl
+
 class LHCInfoPerLSPopConSourceHandler : public popcon::PopConSourceHandler<LHCInfoPerLS> {
 public:
   LHCInfoPerLSPopConSourceHandler(edm::ParameterSet const& pset)
       : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
         m_startTime(),
         m_endTime(),
-        m_samplingInterval((unsigned int)pset.getUntrackedParameter<unsigned int>("samplingInterval", 300)),
         m_endFillMode(pset.getUntrackedParameter<bool>("endFill", true)),
         m_name(pset.getUntrackedParameter<std::string>("name", "LHCInfoPerLSPopConSourceHandler")),
         m_connectionString(pset.getUntrackedParameter<std::string>("connectionString", "")),
-        m_dipSchema(pset.getUntrackedParameter<std::string>("DIPSchema", "")),
         m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
         m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
         m_fillPayload(),
@@ -146,9 +145,9 @@ public:
         m_endTime = now;
     }
   }
-  //L1: try with different m_dipSchema
-  //L2: try with different m_name
+
   ~LHCInfoPerLSPopConSourceHandler() override = default;
+
   void getNewObjects() override {
     //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
     if (tagInfo().size == 0) {
@@ -176,18 +175,6 @@ public:
       edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
                            << m_name << "::getNewObjects";
     }
-
-    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
-    cond::Time_t targetSince = 0;
-    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
-    if (!m_startTime.is_not_a_date_time()) {
-      targetSince = cond::time::from_boost(m_startTime);
-    }
-    if (lastSince > targetSince)
-      targetSince = lastSince;
-
-    edm::LogInfo(m_name) << "Starting sampling at "
-                         << boost::posix_time::to_simple_string(cond::time::to_boost(targetSince));
 
     //retrieve the data from the relational database source
     cond::persistency::ConnectionPool connection;
@@ -241,13 +228,22 @@ public:
       }
     }
 
+    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
+    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
+
+    cond::Time_t startTimestamp = m_startTime.is_not_a_date_time() ? 0 : cond::time::from_boost(m_startTime);
+    cond::Time_t nextFillSearchTimestamp = std::max(startTimestamp, m_endFillMode ? lastSince : m_prevEndFillTime);
+
+    edm::LogInfo(m_name) << "Starting sampling at "
+                         << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+
     while (true) {
-      if (targetSince >= executionTimeIov) {
+      if (nextFillSearchTimestamp >= executionTimeIov) {
         edm::LogInfo(m_name) << "Sampling ended at the time "
                              << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
         break;
       }
-      boost::posix_time::ptime targetTime = cond::time::to_boost(targetSince);
+      boost::posix_time::ptime nextFillSearchTime = cond::time::to_boost(nextFillSearchTimestamp);
       boost::posix_time::ptime startSampleTime;
       boost::posix_time::ptime endSampleTime;
 
@@ -268,12 +264,12 @@ public:
         }
         startSampleTime = cond::time::to_boost(lastSince);
       } else {
-        edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(targetTime);
+        edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
         query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
-        if (targetTime > cond::time::to_boost(m_prevStartFillTime)) {
-          query->filterGE("start_time", targetTime);
+        if (nextFillSearchTime > cond::time::to_boost(m_prevStartFillTime)) {
+          query->filterGE("start_time", nextFillSearchTime);
         } else {
-          query->filterGT("start_time", targetTime);
+          query->filterGT("start_time", nextFillSearchTime);
         }
 
         query->filterLT("start_time", m_endTime);
@@ -295,12 +291,12 @@ public:
         edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at "
                              << cond::time::to_boost(m_startFillTime);
         endSampleTime = executionTime;
-        targetSince = executionTimeIov;
+        nextFillSearchTimestamp = executionTimeIov;
       } else {
         edm::LogInfo(m_name) << "Found fill " << lhcFill << " created at " << cond::time::to_boost(m_startFillTime)
                              << " ending at " << cond::time::to_boost(m_endFillTime);
         endSampleTime = cond::time::to_boost(m_endFillTime);
-        targetSince = m_endFillTime;
+        nextFillSearchTimestamp = m_endFillTime;
       }
 
       if (m_endFillMode || ongoingFill) {
@@ -571,13 +567,11 @@ private:
   // starting date for sampling
   boost::posix_time::ptime m_startTime;
   boost::posix_time::ptime m_endTime;
-  // sampling interval in seconds
-  unsigned int m_samplingInterval;
   bool m_endFillMode = true;
   std::string m_name;
   //for reading from relational database source
-  std::string m_connectionString, m_ecalConnectionString;
-  std::string m_dipSchema, m_authpath;
+  std::string m_connectionString;
+  std::string m_authpath;
   std::string m_omsBaseUrl;
   std::unique_ptr<LHCInfoPerLS> m_fillPayload;
   std::shared_ptr<LHCInfoPerLS> m_prevPayload;
