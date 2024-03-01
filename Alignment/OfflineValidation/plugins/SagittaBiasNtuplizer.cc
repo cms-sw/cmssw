@@ -55,6 +55,15 @@ private:
                                                           const reco::VertexCollection& vertices);
   const bool useReco_;
   const bool doGen_;
+
+  const double muonEtaCut_;
+  const double muonPtCut_;
+  const double muondxySigCut_;
+  const double minMassWindowCut_;
+  const double maxMassWindowCut_;
+  const double d0CompatibilityCut_;
+  const double z0CompatibilityCut_;
+
   std::vector<double> pTthresholds_;
 
   // either on or the other!
@@ -112,6 +121,13 @@ private:
 SagittaBiasNtuplizer::SagittaBiasNtuplizer(const edm::ParameterSet& iConfig)
     : useReco_(iConfig.getParameter<bool>("useReco")),
       doGen_(iConfig.getParameter<bool>("doGen")),
+      muonEtaCut_(iConfig.getParameter<double>("muonEtaCut")),
+      muonPtCut_(iConfig.getParameter<double>("muonPtCut")),
+      muondxySigCut_(iConfig.getParameter<double>("muondxySigCut")),
+      minMassWindowCut_(iConfig.getParameter<double>("minMassWindowCut")),
+      maxMassWindowCut_(iConfig.getParameter<double>("maxMassWindowCut")),
+      d0CompatibilityCut_(iConfig.getParameter<double>("d0CompatibilityCut")),
+      z0CompatibilityCut_(iConfig.getParameter<double>("z0CompatibilityCut")),
       pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
@@ -222,6 +238,13 @@ void SagittaBiasNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<double>("muonEtaCut", 2.5)->setComment("muon system acceptance");
+  desc.add<double>("muonPtCut", 12.)->setComment("in GeV");
+  desc.add<double>("muondxySigCut", 4.)->setComment("significance of the d0 compatibility with closest vertex");
+  desc.add<double>("minMassWindowCut", 70.)->setComment("in GeV");
+  desc.add<double>("maxMassWindowCut", 110.)->setComment("in GeV");
+  desc.add<double>("d0CompatibilityCut", 0.01)->setComment("d0 compatibility between the two muons");
+  desc.add<double>("z0CompatibilityCut", 0.06)->setComment("z0 compatibility between the two muons");
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
   descriptions.addWithDefaultLabel(desc);
 }
@@ -327,12 +350,12 @@ void SagittaBiasNtuplizer::analyze(const edm::Event& event, const edm::EventSetu
 
   unsigned int i = 0;
   for (const auto& track : myTracks) {
-    if (track->pt() < 12) {
+    if (track->pt() < muonPtCut_) {
       passPtCut = false;
       continue;
     }
 
-    if (std::abs(track->eta()) > 2.5) {
+    if (std::abs(track->eta()) > muonEtaCut_) {
       passEtaCut = false;
       continue;
     }
@@ -342,7 +365,7 @@ void SagittaBiasNtuplizer::analyze(const edm::Event& event, const edm::EventSetu
     d0[i] = track->dxy(closestVertex.second.position());
     dz[i] = track->dz(closestVertex.second.position());
 
-    if (d0[i] / track->dxyError() > 4) {
+    if (d0[i] / track->dxyError() > muondxySigCut_) {
       passD0sigCut = false;
       continue;
     }
@@ -393,13 +416,13 @@ void SagittaBiasNtuplizer::analyze(const edm::Event& event, const edm::EventSetu
   mass_ = mother.M();
 
   // checks if invariant mass of the system lies in the fiducial window
-  passMassWindow = (mass_ > 70 && mass_ < 110);
+  passMassWindow = (mass_ > minMassWindowCut_ && mass_ < maxMassWindowCut_);
   if (!passMassWindow)
     return;
   h_cutFlow->Fill(5);
 
   // checks if the di-muon system passes the d0 compatibility cut
-  passDeltaD0 = (std::abs(d0[0] - d0[1]) < 0.01);
+  passDeltaD0 = (std::abs(d0[0] - d0[1]) < d0CompatibilityCut_);
   h_DeltaD0->Fill(d0[0] - d0[1]);
   h_DeltaDz->Fill(dz[0] - dz[1]);
   if (!passDeltaD0)
@@ -407,7 +430,7 @@ void SagittaBiasNtuplizer::analyze(const edm::Event& event, const edm::EventSetu
   h_cutFlow->Fill(6);
 
   // checks if the di-muon system passes the z0 compatibility cut
-  passDeltaDz = (std::abs(dz[0] - dz[1]) < 0.06);
+  passDeltaDz = (std::abs(dz[0] - dz[1]) < z0CompatibilityCut_);
   if (!passDeltaDz)
     return;
   h_cutFlow->Fill(7);
