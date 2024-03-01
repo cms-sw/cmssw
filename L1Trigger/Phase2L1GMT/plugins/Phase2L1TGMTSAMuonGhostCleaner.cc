@@ -30,10 +30,13 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  std::vector<l1t::SAMuon> prodMuons(std::vector<l1t::SAMuon>& muons);
+
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > barrelTokenPrompt_;
   edm::EDGetTokenT<std::vector<l1t::SAMuon> > barrelTokenDisp_;
-  edm::EDGetTokenT<std::vector<l1t::SAMuon> > fwdToken_;
+  edm::EDGetTokenT<std::vector<l1t::SAMuon> > fwdTokenPrompt_;
+  edm::EDGetTokenT<std::vector<l1t::SAMuon> > fwdTokenDisp_;
 
   SAMuonCleaner ghostCleaner;
 };
@@ -51,10 +54,39 @@ private:
 Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::ParameterSet& iConfig)
     : barrelTokenPrompt_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelPrompt"))),
       barrelTokenDisp_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("barrelDisp"))),
-      fwdToken_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forward"))) {
+      fwdTokenPrompt_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forwardPrompt"))),
+      fwdTokenDisp_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forwardDisp"))) {
   produces<std::vector<l1t::SAMuon> >("prompt");
   produces<std::vector<l1t::SAMuon> >("displaced");
 }
+
+// ===  FUNCTION  ============================================================
+//         Name:  Phase2L1TGMTSAMuonGhostCleaner::prodMuons
+//  Description:
+// ===========================================================================
+std::vector<l1t::SAMuon> Phase2L1TGMTSAMuonGhostCleaner::prodMuons(std::vector<l1t::SAMuon>& muons) {
+  std::vector<l1t::SAMuon> cleanedMuons = ghostCleaner.cleanTFMuons(muons);
+  //here switch to the offical word required by the GT
+  std::vector<l1t::SAMuon> finalMuons;
+  for (const auto& mu : cleanedMuons) {
+    l1t::SAMuon m = mu;
+    if (m.tfType() == l1t::tftype::bmtf)
+      m.setHwQual(m.hwQual() >> 4);
+    int bstart = 0;
+    wordtype word(0);
+    bstart = wordconcat<wordtype>(word, bstart, 1, 1);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwPt(), BITSGTPT);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwPhi(), BITSGTPHI);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwZ0(), BITSSAZ0);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwCharge(), 1);
+    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
+    m.setWord(word);
+    finalMuons.push_back(m);
+  }
+  return finalMuons;
+}  // -----  end of function Phase2L1TGMTSAMuonGhostCleaner::prodMuons  -----
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -66,51 +98,22 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
   edm::Handle<std::vector<l1t::SAMuon> > barrelDisp;
   iEvent.getByToken(barrelTokenDisp_, barrelDisp);
 
-  edm::Handle<std::vector<l1t::SAMuon> > forward;
-  iEvent.getByToken(fwdToken_, forward);
+  edm::Handle<std::vector<l1t::SAMuon> > forwardPrompt;
+  iEvent.getByToken(fwdTokenPrompt_, forwardPrompt);
 
+  edm::Handle<std::vector<l1t::SAMuon> > forwardDisp;
+  iEvent.getByToken(fwdTokenDisp_, forwardDisp);
+
+  // Prompt muons
   std::vector<l1t::SAMuon> muons = *barrelPrompt.product();
-  muons.insert(muons.end(), forward->begin(), forward->end());
+  muons.insert(muons.end(), forwardPrompt->begin(), forwardPrompt->end());
+  std::vector<l1t::SAMuon> finalPrompt = prodMuons(muons);
 
-  std::vector<l1t::SAMuon> cleanedMuons = ghostCleaner.cleanTFMuons(muons);
-  //here switch to the offical word required by the GT
-  std::vector<l1t::SAMuon> finalPrompt;
-  for (const auto& mu : cleanedMuons) {
-    l1t::SAMuon m = mu;
-    if (m.tfType() == l1t::tftype::bmtf)
-      m.setHwQual(m.hwQual() >> 4);
-    int bstart = 0;
-    wordtype word(0);
-    bstart = wordconcat<wordtype>(word, bstart, 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwPt(), BITSGTPT);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwPhi(), BITSGTPHI);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
-    bstart = wordconcat<wordtype>(word, bstart, 0, BITSSAZ0);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, m.charge() > 0 ? 0 : 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
-    m.setWord(word);
-    finalPrompt.push_back(m);
-  }
-
-  std::vector<l1t::SAMuon> finalDisp;
-  for (const auto& mu : *barrelDisp.product()) {
-    l1t::SAMuon m = mu;
-    if (m.tfType() == l1t::tftype::bmtf)
-      m.setHwQual(m.hwQual() >> 4);
-    int bstart = 0;
-    wordtype word(0);
-    bstart = wordconcat<wordtype>(word, bstart, 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwPt(), BITSGTPT);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwPhi(), BITSGTPHI);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwEta(), BITSGTETA);
-    bstart = wordconcat<wordtype>(word, bstart, 0, BITSSAZ0);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, m.charge() > 0 ? 0 : 1, 1);
-    bstart = wordconcat<wordtype>(word, bstart, m.hwQual(), BITSSAQUAL);
-    m.setWord(word);
-    finalDisp.push_back(m);
-  }
+  // Displace muons
+  muons.clear();
+  muons = *barrelDisp.product();
+  muons.insert(muons.end(), forwardDisp->begin(), forwardDisp->end());
+  std::vector<l1t::SAMuon> finalDisp = prodMuons(muons);
 
   std::unique_ptr<std::vector<l1t::SAMuon> > prompt_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalPrompt);
   std::unique_ptr<std::vector<l1t::SAMuon> > disp_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalDisp);
