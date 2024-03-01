@@ -3,23 +3,51 @@ import math
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 from FWCore.ParameterSet.VarParsing import VarParsing
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
 
 options = VarParsing('analysis')
 options.register('scenario', 
-                 '0',
+                 'null',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "Name of input misalignment scenario")
+
+options.register('globalTag',
+                 "'auto:phase1_2022_realistic", # default value
+                 VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.varType.string, # string, int, or float
+                 "name of the input Global Tag")
+
+options.register ('myfile',
+                  filesDefaultMC_DoubleMuon_string, # default value
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  "file name")
+
+options.register ('FileList',
+                  '', # default value
+                  VarParsing.multiplicity.singleton, 
+                  VarParsing.varType.string,
+                  "FileList in DAS format")
+
 options.parseArguments()
 
-valid_scenarios = ['-10e-6','-8e-6','-6e-6','-4e-6','-2e-6','0','2e-6','4e-6','6e-6','8e-6','10e-6']
+if(options.FileList):
+    print("FileList:           ", options.FileList)
+else:
+    print("inputFile:          ", options.myfile)
+print("outputFile:         ", "ZmmNtuple_MC_GEN-SIM_{fscenario}.root".format(fscenario=options.scenario))
+print("conditionGT:        ", options.globalTag)
+print("max events:         ", options.maxEvents)
+
+valid_scenarios = ['-10e-6','-8e-6','-6e-6','-4e-6','-2e-6','0','2e-6','4e-6','6e-6','8e-6','10e-6','null']
 
 if options.scenario not in valid_scenarios:
     print("Error: Invalid scenario specified. Please choose from the following list: ")
     print(valid_scenarios)
     exit(1)
 
-process = cms.Process("DiMuonAnalysis")
+process = cms.Process("SagittaBiasNtuplizer")
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -31,15 +59,15 @@ process.options.numberOfThreads = 8
 ###################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.ZtoMMNtupler=dict()  
+process.MessageLogger.SagittaBiasNtuplizer=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
     enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(10000)
+                                   reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
-    ZtoMMNtupler = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    SagittaBiasNtuplizer = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     enableStatistics = cms.untracked.bool(True)
     )
 
@@ -86,10 +114,15 @@ else :
 ###################################################################
 # Source
 ###################################################################
-#filelist = FileUtils.loadListFromFile("listOfFiles_idealMC_TkAlDiMuonAndVertex.txt")
-filelist = FileUtils.loadListFromFile("listOfFiles_idealMC_GEN-SIM-RECO.txt")
-readFiles = cms.untracked.vstring( *filelist)
-process.source = cms.Source("PoolSource",fileNames = readFiles)
+if(options.FileList):
+    print('Loading file list from ASCII file')
+    filelist = FileUtils.loadListFromFile (options.FileList)
+    readFiles = cms.untracked.vstring( *filelist)
+else:
+    readFiles = cms.untracked.vstring([options.myfile])
+
+process.source = cms.Source("PoolSource",
+                            fileNames = readFiles)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 
