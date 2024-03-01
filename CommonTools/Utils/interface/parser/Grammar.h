@@ -112,6 +112,7 @@ namespace reco {
           ExpressionBinaryOperatorSetter<minus<double> > minus_s(self.exprStack);
           ExpressionBinaryOperatorSetter<multiplies<double> > multiplies_s(self.exprStack);
           ExpressionBinaryOperatorSetter<divides<double> > divides_s(self.exprStack);
+          ExpressionBinaryOperatorSetter<int_div_remainder<double> > remainder_s(self.exprStack);
           ExpressionBinaryOperatorSetter<power_of<double> > power_of_s(self.exprStack);
           ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
           ExpressionFunctionSetter fun_s(self.exprStack, self.finalFunStack);
@@ -166,7 +167,8 @@ namespace reco {
           nocond_expression = term >> (*(('+' >> expect(term))[plus_s] | ('-' >> expect(term))[minus_s]));
           cond_expression = (ch_p('?') >> logical_expression >> ch_p('?') >> expect(expression) >> ch_p(":") >>
                              expect(expression))[cond_s];
-          term = power >> *(('*' >> expect(power))[multiplies_s] | ('/' >> expect(power))[divides_s]);
+          term = power >> *(('*' >> expect(power))[multiplies_s] | ('/' >> expect(power))[divides_s] |
+                            ('%' >> expect(power))[remainder_s]);
           power = factor >> *(('^' >> expect(factor))[power_of_s]);
           factor =
               number | (function1 >> ch_p('(')[funOk_s] >> expect(expression) >> expectParenthesis(ch_p(')')))[fun_s] |
