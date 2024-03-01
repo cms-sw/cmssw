@@ -496,15 +496,18 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('significance', 'significance', 20, 0, 200, 'MET significance'),
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
                 Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for MET significance'),
-            )
-        ),
-        FiducialMET = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
+
                 Plot1D('fiducialGenPhi', 'fiducialGenPhi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('fiducialGenPt', 'fiducialGenPt', 20, 0, 400, 'pt'),
-                )
+
+                Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'pt Unclustered Up'),
+                Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'pt Unclustered Down'),
+                Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'phi Unclustered Up'),
+                Plot1D('phiUnclusteredDown', 'phiUnclusteredDown', 20, -3.14159, 3.14159, 'phi Unclustered Down'),
+
+            )
         ),
+        
         Muon = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && mediumId && miniPFRelIso_all < 0.4')
@@ -723,7 +726,11 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('significance', 'significance', 20, 0, 200, 'PuppiMET significance'),
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
                 Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for PuppiMET significance'),
-
+                
+                Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'pt Unclustered Up'),
+                Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'pt Unclustered Down'),
+                Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'phi Unclustered Up'),
+                Plot1D('phiUnclusteredDown', 'phiUnclusteredDown', 20, -3.14159, 3.14159, 'phi Unclustered Down'),
             )
         ),
         RawPFMET = cms.PSet(
