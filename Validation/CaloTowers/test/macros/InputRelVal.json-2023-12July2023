@@ -4263,7 +4263,7 @@
         "rangeMediumPileup": {
             "rebin": 5,
             "xAxisMax": 5000.0,
-            "xAxisMin": 3000.0,
+            "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
