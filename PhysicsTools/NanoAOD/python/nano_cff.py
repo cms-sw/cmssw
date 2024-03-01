@@ -284,5 +284,3 @@ def nanoL1TrigObjCustomize(process):
 def nanoL1TrigObjCustomizeFull(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
-
-
