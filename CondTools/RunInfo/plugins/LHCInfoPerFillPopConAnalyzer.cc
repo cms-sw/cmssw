@@ -410,7 +410,7 @@ private:
     auto startTime = row.get<boost::posix_time::ptime>("start_time");
     auto delivLumi = row.get<float>("delivered_lumi");
     auto recLumi = row.get<float>("recorded_lumi");
-    auto runNumber = std::stoull(row.get<std::string>("run_number"));
+    auto runNumber = std::stoul(row.get<std::string>("run_number"));
     auto lsNumber = std::stoul(row.get<std::string>("lumisection_number"));
     auto lumiid = cond::time::lumiTime(runNumber, lsNumber);
 
