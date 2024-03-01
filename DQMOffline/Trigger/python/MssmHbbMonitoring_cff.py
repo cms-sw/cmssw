@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.MssmHbbMonitoring_cfi import mssmHbbMonitoring
 
-MUON_PT_BINNING = [0,7,11,12,13,15,20,30,40,50]
+MUON_PT_BINNING = [0,4,6,7,8,9,10,11,12,13,14,15,20,30,40,50,100,200]
 
 #Define MssmHbb specific cuts 
 hltMssmHbbmonitoring =  mssmHbbMonitoring.clone(
