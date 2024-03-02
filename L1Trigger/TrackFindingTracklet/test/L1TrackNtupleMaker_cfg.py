@@ -14,9 +14,9 @@ process = cms.Process("L1TrackNtuple")
 # edit options here
 ############################################################
 
-# D88 used for CMSSW_12_6 datasets, and D98 recommended for more recent ones.
-GEOMETRY = "D88"
-#GEOMETRY = "D98"
+# D88 was used for CMSSW_12_6 datasets, and D98 recommended for more recent ones.
+#GEOMETRY = "D88"
+GEOMETRY = "D98"
 
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
@@ -66,28 +66,26 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 #from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
-if GEOMETRY == "D88":
+if GEOMETRY == "D98":
 
   # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
+  #from MCsamples.RelVal_1400_D98.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
 
   # Or read .root files from directory on local computer:
-  #dirName = "$scratchmc/MCsamples1260_D88/RelVal/TTbar/PU0/"
+  #dirName = "$scratchmc/MCsamples1400_D98/RelVal/TTbar/PU0/"
   #inputMC=getCMSlocaldata(dirName)
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_12_6_0-PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/GEN-SIM-DIGI-RAW"
+  #dataName="/RelValTTbar_14TeV/CMSSW_14_0_0_pre2-PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/GEN-SIM-DIGI-RAW"
   #inputMC=getCMSdata(dataName)
+
+  inputMC = ["/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root"]
+
+elif GEOMETRY == "D88":
 
   # Read specified .root file:
   inputMC = ["/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"]
-  #inputMC = ["/store/relval/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/125X_mcRun4_realistic_v5_2026D88noPURV183-v1/2590000/176e8b2a-035c-4df1-9a23-f1bfdec9de37.root"]
-
-elif GEOMETRY == "D98":
-
-  inputMC = ["/store/relval/CMSSW_14_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_2026D98PU200-v1/2590000/0743fe7e-cda0-45d9-a226-b2c618826730.root"]
-  #inputMC = ["/store/relval/CMSSW_14_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/133X_mcRun4_realistic_v1_2026D98noPU-v1/2590000/1870d216-b207-40be-9ee4-a453ce17ec94.root"]
 
 else:
 
@@ -121,14 +119,14 @@ process.load('L1Trigger.TrackerTFP.ProducerES_cff')
 process.load('L1Trigger.TrackerTFP.ProducerLayerEncoding_cff')
 
 # remake stubs?
-from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
-process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
+#from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
+#process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 
-from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
-TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
+#from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
+#TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
-process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
-process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
+#process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
+#process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
 
 # DTC emulation
@@ -142,7 +140,8 @@ process.load('L1Trigger.TrackerDTC.ProducerED_cff')
 #process.TrackTriggerSetup.Hybrid.MinPt = 1.0
 
 process.dtc = cms.Path(process.TrackerDTCProducer)#*process.TrackerDTCAnalyzer)
-
+# Throw error if reading MC produced with different stub window sizes.
+process.TrackerDTCProducer.CheckHistory = True
 
 ############################################################
 # L1 tracking
@@ -266,13 +265,13 @@ process.ana = cms.Path(process.L1TrackNtuple)
 ############################################################
 
 # use this if you want to re-run the stub making
-process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
+#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this if cluster/stub associators not available
 # process.schedule = cms.Schedule(process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this to only run tracking + track associator
-#process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.ana)
+process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 
 ############################################################
