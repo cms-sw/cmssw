@@ -147,6 +147,54 @@ namespace edm {
                       std::cref(baseType_),
                       std::cref(pluginName_),
                       std::ref(usedCfiFileNames)));
+    if (defaultDescDefined_) {
+      writeClassFile(defaultDesc_);
+    } else if (descriptions_.size() == 1) {
+      writeClassFile(descriptions_.begin()->second);
+    }
+  }
+
+  void ConfigurationDescriptions::writeClassFile(ParameterSetDescription const& iDesc) const {
+    std::string pluginName = pluginName_;
+    auto found = pluginName.find("::");
+    while (found != std::string::npos) {
+      pluginName.replace(found, 2, "_");
+      found = pluginName.find("::");
+    }
+    //Symbols that can appear in our plugin names but can't in python function names
+    const std::string toReplace("@<>,");
+    found = pluginName.find_first_of(toReplace);
+    while (found != std::string::npos) {
+      pluginName.replace(found, 1, "_");
+      found = pluginName.find_first_of(toReplace, found);
+    }
+
+    std::string fileName = pluginName + ".py";
+    std::ofstream outFile(fileName.c_str());
+    if (outFile.fail()) {
+      edm::Exception ex(edm::errors::LogicError, "Creating class file failed.\n");
+      ex << "Opening a file '" << fileName << "' failed.\n";
+      ex << "Error code from errno " << errno << ": " << std::strerror(errno) << "\n";
+
+      ex.addContext("Executing function ConfigurationDescriptions::writeDefault");
+      throw ex;
+    }
+    outFile << "import FWCore.ParameterSet.Config as cms\n\n";
+    outFile << "def " << pluginName
+            << "(**kwargs):\n"
+               "  mod = cms."
+            << baseType_ << "('" << pluginName_ << "'";
+
+    bool startWithComma = true;
+    int indentation = 4;
+    iDesc.writeCfi(outFile, startWithComma, indentation);
+
+    outFile << ")\n"
+               "  for k,v in kwargs.items():\n"
+               "    setattr(mod, k, v)\n"
+               "  return mod\n";
+
+    outFile.close();
   }
 
   void ConfigurationDescriptions::writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,

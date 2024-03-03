@@ -87,6 +87,8 @@ namespace edm {
                                  std::string const& pluginName,
                                  std::set<std::string>& usedCfiFileNames);
 
+    void writeClassFile(ParameterSetDescription const&) const;
+
     void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                        std::ostream& os,
                        std::string const& moduleLabel,

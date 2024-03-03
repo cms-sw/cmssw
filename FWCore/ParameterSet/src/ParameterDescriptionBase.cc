@@ -120,6 +120,9 @@ namespace edm {
 
   void ParameterDescriptionBase::writeCfi_(
       std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+    if (label().empty() or label()[0] == '@') {
+      return;
+    }
     wroteSomething = true;
     if (startWithComma)
       os << ",";
