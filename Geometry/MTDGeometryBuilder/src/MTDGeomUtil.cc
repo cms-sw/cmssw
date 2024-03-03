@@ -161,6 +161,19 @@ int MTDGeomUtil::crystalInModule(const DetId& id) const {
   return hid.crystal();
 }
 
+// returns the sensor module id
+uint32_t MTDGeomUtil::sensorModuleId(const DetId& id) const {
+  if (isBTL(id)) {
+    BTLDetId detId(id);
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology_->getMTDTopologyMode()));
+    return (geoId.rawId());
+  } else {
+    ETLDetId detId(id);
+    DetId geoId = detId.geographicalId();
+    return (geoId.rawId());
+  }
+}
+
 float MTDGeomUtil::eta(const GlobalPoint& position, const float& vertex_z) const {
   GlobalPoint corrected_position = GlobalPoint(position.x(), position.y(), position.z() - vertex_z);
   return corrected_position.eta();

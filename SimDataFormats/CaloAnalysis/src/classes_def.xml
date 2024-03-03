@@ -28,13 +28,17 @@
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
 
-  <class name="MtdSimCluster"/>
+  <class name="MtdSimCluster" ClassVersion="4">
+    <version ClassVersion="4" checksum="3803328692"/>
+    <version ClassVersion="3" checksum="1001786642"/>
+  </class>
   <class name="MtdSimClusterCollection"/>
   <class name="edm::Wrapper<MtdSimClusterCollection>"/>
   <class name="MtdSimClusterRef"/>
   <class name="MtdSimClusterRefVector"/>
   <class name="MtdSimClusterRefProd"/>
   <class name="MtdSimClusterContainer"/>
+
 
   <class name="MtdSimLayerCluster"/>
   <class name="MtdSimLayerClusterCollection"/>
