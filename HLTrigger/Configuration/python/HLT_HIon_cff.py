@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_14_0_0/HIon/V60 (CMSSW_14_0_0)
+# /dev/CMSSW_14_0_0/HIon/V61 (CMSSW_14_0_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,7 +11,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V60")
+  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V61")
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -16551,7 +16551,6 @@ fragment.hltEgammaClusterShapePPOnAA = cms.EDProducer( "EgammaHLTClusterShapePro
     recoEcalCandidateProducer = cms.InputTag( "hltEgammaCandidatesPPOnAA" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
     ecalRechitEE = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-    isIeta = cms.bool( True ),
     multThresEB = cms.double( 1.0 ),
     multThresEE = cms.double( 1.25 )
 )

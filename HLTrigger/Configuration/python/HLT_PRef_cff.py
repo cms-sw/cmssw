@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_14_0_0/PRef/V60 (CMSSW_14_0_0)
+# /dev/CMSSW_14_0_0/PRef/V61 (CMSSW_14_0_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,7 +11,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/PRef/V60")
+  tableName = cms.string("/dev/CMSSW_14_0_0/PRef/V61")
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -11099,7 +11099,6 @@ fragment.hltEgammaClusterShape = cms.EDProducer( "EgammaHLTClusterShapeProducer"
     recoEcalCandidateProducer = cms.InputTag( "hltEgammaCandidates" ),
     ecalRechitEB = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEB' ),
     ecalRechitEE = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEE' ),
-    isIeta = cms.bool( True ),
     multThresEB = cms.double( 1.0 ),
     multThresEE = cms.double( 1.25 )
 )
