@@ -457,7 +457,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("useMVACut", false);
   desc.add<double>("minTrackTimeQuality", 0.8);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
