@@ -89,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const& timeCalibConstantsEB = timeCalibConstantsData.barrelItems();
       auto const& timeCalibConstantsEE = timeCalibConstantsData.endcapItems();
 
-      for (unsigned int i = 0; i < barrelSize; i++) {
+      for (unsigned int i = 0; i < barrelSize; ++i) {
         auto vi = view[i];
 
         vi.pedestals_mean_x12() = pedestalsEB[i].mean_x12;
@@ -105,13 +105,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.timeCalibConstants() = timeCalibConstantsEB[i];
 
         std::memcpy(vi.pulseShapes().data(), pulseShapesEB[i].pdfval, sizeof(float) * EcalPulseShape::TEMPLATESAMPLES);
-        for (unsigned int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; j++) {
-          for (unsigned int k = 0; k < EcalPulseShape::TEMPLATESAMPLES; k++) {
+        for (unsigned int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
+          for (unsigned int k = 0; k < EcalPulseShape::TEMPLATESAMPLES; ++k) {
             vi.pulseCovariance()(j, k) = pulseCovariancesEB[i].val(j, k);
           }
         }
       }  // end Barrel loop
-      for (unsigned int i = 0; i < endcapSize; i++) {
+      for (unsigned int i = 0; i < endcapSize; ++i) {
         auto vi = view[barrelSize + i];
 
         vi.pedestals_mean_x12() = pedestalsEE[i].mean_x12;
@@ -128,39 +128,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         std::memcpy(vi.pulseShapes().data(), pulseShapesEE[i].pdfval, sizeof(float) * EcalPulseShape::TEMPLATESAMPLES);
 
-        for (unsigned int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; j++) {
-          for (unsigned int k = 0; k < EcalPulseShape::TEMPLATESAMPLES; k++) {
+        for (unsigned int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
+          for (unsigned int k = 0; k < EcalPulseShape::TEMPLATESAMPLES; ++k) {
             vi.pulseCovariance()(j, k) = pulseCovariancesEE[i].val(j, k);
           }
         }
       }  // end Endcap loop
 
       // === Scalar data (not by xtal)
-      //TimeBiasCorrection
+      // TimeBiasCorrection
+      auto const timeCorrAmplBinsSizeEB = timeBiasCorrectionsData.EBTimeCorrAmplitudeBins.size();
+      auto const timeCorrShiftBinsSizeEB = timeBiasCorrectionsData.EBTimeCorrShiftBins.size();
       // Assert that there are not more parameters than the EcalMultiFitConditionsSoA expects
-      assert(timeBiasCorrectionsData.EBTimeCorrAmplitudeBins.size() <= kMaxTimeBiasCorrectionBinsEB);
-      assert(timeBiasCorrectionsData.EBTimeCorrShiftBins.size() <= kMaxTimeBiasCorrectionBinsEB);
+      assert(timeCorrAmplBinsSizeEB <= kMaxTimeBiasCorrectionBinsEB);
+      assert(timeCorrShiftBinsSizeEB <= kMaxTimeBiasCorrectionBinsEB);
       std::memcpy(view.timeBiasCorrections_amplitude_EB().data(),
                   timeBiasCorrectionsData.EBTimeCorrAmplitudeBins.data(),
-                  sizeof(float) * kMaxTimeBiasCorrectionBinsEB);
+                  sizeof(float) * timeCorrAmplBinsSizeEB);
       std::memcpy(view.timeBiasCorrections_shift_EB().data(),
                   timeBiasCorrectionsData.EBTimeCorrShiftBins.data(),
-                  sizeof(float) * kMaxTimeBiasCorrectionBinsEB);
+                  sizeof(float) * timeCorrShiftBinsSizeEB);
 
+      auto const timeCorrAmplBinsSizeEE = timeBiasCorrectionsData.EETimeCorrAmplitudeBins.size();
+      auto const timeCorrShiftBinsSizeEE = timeBiasCorrectionsData.EETimeCorrShiftBins.size();
       // Assert that there are not more parameters than the EcalMultiFitConditionsSoA expects
-      assert(timeBiasCorrectionsData.EETimeCorrAmplitudeBins.size() <= kMaxTimeBiasCorrectionBinsEE);
-      assert(timeBiasCorrectionsData.EETimeCorrShiftBins.size() <= kMaxTimeBiasCorrectionBinsEE);
+      assert(timeCorrAmplBinsSizeEE <= kMaxTimeBiasCorrectionBinsEE);
+      assert(timeCorrShiftBinsSizeEE <= kMaxTimeBiasCorrectionBinsEE);
       std::memcpy(view.timeBiasCorrections_amplitude_EE().data(),
                   timeBiasCorrectionsData.EETimeCorrAmplitudeBins.data(),
-                  sizeof(float) * kMaxTimeBiasCorrectionBinsEE);
+                  sizeof(float) * timeCorrAmplBinsSizeEE);
       std::memcpy(view.timeBiasCorrections_shift_EE().data(),
                   timeBiasCorrectionsData.EETimeCorrShiftBins.data(),
-                  sizeof(float) * kMaxTimeBiasCorrectionBinsEE);
+                  sizeof(float) * timeCorrShiftBinsSizeEE);
 
-      view.timeBiasCorrectionSizeEB() =
-          std::min(timeBiasCorrectionsData.EBTimeCorrAmplitudeBins.size(), kMaxTimeBiasCorrectionBinsEB);
-      view.timeBiasCorrectionSizeEE() =
-          std::min(timeBiasCorrectionsData.EETimeCorrAmplitudeBins.size(), kMaxTimeBiasCorrectionBinsEE);
+      view.timeBiasCorrectionSizeEB() = std::min(timeCorrAmplBinsSizeEB, kMaxTimeBiasCorrectionBinsEB);
+      view.timeBiasCorrectionSizeEE() = std::min(timeCorrAmplBinsSizeEE, kMaxTimeBiasCorrectionBinsEE);
 
       // SampleCorrelation
       std::memcpy(view.sampleCorrelation_EB_G12().data(),
@@ -177,7 +179,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   samplesCorrelationData.EEG12SamplesCorrelation.data(),
                   sizeof(double) * ecalPh1::sampleSize);
       std::memcpy(view.sampleCorrelation_EE_G6().data(),
-                  samplesCorrelationData.EBG6SamplesCorrelation.data(),
+                  samplesCorrelationData.EEG6SamplesCorrelation.data(),
                   sizeof(double) * ecalPh1::sampleSize);
       std::memcpy(view.sampleCorrelation_EE_G1().data(),
                   samplesCorrelationData.EEG1SamplesCorrelation.data(),
