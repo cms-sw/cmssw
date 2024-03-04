@@ -507,7 +507,15 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
 
             )
         ),
-        
+       
+        FiducialMET = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
+                )
+        ),
+
         Muon = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && mediumId && miniPFRelIso_all < 0.4')
