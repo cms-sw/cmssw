@@ -497,9 +497,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
                 Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for MET significance'),
 
-                Plot1D('fiducialGenPhi', 'fiducialGenPhi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('fiducialGenPt', 'fiducialGenPt', 20, 0, 400, 'pt'),
-
                 Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'pt Unclustered Up'),
                 Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'pt Unclustered Down'),
                 Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'phi Unclustered Up'),
