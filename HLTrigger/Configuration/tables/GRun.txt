@@ -54,8 +54,6 @@ HLT_IsoMu20_v*	#	CMSHLT-1250
 HLT_IsoMu24_eta2p1_v*	#	CMSHLT-1250
 HLT_IsoMu24_v*	#	CMSHLT-1250
 HLT_IsoMu27_v*	#	CMSHLT-1250
-HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*	#	CMSHLT-1250
-HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*	#	CMSHLT-1250
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_PFJet30_v* # CMSHLT-3042
 HLT_Mu17_TrkIsoVVL_v*	#	CMSHLT-1250
 HLT_Mu17_v*	#	CMSHLT-1250
@@ -374,12 +372,6 @@ HLT_DoublePFJets350_PNetBTag_0p11_v*                           #       CMSHLT-30
 HLT_DoublePFJets116MaxDeta1p6_PNet2BTag_0p11_v*                #       CMSHLT-3024
 HLT_DoublePFJets128MaxDeta1p6_PNet2BTag_0p11_v*                #       CMSHLT-3024
 HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v*	#	CMSHLT-1755, CMSHLT-2232
-HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v*	#	CMSHLT-1727
-HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v*	#	CMSHLT-1727
-HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4_v*	#	CMSHLT-1727
-HLT_DoubleL2Mu23NoVtx_2Cha_v*	#	CMSHLT-1727
-HLT_DoubleL2Mu25NoVtx_2Cha_v*	#	CMSHLT-1727
-HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4_v*	#	CMSHLT-1727
 HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v*	#	CMSHLT-1727
 HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v*	#	CMSHLT-1727
 HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4_v*	#	CMSHLT-1727
