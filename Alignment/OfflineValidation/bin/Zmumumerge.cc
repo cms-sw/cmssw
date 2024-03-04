@@ -132,7 +132,7 @@ FitOut ZMassBinFit_OldTool(TH1D* th1d_input, TString s_name = "zmumu_fitting", T
   c1->Print(Form("%s/fitResultPlot/%s_oldtool.root", output_path.Data(), s_name.Data()));
 
   FitOut fitRes(
-      fitter->mean()->getValV(), fitter->mean()->getError(), fitter->sigma()->getValV(), fitter->sigma()->getError());
+      fitter->mean()->getVal(), fitter->mean()->getError(), fitter->sigma()->getVal(), fitter->sigma()->getError());
 
   return fitRes;
 }

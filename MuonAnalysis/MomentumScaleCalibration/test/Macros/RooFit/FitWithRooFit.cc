@@ -118,7 +118,7 @@ public:
     // Fit with likelihood
     if (!useChi2_) {
       if (sumW2Error)
-        model->fitTo(*dh, RooFit::Save(), RooFit::SumW2Error(kTRUE));
+        model->fitTo(*dh, RooFit::SumW2Error(true));
       else
         model->fitTo(*dh);
     }
