@@ -26,7 +26,7 @@ process.GlobalTag.globaltag = cms.string(options.globaltag)
 
 ## input file 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:EXOTICA_DQM_TEST.root'),
+    fileNames = cms.untracked.vstring('file:SUS_DQM_TEST.root'),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
 
@@ -48,7 +48,7 @@ process.EDMtoMEConverter.convertOnEndRun  = True
 process.dqmSaver.saveByRun      = -1
 process.dqmSaver.saveAtJobEnd   = True
 process.dqmSaver.forceRunNumber = 1
-process.dqmSaver.workflow       = '/Physics/Exotica/' + options.name ## adapt appropriately
+process.dqmSaver.workflow       = '/Physics/Sus/' + options.name ## adapt appropriately
 
 
 ## path definitions

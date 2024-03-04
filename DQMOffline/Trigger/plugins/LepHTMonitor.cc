@@ -338,7 +338,7 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
 
   // book at beginRun
   ibooker.cd();
-  ibooker.setCurrentFolder("HLT/SUSY/LepHT/" + folderName_);
+  ibooker.setCurrentFolder("HLT/SUS/LepHT/" + folderName_);
 
   bool is_mu = false;
   bool is_ele = false;

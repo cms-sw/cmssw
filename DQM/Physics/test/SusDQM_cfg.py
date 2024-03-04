@@ -14,13 +14,13 @@ options.parseArguments()
 
 ## Process
 
-process = cms.Process("ExoticaDQM")
+process = cms.Process("SusDQM")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.GlobalTag.globaltag = cms.string(options.globaltag)
 
-process.load("DQM.Physics.ExoticaDQM_cfi")
+process.load("DQM.Physics.SusDQM_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -28,7 +28,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.dqmSaver.workflow   = '/Physics/Exotica/WprimeENu'
+process.dqmSaver.workflow   = '/Physics/Sus/WprimeENu'
 process.dqmSaver.convention = 'RelVal'
 
 
@@ -36,17 +36,17 @@ process.dqmSaver.convention = 'RelVal'
 #Needed to the the plots locally
 
 process.output = cms.OutputModule("PoolOutputModule",
-  fileName       = cms.untracked.string('EXOTICA_DQM_' + options.name + '.root'),
-  outputCommands = cms.untracked.vstring(
-    'drop *_*_*_*',
-    'keep *_*_*_ExoticaDQM'
-    ),
-  splitLevel     = cms.untracked.int32(0),
-  dataset = cms.untracked.PSet(
-    dataTier   = cms.untracked.string(''),
-    filterName = cms.untracked.string('')
-  )
-)
+                                  fileName       = cms.untracked.string('SUS_DQM_' + options.name + '.root'),
+                                  outputCommands = cms.untracked.vstring(
+                                      'drop *_*_*_*',
+                                      'keep *_*_*_*SusDQM'
+                                  ),
+                                  splitLevel     = cms.untracked.int32(0),
+                                  dataset = cms.untracked.PSet(
+                                      dataTier   = cms.untracked.string(''),
+                                      filterName = cms.untracked.string('')
+                                  )
+                                  )
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -66,9 +66,9 @@ process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
 
 ## path definitions
-process.p      = cms.Path(
-    process.ExoticaDQM
-
+process.p = cms.Path(
+    process.susDQM
+    
 )
 
 process.endjob = cms.Path(

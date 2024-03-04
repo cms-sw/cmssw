@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.razorMonitoring_cfi import razorMonitoring
 
 hltRazorMonitoring = razorMonitoring.clone(
-    FolderName = 'HLT/SUSY/RsqMR270_Rsq0p09_MR200',
+    FolderName = 'HLT/SUS/RsqMR270_Rsq0p09_MR200',
     met       = "pfMet", # pfMet
     jets      = "ak4PFJets", # ak4PFJets, ak4PFJetsCHS
 
