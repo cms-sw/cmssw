@@ -20,7 +20,7 @@ void FitWithRooFit::fit(
   reinitializeParameters();
 
   std::unique_ptr<RooDataHist> dh = importTH1(histo, xMin, xMax);
-  RooRealVar x(*static_cast<RooRealVar*>(dh->get()->find("x")));
+  RooRealVar x(*static_cast<RooRealVar*>(dh->get()->find("InvMass")));
 
   // Make plot of binned dataset showing Poisson error bars (RooFit default)
   RooPlot* frame = x.frame(RooFit::Title("di-muon mass M(#mu^{+}#mu^{-}) [GeV]"));
@@ -36,7 +36,8 @@ void FitWithRooFit::fit(
   // -----------------------
   // Fit with likelihood
   if (!useChi2_) {
-    model->fitTo(*dh, RooFit::SumW2Error(sumW2Error));
+    // use  RooFit::PrintLevel(-1) to reduce output to screen
+    model->fitTo(*dh, RooFit::SumW2Error(sumW2Error), RooFit::PrintLevel(-1));
   }
   // Fit with chi^2
   else {
@@ -46,8 +47,12 @@ void FitWithRooFit::fit(
     m.hesse();
     // RooFitResult* r_chi2_wgt = m.save();
   }
+
   model->plotOn(frame, RooFit::LineColor(kRed));
-  model->plotOn(frame, RooFit::Components(backgroundType), RooFit::LineStyle(kDashed));
+
+  // this causes segfaults when the fit causes a Warning in <ROOT::Math::Fitter::CalculateHessErrors>: Error when calculating Hessian
+  //model->plotOn(frame, RooFit::Components(backgroundType), RooFit::LineStyle(kDashed));
+
   model->paramOn(frame,
                  RooFit::Label("fit result"),
                  RooFit::Layout(0.65, 0.90, 0.90),
@@ -64,10 +69,13 @@ void FitWithRooFit::fit(
   // If histogram has custom error (i.e. its contents is does not originate from a Poisson process
   // but e.g. is a sum of weighted events) you can data with symmetric 'sum-of-weights' error instead
   // (same error bars as shown by ROOT)
+
   RooPlot* frame2 = x.frame(RooFit::Title("di-muon mass M(#mu^{+}#mu^{-}) [GeV]"));
   dh->plotOn(frame2, RooFit::DataError(RooAbsData::SumW2));
   model->plotOn(frame2, RooFit::LineColor(kRed));
-  model->plotOn(frame2, RooFit::Components(backgroundType), RooFit::LineStyle(kDashed));
+
+  // this causes segfaults when the fit causes a Warning in <ROOT::Math::Fitter::CalculateHessErrors>: Error when calculating Hessian
+  //model->plotOn(frame2, RooFit::Components(backgroundType), RooFit::LineStyle(kDashed));
   model->paramOn(frame2,
                  RooFit::Label("fit result"),
                  RooFit::Layout(0.65, 0.90, 0.90),
