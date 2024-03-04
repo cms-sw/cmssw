@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_14_0_0/HIon/V61 (CMSSW_14_0_1_HLT1)
+# /dev/CMSSW_14_0_0/HIon/V64 (CMSSW_14_0_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,7 +11,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V61")
+  tableName = cms.string("/dev/CMSSW_14_0_0/HIon/V64")
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
