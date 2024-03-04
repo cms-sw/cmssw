@@ -64,6 +64,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 //
 // class declaration
@@ -282,7 +283,7 @@ private:
   const unsigned int fwNTrackSetsTVA_;
 
   //NNVtx:
-  std::string associationGraphPath_;
+  edm::FileInPath associationGraphPath_;
   const double associationThreshold_;
   bool useAssociationNetwork_;
   tensorflow::GraphDef* associationGraph_;
@@ -321,7 +322,6 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
       deltaZMax_(cutSet_.getParameter<std::vector<double>>("deltaZMax")),
       useDisplacedTracksDeltaZOverride_(iConfig.getParameter<double>("useDisplacedTracksDeltaZOverride")),
       fwNTrackSetsTVA_(iConfig.getParameter<unsigned int>("fwNTrackSetsTVA")),
-      associationGraphPath_(iConfig.getParameter<std::string>("associationGraph")),
       associationThreshold_(iConfig.getParameter<double>("associationThreshold")),
       useAssociationNetwork_(iConfig.getParameter<bool>("useAssociationNetwork")),
       associationNetworkZ0binning_(iConfig.getParameter<std::vector<double>>("associationNetworkZ0binning")),
@@ -329,7 +329,8 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
       associationNetworkZ0ResBins_(iConfig.getParameter<std::vector<double>>("associationNetworkZ0ResBins")),
       debug_(iConfig.getParameter<int>("debug")) {
   if (useAssociationNetwork_) {
-    associationGraph_ = tensorflow::loadGraphDef(associationGraphPath_);
+    associationGraphPath_ = iConfig.getParameter<edm::FileInPath>("associationGraph");
+    associationGraph_ = tensorflow::loadGraphDef(associationGraphPath_.fullPath());
     associationSesh_ = tensorflow::createSession(associationGraph_);
   }
   // Confirm the the configuration makes sense
@@ -611,7 +612,7 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<unsigned int>("fwNTrackSetsTVA", 94)->setComment("firmware limit on processed tracks per GTT input link");
   desc.add<bool>("useAssociationNetwork", false)->setComment("Enable Association Network");
   desc.add<double>("associationThreshold", 0)->setComment("Association Network threshold for PV tracks");
-  desc.add<std::string>("associationGraph", "")->setComment("Location of Association Network model file");
+  desc.addOptional<edm::FileInPath>("associationGraph")->setComment("Location of Association Network model file");
   desc.add<std::vector<double>>("associationNetworkZ0binning", {})
       ->setComment("z0 binning used for setting the input feature digitisation");
   desc.add<std::vector<double>>("associationNetworkEtaBounds", {})
