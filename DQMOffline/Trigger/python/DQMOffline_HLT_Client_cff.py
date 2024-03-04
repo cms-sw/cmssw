@@ -19,7 +19,7 @@ from DQMOffline.Trigger.SiPixel_OfflineMonitoring_Client_cff import *
 
 from DQMOffline.Trigger.EgammaMonitoring_Client_cff import *
 from DQMOffline.Trigger.ExoticaMonitoring_Client_cff import *
-from DQMOffline.Trigger.SusyMonitoring_Client_cff import *
+from DQMOffline.Trigger.SusMonitoring_Client_cff import *
 from DQMOffline.Trigger.B2GMonitoring_Client_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_Client_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_Client_cff import *
@@ -49,7 +49,7 @@ hltOfflineDQMClient = cms.Sequence(
   * hltInclusiveVBFClient
   * egammaClient
   * exoticaClient
-  * susyClient
+  * susClient
   * b2gClient
   * higgsClient
   * smpClient

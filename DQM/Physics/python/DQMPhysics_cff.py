@@ -10,7 +10,7 @@ from DQM.Physics.topDiLeptonOfflineDQM_cfi import *
 from DQM.Physics.topSingleLeptonDQM_PU_cfi import *
 from DQM.Physics.singleTopDQM_cfi import *
 from DQM.Physics.ewkMuLumiMonitorDQM_cfi import *
-from DQM.Physics.susyDQM_cfi import *
+from DQM.Physics.SusDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
@@ -31,7 +31,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *DiMuonDQM
 			   *DiElectronDQM
 			   *ElecMuonDQM
-                           *susyDQM
+                           *susDQM
                            *HiggsDQM
                            *ExoticaDQM
                            *B2GDQM

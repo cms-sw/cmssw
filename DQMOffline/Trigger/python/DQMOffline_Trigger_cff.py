@@ -87,7 +87,7 @@ dqmPerLSsaving.toModify(higPhotonJetHLTOfflineSource, perLSsaving=True)
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 
 # SUS
-from DQMOffline.Trigger.SusyMonitoring_cff import *
+from DQMOffline.Trigger.SusMonitoring_cff import *
 
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
@@ -134,7 +134,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
 #    hotlineDQMSequence * ## ORPHAN !!!!
     * egammaMonitorHLT 
     * exoticaMonitorHLT
-    * susyMonitorHLT
+    * susMonitorHLT
     * b2gMonitorHLT
     * higgsMonitorHLT
     * smpMonitorHLT

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 RazorEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSY/*"),
+    subDirs        = cms.untracked.vstring("HLT/SUS/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -14,6 +14,6 @@ RazorEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 
-susyHLTRazorClient = cms.Sequence(
+susHLTRazorClient = cms.Sequence(
     RazorEfficiency
 )

@@ -181,7 +181,7 @@ fastSim.toModify(DQMOffline_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350,convers
 fastSim.toModify(DQMOffline_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_DZ,conversionCollection=cms.InputTag(''))
 
 DQMOffline_LepHT_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
-                                                             subDirs = cms.untracked.vstring('HLT/SUSY/LepHT/*'),
+                                                             subDirs = cms.untracked.vstring('HLT/SUS/LepHT/*'),
                                                              efficiency = cms.vstring(
         "lepPtTurnOn_eff ';Offline lepton p_{T} [GeV];#epsilon' lepPtTurnOn_num lepPtTurnOn_den",
         "lepEtaTurnOn_eff ';Offline lepton #eta;#epsilon' lepEtaTurnOn_num lepEtaTurnOn_den",
