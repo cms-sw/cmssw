@@ -71,8 +71,10 @@ defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
+defaultOptions.prefix = None
 defaultOptions.profile = None
 defaultOptions.heap_profile = None
+defaultOptions.maxmem_profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
@@ -324,37 +326,13 @@ class ConfigBuilder(object):
         Function to add the jemalloc heap  profile service so that you can dump in the middle
         of the run.
         """
-        profileOpts = self._options.profile.split(':')
+        profileOpts = []
         profilerStart = 1
         profilerInterval = 100
-        profilerFormat = None
+        profilerFormat = "jeprof_%s.heap"
         profilerJobFormat = None
 
-        if len(profileOpts):
-            #type, given as first argument is unused here
-            profileOpts.pop(0)
-        if len(profileOpts):
-            startEvent = profileOpts.pop(0)
-            if not startEvent.isdigit():
-                raise Exception("%s is not a number" % startEvent)
-            profilerStart = int(startEvent)
-        if len(profileOpts):
-            eventInterval = profileOpts.pop(0)
-            if not eventInterval.isdigit():
-                raise Exception("%s is not a number" % eventInterval)
-            profilerInterval = int(eventInterval)
-        if len(profileOpts):
-            profilerFormat = profileOpts.pop(0)
 
-
-        if not profilerFormat:
-            profilerFormat = "%s___%s___%%I.heap" % (
-                self._options.evt_type.replace("_cfi", ""),
-                hashlib.md5(
-                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
-                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
-                ).hexdigest()
-            )
         if not profilerJobFormat and profilerFormat.endswith(".heap"):
             profilerJobFormat = profilerFormat.replace(".heap", "_EndOfJob.heap")
         elif not profilerJobFormat:
