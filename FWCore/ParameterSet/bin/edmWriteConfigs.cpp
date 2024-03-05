@@ -144,12 +144,11 @@ namespace {
     dst_path.push_back('\0');
 
     int fd = mkstemp(&dst_path[0]);
-    if(fd != -1) {
-        path.assign(dst_path.begin(), dst_path.end() - 1);
-        f.open(path.c_str(), 
-               std::ios_base::trunc | std::ios_base::out);
-        close(fd);
-        return true;
+    if (fd != -1) {
+      path.assign(dst_path.begin(), dst_path.end() - 1);
+      f.open(path.c_str(), std::ios_base::trunc | std::ios_base::out);
+      close(fd);
+      return true;
     }
     return false;
   }
