@@ -119,6 +119,30 @@ run2_muon_2016.toModify(
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
+run3_muon.toModify(
+    muonMVATTH,
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2022.weights.xml"),
+    name = cms.string("muonMVATTH"),
+    isClassifier = cms.bool(True),
+    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_pfRelIso03_all","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetNDauChargedMVASel","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentComp"]),
+    variables = cms.PSet(
+        LepGood_pt = cms.string("pt"),
+        LepGood_eta = cms.string("eta"),
+        LepGood_pfRelIso03_all = cms.string("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))/pt"),
+        LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
+        LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
+        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
+        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
+        LepGood_jetDF = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0"),
+        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)"),
+        LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
+        LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
+        LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
+        LepGood_segmentComp = cms.string("segmentCompatibility"),
+
+    )
+)
+
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 muonBSConstrain = cms.EDProducer("MuonBeamspotConstraintValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
