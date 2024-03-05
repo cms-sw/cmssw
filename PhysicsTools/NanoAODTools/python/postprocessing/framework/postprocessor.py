@@ -159,6 +159,7 @@ class PostProcessor:
                 fname = subprocess.check_output(['edmFileUtil', '-d', '-f '+fname]).decode("utf-8").strip()
 
             # open input file
+            print(time.strftime("%d-%b-%Y %H:%M:%S %Z", time.localtime()), " Initiating request to open file %s" %(fname), flush=True) # CMSSW-syle message, required by eos caching scripts
             if self.prefetch:
                 ftoread, toBeDeleted = self.prefetchFile(fname)
                 inFile = ROOT.TFile.Open(ftoread)
