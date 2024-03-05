@@ -73,8 +73,8 @@ namespace l1ct {
       pho.v3.pt = CTtoGT_pt(hwPt);
       pho.v3.phi = CTtoGT_phi(hwPhi);
       pho.v3.eta = CTtoGT_eta(hwEta);
-      pho.quality = hwQual;
-      pho.isolation = hwIso;
+      pho.qualityFlags = hwQual;
+      pho.isolationPT = hwIso;
       return pho;
     }
   };
@@ -166,11 +166,11 @@ namespace l1ct {
       ele.v3.pt = CTtoGT_pt(hwPt);
       ele.v3.phi = CTtoGT_phi(hwVtxPhi());
       ele.v3.eta = CTtoGT_eta(hwVtxEta());
-      ele.quality = hwQual;
+      ele.qualityFlags = hwQual;
       // NOTE: GT:  0 = positive, 1 = negative, CT: 0 = negative, 1 = positive
-      ele.charge = !hwCharge;
+      ele.charge = !hwCharge & ele.valid;
       ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
-      ele.isolation = hwIso;
+      ele.isolationPT = hwIso;
       return ele;
     }
   };
