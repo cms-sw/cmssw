@@ -1,0 +1,21 @@
+HLTriggerFirstPath
+HLT_Random_HighRate_v*
+
+HLTriggerFinalPath
+
+## EndPaths / FinalPaths ##
+
+PhysicsSpecialRandom0Output
+PhysicsSpecialRandom1Output
+PhysicsSpecialRandom2Output
+PhysicsSpecialRandom3Output
+PhysicsSpecialRandom4Output
+PhysicsSpecialRandom5Output
+PhysicsSpecialRandom6Output
+PhysicsSpecialRandom7Output
+
+######## Paths that are different between online and offline ########
+
+#HLTAnalyzerEndpath             # only in 'special', not in 'online'
+RatesMonitoring                # only in 'online', not in 'special'
+#DQMHistograms                  # only in 'online', not in 'special' (NOT in online TrackerVR, apparently!)
