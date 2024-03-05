@@ -2424,6 +2424,7 @@ steps['TIER0EXPPPSCALRUN3']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalMaxTracks,
                           '--data': '',
                           '--datatier':'ALCARECO',
                           '--eventcontent':'ALCARECO',
+                          '--customise_commands':'"process.ctppsRawToDigiTaskAlCaRecoProducer = cms.Task(process.ctppsDiamondRawToDigiAlCaRecoProducer, process.totemTimingRawToDigiAlCaRecoProducer, process.ctppsPixelDigisAlCaRecoProducer)"' # disable gtStage2DigisAlCaRecoProducer as 2022 data used in this workflow doesn't have necessary products
                           }
 
 steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
