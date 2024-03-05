@@ -163,7 +163,7 @@ namespace {
       std::filesystem::copy(path.data(), "modules.py");
       std::filesystem::remove(path.data());
       return true;
-    } 
+    }
     return false;
   }
 }  // namespace
