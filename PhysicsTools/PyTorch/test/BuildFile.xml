@@ -43,7 +43,7 @@
 
 
 <iftool name="cuda">
-  <bin name="testTorchFromBufferModelEval" file="testTorchFromBufferModelEval.cu">
+  <bin name="testTorchFromBufferModelEval" file="testRunner.cc,testTorchFromBufferModelEval.cu">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
     <use name="cppunit"/>
