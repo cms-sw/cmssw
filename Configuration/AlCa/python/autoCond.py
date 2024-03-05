@@ -98,7 +98,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
     'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '140X_mcRun4_realistic_v1'
+    'phase2_realistic'             :    '140X_mcRun4_realistic_v2'
 }
 
 aliases = {
