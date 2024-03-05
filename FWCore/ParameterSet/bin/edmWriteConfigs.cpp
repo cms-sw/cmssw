@@ -140,9 +140,9 @@ namespace {
 
   bool open_temp(std::string& path, std::ofstream& f) {
     path += "/XXXXXX";
+    path += '\0';  // ensure that the string is null-terminated
     int fd = mkstemp(path.data());
     if (fd != -1) {
-      path.assign(dst_path.begin(), dst_path.end() - 1);
       f.open(path.c_str(), std::ios_base::trunc | std::ios_base::out);
       close(fd);
       return true;
@@ -150,7 +150,7 @@ namespace {
     return false;
   }
 
-  void writeModulesFile() {
+  bool writeModulesFile() {
     if (std::filesystem::exists(std::filesystem::current_path() / "modules.py"))
       return;
     std::ofstream file;
@@ -160,9 +160,11 @@ namespace {
       file << "from FWCore.ParameterSet.ModulesProxy import _setupProxies\n"
               "locals().update(_setupProxies(__file__))\n";
       file.close();
-      std::filesystem::copy(buffer.data(), "modules.py");
-      std::filesystem::remove(buffer.data());
-    }
+      std::filesystem::copy(path.data(), "modules.py");
+      std::filesystem::remove(path.data());
+      return true;
+    } 
+    return false;
   }
 }  // namespace
 
@@ -319,7 +321,11 @@ int main(int argc, char** argv) try {
       std::set<std::string> usedCfiFileNames;
       edm::for_all(pluginNames, std::bind(&writeCfisForPlugin, _1, factory, std::ref(usedCfiFileNames)));
       if (not pluginNames.empty()) {
-        writeModulesFile();
+        bool res = writeModulesFile();
+        if (!res) {
+          std::cerr << "writeModulesFile() failed" << std::endl;
+          return 1;
+        }
       }
     });
   } catch (cms::Exception& iException) {
