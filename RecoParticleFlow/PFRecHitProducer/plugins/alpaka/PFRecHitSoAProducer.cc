@@ -53,10 +53,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       edm::ParameterSetDescription producers;
-      producers.add<edm::InputTag>("src")->setComment("Input CaloRecHitSoA");
-      producers.add<edm::ESInputTag>("params")->setComment("Quality cut parameters");
-      desc.addVPSet("producers", producers)->setComment("List of inputs and quality cuts");
-      desc.add<edm::ESInputTag>("topology")->setComment("Topology information");
+      producers.add<edm::InputTag>("src", edm::InputTag(""))->setComment("Input CaloRecHitSoA");
+      producers.add<edm::ESInputTag>("params", edm::ESInputTag(""))->setComment("Quality cut parameters");
+      std::vector<edm::ParameterSet> producersDefault(1);
+      producersDefault[0].addParameter<edm::InputTag>("src", edm::InputTag(""));
+      producersDefault[0].addParameter<edm::ESInputTag>("params", edm::ESInputTag(""));
+      desc.addVPSet("producers", producers, producersDefault)->setComment("List of inputs and quality cuts");
+      desc.add<edm::ESInputTag>("topology", edm::ESInputTag(""))->setComment("Topology information");
       desc.addUntracked<bool>("synchronise", false)
           ->setComment("Add synchronisation point after execution (for benchmarking asynchronous execution)");
       descriptions.addWithDefaultLabel(desc);
