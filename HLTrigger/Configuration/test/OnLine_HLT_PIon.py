@@ -1,18 +1,17 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_14_0_0/PIon/V37 (CMSSW_14_0_0)
+# /dev/CMSSW_14_0_0/PIon/V64 (CMSSW_14_0_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
-from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA import ProcessAcceleratorCUDA
 
 process = cms.Process( "HLTPIon" )
 
-process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
+process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_14_0_0/PIon/V37')
+  tableName = cms.string("/dev/CMSSW_14_0_0/PIon/V64")
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
