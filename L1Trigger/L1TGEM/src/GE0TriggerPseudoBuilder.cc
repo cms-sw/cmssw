@@ -21,8 +21,8 @@ void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection& me0Segments, GE0
   if (info_ > 2)
     dumpAllME0Segments(me0Segments);
 
-  for (int endc = 0; endc < static_cast<int>(trig_me0s::MAX_ENDCAPS); endc++) {
-    for (int cham = 0; cham < static_cast<int>(trig_me0s::MAX_CHAMBERS); cham++) {
+  for (unsigned int endc = 0; endc < static_cast<unsigned int>(trig_me0s::MAX_ENDCAPS); endc++) {
+    for (unsigned int cham = 0; cham < static_cast<unsigned int>(trig_me0s::MAX_CHAMBERS); cham++) {
       // 0th layer means whole chamber.
       // chamber counts from 1 to 18 in ME0ID
       const int region(endc == 0 ? -1 : 1);
@@ -61,8 +61,7 @@ ME0TriggerDigi GE0TriggerPseudoBuilder::segmentConversion(const GEMSegment segme
   int chamberid = detid.superChamberId() % 2;
   int totRolls = keylayer->nEtaPartitions();
   float dphi = chamber->computeDeltaPhi(segment.localPosition(), segment.localDirection());
-  // !!!!TODO!!!! float time = segment.time();
-  // !!!!TODO!!!! int sign_time = (time > 0) ? 1 : -1;
+
   int nrechits = segment.nRecHits();
   std::vector<int> rolls;
   for (const auto& rechit : segment.specificRecHits()) {
