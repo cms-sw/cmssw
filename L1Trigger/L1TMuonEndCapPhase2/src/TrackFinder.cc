@@ -53,8 +53,8 @@ TrackFinder::TrackFinder(const edm::ParameterSet& i_config, edm::ConsumesCollect
   }
 
   // Register Sector Processor
-  for (int endcap = kMinEndcap; endcap <= kMaxEndcap; ++endcap) {
-    for (int sector = kMinTrigSector; sector <= kMaxTrigSector; ++sector) {
+  for (unsigned int endcap = kMinEndcap; endcap <= kMaxEndcap; ++endcap) {
+    for (unsigned int sector = kMinTrigSector; sector <= kMaxTrigSector; ++sector) {
       sector_processors_.push_back(std::make_unique<SectorProcessor>(context_, endcap, sector));
     }
   }

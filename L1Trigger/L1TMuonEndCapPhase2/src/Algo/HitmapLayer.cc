@@ -15,9 +15,9 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
   auto& model = context_.model_;
 
   // Create Images
-  int n_zones = model.zones_.size();
+  auto n_zones = model.zones_.size();
 
-  for (int zone_id = 0; zone_id < n_zones; ++zone_id) {  // Begin zones
+  for (unsigned int zone_id = 0; zone_id < n_zones; ++zone_id) {  // Begin zones
     unsigned int zone_mask = (1u << zone_id);
     unsigned int tzone_mask = (1u << 0);  // Only looking at BX=0 for now
 
@@ -25,9 +25,9 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
     auto& hitmap = zone_hitmaps.emplace_back();
     bool hitmap_is_blank = true;
 
-    int n_rows = model_hm.size();
+    auto n_rows = model_hm.size();
 
-    for (int row_id = 0; row_id < n_rows; ++row_id) {  // Begin loop rows
+    for (unsigned int row_id = 0; row_id < n_rows; ++row_id) {  // Begin loop rows
 
       const auto& model_hm_row = model_hm[row_id];
       auto& row = hitmap[row_id];
@@ -37,7 +37,7 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
 
         for (const auto& model_hm_chamber : model_hm_site.chambers) {  // Begin loop chambers in site
 
-          for (int i_ch_seg = 0; i_ch_seg < v3::kChamberSegments; ++i_ch_seg) {  // Begin loop segments
+          for (unsigned int i_ch_seg = 0; i_ch_seg < v3::kChamberSegments; ++i_ch_seg) {  // Begin loop segments
 
             const int seg_id = model_hm_chamber.id * v3::kChamberSegments + i_ch_seg;
             const auto& seg = segments[seg_id];
@@ -140,12 +140,13 @@ void HitmapLayer::apply(const segment_collection_t& segments, std::vector<hitmap
       edm::LogInfo("L1TEMTFpp") << std::endl;
       edm::LogInfo("L1TEMTFpp") << "Zone " << zone_id << " Image" << std::endl;
 
-      for (int row_id = (model_hm.size() - 1); 0 <= row_id; --row_id) {  // Print rows in reverse order
+      // Print rows in reverse order
+      for (int row_id = (model_hm.size() - 1); 0 <= row_id; --row_id) {
         const auto& row = hitmap[row_id];
 
         edm::LogInfo("L1TEMTFpp") << row_id << " ";
 
-        for (int col_id = 0; col_id < v3::kHitmapNCols; ++col_id) {
+        for (unsigned int col_id = 0; col_id < v3::kHitmapNCols; ++col_id) {
           hitmap_row_t pixel_mask = 1;
           pixel_mask = pixel_mask << col_id;
 

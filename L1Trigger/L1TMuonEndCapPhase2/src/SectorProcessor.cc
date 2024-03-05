@@ -270,7 +270,7 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
                                         std::map<int, int>& seg_to_hit,
                                         segment_collection_t& segments) {
   // Initialize
-  for (int seg_id = 0; seg_id < v3::kNumSegments; ++seg_id) {
+  for (unsigned int seg_id = 0; seg_id < v3::kNumSegments; ++seg_id) {
     segments[seg_id].phi = 0;
     segments[seg_id].bend = 0;
     segments[seg_id].theta1 = 0;
@@ -328,7 +328,7 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
       }
 
       // Calculate Timezone
-      const auto hit_timezones = context_.timezone_lut_.get_timezones(hit_host, hit_rel_bx);
+      const auto hit_timezones = context_.timezone_lut_.getTimezones(hit_host, hit_rel_bx);
 
       // Calculate algo seg
       const unsigned int seg_id = hit_chamber * v3::kChamberSegments + ch_seg;

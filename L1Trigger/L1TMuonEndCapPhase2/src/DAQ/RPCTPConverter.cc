@@ -90,27 +90,27 @@ void RPCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
         dynamic_cast<const RPCRoll*>(this->context_.geometry_translator_.getRPCGeometry().roll(tp_det_id));
     const GlobalPoint& irpc_gp = roll->surface().toGlobal(LocalPoint(tp_data.x, tp_data.y, 0));
 
-    glob_phi = tp::rad_to_deg(irpc_gp.phi().value());
-    glob_theta = tp::rad_to_deg(irpc_gp.theta().value());
+    glob_phi = tp::radToDeg(irpc_gp.phi().value());
+    glob_theta = tp::radToDeg(irpc_gp.theta().value());
     glob_rho = irpc_gp.perp();
     glob_z = irpc_gp.z();
   } else {
     // Handle RPC Coordinates
     const GlobalPoint& gp = this->context_.geometry_translator_.getGlobalPoint(tp);
-    glob_phi = tp::rad_to_deg(gp.phi().value());
-    glob_theta = tp::rad_to_deg(gp.theta().value());
+    glob_phi = tp::radToDeg(gp.phi().value());
+    glob_theta = tp::radToDeg(gp.theta().value());
     glob_rho = gp.perp();
     glob_z = gp.z();
   }
 
   // Calculate EMTF Values
-  const int emtf_phi = tp::calc_phi_int(sector_, glob_phi);
+  const int emtf_phi = tp::calcPhiInt(sector_, glob_phi);
   const int emtf_bend = 0;
-  const int emtf_theta = tp::calc_theta_int(tp_endcap_pm, glob_theta);
+  const int emtf_theta = tp::calcThetaInt(tp_endcap_pm, glob_theta);
   const int emtf_qual = 0;
   const int emtf_site = context_.site_lut_.lookup({tp_subsystem, tp_station, tp_ring});
   const int emtf_host = context_.host_lut_.lookup({tp_subsystem, tp_station, tp_ring});
-  const int emtf_zones = context_.zone_lut_.get_zones(emtf_host, emtf_theta);
+  const int emtf_zones = context_.zone_lut_.getZones(emtf_host, emtf_theta);
 
   emtf_assert((0 <= emtf_phi) and (emtf_phi < 5040));
   emtf_assert((1 <= emtf_theta) and (emtf_theta < 128));

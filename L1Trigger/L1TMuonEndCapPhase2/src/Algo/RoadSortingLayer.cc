@@ -10,7 +10,7 @@ using namespace emtf::phase2::algo;
 
 RoadSortingLayer::RoadSortingLayer(const EMTFContext& context) : context_(context) {}
 
-void RoadSortingLayer::apply(const int& first_n,
+void RoadSortingLayer::apply(const unsigned int& first_n,
                              const std::vector<road_collection_t>& zone_roads,
                              std::vector<road_t>& best_roads) const {
   // Find the best roads from each zone
@@ -26,7 +26,7 @@ void RoadSortingLayer::apply(const int& first_n,
     {
       const int last_col = v3::kHitmapNCols - 1;
 
-      for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+      for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
         bool is_local_max = true;
         bool is_last_col = i_col == last_col;
         bool is_first_col = i_col == 0;
@@ -72,7 +72,7 @@ void RoadSortingLayer::apply(const int& first_n,
     road_t roads_kept[keep_n_roads];
 
     {
-      for (int i_col = 0; i_col < keep_n_roads; ++i_col) {
+      for (unsigned int i_col = 0; i_col < keep_n_roads; ++i_col) {
         bool is_single = (i_col * 2 + 1) >= v3::kHitmapNCols;
 
         if (is_single || suppressed_roads[i_col * 2].quality > 0) {
@@ -97,7 +97,7 @@ void RoadSortingLayer::apply(const int& first_n,
         roads_kept, 32, 16, [](const road_t& lhs, const road_t& rhs) -> int { return lhs.quality < rhs.quality; });
 
     // Shift everything 16 cols to the left
-    for (int i = 16; i < keep_n_roads; ++i) {
+    for (unsigned int i = 16; i < keep_n_roads; ++i) {
       roads_kept[i] = roads_kept[i + 16];
     }
 
@@ -107,7 +107,7 @@ void RoadSortingLayer::apply(const int& first_n,
     });
 
     // Collect best roads
-    for (int i_col = 0; i_col < first_n; ++i_col) {
+    for (unsigned int i_col = 0; i_col < first_n; ++i_col) {
       top_roads.push_back(roads_kept[i_col]);
     }
   }  // End Loop Zones
@@ -143,7 +143,7 @@ void RoadSortingLayer::apply(const int& first_n,
       &top_roads[0], 8, first_n, [](const road_t& lhs, const road_t& rhs) -> int { return lhs.quality < rhs.quality; });
 
   // Collect best roads
-  for (int i_road = 0; i_road < first_n; ++i_road) {
+  for (unsigned int i_road = 0; i_road < first_n; ++i_road) {
     const auto& road = top_roads[i_road];
 
     best_roads.push_back(road);

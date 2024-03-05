@@ -52,7 +52,7 @@ void ZoneLut::update(const edm::Event&, const edm::EventSetup&) {
   // Do Nothing
 }
 
-int ZoneLut::get_zones(const int& host, const int& theta) const {
+int ZoneLut::getZones(const int& host, const int& theta) const {
   int i = 0;
   int word = 0;
 
@@ -69,7 +69,7 @@ int ZoneLut::get_zones(const int& host, const int& theta) const {
   return word;
 }
 
-int ZoneLut::get_zones(const int& host, const int& theta1, const int& theta2) const {
+int ZoneLut::getZones(const int& host, const int& theta1, const int& theta2) const {
   int i = 0;
   int word = 0;
 

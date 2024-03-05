@@ -40,7 +40,7 @@ void TimeZoneLut::update(const edm::Event&, const edm::EventSetup&) {
   // Do Nothing
 }
 
-int TimeZoneLut::get_timezones(const int& host, const int& bx) const {
+int TimeZoneLut::getTimezones(const int& host, const int& bx) const {
   auto found = lut_.find(host);
 
   // Short-Circuit: Host doesn't exist

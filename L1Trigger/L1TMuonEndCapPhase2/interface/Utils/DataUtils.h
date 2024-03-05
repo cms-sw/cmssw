@@ -13,7 +13,7 @@ namespace emtf::phase2::data {
 
   // Merge-Sort
   template <typename T, typename C>
-  void swap_wires(T arr[], const int& wire_1, const int& wire_2, const C& comparator) {
+  void swapWires(T arr[], const unsigned int& wire_1, const unsigned int& wire_2, const C& comparator) {
     int result = comparator(arr[wire_1], arr[wire_2]);
 
     if (result == 1) {
@@ -24,17 +24,17 @@ namespace emtf::phase2::data {
   }
 
   template <typename T, typename C>
-  void mergesort_block(T arr[],
-                       const int& offset,
-                       const int& step,
-                       const int& block_begin,
-                       const int& block_end,
-                       const int& first_n,
-                       const C& comparator) {
-    int wire_offset = offset + block_begin;
-    int wire_cutoff = first_n + block_begin;
-    int wire_1 = wire_offset;
-    int wire_2 = wire_1 + step;
+  void mergesortBlock(T arr[],
+                      const unsigned int& offset,
+                      const unsigned int& step,
+                      const unsigned int& block_begin,
+                      const unsigned int& block_end,
+                      const unsigned int& first_n,
+                      const C& comparator) {
+    auto wire_offset = offset + block_begin;
+    auto wire_cutoff = first_n + block_begin;
+    auto wire_1 = wire_offset;
+    auto wire_2 = wire_1 + step;
 
     // Loop pairs
     while (wire_2 < block_end) {
@@ -48,7 +48,7 @@ namespace emtf::phase2::data {
       }
 
       // Swap Wires
-      swap_wires(arr, wire_1, wire_2, comparator);
+      swapWires(arr, wire_1, wire_2, comparator);
 
       // Calculate next wire_1
       if (step == 1) {
@@ -63,18 +63,18 @@ namespace emtf::phase2::data {
   }
 
   template <typename T, typename C>
-  void mergesort(T arr[], const int& arr_size, const int& first_n, const C& comparator) {
+  void mergesort(T arr[], const unsigned int& arr_size, const unsigned int& first_n, const C& comparator) {
     // Sort
-    int n_pairs = arr_size / 2;
+    auto n_pairs = static_cast<unsigned int>(arr_size / 2);
 
-    for (int i = 0; i < n_pairs; ++i) {
-      swap_wires(arr, 2 * i, 2 * i + 1, comparator);
+    for (unsigned int i = 0; i < n_pairs; ++i) {
+      swapWires(arr, 2 * i, 2 * i + 1, comparator);
     }
 
     // Merge
-    int offset = 0;
-    int step = 2;
-    int block_size = step * 2;
+    auto offset = 0u;
+    auto step = 2u;
+    auto block_size = step * 2;
 
     // Loop block sizes
     while (true) {
@@ -84,8 +84,8 @@ namespace emtf::phase2::data {
       // to not contribute to the end result
       while (true) {
         // Loop blocks
-        int block_begin = 0;
-        int block_end = block_size;
+        auto block_begin = 0u;
+        auto block_end = block_size;
 
         while (block_begin < arr_size) {
           // Constrain block_end
@@ -93,7 +93,7 @@ namespace emtf::phase2::data {
             block_end = arr_size;
 
           // Merge block
-          mergesort_block(arr, offset, step, block_begin, block_end, first_n, comparator);
+          mergesortBlock(arr, offset, step, block_begin, block_end, first_n, comparator);
 
           // Move to next block
           block_begin = block_end;
@@ -131,13 +131,13 @@ namespace emtf::phase2::data {
   }
 
   template <typename T, typename C>
-  void mergesort(T arr[], const int& arr_size, const C& comparator) {
+  void mergesort(T arr[], const unsigned int& arr_size, const C& comparator) {
     mergesort(arr, arr_size, 0, comparator);
   }
 
   // Median Calculation
   template <typename T>
-  T median_of_sorted(T arr[], const int& arr_size) {
+  T getMedianOfSorted(T arr[], const unsigned int& arr_size) {
     T mid;
 
     if ((arr_size % 2) == 0) {

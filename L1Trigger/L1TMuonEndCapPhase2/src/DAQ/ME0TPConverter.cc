@@ -61,19 +61,19 @@ void ME0TPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
 
   // Get Global Coordinates
   const GlobalPoint& gp = this->context_.geometry_translator_.getGlobalPoint(tp);
-  const float glob_phi = tp::rad_to_deg(gp.phi().value());
-  const float glob_theta = tp::rad_to_deg(gp.theta().value());
+  const float glob_phi = tp::radToDeg(gp.phi().value());
+  const float glob_theta = tp::radToDeg(gp.theta().value());
   const double glob_rho = gp.perp();
   const double glob_z = gp.z();
 
   // Calculate EMTF Values
-  const int emtf_phi = tp::calc_phi_int(sector_, glob_phi);
+  const int emtf_phi = tp::calcPhiInt(sector_, glob_phi);
   const int emtf_bend = std::clamp(tp_bend / 2, -64, 63);  // 7-bit, signed
-  const int emtf_theta = tp::calc_theta_int(tp_endcap_pm, glob_theta);
+  const int emtf_theta = tp::calcThetaInt(tp_endcap_pm, glob_theta);
   const int emtf_qual = std::clamp(tp_quality, 0, 15);  // 4-bit, unsigned
   const int emtf_site = context_.site_lut_.lookup({tp_subsystem, tp_station, tp_ring});
   const int emtf_host = context_.host_lut_.lookup({tp_subsystem, tp_station, tp_ring});
-  const int emtf_zones = context_.zone_lut_.get_zones(emtf_host, emtf_theta);
+  const int emtf_zones = context_.zone_lut_.getZones(emtf_host, emtf_theta);
 
   emtf_assert((0 <= emtf_phi) and (emtf_phi < 5040));
   emtf_assert((1 <= emtf_theta) and (emtf_theta < 128));

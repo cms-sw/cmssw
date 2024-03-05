@@ -202,22 +202,22 @@ void ActivationLut::update(const edm::Event&, const edm::EventSetup&) {
   // Do Nothing
 }
 
-const trk_pt_t& ActivationLut::lookup_prompt_pt(const trk_nn_address_t& address) const {
+const trk_pt_t& ActivationLut::lookupPromptPt(const trk_nn_address_t& address) const {
   ap_uint<10> bin = address.to_string(AP_HEX).c_str();
   return prompt_pt_lut_[bin];
 }
 
-const trk_pt_t& ActivationLut::lookup_disp_pt(const trk_nn_address_t& address) const {
+const trk_pt_t& ActivationLut::lookupDispPt(const trk_nn_address_t& address) const {
   ap_uint<10> bin = address.to_string(AP_HEX).c_str();
   return disp_pt_lut_[bin];
 }
 
-const trk_rels_t& ActivationLut::lookup_rels(const trk_nn_address_t& address) const {
+const trk_rels_t& ActivationLut::lookupRels(const trk_nn_address_t& address) const {
   ap_uint<10> bin = address.to_string(AP_HEX).c_str();
   return rels_lut_[bin];
 }
 
-const trk_dxy_t& ActivationLut::lookup_dxy(const trk_nn_address_t& address) const {
+const trk_dxy_t& ActivationLut::lookupDxy(const trk_nn_address_t& address) const {
   ap_uint<10> bin = address.to_string(AP_HEX).c_str();
   return dxy_lut_[bin];
 }

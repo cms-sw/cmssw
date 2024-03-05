@@ -21,9 +21,9 @@ namespace emtf::phase2 {
 
     int endcap_, sector_;
 
-    int get_input_link(const TriggerPrimitive&, TPInfo&) const;
+    int getInputLink(const TriggerPrimitive&, TPInfo&) const;
 
-    int calculate_input_link(const int&, const int&, const TPSelection&) const;
+    int calcInputLink(const int&, const int&, const TPSelection&) const;
   };
 
 }  // namespace emtf::phase2

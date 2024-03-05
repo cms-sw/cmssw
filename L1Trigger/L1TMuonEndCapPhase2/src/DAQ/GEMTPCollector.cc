@@ -145,10 +145,10 @@ void GEMTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
     }
 
     // Calculate EMTF Info
-    const int tp_sector = csc::get_trigger_sector(tp_station, tp_ring, tp_chamber);
-    const int tp_subsector = csc::get_trigger_subsector(tp_station, tp_chamber);
-    const int tp_csc_id = csc::get_id(tp_station, tp_ring, tp_chamber);
-    const auto tp_csc_facing = csc::get_face_direction(tp_station, tp_ring, tp_chamber);
+    const int tp_sector = csc::getTriggerSector(tp_station, tp_ring, tp_chamber);
+    const int tp_subsector = csc::getTriggerSubsector(tp_station, tp_chamber);
+    const int tp_csc_id = csc::getId(tp_station, tp_ring, tp_chamber);
+    const auto tp_csc_facing = csc::getFaceDirection(tp_station, tp_ring, tp_chamber);
 
     // Assertion checks
     emtf_assert(kMinEndcap <= tp_endcap && tp_endcap <= kMaxEndcap);
