@@ -39,7 +39,7 @@ void vector_add(int* a, int* b, int* c, int N, int cuda_grid_size, int cuda_bloc
 }
 
 
-bool ENABLE_ERROR = true;
+bool ENABLE_ERROR = false;
 
 int main(int argc, const char* argv[])
 {
