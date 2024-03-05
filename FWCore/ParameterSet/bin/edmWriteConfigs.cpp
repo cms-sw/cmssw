@@ -54,6 +54,8 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
+#include <stdlib.h>
+#include <unistd.h>
 
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
@@ -136,18 +138,35 @@ namespace {
     }
   }
 
+  bool open_temp(std::string& path, std::ofstream& f) {
+    path += "/XXXXXX";
+    std::vector<char> dst_path(path.begin(), path.end());
+    dst_path.push_back('\0');
+
+    int fd = mkstemp(&dst_path[0]);
+    if(fd != -1) {
+        path.assign(dst_path.begin(), dst_path.end() - 1);
+        f.open(path.c_str(), 
+               std::ios_base::trunc | std::ios_base::out);
+        close(fd);
+        return true;
+    }
+    return false;
+  }
+
   void writeModulesFile() {
     if (std::filesystem::exists(std::filesystem::current_path() / "modules.py"))
       return;
-    std::array<char, L_tmpnam> buffer;
-    std::tmpnam(buffer.data());
-    std::ofstream file{buffer.data()};
-
-    file << "from FWCore.ParameterSet.ModulesProxy import _setupProxies\n"
-            "locals().update(_setupProxies(__file__))\n";
-    file.close();
-    std::filesystem::copy(buffer.data(), "modules.py");
-    std::filesystem::remove(buffer.data());
+    std::ofstream file;
+    std::string path(std::filesystem::current_path());
+    bool res = open_temp(path, file);
+    if (res) {
+      file << "from FWCore.ParameterSet.ModulesProxy import _setupProxies\n"
+              "locals().update(_setupProxies(__file__))\n";
+      file.close();
+      std::filesystem::copy(buffer.data(), "modules.py");
+      std::filesystem::remove(buffer.data());
+    }
   }
 }  // namespace
 
