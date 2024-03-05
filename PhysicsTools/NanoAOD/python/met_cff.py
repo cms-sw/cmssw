@@ -3,26 +3,6 @@ from  PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 
 ##################### Tables for final output and docs ##########################
-metTable = simpleSingletonCandidateFlatTableProducer.clone(
-    src = cms.InputTag("slimmedMETs"),
-    name = cms.string("MET"),
-    doc = cms.string("slimmedMET, type-1 corrected PF MET"),
-    variables = cms.PSet(PTVars,
-      
-       covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
-       covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
-       covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
-       significance = Var("metSignificance()", float, doc="MET significance",precision=10),
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
-       sumPtUnclustered = Var("metSumPtUnclustered()", float, doc="sumPt used for MET significance",precision=10),
-       ptUnclusteredUp = Var("shiftedPt('UnclusteredEnUp')", float, doc="Unclustered up pt",precision=10),
-       ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
-       phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
-       phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
-    
-    ),
-)   
-
 pfmetTable = simpleSingletonCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedMETs"),
     name = cms.string("PFMET"),
@@ -142,6 +122,6 @@ metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
 )
 
 
-metTablesTask = cms.Task( metTable, pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
+metTablesTask = cms.Task(pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
         deepMetResolutionTuneTable, deepMetResponseTuneTable )
 metMCTask = cms.Task( metMCTable )
