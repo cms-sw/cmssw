@@ -443,7 +443,6 @@ void TTTrack<T>::setTrackWordBits() {
   }
 
   unsigned int valid = true;
-  unsigned int mvaQuality = 0;
   unsigned int mvaOther = 0;
 
   // missing conversion of global phi to difference from sector center phi
@@ -457,7 +456,7 @@ void TTTrack<T>::setTrackWordBits() {
                  0,
                  theStubPtConsistency_,
                  theHitPattern_,
-                 mvaQuality,
+                 theTrkMVA1_,
                  mvaOther,
                  thePhiSector_);
   } else {
@@ -469,7 +468,7 @@ void TTTrack<T>::setTrackWordBits() {
                  chi2ZRed(),
                  chi2BendRed(),
                  theHitPattern_,
-                 mvaQuality,
+                 theTrkMVA1_,
                  mvaOther,
                  thePhiSector_);
   }
