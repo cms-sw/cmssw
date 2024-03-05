@@ -13,15 +13,18 @@ from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import ctppsDiamondRawToDigi as _ctppsDiamondRawToDigi
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import totemTimingRawToDigi as _totemTimingRawToDigi
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import ctppsPixelDigis as _ctppsPixelDigis
+from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis as _gtStage2Digis
 
 ctppsDiamondRawToDigiAlCaRecoProducer  = _ctppsDiamondRawToDigi.clone(rawDataTag = 'hltPPSCalibrationRaw')
 totemTimingRawToDigiAlCaRecoProducer = _totemTimingRawToDigi.clone(rawDataTag = 'hltPPSCalibrationRaw')
 ctppsPixelDigisAlCaRecoProducer = _ctppsPixelDigis.clone(inputLabel = 'hltPPSCalibrationRaw')
+gtStage2DigisAlCaRecoProducer = _gtStage2Digis.clone(InputLabel="hltFEDSelectorL1")
 
 ctppsRawToDigiTaskAlCaRecoProducer = cms.Task(
     ctppsDiamondRawToDigiAlCaRecoProducer,
     totemTimingRawToDigiAlCaRecoProducer,
-    ctppsPixelDigisAlCaRecoProducer
+    ctppsPixelDigisAlCaRecoProducer,
+    gtStage2DigisAlCaRecoProducer
 )
 
 ALCARECOPPSCalMaxTracksRaw2Digi = cms.Sequence(ctppsRawToDigiTaskAlCaRecoProducer)

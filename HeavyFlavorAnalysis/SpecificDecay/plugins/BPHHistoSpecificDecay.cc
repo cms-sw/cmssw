@@ -1112,7 +1112,7 @@ void BPHHistoSpecificDecay::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<string>("lbCandsLabel", "");
   desc.add<string>("bcCandsLabel", "");
   desc.add<string>("x3872CandsLabel", "");
-  descriptions.add("process.bphHistoSpecificDecay", desc);
+  descriptions.addWithDefaultLabel(desc);
   return;
 }
 

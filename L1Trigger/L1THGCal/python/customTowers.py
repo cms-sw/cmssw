@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalTowerMapProducer_cfi import L1TTriggerTowerConfig_energySplit
+from L1Trigger.L1THGCal.l1tHGCalTowerMapProducer_cfi import L1TTriggerTowerConfig_energySplit
 import math
 
 def custom_towers_unclustered_tc(process):
@@ -38,7 +38,7 @@ def custom_towers_etaphi(process,
 
 def custom_towers_energySplit(process):
     parameters_towers_2d = L1TTriggerTowerConfig_energySplit.clone()
-    process.hgcalTowerMapProducer.ProcessorParameters.towermap_parameters.L1TTriggerTowerConfig = parameters_towers_2d
+    process.l1tHGCalTowerMapProducer.ProcessorParameters.towermap_parameters.L1TTriggerTowerConfig = parameters_towers_2d
     return process
 
 def custom_towers_map(process,

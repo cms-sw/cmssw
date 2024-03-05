@@ -29,7 +29,7 @@ OutALCARECOPPSCalMaxTracks_noDrop = cms.PSet(
         'keep recoForwardProtons_ctppsProtonsAlCaRecoProducer_*_*',
 
         # HLT info
-        'keep *_hltGtStage2ObjectMap_*_*', 
+        'keep *_gtStage2DigisAlCaRecoProducer_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep triggerTriggerEvent_*_*_*'          
     )
