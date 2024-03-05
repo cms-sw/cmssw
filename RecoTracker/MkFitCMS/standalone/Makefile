@@ -34,8 +34,8 @@ WriteMemFileDict.cc ${WMF_DICT_PCM} &: ${SACMS}/tkNtuple/DictsLinkDef.h
 	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
 
 SRCS += ShellDict.cc
-ShellDict.cc ${SHELL_DICT_PCM} &: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
-	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+ShellDict.cc ${SHELL_DICT_PCM} &: ${SACMS}/ShellDict.h ${SACMS}/ShellLinkDef.h
+	rootcling -I=${SRCDIR} -f ShellDict.cc $^
 	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 

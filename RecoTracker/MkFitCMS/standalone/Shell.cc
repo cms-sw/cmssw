@@ -103,6 +103,7 @@ namespace mkfit {
       m_data_file->rewind();
       m_data_file->skipNEvents(eid - 1);
     }
+    m_event->resetCurrentSeedTracks(); // left after ProcessEvent() for debugging etc
     m_event->reset(eid);
     m_event->read_in(*m_data_file);
     StdSeq::loadHitsAndBeamSpot(*m_event, *m_eoh);
@@ -170,15 +171,25 @@ namespace mkfit {
       // Seed cleaning not done on all iterations.
       do_seed_clean = m_clean_seeds && itconf.m_seed_cleaner;
 
-      if (do_seed_clean)
+      if (do_seed_clean) {
         itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
+        printf("Shell::ProcessEvent post seed-cleaning: %d seeds\n", (int) m_seeds.size());
+      } else {
+        printf("Shell::ProcessEvent no seed-cleaning\n");
+      }
 
       // Check nans in seeds -- this should not be needed when Slava fixes
       // the track parameter coordinate transformation.
       builder.seed_post_cleaning(seeds);
 
       if (seed_select == SS_IndexPostCleaning) {
-        if (selected_seed >= 0 && selected_seed < (int)seeds.size()) {
+        int seed_size = (int) seeds.size();
+        if (selected_seed >= 0 && selected_seed < seed_size) {
+          if (selected_seed + count >= seed_size) {
+            count = seed_size - selected_seed;
+            printf("  -- selected seed_index + count > seed vector size after cleaning -- trimming count to %d\n",
+                   count);
+          }
           for (int i = 0; i < count; ++i)
             seeds[i] = seeds[selected_seed + i];
           seeds.resize(count);
@@ -267,7 +278,8 @@ namespace mkfit {
 
       printf("Shell::ProcessEvent post remove-duplicates: %d comb-cands\n", (int) out_tracks.size());
 
-      m_event->resetCurrentSeedTracks();
+      // Do not clear ... useful for debugging / printouts!
+      // m_event->resetCurrentSeedTracks();
 
       builder.end_event();
     }
