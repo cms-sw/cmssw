@@ -8,7 +8,7 @@ from PhysicsTools.NanoAOD.genparticles_cff import *
 # when storing the flat table, always do "T"able in the naming convention
 
 
-finalGenParticles.select = finalGenParticles.select+[
+finalGenParticles.select +=[
         "keep (4 <= abs(pdgId) <= 5) && statusFlags().isLastCopy()", # BTV: keep b/c quarks in their last copy
         "keep (abs(pdgId) == 310 || abs(pdgId) == 3122) && statusFlags().isLastCopy()", # BTV: keep K0s and Lambdas in their last copy
     ]

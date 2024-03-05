@@ -39,5 +39,5 @@ autoNANO = {
     # Add lepton time-life info tables through customize combined with PHYS
     'LepTimeLife' : {'sequence': '@PHYS',
                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
-    'BTVNano' : {'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
+    'BTV' : {'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }
