@@ -65,15 +65,13 @@ slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
         ptRel = cms.InputTag("ptRatioRelForMu:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForMu:jetNDauChargedMVASel"),
         mvaIDMuon_wpMedium = cms.InputTag("muonMVAID:wpMedium"),
-        mvaIDMuon_wpTight = cms.InputTag("muonMVAID:wpTight")
+        mvaIDMuon_wpTight = cms.InputTag("muonMVAID:wpTight"),
+        mvaIDMuon = cms.InputTag("muonMVAID:probGOOD")
      ),
      userCands = cms.PSet(
         jetForLepJetVar = cms.InputTag("ptRatioRelForMu:jetForLepJetVar") # warning: Ptr is null if no match is found
      ),
 )
-
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 ).toModify(slimmedMuonsWithUserData.userFloats,
-                                           mvaIDMuon = cms.InputTag("muonMVAID:probGOOD"))
 
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
@@ -169,7 +167,7 @@ muonTable = simpleCandidateFlatTableProducer.clone(
         pfIsoId = Var("passed('PFIsoVeryLoose')+passed('PFIsoLoose')+passed('PFIsoMedium')+passed('PFIsoTight')+passed('PFIsoVeryTight')+passed('PFIsoVeryVeryTight')","uint8",doc="PFIso ID from miniAOD selector (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)"),
         tkIsoId = Var("?passed('TkIsoTight')?2:passed('TkIsoLoose')","uint8",doc="TkIso ID (1=TkIsoLoose, 2=TkIsoTight)"),
         miniIsoId = Var("passed('MiniIsoLoose')+passed('MiniIsoMedium')+passed('MiniIsoTight')+passed('MiniIsoVeryTight')","uint8",doc="MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)"),
-        mvaMuID = Var("mvaIDValue()",float,doc="MVA-based ID score ",precision=6),
+        mvaMuID = Var("userFloat('mvaIDMuon')", float, doc="MVA-based ID score",precision=6),
         mvaMuID_WP = Var("userFloat('mvaIDMuon_wpMedium') + userFloat('mvaIDMuon_wpTight')","uint8",doc="MVA-based ID selector WPs (1=MVAIDwpMedium,2=MVAIDwpTight)"),
         multiIsoId = Var("?passed('MultiIsoMedium')?2:passed('MultiIsoLoose')","uint8",doc="MultiIsoId from miniAOD selector (1=MultiIsoLoose, 2=MultiIsoMedium)"),
         puppiIsoId = Var("passed('PuppiIsoLoose')+passed('PuppiIsoMedium')+passed('PuppiIsoTight')", "uint8", doc="PuppiIsoId from miniAOD selector (1=Loose, 2=Medium, 3=Tight)"),
@@ -190,9 +188,6 @@ muonTable = simpleCandidateFlatTableProducer.clone(
 # Increase precision of eta and phi
 muonTable.variables.eta.precision = 16
 muonTable.variables.phi.precision = 16
-
-(run2_nanoAOD_106Xv2 | run3_nanoAOD_122).toModify(muonTable.variables,mvaMuID=None).toModify(
-     muonTable.variables, mvaMuID = Var("userFloat('mvaIDMuon')", float, doc="MVA-based ID score",precision=6))
 
 
 # Revert back to AK4 CHS jets for Run 2
