@@ -54,7 +54,7 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
 
 static char const* const kHelpOpt = "help";
