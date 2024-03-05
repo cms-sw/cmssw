@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFConfiguration.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/EMTFConstants.h"
@@ -16,8 +15,7 @@ using namespace emtf::phase2;
 
 GE0TPCollector::GE0TPCollector(const EMTFContext& context, edm::ConsumesCollector& i_consumes_collector)
     : context_(context),
-      input_token_(i_consumes_collector.consumes<GE0Tag::collection_type>(
-          context.pset_.getParameter<edm::InputTag>("GE0Input"))) {}
+      input_token_(i_consumes_collector.consumes<GE0Tag::collection_type>(context.config_.ge0_input_)) {}
 
 void GE0TPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) const {
   // Constants
