@@ -184,6 +184,52 @@ approxSiStripClusters.toModify(RAWEventContent,
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
 
+
+#
+# HLTSCOUT Data Tier definition
+# TODO: Currently identical to RAW. Needs to be updated once it's known how it differs from RAW
+#
+HLTSCOUTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+HLTSCOUTEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+HLTSCOUTEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toModify(HLTSCOUTEventContent,
+                              outputCommands = HLTSCOUTEventContent.outputCommands+[
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                  'keep DetIds_hltSiStripRawToDigi_*_*'
+                              ])
+
+#
+# L1SCOUT Data Tier definition
+# TODO: Currently identical to RAW. Needs to be updated once it's known how it differs from RAW
+#
+#
+L1SCOUTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+L1SCOUTEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+L1SCOUTEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toModify(L1SCOUTEventContent,
+                              outputCommands = L1SCOUTEventContent.outputCommands+[
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                  'keep DetIds_hltSiStripRawToDigi_*_*'
+                              ])
+
 #
 #
 # HLTONLY Data Tier definition
@@ -945,3 +991,4 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
+
