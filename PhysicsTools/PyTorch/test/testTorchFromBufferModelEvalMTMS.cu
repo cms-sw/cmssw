@@ -58,30 +58,8 @@ void vector_add(int* a, int* b, int* c, int N, int cuda_grid_size, int cuda_bloc
 
 // bool ENABLE_ERROR = true;
 // We take the model as non consr as the forward function is a non const one.
-void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
-  // Setup array, here 2^16 = 65536 items
-  const int N = 1 << 20;
-  size_t bytes = N * sizeof(int);
-
-  // Declare pinned memory pointers
-  int *a_cpu, *b_cpu, *c_cpu;
-
-  // Allocate pinned memory for the pointers
-  // The memory will be accessible from both CPU and GPU
-  // without the requirements to copy data from one device
-  // to the other
-  cout << "Allocating memory for vectors on CPU" << endl;
-  cudaMallocHost(&a_cpu, bytes);
-  cudaMallocHost(&b_cpu, bytes);
-  cudaMallocHost(&c_cpu, bytes);
-
-  // Init vectors
-  cout << "Populating vectors with random integers" << endl;
-  for (int i = 0; i < N; ++i) {
-    a_cpu[i] = rand() % 100;
-    b_cpu[i] = rand() % 100;
-  }
-
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, const int * a_cpu,  const int *b_cpu, int * c_cpu, 
+        const int N, const size_t bytes) {
   // Declare GPU memory pointers
   int *a_gpu, *b_gpu, *c_gpu;
 
@@ -122,11 +100,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
     //CPPUNIT_ASSERT(c_gpu_tensor.equal(output));
   } catch (exception& e) {
     cout << e.what() << endl;
-
-    cudaFreeHost(a_cpu);
-    cudaFreeHost(b_cpu);
-    cudaFreeHost(c_cpu);
-
+    
     cudaFree(a_gpu);
     cudaFree(b_gpu);
     cudaFree(c_gpu);
@@ -134,7 +108,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
     CPPUNIT_ASSERT(false);
   }
 
-  // Copy memory to device and also synchronize (implicitly)
+  // Copy memory from device and also synchronize (implicitly)
   cout << "Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
   cudaMemcpy(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost);
 
@@ -143,11 +117,6 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
   for (int i = 0; i < N; ++i) {
     CPPUNIT_ASSERT(c_cpu[i] == a_cpu[i] + b_cpu[i]);
   }
-
-  cudaFreeHost(a_cpu);
-  cudaFreeHost(b_cpu);
-  cudaFreeHost(c_cpu);
-
   cudaFree(a_gpu);
   cudaFree(b_gpu);
   cudaFree(c_gpu);
@@ -159,6 +128,7 @@ void testTorchFromBufferModelEval::test() {
     // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_largeinput.pt";
 
+  cout << "Loading model..." << endl;
   torch::jit::script::Module model;
   torch::Device device(torch::kCUDA);
   try {
@@ -169,6 +139,30 @@ void testTorchFromBufferModelEval::test() {
   } catch (const c10::Error& e) {
     std::cerr << "error loading the model\n" << e.what() << std::endl;
   }
+  
+  // Setup array, here 2^16 = 65536 items
+  const int N = 1 << 20;
+  size_t bytes = N * sizeof(int);
+  
+  // Declare pinned memory pointers
+  int *a_cpu, *b_cpu;
+
+  // Allocate pinned memory for the pointers
+  // The memory will be accessible from both CPU and GPU
+  // without the requirements to copy data from one device
+  // to the other
+  cout << "Allocating memory for vectors on CPU" << endl;
+  cudaMallocHost(&a_cpu, bytes);
+  cudaMallocHost(&b_cpu, bytes);
+
+  // Init vectors
+  cout << "Populating vectors with random integers" << endl;
+  for (int i = 0; i < N; ++i) {
+    a_cpu[i] = rand() % 100;
+    b_cpu[i] = rand() % 100;
+  }
+  
+  
   std::vector<std::thread> threads;
   for (size_t t=0; t<10; ++t) {
     threads.emplace_back([&, t]{
@@ -176,9 +170,16 @@ void testTorchFromBufferModelEval::test() {
       snprintf(threadName, 15, "test::%ld", t);
       if (prctl(PR_SET_NAME, threadName, 0, 0, 0))
         printf ("Warning: Could not set thread name: %s\n", strerror(errno));
+      cout << "Thread " << t << ": allocating result buffer" << endl;
+      int * c_cpu;
+      cudaMallocHost(&c_cpu, bytes);
       for (size_t i=0; i<10; ++i)
-        testTorchFromBufferModelEvalSinglePass(model);
+        testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes);
+      cudaFreeHost(c_cpu);
     });
   }
   for (auto &t: threads) t.join();
+  cudaFreeHost(a_cpu);
+  cudaFreeHost(b_cpu);
+  // Fixme: free mempory in case of exceptions...
 }
