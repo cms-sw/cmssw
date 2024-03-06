@@ -9,6 +9,7 @@
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/ZDCUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/JetUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/TauUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloSummaryUnpacker.h"
 
 #include "GTSetup.h"
 
@@ -64,6 +65,7 @@ namespace l1t {
       prod.produces<EtSumBxCollection>("EtSumZDC");
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
+      prod.produces<float>("CICADAScore");
       prod.produces<GlobalAlgBlkBxCollection>();
       prod.produces<GlobalExtBlkBxCollection>();
       for (int i = 2; i < 7; ++i) {  // Collections from boards 2-6
@@ -91,6 +93,8 @@ namespace l1t {
       auto zdc_unp = static_pointer_cast<l1t::stage2::ZDCUnpacker>(UnpackerFactory::get()->make("stage2::ZDCUnpacker"));
       auto jet_unp = static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
       auto tau_unp = static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
+      auto caloSummary_unp = static_pointer_cast<l1t::stage2::CaloSummaryUnpacker>(
+          UnpackerFactory::get()->make("stage2::CaloSummaryUnpacker"));
 
       if (fw >= 0x10f2) {
         etsum_unp = static_pointer_cast<l1t::stage2::EtSumUnpacker>(
@@ -126,6 +130,7 @@ namespace l1t {
         res[16] = tau_unp;
         res[18] = tau_unp;
         res[20] = etsum_unp;
+        res[22] = caloSummary_unp;
 
         if (amc == 1) {  // only unpack first uGT board for the external signal inputs (single copy)
           res[24] = ext_unp;
