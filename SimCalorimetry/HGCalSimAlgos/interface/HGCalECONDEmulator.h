@@ -1,10 +1,10 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalECONDEmulator_h
-#define EventFilter_HGCalRawToDigi_HGCalECONDEmulator_h
+#ifndef SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulator_h
+#define SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulator_h
 
 #include <cstddef>
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalECONDEmulatorParameters.h"
-#include "EventFilter/HGCalRawToDigi/interface/SlinkTypes.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalECONDEmulatorParameters.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/SlinkTypes.h"
 
 namespace hgcal::econd {
   /// Pure virtual base class for a ECON-D event emulator implementation

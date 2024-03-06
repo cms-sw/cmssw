@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalECONDEmulatorParameters_h
-#define EventFilter_HGCalRawToDigi_HGCalECONDEmulatorParameters_h
+#ifndef SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulatorParameters_h
+#define SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulatorParameters_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

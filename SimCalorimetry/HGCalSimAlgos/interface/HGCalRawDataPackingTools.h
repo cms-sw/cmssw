@@ -1,7 +1,7 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalRawDataPackingTools_h
-#define EventFilter_HGCalRawToDigi_HGCalRawDataPackingTools_h
+#ifndef SimCalorimetry_HGCalSimAlgos_HGCalRawDataPackingTools_h
+#define SimCalorimetry_HGCalSimAlgos_HGCalRawDataPackingTools_h
 
-#include "EventFilter/HGCalRawToDigi/interface/SlinkTypes.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/SlinkTypes.h"
 
 namespace hgcal {
   namespace econd {

@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
-#define EventFilter_HGCalRawToDigi_HGCalECONDEmulatorInfo_h
+#ifndef SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulatorInfo_h
+#define SimCalorimetry_HGCalSimAlgos_HGCalECONDEmulatorInfo_h
 
 #include <bitset>
 #include <vector>

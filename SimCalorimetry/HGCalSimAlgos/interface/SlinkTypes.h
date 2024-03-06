@@ -1,12 +1,12 @@
-#ifndef EventFilter_HGCalRawToDigi_SlinkTypes_h
-#define EventFilter_HGCalRawToDigi_SlinkTypes_h
+#ifndef SimCalorimetry_HGCalSimAlgos_SlinkTypes_h
+#define SimCalorimetry_HGCalSimAlgos_SlinkTypes_h
 
 #include <cstdint>
 #include <map>
 #include <tuple>
 #include <vector>
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalRawDataDefinitions.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRawDataDefinitions.h"
 
 namespace hgcal::econd {
 
