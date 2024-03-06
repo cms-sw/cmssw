@@ -84,16 +84,16 @@ public:
   Nucleus2gamma2(int idBeamIn) : Pythia8::PDF(idBeamIn) {}
 
   // Update the photon flux.
-  void xfUpdate(int idBeamIn, double x, double) override {
+  void xfUpdate(int, double x, double) override {
     // lead
     double radius = 0;  // radius in [fm]
     double z = 0;
-    if (idBeamIn == 1000822080) {
+    if (idBeam == 1000822080) {
       radius = 6.636;
       z = 82;
     }
     // oxygen
-    else if (idBeamIn == 80160) {
+    else if (idBeam == 80160) {
       radius = 3.02;
       z = 8;
     }
@@ -413,7 +413,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   if (doProtonPhotonFlux) {
-    photonFlux = make_shared<Nucleus2gamma2>(2212);
+    photonFlux = make_shared<Nucleus2gamma2>(1000822080);
     fMasterGen->setPhotonFluxPtr(photonFlux, nullptr);
   }
 
