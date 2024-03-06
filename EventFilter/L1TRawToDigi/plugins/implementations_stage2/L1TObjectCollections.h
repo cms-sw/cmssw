@@ -26,6 +26,7 @@ namespace l1t {
       virtual EtSumBxCollection* getZDCSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }
       virtual TauBxCollection* getTaus(const unsigned int copy) { return nullptr; }
+      virtual float* getCICADAScore() { return nullptr; }
 
       virtual EcalTrigPrimDigiCollection* getEcalDigisBx(const unsigned int copy) { return nullptr; };
     };
