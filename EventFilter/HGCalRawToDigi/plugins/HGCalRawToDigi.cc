@@ -23,8 +23,8 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<FEDRawDataCollection> fedRawToken_;
-  const edm::EDPutTokenT<HGCalDigiCollection> digisToken_;
-  const edm::EDPutTokenT<HGCalElecDigiCollection> elecDigisToken_;
+  const edm::EDPutTokenT<HGCalROCChannelDigiCollection> digisToken_;
+  const edm::EDPutTokenT<HGCalElecROCChannelDigiCollection> elecDigisToken_;
 
   const std::vector<unsigned int> fedIds_;
   const unsigned int badECONDMax_;
@@ -34,8 +34,8 @@ private:
 
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
     : fedRawToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-      digisToken_(produces<HGCalDigiCollection>()),
-      elecDigisToken_(produces<HGCalElecDigiCollection>()),
+      digisToken_(produces<HGCalROCChannelDigiCollection>()),
+      elecDigisToken_(produces<HGCalElecROCChannelDigiCollection>()),
       fedIds_(iConfig.getParameter<std::vector<unsigned int> >("fedIds")),
       badECONDMax_(iConfig.getParameter<unsigned int>("badECONDMax")),
       numERxsInECOND_(iConfig.getParameter<unsigned int>("numERxsInECOND")),
@@ -55,8 +55,8 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // retrieve the FED raw data
   const auto& raw_data = iEvent.get(fedRawToken_);
   // prepare the output
-  HGCalDigiCollection digis;
-  HGCalElecDigiCollection elec_digis;
+  HGCalROCChannelDigiCollection digis;
+  HGCalElecROCChannelDigiCollection elec_digis;
   for (const auto& fed_id : fedIds_) {
     const auto& fed_data = raw_data.FEDData(fed_id);
     if (fed_data.size() == 0)
