@@ -25,8 +25,6 @@ using namespace btagbtvdeep;
 // To store the gen info to get the truth flavour of the jet
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "PhysicsTools/NanoAOD/interface/BTV_flavor.h"
-
 template <typename T>
 class DeepJetTableProducer : public edm::stream::EDProducer<> {
 public:

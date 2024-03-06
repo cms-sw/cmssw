@@ -13,7 +13,6 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "PhysicsTools/NanoAOD/interface/BTV_flavor.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"

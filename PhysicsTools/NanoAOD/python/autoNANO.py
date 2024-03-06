@@ -36,6 +36,7 @@ autoNANO = {
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : { 'sequence': '@PHYS',
                 'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
+    
     # MUDPG flavours: use their own sequence
     'MUDPG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
@@ -50,5 +51,7 @@ autoNANO = {
     # Add lepton time-life info tables through customize combined with PHYS
     'LepTimeLife' : {'sequence': '@PHYS',
                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
-    'BTV' : {'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
+    # Custom BTV Nano for SF measurements or tagger training
+    'BTV' : {'sequence': '@PHYS',
+             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }

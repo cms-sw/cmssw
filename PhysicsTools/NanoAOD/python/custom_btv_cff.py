@@ -553,12 +553,8 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
 
         process.customizeJetTask.add(process.customFatJetExtTable)
         process.customizeJetTask.add(process.customSubJetExtTable)
-        if runOnMC:
-            process.customizeJetTask.add(process.customSubJetMCExtTable)
 
-    ## customize BTV GenTable
-    if runOnMC:
-        customize_BTV_GenTable(process)
+
 
 #  From https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addPFCands_cff.py
 def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
@@ -650,65 +646,6 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
     if addAK4: 
         process.customizedPFCandsTask.add(process.customAK4ConstituentsTable)
     
-    if runOnMC:
-
-        process.genJetsAK8Constituents = cms.EDProducer("GenJetPackedConstituentPtrSelector",
-                                                    src = cms.InputTag("slimmedGenJetsAK8"),
-                                                    cut = cms.string("pt > 100.")
-                                                    )
-
-      
-        process.genJetsAK4Constituents = process.genJetsAK8Constituents.clone(
-                                                    src = cms.InputTag("slimmedGenJets"),
-                                                    cut = cms.string("pt > 20")
-                                                    )
-        if allPF:
-            genCandInput = cms.InputTag("packedGenParticles")
-        elif addAK4 and not addAK8:
-            genCandList = cms.VInputTag(cms.InputTag("genJetsAK4Constituents", "constituents"))
-            genCandInput =  cms.InputTag("genJetsConstituents")
-            process.genJetsConstituents = cms.EDProducer("PackedGenParticlePtrMerger", src = genCandList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        elif addAK8 and not addAK4:
-            genCandList = cms.VInputTag(cms.InputTag("genJetsAK8Constituents", "constituents"))
-            genCandInput =  cms.InputTag("genJetsConstituents")
-            process.genJetsConstituents = cms.EDProducer("PackedGenParticlePtrMerger", src = genCandList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        else:
-            genCandList = cms.VInputTag(cms.InputTag("genJetsAK4Constituents", "constituents"), cms.InputTag("genJetsAK8Constituents", "constituents"))
-            genCandInput =  cms.InputTag("genJetsConstituents")
-            process.genJetsConstituents = cms.EDProducer("PackedGenParticlePtrMerger", src = genCandList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
-        process.genJetsParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-                                                         src = genCandInput,
-                                                         cut = cms.string(""), #we should not filter after pruning
-                                                         name= cms.string("GenCands"),
-                                                         doc = cms.string("interesting gen particles from AK4 and AK8 jets"),
-                                                         singleton = cms.bool(False), # the number of entries is variable
-                                                         extension = cms.bool(False), # this is the main table for the AK8 constituents
-                                                         variables = cms.PSet(CandVars
-                                                                          )
-                                                     )
-        process.genAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                         candidates = genCandInput,
-                                                         jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                         name = cms.string("GenFatJetCands"),
-                                                         nameSV = cms.string("GenFatJetSVs"),
-                                                         idx_name = cms.string("pFCandsIdx"),
-                                                         idx_nameSV = cms.string("sVIdx"),
-                                                         readBtag = cms.bool(False))
-        process.genAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                         candidates = genCandInput,
-                                                         jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                         name = cms.string("GenJetCands"),
-                                                         nameSV = cms.string("GenJetSVs"),
-                                                         idx_name = cms.string("pFCandsIdx"),
-                                                         idx_nameSV = cms.string("sVIdx"),
-                                                         readBtag = cms.bool(False))
-        process.customizedPFCandsTask.add(process.genJetsAK4Constituents) #Note: For gen need to add jets to the process to keep pt cuts.
-        process.customizedPFCandsTask.add(process.genJetsAK8Constituents)
-        if not allPF:
-            process.customizedPFCandsTask.add(process.genJetsConstituents)
-        process.customizedPFCandsTask.add(process.genJetsParticleTable)
-        process.customizedPFCandsTask.add(process.genAK8ConstituentsTable)
-        process.customizedPFCandsTask.add(process.genAK4ConstituentsTable)
         
     return process
 
@@ -727,14 +664,17 @@ def BTVCustomNanoAOD(process):
     addPFCands(process,btvNano_switch.btvNano_addallPF_switch,btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch)
     add_BTV(process, btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch,btvNano_switch.TaggerInput)
     ### for MC
-    customize_BTV_GenTable(process)
     if btvNano_switch.btvNano_addallPF_switch:
+        #process.allPFPFCandsMCSequence = allPFPFCandsMCSequence
         process.nanoSequenceMC+=allPFPFCandsMCSequence
     else:
         if btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch :
-            process.nanoSequenceMC+=process.nanoSequenceMC+ak4ak8PFCandsMCSequence
+            #process.ak4ak8PFCandsMCSequence = ak4ak8PFCandsMCSequence
+            process.nanoSequenceMC+=ak4ak8PFCandsMCSequence
         elif btvNano_switch.btvNano_addAK4_switch and not btvNano_switch.btvNano_addAK8_switch :
+            #process.ak4onlyPFCandsMCSequence = ak4onlyPFCandsMCSequence
             process.nanoSequenceMC+=ak4onlyPFCandsMCSequence
         elif not btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch:
+            #process.ak8onlyPFCandsMCSequence= ak8onlyPFCandsMCSequence
             process.nanoSequenceMC+=ak8onlyPFCandsMCSequence
     return process
