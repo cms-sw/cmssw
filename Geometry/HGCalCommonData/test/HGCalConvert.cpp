@@ -59,8 +59,8 @@
 //  infile   (const char*)   Input file from conatining layer #, size, depth,
 //                           x, y position, orientation, u, v, cassette
 //  outfile  (const char*)   Output fle for the EE part
-//  minLayer (int)           Minimum layer number 
-//  maxLayer (int)           Maximum layer number 
+//  minLayer (int)           Minimum layer number
+//  maxLayer (int)           Maximum layer number
 //  cassette (int)           Cassette number
 //  debug    (int)           To set debug for the output (opional)
 //
@@ -184,7 +184,12 @@ private:
 class ConvertNoseV0 {
 public:
   ConvertNoseV0(unsigned int layMax1 = 6, unsigned int layMax2 = 8);
-  void convert(const char* infile, const char* outfile1, const char* outfile2, int modeGlobal = 0, int cassette = -1, int debug = 0);
+  void convert(const char* infile,
+               const char* outfile1,
+               const char* outfile2,
+               int modeGlobal = 0,
+               int cassette = -1,
+               int debug = 0);
 
 private:
   void writeNose(const char*,
@@ -279,7 +284,8 @@ int main(int argc, char* argv[]) {
     int cassette = (argc > 7) ? atoi(argv[8]) : -1;
     int debug = (argc > 8) ? atoi(argv[9]) : 0;
     std::cout << "Calls ConvertNose for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
-              << " Layers " << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Cassettes " << cassette << " Debug " << debug << std::endl;
+              << " Layers " << maxLayEE << ":" << maxLayHE << " Mode " << modeGlobal << " Cassettes " << cassette
+              << " Debug " << debug << std::endl;
     ConvertNoseV0 c1(maxLayEE, maxLayHE);
     c1.convert(infile, outfile1, outfile2, modeGlobal, cassette, debug);
   } else if (mode == 99) {
@@ -1284,7 +1290,8 @@ ConvertNoseV0::ConvertNoseV0(unsigned int layMax1, unsigned int layMax2) : layMa
   std::cout << "ConvertNoseV0 Iniltailized with " << layMax1_ << ":" << layMax2_ << std::endl;
 }
 
-void ConvertNoseV0::convert(const char* infile, const char* outfile1, const char* outfile2, int modeGlobal, int caasettesin, int debug) {
+void ConvertNoseV0::convert(
+    const char* infile, const char* outfile1, const char* outfile2, int modeGlobal, int caasettesin, int debug) {
   std::ifstream fInput(infile);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
@@ -1328,8 +1335,8 @@ void ConvertNoseV0::convert(const char* infile, const char* outfile1, const char
         std::vector<std::string> items = splitString(std::string(buffer));
         if (others <= layMax2_) {
           unsigned int cassettes = (others <= layMax1_) ? cassetteEE : cassetteHE;
-	  if (caasettesin > 0)
-	    cassettes = caasettesin;
+          if (caasettesin > 0)
+            cassettes = caasettesin;
           if (items.size() < (cassettes + 2)) {
             if (debug % 10 > 1)
               std::cout << "Size " << items.size() << " expect >= " << (cassettes + 2) << std::endl;
@@ -1526,10 +1533,12 @@ void ConvertNoseV0::writeNose(const char* outfile,
   fOut.close();
 }
 
-ConvertCassetteV0::ConvertCassetteV0(int layMin, int layMax, int cassette) : layMin_(layMin), layMax_(layMax), cassette_(cassette) {
-  std::cout << "ConvertCassetteV0:: Initializerd with layers " << layMin_ << ":" << layMax_ << " cassette " << cassette_ << std::endl;
+ConvertCassetteV0::ConvertCassetteV0(int layMin, int layMax, int cassette)
+    : layMin_(layMin), layMax_(layMax), cassette_(cassette) {
+  std::cout << "ConvertCassetteV0:: Initializerd with layers " << layMin_ << ":" << layMax_ << " cassette " << cassette_
+            << std::endl;
 }
- 
+
 void ConvertCassetteV0::convert(const char* infile, const char* outfile, int debug) {
   std::ifstream fInput(infile);
   constexpr int layTotal = 47;
@@ -1541,7 +1550,7 @@ void ConvertCassetteV0::convert(const char* infile, const char* outfile, int deb
     char buffer[1024];
     while (fInput.getline(buffer, 1024)) {
       ++all;
-      if ((debug  % 10) > 1)
+      if ((debug % 10) > 1)
         std::cout << "[" << all << "] " << buffer << std::endl;
       if (buffer[0] == '#') {
         ++comments;
@@ -1549,29 +1558,31 @@ void ConvertCassetteV0::convert(const char* infile, const char* outfile, int deb
         ++others;
         std::vector<std::string> items = splitString(std::string(buffer));
         if (others <= layTotal) {
-	  if ((others >= layMin_) && (others <= layMax_)) {
-	    ++final;
-	    fOut << buffer << std::endl;
-	    if ((debug % 10) > 0)
-	      std::cout << buffer << std::endl;
-	  }
-	} else if (items.size() != 9) {
+          if ((others >= layMin_) && (others <= layMax_)) {
+            ++final;
+            fOut << buffer << std::endl;
+            if ((debug % 10) > 0)
+              std::cout << buffer << std::endl;
+          }
+        } else if (items.size() != 9) {
           ++bad;
         } else {
           ++good;
           int layer = std::atoi(items[0].c_str());
           int cassette = std::atoi(items[8].c_str());
-	  if ((layer >= layMin_) && (layer <= layMax_) && (cassette == cassette_)) {
-	    ++final;
-	    fOut << buffer << std::endl;
-	    if ((debug % 10) > 0)
-	      std::cout << buffer << std::endl;
-	  }
-	}
+          if ((layer >= layMin_) && (layer <= layMax_) && (cassette == cassette_)) {
+            ++final;
+            fOut << buffer << std::endl;
+            if ((debug % 10) > 0)
+              std::cout << buffer << std::endl;
+          }
+        }
       }
     }
     fOut.close();
     fInput.close();
   }
-  std::cout << "Reads a total of " << all << " lines from " << infile << " out of which " << comments << ":" << others << " are comment:non-comment lines " << good << ":" << bad << " are good:bad lines for wafers" << std::endl << "Writes " << final << " lines in output file " << outfile << std::endl;
+  std::cout << "Reads a total of " << all << " lines from " << infile << " out of which " << comments << ":" << others
+            << " are comment:non-comment lines " << good << ":" << bad << " are good:bad lines for wafers" << std::endl
+            << "Writes " << final << " lines in output file " << outfile << std::endl;
 }
