@@ -70,6 +70,13 @@ TABLES_AREA="$CMSSW_BASE/src/HLTrigger/Configuration/tables"
 compare_files $TABLES_AREA/online_pion.txt $TABLES_AREA/PIon.txt || die "Failure comparing online_pion and PIon" $?
 compare_files $TABLES_AREA/online_hion.txt $TABLES_AREA/HIon.txt  || die "Failure comparing online_hion and HIon" $?
 compare_files $TABLES_AREA/online_pref.txt $TABLES_AREA/PRef.txt  || die "Failure comparing online_pref and PRef" $?
-compare_files $TABLES_AREA/online_cosmics.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_cosmics and Special" $?
-compare_files $TABLES_AREA/online_special.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_special and Special" $?
+compare_files $TABLES_AREA/online_Circulating.txt  $TABLES_AREA/Special.txt  || die "Failure comparing online_Circulating and Special" $?
+compare_files $TABLES_AREA/online_PPS.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_PPS and Special" $?
+compare_files $TABLES_AREA/online_LumiScan.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_LumiScan and Special" $?
+compare_files $TABLES_AREA/online_FirstCollisions.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_FirstCollisions and Special" $?
+compare_files $TABLES_AREA/online_ECALTiming.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_ECALTiming and Special" $?
+compare_files $TABLES_AREA/online_Cosmics.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_Cosmics and Special" $?
+compare_files $TABLES_AREA/online_TrackerVR.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_TrackerVR and Special" $?
+compare_files $TABLES_AREA/online_Splashes.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_Splashes and Special" $?
+compare_files $TABLES_AREA/online_Special.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_Special and Special" $?
 compare_files $TABLES_AREA/online_grun.txt $TABLES_AREA/GRun.txt  || die "Failure comparing online_grun and GRun" $?
