@@ -29,7 +29,7 @@
 
 using namespace std;
 
-int MotherID_lepidx(const reco::GenParticle* p){
+int MotherID_geniso(const reco::GenParticle* p){
     int ID = 0;
     int nMo = p->numberOfMothers();
     const reco::Candidate* g = (const reco::Candidate*) p;
@@ -56,6 +56,7 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
+  float computeIso(TLorentzVector thisPart, edm::Handle<edm::View<pat::PackedGenParticle> > packedgenParticles,std::set<int> gen_fsrset, bool skip_leptons);
   std::vector<float> Lepts_RelIso;
   edm::EDGetTokenT<edm::View<pat::PackedGenParticle> > packedgenParticlesToken;
   edm::EDGetTokenT<reco::GenParticleCollection> finalGenParticleToken;
@@ -83,7 +84,7 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         Lepts_RelIso.push_back(999);
         continue;
       }
-      int ID = MotherID_lepidx(&finalParticles->at(j));
+      int ID = MotherID_geniso(&finalParticles->at(j));
       if (!(ID==23 || ID==443 || ID==553 || ID==24)) {
         Lepts_RelIso.push_back(999);
         continue;
@@ -111,37 +112,18 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           }
       }
 
+      float this_GENiso = 0.0;
       TLorentzVector thisLep;
-      double this_GENiso=0.0;
       thisLep.SetPtEtaPhiM(lep_dressed.Pt(), lep_dressed.Eta(), lep_dressed.Phi(), lep_dressed.M());
-      for(size_t k=0; k<packedgenParticles->size();k++){
-           if( (*packedgenParticles)[k].status() != 1 ) continue;
-           if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
-           if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
-           if (gen_fsrset.find(k)!=gen_fsrset.end()) continue;
-           double this_dRvL = reco::deltaR(thisLep.Eta(), thisLep.Phi(), (*packedgenParticles)[k].eta(), (*packedgenParticles)[k].phi());
-           if(this_dRvL<0.3) {
-               this_GENiso = this_GENiso + (*packedgenParticles)[k].pt();
-           }
-      }
-      this_GENiso = this_GENiso/thisLep.Pt();
+      this_GENiso = computeIso(thisLep, packedgenParticles, gen_fsrset, true);
       Lepts_RelIso.push_back(this_GENiso);
     } else {
+        float this_GENiso_nolep=0.0;
+        std::set<int> gen_fsrset_nolep;
         TLorentzVector thisPart;
-        double this_GENiso_nolep=0.0;
         thisPart.SetPtEtaPhiM(genPart->pt(),genPart->eta(),genPart->phi(),genPart->energy());
-        for(size_t k=0; k<packedgenParticles->size();k++){
-          if( (*packedgenParticles)[k].status() != 1 ) continue;
-          if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
-          // TODO: Check if leptons should be kept
-          // if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
-          double this_dRvL_nolep = reco::deltaR(thisPart.Eta(), thisPart.Phi(), (*packedgenParticles)[k].eta(), (*packedgenParticles)[k].phi());
-          if(this_dRvL_nolep<0.3) {
-            this_GENiso_nolep = this_GENiso_nolep + (*packedgenParticles)[k].pt();
-          }
-        }
-        this_GENiso_nolep = this_GENiso_nolep/thisPart.Pt();
-        Lepts_RelIso.push_back(this_GENiso);
+        this_GENiso_nolep = computeIso(thisPart, packedgenParticles, gen_fsrset_nolep, false);
+        Lepts_RelIso.push_back(this_GENiso_nolep);
     }
   }
 
@@ -150,6 +132,24 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   fillerIsoMap.insert(finalParticles, Lepts_RelIso.begin(), Lepts_RelIso.end());
   fillerIsoMap.fill();
   iEvent.put(std::move(isoV));
+}
+
+float GenPartIsoProducer::computeIso(TLorentzVector thisPart, edm::Handle<edm::View<pat::PackedGenParticle> > packedgenParticles, std::set<int> gen_fsrset, bool skip_leptons){
+  double this_GENiso=0.0;
+  for(size_t k=0; k<packedgenParticles->size();k++){
+    if( (*packedgenParticles)[k].status() != 1 ) continue;
+    if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
+    if (skip_leptons == true) {
+      if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
+      if (gen_fsrset.find(k)!=gen_fsrset.end()) continue;
+    }
+    double this_dRvL_nolep = reco::deltaR(thisPart.Eta(), thisPart.Phi(), (*packedgenParticles)[k].eta(), (*packedgenParticles)[k].phi());
+    if(this_dRvL_nolep<0.3) {
+      this_GENiso = this_GENiso + (*packedgenParticles)[k].pt();
+    }
+  }
+  this_GENiso = this_GENiso/thisPart.Pt();
+  return this_GENiso;
 }
 
 void GenPartIsoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
