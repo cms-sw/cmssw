@@ -60,7 +60,7 @@ void vector_add(int* a, int* b, int* c, int N, int cuda_grid_size, int cuda_bloc
 // We take the model as non consr as the forward function is a non const one.
 void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
   // Setup array, here 2^16 = 65536 items
-  const int N = 1 << 16;
+  const int N = 1 << 20;
   size_t bytes = N * sizeof(int);
 
   // Declare pinned memory pointers
@@ -154,7 +154,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
 }
 
 void testTorchFromBufferModelEval::test() {
-  if (prctl(PR_SET_NAME, "testTorch::Main", 0, 0, 0))
+  if (prctl(PR_SET_NAME, "test::Main", 0, 0, 0))
     printf ("Warning: Could not set thread name: %s\n", strerror(errno));
     // Load the TorchScript model
   std::string model_path = dataPath_ + "/simple_dnn_largeinput.pt";
@@ -169,6 +169,16 @@ void testTorchFromBufferModelEval::test() {
   } catch (const c10::Error& e) {
     std::cerr << "error loading the model\n" << e.what() << std::endl;
   }
-  for (size_t i=0; i<10; ++i)
-    testTorchFromBufferModelEvalSinglePass(model);
+  std::vector<std::thread> threads;
+  for (size_t t=0; t<10; ++t) {
+    threads.emplace_back([&, t]{
+      char threadName[15];
+      snprintf(threadName, 15, "test::%ld", t);
+      if (prctl(PR_SET_NAME, threadName, 0, 0, 0))
+        printf ("Warning: Could not set thread name: %s\n", strerror(errno));
+      for (size_t i=0; i<10; ++i)
+        testTorchFromBufferModelEvalSinglePass(model);
+    });
+  }
+  for (auto &t: threads) t.join();
 }
