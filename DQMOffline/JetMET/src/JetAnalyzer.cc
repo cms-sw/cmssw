@@ -79,6 +79,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   isCaloJet_ = (std::string("calo") == jetType_);
   //isJPTJet_  = (std::string("jpt") ==jetType_);
   isPFJet_ = (std::string("pf") == jetType_);
+  isPUPPIJet_ = (std::string("puppi") == jetType_);
   isMiniAODJet_ = (std::string("miniaod") == jetType_);
   jetCorrectorTag_ = pSet.getParameter<edm::InputTag>("JetCorrections");
   if (!isMiniAODJet_) {  //in MiniAOD jet is already corrected
@@ -96,6 +97,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     pfJetsToken_ = consumes<reco::PFJetCollection>(mInputCollection_);
     MuonsToken_ = consumes<reco::MuonCollection>(pSet.getParameter<edm::InputTag>("muonsrc"));
     pfMetToken_ =
+        consumes<reco::PFMETCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
+  }
+  if (isPUPPIJet_) {
+    puppiJetsToken_ = consumes<reco::PFJetCollection>(mInputCollection_);
+    MuonsToken_ = consumes<reco::MuonCollection>(pSet.getParameter<edm::InputTag>("muonsrc"));
+    puppiMetToken_ =
         consumes<reco::PFMETCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
   }
   if (isMiniAODJet_) {
@@ -149,7 +156,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   }
 
   //Jet ID definitions for PFJets
-  if (isPFJet_ || isMiniAODJet_) {
+  if (isPFJet_ || isMiniAODJet_ || isPUPPIJet_) {
     if (JetIDVersion_ == "FIRSTDATA") {
       pfjetidversion = PFJetIDSelectionFunctor::FIRSTDATA;
     } else if (JetIDVersion_ == "RUNIISTARTUP") {
@@ -283,11 +290,12 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  jetME = ibooker.book1D("jetReco", "jetReco", 4, 1, 5);
+  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);
   jetME->setBinLabel(1, "CaloJets", 1);
   jetME->setBinLabel(2, "PFJets", 1);
   jetME->setBinLabel(3, "JPTJets", 1);
   jetME->setBinLabel(4, "MiniAODJets", 1);
+  jetME->setBinLabel(5, "PUPPIJets", 1);
 
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "jetReco", jetME));
 
@@ -870,7 +878,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
                                                               mMuMultiplicity_highPt_Barrel));
   }
   //
-  if (isMiniAODJet_ || isPFJet_) {
+  if (isMiniAODJet_ || isPFJet_ || isPUPPIJet_) {
     if (!filljetsubstruc_) {  //not available for ak8 -> so just take out
       mMVAPUJIDDiscriminant_lowPt_Barrel =
           ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel", "MVAPUJIDDiscriminant_lowPt_Barrel", 50, -1.00, 1.00);
@@ -2394,6 +2402,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<JPTJetCollection> jptJets;
   edm::Handle<PFJetCollection> pfJets;
   edm::Handle<pat::JetCollection> patJets;
+  edm::Handle<PFJetCollection> puppiJets;
 
   edm::Handle<MuonCollection> Muons;
 
@@ -2409,6 +2418,63 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isPFJet_) {
     iEvent.getByToken(pfJetsToken_, pfJets);
     iEvent.getByToken(MuonsToken_, Muons);
+    double pt0 = -1;
+    double pt1 = -1;
+    //fill it only for cleaned jets
+    if (jetCleaningFlag_ && Muons.isValid() && Muons->size() > 1) {
+      for (unsigned int i = 0; i < Muons->size(); i++) {
+        bool pass_muon_id = false;
+        bool pass_muon_iso = false;
+        double dxy = fabs((*Muons)[i].muonBestTrack()->dxy());
+        double dz = fabs((*Muons)[i].muonBestTrack()->dz());
+        if (numPV > 0) {
+          dxy = fabs((*Muons)[i].muonBestTrack()->dxy((*vertexHandle)[0].position()));
+          dz = fabs((*Muons)[i].muonBestTrack()->dz((*vertexHandle)[0].position()));
+        }
+        if ((*Muons)[i].pt() > 20 && fabs((*Muons)[i].eta()) < 2.3) {
+          if ((*Muons)[i].isGlobalMuon() && (*Muons)[i].isPFMuon() &&
+              (*Muons)[i].globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&
+              (*Muons)[i].numberOfMatchedStations() > 1 && dxy < 0.2 && (*Muons)[i].numberOfMatchedStations() > 1 &&
+              dz < 0.5 && (*Muons)[i].innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+              (*Muons)[i].innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5) {
+            pass_muon_id = true;
+          }
+          // Muon pf isolation DB corrected
+          float muonIsoPFdb =
+              ((*Muons)[i].pfIsolationR04().sumChargedHadronPt +
+               std::max(0.,
+                        (*Muons)[i].pfIsolationR04().sumNeutralHadronEt + (*Muons)[i].pfIsolationR04().sumPhotonEt -
+                            0.5 * (*Muons)[i].pfIsolationR04().sumPUPt)) /
+              (*Muons)[i].pt();
+          if (muonIsoPFdb < 0.12) {
+            pass_muon_iso = true;
+          }
+
+          if (pass_muon_id && pass_muon_iso) {
+            if ((*Muons)[i].pt() > pt0) {
+              mu_index1 = mu_index0;
+              pt1 = pt0;
+              mu_index0 = i;
+              pt0 = (*Muons)[i].pt();
+            } else if ((*Muons)[i].pt() > pt1) {
+              mu_index1 = i;
+              pt1 = (*Muons)[i].pt();
+            }
+          }
+        }
+      }
+      if (mu_index0 >= 0 && mu_index1 >= 0) {
+        if ((*Muons)[mu_index0].charge() * (*Muons)[mu_index1].charge() < 0) {
+          zCand = (*Muons)[mu_index0].polarP4() + (*Muons)[mu_index1].polarP4();
+          if (fabs(zCand.M() - 91.) < 20 && zCand.Pt() > 30) {
+            pass_Z_selection = true;
+          }
+        }
+      }
+    }
+  }
+  if (isPUPPIJet_) {
+    iEvent.getByToken(puppiJetsToken_, puppiJets);
     double pt0 = -1;
     double pt1 = -1;
     //fill it only for cleaned jets
@@ -2482,6 +2548,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //if (isJPTJet_)   jetCollectionIsValid = jptJets.isValid();
   if (isPFJet_)
     jetCollectionIsValid = pfJets.isValid();
+  if (isPUPPIJet_)
+    jetCollectionIsValid = puppiJets.isValid();
   if (isMiniAODJet_)
     jetCollectionIsValid = patJets.isValid();
 
@@ -2503,6 +2571,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     collSize = pfJets->size();
   if (isMiniAODJet_)
     collSize = patJets->size();
+  if (isPUPPIJet_) {
+    collSize = puppiJets->size();
+  }
 
   double scale = -1;
   //now start changes for jets
@@ -2559,6 +2630,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //}
     if (isPFJet_) {
       correctedJet = (*pfJets)[ijet];
+    }
+    if (isPUPPIJet_) {
+      correctedJet = (*puppiJets)[ijet];
     }
     if (isMiniAODJet_) {
       correctedJet = (*patJets)[ijet];

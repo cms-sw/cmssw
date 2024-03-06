@@ -42,6 +42,21 @@ pileupJetIdEvaluatorCHSDQM=pileupJetIdEvaluator.clone(
     inputIsCorrected = False
     )
 
+pileupJetIdCalculatorPUPPIDQM=pileupJetIdCalculator.clone(
+    jets = "ak4PFJetsPuppi",
+    jec = "AK4PFPuppi",
+    applyJec = True,
+    inputIsCorrected = False
+)
+
+pileupJetIdEvaluatorPUPPIDQM=pileupJetIdEvaluator.clone(
+    jets = "ak4PFJetsPuppi",
+    jetids = "pileupJetIdCalculatorPUPPIDQM",
+    jec = "AK4PFPuppi",
+    applyJec = True,
+    inputIsCorrected = False
+)
+
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3ResidualCorrectorChain,ak4CaloL2L3ResidualCorrector,ak4CaloResidualCorrector,ak4CaloL2L3Corrector,ak4CaloL3AbsoluteCorrector,ak4CaloL2RelativeCorrector
 
 dqmAk4CaloL2L3ResidualCorrector = ak4CaloL2L3ResidualCorrector.clone()
@@ -77,6 +92,13 @@ dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
     dqmAk4PFCHSL1FastL2L3Corrector
 )
 
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFPuppiL1FastL2L3ResidualCorrector
+
+dqmAk4PFPuppiL1FastL2L3ResidualCorrector = ak4PFPuppiL1FastL2L3ResidualCorrector.clone()
+dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+    dqmAk4PFPuppiL1FastL2L3ResidualCorrector
+)
+
 HBHENoiseFilterResultProducerDQM=HBHENoiseFilterResultProducer.clone()
 
 jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
@@ -89,7 +111,8 @@ jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
                          ak4PFCHSL1FastjetCorrector,
                          ak4PFCHSL2RelativeCorrector,
                          ak4PFCHSL3AbsoluteCorrector,
-                         ak4PFCHSResidualCorrector
+                         ak4PFCHSResidualCorrector,
+                         ak4PFPuppiL1FastL2L3ResidualCorrector,
 )
 jetPreDQMSeq=cms.Sequence(jetPreDQMTask)
 
@@ -107,8 +130,9 @@ pfMETT1=pfMetT1.clone(srcCorrections = (
 jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
+                                      pileupJetIdCalculatorPUPPIDQM*pileupJetIdEvaluatorPUPPIDQM*
                                       jetPreDQMSeq*
-                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*
+                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain*
                                       cms.ignore(goodOfflinePrimaryVerticesDQM)*                                                                            
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       cms.ignore(CSCTightHaloFilterDQM)*cms.ignore(CSCTightHalo2015FilterDQM)*cms.ignore(eeBadScFilterDQM)*cms.ignore(EcalDeadCellTriggerPrimitiveFilterDQM)*cms.ignore(EcalDeadCellBoundaryEnergyFilterDQM)*cms.ignore(HcalStripHaloFilterDQM)                                      
