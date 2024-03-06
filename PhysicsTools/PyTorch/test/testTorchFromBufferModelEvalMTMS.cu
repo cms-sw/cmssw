@@ -1,3 +1,8 @@
+// A multi thread, multi stream version of the previous tests
+// This will ensure we can control the CUDA streaming of the 
+// PyTorch execution
+// Memory allocation investigation can be a secondary target.
+
 #include <cuda_runtime.h>
 #include <torch/torch.h>
 #include <torch/script.h>
@@ -5,6 +10,7 @@
 #include <exception>
 #include <memory>
 #include <math.h>
+#include <sys/prctl.h>
 #include "testBase.h"
 
 using std::cout;
@@ -51,9 +57,8 @@ void vector_add(int* a, int* b, int* c, int N, int cuda_grid_size, int cuda_bloc
 }
 
 // bool ENABLE_ERROR = true;
-
-//int oldMain(int argc, const char* argv[])
-void testTorchFromBufferModelEval::test() {
+// We take the model as non consr as the forward function is a non const one.
+void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model) {
   // Setup array, here 2^16 = 65536 items
   const int N = 1 << 16;
   size_t bytes = N * sizeof(int);
@@ -101,20 +106,6 @@ void testTorchFromBufferModelEval::test() {
   //cout << "Running CUDA kernels" << endl;
   //vector_add(a_gpu, b_gpu, c_gpu, N, NUM_BLOCKS, NUM_THREADS);
 
-  // Load the TorchScript model
-  std::string model_path = dataPath_ + "/simple_dnn_largeinput.pt";
-
-  torch::jit::script::Module model;
-  torch::Device device(torch::kCUDA);
-  try {
-    // Deserialize the ScriptModule from a file using torch::jit::load().
-    model = torch::jit::load(model_path);
-    model.to(device);
-
-  } catch (const c10::Error& e) {
-    std::cerr << "error loading the model\n" << e.what() << std::endl;
-  }
-
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
     auto options = torch::TensorOptions().dtype(torch::kInt).device(torch::kCUDA, 0).pinned_memory(true);
@@ -160,4 +151,24 @@ void testTorchFromBufferModelEval::test() {
   cudaFree(a_gpu);
   cudaFree(b_gpu);
   cudaFree(c_gpu);
+}
+
+void testTorchFromBufferModelEval::test() {
+  if (prctl(PR_SET_NAME, "testTorch::Main", 0, 0, 0))
+    printf ("Warning: Could not set thread name: %s\n", strerror(errno));
+    // Load the TorchScript model
+  std::string model_path = dataPath_ + "/simple_dnn_largeinput.pt";
+
+  torch::jit::script::Module model;
+  torch::Device device(torch::kCUDA);
+  try {
+    // Deserialize the ScriptModule from a file using torch::jit::load().
+    model = torch::jit::load(model_path);
+    model.to(device);
+
+  } catch (const c10::Error& e) {
+    std::cerr << "error loading the model\n" << e.what() << std::endl;
+  }
+  for (size_t i=0; i<10; ++i)
+    testTorchFromBufferModelEvalSinglePass(model);
 }
