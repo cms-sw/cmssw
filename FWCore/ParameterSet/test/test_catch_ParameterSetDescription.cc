@@ -1293,6 +1293,12 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       templte.add<std::vector<double>>("vd");
       d.addParameter<std::vector<double>>("vd", std::vector<double>({1.0}));
 
+      templte.add<std::string>("s");
+      d.addParameter<std::string>("s", "a");
+
+      templte.add<std::vector<std::string>>("vs");
+      d.addParameter<std::vector<std::string>>("vs", std::vector<std::string>({"a"}));
+
       templte.add<edm::InputTag>("t");
       d.addParameter<edm::InputTag>("t", edm::InputTag("foo"));
 
@@ -1304,6 +1310,10 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
 
       templte.add<std::vector<edm::ESInputTag>>("vet");
       d.addParameter<std::vector<edm::ESInputTag>>("vet", std::vector<edm::ESInputTag>({edm::ESInputTag(":foo")}));
+
+      edm::FileInPath::disableFileLookup();
+      templte.add<edm::FileInPath>("f");
+      d.addParameter<edm::FileInPath>("f", edm::FileInPath());
 
       templte.add<edm::EventID>("e");
       d.addParameter<edm::EventID>("e", edm::EventID(1, 2, 3));
@@ -1332,6 +1342,12 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
       d.addParameter<std::vector<edm::LuminosityBlockRange>>(
           "vLr", std::vector<edm::LuminosityBlockRange>({edm::LuminosityBlockRange(1, 2, 3, 4)}));
 
+      templte.add<edm::ParameterSetDescription>("p", edm::ParameterSetDescription());
+      d.addParameter<edm::ParameterSet>("p", edm::ParameterSet());
+
+      templte.addVPSet("vp", edm::ParameterSetDescription());
+      d.addParameter<std::vector<edm::ParameterSet>>("vp", std::vector<edm::ParameterSet>());
+
       psetDesc.addVPSet("vp", templte, defaults);
     }
     edm::ParameterSet test;
@@ -1350,8 +1366,10 @@ vp = cms.VPSet(
     e = cms.EventID(1, 2, 3),
     er = cms.EventRange('1:2:3-4:5:6'),
     et = cms.ESInputTag('', 'foo'),
+    f = cms.FileInPath(),
     i = cms.int32(1),
     l = cms.int64(1),
+    s = cms.string('a'),
     t = cms.InputTag('foo'),
     ui = cms.uint32(1),
     ul = cms.uint64(1),
@@ -1363,9 +1381,13 @@ vp = cms.VPSet(
     vet = cms.VESInputTag(':foo'),
     vi = cms.vint32(1),
     vl = cms.vint64(1),
+    vs = cms.vstring('a'),
     vt = cms.VInputTag('foo'),
     vui = cms.vuint32(1),
-    vul = cms.vuint64(1)
+    vul = cms.vuint64(1),
+    p = cms.PSet(),
+    vp = cms.VPSet(
+    )
   )
 )
 )-";
