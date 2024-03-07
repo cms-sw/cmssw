@@ -219,11 +219,15 @@ void testTorchFromBufferModelEval::test() {
       // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes);
+      cout << "Thread " << t << " Test loop complete." << endl;
       cudaFreeHost(c_cpu);
+      cout << "Thread " << t << " Result buffer freeed." << endl;
       c10::cuda::setCurrentCUDAStream(c10::cuda::getDefaultCUDAStream());
+      cout << "Thread " << t << " Stream reset." << endl;
     });
   }
   for (auto &t: threads) t.join();
+  cout << "Threads done." << endl;
   cudaFreeHost(a_cpu);
   cudaFreeHost(b_cpu);
   // Fixme: free mempory in case of exceptions...
