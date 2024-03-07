@@ -366,13 +366,10 @@ void PATTauHybridProducer::fillTauFromJet(reco::PFTau& pfTau, const reco::JetBas
     }
   }
   // Clean isolation candidates from low-pt and leptonic ones
-  for (CandPtrs::iterator it = pfChs.begin(); it != pfChs.end();) {
-    if ((*it)->pt() < 0.5 || std::abs((*it)->pdgId()) != 211) {
-      it = pfChs.erase(it);
-    } else {
-      ++it;
-    }
-  }
+  pfChs.erase(std::remove_if(pfChs.begin(),
+                             pfChs.end(),
+                             [](auto const& cand) { return cand->pt() < 0.5 || std::abs(cand->pdgId()) != 211; }),
+              pfChs.end());
   // Set charged candidates
   pfTau.setsignalChargedHadrCands(pfChsSig);
   pfTau.setisolationChargedHadrCands(pfChs);
@@ -385,16 +382,11 @@ void PATTauHybridProducer::fillTauFromJet(reco::PFTau& pfTau, const reco::JetBas
     pfTau.setleadChargedHadrCand(pfGammas[0]);
     pfTau.setleadCand(pfGammas[0]);
     pfGammasSig.push_back(pfGammas[0]);
-    pfChs.erase(pfGammas.begin());
+    pfGammas.erase(pfGammas.begin());
   }
   // Clean gamma candidates from low-pt ones
-  for (CandPtrs::iterator it = pfGammas.begin(); it != pfGammas.end();) {
-    if ((*it)->pt() < 0.5) {
-      it = pfGammas.erase(it);
-    } else {
-      ++it;
-    }
-  }
+  pfGammas.erase(std::remove_if(pfGammas.begin(), pfGammas.end(), [](auto const& cand) { return cand->pt() < 0.5; }),
+                 pfGammas.end());
   // if decay mode with pi0s is expected look for signal gamma candidates
   // within eta-phi strips around leading track
   if (pfTau.decayMode() % 5 != 0 && pfTau.leadChargedHadrCand().isNonnull()) {

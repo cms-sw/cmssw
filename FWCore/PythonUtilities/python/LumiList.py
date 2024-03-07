@@ -181,8 +181,8 @@ class LumiList(object):
 
     def __or__(self, other):
         result = {}
-        aruns = self.compactList.keys()
-        bruns = other.compactList.keys()
+        aruns = list(self.compactList.keys())
+        bruns = list(other.compactList.keys())
         runs = set(aruns + bruns)
         for run in runs:
             overlap = sorted(self.compactList.get(run, []) + other.compactList.get(run, []))
@@ -245,7 +245,7 @@ class LumiList(object):
         Return the list of pairs representation
         """
         theList = []
-        runs = self.compactList.keys()
+        runs = list(self.compactList.keys())
         runs = sorted(run, key=int)
         for run in runs:
             lumis = self.compactList[run]
@@ -270,7 +270,7 @@ class LumiList(object):
         """
 
         parts = []
-        runs = self.compactList.keys()
+        runs = list(self.compactList.keys())
         runs = sorted(runs, key=int)
         for run in runs:
             lumis = self.compactList[run]

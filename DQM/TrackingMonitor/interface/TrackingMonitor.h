@@ -13,6 +13,8 @@ Monitoring source for general quantities related to tracks.
 
 #include <memory>
 #include <fstream>
+#include <vector>
+
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,7 +43,6 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
@@ -93,12 +94,12 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
-  edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
-  edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+  edm::EDGetTokenT<edm::View<reco::Track>> allTrackToken_;
+  edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
   edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
-  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
-  edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
-  edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+  edm::EDGetTokenT<edm::View<TrajectorySeed>> seedToken_;
+  edm::EDGetTokenT<std::vector<SeedStopInfo>> seedStopInfoToken_;
+  edm::EDGetTokenT<std::vector<std::unique_ptr<TrackingRegion>>> regionToken_;
   edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
   edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
@@ -107,11 +108,11 @@ private:
 
   edm::InputTag stripClusterInputTag_;
   edm::InputTag pixelClusterInputTag_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClustersToken_;
 
-  std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
-  edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
+  std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection>>> mvaQualityTokens_;
+  edm::EDGetTokenT<edm::View<reco::Track>> mvaTrackToken_;
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderToken_;

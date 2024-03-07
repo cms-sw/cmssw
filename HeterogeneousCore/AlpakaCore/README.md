@@ -342,7 +342,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    edm::ESGetToken<SimpleProduct, TestRecord> token_;
+    device::ESGetToken<SimpleProduct, TestRecord> token_;
     
     OtherAlgo algo_;
   };

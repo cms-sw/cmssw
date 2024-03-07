@@ -29,6 +29,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
+#include <memory>
 #include <vector>
 
 #endif  // SISTRIPRECHIT_CLASSES_H

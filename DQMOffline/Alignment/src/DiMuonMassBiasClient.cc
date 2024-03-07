@@ -494,8 +494,8 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitBWTimesCB(TH1* hist) const
   }
   delete c1;
 
-  Measurement1D resultM(fitter->mean()->getValV(), fitter->mean()->getError());
-  Measurement1D resultW(fitter->sigma()->getValV(), fitter->sigma()->getError());
+  Measurement1D resultM(fitter->mean()->getVal(), fitter->mean()->getError());
+  Measurement1D resultW(fitter->sigma()->getVal(), fitter->sigma()->getError());
 
   return diMuonMassBias::fitOutputs(resultM, resultW);
 }

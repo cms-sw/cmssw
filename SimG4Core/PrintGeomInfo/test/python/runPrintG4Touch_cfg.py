@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun grunPrintG4Touch_cfg.py geometry=2021
 #
-#   Options for geometry 2016, 2017, 2018, 2021, 2023
+#   Options for geometry 2016, 2017, 2018, 2021, 2023, 2024
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2018, 2021, 2023")
+                  "geometry of operations: 2016, 2017, 2018, 2021, 2023, 2024")
 
 ### get and parse the command line arguments
 options.parseArguments()

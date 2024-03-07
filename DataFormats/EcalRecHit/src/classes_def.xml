@@ -42,19 +42,9 @@
   <class name="EcalOotAmpArray"/>
   <class name="EcalUncalibratedRecHitSoA"/>
   <class name="EcalUncalibratedRecHitSoA::View"/>
-
-  <class name="EcalUncalibratedRecHitHostCollection"/>
-  <read
-    sourceClass="EcalUncalibratedRecHitHostCollection"
-    targetClass="EcalUncalibratedRecHitHostCollection"
-    version="[1-]"
-    source="EcalUncalibratedRecHitSoA layout_;"
-    target="buffer_,layout_,view_"
-    embed="false">
-  <![CDATA[
-    EcalUncalibratedRecHitHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
-  ]]>
-  </read>
+  <class name="EcalUncalibratedRecHitHostCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="2717044868"/>
+  </class>
   <class name="edm::Wrapper<EcalUncalibratedRecHitHostCollection>" splitLevel="0"/>
 
 </lcgdict>

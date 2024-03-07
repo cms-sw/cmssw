@@ -151,7 +151,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   if (doRegionPlots) {
     const auto& regionTag = iConfig.getParameter<edm::InputTag>("RegionProducer");
     if (!regionTag.label().empty()) {
-      regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(regionTag);
+      regionToken_ = consumes(regionTag);
     }
     const auto& regionLayersTag = iConfig.getParameter<edm::InputTag>("RegionSeedingLayersProducer");
     if (!regionLayersTag.label().empty()) {
@@ -993,8 +993,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // plots for tracking regions
     if (doRegionPlots) {
       if (!regionToken_.isUninitialized()) {
-        edm::Handle<edm::OwnVector<TrackingRegion> > hregions = iEvent.getHandle(regionToken_);
-        const auto& regions = *hregions;
+        auto const& regions = iEvent.get(regionToken_);
         NumberOfTrackingRegions->Fill(regions.size());
 
         theTrackBuildingAnalyzer->analyze(regions);

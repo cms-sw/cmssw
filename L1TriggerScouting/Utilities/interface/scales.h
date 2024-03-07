@@ -20,7 +20,7 @@ namespace l1ScoutingRun3 {
 
   namespace demux {
     struct scales {
-      static constexpr float phi_scale = 2. * M_PI / 144.;
+      static constexpr float phi_scale = 0.0435;
       static constexpr float eta_scale = 0.0435;
       static constexpr float et_scale = 0.5;
     };

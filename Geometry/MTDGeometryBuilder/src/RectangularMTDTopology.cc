@@ -16,6 +16,40 @@ std::pair<float, float> RectangularMTDTopology::pixel(const LocalPoint& p) const
   return std::pair<float, float>(newxbin, newybin);
 }
 
+//provide pixel indices based on local module position (with protection for border positions)
+std::pair<int, int> RectangularMTDTopology::pixelIndex(const LocalPoint& p) const {
+  const auto& thepixel = pixel(p);
+  bool fail(false);
+
+  static constexpr float tol = 5e-5f;  // 0.5 micron tolerance
+
+  int row = static_cast<int>(thepixel.first);
+  if (row >= m_nrows) {
+    fail = (p.x() - m_pitchx * m_nrows > tol);
+    if (!fail) {
+      row--;
+    }
+  }
+  int col = static_cast<int>(thepixel.second);
+  if (col >= m_ncols) {
+    fail = (p.y() - m_pitchy * m_ncols > tol);
+    if (!fail) {
+      col--;
+    }
+  }
+  if (fail) {
+    throw cms::Exception("RectangularMTDTopology")
+        << "Incorrect pixel id! r/c " << std::fixed << std::setw(2) << row << " / " << std::fixed << std::setw(2) << col
+        << " with max " << std::fixed << std::setw(2) << m_nrows << " / " << std::fixed << std::setw(2) << m_ncols
+        << " for LocalPoint " << std::fixed << std::setw(8) << std::setprecision(4) << p.x() << " , " << std::fixed
+        << std::setw(8) << std::setprecision(4) << p.y() << " pixel " << std::fixed << std::setw(8)
+        << std::setprecision(4) << thepixel.first << " , " << std::fixed << std::setw(8) << std::setprecision(4)
+        << thepixel.second << " deltas " << p.x() - m_pitchx * m_nrows << " , " << p.y() - m_pitchy * m_ncols;
+  }
+
+  return std::pair<int, int>(row, col);
+}
+
 //The following lines check whether the point is actually out of the active pixel area.
 bool RectangularMTDTopology::isInPixel(const LocalPoint& p) const {
   bool isInside = true;

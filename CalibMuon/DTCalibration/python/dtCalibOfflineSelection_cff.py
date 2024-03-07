@@ -16,8 +16,9 @@ hltDTCalibration = copy.deepcopy(hltHighLevel)
 hltDTCalibration.HLTPaths = ['HLT_DTCalibration_v*']
 
 ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
-ALCARECODtCalibHIHLTFilter.throw = False
-ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibHI'
+
+ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL2SingleMu*']
+
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
@@ -108,7 +109,8 @@ offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
 offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
 offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
 offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt5)
-offlineSelectionHIPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilterHI + muonSelectionPt5)
+offlineSelectionHIPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilter + muonSelectionPt5)
+
 offlineSelectionHIALCARECOPt5 = cms.Sequence(primaryVertexFilterHI + muonSelectionPt5)
 offlineSelectionHIRAWPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter)
 

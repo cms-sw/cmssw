@@ -147,7 +147,9 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       ehit.setId(hit.id());
       ehit.setPosition(GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z()));
       ehit.setEnergy(et);
-      ehit.setEt_uint((ap_uint<10>)hit.encodedEt());  // also save the uint Et
+      ehit.setEt_uint(
+          (ap_uint<10>)hit.encodedEt() >>
+          2);  // also save the uint Et, this is to convert between 0.125 (in MC production) and 0.5 (in firmware based code)
       ehit.setPt();
       ecalhits.push_back(ehit);
     }
@@ -332,9 +334,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
 
       // Iteratively find four clusters and remove them from 'temporary' as we go, and fill cluster_list
       for (int c = 0; c < p2eg::N_CLUSTERS_PER_REGION; c++) {
-        p2eg::Cluster newCluster = p2eg::getClusterFromRegion3x4(
-            temporary);  // remove cluster from 'temporary', adjust for LSB 0.5 at GCT in getClusterValues
-        newCluster.setRegionIdx(idxRegion);  // add the region number
+        p2eg::Cluster newCluster = p2eg::getClusterFromRegion3x4(temporary);  // remove cluster from 'temporary'
+        newCluster.setRegionIdx(idxRegion);                                   // add the region number
         if (newCluster.clusterEnergy() > 0) {
           // do not push back 0-energy clusters
           cluster_list[cc].push_back(newCluster);
@@ -343,7 +344,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
 
       // Create towers using remaining ECAL energy, and the HCAL towers were already calculated in towersEtHCAL[12]
       ap_uint<12> towerEtECAL[12];
-      p2eg::getECALTowersEt(temporary, towerEtECAL);  // adjust for LSB 0.5 at GCT
+      p2eg::getECALTowersEt(temporary, towerEtECAL);
 
       // Fill towerHCALCard and towerECALCard arrays
       for (int i = 0; i < 12; i++) {
@@ -418,8 +419,8 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
     // Cluster shower shape flags
     //-------------------------------------------//
     for (auto& c : cluster_list_merged[cc]) {
-      c.is_ss = p2eg::passes_ss(c.getPt(), (c.getEt2x5() / c.getEt5x5()));
-      c.is_looseTkss = p2eg::passes_looseTkss(c.getPt(), (c.getEt2x5() / c.getEt5x5()));
+      c.is_ss = p2eg::passes_ss(c.getPt(), c.realEta(cc), (c.getEt2x5() / c.getEt5x5()));
+      c.is_looseTkss = p2eg::passes_looseTkss(c.getPt(), c.realEta(cc), (c.getEt2x5() / c.getEt5x5()));
     }
 
     //-------------------------------------------//
@@ -483,9 +484,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
       for (int jj = 0; jj < p2eg::n_towers_cardPhi; ++jj) {  // 4 towers per card in phi
 
         l1tp2::CaloTower l1CaloTower;
-        // Divide by 8.0 to get ET as float (GeV)
         l1CaloTower.setEcalTowerEt(towerECALCard[ii][jj][cc].et() * p2eg::ECAL_LSB);
-        // HCAL TPGs encoded ET: multiply by the LSB (0.5) to convert to GeV
         l1CaloTower.setHcalTowerEt(towerHCALCard[ii][jj][cc].et() * p2eg::HCAL_LSB);
         int absToweriEta = p2eg::getAbsID_iEta_fromFirmwareCardTowerLink(cc, ii, jj);
         int absToweriPhi = p2eg::getAbsID_iPhi_fromFirmwareCardTowerLink(cc, ii, jj);
@@ -526,7 +525,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
           p2eg::tower_t t0_ecal = towerECALCard[iTower][iLink][rcc];
           p2eg::tower_t t0_hcal = towerHCALCard[iTower][iLink][rcc];
           p2eg::RCTtower_t t;
-          t.et = t0_ecal.et() + p2eg::convertHcalETtoEcalET(t0_hcal.et());
+          t.et = t0_ecal.et() + t0_hcal.et();
           t.hoe = t0_ecal.hoe();
           // Not needed for GCT firmware but will be written into GCT CMSSW outputs : 12 bits each
           t.ecalEt = t0_ecal.et();

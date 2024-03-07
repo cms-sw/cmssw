@@ -61,7 +61,7 @@ private:
 
   edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
   edm::EDGetTokenT<std::vector<bool>> hitMasksToken;
-  edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> trackingRegionToken;
+  edm::EDGetTokenT<std::vector<std::unique_ptr<TrackingRegion>>> trackingRegionToken;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
 
   // other data members
@@ -128,7 +128,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) : 
   }
 
   /// regions
-  trackingRegionToken = consumes<edm::OwnVector<TrackingRegion>>(conf.getParameter<edm::InputTag>("trackingRegions"));
+  trackingRegionToken = consumes(conf.getParameter<edm::InputTag>("trackingRegions"));
 
   // seed creator
   const edm::ParameterSet& seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
@@ -154,9 +154,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
 
   // read the regions;
-  edm::Handle<edm::OwnVector<TrackingRegion>> hregions;
-  e.getByToken(trackingRegionToken, hregions);
-  const auto& regions = *hregions;
+  auto const& regions = e.get(trackingRegionToken);
   // and make sure there is at least one region
   if (regions.empty()) {
     e.put(std::move(output));
@@ -187,7 +185,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (const auto& region : regions) {
       // set the region used in the selector
       if (seedFinderSelector) {
-        seedFinderSelector->setTrackingRegion(&region);
+        seedFinderSelector->setTrackingRegion(region.get());
       }
 
       // find hits compatible with the seed requirements
@@ -204,7 +202,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
         fastTrackingUtilities::setRecHitCombinationIndex(seedHits, icomb);
 
         // create the seed
-        seedCreator->init(region, es, nullptr);
+        seedCreator->init(*region, es, nullptr);
         seedCreator->makeSeed(*output,
                               SeedingHitSet(&seedHits[0],
                                             &seedHits[1],

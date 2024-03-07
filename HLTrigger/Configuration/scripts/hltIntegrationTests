@@ -19,7 +19,7 @@ function err() {
 
 NAME=$(basename $0)
 
-HELP="Run the integration tests over all paths in a given HLT menu.
+HELP="Run the integration tests on a given HLT menu.
 
 Usage:
   $NAME -h|--help
@@ -42,6 +42,10 @@ Usage:
        --streams     STREAMS      Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
        --threads     THREADS      Run with THREADS threads when running the whole HLT (default 4)
   -a | --accelerator ACCELERATOR  Keyword to choose allowed accelerators (examples: \"*\", \"cpu\", \"gpu-nvidia\")
+  -p | --paths       PATHS        Comma-separated list of Path names (incl. wildcards)
+                                  to select which Paths are tested standalone.
+                                  If a Path-name pattern starts with the dash character (-),
+                                  the Paths whose name matches that pattern will be ignored.
   -x | --extra       OPTIONS      If the HLT menu is a local cmsRun cfg file, OPTIONS is used as
                                   additional arguments to cmsRun (i.e. \"cmsRun hlt.py [OPTIONS]\")
                                   If the HLT menu is the name of a ConfDB configuration, OPTIONS is used as
@@ -95,8 +99,8 @@ Examples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:a:x:h" \
- -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,accelerator:,events:,mc,extra:,help,dbproxy,dbproxyhost:,dbproxyport:" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:p:a:x:h" \
+ -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,paths:,accelerator:,events:,mc,extra:,help,dbproxy,dbproxyhost:,dbproxyport:" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then
@@ -118,6 +122,7 @@ EVENTS=""
 JOBS=4
 THREADS=4
 STREAMS=0
+PATHS=""
 ACCELERATOR="cpu"
 WORKDIR="hltintegration"
 EXTRA=""
@@ -198,6 +203,10 @@ while true; do
       ;;
     "--threads" )
       THREADS=$2
+      shift 2
+      ;;
+    "-p" | "--paths" )
+      PATHS="$2"
       shift 2
       ;;
     "-a" | "--accelerator" )
@@ -320,12 +329,12 @@ else
   # if ${DATA} is empty, set it to "--data"
   [ "${DATA}" ] || DATA="--data"
   # download HLT menu from ConfDB
-  HLTGETCMD="hltGetConfiguration ${MENU} \
+  HLTGETCMD="hltGetConfiguration ${MENU}
     --process \"TEST$(date -u +'%Y%m%d%H%M%S')\"
-    --full --offline ${DATA} --unprescale \
-    --max-events ${SIZE} ${EXTRA} ${DBPROXYOPTS} --input ${INPUT}"
+    --max-events ${SIZE} --no-prescale --no-output
+    ${DATA} --input ${INPUT} ${EXTRA} ${DBPROXYOPTS}"
   HLTGETCMD=$(echo "${HLTGETCMD}" | xargs)
-  log "Creating HLT menu from ConfDB configuration:\n> ${HLTGETCMD}"
+  log "Creating HLT menu from ConfDB configuration\n> ${HLTGETCMD}"
   ${HLTGETCMD} > hlt.py
   # unset EXTRA environment variable (used later in cmsRun jobs)
   unset HLTGETCMD EXTRA
@@ -355,11 +364,11 @@ if [ "${SELECTION}" == "complex" ]; then
 process.source.eventsToProcess = cms.untracked.VEventRange( '$(echo $EVENTS | sed -e"s/,/','/g")' )
 @EOF
 
-elif (( $SKIP > 0 )); then
+elif (( ${SKIP} > 0 )); then
   cat >> hlt.py << @EOF
 
 # event selection customised by hltIntegrationTests
-process.source.skipEvents = cms.untracked.uint32( $SKIP )
+process.source.skipEvents = cms.untracked.uint32( ${SKIP} )
 @EOF
 fi
 
@@ -367,8 +376,8 @@ fi
 cat >> hlt.py << @EOF
 
 # configure multithreading, and allocate 10 MB of stack space per thread
-process.options.numberOfThreads = $THREADS
-process.options.numberOfStreams = $STREAMS
+process.options.numberOfThreads = ${THREADS}
+process.options.numberOfStreams = ${STREAMS}
 process.options.sizeOfStackForThreadsInKB = 10*1024
 # set allowed accelerators
 process.options.accelerators = [ "$ACCELERATOR" ]
@@ -376,23 +385,41 @@ process.options.accelerators = [ "$ACCELERATOR" ]
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 
-# find the list of all trigger paths
-TRIGGERS=$(hltListPaths hlt.py -p --no-dep --exclude "^HLTriggerFinalPath$")
+# find number of cms.Paths in the HLT menu (incl. Dataset Paths)
+NUM_PATHS=$(python3 -c """
+import sys
+# redefine sys.argv (necessary to import
+# cfg file if the latter uses VarParsing)
+sys.argv = ['python3', 'hlt.py']
+from hlt import cms,process
+try:
+  print(len(process.paths_()))
+except:
+  print(0)
+""")
+log "\nThe HLT menu contains ${NUM_PATHS} Paths (incl. Dataset Paths)"
+
+# list of trigger Paths to be tested standalone (always exclude HLTriggerFinalPath)
+log "\nPreparing list of Paths to be tested standalone (paths.txt)"
+[ "${PATHS}" ] || PATHS="*"
+PATHS+=",-HLTriggerFinalPath"
+log " - Path selection: \"${PATHS}\""
+TRIGGERS=$(hltListPaths hlt.py -p --no-dep --select-paths "${PATHS}")
 echo "${TRIGGERS[@]}" > paths.txt
 
 # print some info
-if [ "$SELECTION" == "complex" ]; then
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
-elif [ "$SIZE" == "-1" ]; then
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over all events, with $JOBS jobs in parallel"
+if [ "${SELECTION}" == "complex" ]; then
+  log "\nWill run full menu and $(echo $TRIGGERS | wc -w) Paths standalone over $(echo ${EVENTS} | tr ',' '\n' | wc -l) events, with ${JOBS} jobs in parallel"
+elif [ "${SIZE}" == "-1" ]; then
+  log "\nWill run full menu and $(echo ${TRIGGERS} | wc -w) Paths standalone over all events, with ${JOBS} jobs in parallel"
 else
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
+  log "\nWill run full menu and $(echo ${TRIGGERS} | wc -w) Paths standalone over ${SIZE} events, with ${JOBS} jobs in parallel"
 fi
 
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
-log "Preparing single-trigger configurations"
+log "\nPreparing single-Path configurations"
 for TRIGGER in $TRIGGERS; do
   cat > "${TRIGGER}".py << @EOF
 from hlt import *
@@ -424,10 +451,10 @@ if [ "${SETUP}" ]; then
     # this is the hltGetConfiguration behaviour and would be confusing if you had to
     # specify converter/db on the setup menu on hltIntegrationTests but not on hltGetConfiguration
     read SETUP_Vx SETUP_DB _ <<< $(parse_HLT_menu "${MENU}")
-    log "Creating setup_cff from ConfDB configuration: ${SETUP_Vx}/${SETUP_DB}:${SETUP}"
+    log "\nCreating setup_cff from ConfDB configuration: ${SETUP_Vx}/${SETUP_DB}:${SETUP}"
     hltConfigFromDB --${SETUP_Vx} --${SETUP_DB} ${DBPROXYOPTS} --cff --configName "$SETUP" \
       --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
-    sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "${TRIGGER}".py; done)
+    sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in ${TRIGGERS}; do echo "${TRIGGER}".py; done)
   else
     printf "%s\n" "WARNING -- \"--setup ${SETUP}\" will be ignored (failed to deduce name of HLT menu from hlt.py)"
   fi
@@ -435,7 +462,7 @@ fi
 
 # run all HLT dumps
 cat > .makefile << @EOF
-TRIGGERS=$(echo $TRIGGERS)
+TRIGGERS=$(echo ${TRIGGERS})
 CFGS=\$(TRIGGERS:%=%.py)
 LOGS=\$(TRIGGERS:%=%.log)
 DONE=\$(TRIGGERS:%=%.done)
@@ -460,7 +487,7 @@ hlt.done: hlt.py
 	@cmsRun \$*.py ${EXTRA} >& \$*.log < /dev/zero && touch \$*.done
 @EOF
 
-log "Running..."
+log "\nRunning..."
 # if the whole hlt job runs with multithreading, run it by itself
 # otherwise, run it in parallel with the single-trigger jobs
 if ((THREADS > 0)); then
@@ -471,7 +498,7 @@ else
 fi
 
 # compare HLT results
-log "Comparing the results of running each path by itself with those from the full menu"
+log "\nComparing the results of running each path by itself with those from the full menu"
 hltCompareResults
 STATUS=$?
 log "--------------------------"

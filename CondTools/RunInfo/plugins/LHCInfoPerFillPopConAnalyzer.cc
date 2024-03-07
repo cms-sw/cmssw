@@ -4,6 +4,7 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
 #include "CondTools/RunInfo/interface/LumiSectionFilter.h"
+#include "CondTools/RunInfo/interface/LHCInfoHelper.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -17,13 +18,6 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include <cmath>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <utility>
-#include <vector>
 
 class LHCInfoPerFillPopConSourceHandler;
 
@@ -211,12 +205,10 @@ public:
       : m_debug(pset.getUntrackedParameter<bool>("debug", false)),
         m_startTime(),
         m_endTime(),
-        m_samplingInterval((unsigned int)pset.getUntrackedParameter<unsigned int>("samplingInterval", 300)),
         m_endFillMode(pset.getUntrackedParameter<bool>("endFill", true)),
         m_name(pset.getUntrackedParameter<std::string>("name", "LHCInfoPerFillPopConSourceHandler")),
         m_connectionString(pset.getUntrackedParameter<std::string>("connectionString", "")),
         m_ecalConnectionString(pset.getUntrackedParameter<std::string>("ecalConnectionString", "")),
-        m_dipSchema(pset.getUntrackedParameter<std::string>("DIPSchema", "")),
         m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
         m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
         m_fillPayload(),
@@ -233,13 +225,10 @@ public:
         m_endTime = now;
     }
   }
-  //L1: try with different m_dipSchema
-  //L2: try with different m_name
-  ~LHCInfoPerFillPopConSourceHandler() override = default;
-  void getNewObjects() override {
-    //reference to the last payload in the tag
-    Ref previousFill;
 
+  ~LHCInfoPerFillPopConSourceHandler() override = default;
+
+  void getNewObjects() override {
     //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
     if (tagInfo().size == 0) {
       edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
@@ -255,24 +244,17 @@ public:
     cond::Time_t lastSince = tagInfo().lastInterval.since;
     if (tagInfo().isEmpty()) {
       // for a new or empty tag, an empty payload should be added on top with since=1
-      addEmptyPayload(1);
-      lastSince = 1;
+      if (m_endFillMode) {
+        addEmptyPayload(1);
+        lastSince = 1;
+      } else {
+        addEmptyPayload(cond::time::lumiTime(1, 1));
+        lastSince = cond::time::lumiTime(1, 1);
+      }
     } else {
       edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
                            << m_name << "::getNewObjects";
     }
-
-    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
-    cond::Time_t targetSince = 0;
-    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
-    if (!m_startTime.is_not_a_date_time()) {
-      targetSince = cond::time::from_boost(m_startTime);
-    }
-    if (lastSince > targetSince)
-      targetSince = lastSince;
-
-    edm::LogInfo(m_name) << "Starting sampling at "
-                         << boost::posix_time::to_simple_string(cond::time::to_boost(targetSince));
 
     //retrieve the data from the relational database source
     cond::persistency::ConnectionPool connection;
@@ -295,15 +277,23 @@ public:
       session3.transaction().commit();
     }
 
-    // bool iovAdded = false;
+    boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
+    cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
+
+    cond::Time_t startTimestamp = m_startTime.is_not_a_date_time() ? 0 : cond::time::from_boost(m_startTime);
+    cond::Time_t nextFillSearchTimestamp =
+        std::max(startTimestamp, m_endFillMode ? lastSince : m_prevPayload->createTime());
+
+    edm::LogInfo(m_name) << "Starting sampling at "
+                         << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+
     while (true) {
-      if (targetSince >= executionTimeIov) {
+      if (nextFillSearchTimestamp >= executionTimeIov) {
         edm::LogInfo(m_name) << "Sampling ended at the time "
                              << boost::posix_time::to_simple_string(cond::time::to_boost(executionTimeIov));
         break;
       }
-      bool updateEcal = false;
-      boost::posix_time::ptime targetTime = cond::time::to_boost(targetSince);
+      boost::posix_time::ptime nextFillSearchTime = cond::time::to_boost(nextFillSearchTimestamp);
       boost::posix_time::ptime startSampleTime;
       boost::posix_time::ptime endSampleTime;
 
@@ -311,12 +301,12 @@ public:
       oms.connect(m_omsBaseUrl);
       auto query = oms.query("fills");
 
-      edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(targetTime);
+      edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
       query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
-      if (targetTime > cond::time::to_boost(m_prevPayload->createTime())) {
-        query->filterGE("start_time", targetTime);
+      if (nextFillSearchTime > cond::time::to_boost(m_prevPayload->createTime())) {
+        query->filterGE("start_time", nextFillSearchTime);
       } else {
-        query->filterGT("start_time", targetTime);
+        query->filterGT("start_time", nextFillSearchTime);
       }
 
       query->filterLT("start_time", m_endTime);
@@ -327,8 +317,6 @@ public:
         foundFill = theLHCInfoPerFillImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogInfo(m_name) << "No fill found - END of job.";
-        // if (iovAdded)
-        //   addEmptyPayload(targetSince);
         break;
       }
 
@@ -341,12 +329,12 @@ public:
         edm::LogInfo(m_name) << "Found ongoing fill " << lhcFill << " created at "
                              << cond::time::to_boost(startFillTime);
         endSampleTime = executionTime;
-        targetSince = executionTimeIov;
+        nextFillSearchTimestamp = executionTimeIov;
       } else {
         edm::LogInfo(m_name) << "Found fill " << lhcFill << " created at " << cond::time::to_boost(startFillTime)
                              << " ending at " << cond::time::to_boost(endFillTime);
         endSampleTime = cond::time::to_boost(endFillTime);
-        targetSince = endFillTime;
+        nextFillSearchTimestamp = endFillTime;
       }
       if (m_endFillMode || ongoingFill) {
         getDipData(oms, startSampleTime, endSampleTime);
@@ -359,17 +347,28 @@ public:
           getCTPPSData(session, startSampleTime, endSampleTime);
           session.transaction().commit();
           session2.transaction().start(true);
-          getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
+          getEcalData(session2, startSampleTime, endSampleTime);
           session2.transaction().commit();
         }
+      }
+
+      // In duringFill mode, convert the timestamp-type IOVs to lumiid-type IOVs
+      // before transferring the payloads from the buffer to the final collection
+      if (!m_endFillMode) {
+        convertBufferedIovsToLumiid(m_timestampToLumiid);
       }
 
       size_t niovs = theLHCInfoPerFillImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
       edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
       m_tmpBuffer.clear();
-      // iovAdded = true;
-      if (m_prevPayload->fillNumber() and !ongoingFill)
-        addEmptyPayload(endFillTime);
+      m_timestampToLumiid.clear();
+      if (m_prevPayload->fillNumber() and !ongoingFill) {
+        if (m_endFillMode) {
+          addEmptyPayload(endFillTime);
+        } else {
+          addEmptyPayload(cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));
+        }
+      }
     }
   }
 
@@ -398,15 +397,35 @@ private:
     }
   }
 
+  // Add payload to buffer and store corresponding lumiid IOV in m_timestampToLumiid map
   void addPayloadToBuffer(cond::OMSServiceResultRef& row) {
-    auto lumiTime = row.get<boost::posix_time::ptime>("start_time");
+    auto startTime = row.get<boost::posix_time::ptime>("start_time");
     auto delivLumi = row.get<float>("delivered_lumi");
     auto recLumi = row.get<float>("recorded_lumi");
+    auto runNumber = std::stoul(row.get<std::string>("run_number"));
+    auto lsNumber = std::stoul(row.get<std::string>("lumisection_number"));
+    auto lumiid = cond::time::lumiTime(runNumber, lsNumber);
+
     LHCInfoPerFill* thisLumiSectionInfo = m_fillPayload->cloneFill();
-    m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+    m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(startTime), thisLumiSectionInfo));
+    if (!m_endFillMode) {
+      m_timestampToLumiid.insert(std::make_pair(cond::time::from_boost(startTime), lumiid));
+    }
     LHCInfoPerFill& payload = *thisLumiSectionInfo;
     payload.setDelivLumi(delivLumi);
     payload.setRecLumi(recLumi);
+  }
+
+  void convertBufferedIovsToLumiid(std::map<cond::Time_t, cond::Time_t> timestampToLumiid) {
+    for (auto& item : m_tmpBuffer) {
+      // Check if the lumiid IOV corresponding to the timestamp is present in the map
+      if (timestampToLumiid.find(item.first) == timestampToLumiid.end()) {
+        throw cms::Exception("LHCInfoPerFillPopConSourceHandler")
+            << "Can't find corresponding lumiid IOV for timestamp " << item.first << "\n";
+      }
+      // Update the buffer with the lumiid-type IOV
+      item.first = timestampToLumiid.at(item.first);
+    }
   }
 
   size_t getLumiData(const cond::OMSService& oms,
@@ -414,7 +433,8 @@ private:
                      const boost::posix_time::ptime& beginFillTime,
                      const boost::posix_time::ptime& endFillTime) {
     auto query = oms.query("lumisections");
-    query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi", "beams_stable"});
+    query->addOutputVars(
+        {"start_time", "delivered_lumi", "recorded_lumi", "beams_stable", "run_number", "lumisection_number"});
     query->filterEQ("fill_number", fillId);
     query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
     query->filterEQ("beams_stable", "true");
@@ -608,8 +628,7 @@ private:
 
   bool getEcalData(cond::persistency::Session& session,
                    const boost::posix_time::ptime& lowerTime,
-                   const boost::posix_time::ptime& upperTime,
-                   bool update) {
+                   const boost::posix_time::ptime& upperTime) {
     //run the sixth query against the CMS_DCS_ENV_PVSS_COND schema
     //Initializing the CMS_DCS_ENV_PVSS_COND schema.
     coral::ISchema& ECAL = session.nominalSchema();
@@ -684,7 +703,7 @@ private:
         }
         changeTime = cond::time::from_boost(chTime);
         cond::Time_t iovTime = changeTime;
-        if (!update and changeTime == firstTime)
+        if (changeTime == firstTime)
           iovTime = lowerLumi;
         coral::Attribute const& dipValAttribute = ECALDataCursor.currentRow()[std::string("DIP_value")];
         coral::Attribute const& valueNumberAttribute = ECALDataCursor.currentRow()[std::string("VALUE_NUMBER")];
@@ -702,7 +721,6 @@ private:
               theLHCInfoPerFillImpl::setElementData(it->first, dipVal, elementNr, value, payload, initializedVectors);
             }
           }
-          //}
         }
       }
     }
@@ -720,16 +738,16 @@ private:
   // starting date for sampling
   boost::posix_time::ptime m_startTime;
   boost::posix_time::ptime m_endTime;
-  // sampling interval in seconds
-  unsigned int m_samplingInterval;
   bool m_endFillMode = true;
   std::string m_name;
   //for reading from relational database source
   std::string m_connectionString, m_ecalConnectionString;
-  std::string m_dipSchema, m_authpath;
+  std::string m_authpath;
   std::string m_omsBaseUrl;
   std::unique_ptr<LHCInfoPerFill> m_fillPayload;
   std::shared_ptr<LHCInfoPerFill> m_prevPayload;
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerFill>>> m_tmpBuffer;
   bool m_lastPayloadEmpty = false;
+  // to hold correspondance between timestamp-type IOVs and lumiid-type IOVs
+  std::map<cond::Time_t, cond::Time_t> m_timestampToLumiid;
 };

@@ -1,6 +1,7 @@
 from __future__ import print_function
 from fnmatch import fnmatch
 import FWCore.ParameterSet.Config as cms
+import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.Utilities.FileUtils as FileUtils
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
@@ -209,9 +210,13 @@ process.DiMuonVertexValidation = diMuonVertexValidation.clone(useReco = config["
 ## depending if RECO or ALCARECO is used
 ## the useReco flag above must be set accordingly
 if (config["validation"].get("useReco",True)):
+    print("I AM USING RECO DATA-TIER")
     process.DiMuonVertexValidation.muons  = 'muons'
     process.DiMuonVertexValidation.tracks = 'refittedVtxTracks'
 else:
+    print("I AM USING ALCARECO DATA-TIER")
+    if(hasattr(process.DiMuonVertexValidation,'muons')):
+        delattr(process.DiMuonVertexValidation,'muons')
     process.DiMuonVertexValidation.muonTracks = cms.InputTag('refittedMuons')
 
 ####################################################################

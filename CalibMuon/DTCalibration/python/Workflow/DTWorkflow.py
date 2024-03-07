@@ -6,7 +6,7 @@ import logging
 import argparse
 import subprocess
 import time, datetime
-import urllib2
+import urllib
 import json
 
 from . import tools
@@ -98,6 +98,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
         """
         self.run_all_command = True
         for command in self.all_commands:
+            log.info(f"Will run command: {command}")
             self.options.command = command
             self.run()
 
@@ -127,7 +128,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
         tools.prependPaths(self.process, seqname)
 
     def add_raw_option(self):
-        getattr(self.process, self.digilabel).inputLabel = 'rawDataCollector'
+        getattr(self.process, self.digilabel).inputLabel = self.options.raw_data_label
         tools.prependPaths(self.process,self.digilabel)
 
     def add_local_t0_db(self, local=False):
@@ -217,11 +218,15 @@ class DTWorkflow(CLIHelper, CrabHelper):
         crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                                initUpdate = False)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
-            self.get_output_files(crabtask, output_path)
+            output_files =  self.get_output_files(crabtask, output_path)
+            if "xrootd" not in output_files.keys():
+                raise RuntimeError("Could not get output files. No xrootd key found.")
+            if len(output_files["xrootd"]) == 0:
+                raise RuntimeError("Could not get output files. Output file list is empty.")
             log.info("Received files from storage element")
             log.info("Using hadd to merge output files")
         if not self.options.no_exec and do_hadd:
-            returncode = tools.haddLocal(output_path, merged_file)
+            returncode = tools.haddLocal(output_files["xrootd"], merged_file)
             if returncode != 0:
                 raise RuntimeError("Failed to merge files with hadd")
         return crabtask.crabConfig.Data.outputDatasetTag
@@ -268,10 +273,12 @@ class DTWorkflow(CLIHelper, CrabHelper):
                                                                 )
 
     def get_output_files(self, crabtask, output_path):
-        self.crab.callCrabCommand( ["getoutput",
-                                    "--outputpath",
-                                    output_path,
+        res = self.crab.callCrabCommand( ["getoutput",
+                                    "--dump",
+                                    "--xrootd",
                                     crabtask.crabFolder ] )
+        
+        return res
 
     def runCMSSWtask(self, pset_path=""):
         """ Run a cmsRun job locally. The member variable self.pset_path is used

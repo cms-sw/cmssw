@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("src")->setComment("Input calorimeter rec hit collection");
+      desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("Input calorimeter rec hit collection");
       desc.addUntracked<bool>("synchronise", false)
           ->setComment("Add synchronisation point after execution (for benchmarking asynchronous execution)");
       descriptions.addWithDefaultLabel(desc);

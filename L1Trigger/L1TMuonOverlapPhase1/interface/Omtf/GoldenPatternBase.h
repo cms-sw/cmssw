@@ -102,7 +102,8 @@ public:
   virtual StubResult process1Layer1RefLayer(unsigned int iRefLayer,
                                             unsigned int iLayer,
                                             MuonStubPtrs1D layerStubs,
-                                            const MuonStubPtr refStub);
+                                            const std::vector<int>& extrapolatedPhi,
+                                            const MuonStubPtr& refStub);
 
   ///Propagate phi from given reference layer to MB2 or ME2
   ///ME2 is used if eta of reference hit is larger than 1.1

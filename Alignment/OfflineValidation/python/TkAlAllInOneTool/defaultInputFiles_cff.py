@@ -10,6 +10,8 @@ filesDefaultMC_DoubleMuon = cms.untracked.vstring(
 
 filesDefaultMC_DoubleMuon_string = '/store/relval/CMSSW_12_5_0_pre5/RelValZMM_14/GEN-SIM-RECO/125X_mcRun3_2022_realistic_v3-v1/10000/068634c7-e8e2-4e46-a68e-97ebefed4868.root'
 
+filesDefaultMC_DoubleMuonAlCa_string = '/store/relval/CMSSW_14_0_0_pre3/RelValZMM_14/ALCARECO/TkAlZMuMu-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v1/2580000/b91cfb5d-090c-4410-8c9e-ce165f4a4ef4.root'
+
 filesDefaultMC_TTBarPU = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/PU_125X_mcRun3_2022_realistic_v3-v1/10000/0136c33f-3ff9-4602-8578-906ae6e0160b.root'
 )

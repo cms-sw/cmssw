@@ -46,10 +46,14 @@ int merge(int argc, char* argv[]) {
     //   std::cout << "  Attribute: " << attr.first << " = " << attr.second.data() << std::endl;
     // }
 
-    std::cout << childTree.second.get<string>("file") << std::endl;
+    std::string file = childTree.second.get<string>("file");
+    std::cout << file << std::endl;
     std::cout << childTree.second.get<string>("title") << std::endl;
-    std::string toAdd = childTree.second.get<string>("file") +
-                        "/DiMuonVertexValidation.root=" + childTree.second.get<string>("title") + ",";
+
+    // Check if the file contains "/eos/cms/" and add the prefix accordingly
+    std::string prefixToAdd = file.find("/eos/cms/") != std::string::npos ? "root://eoscms.cern.ch/" : "";
+    std::string toAdd =
+        prefixToAdd + file + "/DiMuonVertexValidation.root=" + childTree.second.get<string>("title") + ",";
     filesAndLabels += toAdd;
   }
 

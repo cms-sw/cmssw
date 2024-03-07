@@ -125,12 +125,12 @@ namespace L1TUtmTriggerMenuInspectorHelper {
       std::vector<std::string> s_x1, s_x2, s_x3;
       y = 1.0;
       x1 = 0.02;
-      x2 = x1 + 0.45;
+      x2 = x1 + 0.37;
       y -= pitch;
 
       // title for plot
       y_x1.push_back(y);
-      s_x1.push_back("#scale[1.1]{Key}");
+      s_x1.push_back("#scale[1.1]{Algo Name}");
       y_x2.push_back(y);
       s_x2.push_back("#scale[1.1]{Target tag / IOV: #color[2]{" + m_tagName + "} / " + m_IOVsinceDisplay + "}");
 
@@ -147,7 +147,7 @@ namespace L1TUtmTriggerMenuInspectorHelper {
       for (const auto& ref : vec_only_in_other) {
         y -= pitch;
         y_x1.push_back(y);
-        s_x1.push_back(ref);
+        s_x1.push_back("#scale[0.7]{" + ref + "}");
         y_x2.push_back(y);
         s_x2.push_back("#color[4]{#bf{Only in reference, not in target.}}");
         y_line.push_back(y - (pitch / 2.));
@@ -157,7 +157,7 @@ namespace L1TUtmTriggerMenuInspectorHelper {
       for (const auto& tar : vec_only_in_this) {
         y -= pitch;
         y_x1.push_back(y);
-        s_x1.push_back(tar);
+        s_x1.push_back("#scale[0.7]{" + tar + "}");
         y_x2.push_back(y);
         s_x2.push_back("#color[2]{#bf{Only in target, not in reference.}}");
         y_line.push_back(y - (pitch / 2.));

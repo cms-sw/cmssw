@@ -28,6 +28,9 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           full reco with Patatrack pixel-only quadruplets:    TTbar - on GPU (optional), GPU-vs-CPU validation
 #           full reco with Patatrack pixel-only triplets:       TTbar - on GPU (optional), GPU-vs-CPU validation
 #           Patatrack pixel-only quadruplets:                   Single Nu E10 on GPU (optional)
+# mc 2024   Alpaka pixel-only quadruplets:                      ZMM: any backend, any backend vs cpu validation, profiling
+#           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
+#           Alpaka ECAL-only:                                   TTbar: any backend 
 # mc 2026   Patatrack pixel-only quadruplets:                   Single Nu E10 on GPU (optional)
 numWFIB = [
            # 2023, Alpaka-based
@@ -49,6 +52,13 @@ numWFIB = [
            12434.592, 12434.593,
            12434.596, 12434.597,
            12461.502,
+           # 2024, Alpaka-based
+           12650.402, 12650.403, 12650.404,
+           #12650.406, 12650.407, 12650.408
+           12634.402, 12634.403, 12634.404,
+           #12634.406, 12634.407, 12634.408
+           12634.412, #12634.413, 12634.414
+           12661.402,
            # 2026, CUDA-based
            24861.502
         ]

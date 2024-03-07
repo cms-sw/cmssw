@@ -21,11 +21,11 @@ from __future__ import print_function
 import os, glob
 import os.path
 import operator
-import subprocess 
+import subprocess
 import sys, getopt
 sys.argv.append('-b')
-from ROOT import *
-import cStringIO 
+from ROOT import gROOT, gStyle, TFile, TCanvas
+import cStringIO
 
 
 gROOT.SetStyle("Plain")

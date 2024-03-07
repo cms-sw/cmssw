@@ -29,6 +29,8 @@
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/splitVertices.h"
 #include "RecoTracker/PixelVertexFinding/plugins/alpaka/vertexFinder.h"
 
+#include "VertexFinder_t.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 

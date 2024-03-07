@@ -14,7 +14,7 @@ import sys
 import math
 import subprocess
 from array import array
-from ROOT import *
+from ROOT import TCanvas, TFile, TGraphErrors
 
 def main():
 

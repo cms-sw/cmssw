@@ -24,6 +24,8 @@ namespace edm {
     bool isTracked() const { return isTracked_; }
     WildcardValidationCriteria criteria() const { return criteria_; }
 
+    bool isWildcard() const override { return true; }
+
   protected:
     ParameterWildcardBase(ParameterTypes iType, bool isTracked, WildcardValidationCriteria criteria);
 
@@ -48,6 +50,7 @@ namespace edm {
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
+    virtual void writeTemplate(std::ostream& os, int indentation) const;
     ParameterTypes type_;
     bool isTracked_;
     WildcardValidationCriteria criteria_;

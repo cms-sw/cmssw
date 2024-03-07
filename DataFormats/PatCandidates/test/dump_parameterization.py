@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import range
 import ROOT
-from ROOT import *
+from ROOT import gROOT, TFile, TIter
 import sys
 if len(sys.argv) < 2 :
   print("Usage: dump_parameteriza.py filename")

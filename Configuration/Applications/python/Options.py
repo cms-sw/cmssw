@@ -424,9 +424,15 @@ expertSettings.add_argument("--profile",
 
 expertSettings.add_argument("--heap_profile",
                             help="add the JeProfService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
-                            default=None,
-                            type=str,
+                            default=False,
+                            action="store_true",
                             dest="heap_profile")
+
+expertSettings.add_argument("--maxmem_profile",
+                            help="add the PerfTools/MaxMemoryPreload monitor",
+                            default=False,
+                            action="store_true",
+                            dest="maxmem_profile")
 
 expertSettings.add_argument("--io",
                             help="Create a json file with io informations",

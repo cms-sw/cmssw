@@ -471,7 +471,7 @@ void DiMuonVertexValidation::beginJob() {
 
   // take the range from the 2D histograms
   const auto& svDistSigRng = extractRangeValues(VtxDistSigConfiguration_);
-  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, svDistSigRng.first, svDistRng.second);
+  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, svDistSigRng.first, svDistSigRng.second);
 
   // take the range from the 2D histograms
   const auto& svDist3DRng = extractRangeValues(VtxDist3DConfiguration_);

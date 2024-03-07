@@ -4,17 +4,17 @@
 # This module extends the python configparser to create crab3 config files.
 
 
-from ConfigParser import *
+from configparser import RawConfigParser
 
 ## The CrabConfigParser class
 #
 # This class extends the python ConfigParser class and adds functions to
 # output crab3 config files
-class CrabConfigParser(ConfigParser):
+class CrabConfigParser(RawConfigParser):
 
     ## The constructor.
     def __init__(self):
-        ConfigParser.__init__(self)
+        RawConfigParser.__init__(self)
         self.optionxform = str
     ## Write CrabConfigParser object to file
     # @type self: CrabConfigParser
@@ -37,8 +37,9 @@ class CrabConfigParser(ConfigParser):
         for section in sections:
             outlines.extend(self.getSectionLines(section))
         #print filename
-        with open(filename,'wb') as outfile:
-            outfile.write('\n'.join(outlines) + '\n')
+        with open(filename,'w') as outfile:
+            for line in outlines:
+                outfile.write(f"{line}\n")
     ## Helper function to retrieve crab config output lines for one section
     # @type self: CrabConfigParser
     # @param self:The object pointer.

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
 
-pixelVertices = _mod.primaryVertexProducer.clone(
+pixelVertices = offlinePrimaryVertices.clone(
     TrackLabel = "pixelTracks",
 
     TkFilterParameters = dict(

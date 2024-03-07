@@ -8,6 +8,8 @@
               Updated:  7 August 2020 
               Updated by Ian J. Watson (ian.james.watson@cern.ch) to allow GE2/1 demonstrator to be built
               Updated: 7 December 2021
+              Updated by Yechan Kang (yechan.kang@cern.ch) to allow GE2/1 demonstrator to be built while 2 GE2/1 layers are in the other region during 2024
+              Updated : 13 Feburary 2024
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -74,7 +76,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     fvGE2.parent();
     doSuper = fvGE2.nextSibling();
   }
-  bool demonstratorGeometry = nGE21 == 1;
+  bool demonstratorGeometry = nGE21 % 2 == 1;
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
@@ -369,7 +371,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  bool demonstratorGeometry = nGE21 == 1;
+  bool demonstratorGeometry = nGE21 % 2 == 1;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
                                << demonstratorGeometry;
@@ -585,8 +587,7 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
               // this particular layer 1 chamber *should* be missing in the demonstrator geometry (we only have layer 2)
-              if (!demonstratorGeometry or
-                  not(chId.region() == 1 and chId.station() == 2 and chId.chamber() == 16 and chId.layer() == 1)) {
+              if (!demonstratorGeometry or not(chId.station() == 2)) {
                 edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
               }
             } else {
