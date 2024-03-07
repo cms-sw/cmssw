@@ -257,7 +257,6 @@ namespace TopSingleLepton_miniAOD {
     // pt of the 4. leading jet (corrected to L2+L3)
     hists_["jet4Pt_"] = ibooker.book1D("Jet4Pt", "pt_{30,loose}(jet4)", 60, 0., 300.);
     // MET (tc)
-    hists_["slimmedMETsNoHF_"] = ibooker.book1D("slimmedMETsNoHF", "MET_{slimmedNoHF}", 40, 0., 200.);
     // MET (pflow)
     hists_["slimmedMETsPuppi_"] = ibooker.book1D("slimmedMETsPuppi", "MET_{slimmedPuppi}", 40, 0., 200.);
     // dz for muons (to suppress cosmis)
@@ -636,8 +635,6 @@ namespace TopSingleLepton_miniAOD {
         unsigned int idx = met_ - mets_.begin();
         if (idx == 0)
           fill("slimmedMETs_", met->begin()->et());
-        if (idx == 1)
-          fill("slimmedMETsNoHF_", met->begin()->et());
         if (idx == 2)
           fill("slimmedMETsPuppi_", met->begin()->et());
       }
