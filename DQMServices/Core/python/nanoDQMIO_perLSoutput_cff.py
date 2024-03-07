@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-# Configuration file for nanoDQMIO
-# Use this file to specify which monitoring elements (MEs) will be stored in the nanoDQMIO format.
+# Configuration file for per-lumisection DQMIO
+# Use this file to specify which monitoring elements (MEs) will be stored per lumisection in the DQMIO format.
 # For more information, see https://twiki.cern.ch/twiki/bin/view/CMS/PerLsDQMIO.
 
 # Use the full ME path, as displayed for example in the DQM GUI.
 
-# The current selection of MEs is for the reprocessing of 2022 data.
+# The current selection of MEs is for the processing of 2024 data.
 
 nanoDQMIO_perLSoutput = cms.PSet(
   MEsToSave = cms.untracked.vstring(*(
@@ -26,12 +26,14 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "Hcal/DigiTask/OccupancyCut/depth/depth6",
     "Hcal/DigiTask/OccupancyCut/depth/depth7",
     "Hcal/DigiTask/OccupancyCut/depth/depthHO",
+
     "EcalBarrel/EBOccupancyTask/EBOT digi occupancy",
     "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -",
     "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE +",
     "EcalBarrel/EBOccupancyTask/EBOT DCC entries",
     "EcalEndcap/EEOccupancyTask/EEOT DCC entries",
     "Ecal/EventInfo/processedEvents",
+
     "PixelPhase1/Tracks/charge_PXBarrel",
     "PixelPhase1/Tracks/charge_PXForward",
     "PixelPhase1/Tracks/PXBarrel/charge_PXLayer_1",
@@ -54,6 +56,7 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "PixelPhase1/Tracks/PXForward/size_PXDisk_-1",
     "PixelPhase1/Tracks/PXForward/size_PXDisk_-2",
     "PixelPhase1/Tracks/PXForward/size_PXDisk_-3",
+
     "HLT/Vertexing/hltPixelVertices/hltPixelVertices/goodvtxNbr",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_eta",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_hits",
@@ -85,6 +88,7 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "HLT/Tracking/tracks/GeneralProperties/NumberOfTracks_GenTk",
     "HLT/Tracking/tracks/LUMIanalysis/NumberEventsVsLUMI",
     "HLT/Tracking/tracks/PUmonitoring/NumberEventsVsGoodPVtx",
+
     "PixelPhase1/Tracks/num_clusters_ontrack_PXBarrel",
     "PixelPhase1/Tracks/num_clusters_ontrack_PXForward",
     "PixelPhase1/Tracks/clusterposition_zphi_ontrack",
@@ -98,6 +102,20 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "PixelPhase1/Tracks/PXForward/clusterposition_xy_ontrack_PXDisk_-1",
     "PixelPhase1/Tracks/PXForward/clusterposition_xy_ontrack_PXDisk_-2",
     "PixelPhase1/Tracks/PXForward/clusterposition_xy_ontrack_PXDisk_-3",
+
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_1",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_2",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_3",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_4",
+    "PixelPhase1/Phase1_MechanicalView/PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_1",
+    "PixelPhase1/Phase1_MechanicalView/PXForward/digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_2",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusters_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_1",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusters_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_2",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusters_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_3",
+    "PixelPhase1/Phase1_MechanicalView/PXBarrel/clusters_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_4",
+    "PixelPhase1/Phase1_MechanicalView/PXForward/clusters_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_1",
+    "PixelPhase1/Phase1_MechanicalView/PXForward/clusters_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_2",
+
     "SiStrip/MechanicalView/TEC/PLUS/wheel_1/NormalizedHitResiduals_TEC__wheel__1",
     "SiStrip/MechanicalView/TEC/PLUS/wheel_2/NormalizedHitResiduals_TEC__wheel__2",
     "SiStrip/MechanicalView/TEC/PLUS/wheel_3/NormalizedHitResiduals_TEC__wheel__3",
@@ -169,6 +187,7 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "SiStrip/MechanicalView/MainDiagonal Position",
     "SiStrip/MechanicalView/NumberOfClustersInPixel",
     "SiStrip/MechanicalView/NumberOfClustersInStrip",
+
     "Tracking/TrackParameters/generalTracks/LSanalysis/Chi2oNDF_lumiFlag_GenTk",  
     "Tracking/TrackParameters/generalTracks/LSanalysis/NumberOfRecHitsPerTrack_lumiFlag_GenTk", 
     "Tracking/TrackParameters/generalTracks/LSanalysis/NumberOfTracks_lumiFlag_GenTk", 
@@ -177,11 +196,13 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "Tracking/TrackParameters/highPurityTracks/pt_1/GeneralProperties/SIP3DToPV_GenTk",
     "Tracking/TrackParameters/generalTracks/HitProperties/NumberOfMissingOuterRecHitsPerTrack_GenTk",
     "Tracking/TrackParameters/generalTracks/HitProperties/NumberMORecHitsPerTrackVsPt_GenTk",
+
     "OfflinePV/offlinePrimaryVertices/tagVtxProb",
     "OfflinePV/offlinePrimaryVertices/tagType",
     "OfflinePV/Resolution/PV/pull_x",
     "OfflinePV/Resolution/PV/pull_y",
     "OfflinePV/Resolution/PV/pull_z",
+
     "JetMET/Jet/Cleanedak4PFJetsCHS/CHFrac_highPt_Barrel",
     "JetMET/Jet/Cleanedak4PFJetsCHS/CHFrac_highPt_EndCap",
     "JetMET/Jet/Cleanedak4PFJetsCHS/CHFrac_mediumPt_Barrel",
