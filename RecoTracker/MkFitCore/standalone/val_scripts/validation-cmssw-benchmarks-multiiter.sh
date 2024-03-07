@@ -64,6 +64,7 @@ case ${inputBin} in
         # that does not work with MIMI at this point.
         export MKFIT_MIMI=1
         ;;
+# "Mu_phase2_XYZ" samples - see https://gist.github.com/osschar/7cd037f6fcdd05ccf11586fdaadab377
 *)
         echo "INPUT BIN IS UNKNOWN"
         exit 12
@@ -89,8 +90,13 @@ then
     maxth=1
     maxev=1
 fi
+
+silent="--silent"
 seeds="--cmssw-n2seeds"
-exe="./mkFit --silent ${seeds} --num-thr ${maxth} --num-thr-ev ${maxev} --input-file ${dir}/${subdir}/${file} --num-events ${nevents} --remove-dup ${extraargs}"
+input_data="--input-file ${dir}/${subdir}/${file} --num-events ${nevents}"
+threads="--num-thr ${maxth} --num-thr-ev ${maxev}"
+
+exe="./mkFit ${silent} ${seeds} ${input_data} ${threads} --remove-dup ${extraargs}"
 
 ## Common output setup
 tmpdir="tmp"
@@ -132,7 +138,7 @@ SIMPLOTSEED10="SIMVALSEED iter10 0 10 0"
 SIMPLOT6="SIMVAL iter6 0 6 0"
 SIMPLOTSEED6="SIMVALSEED iter6 0 6 0"
 
-if [[ "${inputBin}" == "TTbar_phase2" ]]
+if [[ ${numiters} -eq 1 ]]
 then
     declare -a plots=(SIMPLOT4 SIMPLOTSEED4)
 else
@@ -157,10 +163,12 @@ function doVal()
 
     local oBase=${val_arch}_${sample}_${bN}
     local bExe="${exe} ${vO} --build-${bO}"
-    
+
     echo "${oBase}: ${vN} [nTH:${maxth}, nVU:${maxvu}int, nEV:${maxev}]"
-    ${bExe} >& log_${oBase}_NVU${maxvu}int_NTH${maxth}_NEV${maxev}_${vN}.txt || (echo "Crashed on CMD: "${bExe}; exit 2)
-    
+    logfile=log_${oBase}_NVU${maxvu}int_NTH${maxth}_NEV${maxev}_${vN}.txt
+    echo logfile ${logfile}
+    ${bExe} > ${logfile} || (echo "Crashed on CMD: "${bExe}; exit 2)
+
     if (( ${maxev} > 1 ))
     then
         # hadd output files from different threads for this test, then move to temporary directory
@@ -235,6 +243,8 @@ do echo ${!plot} | while read -r pN suff pO iter cancel
         ## Compute observables for special dummy CMSSW
 	if [[ "${pN}" == "SIMVAL" || "${pN}" == "SIMVAL_"* ]]
 	then
+        echo In SIMVAL plot loop
+        echo CMSSW=${CMSSW}
 	    echo ${CMSSW} | while read -r bN bO val_extras
 	    do
 		plotVal "${base}" "${bN}" "${pN}" "${pO}" "${iter}" "${cancel}" "${rmsuff}"
@@ -242,6 +252,8 @@ do echo ${!plot} | while read -r pN suff pO iter cancel
 	fi
 	if [[ "${pN}" == "SIMVALSEED"* ]]
 	then
+        echo In SIMVALSEED plot loop
+        echo CMSSW2=${CMSSW2}
 	    echo ${CMSSW2} | while read -r bN bO val_extras
 	    do
 		plotVal "${base}" "${bN}" "${pN}" "${pO}" "${iter}" "${cancel}" "${rmsuff}"
