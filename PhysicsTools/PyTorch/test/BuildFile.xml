@@ -66,6 +66,7 @@
     <use name="cppunit"/>
     <use name="cuda"/>
     <use name="pytorch"/>
+    <use name="pytorch-cuda"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>

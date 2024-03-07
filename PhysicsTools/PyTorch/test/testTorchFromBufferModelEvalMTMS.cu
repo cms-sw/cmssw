@@ -7,6 +7,7 @@
 #include <nvToolsExt.h>
 #include <torch/torch.h>
 #include <torch/script.h>
+#include <c10/cuda/CUDAStream.h>
 #include <iostream>
 #include <exception>
 #include <memory>
@@ -88,17 +89,17 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange allocRange("GPU memory allocation");
   // Allocate memory on the device
   cout << "Allocating memory for vectors on GPU" << endl;
-  cudaMalloc(&a_gpu, bytes);
-  cudaMalloc(&b_gpu, bytes);
-  cudaMalloc(&c_gpu, bytes);
+  cudaMallocAsync(&a_gpu, bytes, c10::cuda::getCurrentCUDAStream().stream());
+  cudaMallocAsync(&b_gpu, bytes, c10::cuda::getCurrentCUDAStream().stream());
+  cudaMallocAsync(&c_gpu, bytes, c10::cuda::getCurrentCUDAStream().stream());
   allocRange.end();
   
   
   NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "Transfering vectors from CPU to GPU" << endl;
-  cudaMemcpy(a_gpu, a_cpu, bytes, cudaMemcpyHostToDevice);
-  cudaMemcpy(b_gpu, b_cpu, bytes, cudaMemcpyHostToDevice);
+  cudaMemcpyAsync(a_gpu, a_cpu, bytes, cudaMemcpyHostToDevice, c10::cuda::getCurrentCUDAStream().stream());
+  cudaMemcpyAsync(b_gpu, b_cpu, bytes, cudaMemcpyHostToDevice, c10::cuda::getCurrentCUDAStream().stream());
   memcpyRange.end();
   
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
@@ -119,7 +120,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
     torch::Tensor a_gpu_tensor = torch::from_blob(a_gpu, {N}, options);
     torch::Tensor b_gpu_tensor = torch::from_blob(b_gpu, {N}, options);
 
-    cout << "Verifying result using Torch tensors" << endl;
+    cout << "Running torch inference" << endl;
     std::vector<torch::jit::IValue> inputs{a_gpu_tensor, b_gpu_tensor};
     // Not fully understood but std::move() is needed
     // https://stackoverflow.com/questions/71790378/assign-memory-blob-to-py-torch-output-tensor-c-api 
@@ -140,7 +141,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   NVTXScopedRange memcpyBackRange("Memcpy dev to host");
   // Copy memory from device and also synchronize (implicitly)
   cout << "Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
-  cudaMemcpy(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost);
+  cudaMemcpyAsync(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost, c10::cuda::getCurrentCUDAStream().stream());
   memcpyBackRange.end();
   
   if constexpr (doValidation) {
@@ -202,18 +203,24 @@ void testTorchFromBufferModelEval::test() {
   
   
   std::vector<std::thread> threads;
-  for (size_t t=0; t<10; ++t) {
+  for (size_t t=0; t<1; ++t) {
     threads.emplace_back([&, t]{
       char threadName[15];
       snprintf(threadName, 15, "test::%ld", t);
       if (prctl(PR_SET_NAME, threadName, 0, 0, 0))
         printf ("Warning: Could not set thread name: %s\n", strerror(errno));
-      cout << "Thread " << t << ": allocating result buffer" << endl;
+      cout << "Thread " << t << ": allocating CUDA stream and result buffer" << endl;
+      cudaStream_t cudaStream;
+      cudaStreamCreate(&cudaStream);
+      auto torchStream = c10::cuda::getStreamFromExternal(cudaStream, device.index());
+      c10::cuda::setCurrentCUDAStream(torchStream);
       int * c_cpu;
       cudaMallocHost(&c_cpu, bytes);
+      // Get a pyTorch style cuda stream, device is captured from above.
       for (size_t i=0; i<10; ++i)
         testTorchFromBufferModelEvalSinglePass(model, a_cpu, b_cpu, c_cpu, N, bytes);
       cudaFreeHost(c_cpu);
+      c10::cuda::setCurrentCUDAStream(c10::cuda::getDefaultCUDAStream());
     });
   }
   for (auto &t: threads) t.join();
