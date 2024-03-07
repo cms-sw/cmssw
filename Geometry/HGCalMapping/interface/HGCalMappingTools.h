@@ -86,12 +86,18 @@ namespace hgcal {
         uint32_t cellid = 0x3ff & HGCSiliconDetId(det, 0, 0, 0, 0, 0, siid.cellU(), siid.cellV()).rawId();
         for (int j = 0; j < cells.view().metadata().size(); j++) {
           auto jcell = cells.view()[j];
+<<<<<<< HEAD
           if (jcell.typeidx() != imod.typeidx())
             continue;
           if (jcell.detid() != cellid)
             continue;
           key.second = j;
           return key;
+=======
+          if (jcell.typeidx() != imod.typeidx()) continue;
+          if(jcell.detid() != cellid) continue;
+          return imod.eleid() + jcell.eleid();
+>>>>>>> c997013cea8 (updating)
         }
 
         return key;

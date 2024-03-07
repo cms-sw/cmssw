@@ -130,8 +130,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t i= modidx.getIndexForModuleData(eleid.localFEDId(),eleid.captureBlock(),eleid.econdIdx(),eleid.econdeRx(),eleid.halfrocChannel());
       if(i>=finaldigi_size) {
         std::cout<< "Failed to get proper index for " << std::endl;
-        std::cout << detid << std::endl;
-        std::cout << eleid.raw() << std::endl;
+        HGCSiliconDetId siid(d.id());
+        std::cout << siid.layer() << " " 
+                  << siid.waferU() << " " << siid.waferV() << std::endl;
+        std::cout << " FED=" << (uint32_t) eleid.localFEDId() << " CB:" << (uint32_t) eleid.captureBlock() << " ECONDidx:" << (uint32_t)eleid.econdIdx() << std::endl;
         break;
       }
       
