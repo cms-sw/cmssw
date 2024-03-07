@@ -182,21 +182,6 @@ def miniAOD_customizeCommon(process):
     task.add(process.slimmedMETs)
     (~pp_on_AA).toModify(process.slimmedMETs, addDeepMETs = True)
 
-    def _add_slimmedMETsNoHF(process):
-        addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
-        process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
-        process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
-        process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
-        process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
-        process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
-        process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
-        del process.slimmedMETsNoHF.caloMET
-    (~pp_on_AA).toModify(process, _add_slimmedMETsNoHF)
-    # ================== NoHF pfMET
 
     #  ==================  CHSMET 
     process.load("CommonTools.ParticleFlow.pfCHS_cff")
