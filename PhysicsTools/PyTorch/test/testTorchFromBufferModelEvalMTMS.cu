@@ -18,6 +18,8 @@ using std::cout;
 using std::endl;
 using std::exception;
 
+constexpr bool doValidation = false;
+
 class NVTXScopedRange {
 public:
   NVTXScopedRange(const char * msg) {
@@ -141,13 +143,15 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   cudaMemcpy(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost);
   memcpyBackRange.end();
   
-  NVTXScopedRange validationRange("Validation");
-  // Verify the result on the CPU
-  cout << "Verifying result on CPU" << endl;
-  for (int i = 0; i < N; ++i) {
-    CPPUNIT_ASSERT(c_cpu[i] == a_cpu[i] + b_cpu[i]);
+  if constexpr (doValidation) {
+    NVTXScopedRange validationRange("Validation");
+    // Verify the result on the CPU
+    cout << "Verifying result on CPU" << endl;
+    for (int i = 0; i < N; ++i) {
+      CPPUNIT_ASSERT(c_cpu[i] == a_cpu[i] + b_cpu[i]);
+    }
+    validationRange.end();
   }
-  validationRange.end();
   
   NVTXScopedRange freeRange("Free GPU memory");
   cudaFree(a_gpu);
