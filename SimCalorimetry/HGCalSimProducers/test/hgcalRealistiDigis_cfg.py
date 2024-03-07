@@ -7,7 +7,7 @@ process = cms.Process("REALDIGI", Era_Phase2)
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('standard')
 options.register('geometry', 'Extended2026D94', VarParsing.multiplicity.singleton,  VarParsing.varType.string,  'geometry to use')
-options.register('modules','Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt',mytype=VarParsing.varType.string,
+options.register('modules','Geometry/HGCalMapping/data/ModuleMaps/modulelocator_CEminus_V15p5.txt',mytype=VarParsing.varType.string,
                  info="Path to module mapper. Absolute, or relative to CMSSW src directory")
 options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
                  info="Path to Si cell mapper. Absolute, or relative to CMSSW src directory")
@@ -56,7 +56,7 @@ process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESPr
                                                       cellindexer=cms.ESInputTag('') )
 
 #realistic digis producer
-process.load('SimCalorimetry.HGCalSimProducers.hgCalDigiSoaFiller_cfi')
+process.hgCalDigiSoaFiller = cms.EDProducer('HGCalDigiSoaFiller@alpaka')
 process.t = cms.Task(process.hgCalDigiSoaFiller)
 process.p = cms.Path(process.t)
 
