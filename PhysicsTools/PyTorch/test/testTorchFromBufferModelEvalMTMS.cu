@@ -4,6 +4,7 @@
 // Memory allocation investigation can be a secondary target.
 
 #include <cuda_runtime.h>
+#include <nvToolsExt.h>
 #include <torch/torch.h>
 #include <torch/script.h>
 #include <iostream>
@@ -16,6 +17,25 @@
 using std::cout;
 using std::endl;
 using std::exception;
+
+class NVTXScopedRange {
+public:
+  NVTXScopedRange(const char * msg) {
+    id_ = nvtxRangeStartA(msg);
+  }
+  
+  void end() {
+    if (active_) {
+      active_ = false;
+      nvtxRangeEnd(id_);
+    }
+  }
+  
+  ~NVTXScopedRange() { end(); }
+private:
+  nvtxRangeId_t id_;
+  bool active_ = true;
+};
 
 class testTorchFromBufferModelEval : public testBasePyTorch {
   CPPUNIT_TEST_SUITE(testTorchFromBufferModelEval);
@@ -63,17 +83,22 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   // Declare GPU memory pointers
   int *a_gpu, *b_gpu, *c_gpu;
 
+  NVTXScopedRange allocRange("GPU memory allocation");
   // Allocate memory on the device
   cout << "Allocating memory for vectors on GPU" << endl;
   cudaMalloc(&a_gpu, bytes);
   cudaMalloc(&b_gpu, bytes);
   cudaMalloc(&c_gpu, bytes);
-
+  allocRange.end();
+  
+  
+  NVTXScopedRange memcpyRange("Memcpy host to dev");
   // Copy data from the host to the device (CPU -> GPU)
   cout << "Transfering vectors from CPU to GPU" << endl;
   cudaMemcpy(a_gpu, a_cpu, bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(b_gpu, b_cpu, bytes, cudaMemcpyHostToDevice);
-
+  memcpyRange.end();
+  
   // Specify threads per CUDA block (CTA), her 2^10 = 1024 threads
   //int NUM_THREADS = 1 << 10;
 
@@ -84,6 +109,7 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
   //cout << "Running CUDA kernels" << endl;
   //vector_add(a_gpu, b_gpu, c_gpu, N, NUM_BLOCKS, NUM_THREADS);
 
+  NVTXScopedRange inferenceRange("Inference");
   try {
     // Convert pinned memory on GPU to Torch tensor on GPU
     auto options = torch::TensorOptions().dtype(torch::kInt).device(torch::kCUDA, 0).pinned_memory(true);
@@ -107,19 +133,27 @@ void testTorchFromBufferModelEvalSinglePass(torch::jit::script::Module& model, c
 
     CPPUNIT_ASSERT(false);
   }
+  inferenceRange.end();
 
+  NVTXScopedRange memcpyBackRange("Memcpy dev to host");
   // Copy memory from device and also synchronize (implicitly)
   cout << "Synchronizing CPU and GPU. Copying result from GPU to CPU" << endl;
   cudaMemcpy(c_cpu, c_gpu, bytes, cudaMemcpyDeviceToHost);
-
+  memcpyBackRange.end();
+  
+  NVTXScopedRange validationRange("Validation");
   // Verify the result on the CPU
   cout << "Verifying result on CPU" << endl;
   for (int i = 0; i < N; ++i) {
     CPPUNIT_ASSERT(c_cpu[i] == a_cpu[i] + b_cpu[i]);
   }
+  validationRange.end();
+  
+  NVTXScopedRange freeRange("Free GPU memory");
   cudaFree(a_gpu);
   cudaFree(b_gpu);
   cudaFree(c_gpu);
+  freeRange.end();
 }
 
 void testTorchFromBufferModelEval::test() {
