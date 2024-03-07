@@ -17,8 +17,12 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHostCollection.h"
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDeviceCollection.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
+#include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
@@ -33,7 +37,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalDigiSoaFiller : public stream::EDProducer<> {
 
   public:
+
+    using CellIndexer = HGCalMappingCellIndexer;
     using CellInfo = hgcal::HGCalMappingCellParamDeviceCollection;
+    using ModuleIndexer = HGCalMappingModuleIndexer;
     using ModuleInfo = hgcal::HGCalMappingModuleParamDeviceCollection;
 
     /**
@@ -56,7 +63,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDGetTokenT<edm::SortedCollection<HGCalDataFrame> > digisCEET_,digisCEHSiT_,digisCEHSiPMT_;
     device::EDPutToken<hgcaldigi::HGCalDigiDeviceCollection> digiProdT_;
 
+    edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
+    edm::ESGetToken<CellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
     device::ESGetToken<CellInfo, HGCalMappingCellRcd> cellTkn_;
+    edm::ESGetToken<ModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
     device::ESGetToken<ModuleInfo, HGCalMappingModuleRcd> moduleTkn_;
   };
 
@@ -66,7 +76,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
        : digisCEET_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("eeChannelDigis") ) ),
          digisCEHSiT_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("cehsiChannelDigis") ) ),
          digisCEHSiPMT_( consumes<edm::SortedCollection<HGCalDataFrame> >(config.getParameter<edm::InputTag>("cehsipmChannelDigis") ) ),
+         cellIndexTkn_(esConsumes()),         
          cellTkn_(esConsumes()),
+         moduleIndexTkn_(esConsumes()),
          moduleTkn_(esConsumes()) {
       digiProdT_ = produces(config.getParameter<std::string>("digisProdName"));         
   }
@@ -83,10 +95,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   //
   void HGCalDigiSoaFiller::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
-    
-    const ModuleInfo& modules = iSetup.getData(moduleTkn_);
-    const CellInfo& cells = iSetup.getData(cellTkn_);
 
+    cfgWatcher_.check(iSetup);
+    const CellIndexer &cellidx = iSetup.getData(cellIndexTkn_);
+    const CellInfo& cells = iSetup.getData(cellTkn_);
+    const ModuleIndexer &modidx = iSetup.getData(moduleIndexTkn_);
+    const ModuleInfo& modules = iSetup.getData(moduleTkn_);
 
     //FIXME
     int itSample = 2;
@@ -97,13 +111,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //auto const &digisCEHSiPM = iEvent.get(digisCEHSiPMT_);
     
     //fill the SoA collection in the host
-    int finaldigi_size = 100; //FIXME : to be retrieved from Elec Mapping 
+    uint32_t finaldigi_size = modidx.maxDataIdx_;
+    std::cout << "Allocating SOA with " << finaldigi_size << " entries" << std::endl;
     hgcaldigi::HGCalDigiHostCollection host_buffer(finaldigi_size,cms::alpakatools::host());
+    int nmatch(0),nfail(0);
     for(auto d : digisCEE) {
-      
-      int i=0;
+
+      //det id to electronics id
       uint32_t detid( d.id().rawId() );
-      uint32_t eleid = ::hgcal::mappingtools::getElectronicsIdForSiCell<ModuleInfo,CellInfo>(modules,cells,detid);
+      HGCalElectronicsId eleid(::hgcal::mappingtools::getElectronicsIdForSiCell<ModuleInfo,CellInfo>(modules,cells,detid));
+      if(eleid.raw()==0) {
+        nfail++;
+        continue;
+      }
+      nmatch++;
+
+      //get the index in the SOA
+      uint32_t i= modidx.getIndexForModuleData(eleid.localFEDId(),eleid.captureBlock(),eleid.econdIdx(),eleid.econdeRx(),eleid.halfrocChannel());
+      if(i>=finaldigi_size) {
+        std::cout<< "Failed to get proper index for " << std::endl;
+        std::cout << detid << std::endl;
+        std::cout << eleid.raw() << std::endl;
+        break;
+      }
       
       //read digi (in-time sample only)
       uint32_t toa = d.sample(itSample).toa();
@@ -112,10 +142,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t adc( tctp<3 ? d.sample(itSample).data() : 0 );
       uint32_t tot( tctp==3 ? d.sample(itSample).data() : 0 );
       
-      std::cout << "Filling with " << eleid << " " << toa << " " << tctp << " " << adcm1 << " " << adc << " " << tot << std::endl;
-      
+      //fill SOA
       auto idigi = host_buffer.view()[i];
-      idigi.electronicsId() = eleid;
+      idigi.electronicsId() = eleid.raw();
       idigi.tctp() = tctp;
       idigi.adcm1() = adcm1;
       idigi.adc() = adc;
@@ -123,9 +152,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       idigi.toa() = toa;
       idigi.cm() = 0;
       idigi.flags() = 0;
-
-      break;
     }
+
+    std::cout << "Matched: " << nmatch << " failed: " << nfail << std::endl;
     
     //allocate device colleciton, copy from host and put in event
     auto& queue = iEvent.queue();
