@@ -326,6 +326,17 @@ def AddTriggerObjectBits(process):
             )
         )
 
+    process.triggerObjectTable.selections.Muon_POG_v2 = cms.PSet(
+            id = cms.int32(131313),
+            sel = cms.string("type(83) && pt > 5 && (coll('hltIterL3MuonCandidates') || (pt > 45 && coll('hltHighPtTkMuonCands')) || (pt > 95 && coll('hltOldL3MuonCandidates')))"),
+            l1seed = cms.string("type(-81)"), l1deltaR = cms.double(0.5),
+            l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
+            qualityBits = cms.VPSet(
+                mksel("filter('hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q')","hltL3fL1sSingleMuOpenCandidateL1f0L2f3QL3Filtered50Q"), #0
+                mksel("filter('hltTrk200MuonEndcapFilter')","hltTrk200MuonEndcapFilter") #1
+            )
+        )
 
     return process
 
