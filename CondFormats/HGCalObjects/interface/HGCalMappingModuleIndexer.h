@@ -192,6 +192,8 @@ public:
     return getIndexForModuleErx(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx()) ? id.isCM() :
            getIndexForModuleData(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx(),id.halfrocChannel());
   };
+  int getMaxDataSize() const { return maxDataIdx_; } // useful for setting calib SoA size
+  int getMaxERxSize() const { return maxErxIdx_; }   // useful for setting config SoA size
 
   int getTypeForModule(uint32_t fedid, uint32_t nmod) const { return fedReadoutSequences_[fedid].readoutTypes_[nmod]; }
   int getTypeForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
