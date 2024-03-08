@@ -124,18 +124,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         nfail++;
         continue;
       }
-      nmatch++;
-
+      
       //get the index in the SOA
-      uint32_t i= modidx.getIndexForModuleData(eleid.localFEDId(),eleid.captureBlock(),eleid.econdIdx(),eleid.econdeRx(),eleid.halfrocChannel());
-      if(i>=finaldigi_size) {
-        std::cout<< "Failed to get proper index for " << std::endl;
-        HGCSiliconDetId siid(d.id());
-        std::cout << siid.layer() << " " 
-                  << siid.waferU() << " " << siid.waferV() << std::endl;
-        std::cout << " FED=" << (uint32_t) eleid.localFEDId() << " CB:" << (uint32_t) eleid.captureBlock() << " ECONDidx:" << (uint32_t)eleid.econdIdx() << std::endl;
-        break;
+      auto modcellidx = ::hgcal::mappingtools::getModuleCellIndicesForSiCell<ModuleInfo,CellInfo>(modules,cells,detid);
+      uint32_t i=finaldigi_size;
+      try {
+        i = modidx.getIndexForModuleData(eleid.localFEDId(),eleid.captureBlock(),eleid.econdIdx(),eleid.econdeRx(),eleid.halfrocChannel());
+        if(i>=finaldigi_size) {
+          HGCSiliconDetId siid(d.id());
+          int32_t midx=modcellidx.first;
+          int32_t cidx=modcellidx.second;
+          std::cout << "Failed to get proper index (" << i << ") for "
+                    << "layer=" << siid.layer() << " u=" << siid.waferU() << " v=" << siid.waferV() << std::endl
+                    << "\t Modidx:" << midx << " cellidx: " << cidx << " cellu=" << siid.cellU() << " cellv=" << siid.cellV() << std::endl
+                    << "\tModule info FED:" << (uint32_t)modules.view()[midx].fedid() 
+                    << " CB:" << (uint32_t)modules.view()[midx].captureblockidx()  
+                    << " ECOND: " << (uint32_t)modules.view()[midx].econdidx() 
+                    << "\tEle id: FED=" << (uint32_t)eleid.localFEDId() << " CB:" << (uint32_t) eleid.captureBlock()
+                    << " ECONDidx: " << (uint32_t) eleid.econdIdx() << std::endl;
+          nfail++;
+          continue;
+        }
+      }catch(std::exception &e) {
+        std::cout << e.what() << std::endl;
+        nfail++;
+        continue;
       }
+
+
+      nmatch++;
       
       //read digi (in-time sample only)
       uint32_t toa = d.sample(itSample).toa();
