@@ -36,10 +36,10 @@ recoDisplacedMuonVMuAssoc_sta = recoDisplacedMuonValidator.clone(
     selection = "isStandAloneMuon",
     simLabel = ("TPmu"),
     tpRefVector = True,
-    nBinDxy = cms.untracked.uint32(350),
+    nBinDxy = cms.untracked.uint32(100),
     minDxy = cms.untracked.double(-350),
     maxDxy = cms.untracked.double(350),
-    nBinDz = cms.untracked.uint32(350),
+    nBinDz = cms.untracked.uint32(100),
     minDz = cms.untracked.double(-350),
     maxDz = cms.untracked.double(350)
 )
