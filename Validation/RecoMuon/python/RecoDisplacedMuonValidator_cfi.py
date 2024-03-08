@@ -44,11 +44,11 @@ recoDisplacedMuonValidator = DQMEDAnalyzer('RecoDisplacedMuonValidator',
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
 
-    nBinDxy = cms.untracked.uint32(300),
+    nBinDxy = cms.untracked.uint32(100),
     minDxy = cms.untracked.double(-60), # 350 for DSA, 60 for DGL/DTK
     maxDxy = cms.untracked.double(60),
 
-    nBinDz = cms.untracked.uint32(300),
+    nBinDz = cms.untracked.uint32(100),
     minDz = cms.untracked.double(-60),
     maxDz = cms.untracked.double(60),
 

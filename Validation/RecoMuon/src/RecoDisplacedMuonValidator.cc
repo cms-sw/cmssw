@@ -765,31 +765,31 @@ void RecoDisplacedMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
                      nHits + 0.5);
 
   //muon based kinematics
-  commonME_->hMuonP_ = ibooker.book1D("MuonP", "p of muon", hDim.nBinP, hDim.minP, hDim.maxP);
-  commonME_->hMuonPt_ = ibooker.book1D("MuonPt", "p_{T} of muon", hDim.nBinPt, hDim.minPt, hDim.maxPt);
-  commonME_->hMuonEta_ = ibooker.book1D("MuonEta", "#eta of muon", hDim.nBinEta, hDim.minEta, hDim.maxEta);
-  commonME_->hMuonPhi_ = ibooker.book1D("MuonPhi", "#phi of muon", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+  commonME_->hMuonP_ = ibooker.book1D("PMuon", "p of muon", hDim.nBinP, hDim.minP, hDim.maxP);
+  commonME_->hMuonPt_ = ibooker.book1D("PtMuon", "p_{T} of muon", hDim.nBinPt, hDim.minPt, hDim.maxPt);
+  commonME_->hMuonEta_ = ibooker.book1D("EtaMuon", "#eta of muon", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hMuonPhi_ = ibooker.book1D("PhiMuon", "#phi of muon", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
   //track based kinematics
   commonME_->hMuonTrackP_ = ibooker.book1D("PMuonTrack", "p of reco muon track", hDim.nBinP, hDim.minP, hDim.maxP);
   commonME_->hMuonTrackPt_ =
-      ibooker.book1D("MuonTrackPt", "p_{T} of reco muon track", hDim.nBinPt, hDim.minPt, hDim.maxPt);
+      ibooker.book1D("PtMuonTrack", "p_{T} of reco muon track", hDim.nBinPt, hDim.minPt, hDim.maxPt);
   commonME_->hMuonTrackEta_ =
-      ibooker.book1D("MuonTrackEta", "#eta of reco muon track", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+      ibooker.book1D("EtaMuonTrack", "#eta of reco muon track", hDim.nBinEta, hDim.minEta, hDim.maxEta);
   commonME_->hMuonTrackPhi_ =
-      ibooker.book1D("MuonTrackPhi", "#phi of reco muon track", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+      ibooker.book1D("PhiMuonTrack", "#phi of reco muon track", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
   commonME_->hMuonTrackDxy_ =
-      ibooker.book1D("MuonTrackDxy", "Dxy of reco muon track", hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
+      ibooker.book1D("DxyMuonTrack", "Dxy of reco muon track", hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
   commonME_->hMuonTrackDz_ =
-      ibooker.book1D("MuonTrackDz", "Dz of reco muon track", hDim.nBinDz, hDim.minDz, hDim.maxDz);
+      ibooker.book1D("DzMuonTrack", "Dz of reco muon track", hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
   //histograms for fractions
   commonME_->hMuonAllP_ = ibooker.book1D("PMuonAll", "p of muons of all types", hDim.nBinP, hDim.minP, hDim.maxP);
   commonME_->hMuonAllPt_ =
-      ibooker.book1D("MuonAllPt", "p_{T} of muon of all types", hDim.nBinPt, hDim.minPt, hDim.maxPt);
+      ibooker.book1D("PtMuonAll", "p_{T} of muon of all types", hDim.nBinPt, hDim.minPt, hDim.maxPt);
   commonME_->hMuonAllEta_ =
-      ibooker.book1D("MuonAllEta", "#eta of muon of all types", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+      ibooker.book1D("EtaMuonAll", "#eta of muon of all types", hDim.nBinEta, hDim.minEta, hDim.maxEta);
   commonME_->hMuonAllPhi_ =
-      ibooker.book1D("MuonAllPhi", "#phi of muon of all types", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+      ibooker.book1D("PhiMuonAll", "#phi of muon of all types", hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
 
   muonME_->bookHistos(ibooker, subDir_, hDim);
 }
