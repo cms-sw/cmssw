@@ -310,7 +310,7 @@ namespace l1t {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const TkEmCollection &collection = event.get(cl2PhotonToken_);
     for (size_t i = 0; i < collection.size() && i < 12; i++) {
-      l1gt::Photon gtPhoton = l1gt::Photon::unpack_ap(const_cast<TkEm &>(collection[i]).egBinaryWord<96>());
+      l1gt::Photon gtPhoton = collection[i].hwObj();
       P2GTCandidate gtObj(0,
                           reco::ParticleState::PolarLorentzVector(scales_.to_pT(gtPhoton.v3.pt.V.to_int()),
                                                                   scales_.to_eta(gtPhoton.v3.eta.V.to_int()),
@@ -319,8 +319,8 @@ namespace l1t {
       gtObj.hwPT_ = gtPhoton.v3.pt.V.to_int();
       gtObj.hwPhi_ = gtPhoton.v3.phi.V.to_int();
       gtObj.hwEta_ = gtPhoton.v3.eta.V.to_int();
-      gtObj.hwIso_ = gtPhoton.isolation.V.to_int();
-      gtObj.hwQual_ = gtPhoton.quality.V.to_int();
+      gtObj.hwIso_ = gtPhoton.isolationPT.V.to_int();
+      gtObj.hwQual_ = gtPhoton.qualityFlags.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Photons;
 
       outputCollection->push_back(gtObj);
@@ -332,7 +332,7 @@ namespace l1t {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const TkElectronCollection &collection = event.get(cl2ElectronToken_);
     for (size_t i = 0; i < collection.size() && i < 12; i++) {
-      l1gt::Electron gtElectron = l1gt::Electron::unpack_ap(const_cast<TkElectron &>(collection[i]).egBinaryWord<96>());
+      l1gt::Electron gtElectron = collection[i].hwObj();
       int hwZ0 = gtElectron.z0.V.to_int() << 7;
       P2GTCandidate gtObj(scales_.to_chg(gtElectron.charge.V.to_int()),
                           reco::ParticleState::PolarLorentzVector(scales_.to_pT(gtElectron.v3.pt.V.to_int()),
@@ -344,8 +344,8 @@ namespace l1t {
       gtObj.hwPhi_ = gtElectron.v3.phi.V.to_int();
       gtObj.hwEta_ = gtElectron.v3.eta.V.to_int();
       gtObj.hwZ0_ = hwZ0;
-      gtObj.hwIso_ = gtElectron.isolation.V.to_int();
-      gtObj.hwQual_ = gtElectron.quality.V.to_int();
+      gtObj.hwIso_ = gtElectron.isolationPT.V.to_int();
+      gtObj.hwQual_ = gtElectron.qualityFlags.V.to_int();
       gtObj.hwCharge_ = gtElectron.charge.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Electrons;
 
