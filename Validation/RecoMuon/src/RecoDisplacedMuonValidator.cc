@@ -690,8 +690,8 @@ RecoDisplacedMuonValidator::RecoDisplacedMuonValidator(const edm::ParameterSet& 
 }
 
 void RecoDisplacedMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
-                                       edm::Run const& iRun,
-                                       edm::EventSetup const& /* iSetup */) {
+                                                edm::Run const& iRun,
+                                                edm::EventSetup const& /* iSetup */) {
   // book histograms
   ibooker.cd();
 
