@@ -120,13 +120,13 @@ fastSim.toModify(RecoLocalTrackerFEVT, outputCommands = fastSimEC.RecoLocalTrack
 fastSim.toReplaceWith(SimG4CoreRAW, fastSimEC.SimRAW)
 fastSim.toReplaceWith(SimG4CoreRECO, fastSimEC.SimRECO)
 
-def SwapKeepAndDrop(l): 
-    r=[]    
-    for item in l:  
-        if 'keep ' in item: 
-            r.append(item.replace('keep ','drop ')) 
-        elif 'drop ' in item:   
-            r.append(item.replace('drop ','keep ')) 
+def SwapKeepAndDrop(l):	
+    r=[]	
+    for item in l:	
+        if 'keep ' in item:	
+            r.append(item.replace('keep ','drop '))	
+        elif 'drop ' in item:	
+            r.append(item.replace('drop ','keep '))	
     return r
 
 #
@@ -184,7 +184,6 @@ approxSiStripClusters.toModify(RAWEventContent,
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
 
-
 #
 # HLTSCOUT Data Tier definition
 #
@@ -208,7 +207,6 @@ L1SCOUTEventContent = cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 L1SCOUTEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-
 
 #
 #
@@ -283,8 +281,8 @@ RAWRECOEventContent = cms.PSet(
 )
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RAWRECOEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*')
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*')
 )
 #
 #
@@ -338,8 +336,8 @@ RAWAODEventContent = cms.PSet(
 )
 RAWAODEventContent.outputCommands.extend(AODEventContent.outputCommands)
 RAWAODEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*')
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*')
 )
 #
 #
@@ -848,10 +846,10 @@ REPACKRAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputComman
 REPACKRAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend([
-    'drop FEDRawDataCollection_source_*_*',
+	'drop FEDRawDataCollection_source_*_*',
         'drop FEDRawDataCollection_rawDataCollector_*_*'])
 REPACKRAWEventContent.outputCommands.extend([
-    'drop FEDRawDataCollection_source_*_*',
+	'drop FEDRawDataCollection_source_*_*',
         'drop FEDRawDataCollection_rawDataCollector_*_*'])
 
 #from modules in Configuration.StandardSequence.Generator_cff fixGenInfo
@@ -936,8 +934,8 @@ RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RAWMINIAODEventContent.outputCommands.extend(cms.untracked.vstring(
-    'keep FEDRawDataCollection_rawDataCollector_*_*',
-    'keep FEDRawDataCollection_source_*_*'))
+	'keep FEDRawDataCollection_rawDataCollector_*_*',
+	'keep FEDRawDataCollection_source_*_*'))
 
 RAWMINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -971,5 +969,3 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
-
-
