@@ -6,7 +6,7 @@
 #define DataFormats_EgammaReco_plugins_alpaka_MagneticFieldParabolicPortable_h
 
 #include <Eigen/Core>
-#include "MagneticField/ParametrizedEngine/plugins/ParabolicParametrizedMagneticField.h"
+#include "MagneticField/ParametrizedEngine/interface/ParabolicParametrizedMagneticField.h"
 
 using Vector3f = Eigen::Matrix<float, 3, 1>;
 
@@ -35,7 +35,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename V3>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float MagneticFieldAtPoint(V3 vec) {
-      Parameters p;
       return B0Z(vec) * Kr(vec);
     }
 
