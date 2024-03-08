@@ -111,7 +111,6 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
               lep_dressed = lep_dressed+gamma;
           }
       }
-
       float this_GENiso = 0.0;
       TLorentzVector thisLep;
       thisLep.SetPtEtaPhiM(lep_dressed.Pt(), lep_dressed.Eta(), lep_dressed.Phi(), lep_dressed.M());
@@ -121,7 +120,7 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         float this_GENiso_nolep=0.0;
         std::set<int> gen_fsrset_nolep;
         TLorentzVector thisPart;
-        thisPart.SetPtEtaPhiM(genPart->pt(),genPart->eta(),genPart->phi(),genPart->energy());
+        thisPart.SetPtEtaPhiE(genPart->pt(),genPart->eta(),genPart->phi(),genPart->energy());
         this_GENiso_nolep = computeIso(thisPart, packedgenParticles, gen_fsrset_nolep, false);
         Lepts_RelIso.push_back(this_GENiso_nolep);
     }
@@ -139,6 +138,7 @@ float GenPartIsoProducer::computeIso(TLorentzVector thisPart, edm::Handle<edm::V
   for(size_t k=0; k<packedgenParticles->size();k++){
     if( (*packedgenParticles)[k].status() != 1 ) continue;
     if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
+    if ( abs((*packedgenParticles)[k].pt() - thisPart.Pt())<0.1 && abs((*packedgenParticles)[k].eta() - thisPart.Eta())<0.1 && abs((*packedgenParticles)[k].phi() - thisPart.Phi())<0.1 ) continue;
     if (skip_leptons == true) {
       if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
       if (gen_fsrset.find(k)!=gen_fsrset.end()) continue;
