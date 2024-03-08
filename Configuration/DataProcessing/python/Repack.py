@@ -72,6 +72,9 @@ def repackProcess(**args):
             fileName = cms.untracked.string("%s.root" % moduleLabel)
             )
 
+        if dataTier != defaultDataTier:
+            outputModule.outputCommands = copy.copy(eventContent.outputCommands)
+
         outputModule.dataset = cms.untracked.PSet(dataTier = cms.untracked.string(dataTier))
 
         if maxSize != None:
@@ -87,4 +90,5 @@ def repackProcess(**args):
         process.outputPath += outputModule
 
     return process
+
 
