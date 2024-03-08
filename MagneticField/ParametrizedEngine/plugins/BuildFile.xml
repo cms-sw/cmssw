@@ -1,9 +1,13 @@
+<use name="alpaka"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/ParametrizedEngine"/>
 <use name="CondFormats/RunInfo"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <library file="*.cc" name="MagneticFieldParametrizedEnginePlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
