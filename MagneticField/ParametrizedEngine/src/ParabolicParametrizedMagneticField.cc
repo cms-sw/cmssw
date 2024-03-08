@@ -10,7 +10,10 @@
 using namespace std;
 
 ParabolicParametrizedMagneticField::ParabolicParametrizedMagneticField()
-    : c1(parabolicparametrizedmagneticfield::c1), b0(parabolicparametrizedmagneticfield::b0), b1(parabolicparametrizedmagneticfield::b1), a(parabolicparametrizedmagneticfield::a) {
+    : c1(parabolicparametrizedmagneticfield::c1),
+      b0(parabolicparametrizedmagneticfield::b0),
+      b1(parabolicparametrizedmagneticfield::b1),
+      a(parabolicparametrizedmagneticfield::a) {
   setNominalValue();
 }
 

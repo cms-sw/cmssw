@@ -22,7 +22,7 @@ namespace parabolicparametrizedmagneticfield {
   constexpr float b0 = -3.94991e-06;
   constexpr float b1 = 7.53701e-06;
   constexpr float a = 2.43878e-11;
-}
+}  // namespace parabolicparametrizedmagneticfield
 
 class ParabolicParametrizedMagneticField final : public MagneticField {
 public:
