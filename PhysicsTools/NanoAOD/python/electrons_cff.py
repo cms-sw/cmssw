@@ -263,11 +263,11 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 )
 #################################################finalElectrons#####################
 
-################################################electronMVATTH#####################
-electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
+################################################electronPROMPTMVA#####################
+electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
-    name = cms.string("electronMVATTH"),
+    name = cms.string("electronPROMPTMVA"),
     isClassifier = cms.bool(True),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_mvaFall17V2noIso"]),
     variables = cms.PSet(
@@ -287,10 +287,10 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     )
 )
 run2_egamma_2016.toModify(
-    electronMVATTH,
+    electronPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2016.weights.xml",
 )
-################################################electronMVATTH end#####################
+################################################electronPROMPTMVA end#####################
 
 ################################################electronTable defn #####################
 electronTable = simpleCandidateFlatTableProducer.clone(
@@ -359,7 +359,7 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
     ),
     externalVariables = cms.PSet(
-        mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        promptMVA = ExtVar(cms.InputTag("muonPROMPTMVA"),float, doc="Prompt MVA lepton ID score. Corresponds to the previous mvaTTH",precision=14),
         fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"), "int16", doc="Index of the lowest-dR/ET2 among associated FSR photons"),
     ),
 )
@@ -442,7 +442,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
-electronTablesTask = cms.Task(electronMVATTH, electronTable)
+electronTablesTask = cms.Task(electronPROMPTMVA, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
 _electronTask_Run2 = electronTask.copy()

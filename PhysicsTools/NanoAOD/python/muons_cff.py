@@ -86,10 +86,10 @@ finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
     cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
 )
 
-muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
+muonPROMPTMVA= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2022.weights.xml"),
-    name = cms.string("muonMVATTH"),
+    name = cms.string("muonPROMPTMVA"),
     isClassifier = cms.bool(True),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_pfRelIso03_all","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetNDauChargedMVASel","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentComp"]),
     variables = cms.PSet(
@@ -110,18 +110,33 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     )
 )
 
-muonMVALowPt = muonMVATTH.clone(
+muonMVALowPt = muonPROMPTMVA.clone(
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml"),
     name = cms.string("muonMVALowPt"),
+    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_segmentComp"]),
+    variables = cms.PSet(
+        LepGood_pt = cms.string("pt"),
+        LepGood_eta = cms.string("eta"),
+        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
+        LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
+        LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
+        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
+        LepGood_jetDF = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0"),
+        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)"),
+        LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
+        LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
+        LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
+        LepGood_segmentComp = cms.string("segmentCompatibility"),
+    )
 )
 
 run2_muon_2016.toModify(
-    muonMVATTH,
+    muonPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
 ~run3_muon.toModify(
-    muonMVATTH,
+    muonPROMPTMVA,
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml"),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_segmentComp"]),
     variables = cms.PSet(
@@ -200,7 +215,7 @@ muonTable = simpleCandidateFlatTableProducer.clone(
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
         ),
     externalVariables = cms.PSet(
-        mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        promptMVA = ExtVar(cms.InputTag("muonPROMPTMVA"),float, doc="Prompt MVA lepton ID score. Corresponds to the previous mvaTTH",precision=14),
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
         fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:muFsrIndex"), "int16", doc="Index of the lowest-dR/ET2 among associated FSR photons"),
         bsConstrainedPt = ExtVar(cms.InputTag("muonBSConstrain:muonBSConstrainedPt"),float, doc="pT with beamspot constraint",precision=-1),
@@ -246,5 +261,5 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
-muonTablesTask = cms.Task(muonMVATTH,muonMVALowPt,muonBSConstrain,muonTable,muonMVAID)
+muonTablesTask = cms.Task(muonPROMPTMVA,muonMVALowPt,muonBSConstrain,muonTable,muonMVAID)
 
