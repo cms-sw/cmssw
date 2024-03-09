@@ -135,7 +135,7 @@ run2_muon_2016.toModify(
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
-~run3_muon.toModify(
+(run2_muon_2017 | run2_muon_2018).toModify(
     muonPROMPTMVA,
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml"),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_segmentComp"]),
