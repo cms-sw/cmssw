@@ -1252,52 +1252,195 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
     }
   }
 
+  SECTION("VPSet with defaults") {
+    edm::ParameterSetDescription psetDesc;
+
+    std::vector<edm::ParameterSet> defaults{1};
+    {
+      auto& d = defaults.front();
+      edm::ParameterSetDescription templte;
+
+      templte.add<int>("i");
+      d.addParameter<int>("i", 1);
+
+      templte.add<std::vector<int>>("vi");
+      d.addParameter<std::vector<int>>("vi", std::vector<int>({1}));
+
+      templte.add<unsigned int>("ui");
+      d.addParameter<unsigned int>("ui", 1);
+
+      templte.add<std::vector<unsigned int>>("vui");
+      d.addParameter<std::vector<unsigned int>>("vui", std::vector<unsigned int>({1}));
+
+      templte.add<long long>("l");
+      d.addParameter<long long>("l", 1);
+
+      templte.add<std::vector<long long>>("vl");
+      d.addParameter<std::vector<long long>>("vl", std::vector<long long>({1}));
+
+      templte.add<unsigned long long>("ul");
+      d.addParameter<unsigned long long>("ul", 1);
+
+      templte.add<std::vector<unsigned long long>>("vul");
+      d.addParameter<std::vector<unsigned long long>>("vul", std::vector<unsigned long long>({1}));
+
+      templte.add<bool>("b");
+      d.addParameter<bool>("b", true);
+
+      templte.add<double>("d");
+      d.addParameter<double>("d", 1.0);
+
+      templte.add<std::vector<double>>("vd");
+      d.addParameter<std::vector<double>>("vd", std::vector<double>({1.0}));
+
+      templte.add<std::string>("s");
+      d.addParameter<std::string>("s", "a");
+
+      templte.add<std::vector<std::string>>("vs");
+      d.addParameter<std::vector<std::string>>("vs", std::vector<std::string>({"a"}));
+
+      templte.add<edm::InputTag>("t");
+      d.addParameter<edm::InputTag>("t", edm::InputTag("foo"));
+
+      templte.add<std::vector<edm::InputTag>>("vt");
+      d.addParameter<std::vector<edm::InputTag>>("vt", std::vector<edm::InputTag>({edm::InputTag("foo")}));
+
+      templte.add<edm::ESInputTag>("et");
+      d.addParameter<edm::ESInputTag>("et", edm::ESInputTag(":foo"));
+
+      templte.add<std::vector<edm::ESInputTag>>("vet");
+      d.addParameter<std::vector<edm::ESInputTag>>("vet", std::vector<edm::ESInputTag>({edm::ESInputTag(":foo")}));
+
+      edm::FileInPath::disableFileLookup();
+      templte.add<edm::FileInPath>("f");
+      d.addParameter<edm::FileInPath>("f", edm::FileInPath());
+
+      templte.add<edm::EventID>("e");
+      d.addParameter<edm::EventID>("e", edm::EventID(1, 2, 3));
+
+      templte.add<std::vector<edm::EventID>>("ve");
+      d.addParameter<std::vector<edm::EventID>>("ve", std::vector<edm::EventID>({edm::EventID(1, 2, 3)}));
+
+      templte.add<edm::LuminosityBlockID>("L");
+      d.addParameter<edm::LuminosityBlockID>("L", edm::LuminosityBlockID(1, 2));
+
+      templte.add<std::vector<edm::LuminosityBlockID>>("vL");
+      d.addParameter<std::vector<edm::LuminosityBlockID>>(
+          "vL", std::vector<edm::LuminosityBlockID>({edm::LuminosityBlockID(1, 2)}));
+
+      templte.add<edm::EventRange>("er");
+      d.addParameter<edm::EventRange>("er", edm::EventRange(1, 2, 3, 4, 5, 6));
+
+      templte.add<std::vector<edm::EventRange>>("ver");
+      d.addParameter<std::vector<edm::EventRange>>("ver",
+                                                   std::vector<edm::EventRange>({edm::EventRange(1, 2, 3, 4, 5, 6)}));
+
+      templte.add<edm::LuminosityBlockRange>("Lr");
+      d.addParameter<edm::LuminosityBlockRange>("Lr", edm::LuminosityBlockRange(1, 2, 3, 4));
+
+      templte.add<std::vector<edm::LuminosityBlockRange>>("vLr");
+      d.addParameter<std::vector<edm::LuminosityBlockRange>>(
+          "vLr", std::vector<edm::LuminosityBlockRange>({edm::LuminosityBlockRange(1, 2, 3, 4)}));
+
+      templte.add<edm::ParameterSetDescription>("p", edm::ParameterSetDescription());
+      d.addParameter<edm::ParameterSet>("p", edm::ParameterSet());
+
+      templte.addVPSet("vp", edm::ParameterSetDescription());
+      d.addParameter<std::vector<edm::ParameterSet>>("vp", std::vector<edm::ParameterSet>());
+
+      psetDesc.addVPSet("vp", templte, defaults);
+    }
+    edm::ParameterSet test;
+    test.addParameter("vp", defaults);
+    psetDesc.validate(test);
+
+    std::ostringstream s;
+    psetDesc.writeCfi(s, false, 0);
+    std::string expected = R"-(
+vp = cms.VPSet(
+  cms.PSet(
+    L = cms.LuminosityBlockID(1, 2),
+    Lr = cms.LuminosityBlockRange('1:2-3:4'),
+    b = cms.bool(True),
+    d = cms.double(1),
+    e = cms.EventID(1, 2, 3),
+    er = cms.EventRange('1:2:3-4:5:6'),
+    et = cms.ESInputTag('', 'foo'),
+    f = cms.FileInPath(),
+    i = cms.int32(1),
+    l = cms.int64(1),
+    s = cms.string('a'),
+    t = cms.InputTag('foo'),
+    ui = cms.uint32(1),
+    ul = cms.uint64(1),
+    vL = cms.VLuminosityBlockID('1:2'),
+    vLr = cms.VLuminosityBlockRange('1:2-3:4'),
+    vd = cms.vdouble(1),
+    ve = cms.VEventID('1:2:3'),
+    ver = cms.VEventRange('1:2:3-4:5:6'),
+    vet = cms.VESInputTag(':foo'),
+    vi = cms.vint32(1),
+    vl = cms.vint64(1),
+    vs = cms.vstring('a'),
+    vt = cms.VInputTag('foo'),
+    vui = cms.vuint32(1),
+    vul = cms.vuint64(1),
+    p = cms.PSet(),
+    vp = cms.VPSet(
+    )
+  )
+)
+)-";
+
+    CHECK(expected == s.str());
+  }
+
+  SECTION("setAllowAnything") {
+    edm::ParameterSetDescription psetDesc;
+    CHECK(!psetDesc.anythingAllowed());
+    CHECK(!psetDesc.isUnknown());
+    CHECK(psetDesc.begin() == psetDesc.end());
+
+    edm::ParameterSet params;
+    psetDesc.validate(params);
+
+    params.addParameter<std::string>("testname", std::string("testvalue"));
+
+    // Expect this to throw, parameter not in description
+    REQUIRE_THROWS_AS(psetDesc.validate(params), edm::Exception);
+
+    psetDesc.setAllowAnything();
+    CHECK(psetDesc.anythingAllowed());
+
+    psetDesc.validate(params);
+
+    psetDesc.add<int>("testInt", 11);
+    psetDesc.validate(params);
+    CHECK(params.exists("testInt"));
+  }
+
+  SECTION("unknown") {
+    edm::ParameterSetDescription psetDesc;
+
+    edm::ParameterSet params;
+    params.addParameter<std::string>("testname", std::string("testvalue"));
+    psetDesc.setUnknown();
+    CHECK(psetDesc.isUnknown());
+
+    psetDesc.validate(params);
+  }
+
+  SECTION("FileInPath") {
+    // Test this type separately because I do not know how to
+    // add an entry into a ParameterSet without FileInPath pointing
+    // at a real file.
+    edm::ParameterSetDescription psetDesc;
+    edm::ParameterDescriptionBase* par = psetDesc.add<edm::FileInPath>("fileInPath", edm::FileInPath());
+    CHECK(par->type() == edm::k_FileInPath);
+    CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
+  }
+
   SECTION("main") {
-    {
-      edm::ParameterSetDescription psetDesc;
-      CHECK(!psetDesc.anythingAllowed());
-      CHECK(!psetDesc.isUnknown());
-      CHECK(psetDesc.begin() == psetDesc.end());
-
-      edm::ParameterSet params;
-      psetDesc.validate(params);
-
-      params.addParameter<std::string>("testname", std::string("testvalue"));
-
-      // Expect this to throw, parameter not in description
-      REQUIRE_THROWS_AS(psetDesc.validate(params), edm::Exception);
-
-      psetDesc.setAllowAnything();
-      CHECK(psetDesc.anythingAllowed());
-
-      psetDesc.validate(params);
-
-      psetDesc.add<int>("testInt", 11);
-      psetDesc.validate(params);
-      CHECK(params.exists("testInt"));
-    }
-
-    {
-      edm::ParameterSetDescription psetDesc;
-
-      edm::ParameterSet params;
-      params.addParameter<std::string>("testname", std::string("testvalue"));
-      psetDesc.setUnknown();
-      CHECK(psetDesc.isUnknown());
-
-      psetDesc.validate(params);
-    }
-
-    {
-      // Test this type separately because I do not know how to
-      // add an entry into a ParameterSet without FileInPath pointing
-      // at a real file.
-      edm::ParameterSetDescription psetDesc;
-      edm::ParameterDescriptionBase* par = psetDesc.add<edm::FileInPath>("fileInPath", edm::FileInPath());
-      CHECK(par->type() == edm::k_FileInPath);
-      CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
-    }
-
     edm::ParameterSetDescription psetDesc;
     edm::ParameterSet pset;
 
