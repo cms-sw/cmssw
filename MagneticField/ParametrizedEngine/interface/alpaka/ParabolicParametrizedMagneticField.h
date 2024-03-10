@@ -19,19 +19,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 
     template <typename V3>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float Kr(V3 vec) {
+    constexpr float Kr(V3 vec) {
       Parameters p;
       return p.a * (vec(0) * vec(0) + vec(1) * vec(1)) + 1.;
     }
 
     template <typename V3>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float B0Z(V3 vec) {
+    constexpr float B0Z(V3 vec) {
       Parameters p;
       return p.b0 * vec(2) * vec(2) + p.b1 * vec(2) + p.c1;
     }
 
     template <typename V3>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float MagneticFieldAtPoint(V3 vec) {
+    constexpr float MagneticFieldAtPoint(V3 vec) {
       return B0Z(vec) * Kr(vec);
     }
 
