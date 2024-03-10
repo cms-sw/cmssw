@@ -141,33 +141,42 @@ namespace edm {
   }
 
   void ConfigurationDescriptions::writeCfis(std::set<std::string>& usedCfiFileNames) const {
-    for_all(descriptions_,
-            std::bind(&ConfigurationDescriptions::writeCfiForLabel,
-                      std::placeholders::_1,
-                      std::cref(baseType_),
-                      std::cref(pluginName_),
-                      std::ref(usedCfiFileNames)));
+    bool wroteClassFile = false;
+    cfi::Paths paths;
     if (defaultDescDefined_) {
-      writeClassFile(defaultDesc_);
+      paths = writeClassFile(defaultDesc_, not descriptions_.empty());
+      wroteClassFile = true;
     } else if (descriptions_.size() == 1) {
-      writeClassFile(descriptions_.begin()->second);
+      paths = writeClassFile(descriptions_.begin()->second, true);
+      wroteClassFile = true;
+    }
+    CfiOptions ops = wroteClassFile ? CfiOptions{cfi::Untyped{paths}} : CfiOptions{cfi::Typed{}};
+    for (auto& d : descriptions_) {
+      writeCfiForLabel(d, baseType_, pluginName_, 1 == descriptions_.size(), ops, usedCfiFileNames);
     }
   }
 
-  void ConfigurationDescriptions::writeClassFile(ParameterSetDescription const& iDesc) const {
-    std::string pluginName = pluginName_;
-    auto found = pluginName.find("::");
-    while (found != std::string::npos) {
-      pluginName.replace(found, 2, "_");
-      found = pluginName.find("::");
+  namespace {
+    std::string modifyPluginName(std::string iName) {
+      auto found = iName.find("::");
+      while (found != std::string::npos) {
+        iName.replace(found, 2, "_");
+        found = iName.find("::");
+      }
+      //Symbols that can appear in our plugin names but can't in python function names
+      const std::string toReplace("@<>,");
+      found = iName.find_first_of(toReplace);
+      while (found != std::string::npos) {
+        iName.replace(found, 1, "_");
+        found = iName.find_first_of(toReplace, found);
+      }
+      return iName;
     }
-    //Symbols that can appear in our plugin names but can't in python function names
-    const std::string toReplace("@<>,");
-    found = pluginName.find_first_of(toReplace);
-    while (found != std::string::npos) {
-      pluginName.replace(found, 1, "_");
-      found = pluginName.find_first_of(toReplace, found);
-    }
+  }  // namespace
+
+  cfi::Paths ConfigurationDescriptions::writeClassFile(ParameterSetDescription const& iDesc,
+                                                       bool willUseWithCfis) const {
+    std::string pluginName = modifyPluginName(pluginName_);
 
     std::string fileName = pluginName + ".py";
     std::ofstream outFile(fileName.c_str());
@@ -187,7 +196,8 @@ namespace edm {
 
     bool startWithComma = true;
     int indentation = 4;
-    iDesc.writeCfi(outFile, startWithComma, indentation);
+    CfiOptions ops = willUseWithCfis ? CfiOptions{cfi::ClassFile{}} : CfiOptions{cfi::Typed{}};
+    iDesc.writeCfi(outFile, startWithComma, indentation, ops);
 
     outFile << ")\n"
                "  for k,v in kwargs.items():\n"
@@ -195,11 +205,14 @@ namespace edm {
                "  return mod\n";
 
     outFile.close();
+    return std::holds_alternative<cfi::ClassFile>(ops) ? std::get<cfi::ClassFile>(ops).releasePaths() : cfi::Paths{};
   }
 
   void ConfigurationDescriptions::writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                                                    std::string const& baseType,
                                                    std::string const& pluginName,
+                                                   bool isSameAsDefault,
+                                                   CfiOptions& options,
                                                    std::set<std::string>& usedCfiFileNames) {
     if (0 == strcmp(baseType.c_str(), kService) && labelAndDesc.first != pluginName) {
       throw edm::Exception(edm::errors::LogicError,
@@ -250,13 +263,22 @@ namespace edm {
       throw ex;
     }
 
-    outFile << "import FWCore.ParameterSet.Config as cms\n\n";
-    outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";
-
     bool startWithComma = true;
-    int indentation = 2;
-    labelAndDesc.second.writeCfi(outFile, startWithComma, indentation);
+    if (not shouldWriteUntyped(options)) {
+      outFile << "import FWCore.ParameterSet.Config as cms\n\n";
+      outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";
+    } else {
+      outFile << "import FWCore.ParameterSet.Config as cms\n\n";
 
+      auto pythonName = modifyPluginName(pluginName);
+      outFile << "from ." << pythonName << " import " << pythonName << "\n\n";
+      outFile << labelAndDesc.first << " = " << pythonName << "(";
+      startWithComma = false;
+    }
+    if (not isSameAsDefault) {
+      int indentation = 2;
+      labelAndDesc.second.writeCfi(outFile, startWithComma, indentation, options);
+    }
     outFile << ")\n";
 
     outFile.close();

@@ -60,14 +60,32 @@ namespace edm {
 
     void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
-    void writeCfi_(
-        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override;
+    void writeCfi_(std::ostream& os,
+                   bool optional,
+                   bool& startWithComma,
+                   int indentation,
+                   CfiOptions&,
+                   bool& wroteSomething) const override;
+
+    void writeLabelValueCfi(std::ostream& os,
+                            bool optional,
+                            bool& startWithComma,
+                            int indentation,
+                            CfiOptions&,
+                            bool& wroteSomething) const;
+
+    void writeFullCfi(std::ostream& os,
+                      bool optional,
+                      bool& startWithComma,
+                      int indentation,
+                      CfiOptions&,
+                      bool& wroteSomething) const;
 
     bool partiallyExists_(ParameterSet const& pset) const override;
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
-    virtual void writeCfi_(std::ostream& os, int indentation) const = 0;
+    virtual void writeCfi_(std::ostream& os, int indentation, CfiOptions&) const = 0;
 
     virtual void writeDoc_(std::ostream& os, int indentation) const = 0;
 
