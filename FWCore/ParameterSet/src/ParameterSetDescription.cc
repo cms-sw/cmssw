@@ -125,20 +125,28 @@ namespace edm {
     }
   }
 
-  void ParameterSetDescription::writeCfi(std::ostream& os, bool startWithComma, int indentation) const {
-    using std::placeholders::_1;
+  void ParameterSetDescription::writeCfi(std::ostream& os,
+                                         bool startWithComma,
+                                         int indentation,
+                                         CfiOptions& options) const {
     bool wroteSomething = false;
 
     bool seenWildcard = false;
+    bool seenMultipleWildcards = false;
     for (auto const& entry : entries_) {
       //only add the first seen wildcard to the cfi. This avoids possible ambiguities.
       if (entry.node()->isWildcard()) {
         if (seenWildcard == true) {
+          seenMultipleWildcards = true;
           continue;
         }
         seenWildcard = true;
       }
-      writeNode(entry, os, startWithComma, indentation, wroteSomething);
+      writeNode(entry, os, startWithComma, indentation, options, wroteSomething);
+    }
+
+    if ((anythingAllowed() or seenMultipleWildcards)) {
+      cfi::parameterMustBeTyped(options);
     }
 
     if (wroteSomething) {
@@ -227,10 +235,17 @@ namespace edm {
     }
   }
 
-  void ParameterSetDescription::writeNode(
-      SetDescriptionEntry const& entry, std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) {
+  void ParameterSetDescription::writeNode(SetDescriptionEntry const& entry,
+                                          std::ostream& os,
+                                          bool& startWithComma,
+                                          int indentation,
+                                          CfiOptions& options,
+                                          bool& wroteSomething) {
     if (entry.writeToCfi()) {
-      entry.node()->writeCfi(os, entry.optional(), startWithComma, indentation, wroteSomething);
+      entry.node()->writeCfi(os, entry.optional(), startWithComma, indentation, options, wroteSomething);
+    } else {
+      //The simplest way to handle this is to force all items to be full in this PSet
+      cfi::parameterMustBeTyped(options);
     }
   }
 

@@ -72,10 +72,15 @@ namespace edm {
     }
   }
 
-  void IfExistsDescription::writeCfi_(
-      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
-    node_left_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
-    node_right_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
+  void IfExistsDescription::writeCfi_(std::ostream& os,
+                                      bool optional,
+                                      bool& startWithComma,
+                                      int indentation,
+                                      CfiOptions& options,
+                                      bool& wroteSomething) const {
+    node_left_->writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+    node_right_->writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+    parameterMustBeTyped(options);
   }
 
   void IfExistsDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
