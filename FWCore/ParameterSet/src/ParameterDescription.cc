@@ -531,9 +531,7 @@ namespace edm {
 
     template <>
     void writeSingleValue<FileInPath>(std::ostream& os, FileInPath const& value, ValueFormat) {
-      if (not value.relativePath().empty()) {
-        os << "'" << value.relativePath() << "'";
-      }
+      os << "'" << value.relativePath() << "'";
     }
 
     template <typename T>
