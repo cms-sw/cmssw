@@ -1,0 +1,2 @@
+from .testProducerWithPsetDesc_cfi import testProducerWithPsetDesc
+print(testProducerWithPsetDesc.dumpPython())

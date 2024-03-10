@@ -146,8 +146,12 @@ namespace edm {
     }
   }
 
-  void ParameterWildcardBase::writeCfi_(
-      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+  void ParameterWildcardBase::writeCfi_(std::ostream& os,
+                                        bool optional,
+                                        bool& startWithComma,
+                                        int indentation,
+                                        CfiOptions& options,
+                                        bool& wroteSomething) const {
     wroteSomething = true;
     if (startWithComma)
       os << ",";
@@ -166,10 +170,10 @@ namespace edm {
     if (!isTracked())
       os << "untracked.";
 
-    writeTemplate(os, indentation);
+    writeTemplate(os, indentation, options);
   }
 
-  void ParameterWildcardBase::writeTemplate(std::ostream& os, int indentation) const {
+  void ParameterWildcardBase::writeTemplate(std::ostream& os, int indentation, CfiOptions&) const {
     os << parameterTypeEnumToString(type());
   }
 
