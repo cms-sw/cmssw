@@ -145,9 +145,7 @@ if "conditions" in config["alignment"]:
       process,
       "conditionsIn{}".format(condition),
       poolDBESSource.clone(
-        # FIXME%START
-        connect = cms.string("sqlite_file:" + str(config["alignment"]["conditions"][condition]["connect"]) if "alignments_MP.db" in str(config["alignment"]["conditions"][condition]["connect"]) else str(config["alignment"]["conditions"][condition]["connect"])),
-        #FIXME%END
+        connect = cms.string(str(config["alignment"]["conditions"][condition]["connect"])),
         toGet = cms.VPSet(
           cms.PSet(
             record = cms.string(str(condition)),
