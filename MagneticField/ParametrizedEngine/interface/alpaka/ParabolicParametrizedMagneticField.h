@@ -2,13 +2,10 @@
  Description: Utility function to calculate the Magnetic Field on the GPU
 */
 
-#ifndef DataFormats_EgammaReco_plugins_alpaka_MagneticFieldParabolicPortable_h
-#define DataFormats_EgammaReco_plugins_alpaka_MagneticFieldParabolicPortable_h
+#ifndef MagneticField_ParametrizedEngine_interface_alpaka_ParabolicParametrizedMagneticField_h
+#define MagneticField_ParametrizedEngine_interface_alpaka_ParabolicParametrizedMagneticField_h
 
-#include <Eigen/Core>
-#include "MagneticField/ParametrizedEngine/interface/ParabolicParametrizedMagneticField.h"
-
-using Vector3f = Eigen::Matrix<float, 3, 1>;
+#include "MagneticField/ParametrizedEngine/src/ParabolicParametrizedMagneticField.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
