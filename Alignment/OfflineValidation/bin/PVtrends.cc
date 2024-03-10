@@ -140,8 +140,8 @@ int trends(int argc, char *argv[]) {
                outputdir.data(),
                Form("mean %s", titles[i].data()),
                Form("mean %s", ytitles[i].data()),
-               -7.,
-               10.,
+               -4.,
+               8.,
                style,
                GetLumi,
                lumiAxisType.data());
@@ -150,7 +150,7 @@ int trends(int argc, char *argv[]) {
               Form("RMS %s", titles[i].data()),
               Form("RMS %s", ytitles[i].data()),
               0.,
-              35.,
+              25.,
               style,
               GetLumi,
               lumiAxisType.data());
@@ -181,12 +181,15 @@ int trends(int argc, char *argv[]) {
       int color = alignment.second.get<int>("color");
       int style = floor(alignment.second.get<double>("style") / 100.);
       gMean->SetMarkerColor(color);
+      gMean->SetLineColor(color);  // no need to be set but looks better IMHO
       gMean->SetMarkerStyle(style);
+      gMean->SetMarkerSize(1.6);
 
       hRMS->SetTitle(gtitle);  // for the legend
       //hRMS ->SetTitle(""); // for the legend
       hRMS->SetMarkerSize(0.6);
       hRMS->SetMarkerColor(color);
+      hRMS->SetLineColor(color);  // needs to be set, otherwise color is NOT picked up
       hRMS->SetMarkerStyle(style);
 
       mean(gMean, "PZ", "p", fullRange);

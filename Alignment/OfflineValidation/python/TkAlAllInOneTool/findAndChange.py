@@ -89,7 +89,7 @@ def get_all_keys(var):
        Generate all keys for nested dictionary
        - reserved keywords are not picked up
     """
-    reserved_keys = ["customrighttitle","title"]
+    reserved_keys = ["customrighttitle","title","Rlabel"]
     if hasattr(var,'items'):
         for k, v in var.items():
             if k in reserved_keys: continue
