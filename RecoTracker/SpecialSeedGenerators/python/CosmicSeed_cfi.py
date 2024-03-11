@@ -27,3 +27,4 @@ cosmicseedfinder = cms.EDProducer("CosmicSeedGenerator",
 )
 
 
+# foo bar baz

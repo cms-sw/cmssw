@@ -31,3 +31,4 @@ process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
 
 process.p = cms.Path(process.hcalRecoAnalyzer)
 
+# foo bar baz

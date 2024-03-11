@@ -28,3 +28,4 @@ process.OUT.outputCommands.append("keep *_ak5PFJetsCHS_*_EX")
 process.options = cms.untracked.PSet( 
         wantSummary = cms.untracked.bool(True) # while the timing of this is not reliable in unscheduled mode, it still helps understanding what was actually run 
 )
+# foo bar baz

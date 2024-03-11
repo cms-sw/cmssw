@@ -38,3 +38,4 @@ process.muonCSCDigis.UseExaminer = False
 process.cscSegments.algo_type = 4
 
 
+# foo bar baz

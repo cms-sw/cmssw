@@ -17,3 +17,4 @@ TauSpinnerGen = cms.EDProducer( "TauSpinnerCMS",
                                 CMSEnergy = cms.double(8000.0),
                                 gensrc = cms.InputTag('generatorSmeared'),
                                 )
+# foo bar baz

@@ -43,3 +43,4 @@ def customisePixelPairStaticMitigation(process):
         process.TrackSeedMonpixelPairStep.RegionSeedingLayersProducer = ""
 
     return process
+# foo bar baz

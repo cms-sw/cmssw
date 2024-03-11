@@ -159,3 +159,4 @@ def customiseL1RawToDigiFor74XMC(process):
     if hasattr(process,'hltCaloStage1Digis'):     
         process.hltCaloStage1Digis.FWId = cms.uint32(0xff000000)
     return process
+# foo bar baz

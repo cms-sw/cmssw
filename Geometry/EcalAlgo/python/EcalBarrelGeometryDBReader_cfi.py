@@ -4,3 +4,4 @@ EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
                                              applyAlignment = cms.bool(False)
                                              )
 
+# foo bar baz

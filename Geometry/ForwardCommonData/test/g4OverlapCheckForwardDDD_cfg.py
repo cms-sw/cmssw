@@ -38,3 +38,4 @@ process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
 process.g4SimHits.OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'BCM1FSensitiveDetector', 'BHMSensitiveDetector', 'PLTSensitiveDetector')
+# foo bar baz

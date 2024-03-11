@@ -94,3 +94,4 @@ for wheel,p in zip([-2,-1,0,1,2],[-13,-6,0,6,13]):
         print('etaCoarseLUT_minus_{wheel} = cms.vint32('.format(wheel=abs(wheel))+','.join(lut)+')\n')
     if wheel==0:
         print('etaCoarseLUT_0 = cms.vint32('+','.join(lut)+')\n')
+# foo bar baz

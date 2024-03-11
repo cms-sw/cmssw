@@ -31,3 +31,4 @@ electronHcalDepth2TowerIsolationScone = cms.EDProducer("EgammaTowerIsolationProd
     emObjectProducer = cms.InputTag("gedGsfElectrons")
 )
 
+# foo bar baz

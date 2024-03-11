@@ -22,3 +22,4 @@ cleanPatPhotons = cms.EDProducer("PATPhotonCleaner",
     finalCut = cms.string(''),
 
 )
+# foo bar baz

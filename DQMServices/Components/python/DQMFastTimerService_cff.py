@@ -29,3 +29,4 @@ FastTimerService.dqmModuleTimeResolution    =     0.5 # ms
 # set the base DQM folder for the plots
 FastTimerService.dqmPath                    = "DQM/TimerService"
 FastTimerService.enableDQMbyProcesses       = False
+# foo bar baz

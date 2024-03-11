@@ -13,3 +13,4 @@ hltEgammaHGCalLayerClusterIsoUnseeded = cms.EDProducer("EgammaHLTHGCalLayerClust
     rhoScale = cms.double(1.0),
     useEt = cms.bool(False)
 )
+# foo bar baz

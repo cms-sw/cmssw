@@ -160,3 +160,4 @@ process.rivetAnalyzer.OutputFile = cms.string('run.yoda')
 
 process.path = cms.Path(process.generator*process.rivetAnalyzer)#*process.particleLevel*process.genParticles*process.printTree1)
 
+# foo bar baz

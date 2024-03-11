@@ -35,3 +35,4 @@ totemTimingRawToDigi = totemVFATRawToDigi.clone(
 # for Run 2 backward compatibility
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemTimingRawToDigi,
 fedIds = [] )
+# foo bar baz

@@ -25,3 +25,4 @@ process.p1 = cms.Path(process.btagging)
 process.p = cms.EndPath(process.RECO)
 
 
+# foo bar baz

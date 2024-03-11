@@ -5,3 +5,4 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 metHLTFilter = copy.deepcopy(hltHighLevel)
 metHLTFilter.HLTPaths = ['HLT1MET']
 
+# foo bar baz

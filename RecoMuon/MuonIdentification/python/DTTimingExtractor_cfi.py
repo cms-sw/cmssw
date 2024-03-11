@@ -21,3 +21,4 @@ DTTimingExtractorBlock = cms.PSet(
 )
 
 
+# foo bar baz

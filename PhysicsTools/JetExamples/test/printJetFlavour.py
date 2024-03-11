@@ -53,3 +53,4 @@ process.p = cms.Path(process.printList*process.myPartons*process.flavourByRef*pr
 #process.MessageLogger.cout = dict(enable = True, threshold = 'ERROR')
 
 
+# foo bar baz

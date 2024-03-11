@@ -26,3 +26,4 @@ process.TFileService = cms.Service('TFileService',
 )
 
 process.path = cms.Path(process.comparisonPlots)
+# foo bar baz

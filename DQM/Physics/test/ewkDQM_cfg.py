@@ -29,3 +29,4 @@ process.source = cms.Source("PoolSource",
 #process.ana = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.ewkDQM+process.dqmSaver)
 
+# foo bar baz

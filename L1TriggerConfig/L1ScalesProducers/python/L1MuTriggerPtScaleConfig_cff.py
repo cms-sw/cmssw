@@ -9,3 +9,4 @@ L1MuTriggerPtScaleRcdSource = cms.ESSource("EmptyESSource",
 
 
 
+# foo bar baz

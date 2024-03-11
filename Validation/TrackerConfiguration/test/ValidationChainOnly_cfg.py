@@ -77,3 +77,4 @@ process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecH
 process.tracks = cms.Sequence(process.trackingTruthValid*process.tracksValidation)
 process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHitsValid)
 process.p1 = cms.Path(process.mix*process.simhits*process.digis*process.rechits*process.tracks*process.trackinghits)
+# foo bar baz

@@ -36,3 +36,4 @@ process.p = cms.Path(process.clusterSummaryProducer)
 
 process.e = cms.EndPath(process.out)
 
+# foo bar baz

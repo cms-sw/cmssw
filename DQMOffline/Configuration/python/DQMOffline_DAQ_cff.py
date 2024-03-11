@@ -11,3 +11,4 @@ from DQM.EcalPreshowerMonitorModule.ESDaqInfoTask_cfi import *
 
 daq_dqmoffline = cms.Sequence(dtDAQInfo*rpcDaqInfo*ecalDaqInfoTask*siStripDaqInfo*cscDaqInfo*sipixelDaqInfo*ecalPreshowerDaqInfoTask)
 
+# foo bar baz

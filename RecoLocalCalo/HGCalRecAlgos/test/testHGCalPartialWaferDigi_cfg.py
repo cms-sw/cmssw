@@ -25,3 +25,4 @@ process.analysis_step = cms.Path(process.hgcalCheckToolDigiEE+process.hgcalCheck
 
 # Schedule definition
 process.schedule = cms.Schedule(process.analysis_step)
+# foo bar baz

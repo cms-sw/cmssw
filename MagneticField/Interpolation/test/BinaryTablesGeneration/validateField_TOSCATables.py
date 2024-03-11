@@ -39,3 +39,4 @@ process.testMagneticField = cms.EDAnalyzer("testMagneticField",
 
 process.p1 = cms.Path(process.testMagneticField)
 
+# foo bar baz

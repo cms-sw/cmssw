@@ -36,3 +36,4 @@ KFFittingSmootheForSTA = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFitt
 
 # Stand Alone Muons Producer
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
+# foo bar baz

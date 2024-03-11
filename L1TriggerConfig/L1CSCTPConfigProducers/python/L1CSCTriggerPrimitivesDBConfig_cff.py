@@ -26,3 +26,4 @@ l1csctpdbconfsrc.DBParameters.authenticationMethod = cms.untracked.uint32(1)
 # Reading from DB has precedence over dummy producers (which use constants
 # defined in cfi files).
 es_prefer_l1csctpdbconfsrc = cms.ESPrefer("PoolDBESSource","l1csctpdbconfsrc")
+# foo bar baz

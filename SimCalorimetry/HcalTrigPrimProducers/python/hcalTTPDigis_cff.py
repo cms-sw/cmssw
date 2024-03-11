@@ -13,3 +13,4 @@ from SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi import *
 
 hcalTTPSequence = cms.Sequence( simHcalTTPDigis + simHcalTTPRecord ) 
 
+# foo bar baz

@@ -77,3 +77,4 @@ pL1TkGlbMuon = cms.Path( L1TkGlbMuons )
 
 # from L1Trigger.Phase2L1Taus.L1CaloTkTauProducer_cfi import L1CaloTkTaus
 # L1TkCaloTaus = L1CaloTkTaus.clone()
+# foo bar baz

@@ -18,3 +18,4 @@ bysipixelvssistripclustmulteventfilter = cms.EDFilter('BySiPixelClusterVsSiStrip
                                                       cut = cms.string("(mult2 > 30000) && ( mult2 > 20000+7*mult1)")
                                                       )
 	
+# foo bar baz

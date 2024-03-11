@@ -42,3 +42,4 @@ scoutingDiJetDQMSequence = cms.Sequence(selectedCaloJets*
                                         scoutingDiJetVariables*
                                         scoutingDiJetVarAnalyzer
                                         )
+# foo bar baz

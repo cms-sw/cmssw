@@ -22,3 +22,4 @@ process.maxEvents = cms.untracked.PSet(
 process.prod = cms.EDAnalyzer("TrackerTopologyAnalyzer");
 
 process.p1 = cms.Path(process.prod)
+# foo bar baz

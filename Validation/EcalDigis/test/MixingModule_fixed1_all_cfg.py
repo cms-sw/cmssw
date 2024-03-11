@@ -89,3 +89,4 @@ process.mix.input.nbPileupEvents = cms.PSet(
     averageNumber = cms.double(1.0)
 )
 
+# foo bar baz

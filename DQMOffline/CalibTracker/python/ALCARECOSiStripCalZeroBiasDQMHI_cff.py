@@ -19,3 +19,4 @@ from DPGAnalysis.SiStripTools.FilterSequenceForAlCaRecoDQM_cfi import *
 
 ALCARECOSiStripCalZeroBiasDQM = cms.Sequence(seqAPVCycleFilter*
                                              SiStripCalZeroBiasMonitorCluster)
+# foo bar baz

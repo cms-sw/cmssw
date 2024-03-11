@@ -50,3 +50,4 @@ def loadHltConfiguration(process, menu, **args):
 
 import FWCore.ParameterSet.Config as _cms
 _cms.Process.loadHltConfiguration = loadHltConfiguration
+# foo bar baz

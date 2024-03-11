@@ -7,3 +7,4 @@ dqmProvInfo = DQMEDAnalyzer('DQMProvInfo',
     provInfoFolder = cms.untracked.string('ProvInfo'),
     runType = cms.untracked.string("No Run Type selected")
 )
+# foo bar baz

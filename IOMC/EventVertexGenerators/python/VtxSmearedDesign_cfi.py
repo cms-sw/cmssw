@@ -6,3 +6,4 @@ VtxSmeared = GaussEvtVtxGenerator.clone(
     src = "generator:unsmeared",
     readDB = True
 )
+# foo bar baz

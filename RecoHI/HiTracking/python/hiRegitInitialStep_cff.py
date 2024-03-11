@@ -100,3 +100,4 @@ hiRegitInitialStepTask = cms.Task(hiGeneralTrackFilter,
                                   hiRegitInitialStepTracks,
                                   hiRegitInitialStepSelector)
 hiRegitInitialStep = cms.Sequence(hiRegitInitialStepTask)
+# foo bar baz

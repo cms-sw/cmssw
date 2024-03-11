@@ -12,3 +12,4 @@ approxSiStripClusters.toModify(hltSiStripClusters2ApproxClusters,
                                beamSpot = "hltBeamSpotProducer",
                                inputClusters = "siStripClustersHLT",
                                clusterShapeHitFilterLabel = "hltClusterShapeHitFilterESProducer")
+# foo bar baz

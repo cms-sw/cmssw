@@ -22,3 +22,4 @@ hltPhase2L3MuonPixelTracksTrackingRegions = cms.EDProducer("CandidateSeededTrack
         zErrorVetex = cms.double(0.2)
     )
 )
+# foo bar baz

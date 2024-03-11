@@ -9,3 +9,4 @@ pfSelectedPhotons = cms.EDFilter(
 
 
 
+# foo bar baz

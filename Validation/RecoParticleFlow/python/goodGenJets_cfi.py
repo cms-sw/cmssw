@@ -13,3 +13,4 @@ goodGenJets = cms.Sequence(
     genJetParticles*
     recoGenJets
     )
+# foo bar baz

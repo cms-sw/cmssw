@@ -154,3 +154,4 @@ if __name__ == '__main__':
         print("Total bytes: %s" % kibisize(total[""],args))
     else:
         print(total[""])
+# foo bar baz

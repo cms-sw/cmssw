@@ -70,3 +70,4 @@ for path in process.paths:
 	getattr(process,path).insert(0, process.generator)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+# foo bar baz

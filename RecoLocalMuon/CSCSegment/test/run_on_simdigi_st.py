@@ -88,3 +88,4 @@ process.endjob = cms.EndPath(process.endOfProcess)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.reco, process.endjob)
+# foo bar baz

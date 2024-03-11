@@ -7,3 +7,4 @@ ThroughputService = cms.Service('ThroughputService',
   enableDQM = cms.untracked.bool(True),
 )
 
+# foo bar baz

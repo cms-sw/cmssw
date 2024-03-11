@@ -91,3 +91,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.dtDQMPathPhys = cms.Path(process.dtTriggerSynchMonitor + process.dtFineDelayCorr + process.dqmmodules )
+# foo bar baz

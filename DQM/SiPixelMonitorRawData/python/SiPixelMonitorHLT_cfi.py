@@ -11,3 +11,4 @@ SiPixelHLTSource = DQMEDAnalyzer('SiPixelHLTSource',
 )
 
 
+# foo bar baz

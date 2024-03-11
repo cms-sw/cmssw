@@ -68,3 +68,4 @@ process.schedule.extend([process.endjob_step,process.out_step])
 
 from Configuration.PyReleaseValidation.ConfigBuilder import MassReplaceInputTag
 MassReplaceInputTag(process)
+# foo bar baz

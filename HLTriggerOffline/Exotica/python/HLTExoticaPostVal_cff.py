@@ -6,3 +6,4 @@ HLTExoticaPostVal = cms.Sequence(
 		hltExoticaPostProcessors
 		)
 
+# foo bar baz

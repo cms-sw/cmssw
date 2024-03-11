@@ -60,3 +60,4 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.reco_step,process.
 for path in process.paths:
     #  getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
     getattr(process,path)._seq = getattr(process,path)._seq
+# foo bar baz

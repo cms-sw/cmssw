@@ -17,3 +17,4 @@ hgcalDigisL1Seeded = cms.EDProducer("HLTHGCalDigisInRegionsProducer",
         'HEfront'
     )
 )
+# foo bar baz

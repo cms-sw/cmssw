@@ -162,3 +162,4 @@ hotlineDQM_Muon_Tight = DQMEDAnalyzer('HotlineDQM',
 )
 
 hotlineDQMSequence = cms.Sequence(hotlineDQM_HT*hotlineDQM_HT_Tight*hotlineDQM_Photon*hotlineDQM_Photon_Tight*hotlineDQM_Muon*hotlineDQM_Muon_Tight*hotlineDQM_MET*hotlineDQM_MET_Tight*hotlineDQM_PFMET*hotlineDQM_PFMET_Tight)
+# foo bar baz

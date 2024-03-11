@@ -180,3 +180,4 @@ python RunVisualizationProcessing.py --scenario cosmics --global-tag GLOBALTAG::
             visualizator.preFilter = arg
 
     visualizator()
+# foo bar baz

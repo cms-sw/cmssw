@@ -12,3 +12,4 @@ mergedMuons = cms.EDProducer("CaloMuonMerger",
     tracksCut = cms.string(""),
 )
 
+# foo bar baz

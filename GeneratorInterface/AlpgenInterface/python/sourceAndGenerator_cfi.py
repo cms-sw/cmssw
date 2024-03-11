@@ -5,3 +5,4 @@ source = cms.Source("AlpgenSource",
                     )
 
 from GeneratorInterface.AlpgenInterface.generator_cfi import generator
+# foo bar baz

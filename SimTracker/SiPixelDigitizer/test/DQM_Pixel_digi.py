@@ -45,3 +45,4 @@ process.SiPixelDigiSource.hiRes = True
 process.SiPixelDigiSource.reducedSet = False	
 
 
+# foo bar baz

@@ -74,3 +74,4 @@ process.hgcalHEWaferInFileCheck = process.hgcalEEWaferInFileCheck.clone(
 )
 
 process.p1 = cms.Path(process.generator*process.hgcalEEWaferInFileCheck*process.hgcalHEWaferInFileCheck)
+# foo bar baz

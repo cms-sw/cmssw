@@ -14,3 +14,4 @@ genCandidates = cms.EDProducer("HepMCCandidateProducer",
 )
 
 
+# foo bar baz

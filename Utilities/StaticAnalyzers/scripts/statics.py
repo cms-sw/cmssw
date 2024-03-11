@@ -94,3 +94,4 @@ for tfunc in sorted(toplevelfuncs):
                         print("'"+re.sub(farg, "()", tfunc)+"' overrides '" +
                                       re.sub(farg, "()", key)+"'", end=' ')
                         print()
+# foo bar baz

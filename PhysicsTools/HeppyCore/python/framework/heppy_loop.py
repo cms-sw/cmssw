@@ -195,3 +195,4 @@ def main( options, args, parser ):
         global loop
         loop = runLoop( comp, outDir, cfg.config, options )
     return loop
+# foo bar baz

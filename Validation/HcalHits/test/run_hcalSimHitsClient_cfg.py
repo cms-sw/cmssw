@@ -42,3 +42,4 @@ process.hcalsimhitsClient.outputFile = 'HcalSimHitsHarvestingME.root'
 process.p = cms.Path(process.EDMtoME * process.hcalsimhitsClient * process.dqmSaver)
 
 
+# foo bar baz

@@ -18,3 +18,4 @@ process.source = cms.Source('PoolSource',
   fileNames = cms.untracked.vstring(options.inputFiles),
   inputCommands = cms.untracked.vstring('drop *')
 )
+# foo bar baz

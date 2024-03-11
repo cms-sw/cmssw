@@ -111,3 +111,4 @@ hltSMPValidator = DQMEDAnalyzer('HLTHiggsValidator',
       minCandidates = cms.uint32(1), 
       ),
 )
+# foo bar baz

@@ -34,3 +34,4 @@ process.test = cms.EDAnalyzer("TestFindProduct",
 process.p = cms.Path(process.producerUsingCollector * process.test)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

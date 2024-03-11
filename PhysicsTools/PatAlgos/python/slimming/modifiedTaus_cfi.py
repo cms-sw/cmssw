@@ -5,3 +5,4 @@ modifiedTaus = cms.EDProducer(
     src = cms.InputTag("slimmedTaus",processName=cms.InputTag.skipCurrentProcess()),
     modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
+# foo bar baz

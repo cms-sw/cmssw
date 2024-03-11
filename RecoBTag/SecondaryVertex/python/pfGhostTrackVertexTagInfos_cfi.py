@@ -7,3 +7,4 @@ pfGhostTrackVertexTagInfos = pfSecondaryVertexTagInfos.clone(
     vertexReco = ghostTrackVertexRecoBlock.vertexReco,
     vertexCuts = dict(multiplicityMin = 1)
 )
+# foo bar baz

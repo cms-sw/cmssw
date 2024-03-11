@@ -54,3 +54,4 @@ process.mutest = cms.Path(process.muonAnalyzer)
 process.schedule = cms.Schedule(process.p,process.mutest)	
 # process.schedule = cms.Schedule(process.mutest)	
 
+# foo bar baz

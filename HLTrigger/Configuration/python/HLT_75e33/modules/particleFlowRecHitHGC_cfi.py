@@ -46,3 +46,4 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
         )
     )
 )
+# foo bar baz

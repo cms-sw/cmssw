@@ -41,3 +41,4 @@ TrackerMapFoldedClient_hiConformalPixelTracks = TrackerMapFoldedClient.clone(
 folded_with_conformalpixtkclient = cms.Sequence(TrackerMapFoldedClient_hiConformalPixelTracks+foldedMapClientSeq.copy())
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(foldedMapClientSeq, folded_with_conformalpixtkclient)
+# foo bar baz

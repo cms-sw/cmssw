@@ -5,3 +5,4 @@ CastorCellReco = cms.EDProducer('CastorCellProducer',
 	inputprocess = cms.untracked.string("castorreco") )
 	
 
+# foo bar baz

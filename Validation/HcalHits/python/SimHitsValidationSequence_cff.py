@@ -10,3 +10,4 @@ AllSimHitsValidation = Validation.HcalHits.SimHitsValidationHcal_cfi.simHitsVali
 HcalSimHitsAnalyser = Validation.HcalHits.HcalSimHitsValidation_cfi.HcalSimHitsAnalyser.clone()
 
 hcalSimHitsValidationSequence = cms.Sequence(AllSimHitsValidation*HcalSimHitsAnalyser)
+# foo bar baz

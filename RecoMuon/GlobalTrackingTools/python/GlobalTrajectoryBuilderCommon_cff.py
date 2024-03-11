@@ -79,3 +79,4 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         ),
 )
 
+# foo bar baz

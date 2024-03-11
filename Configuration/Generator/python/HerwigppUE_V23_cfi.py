@@ -10,3 +10,4 @@ herwigppUESettingsBlock = cms.PSet(
 	'set /Herwig/UnderlyingEvent/MPIHandler:InvRadius 1.5',
         ),
 )
+# foo bar baz

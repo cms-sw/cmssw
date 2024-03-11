@@ -50,3 +50,4 @@ fakeBmtfParams = cms.ESProducer(
     mask_ettf_st3        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable)
 
 )
+# foo bar baz

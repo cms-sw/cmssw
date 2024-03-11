@@ -30,3 +30,4 @@ process.p = cms.Path(process.a+process.b)
 #process.ep = cms.EndPath(process.out)
 
 
+# foo bar baz

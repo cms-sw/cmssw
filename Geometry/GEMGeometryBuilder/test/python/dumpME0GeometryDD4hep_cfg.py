@@ -34,3 +34,4 @@ process.me0Geometry.fromDD4hep = True
 #process.me0GeometryDump.verbose = True
 
 process.p = cms.Path(process.me0GeometryDump)
+# foo bar baz

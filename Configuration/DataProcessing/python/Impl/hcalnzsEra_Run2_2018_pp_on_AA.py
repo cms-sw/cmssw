@@ -28,3 +28,4 @@ class hcalnzsEra_Run2_2018_pp_on_AA(hcalnzs):
     collision data taking for Run2, 2018 hcal nzs workflow in pp_on_AA data taking
 
     """
+# foo bar baz

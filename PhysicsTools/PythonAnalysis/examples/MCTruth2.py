@@ -13,3 +13,4 @@ events = EventTree("generatorOutput.root")
 for event in events:
     genEvent = event.VtxSmeared.GetEvent()
     print(genEvent)
+# foo bar baz

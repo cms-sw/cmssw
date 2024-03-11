@@ -35,3 +35,4 @@ PropagatorWithMaterialForLoopersOpposite = cms.ESProducer("PropagatorWithMateria
     # Use new AnalyticalPropagator's logic for intersection between plane and helix (for loopers)
     useOldAnalPropLogic = cms.bool(False)
 )
+# foo bar baz

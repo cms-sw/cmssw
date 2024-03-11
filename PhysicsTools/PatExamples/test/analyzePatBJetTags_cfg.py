@@ -48,3 +48,4 @@ process.p = cms.Path(
 	process.patDefaultSequence *
 	process.analyzeBJetTags
 )
+# foo bar baz

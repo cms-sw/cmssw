@@ -14,3 +14,4 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff import *
 from TopQuarkAnalysis.TopEventProducers.producers.TtDilepEvtSolProducer_cfi import *
 ## make tqaf layer2
 tqafLayer2_ttFullLeptonic_old = cms.Sequence(makeGenEvt*solutions)
+# foo bar baz

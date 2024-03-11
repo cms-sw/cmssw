@@ -37,3 +37,4 @@ process.dump = cms.OutputModule("AsciiOutputModule")
 process.d = cms.EndPath(process.dump+process.tst)
 
 #process.add_(cms.Service("Tracer"))
+# foo bar baz

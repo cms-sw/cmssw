@@ -107,3 +107,4 @@ calolocalrecoCosmics = cms.Sequence(calolocalrecoTaskCosmics)
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoTaskCosmicsNZS = cms.Task(ecalLocalRecoTaskCosmics,hcalLocalRecoTask,hcalLocalRecoTaskNZS) 
 calolocalrecoCosmicsNZS = cms.Sequence(calolocalrecoTaskCosmicsNZS) 
+# foo bar baz

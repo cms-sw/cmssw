@@ -18,3 +18,4 @@ muonPFIsolationDepositsTask = cms.Task(
     muPFIsoDepositPU
     )
 muonPFIsolationDepositsSequence = cms.Sequence(muonPFIsolationDepositsTask)
+# foo bar baz

@@ -45,3 +45,4 @@ process.out.outputCommands.append("keep *_patPFMetT1JetResUp_*_*")
 process.out.fileName = 'patTuple_updateMet_fromMiniAOD.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+# foo bar baz

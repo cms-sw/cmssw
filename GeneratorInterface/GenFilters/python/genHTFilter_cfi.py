@@ -9,3 +9,4 @@ genHTFilter = cms.EDFilter("GenHTFilter",
    jetEtaCut = cms.double(4.5), #GenJet eta cut for HT
    genHTcut = cms.double(160.0) #genHT cut
 )
+# foo bar baz

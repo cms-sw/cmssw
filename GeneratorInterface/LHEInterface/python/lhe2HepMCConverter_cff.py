@@ -4,3 +4,4 @@ generator = cms.EDProducer("LHE2HepMCConverter",
                            LHEEventProduct = cms.InputTag("source"),
                            LHERunInfoProduct = cms.InputTag("source")
                            )
+# foo bar baz

@@ -33,3 +33,4 @@ process.RECO.outputCommands.extend(process.RecoMuonRECO.outputCommands)
 process.AOD.outputCommands.extend(process.RecoMuonAOD.outputCommands)
 
 
+# foo bar baz

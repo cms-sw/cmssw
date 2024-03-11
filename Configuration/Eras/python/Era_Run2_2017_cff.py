@@ -33,3 +33,4 @@ Run2_2017 = cms.ModifierChain(Run2_2016.copyAndExclude([run2_muon_2016, run2_HLT
                               trackingPhase1, trackdnn, trackingMkFitProd, trackingParabolicMf, seedingDeepCore, displacedRegionalTracking,
                               run2_GEM_2017, stage2L1Trigger_2017, run2_HLTconditions_2017, run2_muon_2017,run2_egamma_2017, ctpps_2017, run2_jme_2017)
 
+# foo bar baz

@@ -19,3 +19,4 @@ totemRPLocalReconstructionTask = cms.Task(
     totemRPLocalTrackFitter
 )
 totemRPLocalReconstruction = cms.Sequence(totemRPLocalReconstructionTask)
+# foo bar baz

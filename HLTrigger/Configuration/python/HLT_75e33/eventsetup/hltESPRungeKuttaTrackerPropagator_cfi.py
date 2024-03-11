@@ -9,3 +9,4 @@ hltESPRungeKuttaTrackerPropagator = cms.ESProducer("PropagatorWithMaterialESProd
     ptMin = cms.double(-1.0),
     useRungeKutta = cms.bool(True)
 )
+# foo bar baz

@@ -4,3 +4,4 @@ L1GctTSCObjectKeysOnline = cms.ESProducer("L1GctTSCObjectKeysOnlineProd",
     subsystemLabel = cms.string('GCT'),
     onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
 )
+# foo bar baz

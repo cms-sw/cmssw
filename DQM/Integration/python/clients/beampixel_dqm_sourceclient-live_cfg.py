@@ -241,3 +241,4 @@ process.reconstructionStep = cms.Sequence(process.siPixelDigis*
 # Define Path
 #----------------------------
 process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)
+# foo bar baz

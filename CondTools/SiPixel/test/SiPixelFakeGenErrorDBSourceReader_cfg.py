@@ -20,3 +20,4 @@ process.reader = cms.EDAnalyzer('SiPixelFakeGenErrorDBSourceReader'
 
 
 process.p = cms.Path(process.reader)
+# foo bar baz

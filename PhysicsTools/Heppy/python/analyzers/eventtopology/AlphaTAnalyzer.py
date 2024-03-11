@@ -69,3 +69,4 @@ class AlphaTAnalyzer( Analyzer ):
             event.genAlphaT = self.makeAlphaT(event.cleanGenJets)
 
         return True
+# foo bar baz

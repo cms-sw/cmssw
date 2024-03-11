@@ -45,3 +45,4 @@ process.electronMcSignalValidator.OutputFile = cms.string(os.environ['TEST_HISTO
 process.p = cms.Path(process.electronIsoFromDeps*process.electronMcSignalValidator*process.dqmStoreStats)
 
 
+# foo bar baz

@@ -27,3 +27,4 @@ def FixedWidthFormatter(formatter, width):
 
   return f
 
+# foo bar baz

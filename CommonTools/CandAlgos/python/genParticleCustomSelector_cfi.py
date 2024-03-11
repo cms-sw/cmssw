@@ -17,3 +17,4 @@ genParticleCustomSelector = cms.EDFilter("GenParticleCustomSelector",
 
 
 
+# foo bar baz

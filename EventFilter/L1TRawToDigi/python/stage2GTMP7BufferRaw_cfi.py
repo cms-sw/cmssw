@@ -72,3 +72,4 @@ stage2GTRaw = cms.EDProducer(
         )
 
 )
+# foo bar baz

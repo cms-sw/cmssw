@@ -9,3 +9,4 @@ particleFlowClusterECALTask = cms.Task(
     particleFlowClusterECAL,
     particleFlowTimeAssignerECAL
 )
+# foo bar baz

@@ -154,3 +154,4 @@ process.SiPixelVCal = cms.EDAnalyzer("SiPixelVCalDB",
     record = cms.untracked.string('SiPixelVCalRcd'),
 )
 process.p = cms.Path(process.SiPixelVCal)
+# foo bar baz

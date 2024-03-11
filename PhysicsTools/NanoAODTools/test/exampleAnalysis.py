@@ -54,3 +54,4 @@ p = PostProcessor(".",
                   histDirName="plots",
                   )
 p.run()
+# foo bar baz

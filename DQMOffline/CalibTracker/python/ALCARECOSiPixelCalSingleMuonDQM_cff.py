@@ -15,3 +15,4 @@ ALCARECOSiPixelCalSingleMuonTightSpecificDQM = alcaAnalyzer.clone(clusterCollect
 # Sequence #
 #------------
 ALCARECOSiPixelCalSingleMuonTightDQM = cms.Sequence(ALCARECOSiPixelCalSingleMuonTightSpecificDQM)
+# foo bar baz

@@ -7,3 +7,4 @@ allStandAloneMuonTrackCandidates = cms.EDProducer("ConcreteStandAloneMuonCandida
 )
 
 
+# foo bar baz

@@ -46,3 +46,4 @@ process.p = cms.Path(process.mix)
 process.outpath = cms.EndPath(process.out)
 process.mix.playback = True
 
+# foo bar baz

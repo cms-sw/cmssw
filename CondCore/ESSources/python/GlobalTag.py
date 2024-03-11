@@ -80,3 +80,4 @@ class GlobalTag:
         return self.buildString(2)
     def pfnPostfix(self):
         return self.buildString(3)
+# foo bar baz

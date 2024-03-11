@@ -230,3 +230,4 @@ process.pp = cms.Path( process.scalersRawToDigi
 
  
 #print process.dumpPython()
+# foo bar baz

@@ -45,3 +45,4 @@ mugenfilter = cms.EDFilter("MCSmartSingleParticleFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator*mugenfilter)
+# foo bar baz

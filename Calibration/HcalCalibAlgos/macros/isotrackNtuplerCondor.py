@@ -67,3 +67,4 @@ for jf in job_files:
         subprocess.run(["condor_submit", "-spool", jf])
     else:                
         subprocess.run(["condor_submit", jf])
+# foo bar baz

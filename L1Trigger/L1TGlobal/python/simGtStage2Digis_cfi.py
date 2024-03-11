@@ -39,3 +39,4 @@ simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(simGtStage2Digis,
                      useMuonShowers = cms.bool(True))
+# foo bar baz

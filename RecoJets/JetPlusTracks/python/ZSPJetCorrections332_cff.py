@@ -37,3 +37,4 @@ ZSPJetCorrectionsAntiKt5 = cms.Sequence(ZSPJetCorJetAntiKt5)
 
 # For backward-compatiblity (but to be deprecated!)
 ZSPJetCorrections = ZSPJetCorrectionsIcone5
+# foo bar baz

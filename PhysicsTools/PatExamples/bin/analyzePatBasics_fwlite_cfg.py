@@ -16,3 +16,4 @@ process.muonAnalyzer = cms.PSet(
     muons = cms.InputTag('cleanPatMuons')
 )
 
+# foo bar baz

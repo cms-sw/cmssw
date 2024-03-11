@@ -11,3 +11,4 @@ hgcalHitPartialHEB = hgcalHitPartialEE.clone(
     nameSense  = "HGCalHEScintillatorSensitive",
     caloHitSource = "HGCHitsHEback"
 )
+# foo bar baz

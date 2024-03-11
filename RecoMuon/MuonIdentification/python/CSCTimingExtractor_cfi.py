@@ -22,3 +22,4 @@ CSCTimingExtractorBlock = cms.PSet(
 )
 
 
+# foo bar baz

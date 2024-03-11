@@ -22,3 +22,4 @@ hltEle26WP70ClusterShapeUnseededFilter = cms.EDFilter("HLTEgammaGenericFilter",
     useEt = cms.bool(False),
     varTag = cms.InputTag("hltEgammaClusterShapeUnseeded","sigmaIEtaIEta5x5")
 )
+# foo bar baz

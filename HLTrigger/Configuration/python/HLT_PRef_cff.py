@@ -18437,3 +18437,4 @@ fragment = customizeHLTforCMSSW(fragment,"PRef")
 from HLTrigger.Configuration.Eras import modifyHLTforEras
 modifyHLTforEras(fragment)
 
+# foo bar baz

@@ -95,3 +95,4 @@ phase2_muon.toReplaceWith( simMuonRPCDigis, _simMuonRPCDigisPhaseII )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simMuonRPCDigis, mixLabel = "mixData")
+# foo bar baz

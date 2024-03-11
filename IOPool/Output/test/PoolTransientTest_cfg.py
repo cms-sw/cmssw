@@ -23,3 +23,4 @@ process.p = cms.Path(process.TransientThing*process.ThingFromTransient)
 process.ep = cms.EndPath(process.output)
 
 
+# foo bar baz

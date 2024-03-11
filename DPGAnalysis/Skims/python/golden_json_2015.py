@@ -33,3 +33,4 @@ golden_json_2015_pickEvents = cms.EDFilter(
     )
 
 golden_json_2015 = cms.Sequence( golden_json_2015_pickEvents )
+# foo bar baz

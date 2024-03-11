@@ -9,3 +9,4 @@ caloStage1Digis = cms.EDProducer(
     # FWOverride = cms.bool(True)
     # FWId = cms.uint32(0xff000000),
 )
+# foo bar baz

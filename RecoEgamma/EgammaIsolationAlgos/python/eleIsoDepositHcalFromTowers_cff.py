@@ -26,3 +26,4 @@ eleIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
     ExtractorPSet = cms.PSet( EleIsoHcalFromTowersExtractorBlock )
 )
 eleIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = 2
+# foo bar baz

@@ -49,3 +49,4 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
     lastBX  = cms.int32(0),
 
 )
+# foo bar baz

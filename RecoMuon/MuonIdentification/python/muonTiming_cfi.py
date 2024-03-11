@@ -6,3 +6,4 @@ muontiming = cms.EDProducer('MuonTimingProducer',
   TimingFillerBlock,
   MuonCollection = cms.InputTag("muons"),
 )
+# foo bar baz

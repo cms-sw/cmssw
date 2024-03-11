@@ -22,3 +22,4 @@ m2Parameters = cms.PSet(
     fitTimes              = cms.int32(1)      # -1 means no constraint on number of fits per channel
 
 )
+# foo bar baz

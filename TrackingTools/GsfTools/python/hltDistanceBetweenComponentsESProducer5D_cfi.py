@@ -4,3 +4,4 @@ hltDistanceBetweenComponentsESProducer5D = cms.ESProducer("DistanceBetweenCompon
     ComponentName = cms.string('hltESPKullbackLeiblerDistance5D'),
     DistanceMeasure = cms.string('KullbackLeibler')
 )
+# foo bar baz

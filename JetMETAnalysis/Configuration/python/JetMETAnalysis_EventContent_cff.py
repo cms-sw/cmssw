@@ -16,3 +16,4 @@ JetMETAnalysisEventContent.outputCommands.extend(metLowEventContent.outputComman
 #JetMETAnalysisEventContent.outputCommands.extend(onejetEventContent.outputCommands)
 #JetMETAnalysisEventContent.outputCommands.extend(photonjetsEventContent.outputCommands)
 
+# foo bar baz

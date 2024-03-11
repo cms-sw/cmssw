@@ -62,3 +62,4 @@ with open('log_'+arch+'_'+sample+'_'+build+'_'+suffix+'_DumpForPlots.txt') as f 
 
 g.Write()
 g.Close()
+# foo bar baz

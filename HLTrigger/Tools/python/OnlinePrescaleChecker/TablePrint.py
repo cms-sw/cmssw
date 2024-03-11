@@ -50,3 +50,4 @@ def PrintLine(line,ColWidths,Warn,border):
     write(border)
     write('\n')
     write(bcolors.ENDC)
+# foo bar baz

@@ -125,3 +125,4 @@ ALCARECOStreamRawPCCProducer = cms.FilteredStream(
 	      selectEvents = OutALCARECORawPCCProducer.SelectEvents,
 	      dataTier = cms.untracked.string('ALCARECO')
 	      )
+# foo bar baz

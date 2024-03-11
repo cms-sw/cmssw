@@ -84,3 +84,4 @@ process.prod = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
 
 process.p = cms.Path(process.prod)
 #process.ep = cms.EndPath(process.print)
+# foo bar baz

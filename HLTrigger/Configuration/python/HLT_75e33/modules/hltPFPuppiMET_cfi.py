@@ -7,3 +7,4 @@ hltPFPuppiMET = cms.EDProducer("PFMETProducer",
     src = cms.InputTag("particleFlowTmp"),
     srcWeights = cms.InputTag("hltPFPuppiNoLep")
 )
+# foo bar baz

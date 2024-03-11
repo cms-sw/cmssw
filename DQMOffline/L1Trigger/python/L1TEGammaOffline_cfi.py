@@ -95,3 +95,4 @@ l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
     stage2CaloLayer2EGammaSource = "simCaloStage2Digis",
     histFolder = 'L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'
 )
+# foo bar baz

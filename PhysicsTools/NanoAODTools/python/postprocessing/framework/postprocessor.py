@@ -272,3 +272,4 @@ class PostProcessor:
         if self.jobReport:
             self.jobReport.addOutputFile(self.haddFileName)
             self.jobReport.save()
+# foo bar baz

@@ -45,3 +45,4 @@ process.outNoContinueDirect = cms.OutputModule("SewerModule",
 
 process.e = cms.EndPath(process.out+process.outContinueDirect+process.outNoContinueDirect)
 
+# foo bar baz

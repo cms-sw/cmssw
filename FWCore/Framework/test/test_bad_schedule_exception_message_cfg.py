@@ -109,3 +109,4 @@ elif mod == 8:
     process.p1 = cms.Path(process.c)
     process.p2 = cms.Path(process.b + process.dependingFilter + process.a)
     process.p3 = cms.Path(process.rejectingFilter + process.a)
+# foo bar baz

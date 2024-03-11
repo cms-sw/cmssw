@@ -48,3 +48,4 @@ BtagPerformanceESProducer_TTBARMCBTAGTCHP = cms.ESProducer("BtagPerformanceESPro
     PayloadName = cms.string('BTagTTBARMCBTAGTCHPtable_v8_offline'),
     WorkingPointName = cms.string('BTagTTBARMCBTAGTCHPwp_v8_offline')
 )
+# foo bar baz

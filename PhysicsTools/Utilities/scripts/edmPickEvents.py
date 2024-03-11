@@ -354,3 +354,4 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
         if options.runInteractive and not options.printInteractive:
             os.system (command)
 
+# foo bar baz

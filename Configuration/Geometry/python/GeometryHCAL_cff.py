@@ -7,3 +7,4 @@ from Configuration.Geometry.GeometrySimHCAL_cff import *
 from Configuration.Geometry.GeometryRecoHCAL_cff import *
 
 
+# foo bar baz

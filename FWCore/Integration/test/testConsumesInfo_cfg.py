@@ -477,3 +477,4 @@ copyProcess.path3 = cms.Path(
 )
 
 copyProcess.endPath = cms.EndPath(copyProcess.testOneOutput)
+# foo bar baz

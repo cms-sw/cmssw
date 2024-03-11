@@ -6,3 +6,4 @@ BtagPerformanceESProducer_MISTAGSSVHEM = cms.ESProducer("BtagPerformanceESProduc
     PayloadName = cms.string('BTagMISTAGSSVHEMtable_v2_offline'),
     WorkingPointName = cms.string('BTagMISTAGSSVHEMwp_v2_offline')
 )
+# foo bar baz

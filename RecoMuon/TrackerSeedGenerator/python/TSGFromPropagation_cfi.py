@@ -15,3 +15,4 @@ SeedGeneratorParameters = cms.PSet(
     SelectState = cms.bool( False ),
     beamSpot = cms.InputTag("offlineBeamSpot")
     )
+# foo bar baz

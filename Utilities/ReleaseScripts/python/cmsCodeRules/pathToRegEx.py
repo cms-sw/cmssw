@@ -17,3 +17,4 @@ def pathToRegEx(path):
     path = path.replace(".", "\.")
     path = path.replace("*",".*")
     return path
+# foo bar baz

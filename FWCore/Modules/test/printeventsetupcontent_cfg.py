@@ -19,3 +19,4 @@ process.DoodadESSource = cms.ESSource("DoodadESSource")
 process.demo = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.p = cms.Path(process.demo)
+# foo bar baz

@@ -111,3 +111,4 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPerLSPopConAnalyzer",
                                )
 
 process.p = cms.Path(process.Test1)
+# foo bar baz

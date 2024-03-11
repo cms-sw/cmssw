@@ -34,3 +34,4 @@ process.prod = cms.EDAnalyzer("PVSSIDReader")
 process.p = cms.Path(process.prod)
 
 
+# foo bar baz

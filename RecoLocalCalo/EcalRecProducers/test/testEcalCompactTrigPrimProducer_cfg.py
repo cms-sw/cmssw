@@ -24,3 +24,4 @@ process.source = cms.Source("PoolSource",
 #else
 process.p = cms.Path(process.ecalCompactTrigPrimProducerTest)
 
+# foo bar baz

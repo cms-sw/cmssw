@@ -8,3 +8,4 @@ AnomalousCellParameters = cms.PSet(
     maxRecoveredHcalCells   = cms.uint32(9999999),
     maxProblematicHcalCells = cms.uint32(9999999)
 )
+# foo bar baz

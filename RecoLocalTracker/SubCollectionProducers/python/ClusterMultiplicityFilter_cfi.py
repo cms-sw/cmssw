@@ -6,3 +6,4 @@ tifClusterFilter = cms.EDFilter("ClusterMultiplicityFilter",
 )
 
 
+# foo bar baz

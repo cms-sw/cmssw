@@ -14,3 +14,4 @@ btagMC_QCD_200_300EventSelection = cms.PSet(
     )
 )
 
+# foo bar baz

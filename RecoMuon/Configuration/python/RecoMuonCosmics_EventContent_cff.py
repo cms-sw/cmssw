@@ -97,3 +97,4 @@ RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
 RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
 
 
+# foo bar baz

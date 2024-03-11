@@ -39,3 +39,4 @@ process.load("HLTrigger.special.hltRPCTrigNoSyncFilter_cfi")
 process.selrpc = cms.Path(process.hltRPCTrigNoSyncFilter)
 process.outpath = cms.EndPath(process.FEVT)
 
+# foo bar baz

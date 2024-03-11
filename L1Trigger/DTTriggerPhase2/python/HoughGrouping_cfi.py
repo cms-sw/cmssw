@@ -40,3 +40,4 @@ HoughGrouping = cms.PSet(debug = cms.untracked.bool(False),
                          # Minimum number of hits that uncorrelated candidates can have.
                          minUncorrelatedHits = cms.int32(3),
                          )
+# foo bar baz

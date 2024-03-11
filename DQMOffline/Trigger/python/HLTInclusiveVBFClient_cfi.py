@@ -7,3 +7,4 @@ hltInclusiveVBFClient = cms.EDAnalyzer(
     hltTag      = cms.string("HLT")
 )
 
+# foo bar baz

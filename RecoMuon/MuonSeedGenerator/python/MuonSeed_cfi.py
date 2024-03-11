@@ -44,3 +44,4 @@ MuonSeed = cms.EDProducer("MuonSeedProducer",
 
 
 
+# foo bar baz

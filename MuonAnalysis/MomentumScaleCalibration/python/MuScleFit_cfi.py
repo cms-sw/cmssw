@@ -76,3 +76,4 @@ StartWithSimplex = cms.untracked.bool(True),
 # This can be very time consuming depending on the number of events
 ComputeMinosErrors = cms.untracked.bool(False),
 MinimumShapePlots = cms.untracked.bool(True),
+# foo bar baz

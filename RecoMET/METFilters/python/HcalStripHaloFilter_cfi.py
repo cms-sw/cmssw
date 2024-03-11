@@ -7,3 +7,4 @@ HcalStripHaloFilter = cms.EDFilter(
   maxEnergyRatio = cms.double(0.15),
   minHadEt = cms.double(100.0)
 )
+# foo bar baz

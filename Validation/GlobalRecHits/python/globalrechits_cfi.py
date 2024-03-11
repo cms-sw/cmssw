@@ -48,3 +48,4 @@ globalrechits = cms.EDProducer("GlobalRecHitsProducer",
 )
 
 
+# foo bar baz

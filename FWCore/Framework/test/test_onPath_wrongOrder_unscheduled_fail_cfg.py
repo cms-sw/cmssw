@@ -36,3 +36,4 @@ process.getTwo = cms.EDAnalyzer("IntTestAnalyzer",
 )
 
 process.p = cms.Path(process.two*process.getOne+process.one*process.getTwo)
+# foo bar baz

@@ -13,3 +13,4 @@ ecalFEDMonitor = DQMEDAnalyzer("EcalFEDMonitor",
     EcalElectronicsIdCollection1 = cms.InputTag("ecalDigis", "EcalIntegrityTTIdErrors"),
     EcalElectronicsIdCollection2 = cms.InputTag("ecalDigis", "EcalIntegrityBlockSizeErrors")
 )
+# foo bar baz

@@ -319,3 +319,4 @@ PPSAlignment = cms.Path(ALCAHARVESTPPSAlignment)
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
 #promptCalibHarvest = cms.Path(alcaBeamSpotHarvester)
+# foo bar baz

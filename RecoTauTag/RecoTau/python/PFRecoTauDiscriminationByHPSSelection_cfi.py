@@ -150,3 +150,4 @@ hpsSelectionDiscriminator = cms.EDProducer(
 
 
 
+# foo bar baz

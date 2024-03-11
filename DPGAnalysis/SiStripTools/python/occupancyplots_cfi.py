@@ -6,3 +6,4 @@ occupancyplots = cms.EDAnalyzer('OccupancyPlots',
                                 wantedSubDets = cms.VPSet()
                                       )
 
+# foo bar baz

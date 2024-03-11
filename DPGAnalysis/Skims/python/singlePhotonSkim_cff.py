@@ -91,3 +91,4 @@ singlePhotonPt5QualitySeq = cms.Sequence(
         oneEmCluster+gammaJet+gammaJetFilter+singlePhotonPt5Filter
         )
 
+# foo bar baz

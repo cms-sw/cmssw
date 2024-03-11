@@ -29,3 +29,4 @@ process.FastTimerService.enableDQM                = True
 process.FastTimerService.enableDQMbyModule        = True
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.enableDQMbyProcesses     = True
+# foo bar baz

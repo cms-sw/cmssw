@@ -56,3 +56,4 @@ process.p = cms.Path(process.readMeFromFile*process.rpcdqmclient*process.dqmEnv*
 
 
 
+# foo bar baz

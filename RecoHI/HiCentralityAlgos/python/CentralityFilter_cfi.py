@@ -5,3 +5,4 @@ centralityFilter = cms.EDFilter("CentralityFilter",
                                 BinLabel = cms.InputTag("centralityBin","HFtowers")
                                 )
 
+# foo bar baz

@@ -81,3 +81,4 @@ def _renameForFastsim(s):
     return s.replace("_g4Sim", "_MuonSim")
 
 fastSim.toModify(SimMuonPREMIX, outputCommands = list( ( _renameForFastsim(item) for item in SimMuonPREMIX.outputCommands.value())))
+# foo bar baz

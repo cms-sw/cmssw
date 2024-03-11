@@ -10,3 +10,4 @@ tibHugeEvents = cms.EDFilter('EventWithHistoryEDFilter',
                                 )
                              )
                     )
+# foo bar baz

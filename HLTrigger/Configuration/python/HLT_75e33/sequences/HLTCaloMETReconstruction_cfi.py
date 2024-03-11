@@ -5,3 +5,4 @@ from ..modules.hltCaloMET_cfi import *
 HLTCaloMETReconstruction = cms.Sequence(
     hltCaloMET
 )
+# foo bar baz

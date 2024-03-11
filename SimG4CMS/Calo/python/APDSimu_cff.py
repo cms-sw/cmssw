@@ -21,3 +21,4 @@ def customise(process):
     process.simEcalUnsuppressedDigis.apdAddToBarrel = True
 
     return(process)
+# foo bar baz

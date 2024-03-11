@@ -10,3 +10,4 @@ hltESPChi2MeasurementEstimator100 = cms.ESProducer("Chi2MeasurementEstimatorESPr
     appendToDataLabel = cms.string(''),
     nSigma = cms.double(4.0)
 )
+# foo bar baz

@@ -6,3 +6,4 @@ from RecoTracker.PixelTrackFitting.pixelFitterByHelixProjectionsDefault_cfi impo
 pixelFitterByHelixProjections = pixelFitterByHelixProjectionsDefault.clone()
 
 phase1Pixel.toModify( pixelFitterByHelixProjections, scaleErrorsForBPix1 = True)
+# foo bar baz

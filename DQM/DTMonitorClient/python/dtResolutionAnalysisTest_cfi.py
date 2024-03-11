@@ -12,3 +12,4 @@ dtResolutionAnalysisTest = DQMEDHarvester("DTResolutionAnalysisTest",
                                           )
 
 
+# foo bar baz

@@ -41,3 +41,4 @@ process.p = cms.Path(process.cleanElectrons*process.cleanJets)
 process.e = cms.EndPath(process.out)
 
 
+# foo bar baz

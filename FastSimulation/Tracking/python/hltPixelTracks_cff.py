@@ -49,3 +49,4 @@ hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
 hltPixelTracksForHighMultFilter = hltPixelTracksFilter.clone(ptMin = 0.4)
 hltPixelTracksForHighMult = hltPixelTracks.clone(Filter = "hltPixelTracksForHighMultFilter")
 
+# foo bar baz

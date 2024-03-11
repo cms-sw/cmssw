@@ -116,3 +116,4 @@ process.source = cms.Source("PoolSource",
 
 del(process.out)
 del(process.outpath)
+# foo bar baz

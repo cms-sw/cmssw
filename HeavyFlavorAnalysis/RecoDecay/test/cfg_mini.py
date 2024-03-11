@@ -51,3 +51,4 @@ process.p = cms.Path(
     process.testBPHRecoDecay,
     patAlgosToolsTask
 )
+# foo bar baz

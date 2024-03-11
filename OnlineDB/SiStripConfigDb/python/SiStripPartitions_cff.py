@@ -49,3 +49,4 @@ SiStripPartitions = cms.PSet(
 
 )
 
+# foo bar baz

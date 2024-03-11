@@ -19,3 +19,4 @@ GamIsoTrackExtractorBlock = cms.PSet(
     dzOption = cms.string("vz")
 )
 
+# foo bar baz

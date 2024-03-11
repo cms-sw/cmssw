@@ -74,3 +74,4 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
+# foo bar baz

@@ -16,3 +16,4 @@ prod6Task = cms.Task(
     prod6
 )
 
+# foo bar baz

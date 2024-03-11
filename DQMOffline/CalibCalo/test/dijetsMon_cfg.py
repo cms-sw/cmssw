@@ -20,3 +20,4 @@ process.load("DQMServices.Core.DQMStore_cfg")
 process.p = cms.Path(process.MonitorHcalDiJetsAlCaReco)
 
 
+# foo bar baz

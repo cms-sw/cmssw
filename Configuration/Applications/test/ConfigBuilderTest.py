@@ -78,3 +78,4 @@ if __name__=="__main__":
             autoDQM.update(autoDQM_orig)
 
     unittest.main()
+# foo bar baz

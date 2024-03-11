@@ -159,3 +159,4 @@ if auto:
         print("Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), ))
 else:
     print("Using hardcoded GT: \"%s\"" % GlobalTag.globaltag.value())
+# foo bar baz

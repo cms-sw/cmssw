@@ -20,3 +20,4 @@ spclusmulttimecorrelations = cms.EDAnalyzer('MultiplicityTimeCorrelations',
                                          dbxBins = cms.untracked.vint32()
                                       )
 
+# foo bar baz

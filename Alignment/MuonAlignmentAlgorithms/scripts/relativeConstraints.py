@@ -94,3 +94,4 @@ if not empty:
             print("        fitter.alignables.append(\"%(frameName)s\")" % vars())
             for line in byRing[ringName]:
                 print("        fitter.constraints.append(%(line)s)" % vars())
+# foo bar baz

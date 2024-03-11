@@ -10,3 +10,4 @@ tTrigCalibrationTest = cms.EDAnalyzer("DTtTrigCalibrationTest",
 )
 
 
+# foo bar baz

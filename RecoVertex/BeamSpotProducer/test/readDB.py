@@ -39,3 +39,4 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
 process.p = cms.Path(process.beamspot)
 
+# foo bar baz

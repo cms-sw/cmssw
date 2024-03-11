@@ -351,3 +351,4 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
 
 
 process.outpath = cms.EndPath(process.outSP+process.outTP+process.outMM+process.outputSkim+process.outputSkimBField+process.outHCAL+process.outECAL+process.outHSCP)
+# foo bar baz

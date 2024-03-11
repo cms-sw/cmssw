@@ -309,3 +309,4 @@ if __name__ == "__main__":
 	if appinfo != []:
 		printGrid(appinfo)
 	apptable
+# foo bar baz

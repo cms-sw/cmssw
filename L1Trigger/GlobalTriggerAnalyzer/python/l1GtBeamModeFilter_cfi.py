@@ -19,3 +19,4 @@ l1GtBeamModeFilter = cms.EDFilter("L1GtBeamModeFilter",
     #                  false if filter true or error (no product found)
     InvertResult = cms.bool( False )
 )
+# foo bar baz

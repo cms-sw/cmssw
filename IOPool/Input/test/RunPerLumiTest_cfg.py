@@ -37,3 +37,4 @@ process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(i
 process.p = cms.Path(process.OtherThing*process.Analysis)
 
 process.e = cms.EndPath(process.check+process.output)
+# foo bar baz

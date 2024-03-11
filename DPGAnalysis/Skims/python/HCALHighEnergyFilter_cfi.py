@@ -8,3 +8,4 @@ HCALHighEnergyFilter = cms.EDFilter("HCALHighEnergyFilter",
 #                                    CentralJets  = cms.untracked.InputTag("hltL1extraParticles","Central"),
 #                                    TauJets  = cms.untracked.InputTag("hltL1extraParticles","Tau")
                                     )
+# foo bar baz

@@ -37,3 +37,4 @@ process.producer = cms.EDAnalyzer("CSCGeometryOfWires")
 process.p1 = cms.Path(process.producer)
 process.CSCGeometryESModule.debugV = True
 
+# foo bar baz

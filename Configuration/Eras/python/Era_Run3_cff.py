@@ -20,3 +20,4 @@ from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 Run3 = cms.ModifierChain(Run2_2018.copyAndExclude([run2_GEM_2017, ctpps_2018, run2_egamma_2018, run2_HLTconditions_2018]),
                          run3_common, run3_egamma, run3_GEM, run3_HB, run3_HFSL, stage2L1Trigger_2021, ctpps_2022, dd4hep, run3_RPC, run3_ecal, hcalPfCutsFromDB)
 
+# foo bar baz

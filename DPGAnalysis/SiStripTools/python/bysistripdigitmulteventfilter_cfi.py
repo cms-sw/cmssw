@@ -7,3 +7,4 @@ bysistripdigimulteventfilter = cms.EDFilter('BySiStripDigiMultiplicityEventFilte
                                                                ),
                                             cut = cms.string("mult > 100000")
                                             )	
+# foo bar baz

@@ -148,3 +148,4 @@ process.hltrep = cms.EDAnalyzer("HLTrigReport")
 process.hltrep.HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
 process.hltsum = cms.Path(process.hltrep)
 
+# foo bar baz

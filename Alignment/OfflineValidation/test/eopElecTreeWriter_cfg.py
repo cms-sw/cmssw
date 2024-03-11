@@ -153,3 +153,4 @@ else:
     print( "NO REFIT")
     process.p = cms.Path(process.offlineBeamSpot
                          *process.energyOverMomentumTree)
+# foo bar baz

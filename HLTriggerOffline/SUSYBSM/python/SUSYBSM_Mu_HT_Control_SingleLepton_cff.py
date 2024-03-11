@@ -53,3 +53,4 @@ SUSYoHLToMuHToControlSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClie
                                                                     resolution = cms.vstring('')
                                                                     )
 
+# foo bar baz

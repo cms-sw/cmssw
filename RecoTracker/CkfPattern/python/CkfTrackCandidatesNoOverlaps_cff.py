@@ -11,3 +11,4 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 ckfTrackCandidatesNoOverlaps = ckfTrackCandidates.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = 'CkfTrajectoryBuilder')
 )
+# foo bar baz

@@ -57,3 +57,4 @@ l1tStage2OnlineDQMValidationEvents = cms.Sequence(
     l1tStage2uGTValidationEventOnlineDQMSeq
 )
 
+# foo bar baz

@@ -96,3 +96,4 @@ def customizeHLTIter0ToMkFit(process):
         path.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
 
     return process
+# foo bar baz

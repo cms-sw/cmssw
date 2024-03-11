@@ -18,3 +18,4 @@ psim = cms.Sequence(
     fastSimProducer+
     MuonSimHits
     )
+# foo bar baz

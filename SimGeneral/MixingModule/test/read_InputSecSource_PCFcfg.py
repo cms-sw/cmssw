@@ -33,3 +33,4 @@ process.Analyzer = cms.EDAnalyzer("SecSourceAnalyzer",
 )
  
 process.p = cms.Path(process.Analyzer)
+# foo bar baz

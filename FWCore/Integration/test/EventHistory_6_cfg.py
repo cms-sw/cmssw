@@ -114,3 +114,4 @@ process.p2 = cms.Path(process.historytest*process.analyzerOnPath)
 process.ep61 = cms.EndPath(process.out)
 process.ep62 = cms.EndPath(process.producerOnEndPath*process.filterOnEndPath*process.out*process.historytest)
 process.ep63 = cms.EndPath(process.analyzerOnEndPath*process.out2*process.out)
+# foo bar baz

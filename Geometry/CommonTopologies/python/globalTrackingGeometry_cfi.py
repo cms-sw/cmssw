@@ -11,3 +11,4 @@ from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 from Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi import *
 
+# foo bar baz

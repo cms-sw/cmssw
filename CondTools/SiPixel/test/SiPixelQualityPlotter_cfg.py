@@ -126,3 +126,4 @@ process.LumiInfo = cms.EDProducer('LumiProducerFromBrilcalc',
 ## The path
 ##
 process.p = cms.Path(process.LumiInfo*process.ReadInDB)
+# foo bar baz

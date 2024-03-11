@@ -320,3 +320,4 @@ process.p = cms.Path(process.dumpToDB)
     
 createMetadata(TAG,"Mag field configuration for map "+TAG)
 
+# foo bar baz

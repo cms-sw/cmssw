@@ -18,3 +18,4 @@ PotentialTIBTECFrameHeaderEventsAdditionalPeak = cms.EDFilter('EventWithHistoryE
                                                    )
                                                   ) 
                                                  )
+# foo bar baz

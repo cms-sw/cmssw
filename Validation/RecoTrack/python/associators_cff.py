@@ -124,3 +124,4 @@ tpToHLTtracksAssociationSequence = cms.Sequence(
     tpToHLTiter4HPtracksAssociation +
     tpToHLTiter4MergedTracksAssociation
 )
+# foo bar baz

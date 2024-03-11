@@ -7,4 +7,4 @@ process.source = cms.Source("PoolSource",
                              secondaryFileNames = cms.untracked.vstring("file:stat_sender_first.root")
 )
 
-process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))
+process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))# foo bar baz

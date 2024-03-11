@@ -18,3 +18,4 @@ process.l1compare.DumpMode = -1
 process.l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0]
 
 
+# foo bar baz

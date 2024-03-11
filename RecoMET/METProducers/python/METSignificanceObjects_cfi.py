@@ -73,3 +73,4 @@ selectionTaskForMETSig = cms.Task(
       )
 selectionSequenceForMETSig = cms.Sequence(selectionTaskForMETSig)
 
+# foo bar baz

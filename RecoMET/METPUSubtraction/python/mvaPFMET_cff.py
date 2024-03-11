@@ -98,3 +98,4 @@ pfMVAMEtTask  = cms.Task(
     pfMVAMEt
 )
 pfMVAMEtSequence  = cms.Sequence(pfMVAMEtTask)
+# foo bar baz

@@ -30,3 +30,4 @@ muIsoDepositCalByAssociatorTowersDisplaced = cms.EDProducer("MuIsoDepositCopyPro
   depositNames = cms.vstring('ecal', 'hcal', 'ho')
 )
 
+# foo bar baz

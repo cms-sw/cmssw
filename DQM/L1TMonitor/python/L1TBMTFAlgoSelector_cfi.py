@@ -8,3 +8,4 @@ l1tBmtfAlgoSelector = cms.EDProducer(
     feds = cms.InputTag("rawDataCollector")
     )
 
+# foo bar baz

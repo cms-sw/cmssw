@@ -16,4 +16,4 @@ hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered = cms.EDProducer("MuonHLTSeedMVAC
     mvaCut_B = cms.double(0.),
     mvaCut_E = cms.double(0.),
     baseScore = cms.double(0.5)
-)
+)# foo bar baz

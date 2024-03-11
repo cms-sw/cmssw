@@ -4,3 +4,4 @@ l1HOTree = cms.EDAnalyzer(
     "L1HOTreeProducer",
     hoDataFrameToken = cms.untracked.InputTag("hcalDigis")
 )
+# foo bar baz

@@ -10,3 +10,4 @@ ecalBarrelRecHitsValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 ecalEndcapRecHitsValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
 
 
+# foo bar baz

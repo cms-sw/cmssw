@@ -71,3 +71,4 @@ ttrigsource = cms.ESSource("PoolDBESSource",
                            connect = cms.string('frontier://Frontier/CMS_COND_21X_DT'),
                            authenticationMethod = cms.untracked.uint32(0)
                            )
+# foo bar baz

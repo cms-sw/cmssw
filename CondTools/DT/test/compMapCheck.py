@@ -37,3 +37,4 @@ process.map   = cms.EDAnalyzer("DTCompMapValidateDBRead",
 )
 
 process.p = cms.Path(process.map)
+# foo bar baz

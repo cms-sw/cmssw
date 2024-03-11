@@ -7,3 +7,4 @@ from DQM.HcalTasks.HcalOfflineHarvesting import *
 hcalOfflineHarvesting.ptype = 1
 hcalOfflineHarvesting.runkeyVal = 2
 hcalOfflineHarvesting.runkeyName = "cosmic"
+# foo bar baz

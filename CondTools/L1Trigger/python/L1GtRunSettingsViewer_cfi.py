@@ -7,3 +7,4 @@ L1GtRunSettingsViewer = cms.EDAnalyzer("L1GtRunSettingsViewer",
                                        maskVetoAlgoKey = cms.string(""),
                                        maskVetoTechKey = cms.string("")
                                        )
+# foo bar baz

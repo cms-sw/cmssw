@@ -32,3 +32,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonSimData/data/muonSens_upscope.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
+# foo bar baz

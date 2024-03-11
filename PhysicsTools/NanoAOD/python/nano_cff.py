@@ -288,3 +288,4 @@ def nanoL1TrigObjCustomizeFull(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
 
+# foo bar baz

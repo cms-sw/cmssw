@@ -198,3 +198,4 @@ singleTopElectronMediumDQM = DQMEDAnalyzer('SingleTopTChannelLeptonDQM',
     ),
   )
 )
+# foo bar baz

@@ -40,3 +40,4 @@ process.load("Validation.MuonDTDigis.dtDigiValidation_cfi")
 process.p = cms.Path(process.muondtdigianalyzer)
 
 
+# foo bar baz

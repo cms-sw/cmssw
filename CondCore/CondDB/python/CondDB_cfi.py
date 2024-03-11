@@ -11,3 +11,4 @@ CondDB = cms.PSet(
     connect = cms.string(''), 
 )
 
+# foo bar baz

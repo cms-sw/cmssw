@@ -63,3 +63,4 @@ stage2L1Trigger_2021.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("s
                                                  autoCancelMode = cms.bool(False),
                                                  bmtfCancelMode = cms.string("kftracks"),
                                                  emtfCancelMode = cms.string("coordinate"))
+# foo bar baz

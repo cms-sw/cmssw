@@ -101,3 +101,4 @@ jetMETDQMOfflineSource = cms.Sequence(cms.ignore(goodOfflinePrimaryVerticesDQM)*
 
 jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD)
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)
+# foo bar baz

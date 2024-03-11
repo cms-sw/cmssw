@@ -13,3 +13,4 @@ seedmultiplicitymonitor = cms.EDAnalyzer('SeedMultiplicityAnalyzer',
                                                                          ),
                                          multiplicityCorrelations = cms.VPSet()
                                          )
+# foo bar baz

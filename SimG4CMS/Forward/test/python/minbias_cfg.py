@@ -211,3 +211,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DEBUG        = cms.untracked.bool(False),
     type      = cms.string('TrackingVerboseAction')
 ))
+# foo bar baz

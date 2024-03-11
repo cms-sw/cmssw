@@ -42,3 +42,4 @@ aSubProcess.runLumiESSource = cms.ESSource("RunLumiESSource")
 aSubProcess.test = cms.EDAnalyzer("RunLumiESAnalyzer")
 
 aSubProcess.p1 = cms.Path(aSubProcess.test)
+# foo bar baz

@@ -176,3 +176,4 @@ process.p2 = cms.Path(process.A *
                       process.L)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

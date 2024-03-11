@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.mixNoPU_cfi import *
 
 mix.mixObjects.mixHepMC.makeCrossingFrame = True
+# foo bar baz

@@ -9,3 +9,4 @@ hltBTagPFPuppiDeepFlavour0p375Eta2p4TripleEta2p4 = cms.EDFilter("HLTPFJetTag",
     TriggerType = cms.int32(86),
     saveTags = cms.bool(True)
 )
+# foo bar baz

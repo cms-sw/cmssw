@@ -10,3 +10,4 @@ vertexClassifier = cms.PSet(
     longLivedDecayLength = cms.untracked.double(1e-14),
     vertexClusteringDistance = cms.untracked.double(0.003)
 )
+# foo bar baz

@@ -33,3 +33,4 @@ SiPhase2OTFakeBadStripsESSource = siPhase2BadStripConfigurableFakeESSource.clone
                                                                                  appendToDataLabel = '')
 
 es_prefer_fake_BadStrips = cms.ESPrefer("SiPhase2BadStripConfigurableFakeESSource","SiPhase2OTFakeBadStripsESSource")
+# foo bar baz

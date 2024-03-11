@@ -44,3 +44,4 @@ METQualitySeq = cms.Sequence(
     Jets+jetsFilter+METFilter
 )
 
+# foo bar baz

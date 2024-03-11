@@ -6,3 +6,4 @@ hfnoseDigiValidation = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HGCalHFNoseSensitive"),
     DigiSource   = cms.InputTag("hgcalDigis","HFNoseDigis"))
 
+# foo bar baz

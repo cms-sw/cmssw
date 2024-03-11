@@ -13,3 +13,4 @@ pfClusteringHBHEHFTask = cms.Task(
     hltParticleFlowRecHitHBHE,
     particleFlowRecHitHF
 )
+# foo bar baz

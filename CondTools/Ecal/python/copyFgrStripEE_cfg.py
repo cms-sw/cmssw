@@ -54,3 +54,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainStripEEAnalyzer",
 )
 
 process.p = cms.Path(process.Test1)
+# foo bar baz

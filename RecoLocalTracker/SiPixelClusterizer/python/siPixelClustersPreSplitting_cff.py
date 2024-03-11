@@ -182,3 +182,4 @@ alpaka.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
     siPixelClustersPreSplitting)
 )
+# foo bar baz

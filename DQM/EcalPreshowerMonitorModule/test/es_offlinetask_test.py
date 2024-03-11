@@ -20,3 +20,4 @@ process.p = cms.Path(process.ecalPreshowerDefaultTasksSequence)
 
 
 
+# foo bar baz

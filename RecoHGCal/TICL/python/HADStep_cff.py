@@ -71,3 +71,4 @@ ticlTrackstersHFNoseHAD = ticlTrackstersHAD.clone(
 ticlHFNoseHADStepTask = cms.Task(ticlSeedingGlobalHFNose
                                  ,filteredLayerClustersHFNoseHAD
                                  ,ticlTrackstersHFNoseHAD)
+# foo bar baz

@@ -22,4 +22,4 @@ IsoConeDefinitions = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIso
                                       vertexIndex = cms.int32(0),
                                       particleBasedIsolation = cms.InputTag("particleBasedIsolation", "gedPhotons"),
                                     )
-    )
+    )# foo bar baz

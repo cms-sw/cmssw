@@ -13,3 +13,4 @@ cloneGlobalMuonTagger = badGlobalMuonTagger.clone(
 
 noBadGlobalMuons = cms.Sequence(~cloneGlobalMuonTagger + ~badGlobalMuonTagger)
     
+# foo bar baz

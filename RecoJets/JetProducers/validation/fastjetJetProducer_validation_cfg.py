@@ -106,3 +106,4 @@ process.p1 = cms.Path(process.fileSaver+
                       process.sc5calo+process.sc7calo
                       )
 
+# foo bar baz

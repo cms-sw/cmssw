@@ -106,3 +106,4 @@ def customiseHcalLocal(process):
         process.hcalNanoDigiTask.add(process.uMNioTable)
 
     return process
+# foo bar baz

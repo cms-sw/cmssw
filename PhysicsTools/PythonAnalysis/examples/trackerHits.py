@@ -27,3 +27,4 @@ gROOT.SetStyle("Plain")
 c = TCanvas()
 histo.Draw()
 c.SaveAs("tofhits.jpg")
+# foo bar baz

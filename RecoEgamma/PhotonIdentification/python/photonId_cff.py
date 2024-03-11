@@ -8,3 +8,4 @@ photonIDTask = cms.Task(PhotonIDProd)
 photonIDSequence = cms.Sequence(photonIDTask)
 photonIDTaskGED = cms.Task(PhotonIDProdGED)
 photonIDSequenceGED = cms.Sequence(photonIDTaskGED)
+# foo bar baz

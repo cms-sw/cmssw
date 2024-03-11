@@ -6,3 +6,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/EcalTestBeam/data/ebapdsens.xml'),
     rootNodeName = cms.string('ebapd:ECAL')
 )
+# foo bar baz

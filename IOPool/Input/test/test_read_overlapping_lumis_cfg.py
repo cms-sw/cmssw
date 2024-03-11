@@ -29,3 +29,4 @@ process.tst = cms.EDAnalyzer("RunLumiEventChecker",
                              unorderedEvents = cms.untracked.bool(True))
 
 process.out = cms.EndPath(process.tst)
+# foo bar baz

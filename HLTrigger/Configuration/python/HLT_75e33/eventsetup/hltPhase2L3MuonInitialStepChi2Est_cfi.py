@@ -14,3 +14,4 @@ hltPhase2L3MuonInitialStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimat
     nSigma = cms.double(3.0),
     pTChargeCutThreshold = cms.double(15.0)
 )
+# foo bar baz

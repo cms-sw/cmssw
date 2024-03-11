@@ -36,3 +36,4 @@ def disableMaterialInteractionsTracker(process):
         layer.interactionModels = cms.untracked.vstring("trackerSimHits")
     return process
 
+# foo bar baz

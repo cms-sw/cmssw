@@ -51,3 +51,4 @@ hltGetDigi = cms.EDAnalyzer("HLTGetDigi",
 )
 
 
+# foo bar baz

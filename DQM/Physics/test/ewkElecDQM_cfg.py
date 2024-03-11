@@ -73,3 +73,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.ana = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.ewkElecDQM+process.dqmSaver)
 
+# foo bar baz

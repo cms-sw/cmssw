@@ -30,3 +30,4 @@ hltAK8PFPuppiJets = cms.EDProducer("FastjetJetProducer",
     useDeterministicSeed = cms.bool(True),
     voronoiRfact = cms.double(-0.9)
 )
+# foo bar baz

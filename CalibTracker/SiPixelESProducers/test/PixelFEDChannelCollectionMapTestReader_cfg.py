@@ -78,3 +78,4 @@ process.ReadDB.printDebug = cms.untracked.bool(True)
 process.ReadDB.outputFile = cms.untracked.string('PixelFEDChannelCollectionMap.log')
 
 process.p = cms.Path(process.get+process.ReadDB)
+# foo bar baz

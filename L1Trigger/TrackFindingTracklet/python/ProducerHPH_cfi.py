@@ -10,3 +10,4 @@ HitPatternHelper_params = cms.PSet (
   oldKFPSet  = cms.PSet(TMTrackProducer_params.EtaSectors) # import eta sector boundries from old kf package
   
 )
+# foo bar baz

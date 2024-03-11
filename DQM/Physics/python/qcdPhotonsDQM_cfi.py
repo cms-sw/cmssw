@@ -22,3 +22,4 @@ qcdPhotonsDQM = DQMEDAnalyzer('QcdPhotonsDQM',
                 barrelRecHitTag           = cms.InputTag("reducedEcalRecHitsEB"),
                 endcapRecHitTag           = cms.InputTag("reducedEcalRecHitsEE")
 )
+# foo bar baz

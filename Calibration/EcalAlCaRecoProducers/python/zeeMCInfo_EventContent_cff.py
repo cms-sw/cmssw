@@ -5,3 +5,4 @@ MCInfo = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_zeeMCFilter_*_*')
 )
 
+# foo bar baz

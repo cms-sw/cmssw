@@ -56,3 +56,4 @@ process.l1ecv = cms.EDAnalyzer("L1TMuonEndCapParamsViewer")
 
 process.p = cms.Path(process.l1ecv)
 
+# foo bar baz

@@ -6,3 +6,4 @@ SimSingleMuFilter = SimMuFilter.clone()
 SimSingleMuFilter.nMuSel = 1
 
 SimMuFiltSeq = cms.Sequence(SimSingleMuFilter)
+# foo bar baz

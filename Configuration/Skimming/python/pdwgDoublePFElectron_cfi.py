@@ -6,3 +6,4 @@ DoublePFElectron.pfElectronPtMin = cms.double(10)
 DoublePFElectron.pfElectronN = cms.int32(2)
 DoublePFElectron.filterName = cms.string("DoublePFElectron")
 
+# foo bar baz

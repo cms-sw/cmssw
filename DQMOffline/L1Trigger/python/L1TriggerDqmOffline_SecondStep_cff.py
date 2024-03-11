@@ -56,3 +56,4 @@ DQMHarvestL1TPhase2 = cms.Sequence(
     l1tPhase2MuonEfficiency
 )
 
+# foo bar baz

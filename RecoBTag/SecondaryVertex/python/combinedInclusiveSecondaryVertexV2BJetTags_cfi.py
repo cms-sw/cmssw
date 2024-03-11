@@ -5,3 +5,4 @@ combinedInclusiveSecondaryVertexV2BJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfos"),
 	                         cms.InputTag("inclusiveSecondaryVertexFinderTagInfos"))
 )
+# foo bar baz

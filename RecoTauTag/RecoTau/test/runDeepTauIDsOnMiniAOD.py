@@ -119,3 +119,4 @@ process.options = cms.untracked.PSet(
      numberOfThreads = cms.untracked.uint32(nThreads),
      numberOfStreams = cms.untracked.uint32(0)
 )
+# foo bar baz

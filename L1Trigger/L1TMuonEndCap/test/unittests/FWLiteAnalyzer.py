@@ -89,3 +89,4 @@ if __name__ == "__main__":
 
   analyzer = FWLiteAnalyzer(inputFiles='pippo.root')
   analyzer.analyze()
+# foo bar baz

@@ -15,3 +15,4 @@ process.tester = cms.EDAnalyzer("OtherThingAnalyzer",
 
 process.o = cms.EndPath(process.out+process.tester)
 
+# foo bar baz

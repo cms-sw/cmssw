@@ -56,3 +56,4 @@ fftjetTreeDumper = cms.EDAnalyzer(
         Class = cms.string("ScaledHessianDet")
     )
 )
+# foo bar baz

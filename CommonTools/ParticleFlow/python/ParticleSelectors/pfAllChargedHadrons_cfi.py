@@ -8,3 +8,4 @@ pfAllChargedHadrons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
 
 
 
+# foo bar baz

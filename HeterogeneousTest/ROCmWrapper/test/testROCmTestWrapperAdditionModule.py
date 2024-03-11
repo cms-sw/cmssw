@@ -12,3 +12,4 @@ process.rocmTestWrapperAdditionModule = cms.EDAnalyzer('ROCmTestWrapperAdditionM
 process.path = cms.Path(process.rocmTestWrapperAdditionModule)
 
 process.maxEvents.input = 1
+# foo bar baz

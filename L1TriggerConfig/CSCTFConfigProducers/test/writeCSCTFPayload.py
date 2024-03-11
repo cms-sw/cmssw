@@ -37,3 +37,4 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
 ##                 ))
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
+# foo bar baz

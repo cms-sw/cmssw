@@ -6,3 +6,4 @@ from RecoLocalFastTime.FTLRecProducers.MTDTimeCalibESProducer_cfi import *
 # to have backpropagated time average at 0
 MTDTimeCalibESProducer.BTLTimeOffset = cms.double(0.0115)
 MTDTimeCalibESProducer.ETLTimeOffset = cms.double(0.0066)
+# foo bar baz

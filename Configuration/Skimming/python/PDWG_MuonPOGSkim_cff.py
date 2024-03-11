@@ -164,3 +164,4 @@ MuonPOGJPsiSkimSTASequence = cms.Sequence(
     GoodJPsiProbeStaMuons *
     GoodJPsiProbeStaMuonsCount
     )
+# foo bar baz

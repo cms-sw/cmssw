@@ -128,3 +128,4 @@ process.path = cms.Path(
 process.out = cms.EndPath(
     process.output
 )
+# foo bar baz

@@ -15,3 +15,4 @@ egammaMonitorHLT = cms.Sequence(
 
 egmHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

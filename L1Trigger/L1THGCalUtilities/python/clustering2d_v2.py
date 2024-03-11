@@ -21,3 +21,4 @@ class RozBinTruncation(object):
             ProcessorParameters = self.processor
         )
         return producer
+# foo bar baz

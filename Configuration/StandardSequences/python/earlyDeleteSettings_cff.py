@@ -41,3 +41,4 @@ def customiseEarlyDelete(process):
             prod.excludeModules = t
 
     return process
+# foo bar baz

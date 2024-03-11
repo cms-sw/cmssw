@@ -4,3 +4,4 @@ print("*** Please use TopQuarkAnalysis/TopSkimming/python/TtDecayChannelFilter_c
 print("*** TopQuarkAnalysis/TopSkimming/python/ttDecayChannelFilter_cff.py instead")
 
 from TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff import ttSemiLeptonicFilter
+# foo bar baz

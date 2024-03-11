@@ -24,3 +24,4 @@ muonIdVal = DQMEDAnalyzer('MuonIdVal',
 # fastsim has no cosmic muon veto in place
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(muonIdVal, makeCosmicCompatibilityPlots = False)
+# foo bar baz

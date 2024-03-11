@@ -15,3 +15,4 @@ ME0SegmentAlgorithm = cms.PSet(
         maxRecHitsInCluster = cms.int32(6)
     )
 )
+# foo bar baz

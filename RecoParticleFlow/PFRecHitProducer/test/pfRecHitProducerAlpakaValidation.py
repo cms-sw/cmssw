@@ -385,3 +385,4 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 process.DQMTask = cms.EndPath(process.DQMoutput)
 process.schedule.append(process.DQMTask)
+# foo bar baz

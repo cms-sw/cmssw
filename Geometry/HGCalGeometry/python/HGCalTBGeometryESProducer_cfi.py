@@ -11,3 +11,4 @@ HGCalTBEEGeometryESProducer = cms.ESProducer("HGCalTBGeometryESProducer",
 HGCalTBHESilGeometryESProducer = cms.ESProducer("HGCalTBGeometryESProducer",
                                                 Name = cms.untracked.string("HGCalHESiliconSensitive") )
 
+# foo bar baz

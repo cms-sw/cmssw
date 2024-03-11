@@ -147,3 +147,4 @@ process.p = cms.Path( process.rawDataCollector+process.dtunpacker * process.reco
 
 process.ep = cms.EndPath( process.out )
 
+# foo bar baz

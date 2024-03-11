@@ -10,3 +10,4 @@ _EcalEndcapGeometryEP_dd4hep = cms.ESProducer("EcalEndcapGeometryEPdd4hep",
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toReplaceWith(EcalEndcapGeometryEP, _EcalEndcapGeometryEP_dd4hep)
+# foo bar baz

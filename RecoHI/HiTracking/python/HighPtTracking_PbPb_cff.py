@@ -33,3 +33,4 @@ hiBasicTrackingTask = cms.Task(hiPixelVerticesTask
                                 , hiGlobalPrimTracks
                                 , hiTracksWithQualityTask
                                 )
+# foo bar baz

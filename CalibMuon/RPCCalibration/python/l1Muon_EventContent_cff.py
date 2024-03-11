@@ -17,3 +17,4 @@ l1MuonEventSelection = cms.PSet(
     )
 )
 
+# foo bar baz

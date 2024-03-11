@@ -160,3 +160,4 @@ class VIDSelectorBase:
         out = ROOT.std.stringstream()
         self.__instance.print(out)
         return out.str();
+# foo bar baz

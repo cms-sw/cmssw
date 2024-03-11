@@ -63,3 +63,4 @@ siStripCMMonitor = DQMEDAnalyzer(
         )
 
     )
+# foo bar baz

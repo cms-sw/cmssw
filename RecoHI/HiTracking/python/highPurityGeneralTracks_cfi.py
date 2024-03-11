@@ -5,3 +5,4 @@ highPurityGeneralTracks = cms.EDFilter(
     src = cms.InputTag('generalTracks'),
     cut = cms.string('quality("highPurity")'),
     )
+# foo bar baz

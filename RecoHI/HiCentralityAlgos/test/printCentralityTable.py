@@ -30,3 +30,4 @@ process.TFileService = cms.Service('TFileService',
 
 process.p = cms.Path(process.analyze)
 
+# foo bar baz

@@ -71,3 +71,4 @@ def addUserData(patMuonProducer, matcherLabel='triggerMatcherToHLTDebug'):
         cms.InputTag(matcherLabel,"l3Candidate"),
     ]
 
+# foo bar baz

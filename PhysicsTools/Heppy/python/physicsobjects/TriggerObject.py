@@ -27,3 +27,4 @@ class TriggerObject( PhysicsObject):
             theStrs.extend( specific )
         return '\n'.join(theStrs)
 
+# foo bar baz

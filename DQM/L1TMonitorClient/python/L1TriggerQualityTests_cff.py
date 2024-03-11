@@ -158,3 +158,4 @@ l1TriggerQualityTests = cms.Sequence(
                                       l1TriggerOccupancyQualityTests
                                       )
 
+# foo bar baz

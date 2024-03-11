@@ -61,3 +61,4 @@ process.test = cms.EDAnalyzer("ConcurrentIOVAnalyzer",
 process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
 
 process.p1 = cms.Path(process.busy1 * process.test * process.esTestAnalyzerA)
+# foo bar baz

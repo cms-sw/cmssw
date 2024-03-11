@@ -8,3 +8,4 @@ L1TCaloStage2Task = cms.Task(
     caloStage2Digis
 )
 L1TCaloStage2 = cms.Sequence(L1TCaloStage2Task)
+# foo bar baz

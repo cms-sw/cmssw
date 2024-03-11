@@ -37,3 +37,4 @@ SiStripAnalyserCosmic = cms.EDAnalyzer("SiStripAnalyser",
 
 # Services needed for TkHistoMap
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
+# foo bar baz

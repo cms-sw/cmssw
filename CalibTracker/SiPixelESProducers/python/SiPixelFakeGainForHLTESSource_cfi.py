@@ -5,3 +5,4 @@ SiPixelFakeGainForHLTESSource = cms.ESSource("SiPixelFakeGainForHLTESSource",
 )
 
 
+# foo bar baz

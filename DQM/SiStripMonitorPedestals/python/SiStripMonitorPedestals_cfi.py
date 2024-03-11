@@ -25,3 +25,4 @@ PedsMon = DQMEDAnalyzer('SiStripMonitorPedestals',
 )
 
 
+# foo bar baz

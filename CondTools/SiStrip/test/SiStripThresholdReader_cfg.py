@@ -47,3 +47,4 @@ process.reader = cms.EDAnalyzer("SiStripThresholdReader",
 process.p1 = cms.Path(process.reader)
 
 
+# foo bar baz

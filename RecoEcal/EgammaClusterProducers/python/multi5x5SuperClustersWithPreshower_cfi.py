@@ -21,3 +21,4 @@ multi5x5SuperClustersWithPreshower = cms.EDProducer("PreshowerPhiClusterProducer
 uncleanedOnlyMulti5x5SuperClustersWithPreshower = multi5x5SuperClustersWithPreshower.clone(
     endcapSClusterProducer = "multi5x5SuperClusters:uncleanOnlyMulti5x5EndcapSuperClusters"
 )
+# foo bar baz

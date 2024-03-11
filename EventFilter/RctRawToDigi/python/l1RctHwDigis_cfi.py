@@ -5,3 +5,4 @@ rctDigis  = cms.EDProducer("RctRawToDigi",
     rctFedId = cms.untracked.int32(1350),
     verbose = cms.untracked.bool(False)
 )
+# foo bar baz

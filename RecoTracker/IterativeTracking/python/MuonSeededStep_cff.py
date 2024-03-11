@@ -333,3 +333,4 @@ muonSeededStepDebugTask = cms.Task(
     muonSeededStepDebugInOutTask
 )
 muonSeededStepDebug = cms.Sequence(muonSeededStepDebugTask)
+# foo bar baz

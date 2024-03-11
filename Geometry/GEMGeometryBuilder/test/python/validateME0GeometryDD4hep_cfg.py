@@ -32,3 +32,4 @@ process.me0Geometry.fromDDD = False
 process.me0Geometry.fromDD4hep = True
 
 process.p = cms.Path(process.valid)
+# foo bar baz

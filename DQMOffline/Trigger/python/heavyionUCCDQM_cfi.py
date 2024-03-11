@@ -30,3 +30,4 @@ heavyionUCCDQM_HIUCC020 = DQMEDAnalyzer('HeavyIonUCCDQM',
 
 
 HeavyIonUCCDQMSequence = cms.Sequence(heavyionUCCDQM_HIUCC100 * heavyionUCCDQM_HIUCC020)
+# foo bar baz

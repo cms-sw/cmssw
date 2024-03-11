@@ -63,3 +63,4 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 # This is no longer necessary, as starting 34X cmsDriver takes care automatically
 #
 #ProductionFilterSequence = cms.Sequence(generator)
+# foo bar baz

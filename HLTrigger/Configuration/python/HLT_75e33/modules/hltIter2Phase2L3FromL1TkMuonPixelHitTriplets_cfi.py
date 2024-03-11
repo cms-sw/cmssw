@@ -18,3 +18,4 @@ hltIter2Phase2L3FromL1TkMuonPixelHitTriplets = cms.EDProducer("CAHitTripletEDPro
     ),
     useBendingCorrection = cms.bool(True)
 )
+# foo bar baz

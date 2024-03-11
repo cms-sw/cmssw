@@ -72,3 +72,4 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.getpt)
 
 
+# foo bar baz

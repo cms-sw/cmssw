@@ -9,3 +9,4 @@ HLTPhoton187UnseededTask = cms.Task(
     hltEgammaHGCALIDVarsUnseeded,
     hltEgammaHoverEUnseeded
 )
+# foo bar baz

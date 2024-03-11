@@ -11,3 +11,4 @@ MuonMiniAOD = DQMEDAnalyzer('MuonMiniAOD',
                              BeamSpotLabel   = cms.InputTag("offlineBeamSpot"),
                              )
                              
+# foo bar baz

@@ -65,3 +65,4 @@ hbheRecHitProducerGPUTask = cms.Task(
 )
 
 hbheRecHitProducerGPUSequence = cms.Sequence(hbheRecHitProducerGPUTask)
+# foo bar baz

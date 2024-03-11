@@ -82,3 +82,4 @@ process.out = cms.OutputModule(
 # ...  uncomment this if you want the output file
 # process.saveIt = cms.EndPath(process.out)
 
+# foo bar baz

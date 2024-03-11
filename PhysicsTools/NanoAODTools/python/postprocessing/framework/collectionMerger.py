@@ -134,3 +134,4 @@ lepMerger_exampleSelection = lambda: collectionMerger(
     selector=dict([("Electron", lambda x: x.pt > 20),
                    ("Muon", lambda x: x.pt > 40)]),
 )
+# foo bar baz

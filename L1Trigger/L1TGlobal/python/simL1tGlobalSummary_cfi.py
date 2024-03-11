@@ -9,3 +9,4 @@ L1TGlobalSummary.AlgInputTag = cms.InputTag("simGtStage2Digis")
 L1TGlobalSummary.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 L1TGlobalSummary.MinBx          = cms.int32(0)
 L1TGlobalSummary.MaxBx          = cms.int32(0)
+# foo bar baz

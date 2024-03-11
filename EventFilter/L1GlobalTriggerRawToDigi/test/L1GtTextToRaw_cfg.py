@@ -73,3 +73,4 @@ process.outputL1GtTextToRaw = cms.OutputModule("PoolOutputModule",
 
 process.outpath = cms.EndPath(process.outputL1GtTextToRaw)
 
+# foo bar baz

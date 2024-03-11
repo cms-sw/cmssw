@@ -9,3 +9,4 @@ L1TTkEle25TkEle12Sequence = cms.Sequence(
     l1tTkEleSingle25Filter +
     l1tTkEleDouble12Filter
 )
+# foo bar baz

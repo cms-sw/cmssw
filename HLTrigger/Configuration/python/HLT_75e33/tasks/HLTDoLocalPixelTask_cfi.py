@@ -7,3 +7,4 @@ HLTDoLocalPixelTask = cms.Task(
     siPixelClusters,
     siPixelRecHits
 )
+# foo bar baz

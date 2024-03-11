@@ -11,3 +11,4 @@ dtResolutionTaskHLT = DQMEDAnalyzer('DTResolutionAnalysisTask',
                                      )
 
 
+# foo bar baz

@@ -51,3 +51,4 @@ process.p = cms.Path(
 	process.analyzeTracks *
 	process.analyzeMuons
 )
+# foo bar baz

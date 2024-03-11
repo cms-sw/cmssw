@@ -93,3 +93,4 @@ electronPFIsolationValuesTask = cms.Task(
 electronPFIsolationValuesSequence = cms.Sequence(electronPFIsolationValuesTask)
 
 #<----------------
+# foo bar baz

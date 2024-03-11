@@ -80,3 +80,4 @@ MinPt = cms.untracked.vdouble(10.0,10.0),
 ParticleID = cms.untracked.vint32(13,-13),
 )
 ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter*~mugenfilter)
+# foo bar baz

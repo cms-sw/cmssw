@@ -23,3 +23,4 @@ hltIter2Phase2L3FromL1TkMuonMerged = cms.EDProducer("TrackListMerger",
     trackAlgoPriorityOrder = cms.string('hltESPTrackAlgoPriorityOrder'),
     writeOnlyTrkQuals = cms.bool(False)
 )
+# foo bar baz

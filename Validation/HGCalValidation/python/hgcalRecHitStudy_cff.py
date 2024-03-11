@@ -11,3 +11,4 @@ hgcalRecHitStudyBH = hgcalRecHitStudyEE.clone(
     detectorName  = cms.string("HGCalHEScintillatorSensitive"),
     source        = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
     layers        = cms.untracked.int32(24))
+# foo bar baz

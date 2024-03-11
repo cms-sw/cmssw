@@ -23,3 +23,4 @@ process.out_step = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.raw2digi, process.out_step)
 
+# foo bar baz

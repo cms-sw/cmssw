@@ -261,3 +261,4 @@ exoHLTHTmonitoring = cms.Sequence(
     + PFMETTypeOne120_PFMHT120_IDTight_PFHT60_HTmonitoring
 )
 
+# foo bar baz

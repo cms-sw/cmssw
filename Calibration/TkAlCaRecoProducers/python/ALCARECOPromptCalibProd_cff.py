@@ -34,3 +34,4 @@ ALCARECOHltFilterForBS = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clon
 seqALCARECOPromptCalibProd = cms.Sequence(ALCARECOTkAlMinBiasFilterForBS *
                                           ALCARECOHltFilterForBS *
                                           alcaBeamSpotProducer)
+# foo bar baz

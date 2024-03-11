@@ -19,3 +19,4 @@ dtTriggerLutMonitor = DQMEDAnalyzer('DTLocalTriggerLutTask',
 )
 
 
+# foo bar baz

@@ -41,3 +41,4 @@ process.prodTest = cms.EDAnalyzer("HGCalTestRecHitTool",
                                   )
 
 process.p1 = cms.Path(process.generator*process.prodTest)
+# foo bar baz

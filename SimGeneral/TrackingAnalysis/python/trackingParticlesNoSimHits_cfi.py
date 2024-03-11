@@ -11,3 +11,4 @@ mergedtruthNoSimHits = SimGeneral.TrackingAnalysis.trackingParticles_cfi.mergedt
 
 trackingParticlesNoSimHits = cms.Sequence(mergedtruthNoSimHits)
 
+# foo bar baz

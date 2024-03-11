@@ -18,3 +18,4 @@ trackingParticleSelector = cms.EDFilter("TrackingParticleSelector",
     maxPhi = cms.double(3.2),
     invertRapidityCut = cms.bool(False)
 )
+# foo bar baz

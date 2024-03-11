@@ -6,3 +6,4 @@ StraightLinePropagator = cms.ESProducer("StraightLinePropagatorESProducer",
 )
 
 
+# foo bar baz

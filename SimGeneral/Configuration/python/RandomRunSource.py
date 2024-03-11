@@ -34,3 +34,4 @@ class RandomRunSource (cms.Source):
             #sources that inherit from ConfigurableInputSource use 'firstRun'
             self.firstRun = cms.untracked.uint32(runNumber)
         super(RandomRunSource,self).insertInto(parameterSet,myname)
+# foo bar baz

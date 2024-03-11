@@ -20,3 +20,4 @@ def splitMCmerged(process):
   process.StripCPEfromTrackAngleESProducer.parameters.maxChgOneMIP = cms.double(-6000.)
 
   return(process)
+# foo bar baz

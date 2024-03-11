@@ -23,3 +23,4 @@ process.BTauGenericMVAJetTagComputerRcd = cms.ESSource("PoolDBESSource",
 process.testReadMVAComputerCondDB = cms.EDAnalyzer("testReadMVAComputerCondDB")
 
 process.p = cms.Path(process.testReadMVAComputerCondDB)
+# foo bar baz

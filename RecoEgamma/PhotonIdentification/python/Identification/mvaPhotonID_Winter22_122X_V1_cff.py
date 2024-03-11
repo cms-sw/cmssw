@@ -59,3 +59,4 @@ central_id_registry.register( mvaPhoID_RunIIIWinter22_v1_wp80.idName,
                               'c198ffac6a62f5b64b1db5190048903722d29a66')
 mvaPhoID_RunIIIWinter22_v1_wp90.isPOGApproved = cms.bool(True)
 mvaPhoID_RunIIIWinter22_v1_wp80.isPOGApproved = cms.bool(True)
+# foo bar baz

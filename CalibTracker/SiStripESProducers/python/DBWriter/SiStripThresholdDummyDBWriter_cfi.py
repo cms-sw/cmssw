@@ -9,3 +9,4 @@ siStripThresholdDummyDBWriter = cms.EDAnalyzer("SiStripThresholdDummyDBWriter",
 
 
 
+# foo bar baz

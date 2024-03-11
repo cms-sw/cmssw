@@ -9,3 +9,4 @@ L1T_TkIsoEm22TkIsoEm12 = cms.Path(
     L1TTkIsoEm22TkIsoEm12Sequence +
     HLTEndSequence
 )
+# foo bar baz

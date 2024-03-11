@@ -4,3 +4,4 @@ selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
     src = cms.InputTag("patTrigger"),
     cut = cms.string("!filterLabels.empty()")
 )
+# foo bar baz

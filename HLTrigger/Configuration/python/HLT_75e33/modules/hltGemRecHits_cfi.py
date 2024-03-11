@@ -11,3 +11,4 @@ hltGemRecHits = cms.EDProducer("GEMRecHitProducer",
 
     )
 )
+# foo bar baz

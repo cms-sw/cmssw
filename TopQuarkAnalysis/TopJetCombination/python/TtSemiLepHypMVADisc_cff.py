@@ -17,3 +17,4 @@ makeHypothesis_mvaDiscTask = cms.Task(
     ttSemiLepHypMVADisc
 )
 makeHypothesis_mvaDisc = cms.Sequence(makeHypothesis_mvaDiscTask)
+# foo bar baz

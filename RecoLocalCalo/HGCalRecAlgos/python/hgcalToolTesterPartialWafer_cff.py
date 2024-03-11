@@ -6,3 +6,4 @@ hgcalToolTesterPartialWaferHE = hgcalToolTesterPartialWaferEE.clone(
     nameSense  = "HGCalHESiliconSensitive",
     caloHitSource = "HGCHitsHEfront"
 )
+# foo bar baz

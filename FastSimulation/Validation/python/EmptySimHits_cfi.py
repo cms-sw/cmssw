@@ -6,3 +6,4 @@ emptySimHits = cms.EDProducer(
     pCaloHitInstanceLabels = cms.vstring("")
     )
 
+# foo bar baz

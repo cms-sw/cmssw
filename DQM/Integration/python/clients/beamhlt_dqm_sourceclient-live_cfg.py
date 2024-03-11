@@ -291,3 +291,4 @@ if (process.runType.getRunType() == process.runType.pp_run or
 print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 
+# foo bar baz

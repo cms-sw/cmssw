@@ -4,3 +4,4 @@ trackRefsForJetsBeforeSorting = cms.EDProducer("ChargedRefCandidateProducer",
     particleType = cms.string('pi+'),
     src = cms.InputTag("trackWithVertexRefSelectorBeforeSorting")
 )
+# foo bar baz

@@ -964,3 +964,4 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         ),
     )
 )
+# foo bar baz

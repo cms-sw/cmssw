@@ -24,3 +24,4 @@ exoDiHPTESequence = cms.Sequence(
 
 )
 
+# foo bar baz

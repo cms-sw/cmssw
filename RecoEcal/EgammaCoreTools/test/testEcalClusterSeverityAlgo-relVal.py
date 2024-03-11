@@ -74,3 +74,4 @@ process.testEcalClusterSeverityAlgo = EDAnalyzer("testEcalClusterSeverityAlgo",
 process.p1 = Path( process.filterProbCluster)
 process.e = cms.EndPath( process.output )
                    
+# foo bar baz

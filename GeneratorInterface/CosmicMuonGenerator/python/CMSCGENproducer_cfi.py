@@ -43,3 +43,4 @@ generator = cms.EDProducer("CosMuoGenProducer",
     AcptAllMu = cms.bool(False),                
     Verbosity = cms.bool(False)
 )
+# foo bar baz

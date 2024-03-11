@@ -26,3 +26,4 @@ stage2L1Trigger_2018.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simBmtfD
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 stage2L1Trigger_2021.toModify(bmtfStage2Raw, InputLabel = cms.InputTag("simKBmtfDigis", "BMTF"), FWId = cms.uint32(0x95030160))
+# foo bar baz

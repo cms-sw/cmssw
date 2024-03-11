@@ -11,3 +11,4 @@ hltQTExample = DQMQualityTester(
     testInEventloop=cms.untracked.bool(False),
     qtestOnEndLumi=cms.untracked.bool(False)
 )
+# foo bar baz

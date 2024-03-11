@@ -18,3 +18,4 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
                                              engineName = cms.untracked.string('HepJamesRandom')
                                              )
                                            )
+# foo bar baz

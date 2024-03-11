@@ -40,3 +40,4 @@ EleIsoEcalFromHitsExtractorBlock = cms.PSet(
 
 )
 
+# foo bar baz

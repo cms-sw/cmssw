@@ -13,3 +13,4 @@ hltEcalBarrelDigisInRegions = cms.EDProducer("HLTEcalEBDigisInRegionsProducer",
     inputCollTags = cms.VInputTag("hltEcalDigis:ebDigis"),
     outputProductNames = cms.vstring('ebDigis')
 )
+# foo bar baz

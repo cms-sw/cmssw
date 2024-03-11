@@ -106,3 +106,4 @@ pfNoPUchsMEt = cms.EDProducer("PFNoPUMEtProducer",
 )
 pfNoPUchsMEtTask.add(pfNoPUchsMEt)
 pfNoPUchsMEtSequence = cms.Sequence(pfNoPUchsMEtTask)
+# foo bar baz

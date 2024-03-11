@@ -24,3 +24,4 @@ ecalPreshowerCertificationSequence = cms.Sequence(ecalPreshowerDcsInfoTask*ecalP
 ecalPreshowerLocalTasksSequence = cms.Sequence(ecalPreshowerPedestalTask)
 
 
+# foo bar baz

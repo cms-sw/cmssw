@@ -16,3 +16,4 @@ from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 noiseSimValid = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+hcalSimHitStudy+hcalDigisValidationSequence+validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis)
 
 
+# foo bar baz

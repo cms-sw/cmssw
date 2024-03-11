@@ -111,3 +111,4 @@ process.reconstruction_step = cms.Path(process.reconstruction)
 process.validation_step = cms.Path(process.testassociator)
 
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.validation_step)
+# foo bar baz

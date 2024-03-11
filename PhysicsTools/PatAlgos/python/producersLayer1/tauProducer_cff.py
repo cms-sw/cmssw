@@ -31,3 +31,4 @@ makePatTausTask = cms.Task(
     patTaus,
 )
 makePatTaus = cms.Sequence(makePatTausTask)
+# foo bar baz

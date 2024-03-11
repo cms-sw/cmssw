@@ -213,3 +213,4 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         verboseLevel = cms.untracked.int32(10) # verboseLevel for debugging printouts, should be > 20 to get output
     )
 )
+# foo bar baz

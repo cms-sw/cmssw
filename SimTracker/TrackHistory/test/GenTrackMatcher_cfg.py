@@ -27,3 +27,4 @@ process.ep = cms.EndPath(process.out)
 process.genParticles.saveBarCodes = True
 
 
+# foo bar baz

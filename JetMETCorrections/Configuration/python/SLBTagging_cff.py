@@ -154,3 +154,4 @@ ic5CaloJetsSLBSequence = cms.Sequence(
 ic5PFJetsSLBSequence = cms.Sequence(
     ic5PFJetsSoftMuonTagInfos*softPFElectrons*ic5PFJetsSoftElectronTagInfos
     )
+# foo bar baz

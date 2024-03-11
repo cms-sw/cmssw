@@ -16,3 +16,4 @@ dt2DSegments = cms.EDProducer("DTRecSegment2DProducer",
 # enable the t0 seg correction (event by event)
 dt2DSegments.Reco2DAlgoConfig.performT0SegCorrection = False
 dt2DSegments.Reco2DAlgoConfig.performT0_vdriftSegCorrection = False
+# foo bar baz

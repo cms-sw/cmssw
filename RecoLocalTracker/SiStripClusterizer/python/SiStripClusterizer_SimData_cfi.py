@@ -6,3 +6,4 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
                                Clusterizer = DefaultClusterizer,
                                DigiProducersList = cms.VInputTag(cms.InputTag('simSiStripDigis','\0'))
                                )
+# foo bar baz

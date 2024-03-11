@@ -64,3 +64,4 @@ def appendCSCChamberMaskerAtHLT(process):
                 )
             
     return process
+# foo bar baz

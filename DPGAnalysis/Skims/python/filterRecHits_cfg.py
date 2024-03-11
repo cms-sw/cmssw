@@ -60,3 +60,4 @@ process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.filter_step, process.out_step)
+# foo bar baz

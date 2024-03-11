@@ -12,3 +12,4 @@ TSGFromPixelPairsBlock = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle')
     )
     )
+# foo bar baz

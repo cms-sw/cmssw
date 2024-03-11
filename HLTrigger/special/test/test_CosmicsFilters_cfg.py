@@ -171,3 +171,4 @@ process.out_step     = cms.EndPath( process.hltTimer + process.output)
 # Schedule definition
 process.schedule = cms.Schedule(*( process.HLTriggerFirstPath, process.HLT_TrackerCosmics_RegionalCosmicTracking, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
 process.schedule.extend([process.endjob_step,process.out_step])
+# foo bar baz

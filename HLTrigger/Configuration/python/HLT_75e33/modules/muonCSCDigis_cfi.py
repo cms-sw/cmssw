@@ -17,3 +17,4 @@ muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     mightGet = cms.optional.untracked.vstring,
     runDQM = cms.untracked.bool(False)
 )
+# foo bar baz

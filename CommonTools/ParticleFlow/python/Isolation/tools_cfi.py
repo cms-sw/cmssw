@@ -13,3 +13,4 @@ def isoDepositReplace( toBeIsolated, isolating):
 #    newCandIsolator = candIsolatorFromDeposits.clone()
 #    newCandIsolator.deposits.src = isoDepositsSource
 #    return newCandIsolator
+# foo bar baz

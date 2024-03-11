@@ -1298,3 +1298,4 @@ HCALResponseBlock = cms.PSet(
         ElectronForwardResolution_Noise = cms.double(0.0)
         )
     )
+# foo bar baz

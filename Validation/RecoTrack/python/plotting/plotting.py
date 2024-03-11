@@ -2986,3 +2986,4 @@ class Plotter:
     def readDirs(self, *files):
         """Returns PlotterInstance object, which knows how exactly to produce the plots for these files"""
         return PlotterInstance([plotterItem.readDirs(files) for plotterItem in self._plots])
+# foo bar baz

@@ -22,3 +22,4 @@ seqALCARECOHcalCalHO = cms.Sequence(ALCARECOHcalCalHOHLT*hoCalibProducer)
 
 
 
+# foo bar baz

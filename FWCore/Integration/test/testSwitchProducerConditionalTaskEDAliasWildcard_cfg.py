@@ -81,3 +81,4 @@ process.ct = cms.ConditionalTask(process.intProducer1, process.intProducer2, pro
 
 process.p1 = cms.Path(process.intConsumer, process.ct)
 process.p2 = cms.Path(process.intConsumer2, process.ct)
+# foo bar baz

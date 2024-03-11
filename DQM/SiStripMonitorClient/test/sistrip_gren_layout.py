@@ -26,3 +26,4 @@ sistriplayout(dqmitems, "SiStrip_NumberOfDigis_Summary_TIB_Layer",
   ["SiStrip/MechanicalView/TIB/layer_2/Summary_NumberOfDigis_in_layer_2"],
   ["SiStrip/MechanicalView/TIB/layer_3/Summary_NumberOfDigis_in_layer_3"],
   ["SiStrip/MechanicalView/TIB/layer_4/Summary_NumberOfDigis_in_layer_4"])
+# foo bar baz

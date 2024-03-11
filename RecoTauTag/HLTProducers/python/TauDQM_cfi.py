@@ -7,3 +7,4 @@ TauDQM = cms.EDProducer("DQMTauProducer",
         IsolationCone = cms.double(0.5),
      MinPtTracks = cms.double(1.)
 )
+# foo bar baz

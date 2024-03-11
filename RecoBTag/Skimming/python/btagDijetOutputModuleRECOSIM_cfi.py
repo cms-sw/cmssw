@@ -12,3 +12,4 @@ btagDijetOutputModuleRECOSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

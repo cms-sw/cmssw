@@ -48,3 +48,4 @@ print(sess.run(y, feed_dict={scale_: 1.0, x_: [range(10)]})[0][0])
 graph_path = os.path.join(datadir, "constantgraph.pb")
 outputs = ["output"]
 cmsml.tensorflow.save_graph(graph_path, sess, output_names=outputs, variables_to_constants=True)
+# foo bar baz

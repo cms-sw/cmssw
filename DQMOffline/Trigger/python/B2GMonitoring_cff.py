@@ -153,3 +153,4 @@ b2gHLTDQMSourceWithRECO = cms.Sequence(
 
 b2gHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

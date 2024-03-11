@@ -66,3 +66,4 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
 
 dtTriggerPhase2PrimitiveDigis.HoughGrouping      = HoughGrouping
 dtTriggerPhase2PrimitiveDigis.PseudoBayesPattern = PseudoBayesPattern
+# foo bar baz

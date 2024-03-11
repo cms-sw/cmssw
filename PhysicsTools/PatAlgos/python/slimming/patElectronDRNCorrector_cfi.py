@@ -13,3 +13,4 @@ patElectronsDRN = patElectronDRNCorrectionProducer.clone(
                               timeout = 10
                             )
     )
+# foo bar baz

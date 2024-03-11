@@ -11,3 +11,4 @@ OutALCARECOPromptCalibProdPPSAlignment_noDrop = cms.PSet(
 
 OutALCARECOPromptCalibProdPPSAlignment = OutALCARECOPromptCalibProdPPSAlignment_noDrop.clone()
 OutALCARECOPromptCalibProdPPSAlignment.outputCommands.insert(0, 'drop *')
+# foo bar baz

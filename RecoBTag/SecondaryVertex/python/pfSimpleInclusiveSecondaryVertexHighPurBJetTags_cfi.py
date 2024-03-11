@@ -4,3 +4,4 @@ pfSimpleInclusiveSecondaryVertexHighPurBJetTags = cms.EDProducer("JetTagProducer
 	jetTagComputer = cms.string('candidateSimpleSecondaryVertex3TrkComputer'),
 	tagInfos = cms.VInputTag(cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfos"))
 )
+# foo bar baz

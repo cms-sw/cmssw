@@ -223,3 +223,4 @@ process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 
  
 #print process.dumpPython()
+# foo bar baz

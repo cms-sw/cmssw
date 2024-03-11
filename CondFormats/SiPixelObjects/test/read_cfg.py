@@ -27,3 +27,4 @@ process.readstruct =  cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")
 
 process.p = cms.Path(process.readstruct)
 
+# foo bar baz

@@ -16,3 +16,4 @@ dqmEnvSiStripQuality = DQMEDHarvester('DQMHarvestingMetadata',
 
 ALCAHARVESTSiStripQuality = cms.Sequence(EDMtoMEConvertSiStrip + alcaSiStripQualityHarvester + dqmEnvSiStripQuality)
 #ALCAHARVESTSiStripQuality = cms.Sequence(EDMtoMEConvertSiStrip + dqmSaver)
+# foo bar baz

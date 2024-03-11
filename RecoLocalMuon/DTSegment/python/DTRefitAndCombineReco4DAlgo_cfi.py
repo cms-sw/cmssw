@@ -16,3 +16,4 @@ DTRefitAndCombineReco4DAlgo = cms.PSet(
     )
 )
 
+# foo bar baz

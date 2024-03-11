@@ -196,3 +196,4 @@ def setFakeRawMETOnOldMiniAODs(met, rawpx, rawpy, rawsumet):
         met.uncorP2 = types.MethodType(lambda myself : None, met, met.__class__)
         met.uncorP3 = types.MethodType(lambda myself : None, met, met.__class__)
 
+# foo bar baz

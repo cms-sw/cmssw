@@ -83,3 +83,4 @@ def preSkim(tree, jsonInput=None, cutstring=None, maxEntries=None, firstEntry=0)
     if jsonInput:
         elist = jsonFilter.filterEList(tree, elist)
     return elist, jsonFilter
+# foo bar baz

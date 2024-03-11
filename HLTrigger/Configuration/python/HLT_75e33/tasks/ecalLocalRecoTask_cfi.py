@@ -7,3 +7,4 @@ ecalLocalRecoTask = cms.Task(
     ecalRecHitTask,
     ecalUncalibRecHitTask
 )
+# foo bar baz

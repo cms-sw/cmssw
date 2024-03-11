@@ -28,3 +28,4 @@ l1tInputDataProducer = cms.EDProducer('InputDataProducer',
   #=== Debug printout
   debug = l1tVertexNTupler.debug,
 )
+# foo bar baz

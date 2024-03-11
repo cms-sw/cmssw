@@ -43,3 +43,4 @@ process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
 process.p = cms.Path(process.testThrow)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

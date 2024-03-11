@@ -44,3 +44,4 @@ dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
     # Use legacy DB format
     writeLegacyVDriftDB =cms.bool(True),
 )
+# foo bar baz

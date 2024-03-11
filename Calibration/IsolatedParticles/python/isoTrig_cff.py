@@ -9,3 +9,4 @@ stage2L1Trigger.toModify(isoTrigHB, stageL1Trigger = 2)
 isoTrigHE = _isoTrigDefault.clone(
   Triggers = cms.untracked.vstring('HLT_IsoTrackHE'))
 stage2L1Trigger.toModify(isoTrigHE, stageL1Trigger = 2)
+# foo bar baz

@@ -12,3 +12,4 @@ findTtSemiLepSignalSelMVA = cms.EDProducer("TtSemiLepSignalSelMVAComputer",
     muons = cms.InputTag("selectedPatMuons"),
     elecs = cms.InputTag("selectedPatElectrons")
 )
+# foo bar baz

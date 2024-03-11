@@ -24,3 +24,4 @@ process.outpath = cms.EndPath(process.CMSCGEN_out)
 process.generator.MaxTheta = 84.
 process.generator.ElossScaleFactor = 0.0
 process.generator.TrackerOnly = True
+# foo bar baz

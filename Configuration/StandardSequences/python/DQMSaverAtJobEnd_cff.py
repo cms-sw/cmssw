@@ -25,3 +25,4 @@ runDependent.toModify(dqmSaver, forceRunNumber = 1)
 # to allow using this file as a customisation for cmsDriver.
 def customise(process):
     return process
+# foo bar baz

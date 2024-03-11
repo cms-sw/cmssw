@@ -31,3 +31,4 @@ process.load("Geometry.HcalEventSetup.HcalDDDGeometry_cfi")
 process.prod = cms.EDAnalyzer("HcalDDDGeometryAnalyzer")
 
 process.p1 = cms.Path(process.prod)
+# foo bar baz

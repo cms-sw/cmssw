@@ -23,3 +23,4 @@ GlobalMuonTrackMatcher = cms.PSet(
             Propagator = cms.string('SteppingHelixPropagatorAny')
             )
       ) 
+# foo bar baz

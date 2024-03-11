@@ -71,3 +71,4 @@ process.gmtDigis.BX_max_readout = 1
 process.gtDigis.inputMask = [1, 0]
 process.l1GtPack.ActiveBoardsMask = 0x0100
 
+# foo bar baz

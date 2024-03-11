@@ -4,3 +4,4 @@ refittedForPixelDQM = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.
     NavigationSchool = '',
     Fitter = 'FlexibleKFFittingSmoother'
 )
+# foo bar baz

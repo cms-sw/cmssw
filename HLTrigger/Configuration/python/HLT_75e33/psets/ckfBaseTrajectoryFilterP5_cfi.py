@@ -24,3 +24,4 @@ ckfBaseTrajectoryFilterP5 = cms.PSet(
     seedPairPenalty = cms.int32(0),
     strictSeedExtension = cms.bool(False)
 )
+# foo bar baz

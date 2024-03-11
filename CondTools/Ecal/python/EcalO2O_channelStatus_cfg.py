@@ -68,3 +68,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalChannelStatusAnalyzer",
 process.p = cms.Path(process.Test1)
 
 
+# foo bar baz

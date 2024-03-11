@@ -34,3 +34,4 @@ EvtGenExtraParticles = cms.vstring(#'absPDGCode:new = aliasName  antiName spin c
     '3216:new = 3216 -3216 2.5 0 0 1.7750000e+00 1.1999999e-01 1.175 2.375 0.0000000e+00',
     '14124:new = 14124 -14124 2.5 1 0 2.626600 0 2.626600 2.626600 0.0000000e+00')
 
+# foo bar baz

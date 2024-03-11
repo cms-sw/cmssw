@@ -55,3 +55,4 @@ pfRecoTauDiscriminationAgainstElectronMVA6Phase2Task = cms.Task(
 pfRecoTauDiscriminationAgainstElectronMVA6Phase2Seq = cms.Sequence(
     pfRecoTauDiscriminationAgainstElectronMVA6Phase2Task
 )
+# foo bar baz

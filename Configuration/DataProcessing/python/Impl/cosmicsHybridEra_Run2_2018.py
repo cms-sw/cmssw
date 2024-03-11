@@ -24,3 +24,4 @@ class cosmicsHybridEra_Run2_2018(cosmicsHybrid):
     (with the strip tracker in hybrid ZS mode)
 
     """
+# foo bar baz

@@ -9,3 +9,4 @@ from Validation.GlobalHits.globalhits_histogram_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 
+# foo bar baz

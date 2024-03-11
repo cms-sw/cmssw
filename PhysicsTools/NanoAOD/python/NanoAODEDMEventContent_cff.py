@@ -28,3 +28,4 @@ NANOAODGENEventContent = cms.PSet(
     compressionAlgorithm = cms.untracked.string("LZMA"),
     outputCommands = cms.untracked.vstring(NanoGenOutput)
 )
+# foo bar baz

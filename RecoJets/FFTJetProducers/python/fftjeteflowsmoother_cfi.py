@@ -69,3 +69,4 @@ fftjetEflowSmoother = cms.EDProducer(
     # The power of the scale multiplied by the smoothed Et
     scalePower = cms.double(2.0)
 )
+# foo bar baz

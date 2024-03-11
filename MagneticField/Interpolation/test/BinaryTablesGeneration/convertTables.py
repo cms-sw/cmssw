@@ -27,3 +27,4 @@ for part in range (1, 3) :
                 print('ERROR table not processed:', fullpath)
         
 f.close()
+# foo bar baz

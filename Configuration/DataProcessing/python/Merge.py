@@ -86,3 +86,4 @@ def mergeProcess(*inputFiles, **options):
     process.outputPath = EndPath(outMod)
 
     return process
+# foo bar baz

@@ -7,3 +7,4 @@ elPFIsoValueEA03 = cms.EDFilter( "ElectronIsolatorFromEffectiveArea",
                                  EffectiveAreaType = cms.string("kEleGammaAndNeutralHadronIso03"),
                                  EffectiveAreaTarget = cms.string("kEleEAData2012")
                                  )
+# foo bar baz

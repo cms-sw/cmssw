@@ -67,3 +67,4 @@ process.LAPayload.tag = cms.string(tag)
 
 process.p = cms.Path(process.LAPayload)
 
+# foo bar baz

@@ -5,3 +5,4 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_craft_cfi im
 # esmodule creating  records + corresponding empty essource
 from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_craft_cff import *
 
+# foo bar baz

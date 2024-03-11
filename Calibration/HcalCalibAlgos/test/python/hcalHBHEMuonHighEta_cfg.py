@@ -51,3 +51,4 @@ process.hcalTopologyIdeal.MergePosition = False
 process.hcalHBHEMuonHighEta.analyzeMuon = True
 
 process.p = cms.Path(process.hcalHBHEMuonHighEta)
+# foo bar baz

@@ -27550,3 +27550,4 @@ process = customizeHLTforCMSSW(process,"HIon")
 from HLTrigger.Configuration.Eras import modifyHLTforEras
 modifyHLTforEras(process)
 
+# foo bar baz

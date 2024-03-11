@@ -29,3 +29,4 @@ command = "DDErrorReport dddreportconfig.xml -p"
 status = os.system( command )
 if (status != 0):
     sys.exit(1)
+# foo bar baz

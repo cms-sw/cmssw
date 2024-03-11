@@ -21,3 +21,4 @@ process.MessageLogger = cms.Service("MessageLogger")
 process.p = cms.Path(process.tpgcheck)
 
 
+# foo bar baz

@@ -189,3 +189,4 @@ hiRegitMuonMixedTripletStepTask = cms.Task(hiRegitMuMixedTripletStepClusters,
                                          hiRegitMuMixedTripletStepTracks,
                                          hiRegitMuMixedTripletStepSelector)
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuonMixedTripletStepTask)
+# foo bar baz

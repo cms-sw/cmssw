@@ -5,3 +5,4 @@ from CommonTools.RecoAlgos.recoTrackSelectorPSet_cfi import recoTrackSelectorPSe
 recoTrackViewRefSelector = cms.EDProducer("RecoTrackViewRefSelector",
     _recoTrackSelectorPSet
 )
+# foo bar baz

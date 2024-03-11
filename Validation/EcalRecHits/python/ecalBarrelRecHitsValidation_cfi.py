@@ -9,3 +9,4 @@ ecalBarrelRecHitsValidation = DQMEDAnalyzer('EcalBarrelRecHitsValidation',
 
 
 
+# foo bar baz

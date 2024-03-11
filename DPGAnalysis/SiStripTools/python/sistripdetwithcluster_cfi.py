@@ -4,3 +4,4 @@ sistripdetwithcluster = cms.EDFilter('SiStripDetWithCluster',
                                      collectionName = cms.InputTag("siStripClusters"),     
                                      selectedModules = cms.untracked.vuint32()
 )	
+# foo bar baz

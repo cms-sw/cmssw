@@ -34,3 +34,4 @@ process.p21 = cms.Path(process.sinit + process.absbxincycles21)
 process.p22 = cms.Path(process.sinit + process.absbxincycles22)
 
 process.p31 = cms.Path(process.sinit + process.absbxincycles31)
+# foo bar baz

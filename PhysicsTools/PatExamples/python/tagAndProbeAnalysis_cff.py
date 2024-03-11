@@ -11,3 +11,4 @@ tagAndProbeAnalysis = cms.Sequence(
     looseElectronID +
     tightElectronID
     )
+# foo bar baz

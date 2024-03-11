@@ -11,3 +11,4 @@ jetmetMonitorHLT = cms.Sequence(
 
 jmeHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

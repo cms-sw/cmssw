@@ -24,3 +24,4 @@ DRNProducerEE = cms.EDProducer('SCEnergyCorrectorDRNProducer',
  )
 
 
+# foo bar baz

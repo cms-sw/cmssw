@@ -57,3 +57,4 @@ Geant4eTrackRefitter.Fitter = cms.string('G4eFitterSmoother')
 Geant4eTrackRefitter.Propagator = cms.string('Geant4ePropagator')
 
 geant4eTrackRefit = cms.Sequence(geopro*Geant4eTrackRefitter)
+# foo bar baz

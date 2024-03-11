@@ -9,3 +9,4 @@ totemT2DQMSource = DQMEDAnalyzer('TotemT2DQMSource',
 
     perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
 )
+# foo bar baz

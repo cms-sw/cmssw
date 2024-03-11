@@ -8,3 +8,4 @@ l1tdeStage2uGT = DQMEDAnalyzer('L1TdeStage2uGT',
     numBxToMonitor = cms.int32(5),
     histFolder = cms.string('L1TEMU/L1TdeStage2uGT')
 )
+# foo bar baz

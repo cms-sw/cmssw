@@ -16,3 +16,4 @@ alcaElectronIsolationSequence=cms.Sequence(eleIsolationSequence)
 # alcaModule = module_to_modify.clone(value_to_change='newvalue')
 # alcaElectronIsolationSequence.replace(module, alcaModule)
 #
+# foo bar baz

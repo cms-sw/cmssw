@@ -50,3 +50,4 @@ process.DBReaderModule = cms.EDAnalyzer(
 
 process.p1 = cms.Path(process.DBReaderModule)
 
+# foo bar baz

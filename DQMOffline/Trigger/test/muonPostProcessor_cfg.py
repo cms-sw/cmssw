@@ -38,3 +38,4 @@ process.path = cms.Path(
 )
 
 process.endpath = cms.EndPath(process.dqmSaver)
+# foo bar baz

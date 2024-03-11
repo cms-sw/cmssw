@@ -54,3 +54,4 @@ process.path2 = cms.Path()
 process.endpath1 = cms.EndPath(process.a1 * process.a2)
 process.endpath2 = cms.EndPath(process.out)
 process.endpath3 = cms.EndPath()
+# foo bar baz

@@ -13,3 +13,4 @@ PixelTripletHLTGenerator = cms.PSet(
     useFixedPreFiltering = cms.bool(False),
     useMultScattering = cms.bool(True)
 )
+# foo bar baz

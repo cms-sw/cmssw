@@ -704,3 +704,4 @@ if __name__ == '__main__':
         readline.set_history_length(-1)
 
 
+# foo bar baz

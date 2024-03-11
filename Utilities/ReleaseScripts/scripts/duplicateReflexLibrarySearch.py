@@ -311,3 +311,4 @@ if __name__ == "__main__":
         searchClassDefXml ()
     if options.edmPD:
         searchDuplicatePlugins ()
+# foo bar baz

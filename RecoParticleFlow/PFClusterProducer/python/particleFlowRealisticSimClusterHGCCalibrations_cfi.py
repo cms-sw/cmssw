@@ -11,3 +11,4 @@ egammaCorrections_hgcalV10 = [1.00, 1.00, 1.01, 1.01, 1.02, 1.01, 1.01, 1.01]
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify(hadronCorrections, value = hadronCorrections_hgcalV10)
 phase2_hgcalV10.toModify(egammaCorrections, value = egammaCorrections_hgcalV10)
+# foo bar baz

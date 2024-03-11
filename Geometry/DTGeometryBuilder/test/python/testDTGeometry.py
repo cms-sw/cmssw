@@ -75,3 +75,4 @@ process.test = cms.EDAnalyzer("DTGeometryTest",
                               )
 
 process.p = cms.Path(process.test)
+# foo bar baz

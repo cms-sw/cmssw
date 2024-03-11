@@ -10,3 +10,4 @@ postProcessorVertexSequence = cms.Sequence(
 )
 
 postProcessorVertexStandAlone = cms.Sequence(postProcessorVertexSequence)
+# foo bar baz

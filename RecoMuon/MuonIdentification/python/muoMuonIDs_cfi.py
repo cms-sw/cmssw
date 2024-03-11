@@ -6,3 +6,4 @@ muoMuonIDs = cms.EDProducer(
     physicsObjectIDs = cms.VPSet( )
 )
     
+# foo bar baz

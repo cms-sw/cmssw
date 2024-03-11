@@ -8,4 +8,4 @@ TrackTriggerDemonstrator_params = cms.PSet (
   DirIPBB  = cms.string( "/heplnw039/tschuh/work/proj/DRinDR/" ), # path to ipbb proj area
   RunTime  = cms.double( 4.5 )                                    # runtime in us
 
-)
+)# foo bar baz

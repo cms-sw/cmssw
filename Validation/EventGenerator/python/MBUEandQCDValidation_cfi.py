@@ -8,3 +8,4 @@ mbueAndqcdValidation = DQMEDAnalyzer('MBUEandQCDValidation',
     verbosity = cms.untracked.uint32(0),
     UseWeightFromHepMC = cms.bool(True)
 )
+# foo bar baz

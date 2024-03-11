@@ -42,3 +42,4 @@ for par, value in phisym_params.items():
 EcalPhiSymRecHitProducerRun = cms.EDProducer("EcalPhiSymRecHitProducerRun")
 for par, value in phisym_params.items():
     setattr(EcalPhiSymRecHitProducerRun, par, value)
+# foo bar baz

@@ -49,3 +49,4 @@ ecal_pulse_shape_parameters = cms.PSet(
     ecal_digi_parameters,
     ecal_pulse_shape_covariances
 )
+# foo bar baz

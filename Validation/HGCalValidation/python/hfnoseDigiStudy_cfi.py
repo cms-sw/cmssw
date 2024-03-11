@@ -18,3 +18,4 @@ hfnoseDigiStudy = hgcalDigiStudyEE.clone(
     layers       = 8,
     ifLayer      = True
     )
+# foo bar baz

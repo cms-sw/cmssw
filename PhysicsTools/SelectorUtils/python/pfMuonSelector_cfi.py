@@ -12,3 +12,4 @@ pfMuonSelector = cms.PSet(
     cutsToIgnore       = cms.vstring()
     )
 
+# foo bar baz

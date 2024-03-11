@@ -43,3 +43,4 @@ process.p = cms.Path( process.analyzePatTau )
 
 # print-out all python configuration parameter information
 #print process.dumpPython()
+# foo bar baz

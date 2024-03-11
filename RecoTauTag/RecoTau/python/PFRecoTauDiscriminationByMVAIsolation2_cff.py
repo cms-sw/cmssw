@@ -53,3 +53,4 @@ mvaIsolation2Task = cms.Task(
    , discriminationByIsolationMVA2
 )
 mvaIsolation2Seq = cms.Sequence(mvaIsolation2Task)
+# foo bar baz

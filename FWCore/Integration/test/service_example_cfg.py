@@ -19,3 +19,4 @@ process.ValueExample = cms.Service("ValueExample",
 process.p = cms.Path(process.tester)
 
 
+# foo bar baz

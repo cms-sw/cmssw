@@ -20,3 +20,4 @@ gROOT.ProcessLine(".x "+macrosDir+"ComparisonAfterSmearing.cc("+firstFile+", "+s
 
 
 
+# foo bar baz

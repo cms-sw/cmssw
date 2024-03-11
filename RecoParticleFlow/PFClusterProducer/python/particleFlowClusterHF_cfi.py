@@ -114,3 +114,4 @@ particleFlowClusterHF = cms.EDProducer(
     energyCorrector = cms.PSet()
     )
 
+# foo bar baz

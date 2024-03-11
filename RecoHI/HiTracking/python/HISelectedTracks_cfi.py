@@ -70,3 +70,4 @@ hiSelectedTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
 hiTracksWithQualityTask = cms.Task(hiInitialStepSelector
                                    #* hiSelectedTracks
 )
+# foo bar baz

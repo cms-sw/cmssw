@@ -5,3 +5,4 @@ def customise_hcalNZS(process):
         process.simHcalDigis.markAndPass = cms.bool(True)
 
     return process
+# foo bar baz

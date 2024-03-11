@@ -13,3 +13,4 @@ displacedMuonReducedTrackExtras = cms.EDProducer('MuonReducedTrackExtraProducer'
   outputClusters = cms.bool(True),
   mightGet = cms.optional.untracked.vstring
 )
+# foo bar baz

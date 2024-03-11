@@ -51,3 +51,4 @@ process.rechits = cms.Sequence(process.ecalRecHitsValidationSequence)
 process.p1 = cms.Path(process.simhits*process.digis*process.rechits)
 process.DQM.collectorHost = ''
 
+# foo bar baz

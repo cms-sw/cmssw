@@ -129,3 +129,4 @@ ppsStraightTrackAligner = cms.EDAnalyzer("PPSStraightTrackAligner",
     preciseXMLFormat = cms.bool(False),
     saveXMLUncertainties = cms.bool(False)
 )
+# foo bar baz

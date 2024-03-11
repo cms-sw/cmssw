@@ -294,3 +294,4 @@ process.p0 = cms.Path(
 
 
 #print process.dumpPython()
+# foo bar baz

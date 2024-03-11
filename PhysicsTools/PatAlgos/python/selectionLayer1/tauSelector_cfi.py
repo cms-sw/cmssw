@@ -10,3 +10,4 @@ selectedPatTaus = cms.EDFilter("PATTauSelector",
 )
 
 
+# foo bar baz

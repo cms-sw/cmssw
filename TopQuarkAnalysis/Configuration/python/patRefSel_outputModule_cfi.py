@@ -11,3 +11,4 @@ out = cms.OutputModule(
                                         )
 , dropMetaData   = cms.untracked.string( 'ALL' )
 )
+# foo bar baz

@@ -39,3 +39,4 @@ egHLTOffDQMBinData = cms.PSet (
     etaVsPhi = cms.PSet(nrX=cms.int32(15),xMin=cms.double(-3.),xMax=cms.double(3.),
                         nrY=cms.int32(8),yMin=cms.double(-3.14),yMax=cms.double(3.14)),
 )
+# foo bar baz

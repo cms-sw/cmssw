@@ -5,3 +5,4 @@ siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     VerboseLevel = cms.untracked.int32(0),
     src = cms.InputTag("siPixelClusters")
 )
+# foo bar baz

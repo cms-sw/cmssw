@@ -5,3 +5,4 @@ from ..modules.hltHbhereco_cfi import *
 hcalGlobalRecoTask = cms.Task(
     hltHbhereco
 )
+# foo bar baz

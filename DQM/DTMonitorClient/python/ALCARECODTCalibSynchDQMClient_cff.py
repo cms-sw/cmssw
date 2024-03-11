@@ -8,3 +8,4 @@ dtResolutionAnalysisTestAlca = dtResolutionAnalysisTest.clone(
 ALCARECODTCalibSynchDQMClient = cms.Sequence(dtResolutionAnalysisTestAlca)
 
 
+# foo bar baz

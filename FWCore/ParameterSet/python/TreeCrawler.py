@@ -300,3 +300,4 @@ def getImportTree(filename,path):
     # transform this flat structure in a dependency tree
     dependencyGraph = transformIntoGraph(globalDependencyDict,toplevelname)
     return dependencyGraph                                               
+# foo bar baz

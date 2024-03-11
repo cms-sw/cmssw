@@ -13,3 +13,4 @@ egmPatElectronIDs = cms.EDProducer(
                            )
 )
     
+# foo bar baz

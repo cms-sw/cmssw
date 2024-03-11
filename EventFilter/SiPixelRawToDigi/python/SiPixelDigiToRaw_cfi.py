@@ -9,3 +9,4 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelRawData, UsePhase1=True)
 
 
+# foo bar baz

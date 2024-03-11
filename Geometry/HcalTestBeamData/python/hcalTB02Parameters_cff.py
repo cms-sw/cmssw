@@ -11,3 +11,4 @@ dd4hep.toModify(hcalTB02XtalParameters,
 hcalTB02HcalParameters = hcalTB02XtalParameters.clone(
     name  = cms.string("HcalHits"),
 )
+# foo bar baz

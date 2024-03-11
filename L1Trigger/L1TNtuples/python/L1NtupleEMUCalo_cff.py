@@ -21,3 +21,4 @@ L1NtupleEMUCalo = cms.Sequence(
   +l1CaloTowerEmuTree
   +l1UpgradeEmuTree
 )
+# foo bar baz

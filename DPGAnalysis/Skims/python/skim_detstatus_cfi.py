@@ -11,3 +11,4 @@ dcsstatus = cms.EDFilter("DetStatus",
            DebugOn     = cms.untracked.bool(False) 
 )
 
+# foo bar baz

@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 
 alpakaValidationPixel = cms.Modifier()
 
+# foo bar baz

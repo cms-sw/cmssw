@@ -118,3 +118,4 @@ def custom_triggercellselect_autoencoder(process,
             )
     process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
+# foo bar baz

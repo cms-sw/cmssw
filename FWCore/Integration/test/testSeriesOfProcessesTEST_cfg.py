@@ -125,3 +125,4 @@ process.path7 = cms.Path(process.f1)
 process.path8 = cms.Path(process.f2)
 
 process.e = cms.EndPath(process.a+process.out1+process.out2+process.out3+process.out4)
+# foo bar baz

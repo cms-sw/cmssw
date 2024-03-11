@@ -253,3 +253,4 @@ process.p1 = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*proce
 #process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
 
 #process.outpath = cms.EndPath(process.o1)
+# foo bar baz

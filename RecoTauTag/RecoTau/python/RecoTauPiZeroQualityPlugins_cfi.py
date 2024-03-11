@@ -64,3 +64,4 @@ legacyPFTauDecayModeSelection = cms.PSet(
     selectionFailValue = cms.double(1000),
 )
 
+# foo bar baz

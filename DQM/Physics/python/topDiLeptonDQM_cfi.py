@@ -36,3 +36,4 @@ topDiLeptonDQM = DQMEDAnalyzer('TopDiLeptonDQM',
 )
 
 topDiLeptonAnalyzer = cms.Sequence(topDiLeptonDQM)
+# foo bar baz

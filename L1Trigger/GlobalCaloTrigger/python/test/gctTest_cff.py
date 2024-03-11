@@ -15,3 +15,4 @@ gctemu = cms.EDAnalyzer("L1GctTest",
     postSamples = cms.uint32(2)
 )
 
+# foo bar baz

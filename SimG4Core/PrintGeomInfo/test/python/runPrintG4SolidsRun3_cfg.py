@@ -41,3 +41,4 @@ if hasattr(process,'MessageLogger'):
 from SimG4Core.PrintGeomInfo.g4PrintG4Solids_cfi import *
 
 process = printGeomInfo(process)
+# foo bar baz

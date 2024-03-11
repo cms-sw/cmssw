@@ -33,3 +33,4 @@ particleFlowClusterHGCal = cms.EDProducer("PFClusterProducer",
         thresholdsByDetector = cms.VPSet()
     )
 )
+# foo bar baz

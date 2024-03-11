@@ -5,3 +5,4 @@ from ..modules.particleFlowRecHitHGC_cfi import *
 pfClusteringHGCalTask = cms.Task(
     particleFlowRecHitHGC
 )
+# foo bar baz

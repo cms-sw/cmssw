@@ -53,3 +53,4 @@ theBigNtuple = cms.Sequence( ( siPixelRecHits+siStripMatchedRecHits +
 theBigNtupleDigi = cms.Sequence( siStripDigis + bigNtupleDigis )
 
 
+# foo bar baz

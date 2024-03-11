@@ -11,3 +11,4 @@ muonCosmicTestSummary = DQMOffline.Muon.muonTestSummary_cfi.muonTestSummary.clon
     expMultiplicitySta_min = 0.75,
     expMultiplicitySta_max = 0.95
 )
+# foo bar baz

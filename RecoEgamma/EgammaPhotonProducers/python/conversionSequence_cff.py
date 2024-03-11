@@ -20,3 +20,4 @@ oldegConversions = conversions.clone(
     conversionOITrackProducer = 'ckfOutInTracksFromOldEGConversions'
 )
 oldegConversionSequence = cms.Sequence(oldegConversions)
+# foo bar baz

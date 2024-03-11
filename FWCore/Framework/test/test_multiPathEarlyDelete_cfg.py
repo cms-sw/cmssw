@@ -41,3 +41,4 @@ process.waitTillP2Done = cms.EDAnalyzer("IntConsumingAnalyzer",
 process.p1 = cms.Path(process.maker+process.f2+process.reader+cms.wait(process.tester)+process.p1Done)
 process.p2 = cms.Path(process.waitTillP1Done+process.maker+cms.wait(process.p2PreTester)+process.f3+process.reader+cms.wait(process.tester)+process.p2Done)
 process.p3 = cms.Path(process.waitTillP2Done+process.tester)
+# foo bar baz

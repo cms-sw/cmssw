@@ -276,3 +276,4 @@ from DQMOffline.RecoB.bTagMiniDQM_cff import *
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 
+# foo bar baz

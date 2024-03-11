@@ -14,3 +14,4 @@ class SimpleMuonAnalyzer(Analyzer):
         super(SimpleMuonAnalyzer, self).readCollections(event.input)
         event.muons = map(Muon, self.handles['muons'].product())
         
+# foo bar baz

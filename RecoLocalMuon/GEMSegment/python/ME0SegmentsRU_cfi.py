@@ -19,3 +19,4 @@ ME0SegAlgoRU = cms.PSet(
     algo_pset = cms.PSet(cms.PSet(RU_ME0))
 )
 
+# foo bar baz

@@ -21,3 +21,4 @@ from Validation.GlobalHits.globalhits_tester_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 
+# foo bar baz

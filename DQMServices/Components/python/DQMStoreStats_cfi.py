@@ -12,3 +12,4 @@ dqmStoreStats = cms.EDAnalyzer("DQMStoreStats",
     runOnEndJob = cms.untracked.bool(False),
     dumpToFWJR = cms.untracked.bool(True)
 )
+# foo bar baz

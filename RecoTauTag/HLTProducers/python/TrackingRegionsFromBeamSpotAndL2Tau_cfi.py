@@ -17,3 +17,4 @@ TrackingRegionsFromBeamSpotAndL2TauBlock = cms.PSet(
     )
 )
 
+# foo bar baz

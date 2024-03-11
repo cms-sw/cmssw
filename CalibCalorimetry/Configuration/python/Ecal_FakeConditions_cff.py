@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 from CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi import *
 from CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import *
 
+# foo bar baz

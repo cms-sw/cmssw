@@ -66,3 +66,4 @@ if (options.type == "DD4hep"):
     process.g4SimHits.Watchers.dd4hep = True
 
 process = printGeomInfo(process)
+# foo bar baz

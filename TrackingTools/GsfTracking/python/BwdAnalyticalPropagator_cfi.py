@@ -8,3 +8,4 @@ bwdAnalyticalPropagator = fwdAnalyticalPropagator.clone(
     ComponentName = 'bwdAnalyticalPropagator',
     PropagationDirection = 'oppositeToMomentum'
 )
+# foo bar baz

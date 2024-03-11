@@ -9,3 +9,4 @@ pythia8CUEP8M1SettingsBlock = cms.PSet(
         'MultipartonInteractions:expPow=1.6',
     )
 )
+# foo bar baz

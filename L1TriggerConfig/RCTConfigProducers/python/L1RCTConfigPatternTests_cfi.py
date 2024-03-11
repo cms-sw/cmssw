@@ -45,3 +45,4 @@ RCTConfigProducers = cms.ESProducer("RCTConfigProducers",
     noiseVetoHEminus = cms.bool(False),
     useCorrectionsLindsey = cms.bool(False)                                
 )
+# foo bar baz

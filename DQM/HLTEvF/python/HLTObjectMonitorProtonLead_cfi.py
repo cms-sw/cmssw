@@ -446,3 +446,4 @@ hltObjectMonitorProtonLead = DQMEDAnalyzer('HLTObjectMonitorProtonLead',
 	Xmax = cms.double(0.005)
 	)
 )
+# foo bar baz

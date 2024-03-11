@@ -40,3 +40,4 @@ BJetOperatingPointsParameters = cms.PSet(
         )
    )
 )
+# foo bar baz

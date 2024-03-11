@@ -69,3 +69,4 @@ if readsqlite:
                  connect = cms.string("sqlite_file:DropBoxMetadata.db")
                 )
         )
+# foo bar baz

@@ -5,3 +5,4 @@ simTwinMuxDigis = cms.EDProducer('L1TTwinMuxProducer',
     DTThetaDigi_Source = cms.InputTag("simDtTriggerPrimitiveDigis"),
     RPC_Source = cms.InputTag("simMuonRPCDigis"),
 )
+# foo bar baz

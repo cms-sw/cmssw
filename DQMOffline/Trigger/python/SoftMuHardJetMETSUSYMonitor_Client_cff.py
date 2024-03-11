@@ -35,3 +35,4 @@ susyHLTSoftMuHardJetMETClient = cms.Sequence(
   + SoftMuHardJetMETEfficiency_jetPt
   + SoftMuHardJetMETEfficiency_metPt 
 )
+# foo bar baz

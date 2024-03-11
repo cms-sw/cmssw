@@ -93,3 +93,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         DD4Hep         = cms.bool(False),
 	type           = cms.string('PrintSensitive')
 ))
+# foo bar baz

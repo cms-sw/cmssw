@@ -15,3 +15,4 @@ while line:
   else:
     sys.stdout.write(line)
   line = fileIN.readline()
+# foo bar baz

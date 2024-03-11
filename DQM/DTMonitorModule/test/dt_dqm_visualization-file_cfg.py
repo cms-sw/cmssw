@@ -30,3 +30,4 @@ process.dtDQMPath = cms.Path(process.calibrationEventsFilter * process.reco)
 # f.close()
 
 
+# foo bar baz

@@ -23,3 +23,4 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
 materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)
 
+# foo bar baz

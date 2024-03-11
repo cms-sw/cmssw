@@ -67,3 +67,4 @@ setattr(LHEWeightAnalyzer,"defaultConfig",
     cfg.Analyzer(LHEWeightAnalyzer,
     )
 )
+# foo bar baz

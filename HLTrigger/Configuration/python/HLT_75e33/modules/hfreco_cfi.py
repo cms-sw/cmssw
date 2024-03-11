@@ -134,3 +134,4 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     setNoiseFlags = cms.bool(True),
     useChannelQualityFromDB = cms.bool(True)
 )
+# foo bar baz

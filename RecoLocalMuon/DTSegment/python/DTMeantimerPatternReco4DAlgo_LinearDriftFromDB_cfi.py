@@ -38,3 +38,4 @@ DTMeantimerPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
     )
 )
 
+# foo bar baz

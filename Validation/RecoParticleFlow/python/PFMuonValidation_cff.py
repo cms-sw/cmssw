@@ -15,3 +15,4 @@ muonPFsequenceMC = muonPFsequence.clone(
 )
 
 pfMuonValidationSequence = cms.Sequence( muonPFsequenceMC )
+# foo bar baz

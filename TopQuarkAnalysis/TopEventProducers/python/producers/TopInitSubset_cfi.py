@@ -9,3 +9,4 @@ initSubset = cms.EDProducer("TopInitSubset",
 )
 
 
+# foo bar baz

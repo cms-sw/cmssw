@@ -80,3 +80,4 @@ stage1L1Trigger.toModify( dqmL1ExtraParticles, isolatedEmSource = cms.InputTag("
 stage1L1Trigger.toModify( dqmL1ExtraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
 stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
 stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+# foo bar baz

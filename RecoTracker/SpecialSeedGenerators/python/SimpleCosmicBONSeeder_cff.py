@@ -7,3 +7,4 @@ simpleCosmicBONSeedingLayers = _mod.seedingLayersEDProducer.clone(
     layerInfo,
     layerList = cms.vstring(*layerList),
 )
+# foo bar baz

@@ -7,3 +7,4 @@ ecalzmasstask = DQMEDAnalyzer('EcalZmassTask',
     trackCollection = cms.InputTag("electronGsfTracks")
  )
 
+# foo bar baz

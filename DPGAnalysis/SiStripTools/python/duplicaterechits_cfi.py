@@ -4,3 +4,4 @@ duplicaterechits = cms.EDAnalyzer('DuplicateRecHits',
                                   trackCollection = cms.InputTag('generalTracks'),
                                   TTRHBuilder = cms.string('WithTrackAngle')
                       )
+# foo bar baz

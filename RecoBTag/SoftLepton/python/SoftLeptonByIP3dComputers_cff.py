@@ -29,3 +29,4 @@ positiveSoftPFMuonByIP3dComputer = cms.ESProducer("LeptonTaggerByIPESProducer",
     use3d = cms.bool(True),
     ipSign = cms.string("positive")
 )
+# foo bar baz

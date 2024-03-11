@@ -213,3 +213,4 @@ process.harvester = DQMEDHarvester("HLTGenValClient",
 )
 
 process.outpath = cms.EndPath(process.harvester)
+# foo bar baz

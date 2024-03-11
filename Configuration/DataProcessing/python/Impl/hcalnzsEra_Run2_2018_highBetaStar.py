@@ -29,3 +29,4 @@ class hcalnzsEra_Run2_2018_highBetaStar(hcalnzs):
     collision data taking for Run2, 2018 hcal nzs workflow in highBetaStar data taking
 
     """
+# foo bar baz

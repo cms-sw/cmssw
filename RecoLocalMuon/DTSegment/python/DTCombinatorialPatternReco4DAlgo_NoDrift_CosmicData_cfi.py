@@ -36,3 +36,4 @@ DTCombinatorialPatternReco4DAlgo_NoDrift_CosmicData = cms.PSet(
     )
 )
 
+# foo bar baz

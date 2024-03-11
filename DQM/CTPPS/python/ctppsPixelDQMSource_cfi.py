@@ -33,3 +33,4 @@ ctppsPixelDQMOfflineSource = DQMEDAnalyzer('CTPPSPixelDQMSource',
     turnOffPlanePlots = cms.untracked.vstring(), 	# add tags for planes to be shut off, 
                                                         # e.g. "0_2_3_4" for arm 0 station 2 rp 3 plane 4
 )
+# foo bar baz

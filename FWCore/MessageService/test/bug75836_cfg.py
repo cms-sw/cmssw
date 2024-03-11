@@ -14,3 +14,4 @@ cms.untracked.string("ref_merge.root")
 
 process.o = cms.EndPath(process.out)
 
+# foo bar baz

@@ -5,3 +5,4 @@ vertexSelectionBlock = cms.PSet(
 		sortCriterium = cms.string('dist3dError')
 	)
 )
+# foo bar baz

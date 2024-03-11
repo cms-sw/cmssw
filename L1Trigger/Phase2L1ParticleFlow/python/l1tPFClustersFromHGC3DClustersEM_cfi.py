@@ -37,3 +37,4 @@ phase2_hgcalV11.toModify(l1tPFClustersFromHGC3DClustersEM,
         kind    = cms.string('calo')
     ),
 )
+# foo bar baz

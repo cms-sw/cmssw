@@ -26,3 +26,4 @@ mixCollectionValidation = DQMEDAnalyzer('MixCollectionValidation',
         )                       
     )                               
 )                                   
+# foo bar baz

@@ -89,3 +89,4 @@ SUSY_HLT_MuonFakes_POSTPROCESSING = cms.Sequence(SUSYoHLToMu8oPOSTPROCESSING +
                                                  SUSYoHLToTkMu17oPOSTPROCESSING+
                                                  SUSYoHLToMu8oTrkIsoVVLoPOSTPROCESSING+ 
                                                  SUSYoHLToMu17oTrkIsoVVLoPOSTPROCESSING)
+# foo bar baz

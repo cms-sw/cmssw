@@ -13,3 +13,4 @@ btagMC_ttbarEventSelection = cms.PSet(
 )
 btagMC_ttbarEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 
+# foo bar baz

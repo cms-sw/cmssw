@@ -28,3 +28,4 @@ PixelTripletHLTGeneratorWithFilter = PixelTripletHLTGenerator.clone(
     SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
 
+# foo bar baz

@@ -19,3 +19,4 @@ hltBtagJetsbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
 )
 
 hltBtagJetMCTools = cms.Sequence(hltBtagPartons*hltBtagJetsbyRef*hltBtagJetsbyValAlgo)
+# foo bar baz

@@ -10,3 +10,4 @@ gctDigiToRaw = cms.EDProducer("GctDigiToRaw",
 )
 
 
+# foo bar baz

@@ -42,3 +42,4 @@ class cosmicsHybrid(cosmics):
             args["customs"] += self.customs
 
         return cosmics.visualizationProcessing(self, globalTag, **args)
+# foo bar baz

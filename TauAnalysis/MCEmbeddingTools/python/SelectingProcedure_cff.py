@@ -79,3 +79,4 @@ makePatMuonsZmumuSelection = cms.Sequence(
     + ZmumuCandidatesFilter
     + selectedMuonsForEmbedding
 )
+# foo bar baz

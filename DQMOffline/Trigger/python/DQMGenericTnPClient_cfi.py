@@ -26,3 +26,4 @@ DQMGenericTnPClient = cms.EDAnalyzer("DQMGenericTnPClient",
   )
 )
 
+# foo bar baz

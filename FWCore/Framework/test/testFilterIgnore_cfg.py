@@ -105,3 +105,4 @@ process.p5 = cms.Path(process.m4+process.f2*process.m2*~process.f3*process.m3*cm
 process.p6 = cms.Path(process.m1)
 process.e = cms.EndPath(process.outp1*process.outp2*process.outp3*process.outp4*process.outp5)
 process.e6 = cms.EndPath(process.f1*~process.f1*process.f2*~process.f2*process.f3*~process.f3*process.f4*~process.f4*process.outp6)
+# foo bar baz

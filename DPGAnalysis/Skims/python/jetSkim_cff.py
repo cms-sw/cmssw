@@ -78,3 +78,4 @@ jetRecoQualitySeq = cms.Sequence(
     Jet2+Jet1+dijetFilter+jetFilter
 )
 
+# foo bar baz

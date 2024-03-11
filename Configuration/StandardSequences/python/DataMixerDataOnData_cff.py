@@ -55,3 +55,4 @@ mixData.doEmpty = False
 
 pdatamix = cms.Sequence(mixData+postDMDigi)
 
+# foo bar baz

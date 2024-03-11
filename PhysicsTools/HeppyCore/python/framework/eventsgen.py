@@ -10,3 +10,4 @@ class Events(object):
 
     def __getitem__(self, index):
         return self
+# foo bar baz

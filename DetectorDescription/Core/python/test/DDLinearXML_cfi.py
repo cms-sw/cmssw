@@ -6,3 +6,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                                                    'DetectorDescription/Core/test/data/DDLinear.xml'),
                                         rootNodeName = cms.string('world:MotherOfAllBoxes')
                                         )
+# foo bar baz

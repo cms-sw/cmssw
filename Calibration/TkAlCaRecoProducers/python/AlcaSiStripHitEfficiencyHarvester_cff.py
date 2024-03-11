@@ -14,3 +14,4 @@ dqmEnvSiStripHitEfficiency = DQMEDHarvester('DQMHarvestingMetadata',
                                            subSystemFolder = cms.untracked.string('AlCaReco'))
 
 ALCAHARVESTSiStripHitEfficiency = cms.Sequence(EDMtoMEConvertSiStripHitEfficiency + alcasiStripHitEfficiencyHarvester + dqmEnvSiStripHitEfficiency)
+# foo bar baz

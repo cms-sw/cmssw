@@ -84,3 +84,4 @@ process.hgcalWaferHitCheckHEF.verbosity = 1
 
 # Schedule definition
 process.schedule = cms.Schedule(process.analysis_step)
+# foo bar baz

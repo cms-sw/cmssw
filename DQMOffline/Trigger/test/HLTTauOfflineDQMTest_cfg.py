@@ -64,3 +64,4 @@ process.p = cms.Path(process.HLTTauDQMOffline*process.dqmEnv)
 process.o = cms.EndPath(process.HLTTauDQMOfflineHarvesting*process.HLTTauDQMOfflineQuality*process.dqmSaver)
 
 process.schedule = cms.Schedule(process.p,process.o)
+# foo bar baz

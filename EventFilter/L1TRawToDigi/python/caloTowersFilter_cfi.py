@@ -7,3 +7,4 @@ caloTowersFilter = cms.EDFilter(
     # inputTag  = cms.InputTag("rawDataCollector"),
     # period    = cms.untracked.int32(107)
 )
+# foo bar baz

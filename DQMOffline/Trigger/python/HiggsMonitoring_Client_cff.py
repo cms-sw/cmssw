@@ -567,3 +567,4 @@ higgsClient = cms.Sequence(
   + mssmHbbHLTEfficiency 
   + hmesongammaEfficiency
 )
+# foo bar baz

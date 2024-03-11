@@ -15,3 +15,4 @@ process.p = cms.Path(
    process.shallowRechitClusters*
    process.testTree
 )
+# foo bar baz

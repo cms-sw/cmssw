@@ -10,3 +10,4 @@ selectedHadronsAndPartons = cms.EDProducer('HadronAndPartonSelector',
 # select hadrons and partons for the slimmedGenJetsFlavourInfos, required for origin identification
 
 selectedHadronsAndPartonsForGenJetsFlavourInfos = selectedHadronsAndPartons.clone(particles = "prunedGenParticles")
+# foo bar baz

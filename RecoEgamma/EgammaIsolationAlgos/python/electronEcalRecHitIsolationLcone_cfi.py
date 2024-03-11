@@ -28,3 +28,4 @@ electronEcalRecHitIsolationLcone = cms.EDProducer("EgammaEcalRecHitIsolationProd
 )
 
 
+# foo bar baz

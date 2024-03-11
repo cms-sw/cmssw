@@ -105,3 +105,4 @@ test = cms.Sequence(
 
 s = cms.Sequence( dummySiStripDigiToRaw * old * new * test )
 
+# foo bar baz

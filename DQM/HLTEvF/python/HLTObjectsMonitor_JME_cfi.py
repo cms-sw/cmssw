@@ -276,3 +276,4 @@ jmeObjects = cms.VPSet(
        ),
 )
 
+# foo bar baz

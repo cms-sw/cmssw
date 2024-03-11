@@ -10,3 +10,4 @@ EcalCATIAGainRatios = cms.ESProducer("EcalCATIAGainRatiosESProducer",
                                      ComponentName = cms.string('EcalCatiaGainProducer'),
                                      CATIAGainRatio = cms.double(10.))
 
+# foo bar baz

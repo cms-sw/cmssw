@@ -74,3 +74,4 @@ process.analysis = cms.Sequence(process.dtLocalRecoValidation_no2D)
 process.clients = cms.Sequence(process.dtLocalRecoValidationClients)
 process.p = cms.Path(process.analysis + process.clients + process.dqmSaver)
 
+# foo bar baz

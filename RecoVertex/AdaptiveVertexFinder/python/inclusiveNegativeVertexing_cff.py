@@ -66,3 +66,4 @@ inclusiveCandidateNegativeVertexingCvsLTask = cms.Task(inclusiveCandidateNegativ
                                                candidateNegativeVertexArbitratorCvsL,
                                                inclusiveCandidateNegativeSecondaryVerticesCvsL)
 inclusiveCandidateNegativeVertexingCvsL = cms.Sequence(inclusiveCandidateNegativeVertexingCvsLTask)
+# foo bar baz

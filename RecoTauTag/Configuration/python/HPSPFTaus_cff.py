@@ -495,3 +495,4 @@ produceAndDiscriminateHPSPFTausTask = cms.Task(
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceAndDiscriminateHPSPFTausTask
     )
+# foo bar baz

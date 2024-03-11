@@ -65,3 +65,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         TextFile = cms.string('None')
     )
 ))
+# foo bar baz

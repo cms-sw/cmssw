@@ -9,3 +9,4 @@ run3_RPC.toModify(muonRPCDigis,
     inputTagOMTFDigis = 'omtfStage2Digis',
     inputTagCPPFDigis = 'rpcCPPFRawToDigi'
 )
+# foo bar baz

@@ -8,3 +8,4 @@ hltPhase2L3MuonInitialStepTracksSelectionHighPurity = cms.EDProducer("TrackColle
     originalQualVals = cms.InputTag("hltPhase2L3MuonInitialStepTrackCutClassifier","QualityMasks"),
     originalSource = cms.InputTag("hltPhase2L3MuonInitialStepTracks")
 )
+# foo bar baz

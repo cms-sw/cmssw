@@ -6,3 +6,4 @@ softKiller = cms.EDProducer("SoftKillerProducer",
                        Rho_EtaMax = cms.double( 5.0 ),
                        rParam = cms.double( 0.4 )
 )
+# foo bar baz

@@ -4,3 +4,4 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 hgcalHitClient = DQMEDHarvester("HGCalHitClient", 
                                 DirectoryName = cms.string("HitValidation"),
                                 )
+# foo bar baz

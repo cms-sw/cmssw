@@ -16,3 +16,4 @@ RPCLBLinkMapPopConAnalyzer = cms.EDAnalyzer('RPCLBLinkMapPopConAnalyzer'
                                                 , txtFile = cms.untracked.string('')
                                             )
 )
+# foo bar baz

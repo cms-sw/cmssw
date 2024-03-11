@@ -9,4 +9,4 @@ MuonSegmentMatcher = cms.PSet(
         TightMatchDT = cms.bool(False),
         TightMatchCSC = cms.bool(True)
     )
-)
+)# foo bar baz

@@ -61,3 +61,4 @@ multi5x5SuperClusters=cms.EDProducer("UnifiedSCCollectionProducer",
             scCollectionUncleanOnly = cms.string('uncleanOnlyMulti5x5EndcapSuperClusters'),
 
             )
+# foo bar baz

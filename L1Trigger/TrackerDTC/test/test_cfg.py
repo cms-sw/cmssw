@@ -75,4 +75,4 @@ process.TFileService = cms.Service( "TFileService", fileName = cms.string( "Hist
 #    record = cms.string( 'TrackerDetToDTCELinkCablingMapRcd' ),
 #    tag    = cms.string( "__CHOSEN_TAG__"                    )
 #) ) )
-#process.es_prefer_local_TrackerDetToDTCELinkCablingMapRcd = cms.ESPrefer( "PoolDBESSource", "" )
+#process.es_prefer_local_TrackerDetToDTCELinkCablingMapRcd = cms.ESPrefer( "PoolDBESSource", "" )# foo bar baz

@@ -43,3 +43,4 @@ annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu 
 # Filter only pp events which produce a B+:
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 ProductionFilterSequence = cms.Sequence(generator*bufilter)
+# foo bar baz

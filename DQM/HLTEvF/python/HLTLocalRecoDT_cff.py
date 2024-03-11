@@ -25,3 +25,4 @@ hltHighLevel = cms.EDFilter("HLTHighLevel",
 dtClient = cms.Sequence(dtResolutionTaskHLT+dtSegmentTaskHLT+dtResolutionTestHLT+dtSegmentTestkHLT)
 hltLocalRecoDT = cms.Path(hltHighLevel*dtClient)
 
+# foo bar baz

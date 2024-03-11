@@ -9,3 +9,4 @@ HLTHPSMediumChargedIsoPFTauSequence = cms.Sequence(
     hltHpsPFTauMediumRelativeChargedIsolationDiscriminator + 
     hltHpsPFTauMediumAbsOrRelChargedIsolationDiscriminator 
 )
+# foo bar baz

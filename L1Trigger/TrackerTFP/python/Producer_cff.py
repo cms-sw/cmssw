@@ -15,4 +15,4 @@ TrackerTFPProducerZHTout = cms.EDProducer( 'trackerTFP::ProducerZHTout', Tracker
 TrackerTFPProducerKFin = cms.EDProducer( 'trackerTFP::ProducerKFin', TrackerTFPProducer_params )
 TrackerTFPProducerKF = cms.EDProducer( 'trackerTFP::ProducerKF', TrackerTFPProducer_params )
 TrackerTFPProducerTT = cms.EDProducer( 'trackerTFP::ProducerTT', TrackerTFPProducer_params )
-TrackerTFPProducerAS = cms.EDProducer( 'trackerTFP::ProducerAS', TrackerTFPProducer_params )
+TrackerTFPProducerAS = cms.EDProducer( 'trackerTFP::ProducerAS', TrackerTFPProducer_params )# foo bar baz

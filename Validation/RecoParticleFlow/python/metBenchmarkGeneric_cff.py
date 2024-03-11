@@ -8,3 +8,4 @@ metBenchmarkGeneric = cms.Sequence(
     +
     caloMETBenchmarkGeneric
     )
+# foo bar baz

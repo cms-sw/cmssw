@@ -14,3 +14,4 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
                                 "HGCalHEScintillatorSensitive"
     )
 )
+# foo bar baz

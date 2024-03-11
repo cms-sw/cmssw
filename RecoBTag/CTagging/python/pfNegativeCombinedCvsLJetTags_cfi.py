@@ -10,3 +10,4 @@ pfNegativeCombinedCvsLJetTags = cms.EDProducer(
       cms.InputTag("softPFElectronsTagInfos")
       )
 )
+# foo bar baz

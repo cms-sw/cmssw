@@ -24,3 +24,4 @@ run2_HCAL_2017.toModify( hcalRawDataVME,
     TRIG = cms.untracked.InputTag("")
 )
 run2_HCAL_2017.toReplaceWith(hcalRawDataTask,_phase1_hcalRawDataTask)
+# foo bar baz

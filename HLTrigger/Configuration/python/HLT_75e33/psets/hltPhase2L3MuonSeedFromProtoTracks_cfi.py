@@ -10,3 +10,4 @@ hltPhase2L3MuonSeedFromProtoTracks = cms.PSet(
     magneticField = cms.string(''),
     propagator = cms.string('PropagatorWithMaterial')
 )
+# foo bar baz

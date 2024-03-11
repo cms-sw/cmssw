@@ -166,3 +166,4 @@ class HLTProcessOptions(object):
       raise Exception('you can not specify a converter/database in the setup option.\nIt takes the converter database specified by the primary config.\nPlease remove the text upto and including the ":" in\n  {} '.format(value))      
     else:
       object.__setattr__(self, name, value)
+# foo bar baz

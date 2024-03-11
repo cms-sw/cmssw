@@ -5,3 +5,4 @@ shallowTracks = cms.EDProducer("ShallowTracksProducer",
                                Prefix=cms.string("track"),
                                Suffix=cms.string(""))
 
+# foo bar baz

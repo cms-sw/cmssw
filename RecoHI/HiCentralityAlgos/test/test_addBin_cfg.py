@@ -36,3 +36,4 @@ process.output = cms.OutputModule( "PoolOutputModule",
 
 process.p = cms.Path(process.centralityBin)
 process.out = cms.EndPath(process.output)
+# foo bar baz

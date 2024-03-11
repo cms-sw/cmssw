@@ -10,3 +10,4 @@ DQMOfflineParticleFlowSequence = cms.Sequence (
     metBenchmark +
     matchMetBenchmark
 )
+# foo bar baz

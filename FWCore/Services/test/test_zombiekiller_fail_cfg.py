@@ -12,3 +12,4 @@ process.p = cms.Path(process.stuck)
 process.add_(cms.Service("ZombieKillerService",
                           secondsBetweenChecks = cms.untracked.uint32(10),
                           numberOfAllowedFailedChecksInARow = cms.untracked.uint32(2)))
+# foo bar baz

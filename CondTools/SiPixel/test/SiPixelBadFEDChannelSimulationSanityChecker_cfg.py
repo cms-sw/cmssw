@@ -76,3 +76,4 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 process.ReadDB = cms.EDAnalyzer("SiPixelBadFEDChannelSimulationSanityChecker")
 process.ReadDB.printDebug = cms.untracked.bool(True)
 process.p = cms.Path(process.get+process.ReadDB)
+# foo bar baz

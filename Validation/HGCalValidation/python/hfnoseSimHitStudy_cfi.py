@@ -16,3 +16,4 @@ hgcalSimHitStudy.nBinEta = 50
 hgcalSimHitStudy.ifNose  = True
 hgcalSimHitStudy.layers  = 8
 hgcalSimHitStudy.ifLayer = True
+# foo bar baz

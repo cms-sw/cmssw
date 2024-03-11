@@ -7,3 +7,4 @@ wValidation = DQMEDAnalyzer('WValidation',
     name = cms.string("Electrons"),
     UseWeightFromHepMC = cms.bool(True)
 )
+# foo bar baz

@@ -24,3 +24,4 @@ HcalHaloData = cms.EDProducer("HcalHaloDataProducer",
                               )
 
 
+# foo bar baz

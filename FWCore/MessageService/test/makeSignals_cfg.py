@@ -50,3 +50,4 @@ process.sendSomeMessages = cms.EDAnalyzer("makeSignals")
 process.p = cms.Path(process.sendSomeMessages)
 
 
+# foo bar baz

@@ -184,3 +184,4 @@ hiRegitMuonSeededStepTask = cms.Task(
       hiRegitMuonSeededStepExtraTask 
       )
 hiRegitMuonSeededStep = cms.Sequence(hiRegitMuonSeededStepTask)
+# foo bar baz

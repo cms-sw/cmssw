@@ -22,3 +22,4 @@ dt4dsegmentclients = cms.EDProducer("DT4DSegmentClients",
 dtLocalRecoValidationClients = cms.Sequence(dtrechitclients*dt2dsegmentclients*dt4dsegmentclients)
 
 
+# foo bar baz

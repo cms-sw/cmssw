@@ -25,3 +25,4 @@ for p in parts.keys():
     for i in range(1,parts[p]+1):
         setattr(CfgNavigationSchoolESProducer,p%(i,),copy.copy(_defaultPSet))
     
+# foo bar baz

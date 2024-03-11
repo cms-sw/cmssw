@@ -37,3 +37,4 @@ process.IterativePhiSym = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(process.IterativePhiSymProd)
 process.e = cms.EndPath(process.IterativePhiSym)
+# foo bar baz

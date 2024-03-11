@@ -35,3 +35,4 @@ trkIsol04CfgV2 = cms.PSet(
     barrelCuts=trkIsol03CfgV2.barrelCuts.clone(maxDR=0.4),
     endcapCuts=trkIsol03CfgV2.endcapCuts.clone(maxDR=0.4)
 )
+# foo bar baz

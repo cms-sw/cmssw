@@ -8,3 +8,4 @@ spqhistory = cms.EDAnalyzer("SiPixelQualityHistory",
     )
 
                               )
+# foo bar baz

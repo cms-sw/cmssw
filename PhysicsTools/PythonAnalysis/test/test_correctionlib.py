@@ -141,3 +141,4 @@ def test_tformula():
     for i, (_, expected) in enumerate(formulas):
         for x in test_values:
             assert corr.evaluate(i, x) == expected(x)
+# foo bar baz

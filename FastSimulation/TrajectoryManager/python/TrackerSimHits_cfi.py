@@ -14,3 +14,4 @@ TrackerSimHitsBlock = cms.PSet(
 #
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( TrackerSimHitsBlock.TrackerSimHits, pTmin = 0.1 )
+# foo bar baz

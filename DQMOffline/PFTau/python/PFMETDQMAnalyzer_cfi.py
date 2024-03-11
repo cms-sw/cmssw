@@ -109,3 +109,4 @@ pfMETDQMAnalyzer = DQMEDAnalyzer('PFMETDQMAnalyzer',
       xMax = cms.double(1.5)        
     )
 )
+# foo bar baz

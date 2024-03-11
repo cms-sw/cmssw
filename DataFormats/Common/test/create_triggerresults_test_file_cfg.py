@@ -25,3 +25,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.path = cms.Path(process.triggerResultsProducer)
 process.endPath = cms.EndPath(process.out)
+# foo bar baz

@@ -6,3 +6,4 @@ herwig7StableParticlesForDetectorBlock = cms.PSet(
         'set /Herwig/Decays/DecayHandler:LifeTimeOption Average',
         )
 )
+# foo bar baz

@@ -8,3 +8,4 @@ muonFullOfflineDQM = cms.Sequence(
 
 muoHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

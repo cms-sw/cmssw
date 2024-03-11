@@ -11,3 +11,4 @@ HLTPFClusteringForEgammaUnseededTask = cms.Task(
     hltParticleFlowRecHitECALUnseeded,
     hltParticleFlowSuperClusterECALUnseeded
 )
+# foo bar baz

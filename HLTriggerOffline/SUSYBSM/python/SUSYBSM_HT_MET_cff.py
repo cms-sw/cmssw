@@ -77,3 +77,4 @@ SUSY_HLT_HT_MET_POSTPROCESSING = cms.Sequence(SUSYoHLToHT350oMET100oPOSTPROCESSI
                               SUSYoHLToHT300oMET100oPOSTPROCESSING +
                               SUSYoHLToHT300oMET110oPOSTPROCESSING
 )
+# foo bar baz

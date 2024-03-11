@@ -23,3 +23,4 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toModify(selectedPatLowPtElectrons, 
                                                            cut = "pt>99999."
                                                            )
+# foo bar baz

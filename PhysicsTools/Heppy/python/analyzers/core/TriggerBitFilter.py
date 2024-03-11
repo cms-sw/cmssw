@@ -44,3 +44,4 @@ class TriggerBitFilter( Analyzer ):
         self.count.inc('pass veto')
         return True
 
+# foo bar baz

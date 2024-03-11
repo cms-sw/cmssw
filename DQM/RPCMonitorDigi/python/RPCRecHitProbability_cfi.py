@@ -14,3 +14,4 @@ rpcrechitprobability = DQMEDAnalyzer('RPCRecHitProbability',
                                       )
 
 
+# foo bar baz

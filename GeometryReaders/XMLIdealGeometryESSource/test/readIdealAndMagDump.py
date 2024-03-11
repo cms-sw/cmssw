@@ -40,3 +40,4 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.prodmag*process.prod)
 process.e1 = cms.EndPath(process.myprint)
+# foo bar baz

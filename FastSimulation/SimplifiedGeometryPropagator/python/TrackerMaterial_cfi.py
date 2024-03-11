@@ -372,3 +372,4 @@ phase1Pixel.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
                 interactionModels = _trackerMaterialInteractionModels
                 ),] + TrackerMaterialBlock.TrackerMaterial.EndcapLayers[4:]
         ))
+# foo bar baz

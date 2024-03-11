@@ -208,3 +208,4 @@ for dataclassfunc in sorted(dataclassfuncs):
                             print("'"+tfunc+"'"+G[tfunc][key]
                                   ['kind']+"'"+key+"'", end=' ')
                     print("")
+# foo bar baz

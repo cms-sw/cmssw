@@ -14,3 +14,4 @@ HLTclusterMonitorOT = clusterMonitorOT.clone(
 HLTtrackerphase2DQMSource = cms.Sequence(HLTclusterMonitorIT +
                                          HLTclusterMonitorOT)
 
+# foo bar baz

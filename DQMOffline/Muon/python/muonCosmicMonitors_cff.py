@@ -53,3 +53,4 @@ muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*
 
 muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 
+# foo bar baz

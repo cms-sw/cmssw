@@ -22,3 +22,4 @@ CaloParticleSelectionForEfficiency = cms.PSet(
     minHitCP = cms.int32(0),
     maxSimClustersCP = cms.int32(-1)
 )
+# foo bar baz

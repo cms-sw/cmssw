@@ -236,3 +236,4 @@ SUSYoHLToRazorPostValPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
        "mrRsq_turnOn_eff '2D efficiency; M_{R} (GeV); R^{2}; #epsilon' mrRsq mrRsq_denom"
     )
 )
+# foo bar baz

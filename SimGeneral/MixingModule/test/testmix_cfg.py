@@ -13,3 +13,4 @@ process.test = cms.EDProducer("TestMix",
 )
 
 process.p = cms.Path(process.test)
+# foo bar baz

@@ -18,3 +18,4 @@ from RecoTracker.SiTrackerMRHTools.SiTrackerMultiRecHitUpdator_cff import *
 #MultiRecHitCollector
 from RecoTracker.SiTrackerMRHTools.SimpleMultiRecHitCollector_cfi import *
 
+# foo bar baz

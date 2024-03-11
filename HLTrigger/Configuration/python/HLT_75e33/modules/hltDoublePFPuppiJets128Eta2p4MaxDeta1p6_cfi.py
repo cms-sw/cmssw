@@ -20,3 +20,4 @@ hltDoublePFPuppiJets128Eta2p4MaxDeta1p6 = cms.EDFilter("HLT2PFJetPFJet",
     triggerType1 = cms.int32(86),
     triggerType2 = cms.int32(86)
 )
+# foo bar baz

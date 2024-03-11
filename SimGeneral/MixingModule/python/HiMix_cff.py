@@ -38,3 +38,4 @@ mix = cms.EDProducer("MixingModule",
 mix.mixObjects.mixHepMC.makeCrossingFrame = True
 
 
+# foo bar baz

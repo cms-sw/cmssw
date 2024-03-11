@@ -85,3 +85,4 @@ process.p1 = cms.Path(process.tester + process.testParentage1, process.task)
 process.p2 = cms.Path(process.filtertester + process.testParentage2, process.task)
 process.p3 = cms.Path(process.streamtester + process.testParentage3, process.task)
 process.p4 = cms.Path(process.streamfiltertester + process.testParentage4, process.task)
+# foo bar baz

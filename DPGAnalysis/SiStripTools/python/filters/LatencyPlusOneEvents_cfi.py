@@ -5,3 +5,4 @@ latencyPlusOne = cms.EDFilter('EventWithHistoryEDFilter',
                                  cms.PSet(dbxRangeLtcyAware = cms.untracked.vint32(1,1))
                               )
                              )
+# foo bar baz

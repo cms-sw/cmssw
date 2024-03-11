@@ -365,3 +365,4 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
   )
 )
 
+# foo bar baz

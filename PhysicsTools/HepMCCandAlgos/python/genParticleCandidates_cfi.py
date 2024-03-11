@@ -7,3 +7,4 @@ genParticleCandidates = cms.EDProducer("FastGenParticleCandidateProducer",
 )
 
 
+# foo bar baz

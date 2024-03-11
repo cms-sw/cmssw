@@ -34,3 +34,4 @@ emuSkimSequence = cms.Sequence(
     electronSelectorForEMu * 
     muonSelectorForEMu
 )
+# foo bar baz

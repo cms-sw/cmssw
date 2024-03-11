@@ -11,3 +11,4 @@ APVPhases = cms.EDProducer('APVCyclePhaseProducerFromL1ABC',
                            l1ABCCollection = cms.InputTag("scalersRawToDigi"),
                            )
 
+# foo bar baz

@@ -184,3 +184,4 @@ process.SKIMStreamZMMOutPath = cms.EndPath(process.SKIMStreamZMM)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.photonSkimPath,process.zMMSkimPath,process.zEESkimPath,process.diJetSkimPath,process.SKIMStreamDiJetOutPath,process.SKIMStreamPhotonOutPath,process.SKIMStreamZEEOutPath,process.SKIMStreamZMMOutPath)
+# foo bar baz

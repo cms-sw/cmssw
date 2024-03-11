@@ -31,3 +31,4 @@ from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURec
         produceSoA = False
     )
 )
+# foo bar baz

@@ -21,3 +21,4 @@ def makeSerialClone(module, **kwargs):
     if 'alpaka' in copy.parameterNames_():
         del copy.alpaka
     return copy
+# foo bar baz

@@ -468,3 +468,4 @@ if __name__ == '__main__':
     if options.sizemd:
         writeMarkdownSizeReport(filedata, treedata, _maybeOpen(options.sizemd))
         sys.stderr.write("Markdown size report saved to %s\n" % options.sizemd)
+# foo bar baz

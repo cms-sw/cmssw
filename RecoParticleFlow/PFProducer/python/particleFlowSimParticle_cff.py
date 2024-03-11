@@ -12,3 +12,4 @@ from RecoParticleFlow.PFSimProducer.particleFlowSimParticle_cfi import *
 from FastSimulation.Event.ParticleFilter_cfi import ParticleFilterBlock
 
 particleFlowSimParticle.ParticleFilter = ParticleFilterBlock.ParticleFilter.clone(chargedPtMin = 0, EMin = 0)
+# foo bar baz

@@ -46,3 +46,4 @@ process.hgcalValidTestEE = process.hgcalValidTestHEB.clone(
 
 #process.p1 = cms.Path(process.generator*process.hgcalValidTestEE*process.hgcalValidTestHEF*process.hgcalValidTestHEB)
 process.p1 = cms.Path(process.generator*process.hgcalValidTestHEB)
+# foo bar baz

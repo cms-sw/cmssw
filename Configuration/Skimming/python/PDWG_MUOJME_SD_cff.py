@@ -11,3 +11,4 @@ MUOJME.andOr = cms.bool( True )
 # we want to intentionally throw and exception
 # in case it does not match one of the HLT Paths
 MUOJME.throw = cms.bool( False )
+# foo bar baz

@@ -19,3 +19,4 @@ process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
 process.DoodadESSource = cms.ESSource("DoodadESSource")
 
 process.p = cms.Path(process.test)
+# foo bar baz

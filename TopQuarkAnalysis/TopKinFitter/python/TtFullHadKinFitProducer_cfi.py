@@ -96,3 +96,4 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
 )
 
 
+# foo bar baz

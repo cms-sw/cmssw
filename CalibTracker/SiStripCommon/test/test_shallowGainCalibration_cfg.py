@@ -29,3 +29,4 @@ process.out = cms.OutputModule(
 process.p = cms.Path(process.MeasurementTrackerEvent*process.tracksRefit*process.shallowGainCalibration*process.testTree)
 process.end = cms.EndPath(process.out)
 process.s = cms.Schedule(process.p, process.end)
+# foo bar baz

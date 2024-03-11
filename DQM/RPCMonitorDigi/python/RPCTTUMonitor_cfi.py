@@ -10,3 +10,4 @@ rpcTTUMonitor = DQMEDAnalyzer('RPCTTUMonitor',
                                BitNumbers       = cms.vuint32(24,25,26,27,28,29,30) )
 
 
+# foo bar baz

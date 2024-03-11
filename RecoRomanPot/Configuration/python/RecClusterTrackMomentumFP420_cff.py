@@ -10,3 +10,4 @@ from RecoRomanPot.RecoFP420.FP420Cluster_cfi import *
 from RecoRomanPot.RecoFP420.FP420Track_cfi import *
 from RecoRomanPot.RecoFP420.FP420Reco_cfi import *
 
+# foo bar baz

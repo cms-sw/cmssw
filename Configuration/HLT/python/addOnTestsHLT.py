@@ -52,3 +52,4 @@ def addOnTestsHLT():
                      }
 
         return addOnTestsHLT
+# foo bar baz

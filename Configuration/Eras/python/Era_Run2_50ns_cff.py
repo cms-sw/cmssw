@@ -5,3 +5,4 @@ from Configuration.Eras.Modifier_run2_50ns_specific_cff import run2_50ns_specifi
 
 Run2_50ns = cms.ModifierChain(run2_common, run2_50ns_specific)
 
+# foo bar baz

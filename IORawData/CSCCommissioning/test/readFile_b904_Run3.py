@@ -111,3 +111,4 @@ process.FEVT = cms.OutputModule(
 process.p = cms.Path(process.rawDataCollectorCSC)
 
 process.outpath = cms.EndPath(process.FEVT)
+# foo bar baz

@@ -27,3 +27,4 @@ _hcalDigisFake = EventFilter.HcalRawToDigi.HcalRawToDigiFake_cfi.HcalRawToDigiFa
 from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toReplaceWith(hcalDigis, _hcalDigisFake)
 
+# foo bar baz

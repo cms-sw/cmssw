@@ -11,3 +11,4 @@ mcvertexweight = cms.EDFilter("MCVerticesWeight",
     )
                               )
 
+# foo bar baz

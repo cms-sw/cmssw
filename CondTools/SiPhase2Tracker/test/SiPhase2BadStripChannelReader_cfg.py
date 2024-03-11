@@ -97,3 +97,4 @@ process.BadStripPayloadReader = _mod.siPhase2BadStripChannelReader.clone(printDe
 # Path
 ###################################################################
 process.p = cms.Path(process.get+process.BadStripPayloadReader)
+# foo bar baz

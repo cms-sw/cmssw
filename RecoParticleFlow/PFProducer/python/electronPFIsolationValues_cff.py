@@ -132,3 +132,4 @@ electronPFIsolationValuesTask = cms.Task(
     elPFIsoValueNeutral04NoPFId,
     elPFIsoValuePU04NoPFId)
 electronPFIsolationValuesSequence = (electronPFIsolationValuesTask)
+# foo bar baz

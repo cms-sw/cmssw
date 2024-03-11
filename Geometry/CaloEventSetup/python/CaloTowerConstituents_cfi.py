@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder")
 
 
+# foo bar baz

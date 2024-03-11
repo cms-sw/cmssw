@@ -5,3 +5,4 @@ from ..modules.ecalMultiFitUncalibRecHit_cfi import *
 ecalMultiFitUncalibRecHitTask = cms.Task(
     ecalMultiFitUncalibRecHit
 )
+# foo bar baz

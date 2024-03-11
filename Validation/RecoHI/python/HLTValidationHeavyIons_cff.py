@@ -10,3 +10,4 @@ hltValidationHI = cms.Sequence(hiSingleJetValidation
                                )
 
 hltValidationHI.remove(hiSingleJetValidation)
+# foo bar baz

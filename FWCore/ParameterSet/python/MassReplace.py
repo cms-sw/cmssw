@@ -364,3 +364,4 @@ if __name__=="__main__":
             self.assertEqual(cms.InputTag("a"),p.sp.test1.nested.src)
             self.assertEqual(cms.InputTag("b"),p.sp.test2.src)
     unittest.main()
+# foo bar baz

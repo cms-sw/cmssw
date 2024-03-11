@@ -381,3 +381,4 @@ process.add_(cms.Service("CheckTransitions",
                          transitions = trans))
 process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(2),
                                      numberOfStreams = cms.untracked.uint32(0))
+# foo bar baz

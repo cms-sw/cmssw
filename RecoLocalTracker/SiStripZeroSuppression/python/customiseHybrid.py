@@ -42,3 +42,4 @@ def addHybridEmulationBeforeRepack(process):
     process.DigiToHybridRawRepack.insert(0, zs) ## insert before repacking
 
     return process
+# foo bar baz

@@ -23,4 +23,4 @@ def close_connections(verbose=True):
 		connection_string = "%s/%s" % (connection.connection_data["database_name"], connection.connection_data["schema"])
 		connection.tear_down()
 		if verbose:
-			print("Connection to %s was closed." % connection_string)
+			print("Connection to %s was closed." % connection_string)# foo bar baz

@@ -120,3 +120,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('mcverticestriggerbias.root')
                                    )
 
+# foo bar baz

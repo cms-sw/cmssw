@@ -18,3 +18,4 @@ hltHighLevelSiPixel = cms.EDFilter("HLTHighLevel",
 
 hltLocalRecoSiPixel = cms.Path(hltHighLevelSiPixel*siPixelMuonHLT)
 
+# foo bar baz

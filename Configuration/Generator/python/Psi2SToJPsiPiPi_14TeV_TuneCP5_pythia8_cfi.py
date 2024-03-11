@@ -106,3 +106,4 @@ piplusfilter = cms.EDFilter("PythiaDauVFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator*psi2SIDfilter*jpsifilter*muminusfilter*muplusfilter*piminusfilter*piplusfilter)
+# foo bar baz

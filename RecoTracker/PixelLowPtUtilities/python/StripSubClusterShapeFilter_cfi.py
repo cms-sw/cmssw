@@ -13,3 +13,4 @@ StripSubClusterShapeFilterParams = cms.PSet(
     subclusterCutMIPs = cms.double(0.45),
     subclusterCutSN = cms.double(12.),
 )
+# foo bar baz

@@ -15,3 +15,4 @@ makeHypothesis_wMassMaxSumPtTask = cms.Task(
     ttSemiLepHypWMassMaxSumPt
 )
 makeHypothesis_wMassMaxSumPt = cms.Sequence(makeHypothesis_wMassMaxSumPtTask)
+# foo bar baz

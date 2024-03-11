@@ -38,3 +38,4 @@ process.esTestAnalyzerB = cms.EDAnalyzer("ESTestAnalyzerB",
 )
 
 process.p = cms.Path(process.esTestAnalyzerB)
+# foo bar baz

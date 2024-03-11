@@ -56,3 +56,4 @@ ecalConditions = cms.ESSource("PoolDBESSource",
 )
 
 
+# foo bar baz

@@ -16,3 +16,4 @@ hltEgammaEleGsfTrackIsoV6Unseeded = cms.EDProducer("EgammaHLTElectronTrackIsolat
     useGsfTrack = cms.bool(True),
     useSCRefs = cms.bool(True)
 )
+# foo bar baz

@@ -7,3 +7,4 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 caloJetMetGen = cms.Sequence(genParticles*genJetParticles*recoGenJets)
 
+# foo bar baz

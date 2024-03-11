@@ -103,3 +103,4 @@ if args.includeAnalyzer:
     process.p += process.anaCUDA
 process.p.associate(process.t)
 process.ep = cms.EndPath(process.out)
+# foo bar baz

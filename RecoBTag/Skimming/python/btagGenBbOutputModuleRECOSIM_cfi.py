@@ -12,3 +12,4 @@ btagGenBbOutputModuleRECOSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

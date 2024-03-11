@@ -45,3 +45,4 @@ premix_stage2.toModify(mtdUncalibratedRecHits,
     barrelDigis = 'mixData:FTLBarrel',
     endcapDigis = 'mixData:FTLEndcap',
 )
+# foo bar baz

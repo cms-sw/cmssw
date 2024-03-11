@@ -20,3 +20,4 @@ l1tdeStage2Bmtf = DQMEDAnalyzer(
     hasDisplacementInfo = cms.untracked.bool(True)
 )
 
+# foo bar baz

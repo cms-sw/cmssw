@@ -43,3 +43,4 @@ metFilter = cms.EDFilter("PFMETFilter",
 #       max       min
 
 )
+# foo bar baz

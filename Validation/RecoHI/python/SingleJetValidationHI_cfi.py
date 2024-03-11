@@ -26,3 +26,4 @@ SingleJetPathVal35 = DQMEDAnalyzer('HLTJetMETValidation',
 )
 
 hiSingleJetValidation = cms.Sequence(SingleJetPathVal35)
+# foo bar baz

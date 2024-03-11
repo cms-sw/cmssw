@@ -9,3 +9,4 @@ SMPDQM= DQMEDAnalyzer('SMPDQM',
                       muonCollection = cms.InputTag('muons'),
                       pfMETCollection          = cms.InputTag("pfMet"),
                       )
+# foo bar baz

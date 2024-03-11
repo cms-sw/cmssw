@@ -491,3 +491,4 @@ def show_status_bar(total_size):
         except Empty:
             time.sleep(1)
             break
+# foo bar baz

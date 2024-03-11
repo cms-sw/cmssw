@@ -19,3 +19,4 @@ ParticleFilterBlock = cms.PSet(
         invisibleParticles = cms.vint32()
         )
     )
+# foo bar baz

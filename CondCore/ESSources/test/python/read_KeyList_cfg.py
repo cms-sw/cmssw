@@ -30,3 +30,4 @@ process.prod = cms.EDAnalyzer("KeyListAnalyzer")
 
 process.p = cms.Path(process.prod)
 
+# foo bar baz

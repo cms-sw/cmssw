@@ -25,3 +25,4 @@ StripSubClusterShapeTrajectoryFilterTIX12 = cms.PSet(
         TEC = cms.bool(False),
     ),
 )
+# foo bar baz

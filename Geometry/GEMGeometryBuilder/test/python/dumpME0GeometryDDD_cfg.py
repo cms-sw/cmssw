@@ -23,3 +23,4 @@ process.maxEvents = cms.untracked.PSet(
 #process.me0GeometryDump.verbose = True
 
 process.p = cms.Path(process.me0GeometryDump)
+# foo bar baz

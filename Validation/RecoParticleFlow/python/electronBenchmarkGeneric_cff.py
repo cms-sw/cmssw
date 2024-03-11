@@ -28,3 +28,4 @@ electronBenchmarkGeneric = cms.Sequence(
     gensource + 
     pfElectronBenchmarkGeneric
 )
+# foo bar baz

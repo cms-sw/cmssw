@@ -22,3 +22,4 @@ hltHcalDigis = cms.EDProducer("HcalRawToDigi",
     saveQIE11DataTags = cms.untracked.vstring(),
     silent = cms.untracked.bool(True)
 )
+# foo bar baz

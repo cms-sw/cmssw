@@ -44,3 +44,4 @@ l1tFastTrackingJetsExtended = cms.EDProducer("L1FastTrackingJetProducer",
     selectTrkMatchGenOrPU=cms.bool(False)
 
 )
+# foo bar baz

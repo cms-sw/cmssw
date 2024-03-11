@@ -28,3 +28,4 @@ dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
 )
 
 
+# foo bar baz

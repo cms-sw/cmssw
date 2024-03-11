@@ -166,3 +166,4 @@ l1EmulatorQualityTests = cms.Sequence(
                                       l1EmulatorObjectQualityTests
                                       )
 
+# foo bar baz

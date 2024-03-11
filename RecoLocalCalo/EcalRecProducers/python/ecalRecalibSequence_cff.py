@@ -43,3 +43,4 @@ ecalConditions.toGet = cms.VPSet(
         tag = cms.string('EcalLaserAPDPNRatiosRef_trivial')
     )
 )
+# foo bar baz

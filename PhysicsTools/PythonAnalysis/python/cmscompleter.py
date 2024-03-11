@@ -61,3 +61,4 @@ readline.set_completer(CMSCompleter().complete)
 readline.parse_and_bind('tab: complete')
 
 
+# foo bar baz

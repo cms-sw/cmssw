@@ -9,3 +9,4 @@ PFRecoTauPFJetInputs = cms.PSet (
     maxJetAbsEta = cms.double(2.7) # do not make taus from jet more forward/backward than this
 )
 phase2_common.toModify(PFRecoTauPFJetInputs, maxJetAbsEta = cms.double(4.0))
+# foo bar baz

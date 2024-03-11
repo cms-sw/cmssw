@@ -8,3 +8,4 @@ pfImpactParameterCA15TagInfos = pfImpactParameterTagInfos.clone(
     jets                 = "ca15PFJetsCHS",
     maxDeltaR            = 1.5
 )
+# foo bar baz

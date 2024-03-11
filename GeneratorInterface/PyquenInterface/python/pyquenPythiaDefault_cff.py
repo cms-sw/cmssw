@@ -206,3 +206,4 @@ pyquenPythiaDefaultBlock = cms.PSet(
     )
     
     )
+# foo bar baz

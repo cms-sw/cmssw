@@ -6,3 +6,4 @@ HcalGeometryFromDBEP = cms.ESProducer("HcalGeometryFromDBEP",
 
 HcalAlignmentEP = cms.ESProducer("HcalAlignmentEP")
 
+# foo bar baz

@@ -38,3 +38,4 @@ process.L1SubsystemKeysOnlineExt.forceGeneration = cms.bool(True)
 
 process.l1cr = cms.EDAnalyzer( "L1TriggerKeyExtReader", label = cms.string("SubsystemKeysOnly") )
 process.p = cms.Path(process.l1cr)
+# foo bar baz

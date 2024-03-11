@@ -31,3 +31,4 @@ ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
 ticlSeedingByHFHFNose = _ticlSeedingRegionProducer.clone(
   seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type="SeedingRegionByHF")
 )
+# foo bar baz

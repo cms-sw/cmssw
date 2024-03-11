@@ -5,3 +5,4 @@ RCT_RSKeysOnline = cms.ESProducer("L1RCT_RSKeysOnlineProd",
     onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
     enableL1RCTChannelMask = cms.bool( True )
 )
+# foo bar baz

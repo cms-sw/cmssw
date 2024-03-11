@@ -192,3 +192,4 @@ process = customise(process)
 process.options.wantSummary = cms.untracked.bool(True)
 print("Final Source settings:", process.source)
 
+# foo bar baz

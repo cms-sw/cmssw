@@ -39,3 +39,4 @@ def getRunsNewer(run, minLumis):
 if __name__ == '__main__' :
     # Test run
     print(json.dumps(getRunsNewer(250400, 10), indent=4))
+# foo bar baz

@@ -55,3 +55,4 @@ PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('Pxl_tst_tag1')
     ))
 )
+# foo bar baz

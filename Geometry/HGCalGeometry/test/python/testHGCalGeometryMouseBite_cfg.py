@@ -86,3 +86,4 @@ if (options.geometry == "D94"):
     process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHFN)
 else:
     process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+# foo bar baz

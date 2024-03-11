@@ -7,3 +7,4 @@ particleFlowSuperClusteringTask = cms.Task(
     particleFlowSuperClusterECAL,
     particleFlowSuperClusterHGCal,
 )
+# foo bar baz

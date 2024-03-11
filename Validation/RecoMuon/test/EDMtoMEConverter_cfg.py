@@ -32,3 +32,4 @@ process.p1 = cms.Path(process.EDMtoMEConverter*
                       process.postValidation*
 #                      process.recoMuonPostProcessorsHLT*
                       process.dqmSaver)
+# foo bar baz

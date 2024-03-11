@@ -10,3 +10,4 @@ pfMEtMultShiftCorrDB = cms.EDProducer("MultShiftMETcorrDBInputProducer",
     #sampleType = cms.string('MC') # MC, Data, DY, TTJets, WJets: MC is default, Data don't need to be specified because of "isData".
     )
 
+# foo bar baz

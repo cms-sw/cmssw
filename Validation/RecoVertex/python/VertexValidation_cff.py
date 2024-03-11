@@ -24,3 +24,4 @@ vertexValidationPixelTrackingOnly = cms.Sequence(
     vertexAnalysisSequencePixelTrackingOnly,
     tracksValidationTruthPixelTrackingOnly
 )
+# foo bar baz

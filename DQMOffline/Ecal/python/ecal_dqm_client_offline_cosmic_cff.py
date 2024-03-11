@@ -21,3 +21,4 @@ ecal_dqm_client_offline = cms.Sequence(
 )
 
 ecalMonitorClient.workers.remove('TrigPrimClient')
+# foo bar baz

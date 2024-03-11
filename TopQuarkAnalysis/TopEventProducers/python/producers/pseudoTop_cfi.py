@@ -22,3 +22,4 @@ pseudoTop = cms.EDProducer("PseudoTopProducer",
     minMETSemiLepton = cms.double(30),
     minMtWSemiLepton = cms.double(30),
 )
+# foo bar baz

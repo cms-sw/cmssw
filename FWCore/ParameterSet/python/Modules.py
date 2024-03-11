@@ -732,3 +732,4 @@ if __name__ == "__main__":
             unpkl = pickle.loads(pkl)
             self.assertEqual(sp.cpu.foo[0].type, "Foo2")
     unittest.main()
+# foo bar baz

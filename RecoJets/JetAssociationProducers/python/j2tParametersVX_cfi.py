@@ -7,3 +7,4 @@ j2tParametersVX = cms.PSet(
     pvSrc = cms.InputTag("offlinePrimaryVertices")
 )
 
+# foo bar baz

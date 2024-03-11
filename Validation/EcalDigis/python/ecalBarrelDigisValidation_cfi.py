@@ -7,3 +7,4 @@ ecalBarrelDigisValidation = DQMEDAnalyzer('EcalBarrelDigisValidation',
 )
 
 
+# foo bar baz

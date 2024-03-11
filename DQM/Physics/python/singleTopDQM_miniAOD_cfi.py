@@ -199,3 +199,4 @@ singleTopElectronMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_m
     ),
   )
 )
+# foo bar baz

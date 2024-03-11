@@ -70,3 +70,4 @@ metClient = cms.Sequence(
     +caloMHTEfficiency
 )
 
+# foo bar baz

@@ -35,3 +35,4 @@ from CalibMuon.DTCalibration.ALCARECODtCalib_cff import ALCARECODtCalibHLTFilter
 ALCARECODTCalibSynchDQM = cms.Sequence( dtPreCalibrationTaskAlca +
                                         dtAlcaResolutionMonitor +
                                         dtTriggerSynchMonitor )
+# foo bar baz

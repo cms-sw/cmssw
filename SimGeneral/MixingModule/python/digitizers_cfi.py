@@ -141,3 +141,4 @@ premix_stage1.toModify(theDigitizersValid, _customizePremixStage1)
 def _loadPremixStage2Aliases(process):
     process.load("SimGeneral.MixingModule.aliases_PreMix_cfi")
 modifyDigitizers_loadPremixStage2Aliases = premix_stage2.makeProcessModifier(_loadPremixStage2Aliases)
+# foo bar baz

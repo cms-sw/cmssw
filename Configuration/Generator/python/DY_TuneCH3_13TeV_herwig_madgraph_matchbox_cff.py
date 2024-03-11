@@ -44,4 +44,4 @@ generator = cms.EDFilter("Herwig7GeneratorFilter",
     parameterSets = cms.vstring('herwig7StableParticlesForDetector', 'Matchbox','herwig7CH3PDF', 'herwig7CH3AlphaS','herwig7CH3MPISettings'),
 )
 
-ProductionFilterSequence = cms.Sequence(generator)
+ProductionFilterSequence = cms.Sequence(generator)# foo bar baz

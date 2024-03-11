@@ -13,3 +13,4 @@ recoAllTrackJets=cms.Task(trackWithVertexRefSelector,
                               trackRefsForJets,
                               ak4TrackJets)
 recoAllTrackJets=cms.Sequence(recoAllTrackJets)
+# foo bar baz

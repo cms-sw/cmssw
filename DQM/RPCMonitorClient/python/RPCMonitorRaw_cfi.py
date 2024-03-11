@@ -6,3 +6,4 @@ rpcMonitorRaw = DQMEDAnalyzer('RPCMonitorRaw',
   watchedErrors = cms.untracked.vint32(8,9),
   rpcRawDataCountsTag = cms.InputTag('rpcunpacker')
 )
+# foo bar baz

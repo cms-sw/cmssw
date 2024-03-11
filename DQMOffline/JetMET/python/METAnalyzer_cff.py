@@ -5,3 +5,4 @@ from DQMOffline.JetMET.metDQMConfig_cfi import *
 METAnalyzerSequence = cms.Sequence(METAnalyzer)
 
 
+# foo bar baz

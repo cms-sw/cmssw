@@ -10,3 +10,4 @@ dqmEnvLumiPCC = DQMEDHarvester('DQMHarvestingMetadata',
 
 
 ALCAHARVESTLumiPCC = cms.Sequence(corrPCCProd + dqmEnvLumiPCC)
+# foo bar baz

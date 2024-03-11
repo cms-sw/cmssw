@@ -33,3 +33,4 @@ SiStripSpyDisplay = cms.EDAnalyzer(
     OutputFolderName = cms.string("DEFAULT_OUTPUTNAME"),
     #
     )
+# foo bar baz

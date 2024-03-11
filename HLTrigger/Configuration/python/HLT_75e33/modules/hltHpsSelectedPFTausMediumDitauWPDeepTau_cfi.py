@@ -13,3 +13,4 @@ hltHpsSelectedPFTausMediumDitauWPDeepTau = cms.EDFilter( "PFTauSelector",
       )
     )
 )
+# foo bar baz

@@ -120,3 +120,4 @@ muonZMMRecoQualitySeq = cms.Sequence(
     tagProbeSeq+ZMMTagProbeMap+ZMMTPFilter
     )
 
+# foo bar baz

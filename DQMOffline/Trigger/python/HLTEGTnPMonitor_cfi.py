@@ -771,3 +771,4 @@ egmDQMSelectedMuons = cms.EDProducer("HLTDQMMuonSelector",
                                      muonSelectionType=cms.string("tight")
                                      )
 egmMuonIDSequenceForDQM = cms.Sequence(egmDQMSelectedMuons)
+# foo bar baz

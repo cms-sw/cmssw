@@ -19,3 +19,4 @@ siStripDigis = cms.EDProducer(
     )
 
 
+# foo bar baz

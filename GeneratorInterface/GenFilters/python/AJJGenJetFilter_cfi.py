@@ -42,3 +42,4 @@ ajjGenJetFilterPhoton = cms.EDFilter("AJJGenJetFilter",
                                      minPhotonPt  = cms.untracked.double( 50 ),
                                      maxPhotonPt  = cms.untracked.double( 10000 )
 )
+# foo bar baz

@@ -32,3 +32,4 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
         simRpcTechTrigDigis,
         simHcalTechTrigDigis,
         simCastorTechTrigDigis ))
+# foo bar baz

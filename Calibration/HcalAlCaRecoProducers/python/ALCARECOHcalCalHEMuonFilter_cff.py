@@ -13,3 +13,4 @@ from Calibration.HcalAlCaRecoProducers.alcaHEMuonFilter_cfi import *
 
 seqALCARECOHcalCalHEMuonFilter = cms.Sequence(ALCARECOHcalCalHEMuonFilterHLT *
                                               alcaHEMuonFilter)
+# foo bar baz

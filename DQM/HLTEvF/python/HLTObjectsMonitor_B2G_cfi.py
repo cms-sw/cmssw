@@ -81,3 +81,4 @@ b2gObjects = cms.VPSet(
        ),
 )
 
+# foo bar baz

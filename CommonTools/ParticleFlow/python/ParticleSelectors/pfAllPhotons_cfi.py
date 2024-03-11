@@ -8,3 +8,4 @@ pfAllPhotons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
 
 
 
+# foo bar baz

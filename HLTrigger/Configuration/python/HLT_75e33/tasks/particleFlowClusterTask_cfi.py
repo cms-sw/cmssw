@@ -13,3 +13,4 @@ particleFlowClusterTask = cms.Task(
     pfClusteringHGCalTask,
     pfClusteringHOTask
 )
+# foo bar baz

@@ -151,3 +151,4 @@ process.analysis_step = cms.Path(process.offlineBeamSpot *
 # Set the process to run multi-threaded
 ###################################################################
 process.options.numberOfThreads = 8
+# foo bar baz

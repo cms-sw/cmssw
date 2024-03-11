@@ -349,3 +349,4 @@ if not (options.report or options.compare):
   print("Neither comparison nor report to be executed. A typo?")
 
 
+# foo bar baz

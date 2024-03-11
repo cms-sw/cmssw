@@ -22,3 +22,4 @@ qie11Config = cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                           cms.PSet(pulseShapeParameters=cms.vdouble(-1.0e6, 1.0e6,  45.0, 0.1, 1.0e6, 0.0 )),
                       )
 )
+# foo bar baz

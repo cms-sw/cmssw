@@ -270,3 +270,4 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
     trackDepositName = cms.string('tracker'),
     writeIsoDeposits = cms.bool(False)
 )
+# foo bar baz

@@ -39,3 +39,4 @@ ttFullHadEvent = cms.EDProducer("TtFullHadEvtBuilder",
         sumDR = cms.InputTag("ttFullHadJetPartonMatch","SumDR"),
     )
 )
+# foo bar baz

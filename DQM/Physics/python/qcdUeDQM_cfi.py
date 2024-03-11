@@ -40,3 +40,4 @@ QcdUeDQM = DQMEDAnalyzer('QcdUeDQM',
 
     hltProcNames = cms.untracked.vstring(['HLT'])
 )
+# foo bar baz

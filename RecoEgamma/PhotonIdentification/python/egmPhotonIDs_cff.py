@@ -14,3 +14,4 @@ def loadEgmIdSequence(process, dataFormat):
                                 process.egmPhotonIDs)
 
     process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIDTask)
+# foo bar baz

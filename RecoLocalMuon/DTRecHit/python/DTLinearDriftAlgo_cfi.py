@@ -32,3 +32,4 @@ DTLinearDriftAlgo = cms.PSet(
     recAlgo = cms.string('DTLinearDriftAlgo')
 )
 
+# foo bar baz

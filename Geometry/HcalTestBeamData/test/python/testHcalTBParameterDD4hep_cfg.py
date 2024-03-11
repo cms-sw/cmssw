@@ -96,3 +96,4 @@ process.testH2HC = cms.EDAnalyzer("HcalTBParameterTester",
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.testH4)
 #process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.testH2EE*process.testH2HC)
+# foo bar baz

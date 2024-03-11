@@ -29,3 +29,4 @@ if guid_file != guid_report:
     sys.exit(1)
 
 print("SUCCEEDED")
+# foo bar baz

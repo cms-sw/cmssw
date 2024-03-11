@@ -22,3 +22,4 @@ particleNetAK8HbbTagEfficiency = DQMEDHarvester("DQMGenericClient",
         "eff_jet1_pt_pnetscore1_trans 'Efficiency vs j1 p_{T} and Lead atanh(PNET-score); p_{T}(j1); Lead atanh(PNET-score); efficiency' jet1_pt_pnetscore1_trans_numerator jet1_pt_pnetscore1_trans_denominator",
     )
 )
+# foo bar baz

@@ -60,3 +60,4 @@ process.reco_pool_out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.getCond*process.tbunpacker*process.ecalTBunpack*process.ecal2006TBH2TDCReconstructor*process.ecal2006TBH2WeightUncalibRecHit)
 process.ep = cms.EndPath(process.reco_pool_out)
 
+# foo bar baz

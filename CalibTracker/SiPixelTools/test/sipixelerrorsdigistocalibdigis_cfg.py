@@ -36,3 +36,4 @@ process.siPixelErrorsDigisToCalibDigis = cms.EDAnalyzer("SiPixelErrorsDigisToCal
 process.p = cms.Path(process.siPixelErrorsDigisToCalibDigis)
 
 
+# foo bar baz

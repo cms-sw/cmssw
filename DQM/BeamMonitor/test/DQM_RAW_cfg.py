@@ -135,3 +135,4 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
     )
 
+# foo bar baz

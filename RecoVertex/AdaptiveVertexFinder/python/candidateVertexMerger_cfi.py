@@ -7,3 +7,4 @@ candidateVertexMerger = cms.EDProducer("CandidateVertexMerger",
 )
 
 
+# foo bar baz

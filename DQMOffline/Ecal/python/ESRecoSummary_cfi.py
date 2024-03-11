@@ -9,3 +9,4 @@ ecalPreshowerRecoSummary = DQMEDAnalyzer('ESRecoSummary',
     ClusterCollectionY_ES     = cms.InputTag("multi5x5SuperClustersWithPreshower","preshowerYClusters"),
 )
 
+# foo bar baz

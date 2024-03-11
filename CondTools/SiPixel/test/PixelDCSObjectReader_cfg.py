@@ -31,3 +31,4 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.CaenChannel = cms.EDAnalyzer("PixelDCSObjectReader<PixelCaenChannelRcd>")
 
 process.p = cms.Path(process.CaenChannel)
+# foo bar baz

@@ -5,3 +5,4 @@ dtResolutionAnalysisTestAlcaCosmics = dtResolutionAnalysisTest.clone(
    topHistoFolder = 'AlCaReco/DtCalibSynchCosmics/01-Calibration'
 )
 ALCARECODTCalibSynchCosmicsDQMClient = cms.Sequence(dtResolutionAnalysisTestAlcaCosmics)
+# foo bar baz

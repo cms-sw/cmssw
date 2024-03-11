@@ -38,3 +38,4 @@ def customiseEarlyDeleteForSeeding(process, products):
             products[name].append(_branchName("RegionsSeedingHitSets", name))
 
     return (products, references)
+# foo bar baz

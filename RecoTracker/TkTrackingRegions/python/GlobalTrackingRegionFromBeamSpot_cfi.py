@@ -22,3 +22,4 @@ RegionPsetFomBeamSpotBlockFixedZ = cms.PSet(
     )
 )
 
+# foo bar baz

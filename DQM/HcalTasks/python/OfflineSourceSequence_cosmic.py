@@ -38,3 +38,4 @@ hcalOfflineSourceSequence = cms.Sequence(
 
 
 
+# foo bar baz

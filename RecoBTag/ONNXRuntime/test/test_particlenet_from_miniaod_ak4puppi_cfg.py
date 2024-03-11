@@ -93,3 +93,4 @@ process.output = cms.OutputModule( "PoolOutputModule",
 process.endpath = cms.EndPath(process.output);
 process.schedule = cms.Schedule(process.path,process.endpath);
 
+# foo bar baz

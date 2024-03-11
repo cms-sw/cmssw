@@ -65,3 +65,4 @@ class CreateNtuple(object):
         ntuplizer = process.l1tHGCalTriggerNtuplizer.clone()
         ntuplizer.Ntuples = cms.VPSet(vpset)
         return ntuplizer
+# foo bar baz

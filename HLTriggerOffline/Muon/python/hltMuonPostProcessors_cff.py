@@ -89,3 +89,4 @@ hltMuonPostProcessors = cms.Sequence(
     hltMuonPostIso    *
     hltMuonPostMain
 )
+# foo bar baz

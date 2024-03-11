@@ -35,3 +35,4 @@ process.path = cms.Path(
     process.getGBR25ns +
     process.getGBR50ns
 )
+# foo bar baz

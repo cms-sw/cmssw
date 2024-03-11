@@ -100,3 +100,4 @@ process.testPath = cms.Path(
 process.testEndPath = cms.EndPath(
     process.dqmOutput
 )
+# foo bar baz

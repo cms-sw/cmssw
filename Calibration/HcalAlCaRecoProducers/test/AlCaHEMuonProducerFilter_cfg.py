@@ -50,3 +50,4 @@ process.ALCARECOStreamHcalCalHEMuonProducerFilterOutPath = cms.EndPath(process.A
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOHcalCalHEMuonProducerFilter,process.endjob_step,process.ALCARECOStreamHcalCalHEMuonProducerFilterOutPath)
+# foo bar baz

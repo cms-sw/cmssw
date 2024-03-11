@@ -13,3 +13,4 @@ lumiTableProducer = cms.EDProducer("SimpleOnlineLuminosityFlatTableProducer",
 )
 
 lhcInfoTableProducer = cms.EDProducer("LHCInfoProducer")
+# foo bar baz

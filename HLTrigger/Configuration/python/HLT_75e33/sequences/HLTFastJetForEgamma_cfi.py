@@ -5,3 +5,4 @@ from ..tasks.HLTFastJetForEgammaTask_cfi import *
 HLTFastJetForEgamma = cms.Sequence(
     HLTFastJetForEgammaTask
 )
+# foo bar baz

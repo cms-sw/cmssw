@@ -26,3 +26,4 @@ HLTHFRecoEcalCandidate = cms.EDProducer("HLTHFRecoEcalCandidateProducer",
 
 
 
+# foo bar baz

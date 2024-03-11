@@ -186,3 +186,4 @@ PFBRECOTask = cms.Task(
     )
 PFBRECO = cms.Sequence(PFBRECOTask)
 
+# foo bar baz

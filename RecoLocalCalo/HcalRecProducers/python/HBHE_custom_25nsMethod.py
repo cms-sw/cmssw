@@ -10,3 +10,4 @@ def customise_HBHE_Method0(process):
       process.hbheprereco.cpu.puCorrMethod = cms.int32(0)
    return process
 
+# foo bar baz

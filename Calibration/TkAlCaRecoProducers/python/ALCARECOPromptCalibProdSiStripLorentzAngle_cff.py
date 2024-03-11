@@ -64,3 +64,4 @@ seqALCARECOPromptCalibProdSiStripLorentzAngle = cms.Sequence(
     ALCARECOSiStripLACalib *
     MEtoEDMConvertSiStripLorentzAngle 
    )
+# foo bar baz

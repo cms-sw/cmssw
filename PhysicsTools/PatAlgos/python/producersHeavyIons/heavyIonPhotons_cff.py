@@ -16,3 +16,4 @@ makeHeavyIonPhotons = cms.Sequence(
 
 
 
+# foo bar baz

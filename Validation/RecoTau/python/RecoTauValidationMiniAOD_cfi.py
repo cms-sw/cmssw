@@ -107,3 +107,4 @@ tauValidationMiniAOD = DQMEDAnalyzer("TauValidationMiniAOD",
     cms.PSet(discriminator = cms.string("byTightDeepTau2018v2p5VSmu"),selectionCut = cms.double(0.5)),
   ),
 )
+# foo bar baz

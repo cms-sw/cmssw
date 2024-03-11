@@ -9,3 +9,4 @@ makePatMETsTask = cms.Task(
     patMETs
     )
 makePatMETs = cms.Sequence(makePatMETsTask)
+# foo bar baz

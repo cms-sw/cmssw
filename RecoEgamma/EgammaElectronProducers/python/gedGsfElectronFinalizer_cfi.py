@@ -15,3 +15,4 @@ gedGsfElectrons = cms.EDProducer("GEDGsfElectronFinalizer",
                                        pfSumHcalClusterEt = cms.InputTag("electronHcalPFClusterIsolationProducer")),
                                  outputCollectionLabel = cms.string("")
                                  )
+# foo bar baz

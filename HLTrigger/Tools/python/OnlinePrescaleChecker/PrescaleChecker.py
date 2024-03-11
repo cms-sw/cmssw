@@ -102,3 +102,4 @@ def findAnomalies(PrescaleTable,ignoreCols):
     return anomalies
 if __name__=='__main__':
     main()
+# foo bar baz

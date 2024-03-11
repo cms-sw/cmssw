@@ -103,3 +103,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Skim_GOODCOLL') )
 )
 process.e = cms.EndPath(process.out)
+# foo bar baz

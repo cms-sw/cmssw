@@ -28,3 +28,4 @@ SiPixelHitEfficiencySource = DQMEDAnalyzer('SiPixelHitEfficiencySource',
 # Modify for if the phase 1 pixel detector is active
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelHitEfficiencySource, isUpgrade=cms.untracked.bool(True) )
+# foo bar baz

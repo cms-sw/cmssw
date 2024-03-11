@@ -34,3 +34,4 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          )
 
 
+# foo bar baz

@@ -34,3 +34,4 @@ DTMeantimerPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
 )
 
+# foo bar baz

@@ -11,3 +11,4 @@ ecalBarrelClusterFastTimer = cms.EDProducer("EcalBarrelClusterFastTimer",
     )),
     timedVertices = cms.InputTag("offlinePrimaryVertices4D")
 )
+# foo bar baz

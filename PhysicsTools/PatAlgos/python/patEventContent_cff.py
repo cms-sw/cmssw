@@ -89,3 +89,4 @@ patHiExtraAodEventContent = [
     'keep recoGenJets_iterativeCone5HiGenJets*_*_*', # until a better solution
     'keep recoTracks_hiSelectedTracks*_*_*'
 ]
+# foo bar baz

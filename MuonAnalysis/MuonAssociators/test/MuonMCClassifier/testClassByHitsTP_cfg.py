@@ -127,3 +127,4 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     )
 )
+# foo bar baz

@@ -11,3 +11,4 @@ pfParticleSelectionForIsoTask = cms.Task(
     pfParticleSelectionPFBRECOTask
     )
 pfParticleSelectionForIsoSequence = cms.Sequence(pfParticleSelectionForIsoTask)
+# foo bar baz

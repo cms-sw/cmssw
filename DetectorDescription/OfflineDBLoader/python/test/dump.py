@@ -6,3 +6,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                         userControlledNamespace = cms.untracked.bool(True)
                                         )
 
+# foo bar baz

@@ -18,3 +18,4 @@ logErrorSkimFilter = cms.EDFilter("LogErrorFilter",
                               avoidCategories = cms.vstring('MemoryCheck')
                               )
 
+# foo bar baz

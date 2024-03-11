@@ -202,3 +202,4 @@ process.GlobalTag.toGet = cms.VPSet(
              #connect = cms.untracked.string("sqlite_file:PFCalibration.db")
              )
     )
+# foo bar baz

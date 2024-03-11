@@ -72,3 +72,4 @@ iterHFNoseTICLTask = cms.Task(ticlLayerTileHFNoseTask
     ,ticlHFNoseHADStepTask
     ,ticlHFNoseMIPStepTask
 )
+# foo bar baz

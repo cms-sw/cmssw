@@ -8,3 +8,4 @@ selectedPatDisplacedMuons = cms.EDFilter("PATMuonSelector",
 )
 
 
+# foo bar baz

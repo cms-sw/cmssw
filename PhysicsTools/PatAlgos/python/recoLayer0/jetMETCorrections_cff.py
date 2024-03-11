@@ -7,3 +7,4 @@ from PhysicsTools.PatAlgos.recoLayer0.metCorrections_cff import *
 patJetMETCorrections = cms.Sequence(patJetCorrections*patMETCorrections)
 
 
+# foo bar baz

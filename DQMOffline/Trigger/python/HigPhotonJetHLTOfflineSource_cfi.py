@@ -42,3 +42,4 @@ higPhotonJetHLTOfflineSource = DQMEDAnalyzer(
     photonMinPt = cms.untracked.double(20.0), #GeV
     
 )
+# foo bar baz

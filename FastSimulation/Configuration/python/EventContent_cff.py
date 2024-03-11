@@ -42,3 +42,4 @@ FASTPUEventContent = cms.PSet(
         'drop *_generalTracksBeforeMixing_QualityMasks_*',
         'keep edmHepMCProduct_generatorSmeared_*_*'
         ))
+# foo bar baz

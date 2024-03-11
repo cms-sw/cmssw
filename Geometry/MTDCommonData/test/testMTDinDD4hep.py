@@ -70,3 +70,4 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(cms.wait(process.testBTL)+process.testETL)
 
+# foo bar baz

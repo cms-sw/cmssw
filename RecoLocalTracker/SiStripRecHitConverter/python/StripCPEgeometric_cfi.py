@@ -13,3 +13,4 @@ StripCPEgeometricESProducer = stripCPEESProducer.clone(
         MinimumUncertainty           = cms.double(0.01)
      )
 )
+# foo bar baz

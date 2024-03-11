@@ -42,3 +42,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.TestWriteESAlignments = cms.EDAnalyzer("TestWriteESAlignments")
 
 process.p = cms.Path(process.TestWriteESAlignments)
+# foo bar baz

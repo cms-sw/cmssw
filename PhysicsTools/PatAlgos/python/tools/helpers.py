@@ -501,3 +501,4 @@ def cloneProcessingSnippetTask(process, task, postfix, removePostfix="", noClone
         task.visit(visitor)
         result = visitor.clonedTask()
     return result
+# foo bar baz

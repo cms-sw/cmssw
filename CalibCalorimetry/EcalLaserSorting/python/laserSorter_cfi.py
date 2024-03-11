@@ -56,3 +56,4 @@ laserSorter = cms.EDAnalyzer("LaserSorter",
   orbitCountInALumiBlock  = cms.int32(257000)
 )
 
+# foo bar baz

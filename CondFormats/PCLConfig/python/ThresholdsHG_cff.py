@@ -960,3 +960,4 @@ default = cms.VPSet(
              )
     )
 
+# foo bar baz

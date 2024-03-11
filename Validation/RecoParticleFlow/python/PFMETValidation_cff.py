@@ -15,3 +15,4 @@ pfMETValidation2 = pfMETDQMAnalyzer.clone(
 )
 
 pfMETValidationSequence = cms.Sequence( pfMETValidation1 * pfMETValidation2 )
+# foo bar baz

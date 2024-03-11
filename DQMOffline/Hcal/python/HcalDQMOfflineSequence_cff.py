@@ -19,3 +19,4 @@ HcalDQMOfflineSequence = cms.Sequence(NoiseRatesDQMOffline*RecHitsDQMOffline*All
 _run3_HcalDQMOfflineSequence = HcalDQMOfflineSequence.copyAndExclude([NoiseRatesDQMOffline])
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toReplaceWith(HcalDQMOfflineSequence, _run3_HcalDQMOfflineSequence)
+# foo bar baz

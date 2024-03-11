@@ -97,3 +97,4 @@ heavyFlavorValidationSequence = cms.Sequence(
     + hfpsi
     + hfupsilon
 )
+# foo bar baz

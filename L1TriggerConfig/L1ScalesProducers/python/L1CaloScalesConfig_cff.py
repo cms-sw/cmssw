@@ -26,3 +26,4 @@ hfrrcdsrc = cms.ESSource("EmptyESSource",
 )
 
 
+# foo bar baz

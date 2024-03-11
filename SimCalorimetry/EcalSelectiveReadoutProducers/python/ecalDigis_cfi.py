@@ -80,3 +80,4 @@ premix_stage1.toModify(simEcalDigis, UseFullReadout = True)
 _simEcalDigisPh2 = simEcalDigis.clone(
     trigPrimBypass = True,
 )
+# foo bar baz

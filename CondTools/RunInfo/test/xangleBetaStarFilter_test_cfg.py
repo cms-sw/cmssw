@@ -59,3 +59,4 @@ process.p = cms.Path(
     * process.xangleBetaStarFilter
     * process.plotterAfter
 )
+# foo bar baz

@@ -157,3 +157,4 @@ PhotosppPythia8TauSettings = cms.untracked.PSet(
         TaumToKpiKpi0nu = cms.vint32(5, 15, 16, 111, -211, -321, 321)
         )
     )
+# foo bar baz

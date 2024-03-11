@@ -9,3 +9,4 @@ from DQMServices.Components.DQMEnvironment_cfi import *
 # actual producer
 from DQMServices.Components.EDMtoMEConverter_cfi import *
 
+# foo bar baz

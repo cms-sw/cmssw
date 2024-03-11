@@ -120,3 +120,4 @@ photonAnalysis = DQMEDAnalyzer('PhotonAnalyzer',
 
 
 )
+# foo bar baz

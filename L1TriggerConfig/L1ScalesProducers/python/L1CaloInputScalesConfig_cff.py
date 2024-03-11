@@ -14,3 +14,4 @@ l1CaloHcalScaleRecord = cms.ESSource("EmptyESSource",
 )
 
 
+# foo bar baz

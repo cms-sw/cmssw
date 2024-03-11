@@ -18,3 +18,4 @@ MuonNoBptxPSet = cms.PSet(
     dropPt2 = cms.bool(True),
     dropPt3 = cms.bool(True),
     )
+# foo bar baz

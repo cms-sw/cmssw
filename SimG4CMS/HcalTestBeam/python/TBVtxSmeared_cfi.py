@@ -18,3 +18,4 @@ VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
                             UseFile         = cms.bool(False),
                             TimeOffset      = cms.double(0.)
                             )
+# foo bar baz

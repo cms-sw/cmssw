@@ -16,3 +16,4 @@ def customise(process):
     process.g4SimHits.CastorSD.useShowerLibrary = cms.bool(True)
 
     return(process)
+# foo bar baz

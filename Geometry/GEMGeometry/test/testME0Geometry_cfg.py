@@ -41,3 +41,4 @@ process.test = cms.EDAnalyzer("ME0GeometryAnalyzer")
 
 process.p = cms.Path(process.test)
 
+# foo bar baz

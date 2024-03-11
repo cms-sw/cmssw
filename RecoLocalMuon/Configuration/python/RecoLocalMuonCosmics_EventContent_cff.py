@@ -42,3 +42,4 @@ RecoLocalMuonFEVT = cms.PSet(
         'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*') 
 )
 RecoLocalMuonFEVT.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+# foo bar baz

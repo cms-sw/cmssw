@@ -57,3 +57,4 @@ MinPt = cms.untracked.vdouble(1.8, 1.8),
 NumberDaughters = cms.untracked.int32(2)
 )
 ProductionFilterSequence = cms.Sequence(generator*etafilter)
+# foo bar baz

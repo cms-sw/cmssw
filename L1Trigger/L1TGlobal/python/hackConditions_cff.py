@@ -34,3 +34,4 @@ modifyL1TGlobalHackConditions_stage2 = stage2L1Trigger.makeProcessModifier(lambd
     "L1Trigger.L1TGlobal.PrescalesVetosFract_cff",
 #   "L1Trigger.L1TGlobal.TriggerMenu_cff"
 ]))
+# foo bar baz

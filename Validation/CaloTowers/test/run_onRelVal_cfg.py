@@ -89,3 +89,4 @@ process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient",
 
 process.p2 = cms.Path( process.hcalTowerAnalyzer * process.hcalNoiseRates * process.hcalRecoAnalyzer
                        * process.calotowersClient * process.noiseratesClient * process.hcalrechitsClient * process.dqmSaver)
+# foo bar baz

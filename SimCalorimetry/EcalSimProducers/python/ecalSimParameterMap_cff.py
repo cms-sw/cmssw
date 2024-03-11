@@ -23,3 +23,4 @@ ecal_sim_parameter_map_ph2 = cms.PSet(
     photoelectronsToAnalogBarrel = cms.double(0.000444444)
 )
 
+# foo bar baz

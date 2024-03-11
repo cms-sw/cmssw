@@ -57,3 +57,4 @@ process.options = cms.untracked.PSet(
 
 process.pp = cms.Path(process.EDMtoME*process.AlcaBeamMonitorClient+process.dqmSaver)
 process.schedule = cms.Schedule(process.pp)
+# foo bar baz

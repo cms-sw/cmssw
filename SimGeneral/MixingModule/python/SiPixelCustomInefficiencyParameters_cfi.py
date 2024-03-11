@@ -162,3 +162,4 @@ def customise_pixel_ineff(process):
     process.mix.digitizers.pixel.thePUEfficiency_FPix_Inner = cms.vdouble(1.0)
     process.mix.digitizers.pixel.thePUEfficiency_FPix_Outer = cms.vdouble(1.0)
     return process
+# foo bar baz

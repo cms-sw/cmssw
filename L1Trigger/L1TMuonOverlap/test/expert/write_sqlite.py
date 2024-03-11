@@ -30,3 +30,4 @@ process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
 process.write_sqlite = cms.EDAnalyzer("L1MuonOverlapParamsDBProducer")
 
 process.p = cms.Path(process.write_sqlite)
+# foo bar baz

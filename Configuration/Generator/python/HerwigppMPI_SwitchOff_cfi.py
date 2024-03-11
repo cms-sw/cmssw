@@ -8,3 +8,4 @@ herwigppMPISettingsBlock = cms.PSet(
 	'set /Herwig/Shower/ShowerHandler:MPIHandler NULL',
         ),
 )
+# foo bar baz

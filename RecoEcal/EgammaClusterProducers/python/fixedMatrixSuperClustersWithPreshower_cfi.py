@@ -21,3 +21,4 @@ fixedMatrixSuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProducer
 )
 
 
+# foo bar baz

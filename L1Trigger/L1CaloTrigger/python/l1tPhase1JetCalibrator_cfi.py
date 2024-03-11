@@ -189,3 +189,4 @@ l1tPhase1JetCalibrator = cms.EDProducer('Phase1L1TJetCalibrator',
   outputCollectionName = cms.string("Phase1L1TJetFromPfCandidates")
 )
 
+# foo bar baz

@@ -126,3 +126,4 @@ process.popConEcalIntercalibConstants = cms.EDAnalyzer( "EcalIntercalibConstants
                                                      )
 
 process.p = cms.Path( process.popConEcalIntercalibConstants )
+# foo bar baz

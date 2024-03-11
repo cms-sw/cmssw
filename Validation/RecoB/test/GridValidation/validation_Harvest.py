@@ -41,3 +41,4 @@ process.DQMRootSource.fileNames = [
 
 ]
 
+# foo bar baz

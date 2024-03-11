@@ -45,3 +45,4 @@ fastSim.toModify(simMuonDTDigis, InputCollection = 'MuonSimHitsMuonDTHits')
     
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simMuonDTDigis, mixLabel = "mixData")
+# foo bar baz

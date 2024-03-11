@@ -48,3 +48,4 @@ RecoBTagFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoBTagFEVT.outputCommands.extend(RecoBTagRECO.outputCommands)
+# foo bar baz

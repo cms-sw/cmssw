@@ -8,3 +8,4 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3
 
 jetCorrectorsForRecoTask = cms.Task( ak4PFL1FastL2L3CorrectorTask,  ak4PFCHSL1FastL2L3CorrectorTask)
 jetCorrectorsForReco = cms.Sequence(jetCorrectorsForRecoTask)
+# foo bar baz

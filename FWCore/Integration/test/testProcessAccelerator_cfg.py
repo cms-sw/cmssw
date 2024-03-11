@@ -67,3 +67,4 @@ process.p = cms.Path(
     process.intConsumer,
     process.t
 )
+# foo bar baz

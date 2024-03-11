@@ -25,3 +25,4 @@ process.test = cms.EDAnalyzer("L1CaloInputScaleTester")
 process.p = cms.Path(process.test)
 
 
+# foo bar baz

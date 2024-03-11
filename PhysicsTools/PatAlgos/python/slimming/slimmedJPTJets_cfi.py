@@ -5,3 +5,4 @@ slimmedJPTJets = cms.EDProducer("JPTJetSlimmer",
     srcCalo = cms.InputTag("slimmedCaloJets"),
     cut = cms.string("pt>25 && abs(eta) < 2.2")
 )
+# foo bar baz

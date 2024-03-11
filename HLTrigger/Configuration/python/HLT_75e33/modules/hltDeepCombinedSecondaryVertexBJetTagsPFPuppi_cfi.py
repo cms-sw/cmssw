@@ -9,3 +9,4 @@ hltDeepCombinedSecondaryVertexBJetTagsPFPuppi = cms.EDProducer("DeepFlavourJetTa
         probbb = cms.string('probb')
     )
 )
+# foo bar baz

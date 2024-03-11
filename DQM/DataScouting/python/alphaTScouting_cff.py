@@ -16,3 +16,4 @@ scoutingAlphaTDQMSequence = cms.Sequence(
                                         scoutingAlphaTVariables*
                                         scoutingAlphaTVarAnalyzer
                                         )
+# foo bar baz

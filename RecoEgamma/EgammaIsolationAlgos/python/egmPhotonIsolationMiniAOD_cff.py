@@ -14,3 +14,4 @@ egmPhotonIsolation = _mod.CITKPFIsolationSumProducer.clone(
 egmPhotonIsolationMiniAODTask = cms.Task( egmPhotonIsolation )
 egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolationMiniAODTask )
 
+# foo bar baz

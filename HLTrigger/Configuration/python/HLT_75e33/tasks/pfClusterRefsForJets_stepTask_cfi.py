@@ -35,3 +35,4 @@ pfClusterRefsForJets_stepTask = cms.Task(
     pfClusterRefsForJetsHGCAL,
     pfClusterRefsForJetsHO
 )
+# foo bar baz

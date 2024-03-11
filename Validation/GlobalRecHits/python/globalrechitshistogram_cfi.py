@@ -22,3 +22,4 @@ globalrechitshistogrammer = DQMEDAnalyzer('GlobalRecHitsHistogrammer',
 )
 
 
+# foo bar baz

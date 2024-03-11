@@ -14,3 +14,4 @@ from DQMOffline.Trigger.DQMOffline_HLT_Cert_cff import *
 #-- it relies on bits set in the other sequences
 
 dqmOfflineTriggerCert = cms.Sequence(dqmOfflineHLTCert)
+# foo bar baz

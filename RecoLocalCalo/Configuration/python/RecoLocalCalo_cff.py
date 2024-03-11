@@ -39,3 +39,4 @@ _phase2_calolocalrecoTask.add(hgcalLocalRecoTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( calolocalrecoTask , _phase2_calolocalrecoTask )
+# foo bar baz

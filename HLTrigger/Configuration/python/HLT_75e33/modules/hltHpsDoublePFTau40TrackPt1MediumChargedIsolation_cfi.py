@@ -12,3 +12,4 @@ hltHpsDoublePFTau40TrackPt1MediumChargedIsolation = cms.EDFilter( "HLT1PFTau",
     MaxEta = cms.double( 2.1 ),
     MinN = cms.int32( 2 )
 )
+# foo bar baz

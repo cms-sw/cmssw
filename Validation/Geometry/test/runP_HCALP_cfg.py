@@ -57,3 +57,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 process.schedule = cms.Schedule(process.simulation_step,
                                 process.analysis_step,
                                 )
+# foo bar baz

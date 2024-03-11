@@ -12,3 +12,4 @@ OnlineMetaDataContent = cms.PSet(
        'keep recoBeamSpot_onlineMetaDataDigis_*_*'
        )
 )
+# foo bar baz

@@ -155,3 +155,4 @@ for ring in range(1,3):
 print("FPix tot", '{0:4d} {1:4d} {2:4.1f}'.format(fpix_tot_deadROC, fpix_tot_ineffROC, round(float(fpix_tot_totalentries)/fpix_tot_Nrocspopulated,1)), file=out_file)
 print("Number of clusters=", int(hnpixclus_bpix.GetEntries() + hnpixclus_fpix.GetEntries()), file=out_file)
 out_file.close()	
+# foo bar baz

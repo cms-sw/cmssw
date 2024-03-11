@@ -45,3 +45,4 @@ generator = cms.EDFilter("Pythia8PtExpGun",
                 )
     )
 )
+# foo bar baz

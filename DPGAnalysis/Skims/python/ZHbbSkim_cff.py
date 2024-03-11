@@ -11,3 +11,4 @@ ZHbbSkim.HLTPaths = cms.vstring(
 ZHbbSkim.andOr = cms.bool( True )
 ZHbbSkim.throw = cms.bool( False )
 
+# foo bar baz

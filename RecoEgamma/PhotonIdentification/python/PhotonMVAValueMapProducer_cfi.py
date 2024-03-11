@@ -27,3 +27,4 @@ photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            src = cms.InputTag('slimmedPhotons'),
                                            mvaConfigurations = mvaConfigsForPhoProducer
                                            )
+# foo bar baz

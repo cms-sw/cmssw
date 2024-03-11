@@ -6,3 +6,4 @@ from RecoBTag.ImpactParameter.jetBProbabilityComputer_cfi import *
 positiveOnlyJetBProbabilityComputer = jetBProbabilityComputer.clone(
     trackIpSign = 1 ## 0 = use both, 1 = positive only, -1 = negative only
 )
+# foo bar baz

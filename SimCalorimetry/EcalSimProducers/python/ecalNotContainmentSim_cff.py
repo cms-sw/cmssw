@@ -20,3 +20,4 @@ ecal_notCont_sim = cms.PSet(
     EEs25notContainment = cms.double(0.968)
 )
 
+# foo bar baz

@@ -10,3 +10,4 @@ ECALScaleBlock = cms.PSet(
 
 
 
+# foo bar baz

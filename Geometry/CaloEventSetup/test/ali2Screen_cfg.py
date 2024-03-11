@@ -24,3 +24,4 @@ process.MessageLogger.cerr.noTimeStamps = cms.untracked.bool(True)
 process.MessageLogger.debugModules = cms.untracked.vstring('CaloAlignmentRcdRead')
 
 process.p = cms.Path(process.CaloAlignmentRcdRead)
+# foo bar baz

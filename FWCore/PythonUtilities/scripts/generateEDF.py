@@ -678,3 +678,4 @@ if __name__ == '__main__':
         raise RuntimeError("'%s' does not have Xing info" % options.lumi_csv)
     eventsDict, totalWeight = loadEvents (options.events_txt, cont, options)
     makeEDFplot (cont, eventsDict, totalWeight, options.output_png, options)
+# foo bar baz

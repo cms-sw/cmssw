@@ -42,3 +42,4 @@ process.schedule = cms.Schedule(process.p1,process.outpath)
 #############   Format MessageLogger #################
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+# foo bar baz

@@ -4,3 +4,4 @@ sistripdetwithdigi = cms.EDFilter('SiStripDetWithDigi',
                                   collectionName = cms.InputTag("siStripDigis","ZeroSuppressed"),  
                                   selectedModules = cms.untracked.vuint32()
 )	
+# foo bar baz

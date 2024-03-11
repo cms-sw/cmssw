@@ -37,3 +37,4 @@ class BeamSpot:
        self.EmittanceX = self.EmittanceY = self.betastar = 0.
        self.IOVfirst = self.IOVlast = 0
        self.Run = 0
+# foo bar baz

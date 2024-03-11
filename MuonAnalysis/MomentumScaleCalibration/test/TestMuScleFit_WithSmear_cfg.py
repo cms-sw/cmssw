@@ -281,3 +281,4 @@ process.looper = cms.Looper(
 # process.Timing = cms.Service("Timing")
 
 
+# foo bar baz

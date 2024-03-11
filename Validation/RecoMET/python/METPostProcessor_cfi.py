@@ -9,3 +9,4 @@ METPostprocessingHarvesting = DQMEDHarvester('METTesterPostProcessorHarvesting',
                     METTypeRECO = cms.InputTag("PfMetT1"),
                     METTypeMiniAOD = cms.InputTag("slimmedMETs")
                    )  
+# foo bar baz

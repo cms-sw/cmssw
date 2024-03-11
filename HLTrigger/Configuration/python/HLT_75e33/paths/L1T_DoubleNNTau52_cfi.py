@@ -7,3 +7,4 @@ L1T_DoubleNNTau52 = cms.Path(
     HLTL1Sequence +
     hltL1DoubleNNTau52
 )
+# foo bar baz

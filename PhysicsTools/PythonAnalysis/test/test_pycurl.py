@@ -4,3 +4,4 @@ c = pycurl.Curl()
 c.setopt(c.URL, 'https://cmssdt.cern.ch/SDT/')
 c.perform()
 c.close()
+# foo bar baz

@@ -13,3 +13,4 @@ _newCombinedSeeds = cms.EDProducer(
         )
     )
 
+# foo bar baz

@@ -27,3 +27,4 @@ process.p1 = cms.Path(process.photonPostprocessing)
 process.schedule = cms.Schedule(process.p1)
 
 
+# foo bar baz

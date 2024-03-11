@@ -6,3 +6,4 @@ errorSummaryFilter = cms.EDFilter("ErrorSummaryFilter",
                                   modules = cms.vstring(),
                                   avoidCategories = cms.vstring()
                                   )
+# foo bar baz

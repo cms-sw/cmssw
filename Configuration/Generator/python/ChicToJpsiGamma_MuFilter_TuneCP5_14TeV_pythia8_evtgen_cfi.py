@@ -77,3 +77,4 @@ muplusfilter = cms.EDFilter("PythiaDauVFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator*oniafilter*muminusfilter*muplusfilter)
+# foo bar baz

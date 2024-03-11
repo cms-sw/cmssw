@@ -11,3 +11,4 @@ hltHpsSelectedPFTausTrackFinding = cms.EDFilter( "PFTauSelector",
     discriminatorContainers = cms.VPSet( 
     )
 )
+# foo bar baz

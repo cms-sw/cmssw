@@ -6,3 +6,4 @@ ecal_cosmics_sim = cms.PSet(
 )
 
 
+# foo bar baz

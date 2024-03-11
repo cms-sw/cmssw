@@ -18,3 +18,4 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
 egamma_lowPt_exclusive.toModify(selectDigi,
                            cluster_pt_thresh = 1.0,
                            single_cluster_thresh = 1.0)
+# foo bar baz

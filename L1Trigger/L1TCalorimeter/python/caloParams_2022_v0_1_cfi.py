@@ -198,3 +198,4 @@ caloStage2Params.layer1HFScaleFactors = cms.vdouble([
 
 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00
 ])
+# foo bar baz

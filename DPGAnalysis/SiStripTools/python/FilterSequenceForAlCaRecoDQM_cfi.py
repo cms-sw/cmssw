@@ -28,3 +28,4 @@ seqMultiplicityFilter = cms.Sequence(~LargeSiStripClusterEvents)
 
 seqFilters = cms.Sequence(seqAPVCycleFilter*
                           seqMultiplicityFilter)
+# foo bar baz

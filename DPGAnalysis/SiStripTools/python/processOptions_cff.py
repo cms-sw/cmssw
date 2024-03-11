@@ -4,3 +4,4 @@ options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
     fileMode = cms.untracked.string("FULLMERGE")
     )
+# foo bar baz

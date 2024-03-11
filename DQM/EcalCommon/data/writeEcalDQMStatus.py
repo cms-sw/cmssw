@@ -53,3 +53,4 @@ process.write = cms.EDAnalyzer("EcalDQMStatusWriter",
 
 process.p = cms.Path(process.write)
 
+# foo bar baz

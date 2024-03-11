@@ -27,3 +27,4 @@ HLTIter0Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
     updator = cms.string('hltESPKFUpdator'),
     useSameTrajFilter = cms.bool(True)
 )
+# foo bar baz

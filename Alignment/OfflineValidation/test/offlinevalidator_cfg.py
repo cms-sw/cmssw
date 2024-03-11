@@ -228,3 +228,4 @@ process.p = cms.Path(process.offlineBeamSpot
                      *process.TrackRefitterForOfflineValidation
                      *process.seqTrackerOfflineValidationStandalone
                      )
+# foo bar baz

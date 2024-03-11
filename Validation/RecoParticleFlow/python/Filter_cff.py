@@ -6,3 +6,4 @@ Filter = cms.Sequence(
     metFilter
     )
 
+# foo bar baz

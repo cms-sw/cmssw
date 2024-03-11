@@ -12,3 +12,4 @@ pfDeepCMVATagInfos = cms.EDProducer(
 	softelComputerSrc = cms.string('softPFElectronComputer'),
 	cMVAPtThreshold = cms.double(200)
 )
+# foo bar baz

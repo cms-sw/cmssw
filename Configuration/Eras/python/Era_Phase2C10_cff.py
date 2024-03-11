@@ -5,3 +5,4 @@ from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 
 Phase2C10 = cms.ModifierChain(Phase2C9, phase2_hfnose)
 
+# foo bar baz

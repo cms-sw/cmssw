@@ -33,3 +33,4 @@ localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalR
 
 
 reconstructionCosmics = cms.Sequence(localReconstructionCosmics)
+# foo bar baz

@@ -15,3 +15,4 @@ phase2_tracker.toModify(clusterSummaryProducer,
   stripClusters = ''
 )
 clusterSummaryProducerNoSplitting = clusterSummaryProducer.clone(pixelClusters = 'siPixelClusters')
+# foo bar baz

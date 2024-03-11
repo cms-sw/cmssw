@@ -8,3 +8,4 @@ dtT0FillChamberFromDBCorrection = cms.EDAnalyzer("DTT0Correction",
         chamberId = cms.string('') 
     )
 )
+# foo bar baz

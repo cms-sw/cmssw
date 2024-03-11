@@ -8,3 +8,4 @@ apvshotsfilter = cms.EDFilter('APVShotsFilter',
      useCabling         = cms.untracked.bool(False),
      selectAPVshots     = cms.untracked.bool(True)
 )	
+# foo bar baz

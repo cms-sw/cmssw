@@ -48,3 +48,4 @@ process.dumpLegacy = cms.EDAnalyzer(
 )
 
 process.p = cms.Path(process.dumpPhase1)
+# foo bar baz

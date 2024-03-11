@@ -24,3 +24,4 @@ def initPayloadWriterExt( process,
     initPayloadWriterExt.outputDB.DBParameters.authenticationPath = outputDBAuth
 
     process.add_(initPayloadWriterExt.outputDB)
+# foo bar baz

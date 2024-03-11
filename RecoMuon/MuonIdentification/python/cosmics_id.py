@@ -34,3 +34,4 @@ cosmicsVeto = cms.EDProducer("CosmicsMuonIdProducer",
 
 cosmicsMuonIdTask = cms.Task(cosmicsVetoSeeds,cosmicsVetoTrackCandidates,cosmicsVetoTracksRaw,cosmicsVetoTracks,cosmicsVeto)
 cosmicsMuonIdSequence = cms.Sequence(cosmicsMuonIdTask)
+# foo bar baz

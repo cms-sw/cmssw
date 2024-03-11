@@ -5,3 +5,4 @@ from DQMOffline.Hcal.HLTHcalRecHitParam_cfi import *
 hcalMonitoringSequence = cms.Sequence(
     hltHCALRecHitsAnalyzer
 )
+# foo bar baz

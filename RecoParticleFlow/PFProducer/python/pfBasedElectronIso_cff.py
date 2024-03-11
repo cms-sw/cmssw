@@ -19,3 +19,4 @@ pfBasedElectronIsoTask = cms.Task(
 pfBasedElectronIsoSequence = cms.Sequence(pfBasedElectronIsoTask)
 
 #COLIN: is this file used in RECO? in PF2PAT? same for photons. 
+# foo bar baz

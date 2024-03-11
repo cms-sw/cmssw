@@ -177,3 +177,4 @@ setattr(VertexAnalyzer,"defaultConfig",cfg.Analyzer(
     verbose = False
    )
 )
+# foo bar baz

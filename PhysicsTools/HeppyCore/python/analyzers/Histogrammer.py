@@ -15,3 +15,4 @@ class Histogrammer(Analyzer):
     def process(self, event):
         self.hist.Fill(event.iEv)
     
+# foo bar baz

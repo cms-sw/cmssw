@@ -35,3 +35,4 @@ DTNoDriftAlgo_CosmicData = cms.PSet(
     recAlgo = cms.string('DTNoDriftAlgo')
 )
 
+# foo bar baz

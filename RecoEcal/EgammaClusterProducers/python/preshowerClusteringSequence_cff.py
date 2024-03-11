@@ -13,3 +13,4 @@ from RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi import *
 preshowerClusteringTask = cms.Task(correctedEndcapSuperClustersWithPreshower, preshowerClusterShape)
 preshowerClusteringSequence = cms.Sequence(preshowerClusteringTask)
 
+# foo bar baz

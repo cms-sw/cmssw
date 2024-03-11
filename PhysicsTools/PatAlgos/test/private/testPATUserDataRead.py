@@ -20,3 +20,4 @@ process.testRead = cms.EDProducer("PATUserDataTestModule",
 process.p = cms.Path(
     process.testRead
 )
+# foo bar baz

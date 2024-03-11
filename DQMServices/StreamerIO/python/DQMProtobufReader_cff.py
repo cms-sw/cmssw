@@ -87,3 +87,4 @@ DQMProtobufReader = cms.Source("DQMProtobufReader",
     endOfRunKills = cms.untracked.bool(options.endOfRunKills),
     loadFiles = cms.untracked.bool(options.loadFiles),
 )
+# foo bar baz

@@ -5,3 +5,4 @@ from RecoEgamma.EgammaIsolationAlgos.particleBasedIsolation_cfi import *
 
 particleBasedIsolationTask = cms.Task(particleBasedIsolation) 
 particleBasedIsolationSequence = cms.Sequence(particleBasedIsolationTask) 
+# foo bar baz

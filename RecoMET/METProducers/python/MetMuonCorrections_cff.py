@@ -9,3 +9,4 @@ corMetGlobalMuons = cms.EDProducer("MuonMET",
      muonsInputTag  = cms.InputTag("muons"),
      muonMETDepositValueMapInputTag = cms.InputTag("muonMETValueMapProducer","muCorrData","")
 )
+# foo bar baz

@@ -20,3 +20,4 @@ configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/HI/Hijing_PPb_MinimumBias_cfi.py,v $')
     )
 
+# foo bar baz

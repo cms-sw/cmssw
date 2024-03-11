@@ -6,3 +6,4 @@ hcalNoiseRatesClient = DQMEDHarvester("HcalNoiseRatesClient",
      outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory
 )
+# foo bar baz

@@ -43,3 +43,4 @@ process.add_(outputDB)
 
 process.p = cms.Path(process.l1cpu)
 
+# foo bar baz

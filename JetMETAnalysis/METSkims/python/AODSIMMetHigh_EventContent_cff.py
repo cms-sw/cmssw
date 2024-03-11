@@ -8,3 +8,4 @@ AODSIMMetHighEventContent = cms.PSet(
 AODSIMMetHighEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
 AODSIMMetHighEventContent.outputCommands.extend(metHighEventContent.outputCommands)
 
+# foo bar baz

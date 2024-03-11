@@ -47,3 +47,4 @@ process.simEcalTriggerPrimitiveDigis.Famos = True
 process.simEcalTriggerPrimitiveDigis.Label = 'RecHits'
 
 
+# foo bar baz

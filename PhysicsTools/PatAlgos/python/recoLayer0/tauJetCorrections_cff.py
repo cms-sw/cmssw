@@ -32,3 +32,4 @@ from PhysicsTools.PatAlgos.recoLayer0.tauJetCorrFactors_cfi import *
 patTauJetCorrections = cms.Sequence(patTauJetCorrFactors)
 
 
+# foo bar baz

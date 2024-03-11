@@ -61,3 +61,4 @@ else:
 process.p = cms.Path(process.dependentAnalyzer, cms.Task(process.fail,process.intProd))
 process.p2 = cms.Path(cms.wait(process.dependent2)+process.f+process.independent)
 #process.add_(cms.Service("Tracer"))
+# foo bar baz

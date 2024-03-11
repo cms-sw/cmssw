@@ -65,3 +65,4 @@ stage2L1Trigger.toReplaceWith(L1Reco, cms.Sequence())
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _L1Reco_modified = L1Reco.copyAndExclude([l1L1GtObjectMap])
 fastSim.toReplaceWith(L1Reco, _L1Reco_modified)
+# foo bar baz

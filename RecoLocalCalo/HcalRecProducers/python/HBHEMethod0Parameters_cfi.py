@@ -56,3 +56,4 @@ m0Parameters = cms.PSet(
     correctionPhaseNS = cms.double(6.0),
     applyFixPCC = PCCUpdate.applyFixPCC
 )
+# foo bar baz

@@ -45,3 +45,4 @@ process.PoolSource.fileNames = [
     '/store/relval/CMSSW_6_0_0-START60_V4/RelValSingleMuPt10/GEN-SIM/v1/0000/36D70436-E1F2-E111-BB26-001A92810AA2.root',
 ]
 
+# foo bar baz

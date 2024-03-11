@@ -238,3 +238,4 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2CaloLayer2 +
     l1tStage2CaloLayer2Emul
 )
+# foo bar baz

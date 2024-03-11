@@ -167,3 +167,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep *_matchGen*_*_*')
     )
 process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+# foo bar baz

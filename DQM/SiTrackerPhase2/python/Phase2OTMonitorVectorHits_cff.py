@@ -8,3 +8,4 @@ rejectedVecHitsmon = Phase2OTMonitorVectorHits.clone(
     TopFolderName = "TrackerPhase2OTVectorHits/Rejected",
     vechitsSrc = cms.InputTag('siPhase2VectorHits', 'rejected')
 )
+# foo bar baz

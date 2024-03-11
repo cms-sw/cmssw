@@ -295,3 +295,4 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     collectionPostFix = "",
     )
 )
+# foo bar baz

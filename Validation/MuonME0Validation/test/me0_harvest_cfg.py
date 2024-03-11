@@ -82,3 +82,4 @@ process = fixCSCAlignmentConditions(process)
 
 # End of customisation functions
 
+# foo bar baz

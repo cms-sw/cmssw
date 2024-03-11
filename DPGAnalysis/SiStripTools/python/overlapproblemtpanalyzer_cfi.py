@@ -5,3 +5,4 @@ overlapproblemtpanalyzer = cms.EDAnalyzer("OverlapProblemTPAnalyzer",
                                           trackCollection = cms.InputTag("generalTracks")
                                           )
 
+# foo bar baz

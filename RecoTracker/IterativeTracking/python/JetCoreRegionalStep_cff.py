@@ -364,3 +364,4 @@ fastSim.toReplaceWith(JetCoreRegionalStepTask,
              jetCoreRegionalStepTracks,
              jetCoreRegionalStepBarrel, jetCoreRegionalStepEndcap,
              jetCoreRegionalStep))
+# foo bar baz

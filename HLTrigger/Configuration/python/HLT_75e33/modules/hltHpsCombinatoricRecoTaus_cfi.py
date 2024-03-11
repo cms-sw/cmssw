@@ -114,3 +114,4 @@ hltHpsCombinatoricRecoTaus = cms.EDProducer( "RecoTauProducer",
                )
     )
 )
+# foo bar baz

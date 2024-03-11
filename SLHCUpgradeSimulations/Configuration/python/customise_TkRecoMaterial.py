@@ -19,3 +19,4 @@ def customizeRecoMaterialD49(process):
             raise SystemExit("\n\n ERROR! Could not replace trackerRecoMaterial.xml file, please check if D49 geometry is being used \n\n")
             
     return process
+# foo bar baz

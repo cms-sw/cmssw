@@ -23,3 +23,4 @@ heavyIonCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
                                         )
 heavyIonCleanedTask = cms.Task(genPartons,hiPartons,heavyIonCleanedGenJets)
 heavyIonCleaned = cms.Sequence(heavyIonCleanedTask)
+# foo bar baz

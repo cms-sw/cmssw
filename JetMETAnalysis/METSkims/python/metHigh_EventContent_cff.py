@@ -9,3 +9,4 @@ metHighEventSelection = cms.PSet(
     )
 )
 
+# foo bar baz

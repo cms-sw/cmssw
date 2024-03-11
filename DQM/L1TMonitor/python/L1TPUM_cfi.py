@@ -6,3 +6,4 @@ l1tPUM = DQMEDAnalyzer('L1TPUM',
     histFolder = cms.string('L1T/L1TPUM'),
 )
 
+# foo bar baz

@@ -21,3 +21,4 @@ AnalyzeSUSYDQM = DQMEDAnalyzer('SUSYDQMAnalyzer',
                                     errorReplyHlt  = cms.bool( False ),
                                     )                                
                                 )
+# foo bar baz

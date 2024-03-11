@@ -6,3 +6,4 @@ unpackedTracksAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
  packedCandidates = cms.InputTag("packedPFCandidates")
 )
 
+# foo bar baz

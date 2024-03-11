@@ -65,3 +65,4 @@ HLTEle26WP70UnseededSequence = cms.Sequence(
     hltEle26WP70GsfTrackIsoUnseededFilter,
     HLTEle26WP70UnseededTask
 )
+# foo bar baz

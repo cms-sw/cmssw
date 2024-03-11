@@ -104,3 +104,4 @@ for node in nx.nodes_iter(H):
     T = nx.dfs_tree(H, node)
     name = node + ".dot"
     nx.write_dot(T, name)
+# foo bar baz

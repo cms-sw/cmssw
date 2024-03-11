@@ -129,3 +129,4 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( csctfTrackDigis, _modifyCsctfTrackDigisForRun2 )
 
+# foo bar baz

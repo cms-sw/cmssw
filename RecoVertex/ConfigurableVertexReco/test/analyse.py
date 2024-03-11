@@ -45,3 +45,4 @@ process.cVRAnalysis = cms.EDFilter("CVRAnalysis",
 process.p = cms.Path( process.offlinePrimaryVertices + process.trackAssociatorByChi2 *process.cVRAnalysis )
 process.MessageLogger.debugModules = ['cVRAnalysis']
 
+# foo bar baz

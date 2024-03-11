@@ -7,3 +7,4 @@ largeSiStripClusterEvents = cms.EDFilter('LargeSiStripClusterEvents',
                                          useQuality = cms.untracked.bool(False),
                                          qualityLabel = cms.untracked.string("")
 )	
+# foo bar baz

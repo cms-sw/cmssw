@@ -22,3 +22,4 @@ from L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1x1032.L1Menu_CRUZET2008
 # trigger mask for technical triggers
 from L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1x1032.L1Menu_CRUZET200805_TriggerMaskTechTrig_cff import *
 
+# foo bar baz

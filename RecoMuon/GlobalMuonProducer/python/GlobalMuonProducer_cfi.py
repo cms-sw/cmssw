@@ -5,3 +5,4 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.GlobalMuonProducer.globalMuons_cfi import *
 
 
+# foo bar baz

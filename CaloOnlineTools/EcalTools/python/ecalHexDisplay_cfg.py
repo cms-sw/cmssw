@@ -33,3 +33,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.hexDump)
 process.ep = cms.EndPath(process.counter)
 
+# foo bar baz

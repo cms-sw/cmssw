@@ -6,3 +6,4 @@ trajectorySeedTracks = cms.EDProducer(
     beamSpot = cms.InputTag("offlineBeamSpot"),
     TTRHBuilder = cms.string("WithoutRefit")
     )
+# foo bar baz

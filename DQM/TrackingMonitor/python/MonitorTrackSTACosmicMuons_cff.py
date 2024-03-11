@@ -32,3 +32,4 @@ MonitorTrackSTACosmicMuonsNoDriftBarrel = MonitorTrackSTAMuons.clone(
     TrackProducer = 'cosmicMuonsNoDriftBarrelOnly'
 )
 standAloneCosmicMuonsMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*MonitorTrackSTACosmicMuonsBarrel*MonitorTrackSTACosmicMuons1LegBarrel*MonitorTrackSTACosmicMuonsEndCaps*MonitorTrackLHCStandAloneMuonsBarrelOnly*MonitorTrackLHCStandAloneMuonsEndCapsOnly*MonitorTrackSTACosmicMuonsNoDriftBarrel)
+# foo bar baz

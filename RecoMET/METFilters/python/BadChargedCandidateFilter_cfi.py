@@ -7,3 +7,4 @@ BadChargedCandidateFilter = _mod.badParticleFilter.clone(
     maxDR = 0.00001,
     minPtDiffRel = 0.00001
 )
+# foo bar baz

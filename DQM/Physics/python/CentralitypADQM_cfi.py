@@ -4,3 +4,4 @@ CentralitypADQM = DQMEDAnalyzer('CentralitypADQM',
                                  centralitycollection = cms.InputTag("pACentrality"),
                                  vertexcollection = cms.InputTag("offlinePrimaryVertices")
                                  )
+# foo bar baz

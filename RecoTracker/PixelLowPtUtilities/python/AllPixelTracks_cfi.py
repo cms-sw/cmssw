@@ -62,3 +62,4 @@ allPixelTracksTask = cms.Task(
     allPixelTracks
 )
 allPixelTracksSequence = cms.Sequence(allPixelTracksTask)
+# foo bar baz

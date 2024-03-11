@@ -104,3 +104,4 @@ def customizeAll(process, verbose=False):
     addDiscardedPFCandidates(process, cms.InputTag("pfCandidateRecalibrator","discarded"), verbose=verbose)
 
     return process
+# foo bar baz

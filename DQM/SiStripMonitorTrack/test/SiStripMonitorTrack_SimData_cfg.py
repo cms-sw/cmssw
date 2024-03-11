@@ -60,3 +60,4 @@ process.source = cms.Source(
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
     )
+# foo bar baz

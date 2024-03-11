@@ -19,3 +19,4 @@ JetNoBptxPSet = cms.PSet(
                                     320, 340, 360, 380, 400,
                                     420, 440, 460, 480, 500),
     )
+# foo bar baz

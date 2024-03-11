@@ -69,3 +69,4 @@ herwigDefaultsBlock = cms.PSet(
 
 )
 
+# foo bar baz

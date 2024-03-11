@@ -83,3 +83,4 @@ def miniAOD_customizeIsolatedTracksFastSim(process):
     """Switch off dE/dx hit info on fast sim, as it's not available"""
     process.isolatedTracks.saveDeDxHitInfo = False
     return process
+# foo bar baz

@@ -156,3 +156,4 @@ process.p1 = cms.Path(process.testMagneticField)
 
 # process.p1 = cms.Path(process.testField)
 
+# foo bar baz

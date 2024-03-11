@@ -32,3 +32,4 @@ process.a1 = cms.EDProducer("MissingDictionaryTestProducer",
 process.p = cms.Path(process.a3 * process.a1)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

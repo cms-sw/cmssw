@@ -17,3 +17,4 @@ L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4 = cms.Path(
     l1t4PFPuppiJet25OnlineMaxEta2p4 +
     HLTEndSequence
 )
+# foo bar baz

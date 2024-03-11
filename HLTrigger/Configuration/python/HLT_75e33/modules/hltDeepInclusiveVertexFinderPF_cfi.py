@@ -36,3 +36,4 @@ hltDeepInclusiveVertexFinderPF = cms.EDProducer("InclusiveCandidateVertexFinder"
         smoothing = cms.bool(True)
     )
 )
+# foo bar baz

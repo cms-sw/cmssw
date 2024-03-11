@@ -75,3 +75,4 @@ process.outpath = cms.EndPath(process.USER)
 
 process.schedule = cms.Schedule(process.p, process.outpath)
 
+# foo bar baz

@@ -23,3 +23,4 @@ islandSuperClusters = cms.EDProducer("HiSuperClusterProducer",
 )
 
 
+# foo bar baz

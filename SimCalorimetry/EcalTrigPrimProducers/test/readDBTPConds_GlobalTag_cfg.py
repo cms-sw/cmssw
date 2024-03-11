@@ -42,3 +42,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.p = cms.Path(process.tpDBAnalyzer)
+# foo bar baz

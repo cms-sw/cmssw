@@ -18,3 +18,4 @@ displacedMuonPFIsolationTask =  cms.Task(
     displacedMuonPFIsolationValuesTask
 )
 displacedMuonPFIsolationSequence = cms.Sequence(displacedMuonPFIsolationTask)
+# foo bar baz

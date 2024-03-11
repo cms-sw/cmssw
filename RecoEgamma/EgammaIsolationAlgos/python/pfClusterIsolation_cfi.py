@@ -37,3 +37,4 @@ pfClusterIsolationTask = cms.Task(
     ootPhotonHcalPFClusterIsolationProducer 
 )
 pfClusterIsolationSequence = cms.Sequence(pfClusterIsolationTask)
+# foo bar baz

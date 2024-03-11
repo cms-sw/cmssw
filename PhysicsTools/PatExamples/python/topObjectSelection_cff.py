@@ -72,3 +72,4 @@ topObjectSelection = cms.Sequence(
     looseMuons *
     tightMuons
  )
+# foo bar baz

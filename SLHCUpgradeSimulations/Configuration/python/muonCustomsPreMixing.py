@@ -19,3 +19,4 @@ def customise_csc_PostLS1(process):
         process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
     
     return process
+# foo bar baz

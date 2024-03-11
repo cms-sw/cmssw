@@ -13,3 +13,4 @@ chargedParticles = cms.EDFilter("GenParticleSelector",
 chargedak4GenJets = ak4GenJets.clone( src = cms.InputTag("chargedParticles") )
 
 mbueAndqcd_seq = cms.Sequence(cms.ignore(chargedParticles)*chargedak4GenJets*mbueAndqcdValidation)
+# foo bar baz

@@ -16,3 +16,4 @@ OutALCARECOHcalCalHO_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalHO=copy.deepcopy(OutALCARECOHcalCalHO_noDrop)
 OutALCARECOHcalCalHO.outputCommands.insert(0, "drop *")
+# foo bar baz

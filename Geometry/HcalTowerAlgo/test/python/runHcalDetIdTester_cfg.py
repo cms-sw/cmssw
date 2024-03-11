@@ -29,3 +29,4 @@ process.hga = cms.EDAnalyzer("HcalDetIdTester",
 process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.hga)
+# foo bar baz

@@ -10,3 +10,4 @@ hgcalSimHitValidationHEB = hgcalSimHitValidationEE.clone(
     DetectorName  = cms.string("HGCalHEScintillatorSensitive"),
     CaloHitSource = cms.string("HGCHitsHEback"),
 )
+# foo bar baz

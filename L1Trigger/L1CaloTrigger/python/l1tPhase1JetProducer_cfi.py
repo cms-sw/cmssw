@@ -41,3 +41,4 @@ l1tPhase1JetProducer = cms.EDProducer('Phase1L1TJetProducer',
   metAbsEtaCut = cms.double(3),
   metHFAbsEtaCut = cms.double(5),
 )
+# foo bar baz

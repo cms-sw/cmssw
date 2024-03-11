@@ -14,3 +14,4 @@ process.maxEvents = cms.untracked.PSet(
 process.hcalPulseContainmentTest = cms.EDAnalyzer("HcalPulseContainmentTest")
 
 process.p1 = cms.Path(process.hcalPulseContainmentTest)
+# foo bar baz

@@ -242,3 +242,4 @@ muLocalRecoProducers = cms.Sequence(rpcRecHitFlatTableProducer
                                     + muDTSegmentExtTableProducer
                                     + gemSegmentFlatTableProducer
                                    )
+# foo bar baz

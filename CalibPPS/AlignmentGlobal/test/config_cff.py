@@ -47,3 +47,4 @@ ppsAlignmentConfigESSource = cms.ESSource("PPSAlignmentConfigurationESSource",
         )
     )
 )
+# foo bar baz

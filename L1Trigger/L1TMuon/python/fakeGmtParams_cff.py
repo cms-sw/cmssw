@@ -114,3 +114,4 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     SortRankLUTQualFactor = cms.uint32(4), # can be 0 to 34
 )
 
+# foo bar baz

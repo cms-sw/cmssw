@@ -221,3 +221,4 @@ hiConformalPixelTracksSequencePhase1 = cms.Sequence(hiConformalPixelTracksTaskPh
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
 run3_upc.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
+# foo bar baz

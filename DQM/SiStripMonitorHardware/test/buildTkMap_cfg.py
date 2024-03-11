@@ -39,3 +39,4 @@ process.p = cms.Path(
     process.siStripBuildTrackerMap
     )
 
+# foo bar baz

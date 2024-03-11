@@ -7,3 +7,4 @@ read = cms.EDFilter("SiStripLorentzAngle",
 )
 
 
+# foo bar baz

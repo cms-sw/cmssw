@@ -35,3 +35,4 @@ DTLinearDriftAlgo_CosmicData = cms.PSet(
     recAlgo = cms.string('DTLinearDriftAlgo')
 )
 
+# foo bar baz

@@ -74,3 +74,4 @@ process.output.outputCommands.append('keep  *_genParticles_*_*')
 process.pd = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.pd)
+# foo bar baz

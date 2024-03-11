@@ -6,3 +6,4 @@ run3_common.toModify(ctppsBeamParametersFromLHCInfoESSource, useNewLHCInfo = Tru
 
 from Configuration.Eras.Modifier_ctpps_directSim_cff import ctpps_directSim
 ctpps_directSim.toModify(ctppsBeamParametersFromLHCInfoESSource, useNewLHCInfo = False)
+# foo bar baz

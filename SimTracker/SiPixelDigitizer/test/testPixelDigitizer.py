@@ -172,3 +172,4 @@ process.p1 = cms.Path(process.simSiPixelDigis)
 process.outpath = cms.EndPath(process.o1)
 
 
+# foo bar baz

@@ -76,3 +76,4 @@ b2gHLTriggerValidationHarvest = cms.Sequence(
     *b2gDoubleLeptonEleMuHLTValidationHarvest
     )
 
+# foo bar baz

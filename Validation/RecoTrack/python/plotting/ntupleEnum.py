@@ -109,3 +109,4 @@ HitSimType = _Enum(
     Unknown = 99
 )
 
+# foo bar baz

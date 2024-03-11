@@ -9,3 +9,4 @@ dtRunConditionVar = DQMEDAnalyzer('DTRunConditionVar',
     readLegacyVDriftDB =cms.bool(True),
 )
 
+# foo bar baz

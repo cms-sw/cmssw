@@ -61,3 +61,4 @@ trackingEffFromHitPattern = DQMEDHarvester("DQMGenericClient",
                                            verbose = cms.untracked.uint32(5),
                                            outputFileName = cms.untracked.string(""),
                                            )
+# foo bar baz

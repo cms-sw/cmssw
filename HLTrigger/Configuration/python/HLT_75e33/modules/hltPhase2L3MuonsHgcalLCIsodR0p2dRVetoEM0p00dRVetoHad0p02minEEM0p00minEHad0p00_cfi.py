@@ -17,3 +17,4 @@ hltPhase2L3MuonsHgcalLCIsodR0p2dRVetoEM0p00dRVetoHad0p02minEEM0p00minEHad0p00 = 
     rhoScale = cms.double(1.0),
     useEt = cms.bool(False)
 )
+# foo bar baz

@@ -58,3 +58,4 @@ process.t = cms.Task(process.intProducerU, process.intProducerA, process.intVect
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3, process.t)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

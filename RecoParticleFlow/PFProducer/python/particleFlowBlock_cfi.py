@@ -254,3 +254,4 @@ phase2_timing_layer.toModify(
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( _scImporter,
                            usePFThresholdsFromDB = True)
+# foo bar baz

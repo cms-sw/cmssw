@@ -5,3 +5,4 @@ from ..tasks.HLTGsfElectronL1SeededTask_cfi import *
 HLTGsfElectronL1SeededSequence = cms.Sequence(
     HLTGsfElectronL1SeededTask
 )
+# foo bar baz

@@ -32,3 +32,4 @@ process.source = cms.Source("PoolSource",
 
 process.p = cms.Path(process.qcdPhotonsDQM+process.dqmSaver)
 
+# foo bar baz

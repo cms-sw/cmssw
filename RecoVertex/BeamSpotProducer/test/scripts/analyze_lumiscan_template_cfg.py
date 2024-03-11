@@ -55,3 +55,4 @@ process.p = cms.Path(process.hltLevel1GTSeed*process.d0_phi_analyzer)
 # fit as function of lumi sections
 #process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 2
 #process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 10
+# foo bar baz

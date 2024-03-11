@@ -77,3 +77,4 @@ process.path = cms.Path(process.EDMtoME * process.hLTMuonPostVal)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)
+# foo bar baz

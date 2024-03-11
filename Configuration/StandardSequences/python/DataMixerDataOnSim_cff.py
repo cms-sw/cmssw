@@ -56,3 +56,4 @@ from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
 pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 
+# foo bar baz

@@ -60,3 +60,4 @@ process.WriteInDB = cms.EDAnalyzer("SiPixelQualityProbabilitiesTestWriter",
                                    )
 
 process.p = cms.Path(process.WriteInDB)
+# foo bar baz

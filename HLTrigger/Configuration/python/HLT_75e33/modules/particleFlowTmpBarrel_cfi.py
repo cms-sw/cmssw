@@ -175,3 +175,4 @@ particleFlowTmpBarrel = cms.EDProducer("PFProducer",
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     vetoEndcap = cms.bool(True)
 )
+# foo bar baz

@@ -7,3 +7,4 @@ l1t4PFPuppiJet25OnlineMaxEta2p4 = cms.EDFilter("L1TJetFilter",
     MinPt = cms.double(25.0),
     inputTag = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed","Phase1L1TJetFromPfCandidates")
 )
+# foo bar baz

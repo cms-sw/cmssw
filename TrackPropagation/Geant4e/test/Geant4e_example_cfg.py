@@ -48,3 +48,4 @@ process.e = cms.EndPath(process.out)
 process.schedule = cms.Schedule( process.g4RefitPath, process.e )
 
 
+# foo bar baz

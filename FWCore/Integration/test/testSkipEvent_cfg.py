@@ -101,3 +101,4 @@ process.p1 = cms.Path(process.beforeException *
 process.p2 = cms.Path(process.waitTillP1Done+process.afterException)
 
 process.e = cms.EndPath(process.out * process.onEndPath)
+# foo bar baz

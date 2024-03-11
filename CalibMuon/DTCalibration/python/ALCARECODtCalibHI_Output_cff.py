@@ -42,3 +42,4 @@ OutALCARECODtCalibHI_noDrop = cms.PSet(
 import copy
 OutALCARECODtCalibHI = copy.deepcopy(OutALCARECODtCalibHI_noDrop)
 OutALCARECODtCalibHI.outputCommands.insert(0, "drop *")
+# foo bar baz

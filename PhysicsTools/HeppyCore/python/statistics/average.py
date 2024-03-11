@@ -92,3 +92,4 @@ class Average(object):
 class Averages(diclist):
     def write(self, dirname):
         map( lambda x: x.write(dirname), self)
+# foo bar baz

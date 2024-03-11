@@ -14,3 +14,4 @@ hoInput = cms.InputTag('DiJProd:DiJetsHORecHitCollection')
 
 
 
+# foo bar baz

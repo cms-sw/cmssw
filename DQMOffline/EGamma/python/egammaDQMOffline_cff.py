@@ -57,3 +57,4 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 for e in [peripheralPbPb, pp_on_AA, pp_on_XeXe_2017]:
     e.toModify(stdPhotonAnalysis, phoProducer = cms.InputTag('islandPhotons'))
+# foo bar baz

@@ -15,3 +15,4 @@ pfParticleSelectionTask = cms.Task(
     pfSortByTypeTask 
     )
 pfParticleSelectionSequence = cms.Sequence(pfParticleSelectionTask)
+# foo bar baz

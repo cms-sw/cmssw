@@ -8,3 +8,4 @@ RECOSIMMetHighEventContent = cms.PSet(
 RECOSIMMetHighEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECOSIMMetHighEventContent.outputCommands.extend(metHighEventContent.outputCommands)
 
+# foo bar baz

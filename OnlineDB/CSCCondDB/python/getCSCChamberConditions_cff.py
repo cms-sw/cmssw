@@ -31,3 +31,4 @@ cscConditions = cms.ESSource("PoolDBESSource",
 
 cscConditions.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
+# foo bar baz

@@ -23,3 +23,4 @@ dtRunConditionVarClient = DQMEDHarvester("DTRunConditionVarClient",
    readLegacyVDriftDB =cms.bool(True),
 
 )
+# foo bar baz

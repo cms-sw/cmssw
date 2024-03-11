@@ -755,3 +755,4 @@ for iteration in range(1, ITERATIONS+1):
 
 file(options.submitJobs, "w").write("\n".join(bsubfile))
 os.system("chmod +x %s" % options.submitJobs)
+# foo bar baz

@@ -83,3 +83,4 @@ process.t2 = cms.Task(process.intProducer4, process.intProducer5, process.intPro
 process.p2 = cms.Path(process.intProducerAlias2, process.t2)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

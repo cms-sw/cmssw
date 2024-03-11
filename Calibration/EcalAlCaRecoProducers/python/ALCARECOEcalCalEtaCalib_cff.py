@@ -20,3 +20,4 @@ ecalEtaCorrected =  RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi.ecalRec
 
 
 seqALCARECOEcalCalEtaCalib = cms.Sequence(ecaletaCalibHLT*ecalEtaCorrected)
+# foo bar baz

@@ -8,3 +8,4 @@ from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
 CaloGeometryBuilder.SelectedCalos = ['HCAL', 'TOWER']
 
 
+# foo bar baz

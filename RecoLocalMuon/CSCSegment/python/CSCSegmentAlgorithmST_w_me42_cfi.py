@@ -98,3 +98,4 @@ CSCSegAlgoST = cms.PSet(
     parameters_per_chamber_type = cms.vint32(2, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 )
 
+# foo bar baz

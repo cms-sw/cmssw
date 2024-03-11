@@ -111,3 +111,4 @@ for K in range(-2048,2048):
     
  
 print('const ap_uint<9> ptLUT[4096] = {'+','.join(ptLUT)+'};')
+# foo bar baz

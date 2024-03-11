@@ -15,3 +15,4 @@ L1TCaloStage2_PPFromRawTask = cms.Task(
     ,L1TCaloStage2Task
 )
 L1TCaloStage2_PPFromRaw = cms.Sequence(L1TCaloStage2_PPFromRawTask)
+# foo bar baz

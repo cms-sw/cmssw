@@ -63,3 +63,4 @@ for e in [peripheralPbPb, pp_on_AA, pp_on_XeXe_2017]:
     e.toModify(egammaSuperClusterAnalyzer, barrelRawSuperClusterCollection = cms.InputTag("islandSuperClusters","islandBarrelSuperClusters"))
     e.toModify(egammaSuperClusterAnalyzer, endcapCorSuperClusterCollection = cms.InputTag("correctedIslandEndcapSuperClusters"))
     e.toModify(egammaSuperClusterAnalyzer, endcapRawSuperClusterCollection = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters"))
+# foo bar baz

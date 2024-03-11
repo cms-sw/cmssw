@@ -8,3 +8,4 @@ StripSubClusterShapeSeedFilter = cms.PSet(
     label = cms.untracked.string("Seeds"),
     layerMask = cms.PSet()
 )
+# foo bar baz

@@ -209,3 +209,4 @@ hltL2OfflineMuonSeeds = cms.EDProducer("MuonSeedGenerator",
     deltaPhiSearchWindow = cms.double(0.25),
     scaleDT = cms.bool(True)
 )
+# foo bar baz

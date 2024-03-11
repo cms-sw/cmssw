@@ -43,3 +43,4 @@ process.hcalDetId2DenseTester.fileName = "hcaldetid2dense.txt"
 process.hcalDetId2DenseTester.testCalib = True
 
 process.p1 = cms.Path(process.generator*process.hcalDetId2DenseTester)
+# foo bar baz

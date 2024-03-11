@@ -8,3 +8,4 @@ pfInclusiveSecondaryVertexFinderCA15TagInfos = pfInclusiveSecondaryVertexFinderT
     trackSelection = dict(jetDeltaRMax = 1.5), # plays no role since using IVF vertices
     vertexCuts = dict(maxDeltaRToJetAxis = 1.5)
 )
+# foo bar baz

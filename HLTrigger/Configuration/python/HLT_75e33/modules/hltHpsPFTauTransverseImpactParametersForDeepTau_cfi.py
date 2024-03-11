@@ -7,3 +7,4 @@ hltHpsPFTauTransverseImpactParametersForDeepTau = cms.EDProducer( "PFTauTransver
     PFTauTag = cms.InputTag( "hltHpsPFTauProducer" ),
     PFTauSVATag = cms.InputTag( "hltHpsPFTauSecondaryVertexProducerForDeepTau" )
 )
+# foo bar baz

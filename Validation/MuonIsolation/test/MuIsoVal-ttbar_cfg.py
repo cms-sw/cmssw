@@ -54,3 +54,4 @@ process.PoolSource.fileNames = ['/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-
                                 '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/B0D94AFE-3616-DE11-BFD5-000423D9880C.root',
                                 '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/BCE77A07-AC16-DE11-80B9-000423D986A8.root']
 
+# foo bar baz

@@ -10,3 +10,4 @@ process.checker = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.p = cms.Path(process.checker)
 #process.o = cms.EndPath(process.dump)
+# foo bar baz

@@ -5,3 +5,4 @@ hltEgammaClusterShapeUnseeded = cms.EDProducer("EgammaHLTClusterShapeProducer",
     ecalRechitEE = cms.InputTag("hltEcalRecHit","EcalRecHitsEE"),
     recoEcalCandidateProducer = cms.InputTag("hltEgammaCandidatesUnseeded")
 )
+# foo bar baz

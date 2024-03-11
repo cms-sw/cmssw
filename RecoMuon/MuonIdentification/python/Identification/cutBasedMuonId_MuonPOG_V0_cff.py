@@ -166,3 +166,4 @@ central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '4c815640b
 central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , '12da9c6aae4d389980da3f463aac2afb')
 central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '3f6a009a63dc9eb6af3f2de17d53c9fd')
 
+# foo bar baz

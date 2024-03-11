@@ -335,3 +335,4 @@ muonRecoGRTask = cms.Task(muonrecoforcosmicsTask,
                           muonRecoLHCTask)
 muonRecoGR = cms.Sequence(muonRecoGRTask)
 #######################################################################################################################
+# foo bar baz

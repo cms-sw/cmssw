@@ -50,3 +50,4 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
                                   X0           = cms.double(0.89)
                                  )
  ) 
+# foo bar baz

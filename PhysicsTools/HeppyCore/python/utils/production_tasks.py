@@ -874,3 +874,4 @@ class CleanJobFiles(Task):
         removed = clean.run(actions)
         return {'Cleaned':removed,'Compressed':compressed}
     
+# foo bar baz

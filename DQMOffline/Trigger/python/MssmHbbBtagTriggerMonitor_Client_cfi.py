@@ -18,3 +18,4 @@ mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
 mssmHbbBtagTriggerEfficiency = cms.Sequence(
    mssmHbbBtag 
 )
+# foo bar baz

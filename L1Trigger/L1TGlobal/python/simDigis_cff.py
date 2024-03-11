@@ -34,3 +34,4 @@ SimL1TGlobal = cms.Sequence(SimL1TGlobalTask)
 from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toReplaceWith(SimL1TGlobalTask, cms.Task(simGtStage2Digis))
+# foo bar baz

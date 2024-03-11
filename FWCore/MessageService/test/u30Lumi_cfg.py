@@ -49,3 +49,4 @@ process.ssm_sum = cms.EDAnalyzer("UTC_SLUMMARY"
 )
 
 process.p = cms.Path(process.ssm_1a*process.ssm_2a*process.ssm_sum)
+# foo bar baz

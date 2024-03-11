@@ -156,3 +156,4 @@ if __name__ == "__main__":
             parser.error("DQM file %s does not exist" % f)
 
     main(opts)
+# foo bar baz

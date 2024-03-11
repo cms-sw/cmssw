@@ -16,3 +16,4 @@ filterMuonElectron     = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+MuonElectron
 filterMuonPFElectron   = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+MuonPFElectron)
 filterDoubleElectron   = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+DoubleElectron)
 filterDoublePFElectron = cms.Sequence(ak4CaloJetsL2L3+ak4PFJetsL2L3+DoublePFElectron)
+# foo bar baz

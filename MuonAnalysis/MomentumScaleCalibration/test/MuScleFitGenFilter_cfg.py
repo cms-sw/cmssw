@@ -249,3 +249,4 @@ process.MessageLogger = cms.Service(
 process.load("MuonAnalysis.MomentumScaleCalibration.MuScleFitGenFilter_cfi")
 
 path(MuScleFitGenFilter)
+# foo bar baz

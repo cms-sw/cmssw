@@ -9,3 +9,4 @@ from TopQuarkAnalysis.TopEventSelection.TtFullHadSignalSelMVAComputer_cfi import
 TtFullHadSignalSelMVAFileSource = cms.ESSource("TtFullHadSignalSelMVAFileSource",
     ttFullHadSignalSelMVA = cms.FileInPath('TopQuarkAnalysis/TopEventSelection/data/TtFullHadSignalSel.mva')
 )
+# foo bar baz

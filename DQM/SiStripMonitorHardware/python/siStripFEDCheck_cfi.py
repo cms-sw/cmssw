@@ -33,3 +33,4 @@ siStripFEDCheck = DQMEDAnalyzer('SiStripFEDCheckPlugin',
   LSMin = cms.double(0.5),
   LSMax = cms.double(5000.5),  
 )
+# foo bar baz

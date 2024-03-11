@@ -47,3 +47,4 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.p = cms.Path(process.siStripCablingTrackerMap)
+# foo bar baz

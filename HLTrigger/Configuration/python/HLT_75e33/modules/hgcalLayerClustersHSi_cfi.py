@@ -61,3 +61,4 @@ hgcalLayerClustersHSi = cms.EDProducer('HGCalLayerClusterProducer',
 )
   
 
+# foo bar baz

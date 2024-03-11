@@ -825,3 +825,4 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.output_step = cms.EndPath(process.output)
+# foo bar baz

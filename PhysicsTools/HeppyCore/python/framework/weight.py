@@ -57,3 +57,4 @@ class Weight( object ):
                        self.GetWeight() )
         
 
+# foo bar baz

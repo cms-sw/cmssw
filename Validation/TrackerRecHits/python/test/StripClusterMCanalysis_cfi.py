@@ -17,3 +17,4 @@ StripClusterMCanalysis = cms.EDAnalyzer('StripClusterMCanalysis',
                                       'TrackerHitsTECHighTof'
                                       )
                                    )
+# foo bar baz

@@ -5,3 +5,4 @@ from PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi import *
 
 # Set up correct sequence for flavorHistoryFilter
 flavorHistorySeq = cms.Sequence(bFlavorHistoryProducer*cFlavorHistoryProducer*flavorHistoryFilter)
+# foo bar baz

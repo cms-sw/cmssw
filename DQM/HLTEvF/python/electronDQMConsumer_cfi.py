@@ -10,3 +10,4 @@ electronDQMConsumer = cms.EDAnalyzer("HLTMonElectronConsumer",
 )
 
 
+# foo bar baz

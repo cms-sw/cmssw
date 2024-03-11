@@ -57,3 +57,4 @@ pythiaUESettingsBlock = cms.PSet(
             'PARJ(46) = 0.7500    ! HAD Lund(=0)-Bowler(=1) rQ (rc)',
 	)
 )
+# foo bar baz

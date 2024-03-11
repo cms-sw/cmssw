@@ -16,3 +16,4 @@ multi5x5PreshowerClusterShape = cms.EDProducer("PreshowerClusterShapeProducer",
 )
 
 
+# foo bar baz

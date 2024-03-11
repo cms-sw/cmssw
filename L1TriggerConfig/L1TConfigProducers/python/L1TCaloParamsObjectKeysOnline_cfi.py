@@ -7,3 +7,4 @@ L1TCaloParamsObjectKeysOnline = cms.ESProducer("L1TCaloParamsObjectKeysOnlinePro
     transactionSafe      = cms.bool(True) # any value has no effect on this particular producer
 )
 
+# foo bar baz

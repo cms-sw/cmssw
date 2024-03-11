@@ -25,3 +25,4 @@ process.tmf = cms.EDFilter("TestHWConfig")
 process.p = cms.Path(process.tmf)
 
 
+# foo bar baz

@@ -6,3 +6,4 @@ L1HLTJetsMatching= cms.EDProducer( "L1HLTTauMatching",
     EtMin = cms.double( 15.0 )
 )
 
+# foo bar baz

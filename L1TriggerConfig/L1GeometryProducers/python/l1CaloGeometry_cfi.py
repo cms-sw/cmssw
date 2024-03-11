@@ -26,3 +26,4 @@ l1CaloGeometry = cms.ESProducer("L1CaloGeometryProd",
    )
 
 
+# foo bar baz

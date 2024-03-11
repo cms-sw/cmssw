@@ -12,3 +12,4 @@ process.c = cms.EDProducer("NonEventIntProducer", ivalue = cms.int32(3), consume
 
 process.t = cms.Task(process.d, process.c)
 process.p = cms.Path(process.b, process.t)
+# foo bar baz

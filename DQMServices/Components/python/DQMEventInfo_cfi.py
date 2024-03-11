@@ -11,3 +11,4 @@ dqmEnv = DQMEDAnalyzer('DQMEventInfo',
     eventInfoFolder = cms.untracked.string('EventInfo')
 )
 
+# foo bar baz

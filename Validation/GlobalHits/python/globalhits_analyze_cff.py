@@ -14,3 +14,4 @@ DQMStore = cms.Service("DQMStore")
 dqmSaver.convention = 'RelVal'
 dqmSaver.workflow = '/GlobalValidation/Test/RECO'
 
+# foo bar baz

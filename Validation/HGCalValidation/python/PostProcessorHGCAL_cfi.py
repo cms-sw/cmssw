@@ -82,3 +82,4 @@ postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
   outputFileName = cms.untracked.string(""),
   verbose = cms.untracked.uint32(4)
 )
+# foo bar baz

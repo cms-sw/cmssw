@@ -21,3 +21,4 @@ slimmedHcalRecHits = reducedHcalRecHits.clone(
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(reducedHcalRecHits.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoHCALDetId")) )
+# foo bar baz

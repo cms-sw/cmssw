@@ -5,3 +5,4 @@ from ..tasks.HLTDoFullUnpackingEgammaEcalTask_cfi import *
 HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
     HLTDoFullUnpackingEgammaEcalTask
 )
+# foo bar baz

@@ -12,3 +12,4 @@ process.cudaTestDeviceAdditionModule = cms.EDAnalyzer('CUDATestDeviceAdditionMod
 process.path = cms.Path(process.cudaTestDeviceAdditionModule)
 
 process.maxEvents.input = 1
+# foo bar baz

@@ -352,3 +352,4 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
     DisableL1Objects =  cms.vstring()
 
 )
+# foo bar baz

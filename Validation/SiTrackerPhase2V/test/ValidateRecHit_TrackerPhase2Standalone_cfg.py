@@ -96,3 +96,4 @@ process.p = cms.Path(process.siPixelRecHits
                      * process.rechitValidIT 
                      #* process.rechitValidOT 
                      * process.dqm_comm )
+# foo bar baz

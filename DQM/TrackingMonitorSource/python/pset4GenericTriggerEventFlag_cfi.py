@@ -79,3 +79,4 @@ genericTriggerEventFlag4fullTrackerAndHLTHIPOOTdb = cms.PSet(
    errorReplyHlt = cms.bool( False ),
    verbosityLevel = cms.uint32(1)
 )
+# foo bar baz

@@ -7,3 +7,4 @@ dimuonAcceptance = cms.PSet(filterType = cms.untracked.string("MultiCandGenEvtSe
                             status = cms.int32(1),
                             minimumCandidates = cms.int32(2)
                             )
+# foo bar baz

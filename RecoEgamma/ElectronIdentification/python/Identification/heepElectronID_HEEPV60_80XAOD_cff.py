@@ -101,3 +101,4 @@ heepElectronID_HEEPV60_80XAOD  = configureHEEPElectronID_V60_80XAOD (idName, WP_
 central_id_registry.register(heepElectronID_HEEPV60_80XAOD.idName,"a7e52edab71dfae8b854b7bce70b56a7")
 heepElectronID_HEEPV60_80XAOD.isPOGApproved = cms.untracked.bool(False)
  
+# foo bar baz

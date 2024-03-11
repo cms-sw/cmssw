@@ -78,3 +78,4 @@ process.endp = cms.EndPath(process.tst)
 
 #process.add_(cms.Service("Tracer"))
 #process.options.wantSummary=True
+# foo bar baz

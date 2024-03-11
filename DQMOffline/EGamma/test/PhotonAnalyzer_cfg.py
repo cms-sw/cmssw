@@ -52,3 +52,4 @@ process.schedule = cms.Schedule(process.p1)
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.MessageLogger = cms.Service("MessageLogger")
+# foo bar baz

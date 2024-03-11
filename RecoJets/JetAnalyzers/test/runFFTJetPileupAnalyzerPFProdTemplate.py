@@ -49,3 +49,4 @@ mykt6PFJets.voronoiRfact = 0.9
 process.mykt6PFJets = mykt6PFJets
 
 process.p = cms.Path(process.mykt6PFJets*process.pileupprocessor*process.pileupestimator*process.pileupanalyzer)
+# foo bar baz

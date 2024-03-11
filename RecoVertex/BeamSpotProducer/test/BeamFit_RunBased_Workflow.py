@@ -82,3 +82,4 @@ process.d0_phi_analyzer.BeamFitter.OutputFileName = 'BeamFit_RunBased_Workflow.r
 # fit as function of lumi sections
 process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = -1
 process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = -1
+# foo bar baz

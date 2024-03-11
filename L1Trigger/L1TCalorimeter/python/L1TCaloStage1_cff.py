@@ -48,3 +48,4 @@ L1TCaloStage1Task = cms.Task(
     simCaloStage1LegacyFormatDigis
 )
 L1TCaloStage1 = cms.Sequence(L1TCaloStage1Task)
+# foo bar baz

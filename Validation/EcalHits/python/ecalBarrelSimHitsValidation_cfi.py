@@ -9,3 +9,4 @@ ecalBarrelSimHitsValidation = DQMEDAnalyzer("EcalBarrelSimHitsValidation",
 )
 
 
+# foo bar baz

@@ -23,3 +23,4 @@ HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1 = cms.Path(
     hltHpsDoublePFTau40TrackPt1MediumChargedIsolation +
     HLTEndSequence
 )
+# foo bar baz

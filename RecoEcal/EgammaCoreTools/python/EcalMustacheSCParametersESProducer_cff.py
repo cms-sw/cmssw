@@ -9,3 +9,4 @@ ecalMustacheSCParamsSource = cms.ESSource(
 
 from RecoEcal.EgammaCoreTools.EcalMustacheSCParametersESProducer_cfi import ecalMustacheSCParametersESProducer
 
+# foo bar baz

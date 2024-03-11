@@ -130,3 +130,4 @@ process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*proce
 process.schedule = cms.Schedule(process.p1)
 
 
+# foo bar baz

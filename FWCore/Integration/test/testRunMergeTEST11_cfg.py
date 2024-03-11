@@ -120,3 +120,4 @@ process.testGetterOfProductsARun = cms.EDAnalyzer("TestGetterOfProductsA",
 )
 
 process.path1 = cms.Path(process.testGetterOfProducts*process.testGetterOfProductsA*process.testGetterOfProductsALumi*process.testGetterOfProductsARun)
+# foo bar baz

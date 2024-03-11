@@ -115,3 +115,4 @@ process.options = cms.untracked.PSet(
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+# foo bar baz

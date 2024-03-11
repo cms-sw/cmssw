@@ -11,3 +11,4 @@ from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1, caloMetT1T2, 
 patMETCorrectionsTask = cms.Task(correctionTermsCaloMetTask, caloMetT1, caloMetT1T2, correctionTermsPfMetType1Type2Task, pfMetT1, pfMetT1T2)
 
 patMETCorrections = cms.Sequence(patMETCorrectionsTask)
+# foo bar baz

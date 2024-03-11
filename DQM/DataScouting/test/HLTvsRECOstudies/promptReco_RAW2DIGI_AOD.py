@@ -94,3 +94,4 @@ process.AODoutput_step = cms.EndPath(process.AODoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.endjob_step,process.AODoutput_step)
 
+# foo bar baz

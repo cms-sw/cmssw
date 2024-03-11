@@ -96,3 +96,4 @@ process.myHltInclusiveVBFSource.debug = cms.untracked.bool(False)
 process.psource = cms.Path(process.myHltInclusiveVBFSource*process.hltInclusiveVBFClient)
 #process.p = cms.EndPath(process.saveInclusiveVBFSave)
 process.p = cms.EndPath(process.dqmSaver)
+# foo bar baz

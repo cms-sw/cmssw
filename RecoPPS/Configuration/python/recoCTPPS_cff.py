@@ -51,3 +51,4 @@ recoDirectSimPPSTask = cms.Task(
 )
 
 recoDirectSimPPS = cms.Sequence(recoDirectSimPPSTask)
+# foo bar baz

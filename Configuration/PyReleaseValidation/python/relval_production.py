@@ -54,3 +54,4 @@ workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO','COPYPASTE']]
 ## special fastsim test
 #workflows[1200]=['TTbar',['TTbarSFS','RECOFS','HARVESTFS']]
 #workflows[1201]=['TTbar',['TTbarSFSA']]
+# foo bar baz

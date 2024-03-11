@@ -94,3 +94,4 @@ process.demo = cms.EDAnalyzer('SiStripNoisesAndBadCompsChecker',
 ## Parh
 ##
 process.p = cms.Path(process.demo)
+# foo bar baz

@@ -41,3 +41,4 @@ process.this_is_the_end = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 
+# foo bar baz

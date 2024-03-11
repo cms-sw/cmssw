@@ -5,3 +5,4 @@ from ..tasks.particleFlowSuperClusteringTask_cfi import *
 ecalClustersTask = cms.Task(
     particleFlowSuperClusteringTask
 )
+# foo bar baz

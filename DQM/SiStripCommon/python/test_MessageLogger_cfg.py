@@ -10,3 +10,4 @@ process.test = cms.EDFilter("test_MessageLogger")
 process.p = cms.Path(process.test)
 process.maxEvents.input = 2
 
+# foo bar baz

@@ -10,3 +10,4 @@ deadChannelTest = cms.EDAnalyzer("DTDeadChannelTest",
 )
 
 
+# foo bar baz

@@ -19,3 +19,4 @@ process.dummy = cms.EDAnalyzer("DummyLHEAnalyzer",
 process.p = cms.Path(process.dummy)
 
 
+# foo bar baz

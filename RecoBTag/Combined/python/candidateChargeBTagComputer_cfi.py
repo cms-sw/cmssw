@@ -8,3 +8,4 @@ candidateChargeBTagComputer = cms.ESProducer("CandidateChargeBTagESProducer",
     jetChargeExp = cms.double(0.8),
     svChargeExp = cms.double(0.5)
 )
+# foo bar baz

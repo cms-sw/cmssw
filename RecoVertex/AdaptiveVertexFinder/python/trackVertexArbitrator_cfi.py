@@ -5,3 +5,4 @@ from RecoVertex.AdaptiveVertexFinder.trackVertexArbitratorDefault_cfi import tra
 trackVertexArbitrator = trackVertexArbitratorDefault.clone()
 
 
+# foo bar baz

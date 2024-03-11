@@ -33,3 +33,4 @@ def customizeHLTforMC(process):
       pass
 
   return process
+# foo bar baz

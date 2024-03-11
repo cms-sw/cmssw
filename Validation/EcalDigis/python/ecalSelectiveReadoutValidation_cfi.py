@@ -89,3 +89,4 @@ fastSim.toModify(ecalSelectiveReadoutValidation,
     EbSimHitCollection = "fastSimProducer:EcalHitsEB",
     EeSimHitCollection = "fastSimProducer:EcalHitsEE"
 )
+# foo bar baz

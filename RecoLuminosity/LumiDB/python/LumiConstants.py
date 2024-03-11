@@ -10,3 +10,4 @@ class ParametersObject(object):
         self.orbitFrequency    = 1.0/self.orbitLength
         self.orbitsPerLS       = 2**18
         self.lumiSectionLength = self.orbitsPerLS*self.orbitLength
+# foo bar baz

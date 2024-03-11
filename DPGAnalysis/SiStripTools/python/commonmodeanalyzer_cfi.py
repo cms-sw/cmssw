@@ -15,3 +15,4 @@ commonmodeanalyzer = cms.EDAnalyzer('CommonModeAnalyzer',
         cms.PSet(label=cms.string("TID"),selection=cms.untracked.vstring("0x1e000000-0x18000000"))
         )
                                     )	
+# foo bar baz

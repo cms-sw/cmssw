@@ -39,3 +39,4 @@ METSignificanceParams_Data=cms.PSet(
       jpar = cms.vdouble(1.38,1.28,1.22,1.16,1.10),
       pjpar = cms.vdouble(0.0033,0.5802),
       )
+# foo bar baz

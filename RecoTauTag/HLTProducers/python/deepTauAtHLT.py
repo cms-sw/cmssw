@@ -228,3 +228,4 @@ def update(process):
     process.HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v4 += (process.HLTHPSDeepTau35IsoPFTauSequenceReg + process.hltHpsSelectedPFTausTrackPt1DeepTau35IsolationReg + process.hltHpsDoublePFTau35TrackPt1DeepTau35IsolationReg + process.hltHpsL1JetsHLTDoublePFTauTrackPt1DeepTauMatchReg + process.hltHpsDoublePFTau35TrackPt1DeepTauL1HLTMatchedReg + process.hltHpsDoublePFTau35TrackPt1DeepTau35IsolationDz02Reg + process.HLTEndSequence)
 
     return process
+# foo bar baz

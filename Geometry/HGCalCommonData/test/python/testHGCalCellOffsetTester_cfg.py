@@ -40,3 +40,4 @@ process.load("Geometry.HGCalCommonData.hgcalCellOffsetTester_cfi")
 
  
 process.p1 = cms.Path(process.generator*process.hgcalCellOffsetTester)
+# foo bar baz

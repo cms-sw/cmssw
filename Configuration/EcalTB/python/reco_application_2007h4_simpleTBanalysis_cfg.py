@@ -32,3 +32,4 @@ process.simple2007H4TBanalysis = cms.EDAnalyzer("EcalSimple2007H4TBAnalyzer",
 
 process.p = cms.Path(process.simple2007H4TBanalysis)
 
+# foo bar baz

@@ -12,3 +12,4 @@ btagElecInJetOutputModuleRECOSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

@@ -40,3 +40,4 @@ process.source = cms.Source("EmptySource")
 process.sendSomeMessages = cms.EDAnalyzer("MLexampleModule_1")
 
 process.p = cms.Path(process.sendSomeMessages)
+# foo bar baz

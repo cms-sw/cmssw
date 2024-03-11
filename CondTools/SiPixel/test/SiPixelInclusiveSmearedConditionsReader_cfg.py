@@ -66,3 +66,4 @@ process.SiPixelFedCablingMapAnalyzer = cms.EDAnalyzer("SiPixelFedCablingMapAnaly
 
 process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelCondObjForHLTReader)
 #process.ep = cms.EndPath(process.print)
+# foo bar baz

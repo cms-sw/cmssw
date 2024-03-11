@@ -19,3 +19,4 @@ vertexCutsBlock = cms.PSet(
 		distSig3dMin = cms.double(-99999.9)
 	)
 )
+# foo bar baz

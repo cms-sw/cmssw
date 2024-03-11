@@ -60,3 +60,4 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
   ),
 )
 
+# foo bar baz

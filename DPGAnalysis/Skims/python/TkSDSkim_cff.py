@@ -6,3 +6,4 @@ TkSDFilter.throw = cms.bool(False)
 TkSDFilter.HLTPaths = ["HLT_L1_BscMinBiasOR_BptxPlusORMinus","HLT_L1Tech_BSC_minBias_OR"] 
 
 TkSD_Seq = cms.Sequence(TkSDFilter)
+# foo bar baz

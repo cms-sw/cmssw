@@ -5,3 +5,4 @@ HGCalTBCheckGunPostion = cms.EDFilter("HGCalTBCheckGunPostion",
                                       Verbosity         = cms.untracked.bool(False),
                                       Method2           = cms.untracked.bool(False),
 )
+# foo bar baz

@@ -230,3 +230,4 @@ SiStripCalZeroBiasMonitorCluster = SiStripMonitorCluster.clone(
     ShowControlView = False,
     ShowReadoutView = False
 )
+# foo bar baz

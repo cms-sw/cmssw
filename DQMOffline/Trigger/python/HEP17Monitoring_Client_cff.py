@@ -24,3 +24,4 @@ hep17Efficiency = DQMEDHarvester("DQMGenericClient",
     efficiencyProfile = cms.untracked.vstring(
     ),
 )
+# foo bar baz

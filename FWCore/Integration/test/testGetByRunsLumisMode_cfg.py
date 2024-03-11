@@ -39,3 +39,4 @@ process.p1 = cms.Path(process.intProducerBeginProcessBlock +
                       process.a1
 )
 
+# foo bar baz

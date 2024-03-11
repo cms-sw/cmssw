@@ -27,3 +27,4 @@ class PhysicsObject(Particle):
         directly available.'''
         return getattr(self.physObj, name)
 
+# foo bar baz

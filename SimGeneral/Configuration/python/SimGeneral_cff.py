@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 #
 from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
 
+# foo bar baz

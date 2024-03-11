@@ -30,3 +30,4 @@ process.p = cms.Path(
   process.l1ExtraTreeProducer
 )
 
+# foo bar baz

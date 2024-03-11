@@ -7,3 +7,4 @@ seedClusterRemover = cms.EDProducer("SeedClusterRemover",
                                     Common = cms.PSet(    maxChi2 = cms.double(9.0)    ), #dummy
                                     )
 
+# foo bar baz

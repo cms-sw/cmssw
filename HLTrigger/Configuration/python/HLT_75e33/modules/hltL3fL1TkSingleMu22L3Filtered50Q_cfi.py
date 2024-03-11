@@ -13,4 +13,4 @@ hltL3fL1TkSingleMu22L3Filtered50Q = cms.EDFilter("HLTMuonTrkL1TkMuFilter",
     l1GTAlgoBlockTag = cms.InputTag("l1tGTAlgoBlockProducer"),
     l1GTAlgoNames = cms.vstring("pSingleTkMuon22"),
     saveTags = cms.bool(True)
-)
+)# foo bar baz

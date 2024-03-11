@@ -7,3 +7,4 @@ gctDigiToPsbText = cms.EDAnalyzer("GctDigiToPsbText",
 )
 
 
+# foo bar baz

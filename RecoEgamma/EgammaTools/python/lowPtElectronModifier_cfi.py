@@ -7,3 +7,4 @@ lowPtElectronModifier = cms.PSet(
     addExtraUserVars = cms.bool(True),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
+# foo bar baz

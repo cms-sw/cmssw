@@ -29,3 +29,4 @@ def configure_fftjet_correction_producer(sequenceTags, jetProducerModule):
         subtractPileupAs4Vec = cms.bool(False)
     )
     return config
+# foo bar baz

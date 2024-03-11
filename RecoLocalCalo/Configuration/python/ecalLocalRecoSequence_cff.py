@@ -59,3 +59,4 @@ _fastSim_ecalUncalibRecHitTask = ecalUncalibRecHitTask.copyAndExclude([ecalDetId
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(ecalRecHitTask, _fastSim_ecalRecHitTask)
 fastSim.toReplaceWith(ecalUncalibRecHitTask, _fastSim_ecalUncalibRecHitTask)
+# foo bar baz

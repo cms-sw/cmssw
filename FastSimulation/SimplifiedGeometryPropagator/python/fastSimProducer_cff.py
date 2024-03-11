@@ -79,3 +79,4 @@ fastSimProducer = cms.EDProducer(
     MaterialEffectsForMuonsInHCAL = MaterialEffectsForMuonsInHCALBlock.MaterialEffectsForMuonsInHCAL,
     GFlash = FamosCalorimetryBlock.GFlash,
 )
+# foo bar baz

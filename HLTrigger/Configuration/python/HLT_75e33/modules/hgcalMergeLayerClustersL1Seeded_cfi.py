@@ -9,4 +9,4 @@ hgcalMergeLayerClustersL1Seeded = cms.EDProducer('MergeClusterProducer',
   time_layerclustersHSci = cms.InputTag('hgcalLayerClustersHSciL1Seeded', 'timeLayerCluster'),
   timeClname = cms.string('timeLayerCluster'),
   mightGet = cms.optional.untracked.vstring
-)
+)# foo bar baz

@@ -69,3 +69,4 @@ patMHTs = cms.EDProducer("PATMHTProducer",
     
 
 
+# foo bar baz

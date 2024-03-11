@@ -41,3 +41,4 @@ def findModules(holder):
     return dict( (name, module) for name, module in holder.items() if isinstance(module, (cms.EDAnalyzer, _cms.EDProducer, _cms.EDFilter)) )
 
 
+# foo bar baz

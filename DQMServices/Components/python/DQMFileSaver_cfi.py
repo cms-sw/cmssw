@@ -34,3 +34,4 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     # Control which references are saved for qtests (default: STATUS_OK)
     referenceRequireStatus = cms.untracked.int32(100)
 )
+# foo bar baz

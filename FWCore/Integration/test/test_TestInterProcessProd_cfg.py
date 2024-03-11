@@ -42,3 +42,4 @@ process.getter = cms.EDAnalyzer("edmtest::ThingAnalyzer")
 
 process.o = cms.EndPath(process.getter)
 process.options.numberOfThreads = 4
+# foo bar baz

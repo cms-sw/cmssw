@@ -6,3 +6,4 @@ ptMinPFJets = cms.EDFilter(
     src = cms.InputTag(''),
     ptMin = cms.double(0)
     )
+# foo bar baz

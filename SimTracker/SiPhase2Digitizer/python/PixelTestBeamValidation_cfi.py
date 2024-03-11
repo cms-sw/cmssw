@@ -189,3 +189,4 @@ dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     Dy_2 = Dy.clone(),
     )
 
+# foo bar baz

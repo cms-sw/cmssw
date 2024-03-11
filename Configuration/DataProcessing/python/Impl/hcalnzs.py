@@ -36,3 +36,4 @@ class hcalnzs(pp):
         process = pp.promptReco(self,globalTag,**args)
         
         return process
+# foo bar baz

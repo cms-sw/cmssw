@@ -5,3 +5,4 @@ pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.EDProducer("JetTagProducer",
         tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"),
                                  cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfos"))
 )
+# foo bar baz

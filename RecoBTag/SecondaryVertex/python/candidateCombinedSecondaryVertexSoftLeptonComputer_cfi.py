@@ -19,3 +19,4 @@ candidateCombinedSecondaryVertexSoftLeptonComputer = cms.ESProducer("CandidateCo
 	categoryVariableName = cms.string('vertexLeptonCategory')
 )
 
+# foo bar baz

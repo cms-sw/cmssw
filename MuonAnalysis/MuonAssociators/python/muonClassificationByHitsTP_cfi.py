@@ -57,3 +57,4 @@ def addGenParticleRef(patMuonProducer, label = 'classByHitsGlbOrTrk'):
     patMuonProducer.addGenMatch = True
     patMuonProducer.genParticleMatch = cms.VInputTag(cms.InputTag(label, "toPrimaries"), cms.InputTag(label, "toSecondaries"))
     
+# foo bar baz

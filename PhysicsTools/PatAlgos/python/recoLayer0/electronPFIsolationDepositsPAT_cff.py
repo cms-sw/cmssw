@@ -19,3 +19,4 @@ electronPFIsolationDepositsPATTask = cms.Task(
     )
 
 electronPFIsolationDepositsPATSequence = cms.Sequence(electronPFIsolationDepositsPATTask)
+# foo bar baz

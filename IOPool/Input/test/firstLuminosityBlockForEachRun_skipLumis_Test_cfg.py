@@ -53,3 +53,4 @@ process.source = cms.Source("PoolSource",
 
 process.e = cms.EndPath(process.check)
 
+# foo bar baz

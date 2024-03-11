@@ -40,3 +40,4 @@ GamIsoEcalFromHitsExtractorBlock = cms.PSet(
 #    ),
 )
 
+# foo bar baz

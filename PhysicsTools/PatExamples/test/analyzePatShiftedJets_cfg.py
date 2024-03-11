@@ -44,3 +44,4 @@ process.p = cms.Path(
     process.goodJets   * 
     process.analyzePatJets
 )
+# foo bar baz

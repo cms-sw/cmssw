@@ -4,3 +4,4 @@ pixelMedianVertices = cms.EDProducer( "PixelVertexProducerMedian",
      TrackCollection = cms.string( "pixelTracks" ),
      PtMin = cms.double( 0.5 )
 )
+# foo bar baz

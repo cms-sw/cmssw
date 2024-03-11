@@ -95,3 +95,4 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 
 process.path1 = cms.Path(process.test + process.test2)
 
+# foo bar baz

@@ -7,3 +7,4 @@ l1tStage2Cppf = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TStage2CPPF"), 
     verbose = cms.untracked.bool(False),
 )
+# foo bar baz

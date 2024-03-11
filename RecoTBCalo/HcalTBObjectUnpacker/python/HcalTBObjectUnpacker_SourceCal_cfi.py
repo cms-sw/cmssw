@@ -8,3 +8,4 @@ tbunpack = cms.EDProducer("HcalTBObjectUnpacker",
 )
 
 
+# foo bar baz

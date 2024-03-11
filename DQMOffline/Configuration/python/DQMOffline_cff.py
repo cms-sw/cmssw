@@ -316,3 +316,4 @@ from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
 DQMOfflineNanoGen = cms.Sequence(nanogenDQM)
 from PhysicsTools.NanoAOD.nanojmeDQM_cff import nanojmeDQM
 DQMOfflineNanoJME = cms.Sequence(nanojmeDQM)
+# foo bar baz

@@ -785,3 +785,4 @@ l1tPhase1JetCalibrator9x9 = cms.EDProducer("Phase1L1TJetCalibrator",
     inputCollectionTag = cms.InputTag("l1tSlwPFPuppiJets","UncalibratedPhase1L1TJetFromPfCandidates"),
     outputCollectionName = cms.string('Phase1L1TJetFromPfCandidates')
 )
+# foo bar baz

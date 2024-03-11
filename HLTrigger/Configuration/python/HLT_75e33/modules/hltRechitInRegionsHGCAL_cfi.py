@@ -17,3 +17,4 @@ hltRechitInRegionsHGCAL = cms.EDProducer("HLTHGCalRecHitsInRegionsProducer",
         'HGCHEFRecHits'
     )
 )
+# foo bar baz

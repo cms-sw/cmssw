@@ -5,3 +5,4 @@ def customise(process):
     process.g4SimHits.Generator.MaxEtaCut = 5.5
 
     return(process)
+# foo bar baz

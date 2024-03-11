@@ -20,3 +20,4 @@ ecalMustacheSCParametersESProducer = cms.ESProducer("EcalMustacheSCParametersESP
     )
 )
 
+# foo bar baz

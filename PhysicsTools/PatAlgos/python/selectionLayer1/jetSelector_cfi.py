@@ -12,3 +12,4 @@ selectedPatJets = cms.EDFilter("PATJetSelector",
 )
 
 
+# foo bar baz

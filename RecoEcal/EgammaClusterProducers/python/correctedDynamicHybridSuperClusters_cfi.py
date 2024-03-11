@@ -26,3 +26,4 @@ correctedDynamicHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
 )
 
 
+# foo bar baz

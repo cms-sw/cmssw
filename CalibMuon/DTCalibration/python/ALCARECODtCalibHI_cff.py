@@ -21,3 +21,4 @@ dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConf
 #seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * primaryVertexFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
 
 seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * dt4DSegmentsNoWire) 
+# foo bar baz

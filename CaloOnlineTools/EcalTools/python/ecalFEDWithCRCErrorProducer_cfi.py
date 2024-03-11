@@ -4,3 +4,4 @@ ecalFEDWithCRCErrorProducer = cms.EDProducer("EcalFEDWithCRCErrorProducer",
     InputLabel = cms.InputTag("source")
 
 )
+# foo bar baz

@@ -37,3 +37,4 @@ process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
 process.hgcParameterTesterEE.Mode = 0
  
 process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE)
+# foo bar baz

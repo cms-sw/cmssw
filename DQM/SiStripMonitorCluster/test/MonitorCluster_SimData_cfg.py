@@ -84,3 +84,4 @@ process.RecoForDQM = cms.Sequence(process.siStripDigis*process.siStripZeroSuppre
 process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorCluster)
 process.ep = cms.EndPath(process.outP)
 
+# foo bar baz

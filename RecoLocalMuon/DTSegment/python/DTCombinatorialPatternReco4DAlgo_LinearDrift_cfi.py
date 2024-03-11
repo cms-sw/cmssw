@@ -35,3 +35,4 @@ DTCombinatorialPatternReco4DAlgo_LinearDrift = cms.PSet(
     )
 )
 
+# foo bar baz

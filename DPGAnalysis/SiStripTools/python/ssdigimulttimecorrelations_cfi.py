@@ -21,3 +21,4 @@ ssdigimulttimecorrelations = cms.EDAnalyzer('MultiplicityTimeCorrelations',
                                          dbxBins = cms.untracked.vint32(-1,144,148)
                                       )
 
+# foo bar baz

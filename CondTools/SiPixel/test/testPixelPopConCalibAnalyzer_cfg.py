@@ -37,3 +37,4 @@ process.source = cms.Source('EmptyIOVSource',
 #process.PoolDBOutputService.connect = 'sqlite_file:my.db' 
 
 process.p = cms.Path(process.PixelPopConCalibAnalyzer)
+# foo bar baz

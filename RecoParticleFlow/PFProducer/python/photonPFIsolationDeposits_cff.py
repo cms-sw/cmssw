@@ -37,3 +37,4 @@ photonPFIsolationDepositsTask = cms.Task(
     phPFIsoDepositNeutral,
     phPFIsoDepositPU
     )
+# foo bar baz

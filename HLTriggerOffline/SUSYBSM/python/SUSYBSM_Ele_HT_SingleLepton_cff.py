@@ -168,3 +168,4 @@ SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING = cms.Sequence( SUSYoHLToEle15oHT600
                                                             + SUSYoHLToEle15oHT400oSingleLeptonPOSTPROCESSING
                                                             + SUSYoHLToEle50oHT400oSingleLeptonPOSTPROCESSING
 )
+# foo bar baz

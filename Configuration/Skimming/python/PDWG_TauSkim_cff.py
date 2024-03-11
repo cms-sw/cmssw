@@ -39,3 +39,4 @@ tauSkim2Sequence = cms.Sequence(
    TauSkimPFTauSkimmedBy2
    )
 
+# foo bar baz

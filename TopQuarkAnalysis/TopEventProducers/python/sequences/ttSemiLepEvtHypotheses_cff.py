@@ -40,3 +40,4 @@ makeTtSemiLepHypothesesTask = cms.Task(
     makeHypothesis_hitFitTask
 )
 makeTtSemiLepHypotheses  = cms.Sequence(makeTtSemiLepHypothesesTask)
+# foo bar baz

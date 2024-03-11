@@ -27,3 +27,4 @@ process.looper = cms.Looper("IntTestLooper",
 )
 
 process.p1 = cms.Path(process.intEventProducer)
+# foo bar baz

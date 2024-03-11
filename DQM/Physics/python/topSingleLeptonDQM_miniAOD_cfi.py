@@ -212,3 +212,4 @@ topSingleElectronMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
                         #),
   )
 )
+# foo bar baz

@@ -34,3 +34,4 @@ for line in xmllines:
 
 if not  outfile.closed:
     outfile.close()
+# foo bar baz

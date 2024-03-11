@@ -8,3 +8,4 @@ ecalPreshowerPedestalTask = DQMEDAnalyzer('ESPedestalTask',
 	OutputFile = cms.untracked.string("")
 )
 
+# foo bar baz

@@ -18,3 +18,4 @@ hltMonBTagIPSource = cms.EDAnalyzer('HLTMonBTagIPSource',
     storeROOT       = cms.untracked.bool(False),
     outputFile      = cms.untracked.string('HLTMonBTag.root')
 )
+# foo bar baz

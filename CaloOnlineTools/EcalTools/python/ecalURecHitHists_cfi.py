@@ -20,3 +20,4 @@ ecalURecHitHists = cms.EDAnalyzer("EcalURecHitHists",
 )
 
 
+# foo bar baz

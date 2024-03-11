@@ -15,3 +15,4 @@ def makeInputForPUPPIIsolationMuon(process):
 	addToProcessAndTask('muonPUPPINoLeptonsIsolation', _muonIsolationMiniAODPUPPINoLeptons.clone(), process, task)
 	process.muonPUPPINoLeptonsIsolation.srcToIsolate = cms.InputTag("muons")
 	process.muonPUPPINoLeptonsIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
+# foo bar baz

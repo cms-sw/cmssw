@@ -6,3 +6,4 @@ pfGsfElectronCiCSelectionSequence = cms.Sequence(
     cms.ignore(electronsWithPresel)+
     cms.ignore(electronsCiCLoose)
     )
+# foo bar baz

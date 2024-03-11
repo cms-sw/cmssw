@@ -13,3 +13,4 @@ L1Validator = DQMEDAnalyzer('L1Validator',
   L1ExtraMuonSource=cms.InputTag("l1extraParticles"),
   L1GenJetSource=cms.InputTag("ak4GenJets","")
 )
+# foo bar baz

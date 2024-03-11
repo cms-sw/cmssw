@@ -29,3 +29,4 @@ def cmssw_version():
     else:
         subminor_version = version_str[2]
     return (version_str[0], version_str[1], version_str[2])
+# foo bar baz

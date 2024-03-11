@@ -9,3 +9,4 @@ alcastreamHcalDijetsOutput = cms.PSet(
                                            'keep *_DiJProd_*_*')
 )
 
+# foo bar baz

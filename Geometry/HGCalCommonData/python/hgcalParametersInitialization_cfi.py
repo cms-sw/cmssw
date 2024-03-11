@@ -17,3 +17,4 @@ hgcalHEScParametersInitialize = hgcalEEParametersInitialize.clone(
     nameC = "HGCalHEScintillatorSensitive",
     nameX = "HGCalHEScintillatorSensitive",
 )
+# foo bar baz

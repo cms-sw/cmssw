@@ -15,3 +15,4 @@ TMOneStationLoose                = cms.uint32(11)          # require one well ma
 TMOneStationTight                = cms.uint32(12)          # require one well matched segment
 TMLastStationOptimizedLowPtLoose = cms.uint32(13)          # combination of TMLastStation and TMOneStation
 TMLastStationOptimizedLowPtTight = cms.uint32(14)          # combination of TMLastStation and TMOneStation
+# foo bar baz

@@ -6,3 +6,4 @@ hcalDigitizer = cms.PSet(
     hcalSimBlock,
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
+# foo bar baz

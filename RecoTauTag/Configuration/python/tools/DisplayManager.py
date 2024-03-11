@@ -140,3 +140,4 @@ class DisplayManager(object):
             self.canvas.cd(1)
         self.canvas.Update()
         self.canvas.Print(self.name)
+# foo bar baz

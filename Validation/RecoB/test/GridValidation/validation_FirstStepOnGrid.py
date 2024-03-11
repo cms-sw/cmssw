@@ -139,3 +139,4 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.GlobalTag = tag
 
+# foo bar baz

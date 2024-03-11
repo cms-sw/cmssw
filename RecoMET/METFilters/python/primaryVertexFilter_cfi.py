@@ -7,3 +7,4 @@ primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            maxAbsZ = cms.double(24),
                                            maxd0 = cms.double(2)
                                            )
+# foo bar baz

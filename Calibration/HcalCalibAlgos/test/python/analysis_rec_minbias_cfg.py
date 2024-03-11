@@ -47,3 +47,4 @@ process.GlobalTag.globaltag = autoCond['run2_mc']
 process.load("Calibration.HcalCalibAlgos.recAnalyzerMinbias_cfi")
 
 process.schedule = cms.Path(process.RecAnalyzerMinbias*process.endOfProcess)
+# foo bar baz

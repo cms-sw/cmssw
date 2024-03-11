@@ -28,3 +28,4 @@ collisionEventSelection = cms.Sequence(noBSChalo *
                                        primaryVertexFilter *
                                        siPixelRecHits *
                                        hltPixelClusterShapeFilter)
+# foo bar baz

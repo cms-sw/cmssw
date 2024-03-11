@@ -284,3 +284,4 @@ process.pnonoisybinsRandom = cms.Path(process.hltRandom
 #                                      + process.spclusmulttimecorrnonoisybinsRandom
                                 )
 
+# foo bar baz

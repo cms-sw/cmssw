@@ -5,3 +5,4 @@ from ..modules.hltEcalDigis_cfi import *
 hltEcalDigisTask = cms.Task(
     hltEcalDigis
 )
+# foo bar baz

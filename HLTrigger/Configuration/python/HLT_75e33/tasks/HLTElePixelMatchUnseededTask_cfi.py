@@ -33,3 +33,4 @@ HLTElePixelMatchUnseededTask = cms.Task(
     hltPixelLayerPairsUnseeded,
     hltPixelLayerTriplets
 )
+# foo bar baz

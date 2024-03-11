@@ -40,3 +40,4 @@ _layerListForPhase2 = ['BPix1+BPix2+BPix3+BPix4',
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(PixelLayerQuadruplets, layerList = _layerListForPhase2)
+# foo bar baz

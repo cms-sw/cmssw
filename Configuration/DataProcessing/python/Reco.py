@@ -366,3 +366,4 @@ class Reco(Scenario):
         print cb.pythonCfgCode
         return process
     """
+# foo bar baz

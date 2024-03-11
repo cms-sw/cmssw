@@ -71,3 +71,4 @@ kfilter = cms.EDFilter(
         )
 
 ProductionFilterSequence = cms.Sequence(generator*bfilter*jpsifilter*kfilter)
+# foo bar baz

@@ -46,3 +46,4 @@ process.outpath = cms.EndPath(process.EVT)
 ############ custom configurations for special studies #############
 #process.ckfTrackCandidatesP5.useHitsSplitting = cms.bool(False)  #avoid to split matched-hits for CTF tracks 
 ####################################################################
+# foo bar baz

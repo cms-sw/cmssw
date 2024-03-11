@@ -52,3 +52,4 @@ DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
 DQMOfflineNanoGen = cms.Sequence(nanogenDQM)
+# foo bar baz

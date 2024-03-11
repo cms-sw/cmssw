@@ -8,3 +8,4 @@ dt2DExtendedSegments = cms.EDProducer("DTRecSegment2DExtendedProducer",
     recClusLabel = cms.InputTag("dt1DClusters"),
     recHits1DLabel = cms.InputTag("dt1DRecHits")
 )
+# foo bar baz

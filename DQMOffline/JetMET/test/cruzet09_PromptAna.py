@@ -118,3 +118,4 @@ process.p = cms.Path(process.jetMETHLTOfflineSource
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 
+# foo bar baz

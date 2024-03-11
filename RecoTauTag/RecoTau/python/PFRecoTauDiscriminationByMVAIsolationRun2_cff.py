@@ -46,3 +46,4 @@ mvaIsolation2TaskRun2 = cms.Task(
    , discriminationByIsolationMVArun2v1
 )
 mvaIsolation2SeqRun2 = cms.Sequence(mvaIsolation2TaskRun2)
+# foo bar baz

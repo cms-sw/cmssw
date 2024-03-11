@@ -13,3 +13,4 @@ initialStepTask = cms.Task(
     initialStepTrackSelectionHighPurity,
     initialStepTracks
 )
+# foo bar baz

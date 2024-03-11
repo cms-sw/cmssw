@@ -18,3 +18,4 @@ from DQMOffline.Configuration.ALCARECOMuonDQM_cff import *
 # unfortunally the ALCARECOTkAl-Producers can not go here because they are filters.
 pathALCARECODQM = cms.Path(MEtoEDMConverter)
 
+# foo bar baz

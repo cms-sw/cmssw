@@ -104,3 +104,4 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
 
 
 
+# foo bar baz

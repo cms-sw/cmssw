@@ -14,3 +14,4 @@ EcalLiteDTUPedestals = cms.ESProducer(
     MeanPedestalsGain1  = cms.double(12.),
     RMSPedestalsGain1   = cms.double(2.)
 )
+# foo bar baz

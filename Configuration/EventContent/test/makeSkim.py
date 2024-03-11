@@ -38,4 +38,4 @@ process.OutModule=cms.OutputModule('PoolOutputModule',
 process.printEventNumber=cms.OutputModule('AsciiOutputModule') 
 
 process.out=cms.EndPath(process.OutModule+process.printEventNumber)                                                       
-  
+  # foo bar baz

@@ -29,3 +29,4 @@ btagCalibEventSelection = cms.PSet(
     )
 )
 
+# foo bar baz

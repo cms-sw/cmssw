@@ -33,3 +33,4 @@ ParametrizedSubtractorBlock = cms.PSet(
     interpolate = cms.bool(False)
 )
 
+# foo bar baz

@@ -4,3 +4,4 @@ conditionDumperInEdm = cms.EDProducer("ConditionDumperInEdm",
                                       gtEvmDigisLabel = cms.InputTag("gtEvmDigis")
                                       )
 
+# foo bar baz

@@ -16,3 +16,4 @@ OutALCARECOPPSCalTrackBasedSel_noDrop = cms.PSet(
 
 OutALCARECOPPSCalTrackBasedSel = OutALCARECOPPSCalTrackBasedSel_noDrop.clone()
 OutALCARECOPPSCalTrackBasedSel.outputCommands.insert(0, 'drop *')
+# foo bar baz

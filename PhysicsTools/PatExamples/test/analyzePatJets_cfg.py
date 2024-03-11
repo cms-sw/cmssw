@@ -41,3 +41,4 @@ process.p = cms.Path(
     process.pflowJets *
     process.shiftedJets
 )
+# foo bar baz

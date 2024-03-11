@@ -4,3 +4,4 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinderDefault_cfi import inc
 
 inclusiveVertexFinder  = inclusiveVertexFinderDefault.clone()
 
+# foo bar baz

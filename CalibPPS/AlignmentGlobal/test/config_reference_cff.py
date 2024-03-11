@@ -59,4 +59,4 @@ ppsAlignmentConfigESSource = cms.ESSource("PPSAlignmentConfigurationESSource",
 	binning = cms.PSet(
 		pixel_x_offset = cms.double(0.)
 	)
-)
+)# foo bar baz

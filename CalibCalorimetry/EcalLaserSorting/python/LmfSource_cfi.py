@@ -10,3 +10,4 @@ source = cms.Source("LmfSource",
   nSecondsToSleep = cms.int32(5),
   verbosity = cms.untracked.int32(0)
 )
+# foo bar baz

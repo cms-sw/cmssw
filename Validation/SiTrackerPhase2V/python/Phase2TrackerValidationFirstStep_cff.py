@@ -20,3 +20,4 @@ trackerphase2ValidationSource = cms.Sequence(pixDigiValid
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toReplaceWith(trackerphase2ValidationSource, trackerphase2ValidationSource.copyAndExclude([trackingRechitValidOT]))
+# foo bar baz

@@ -8,3 +8,4 @@ dtTPmonitorTest = DQMEDHarvester("DTOccupancyTest",
                                  runOnInTimeOccupancies = cms.untracked.bool(True)
                                  )
 
+# foo bar baz

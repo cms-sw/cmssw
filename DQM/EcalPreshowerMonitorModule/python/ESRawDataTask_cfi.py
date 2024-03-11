@@ -8,3 +8,4 @@ ecalPreshowerRawDataTask = DQMEDAnalyzer('ESRawDataTask',
                                           OutputFile = cms.untracked.string("")
                                           )
 
+# foo bar baz

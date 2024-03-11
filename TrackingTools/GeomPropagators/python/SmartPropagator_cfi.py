@@ -9,3 +9,4 @@ SmartPropagator = cms.ESProducer("SmartPropagatorESProducer",
                                  )
 
 
+# foo bar baz

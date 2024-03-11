@@ -24,3 +24,4 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
+# foo bar baz

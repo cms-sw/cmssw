@@ -23,3 +23,4 @@ ecalMonitorTask.collectionTags.EBSuperCluster = 'cosmicSuperClusters:CosmicBarre
 ecalMonitorTask.collectionTags.EESuperCluster = 'cosmicSuperClusters:CosmicEndcapSuperClusters'
 ecalMonitorTask.collectionTags.EBUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
 ecalMonitorTask.collectionTags.EEUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
+# foo bar baz

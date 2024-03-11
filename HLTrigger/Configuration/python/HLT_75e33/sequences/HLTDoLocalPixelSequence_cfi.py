@@ -5,3 +5,4 @@ from ..tasks.HLTDoLocalPixelTask_cfi import *
 HLTDoLocalPixelSequence = cms.Sequence(
     HLTDoLocalPixelTask
 )
+# foo bar baz

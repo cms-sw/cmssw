@@ -33,3 +33,4 @@ correctedHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
 uncleanedOnlyCorrectedHybridSuperClusters =correctedHybridSuperClusters.clone(
     rawSuperClusterProducer = "hybridSuperClusters:uncleanOnlyHybridSuperClusters"
 )
+# foo bar baz

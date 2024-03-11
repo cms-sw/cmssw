@@ -15,3 +15,4 @@ pfNoElectronJME = pfNoElectron.clone(
 pfNoElectronJMEClones = cms.EDProducer("PFCandidateFromFwdPtrProducer",
                                        src=cms.InputTag('pfNoElectronJME')
                                        )
+# foo bar baz

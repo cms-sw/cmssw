@@ -4,3 +4,4 @@ CaloTowerGeometryFromDBEP = cms.ESProducer( "CaloTowerGeometryFromDBEP",
                                             applyAlignment = cms.bool(False)
                                             )
 
+# foo bar baz

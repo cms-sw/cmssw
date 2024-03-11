@@ -45,3 +45,4 @@ MinEta = cms.untracked.vdouble(-2.6, -2.6),
 MaxEta = cms.untracked.vdouble( 2.6, 2.6)
 )
 ProductionFilterSequence = cms.Sequence(generator*etafilter*upsilonfilter)
+# foo bar baz

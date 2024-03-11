@@ -26,3 +26,4 @@ recoMuonPostProcessorsHLT = cms.Sequence(
     postProcessorMuonTrackHLT
     *postProcessorMuonTrackHLTComp
     )
+# foo bar baz

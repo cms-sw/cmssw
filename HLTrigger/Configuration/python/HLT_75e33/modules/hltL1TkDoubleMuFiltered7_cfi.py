@@ -13,3 +13,4 @@ hltL1TkDoubleMuFiltered7 = cms.EDFilter("L1TTkMuonFilter",
     inputTag = cms.InputTag("l1tTkMuonsGmt"),
     saveTags = cms.bool(True)
 )
+# foo bar baz

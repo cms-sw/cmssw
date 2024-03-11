@@ -19,3 +19,4 @@ HLTHPSDeepTauPFTauSequence = cms.Sequence(
     hltHpsPFTauBasicDiscriminatorsdR03ForDeepTau + 
     hltHpsPFTauDeepTauProducer 
 )
+# foo bar baz

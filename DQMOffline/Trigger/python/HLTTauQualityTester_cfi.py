@@ -16,3 +16,4 @@ hltTauOfflineQualityTests        = DQMQualityTester(
                                     )
 
 
+# foo bar baz

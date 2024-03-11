@@ -12,3 +12,4 @@ process.m1 = cms.EDAnalyzer("TestFailuresAnalyzer",
 )
 
 process.p1 = cms.Path(process.m1)
+# foo bar baz

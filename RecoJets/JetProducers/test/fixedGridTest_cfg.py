@@ -17,3 +17,4 @@ process.RECO = cms.OutputModule("PoolOutputModule",
 )
 process.p1 = cms.Path(process.fixedGridRhoCentral*process.fixedGridRhoForward*process.fixedGridRhoAll)
 process.outpath = cms.EndPath(process.RECO)
+# foo bar baz

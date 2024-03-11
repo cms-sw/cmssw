@@ -23,3 +23,4 @@ dtTTrigCalibration = cms.EDAnalyzer("DTTTrigCalibration",
     # the kfactor to be uploaded in the ttrig DB
     kFactor = cms.untracked.double(-0.7)
 )
+# foo bar baz

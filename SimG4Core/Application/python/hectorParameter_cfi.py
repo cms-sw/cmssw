@@ -4,3 +4,4 @@ HectorEtaCut = cms.PSet(
     EtaCutForHector = cms.double(8.2)
 )
 
+# foo bar baz

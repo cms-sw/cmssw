@@ -47,3 +47,4 @@ ecalSCDynamicDPhiParametersESProducer = cms.ESProducer("EcalSCDynamicDPhiParamet
     )
 )
 
+# foo bar baz

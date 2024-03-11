@@ -14,3 +14,4 @@ hlts = DQMEDAnalyzer('HLTScalers',
     verbose = cms.untracked.bool(False)
 )
 
+# foo bar baz

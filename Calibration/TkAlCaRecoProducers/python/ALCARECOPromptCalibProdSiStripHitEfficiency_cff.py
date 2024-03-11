@@ -93,3 +93,4 @@ seqALCARECOPromptCalibProdSiStripHitEfficiency = cms.Sequence(
     ALCARECOTrackFilterRefit *
     ALCARECOSiStripHitEff *
     MEtoEDMConvertSiStripHitEff)
+# foo bar baz

@@ -82,3 +82,4 @@ process.siStripPopConApvGain.Source.name = 'siStripPopConApvGain'
 process.pped = cms.Path(process.siStripPopConApvGain)
 
 
+# foo bar baz

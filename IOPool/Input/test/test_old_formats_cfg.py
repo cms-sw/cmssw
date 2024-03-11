@@ -14,3 +14,4 @@ process.out = cms.OutputModule("PoolOutputModule",
                             fileName = cms.untracked.string("old.root"))
 
 process.t = cms.EndPath(process.tester*process.out)
+# foo bar baz

@@ -2,3 +2,4 @@ import FWCore.ParameterSet.Config as cms
 
 from CalibTracker.SiStripLorentzAngle.siStripLorentzAnglePCLMonitor_cfi import siStripLorentzAnglePCLMonitor
 SiStripLorentzAnglePCLMonitor = siStripLorentzAnglePCLMonitor.clone()
+# foo bar baz

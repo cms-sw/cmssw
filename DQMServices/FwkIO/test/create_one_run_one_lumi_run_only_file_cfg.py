@@ -29,3 +29,4 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.add_(cms.Service("DQMStore"))
 
+# foo bar baz

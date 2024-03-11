@@ -51,3 +51,4 @@ egammavalWenu = cms.Sequence(
         singleElectronRelaxedLargeWindowDQM +
         singlePhotonRelaxedDQM+singlePhotonDQM)
     )
+# foo bar baz

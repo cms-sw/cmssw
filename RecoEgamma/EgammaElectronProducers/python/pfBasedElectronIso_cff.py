@@ -20,3 +20,4 @@ gedElectronPFIsoTask = cms.Task(
 )
 gedElectronPFIsoSequence = cms.Sequence(gedElectronPFIsoTask)
 
+# foo bar baz

@@ -5,3 +5,4 @@ import FWCore.ParameterSet.Config as cms
 #
 from Configuration.HLT.HLTtable_cff import *
 
+# foo bar baz

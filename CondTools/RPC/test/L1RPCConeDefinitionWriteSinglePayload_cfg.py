@@ -341,3 +341,4 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
 
+# foo bar baz

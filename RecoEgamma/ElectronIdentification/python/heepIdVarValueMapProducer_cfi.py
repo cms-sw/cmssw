@@ -26,3 +26,4 @@ heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     trkIso04Config= trkIsol04CfgV2,
                                     makeTrkIso04 = cms.bool(True)
                                     )
+# foo bar baz

@@ -20,3 +20,4 @@ process.load("CalibCalorimetry.EcalLaserSorting.laserSorter_cfi")
 #process.laserSorter.disableOutput = cms.untracked.bool(True)
 
 process.p = cms.Path(process.laserSorter)
+# foo bar baz

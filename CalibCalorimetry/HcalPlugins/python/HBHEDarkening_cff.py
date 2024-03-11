@@ -50,3 +50,4 @@ HBDarkeningEP = HEDarkeningEP.clone(
         cms.PSet(energy = cms.int32(14), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHB_7TeV.txt")),
     ),
 )
+# foo bar baz

@@ -23,3 +23,4 @@ HLTBtagDeepFlavourSequencePFPuppi = cms.Sequence(
     hltPfDeepFlavourTagInfos +
     hltPfDeepFlavourJetTags
 )
+# foo bar baz

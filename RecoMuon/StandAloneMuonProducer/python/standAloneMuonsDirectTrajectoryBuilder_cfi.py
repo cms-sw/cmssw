@@ -21,3 +21,4 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
 
 
 
+# foo bar baz

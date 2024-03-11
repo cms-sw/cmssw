@@ -53,3 +53,4 @@ mix = cms.EDProducer("MixingModule",
 )
 
 
+# foo bar baz

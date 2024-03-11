@@ -88,3 +88,4 @@ def extendOutputEvtContentForHLTTDR(output):
     output.outputCommands.extend(HLTPhase2TDR.outputCommands)        
 
 
+# foo bar baz

@@ -42,3 +42,4 @@ dEdxHitMonMU = dEdxHitAnalyzer.clone(
         andOrHlt = cms.bool(True)
     )
 )
+# foo bar baz

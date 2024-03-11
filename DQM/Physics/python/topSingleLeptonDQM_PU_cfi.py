@@ -768,3 +768,4 @@ topSingleElectronMediumDQM_PU = DQMEDAnalyzer('TopSingleLeptonDQM',
   )
 )
 
+# foo bar baz

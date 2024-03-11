@@ -5,3 +5,4 @@ l1tMHTPFProducer = cms.EDProducer("L1MhtPfProducer",
                                  minJetPt = cms.double(30.0),
                                  maxJetEta = cms.double(2.4)
 )
+# foo bar baz

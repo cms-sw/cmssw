@@ -8,3 +8,4 @@ hltESPTTRHBuilderPixelOnly = cms.ESProducer("TkTransientTrackingRecHitBuilderESP
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('Fake')
 )
+# foo bar baz

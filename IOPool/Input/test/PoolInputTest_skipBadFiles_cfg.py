@@ -33,3 +33,4 @@ process.source = cms.Source("PoolSource",
 process.p = cms.Path(process.intProducer * process.a1)
 
 
+# foo bar baz

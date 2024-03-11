@@ -17,3 +17,4 @@ def processFromFile(filename, args=None):
         sys.argv = old_sys_argv
 
     return process
+# foo bar baz

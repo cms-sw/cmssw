@@ -11,3 +11,4 @@ ClientTrackEfficiencySTACosmicMuons = TrackEffClient.clone(
     FolderName = 'Muons/cosmicMuons',
     AlgoName = 'STA'
 )
+# foo bar baz

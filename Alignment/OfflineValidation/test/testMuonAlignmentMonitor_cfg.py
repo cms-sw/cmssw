@@ -39,3 +39,4 @@ process.p = cms.Path(process.MuonAlignmentMonitor)
 process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 
+# foo bar baz

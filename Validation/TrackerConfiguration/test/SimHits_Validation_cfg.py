@@ -36,3 +36,4 @@ process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 
 
+# foo bar baz

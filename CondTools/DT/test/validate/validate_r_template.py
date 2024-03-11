@@ -29,3 +29,4 @@ process.p = cms.Path(
 ##### PROCESS BEGIN #####
 ##### PROCESS END #####
                     )
+# foo bar baz

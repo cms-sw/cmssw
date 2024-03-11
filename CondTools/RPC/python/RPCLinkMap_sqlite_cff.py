@@ -27,3 +27,4 @@ RPCLinkMapSource = cms.ESSource('PoolDBESSource'
                                 )
                                 , connect = cms.string('sqlite_fip:CondTools/RPC/data/RPCLinkMap.db')
 )
+# foo bar baz

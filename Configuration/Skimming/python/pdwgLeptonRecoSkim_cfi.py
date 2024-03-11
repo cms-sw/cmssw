@@ -30,3 +30,4 @@ PdwgLeptonRecoSkim = cms.EDFilter('LeptonRecoSkim',
   jetN                    = cms.int32(0),
   jetPtMin                = cms.double(0)
 )
+# foo bar baz

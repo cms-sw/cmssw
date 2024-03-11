@@ -65,3 +65,4 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 process.GEN.outputCommands.append("keep *_generator_*_*")
 
 process.outpath = cms.EndPath(process.GEN)
+# foo bar baz

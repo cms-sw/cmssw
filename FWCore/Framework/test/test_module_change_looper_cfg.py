@@ -21,3 +21,4 @@ process.looper = cms.Looper("TestModuleChangeLooper",
 )
 
 process.p1 = cms.Path(process.pInt)
+# foo bar baz

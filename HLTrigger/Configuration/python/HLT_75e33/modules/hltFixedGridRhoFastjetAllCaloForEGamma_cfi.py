@@ -11,3 +11,4 @@ hltFixedGridRhoFastjetAllCaloForEGamma = cms.EDProducer("FixedGridRhoProducerFas
     eThresHB = cms.vdouble( 0.8, 1.2, 1.2, 1.2 ),
     eThresHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
 )
+# foo bar baz

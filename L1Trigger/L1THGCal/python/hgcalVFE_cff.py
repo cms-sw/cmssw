@@ -6,3 +6,4 @@ from L1Trigger.L1THGCal.l1tHGCalVFEProducer_cfi import *
 L1THGCalVFE = cms.Task(l1tHGCalVFEProducer)
 L1THFnoseVFE = cms.Task(l1tHFnoseVFEProducer)
 
+# foo bar baz

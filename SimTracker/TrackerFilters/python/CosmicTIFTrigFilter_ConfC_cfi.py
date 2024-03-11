@@ -7,3 +7,4 @@ fil = cms.EDFilter("CosmicTIFTrigFilter",
 )
 
 
+# foo bar baz

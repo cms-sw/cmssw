@@ -35,3 +35,4 @@ process.maxEvents = cms.untracked.PSet(
 process.listGroups = cms.EDAnalyzer("ListGroups",
                                     SaveSummaryPlot = cms.untracked.bool(True))
 process.path = cms.Path(process.listGroups)
+# foo bar baz

@@ -21,3 +21,4 @@ hltEgammaHcalPFClusterIsoL1Seeded = cms.EDProducer("EgammaHLTHcalPFClusterIsolat
     useEt = cms.bool(True),
     useHF = cms.bool(False)
 )
+# foo bar baz

@@ -92,3 +92,4 @@ SiPixelPhase1RawDataHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )
+# foo bar baz

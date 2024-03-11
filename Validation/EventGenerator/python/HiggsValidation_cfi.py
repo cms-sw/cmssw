@@ -21,3 +21,4 @@ higgsValidation = cms.Sequence(
     Z0testValidation*
     hplusValidation
 )
+# foo bar baz

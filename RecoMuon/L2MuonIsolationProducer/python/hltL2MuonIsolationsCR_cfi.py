@@ -47,3 +47,4 @@ hltL2MuonIsolationsCR = _mod.hltL2MuonIsolations.clone(
     ),
     ExtractorPSet = dict()
 )
+# foo bar baz

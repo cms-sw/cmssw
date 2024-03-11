@@ -181,3 +181,4 @@ if __name__ == '__main__':
     collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, release_format)
     upload_to_gui(args.output_dir, args.nprocs)
     generate_summary_html(args.output_dir, args.pr_list, args.summary_dir)
+# foo bar baz

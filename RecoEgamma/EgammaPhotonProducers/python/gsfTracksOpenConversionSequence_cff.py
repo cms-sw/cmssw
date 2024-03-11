@@ -11,3 +11,4 @@ gsfTracksOpenConversions = allConversions.clone(
     convertedPhotonCollection = 'gsfTracksOpenConversions'
 )
 gsfTracksOpenConversionSequence = cms.Sequence(gsfTracksOpenConversions)
+# foo bar baz

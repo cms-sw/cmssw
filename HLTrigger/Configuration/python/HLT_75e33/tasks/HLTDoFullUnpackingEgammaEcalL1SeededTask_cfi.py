@@ -17,3 +17,4 @@ HLTDoFullUnpackingEgammaEcalL1SeededTask = cms.Task(
     hltEcalUncalibRecHitL1Seeded,
     hltL1TEGammaFilteredCollectionProducer
 )
+# foo bar baz

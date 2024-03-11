@@ -54,3 +54,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testHTXSRivet_ggH4l_MINIAOD_100k.root')
 )
 process.o = cms.EndPath( process.out )
+# foo bar baz

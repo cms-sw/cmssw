@@ -113,3 +113,4 @@ hiRegitLowPtTripletStepTask = cms.Task(hiRegitLowPtTripletStepClusters,
 hiRegitLowPtTripletStep = cms.Sequence(hiRegitLowPtTripletStepTask)
 
 
+# foo bar baz

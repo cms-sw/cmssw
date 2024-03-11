@@ -14,3 +14,4 @@ process.read = cms.EDAnalyzer("ExistingDictionaryTestAnalyzer",
 )
 
 process.p = cms.Path(process.read)
+# foo bar baz

@@ -13,3 +13,4 @@ globalMuonPromptTight_V0 = cms.PSet(
 
 central_id_registry.register(globalMuonPromptTight_V0,
                              '4e200c57c24487498e1673f21c0e682e')
+# foo bar baz

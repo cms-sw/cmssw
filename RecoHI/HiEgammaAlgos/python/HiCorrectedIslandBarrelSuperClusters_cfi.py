@@ -22,3 +22,4 @@ correctedIslandBarrelSuperClusters = cms.EDProducer("HiEgammaSCCorrectionMaker",
     VerbosityLevel = cms.string('ERROR'),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
+# foo bar baz

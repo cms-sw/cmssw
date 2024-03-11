@@ -182,3 +182,4 @@ muonAssociationCosmic_seq = cms.Sequence(
 muonAssociationHLT_seq = cms.Sequence(
     tpToL2TrackAssociation+tpToL2UpdTrackAssociation+tpToL3TrackAssociation+tpToL3TkTrackTrackAssociation
     )
+# foo bar baz

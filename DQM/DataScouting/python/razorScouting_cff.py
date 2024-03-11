@@ -29,3 +29,4 @@ scoutingRazorDQMSequence = cms.Sequence(cms.ignore(scoutingRHemisphere)*
                                         scoutingRazorVariables*
                                         scoutingRazorVarAnalyzer
                                         )
+# foo bar baz

@@ -12,3 +12,4 @@ dtTTrigResidualCorrection = cms.EDAnalyzer("DTTTrigCorrection",
         readLegacyVDriftDB =cms.bool(True)
     ),
 )
+# foo bar baz

@@ -71,3 +71,4 @@ phase2_tracker.toModify(theDigitizers,
 
 theDigitizersValid = cms.PSet(theDigitizers,
                               mergedtruth = cms.PSet(trackingParticles))
+# foo bar baz

@@ -85,3 +85,4 @@ ecalCosmicsHists = cms.EDAnalyzer("EcalCosmicsHists",
 )
 
 
+# foo bar baz

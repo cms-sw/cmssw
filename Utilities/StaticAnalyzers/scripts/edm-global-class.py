@@ -170,3 +170,4 @@ for node in nodes:
         if v in globalclasses:
             print("EDM global class '" + v +
                   "' is flagged because it is connected to flagged class '" + node + "'")
+# foo bar baz

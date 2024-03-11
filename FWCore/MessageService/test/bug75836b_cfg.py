@@ -14,3 +14,4 @@ process.o = cms.Path(process.doit)
 process.options = cms.untracked.PSet( 
 	StopProcessing = cms.untracked.vstring('ProductNotFound') )
  
+# foo bar baz

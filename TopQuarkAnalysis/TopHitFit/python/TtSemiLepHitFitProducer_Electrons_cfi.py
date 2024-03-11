@@ -50,3 +50,4 @@ hitFitTtSemiLepEvent = cms.EDProducer("TtSemiLepHitFitProducerElectron",
 )
 
 
+# foo bar baz

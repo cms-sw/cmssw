@@ -6,3 +6,4 @@ slimmedGenJetsFlavourInfos = cms.EDProducer("GenJetFlavourInfoPreserver",
     genJetFlavourInfos = cms.InputTag("ak4GenJetFlavourInfos"),
     slimmedGenJetAssociation = cms.InputTag("slimmedGenJets", "slimmedGenJetAssociation")
 )
+# foo bar baz

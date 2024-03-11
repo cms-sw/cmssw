@@ -6,3 +6,4 @@ highPtTrackRefs = cms.EDFilter("TrackRefSelector",
 )
 
 
+# foo bar baz

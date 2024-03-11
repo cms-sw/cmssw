@@ -35,3 +35,4 @@ run2_miniAOD_80XLegacy.toReplaceWith(ootPhotonTask, cms.Task(
                                      particleFlowClusterPS,
                                      ootPhotonTask.copy()
                                      ))
+# foo bar baz

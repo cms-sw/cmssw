@@ -10,3 +10,4 @@ Geant4ePropagator = cms.ESProducer("GeantPropagatorESProducer",
                                    ParticleName=cms.string("mu"),
                                    PropagationPtotLimit = cms.double(1.0) ## GeV/c
                                    )
+# foo bar baz

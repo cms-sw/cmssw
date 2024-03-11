@@ -259,3 +259,4 @@ class ConfigData:
         if args.outputpath:
             self.outputPath = args.outputpath
 
+# foo bar baz

@@ -4,3 +4,4 @@ castorRawData = cms.EDProducer("CastorDigiToRaw",
     CASTOR = cms.InputTag("simCastorDigis"),
     CastorCtdc = cms.bool(False)
 )
+# foo bar baz

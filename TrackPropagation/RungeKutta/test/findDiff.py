@@ -46,3 +46,4 @@ l2 = file2.readlines()
 for i in range(10) :
     print(l1[ml+i].rstrip('\n'))
     print(l2[ml+i].rstrip('\n'))
+# foo bar baz

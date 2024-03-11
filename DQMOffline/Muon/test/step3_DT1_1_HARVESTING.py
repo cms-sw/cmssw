@@ -56,3 +56,4 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 process.schedule = cms.Schedule(process.edmtome_step,process.dqmHarvestingPOG,process.dqmsave_step)
 #process.schedule = cms.Schedule(process.edmtome_step,process.dqmHarvesting,process.dqmsave_step)
 
+# foo bar baz

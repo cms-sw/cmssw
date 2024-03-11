@@ -140,3 +140,4 @@ process.MessageLogger.cerr.FwkReport.reportEvery = options.eventsPerFile
 outputRunPath = f'{options.outputPath}/run{options.runNumber:06d}'
 os.makedirs(outputRunPath, exist_ok=True)
 open(f'{outputRunPath}/fu.lock', 'w').close()
+# foo bar baz

@@ -39,3 +39,4 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
         thresh_HF = cms.double(0.4)
     ))
 )
+# foo bar baz

@@ -12,3 +12,4 @@ dd4hep.toModify(TrackTrigger_params,
 )
 
 TrackTriggerSetup = cms.ESProducer("tt::ProducerSetup", TrackTrigger_params)
+# foo bar baz

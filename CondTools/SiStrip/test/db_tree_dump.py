@@ -155,3 +155,4 @@ process.treeDump = cms.EDAnalyzer('SiStripDB2Tree',
                                   StripQualityLabel = cms.string('MergedBadComponent') 
                                   )
 process.p = cms.Path(process.treeDump)
+# foo bar baz

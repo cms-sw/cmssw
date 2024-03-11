@@ -22,3 +22,4 @@ l1tscalers = DQMEDAnalyzer('L1TScalersSCAL',
                    scalersResults = cms.InputTag("scalersRawToDigi","","DQM")                                     	
 )
                                                                                          
+# foo bar baz

@@ -129,3 +129,4 @@ reconstructionCosmics_woTkBHMTask = cms.Task(localReconstructionCosmicsTask,
 
 phase2_tracker.toReplaceWith(reconstructionCosmics_woTkBHMTask,reconstructionCosmics_woTkBHMTask.copyAndExclude([beamhaloTracksTask,cosmicDCTracksSeqTask,regionalCosmicTracksTask]))  
 reconstructionCosmics_woTkBHM = cms.Sequence(reconstructionCosmics_woTkBHMTask)
+# foo bar baz

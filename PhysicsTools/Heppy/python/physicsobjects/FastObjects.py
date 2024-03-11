@@ -28,3 +28,4 @@ def decorate(orig,deco):
 
 #	decorate(o)
 #	o=AddPhysObj
+# foo bar baz

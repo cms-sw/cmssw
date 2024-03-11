@@ -6,3 +6,4 @@ muonSelectorVertex = cms.EDProducer(
 , vertexSource = cms.InputTag( 'offlinePrimaryVertices' )
 , maxDZ = cms.double( 0.5 )
 )
+# foo bar baz

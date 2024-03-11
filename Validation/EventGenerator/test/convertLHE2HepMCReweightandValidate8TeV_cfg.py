@@ -74,3 +74,4 @@ process.p = cms.Path( process.lheCOMWeightProducer +
                       process.genvalid_all + 
                       process.endOfProcess )
 process.e = cms.EndPath(process.out)
+# foo bar baz

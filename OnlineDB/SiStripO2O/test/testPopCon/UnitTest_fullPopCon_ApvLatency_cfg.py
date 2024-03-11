@@ -84,3 +84,4 @@ process.siStripPopConApvLatency.Source.name = 'siStripPopConApvLatency'
 process.pped = cms.Path(process.siStripPopConApvLatency)
 
 
+# foo bar baz

@@ -16,3 +16,4 @@ miniAODElectronIsolation = _egmElectronIsolationCITK.clone(
 electronValidationTaskMiniAOD = cms.Task(egmElectronIsolationCITK, miniAODElectronIsolation, ElectronIsolation)
 electronValidationSequenceMiniAOD = cms.Sequence(electronMcSignalValidatorMiniAOD, electronValidationTaskMiniAOD)
 
+# foo bar baz

@@ -12,3 +12,4 @@ highPtTripletStepTrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamS
     ),
     mightGet = cms.optional.untracked.vstring
 )
+# foo bar baz

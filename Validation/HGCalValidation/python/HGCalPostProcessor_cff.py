@@ -19,3 +19,4 @@ hgcalValidatorPostProcessor = cms.Sequence(
     postProcessorHGCALlayerclusters+
     postProcessorHGCALsimclusters+
     postProcessorHGCALTracksters)
+# foo bar baz

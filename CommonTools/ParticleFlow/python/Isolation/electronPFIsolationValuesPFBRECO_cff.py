@@ -81,3 +81,4 @@ electronPFIsolationValuesPFBRECOTask = cms.Task(
     elPFIsoValuePU04NoPFIdPFBRECO)
 
 electronPFIsolationValuesPFBRECOSequence = cms.Sequence(electronPFIsolationValuesPFBRECOTask)
+# foo bar baz

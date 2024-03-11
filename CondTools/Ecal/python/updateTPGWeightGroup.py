@@ -81,3 +81,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGWeightGroupAnalyzer",
 )
 
 process.p = cms.Path(process.Test1)
+# foo bar baz

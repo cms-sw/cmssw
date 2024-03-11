@@ -34,3 +34,4 @@ l1tStage2BmtfClient = cms.Sequence(
     l1tStage2BmtfZeroSuppCompClient
 )
 
+# foo bar baz

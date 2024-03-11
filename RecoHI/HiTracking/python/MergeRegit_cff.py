@@ -6,3 +6,4 @@ hiGeneralAndRegitTracks = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_
     promoteTrackQuality = True,
     copyExtras=True
     )
+# foo bar baz

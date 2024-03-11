@@ -10,3 +10,4 @@ pfPhotonInterestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetI
     basicClustersLabel = "pfPhotonTranslator:pfphot",
     recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
+# foo bar baz

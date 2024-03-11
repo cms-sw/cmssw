@@ -14,3 +14,4 @@ beamspotanalyzer = cms.EDAnalyzer('AnotherBeamSpotAnalyzer',
                                          )
                                       )
 
+# foo bar baz

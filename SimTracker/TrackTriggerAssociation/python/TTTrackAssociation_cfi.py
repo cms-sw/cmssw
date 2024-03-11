@@ -9,3 +9,4 @@ TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_Phase2Tracke
     TTTrackAllowOneFalse2SStub = cms.bool(True),
 )
 
+# foo bar baz

@@ -15,3 +15,4 @@ simEcalEBTriggerPrimitivePhase2Digis = cms.EDProducer("EcalEBTrigPrimPhase2Produ
 
 from Configuration.Eras.Modifier_phase2_ecalTP_devel_cff import phase2_ecalTP_devel
 phase2_ecalTP_devel.toModify( simEcalEBTriggerPrimitivePhase2Digis)
+# foo bar baz

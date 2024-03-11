@@ -300,3 +300,4 @@ else:
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
                          process.jetHTAnalyzer)
+# foo bar baz

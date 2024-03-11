@@ -8,3 +8,4 @@ from RecoEgamma.EgammaHFProducers.hfClusterShapes_cfi import *
 from RecoEgamma.EgammaHFProducers.hfRecoEcalCandidate_cfi import *
 hfEMClusteringTask = cms.Task(hfEMClusters,hfRecoEcalCandidate)
 hfEMClusteringSequence = cms.Sequence(hfEMClusteringTask)
+# foo bar baz

@@ -26,3 +26,4 @@ DTSegAnalyzer = cms.EDAnalyzer("DTSegAnalyzer",
 
 
 
+# foo bar baz

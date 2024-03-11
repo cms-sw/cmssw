@@ -83,3 +83,4 @@ process.p = cms.Path(process.mix*process.muonCSCDigis*process.csc2DRecHits)
 process.cscSegments.algo_type = 4
 
 
+# foo bar baz

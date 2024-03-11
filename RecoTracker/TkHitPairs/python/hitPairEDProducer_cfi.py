@@ -3,3 +3,4 @@ from RecoTracker.TkHitPairs.hitPairEDProducerDefault_cfi import hitPairEDProduce
 hitPairEDProducer = _hitPairEDProducerDefault.clone()
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(hitPairEDProducer, maxElement=0)
+# foo bar baz

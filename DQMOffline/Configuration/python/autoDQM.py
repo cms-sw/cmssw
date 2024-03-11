@@ -258,3 +258,4 @@ autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
 autoDQM['phase2'][1] = 'PostDQMOffline'
+# foo bar baz

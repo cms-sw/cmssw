@@ -6,3 +6,4 @@ highPtMuonRefs = cms.EDFilter("MuonRefSelector",
 )
 
 
+# foo bar baz

@@ -9,3 +9,4 @@ spclustermultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                                           cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("FPIX"))
                                                           )
                                 )
+# foo bar baz

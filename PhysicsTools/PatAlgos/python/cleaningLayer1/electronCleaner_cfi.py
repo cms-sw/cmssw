@@ -23,3 +23,4 @@ cleanPatElectrons = cms.EDProducer("PATElectronCleaner",
     # finalCut (any string-based cut for pat::Electron)
     finalCut = cms.string(''),
 )
+# foo bar baz

@@ -12,3 +12,4 @@ hltEgammaCkfTrackCandidatesForGSFUnseeded = electronCkfTrackCandidates.clone()
 hltEgammaCkfTrackCandidatesForGSFUnseeded.src = "hltEgammaElectronPixelSeedsUnseeded"
 hltEgammaGsfTracksUnseeded = hltEgammaGsfTracks.clone()
 hltEgammaGsfTracksUnseeded.src =  'hltEgammaCkfTrackCandidatesForGSFUnseeded'
+# foo bar baz

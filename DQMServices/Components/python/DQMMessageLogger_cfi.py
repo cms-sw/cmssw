@@ -9,3 +9,4 @@ DQMMessageLogger = DQMEDAnalyzer('DQMMessageLogger',
                              )
 
 
+# foo bar baz

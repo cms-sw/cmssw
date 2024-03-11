@@ -6,3 +6,4 @@ allSuperClusters = cms.EDProducer("EcalCandidateProducer",
 )
 
 
+# foo bar baz

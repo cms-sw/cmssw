@@ -43,3 +43,4 @@ metrecoCosmics_woHcalNoiseTask = cms.Task(
 metrecoCosmics_woHcalNoise = cms.Sequence(metrecoCosmics_woHcalNoiseTask)
 
 ##____________________________________________________________________________||
+# foo bar baz

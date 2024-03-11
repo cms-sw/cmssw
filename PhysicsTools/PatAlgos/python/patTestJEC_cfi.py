@@ -46,3 +46,4 @@ jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                    )
 
 es_prefer_jec = cms.ESPrefer("PoolDBESSource","jec")
+# foo bar baz

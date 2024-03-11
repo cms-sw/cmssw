@@ -30,3 +30,4 @@ process.TFileService = cms.Service("TFileService",
 process.p1 = cms.Path(process.MyModule)
 process.schedule = cms.Schedule(process.p1)
 
+# foo bar baz

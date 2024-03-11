@@ -235,3 +235,4 @@ fftjet_peakfunctor_const_one = cms.PSet(
     Class = cms.string("ConstDouble"),
     value = cms.double(1.0)
 )
+# foo bar baz

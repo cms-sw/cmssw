@@ -7,3 +7,4 @@ OppositeAnalyticalPropagator = cms.ESProducer("AnalyticalPropagatorESProducer",
 )
 
 
+# foo bar baz

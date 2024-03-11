@@ -9,3 +9,4 @@ caloTowerCandidates = cms.EDProducer("CaloTowerCandidateCreator",
 )
 
 
+# foo bar baz

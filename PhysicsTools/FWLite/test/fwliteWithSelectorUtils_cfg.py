@@ -20,3 +20,4 @@ process.selection = cms.PSet(
        #cutsToIgnore = cms.vstring('MET')
 )
 
+# foo bar baz

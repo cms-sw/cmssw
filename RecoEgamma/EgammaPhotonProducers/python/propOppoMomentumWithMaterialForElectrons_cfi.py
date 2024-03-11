@@ -6,3 +6,4 @@ oppositeToMomElePropagator = TrackingTools.MaterialEffects.OppositeMaterialPropa
     Mass          = 0.000511,
     ComponentName = 'oppositeToMomElePropagator'
 )
+# foo bar baz

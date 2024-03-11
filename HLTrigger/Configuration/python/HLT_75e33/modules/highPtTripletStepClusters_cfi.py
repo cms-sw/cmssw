@@ -12,3 +12,4 @@ highPtTripletStepClusters = cms.EDProducer("TrackClusterRemoverPhase2",
     trackClassifier = cms.InputTag("","QualityMasks"),
     trajectories = cms.InputTag("initialStepTrackSelectionHighPurity")
 )
+# foo bar baz

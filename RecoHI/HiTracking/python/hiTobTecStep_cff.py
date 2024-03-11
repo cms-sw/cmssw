@@ -115,3 +115,4 @@ hiTobTecStepTask = cms.Task(hiTobTecStepClusters,
                           hiTobTecStepQual
                           )
 hiTobTecStep = cms.Sequence(hiTobTecStepTask)
+# foo bar baz

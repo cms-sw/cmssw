@@ -15,3 +15,4 @@ egmPhotonIsolationAODTask = cms.Task(pfNoPileUpIsoTask,
                                      pfNoPileUpCandidates,
                                      egmPhotonIsolation)
 egmPhotonIsolationAODSequence = cms.Sequence(egmPhotonIsolationAODTask)
+# foo bar baz

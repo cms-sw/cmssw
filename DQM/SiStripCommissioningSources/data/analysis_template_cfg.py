@@ -36,3 +36,4 @@ process.db_client.PedsFullNoiseParameters.DisableBadStrips = cms.bool(False)
 process.db_client.PedsFullNoiseParameters.KeepStripsDisabled = cms.bool(False)
 
 process.p = cms.Path(process.db_client)
+# foo bar baz

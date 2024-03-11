@@ -14,3 +14,4 @@ jetProbabilityComputer = cms.ESProducer("JetProbabilityESProducer",
     trackQualityClass = cms.string("any"),
     useVariableJTA = cms.bool(False)
 )
+# foo bar baz

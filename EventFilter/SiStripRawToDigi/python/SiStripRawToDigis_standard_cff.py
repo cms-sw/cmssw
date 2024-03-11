@@ -8,3 +8,4 @@ from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 #include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi"
 SiStripRawToDigis = cms.Sequence(siStripDigis)
 
+# foo bar baz

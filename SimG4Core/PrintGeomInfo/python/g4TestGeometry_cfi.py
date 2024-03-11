@@ -44,3 +44,4 @@ def checkOverlap(process):
     process.g4SimHits.LHCTransport = False
 
     return(process)
+# foo bar baz

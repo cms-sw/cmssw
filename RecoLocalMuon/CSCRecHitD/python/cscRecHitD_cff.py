@@ -44,3 +44,4 @@ cscRecHitDParameters = dict(
     NoiseLevel_ME41 = 5.0
 )
 
+# foo bar baz

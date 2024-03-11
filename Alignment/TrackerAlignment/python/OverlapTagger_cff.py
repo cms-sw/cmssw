@@ -7,3 +7,4 @@ OverlapTagger = cms.EDProducer("OverlapTagger",
                                BadMods = cms.vuint32()
 
                                )###end of module
+# foo bar baz

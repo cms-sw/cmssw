@@ -30,3 +30,4 @@ hltEle5WPTightHgcalIsoUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEt
     useEt = cms.bool(False),
     varTag = cms.InputTag("hltEgammaHGCalLayerClusterIsoUnseeded")
 )
+# foo bar baz

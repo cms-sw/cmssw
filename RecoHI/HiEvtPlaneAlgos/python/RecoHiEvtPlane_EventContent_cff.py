@@ -20,3 +20,4 @@ RecoHiEvtPlaneFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoHiEvtPlaneFEVT.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
+# foo bar baz

@@ -9,3 +9,4 @@ dtVDriftMeanTimerWriter = cms.EDAnalyzer("DTVDriftWriter",
     readLegacyVDriftDB = cms.bool(True),
     writeLegacyVDriftDB = cms.bool(True)
 )
+# foo bar baz

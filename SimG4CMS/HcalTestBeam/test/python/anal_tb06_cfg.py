@@ -40,3 +40,4 @@ process.maxEvents = cms.untracked.PSet(
 #process.Timing = cms.Service("Timing")
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
+# foo bar baz

@@ -546,3 +546,4 @@ subprocessDA.p = cms.Path(
     subprocessDA.consumerDEventNotConsumedInDA,
     subprocessDA.t
 )
+# foo bar baz

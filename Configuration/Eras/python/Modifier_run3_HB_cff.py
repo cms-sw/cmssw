@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 
 run3_HB =  cms.Modifier()
 
+# foo bar baz

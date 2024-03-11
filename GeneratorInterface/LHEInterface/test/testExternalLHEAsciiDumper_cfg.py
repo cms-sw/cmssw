@@ -16,3 +16,4 @@ process.load("GeneratorInterface/LHEInterface/ExternalLHEAsciiDumper_cfi")
 process.p = cms.Path(process.externalLHEAsciiDumper)
 
 
+# foo bar baz

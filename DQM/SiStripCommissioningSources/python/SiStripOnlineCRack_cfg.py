@@ -160,3 +160,4 @@ process.outpath = cms.EndPath( process.consumer )
 
 #############################################
 
+# foo bar baz

@@ -35,3 +35,4 @@ hltPrimaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     usePVMET = cms.bool(True),
     vertices = cms.InputTag("offlinePrimaryVertices")
 )
+# foo bar baz

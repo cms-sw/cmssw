@@ -6,3 +6,4 @@ fwdGsfElectronPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cfi.
     Mass          = 0.000511,
     ComponentName = 'fwdGsfElectronPropagator'
 )
+# foo bar baz

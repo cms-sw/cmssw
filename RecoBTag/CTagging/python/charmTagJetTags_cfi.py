@@ -14,3 +14,4 @@ pfCombinedCvsLJetTags  = cms.EDProducer(
 pfCombinedCvsBJetTags = pfCombinedCvsLJetTags.clone(
    jetTagComputer = 'charmTagsComputerCvsB'
    )
+# foo bar baz

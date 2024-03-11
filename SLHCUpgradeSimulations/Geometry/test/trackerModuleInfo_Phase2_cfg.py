@@ -31,3 +31,4 @@ process.prod = cms.EDAnalyzer("ModuleInfo_Phase2",
    fromDDD = cms.bool(True)
 )
 process.p = cms.Path(process.prod)
+# foo bar baz

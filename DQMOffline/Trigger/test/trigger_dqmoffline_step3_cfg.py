@@ -37,3 +37,4 @@ process.EDMtoMEConverter.convertOnEndRun = False
 process.p1 = cms.Path(process.EDMtoMEConverter*process.triggerOfflineDQMClient * process.hltOfflineDQMClient * process.dqmSaver)
 #process.p1 = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
 
+# foo bar baz

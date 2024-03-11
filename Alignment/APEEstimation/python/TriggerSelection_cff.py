@@ -26,3 +26,4 @@ TriggerSelectionSequence = cms.Sequence(
 
 
 
+# foo bar baz

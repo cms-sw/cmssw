@@ -79,3 +79,4 @@ process.stat = cms.EDAnalyzer("TrackHitPositions",
 process.p = cms.Path(process.stat)
 
 
+# foo bar baz

@@ -33,3 +33,4 @@ process.prefer("good")
 process.p1 = cms.Path(process.m)
 
 
+# foo bar baz

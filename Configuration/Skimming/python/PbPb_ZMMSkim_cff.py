@@ -46,3 +46,4 @@ zMMSkimSequence = cms.Sequence(
     dimuonMassCutForZMM *
     dimuonMassCutFilterForZMM
     )
+# foo bar baz

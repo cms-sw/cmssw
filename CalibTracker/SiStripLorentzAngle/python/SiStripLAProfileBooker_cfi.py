@@ -35,3 +35,4 @@ sistripLAProfile = cms.EDAnalyzer("SiStripLAProfileBooker",
 )
 
 
+# foo bar baz

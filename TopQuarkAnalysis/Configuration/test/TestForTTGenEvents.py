@@ -90,3 +90,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_Analyzer')
 )
 process.outpath = cms.EndPath(process.out, process.task)
+# foo bar baz

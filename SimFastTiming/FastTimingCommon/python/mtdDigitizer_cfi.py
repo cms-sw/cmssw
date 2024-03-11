@@ -118,3 +118,4 @@ mtdDigitizer = cms.PSet(
     barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
+# foo bar baz

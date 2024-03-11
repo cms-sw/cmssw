@@ -13,3 +13,4 @@ l1tSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
   format = cms.string("EMPv2"),
   outputFileExtension = cms.string("txt.gz")
 )
+# foo bar baz

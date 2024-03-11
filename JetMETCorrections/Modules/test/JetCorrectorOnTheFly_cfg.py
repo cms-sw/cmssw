@@ -38,3 +38,4 @@ process.testPF  = cms.EDAnalyzer('PFJetCorrectorOnTheFly',
                       #process.ak4PFL2L3ResidualCorrectorChain * process.testPF)
 process.p = cms.Path(process.ak4PFL2L3ResidualCorrectorChain * process.testPF)
 
+# foo bar baz

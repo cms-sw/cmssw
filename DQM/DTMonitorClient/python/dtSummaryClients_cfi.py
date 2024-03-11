@@ -4,3 +4,4 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dtSummaryClients = DQMEDHarvester("DTSummaryClients")
 
 
+# foo bar baz

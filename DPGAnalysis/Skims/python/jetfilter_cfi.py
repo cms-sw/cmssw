@@ -8,3 +8,4 @@ jetfilter = cms.EDFilter("SimpleJetFilter",
                          nJetMin = cms.uint32(2)
                          )
 
+# foo bar baz

@@ -400,3 +400,4 @@ class PickRelValInputFiles( ConfigToolBase ):
         return filePaths
 
 pickRelValInputFiles = PickRelValInputFiles()
+# foo bar baz

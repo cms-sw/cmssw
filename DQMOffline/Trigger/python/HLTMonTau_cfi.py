@@ -111,3 +111,4 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
 
 hltMonTauReco =cms.Sequence(hltTauMonitor+hltTauElectronMonitor)
 
+# foo bar baz

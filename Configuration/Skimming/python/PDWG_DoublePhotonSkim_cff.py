@@ -15,3 +15,4 @@ diphotonSkimSequence = cms.Sequence(
     photonCandsPt30HOverE01 *
     twoPhotonsPt30HOverE01
     )
+# foo bar baz

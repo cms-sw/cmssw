@@ -30,3 +30,4 @@ process.h = cms.EDProducer("HierarchicalEDProducer",
 process.p = cms.Path(process.h)
 
 
+# foo bar baz

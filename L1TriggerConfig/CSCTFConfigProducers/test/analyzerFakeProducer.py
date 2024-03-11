@@ -87,3 +87,4 @@ process.simCsctfTrackDigis.useDT = cms.bool(False)
 
 process.p = cms.Path(process.csctfDigis*process.simCsctfTrackDigis)
 
+# foo bar baz

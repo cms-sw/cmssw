@@ -157,3 +157,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.path1 = cms.Path(process.test * process.test2)
 process.e = cms.EndPath(process.out)
+# foo bar baz

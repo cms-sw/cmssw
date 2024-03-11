@@ -95,3 +95,4 @@ process.ep = cms.EndPath(process.out)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.MessageLogger.cerr.threshold = 'INFO'
+# foo bar baz

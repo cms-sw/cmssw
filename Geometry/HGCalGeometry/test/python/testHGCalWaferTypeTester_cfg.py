@@ -75,3 +75,4 @@ process.hgcalHEWaferTypeTester = process.hgcalEEWaferTypeTester.clone(
 )
 
 process.p1 = cms.Path(process.generator*process.hgcalEEWaferTypeTester*process.hgcalHEWaferTypeTester)
+# foo bar baz

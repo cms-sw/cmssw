@@ -7,3 +7,4 @@ siStripFedCabling = cms.ESSource("SiStripFedCablingFakeESSource",
                                  )
 
 
+# foo bar baz

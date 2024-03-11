@@ -39,3 +39,4 @@ simulationTask = cms.Task(psimTask)
 simulation = cms.Sequence(pdigi, simulationTask)
 
 
+# foo bar baz

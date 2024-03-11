@@ -9,3 +9,4 @@ mcvsrecoverticesanalyzer = cms.EDAnalyzer("MCvsRecoVerticesAnalyzer",
                                           weightProduct = cms.InputTag("mcvertexweight")
                            )
 
+# foo bar baz

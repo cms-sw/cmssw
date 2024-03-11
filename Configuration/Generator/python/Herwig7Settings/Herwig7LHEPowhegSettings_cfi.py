@@ -11,3 +11,4 @@ herwig7LHEPowhegSettingsBlock = cms.PSet(
         'set /Herwig/Particles/t:NominalMass 172.5'
     )
 )
+# foo bar baz

@@ -65,3 +65,4 @@ hltPhase2L3MuonHighPtTripletStepSeedLayers = cms.EDProducer("SeedingLayersEDProd
     ),
     mightGet = cms.optional.untracked.vstring
 )
+# foo bar baz

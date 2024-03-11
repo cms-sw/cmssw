@@ -10,3 +10,4 @@ DTClusAnalyzer = cms.EDAnalyzer("DTClusAnalyzer",
 
 
 
+# foo bar baz

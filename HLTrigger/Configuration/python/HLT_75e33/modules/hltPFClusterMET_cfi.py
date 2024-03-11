@@ -5,3 +5,4 @@ hltPFClusterMET = cms.EDProducer("PFClusterMETProducer",
     globalThreshold = cms.double(0.0),
     src = cms.InputTag("pfClusterRefsForJets")
 )
+# foo bar baz

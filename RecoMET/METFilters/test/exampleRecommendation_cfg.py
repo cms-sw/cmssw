@@ -66,3 +66,4 @@ process.filtersSeq = cms.Sequence(
    process.eeBadScFilter * 
    ~process.manystripclustersFilter * ~process.toomanystripclustersFilter * ~process.logErrorTooManyClusters
 )
+# foo bar baz

@@ -40,3 +40,4 @@ process.l1cpw = cms.EDAnalyzer("L1TCaloStage2ParamsWriter", isO2Opayload = cms.u
 
 process.p = cms.Path(process.getter + process.l1cpw)
 
+# foo bar baz

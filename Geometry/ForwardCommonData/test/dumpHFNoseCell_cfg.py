@@ -24,3 +24,4 @@ process.dump = cms.EDAnalyzer("DumpSimGeometry",
                               outputFileName = cms.untracked.string('hfnoseCell.root'))
 
 process.p = cms.Path(process.dump)
+# foo bar baz

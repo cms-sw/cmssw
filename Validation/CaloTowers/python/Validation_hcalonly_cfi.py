@@ -51,3 +51,4 @@ VtxSmeared.SigmaZ = 0.00001
 hbheprereco.digiLabel = 'simHcalDigis'
 horeco.digiLabel = 'simHcalDigis'
 hfreco.digiLabel = 'simHcalDigis'
+# foo bar baz

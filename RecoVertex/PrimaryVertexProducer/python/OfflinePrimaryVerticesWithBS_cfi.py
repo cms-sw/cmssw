@@ -7,3 +7,4 @@ offlinePrimaryVerticesWithBS = cms.EDFilter("VertexSelector",
 )
                                               
 
+# foo bar baz

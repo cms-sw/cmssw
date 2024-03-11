@@ -336,4 +336,4 @@ class script_tests(unittest.TestCase):
 		self.assertEqual(data.get(0, "payload_hash").data(), "1480c559bbbdacfec514c3cbcf2eb978403efd74")
 
 	def tearDown(self):
-		self.connection.close_session()
+		self.connection.close_session()# foo bar baz

@@ -84,3 +84,4 @@ process.testSTA = cms.Path(process.staMuons+process.tk+process.glbMuons)
 #process.testSTA = cms.Path(process.staMuons+process.tk)
 #process.testSTA = cms.Path(process.tk)
 #process.testSTA = cms.Path(process.staMuons)
+# foo bar baz

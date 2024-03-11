@@ -11,3 +11,4 @@ heavyIonPatCandidates = cms.Sequence(
     makeHeavyIonPhotons +
     makeHeavyIonMuons
 )
+# foo bar baz

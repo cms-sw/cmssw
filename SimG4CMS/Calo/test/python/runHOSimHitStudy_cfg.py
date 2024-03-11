@@ -41,3 +41,4 @@ process.HOSimHitStudy.ScaleHO   = 2.33
 
 process.p1 = cms.Path(process.HOSimHitStudy)
 
+# foo bar baz

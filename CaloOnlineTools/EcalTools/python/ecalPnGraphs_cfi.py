@@ -15,3 +15,4 @@ ecalPnGraphs = cms.EDAnalyzer("EcalPnGraphs",
 )
 
 
+# foo bar baz

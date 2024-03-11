@@ -130,3 +130,4 @@ class logger:
         else:
             print('cannot stage out, the log is not staged in')
             
+# foo bar baz

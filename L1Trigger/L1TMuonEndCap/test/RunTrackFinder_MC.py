@@ -237,3 +237,4 @@ process.schedule = cms.Schedule(process.L1RePack_step,process.raw2digi_step,proc
 # ## What does this do? Necessary? - AWB 29.04.16
 # from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1
 # process = customise_csc_PostLS1(process)
+# foo bar baz

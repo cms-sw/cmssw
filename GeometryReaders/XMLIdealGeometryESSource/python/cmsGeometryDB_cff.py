@@ -4,3 +4,4 @@ XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
                                  rootDDName = cms.string('cms:OCMS'),
                                  label = cms.string('Extended')
                                  )
+# foo bar baz

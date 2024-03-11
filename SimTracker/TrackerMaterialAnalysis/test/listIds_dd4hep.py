@@ -45,3 +45,4 @@ process.test = cms.EDAnalyzer(
 process.path = cms.Path(
     process.test
 )
+# foo bar baz

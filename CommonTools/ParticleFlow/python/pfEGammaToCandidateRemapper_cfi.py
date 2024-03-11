@@ -9,3 +9,4 @@ pfEGammaToCandidateRemapper = cms.EDProducer("PFEGammaToCandidateRemapper",
 )
 
 pfEGammaToCandidateRemapperCleaned = pfEGammaToCandidateRemapper.clone(pf2pf = "cleanedParticleFlow")
+# foo bar baz

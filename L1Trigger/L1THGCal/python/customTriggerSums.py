@@ -29,3 +29,4 @@ def custom_full_trigger_sums(process):
     process.l1tHGCalConcentratorProducer.ProcessorParameters.allTrigCellsInTrigSums = cms.bool(True)
     process.l1tHGCalConcentratorProducerHFNose.ProcessorParameters.allTrigCellsInTrigSums = cms.bool(True)
     return process
+# foo bar baz

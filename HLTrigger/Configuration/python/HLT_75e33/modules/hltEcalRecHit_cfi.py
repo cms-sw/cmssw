@@ -84,3 +84,4 @@ hltEcalRecHit = cms.EDProducer("EcalRecHitProducer",
     sum8ChannelRecoveryThreshold = cms.double(0.0),
     triggerPrimitiveDigiCollection = cms.InputTag("hltEcalDigis","EcalTriggerPrimitives")
 )
+# foo bar baz

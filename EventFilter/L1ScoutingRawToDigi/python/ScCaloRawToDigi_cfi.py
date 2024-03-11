@@ -4,4 +4,4 @@ ScCaloUnpacker = cms.EDProducer("ScCaloRawToDigi",
   srcInputTag = cms.InputTag("rawDataCollector"),
   # print all objects
   debug = cms.untracked.bool(False)
-)
+)# foo bar baz

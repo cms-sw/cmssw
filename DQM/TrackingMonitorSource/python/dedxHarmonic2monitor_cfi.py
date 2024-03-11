@@ -26,3 +26,4 @@ dedxHarmonicSequence+=dedxDQMHarm2PO
 #    RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO
 #    * dEdxAnalyzer
 #)
+# foo bar baz

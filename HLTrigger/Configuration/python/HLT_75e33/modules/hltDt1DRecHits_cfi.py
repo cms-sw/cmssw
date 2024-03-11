@@ -27,3 +27,4 @@ hltDt1DRecHits = cms.EDProducer("DTRecHitProducer",
         useUncertDB = cms.bool(True)
     )
 )
+# foo bar baz

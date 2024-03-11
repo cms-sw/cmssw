@@ -56,3 +56,4 @@ class EventSelector( Analyzer ):
             return True 
         else:
             return False
+# foo bar baz

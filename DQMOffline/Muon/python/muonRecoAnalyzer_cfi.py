@@ -105,3 +105,4 @@ run3_GEM.toModify(muonRecoAnalyzer_miniAOD, useGEM=cms.untracked.bool(True))
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 phase2_GEM.toModify(muonRecoAnalyzer, maxGEMhitsSoftMuonMVA=cms.untracked.int32(22))
 phase2_GEM.toModify(muonRecoAnalyzer_miniAOD, maxGEMhitsSoftMuonMVA=cms.untracked.int32(22))
+# foo bar baz

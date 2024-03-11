@@ -242,3 +242,4 @@ genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTy
     NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
 ])
 
+# foo bar baz

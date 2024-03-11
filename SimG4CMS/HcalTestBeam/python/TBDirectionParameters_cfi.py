@@ -10,3 +10,4 @@ common_beam_direction_parameters = cms.PSet(
     MaxPhi       = cms.double(-0.1309),
     BeamPosition = cms.double(-800.0)
     )
+# foo bar baz

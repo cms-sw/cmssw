@@ -11,3 +11,4 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticF
     valueOverride = cms.int32(-1), # Force value of current (in A); take the value from DB if < 0.
 )
 
+# foo bar baz

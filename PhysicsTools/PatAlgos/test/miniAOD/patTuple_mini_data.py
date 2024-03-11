@@ -47,3 +47,4 @@ process.out.fileName = 'patTuple_mini_singlemu.root'
 process.out.outputCommands = process.MicroEventContent.outputCommands
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
 miniAOD_customizeOutput(process.out)
+# foo bar baz

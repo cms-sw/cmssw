@@ -120,3 +120,4 @@ SKIMStreamCosmicSP = cms.FilteredStream(
 
 #####################
 """
+# foo bar baz

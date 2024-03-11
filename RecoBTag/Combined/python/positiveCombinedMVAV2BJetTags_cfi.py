@@ -10,3 +10,4 @@ positiveCombinedMVAV2BJetTags = cms.EDProducer("JetTagProducer",
 		cms.InputTag("softPFElectronsTagInfos")
 	)
 )
+# foo bar baz

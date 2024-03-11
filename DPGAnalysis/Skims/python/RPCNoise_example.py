@@ -93,3 +93,4 @@ process.noiseEvents = cms.Path(process.muondigis *
                                process.check)
 
 process.outpath = cms.EndPath(process.FEVT)
+# foo bar baz

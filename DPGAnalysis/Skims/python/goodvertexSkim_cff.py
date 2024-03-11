@@ -16,3 +16,4 @@ noscraping = cms.EDFilter("FilterOutScraping",
 
 goodvertexSkim=cms.Sequence(primaryVertexFilter+noscraping)
 
+# foo bar baz

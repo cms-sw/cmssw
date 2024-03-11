@@ -23,3 +23,4 @@ hltPhase2L3MuonInitialStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMak
     src = cms.InputTag("hltPhase2L3MuonInitialStepSeeds"),
     useHitsSplitting = cms.bool(False)
 )
+# foo bar baz

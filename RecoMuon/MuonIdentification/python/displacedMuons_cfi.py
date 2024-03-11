@@ -98,3 +98,4 @@ displacedMuons = cms.EDProducer("MuonProducer",
 # not commisoned and not relevant in FastSim (?):
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(displacedMuons, FillCosmicsIdMap = False, FillSelectorMaps = False)
+# foo bar baz

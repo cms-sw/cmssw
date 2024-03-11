@@ -86,3 +86,4 @@ if args.max_events is not None:
     with open(outCfg, "a") as f:
         f.write("process.maxEvents = cms.untracked.PSet(input = "
                 "cms.untracked.int32({0:d}))\n".format(args.max_events))
+# foo bar baz

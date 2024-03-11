@@ -58,3 +58,4 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.FEVT)
 process.schedule = cms.Schedule(process.p,process.outpath)
+# foo bar baz

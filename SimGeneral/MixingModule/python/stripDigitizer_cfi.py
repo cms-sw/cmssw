@@ -31,3 +31,4 @@ phase2_tracker.toModify( stripDigitizer, ROUList = ["g4SimHitsTrackerHitsPixelBa
                                                          "g4SimHitsTrackerHitsPixelEndcapLowTof"]
 )
 
+# foo bar baz

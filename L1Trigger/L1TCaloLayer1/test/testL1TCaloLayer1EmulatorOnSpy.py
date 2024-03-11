@@ -36,3 +36,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.simCaloStage2Layer1Digis+process.layer1Validator)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

@@ -14,3 +14,4 @@ ECALpedestalPCLHarvester = DQMEDHarvester('ECALpedestalPCLHarvester',
                                           threshChannelsAnalyzed = cms.double(0.3), # threshold for minimum percentage of channels analized to produce DQM plots
 
                                           )
+# foo bar baz

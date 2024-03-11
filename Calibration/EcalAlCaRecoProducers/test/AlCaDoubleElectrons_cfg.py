@@ -58,3 +58,4 @@ process.outpath = cms.EndPath(process.out)
 #process.ewkHLTFilter.HLTPaths = ['HLT_Ele10_SW_L1R','HLT_IsoEle15_L1I', 'HLT_IsoEle15_LW_L1I','HLT_IsoEle18_L1R','HLT_IsoEle15_L1I','HLT_IsoEle18_L1R','HLT_IsoEle15_LW_L1I','HLT_LooseIsoEle15_LW_L1R','HLT_Ele10_SW_L1R','HLT_Ele15_SW_L1R','HLT_Ele15_LW_L1R','HLT_EM80','HLT_EM200','HLT_DoubleIsoEle10_L1I','HLT_DoubleIsoEle12_L1R','HLT_DoubleIsoEle10_LW_L1I','HLT_DoubleIsoEle12_LW_L1R','HLT_DoubleEle5_SW_L1R','HLT_DoubleEle10_LW_OnlyPixelM_L1R','HLT_DoubleEle10_Z','HLT_DoubleEle6_Exclusive']
 
 
+# foo bar baz

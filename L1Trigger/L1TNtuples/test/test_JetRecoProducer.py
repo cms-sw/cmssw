@@ -48,3 +48,4 @@ process.p = cms.Path(
   process.l1JetRecoTreeProducer
 )
 
+# foo bar baz

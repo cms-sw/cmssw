@@ -13,3 +13,4 @@ from Calibration.LumiAlCaRecoProducers.alcaRawPCCProducer_cfi import *
 
 seqALCARECOPromptCalibProdLumiPCC = cms.Sequence(ALCARECOPCCRandomFilter *
                                                  rawPCCProd)
+# foo bar baz

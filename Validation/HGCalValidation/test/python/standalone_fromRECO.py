@@ -61,3 +61,4 @@ process.options.numberOfThreads=cms.untracked.uint32(6)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 
 # customisation of the process.
+# foo bar baz

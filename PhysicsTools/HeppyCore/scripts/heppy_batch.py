@@ -370,3 +370,4 @@ if __name__ == '__main__':
     waitingTime = 0.1
     batchManager.SubmitJobs( waitingTime )
 
+# foo bar baz

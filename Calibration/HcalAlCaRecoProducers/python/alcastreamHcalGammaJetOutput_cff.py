@@ -9,3 +9,4 @@ alcastreamHcalGammaJetOutput = cms.PSet(
         'keep *_GammaJetProd_*_*')
 )
 
+# foo bar baz

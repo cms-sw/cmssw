@@ -13,3 +13,4 @@ dqmHarvestingPOG = cms.Path(DQMOfflineCosmics_SecondStep_PrePOG)
 validationHarvesting = cms.Path(postValidationCosmics)
 
 #alcaHarvesting = cms.Path()
+# foo bar baz

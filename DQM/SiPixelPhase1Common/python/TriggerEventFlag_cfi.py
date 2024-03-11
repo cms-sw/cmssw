@@ -36,3 +36,4 @@ PixelDCSfilter = cms.PSet(
 SiPixelPhase1Triggers = cms.untracked.VPSet(
     PixelDCSfilter
 )
+# foo bar baz

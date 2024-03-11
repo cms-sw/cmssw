@@ -34,3 +34,4 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("Cosmic
 process.load("Alignment.TrackerAlignment.cosmicRateAnalyzer_cfi")
 process.p = cms.Path(process.cosmicRateAnalyzer)
 
+# foo bar baz

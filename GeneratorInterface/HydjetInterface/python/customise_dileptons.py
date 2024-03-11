@@ -17,3 +17,4 @@ def customise(process):
                                                                    'pythiaWeakBosons'
                                                                    )
     return process
+# foo bar baz

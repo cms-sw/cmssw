@@ -4,3 +4,4 @@ TSCBLBuilderWithPropagator = cms.ESProducer("TSCBLBuilderWithPropagatorESProduce
 ComponentName = cms.string('TSCBLBuilderWithPropagator'),
 Propagator = cms.string('AnalyticalPropagator')
 )
+# foo bar baz

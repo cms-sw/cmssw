@@ -72,3 +72,4 @@ ALCARECOSiStripCalCosmicsNanoTables = cms.Task(
         )
 
 seqALCARECOSiStripCalCosmicsNano = cms.Sequence(ALCARECOSiStripCalCosmicsNanoTkCalSeq, ALCARECOSiStripCalCosmicsNanoTables)
+# foo bar baz

@@ -7,3 +7,4 @@ BadChargedCandidateSummer16Filter = _mod.badParticleFilter.clone(
     innerTrackRelErr = 0.5,
     minPtDiffRel = -0.5
 )
+# foo bar baz

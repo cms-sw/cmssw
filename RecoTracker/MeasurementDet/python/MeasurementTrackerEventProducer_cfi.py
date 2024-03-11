@@ -44,3 +44,4 @@ MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
 # take the list of inactive strip labels directly from RAW data 
 approxSiStripClusters.toModify(MeasurementTrackerEventPreSplitting,
                                inactiveStripDetectorLabels = ["hltSiStripRawToDigi"])
+# foo bar baz

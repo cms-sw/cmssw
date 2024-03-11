@@ -28,3 +28,4 @@ gemEfficiencyAnalyzerCosmicsSta = gemEfficiencyAnalyzerCosmics.clone(
     folder = 'GEM/Efficiency/muonSTA',
     muonName = 'Cosmic 2-Leg STA Muon',
 )
+# foo bar baz

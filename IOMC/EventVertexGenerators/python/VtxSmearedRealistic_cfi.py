@@ -6,3 +6,4 @@ VtxSmeared = BetafuncEvtVtxGenerator.clone(
     src = "generator:unsmeared",
     readDB = True
 )
+# foo bar baz

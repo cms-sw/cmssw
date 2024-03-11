@@ -267,3 +267,4 @@ MaterialEffectsForMuonsInHCALBlock = cms.PSet(
     )
 )
 
+# foo bar baz

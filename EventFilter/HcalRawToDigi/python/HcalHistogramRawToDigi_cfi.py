@@ -11,3 +11,4 @@ hcalhistos = cms.EDProducer("HcalHistogramRawToDigi",
 )
 
 
+# foo bar baz

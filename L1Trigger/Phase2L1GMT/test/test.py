@@ -251,3 +251,4 @@ process = customisePhase2TTNoMC(process) # To make the cfg work
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+# foo bar baz

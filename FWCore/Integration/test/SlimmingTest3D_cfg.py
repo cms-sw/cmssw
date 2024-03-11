@@ -26,3 +26,4 @@ process.testBD = cms.EDAnalyzer("ThinningTestAnalyzer",
 process.p = cms.Path(
     process.testBD
 )
+# foo bar baz

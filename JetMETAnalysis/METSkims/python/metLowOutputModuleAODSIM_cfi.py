@@ -13,3 +13,4 @@ metLowOutputModuleAODSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

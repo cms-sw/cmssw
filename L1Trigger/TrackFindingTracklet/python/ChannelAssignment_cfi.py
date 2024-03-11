@@ -45,3 +45,4 @@ ChannelAssignment_params = cms.PSet (
   IRChannelsIn = cms.vint32( range(0, 48) ) # vector of DTC id indexed by connected IR module id (from order in processingmodules.dat)
 
 )
+# foo bar baz

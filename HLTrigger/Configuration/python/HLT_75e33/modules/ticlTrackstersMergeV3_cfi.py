@@ -34,3 +34,4 @@ ticlTrackstersMerge = cms.EDProducer("TrackstersMergeProducerV3",
     tracksterstrk = cms.InputTag("ticlTrackstersTrk"),
     tracksterstrkem = cms.InputTag("ticlTrackstersTrkEM")
 )
+# foo bar baz

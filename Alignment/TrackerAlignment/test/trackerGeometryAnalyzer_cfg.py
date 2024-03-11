@@ -76,3 +76,4 @@ process.TrackerGeometryAnalyzer = cms.EDAnalyzer(
 process.p1 = cms.Path(
   process.TrackerGeometryAnalyzer
 )
+# foo bar baz

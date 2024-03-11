@@ -18,3 +18,4 @@ noConcurrentLumiGenerators = [
     "ReggeGribovPartonMCGeneratorFilter",
     "SherpaGeneratorFilter",
 ]
+# foo bar baz

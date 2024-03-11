@@ -7,3 +7,4 @@ def initL1UniformTagsExt( tagBase = "IDEAL" ):
     for i in range( 0, L1CondEnumExt.NumL1Cond ):
         initL1UniformTagsExt.tagBaseVec.append( tagBase )
 #        print i, initL1UniformTagsExt.tagBaseVec[ i ]
+# foo bar baz

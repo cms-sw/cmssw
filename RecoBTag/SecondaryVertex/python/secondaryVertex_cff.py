@@ -125,3 +125,4 @@ secondaryVertexTask = cms.Task(
     pfPositiveCombinedSecondaryVertexV2BJetTags,
     pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags
 )
+# foo bar baz

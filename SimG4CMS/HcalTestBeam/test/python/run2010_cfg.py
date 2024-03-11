@@ -132,3 +132,4 @@ process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
                              'HcalTB06BeamDetector',
                              'EcalSensitiveDetector',
                              'HcalSensitiveDetector']
+# foo bar baz

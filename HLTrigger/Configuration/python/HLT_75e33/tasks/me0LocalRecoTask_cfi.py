@@ -7,3 +7,4 @@ me0LocalRecoTask = cms.Task(
     hltMe0RecHits,
     hltMe0Segments
 )
+# foo bar baz

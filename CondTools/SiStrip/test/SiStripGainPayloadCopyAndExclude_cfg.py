@@ -96,3 +96,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.p = cms.Path(process.SiStripGainPayloadCopyAndExclude)
+# foo bar baz

@@ -44,3 +44,4 @@ def timed_out(timeout):
         return new_f
 
     return decorate
+# foo bar baz

@@ -6,3 +6,4 @@ analyzePatTopSelection = cms.EDAnalyzer("PatTopSelectionAnalyzer",
     jets  = cms.untracked.InputTag("selectedPatJets"),
     met   = cms.untracked.InputTag("patMETs")
 )
+# foo bar baz

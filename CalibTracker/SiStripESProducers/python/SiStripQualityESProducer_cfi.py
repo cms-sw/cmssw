@@ -25,3 +25,4 @@ siStripQualityESProducer = cms.ESProducer(
 )
 
 
+# foo bar baz

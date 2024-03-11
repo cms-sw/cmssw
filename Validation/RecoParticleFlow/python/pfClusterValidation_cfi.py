@@ -8,3 +8,4 @@ pfClusterValidation = DQMEDAnalyzer('PFClusterValidation',
     pflowClusterHO = cms.untracked.InputTag('particleFlowClusterHO'),
     pflowClusterHF = cms.untracked.InputTag('particleFlowClusterHF'),
 )
+# foo bar baz

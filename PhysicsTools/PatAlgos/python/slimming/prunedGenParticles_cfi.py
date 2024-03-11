@@ -47,3 +47,4 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "keep isHardProcess() || fromHardProcessFinalState() || fromHardProcessDecayed() || fromHardProcessBeforeFSR() || (statusFlags().fromHardProcess() && statusFlags().isLastCopy())",  #keep event summary based on status flags
     )
 )
+# foo bar baz

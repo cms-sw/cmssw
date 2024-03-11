@@ -34,3 +34,4 @@ process.load('DQMServices.Components.DQMFileSaver_cfi')
 process.dqmSaver.workflow = "/HLT/TriggerRatesMonitor/All"
 
 process.endp = cms.EndPath( process.gtStage2Digis + process.triggerRatesMonitor + process.dqmSaver )
+# foo bar baz

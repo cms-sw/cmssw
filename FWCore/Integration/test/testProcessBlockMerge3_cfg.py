@@ -41,3 +41,4 @@ process.p = cms.Path(process.intProducerBeginProcessBlockM *
 process.e = cms.EndPath(process.out *
                         process.testOneOutput
 )
+# foo bar baz

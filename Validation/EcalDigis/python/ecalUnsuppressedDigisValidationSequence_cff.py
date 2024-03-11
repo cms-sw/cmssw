@@ -13,3 +13,4 @@ ecalBarrelDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 ecalEndcapDigisValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
 ecalPreshowerDigisValidation.ESdigiCollection = 'simEcalUnsuppressedDigis'
 
+# foo bar baz

@@ -11,3 +11,4 @@ ecal2004TBHodoscopeReconstructor = cms.EDProducer("EcalTBHodoscopeRecInfoProduce
 )
 
 
+# foo bar baz

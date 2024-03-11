@@ -4,3 +4,4 @@ DQMMessageLoggerClient = cms.EDAnalyzer ("DQMMessageLoggerClient",
                                    Directory = cms.string("MessageLogger")
 
     )
+# foo bar baz

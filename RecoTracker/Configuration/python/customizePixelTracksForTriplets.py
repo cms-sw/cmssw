@@ -10,3 +10,4 @@ def customizePixelTracksForTriplets(process):
         	producer.minHitsPerNtuplet = 3
  
   return process
+# foo bar baz

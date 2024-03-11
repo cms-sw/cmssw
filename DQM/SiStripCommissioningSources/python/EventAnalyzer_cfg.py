@@ -19,3 +19,4 @@ process.p1 = cms.Path(process.anal)
 # output
 process.load('DQM.SiStripCommissioningSources.OnlineOutput_cfi')
 process.outpath = cms.EndPath( process.consumer )
+# foo bar baz

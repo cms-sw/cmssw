@@ -17,3 +17,4 @@ EcalPreshowerGeometryToDBEP = cms.ESProducer("EcalPreshowerGeometryToDBEP",
                                              applyAlignment = cms.bool(False),
                                              appendToDataLabel = cms.string("_toDB")
 )
+# foo bar baz

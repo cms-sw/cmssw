@@ -50,3 +50,4 @@ configurationMetadata = cms.untracked.PSet(
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 
 ProductionFilterSequence = cms.Sequence(generator*bufilter)
+# foo bar baz

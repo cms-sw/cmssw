@@ -164,3 +164,4 @@ if __name__ == "__main__":
             self.assertEqual(process.b_endpath.dumpPython(),'cms.EndPath(process.b, cms.Task(process.c))\n')
 
     unittest.main()
+# foo bar baz

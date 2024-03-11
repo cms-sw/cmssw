@@ -23,3 +23,4 @@ fastSim.toModify(validSimHit,
     CSCHitsSrc = "MuonSimHits:MuonCSCHits",
     RPCHitsSrc = "MuonSimHits:MuonRPCHits"
 )
+# foo bar baz

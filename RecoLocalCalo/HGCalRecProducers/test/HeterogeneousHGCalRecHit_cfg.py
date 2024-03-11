@@ -95,3 +95,4 @@ process.out = cms.OutputModule( "PoolOutputModule",
                                 outputCommands = cms.untracked.vstring(outkeeps[0], outkeeps[1], outkeeps[2])
 )
 process.outpath = cms.EndPath(process.out)
+# foo bar baz

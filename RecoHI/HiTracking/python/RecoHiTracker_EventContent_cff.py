@@ -41,3 +41,4 @@ RecoHiTrackerLocalFEVT = cms.PSet(
        'keep SiStripRawDigiedmDetSetVector_siStripZeroSuppression_VirginRaw_*')
 )
 RecoHiTrackerLocalFEVT.outputCommands.extend(RecoHiTrackerLocalRECO.outputCommands)
+# foo bar baz

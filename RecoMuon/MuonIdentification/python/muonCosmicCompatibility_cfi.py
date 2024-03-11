@@ -55,3 +55,4 @@ MuonCosmicCompatibilityParameters = cms.PSet(
 
       )
     )
+# foo bar baz

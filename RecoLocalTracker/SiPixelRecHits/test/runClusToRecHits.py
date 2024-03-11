@@ -207,3 +207,4 @@ process.p1 = cms.Path(process.siPixelRecHits*process.analysis)
 
 # save output 
 #process.outpath = cms.EndPath(process.o1)
+# foo bar baz

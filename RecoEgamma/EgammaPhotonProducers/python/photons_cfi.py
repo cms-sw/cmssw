@@ -218,3 +218,4 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
 egamma_lowPt_exclusive.toModify(photons,
                            minSCEtBarrel = 1.0, #default 10
                            minSCEtEndcap = 1.0) #default 10
+# foo bar baz

@@ -7,3 +7,4 @@ scaledJets = cms.EDProducer("JetEnergyShift",
     jetPTThresholdForMET = cms.double(20.),
     jetEMLimitForMET     = cms.double(0.9)
 )
+# foo bar baz

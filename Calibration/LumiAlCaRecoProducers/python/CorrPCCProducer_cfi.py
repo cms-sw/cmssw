@@ -12,3 +12,4 @@ corrPCCProd = cms.EDProducer("CorrPCCProducer",
         type2_b= cms.double(0.018),
     )
 )
+# foo bar baz

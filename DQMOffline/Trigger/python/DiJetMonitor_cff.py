@@ -168,3 +168,4 @@ HLTDiJetmonitoring = cms.Sequence(
     *DiPFjetAve300_HFJEC_Prommonitoring
 )
 
+# foo bar baz

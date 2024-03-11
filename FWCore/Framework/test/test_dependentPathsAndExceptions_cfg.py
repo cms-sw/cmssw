@@ -14,3 +14,4 @@ process.p2 = cms.Path(process.fail)
 process.p1 = cms.Path(process.readFail+process.a)
 
 process.add_(cms.Service("Tracer"))
+# foo bar baz

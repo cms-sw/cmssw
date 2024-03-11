@@ -40,3 +40,4 @@ process.DQM.collectorHost = ''
 process.hcalHitValid.outputFile = 'valid_HF.root'
 
 
+# foo bar baz

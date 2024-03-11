@@ -73,3 +73,4 @@ def customizeSiPhase2OTInefficiencyTenPercent(process):
         process.SiPhase2OTFakeBadStripsESSource.badComponentsFraction = 0.1 # 10% bad components
 
     return process
+# foo bar baz

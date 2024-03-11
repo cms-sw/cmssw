@@ -20,3 +20,4 @@ dttriganalyzer = cms.EDAnalyzer("DTTrigTest",
 
 
 
+# foo bar baz

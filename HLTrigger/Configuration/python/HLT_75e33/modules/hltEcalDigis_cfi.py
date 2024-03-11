@@ -57,3 +57,4 @@ hltEcalDigis = cms.EDProducer("EcalRawToDigi",
     syncCheck = cms.bool(True),
     tccUnpacking = cms.bool(True)
 )
+# foo bar baz

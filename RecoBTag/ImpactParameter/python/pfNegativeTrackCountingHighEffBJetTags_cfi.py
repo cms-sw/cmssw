@@ -4,3 +4,4 @@ pfNegativeTrackCountingHighEffBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('candidateNegativeTrackCounting3D2ndComputer'),
     tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"))
 )
+# foo bar baz

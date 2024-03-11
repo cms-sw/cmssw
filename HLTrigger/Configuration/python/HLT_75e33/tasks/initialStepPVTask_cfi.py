@@ -9,3 +9,4 @@ initialStepPVTask = cms.Task(
     hltPhase2TowerMakerForAll,
     firstStepPrimaryVerticesUnsorted,
 )
+# foo bar baz

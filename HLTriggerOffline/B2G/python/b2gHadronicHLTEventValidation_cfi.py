@@ -55,3 +55,4 @@ b2gDiJetHLTValidation = DQMEDAnalyzer('B2GHadronicHLTValidation',
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(b2gSingleJetHLTValidation, sJets = "akCs4PFJets")
 pp_on_AA.toModify(b2gDiJetHLTValidation, sJets = "akCs4PFJets")
+# foo bar baz

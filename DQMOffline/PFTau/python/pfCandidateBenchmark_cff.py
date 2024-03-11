@@ -8,3 +8,4 @@ pfCandidateBenchmarkSequence = cms.Sequence(
     pfCandidateBenchmark +
     candidateBenchmark 
     )
+# foo bar baz

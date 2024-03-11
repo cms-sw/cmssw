@@ -115,3 +115,4 @@ for pt in ["010", "1020", "2030", "3040", "4050"]:
     for tp in ["BetaStar", "RMS"]:
         for wp in ["Loose", "Medium", "Tight"]:
             setattr(EmptyCutBased_wp, "Pt" + pt + "_" + tp + wp, cms.vdouble(-999.,-999.,-999.,-999.))
+# foo bar baz

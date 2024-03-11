@@ -33,3 +33,4 @@ Rethrow = cms.untracked.vstring(
   'FormatIncompatibility',
   'FileNameInconsistentWithGUID',
 )
+# foo bar baz

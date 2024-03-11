@@ -103,4 +103,4 @@ def _dicts_to_orm_objects(model, data):
 	if data.__class__.__name__ in ["json_list", "json_dict", "json_basic"]:
 		data = data.data()
 	new_data = [model(data[n]) for n in range(0, len(data))]
-	return new_data
+	return new_data# foo bar baz

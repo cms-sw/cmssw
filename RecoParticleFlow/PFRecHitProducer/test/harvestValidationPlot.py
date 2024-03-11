@@ -23,3 +23,4 @@ process.source = cms.Source("DQMRootSource",
 
 process.dqmsave_step = cms.Path(process.DQMSaver)
 process.schedule = cms.Schedule(process.dqmsave_step)
+# foo bar baz

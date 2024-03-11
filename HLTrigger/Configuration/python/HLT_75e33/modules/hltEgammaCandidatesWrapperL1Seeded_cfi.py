@@ -6,3 +6,4 @@ hltEgammaCandidatesWrapperL1Seeded = cms.EDFilter("HLTEgammaTriggerFilterObjectW
     doIsolated = cms.bool(True),
     saveTags = cms.bool(True)
 )
+# foo bar baz

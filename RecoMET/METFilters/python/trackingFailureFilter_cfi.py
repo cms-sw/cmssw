@@ -12,3 +12,4 @@ trackingFailureFilter = cms.EDFilter(
   taggingMode = cms.bool(False),
   debug = cms.bool(False),
 )
+# foo bar baz

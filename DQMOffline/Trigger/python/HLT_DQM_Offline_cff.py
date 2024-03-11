@@ -7,3 +7,4 @@ dqmHLTFiltersDQMonitor.triggerResults = 'TriggerResults::HLT'
 from DQMOffline.Trigger.HLTEventInfoClient_cfi import *
 
 hltDqmOffline = cms.Sequence( dqmHLTFiltersDQMonitor * hltEventInfoClient )
+# foo bar baz

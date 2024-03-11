@@ -18,3 +18,4 @@ pfBasedPhotonIsoTask = cms.Task(
     photonPFIsolationValuesTask 
 ) 
 pfBasedPhotonIsoSequence = cms.Sequence(pfBasedPhotonIsoTask)
+# foo bar baz

@@ -13,3 +13,4 @@ pfClusterCaloOnlyValidation = pfClusterValidation.clone(
 pfClusterCaloOnlyValidationSequence = cms.Sequence( pfClusterCaloOnlyValidation )
 
 pfClusterHBHEOnlyAlpakaComparisonSequence = cms.Sequence( pfClusterHBHEOnlyAlpakaComparison )
+# foo bar baz

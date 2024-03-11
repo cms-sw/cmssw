@@ -7,3 +7,4 @@ SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",
 )
 
 
+# foo bar baz

@@ -181,3 +181,4 @@ process.p = cms.Path(process.seqTrackselRefit                       +
                      process.PrimaryVertexResolution)
 
 
+# foo bar baz

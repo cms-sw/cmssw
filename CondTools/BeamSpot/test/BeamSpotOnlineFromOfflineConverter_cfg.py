@@ -113,3 +113,4 @@ process.BeamSpotOnlineFromOfflineConverter.IOVStartLumi = options.startLumi
 
 # Put module in path:
 process.p = cms.Path(process.BeamSpotOnlineFromOfflineConverter)
+# foo bar baz

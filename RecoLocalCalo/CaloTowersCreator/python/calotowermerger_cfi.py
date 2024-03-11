@@ -6,3 +6,4 @@ calotowermerger = cms.EDProducer("CaloTowersMerger",
                                  extraTowerTag=cms.InputTag('')
                                  )
                                      
+# foo bar baz

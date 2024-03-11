@@ -115,3 +115,4 @@ slimmedEgammaHGCTask = cms.Task(
     slimmedElectronsHGCTask,
     slimmedPhotonsHGCTask
 )
+# foo bar baz

@@ -154,3 +154,4 @@ selectedModules4cosmics.extend( ['LocalReco'] )
 selectedModules4cosmics.extend( ['cosmicsSeeding'] )
 selectedModules4cosmics.extend( ['cosmicsTrackCandidate'] )
 selectedModules4cosmics.extend( ['cosmicsTrack'] )
+# foo bar baz

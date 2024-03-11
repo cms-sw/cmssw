@@ -81,3 +81,4 @@ process.p1 = cms.Path( process.primaryVertexFilter * process.hltLevel1GTSeed * p
 
 #process.e = cms.EndPath(process.l1GtTrigReport + process.hltTrigReport)
 #process.e = cms.EndPath(process.l1GtTrigReport)
+# foo bar baz

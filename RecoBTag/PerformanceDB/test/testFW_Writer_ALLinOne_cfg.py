@@ -36,3 +36,4 @@ process.mywriter = cms.EDAnalyzer("PhysicsPerformanceDBWriterFromFile_WPandPaylo
 process.p = cms.Path(process.mywriter)
 
 
+# foo bar baz

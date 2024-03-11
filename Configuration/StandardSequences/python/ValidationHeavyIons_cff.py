@@ -6,3 +6,4 @@ prevalidation = cms.Sequence(cms.SequencePlaceholder("mix") * globalPrevalidatio
 
 validation = cms.Sequence(validationHI)
 
+# foo bar baz

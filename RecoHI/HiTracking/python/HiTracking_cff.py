@@ -88,3 +88,4 @@ hiTracking_wConformalPixelTask = cms.Task(
     ,hiMergedConformalPixelTrackingTask 
     )
 hiTracking_wConformalPixel = cms.Sequence(hiTracking_wConformalPixelTask)
+# foo bar baz

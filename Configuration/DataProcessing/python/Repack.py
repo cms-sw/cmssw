@@ -74,4 +74,4 @@ def repackProcess(**args):
 
         process.outputPath += outputModule
 
-    return process
+    return process# foo bar baz

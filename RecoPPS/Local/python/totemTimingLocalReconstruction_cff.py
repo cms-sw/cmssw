@@ -18,3 +18,4 @@ totemTimingLocalReconstructionTask = cms.Task(
 		totemTimingRecHits,
 		totemTimingLocalTracks)
 totemTimingLocalReconstruction = cms.Sequence(totemTimingLocalReconstructionTask)
+# foo bar baz

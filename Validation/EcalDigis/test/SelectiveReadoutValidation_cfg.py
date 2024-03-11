@@ -44,3 +44,4 @@ process.tpparams12 = cms.ESSource("EmptyESSource",
 
 process.p1 = cms.Path(process.ecalSelectiveReadoutValidation)
 process.DQM.collectorHost = ''
+# foo bar baz

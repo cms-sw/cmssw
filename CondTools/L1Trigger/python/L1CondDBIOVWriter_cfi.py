@@ -9,3 +9,4 @@ L1CondDBIOVWriter = cms.EDAnalyzer("L1CondDBIOVWriter",
                                    forceUpdate = cms.bool(False)
                                    )
 
+# foo bar baz

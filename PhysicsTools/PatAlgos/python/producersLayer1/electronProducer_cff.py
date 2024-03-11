@@ -47,3 +47,4 @@ makePatElectronsTask = cms.Task(
     patElectrons
     )
 makePatElectrons = cms.Sequence(makePatElectronsTask)
+# foo bar baz

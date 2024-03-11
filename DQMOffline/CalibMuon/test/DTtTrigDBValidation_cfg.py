@@ -83,3 +83,4 @@ process.dqmSaver.workflow = '/Muon/DT/DTDBValidation'
 
 process.p = cms.Path(process.dtTTrigAnalyzer*process.qTester*process.dqmSaver)
 process.DQM.collectorHost = ''
+# foo bar baz

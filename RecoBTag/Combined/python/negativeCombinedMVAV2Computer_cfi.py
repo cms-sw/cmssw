@@ -18,3 +18,4 @@ negativeCombinedMVAV2Computer = cms.ESProducer("CombinedMVAV2JetTagESProducer",
     useAdaBoost = cms.bool(True),
 	weightFile = cms.FileInPath('RecoBTag/Combined/data/CombinedMVAV2_13_07_2015.weights.xml.gz')
 )
+# foo bar baz

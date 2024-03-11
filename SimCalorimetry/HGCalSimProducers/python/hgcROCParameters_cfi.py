@@ -43,3 +43,4 @@ hgcROCSettings = cms.PSet(
         -0.28,   27.14,  43.95,
         3.89048 )
 )
+# foo bar baz

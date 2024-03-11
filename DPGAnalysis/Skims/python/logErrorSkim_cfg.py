@@ -81,3 +81,4 @@ process.options = cms.untracked.PSet(
 )
 
 process.outpath = cms.EndPath(process.outlogerr)
+# foo bar baz

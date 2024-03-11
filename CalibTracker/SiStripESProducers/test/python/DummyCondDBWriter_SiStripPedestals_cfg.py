@@ -50,3 +50,4 @@ process.siStripPedestalsDummyDBWriter.record=process.PoolDBOutputService.toPut[0
 process.p1 = cms.Path(process.siStripPedestalsDummyDBWriter)
 
 
+# foo bar baz

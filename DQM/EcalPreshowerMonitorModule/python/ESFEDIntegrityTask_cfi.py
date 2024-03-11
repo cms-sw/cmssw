@@ -10,3 +10,4 @@ ecalPreshowerFEDIntegrityTask = DQMEDAnalyzer('ESFEDIntegrityTask',
                                                FEDDirName =cms.untracked.string("FEDIntegrity")
                                                )
 
+# foo bar baz

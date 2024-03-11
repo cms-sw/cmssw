@@ -26,3 +26,4 @@ process.p1 = cms.Path(process.photonOfflineClient)
 process.schedule = cms.Schedule(process.p1)
 
 
+# foo bar baz

@@ -7,3 +7,4 @@ ecalPreshowerTimingTask = DQMEDAnalyzer('ESTimingTask',
 	prefixME = cms.untracked.string("EcalPreshower") 
 )
 
+# foo bar baz

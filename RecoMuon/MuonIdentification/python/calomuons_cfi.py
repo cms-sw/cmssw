@@ -16,3 +16,4 @@ calomuons = cms.EDProducer("CaloMuonProducer",
 
 
 
+# foo bar baz

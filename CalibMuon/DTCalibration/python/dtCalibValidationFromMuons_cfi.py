@@ -21,3 +21,4 @@ dtCalibValidation = DQMEDAnalyzer("DTCalibValidationFromMuons",
     segment4DLabel = cms.untracked.string('dt4DSegments')
 )
 
+# foo bar baz

@@ -7,3 +7,4 @@ ttGenEventFilter = cms.EDFilter("TtGenEvtFilter",
     src = cms.InputTag("genEvt"),
     cut = cms.string("")
 )
+# foo bar baz

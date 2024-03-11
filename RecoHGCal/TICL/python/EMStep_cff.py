@@ -76,3 +76,4 @@ ticlHFNoseEMStepTask = cms.Task(ticlSeedingGlobalHFNose
                               ,filteredLayerClustersHFNoseEM
                               ,ticlTrackstersHFNoseEM
 )
+# foo bar baz

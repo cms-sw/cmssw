@@ -11,3 +11,4 @@ RecoPixelVertexingFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring() 
 )
 RecoPixelVertexingFEVT.outputCommands.extend(RecoPixelVertexingRECO.outputCommands)
+# foo bar baz

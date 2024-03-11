@@ -10,3 +10,4 @@ makeHeavyIonMuons = cms.Sequence(
     )
 
 
+# foo bar baz

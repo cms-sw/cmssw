@@ -20,3 +20,4 @@ dqmQTestDQMFED = DQMQualityTester(
    )
 
 dqmFEDIntegrityClient = cms.Sequence(dqmFEDIntegrity*dqmQTestDQMFED)
+# foo bar baz

@@ -27,3 +27,4 @@ process.l1tConfigDumper = cms.EDAnalyzer("L1TConfigDumper")
 process.p = cms.Path(
     process.l1tConfigDumper
 )
+# foo bar baz

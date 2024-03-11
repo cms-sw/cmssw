@@ -9,3 +9,4 @@ from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 ecalLocalRecoSequence = cms.Sequence(cms.SequencePlaceholder("getEcalConditions_orcoffint2r")*ecalWeightUncalibRecHit*ecalRecHit*ecalPreshowerRecHit)
 
+# foo bar baz

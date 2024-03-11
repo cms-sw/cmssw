@@ -29,3 +29,4 @@ bTagHarvestMC = DQMEDHarvester("BTagPerformanceHarvester",
                                flavPlots = cms.string("allbcl"),
                                differentialPlots = cms.bool(False), #not needed in validation procedure, put True to produce them                            
                                )
+# foo bar baz

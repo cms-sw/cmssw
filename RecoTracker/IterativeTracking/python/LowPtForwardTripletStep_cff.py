@@ -109,3 +109,4 @@ LowPtForwardTripletStepTask = cms.Task(lowPtForwardTripletStepClusters,
                                        lowPtForwardTripletStepTracks,
                                        lowPtForwardTripletStepSelector)
 LowPtForwardTripletStep = cms.Sequence(LowPtForwardTripletStepTask)
+# foo bar baz

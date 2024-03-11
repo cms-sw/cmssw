@@ -44,3 +44,4 @@ HltBTagPostVal = cms.Sequence(
 	HltBTagPostValidation
 )
 
+# foo bar baz

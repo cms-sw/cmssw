@@ -9,3 +9,4 @@ sumETEventSelection = cms.PSet(
     )
 )
 
+# foo bar baz

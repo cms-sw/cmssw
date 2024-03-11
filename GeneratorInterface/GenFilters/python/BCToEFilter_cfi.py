@@ -8,3 +8,4 @@ bctoefilter = cms.EDFilter("BCToEFilter",
 )
 
 
+# foo bar baz

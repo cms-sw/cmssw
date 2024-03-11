@@ -8,3 +8,4 @@ modifiedPhotons = cms.EDProducer(
 
 from RecoEgamma.EgammaTools.egammaObjectModificationsPatches_cff import *
 modifiedPhotons.modifierConfig.modifications = egamma_modifications
+# foo bar baz

@@ -7,3 +7,4 @@ pfClusteringHOTask = cms.Task(
     particleFlowClusterHO,
     particleFlowRecHitHO
 )
+# foo bar baz

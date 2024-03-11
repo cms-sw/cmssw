@@ -6,3 +6,4 @@ etMinCaloJetSelector = cms.EDFilter( "EtMinCaloJetSelector",
     etMin = cms.double( 20.0 )
 )
 
+# foo bar baz

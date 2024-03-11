@@ -130,3 +130,4 @@ stage2L1Trigger.toModify(hltBPHmonitoring,
                                                            l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
                                                            ReadPrescalesFromFile = cms.bool(True)))
 
+# foo bar baz

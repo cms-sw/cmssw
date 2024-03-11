@@ -119,3 +119,4 @@ process.checker = cms.OutputModule("GetProductCheckerOutputModule")
 
 process.path1 = cms.Path(process.thingWithMergeProducer + process.test)
 process.e = cms.EndPath(process.out * process.checker)
+# foo bar baz

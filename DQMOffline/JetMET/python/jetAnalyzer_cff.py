@@ -43,3 +43,4 @@ pp_on_AA.toModify( jetDQMAnalyzerAkPU3PF, srcVtx = cms.untracked.InputTag("offli
 pp_on_AA.toModify( jetDQMAnalyzerAkPU4PF, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
 pp_on_AA.toModify( jetDQMAnalyzerAkCs4PF, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
 
+# foo bar baz

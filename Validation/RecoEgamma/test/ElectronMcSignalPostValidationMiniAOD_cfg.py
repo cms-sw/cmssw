@@ -80,4 +80,4 @@ process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMini
 process.schedule = cms.Schedule(
                                 process.p,
                                 process.dqmsave_step,
-)
+)# foo bar baz

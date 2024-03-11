@@ -8,3 +8,4 @@ SimMuFilter = cms.EDFilter('SimMuFilter',
               simHitsMuonDTInput = cms.InputTag("g4SimHits","MuonDTHits","SIM"),
               nMuSel = cms.int32(1)
 )
+# foo bar baz

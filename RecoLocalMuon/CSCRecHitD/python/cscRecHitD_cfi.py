@@ -73,3 +73,4 @@ from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( csc2DRecHits, 
      readBadChannels = False,
      CSCUseGasGainCorrections = False )
+# foo bar baz

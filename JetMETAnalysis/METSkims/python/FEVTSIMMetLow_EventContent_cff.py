@@ -8,3 +8,4 @@ FEVTSIMMetLowEventContent = cms.PSet(
 FEVTSIMMetLowEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
 FEVTSIMMetLowEventContent.outputCommands.extend(metLowEventContent.outputCommands)
 
+# foo bar baz

@@ -92,3 +92,4 @@ process.schedule = cms.Schedule(#process.p,
                                 process.endjob_step,
                                 process.DQMoutput_step)
 
+# foo bar baz

@@ -12,3 +12,4 @@ MEtoEDMConvertSiStrip = cms.EDProducer("MEtoEDMConverter",
 )
 
 seqALCARECOSiStripPCLHistos = cms.Sequence(MEtoEDMConvertSiStrip)
+# foo bar baz

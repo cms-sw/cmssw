@@ -50,3 +50,4 @@ TSGFromCombinedHits = cms.PSet(
     etaSeparation = cms.double(2.0)
     )
     )
+# foo bar baz

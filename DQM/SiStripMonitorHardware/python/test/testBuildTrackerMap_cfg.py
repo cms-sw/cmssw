@@ -57,3 +57,4 @@ process.siStripBuildTrackerMap.PrintDebugMessages = 2
 
 process.p = cms.Path( process.siStripBuildTrackerMap
                       )
+# foo bar baz

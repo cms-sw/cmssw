@@ -7,3 +7,4 @@ gemLocalRecoTask = cms.Task(
     hltGemRecHits,
     hltGemSegments
 )
+# foo bar baz

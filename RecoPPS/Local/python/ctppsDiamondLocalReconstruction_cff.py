@@ -11,3 +11,4 @@ ctppsDiamondLocalReconstructionTask = cms.Task(
     ctppsDiamondLocalTracks
 )
 ctppsDiamondLocalReconstruction = cms.Sequence(ctppsDiamondLocalReconstructionTask)
+# foo bar baz

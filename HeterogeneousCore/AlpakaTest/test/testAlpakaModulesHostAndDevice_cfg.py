@@ -61,3 +61,4 @@ elif args.expectBackend == "rocm_async":
 
 process.t = cms.Task(process.producer, process.producerHost)
 process.p = cms.Path(process.compare, process.t)
+# foo bar baz

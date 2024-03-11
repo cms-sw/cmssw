@@ -38,3 +38,4 @@ es_prefer_es_pool_hf1x1 = cms.ESPrefer("PoolDBESSource", "es_pool_hf1x1")
 #        authenticationMethod = cms.untracked.uint32(0)
 #        )
 #    process.es_prefer_es_pool_hf1x1 = cms.ESPrefer("PoolDBESSource", "es_pool_hf1x1")    
+# foo bar baz

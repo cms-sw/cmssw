@@ -19,3 +19,4 @@ process.dqmSaver.saveAtJobEnd = False
 process.dqmSaver.workflow     = "/DQM/HLT/Online"
 
 process.DQMFileSaverOutput = cms.EndPath( process.HLTHarvestingSequence + process.dqmSaver )
+# foo bar baz

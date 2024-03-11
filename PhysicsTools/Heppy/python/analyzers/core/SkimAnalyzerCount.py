@@ -70,3 +70,4 @@ class SkimAnalyzerCount( Analyzer ):
             if self.cfg_comp.isMC: 
                 self.count.inc('Sum Weights', self.mchandles['GenInfo'].product().weight())
         return True
+# foo bar baz

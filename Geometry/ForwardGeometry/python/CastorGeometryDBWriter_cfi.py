@@ -9,3 +9,4 @@ CastorGeometryToDBEP = cms.ESProducer( "CastorGeometryToDBEP" ,
                                        appendToDataLabel = cms.string("_toDB")
                                        )
 
+# foo bar baz

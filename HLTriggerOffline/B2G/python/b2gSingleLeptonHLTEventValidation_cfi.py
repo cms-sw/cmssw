@@ -77,3 +77,4 @@ b2gElePlusSingleJetHLTValidation  = DQMEDAnalyzer('B2GSingleLeptonHLTValidation'
         vsPaths      = cms.untracked.vstring(['HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet140',
                                               'HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165']),
 )
+# foo bar baz

@@ -73,3 +73,4 @@ process.errorEndPath = cms.EndPath(process.dependentAnalyzer)
 process.goodEndPath = cms.EndPath(process.independentAnalyzer)
 
 
+# foo bar baz

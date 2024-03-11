@@ -36,3 +36,4 @@ ttbarCategoryTable = globalVariablesTableProducer.clone(
 
 ttbarCategoryTableTask = cms.Task(ttbarCategoryTable)
 ttbarCatMCProducersTask = cms.Task(matchGenBHadron,matchGenCHadron,categorizeGenTtbar)
+# foo bar baz

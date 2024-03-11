@@ -102,3 +102,4 @@ beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
 )
 
 
+# foo bar baz

@@ -108,3 +108,4 @@ l1tStage2uGTBoardCompSeq = cms.Sequence(
     l1tStage2uGTBoardCompMuonsSeq +
     l1tStage2uGTBoardCompCaloLayer2Seq
 )
+# foo bar baz

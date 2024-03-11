@@ -61,3 +61,4 @@ process.out_step = cms.EndPath(process.output)
 # Schedule definition
 # process.schedule imported from cff in HLTrigger.Configuration
 process.schedule.extend([process.endjob_step,process.out_step])
+# foo bar baz

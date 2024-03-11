@@ -6,3 +6,4 @@ BtagPerformanceESProducer_TEMPLATE = cms.ESProducer("BtagPerformanceESProducer",
     PayloadName = cms.string('BTagTEMPLATEtable_VERSION_offline'),
     WorkingPointName = cms.string('BTagTEMPLATEwp_VERSION_offline')
 )
+# foo bar baz

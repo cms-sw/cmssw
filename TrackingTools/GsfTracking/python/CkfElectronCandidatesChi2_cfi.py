@@ -10,3 +10,4 @@ electronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2Mea
     nSigma        = 3.0,
     MaxChi2       = 100.0
 )
+# foo bar baz

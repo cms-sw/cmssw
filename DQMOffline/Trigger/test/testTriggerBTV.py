@@ -62,3 +62,4 @@ process.options = cms.untracked.PSet(
 outfile = open('config.py','w')
 print(process.dumpPython(), file=outfile)
 outfile.close()
+# foo bar baz

@@ -12,3 +12,4 @@ dqmSaver.workflow = '/Global/CMSSW_X_Y_Z/RECO'
 
 
 DQMSaver = cms.Sequence(dqmSaver)
+# foo bar baz

@@ -7,3 +7,4 @@ QGLikelihoodESProducer_AK5PFchs = cms.ESProducer("QGLikelihoodESProducer",
 # this is what it makes available
     algo = cms.string('QGL_AK5PFchs')
 )
+# foo bar baz

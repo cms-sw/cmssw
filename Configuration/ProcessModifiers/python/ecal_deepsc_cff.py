@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 
 ecal_deepsc =  cms.Modifier()
 
+# foo bar baz

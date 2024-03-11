@@ -9,3 +9,4 @@ class Particle(object):
                            phi = self.phi(),
                            mass = self.mass() )
     
+# foo bar baz

@@ -85,3 +85,4 @@ recoMuonValidationHLT_seq = cms.Sequence(
     cms.SequencePlaceholder("TPmu") +
     muonValidationHLT_seq
     )
+# foo bar baz

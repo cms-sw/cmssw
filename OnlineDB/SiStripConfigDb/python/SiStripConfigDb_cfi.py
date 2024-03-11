@@ -26,3 +26,4 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
 # SiStripPartitions: Contains list of PSets defining database partitions (defined within top-level PSet called "Partitions")
 
 
+# foo bar baz

@@ -7,3 +7,4 @@ CentralityDQM = DQMEDAnalyzer(
     vertexcollection = cms.InputTag("hiSelectedVertex"),
     eventplanecollection= cms.InputTag("hiEvtPlane")
     )
+# foo bar baz

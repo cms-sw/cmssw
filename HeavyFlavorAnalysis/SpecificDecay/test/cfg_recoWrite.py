@@ -112,3 +112,4 @@ process.p = cms.Path(
 
 process.e = cms.EndPath(process.out, patAlgosToolsTask)
 
+# foo bar baz

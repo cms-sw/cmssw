@@ -36,3 +36,4 @@ process.TFileService = cms.Service("TFileService",
 SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
 process.p = cms.Path(process.hfnoseRecHitStudy)
+# foo bar baz

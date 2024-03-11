@@ -98,3 +98,4 @@ OccupancyPlotsBPIXLadders = cms.VPSet (
     cms.PSet(detSelection=cms.uint32(343),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0fff00-0x12032b00")),      # BPix L3
     cms.PSet(detSelection=cms.uint32(344),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0fff00-0x12032c00")),      # BPix L3
     )
+# foo bar baz

@@ -255,3 +255,4 @@ DTTPGMapBlock = cms.PSet(
     )
 )
 
+# foo bar baz

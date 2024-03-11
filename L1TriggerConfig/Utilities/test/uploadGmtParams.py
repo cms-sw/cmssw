@@ -41,3 +41,4 @@ process.l1gpw = cms.EDAnalyzer("L1TMuonGlobalParamsWriter", isO2Opayload = cms.u
 
 process.p = cms.Path(process.getter + process.l1gpw)
 
+# foo bar baz

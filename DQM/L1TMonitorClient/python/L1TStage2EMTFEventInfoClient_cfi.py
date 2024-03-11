@@ -231,3 +231,4 @@ l1tStage2EMTFEventInfoClient = DQMEDHarvester("L1TEMTFEventInfoClient",
     DisableDeadStrip = cms.vstring()   
 
 )
+# foo bar baz

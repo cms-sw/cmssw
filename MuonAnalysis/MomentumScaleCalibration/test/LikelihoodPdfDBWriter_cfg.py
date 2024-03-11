@@ -50,3 +50,4 @@ process.LikelihoodPdfDBWriterModule = cms.EDAnalyzer(
 
 process.p1 = cms.Path(process.LikelihoodPdfDBWriterModule)
 
+# foo bar baz

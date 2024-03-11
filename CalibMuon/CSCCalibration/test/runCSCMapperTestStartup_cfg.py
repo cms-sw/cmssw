@@ -16,3 +16,4 @@ process.analyze = cms.EDAnalyzer("CSCMapperTestStartup")
 
 process.test = cms.Path(process.analyze)
 
+# foo bar baz

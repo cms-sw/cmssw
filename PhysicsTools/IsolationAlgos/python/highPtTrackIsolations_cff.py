@@ -18,3 +18,4 @@ HcalIsolationForTracks = cms.EDProducer("IsolationProducerForTracks",
 )
 
 highPtTrackIsolations = cms.Sequence(tkIsoDeposits+EcalIsolationForTracks+HcalIsolationForTracks)
+# foo bar baz

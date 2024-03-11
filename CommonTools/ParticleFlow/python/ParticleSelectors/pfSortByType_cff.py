@@ -27,3 +27,4 @@ pfSortByTypeTask = cms.Task(
 #    pfAllMuons
     )
 pfSortByTypeSequence = cms.Sequence(pfSortByTypeTask)
+# foo bar baz

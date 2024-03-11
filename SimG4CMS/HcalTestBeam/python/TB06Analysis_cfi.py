@@ -20,3 +20,4 @@ testbeam = cms.EDAnalyzer("HcalTB06Analysis",
         MakeTree   = cms.untracked.bool(False)
         )
                           )
+# foo bar baz

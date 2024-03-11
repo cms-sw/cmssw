@@ -5,3 +5,4 @@ SiPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource"
 )
 
 
+# foo bar baz

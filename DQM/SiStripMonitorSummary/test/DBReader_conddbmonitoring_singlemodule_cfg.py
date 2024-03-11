@@ -171,3 +171,4 @@ process.CondDataMonitoring.SiStripNoisesDQM_PSet.GainRenormalisation            
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.SimGainRenormalisation               = cms.bool(options.simGainNorm)
 
 process.p1 = cms.Path(process.CondDataMonitoring)
+# foo bar baz

@@ -178,3 +178,4 @@ hiJetCoreRegionalStepTask = cms.Task(
                                    hiJetCoreRegionalStepTracks,
                                    hiJetCoreRegionalStepSelector)
 hiJetCoreRegionalStep = cms.Sequence(hiJetCoreRegionalStepTask)
+# foo bar baz

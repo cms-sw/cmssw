@@ -107,3 +107,4 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(globalRecoPbPb_wConformalPixelTask
 # Modify zero-suppression sequence here
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 siStripZeroSuppression.storeCM = True
+# foo bar baz

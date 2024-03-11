@@ -48,3 +48,4 @@ process.Tracer = cms.Service("Tracer",
 process.p = cms.Path(process.vertexreco)
 process.outpath = cms.EndPath(process.out)
 
+# foo bar baz

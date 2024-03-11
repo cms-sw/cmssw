@@ -75,3 +75,4 @@ process.path = cms.Path(process.generator
                         * process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)
 
+# foo bar baz

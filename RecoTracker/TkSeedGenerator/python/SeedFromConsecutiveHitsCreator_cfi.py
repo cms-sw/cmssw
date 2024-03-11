@@ -12,3 +12,4 @@ SeedFromConsecutiveHitsCreator = cms.PSet(
   TTRHBuilder = cms.string('WithTrackAngle'),
   forceKinematicWithRegionDirection = cms.bool(False)
 )
+# foo bar baz

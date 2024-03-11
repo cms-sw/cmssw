@@ -47,3 +47,4 @@ process.p = cms.Path(
   process.l1MuonRecoTreeProducer
 )
 
+# foo bar baz

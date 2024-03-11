@@ -142,3 +142,4 @@ class Structure:
         if detid in self.detids:
             return True
         return False
+# foo bar baz

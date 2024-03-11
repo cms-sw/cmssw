@@ -5,3 +5,4 @@ from IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision_cfi import *
 # update source label for vertex smearing:
 VtxSmeared.src = cms.InputTag("generatorNeutrons")
 
+# foo bar baz

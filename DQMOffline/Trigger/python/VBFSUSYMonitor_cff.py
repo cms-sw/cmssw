@@ -18,3 +18,4 @@ susyHLTVBFMonitoring = cms.Sequence(
     VBFSUSYmonitoring
 )
 
+# foo bar baz

@@ -5,3 +5,4 @@ hiBasicGenTest = DQMEDAnalyzer('HiBasicGenTest',
                                 generatorLabel = cms.InputTag('generatorSmeared'),
                                 outputFile = cms.string('')
 )
+# foo bar baz

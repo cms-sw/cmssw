@@ -92,3 +92,4 @@ def useElectronsForAllTtSemiLepHypotheses(process, elecLabel = "selectedPatElect
     process.hitFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Electrons_cfi.hitFitTtSemiLepEvent.clone()
     ## replace lepton InputTags in all modules
     setForAllTtSemiLepHypotheses(process, "leps", elecLabel)
+# foo bar baz

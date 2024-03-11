@@ -10,3 +10,4 @@ matchRecVtx = cms.EDProducer("MixEvtVtxGenerator",
                              useRecVertex = cms.bool(True),
                              vtxOffset = cms.vdouble(0.1475, 0.3782, 0.4847)
                              )
+# foo bar baz

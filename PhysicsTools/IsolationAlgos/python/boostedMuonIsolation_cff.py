@@ -106,3 +106,4 @@ makePatBoostedMuons = cms.Sequence(
     boostedMuonPFIsolationSequence
    + patBoostedMuons
 )
+# foo bar baz

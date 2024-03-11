@@ -14,3 +14,4 @@ jetMETHLTOfflineClientAK4Fwd = jetMETHLTOfflineClientAK4.clone( DQMDirName = 'HL
 jetMETHLTOfflineClientAK8Fwd = jetMETHLTOfflineClientAK4.clone( DQMDirName = 'HLT/JME/Jets/AK8Fwd')
 
 jetMETHLTOfflineClient = cms.Sequence( jetMETHLTOfflineClientAK4 * jetMETHLTOfflineClientAK8 * jetMETHLTOfflineClientAK4Fwd * jetMETHLTOfflineClientAK8Fwd)
+# foo bar baz

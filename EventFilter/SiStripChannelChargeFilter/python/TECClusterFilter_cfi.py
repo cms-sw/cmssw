@@ -12,3 +12,4 @@ TECClusterFilter = cms.EDFilter("TECClusterFilter",
 )
 
 
+# foo bar baz

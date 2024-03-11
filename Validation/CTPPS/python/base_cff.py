@@ -53,3 +53,4 @@ def UseXangleBetaStarHistogram(process, f="", obj=""):
     if obj:
       p.ctppsLHCInfo.xangleBetaStarHistogramObject = obj
 
+# foo bar baz

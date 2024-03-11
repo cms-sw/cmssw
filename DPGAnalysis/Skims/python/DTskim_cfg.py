@@ -136,3 +136,4 @@ process.options = cms.untracked.PSet(
 
 process.e = cms.EndPath(process.out)
 
+# foo bar baz

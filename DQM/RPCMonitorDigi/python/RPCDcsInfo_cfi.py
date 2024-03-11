@@ -6,3 +6,4 @@ rpcDcsInfo = DQMEDAnalyzer('RPCDcsInfo',
                             dcsInfoFolder = cms.untracked.string("DCSInfo") ,
                             ScalersRawToDigiLabel = cms.InputTag('scalersRawToDigi')
                             )
+# foo bar baz

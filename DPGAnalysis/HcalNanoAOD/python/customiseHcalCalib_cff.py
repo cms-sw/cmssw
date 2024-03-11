@@ -57,3 +57,4 @@ def customiseHcalCalib(process):
     process.MessageLogger.debugModules = ["*"]
 
     return process
+# foo bar baz

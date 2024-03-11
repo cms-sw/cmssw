@@ -7,3 +7,4 @@ allStandAloneMuonTracks = cms.EDProducer("ChargedCandidateProducer",
 )
 
 
+# foo bar baz

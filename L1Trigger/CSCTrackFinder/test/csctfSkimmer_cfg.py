@@ -171,3 +171,4 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.csctfunpacker*process.csctfFilter)
 process.endPath = cms.EndPath(process.FEVT)
 
+# foo bar baz

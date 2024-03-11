@@ -7,3 +7,4 @@ ticlSeedingTrk = cms.EDProducer("TICLSeedingRegionProducer",
         type = cms.string('SeedingRegionByTracks')
     )
 )
+# foo bar baz

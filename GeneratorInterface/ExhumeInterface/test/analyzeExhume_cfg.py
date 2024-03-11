@@ -21,3 +21,4 @@ process.add_(cms.Service("TFileService",
 )
 
 process.analysis = cms.Path(process.analyzer)
+# foo bar baz

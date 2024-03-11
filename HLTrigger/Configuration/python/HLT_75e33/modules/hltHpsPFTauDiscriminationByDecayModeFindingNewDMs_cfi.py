@@ -99,3 +99,4 @@ hltHpsPFTauDiscriminationByDecayModeFindingNewDMs = cms.EDProducer( "PFRecoTauDi
     minPixelHits = cms.int32( 0 ),
     requireTauChargedHadronsToBeChargedPFCands = cms.bool( False )
 )
+# foo bar baz

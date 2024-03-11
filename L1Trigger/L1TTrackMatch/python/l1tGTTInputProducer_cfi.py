@@ -11,3 +11,4 @@ l1tGTTInputProducerExtended = cms.EDProducer('L1GTTInputProducer',
   outputCollectionName = cms.string("Level1TTTracksExtendedConverted"),
   debug = cms.int32(0) # Verbosity levels: 0, 1, 2, 3
 )
+# foo bar baz

@@ -5,3 +5,4 @@ LumiDBService=cms.Service('DBService',
                          )
 expressLumiProducer.connect='oracle://cms_orcoff_prod/cms_runtime_logger'
 
+# foo bar baz

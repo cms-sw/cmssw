@@ -31,3 +31,4 @@ profile_base = cms.PSet(
         efficienciesPerPlane = cms.VPSet()
     )
 )
+# foo bar baz

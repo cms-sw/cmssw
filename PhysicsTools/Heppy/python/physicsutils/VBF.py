@@ -110,3 +110,4 @@ class VBF( object ):
         tmp.append('Central Jets:')
         tmp.extend( centralJets )
         return '\n'.join( tmp )
+# foo bar baz

@@ -27,3 +27,4 @@ process.analyze = cms.EDAnalyzer("CSCSharesInputTest",
 
 
 process.p = cms.Path(process.analyze)
+# foo bar baz

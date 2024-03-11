@@ -176,3 +176,4 @@ process.hi = cms.Path(process.scalersRawToDigi
                      *process.HIRecoForDQM
                      *process.dqmcommon
                      *process.monitor)
+# foo bar baz

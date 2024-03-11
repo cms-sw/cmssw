@@ -10,3 +10,4 @@ Chi2ChargeMeasurementEstimator = Chi2ChargeMeasurementEstimatorDefault.clone(
 _tracker_apv_vfp30_2016.toModify(Chi2ChargeMeasurementEstimator, MinPtForHitRecoveryInGluedDet=0.9)
 
 
+# foo bar baz

@@ -101,3 +101,4 @@ process.ecalUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
 process.ecalUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 process.ecalPreshowerRecHit.ESdigiCollection = 'simEcalPreshowerDigis'
 
+# foo bar baz

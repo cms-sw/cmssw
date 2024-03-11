@@ -30,3 +30,4 @@ castorOfflineMonitor = DQMEDAnalyzer('CastorMonitorModule',
    LastSignalBin = cms.untracked.int32(9)
 )
 
+# foo bar baz

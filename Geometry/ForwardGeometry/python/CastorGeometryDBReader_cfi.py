@@ -4,3 +4,4 @@ CastorGeometryFromDBEP = cms.ESProducer( "CastorGeometryFromDBEP",
                                          applyAlignment = cms.bool(False)
                                          )
 
+# foo bar baz

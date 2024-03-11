@@ -130,3 +130,4 @@ source = cms.Source("DQMStreamerReader",
     endOfRunKills  = cms.untracked.bool(False),
     inputFileTransitionsEachEvent = cms.untracked.bool(False)
 )
+# foo bar baz

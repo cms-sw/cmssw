@@ -46,3 +46,4 @@ b2gDoubleElectronHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation',
         sTrigger     = cms.untracked.string("TriggerResults"),
         vsPaths      = cms.untracked.vstring(['HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL']),
 )
+# foo bar baz

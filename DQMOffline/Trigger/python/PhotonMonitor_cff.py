@@ -173,3 +173,4 @@ higgsHLTDiphotonMonitoring = cms.Sequence(
     +DiPhoton10Time1p4ns_monitoring
     +DiPhoton10sminlt0p1_monitoring
 )
+# foo bar baz

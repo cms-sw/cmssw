@@ -6,3 +6,4 @@ pfJetProbabilityBJetTags = cms.EDProducer("JetTagProducer",
 )
 
 
+# foo bar baz

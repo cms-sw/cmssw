@@ -23,3 +23,4 @@ pfJetFilter = cms.EDFilter("PFJetFilter",
     verbose = cms.bool(False)
                            
 )
+# foo bar baz

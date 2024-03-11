@@ -27,3 +27,4 @@ gamIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
 )
 gamIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = 2
 
+# foo bar baz

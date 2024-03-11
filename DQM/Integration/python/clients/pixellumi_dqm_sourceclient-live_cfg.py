@@ -148,3 +148,4 @@ process.p = cms.Path(process.Reco*process.DQMmodules)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 print("Final Source settings:", process.source)
+# foo bar baz

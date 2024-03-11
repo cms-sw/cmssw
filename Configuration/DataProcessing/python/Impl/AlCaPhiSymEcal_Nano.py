@@ -23,3 +23,4 @@ class AlCaPhiSymEcal_Nano(AlCaNano):
     collision data taking for AlCaPhiSymEcal stream with ALCANANO output
 
     """
+# foo bar baz

@@ -12,3 +12,4 @@ class CreateGenMatch(object):
                 src = cms.InputTag(inputs)
                 )
         return producer
+# foo bar baz

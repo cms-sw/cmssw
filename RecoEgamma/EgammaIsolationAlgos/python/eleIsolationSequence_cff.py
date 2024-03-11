@@ -10,3 +10,4 @@ eleIsolationTask = cms.Task(
 )
 eleIsolationSequence = cms.Sequence(eleIsolationTask) 
 
+# foo bar baz

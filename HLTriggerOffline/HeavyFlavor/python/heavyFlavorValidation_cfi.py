@@ -25,3 +25,4 @@ heavyFlavorValidation = DQMEDAnalyzer('HeavyFlavorValidation',
     DimuonEtaBins = cms.untracked.vdouble(16, -2.4, 2.4),
     DimuonDRBins = cms.untracked.vdouble(10, 0., 1.)
 )
+# foo bar baz

@@ -7,3 +7,4 @@ BeamSpotFakeConditions = cms.ESSource("BeamSpotFakeConditions",
 )
 
 
+# foo bar baz

@@ -125,3 +125,4 @@ process.simCsctfTrackDigis.SectorProcessor.initializeFromPSet = cms.bool(False)
 process.p = cms.Path( process.csctfunpacker
                      *process.dttfunpacker
                      *process.simCsctfTrackDigis)
+# foo bar baz

@@ -122,3 +122,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	type           = cms.string('PrintGeomMatInfo')
 ))
 
+# foo bar baz

@@ -15,3 +15,4 @@ TTStubAlgorithm_Phase2TrackerDigi_ = cms.ESPrefer('TTStubAlgorithm_official_Phas
 #sequence
 TrackTriggerClustersStubs = cms.Sequence(TTClustersFromPhase2TrackerDigis*TTStubsFromPhase2TrackerDigis)
 
+# foo bar baz

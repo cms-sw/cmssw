@@ -14,3 +14,4 @@ ecalLaserCorrFilter = cms.EDFilter(
   taggingMode    = cms.bool(False),
   Debug          = cms.bool(False)
 )
+# foo bar baz

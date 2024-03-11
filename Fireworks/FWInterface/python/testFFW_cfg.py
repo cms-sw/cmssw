@@ -55,3 +55,4 @@ simHitTpMapTag = cms.InputTag("simHitTPAssocProducer")
 process.mypath = cms.Path(process.xxx)
 
 
+# foo bar baz

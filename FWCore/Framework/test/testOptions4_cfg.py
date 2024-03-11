@@ -19,3 +19,4 @@ process.options = dict(
 process.looper = cms.Looper("DummyLooper",
     value = cms.untracked.int32(4)
 )
+# foo bar baz

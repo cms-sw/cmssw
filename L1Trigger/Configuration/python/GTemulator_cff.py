@@ -11,3 +11,4 @@ GTemulatorTask = cms.Task(
 )
 
 GTemulator = cms.Sequence( GTemulatorTask )
+# foo bar baz

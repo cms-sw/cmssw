@@ -317,3 +317,4 @@ if dump:
     outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
     print(process.dumpPython(), file=outfile)
     outfile.close()
+# foo bar baz

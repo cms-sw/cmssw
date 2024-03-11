@@ -5,3 +5,4 @@ trackingRunTypeFilter = cms.EDFilter("SiStripCommissioningRunTypeFilter",
     runTypes = cms.vstring( 'ApvLatency', 'FineDelay' ),
     InputModuleLabel = cms.InputTag('FedChannelDigis')
 )
+# foo bar baz

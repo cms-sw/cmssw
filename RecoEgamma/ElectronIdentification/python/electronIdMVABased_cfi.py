@@ -14,3 +14,4 @@ mvaElectrons = cms.EDProducer("ElectronIdMVABased",
                             thresholdIsoDR03Barrel = cms.double( 10.0 ),
                             thresholdIsoDR03Endcap = cms.double( 10.0 )
                             )
+# foo bar baz

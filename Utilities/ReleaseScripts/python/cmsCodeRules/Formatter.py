@@ -221,3 +221,4 @@ class SimpleHTMLFormatter :
         return
 
     
+# foo bar baz

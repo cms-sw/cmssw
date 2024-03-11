@@ -27,3 +27,4 @@ if __name__ == "__main__":
             self.assertEqual(a.unreadKeys, set(["B"]))                        
 
     unittest.main()
+# foo bar baz

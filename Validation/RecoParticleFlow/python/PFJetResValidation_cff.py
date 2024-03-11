@@ -16,3 +16,4 @@ pfJetResValidation2 = pfJetResDQMAnalyzer.clone(
     BenchmarkLabel  = 'PFJetResValidation/JetPtResNoTracking'
 )
 pfJetResValidationSequence_NoTracking = cms.Sequence( pfJetResValidation2 )
+# foo bar baz

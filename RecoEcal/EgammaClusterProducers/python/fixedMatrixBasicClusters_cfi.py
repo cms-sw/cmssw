@@ -25,3 +25,4 @@ fixedMatrixBasicClusters = cms.EDProducer("FixedMatrixClusterProducer",
 )
 
 
+# foo bar baz

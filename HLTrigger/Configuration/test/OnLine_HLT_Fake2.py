@@ -419,3 +419,4 @@ process = customizeHLTforCMSSW(process,"Fake2")
 from HLTrigger.Configuration.Eras import modifyHLTforEras
 modifyHLTforEras(process)
 
+# foo bar baz

@@ -18,3 +18,4 @@ myTTRHBuilderWithoutAngleSeedsFromL1Muon = RecoTracker.TransientTrackingRecHit.T
     StripCPE = 'Fake',
     ComponentName = 'PixelTTRHBuilderWithoutAngleSeedsFromL1Muon'
 )
+# foo bar baz

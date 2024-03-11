@@ -77,3 +77,4 @@ process.AllPath = cms.Path(process.triggerOfflineDQMSource *  process.MEtoEDMCon
 
 process.outpath = cms.EndPath(process.EDM)
 
+# foo bar baz

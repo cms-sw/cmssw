@@ -114,3 +114,4 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 
 process.path1 = cms.Path(process.thingWithMergeProducer + process.test)
 process.e = cms.EndPath(process.out)
+# foo bar baz

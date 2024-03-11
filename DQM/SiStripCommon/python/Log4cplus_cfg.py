@@ -7,3 +7,4 @@ process.MessageLogger.log4cplus = cms.PSet(
     threshold = cms.untracked.string('DEBUG')
 )
 
+# foo bar baz

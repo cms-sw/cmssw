@@ -6,3 +6,4 @@ MonitorTrackSTACosmicMuons = MonitorTrackSTAMuons.clone(
     TrackProducer = 'cosmicMuons'
 )
 
+# foo bar baz

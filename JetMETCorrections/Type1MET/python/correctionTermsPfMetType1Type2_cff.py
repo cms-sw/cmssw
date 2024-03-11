@@ -80,3 +80,4 @@ correctionTermsPfMetType1Type2Task = cms.Task(
     )
 
 correctionTermsPfMetType1Type2 = cms.Sequence(correctionTermsPfMetType1Type2Task)
+# foo bar baz

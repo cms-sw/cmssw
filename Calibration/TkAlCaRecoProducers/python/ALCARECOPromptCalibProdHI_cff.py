@@ -6,3 +6,4 @@ ALCARECOTkAlMinBiasFilterForBS.HLTPaths = ['pathALCARECOTkAlMinBiasHI']
 alcaBeamSpotProducer.BeamFitter.TrackCollection = 'ALCARECOTkAlMinBiasHI'
 alcaBeamSpotProducer.BeamFitter.TrackQuality = cms.untracked.vstring('highPurity')
 alcaBeamSpotProducer.PVFitter.VertexCollection = 'hiSelectedVertex'
+# foo bar baz

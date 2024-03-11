@@ -6,3 +6,4 @@ esDigiToRaw = cms.EDProducer("ESDigiToRaw",
     Label = cms.string('simEcalPreshowerDigis'),
     LookupTable = cms.untracked.FileInPath('EventFilter/ESDigiToRaw/data/ES_lookup_table.dat')
 )
+# foo bar baz

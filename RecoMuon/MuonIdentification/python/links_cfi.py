@@ -3,3 +3,4 @@ globalMuonLinks = cms.EDProducer("MuonLinksProducer",
     inputCollection = cms.InputTag("muons","","@skipCurrentProcess")
 )
 
+# foo bar baz

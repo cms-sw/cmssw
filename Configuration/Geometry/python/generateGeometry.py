@@ -279,3 +279,4 @@ class GeometryGenerator(object):
             self.generateGeom(detectorTuple,args)
             sys.exit(0)
     
+# foo bar baz

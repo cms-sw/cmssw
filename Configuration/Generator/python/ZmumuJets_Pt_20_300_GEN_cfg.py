@@ -49,3 +49,4 @@ configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Generator/python/ZmumuJets_Pt_20_300_GEN_cfg.py,v $'),
     annotation = cms.untracked.string('ZmumuJets pt hat 20-300')
 )
+# foo bar baz

@@ -231,3 +231,4 @@ process.p = cms.Path(process.SharedResProd +
                      process.testFilterModule +
                      process.TestAccumulator2,
                      process.task)
+# foo bar baz

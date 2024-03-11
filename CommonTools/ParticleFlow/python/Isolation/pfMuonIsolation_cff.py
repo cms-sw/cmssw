@@ -17,3 +17,4 @@ pfMuonIsolationTask = cms.Task(
     muonPFIsolationTask 
     )
 pfMuonIsolationSequence = cms.Sequence(pfMuonIsolationTask)
+# foo bar baz

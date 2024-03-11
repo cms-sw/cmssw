@@ -19,3 +19,4 @@ from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau, isTau
 from PhysicsTools.Heppy.physicsobjects.GenParticle import GenParticle 
 
+# foo bar baz

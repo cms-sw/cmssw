@@ -35,3 +35,4 @@ gctErrorAnalyzer = cms.EDAnalyzer('GctErrorAnalyzer',
     useSys = cms.untracked.string("P5")          
 )
 
+# foo bar baz

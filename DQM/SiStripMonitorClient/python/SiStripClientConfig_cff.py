@@ -75,3 +75,4 @@ SiStripOfflineDQMClient = cms.Sequence(offlineAnalyser)
 
 # Services needed for TkHistoMap
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
+# foo bar baz

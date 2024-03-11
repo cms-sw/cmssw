@@ -2363,3 +2363,4 @@ if __name__ == "__main__":
             self.assertFalse(nan > 3 or nan < 3 or nan == 3)
 
     unittest.main()
+# foo bar baz

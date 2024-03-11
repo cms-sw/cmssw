@@ -34,3 +34,4 @@ VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
 
 
 
+# foo bar baz

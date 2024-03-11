@@ -10,3 +10,4 @@ TrackerDTCAnalyzer_params = cms.PSet (
   UseMCTruth                 = cms.bool( True )                                                         # eneables analyze of TPs                                                    # eneables analyze of TPs
 
 )
+# foo bar baz

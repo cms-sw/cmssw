@@ -27,3 +27,4 @@ def setup(process, global_tag, zero_tesla = False):
     print("Using Global Tag:", process.GlobalTag.globaltag._value)
 
     return process # not required because the cms.Process is modified in place
+# foo bar baz

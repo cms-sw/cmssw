@@ -12,3 +12,4 @@ patHeavyIonDefaultSequence = cms.Sequence(
     selectedPatMuons       *
     selectedPatPhotons
 )
+# foo bar baz

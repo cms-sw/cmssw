@@ -31,3 +31,4 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path( process.rawDataCollector)
 
 process.outpath = cms.EndPath(process.FEVT)
+# foo bar baz

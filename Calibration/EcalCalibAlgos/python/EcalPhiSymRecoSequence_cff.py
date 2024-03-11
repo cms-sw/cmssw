@@ -173,3 +173,4 @@ def customise(process):
     process.schedule.append(process.ALCARECOStreamEcalPhiSymOutNanoPath)
 
     return process
+# foo bar baz

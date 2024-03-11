@@ -7,3 +7,4 @@ ecalEndcapDigisValidation = DQMEDAnalyzer('EcalEndcapDigisValidation',
 )
 
 
+# foo bar baz

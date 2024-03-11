@@ -5,3 +5,4 @@ allMuons = cms.EDProducer("MuonShallowCloneProducer",
 )
 
 
+# foo bar baz

@@ -9,3 +9,4 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 process.add_(cms.Service("ZombieKillerService",
                           secondsBetweenChecks = cms.untracked.uint32(1),
                           numberOfAllowedFailedChecksInARow = cms.untracked.uint32(1)))
+# foo bar baz

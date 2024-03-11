@@ -81,3 +81,4 @@ class MetAnalyzer( Analyzer ):
 
 ##     def write(self, setup):
 ##         super(MetAnalyzer, self).write(setup)
+# foo bar baz

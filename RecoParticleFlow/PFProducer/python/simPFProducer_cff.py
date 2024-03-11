@@ -30,3 +30,4 @@ premix_stage2.toModify(simPFProducer,
     caloParticlesSrc = "mixData:MergedCaloTruth",
     simClusterTruthSrc = "mixData:MergedCaloTruth",
 )
+# foo bar baz

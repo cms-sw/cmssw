@@ -25,3 +25,4 @@ process.maxEvents = cms.untracked.PSet(
 process.test = cms.EDAnalyzer("HGCalParametersAnalyzer")
  
 process.p1 = cms.Path(process.test)
+# foo bar baz

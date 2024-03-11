@@ -8,3 +8,4 @@ cscTnPEfficiencyClient = DQMEDHarvester("TnPEfficiencyClient",
                                                                           "CSC_nPassingProbe_allCh_1D:CSC_nFailingProbe_allCh_1D",
                                                                           "CSC_nPassingProbe_allCh:CSC_nFailingProbe_allCh"),
                                        diagnosticPrescale = cms.untracked.int32(1))
+# foo bar baz

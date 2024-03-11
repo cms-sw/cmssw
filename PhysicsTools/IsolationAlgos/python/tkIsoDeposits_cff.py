@@ -73,3 +73,4 @@ tkIsoDepositCalHcal = cms.EDProducer("CandIsoDepositProducer",
 tkIsoDeposits = cms.Sequence(highPtTracks+tkIsoDepositTk+tkIsoDepositCalByAssociatorTowers+tkIsoDepositJets)
 
 
+# foo bar baz

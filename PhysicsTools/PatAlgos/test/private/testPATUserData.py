@@ -29,3 +29,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("drop *", "keep patMuons_*_*_*"),
 )
 process.out_step = cms.EndPath(process.out)
+# foo bar baz

@@ -318,3 +318,4 @@ if options.saveEdmOutput:
       process.schedule.extend([process.p5])
 
 process.schedule.extend([process.p6])
+# foo bar baz

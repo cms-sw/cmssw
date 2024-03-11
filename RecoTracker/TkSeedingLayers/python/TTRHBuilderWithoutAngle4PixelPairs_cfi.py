@@ -5,3 +5,4 @@ myTTRHBuilderWithoutAngle4PixelPairs = RecoTracker.TransientTrackingRecHit.Trans
     StripCPE      = 'Fake',
     ComponentName = 'TTRHBuilderWithoutAngle4PixelPairs'
 )
+# foo bar baz

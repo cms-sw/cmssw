@@ -11,3 +11,4 @@ L1THGCalTrigPrimValidation = DQMEDAnalyzer(
         EGIdentification = egamma_identification_histomax.clone()
        )
 
+# foo bar baz

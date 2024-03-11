@@ -228,3 +228,4 @@ pfPuppiMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzerMiniAOD.clone(
     JetCollectionLabel  = "slimmedJetsPuppi",
     JetCorrections = "" #not called, since corrected by default
 )
+# foo bar baz

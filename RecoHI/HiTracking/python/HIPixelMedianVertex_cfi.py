@@ -12,3 +12,4 @@ hiPixelMedianVertex = cms.EDProducer("HIPixelMedianVtxProducer",
 )
 
 
+# foo bar baz

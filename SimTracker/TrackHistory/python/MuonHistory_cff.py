@@ -18,3 +18,4 @@ muonHistory = cms.PSet(
     enableSimToReco = cms.untracked.bool(False)
 )
 
+# foo bar baz

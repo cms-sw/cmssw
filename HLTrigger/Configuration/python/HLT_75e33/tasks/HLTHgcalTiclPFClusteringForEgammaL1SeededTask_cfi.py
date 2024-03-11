@@ -40,3 +40,4 @@ HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     ticlSeedingL1,
     ticlTrackstersCLUE3DHighL1Seeded
 )
+# foo bar baz

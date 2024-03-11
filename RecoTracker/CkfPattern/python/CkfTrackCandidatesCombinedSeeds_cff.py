@@ -12,3 +12,4 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 ckfTrackCandidatesCombinedSeeds = ckfTrackCandidates.clone(
     src = 'globalCombinedSeeds'
 )
+# foo bar baz

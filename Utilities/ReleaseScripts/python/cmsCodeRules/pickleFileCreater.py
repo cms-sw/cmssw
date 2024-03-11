@@ -20,3 +20,4 @@ def createPickleFile(fileName, listRule, path = os.getcwd()):
         print('Wrong types')
     except IOError:
         print('Cannot open %s file'%fileName)
+# foo bar baz

@@ -24,3 +24,4 @@ process.cscdumper = cms.EDAnalyzer("CSCFileDumper",
 
 process.p = cms.Path(process.cscdumper)
 
+# foo bar baz

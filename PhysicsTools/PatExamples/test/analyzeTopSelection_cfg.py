@@ -143,3 +143,4 @@ process.tightEventSelection = cms.Path(
     process.step7      *
     process.monStep7
     )
+# foo bar baz

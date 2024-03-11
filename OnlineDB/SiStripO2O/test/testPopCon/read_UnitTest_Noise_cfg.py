@@ -49,3 +49,4 @@ process.reader = cms.EDFilter("SiStripNoisesReader",
 process.p1 = cms.Path(process.reader)
 
 
+# foo bar baz

@@ -35,3 +35,4 @@ nottoomanymuons = cms.EDFilter("NMaxPerLumi",
                                        )
 relvalmuonSkim = cms.Sequence(goodvertexSkim+muonSelector + muonFilter + nottoomanymuons )
 
+# foo bar baz

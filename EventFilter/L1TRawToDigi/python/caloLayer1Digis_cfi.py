@@ -10,3 +10,4 @@ caloLayer1Digis = cms.EDProducer(
     CTP7 = cms.untracked.bool(True)
 )
 
+# foo bar baz

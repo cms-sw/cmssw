@@ -24,3 +24,4 @@ process.testEcalClusterLazyTools = cms.EDAnalyzer("testEcalClusterLazyTools",
 )
 
 process.p1 = cms.Path( process.testEcalClusterLazyTools )
+# foo bar baz

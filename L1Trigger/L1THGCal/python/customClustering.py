@@ -158,3 +158,4 @@ def custom_3dclustering_EnergySplitAssociation(process):
     parameters_c3d = process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.cluster_association = cms.string('EnergySplit')
     return process
+# foo bar baz

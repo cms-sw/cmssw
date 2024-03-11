@@ -20,3 +20,4 @@ process.dtVDriftAnalyzer = cms.EDAnalyzer("DTVDriftAnalyzer",
 )
 
 process.p = cms.Path(process.dtVDriftAnalyzer)
+# foo bar baz

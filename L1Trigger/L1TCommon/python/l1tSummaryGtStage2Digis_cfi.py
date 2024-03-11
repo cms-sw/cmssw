@@ -15,3 +15,4 @@ l1tSummaryStage2Digis = cms.EDAnalyzer(
     sumToken   = cms.InputTag("gtStage2Digis","EtSum"),
     muonToken  = cms.InputTag("gtStage2Digis","Muon"),
 )
+# foo bar baz

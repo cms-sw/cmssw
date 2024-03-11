@@ -6,3 +6,4 @@ gemRecHit = cms.PSet(
     minBX = cms.int32(-1),
     maxBX = cms.int32(1),
 )
+# foo bar baz

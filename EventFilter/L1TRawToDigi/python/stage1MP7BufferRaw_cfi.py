@@ -91,3 +91,4 @@ stage1Raw = cms.EDProducer(
             )
         )
 )
+# foo bar baz

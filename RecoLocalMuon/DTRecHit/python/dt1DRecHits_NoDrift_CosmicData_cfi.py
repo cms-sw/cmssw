@@ -14,3 +14,4 @@ dt1DRecHits = cms.EDProducer("DTRecHitProducer",
 )
 
 
+# foo bar baz

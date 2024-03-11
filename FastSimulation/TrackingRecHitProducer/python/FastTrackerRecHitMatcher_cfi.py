@@ -5,3 +5,4 @@ fastMatchedTrackerRecHits = cms.EDProducer(
     simHits = cms.InputTag("fastSimProducer","TrackerHits"),
     simHit2RecHitMap = cms.InputTag("fastTrackerRecHits","simHit2RecHitMap")
     )
+# foo bar baz

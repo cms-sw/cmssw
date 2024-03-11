@@ -16,3 +16,4 @@ ecalDetailedTimeRecHit = cms.EDProducer("EcalDetailedTimeRecHitProducer",
                                         recoVertex = cms.InputTag("offlinePrimaryVerticesWithBS"),
                                         simVertex = cms.InputTag("g4SimHits")
                                         )
+# foo bar baz

@@ -8,3 +8,4 @@ topPhysicsminiAOD = cms.Sequence(    topSingleMuonMediumDQM_miniAOD
      				     *singleTopMuonMediumDQM_miniAOD
    				     *singleTopElectronMediumDQM_miniAOD
                                  )
+# foo bar baz

@@ -15,3 +15,4 @@ process.gctemu.inputFile = 'PythiaData.txt'
 process.gctemu.referenceFile = 'PythiaJets.txt'
 process.gctemu.energySumsFile = 'PythiaEsums.txt'
 
+# foo bar baz

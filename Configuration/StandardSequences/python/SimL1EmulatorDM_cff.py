@@ -30,3 +30,4 @@ simRctDigis.ecalDigis=["DMEcalTriggerPrimitiveDigis"]
 (~premix_stage2).toModify(simOmtfDigis, srcRPC = 'mixData')
 simCaloStage2Layer1Digis.ecalToken = "DMEcalTriggerPrimitiveDigis"
 simCaloStage2Layer1Digis.hcalToken = "DMHcalTriggerPrimitiveDigis"
+# foo bar baz

@@ -11,3 +11,4 @@ es_prefer_siStripLAFakeESSource = cms.ESPrefer("SiStripLAFakeESSource","siStripL
 siStripLAFakeESSourceforSimulation.appendToDataLabel = 'fake'
 
 
+# foo bar baz

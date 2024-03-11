@@ -33,3 +33,4 @@ process.printIt = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.get)
 process.ep = cms.EndPath(process.printIt)
+# foo bar baz

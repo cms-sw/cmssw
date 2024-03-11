@@ -33,3 +33,4 @@ tau3MuMonitorHLT = cms.Sequence(
     HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_Monitoring
 )
 
+# foo bar baz

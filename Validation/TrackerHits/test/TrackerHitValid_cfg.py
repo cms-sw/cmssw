@@ -37,3 +37,4 @@ process.p1 = cms.Path(process.g4SimHits*process.trackerHitsValidation)
 process.outpath = cms.EndPath(process.o1)
 
 
+# foo bar baz

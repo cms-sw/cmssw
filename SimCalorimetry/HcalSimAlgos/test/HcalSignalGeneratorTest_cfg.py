@@ -38,3 +38,4 @@ process.hcalSignal = cms.EDAnalyzer("HcalSignalGeneratorTest",
 
 process.p1 = cms.Path(process.mix+process.simHcalUnsuppressedDigis+process.hcalSignal)
 
+# foo bar baz

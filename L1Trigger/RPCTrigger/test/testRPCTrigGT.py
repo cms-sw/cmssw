@@ -48,3 +48,4 @@ process.source = cms.Source("PoolSource",
 
 #process.a = cms.Path(process.rpcunpacker*process.l1RpcEmulDigis)
 process.a = cms.Path(process.rpcTriggerDigis)
+# foo bar baz

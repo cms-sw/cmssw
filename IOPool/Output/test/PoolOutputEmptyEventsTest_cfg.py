@@ -24,3 +24,4 @@ process.p = cms.Path(process.filter+process.Thing*process.OtherThing)
 process.ep = cms.EndPath(process.output)
 
 
+# foo bar baz

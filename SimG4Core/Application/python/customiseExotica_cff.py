@@ -15,3 +15,4 @@ def customise(process):
     process.g4SimHits.Physics.DarkMPFactor         = cms.double(1.0)
     process.g4SimHits.Physics.particlesDef         = cms.FileInPath('')
     return(process)
+# foo bar baz

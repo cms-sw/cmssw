@@ -42,3 +42,4 @@ ssqhistory.monitoredSiStripQuality = cms.VPSet(
     cms.PSet( name = cms.string("BadChannel"), ssqLabel = cms.string("BadChannel")),
     cms.PSet( name = cms.string("BadFiber"), ssqLabel = cms.string("BadFiber"))
    )
+# foo bar baz

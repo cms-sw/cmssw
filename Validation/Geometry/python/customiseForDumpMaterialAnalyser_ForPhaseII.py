@@ -3,3 +3,4 @@ def customiseForMaterialAnalyser_ForPhaseII(process):
   process.generator.PGunParameters.MaxEta = 4.5
   process.generator.PGunParameters.MinEta = -4.5
   return process
+# foo bar baz

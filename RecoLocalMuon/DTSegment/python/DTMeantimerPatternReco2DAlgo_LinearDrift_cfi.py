@@ -33,3 +33,4 @@ DTMeantimerPatternReco2DAlgo_LinearDrift = cms.PSet(
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
 )
 
+# foo bar baz

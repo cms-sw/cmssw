@@ -93,3 +93,4 @@ ewkTauDQM = DQMEDAnalyzer('EwkTauDQM',
         )
     )
 )                         
+# foo bar baz

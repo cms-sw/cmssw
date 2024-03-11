@@ -53,3 +53,4 @@ process.DBWriterModule = cms.EDAnalyzer(
 
 process.p1 = cms.Path(process.DBWriterModule)
 
+# foo bar baz

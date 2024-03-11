@@ -23,3 +23,4 @@ process.test = cms.EDAnalyzer("TestSuite",
 process.p = cms.Path(process.test)
 
 
+# foo bar baz

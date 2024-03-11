@@ -227,3 +227,4 @@ SherpaWeightsBlock = cms.PSet(
                   'MUR1_MUF1_PDF25150'
     )
 )
+# foo bar baz

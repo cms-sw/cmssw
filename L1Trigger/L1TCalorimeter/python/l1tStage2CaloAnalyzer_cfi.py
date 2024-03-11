@@ -17,3 +17,4 @@ l1tStage2CaloAnalyzer = cms.EDAnalyzer('L1TStage2CaloAnalyzer',
     jetToken = cms.InputTag("caloStage2Digis","Jet"),
     etSumToken = cms.InputTag("caloStage2Digis","EtSum")
 )
+# foo bar baz

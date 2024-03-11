@@ -6,3 +6,4 @@ l1MenuTree = cms.EDAnalyzer("L1MenuTreeProducer",
    l1GtTriggerMenuLiteInputTag =  cms.InputTag("l1GtTriggerMenuLite"),
 )
 
+# foo bar baz

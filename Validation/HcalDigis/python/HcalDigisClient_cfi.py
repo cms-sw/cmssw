@@ -5,3 +5,4 @@ hcaldigisClient = DQMEDHarvester("HcalDigisClient",
      outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory
 )
+# foo bar baz

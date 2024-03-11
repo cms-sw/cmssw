@@ -48,3 +48,4 @@ charmTagsPositiveComputerCvsB = charmTagsComputerCvsB.clone(
     slComputerCfg = dict(trackSelection = dict(sip3dSigMin = 0),
                          trackPseudoSelection = dict(sip3dSigMin = 0))
 )
+# foo bar baz

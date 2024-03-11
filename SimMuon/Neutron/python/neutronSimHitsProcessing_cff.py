@@ -35,3 +35,4 @@ RandomNumberGeneratorService.dtNeutronWriter   = cms.PSet( initialSeed = cms.unt
 
 neutron_simhits_seq = cms.Sequence((cscNeutronWriter + rpcNeutronWriter + dtNeutronWriter) * (generator + g4SimHits))
 
+# foo bar baz

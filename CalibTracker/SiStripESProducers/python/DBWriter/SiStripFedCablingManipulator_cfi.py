@@ -8,3 +8,4 @@ siStripFedCablingManipulator = cms.EDAnalyzer("SiStripFedCablingManipulator",
 
 
 
+# foo bar baz

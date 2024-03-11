@@ -6,3 +6,4 @@ ootPhotonCore = photonCore.clone(
     scIslandEndcapProducer = "particleFlowSuperClusterOOTECAL:particleFlowSuperClusterOOTECALEndcapWithPreshower",
     conversionProducer     = "conversions"
 )
+# foo bar baz

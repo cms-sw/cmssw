@@ -143,3 +143,4 @@ if options.storeRAWOutput:
         fileName = cms.untracked.string(options.secondaryOutput)
     )
     process.outpath += process.outputRAW
+# foo bar baz

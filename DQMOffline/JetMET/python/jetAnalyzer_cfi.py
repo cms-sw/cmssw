@@ -286,3 +286,4 @@ jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              recoJetEtaCut = cms.double(2.0)
 )
 
+# foo bar baz

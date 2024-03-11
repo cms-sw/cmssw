@@ -73,3 +73,4 @@ process.p = cms.Path(                    #process.dump*
                      process.dataCertificationJetMETSequence*
                      process.dqmSaver
                      )
+# foo bar baz

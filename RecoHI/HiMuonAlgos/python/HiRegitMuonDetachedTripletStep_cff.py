@@ -156,3 +156,4 @@ hiRegitMuonDetachedTripletStepTask = cms.Task(hiRegitMuDetachedTripletStepCluste
                                               hiRegitMuDetachedTripletStepSelector
                                               )
 hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuonDetachedTripletStepTask)
+# foo bar baz

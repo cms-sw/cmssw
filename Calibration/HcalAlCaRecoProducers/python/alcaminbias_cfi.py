@@ -6,3 +6,4 @@ import Calibration.HcalAlCaRecoProducers.alcaEcalHcalReadoutsProducer_cfi
 MinProd = Calibration.HcalAlCaRecoProducers.alcaEcalHcalReadoutsProducer_cfi.alcaEcalHcalReadoutsProducer.clone()
 
 
+# foo bar baz

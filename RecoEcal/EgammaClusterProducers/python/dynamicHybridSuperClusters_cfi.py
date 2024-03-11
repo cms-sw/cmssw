@@ -22,3 +22,4 @@ dynamicHybridSuperClusters = RecoEcal.EgammaClusterProducers.hybridSuperClusters
        )
     )
 )
+# foo bar baz

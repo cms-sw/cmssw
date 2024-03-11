@@ -10,3 +10,4 @@ L2TauPixelTrackMatch = cms.EDProducer( "L2TauPixelTrackMatch",
     BeamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" )
 )
 
+# foo bar baz

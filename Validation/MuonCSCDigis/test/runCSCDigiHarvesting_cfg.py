@@ -52,3 +52,4 @@ if options.doSim:
     process.schedule.extend([process.harvesting_step])
 
 process.schedule.extend([process.endjob_step, process.dqmsave_step])
+# foo bar baz

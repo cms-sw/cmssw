@@ -25,3 +25,4 @@ class shell_tests(unittest.TestCase):
 
 	def tearDown(self):
 		self.connection.tear_down()
+# foo bar baz

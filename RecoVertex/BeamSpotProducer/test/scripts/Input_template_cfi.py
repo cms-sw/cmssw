@@ -10,3 +10,4 @@ fileNames = cms.untracked.vstring(
 	)
 )
 
+# foo bar baz

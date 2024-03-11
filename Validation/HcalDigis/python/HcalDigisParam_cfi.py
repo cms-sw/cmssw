@@ -47,3 +47,4 @@ from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(hcaldigisAnalyzer,
     HBPhase1 = cms.bool(True)
 )
+# foo bar baz

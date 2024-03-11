@@ -10,3 +10,4 @@ muonLegacyInStage2FormatDigis = cms.EDProducer('L1TMuonLegacyConverter',
 
 
 
+# foo bar baz

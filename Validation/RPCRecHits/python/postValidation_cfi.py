@@ -114,3 +114,4 @@ rpcPointVsRecHitPostValidation = DQMEDHarvester("DQMGenericClient",
 
 rpcRecHitPostValidation_step = cms.Sequence(rpcRecHitPostValidation+rpcRecHitSimRecoClient)
 rpcPointVsRecHitPostValidation_step = cms.Sequence(rpcPointVsRecHitPostValidation)
+# foo bar baz

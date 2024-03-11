@@ -71,3 +71,4 @@ siStripLorentzAngleFakeESSource.TOB_PerCent_Errs       = cms.vdouble(0.,    0., 
 process.p1 = cms.Path(process.siStripLorentzAngleDummyDBWriter)
 
 
+# foo bar baz

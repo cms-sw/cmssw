@@ -510,3 +510,4 @@ muoObjects = cms.VPSet(
        ),
 )
 
+# foo bar baz

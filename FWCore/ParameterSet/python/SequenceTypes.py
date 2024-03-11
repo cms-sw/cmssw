@@ -2950,3 +2950,4 @@ if __name__=="__main__":
             self.assertEqual(ps._dict, {"p":vstring("a","b","c","d")})
 
     unittest.main()
+# foo bar baz

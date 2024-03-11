@@ -83,3 +83,4 @@ TrackAssociatorParameters = cms.PSet(
     ME0HitCollectionLabel = cms.InputTag("me0RecHits"),
     useHcal = cms.bool(True)
 )
+# foo bar baz

@@ -139,3 +139,4 @@ process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 print("Final Source settings:", process.source)
+# foo bar baz

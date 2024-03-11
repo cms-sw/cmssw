@@ -551,3 +551,4 @@ def cmsStage( absDestDir, files, force):
         print(' '.join(command))
         runner = cmsIO.cmsFileManip()
         runner.runCommand(command)
+# foo bar baz

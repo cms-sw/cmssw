@@ -5,3 +5,4 @@ TrackerDTCAnalyzerDAQ_params = cms.PSet (
   InputTagTTClusterDetSetVec = cms.InputTag( "TTClustersFromPhase2TrackerDigis", "ClusterInclusive" ) # original TTCluster selection
 
 )
+# foo bar baz

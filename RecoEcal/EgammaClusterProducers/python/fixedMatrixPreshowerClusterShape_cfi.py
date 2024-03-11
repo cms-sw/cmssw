@@ -16,3 +16,4 @@ fixedMatrixPreshowerClusterShape = cms.EDProducer("PreshowerClusterShapeProducer
 )
 
 
+# foo bar baz

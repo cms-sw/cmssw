@@ -12,3 +12,4 @@ fileNames= cms.untracked.vstring(
     'rfio:/castor/cern.ch/user/s/sakoay/highRes_skim/hotskim_QCD1400to1800-pythia6__highRes.root',
     'rfio:/castor/cern.ch/user/s/sakoay/highRes_skim/hotskim_QCD1800toInf-pythia6__highRes.root'
 )
+# foo bar baz

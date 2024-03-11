@@ -18,3 +18,4 @@ process.demo = cms.EDAnalyzer('HcalTasks'
 
 
 process.p = cms.Path(process.demo)
+# foo bar baz

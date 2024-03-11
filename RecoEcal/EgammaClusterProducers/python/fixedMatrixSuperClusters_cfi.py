@@ -39,3 +39,4 @@ fixedMatrixSuperClusters = cms.EDProducer("FixedMatrixSuperClusterProducer",
 )
 
 
+# foo bar baz

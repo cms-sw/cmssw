@@ -188,3 +188,4 @@ class FriendOutput(OutputTree):
         outputTree = ROOT.TTree(
             treeName, "Friend tree for " + inputTree.GetName())
         OutputTree.__init__(self, outputFile, outputTree, inputTree)
+# foo bar baz

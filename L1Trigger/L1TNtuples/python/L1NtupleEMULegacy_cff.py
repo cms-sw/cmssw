@@ -11,3 +11,4 @@ L1NtupleEMULegacy = cms.Sequence(
   +l1legacyMuonEmuTree
 )
 
+# foo bar baz

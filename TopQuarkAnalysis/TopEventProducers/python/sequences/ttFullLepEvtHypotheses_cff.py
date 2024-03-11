@@ -16,3 +16,4 @@ makeTtFullLepHypothesesTask = cms.Task(
     makeHypothesis_kinSolutionTask
 )
 makeTtFullLepHypotheses  = cms.Sequence(makeTtFullLepHypothesesTask)
+# foo bar baz

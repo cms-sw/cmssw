@@ -39,3 +39,4 @@ pu55to60.maxPU = cms.double(60)
 pu60to65 = pileupFilter.clone()
 pu60to65.minPU = cms.double(60)
 pu60to65.maxPU = cms.double(65)
+# foo bar baz

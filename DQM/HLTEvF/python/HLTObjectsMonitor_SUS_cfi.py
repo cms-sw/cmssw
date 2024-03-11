@@ -120,3 +120,4 @@ susObjects = cms.VPSet(
        ),
 )
 
+# foo bar baz

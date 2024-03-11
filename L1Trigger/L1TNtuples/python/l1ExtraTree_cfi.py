@@ -14,3 +14,4 @@ l1ExtraTree = cms.EDAnalyzer("L1ExtraTreeProducer",
    maxL1Extra = cms.uint32(20)
 )
 
+# foo bar baz

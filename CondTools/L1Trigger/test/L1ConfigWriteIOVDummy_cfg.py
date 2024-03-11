@@ -84,3 +84,4 @@ process.outputDB = cms.ESSource("PoolDBESSource",
 process.p = cms.Path(process.L1CondDBIOVWriter)
 process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
+# foo bar baz

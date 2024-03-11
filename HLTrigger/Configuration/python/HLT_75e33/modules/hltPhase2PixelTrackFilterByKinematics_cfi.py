@@ -7,3 +7,4 @@ hltPhase2PixelTrackFilterByKinematics = cms.EDProducer("PixelTrackFilterByKinema
     ptMin = cms.double(0.9),
     tipMax = cms.double(1.0)
 )
+# foo bar baz

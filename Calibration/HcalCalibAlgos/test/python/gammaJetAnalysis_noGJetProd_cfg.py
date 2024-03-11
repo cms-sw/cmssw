@@ -82,3 +82,4 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.p = cms.Path(
     process.GammaJetAnalysis, process.ak4PFL2L3CorrectorTask, process.ak4PFCHSL2L3CorrectorTask
 )
+# foo bar baz

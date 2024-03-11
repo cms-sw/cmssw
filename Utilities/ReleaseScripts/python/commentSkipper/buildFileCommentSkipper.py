@@ -52,3 +52,4 @@ def filterMultilineComment(lines, commentStart, commentEnd):
                 i += 1
         i += 1
     return lines
+# foo bar baz

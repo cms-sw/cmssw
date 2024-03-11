@@ -125,3 +125,4 @@ hltL3MuonsPhase2L3OI = cms.EDProducer("L3MuonProducer",
         beamSpot = cms.InputTag("hltOnlineBeamSpot")
     )
 )
+# foo bar baz

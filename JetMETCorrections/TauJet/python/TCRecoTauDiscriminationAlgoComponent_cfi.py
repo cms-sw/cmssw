@@ -8,3 +8,4 @@ tcRecoTauDiscriminationAlgoComponent = cms.EDProducer("TCRecoTauDiscriminationAl
 	CaloTauProducer = cms.InputTag('caloRecoTauProducer'),
 	Prediscriminants = noPrediscriminants
 )
+# foo bar baz

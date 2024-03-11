@@ -23,3 +23,4 @@ ModelpMSSMFilter = cms.EDFilter("ModelpMSSMFilter",
 	loosegammaPtCut = cms.double(30.0),          # gen photon pT cut for soft object trigger
 	veryloosegammaPtCut = cms.double(18.0)       # gen photon pT cut for di-photon trigger
   )
+# foo bar baz

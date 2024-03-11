@@ -99,3 +99,4 @@ regionalCosmicTrackerSeeds.RegionInJetsCheckPSet = cms.PSet( doJetsExclusionChec
 
 # CDC Reconstruction
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
+# foo bar baz

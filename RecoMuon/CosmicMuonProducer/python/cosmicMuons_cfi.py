@@ -48,3 +48,4 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
     MuonSeedCollectionLabel = cms.string('CosmicMuonSeed')
 )
 
+# foo bar baz

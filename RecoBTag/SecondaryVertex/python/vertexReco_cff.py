@@ -10,3 +10,4 @@ vertexRecoBlock = cms.PSet(
 		weightthreshold = cms.double(0.001)
 	)
 )
+# foo bar baz

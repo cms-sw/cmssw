@@ -4,3 +4,4 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALMustache_cfi import *
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALBox_cfi import *
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALOnly_cfi import *
+# foo bar baz

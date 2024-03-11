@@ -15,3 +15,4 @@ APVPhases = cms.EDProducer('APVCyclePhaseProducerFromL1TS',
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(APVPhases, forceSCAL = False)
+# foo bar baz

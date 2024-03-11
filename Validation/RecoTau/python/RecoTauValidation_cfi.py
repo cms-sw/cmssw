@@ -591,3 +591,4 @@ def setTrigger(module,pset):
       setattr(module,'turnOnTrigger',cms.bool(True)) #Turns on trigger (in case is off)
       for item in pset.parameters_().items():
          setattr(module.GenericTriggerSelection,item[0],item[1])
+# foo bar baz

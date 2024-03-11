@@ -57,3 +57,4 @@ def include(includes_set):
         print(_yellow(func_id)+" Pickle object for "+cf_file_fullpath+" loaded ...")
     
     return object_list
+# foo bar baz

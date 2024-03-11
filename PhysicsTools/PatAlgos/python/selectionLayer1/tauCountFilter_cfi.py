@@ -8,3 +8,4 @@ countPatTaus = cms.EDFilter("PATCandViewCountFilter",
 )
 
 
+# foo bar baz

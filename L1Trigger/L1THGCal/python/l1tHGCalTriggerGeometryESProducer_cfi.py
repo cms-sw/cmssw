@@ -30,3 +30,4 @@ l1tHGCalTriggerGeometryESProducer = cms.ESProducer(
     'HGCalTriggerGeometryESProducer',
     TriggerGeometry = geometry
 )
+# foo bar baz

@@ -62,3 +62,4 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels = cms.bool(True),
     verbosity = cms.untracked.uint32(0)
 )
+# foo bar baz

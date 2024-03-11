@@ -55,3 +55,4 @@ process.l1or = cms.EDAnalyzer("L1TMuonGlobalParamsViewer", printLayerMap = cms.u
 
 process.p = cms.Path(process.l1or)
 
+# foo bar baz

@@ -7,3 +7,4 @@ L1TTkEle36Sequence = cms.Sequence(
     HLTL1Sequence +
     l1tTkEleSingle36Filter
 )
+# foo bar baz

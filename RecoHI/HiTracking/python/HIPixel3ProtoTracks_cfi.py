@@ -48,3 +48,4 @@ hiPixel3ProtoTracksTask = cms.Task(
     hiPixel3ProtoTracks
 )
 hiPixel3ProtoTracksSequence = cms.Sequence(hiPixel3ProtoTracksTask)
+# foo bar baz

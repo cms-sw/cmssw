@@ -41,3 +41,4 @@ process.path = cms.Path(
   process.ppsLocalTrackLiteReAligner
   * process.ctppsTrackDistributionPlotter
 )
+# foo bar baz

@@ -14,3 +14,4 @@ pixel_lumi_dqm  = DQMEDAnalyzer('PixelLumiDQM',
                                  #log file defined in class but not here as parameter
                                  logFileName = cms.untracked.string('/tmp/pixel_lumi.txt')
                                  )
+# foo bar baz

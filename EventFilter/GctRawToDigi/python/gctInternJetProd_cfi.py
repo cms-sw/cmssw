@@ -4,3 +4,4 @@ gctInternJetProducer = cms.EDProducer("L1GctInternJetProducer",
     internalJetSource = cms.InputTag("gctDigis"),
     centralBxOnly = cms.bool(True)
 )
+# foo bar baz

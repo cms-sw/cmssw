@@ -31,3 +31,4 @@ process.analyzer = cms.EDAnalyzer("AlpgenExtractor",
                                   )
 
 process.p = cms.Path(process.analyzer)
+# foo bar baz

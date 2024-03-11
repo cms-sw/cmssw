@@ -41,3 +41,4 @@ process.path = cms.Path(
     process.ppsTimingCalibrationAnalyzer
 )
 
+# foo bar baz

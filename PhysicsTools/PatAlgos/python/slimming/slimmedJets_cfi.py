@@ -27,3 +27,4 @@ slimmedJetsAK8 = cms.EDProducer("PATJetSlimmer",
    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 
+# foo bar baz

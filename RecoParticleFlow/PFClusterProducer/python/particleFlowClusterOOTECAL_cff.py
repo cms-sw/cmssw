@@ -12,3 +12,4 @@ run2_miniAOD_80XLegacy.toModify(particleFlowClusterOOTECAL,
                                     recHitsEBLabel = "reducedEcalRecHitsEB", recHitsEELabel = "reducedEcalRecHitsEE"
                                 )
                             )
+# foo bar baz

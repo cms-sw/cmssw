@@ -772,3 +772,4 @@ bphMonitorHLT = cms.Sequence(
 bphHLTDQMSourceExtra = cms.Sequence(
 )
 
+# foo bar baz

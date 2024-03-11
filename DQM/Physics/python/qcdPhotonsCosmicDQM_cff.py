@@ -5,3 +5,4 @@ qcdPhotonsCosmicDQM = DQM.Physics.qcdPhotonsDQM_cfi.qcdPhotonsDQM.clone(
     barrelRecHitTag           = "ecalRecHit:EcalRecHitsEB",
     endcapRecHitTag           = "ecalRecHit:EcalRecHitsEE"
 )
+# foo bar baz

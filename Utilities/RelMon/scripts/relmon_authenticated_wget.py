@@ -20,4 +20,4 @@ if __name__=="__main__":
     exit(1)
   
   url=argv[1]
-  wget(url)
+  wget(url)# foo bar baz

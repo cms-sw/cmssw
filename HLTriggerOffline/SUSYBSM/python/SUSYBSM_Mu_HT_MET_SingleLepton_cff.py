@@ -115,3 +115,4 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.Sequence( SUSY_HLT_Mu15_HT350_MET50_Single
 SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING = cms.Sequence( SUSYoHLToMu15oHT350oMET50oSingleLeptonPOSTPROCESSING
                                                                + SUSYoHLToMu15oHT400oMET50oSingleLeptonPOSTPROCESSING
 )
+# foo bar baz

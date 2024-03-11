@@ -111,3 +111,4 @@ process.CaloTPGTranscoder.hcalLUT2 = 'L1Trigger/RegionalCaloTrigger/test/data/TP
 process.l1CaloScales.L1CaloEmEtScaleLSB = 1.0
 
 
+# foo bar baz

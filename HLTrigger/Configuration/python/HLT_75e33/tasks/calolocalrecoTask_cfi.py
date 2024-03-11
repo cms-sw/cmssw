@@ -7,3 +7,4 @@ calolocalrecoTask = cms.Task(
     ecalLocalRecoTask,
     hcalLocalRecoTask
 )
+# foo bar baz

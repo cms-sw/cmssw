@@ -9,3 +9,4 @@ SmartPropagatorRKOpposite = cms.ESProducer("SmartPropagatorESProducer",
                                            )
 
 
+# foo bar baz

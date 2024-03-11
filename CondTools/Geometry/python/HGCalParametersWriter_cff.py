@@ -19,3 +19,4 @@ HGCalHEScParametersWriter = HGCalEEParametersWriter.clone(
     nameW = cms.string("HGCalWafer"),
     nameC = cms.string("HGCalCell"),
 )
+# foo bar baz

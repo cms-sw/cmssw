@@ -41,3 +41,4 @@ L1MuTriggerScales = cms.ESProducer("L1MuTriggerScalesProducer",
 )
 
 
+# foo bar baz

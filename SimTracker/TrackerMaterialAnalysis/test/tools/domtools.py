@@ -42,3 +42,4 @@ def dom_strip(document):
       else:
         element.nodeValue = ""
 
+# foo bar baz

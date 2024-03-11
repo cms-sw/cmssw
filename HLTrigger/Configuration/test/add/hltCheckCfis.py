@@ -30,3 +30,4 @@ def check(dir) :
 print "START"
 check(dir)
 print "STOP"
+# foo bar baz

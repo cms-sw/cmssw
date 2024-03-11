@@ -10,3 +10,4 @@ ecalPulseShapeGrapher = cms.EDAnalyzer("EcalPulseShapeGrapher",
     AmplitudeCutADC = cms.untracked.int32(13),
     rootFilename = cms.untracked.string('ecalPulseShapeGrapher')
 )
+# foo bar baz

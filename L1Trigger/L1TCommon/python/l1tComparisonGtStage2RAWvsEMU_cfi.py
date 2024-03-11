@@ -32,3 +32,4 @@ l1tComparisonGtStage2RAWvsEMU = cms.EDAnalyzer(
     muonTagB   =  cms.InputTag("gtStage2Digis","Muon"),
     algTagB    =  cms.InputTag("gtStage2Digis",""),
 )
+# foo bar baz

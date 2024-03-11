@@ -16,3 +16,4 @@ SiStripSpyDigiConverter = cms.EDProducer(
     MaxTickHeight = cms.uint32(1024),
     ExpectedPositionOfFirstHeaderBit = cms.uint32(6)
     )
+# foo bar baz

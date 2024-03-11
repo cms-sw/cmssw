@@ -19,3 +19,4 @@ l1tSummaryStage1SimDigis = cms.EDAnalyzer(
     sumToken   = cms.InputTag("simCaloStage1FinalDigis"),
     #muonToken = cms.InputTag("simGmtStage2Digis",""),  # no stage-1 analog yet...
 )
+# foo bar baz

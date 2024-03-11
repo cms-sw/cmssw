@@ -32,3 +32,4 @@ highPtTripletStepTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
     src = cms.InputTag("highPtTripletStepTracks"),
     vertices = cms.InputTag("hltPhase2PixelVertices")
 )
+# foo bar baz

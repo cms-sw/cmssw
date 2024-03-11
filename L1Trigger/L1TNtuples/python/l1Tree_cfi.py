@@ -67,3 +67,4 @@ l1Tree = cms.EDAnalyzer("L1NtupleProducer",
     maxAllowedWeight     = cms.untracked.double(-1)                         
 )
 
+# foo bar baz

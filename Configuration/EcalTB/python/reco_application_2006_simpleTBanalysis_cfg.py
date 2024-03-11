@@ -26,3 +26,4 @@ process.simpleTBanalysis = cms.EDAnalyzer("EcalSimpleTBAnalyzer",
 
 process.p = cms.Path(process.simpleTBanalysis)
 
+# foo bar baz

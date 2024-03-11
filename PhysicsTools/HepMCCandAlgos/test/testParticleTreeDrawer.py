@@ -31,3 +31,4 @@ process.p = cms.Path(process.printTree1*process.printTree2)
 process.outpath = cms.EndPath(process.printEventNumber)
 
 
+# foo bar baz

@@ -43,3 +43,4 @@ process.p = cms.Path(process.analyzer)
 process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound') )
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.schedule = cms.Schedule(process.p,process.endjob_step)
+# foo bar baz

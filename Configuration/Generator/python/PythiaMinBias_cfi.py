@@ -64,3 +64,4 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
             'PARP(93)=15.0  ! ')
     )
 )
+# foo bar baz

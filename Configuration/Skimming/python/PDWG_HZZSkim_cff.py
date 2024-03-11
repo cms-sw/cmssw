@@ -53,3 +53,4 @@ zzdiMuonSequence = cms.Sequence( goodHzzMuons * diHzzMuons * diHzzMuonsFilter )
 zzdiElectronSequence = cms.Sequence( goodHzzElectrons * diHzzElectrons * diHzzElectronsFilter )
 zzeleMuSequence = cms.Sequence( goodHzzMuons * goodHzzElectrons * crossHzzLeptons * crossHzzLeptonsFilter )
 
+# foo bar baz

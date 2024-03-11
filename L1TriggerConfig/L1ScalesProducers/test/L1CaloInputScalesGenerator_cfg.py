@@ -23,3 +23,4 @@ process.write = cms.EDAnalyzer("L1CaloInputScalesGenerator")
 process.p = cms.Path(process.write)
 
 
+# foo bar baz

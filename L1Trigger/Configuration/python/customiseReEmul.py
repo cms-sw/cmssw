@@ -503,3 +503,4 @@ def L1TReEmulFromRAWLegacyMuon(process):
     print("# {0}".format(process.schedule))
     return process
 
+# foo bar baz

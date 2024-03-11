@@ -46,3 +46,4 @@ mix = cms.EDFilter("MixingModule",
 )
 
 
+# foo bar baz

@@ -147,3 +147,4 @@ process.l1tEndPath = cms.EndPath( process.l1tGlobalSummary )
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 100 # only report every 100th event start
 process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+# foo bar baz

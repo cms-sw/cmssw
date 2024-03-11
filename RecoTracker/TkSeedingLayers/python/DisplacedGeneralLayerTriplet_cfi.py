@@ -114,3 +114,4 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
          maxRing = cms.int32(7)
 	) 
 ) 
+# foo bar baz

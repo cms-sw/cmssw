@@ -21,3 +21,4 @@ alCaPi0RegRecHits = cms.EDProducer("AlCaPi0RecHitsProducer",
 )
 
 
+# foo bar baz

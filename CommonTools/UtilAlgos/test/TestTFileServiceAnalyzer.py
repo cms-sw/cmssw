@@ -28,3 +28,4 @@ process.testAna = cms.EDAnalyzer("TestTFileServiceAnalyzer",
                                  )
 
 process.p = cms.Path( process.testAna )
+# foo bar baz

@@ -9,3 +9,4 @@ l1tStage2CaloLayer2Emul = DQMEDAnalyzer('L1TStage2CaloLayer2',
                 monitorDir = cms.untracked.string("L1TEMU/L1TStage2CaloLayer2")
 )
                                      
+# foo bar baz

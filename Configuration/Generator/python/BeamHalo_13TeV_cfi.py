@@ -11,3 +11,4 @@ generator = cms.EDProducer("BeamHaloProducer",
     shift_bx  = cms.untracked.int32(0),   ## e.g. -2, -1 for previous bunch-crossing
     BXNS = cms.untracked.double(25.)      ## time between 2 bx s, in ns
 )
+# foo bar baz

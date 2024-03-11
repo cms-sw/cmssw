@@ -14,3 +14,4 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits.Watchers[0].MaterialBudgetVolume, useDD4hep = True )
+# foo bar baz

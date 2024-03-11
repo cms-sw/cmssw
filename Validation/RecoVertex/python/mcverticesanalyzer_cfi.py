@@ -7,3 +7,4 @@ mcverticesanalyzer = cms.EDAnalyzer("MCVerticesAnalyzer",
                                     weightProduct = cms.InputTag("mcvertexweight")
                            )
 
+# foo bar baz

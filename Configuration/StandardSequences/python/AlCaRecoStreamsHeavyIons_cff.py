@@ -632,3 +632,4 @@ ALCARECOStreamSiStripPCLHistos = cms.FilteredStream(
 
 from Configuration.StandardSequences.AlCaRecoStream_SpecialsHI_cff import *
 
+# foo bar baz

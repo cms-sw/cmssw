@@ -14,3 +14,4 @@ process.p = cms.Path(
 
 del process.out
 del process.outpath
+# foo bar baz

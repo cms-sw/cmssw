@@ -17,3 +17,4 @@ hltPhase2PixelTracksTask = cms.Task(
     hltPhase2PixelTracksSeedLayers,
     hltPhase2PixelTracksAndHighPtStepTrackingRegions
 )
+# foo bar baz

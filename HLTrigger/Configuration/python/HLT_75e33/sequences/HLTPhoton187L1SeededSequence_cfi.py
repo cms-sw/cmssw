@@ -27,3 +27,4 @@ HLTPhoton187L1SeededSequence = cms.Sequence(
     hltPhoton187HEL1SeededFilter,
     HLTPhoton187L1SeededTask
 )
+# foo bar baz

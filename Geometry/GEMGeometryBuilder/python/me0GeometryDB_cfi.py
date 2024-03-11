@@ -7,3 +7,4 @@ ME0GeometryESModule = cms.ESProducer("ME0GeometryESModule",
     fromDDD = cms.bool(False),
     fromDD4hep = cms.bool(False)
 )
+# foo bar baz

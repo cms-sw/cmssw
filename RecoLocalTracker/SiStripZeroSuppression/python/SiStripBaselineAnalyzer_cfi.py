@@ -19,3 +19,4 @@ SiStripBaselineAnalyzer = cms.EDAnalyzer("SiStripBaselineAnalyzer",
     plotPedestals = cms.bool(True),
     plotDigis = cms.bool(True)
 )
+# foo bar baz

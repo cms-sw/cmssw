@@ -10,3 +10,4 @@ siStripThresholdFakeESSource = cms.ESSource("SiStripThresholdFakeESSource",
 
 
 
+# foo bar baz

@@ -12,3 +12,4 @@ ProbeTreeProducer = cms.EDAnalyzer("ProbeTreeProducer",
     ),
 )
 
+# foo bar baz

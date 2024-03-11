@@ -66,3 +66,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.p = cms.Path(process.SiPixelCondObjForHLTBuilder)
 
 
+# foo bar baz

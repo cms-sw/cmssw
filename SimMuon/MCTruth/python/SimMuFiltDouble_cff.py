@@ -6,3 +6,4 @@ SimDoubleMuFilter = SimMuFilter.clone()
 SimDoubleMuFilter.nMuSel = 2
 
 SimMuFiltSeq = cms.Sequence(SimDoubleMuFilter)
+# foo bar baz

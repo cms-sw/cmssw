@@ -68,3 +68,4 @@ process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
 process.p = cms.Path(process.hcalTowerAnalyzer * process.hcalNoiseRates * process.hcalRecoAnalyzer * process.MEtoEDMConverter)
 process.output = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
+# foo bar baz

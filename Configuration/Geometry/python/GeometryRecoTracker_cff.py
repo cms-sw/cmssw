@@ -9,3 +9,4 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 
 # Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+# foo bar baz

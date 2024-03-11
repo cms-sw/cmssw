@@ -17,3 +17,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.path = cms.Path(process.testReadSiStripApproximateClusterCollection)
 
 process.endPath = cms.EndPath(process.out)
+# foo bar baz

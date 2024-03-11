@@ -102,3 +102,4 @@ for tag in tags:
         c.Print(plotdir+'/'+str(rh.run)+'_'+str(rh.evt)+'_'+str(rh.ieta)+'_'+str(rh.iphi)+'_'+str(rh.depth)+tag+'.pdf')
         c.Print(plotdir+'/'+str(rh.run)+'_'+str(rh.evt)+'_'+str(rh.ieta)+'_'+str(rh.iphi)+'_'+str(rh.depth)+tag+'.png')
         count += 1
+# foo bar baz

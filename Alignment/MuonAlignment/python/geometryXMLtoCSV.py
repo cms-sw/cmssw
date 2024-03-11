@@ -79,3 +79,4 @@ class ContentHandler(handler.ContentHandler):
 parser = make_parser()
 parser.setContentHandler(ContentHandler())
 parser.parse(stdin)
+# foo bar baz

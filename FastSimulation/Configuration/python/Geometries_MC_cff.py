@@ -6,3 +6,4 @@ from FastSimulation.Configuration.Geometries_cff import *
 misalignedTrackerGeometry.applyAlignment = True
 misalignedDTGeometry.applyAlignment = True
 misalignedCSCGeometry.applyAlignment = True
+# foo bar baz

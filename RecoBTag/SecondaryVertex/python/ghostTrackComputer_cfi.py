@@ -12,3 +12,4 @@ ghostTrackComputer = cms.ESProducer("GhostTrackESProducer",
         recordLabel = cms.string(''),
 	categoryVariableName = cms.string('vertexCategory')
 )
+# foo bar baz

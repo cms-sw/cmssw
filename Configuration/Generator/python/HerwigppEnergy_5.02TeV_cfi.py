@@ -9,3 +9,4 @@ herwigppEnergySettingsBlock = cms.PSet(
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
 	),
 )
+# foo bar baz

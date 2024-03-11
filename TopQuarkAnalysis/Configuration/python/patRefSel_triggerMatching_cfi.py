@@ -18,3 +18,4 @@ signalMuonsTriggerMatch = cms.EDProducer(
     cms.InputTag( 'muonTriggerMatch' )
   )
 )
+# foo bar baz

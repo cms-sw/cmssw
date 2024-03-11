@@ -35,3 +35,4 @@ def SecondaryVertexTagInfoCategorySelector(src, pxy, cut):
     vertexClassifier.vertexProducer = copy.deepcopy(pxy)
     vertexClassifier.vertexProducer.setIsTracked(False)    
     return cms.EDFilter('SecondaryVertexTagInfoCategorySelector', vertexClassifier, src = src, cut = cut)
+# foo bar baz

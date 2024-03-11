@@ -41,3 +41,4 @@ vertexFromTrack = cms.EDProducer("VertexFromTrackProducer",
     useVertex = cms.bool(True),
     vertexLabel = cms.InputTag("hltPixelVertices"),
 )
+# foo bar baz

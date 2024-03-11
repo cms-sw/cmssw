@@ -19,3 +19,4 @@ process.analyzer = cms.EDAnalyzer("CSCAFEBdacAnalyzer")
 
 process.p = cms.Path(process.cscunpacker*process.analyzer)
 
+# foo bar baz

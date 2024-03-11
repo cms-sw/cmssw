@@ -41,3 +41,4 @@ process.p = cms.Path(
 #process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #process.out.fileName = ...            ##  (e.g. 'myTuple.root')
 #process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)    
+# foo bar baz

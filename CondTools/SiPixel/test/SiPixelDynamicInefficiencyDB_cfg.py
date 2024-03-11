@@ -139,3 +139,4 @@ process.p = cms.Path(
     process.SiPixelDynamicInefficiency
 )
 
+# foo bar baz

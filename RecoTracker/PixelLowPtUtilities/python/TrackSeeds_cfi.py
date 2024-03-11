@@ -10,3 +10,4 @@ pixelTrackSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProd
 #    tripletList = cms.vstring()
 #)
 
+# foo bar baz

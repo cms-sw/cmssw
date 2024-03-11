@@ -9,3 +9,4 @@ siStripLorentzAngleDummyDBWriter = cms.EDAnalyzer("SiStripLorentzAngleDummyDBWri
 
 
 
+# foo bar baz

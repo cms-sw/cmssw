@@ -8,3 +8,4 @@ from CondCore.CondDB.CondDB_cfi import *
 CondDBSetup = CondDB.clone()
 CondDBSetup.__delattr__('connect')
 
+# foo bar baz

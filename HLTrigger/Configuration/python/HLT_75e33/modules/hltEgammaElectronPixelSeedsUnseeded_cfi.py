@@ -48,3 +48,4 @@ hltEgammaElectronPixelSeedsUnseeded = cms.EDProducer("ElectronNHitSeedProducer",
     superClusters = cms.VInputTag("hltEgammaSuperClustersToPixelMatchUnseeded"),
     vertices = cms.InputTag("")
 )
+# foo bar baz

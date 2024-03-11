@@ -222,3 +222,4 @@ voWcutMonitoringZBHIPOOTSequence = cms.Sequence(
     KshortWlxy16*KshortWlxy16MonitoringZBHIPOOT
     +LambdaWlxy16*LambdaWlxy16MonitoringZBHIPOOT
 )
+# foo bar baz

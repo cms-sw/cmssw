@@ -15,3 +15,4 @@ clusterbigeventsdebugger = cms.EDAnalyzer('ClusterBigEventsDebugger',
     )
 
 )
+# foo bar baz

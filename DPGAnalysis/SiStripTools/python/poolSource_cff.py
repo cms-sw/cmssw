@@ -6,3 +6,4 @@ source = cms.Source("PoolSource",
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
+# foo bar baz

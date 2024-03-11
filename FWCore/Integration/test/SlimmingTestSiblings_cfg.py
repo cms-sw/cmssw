@@ -46,3 +46,4 @@ process.p = cms.Path(
     process.slimmingThingProducerB *
     process.slimmingThingProducerC
 )
+# foo bar baz

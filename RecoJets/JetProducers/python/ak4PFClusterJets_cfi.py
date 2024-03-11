@@ -11,3 +11,4 @@ ak4PFClusterJets = cms.EDProducer(
     rParam       = cms.double(0.4)
     )
 
+# foo bar baz

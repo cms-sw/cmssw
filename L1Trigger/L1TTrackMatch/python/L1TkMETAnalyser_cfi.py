@@ -6,3 +6,4 @@ L1TkMETAnalyser = cms.EDAnalyzer('L1TkMETAnalyser',
   TrackMETHWInputTag = cms.InputTag("GTTOutputFileReader"),
   HW_Analysis = cms.bool(False)
 )
+# foo bar baz

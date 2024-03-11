@@ -41,3 +41,4 @@ process.ZThing = cms.EDAlias(
 process.p = cms.Path(process.Thing*process.OtherThing)
 process.ep = cms.EndPath(process.output)
 
+# foo bar baz

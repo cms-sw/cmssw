@@ -8,3 +8,4 @@ heavyIonCSVJetTags  = cms.EDProducer(
       cms.InputTag('secondaryVertexFinderTagInfos'),
       )
 )
+# foo bar baz

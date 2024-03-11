@@ -54,3 +54,4 @@ process.p = cms.Path(
 process.ep = cms.EndPath(
     process.outE
 )
+# foo bar baz

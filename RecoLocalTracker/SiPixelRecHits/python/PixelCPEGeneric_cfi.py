@@ -54,3 +54,4 @@ from Configuration.Eras.Modifier_phase2_squarePixels_cff import phase2_squarePix
 (phase2_tracker & (phase2_squarePixels | phase2_3DPixels)).toModify(PixelCPEGenericESProducer,
                                                                     NoTemplateErrorsWhenNoTrkAngles = False # use genErrors in the seeding step (when no track angles are available)
                                                                     )
+# foo bar baz

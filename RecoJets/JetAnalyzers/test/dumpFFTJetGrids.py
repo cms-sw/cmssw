@@ -103,3 +103,4 @@ process.p = cms.Path(
     process.fftjetpatreco *
     process.pileupanalyzer
 )
+# foo bar baz

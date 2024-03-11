@@ -111,3 +111,4 @@ CaloMaterialBlock = cms.PSet(
 if hasattr(TrackerMaterialBlock.TrackerMaterial, 'magneticFieldZ'):
     CaloMaterialBlock.CaloMaterial.magneticFieldZ = TrackerMaterialBlock.TrackerMaterial.magneticFieldZ
     
+# foo bar baz

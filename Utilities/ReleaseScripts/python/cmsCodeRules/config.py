@@ -207,3 +207,4 @@ helpMsg += "-h     Prints help message\n"
 helpMsg += "-html  Reads pickle files and creates cmsCRPage.html\n\n"
 helpMsg += "By default cmsCodeRulesChecker.py checks all rules in current directory and prints results into screen.\n\n"
 helpMsg += rulesDescription
+# foo bar baz

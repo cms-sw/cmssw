@@ -22,3 +22,4 @@ process.maxEvents.input = 20
 process.options.numberOfThreads = 8
 
 process.e = cms.EndPath(process.o, cms.Task(process.thing))
+# foo bar baz

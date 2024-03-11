@@ -39,3 +39,4 @@ pfRecoTauTagInfoProducerInsideOut = pfRecoTauTagInfoProducer.clone(
     PFJetTracksAssociatorProducer   = 'insideOutJetTracksAssociatorAtVertex',
     ChargedHadrCand_AssociationCone = 1.0
 )
+# foo bar baz

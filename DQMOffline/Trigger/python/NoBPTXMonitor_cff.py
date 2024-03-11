@@ -11,3 +11,4 @@ exoHLTNoBPTXmonitoring = cms.Sequence(
     hltNoBPTXmonitoring
     + hltNoBPTXL2Mu40Monitoring
 )
+# foo bar baz

@@ -8,3 +8,4 @@ bToCharmDecayVertexMerged = cms.EDProducer("BtoCharmDecayVertexMerger",
       minCosPAtomerge = cms.double(0.99),
       maxPtreltomerge = cms.double(7777.0)
 )
+# foo bar baz

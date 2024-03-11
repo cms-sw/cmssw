@@ -30,3 +30,4 @@ exoHLTdispStaMuonMonitoring = cms.Sequence(
     + hltDiDispStaMuonL2MuL3Mu16VetoL3Mu0DxyMax1cmMonitoring
     + hltDiDispStaMuon10CosmicVetoL3Mu0DxyMax1cmMonitoring
 )
+# foo bar baz

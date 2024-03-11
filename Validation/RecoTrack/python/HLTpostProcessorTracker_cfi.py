@@ -14,3 +14,4 @@ postProcessorHLTtrackingSequence = cms.Sequence(
     postProcessorHLTtracking +
     postProcessorHLTtrackingSummary
 )
+# foo bar baz

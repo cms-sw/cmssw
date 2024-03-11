@@ -49,3 +49,4 @@ process.analyzer = cms.EDAnalyzer("CSCCompThreshAnalyzer",
 
 process.p = cms.Path(process.cscunpacker*process.analyzer)
 
+# foo bar baz

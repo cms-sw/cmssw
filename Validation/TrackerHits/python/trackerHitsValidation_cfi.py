@@ -55,3 +55,4 @@ trackerSiStripHitsValid = DQMEDAnalyzer('TrackerHitAnalyzer',
     SiTIDHighSrc = cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"),
     pixelOutput = cms.bool(False)
 )
+# foo bar baz

@@ -447,3 +447,4 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         )
 
 )
+# foo bar baz

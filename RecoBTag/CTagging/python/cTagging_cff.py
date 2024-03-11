@@ -16,3 +16,4 @@ cTaggingTask = cms.Task(
     pfCombinedCvsBJetTags,
     CombinedCharmTagJetTagsTask
 )
+# foo bar baz

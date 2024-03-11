@@ -59,3 +59,4 @@ process.RandomNumberGeneratorService.cscNoiseTest = cms.PSet(
 
 
 process.path = cms.Path(process.cscNoiseTest)
+# foo bar baz

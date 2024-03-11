@@ -72,3 +72,4 @@ l1CaloScales.L1CaloJetThresholds = cms.vdouble(
 # GCT HF ring sum scale
 l1CaloScales.L1HfRingThresholds = cms.vdouble(0.0, 2.0, 3.0, 4.0, 6.0, 50., 200., 500.)
 
+# foo bar baz

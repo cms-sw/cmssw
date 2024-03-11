@@ -67,3 +67,4 @@ herwig7MGMergingSettingsBlock = cms.PSet(
         'set FxFxHandler:RClusFactor 1.5',
     )
 )
+# foo bar baz

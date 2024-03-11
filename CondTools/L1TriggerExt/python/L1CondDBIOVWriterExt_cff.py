@@ -34,3 +34,4 @@ def initIOVWriterExt( process,
     initL1SubsystemsExt( tagBaseVec = tagBaseVec )
     initIOVWriterExt.outputDB.toPut.extend(initL1SubsystemsExt.params.recordInfo)
     process.add_(initIOVWriterExt.outputDB)
+# foo bar baz

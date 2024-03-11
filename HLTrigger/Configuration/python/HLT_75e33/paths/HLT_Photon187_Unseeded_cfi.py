@@ -10,3 +10,4 @@ HLT_Photon187_Unseeded = cms.Path(
     HLTPhoton187UnseededSequence +
     HLTEndSequence
 )
+# foo bar baz

@@ -159,3 +159,4 @@ process.p = cms.Path(
  process.calotowersClient * 
  process.hcalrechitsClient * 
  process.dqmSaver)
+# foo bar baz

@@ -6,3 +6,4 @@ goodMuons = cms.EDFilter("MuonRefSelector",
 )
 
 
+# foo bar baz

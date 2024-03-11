@@ -95,3 +95,4 @@ def setTauSource(discriminator, newTauProducer):
    ''' Same as adaptTauDiscriminator, kept for backwards compatibility'''
    adaptTauDiscriminator(discriminator, newTauProducer)
 
+# foo bar baz

@@ -7,3 +7,4 @@ HTSD.triggerConditions = cms.vstring('HLT_HT*',)
 HTSD.hltResults = cms.InputTag( "TriggerResults", "", "HLT" )
 HTSD.l1tResults = cms.InputTag("")
 HTSD.throw = cms.bool( False )
+# foo bar baz

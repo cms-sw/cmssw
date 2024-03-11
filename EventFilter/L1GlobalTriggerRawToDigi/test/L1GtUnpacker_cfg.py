@@ -167,3 +167,4 @@ process.outputL1GtUnpack = cms.OutputModule("PoolOutputModule",
 
 process.outpath = cms.EndPath(process.outputL1GtUnpack)
 
+# foo bar baz

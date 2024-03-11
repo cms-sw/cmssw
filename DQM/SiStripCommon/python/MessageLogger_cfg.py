@@ -8,3 +8,4 @@ process.JobReportService = cms.Service("JobReportService")
 process.SiteLocalConfigService = cms.Service("SiteLocalConfigService")
 
 
+# foo bar baz

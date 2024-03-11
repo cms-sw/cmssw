@@ -72,3 +72,4 @@ patPhotons = _mod.PATPhotonProducer.clone(
     addPuppiIsolation   = False
 )
 del patPhotons.photonIDSource
+# foo bar baz

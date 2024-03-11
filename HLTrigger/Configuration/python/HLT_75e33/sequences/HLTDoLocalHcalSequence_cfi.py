@@ -5,3 +5,4 @@ from ..tasks.HLTDoLocalHcalTask_cfi import *
 HLTDoLocalHcalSequence = cms.Sequence(
     HLTDoLocalHcalTask
 )
+# foo bar baz

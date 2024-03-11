@@ -6,3 +6,4 @@ hgcalDigis = cms.EDProducer("HGCalRawToDigiFake",
     fhDigis = cms.InputTag("simHGCalUnsuppressedDigis","HEfront"),
     mightGet = cms.optional.untracked.vstring
 )
+# foo bar baz

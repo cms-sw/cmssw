@@ -84,3 +84,4 @@ configurationMetadata = cms.untracked.PSet(
 )
 
 ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter)
+# foo bar baz

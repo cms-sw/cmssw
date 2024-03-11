@@ -24,3 +24,4 @@ cmsRun.run()
 
 assert (outList == [1]*nEvents)
 
+# foo bar baz

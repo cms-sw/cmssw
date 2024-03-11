@@ -18,3 +18,4 @@ g4SimHits.Physics.GFlash = cms.PSet(
     watcherOn = cms.bool(False),
     tuning_pList = cms.vdouble()
 )
+# foo bar baz

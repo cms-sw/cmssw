@@ -23,3 +23,4 @@ pfMETBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     maxDeltaPhi = cms.double(3.2),
     doMetPlots  = cms.bool(True)
 )
+# foo bar baz

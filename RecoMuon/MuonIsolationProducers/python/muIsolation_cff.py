@@ -18,3 +18,4 @@ muIsolation = cms.Sequence(muIsolationTask)
 muIsolationDisplacedTask = cms.Task(muIsolation_displacedMuonsTask)
 muIsolationDisplaced = cms.Sequence(muIsolationDisplacedTask)
 
+# foo bar baz

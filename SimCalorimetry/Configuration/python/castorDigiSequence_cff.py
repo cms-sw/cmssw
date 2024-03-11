@@ -4,3 +4,4 @@ from SimCalorimetry.CastorSim.castordigi_cfi import *
 castorDigiTask = cms.Task()
 castorDigiSequence = cms.Sequence()
 
+# foo bar baz

@@ -52,3 +52,4 @@ if __name__ == '__main__':
     if not os.environ.get('CMSSW_BASE', False):
         sys.exit(1)
     unittest.main()
+# foo bar baz

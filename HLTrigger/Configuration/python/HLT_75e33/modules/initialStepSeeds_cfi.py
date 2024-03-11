@@ -13,3 +13,4 @@ initialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     usePV = cms.bool(False),
     useProtoTrackKinematics = cms.bool(False)
 )
+# foo bar baz

@@ -18,3 +18,4 @@ ecalDigiDisplay = cms.EDAnalyzer("EcalDigiDisplay",
 )
 
 
+# foo bar baz

@@ -13,3 +13,4 @@ process.p = cms.EndPath(process.test)
 process.add_(cms.Service("RandomNumberGeneratorService",
                          test = cms.PSet(initialSeed = cms.untracked.uint32(12345))
 ))
+# foo bar baz

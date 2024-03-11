@@ -25,3 +25,4 @@ process.GlobalTag.globaltag = "GR_R_42_V6::All"
 
 process.p = cms.Path(process.dumpConfig)
 
+# foo bar baz

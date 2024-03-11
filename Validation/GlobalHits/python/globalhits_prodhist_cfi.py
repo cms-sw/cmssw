@@ -39,3 +39,4 @@ globalhitsprodhist = cms.EDProducer("GlobalHitsProdHist",
 )
 
 
+# foo bar baz

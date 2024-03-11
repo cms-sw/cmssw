@@ -40,3 +40,4 @@ patTauDiscriminantCutMultiplexer = cms.EDProducer(
     workingPoints = cms.vstring(),
     verbosity = cms.int32(0)
 )
+# foo bar baz

@@ -29,3 +29,4 @@ process.p = cms.Path(process.c1, process.t)
 process.add_(cms.Service("ConcurrentModuleTimer",
                          modulesToExclude = cms.untracked.vstring("TriggerResults","p"),
                          excludeSource = cms.untracked.bool(True)))
+# foo bar baz

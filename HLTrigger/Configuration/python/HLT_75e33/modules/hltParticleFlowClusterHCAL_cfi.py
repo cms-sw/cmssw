@@ -41,3 +41,4 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
 
     )
 )
+# foo bar baz

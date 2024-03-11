@@ -18,3 +18,4 @@ l1s = DQMEDAnalyzer('L1Scalers',
 		   algoMonitorBits = cms.untracked.vuint32(8,9,15,46,54,55,100,124),
 		   techMonitorBits = cms.untracked.vuint32(0,9)
                    )
+# foo bar baz

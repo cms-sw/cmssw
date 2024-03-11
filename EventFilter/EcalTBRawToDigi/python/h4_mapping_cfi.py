@@ -23,3 +23,4 @@ positionIDs = cms.untracked.vint32(4, 3, 2, 1, 8,
     13, 20, 19, 18, 17, 
     69, 70)
 
+# foo bar baz

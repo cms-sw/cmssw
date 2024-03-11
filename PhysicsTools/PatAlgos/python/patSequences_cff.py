@@ -18,3 +18,4 @@ patDefaultSequence = cms.Sequence(
     cleanPatCandidates *
     countPatCandidates
 )
+# foo bar baz

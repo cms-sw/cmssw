@@ -130,3 +130,4 @@ if __name__ == "__main__":
         page = page.replace(' ', '_')
         with open('%s/%s'%(htmlFilePath, fileNameTemplate % page), 'w') as f:
             f.write(str(temp))
+# foo bar baz

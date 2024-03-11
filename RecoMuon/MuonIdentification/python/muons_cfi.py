@@ -101,3 +101,4 @@ muons = cms.EDProducer("MuonProducer",
 # not commisoned and not relevant in FastSim (?):
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(muons, FillCosmicsIdMap = False, FillSelectorMaps = False)
+# foo bar baz

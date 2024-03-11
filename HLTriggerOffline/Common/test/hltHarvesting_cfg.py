@@ -83,3 +83,4 @@ for filter in (getattr(process,f) for f in process.filters_()):
         filter.outputFile=""
 
 
+# foo bar baz

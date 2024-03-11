@@ -939,3 +939,4 @@ egmObjects = cms.VPSet(
        ),
 )
 
+# foo bar baz

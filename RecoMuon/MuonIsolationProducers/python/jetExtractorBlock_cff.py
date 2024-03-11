@@ -25,3 +25,4 @@ MIsoJetExtractorBlock = cms.PSet(
 )
 
 
+# foo bar baz

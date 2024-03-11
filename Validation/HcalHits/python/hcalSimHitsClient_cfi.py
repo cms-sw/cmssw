@@ -5,3 +5,4 @@ hcalsimhitsClient = DQMEDHarvester("HcalSimHitsClient",
      DQMDirName = cms.string("/"), # root directory
      Verbosity  = cms.untracked.bool(False),
 )
+# foo bar baz

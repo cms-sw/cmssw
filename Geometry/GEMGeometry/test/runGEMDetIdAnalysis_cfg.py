@@ -21,3 +21,4 @@ process.maxEvents = cms.untracked.PSet(
 
 # Schedule definition
 process.p = cms.Path(process.gemDetIdAnalyzer)
+# foo bar baz

@@ -71,3 +71,4 @@ def initL1SubsystemsExt( tagBaseVec = [],
     from CondTools.L1TriggerExt.L1RSSubsystemParamsExt_cfi import initL1RSSubsystemsExt
     initL1RSSubsystemsExt( tagBaseVec )
     initL1SubsystemsExt.params.recordInfo.extend(initL1RSSubsystemsExt.params.recordInfo)
+# foo bar baz

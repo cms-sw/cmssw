@@ -476,3 +476,4 @@ Phase2l1TriggerDqmOfflineClient = cms.Sequence(
 phase2_trigger.toReplaceWith(l1TriggerOffline, Phase2l1TriggerOffline)
 phase2_trigger.toReplaceWith(l1TriggerDqmOffline, Phase2l1TriggerDqmOffline)
 phase2_trigger.toReplaceWith(l1TriggerDqmOfflineClient, Phase2l1TriggerDqmOfflineClient)
+# foo bar baz

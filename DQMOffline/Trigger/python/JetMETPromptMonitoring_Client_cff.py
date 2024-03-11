@@ -132,3 +132,4 @@ JetMetPromClient = cms.Sequence(
     pfjetEfficiency
     *calojetEfficiency
 )
+# foo bar baz

@@ -13,3 +13,4 @@ makeUpdatedPatJets = cms.Sequence(
     updatedPatJetCorrFactors *
     updatedPatJets
     )
+# foo bar baz

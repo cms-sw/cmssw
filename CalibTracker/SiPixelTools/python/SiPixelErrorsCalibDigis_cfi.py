@@ -7,3 +7,4 @@ siPixelErrorsDigisToCalibDigis = cms.EDAnalyzer("SiPixelErrorsDigisToCalibDigis"
 )
 
 
+# foo bar baz

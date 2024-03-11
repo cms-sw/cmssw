@@ -310,3 +310,4 @@ PoolDBESSourceCalo36 = cms.ESSource("PoolDBESSource",
     ),
 ))
 PoolDBESSourceCalo36.connect = 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'
+# foo bar baz

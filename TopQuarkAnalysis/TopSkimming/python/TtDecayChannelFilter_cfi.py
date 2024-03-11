@@ -36,3 +36,4 @@ ttDecayChannelFilter = cms.EDFilter("TtDecayChannelFilter",
 )
 
 
+# foo bar baz

@@ -20,3 +20,4 @@ AODSIMbtagElecInJetEventContent.outputCommands.extend(btagElecInJetEventContent.
 RECOSIMbtagElecInJetEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECOSIMbtagElecInJetEventContent.outputCommands.extend(btagElecInJetEventContent.outputCommands)
 
+# foo bar baz

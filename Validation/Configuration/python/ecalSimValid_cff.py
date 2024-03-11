@@ -28,3 +28,4 @@ validationECALPhase2 = cms.Sequence(
     ecalClustersValidationSequence*
     ecalDQMSequencePhase2
 )
+# foo bar baz

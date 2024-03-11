@@ -14,3 +14,4 @@ beamhaloTracksTask = cms.Task(
     beamhaloTracks
     )
 beamhaloTracksSeq = cms.Sequence(beamhaloTracksTask)
+# foo bar baz

@@ -2,4 +2,4 @@
 # Written by: Andrew Loeliger
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Configuration.SimPhase2L1GlobalTrigger_cff import *
+from L1Trigger.Configuration.SimPhase2L1GlobalTrigger_cff import *# foo bar baz

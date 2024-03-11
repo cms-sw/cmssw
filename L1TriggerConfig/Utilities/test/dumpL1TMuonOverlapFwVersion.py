@@ -119,3 +119,4 @@ process.add_(outputDB)
 
 process.p = cms.Path(process.getter + process.l1mow)
 
+# foo bar baz

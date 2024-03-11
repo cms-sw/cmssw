@@ -21,3 +21,4 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.p = cms.Path(process.dttriganalyzer)
 
+# foo bar baz

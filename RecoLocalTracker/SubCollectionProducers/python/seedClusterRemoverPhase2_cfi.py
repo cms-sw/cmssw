@@ -6,3 +6,4 @@ seedClusterRemoverPhase2 = cms.EDProducer("SeedClusterRemoverPhase2",
                                     pixelClusters = cms.InputTag("siPixelClusters"),
                                     )
 
+# foo bar baz

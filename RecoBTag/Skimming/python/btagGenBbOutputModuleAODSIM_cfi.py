@@ -12,3 +12,4 @@ btagGenBbOutputModuleAODSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

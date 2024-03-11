@@ -55,3 +55,4 @@ siPixelPhase1ValidationPixelTrackingOnly_sourceV = cms.Sequence(pixelOnlyDigisAn
                                                                 + pixelOnlyRecHitsAnalyzerV
                                                                 + pixelOnlyTrackingParticleAnalyzerV
 )
+# foo bar baz

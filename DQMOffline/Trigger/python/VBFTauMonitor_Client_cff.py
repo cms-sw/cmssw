@@ -29,3 +29,4 @@ vbftauEfficiency = DQMEDHarvester("DQMGenericClient",
 vbftauClient = cms.Sequence(
     vbftauEfficiency
 )
+# foo bar baz

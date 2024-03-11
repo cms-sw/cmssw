@@ -10,3 +10,4 @@ selectedPatMET = cms.EDFilter("PATMETSelector",
 )
 
 
+# foo bar baz

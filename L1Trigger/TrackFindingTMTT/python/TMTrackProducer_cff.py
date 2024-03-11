@@ -163,3 +163,4 @@ TMTrackProducer = cms.EDProducer('tmtt::TMTrackProducer',
 #--- Switch on FPGA-friendly approximation to B parameter in GP - will be used in future GP firmware.
 #--- (used to relate track angle dphi to stub bend) 
 #TMTrackProducer.GeometricProc.UseApproxB           = cms.bool(True)
+# foo bar baz

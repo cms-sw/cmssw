@@ -59,3 +59,4 @@ process.p = cms.Path(process.preScaler*process.ecalPreshowerDigis*process.ecalPr
 #process.DQM.collectorPort = 9190
 process.DQM.debug = True
 #process.DQMStore.verbose = 1
+# foo bar baz

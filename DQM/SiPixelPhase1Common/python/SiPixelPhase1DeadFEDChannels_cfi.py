@@ -118,3 +118,4 @@ SiPixelPhase1DeadFEDChannelsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DeadFEDChannelsConf,
         geometry = SiPixelPhase1Geometry
 )
+# foo bar baz

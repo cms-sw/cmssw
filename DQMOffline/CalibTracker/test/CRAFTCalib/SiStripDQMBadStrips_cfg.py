@@ -135,3 +135,4 @@ process.p = cms.Path(
     process.siStripMonitorCluster  *
     process.dqmSaver
 )
+# foo bar baz

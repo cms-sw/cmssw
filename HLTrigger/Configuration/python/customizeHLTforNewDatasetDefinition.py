@@ -22,3 +22,4 @@ def customizeHLTforNewDatasetDefinition(process):
         getattr( process, 'hltOutput'+stream ).SelectEvents.SelectEvents = streamPaths
 
     return process
+# foo bar baz

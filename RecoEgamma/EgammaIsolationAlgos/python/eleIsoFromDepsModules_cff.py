@@ -84,3 +84,4 @@ eleIsoFromDepsHcalDepth2FromTowers = cms.EDProducer("CandIsolatorFromDeposits",
         mode = cms.string('sum')
     ))
 )
+# foo bar baz

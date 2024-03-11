@@ -68,3 +68,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.p = cms.Path(process.readfileOffline)
 
+# foo bar baz

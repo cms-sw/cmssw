@@ -10,3 +10,4 @@ jetIDFailure = cms.EDFilter("JetIDFailureFilter",
         debug         = cms.bool(False),
         taggingMode   = cms.bool(False),
 )
+# foo bar baz

@@ -39,3 +39,4 @@ process.o = cms.EndPath( process.out )
 process.comparator = cms.Path( process.caloStage2Digis + process.l1comparatorResultDigis)
 process.schedule = cms.Schedule(process.comparator,
                                 process.o)
+# foo bar baz

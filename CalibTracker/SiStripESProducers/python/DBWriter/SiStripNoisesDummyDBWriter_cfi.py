@@ -9,3 +9,4 @@ siStripNoisesDummyDBWriter = cms.EDAnalyzer("SiStripNoisesDummyDBWriter",
 
 
 
+# foo bar baz

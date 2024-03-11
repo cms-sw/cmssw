@@ -23,3 +23,4 @@ if not 'all' in dir(__builtins__):
                 return False
         return True
 
+# foo bar baz

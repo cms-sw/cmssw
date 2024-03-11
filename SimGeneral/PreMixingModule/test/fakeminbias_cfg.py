@@ -13,3 +13,4 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_intProducer_*_*'
     )
 )
+# foo bar baz

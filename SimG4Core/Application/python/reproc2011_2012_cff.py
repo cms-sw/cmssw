@@ -15,3 +15,4 @@ def customiseG4(process):
     process.g4SimHits.HFShowerLibrary.BranchEvt = ''
 
     return(process)
+# foo bar baz

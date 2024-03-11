@@ -15,3 +15,4 @@ rsWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer
     Fitter        = 'RKFittingSmoother',
     AlgorithmName = 'rs'
 )
+# foo bar baz

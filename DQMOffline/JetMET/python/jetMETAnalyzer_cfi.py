@@ -274,3 +274,4 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     )
 
 )
+# foo bar baz

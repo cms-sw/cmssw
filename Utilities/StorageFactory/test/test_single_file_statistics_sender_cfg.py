@@ -8,4 +8,4 @@ process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(T
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.cerr.INFO.limit = 1000
+process.MessageLogger.cerr.INFO.limit = 1000# foo bar baz

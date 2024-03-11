@@ -88,3 +88,4 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                       commonParam = dict(runME21ILT = True,
                                          enableAlctPhase2 = True)
 )
+# foo bar baz

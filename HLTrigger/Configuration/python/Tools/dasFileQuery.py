@@ -33,3 +33,4 @@ def dasFileQuery(dataset):
     files = sorted( f['file'][0]['name'] for f in jsondict['data'] )
     return files
 
+# foo bar baz

@@ -218,3 +218,4 @@ SiStripDQMTier0MinBias = cms.Sequence(
 SiStripDQMTier0MinBias_approx = SiStripDQMTier0MinBias.copy()
 SiStripDQMTier0MinBias_approx += cms.Sequence(SiStripMonitorApproximateCluster)
 approxSiStripClusters.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias_approx)
+# foo bar baz

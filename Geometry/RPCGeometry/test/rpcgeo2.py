@@ -18,3 +18,4 @@ process.demo = cms.EDAnalyzer("RPCGEO2")
 
 process.p = cms.Path(process.demo)
 
+# foo bar baz

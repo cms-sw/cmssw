@@ -21,3 +21,4 @@ process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
 process.p1 = cms.Path(process.prod)
 
 
+# foo bar baz

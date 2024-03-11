@@ -64,3 +64,4 @@ process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscSimDigiDump
 #process.ep = cms.EndPath(process.o1)
 #
 
+# foo bar baz

@@ -54,3 +54,4 @@ CandVars = cms.PSet(P4Vars,
 
 
 
+# foo bar baz

@@ -38,3 +38,4 @@ makePatPhotonsTask = cms.Task(
     patPhotons
     )
 makePatPhotons = cms.Sequence(makePatPhotonsTask)
+# foo bar baz

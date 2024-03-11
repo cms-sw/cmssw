@@ -25,3 +25,4 @@ EvtScalersRECO = cms.PSet(
        'keep DcsStatuss_hltScalersRawToDigi_*_*')
 )
 EvtScalersRECO.outputCommands.extend(EvtScalersAOD.outputCommands)
+# foo bar baz

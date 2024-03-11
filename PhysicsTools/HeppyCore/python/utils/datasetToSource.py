@@ -38,3 +38,4 @@ def myDatasetToSource( user, dataset, pattern='.*root', dbsInstance=None, readCa
 
     return source
 ### MM
+# foo bar baz

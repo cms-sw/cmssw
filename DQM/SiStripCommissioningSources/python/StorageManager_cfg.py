@@ -15,3 +15,4 @@ process.out = cms.OutputModule("EventStreamFileWriter",
 
 process.e1 = cms.EndPath(process.out)
 
+# foo bar baz

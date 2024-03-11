@@ -103,3 +103,4 @@ process.p = cms.Path(
   * process.totemRPUVPatternFinder
   * process.ppsStraightTrackAligner
 )
+# foo bar baz

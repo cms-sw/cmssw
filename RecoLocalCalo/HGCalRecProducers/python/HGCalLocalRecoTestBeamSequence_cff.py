@@ -8,3 +8,4 @@ from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import *
 
 HGCalLocalRecoTestBeamTask = cms.Task(HGCalUncalibRecHit,HGCalRecHit,hgcalMergeLayerClusters,hgcalMultiClusters)
 HGCalLocalRecoTestBeamSequence = cms.Sequence(HGCalLocalRecoTestBeamTask)
+# foo bar baz

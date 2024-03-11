@@ -100,3 +100,4 @@ process.outP = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.DQMSiStripMonitorTrack_Real)
 process.pout = cms.EndPath(process.outP)
+# foo bar baz

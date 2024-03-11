@@ -22,3 +22,4 @@ RecoLocalFastTimeFEVT = cms.PSet(
     )
 )
 RecoLocalFastTimeFEVT.outputCommands.extend(RecoLocalFastTimeRECO.outputCommands)
+# foo bar baz

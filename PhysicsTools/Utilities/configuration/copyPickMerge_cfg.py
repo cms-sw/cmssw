@@ -39,3 +39,4 @@ if options.maxSize:
     process.Out.maxSize = cms.untracked.int32 (options.maxSize)
 
 process.end = cms.EndPath(process.Out)
+# foo bar baz

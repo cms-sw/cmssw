@@ -8,3 +8,4 @@ patPFCandidateIsoDepositSelectionTask = cms.Task(
        pfSortByTypePFBRECOTask
        )
 patPFCandidateIsoDepositSelection = cms.Sequence(patPFCandidateIsoDepositSelectionTask)
+# foo bar baz

@@ -114,3 +114,4 @@ for job in options.job:
         fig = TCanvas(f'd_{vname}', f'Difference plot for {vname}')
         hdiff.Draw("hpe")
         fig.Print(f'{options.png}/{job}_{fig.GetName()}.png')
+# foo bar baz

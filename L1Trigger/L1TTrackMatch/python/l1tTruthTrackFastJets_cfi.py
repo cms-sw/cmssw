@@ -23,3 +23,4 @@ l1tTruthTrackFastJetsExtended = cms.EDProducer("L1TruthTrackFastJetProducer",
     coneSize=cms.double(0.4),         #cone size for anti-kt fast jet
     displaced = cms.bool(True)        # use prompt/displaced tracks
 )
+# foo bar baz

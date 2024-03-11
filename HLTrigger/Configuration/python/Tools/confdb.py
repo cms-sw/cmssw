@@ -954,3 +954,4 @@ if 'GlobalTag' in %%(dict)s:
     )
 )
 """
+# foo bar baz

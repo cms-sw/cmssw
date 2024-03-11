@@ -17,3 +17,4 @@ l1tStage1Layer2 = DQMEDAnalyzer('L1TGCT',
     filterTriggerType = cms.int32(1)
 )
 
+# foo bar baz

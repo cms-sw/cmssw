@@ -11,3 +11,4 @@ navigationSchoolESProducerParabolicMf = navigationSchoolESProducer.clone(
     ComponentName = 'SimpleNavigationSchoolParabolicMf',
     SimpleMagneticField = 'ParabolicMf'
 )
+# foo bar baz

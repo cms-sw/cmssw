@@ -8,3 +8,4 @@ metFiltersMiniAOD =cms.EDFilter(
 , eventSetupPathsKey = cms.string( '' )
 , HLTPaths           = cms.vstring( 'Flag_METFilters' )
 )
+# foo bar baz

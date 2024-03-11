@@ -21,3 +21,4 @@ process.print2 = cms.OutputModule("AsciiOutputModule")
 process.p = cms.EndPath(process.print1*process.print2)
 
 
+# foo bar baz

@@ -37,3 +37,4 @@ def _modifyForRun3EGM(efffromhitpattern):
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(trackingEffFromHitPatternHLT, _modifyForRun3Default)
 run3_common.toModify(trackingForElectronsEffFromHitPatternHLT, _modifyForRun3EGM)
+# foo bar baz

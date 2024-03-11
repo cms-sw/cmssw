@@ -4,3 +4,4 @@
 import bottleneck
 
 bottleneck.bench()
+# foo bar baz

@@ -519,3 +519,4 @@ PhotonIsoDoubleClientPlots = cms.EDAnalyzer("HLTMonPhotonClient",
 egammaPhotonDQMpath = cms.Path(PhotonIsoEt30SourcePlots * PhotonIsoEt30ClientPlots * PhotonIsoEt10SourcePlots* PhotonIsoEt10ClientPlots* PhotonIsoEt15SourcePlots* PhotonIsoEt15ClientPlots* PhotonIsoEt20SourcePlots* PhotonIsoEt20ClientPlots* PhotonIsoEt25SourcePlots* PhotonIsoEt25ClientPlots* PhotonNonIsoEt15SourcePlots* PhotonNonIsoEt15ClientPlots* PhotonNonIsoEt25SourcePlots* PhotonNonIsoEt25ClientPlots* PhotonNonIsoEt40SourcePlots* PhotonNonIsoEt40ClientPlots * PhotonIsoDoubleSourcePlots * PhotonIsoDoubleClientPlots)
 
 #egammaPhotonDQMpath = cms.Path(PhotonIsoEt30SourcePlots*PhotonClientPlots)
+# foo bar baz

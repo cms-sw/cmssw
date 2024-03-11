@@ -15,3 +15,4 @@ digibigeventsdebugger = cms.EDAnalyzer('DigiBigEventsDebugger',
     )
 
 )
+# foo bar baz

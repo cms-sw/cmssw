@@ -125,3 +125,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('APVShotAnalyzer.root')
                                    )
 
+# foo bar baz

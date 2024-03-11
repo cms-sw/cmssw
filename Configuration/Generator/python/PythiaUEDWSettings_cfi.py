@@ -27,3 +27,4 @@ pythiaUESettingsBlock = cms.PSet(
         'PARP(93)=15.0  ! '
     )
 )
+# foo bar baz

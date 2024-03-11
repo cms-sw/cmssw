@@ -55,3 +55,4 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 
 pdatamix = cms.Sequence(mixData+postDMDigi)
 
+# foo bar baz

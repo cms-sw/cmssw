@@ -19,3 +19,4 @@ pfElectronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     maxDeltaPhi = cms.double(0.5),
     doMetPlots  = cms.bool(False)
 )
+# foo bar baz

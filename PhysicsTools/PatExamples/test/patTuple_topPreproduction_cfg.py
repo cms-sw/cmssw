@@ -31,3 +31,4 @@ process.out.outputCommands+= [ 'keep edmTriggerResults_*_*_*',
 process.p = cms.Path(
     process.patDefaultSequence
     )
+# foo bar baz

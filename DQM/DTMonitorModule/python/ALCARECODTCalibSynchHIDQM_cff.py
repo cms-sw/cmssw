@@ -35,3 +35,4 @@ from CalibMuon.DTCalibration.ALCARECODtCalibHI_cff import ALCARECODtCalibHIHLTFi
 #                                          ALCARECODtCalibHIHLTDQM )
 ALCARECODTCalibSynchHIDQM = cms.Sequence( dtPreCalibrationTaskAlcaHI +
                                           dtAlcaResolutionMonitorHI )
+# foo bar baz

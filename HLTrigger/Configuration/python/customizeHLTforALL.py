@@ -56,3 +56,4 @@ def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
             process = customizeHLTforMC(process)
 
     return process
+# foo bar baz

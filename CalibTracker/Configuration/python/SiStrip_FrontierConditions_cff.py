@@ -10,3 +10,4 @@ from CalibTracker.Configuration.SiStripNoise.SiStripNoise_Frontier_cff import *
 from CalibTracker.Configuration.SiStripPedestals.SiStripPedestals_Fake_cff import *
 from CalibTracker.Configuration.SiStripQuality.SiStripQuality_Fake_cff import *
 
+# foo bar baz

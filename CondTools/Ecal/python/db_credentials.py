@@ -14,3 +14,4 @@ def get_db_credentials( db_account ):
         return db_service, username, pwd
     else:
         raise Exception('Entry for service %s not found in .netrc' %machine )
+# foo bar baz

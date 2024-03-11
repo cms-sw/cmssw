@@ -47,3 +47,4 @@ hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
       )
     )
 )
+# foo bar baz

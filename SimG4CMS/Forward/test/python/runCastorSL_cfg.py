@@ -143,3 +143,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         Verbosity = cms.int32(0),
     )
 ))
+# foo bar baz

@@ -15,3 +15,4 @@ HLTPFClusteringForEgammaL1SeededTask = cms.Task(
     hltParticleFlowSuperClusterECALL1Seeded,
     hltRechitInRegionsECAL
 )
+# foo bar baz

@@ -17,3 +17,4 @@ stage2MP7BufferRaw = cms.Sequence(
     +stage2GTRaw
     +rawDataCollector
 )
+# foo bar baz

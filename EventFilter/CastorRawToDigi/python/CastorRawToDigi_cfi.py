@@ -33,3 +33,4 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     UnpackZDC = cms.bool(True),
 
    )
+# foo bar baz

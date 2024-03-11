@@ -6,3 +6,4 @@ hgcalTestGuardRingHE = hgcalTestGuardRingEE.clone(
     nameSense = "HGCalHESiliconSensitive",
     waferFile = "testWafersHE.txt"
 )
+# foo bar baz

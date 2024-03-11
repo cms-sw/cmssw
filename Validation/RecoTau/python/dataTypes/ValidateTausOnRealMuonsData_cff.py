@@ -147,3 +147,4 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesRealMuonsData
       )
+# foo bar baz

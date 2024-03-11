@@ -151,3 +151,4 @@ from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllDat
 process = miniAOD_customizeAllData(process)
 
 # End of customisation functions
+# foo bar baz

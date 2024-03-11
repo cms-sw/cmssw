@@ -7,3 +7,4 @@ j2tParametersCALO = cms.PSet(
     coneSize = cms.double(0.4)
 )
 
+# foo bar baz

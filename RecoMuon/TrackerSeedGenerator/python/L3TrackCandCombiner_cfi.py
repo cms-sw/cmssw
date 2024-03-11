@@ -8,3 +8,4 @@ L3TrackCandCombiner = cms.EDProducer(
     cms.InputTag("hltL3TrackCandidateFromL2OIState"),
     )
     )
+# foo bar baz

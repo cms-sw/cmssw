@@ -7,3 +7,4 @@ source = cms.Source("PixelSLinkDataInputSource",
 )
 
 
+# foo bar baz

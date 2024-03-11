@@ -8,3 +8,4 @@ from RecoTBCalo.EcalTBTDCReconstructor.ecal2006TBTDCReconstructor_cfi import *
 from RecoTBCalo.EcalTBRecProducers.ecal2006TBWeightUncalibRecHit_cfi import *
 localReco2006_rawData = cms.Sequence(ecal2006TBHodoscopeReconstructor*ecal2006TBTDCReconstructor*ecal2006TBWeightUncalibRecHit)
 
+# foo bar baz

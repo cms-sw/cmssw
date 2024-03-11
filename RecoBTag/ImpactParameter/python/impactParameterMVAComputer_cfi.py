@@ -6,3 +6,4 @@ impactParameterMVAComputer = cms.ESProducer("GenericMVAJetTagESProducer",
     calibrationRecord = cms.string('ImpactParameterMVA'),
     recordLabel = cms.string('')
 )
+# foo bar baz

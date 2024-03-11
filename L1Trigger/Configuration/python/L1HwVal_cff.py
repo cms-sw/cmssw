@@ -9,4 +9,4 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
 L1HwVal = cms.Sequence(L1HardwareValidation)
 
- 
+ # foo bar baz

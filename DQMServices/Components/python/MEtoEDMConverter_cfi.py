@@ -9,3 +9,4 @@ MEtoEDMConverter = cms.EDProducer("MEtoEDMConverter",
     MEPathToSave = cms.untracked.string(''),
 )
 
+# foo bar baz

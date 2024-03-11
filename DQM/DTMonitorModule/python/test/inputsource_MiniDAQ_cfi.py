@@ -49,3 +49,4 @@ source = cms.Source("EventStreamHttpReader",
   )
 
 
+# foo bar baz

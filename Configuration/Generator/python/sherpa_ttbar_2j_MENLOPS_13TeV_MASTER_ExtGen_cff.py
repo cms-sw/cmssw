@@ -65,3 +65,4 @@ from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFil
 generator = ExternalGeneratorFilter(_generator)
 
 ProductionFilterSequence = cms.Sequence(generator)
+# foo bar baz

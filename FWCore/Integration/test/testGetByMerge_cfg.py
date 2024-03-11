@@ -31,3 +31,4 @@ process.t = cms.Task(process.intProducer)
 process.p = cms.Path(process.a1, process.t)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

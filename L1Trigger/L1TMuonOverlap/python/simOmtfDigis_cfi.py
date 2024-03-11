@@ -23,3 +23,4 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapTrackProducer",
 #  bxMax = cms.int32(4)
 
 )
+# foo bar baz

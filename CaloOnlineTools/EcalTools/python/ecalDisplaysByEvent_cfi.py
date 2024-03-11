@@ -26,3 +26,4 @@ ecalDisplaysByEvent = cms.EDAnalyzer("EcalDisplaysByEvent",
 )
 
 
+# foo bar baz

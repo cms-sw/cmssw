@@ -5,3 +5,4 @@ hltPixelClustersMultiplicity = cms.EDProducer("HLTSiPixelClusterMultiplicityValu
     mightGet = cms.optional.untracked.vstring,
     src = cms.InputTag("siPixelClusters")
 )
+# foo bar baz

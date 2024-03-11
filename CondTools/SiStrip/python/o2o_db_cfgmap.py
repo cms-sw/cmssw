@@ -48,3 +48,4 @@ class DbManagerDAQ(DbManager):
             logging.info('... config_hash = %s, payload_hash = %s' % (cfgmap.config_hash, cfgmap.payload_hash))
         else:
             raise RuntimeError('No entry found in config-to-payload map file %s' % input_path)
+# foo bar baz

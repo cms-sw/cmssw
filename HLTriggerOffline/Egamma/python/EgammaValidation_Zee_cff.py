@@ -36,3 +36,4 @@ sel = cms.EDFilter("CandViewCountFilter",
 egammavalZee = cms.Sequence(
 leptons*cut*sel*(doubleElectronDQM+doubleElectronRelaxedDQM+doublePhotonDQM+doublePhotonRelaxedDQM+highEtDQM+veryHighEtDQM+singleElectronDQM+singleElectronLargeWindowDQM+singleElectronRelaxedDQM+singleElectronRelaxedLargeWindowDQM+singlePhotonRelaxedDQM+singlePhotonDQM)
 )
+# foo bar baz

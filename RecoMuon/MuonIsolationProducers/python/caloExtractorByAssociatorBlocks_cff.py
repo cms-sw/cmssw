@@ -66,3 +66,4 @@ MIsoCaloExtractorByAssociatorHitsBlock = cms.PSet(
 )
 
 
+# foo bar baz

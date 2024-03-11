@@ -40,3 +40,4 @@ process.load("Geometry.HGCalCommonData.hgcalPartialCellTester_cfi")
 
  
 process.p1 = cms.Path(process.generator*process.hgcalPartialCellTester)
+# foo bar baz

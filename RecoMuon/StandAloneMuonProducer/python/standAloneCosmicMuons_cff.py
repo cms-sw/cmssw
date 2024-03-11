@@ -37,3 +37,4 @@ standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableRPCMeasurement
 standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableCSCMeasurement = False
 
 
+# foo bar baz

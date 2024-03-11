@@ -170,3 +170,4 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         ) # cms.EDProducers
 
 
+# foo bar baz

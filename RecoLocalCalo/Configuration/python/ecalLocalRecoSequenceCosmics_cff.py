@@ -39,3 +39,4 @@ ecalLocalRecoTaskCosmics = cms.Task(
     ecalPreshowerRecHit
 )
 ecalLocalRecoSequenceCosmics = cms.Sequence(ecalLocalRecoTaskCosmics)
+# foo bar baz

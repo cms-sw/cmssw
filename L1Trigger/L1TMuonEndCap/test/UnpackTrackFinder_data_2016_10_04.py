@@ -159,3 +159,4 @@ process.schedule.extend([process.output_step])
 ## What does this do? Necessary? - AWB 29.04.16
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1
 process = customise_csc_PostLS1(process)
+# foo bar baz

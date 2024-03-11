@@ -28,3 +28,4 @@ process.sipixelcalib_essource.toGet = cms.VPSet(cms.PSet(
 process.sipixelcalib_essource.connect='sqlite_file:siPixelCalibConfiguration.db'
 
 
+# foo bar baz

@@ -154,3 +154,4 @@ LowPtBarrelTripletStepTask = cms.Task(lowPtBarrelTripletStepClusters,
                                       lowPtBarrelTripletStepTracks,
                                       lowPtBarrelTripletStepSelector)
 LowPtBarrelTripletStep = cms.Sequence(LowPtBarrelTripletStep)
+# foo bar baz

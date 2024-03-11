@@ -238,3 +238,4 @@ fftjetJetMaker = cms.EDProducer(
     pileupTableCategory = cms.string("pileupTableCategory"),
     loadPileupFromDB = cms.bool(False)
 )
+# foo bar baz

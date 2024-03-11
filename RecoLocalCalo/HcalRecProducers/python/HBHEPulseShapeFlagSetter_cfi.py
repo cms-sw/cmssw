@@ -54,3 +54,4 @@ qie11Parameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
                           TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.5, -0.4, -0.3, 0.1),
                           UseDualFit = cms.bool(True),
                           TriangleIgnoreSlow = cms.bool(False))
+# foo bar baz

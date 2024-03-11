@@ -14,3 +14,4 @@ hltL3fL1DoubleMu155fPreFiltered8 = cms.EDFilter("HLTMuonTrkL1TkMuFilter",
     l1GTAlgoNames = cms.vstring("pDoubleTkMuon15_7"),
     saveTags = cms.bool(True)
 )
+# foo bar baz

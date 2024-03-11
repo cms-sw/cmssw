@@ -69,3 +69,4 @@ egTPEffClient.efficiency.extend(makeAllEGEffHistDefs())
 egammaClient = cms.Sequence(
     egTPEffClient
 )
+# foo bar baz

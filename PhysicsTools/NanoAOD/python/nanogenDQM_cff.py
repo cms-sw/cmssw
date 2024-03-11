@@ -31,3 +31,4 @@ nanoDQMQTester = DQMQualityTester(
 )
 
 nanogenHarvest = cms.Sequence( nanoDQMQTester )
+# foo bar baz

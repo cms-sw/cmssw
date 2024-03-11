@@ -6,3 +6,4 @@ BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import *
 onlineBeamSpot = cms.Sequence( onlineBeamSpotProducer )
 
+# foo bar baz

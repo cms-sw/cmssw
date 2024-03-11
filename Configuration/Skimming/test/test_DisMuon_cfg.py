@@ -57,3 +57,4 @@ process.SKIMStreamEXODisappMuonOutPath = cms.EndPath(process.SKIMStreamEXODisapp
 
 # Schedule definition
 process.schedule = cms.Schedule(process.EXODisappMuonPath,process.SKIMStreamEXODisappMuonOutPath)
+# foo bar baz

@@ -8,3 +8,4 @@ from Configuration.Geometry.GeometrySimTracker_cff import *
 
 # Reco Tracker only geometry
 from Configuration.Geometry.GeometryRecoTracker_cff import *
+# foo bar baz

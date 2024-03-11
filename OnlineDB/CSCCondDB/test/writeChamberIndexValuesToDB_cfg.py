@@ -52,3 +52,4 @@ process.WriteInDB = cms.EDAnalyzer("CSCChamberIndexPopConAnalyzer",
 process.p = cms.Path(process.WriteInDB)
 
 
+# foo bar baz

@@ -19,3 +19,4 @@ l1tSummaryStage1Digis = cms.EDAnalyzer(
     sumToken   = cms.InputTag("caloStage1FinalDigis"),
     #muonToken = cms.InputTag(""),
 )
+# foo bar baz

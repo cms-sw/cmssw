@@ -81,3 +81,4 @@ class CrabConfigParser(RawConfigParser):
                     sectionLines.append('config.%s.%s = \'%s\''%(section,configItem[0],configItem[1]))
 
         return sectionLines
+# foo bar baz

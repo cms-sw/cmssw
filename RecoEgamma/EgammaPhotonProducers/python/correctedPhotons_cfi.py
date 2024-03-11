@@ -17,3 +17,4 @@ correctedPhotons = cms.EDProducer("PhotonCorrectionProducer",
 )
 
 
+# foo bar baz

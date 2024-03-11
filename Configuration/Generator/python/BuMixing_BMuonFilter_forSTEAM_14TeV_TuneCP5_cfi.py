@@ -58,3 +58,4 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
 # Filter only pp events which produce a B+:
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
+# foo bar baz

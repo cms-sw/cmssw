@@ -9,3 +9,4 @@ CastorClusterRecoAntiKt07 = cms.EDProducer('CastorClusterProducer',
 	inputtowers = cms.untracked.string(""),
 	basicjets = cms.untracked.string("CastorFastjetRecoAntiKt07"))
 
+# foo bar baz

@@ -4,3 +4,4 @@ from CalibTracker.SiStripESProducers.fake.SiStripFedCablingFakeESSource_cfi impo
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 
+# foo bar baz

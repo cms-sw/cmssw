@@ -10,3 +10,4 @@ me0TriggerAllDigiTask = cms.Task(me0TriggerRealDigiTask, me0TriggerPseudoDigiTas
 
 ## in scenarios with GE0, remove the pseudo digis
 phase2_GE0.toReplaceWith(me0TriggerAllDigiTask, me0TriggerAllDigiTask.copyAndExclude([me0TriggerPseudoDigiTask]))
+# foo bar baz

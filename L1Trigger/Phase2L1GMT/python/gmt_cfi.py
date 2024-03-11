@@ -92,3 +92,4 @@ l1tStandaloneMuons = cms.EDProducer('Phase2L1TGMTSAMuonProducer',
                                  Nprompt    = cms.uint32(12),
                                  Ndisplaced = cms.uint32(12)
                                 )
+# foo bar baz

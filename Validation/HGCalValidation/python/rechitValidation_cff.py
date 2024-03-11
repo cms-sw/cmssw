@@ -9,3 +9,4 @@ hgcalRecHitValidationHEF = hgcalRecHitValidationEE.clone(
 hgcalRecHitValidationHEB = hgcalRecHitValidationEE.clone(
     DetectorName  = cms.string("HGCalHEScintillatorSensitive"),
     RecHitSource  = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"))
+# foo bar baz

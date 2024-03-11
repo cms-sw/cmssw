@@ -12,3 +12,4 @@ globalCombinedSeeds = cms.EDProducer("SeedCombiner",
 )
 
 
+# foo bar baz

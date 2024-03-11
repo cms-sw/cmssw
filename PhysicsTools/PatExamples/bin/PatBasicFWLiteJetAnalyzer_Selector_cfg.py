@@ -48,3 +48,4 @@ process.inputs = cms.PSet (
 process.outputs = cms.PSet (
     outputName = cms.string('jetPlots.root')
 )
+# foo bar baz

@@ -51,3 +51,4 @@ l1GetDigi = cms.EDAnalyzer("HLTGetDigi",
 )
 
 
+# foo bar baz

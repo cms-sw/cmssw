@@ -20,3 +20,4 @@ mssmHbbBtagTriggerMonitor = cms.Sequence(
     mssmHbbDeepJetBtagTriggerMonitorSL200 +
     mssmHbbDeepJetBtagTriggerMonitorSL350
 )
+# foo bar baz

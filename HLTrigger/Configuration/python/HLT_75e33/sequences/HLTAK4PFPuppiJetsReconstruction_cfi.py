@@ -21,3 +21,4 @@ HLTAK4PFPuppiJetsReconstruction = cms.Sequence(
     hltAK4PFPuppiJetCorrector +
     hltAK4PFPuppiJetsCorrected
 )
+# foo bar baz

@@ -35,3 +35,4 @@ dtClients = cms.Sequence(segmentTest+
                          ALCARECODTCalibSynchDQMClient)
 
 
+# foo bar baz

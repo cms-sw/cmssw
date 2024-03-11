@@ -22,3 +22,4 @@ from L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu2008_2E31_Tri
 # prescale factors, trigger mask, trigger veto mask for technical triggers
 # default: no prescale, no bit masked, no bit vetoed 
 
+# foo bar baz

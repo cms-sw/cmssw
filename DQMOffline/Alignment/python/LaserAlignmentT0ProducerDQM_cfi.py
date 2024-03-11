@@ -44,3 +44,4 @@ LaserAlignmentT0ProducerDQM = DQMEDAnalyzer( 'LaserAlignmentT0ProducerDQM',
   PlainOutputFileName = cms.string( "TkAlLAS.dqm.root" )
                                               
 )
+# foo bar baz

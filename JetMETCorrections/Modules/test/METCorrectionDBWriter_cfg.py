@@ -48,3 +48,4 @@ process.dbWriterXYshift = cms.EDAnalyzer('METCorrectorDBWriter',
 process.p = cms.Path( 
 process.dbWriterXYshift 
 ) 
+# foo bar baz

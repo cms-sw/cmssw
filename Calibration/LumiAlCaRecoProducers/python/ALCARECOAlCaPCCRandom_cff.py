@@ -15,3 +15,4 @@ alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.ProdInst = "alcaPCCRandom"
 
 # Sequence #
 seqALCARECOAlCaPCCRandom = cms.Sequence(ALCARECORandomHLT+alcaPCCIntegratorRandom)
+# foo bar baz

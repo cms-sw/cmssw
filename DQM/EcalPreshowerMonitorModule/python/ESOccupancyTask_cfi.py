@@ -8,3 +8,4 @@ ecalPreshowerOccupancyTask = DQMEDAnalyzer('ESOccupancyTask',
 	prefixME = cms.untracked.string("EcalPreshower") 
 )
 
+# foo bar baz

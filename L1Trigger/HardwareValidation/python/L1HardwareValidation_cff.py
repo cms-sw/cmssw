@@ -69,3 +69,4 @@ L1HardwareValidationforStage1Task = cms.Task(
                                 l1compareforstage1)
 L1HardwareValidationforStage1 = cms.Sequence(L1HardwareValidationforStage1Task)
 
+# foo bar baz

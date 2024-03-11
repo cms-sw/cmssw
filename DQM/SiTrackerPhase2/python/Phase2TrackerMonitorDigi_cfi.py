@@ -139,3 +139,4 @@ premix_stage2.toModify(digiMon,
                        InnerPixelDigiSource = "mixData:Pixel",
                        OuterTrackerDigiSource="mixData:Tracker"
                                                                  )
+# foo bar baz

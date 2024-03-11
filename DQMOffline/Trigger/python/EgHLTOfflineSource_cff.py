@@ -7,3 +7,4 @@ egHLTOffDQMSource_HEP17 = egHLTOffDQMSource.clone(
     subDQMDirName = 'HEP17',
     doHEP = True
 )
+# foo bar baz

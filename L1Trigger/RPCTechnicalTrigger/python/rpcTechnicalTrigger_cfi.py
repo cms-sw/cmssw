@@ -20,3 +20,4 @@ rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                                            'L1Tech_RPC_TTU_RBminus2_Cosmics/v0',
                                                            ) )
 
+# foo bar baz

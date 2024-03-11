@@ -14,3 +14,4 @@ hltL3fL1TkTripleMu533L31055DZFiltered0p2 = cms.EDFilter("HLT2MuonMuonDZ",
     triggerType1 = cms.int32(83),
     triggerType2 = cms.int32(83)
 )
+# foo bar baz

@@ -17,3 +17,4 @@ hiFJGridEmptyAreaCalculator = cms.EDProducer('HiFJGridEmptyAreaCalculator',
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 pA_2016.toModify(hiFJGridEmptyAreaCalculator, doCentrality = False)
 
+# foo bar baz

@@ -59,3 +59,4 @@ process.HLTAnalysisEndPath = cms.EndPath( process.hltTrigReport + process.hltTri
 
 # load HLT configuration -- something like this will be automatically appended.
 #process.load("PwTest.HltTester.JobHLTConfig_13691_32003_1244677280_cff")
+# foo bar baz

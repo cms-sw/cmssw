@@ -578,3 +578,4 @@ def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
     function simply remains as a placeholder
     '''
     return
+# foo bar baz

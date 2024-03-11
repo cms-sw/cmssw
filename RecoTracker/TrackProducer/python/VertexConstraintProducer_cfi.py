@@ -5,3 +5,4 @@ vertexConstraint = cms.EDProducer(
     srcTrk = cms.InputTag("AlignmentTrackSelector"),
     srcVtx = cms.InputTag("offlinePrimaryVertices")
 )
+# foo bar baz

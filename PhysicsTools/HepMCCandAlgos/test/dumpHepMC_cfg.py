@@ -19,3 +19,4 @@ process.dummyHepMCAnalyzer.checkPDG = True
 process.p = cms.Path(process.dummyHepMCAnalyzer)
 
 
+# foo bar baz

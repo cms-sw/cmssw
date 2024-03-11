@@ -32,3 +32,4 @@ muonSACosmicAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                                     muonKinVsEtaAnalyzer)
 
                                   
+# foo bar baz

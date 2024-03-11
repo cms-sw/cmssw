@@ -18,3 +18,4 @@ l1tGTTFileWriter = cms.EDAnalyzer('GTTFileWriter',
   fileExtension = cms.untracked.string("txt"),
   format = cms.untracked.string("APx")
 )
+# foo bar baz

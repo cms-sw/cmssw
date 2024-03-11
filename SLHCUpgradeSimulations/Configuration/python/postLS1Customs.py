@@ -833,3 +833,4 @@ def recoOutputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_rawDataCollector_*_*')
     return process
+# foo bar baz

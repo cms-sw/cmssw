@@ -15,3 +15,4 @@ hcalHitValid = DQMEDAnalyzer('HcalHitValidation',
       ValidNxN      = cms.untracked.bool(True),
       ValidJets     = cms.untracked.bool(True)
 )
+# foo bar baz

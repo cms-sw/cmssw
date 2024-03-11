@@ -50,3 +50,4 @@ MuonAlignmentFromReference = cms.PSet(
     doDT = cms.bool(True),
     doCSC = cms.bool(True)
 )
+# foo bar baz

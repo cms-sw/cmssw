@@ -14,3 +14,4 @@ class Run2PhotonCalibrator:
         photon.uncalibratedP4Error = photon.getCorrectedEnergyError(photon.getCandidateP4type())
         self.photonEnergyCalibratorRun2.calibrate(photon.physObj, int(run))
         return True
+# foo bar baz

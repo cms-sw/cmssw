@@ -54,3 +54,4 @@ process.out = cms.OutputModule("PoolOutputModule",
           fileName = cms.untracked.string("PickEvents.root"),
 )
 process.this_is_the_end = cms.EndPath(process.out)
+# foo bar baz

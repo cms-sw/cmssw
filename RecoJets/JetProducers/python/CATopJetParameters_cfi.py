@@ -25,3 +25,4 @@ CATopJetParameters = cms.PSet(
     etFrac = cms.double(0.7),               			# fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
 )
 
+# foo bar baz

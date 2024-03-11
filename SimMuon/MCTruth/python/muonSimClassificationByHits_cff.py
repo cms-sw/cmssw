@@ -14,3 +14,4 @@ muonSimClassifier = cms.EDProducer("MuonSimClassifier",
 muonSimClassificationByHitsTask = cms.Task(
     muonAssociatorByHitsNoSimHitsHelper,muonSimClassifier
 )
+# foo bar baz

@@ -57,3 +57,4 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
     # finalCut (any string-based cut on pat::Jet)
     finalCut = cms.string(''),
 )
+# foo bar baz

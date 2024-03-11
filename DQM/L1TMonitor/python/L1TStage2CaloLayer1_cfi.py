@@ -16,3 +16,4 @@ l1tStage2CaloLayer1 = DQMEDAnalyzer('L1TStage2CaloLayer1',
     histFolder = cms.string('L1T/L1TStage2CaloLayer1'),
     ignoreHFfb2 = cms.untracked.bool(False),
 )
+# foo bar baz

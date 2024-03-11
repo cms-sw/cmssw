@@ -26,3 +26,4 @@ SectCollParametersBlock = cms.PSet(
 )
 
 
+# foo bar baz

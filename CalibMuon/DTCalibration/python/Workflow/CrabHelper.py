@@ -244,3 +244,4 @@ class CrabHelper(object):
 ## Exception for the VOMS proxy
 class ProxyError(Exception):
     pass
+# foo bar baz

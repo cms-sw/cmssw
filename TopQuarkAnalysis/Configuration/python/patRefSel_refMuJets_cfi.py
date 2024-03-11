@@ -135,3 +135,4 @@ standAloneSignalBTagsFilter = cms.EDFilter(
 , minNumber = cms.uint32( 2 )
 , maxNumber = cms.uint32( 99 )
 )
+# foo bar baz

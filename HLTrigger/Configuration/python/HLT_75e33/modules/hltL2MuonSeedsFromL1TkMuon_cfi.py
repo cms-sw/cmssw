@@ -20,3 +20,4 @@ hltL2MuonSeedsFromL1TkMuon = cms.EDProducer("L2MuonSeedGeneratorFromL1TkMu",
     UseOfflineSeed = cms.untracked.bool(True),
     UseUnassociatedL1 = cms.bool(False)
 )
+# foo bar baz

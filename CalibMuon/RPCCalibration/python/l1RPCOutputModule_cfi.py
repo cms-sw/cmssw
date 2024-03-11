@@ -12,3 +12,4 @@ L1RPCEventContent = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

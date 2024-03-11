@@ -8,3 +8,4 @@ fileNames= cms.untracked.vstring(
     'rfio:/castor/cern.ch/user/c/cbern/cmst3/RA2SusyJetMET/LM1_SUSY_sftsht_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO/RECO/RECO_5_1_VpK.root',
 
 )
+# foo bar baz

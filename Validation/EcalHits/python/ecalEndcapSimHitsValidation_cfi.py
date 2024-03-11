@@ -9,3 +9,4 @@ ecalEndcapSimHitsValidation = DQMEDAnalyzer("EcalEndcapSimHitsValidation",
 )
 
 
+# foo bar baz

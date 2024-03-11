@@ -9,3 +9,4 @@ siStripClusters = cms.EDProducer("ClusterMCsplitStrips",
     )
   )
 )
+# foo bar baz

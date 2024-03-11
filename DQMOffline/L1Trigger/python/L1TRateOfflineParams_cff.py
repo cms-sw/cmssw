@@ -1313,3 +1313,4 @@ RateParams_2010 = cms.VPSet(
 )
 
 RateParams = RateParams_2012
+# foo bar baz

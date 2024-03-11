@@ -63,3 +63,4 @@ process.gctErrorAnalyzer
 )
 
 process.p = cms.Path(process.defaultPath)
+# foo bar baz

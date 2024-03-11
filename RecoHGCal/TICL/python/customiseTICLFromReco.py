@@ -85,3 +85,4 @@ def customiseTICLForDumper(process):
     process.FEVTDEBUGHLToutput_step = cms.EndPath(
         process.FEVTDEBUGHLToutput + process.ticlDumper)
     return process
+# foo bar baz

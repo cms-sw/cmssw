@@ -105,3 +105,4 @@ process.p = cms.Path(
     process.intConsumer + process.esTestAnalyzerA,
     process.t
 )
+# foo bar baz

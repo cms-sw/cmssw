@@ -5,3 +5,4 @@ smpMonitorHLT = cms.Sequence(
 
 smpHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

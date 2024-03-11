@@ -28,3 +28,4 @@ TrackerSystematicMisalignments = cms.EDAnalyzer("TrackerSystematicMisalignments"
 	oldMinusZconvention = cms.untracked.bool(False)
 )
 
+# foo bar baz

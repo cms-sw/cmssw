@@ -29,3 +29,4 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalIsoTrkFilter=copy.deepcopy(OutALCARECOHcalCalIsoTrkFilter_noDrop)
 OutALCARECOHcalCalIsoTrkFilter.outputCommands.insert(0, "drop *")
+# foo bar baz

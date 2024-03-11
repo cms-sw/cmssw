@@ -15,3 +15,4 @@ fixedMatrixClusteringTask = cms.Task(fixedMatrixBasicClusters,
                                      fixedMatrixSuperClustersWithPreshower)
 fixedMatrixClusteringSequence = cms.Sequence(fixedMatrixClusteringTask)
 
+# foo bar baz

@@ -14,3 +14,4 @@ UniformMagneticFieldESProducer = cms.ESProducer("UniformMagneticFieldESProducer"
 )
 
 
+# foo bar baz

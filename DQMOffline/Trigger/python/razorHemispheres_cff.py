@@ -21,3 +21,4 @@ caloHemispheresDQM = cms.EDFilter(
 hemisphereDQMSequence = cms.Sequence(hemispheresDQM)
 
 caloHemisphereDQMSequence = cms.Sequence(caloHemispheresDQM)
+# foo bar baz

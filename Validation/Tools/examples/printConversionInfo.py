@@ -22,3 +22,4 @@ for event in events:
     conversionVector = conversionHandle.product()
     for index, conversion in enumerate (conversionVector):
         print("  %2d  %8.4f" % (index, conversion.EoverP()))
+# foo bar baz

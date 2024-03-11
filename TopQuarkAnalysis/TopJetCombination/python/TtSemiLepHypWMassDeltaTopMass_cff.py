@@ -15,3 +15,4 @@ makeHypothesis_wMassDeltaTopMassTask = cms.Task(
     ttSemiLepHypWMassDeltaTopMass
 )
 makeHypothesis_wMassDeltaTopMass = cms.Sequence(makeHypothesis_wMassDeltaTopMassTask)
+# foo bar baz

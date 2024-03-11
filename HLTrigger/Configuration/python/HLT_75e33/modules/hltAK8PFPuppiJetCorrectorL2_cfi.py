@@ -5,3 +5,4 @@ hltAK8PFPuppiJetCorrectorL2 = cms.EDProducer("LXXXCorrectorProducer",
     algorithm = cms.string('AK8PFPuppi'),
     level = cms.string('L2Relative')
 )
+# foo bar baz

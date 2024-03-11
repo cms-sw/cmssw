@@ -8,3 +8,4 @@ hiPixelClusterVertex = cms.EDProducer("HIPixelClusterVtxProducer",
                                       )
 
 
+# foo bar baz

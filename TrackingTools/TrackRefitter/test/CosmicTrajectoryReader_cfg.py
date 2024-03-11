@@ -96,3 +96,4 @@ process.glbMuons = cms.Sequence(process.cosmicMuons*process.GLBTrajectoriesReade
 #process.testSTA = cms.Path(process.tk+process.glbMuons)
 process.testSTA = cms.Path(process.glbMuons)
 
+# foo bar baz

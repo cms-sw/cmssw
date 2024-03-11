@@ -451,3 +451,4 @@ process.fit = cms.Path(
 ##     process.CicHyperTight3ToHLT +
 ##     process.CicHyperTight4ToHLT   
     )
+# foo bar baz

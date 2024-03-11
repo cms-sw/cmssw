@@ -18,3 +18,4 @@ alCaPi0BCRecHits = cms.EDProducer("AlCaPi0BasicClusterRecHitsProducer",
 )
 
 
+# foo bar baz

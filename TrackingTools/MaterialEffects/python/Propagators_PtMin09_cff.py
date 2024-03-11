@@ -20,3 +20,4 @@ OppositeMaterialPropagatorPtMin09 = TrackingTools.MaterialEffects.OppositeMateri
     ComponentName = 'PropagatorWithMaterialOppositePtMin09',
     ptMin         = 0.9
 )
+# foo bar baz

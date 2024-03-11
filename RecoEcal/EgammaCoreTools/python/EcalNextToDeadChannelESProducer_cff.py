@@ -19,3 +19,4 @@ ecalNextToDeadChannelESProducer = cms.ESProducer("EcalNextToDeadChannelESProduce
                             # be defined as dead                         
                             channelStatusThresholdForDead=cms.int32(12)
                                                  )
+# foo bar baz

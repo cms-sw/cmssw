@@ -21,3 +21,4 @@ vbfGenJetFilterCSeq = cms.Sequence(
   ak4GenJetsNoNu*
   vbfGenJetFilterC
 )
+# foo bar baz

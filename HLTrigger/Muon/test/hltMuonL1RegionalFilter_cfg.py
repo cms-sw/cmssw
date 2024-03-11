@@ -48,3 +48,4 @@ process.path = cms.Path(
   process.HLTMuonL1RegionalFilter
 )
 
+# foo bar baz

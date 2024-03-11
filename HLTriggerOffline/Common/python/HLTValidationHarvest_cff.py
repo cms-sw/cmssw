@@ -88,3 +88,4 @@ hltpostvalidation_prod = cms.Sequence(
     + postProcessorHLTgsfTrackingSequence
     + postProcessorHLTmuonTrackingSequence
     )
+# foo bar baz

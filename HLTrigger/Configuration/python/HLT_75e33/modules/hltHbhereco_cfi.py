@@ -138,3 +138,4 @@ hltHbhereco = cms.EDProducer("HBHEPhase1Reconstructor",
     tsFromDB = cms.bool(False),
     use8ts = cms.bool(True)
 )
+# foo bar baz

@@ -61,4 +61,4 @@ standardCICADATestPatterns = cms.VPSet(
         iPhi_17 = cms.vuint32(2, 2, 1, 0, 0, 0, 0, 2, 5, 0, 0, 0, 0, 2, ),
         iPhi_18 = cms.vuint32(6, 3, 0, 2, 0, 4, 7, 1, 4, 4, 0, 0, 1, 2, ),
     ),
-)
+)# foo bar baz

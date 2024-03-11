@@ -24,3 +24,4 @@ hmesongammamonitoring = cms.Sequence(
     HMesonGammamonitoring
 )
 
+# foo bar baz

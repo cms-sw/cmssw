@@ -11,3 +11,4 @@ from RecoEcal.EgammaClusterProducers.correctedDynamicHybridSuperClusters_cfi imp
 dynamicHybridClusteringTask = cms.Task(dynamicHybridSuperClusters, correctedDynamicHybridSuperClusters)
 dynamicHybridClusteringSequence = cms.Sequence(dynamicHybridClusteringTask)
 
+# foo bar baz

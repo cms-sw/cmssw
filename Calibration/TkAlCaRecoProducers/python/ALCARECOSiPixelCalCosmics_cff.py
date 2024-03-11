@@ -41,3 +41,4 @@ ALCARECOSiPixelCalCosmics.minHitsPerSubDet.inPIXEL = 1
 seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsDCSFilter*
                                             ALCARECOSiPixelCalCosmicsHLTFilter*
                                             ALCARECOSiPixelCalCosmics)
+# foo bar baz

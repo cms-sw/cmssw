@@ -42,3 +42,4 @@ if l1tCaloTruthCellsProducer.makeCellsCollection:
     l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_triggercells_truth)
     l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_multiclusters_truth)
     l1tHGCalTriggerNtuplizer.Ntuples.append(ntuple_towers_truth)
+# foo bar baz

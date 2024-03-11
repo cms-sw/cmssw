@@ -88,3 +88,4 @@ trigObjTnPSource = DQMEDAnalyzer('TrigObjTnPSource',
                                "hltEle32WPTightGsfTrackIsoFilter")           
   ))
 )
+# foo bar baz

@@ -58,3 +58,4 @@ process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
 process.test = cms.EDAnalyzer("DDTestMuonNumbering")
 
 process.p = cms.Path(process.test)
+# foo bar baz

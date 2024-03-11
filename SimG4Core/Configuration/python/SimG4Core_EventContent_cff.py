@@ -21,3 +21,4 @@ SimG4CoreHLTAODSIM = cms.PSet(
 'keep SimVertexs_g4SimHits_*_*')
 )
 
+# foo bar baz

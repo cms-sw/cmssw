@@ -31,3 +31,4 @@ OmegaFilter = cms.EDFilter("PythiaFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator*OmegaFilter)
+# foo bar baz

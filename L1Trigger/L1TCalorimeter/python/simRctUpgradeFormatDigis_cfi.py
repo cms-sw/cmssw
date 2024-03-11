@@ -7,3 +7,4 @@ simRctUpgradeFormatDigis = cms.EDProducer(
 )
 
 
+# foo bar baz

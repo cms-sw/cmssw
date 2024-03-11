@@ -23,3 +23,4 @@ HLTEle5OpenUnseededTask = cms.Task(
     hltEgammaHcalPFClusterIsoUnseeded,
     hltEgammaHoverEUnseeded
 )
+# foo bar baz

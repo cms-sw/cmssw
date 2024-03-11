@@ -27,3 +27,4 @@ sipixelcalib_essource.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/con
 #   replace sipixelcalib_essource.timetype ="runnumber"
 sipixelcalib_essource.DBParameters.messageLevel = 0
 
+# foo bar baz

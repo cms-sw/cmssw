@@ -43,3 +43,4 @@ process.writer = cms.EDAnalyzer(
 )
 
 process.p = cms.Path(process.writer)
+# foo bar baz

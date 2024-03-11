@@ -57,3 +57,4 @@ otDigiValid.TOFZMapH = cms.PSet(
     ymin   = cms.double(0.),
     ymax   = cms.double(50.),
     switch = cms.bool(False))
+# foo bar baz

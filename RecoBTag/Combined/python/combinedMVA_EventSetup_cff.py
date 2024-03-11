@@ -10,3 +10,4 @@ from RecoBTag.Combined.candidatePositiveCombinedMVAV2Computer_cfi import *
 
 # Charge tagger
 from RecoBTag.Combined.candidateChargeBTagComputer_cfi import *
+# foo bar baz

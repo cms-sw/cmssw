@@ -144,3 +144,4 @@ for b in EtaPtBin :
                     else : titleFlav = options.RefRel+"_"+options.RefSample+"_performanceBvs"+f+"_allTaggers"
                     #save canvas
                     c[keyHisto] = savePlots(title=titleFlav,saveName=saveName,listFromats=listFromats,plot=h,Histos=Histos[keyHisto],keyHisto=keyHisto,listLegend=h.listTagger,options=options,legendName=h.legend.replace("FLAV",f))
+# foo bar baz

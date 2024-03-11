@@ -6,3 +6,4 @@ gtPsbTextToDigi = cms.EDProducer("GtPsbTextToDigi",
 )
 
 
+# foo bar baz

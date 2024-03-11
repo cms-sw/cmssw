@@ -43,3 +43,4 @@ process.p1a = cms.Path(process.m1a)
 process.p2a = cms.Path(process.m2a)
 process.e1 = cms.EndPath(process.a1)
 process.e2 = cms.EndPath(process.testout1)
+# foo bar baz

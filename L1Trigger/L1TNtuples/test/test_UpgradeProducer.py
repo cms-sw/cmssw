@@ -30,3 +30,4 @@ process.p = cms.Path(
   process.l1UpgradeTree
 )
 
+# foo bar baz

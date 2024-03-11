@@ -30,3 +30,4 @@ beamhaloTrackCandidates = ckfTrackCandidates.clone(
 	propagatorOppositeTISE = 'BeamHaloPropagatorOpposite'),
    TrajectoryBuilderPSet = dict(refToPSet_ = 'CkfTrajectoryBuilderBeamHalo')
 )
+# foo bar baz

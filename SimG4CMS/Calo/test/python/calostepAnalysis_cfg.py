@@ -41,3 +41,4 @@ process.caloSimHitAnalysis.passiveHits = True
 
 # Schedule definition                                                          
 process.schedule = cms.Schedule(process.analysis_step)
+# foo bar baz

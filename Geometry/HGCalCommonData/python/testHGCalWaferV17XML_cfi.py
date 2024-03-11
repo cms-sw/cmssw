@@ -12,3 +12,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HGCalCommonData/data/hgcalwafer/v17/hgcalpos.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
+# foo bar baz

@@ -29,3 +29,4 @@ MuonCalIsolation = cms.EDProducer("MuonCalIsolationProducer",
 )
 
 
+# foo bar baz

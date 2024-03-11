@@ -66,3 +66,4 @@ setattr(PDFWeightsAnalyzer,"defaultConfig",
         PDFWeights = []
     )
 )
+# foo bar baz

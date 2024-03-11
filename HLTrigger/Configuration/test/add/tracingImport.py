@@ -152,3 +152,4 @@ original_reload = builtins.reload
 # Now install our hooks
 builtins.__import__ = import_hook
 builtins.reload = reload_hook
+# foo bar baz

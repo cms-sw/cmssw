@@ -18,3 +18,4 @@ l1tTkPrimaryVertex = cms.EDProducer("L1TkFastVertexProducer",
     nStubsmin = cms.int32(4),
     nVtx = cms.int32(1)
 )
+# foo bar baz

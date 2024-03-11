@@ -12,3 +12,4 @@ process.rocmTestKernelAdditionModule = cms.EDAnalyzer('ROCmTestKernelAdditionMod
 process.path = cms.Path(process.rocmTestKernelAdditionModule)
 
 process.maxEvents.input = 1
+# foo bar baz

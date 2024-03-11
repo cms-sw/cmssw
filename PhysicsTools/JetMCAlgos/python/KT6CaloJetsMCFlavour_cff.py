@@ -20,3 +20,4 @@ KT6byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     physicsDefinition = cms.bool(False),
     leptonInfo = cms.bool(True)
 )
+# foo bar baz

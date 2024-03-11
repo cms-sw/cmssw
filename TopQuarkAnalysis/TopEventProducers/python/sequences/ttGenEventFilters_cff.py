@@ -7,3 +7,4 @@ from TopQuarkAnalysis.TopSkimming.ttDecayChannelFilter_cff import *
 ttFullHadronicFilter.src = "genEvt"
 ttSemiLeptonicFilter.src = "genEvt"
 ttFullLeptonicFilter.src = "genEvt"
+# foo bar baz

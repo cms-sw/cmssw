@@ -779,3 +779,4 @@ phase2_hgcalV18.toModify(g4SimHits,
                  HGCSD = dict(
                      HitCollection = 2)
 )
+# foo bar baz

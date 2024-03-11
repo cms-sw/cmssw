@@ -34,3 +34,4 @@ horeco = cms.EDProducer(
 ) # horeco
 
 
+# foo bar baz

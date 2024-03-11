@@ -136,3 +136,4 @@ hiMixedTripletStepTask = cms.Task(
                                 hiMixedTripletStepSelector,
                                 hiMixedTripletStepQual)
 hiMixedTripletStep = cms.Sequence(hiMixedTripletStepTask)
+# foo bar baz

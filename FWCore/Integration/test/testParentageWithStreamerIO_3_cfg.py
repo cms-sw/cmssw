@@ -21,3 +21,4 @@ process.test2 = cms.EDAnalyzer("TestParentage",
 )
 
 process.path1 = cms.Path(process.test1 + process.test2)
+# foo bar baz

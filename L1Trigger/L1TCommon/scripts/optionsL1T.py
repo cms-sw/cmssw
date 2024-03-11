@@ -52,3 +52,4 @@ if (hasattr(process,"source")):
     if (not options.inputFiles == []):
         print("L1T INFO:  using command line option inputFiles:  ", options.inputFiles)
         process.source.fileNames = cms.untracked.vstring(options.inputFiles)
+# foo bar baz

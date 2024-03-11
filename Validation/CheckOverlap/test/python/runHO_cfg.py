@@ -10,3 +10,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
                                        'MBBT_R1PX', 'MBBT_R1MX')
 ))
 
+# foo bar baz

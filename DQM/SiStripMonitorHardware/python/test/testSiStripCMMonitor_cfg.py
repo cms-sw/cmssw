@@ -123,3 +123,4 @@ process.saveDigis = cms.OutputModule(
     )
 
 process.pout = cms.EndPath( process.saveDigis )
+# foo bar baz

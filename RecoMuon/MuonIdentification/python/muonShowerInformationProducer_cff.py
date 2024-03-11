@@ -5,3 +5,4 @@ muonShowerInformation = cms.EDProducer("MuonShowerInformationProducer",
     trackCollection = cms.InputTag("generalTracks"),
     ShowerInformationFillerParameters = MuonShowerParameters.MuonShowerInformationFillerParameters
 )
+# foo bar baz

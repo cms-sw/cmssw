@@ -47,3 +47,4 @@ unsortedOfflinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
         )
     )
 )
+# foo bar baz

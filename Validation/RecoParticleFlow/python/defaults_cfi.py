@@ -71,3 +71,4 @@ offsetVariableType = ["npv", "mu"]
 
 def offset_name( var, ivar, itype ) :
     return "{0}_{1}{2}_{3}".format( offsetPlotBaseName, var, ivar, itype )
+# foo bar baz

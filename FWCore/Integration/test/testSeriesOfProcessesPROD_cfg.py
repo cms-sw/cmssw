@@ -94,3 +94,4 @@ process.p1 = cms.Path(process.f1 * process.makeRunLumiProducts)
 process.p2 = cms.Path(~process.f2a * process.f2b)
 
 process.e = cms.EndPath(process.a * process.pathanalysis * process.out1 * process.out2)
+# foo bar baz

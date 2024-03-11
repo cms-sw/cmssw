@@ -48,3 +48,4 @@ process.sendSomeMessages = cms.EDAnalyzer("UnitTestClient_D")
 process.p = cms.Path(process.sendSomeMessages)
 
 
+# foo bar baz

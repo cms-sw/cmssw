@@ -99,3 +99,4 @@ def eventLoop(
     for m in modules:
         m.endFile(inputFile, outputFile, inputTree, wrappedOutputTree)
     return (doneEvents, acceptedEvents, time.time() - t0)
+# foo bar baz

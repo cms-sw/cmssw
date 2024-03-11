@@ -45,3 +45,4 @@ class Event(object):
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )
+# foo bar baz

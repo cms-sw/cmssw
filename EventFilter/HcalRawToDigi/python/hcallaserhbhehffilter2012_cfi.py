@@ -28,3 +28,4 @@ hcallaserhbhehffilter2012=cms.EDFilter("HcalLaserHBHEHFFilter2012",
                                      WriteBadToFile = cms.untracked.bool(False), # if set to 'True', then the list of events failing the filter cut will be written to a text file 'badHcalLaserList_hcalfilter.txt'.  Events in the file will not have any prefix added, but will be a simple list of run:ls:event.
                                      forceFilterTrue=cms.untracked.bool(False) # if specified, filter will always return 'True'.  You could use this along with the 'verbose' or 'WriteBadToFile' booleans in order to dump out bad event numbers without actually filtering them
                                      )
+# foo bar baz

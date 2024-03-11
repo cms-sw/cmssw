@@ -16,3 +16,4 @@ RecoBTauFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoBTauFEVT.outputCommands.extend(RecoBTauRECO.outputCommands)
+# foo bar baz

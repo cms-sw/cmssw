@@ -13,3 +13,4 @@ pfGsfElectronMVASelectionTask = cms.Task(
                electronsWithPresel,
                mvaElectrons    )
 pfGsfElectronMVASelectionSequence = cms.Sequence(pfGsfElectronMVASelectionTask)
+# foo bar baz

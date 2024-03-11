@@ -7,3 +7,4 @@ rctTextToRctDigi = cms.EDProducer("RctTextToRctDigi",
 )
 
 
+# foo bar baz

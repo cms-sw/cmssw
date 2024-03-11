@@ -4,3 +4,4 @@ filterTrackerOn = cms.EDFilter(
     'FilterTrackerOn',
     MinModulesWithHVoff = cms.int32(500)
 )
+# foo bar baz

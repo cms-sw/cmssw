@@ -5,3 +5,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'SimG4CMS/CherenkovAnalysis/data/testMuon.xml'),
     rootNodeName = cms.string('testMuon:TestMuon')
 )
+# foo bar baz

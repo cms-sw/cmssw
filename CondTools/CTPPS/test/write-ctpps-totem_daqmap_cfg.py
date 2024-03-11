@@ -70,3 +70,4 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 process.path = cms.Path(
   process.writeCTPPSTotemDAQMappingMask
 )
+# foo bar baz

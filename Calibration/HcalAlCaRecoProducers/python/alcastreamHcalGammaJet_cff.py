@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.HcalAlCaRecoProducers.alcagammajet_cfi import *
 seqAlcastreamHcalGammaJet = cms.Sequence(GammaJetProd)
 
+# foo bar baz

@@ -5,3 +5,4 @@ from SimGeneral.MixingModule.mixNoPU_cfi import *
 from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 caloDigi = cms.Sequence(mix*calDigi)
 
+# foo bar baz

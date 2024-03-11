@@ -9,3 +9,4 @@ hltPhase2L3FromL1TkMuonTrimmedPixelVertices = cms.EDProducer("PixelVertexCollect
     minSumPt2 = cms.double(0.0),
     src = cms.InputTag("hltPhase2L3FromL1TkMuonPixelVertices")
 )
+# foo bar baz

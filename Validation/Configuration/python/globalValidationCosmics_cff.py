@@ -7,3 +7,4 @@ from Validation.RecoMuon.muonValidation_cff import *
 globalPrevalidationCosmics = cms.Sequence(simHitTPAssocProducer)
 
 globalValidationCosmics = cms.Sequence(recoCosmicMuonValidation)
+# foo bar baz

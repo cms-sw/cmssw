@@ -39,3 +39,4 @@ delayedJetSelection = cms.EDFilter( "HLTCaloJetTimingFilter",
 EXODelayedJetMETSkimSequence = cms.Sequence(
     DelayedJetMETTrigger * caloJetTimingProducerSingle * delayedJetSelection
 )
+# foo bar baz

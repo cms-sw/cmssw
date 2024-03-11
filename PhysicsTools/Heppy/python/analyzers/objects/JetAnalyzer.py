@@ -519,3 +519,4 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     collectionPostFix = ""
     )
 )
+# foo bar baz

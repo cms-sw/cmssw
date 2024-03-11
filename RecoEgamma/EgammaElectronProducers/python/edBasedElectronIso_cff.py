@@ -11,3 +11,4 @@ edBasedElectronIsoTask = cms.Task(
     electronEDIsolationValuesTask
     )
 edBasedElectronIsoSequence = cms.Sequence(edBasedElectronIsoTask)
+# foo bar baz

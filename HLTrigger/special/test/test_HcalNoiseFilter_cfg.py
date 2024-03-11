@@ -216,3 +216,4 @@ process.load("HLTrigger.special.hltHcalNoiseFilter_cfi")
 process.p = cms.Path(process.hltHcalNoiseFilter)
 
 
+# foo bar baz

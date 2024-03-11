@@ -70,3 +70,4 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 process.dtDQMPathCalib = cms.Path(process.unpackers + process.dqmmodules + process.calibrationEventsFilter * process.dtDQMCalib)
 
 print(process.source.sourceURL)
+# foo bar baz

@@ -7,3 +7,4 @@ ttFullLepEventFilter = cms.EDFilter("TtFullLepEvtFilter",
     src = cms.InputTag("ttFullLepEvent"),
     cut = cms.string("isHypoValid('kGenMatch') & genMatchSumDR < 999.")
 )
+# foo bar baz

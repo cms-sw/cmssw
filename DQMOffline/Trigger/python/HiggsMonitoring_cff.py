@@ -552,3 +552,4 @@ higgsMonitorHLT = cms.Sequence(
 
 higHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

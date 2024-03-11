@@ -9,3 +9,4 @@ ecalEndcapRecHitsValidation = DQMEDAnalyzer('EcalEndcapRecHitsValidation',
 
 
 
+# foo bar baz

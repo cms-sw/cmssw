@@ -8,3 +8,4 @@ L3MuonTrajectorySeedCombiner = cms.EDProducer(
     cms.InputTag("hltL3TrajSeedOIHit")
     )
     )
+# foo bar baz

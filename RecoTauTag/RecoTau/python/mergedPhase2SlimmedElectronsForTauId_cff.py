@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 mergedSlimmedElectronsForTauId = cms.EDProducer('PATElectronCollectionMerger',
     src = cms.VInputTag('slimmedElectrons', 'slimmedElectronsHGC')
 )
+# foo bar baz

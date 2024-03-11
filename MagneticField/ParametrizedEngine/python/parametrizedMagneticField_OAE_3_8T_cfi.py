@@ -15,3 +15,4 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldPro
 )
 
 
+# foo bar baz

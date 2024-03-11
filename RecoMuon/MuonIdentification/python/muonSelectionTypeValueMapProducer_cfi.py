@@ -4,3 +4,4 @@ muonSelectionTypeValueMapProducer = cms.EDProducer("MuonSelectionTypeValueMapPro
     inputMuonCollection = cms.InputTag("muons1stStep"),
     selectionType = cms.string("All")
 )
+# foo bar baz

@@ -16,3 +16,4 @@ trendClientPaths = dict(
     SCNum = "Trend/TrendClient number of super clusters",
     SCEnergy = "Trend/TrendClient super cluster energy"
 )
+# foo bar baz

@@ -45,3 +45,4 @@ from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Summary_cfi import simCaloStage2
 from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
 stage2L1Trigger.toReplaceWith(SimL1TCalorimeterTask, cms.Task( simCaloStage2Layer1Digis, simCaloStage2Layer1Summary, simCaloStage2Digis ))
 
+# foo bar baz

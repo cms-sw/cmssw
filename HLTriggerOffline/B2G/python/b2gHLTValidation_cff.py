@@ -14,3 +14,4 @@ b2gHLTriggerValidation = cms.Sequence(
     b2gDoubleElectronHLTValidation
     )
 
+# foo bar baz

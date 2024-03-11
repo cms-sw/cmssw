@@ -113,3 +113,4 @@ hltHpsTauPFJetsRecoTauChargedHadronsWithNeutrals = cms.EDProducer( "PFRecoTauCha
       )
     )
 )
+# foo bar baz

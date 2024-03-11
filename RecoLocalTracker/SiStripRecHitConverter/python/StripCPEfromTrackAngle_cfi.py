@@ -20,3 +20,4 @@ StripCPEfromTrackAngleESProducer = stripCPEESProducer.clone(
 	   maxChgOneMIP   = cms.double(6000.)
      )
 )
+# foo bar baz

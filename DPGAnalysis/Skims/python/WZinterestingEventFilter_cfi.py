@@ -20,3 +20,4 @@ WZInterestingEventSelector = cms.EDFilter(
     metCut = cms.double(12.),
     invMassCut = cms.double(40.)
     )
+# foo bar baz

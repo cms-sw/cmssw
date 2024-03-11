@@ -852,3 +852,4 @@ class HtmlReportDummy:
 
     def addTable(self, *args, **kwargs):
         pass
+# foo bar baz

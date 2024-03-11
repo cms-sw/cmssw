@@ -35,3 +35,4 @@ process.mywriter = cms.EDAnalyzer("PhysicsPerformanceDBWriterTFormula_fromfile_W
 process.p = cms.Path(process.mywriter)
 
 
+# foo bar baz

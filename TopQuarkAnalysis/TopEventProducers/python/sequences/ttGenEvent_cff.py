@@ -13,3 +13,4 @@ makeGenEvtTask = cms.Task(
     genEvt
 )
 makeGenEvt = cms.Sequence(makeGenEvtTask)
+# foo bar baz

@@ -96,3 +96,4 @@ process.options = cms.untracked.PSet(
 process.dqmcommon = cms.Sequence(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 process.pp = cms.Path(process.onlineBeamMonitor+process.dqmcommon)
 process.schedule = cms.Schedule(process.pp)
+# foo bar baz

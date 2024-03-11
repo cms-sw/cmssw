@@ -32,3 +32,4 @@ siStripConfObjectAPVPhaseOffsetsFakeESSource = cms.ESSource("SiStripConfObjectFa
                 ),
             )
     )
+# foo bar baz

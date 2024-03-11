@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi import *
 seqAlcastreamHcalIsotrk = cms.Sequence(alcaisotrk)
 
+# foo bar baz

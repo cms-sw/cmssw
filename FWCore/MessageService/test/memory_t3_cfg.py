@@ -66,3 +66,4 @@ process.module4 = cms.EDAnalyzer("MemoryTestClient_B",
 )
 
 process.p = cms.Path(process.module1*process.module2*process.module3*process.module4)
+# foo bar baz

@@ -20,3 +20,4 @@ process.fail = cms.EDProducer("FailingProducer")
 process.p = cms.Path(process.filter+process.fail)
 
 #process.add_(cms.Service("Tracer"))
+# foo bar baz

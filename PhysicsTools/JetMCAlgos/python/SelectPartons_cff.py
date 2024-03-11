@@ -7,3 +7,4 @@ myPartons = cms.EDProducer("PartonSelector",
 )
 
 
+# foo bar baz

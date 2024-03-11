@@ -62,3 +62,4 @@ L1TRawToDigi_Stage2 = cms.Task(rpcunpacker,rpcTwinMuxRawToDigi, twinMuxStage2Dig
 stage2L1Trigger.toReplaceWith(L1TRawToDigiTask, cms.Task(L1TRawToDigi_Stage1,L1TRawToDigi_Stage2))
 
 L1TRawToDigi = cms.Sequence(L1TRawToDigiTask)
+# foo bar baz

@@ -41,3 +41,4 @@ siStripQualityConfigurableFakeESSource = cms.ESSource("SiStripQualityConfigurabl
 )
 
 
+# foo bar baz

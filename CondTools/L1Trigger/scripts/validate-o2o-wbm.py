@@ -30,3 +30,4 @@ if oTSC == wTSC and oGT == wGT and oGTRUNSETTINGS == wGTRUNSETTINGS:
 else:
     f.write("failed")
 f.close()
+# foo bar baz

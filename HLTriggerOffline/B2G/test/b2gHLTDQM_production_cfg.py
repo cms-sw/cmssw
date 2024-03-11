@@ -112,3 +112,4 @@ process.schedule = cms.Schedule(
     process.endjob,
     process.fanout
 )
+# foo bar baz

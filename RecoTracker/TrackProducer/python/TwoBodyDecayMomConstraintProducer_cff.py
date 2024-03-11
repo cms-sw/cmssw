@@ -31,3 +31,4 @@ TwoBodyDecayMomConstraint = cms.EDProducer(
     ## Configure matching of measured and estimated tsos (only done if 'momentumForRefitting' == 'atInnermostSurface').
     sigmaPositionCut = cms.double( 5e-1 )
 )
+# foo bar baz

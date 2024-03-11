@@ -34,3 +34,4 @@ process.p = cms.Path(process.Phase2TrackerDigitestproducer)
 # process.p = cms.Path(process.Phase2TrackerDigitestproducer*process.Phase2TrackerDigiCondDataproducer)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

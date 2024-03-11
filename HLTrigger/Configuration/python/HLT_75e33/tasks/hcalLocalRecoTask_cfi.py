@@ -9,3 +9,4 @@ hcalLocalRecoTask = cms.Task(
     hfreco,
     horeco
 )
+# foo bar baz

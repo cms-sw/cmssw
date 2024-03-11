@@ -5,3 +5,4 @@ from ..tasks.HLTPFClusteringForEgammaL1SeededTask_cfi import *
 HLTPFClusteringForEgammaL1Seeded = cms.Sequence(
     HLTPFClusteringForEgammaL1SeededTask
 )
+# foo bar baz

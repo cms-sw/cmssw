@@ -37,3 +37,4 @@ process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
 
 print("Requesting MkFit geometry dump into file:", defaultOutputFileName, "\n");
 process.p = cms.Path(process.dump)
+# foo bar baz

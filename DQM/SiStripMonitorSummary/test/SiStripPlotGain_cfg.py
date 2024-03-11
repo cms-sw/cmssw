@@ -46,3 +46,4 @@ process.analysis = cms.EDAnalyzer("SiStripPlotGain")
 
 process.p = cms.Path(process.analysis)
 
+# foo bar baz

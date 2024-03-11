@@ -103,3 +103,4 @@ process.p1 = cms.Path(
     *process.firstStepPrimaryVertices
     *process.StripClusterMCanalysis
     )
+# foo bar baz

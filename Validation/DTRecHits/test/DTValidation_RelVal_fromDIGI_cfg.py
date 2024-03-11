@@ -73,3 +73,4 @@ process.analysis = cms.Sequence(process.dtLocalRecoValidation)
 
 process.p = cms.Path(process.muonLocalReco * process.analysis)
 
+# foo bar baz

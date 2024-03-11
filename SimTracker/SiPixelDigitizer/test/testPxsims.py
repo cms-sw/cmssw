@@ -58,3 +58,4 @@ process.analysis =  cms.EDAnalyzer("PixelSimHitsTest",
 
 process.p = cms.Path(process.analysis)
 
+# foo bar baz

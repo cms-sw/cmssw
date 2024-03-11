@@ -35,3 +35,4 @@ process.MessageLogger.cout = cms.untracked.PSet(
 process.producer = cms.EDAnalyzer('CSCGeometryAnalyzer')
 
 process.p1 = cms.Path(process.producer)
+# foo bar baz

@@ -11,3 +11,4 @@ hcaltbfilter_beam = cms.EDFilter("HcalTBTriggerFilter",
 )
 
 
+# foo bar baz

@@ -32,3 +32,4 @@ rerecoECALSeq = cms.Sequence(recoECALSeq * rerecoPFClusteringSeq * ecalClusterin
 seqALCARECOEcalRecalElectron = cms.Sequence(ALCARECOEcalRecalElectronHLT * rerecoECALSeq * selectorProducerSeq * ALCARECOEcalCalElectronECALSeq)
 
 
+# foo bar baz

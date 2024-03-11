@@ -555,3 +555,4 @@ def _customSetattr(obj, attr, val):
         if isinstance(attr, tuple): attr = attr[0]
         setattr(obj, attr, val)
 
+# foo bar baz

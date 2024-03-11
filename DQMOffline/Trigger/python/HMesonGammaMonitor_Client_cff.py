@@ -27,3 +27,4 @@ hmesongammaEfficiency = DQMEDHarvester("DQMGenericClient",
 hmesongammaClient = cms.Sequence(
     hmesongammaEfficiency
 )
+# foo bar baz

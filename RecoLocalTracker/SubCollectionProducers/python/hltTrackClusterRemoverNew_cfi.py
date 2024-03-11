@@ -14,3 +14,4 @@ hltTrackClusterRemover = cms.EDProducer( "HLTTrackClusterRemoverNew",
    ),
    doStripChargeCheck = cms.bool(False),
 )
+# foo bar baz

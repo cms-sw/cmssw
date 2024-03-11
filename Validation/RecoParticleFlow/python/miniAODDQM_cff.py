@@ -86,3 +86,4 @@ miniAODDQMSequence = cms.Sequence(
     slimmedMuonValidation1 *
     slimmedElectronValidation1
 )
+# foo bar baz

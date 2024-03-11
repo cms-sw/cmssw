@@ -5,3 +5,4 @@ SiPixelPhase1ResidualsExtra = DQMEDHarvester("SiPixelPhase1ResidualsExtra",
     TopFolderName = cms.string('PixelPhase1/Tracks/ResidualsExtra'),
     MinHits = cms.int32(30)
 )
+# foo bar baz

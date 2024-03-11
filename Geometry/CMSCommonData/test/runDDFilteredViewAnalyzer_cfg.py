@@ -26,3 +26,4 @@ process.fva = cms.EDAnalyzer("DDFilteredViewAnalyzer",
 
 process.p1 = cms.Path(process.fva)
 
+# foo bar baz

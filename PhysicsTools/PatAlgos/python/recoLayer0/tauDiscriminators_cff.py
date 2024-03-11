@@ -8,3 +8,4 @@ patHPSPFTauDiscriminationTask = cms.Task(updateHPSPFTausTask)
 patHPSPFTauDiscrimination = cms.Sequence(patHPSPFTauDiscriminationTask)
 
 patShrinkingConePFTauDiscrimination = cms.Sequence()
+# foo bar baz

@@ -107,3 +107,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('bspvanalyzer.root')
                                    )
 
+# foo bar baz

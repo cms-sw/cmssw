@@ -77,3 +77,4 @@ if __name__ == "__main__":
         print("Actually used: ", len(usedOutputs))
         for module in usedOutputs:
             print("  ", module.label())
+# foo bar baz

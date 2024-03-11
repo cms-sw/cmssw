@@ -46,3 +46,4 @@ L1TCaloJetsSequence = cms.Sequence(
         l1tCaloJetProducer *
         l1tCaloJetHTTProducer
 )
+# foo bar baz

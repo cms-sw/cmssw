@@ -50,3 +50,4 @@ if args.noConsumes:
     if args.thing:
         process.thingAnalyzer.consumes = False
         process.thingAnalyzer.getExceptionCategory = cms.untracked.string("GetByLabelWithoutRegistration")
+# foo bar baz

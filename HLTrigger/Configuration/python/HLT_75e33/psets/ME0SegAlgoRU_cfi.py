@@ -16,3 +16,4 @@ ME0SegAlgoRU = cms.PSet(
         requireCentralBX = cms.bool(True)
     )
 )
+# foo bar baz

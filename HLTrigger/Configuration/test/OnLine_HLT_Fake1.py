@@ -404,3 +404,4 @@ process = customizeHLTforCMSSW(process,"Fake1")
 from HLTrigger.Configuration.Eras import modifyHLTforEras
 modifyHLTforEras(process)
 
+# foo bar baz

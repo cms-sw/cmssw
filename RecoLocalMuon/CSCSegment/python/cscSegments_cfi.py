@@ -33,3 +33,4 @@ cscSegments = cms.EDProducer("CSCSegmentProducer",
 )
 
 
+# foo bar baz

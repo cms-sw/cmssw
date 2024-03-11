@@ -28,3 +28,4 @@ process.path = cms.Path(
     process.rocmTestOpaqueAdditionModule)
 
 process.maxEvents.input = 1
+# foo bar baz

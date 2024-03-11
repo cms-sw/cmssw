@@ -6,3 +6,4 @@ rpcMonitorLinkSynchro = DQMEDAnalyzer('RPCMonitorLinkSynchro',
   useFirstHitOnly = cms.untracked.bool(False),
   rpcRawSynchroProdItemTag = cms.InputTag('rpcunpacker')
 )
+# foo bar baz

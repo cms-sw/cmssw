@@ -36,3 +36,4 @@ process.PoolDBOutputService.connect = cms.string('sqlite_file:vDrift.db')
 process.load("CalibMuon.DTCalibration.dtVDriftMeanTimerWriter_cfi")
 
 process.p = cms.Path(process.dtVDriftMeanTimerWriter)
+# foo bar baz

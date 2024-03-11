@@ -529,3 +529,4 @@ for ns,subdir in enumerate(subdirs):
     del pad2
     del can
 
+# foo bar baz

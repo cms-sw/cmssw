@@ -109,3 +109,4 @@ process.PoolDBOutputService = cms.Service(
 process.p = cms.Path(
   process.AlCaRecoTriggerBitsRcdCreate
 )
+# foo bar baz

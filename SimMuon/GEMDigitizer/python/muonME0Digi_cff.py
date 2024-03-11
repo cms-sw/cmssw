@@ -15,3 +15,4 @@ muonME0DigiTask = cms.Task(muonME0RealDigi, muonME0PseudoDigi)
 phase2_GE0.toReplaceWith(muonME0DigiTask, muonME0DigiTask.copyAndExclude([muonME0PseudoDigi]))
 
 muonME0Digi = cms.Sequence(muonME0DigiTask)
+# foo bar baz

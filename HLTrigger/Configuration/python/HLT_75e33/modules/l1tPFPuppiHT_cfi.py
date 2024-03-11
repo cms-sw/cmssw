@@ -5,3 +5,4 @@ l1tPFPuppiHT = cms.EDProducer("HLTHtMhtProducer",
     maxEtaJetHt = cms.double(2.4),
     minPtJetHt = cms.double(30.0)
 )
+# foo bar baz

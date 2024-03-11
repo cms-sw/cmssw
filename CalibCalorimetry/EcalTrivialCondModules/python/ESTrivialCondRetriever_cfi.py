@@ -17,3 +17,4 @@ ESTrivialConditionRetriever = cms.ESSource("ESTrivialConditionRetriever",
     adcToGeVESHighConstant = cms.untracked.double(0.5),
 
 )
+# foo bar baz

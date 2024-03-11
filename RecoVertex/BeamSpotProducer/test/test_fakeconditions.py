@@ -20,3 +20,4 @@ process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
 process.test = cms.Path( process.beamspot )
 
 
+# foo bar baz

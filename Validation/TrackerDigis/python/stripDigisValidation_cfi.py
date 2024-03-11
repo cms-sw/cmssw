@@ -10,3 +10,4 @@ stripDigisValid = DQMEDAnalyzer('SiStripDigiValid',
 
 
 
+# foo bar baz

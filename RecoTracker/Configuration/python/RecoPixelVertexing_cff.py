@@ -130,3 +130,4 @@ recopixelvertexingTask = cms.Task(
     pixelVerticesTask
 )
 recopixelvertexing = cms.Sequence(recopixelvertexingTask)
+# foo bar baz

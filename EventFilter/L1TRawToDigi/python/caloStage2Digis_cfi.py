@@ -9,3 +9,4 @@ caloStage2Digis = cms.EDProducer(
     FWOverride      = cms.bool(False),
     TMTCheck        = cms.bool(True)
 )
+# foo bar baz

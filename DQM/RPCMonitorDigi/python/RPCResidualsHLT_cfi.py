@@ -37,3 +37,4 @@ rpcSourceHLT = cms.Sequence(rpcEfficiencyHLT)
 
 
 
+# foo bar baz

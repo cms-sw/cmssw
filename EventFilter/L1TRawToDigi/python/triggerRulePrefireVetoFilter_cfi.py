@@ -4,3 +4,4 @@ triggerRulePrefireVetoFilter = cms.EDFilter(
     "TriggerRulePrefireVetoFilter",
     tcdsRecordLabel = cms.InputTag("tcdsDigis","tcdsRecord"),
 )
+# foo bar baz

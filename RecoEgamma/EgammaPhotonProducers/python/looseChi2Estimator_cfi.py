@@ -8,3 +8,4 @@ chi2CutForConversionTrajectoryBuilder = TrackingTools.KalmanUpdators.Chi2Measure
     MaxDisplacement = 100.,
     MaxSagitta      = -1
 )
+# foo bar baz

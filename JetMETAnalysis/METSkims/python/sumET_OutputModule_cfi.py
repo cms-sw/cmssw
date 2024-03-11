@@ -13,3 +13,4 @@ sumETOutputModuleAODSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

@@ -177,3 +177,4 @@ process.schedule = cms.Schedule(process.mixing, process.TPs,
 #process.schedule = cms.Schedule(process.mixing, process.TPs,
 #                                process.allDigis, process.L1simulation_step, process.digi2raw_step, process.raw2digi_step, process.reconstruction_step, 
 #                                process.muonAssociator, process.test, process.output)
+# foo bar baz

@@ -12,3 +12,4 @@ siStripGainRandomCalculator = cms.EDFilter("SiStripGainRandomCalculator",
 )
 
 
+# foo bar baz

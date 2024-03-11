@@ -156,3 +156,4 @@ combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
         combinatoricModifierConfigs
     )
 )
+# foo bar baz

@@ -99,3 +99,4 @@ process.out = cms.OutputModule( "PoolOutputModule",
                                 outputCommands = cms.untracked.vstring('drop *') )
 
 process.outpath = cms.EndPath(process.out)
+# foo bar baz

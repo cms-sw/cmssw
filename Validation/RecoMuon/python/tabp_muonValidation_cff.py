@@ -137,3 +137,4 @@ recoMuonValidation = cms.Sequence(
 recoCosmicMuonValidation = cms.Sequence(
     muonValidationCosmic_seq
     )
+# foo bar baz

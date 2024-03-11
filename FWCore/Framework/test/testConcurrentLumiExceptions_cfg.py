@@ -28,3 +28,4 @@ process.busy1 = cms.EDProducer("BusyWaitIntProducer",
 )
 
 process.p1 = cms.Path(process.busy1)
+# foo bar baz

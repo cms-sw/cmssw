@@ -10,3 +10,4 @@ minbiasana = cms.EDAnalyzer("Analyzer_minbias",
                             hfInputNoise = cms.InputTag("hfrecoNoise"),
                             Recalib = cms.bool(False)
                             )
+# foo bar baz

@@ -5,3 +5,4 @@ from L1Trigger.L1TNtuples.l1GeneratorTree_cfi import *
 L1NtupleGEN = cms.Sequence(
     l1GeneratorTree
 )
+# foo bar baz

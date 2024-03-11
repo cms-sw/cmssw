@@ -9,3 +9,4 @@ l1GtTriggerMenuTester = cms.EDAnalyzer( "L1GtTriggerMenuTester",
                       PrintPfsRates = cms.bool(False),  
                       IndexPfSet = cms.int32(0)                                       
                     )
+# foo bar baz

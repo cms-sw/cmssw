@@ -100,3 +100,4 @@ SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorDigi*SiStripMonitor
 
 
 
+# foo bar baz

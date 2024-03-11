@@ -95,3 +95,4 @@ postProcessorsRecoMuonValidator_seq = cms.Sequence( postProcessorRecoMuonGlb
                                                     * postProcessorRecoMuonStaPF 
                                                     * postProcessorRecoMuonComp 
                                                     * postProcessorRecoMuonCompPF )
+# foo bar baz

@@ -33,3 +33,4 @@ SiStripMonitorTrack.FolderName          = cms.string('SiStrip/Tracks')
 #-----------------------
 trackerGR = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
 DQMSiStripMonitorTrack_Real = cms.Sequence(trackerGR*SiStripMonitorTrack)
+# foo bar baz

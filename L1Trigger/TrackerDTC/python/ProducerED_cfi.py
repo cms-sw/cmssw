@@ -9,4 +9,4 @@ TrackerDTCProducer_params = cms.PSet (
   UseHybrid        = cms.bool    ( True  ),                                           # use Hybrid or TMTT as TT algorithm
   EnableTruncation = cms.bool    ( True  )                                            # enable emulation of truncation, lost stubs are filled in BranchLost
 
-)
+)# foo bar baz

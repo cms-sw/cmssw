@@ -10,3 +10,4 @@ MEtoEDMConverterAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
+# foo bar baz

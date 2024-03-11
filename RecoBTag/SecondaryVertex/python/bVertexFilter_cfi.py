@@ -24,3 +24,4 @@ bVertexFilter = cms.EDFilter("BVertexFilter",
       useVertexKinematicAsJetAxis = cms.bool(True),
       minVertices = cms.int32(0)
 )
+# foo bar baz

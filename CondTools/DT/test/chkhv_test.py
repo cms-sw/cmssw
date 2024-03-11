@@ -40,3 +40,4 @@ process.hv = cms.EDAnalyzer("DTHVDump")
 
 process.p = cms.Path(process.hv)
 
+# foo bar baz

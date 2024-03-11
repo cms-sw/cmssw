@@ -65,3 +65,4 @@ process.cscmakeptlut_ascii.BinaryOutput = cms.untracked.bool(False)
 process.Path = cms.Path(process.cscmakesrlut+process.cscmakeptlut+process.cscmakeptlut_ascii)
 #process.Path = cms.Path(process.cscmakeptlut+process.cscmakeptlut_ascii)
 
+# foo bar baz

@@ -29,3 +29,4 @@ process.TrackerRecoGeometryAnalyzer = cms.EDAnalyzer("TrackerRecoGeometryAnalyze
 process.p1 = cms.Path(process.TrackerRecoGeometryAnalyzer)
 
 
+# foo bar baz

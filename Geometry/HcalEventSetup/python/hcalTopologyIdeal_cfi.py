@@ -11,3 +11,4 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 run2_HECollapse_2018.toModify(hcalTopologyIdeal,
     MergePosition = cms.untracked.bool(True)
 )
+# foo bar baz

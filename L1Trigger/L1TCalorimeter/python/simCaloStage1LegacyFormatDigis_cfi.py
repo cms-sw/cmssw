@@ -8,3 +8,4 @@ simCaloStage1LegacyFormatDigis = cms.EDProducer(
     InputHFSumsCollection = cms.InputTag("simCaloStage1Digis:HFRingSums"),
     InputHFCountsCollection = cms.InputTag("simCaloStage1Digis:HFBitCounts")
 )
+# foo bar baz

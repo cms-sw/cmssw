@@ -23,3 +23,4 @@ process.testerAfter = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
 
 process.p = cms.Path(process.maker+cms.wait(process.testerBefore)+process.reader+cms.wait(process.testerAfter))
 
+# foo bar baz

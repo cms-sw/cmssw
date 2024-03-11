@@ -8,3 +8,4 @@ egammaBasicClusterMerger = cms.EDProducer("BasicClusterMerger",
 )
 
 
+# foo bar baz

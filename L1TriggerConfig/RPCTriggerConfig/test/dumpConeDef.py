@@ -53,3 +53,4 @@ process.write = cms.EDAnalyzer("DumpConeDefinition")
 
 
 process.p1 = cms.Path(process.write)
+# foo bar baz

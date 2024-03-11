@@ -27,3 +27,4 @@ class Events(object):
 
     def __iter__(self):
         return iter(self.tree)
+# foo bar baz

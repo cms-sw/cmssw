@@ -10,3 +10,4 @@ l1tPFCandidates = cms.EDProducer("L1TPFCandMultiMerger",
     ),
     pfProducers = cms.VInputTag(cms.InputTag("l1tPFProducerBarrel"), cms.InputTag("l1tPFProducerHGCal"), cms.InputTag("l1tPFProducerHGCalNoTK"), cms.InputTag("l1tPFProducerHF"))
 )
+# foo bar baz

@@ -13,3 +13,4 @@ psimTask = cms.Task(cms.TaskPlaceholder("randomEngineStateProducer"), LHCTranspo
 psim = cms.Sequence(psimTask)
 
 
+# foo bar baz

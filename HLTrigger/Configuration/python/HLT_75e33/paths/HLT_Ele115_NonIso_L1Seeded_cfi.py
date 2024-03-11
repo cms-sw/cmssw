@@ -10,3 +10,4 @@ HLT_Ele115_NonIso_L1Seeded = cms.Path(
     HLTEle115NonIsoL1SeededSequence +
     HLTEndSequence
 )
+# foo bar baz

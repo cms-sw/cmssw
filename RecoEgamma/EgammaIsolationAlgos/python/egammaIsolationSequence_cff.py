@@ -23,3 +23,4 @@ egammaIsolationTask = cms.Task(
 )
 egammaIsolationSequence = cms.Sequence(egammaIsolationTask)
 
+# foo bar baz

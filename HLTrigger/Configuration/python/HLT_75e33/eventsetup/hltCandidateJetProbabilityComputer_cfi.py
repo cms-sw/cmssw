@@ -19,3 +19,4 @@ hltCandidateJetProbabilityComputer = cms.ESProducer("CandidateJetProbabilityESPr
     trackQualityClass = cms.string('any'),
     useVariableJTA = cms.bool(False)
 )
+# foo bar baz

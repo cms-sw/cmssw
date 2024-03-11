@@ -80,3 +80,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.path = cms.Path(process.run2ScoutingProducer)
 process.endPath = cms.EndPath(process.out)
+# foo bar baz

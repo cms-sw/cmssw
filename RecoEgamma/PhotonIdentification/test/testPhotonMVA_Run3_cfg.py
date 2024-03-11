@@ -131,3 +131,4 @@ to a two dimensional numpy array later, for example like that:
 process.TFileService = cms.Service("TFileService", fileName = cms.string(outputFile))
 
 process.p = cms.Path(process.egmPhotonIDSequence * process.ntuplizer)
+# foo bar baz

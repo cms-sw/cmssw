@@ -499,3 +499,4 @@ def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSeg
         search_for_tags(getattr(process, module).__dict__)
 
     return process
+# foo bar baz

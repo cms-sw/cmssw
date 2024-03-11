@@ -43,3 +43,4 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
 
  )
 
+# foo bar baz

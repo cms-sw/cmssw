@@ -77,3 +77,4 @@ def addBoostedTaus(process):
     patAlgosToolsTask.add(process.slimmedTausBoosted)
 
     return process
+# foo bar baz

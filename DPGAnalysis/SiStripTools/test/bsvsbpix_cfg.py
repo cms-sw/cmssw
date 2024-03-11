@@ -133,3 +133,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('bsvsbpix.root')
                                    )
 
+# foo bar baz

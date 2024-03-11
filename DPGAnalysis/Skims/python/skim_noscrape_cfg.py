@@ -52,3 +52,4 @@ process.source = cms.Source('PoolSource',
     debugFlag = cms.untracked.bool(False),
     fileNames = myfilelist )
 
+# foo bar baz

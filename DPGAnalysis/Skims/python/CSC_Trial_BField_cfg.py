@@ -124,3 +124,4 @@ process.outputSkimBField = cms.OutputModule(
 process.outpath = cms.EndPath(process.outputSkim+process.outputSkimBField)
 
 
+# foo bar baz

@@ -5,3 +5,4 @@ SiPixelFakeQualityESSource = cms.ESSource("SiPixelFakeQualityESSource",
 )
 
 
+# foo bar baz

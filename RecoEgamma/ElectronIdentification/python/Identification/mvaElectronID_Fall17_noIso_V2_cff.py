@@ -70,3 +70,4 @@ mvaEleID_Fall17_noIso_V2_wp90 = configureVIDMVAEleID( mvaEleID_Fall17_noIso_V2_w
 mvaEleID_Fall17_noIso_V2_wp80.isPOGApproved = cms.untracked.bool(True)
 mvaEleID_Fall17_noIso_V2_wpLoose.isPOGApproved = cms.untracked.bool(True)
 mvaEleID_Fall17_noIso_V2_wp90.isPOGApproved = cms.untracked.bool(True)
+# foo bar baz

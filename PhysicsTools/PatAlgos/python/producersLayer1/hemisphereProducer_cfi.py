@@ -22,3 +22,4 @@ patHemispheres = cms.EDProducer("PATHemisphereProducer",
     seedMethod        = cms.int32(3),
     combinationMethod = cms.int32(3),
 )
+# foo bar baz

@@ -12,3 +12,4 @@ herwigppReweightSettingsBlock = cms.PSet(
 	),
 )
 
+# foo bar baz

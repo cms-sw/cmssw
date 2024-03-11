@@ -142,3 +142,4 @@ process.options = cms.untracked.PSet(
     TryToContinue = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)
 )
+# foo bar baz

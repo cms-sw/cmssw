@@ -40,3 +40,4 @@ ctppsRawToDigiTask = cms.Task(
   ctppsPixelDigis
 )
 ctppsRawToDigi = cms.Sequence(ctppsRawToDigiTask)
+# foo bar baz

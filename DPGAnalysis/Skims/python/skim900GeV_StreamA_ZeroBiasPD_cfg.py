@@ -121,3 +121,4 @@ process.out_step = cms.EndPath(process.output1+process.output2)
 
 process.schedule = cms.Schedule(process.skim1,process.skim2)
 process.schedule.append(process.out_step)
+# foo bar baz

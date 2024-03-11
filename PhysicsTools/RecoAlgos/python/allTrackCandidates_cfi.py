@@ -7,3 +7,4 @@ allTrackCandidates = cms.EDProducer("ConcreteChargedCandidateProducer",
 )
 
 
+# foo bar baz

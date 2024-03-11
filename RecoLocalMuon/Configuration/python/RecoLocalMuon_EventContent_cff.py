@@ -45,3 +45,4 @@ RecoLocalMuonFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoLocalMuonFEVT.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+# foo bar baz

@@ -5,3 +5,4 @@ VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
     ShiftedCollision2015VtxSmearingParameters,
     VtxSmearedCommon
 )
+# foo bar baz

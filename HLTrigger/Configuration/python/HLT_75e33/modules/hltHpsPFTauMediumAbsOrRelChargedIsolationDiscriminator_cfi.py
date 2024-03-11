@@ -16,3 +16,4 @@ hltHpsPFTauMediumAbsOrRelChargedIsolationDiscriminator = cms.EDProducer( "PFTauD
     FailValue = cms.double( 0.0 ),
     PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
 )
+# foo bar baz

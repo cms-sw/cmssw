@@ -33,3 +33,4 @@ process.analyzer = cms.EDAnalyzer("TkDetLayersAnalyzer")
 process.p1 = cms.Path(process.analyzer)
 
 
+# foo bar baz

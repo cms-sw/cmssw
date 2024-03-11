@@ -44,3 +44,4 @@ def custom_geometry_V10(process, links='signaldriven'):
     process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.ScintillatorLinksPerModule = cms.uint32(2)
     return process
 
+# foo bar baz

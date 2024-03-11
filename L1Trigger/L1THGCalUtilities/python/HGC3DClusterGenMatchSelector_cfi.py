@@ -6,3 +6,4 @@ l1tHGCal3DClusterGenMatchSelector = cms.EDProducer(
     genSrc = cms.InputTag('genParticles'),
     dR = cms.double(0.3)
 )
+# foo bar baz

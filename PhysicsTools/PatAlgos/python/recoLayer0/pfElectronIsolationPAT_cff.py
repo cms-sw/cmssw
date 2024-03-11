@@ -8,3 +8,4 @@ pfElectronIsolationPATTask = cms.Task(
     electronPFIsolationValuesPATTask
     )
 pfElectronIsolationPATSequence = cms.Sequence(pfElectronIsolationPATTask)
+# foo bar baz

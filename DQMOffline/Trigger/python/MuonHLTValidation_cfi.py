@@ -25,3 +25,4 @@ muonHLTCertSeq = cms.Sequence(
     qTesterMuonHLT *
     muonHLTCertSummary
 )
+# foo bar baz

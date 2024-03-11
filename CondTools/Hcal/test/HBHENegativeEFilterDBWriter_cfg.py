@@ -49,3 +49,4 @@ process.filereader = cms.EDAnalyzer(
 )
 
 process.p = cms.Path(process.filereader)
+# foo bar baz

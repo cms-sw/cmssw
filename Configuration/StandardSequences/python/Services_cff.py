@@ -24,3 +24,4 @@ def _addTritonService(process):
 	process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
 from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
 modifyConfigurationStandardSequencesServicesAddTritonService_ = enableSonicTriton.makeProcessModifier(_addTritonService)
+# foo bar baz

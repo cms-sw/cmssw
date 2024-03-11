@@ -238,3 +238,4 @@ from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQual
 process.stat = siStripQualityStatistics.clone()
 
 process.e = cms.EndPath(process.stat)
+# foo bar baz

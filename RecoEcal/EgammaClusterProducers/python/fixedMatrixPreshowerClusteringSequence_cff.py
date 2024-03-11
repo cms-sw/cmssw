@@ -13,3 +13,4 @@ from RecoEcal.EgammaClusterProducers.fixedMatrixPreshowerClusterShape_cfi import
 fixedMatrixPreshowerClusteringTask = cms.Task(correctedFixedMatrixSuperClustersWithPreshower,fixedMatrixPreshowerClusterShape)
 fixedMatrixPreshowerClusteringSequence = cms.Sequence(fixedMatrixPreshowerClusteringTask)
 
+# foo bar baz

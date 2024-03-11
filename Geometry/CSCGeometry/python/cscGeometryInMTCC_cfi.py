@@ -7,3 +7,4 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CSCGeometry.cscGeometry_cfi import *
 CSCGeometryESModule.useCentreTIOffsets = True
 
+# foo bar baz

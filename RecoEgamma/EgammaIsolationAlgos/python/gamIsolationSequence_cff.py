@@ -9,3 +9,4 @@ gamIsolationTask = cms.Task(
     gamIsoFromDepositsTask
 )
 gamIsolationSequence = cms.Sequence(gamIsolationTask)
+# foo bar baz

@@ -11,3 +11,4 @@ TrackFindingTrackletAnalyzerKFin = cms.EDAnalyzer( 'trklet::AnalyzerKFin', Track
 TrackFindingTrackletAnalyzerKF = cms.EDAnalyzer( 'trackerTFP::AnalyzerKF', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params )
 TrackFindingTrackletAnalyzerKFout = cms.EDAnalyzer( 'trklet::AnalyzerKFout', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params )
 TrackFindingTrackletAnalyzerTT = cms.EDAnalyzer( 'trklet::AnalyzerTT', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params )
+# foo bar baz

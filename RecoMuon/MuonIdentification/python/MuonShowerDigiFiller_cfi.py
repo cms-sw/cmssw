@@ -9,3 +9,4 @@ MuonShowerDigiFillerBlock = cms.PSet(
 )
 
 
+# foo bar baz

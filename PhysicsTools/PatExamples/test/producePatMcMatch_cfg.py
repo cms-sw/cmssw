@@ -34,3 +34,4 @@ process.maxEvents.input     = 1000 # Reduce number of events for testing.
 process.out.fileName        = 'edmPatMcMatch.root'
 process.out.outputCommands += [ 'keep recoGenParticles_genParticles_*_*' ] # Keeps the MC objects for references
 process.options.wantSummary = False # to suppress the long output at the end of the job
+# foo bar baz

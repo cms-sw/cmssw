@@ -5,3 +5,4 @@ pythiaDefaultBlock = cms.PSet(
         'PMAS(6,1)=172.3 ! t quark mass')
 )
 
+# foo bar baz

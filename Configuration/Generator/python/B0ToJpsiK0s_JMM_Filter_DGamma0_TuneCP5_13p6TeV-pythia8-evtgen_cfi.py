@@ -145,3 +145,4 @@ decayfilter = cms.EDFilter("PythiaDauVFilter",
 
 # ProductionFilterSequence = cms.Sequence(generator*lbfilter*psifilter)
 ProductionFilterSequence = cms.Sequence(generator*bfilter*decayfilter*psifilter)
+# foo bar baz

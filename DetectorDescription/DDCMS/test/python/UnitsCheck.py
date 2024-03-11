@@ -71,3 +71,4 @@ with open(fileinput.filename()) as myfile:
         process(line)
 
 
+# foo bar baz

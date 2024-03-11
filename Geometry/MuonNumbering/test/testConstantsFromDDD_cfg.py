@@ -17,3 +17,4 @@ process.muonGeometryConstants.fromDD4hep = False
 process.test = cms.EDAnalyzer("MuonGeometryConstantsTester")
 
 process.p1 = cms.Path(process.test)
+# foo bar baz

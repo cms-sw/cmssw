@@ -91,3 +91,4 @@ ccuIDs = cms.untracked.vint32(1, 71, 80, 45)
 # list of tower DQM position IDs
 positionIDs = cms.untracked.vint32(6, 2, 5, 1)
 
+# foo bar baz

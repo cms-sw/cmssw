@@ -5,3 +5,4 @@ matchVtx = cms.EDProducer("MixEvtVtxGenerator",
                         signalLabel = cms.InputTag("hiSignal"), 
                         heavyIonLabel = cms.InputTag("generator","unsmeared")
                         )
+# foo bar baz

@@ -11,3 +11,4 @@ gemClients = cms.Sequence(
     gemEfficiencyHarvesterSta *
     gemTnPEfficiencyClient
 )
+# foo bar baz

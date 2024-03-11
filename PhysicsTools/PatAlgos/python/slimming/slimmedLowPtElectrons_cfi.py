@@ -46,3 +46,4 @@ slimmedLowPtElectrons = cms.EDProducer("PATElectronSlimmer",
    )
 )
 
+# foo bar baz

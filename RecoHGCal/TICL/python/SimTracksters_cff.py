@@ -23,3 +23,4 @@ premix_stage2.toModify(ticlSimTracksters,
 )
 
 ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, ticlSimTracksters)
+# foo bar baz

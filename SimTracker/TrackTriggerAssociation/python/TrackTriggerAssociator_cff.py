@@ -8,3 +8,4 @@ TrackTriggerAssociatorClustersStubs = cms.Sequence(TTClusterAssociatorFromPixelD
 TrackTriggerAssociatorTracks = cms.Sequence(TTTrackAssociatorFromPixelDigis)
 TrackTriggerAssociatorComplete = cms.Sequence(TTClusterAssociatorFromPixelDigis*TTStubAssociatorFromPixelDigis*TTTrackAssociatorFromPixelDigis)
 
+# foo bar baz

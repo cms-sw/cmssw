@@ -20,3 +20,4 @@ spclusmultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                          scaleFactor = cms.untracked.int32(100),
                                       )
 
+# foo bar baz

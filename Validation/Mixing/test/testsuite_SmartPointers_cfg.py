@@ -90,3 +90,4 @@ process.p = cms.Path(process.mix+process.test)
 #process.outpath = cms.EndPath(process.out)
 
 
+# foo bar baz

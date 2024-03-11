@@ -159,3 +159,4 @@ hltExoticaPostProcessors = cms.Sequence(
     #for analysis in _config.analyses:
 #    hltExoticaPostProcessors *= analysis_postprocessors[analysis]
 
+# foo bar baz

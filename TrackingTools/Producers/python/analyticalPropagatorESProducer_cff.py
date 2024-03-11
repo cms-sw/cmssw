@@ -19,3 +19,4 @@ oppositeToMomentumAnalyticalPropagator = AnalyticalPropagator.clone(
   ComponentName =  "oppositeToMomentumAnalyticalPropagator" ,
   PropagationDirection =  "oppositeToMomentum" 
 )
+# foo bar baz

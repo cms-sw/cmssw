@@ -13,3 +13,4 @@ hltExoticaQualityTester = DQMQualityTester(
     testInEventloop         = cms.untracked.bool(False),
     verboseQT               = cms.untracked.bool(False)
 )
+# foo bar baz

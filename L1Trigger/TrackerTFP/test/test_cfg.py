@@ -74,3 +74,4 @@ process.source = cms.Source(
 #process.Timing = cms.Service( "Timing", summaryOnly = cms.untracked.bool( True ) )
 process.MessageLogger.cerr.enableStatistics = False
 process.TFileService = cms.Service( "TFileService", fileName = cms.string( "Hist.root" ) )
+# foo bar baz

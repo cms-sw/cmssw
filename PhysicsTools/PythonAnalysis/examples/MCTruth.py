@@ -34,3 +34,4 @@ for index in all(events):
     # do something with the data
     genEvent = source.GetEvent();
     print(genEvent.event_number())
+# foo bar baz

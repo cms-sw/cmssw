@@ -10,3 +10,4 @@ calDigi = cms.Sequence(calDigiTask)
 # fastsim has no castor model
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(calDigiTask, calDigiTask.copyAndExclude([castorDigiTask]))
+# foo bar baz

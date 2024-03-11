@@ -12,3 +12,4 @@ rechitFilter = cms.EDProducer("RecHitFilter",
 )
 
 
+# foo bar baz

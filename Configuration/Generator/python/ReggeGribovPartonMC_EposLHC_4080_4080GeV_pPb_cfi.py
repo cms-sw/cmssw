@@ -12,3 +12,4 @@ generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                           targetid = cms.int32(1),
                           model = cms.int32(0),
                           )
+# foo bar baz

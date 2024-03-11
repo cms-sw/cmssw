@@ -41,3 +41,4 @@ process.ErrorsAnalyzerModule = cms.EDAnalyzer(
 
 process.p1 = cms.Path(process.ErrorsAnalyzerModule)
 
+# foo bar baz

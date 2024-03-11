@@ -22,3 +22,4 @@ hltIter0Phase2L3FromL1TkMuonCkfTrackCandidates = cms.EDProducer("CkfTrackCandida
     src = cms.InputTag("hltIter0Phase2L3FromL1TkMuonPixelSeedsFromPixelTracks"),
     useHitsSplitting = cms.bool(True)
 )
+# foo bar baz

@@ -26,3 +26,4 @@ hltMultiTrackValidator.ignoremissingtrackcollection = cms.untracked.bool(True)
 
 hltMultiTrackValidator.UseAssociators = True
 hltMultiTrackValidator.associators = ['hltTrackAssociatorByHits']
+# foo bar baz

@@ -13,3 +13,4 @@ hltElePixelSeedsDoubletsL1Seeded = cms.EDProducer("SeedCreatorFromRegionConsecut
     propagator = cms.string('PropagatorWithMaterialParabolicMf'),
     seedingHitSets = cms.InputTag("hltElePixelHitDoubletsL1Seeded")
 )
+# foo bar baz

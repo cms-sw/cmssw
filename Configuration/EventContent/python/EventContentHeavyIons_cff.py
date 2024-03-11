@@ -76,3 +76,4 @@ FEVTDEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
 FEVTDEBUGHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
+# foo bar baz

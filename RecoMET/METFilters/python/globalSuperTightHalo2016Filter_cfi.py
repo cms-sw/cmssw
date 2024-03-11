@@ -4,3 +4,4 @@ globalSuperTightHalo2016Filter = cms.EDFilter(
   "GlobalSuperTightHalo2016Filter",
   taggingMode = cms.bool(False)
 )
+# foo bar baz

@@ -11,3 +11,4 @@ import Calibration.HcalAlCaRecoProducers.alcaHOCalibProducer_cfi
 hoCalibProducer = Calibration.HcalAlCaRecoProducers.alcaHOCalibProducer_cfi.alcaHOCalibProducer.clone()
 
 
+# foo bar baz

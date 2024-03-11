@@ -9,3 +9,4 @@ JetIDParams = cms.PSet(
         eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
         rpcRecHits      = cms.InputTag("rpcRecHits")
 )
+# foo bar baz

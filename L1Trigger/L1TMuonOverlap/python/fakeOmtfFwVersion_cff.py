@@ -16,3 +16,4 @@ omtfFwVersion = cms.ESProducer(
     synthDate = cms.string("2001-01-01 00:00")
 )
 
+# foo bar baz

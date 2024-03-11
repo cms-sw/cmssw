@@ -71,3 +71,4 @@ hiPixelVerticesPreSplittingTask = cms.Task(hiPixelClusterVertexPreSplitting
                                 , hiPixelAdaptiveVertexPreSplitting
                                 , bestHiVertexPreSplittingTask )
 hiPixelVerticesPreSplitting = cms.Sequence(hiPixelVerticesPreSplittingTask)
+# foo bar baz

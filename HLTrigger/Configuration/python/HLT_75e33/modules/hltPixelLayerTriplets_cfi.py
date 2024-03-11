@@ -58,3 +58,4 @@ hltPixelLayerTriplets = cms.EDProducer("SeedingLayersEDProducer",
         'BPix1+FPix1_pos+FPix3_pos'
     )
 )
+# foo bar baz

@@ -5,3 +5,4 @@ from RecoVertex.AdaptiveVertexFinder.candidateVertexArbitratorDefault_cfi import
 candidateVertexArbitrator = candidateVertexArbitratorDefault.clone()
 
 
+# foo bar baz

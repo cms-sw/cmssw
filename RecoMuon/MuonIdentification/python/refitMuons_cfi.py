@@ -60,3 +60,4 @@ refitMuons = cms.EDProducer('MuonsFromRefitTracksProducer',
     # The pT threshold to switch at in the above method.
     ptThreshold = cms.double(200),
 )
+# foo bar baz

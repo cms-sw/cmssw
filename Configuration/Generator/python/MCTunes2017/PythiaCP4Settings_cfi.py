@@ -27,3 +27,4 @@ pythia8CP4SettingsBlock = cms.PSet(
    )
 )
 
+# foo bar baz

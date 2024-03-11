@@ -9,3 +9,4 @@ options.inputFiles = 'bob','peter'
 options.parseArguments()
 
 print(options.inputFiles)
+# foo bar baz

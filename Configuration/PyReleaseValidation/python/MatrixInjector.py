@@ -696,3 +696,4 @@ class MatrixInjector(object):
         if self.testMode and len(self.longWFName)>0:
             print("\n*** WARNING: "+str(len(self.longWFName))+" workflows have too long names for submission (>"+str(MAXWORKFLOWLENGTH)+ "characters) ***")
             print('\n'.join(self.longWFName))
+# foo bar baz

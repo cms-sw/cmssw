@@ -7,3 +7,4 @@ rctDigiToRctText = cms.EDAnalyzer("RctDigiToRctText",
 )
 
 
+# foo bar baz

@@ -6,3 +6,4 @@ hgcalSiliconAnalysisHEF = hgcalSiliconAnalysisEE.clone(
     detectorName = cms.untracked.string("HGCalHESiliconSensitive"),
     HitCollection = cms.untracked.string('HGCHitsHEfront'),
     DigiCollection = cms.untracked.InputTag("simHGCalUnsuppressed","HEfront"))
+# foo bar baz

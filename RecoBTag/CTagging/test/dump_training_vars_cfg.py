@@ -46,3 +46,4 @@ with open('%s/src/RecoBTag/CTagging/python/training_settings.py' % os.environ['C
    output.write('c_vs_b_vars_vpset = %s\n' % CvsBXML_vpset.__repr__())
    
    
+# foo bar baz

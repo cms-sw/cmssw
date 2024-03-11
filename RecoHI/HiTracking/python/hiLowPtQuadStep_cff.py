@@ -240,3 +240,4 @@ hiLowPtQuadStepTask = cms.Task(hiLowPtQuadStepClusters,
                                      hiLowPtQuadStepQual)
 hiLowPtQuadStep = cms.Sequence(hiLowPtQuadStepTask)
 
+# foo bar baz

@@ -58,3 +58,4 @@ process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.dtUnpackAndDQM = cms.Path( process.dtunpacker ) #has to be run in hlt paths nothing has to be added to DQM-hlt paths
 process.evfDQMmodulesPath = cms.Path( process.dqmmodules ) 
 process.schedule = cms.Schedule(process.dtUnpackAndDQM,process.evfDQMmodulesPath)
+# foo bar baz

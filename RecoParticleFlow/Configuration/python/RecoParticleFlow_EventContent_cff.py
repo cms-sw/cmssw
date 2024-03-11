@@ -81,3 +81,4 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT,
                                                             'keep recoPFRecHits_particleFlowRecHitHGC__*',
                                                             'keep *_simPFProducer_*_*'])
 
+# foo bar baz

@@ -41,3 +41,4 @@ for line in inputMap:
         outputFile.write(splittedLine[0]+"/"+channel+"\n")
 
     # break
+# foo bar baz

@@ -64,3 +64,4 @@ else:
                                   outputFileName = cms.untracked.string(fileName))
 
 process.p = cms.Path(process.dump)
+# foo bar baz

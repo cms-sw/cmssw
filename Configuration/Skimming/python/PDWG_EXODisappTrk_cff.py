@@ -41,3 +41,4 @@ disappTrkSelection=cms.EDFilter("TrackSelector",
 EXODisappTrkSkimSequence = cms.Sequence(
     hltDisappTrk * disappTrkSelection
     )
+# foo bar baz

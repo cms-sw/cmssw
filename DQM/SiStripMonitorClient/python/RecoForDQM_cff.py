@@ -28,3 +28,4 @@ RecoForDQMCollision = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*of
 
 
 
+# foo bar baz

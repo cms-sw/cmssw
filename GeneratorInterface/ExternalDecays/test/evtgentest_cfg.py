@@ -23,3 +23,4 @@ process.Test = cms.EDAnalyzer("EvtGenTestAnalyzer",
 )
 
 process.p1 = cms.Path(process.Test)
+# foo bar baz

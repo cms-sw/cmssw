@@ -176,3 +176,4 @@ process.writeInDB.eeDccAdcToGeV = cms.double(0.06)
 process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(6*0.06)
 
 process.p = cms.Path(process.writeInDB)
+# foo bar baz

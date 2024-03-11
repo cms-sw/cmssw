@@ -47,3 +47,4 @@ print(sess.run(y, feed_dict={scale_: 1.0, x_: [range(10)]})[0][0])
 builder = tf.saved_model.builder.SavedModelBuilder(os.path.join(datadir, "simplegraph"))
 builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING])
 builder.save()
+# foo bar baz

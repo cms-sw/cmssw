@@ -20,3 +20,4 @@ pfEventShapeVars = caloEventShapeVars.clone(
 )
 
 produceEventShapeVars = cms.Sequence( caloEventShapeVars * pfEventShapeVars )
+# foo bar baz

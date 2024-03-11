@@ -3,3 +3,4 @@ from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import mtdNumberingGe
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 dd4hep.toModify(mtdNumberingGeometry, fromDDD = False, fromDD4hep = True)
+# foo bar baz

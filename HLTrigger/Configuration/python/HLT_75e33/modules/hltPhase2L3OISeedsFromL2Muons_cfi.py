@@ -39,3 +39,4 @@ hltPhase2L3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2",
     tsosDiff1 = cms.double(0.2),
     tsosDiff2 = cms.double(0.02)
 )
+# foo bar baz

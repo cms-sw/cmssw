@@ -18,3 +18,4 @@ l1tBJetProducerPuppiCorrectedEmulator = l1tBJetProducerPuppi.clone(
 L1TBJetsTask = cms.Task(
     L1TPFJetsExtendedTask, l1tBJetProducerPuppi, l1tBJetProducerPuppiCorrectedEmulator
 )
+# foo bar baz

@@ -6,3 +6,4 @@ bwdGsfElectronPropagator = TrackingTools.MaterialEffects.OppositeMaterialPropaga
     Mass          = 0.000511,
     ComponentName = 'bwdGsfElectronPropagator'
 )
+# foo bar baz

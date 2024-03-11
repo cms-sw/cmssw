@@ -12,4 +12,4 @@ process.tester = cms.EDAnalyzer("TestTBBTasksAnalyzer",
                                 usecondsToSleep=cms.untracked.uint32(100000))
 process.p = cms.Path(process.tester)
 
-process.add_(cms.Service("TestNThreadsChecker", nExpectedThreads=cms.untracked.uint32(8)))
+process.add_(cms.Service("TestNThreadsChecker", nExpectedThreads=cms.untracked.uint32(8)))# foo bar baz

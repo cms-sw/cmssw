@@ -708,3 +708,4 @@ def getModulesOfSequence(sequence):
 
 
 #----------------------------------------------------------------------
+# foo bar baz

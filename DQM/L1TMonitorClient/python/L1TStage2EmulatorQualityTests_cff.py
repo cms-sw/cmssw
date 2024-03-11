@@ -34,3 +34,4 @@ l1TStage2EmulatorQualityTests = cms.Sequence(
                                               l1TEmulatorSystemQualityTests + 
                                               l1TEmulatorObjectQualityTests
                                               )
+# foo bar baz

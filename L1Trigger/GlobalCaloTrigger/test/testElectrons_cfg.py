@@ -13,3 +13,4 @@ process.p1 = cms.Path(process.gctemu)
 process.gctemu.doElectrons = True
 process.gctemu.inputFile = 'data/testEmDummy_'
 
+# foo bar baz

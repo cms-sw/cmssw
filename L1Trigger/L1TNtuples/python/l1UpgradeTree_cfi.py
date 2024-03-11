@@ -22,3 +22,4 @@ stage1L1Trigger.toModify( l1UpgradeTree,
     muonShowerToken = "",
     sumToken = "caloStage1FinalDigis",
 )
+# foo bar baz

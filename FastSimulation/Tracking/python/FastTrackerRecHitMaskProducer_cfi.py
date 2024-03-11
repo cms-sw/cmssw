@@ -20,3 +20,4 @@ def maskProducerFromClusterRemover(clusterRemover):
         maskProducer.oldHitRemovalInfo = cms.InputTag(clusterRemover.oldClusterRemovalInfo.getModuleLabel().replace("Clusters","Masks"))
     return maskProducer
 
+# foo bar baz

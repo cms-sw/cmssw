@@ -10,3 +10,4 @@ ecalPreshowerIntegrityTask = DQMEDAnalyzer('ESIntegrityTask',
                                             DoLumiAnalysis = cms.bool(False)
                                             )
 
+# foo bar baz

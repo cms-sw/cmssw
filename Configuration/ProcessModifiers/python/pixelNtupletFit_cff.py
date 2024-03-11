@@ -5,3 +5,4 @@ import FWCore.ParameterSet.Config as cms
 # It also replaces the "gap" pixel vertices with a density-based vertex reconstruction algorithm.
 
 pixelNtupletFit =  cms.Modifier()
+# foo bar baz

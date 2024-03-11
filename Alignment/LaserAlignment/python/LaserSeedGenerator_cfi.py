@@ -14,3 +14,4 @@ LaserSeedFinder = cms.EDFilter("LaserSeedGenerator",
 )
 
 
+# foo bar baz

@@ -88,3 +88,4 @@ RecoEcalFEVT = cms.PSet(
         'keep *_multi5x5*_*_*')
 )
 RecoEcalFEVT.outputCommands.extend(RecoEcalRECO.outputCommands)
+# foo bar baz

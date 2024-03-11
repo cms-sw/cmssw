@@ -64,3 +64,4 @@ fastSim.toReplaceWith(patCandidatesTask, patCandidatesTask.copyAndExclude([makeP
 
 patCandidates = cms.Sequence(patCandidateSummary, patCandidatesTask)
 
+# foo bar baz

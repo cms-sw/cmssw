@@ -190,3 +190,4 @@ def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True,ta
         addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName,addUserData)
         
 
+# foo bar baz

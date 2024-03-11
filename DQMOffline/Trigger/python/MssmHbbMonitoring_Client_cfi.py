@@ -120,3 +120,4 @@ mssmHbbHLTEfficiency = cms.Sequence(
     + MssmHbbmuHLTcontrolEfficiency
 
 )
+# foo bar baz

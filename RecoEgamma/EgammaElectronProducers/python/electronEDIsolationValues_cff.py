@@ -36,3 +36,4 @@ electronEDIsolationValuesTask = cms.Task(
     elEDIsoValuePU04
   )
 electronEDIsolationValuesSequence = cms.Sequence(electronEDIsolationValuesTask)
+# foo bar baz

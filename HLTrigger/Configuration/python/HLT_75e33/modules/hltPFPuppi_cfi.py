@@ -68,3 +68,4 @@ hltPFPuppi = cms.EDProducer("PuppiProducer",
     vtxNdofCut = cms.int32(4),
     vtxZCut = cms.double(24)
 )
+# foo bar baz

@@ -43,3 +43,4 @@ process.p = cms.Path(
 	process.patDefaultSequence *
 	process.analyzeVertex
 )
+# foo bar baz

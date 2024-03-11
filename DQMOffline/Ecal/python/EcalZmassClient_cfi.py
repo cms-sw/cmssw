@@ -5,3 +5,4 @@ ecalzmassclient = DQMEDHarvester('EcalZmassClient',
       prefixME = cms.untracked.string('EcalCalibration')
 
 )
+# foo bar baz

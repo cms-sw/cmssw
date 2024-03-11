@@ -85,3 +85,4 @@ ctppsDiamondDQMOfflineSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
 
     verbosity = cms.untracked.uint32(10),
 )
+# foo bar baz

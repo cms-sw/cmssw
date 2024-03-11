@@ -8,3 +8,4 @@ triggerMatchEffPlotterTightMiniAOD = DQMEDHarvester("TriggerMatchEfficiencyPlott
                                           )
 
 
+# foo bar baz

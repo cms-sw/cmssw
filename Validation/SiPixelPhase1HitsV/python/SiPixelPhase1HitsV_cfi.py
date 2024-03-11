@@ -154,3 +154,4 @@ SiPixelPhase1HitsHarvesterV = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1HitsConf,
         geometry = SiPixelPhase1Geometry
 )
+# foo bar baz

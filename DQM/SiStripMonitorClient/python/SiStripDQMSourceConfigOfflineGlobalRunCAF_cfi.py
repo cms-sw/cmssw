@@ -99,3 +99,4 @@ SiStripDQMSourceGlobalRunCAF          = cms.Sequence( SiStripDQMSourceGlobalRunC
 SiStripDQMSourceGlobalRunCAF_reduced  = cms.Sequence( SiStripDQMSourceGlobalRunCAF_common + TrackMonCAF_cosmicTk                  + SiStripDQMSourceGlobalRunCAF_ckf + TrackMonCAF_rs )
 
 
+# foo bar baz

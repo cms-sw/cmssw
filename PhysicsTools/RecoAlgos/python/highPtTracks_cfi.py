@@ -6,3 +6,4 @@ highPtTracks = cms.EDFilter("PtMinCandViewSelector",
 )
 
 
+# foo bar baz

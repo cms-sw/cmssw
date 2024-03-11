@@ -60,3 +60,4 @@ hltDummyL1GtObjectMap = cms.EDProducer("HLTDummyCollections",
 
 
 
+# foo bar baz

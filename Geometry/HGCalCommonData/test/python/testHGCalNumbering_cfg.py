@@ -83,3 +83,4 @@ process.hgcalNumberingTesterHEB = process.hgcalNumberingTesterEE.clone(
 )
  
 process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF*process.hgcalNumberingTesterHEB)
+# foo bar baz

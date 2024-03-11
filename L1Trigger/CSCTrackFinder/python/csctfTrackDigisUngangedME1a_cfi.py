@@ -6,3 +6,4 @@ csctfTrackDigisUngangedME1a.SectorProcessor.PTLUT.PtMethod = cms.untracked.uint3
 csctfTrackDigisUngangedME1a.SectorProcessor.gangedME1a = cms.untracked.bool(False)
 csctfTrackDigisUngangedME1a.SectorProcessor.firmwareSP = cms.uint32(20140515)
 csctfTrackDigisUngangedME1a.SectorProcessor.initializeFromPSet = cms.bool(False) 
+# foo bar baz

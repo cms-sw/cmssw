@@ -42,3 +42,4 @@ ctpps_2022.toModify(rawDataCollector.RawCollectionList, func = lambda  list: lis
 # Phase-2 Tracker
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.remove(cms.InputTag("SiStripDigiToRaw")) )
+# foo bar baz

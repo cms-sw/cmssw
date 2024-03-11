@@ -11,3 +11,4 @@ kinFitTtSemiLepEventSelection = TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitPro
 ## make kin fit for event selection
 makeTtSemiLepKinematicFitTask = cms.Task(kinFitTtSemiLepEventSelection)
 makeTtSemiLepKinematicFit = cms.Sequence(makeTtSemiLepKinematicFitTask)
+# foo bar baz

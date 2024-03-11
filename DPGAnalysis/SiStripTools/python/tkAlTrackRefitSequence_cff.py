@@ -49,3 +49,4 @@ seqTrackRefitting = cms.Sequence( refittedTracks
                                   + AlignmentTrackSelector
                                   + refittedATSTracks
                                   )
+# foo bar baz

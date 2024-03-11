@@ -21,3 +21,4 @@ seqALCARECOTkAlUpsilonMuMuHI = cms.Sequence(ALCARECOTkAlUpsilonMuMuHIHLT
                                             +ALCARECOTkAlUpsilonMuMuHIGoodMuons
                                             +ALCARECOTkAlUpsilonMuMuHI
                                             )
+# foo bar baz

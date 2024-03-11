@@ -222,3 +222,4 @@ outfilename = "%s/rms.gif"%(outputdir)
 rmscanvas.SaveAs(outfilename)
 outfilename = "%s/mean.gif"%(outputdir)
 meancanvas.SaveAs(outfilename)
+# foo bar baz

@@ -161,3 +161,4 @@ _alpaka_pfClusteringHBHEHFOnlyTask.add(particleFlowClusterHCALOnly)
 alpaka.toModify(particleFlowClusterHCALOnly, clustersSource = "legacyPFClusterProducerHBHEOnly")
 
 alpaka.toReplaceWith(pfClusteringHBHEHFOnlyTask, _alpaka_pfClusteringHBHEHFOnlyTask)
+# foo bar baz

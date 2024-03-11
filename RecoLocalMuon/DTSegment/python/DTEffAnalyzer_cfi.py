@@ -13,3 +13,4 @@ DTEffAnalyzer = cms.EDAnalyzer("DTEffAnalyzer",
 
 
 
+# foo bar baz

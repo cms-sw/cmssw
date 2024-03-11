@@ -19,3 +19,4 @@ process.Analyzer = cms.EDAnalyzer("InputAnalyzer",
 )
  
 process.p = cms.Path(process.Analyzer)
+# foo bar baz

@@ -26,3 +26,4 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
 )
 
 
+# foo bar baz

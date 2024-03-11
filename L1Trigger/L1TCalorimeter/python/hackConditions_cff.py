@@ -38,3 +38,4 @@ modifyL1TCalorimeterHackConditions_stage2PA = (stage2L1Trigger & pA_2016).makePr
 modifyL1TCalorimeterHackConditions_stage2PP = (stage2L1Trigger & ~pA_2016).makeProcessModifier(lambda p: _load(p, "L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi"))
 # What about CaloConfig?  Related:  How will we switch PP/HH?
 #
+# foo bar baz

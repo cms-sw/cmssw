@@ -45,3 +45,4 @@ process.es_prefer_endcap = cms.ESPrefer( "testEcalEndcapGeometryEP", "testendcap
 process.p1 = cms.Path(process.cga)
 
 
+# foo bar baz

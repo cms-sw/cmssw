@@ -122,3 +122,4 @@ process.endp = cms.EndPath(
   + process.psColumnMonitor
   + process.dqmOutput
 )
+# foo bar baz

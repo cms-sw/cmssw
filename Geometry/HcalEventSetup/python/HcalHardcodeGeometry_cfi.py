@@ -14,3 +14,4 @@ HcalGeometryToDBEP   = cms.ESProducer("HcalGeometryToDBEP" ,
                                       appendToDataLabel = cms.string("_toDB")
                                       )
 
+# foo bar baz

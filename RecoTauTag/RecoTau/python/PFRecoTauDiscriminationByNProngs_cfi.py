@@ -17,3 +17,4 @@ pfRecoTauDiscriminationByNProngs = cms.EDProducer("PFRecoTauDiscriminationByNPro
 
     qualityCuts         = PFTauQualityCuts
 )
+# foo bar baz

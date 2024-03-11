@@ -158,3 +158,4 @@ muDigiProducersBkg = cms.Sequence(dtDigiFlatTableProducer
                                   + gemDigiFlatTableProducer
                                   + gemohStatusFlatTableProducer
                                  )
+# foo bar baz

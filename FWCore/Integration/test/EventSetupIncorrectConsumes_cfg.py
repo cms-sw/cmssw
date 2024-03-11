@@ -31,3 +31,4 @@ process.esAnalyzer = cms.EDAnalyzer("ESTestAnalyzerIncorrectConsumes")
 process.p = cms.Path(
     process.esAnalyzer
 )
+# foo bar baz

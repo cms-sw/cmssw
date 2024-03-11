@@ -143,3 +143,4 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
   src = cms.InputTag("photonCombiner"),
   minNumber = cms.uint32(1)
 )
+# foo bar baz

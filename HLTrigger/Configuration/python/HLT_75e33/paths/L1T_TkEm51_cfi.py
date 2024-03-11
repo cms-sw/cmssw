@@ -9,3 +9,4 @@ L1T_TkEm51 = cms.Path(
     L1TTkEm51Sequence +
     HLTEndSequence
 )
+# foo bar baz

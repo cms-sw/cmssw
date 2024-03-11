@@ -9,3 +9,4 @@ hltPhase2PixelTracksAndHighPtStepTrackingRegions = cms.EDProducer("GlobalTrackin
         ptMin = cms.double(0.9)
     )
 )
+# foo bar baz

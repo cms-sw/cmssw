@@ -12,3 +12,4 @@ pythia8CUEP8M2T4SettingsBlock = cms.PSet(
         'ColourReconnection:range=6.59e+00',
     )
 )
+# foo bar baz

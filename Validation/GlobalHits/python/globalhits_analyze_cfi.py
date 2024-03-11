@@ -69,3 +69,4 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(globalhitsanalyze,
     testNumber    = cms.untracked.bool(True)
 )
+# foo bar baz

@@ -33,3 +33,4 @@ process.p2 = cms.Path(process.testVolumeGeometry)
 ### consistency checks on geometry
 #process.VolumeBasedMagneticFieldESProducer.debugBuilder = True
 
+# foo bar baz

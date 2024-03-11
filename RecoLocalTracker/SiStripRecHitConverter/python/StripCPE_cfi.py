@@ -6,3 +6,4 @@ StripCPEESProducer = stripCPEESProducer.clone(
      ComponentType = 'SimpleStripCPE',
      parameters    = cms.PSet()
 )
+# foo bar baz

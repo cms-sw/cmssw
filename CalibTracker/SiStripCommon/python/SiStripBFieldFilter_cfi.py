@@ -5,3 +5,4 @@ siStripBFieldOnFilter  = cms.EDFilter("SiStripBFieldFilter")
 siStripBFieldOffFilter = cms.EDFilter("SiStripBFieldFilter",
                                       HIpassFilter = cms.untracked.bool(False)
                                      )
+# foo bar baz

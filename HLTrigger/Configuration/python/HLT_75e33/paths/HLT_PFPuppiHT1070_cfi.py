@@ -17,3 +17,4 @@ HLT_PFPuppiHT1070 = cms.Path(
     hltPFPuppiHT1070 +
     HLTEndSequence
 )
+# foo bar baz

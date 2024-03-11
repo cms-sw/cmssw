@@ -7,3 +7,4 @@ L1TriggerKeyDummy.objectKeys = cms.VPSet()
 L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
 
 from L1TriggerConfig.L1GtConfigProducers.l1GtRsObjectKeysOnline_cfi import *
+# foo bar baz

@@ -19,3 +19,4 @@ ssdigimultvtxposcorr = cms.EDAnalyzer('MultiplicityInvestigator',
                                       multiplicityMap = cms.InputTag("ssdigimultprod"),
                                     )
 
+# foo bar baz

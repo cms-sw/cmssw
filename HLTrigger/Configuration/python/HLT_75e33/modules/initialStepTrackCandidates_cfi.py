@@ -23,3 +23,4 @@ initialStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     src = cms.InputTag("initialStepSeeds"),
     useHitsSplitting = cms.bool(False)
 )
+# foo bar baz

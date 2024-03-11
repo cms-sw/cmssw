@@ -4,3 +4,4 @@ externalLHEAsciiDumper = cms.EDAnalyzer('ExternalLHEAsciiDumper',
     lheProduct = cms.InputTag('externalLHEProducer','LHEScriptOutput'),
     lheFileName = cms.string('ascii_dump.lhe')
 )
+# foo bar baz

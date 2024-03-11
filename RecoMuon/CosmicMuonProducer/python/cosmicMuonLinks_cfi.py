@@ -24,3 +24,4 @@ cosmicMuonLinks = cms.EDProducer("CosmicMuonLinksProducer",
    )
 )
 
+# foo bar baz

@@ -148,3 +148,4 @@ class Collection:
 
     def __len__(self):
         return self._len
+# foo bar baz

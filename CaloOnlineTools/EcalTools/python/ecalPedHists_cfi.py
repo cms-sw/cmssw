@@ -18,3 +18,4 @@ ecalPedHists = cms.EDAnalyzer("EcalPedHists",
 )
 
 
+# foo bar baz

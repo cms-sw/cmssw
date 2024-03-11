@@ -5,3 +5,4 @@ from ..modules.ticlSeedingTrk_cfi import *
 from ..modules.ticlTrackstersTrk_cfi import *
 
 ticlTrkStepTask = cms.Task(filteredLayerClustersTrk, ticlSeedingTrk, ticlTrackstersTrk)
+# foo bar baz

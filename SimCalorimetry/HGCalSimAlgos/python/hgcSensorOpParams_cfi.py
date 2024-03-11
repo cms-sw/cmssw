@@ -87,3 +87,4 @@ def hgcSiSensorCCE(sensor,version):
         elif sensor==300: return [5.85e+14,7.855,-0.2068]
 
     raise ValueError('sensor={} version={} is unknown to retrieve CCE parameterization for HGC Si sensors'.format(sensor,version))
+# foo bar baz

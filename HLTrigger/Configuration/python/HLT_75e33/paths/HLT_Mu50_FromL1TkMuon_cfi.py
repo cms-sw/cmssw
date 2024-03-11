@@ -134,3 +134,4 @@ HLT_Mu50_FromL1TkMuon = cms.Path(
         siPixelRecHits
     )
 )
+# foo bar baz

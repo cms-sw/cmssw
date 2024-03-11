@@ -5,3 +5,4 @@ PUDumper = cms.EDAnalyzer('PUDumper',
 #                               vertexCollection = cms.InputTag('offlinePrimaryVertices'),
 #                               foutName = cms.string("ZShervinNtuple.root"),
                           )
+# foo bar baz

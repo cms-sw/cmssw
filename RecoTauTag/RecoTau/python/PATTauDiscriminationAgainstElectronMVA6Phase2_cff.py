@@ -34,3 +34,4 @@ patTauDiscriminationAgainstElectronMVA6Phase2Task = cms.Task(
 patTauDiscriminationAgainstElectronMVA6Phase2Seq = cms.Sequence(
     patTauDiscriminationAgainstElectronMVA6Phase2Task
 )
+# foo bar baz

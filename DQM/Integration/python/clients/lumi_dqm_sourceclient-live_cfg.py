@@ -80,3 +80,4 @@ process.p = cms.Path(process.reconstruction_step *
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+# foo bar baz

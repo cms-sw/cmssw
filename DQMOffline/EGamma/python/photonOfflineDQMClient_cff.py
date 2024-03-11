@@ -25,3 +25,4 @@ phase2_hgcal.toReplaceWith(
   photonOfflineDQMClient, _photonOfflineDQMClientHGCal
 )
 
+# foo bar baz

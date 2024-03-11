@@ -46,3 +46,4 @@ muonRecoOneHLT = DQMEDAnalyzer('MuonRecoOneHLT',
                                                              )
                                 )
 
+# foo bar baz

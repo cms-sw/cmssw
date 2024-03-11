@@ -5,3 +5,4 @@ siPixelClusterShapeCache = cms.EDProducer("SiPixelClusterShapeCacheProducer",
     onDemand = cms.bool(False),
     src = cms.InputTag("siPixelClusters")
 )
+# foo bar baz

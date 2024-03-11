@@ -21,3 +21,4 @@ customPhysicsSetup = cms.PSet(
     DBremScaleFile = cms.untracked.string("root://cmseos.fnal.gov//store/user/revering/MuDBrem_Cu_mA1p0.root"),
     DBremBiasFactor = cms.untracked.double(100) 
 )
+# foo bar baz

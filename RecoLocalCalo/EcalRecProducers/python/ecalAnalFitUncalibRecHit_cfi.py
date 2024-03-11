@@ -2,3 +2,4 @@ import  RecoLocalCalo.EcalRecProducers.ecalAnalFitUncalibRecHitProducer_cfi as _
 
 # producer of rechits starting from digis
 ecalAnalFitUncalibRecHit = _mod.ecalAnalFitUncalibRecHitProducer.clone()
+# foo bar baz

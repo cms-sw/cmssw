@@ -18,3 +18,4 @@ DQMStore = cms.Service("DQMStore",
     # Online mode
     onlineMode = cms.untracked.bool(True)
 )
+# foo bar baz

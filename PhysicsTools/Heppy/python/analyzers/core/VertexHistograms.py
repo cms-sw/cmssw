@@ -9,3 +9,4 @@ class VertexHistograms(object):
 
     def write(self):
         self.file.Write()
+# foo bar baz

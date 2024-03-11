@@ -24,3 +24,4 @@ process.p = cms.Path(
     process.intEventConsumer,
     process.t
 )
+# foo bar baz

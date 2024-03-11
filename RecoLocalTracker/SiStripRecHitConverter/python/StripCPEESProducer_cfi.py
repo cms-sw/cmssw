@@ -5,3 +5,4 @@ stripCPEESProducer = cms.ESProducer("StripCPEESProducer",
                                     ComponentType = cms.string('SimpleStripCPE'),
                                     parameters    = cms.PSet()
 )
+# foo bar baz

@@ -16,3 +16,4 @@ patGENTask = cms.Task(
 )
 
 miniGEN=cms.Sequence()
+# foo bar baz

@@ -8,3 +8,4 @@ L3TrackLinksCombiner = cms.EDProducer(
     cms.InputTag("hltL3MuonsIOHit")
     )
     )
+# foo bar baz

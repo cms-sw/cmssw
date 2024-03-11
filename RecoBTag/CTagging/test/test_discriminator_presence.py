@@ -24,3 +24,4 @@ for label in jet_labels:
    available = set([i.first for i in jet.getPairDiscri()])
    for test in tested_discriminators:
       print("%s in %s: %s" % (test, label, test in available))
+# foo bar baz

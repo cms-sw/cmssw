@@ -6,3 +6,4 @@ alongMomElePropagator = TrackingTools.MaterialEffects.MaterialPropagator_cfi.Mat
     Mass          = 0.000511,
     ComponentName = 'alongMomElePropagator'
 )
+# foo bar baz

@@ -44,3 +44,4 @@ process.p = cms.Path(
     *process.eol
 )
 
+# foo bar baz

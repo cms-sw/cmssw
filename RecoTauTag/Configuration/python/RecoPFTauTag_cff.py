@@ -121,3 +121,4 @@ PFTauTask = cms.Task(
 PFTau = cms.Sequence(
     PFTauTask
 )
+# foo bar baz

@@ -24,4 +24,4 @@ def friendly_since(time_type, since):
     if time_type == "Run" and (since & 0xffffff) == 0:
         return since >> 32
     else:
-        return since
+        return since# foo bar baz

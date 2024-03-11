@@ -67,3 +67,4 @@ run2_miniAOD_80XLegacy.toModify(ootPhotonEcalPFClusterIsolationProducer,candidat
 
 run2_miniAOD_80XLegacy.toModify(patOOTPhotons, addPFClusterIso = cms.bool(True),ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),hcalPFClusterIsoMap = cms.InputTag("") )
 
+# foo bar baz

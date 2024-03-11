@@ -28,3 +28,4 @@ FastTimerService = cms.Service("FastTimerService",
     jsonFileName = cms.untracked.string('resources.json'),
     highlightModules = cms.untracked.VPSet()
 )
+# foo bar baz

@@ -6,3 +6,4 @@ TrackerRecoGeometryESProducer = cms.ESProducer("TrackerMTDRecoGeometryESProducer
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(TrackerRecoGeometryESProducer, usePhase2Stacks = True)
+# foo bar baz

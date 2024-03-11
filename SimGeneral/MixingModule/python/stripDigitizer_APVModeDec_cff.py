@@ -6,3 +6,4 @@ from SimGeneral.MixingModule.stripDigitizer_cfi import *
 stripDigitizer.APVpeakmode = False
 
 
+# foo bar baz

@@ -17,3 +17,4 @@ mipVariable = cms.PSet(
 )
 
 
+# foo bar baz

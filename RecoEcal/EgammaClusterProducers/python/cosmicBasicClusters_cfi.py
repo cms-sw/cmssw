@@ -36,3 +36,4 @@ cosmicBasicClusters = cms.EDProducer("CosmicClusterProducer",
                               
 
 )
+# foo bar baz

@@ -11,3 +11,4 @@ process.tester = cms.EDAnalyzer("AbortOnEventIDAnalyzer",
 process.p = cms.Path(process.tester)
 
 process.add_(cms.Service("Tracer"))
+# foo bar baz

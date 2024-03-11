@@ -90,3 +90,4 @@ SUSY_HLT_Mu_VBF = cms.Sequence( SUSY_HLT_Mu10_VBF +
 SUSY_HLT_Mu_VBF_POSTPROCESSING = cms.Sequence( SUSYoHLToMu10oVBFoPOSTPROCESSING +
                                                SUSYoHLToMu8oVBFoPOSTPROCESSING
                                                )
+# foo bar baz

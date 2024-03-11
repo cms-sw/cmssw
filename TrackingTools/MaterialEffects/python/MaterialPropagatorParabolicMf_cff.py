@@ -11,3 +11,4 @@ OppositeMaterialPropagatorParabolicMF = OppositeMaterialPropagator.clone(
     SimpleMagneticField = 'ParabolicMf',
     ComponentName       = 'PropagatorWithMaterialParabolicMfOpposite'
 )
+# foo bar baz

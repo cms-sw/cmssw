@@ -26,3 +26,4 @@ fastSim.toModify(tevMuons,
                  RefitterParameters = dict(TrackerRecHitBuilder = 'WithoutRefit',
                                            Propagator = "SmartPropagatorAny")
                  )
+# foo bar baz

@@ -59,3 +59,4 @@ f.write('{\n'+
         '    \"userText\": "Mag field geometry, version '+GEOMETRY_VERSION+'\"\n'+
         '}\n'
         )
+# foo bar baz

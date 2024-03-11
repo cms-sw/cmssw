@@ -153,3 +153,4 @@ process.options.wantSummary = True
 #process.Tracer = cms.Service("Tracer")
 print("Final Source settings:", process.source)
 process = customise(process)
+# foo bar baz

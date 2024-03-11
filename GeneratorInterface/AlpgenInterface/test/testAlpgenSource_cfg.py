@@ -21,3 +21,4 @@ process.LHE = cms.OutputModule("PoolOutputModule",
                               )
 
 process.outpath = cms.EndPath(process.writer + process.LHE)
+# foo bar baz

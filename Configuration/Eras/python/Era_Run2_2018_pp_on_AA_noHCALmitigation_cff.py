@@ -5,3 +5,4 @@ from Configuration.Eras.Modifier_pf_badHcalMitigationOff_cff import pf_badHcalMi
 
 Run2_2018_pp_on_AA_noHCALmitigation = cms.ModifierChain(Run2_2018_pp_on_AA,pf_badHcalMitigationOff)
 
+# foo bar baz

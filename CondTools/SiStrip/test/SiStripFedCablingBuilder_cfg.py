@@ -59,3 +59,4 @@ process.fedcablingbuilder = cms.EDAnalyzer("SiStripFedCablingBuilder",
 process.p1 = cms.Path(process.fedcablingbuilder)
 
 
+# foo bar baz

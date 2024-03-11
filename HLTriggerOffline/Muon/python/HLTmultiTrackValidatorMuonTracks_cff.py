@@ -30,3 +30,4 @@ hltMultiTrackValidationMuonTracks = cms.Sequence(
     hltMuonTrackValidator,
     hltMultiTrackValidationMuonTracksTask
 )
+# foo bar baz

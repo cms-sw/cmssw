@@ -4,4 +4,4 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
     Run3RoundOptics25ns13TeVLowSigmaZVtxSmearingParameters,
     VtxSmearedCommon
-)
+)# foo bar baz

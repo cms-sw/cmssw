@@ -28,3 +28,4 @@ config.Site.storageSite = "T2_IT_Rome"
 #the heppy_crab_script.py uncommenting the line
 #      #crabFiles[i]="root://cms-xrd-global.cern.ch/"+crabFiles[i]
 #config.Data.ignoreLocality = True
+# foo bar baz

@@ -9,3 +9,4 @@ LowPtTrimuonPSet = cms.PSet(
     # -- Analysis specific binnings
     parametersDxy      = cms.vdouble(50, -2.500, 2.500),
     )
+# foo bar baz

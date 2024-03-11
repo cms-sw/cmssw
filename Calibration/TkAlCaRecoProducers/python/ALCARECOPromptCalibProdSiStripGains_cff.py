@@ -97,3 +97,4 @@ seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
    ALCARECOSiStripCalib *
    MEtoEDMConvertSiStripGains
    )
+# foo bar baz

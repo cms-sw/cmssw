@@ -12,3 +12,4 @@ onia2MuMuPAT = cms.EDProducer('Onia2MuMuPAT',
   addMCTruth = cms.bool(True),      ## Add the common MC mother of the two muons, if any
   resolvePileUpAmbiguity = cms.bool(True)   ## Order PVs by their vicinity to the J/psi vertex, not by sumPt                            
 )
+# foo bar baz

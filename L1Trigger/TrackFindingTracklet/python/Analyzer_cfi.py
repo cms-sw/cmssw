@@ -8,4 +8,4 @@ TrackFindingTrackletAnalyzer_params = cms.PSet (
   InputTagSelection = cms.InputTag("StubAssociator", "UseForAlgEff"), #
 
 
-)
+)# foo bar baz

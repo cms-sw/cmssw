@@ -149,3 +149,4 @@ def _gotoEntry(tree, entry, forceCall=False):
         else:
             tree._ttreereader.SetEntry(entry)
         tree.entry = entry
+# foo bar baz

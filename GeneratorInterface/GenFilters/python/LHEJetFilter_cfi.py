@@ -6,3 +6,4 @@ jetR = cms.double(0.8),
 src = cms.InputTag('externalLHEProducer')
 )
 
+# foo bar baz

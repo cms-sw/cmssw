@@ -25,3 +25,4 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 process.p = cms.Path(process.electronOfflineClientSequence*process.dqmStoreStats*process.DQMSaver)
 
 
+# foo bar baz

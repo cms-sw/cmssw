@@ -57,3 +57,4 @@ HLT_HIPhoton15_DQM = DQMEDAnalyzer('EmDQM',
         )
     )
 )
+# foo bar baz

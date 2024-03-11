@@ -23,3 +23,4 @@ globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
 )
 
 
+# foo bar baz

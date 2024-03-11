@@ -24,3 +24,4 @@ egmTrackingMonitorHLTsequence = cms.Sequence(
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(trackingMonitoringHLTsequence, cms.Sequence(pixelTracksMonitoringHLT * iterHLTTracksMonitoringHLT * doubletRecoveryHPTracksMonitoringHLT)) # * iter0HPTracksMonitoringHLT ))
 run3_common.toReplaceWith(egmTrackingMonitorHLTsequence, cms.Sequence(gsfTracksMonitoringHLT))
+# foo bar baz

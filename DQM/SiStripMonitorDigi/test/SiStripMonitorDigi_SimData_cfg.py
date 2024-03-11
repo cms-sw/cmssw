@@ -69,3 +69,4 @@ process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorDigi)
 process.ep = cms.EndPath(process.outP)
 process.SiStripMonitorDigi.CreateTrendMEs = True
 
+# foo bar baz

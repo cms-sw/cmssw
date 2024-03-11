@@ -18,3 +18,4 @@ makeHypothesis_hitFitTask = cms.Task(
     ttSemiLepHypHitFit
 )
 makeHypothesis_hitFit = cms.Sequence(makeHypothesis_hitFitTask)
+# foo bar baz

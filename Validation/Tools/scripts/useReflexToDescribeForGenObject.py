@@ -252,3 +252,4 @@ if __name__ == "__main__":
     targetFile.write (tupleDef)
     print("Vetoed types:")
     pprint.pprint ( sorted( list(vetoedTypes) ) )
+# foo bar baz

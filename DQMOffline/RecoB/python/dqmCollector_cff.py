@@ -18,3 +18,4 @@ bTagCollectorSequenceMC = cms.Sequence(bTagCollectorMC)
 #special sequence for fullsim, all histos havested by the DATA sequence in the dqm offline sequence
 bTagCollectorMCbcl = bTagCollectorMC.clone(flavPlots = "bcl") #harvest b, c, dusg and ni histos, all not harvested
 bTagCollectorSequenceMCbcl = cms.Sequence(bTagCollectorMCbcl)
+# foo bar baz

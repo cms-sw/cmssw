@@ -16,3 +16,4 @@ listfile=open("list.txt","w")
 for log in TimesLogs:
     print(log[1])
     listfile.write(log[1]+"\n")
+# foo bar baz

@@ -43,3 +43,4 @@ cosmicSuperClusters = cms.EDProducer("Multi5x5SuperClusterProducer",
 
 )
 
+# foo bar baz

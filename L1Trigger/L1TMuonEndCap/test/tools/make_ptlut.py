@@ -47,3 +47,4 @@ out_file = out_dir+'2017_06_07/LUT_v%02d_07June17_part_%02d_%02d.dat' % ( iVer, 
 process.analyzer1.outfile = out_file  # make sure the directory exists
 
 process.path1 = cms.Path(process.analyzer1)
+# foo bar baz

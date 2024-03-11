@@ -56,3 +56,4 @@ process.apvSimParam = cms.ESSource("SiStripApvSimulationParametersESSource",
 process.prod = cms.EDAnalyzer("SiStripApvSimulationParametersBuilder")
 
 process.p = cms.Path(process.prod)
+# foo bar baz

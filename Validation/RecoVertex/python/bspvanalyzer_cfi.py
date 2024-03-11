@@ -17,3 +17,4 @@ bspvanalyzer = cms.EDAnalyzer('BSvsPVAnalyzer',
                               )
                               )
 
+# foo bar baz

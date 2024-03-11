@@ -13,3 +13,4 @@ ticlSeedingL1 = cms.EDProducer("TICLSeedingRegionProducer",
         type = cms.string('SeedingRegionByL1')
     )
 )
+# foo bar baz

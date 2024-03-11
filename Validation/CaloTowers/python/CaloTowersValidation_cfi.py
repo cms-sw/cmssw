@@ -70,3 +70,4 @@ p = cms.Path(
  myanalyzer
 )
 
+# foo bar baz

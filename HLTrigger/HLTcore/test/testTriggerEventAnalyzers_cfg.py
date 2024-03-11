@@ -84,3 +84,4 @@ process.triggerEventAnalysisPath = cms.Path(
   + process.triggerEventWithRefsAnalyzer
   + process.triggerEventWithRefsSummaryAnalyzer
 )
+# foo bar baz

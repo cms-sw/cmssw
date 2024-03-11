@@ -4,3 +4,4 @@ analyzeZToMuMu = cms.EDAnalyzer("PatZToMuMuAnalyzer",
   muons = cms.InputTag("cleanPatMuons"),
   shift = cms.double(1.0)
 )
+# foo bar baz

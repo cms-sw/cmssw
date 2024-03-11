@@ -70,3 +70,4 @@ class BadGlobalMuonTagger:
                 out.append(muons[i]);
         return out
 
+# foo bar baz

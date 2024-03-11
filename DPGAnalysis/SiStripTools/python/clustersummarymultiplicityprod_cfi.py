@@ -15,3 +15,4 @@ clustsummmultprod = cms.EDProducer("FromClusterSummaryMultiplicityProducer",
                                                              
     varEnum = cms.int32(0)                             
     )
+# foo bar baz

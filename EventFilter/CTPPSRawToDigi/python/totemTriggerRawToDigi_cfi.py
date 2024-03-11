@@ -7,3 +7,4 @@ totemTriggerRawToDigi = cms.EDProducer("TotemTriggerRawToDigi",
   #    DataFormats/FEDRawData/interface/FEDNumbering.h
   fedId = cms.uint32(0)
 )
+# foo bar baz

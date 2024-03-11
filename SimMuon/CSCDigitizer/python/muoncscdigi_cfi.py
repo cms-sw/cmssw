@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 from SimMuon.CSCDigitizer.muonCSCDigis_cfi import *
 
 
+# foo bar baz

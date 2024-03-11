@@ -5,3 +5,4 @@ from L1Trigger.L1ExtraFromDigis.l1extraParticles_cff import *
 #include "L1Trigger/L1ExtraFromDigis/data/l1extraParticleMap.cfi"
 L1Extra = cms.Sequence(l1extraParticles)
 
+# foo bar baz

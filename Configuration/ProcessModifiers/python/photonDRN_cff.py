@@ -7,3 +7,4 @@ _photonDRN = cms.Modifier()
 #modifier to enable DRN energy regression for photons
 #requires also having enableSonicTriton
 photonDRN = cms.ModifierChain(_photonDRN, enableSonicTriton)
+# foo bar baz

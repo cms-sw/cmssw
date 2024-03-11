@@ -551,3 +551,4 @@ process.SKIMStreamZMuOutPath = cms.EndPath(process.SKIMStreamZMu)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.ZMuSkimPath,process.tauSkimBy2Path,process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.EXOHSCPPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamDiTauOutPath,process.SKIMStreamEXOHSCPOutPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)
+# foo bar baz

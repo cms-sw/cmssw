@@ -15,3 +15,4 @@ ctppsPixelLocalReconstructionTask = cms.Task(
     ctppsPixelClusters,ctppsPixelRecHits,ctppsPixelLocalTracks
 )
 ctppsPixelLocalReconstruction = cms.Sequence(ctppsPixelLocalReconstructionTask)
+# foo bar baz

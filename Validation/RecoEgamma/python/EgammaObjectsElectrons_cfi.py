@@ -45,3 +45,4 @@ EgammaObjectsProducerElectrons = cms.EDAnalyzer("EgammaObjects",
 )
 
 
+# foo bar baz

@@ -114,3 +114,4 @@ process.out_step = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.reflagging_step,process.reconstruction_step,process.out_step)
 
+# foo bar baz

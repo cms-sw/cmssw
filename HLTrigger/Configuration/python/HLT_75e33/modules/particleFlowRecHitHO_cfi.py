@@ -22,3 +22,4 @@ particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
         src = cms.InputTag("horeco")
     ))
 )
+# foo bar baz

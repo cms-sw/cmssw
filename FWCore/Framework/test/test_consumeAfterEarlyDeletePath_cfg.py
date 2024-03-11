@@ -26,3 +26,4 @@ process.consumer2 = cms.EDAnalyzer("DeleteEarlyConsumer",
                                     tag = cms.untracked.InputTag("maker"))
 
 process.p = cms.Path(process.maker+cms.wait(process.reader)+process.tester+process.consumer2)
+# foo bar baz

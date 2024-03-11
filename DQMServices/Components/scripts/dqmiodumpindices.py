@@ -39,3 +39,4 @@ if 'Indices;1' in things:
   print(table)
 else:
   print("This does not look like DQMIO data.")
+# foo bar baz

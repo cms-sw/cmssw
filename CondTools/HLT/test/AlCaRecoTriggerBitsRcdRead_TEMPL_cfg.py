@@ -66,3 +66,4 @@ process.dbInput = cms.ESSource("PoolDBESSource",
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdRead)
+# foo bar baz

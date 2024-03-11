@@ -8,3 +8,4 @@ def customiseRR(process):
     process.g4SimHits.StackingAction.RusRoNeutronEnergyLimit = cms.double(0.0)
 
     return(process)
+# foo bar baz

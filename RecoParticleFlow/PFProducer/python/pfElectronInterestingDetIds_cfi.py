@@ -10,3 +10,4 @@ pfElectronInterestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDe
     basicClustersLabel = "pfElectronTranslator:pf",
     recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
+# foo bar baz

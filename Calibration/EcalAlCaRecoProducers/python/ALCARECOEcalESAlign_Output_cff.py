@@ -19,3 +19,4 @@ OutALCARECOEcalESAlign_noDrop = cms.PSet(
 import copy
 OutALCARECOEcalESAlign=copy.deepcopy(OutALCARECOEcalESAlign_noDrop)
 OutALCARECOEcalESAlign.outputCommands.insert(0,"drop *")
+# foo bar baz

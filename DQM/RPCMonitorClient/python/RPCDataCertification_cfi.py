@@ -5,3 +5,4 @@ rpcDataCertification = DQMEDHarvester("RPCDataCertification",
                                       NumberOfEndcapDisks  = cms.untracked.int32(4)
                                       )
 
+# foo bar baz

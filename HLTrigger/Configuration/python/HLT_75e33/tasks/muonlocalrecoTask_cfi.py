@@ -13,3 +13,4 @@ muonlocalrecoTask = cms.Task(
     me0LocalRecoTask,
     hltRpcRecHits
 )
+# foo bar baz

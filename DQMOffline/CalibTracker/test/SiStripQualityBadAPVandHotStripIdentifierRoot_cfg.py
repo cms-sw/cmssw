@@ -163,3 +163,4 @@ process.p = cms.Path(#process.statisticsFilter*
                      #process.StripValidation
                      )
 process.ep = cms.EndPath(process.out)
+# foo bar baz

@@ -5,3 +5,4 @@ hltCloseComponentsMergerESProducer5D = cms.ESProducer("CloseComponentsMergerESPr
     MaxComponents = cms.int32(12),
     DistanceMeasure = cms.string('hltESPKullbackLeiblerDistance5D')
 )
+# foo bar baz

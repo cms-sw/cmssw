@@ -31,3 +31,4 @@ emtfForestsDB = cms.ESSource(
             )
         )
     )
+# foo bar baz

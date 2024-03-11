@@ -9,3 +9,4 @@ from FastSimulation.ForwardDetectors.CastorFastClusterProducer_cfi import *
 #CastorJetEgammaReco.fastsim = True
 
 CastorFastReco = cms.Sequence(CastorFastTowerReco*CastorFastClusterReco)
+# foo bar baz

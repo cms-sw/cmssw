@@ -19,3 +19,4 @@ electronPFIsolationDepositsTask = cms.Task(
     )
 electronPFIsolationDepositsSequence = cms.Sequence(electronPFIsolationDepositsTask)
 # <---- Up to here
+# foo bar baz

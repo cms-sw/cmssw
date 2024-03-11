@@ -33,3 +33,4 @@ generator = cms.EDFilter("Pythia8PtAndLxyGun",
     firstRun = cms.untracked.uint32(1),
     PythiaParameters = cms.PSet(parameterSets = cms.vstring())
 )
+# foo bar baz

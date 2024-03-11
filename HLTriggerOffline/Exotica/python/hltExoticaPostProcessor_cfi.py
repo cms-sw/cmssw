@@ -10,3 +10,4 @@ hltExoticaPostProcessor  = DQMEDHarvester("DQMGenericClient",
     efficiencyProfile = cms.untracked.vstring(),
 )
 
+# foo bar baz

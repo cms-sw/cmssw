@@ -283,3 +283,4 @@ offlineValidationHLTSource = cms.Sequence(
       offlineHLTSource
     + offlineHLTSourceOnAODextra
 )
+# foo bar baz

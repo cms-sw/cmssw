@@ -18,3 +18,4 @@ DSTJetsPSet = cms.PSet(
                                    500, 550, 600, 650, 700, 800, 900, 1000
                                    )
 )
+# foo bar baz

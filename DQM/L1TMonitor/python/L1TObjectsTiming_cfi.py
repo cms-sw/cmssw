@@ -24,3 +24,4 @@ l1tObjectsTiming = DQMEDAnalyzer(
     muonQualCut = cms.untracked.int32(12)
 )
 
+# foo bar baz

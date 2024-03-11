@@ -11,3 +11,4 @@ pixelPairStepTrajectoryFilter = cms.PSet(
         )
     )
 )
+# foo bar baz

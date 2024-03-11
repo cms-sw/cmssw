@@ -36,3 +36,4 @@ l1compareforstage1 = cms.EDProducer("L1Comparator",
     )
 )
 
+# foo bar baz

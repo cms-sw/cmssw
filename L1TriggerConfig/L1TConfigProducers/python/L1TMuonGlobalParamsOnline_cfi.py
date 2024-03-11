@@ -21,3 +21,4 @@ L1TMuonGlobalParamsOnlineProd = cms.ESProducer("L1TMuonGlobalParamsOnlineProd",
     onlineDB             = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
     transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
 )
+# foo bar baz

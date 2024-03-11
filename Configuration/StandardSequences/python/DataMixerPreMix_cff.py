@@ -78,3 +78,4 @@ def _fastSimDigis(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process, premix=True)
 modifyDataMixerPreMix_fastSimDigis = fastSim.makeProcessModifier(_fastSimDigis)
+# foo bar baz

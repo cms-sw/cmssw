@@ -61,3 +61,4 @@ process.multiCosmicMuonPath = cms.Path(process.multiCosmicMuonFilter)
 process.multiLHCMuonPath = cms.Path(process.multiLHCMuonFilter)
 
 process.this_is_the_end = cms.EndPath(process.out)
+# foo bar baz

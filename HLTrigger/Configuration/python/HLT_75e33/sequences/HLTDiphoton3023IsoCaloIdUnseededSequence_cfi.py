@@ -43,3 +43,4 @@ HLTDiphoton3023IsoCaloIdUnseededSequence = cms.Sequence(
     hltDiEG3023IsoCaloIdHcalIsoUnseededFilter,
     HLTDiphoton3023IsoCaloIdUnseededTask
 )
+# foo bar baz

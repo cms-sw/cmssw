@@ -70,3 +70,4 @@ pixelClusterFilter = cms.Sequence(filtersiPixelDigis * filtersiPixelClusters * m
 #process.hltLevel1GTSeed
 #RECO
 #process.l1GtTriggerMenuLite+process.beamsplash+process.physdecl+process.dcsstatus
+# foo bar baz

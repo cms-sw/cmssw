@@ -13,3 +13,4 @@ RegionPSetBlock = cms.PSet(
     )
 )
 
+# foo bar baz

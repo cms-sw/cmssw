@@ -9,3 +9,4 @@ from Validation.GlobalHits.globalhits_prodhiststrip_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 
+# foo bar baz

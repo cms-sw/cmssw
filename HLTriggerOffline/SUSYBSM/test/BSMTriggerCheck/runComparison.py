@@ -182,3 +182,4 @@ for sample in samples:
     os.system('mv *eps html/'+out+'/'+sample+'/')
     continue
 os.system('\\rm listeps.log')
+# foo bar baz

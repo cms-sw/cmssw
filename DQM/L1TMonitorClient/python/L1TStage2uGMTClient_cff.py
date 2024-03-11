@@ -151,3 +151,4 @@ l1tStage2uGMTClient = cms.Sequence(
   + l1tStage2uGMTRegionalMuonCandCompClient
 )
 
+# foo bar baz

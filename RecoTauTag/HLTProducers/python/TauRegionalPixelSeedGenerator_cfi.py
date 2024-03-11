@@ -28,3 +28,4 @@ tauRegionalPixelSeedGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDPro
 )
 
 
+# foo bar baz

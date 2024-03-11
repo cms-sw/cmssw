@@ -82,3 +82,4 @@ process.cocoa = cms.EDAnalyzer('CocoaAnalyzer',
 
 process.p = cms.Path(process.cocoa)
 
+# foo bar baz

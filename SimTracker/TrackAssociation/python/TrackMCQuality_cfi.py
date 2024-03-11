@@ -6,3 +6,4 @@ trackMCQuality = cms.EDProducer("TrackMCQuality",
                                 associator = cms.InputTag('quickTrackAssociatorByHits')
                                 )
 
+# foo bar baz

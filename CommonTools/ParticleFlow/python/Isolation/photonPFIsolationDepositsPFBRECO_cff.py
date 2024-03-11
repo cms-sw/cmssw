@@ -37,3 +37,4 @@ photonPFIsolationDepositsPFBRECOTask = cms.Task(
     phPFIsoDepositNeutralPFBRECO,
     phPFIsoDepositPUPFBRECO
     )
+# foo bar baz

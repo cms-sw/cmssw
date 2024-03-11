@@ -35,3 +35,4 @@ highMultiplicityGenFilter = cms.EDFilter("HighMultiplicityGenFilter",
 
  
 ProductionFilterSequence = cms.Sequence(generator * ~highMultiplicityGenFilter)
+# foo bar baz

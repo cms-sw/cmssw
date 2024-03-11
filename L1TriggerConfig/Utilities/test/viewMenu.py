@@ -55,3 +55,4 @@ process.l1cr = cms.EDAnalyzer("L1MenuViewer")
 
 process.p = cms.Path(process.l1cr)
 
+# foo bar baz

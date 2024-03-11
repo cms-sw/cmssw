@@ -12,3 +12,4 @@ hltSingleAK4PFPuppiJet520 = cms.EDFilter("HLT1PFJet",
     saveTags = cms.bool(True),
     triggerType = cms.int32(85)
 )
+# foo bar baz

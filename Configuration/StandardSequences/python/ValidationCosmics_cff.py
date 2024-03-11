@@ -15,3 +15,4 @@ prevalidation = cms.Sequence(globalPrevalidationCosmics)
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
                           *globalValidationCosmics
                           )
+# foo bar baz

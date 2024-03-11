@@ -8,3 +8,4 @@ hcalfilter = hltHighLevel.clone(
     )
 
 hcalfilterSeq = cms.Sequence( hcalfilter )
+# foo bar baz

@@ -164,3 +164,4 @@ process = customise(process)
 process.p = cms.Path( process.dqmcommon * process.monitor )
 
 print("Final Source settings:", process.source)
+# foo bar baz

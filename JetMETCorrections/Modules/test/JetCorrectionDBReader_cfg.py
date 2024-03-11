@@ -16,3 +16,4 @@ process.readAK5PF    = cms.EDAnalyzer('JetCorrectorDBReader',
       createTextFile = cms.untracked.bool(True)
 )
 process.p = cms.Path(process.readAK5PF )
+# foo bar baz

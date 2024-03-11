@@ -21,3 +21,4 @@ l1tTrackerEmuHTMissExtended = cms.EDProducer("L1TkHTMissEmulatorProducer",
     debug = cms.bool(False),
     displaced = cms.bool(True)
 )
+# foo bar baz

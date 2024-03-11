@@ -24,3 +24,4 @@ process.myOutputTest = cms.EDAnalyzer(
 )
 
 process.p = cms.EndPath(process.mix*process.myOutputTest)
+# foo bar baz

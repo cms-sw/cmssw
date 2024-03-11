@@ -13,3 +13,4 @@ ecalSimulationParametersEE = ecalSimulationParametersEB.clone(
 
 ecalSimulationParametersES = ecalSimulationParametersEB.clone(
     name  = "EcalHitsES")
+# foo bar baz

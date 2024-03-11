@@ -47,3 +47,4 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
 )
 
 
+# foo bar baz

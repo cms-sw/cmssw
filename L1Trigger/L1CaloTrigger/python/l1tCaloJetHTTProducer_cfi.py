@@ -8,3 +8,4 @@ l1tCaloJetHTTProducer = cms.EDProducer("L1CaloJetHTTProducer",
     debug = cms.bool(False),
     use_gen_jets = cms.bool(False),
 )
+# foo bar baz

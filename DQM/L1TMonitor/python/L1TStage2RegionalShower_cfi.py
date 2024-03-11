@@ -13,3 +13,4 @@ l1tStage2RegionalShower = DQMEDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# foo bar baz

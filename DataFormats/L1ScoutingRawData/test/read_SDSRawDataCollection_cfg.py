@@ -19,3 +19,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.path = cms.Path(process.testReadSDSDRawDataCollection)
 
 process.endPath = cms.EndPath(process.out)
+# foo bar baz

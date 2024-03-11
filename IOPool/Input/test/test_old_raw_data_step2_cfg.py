@@ -18,3 +18,4 @@ process.eca= cms.EDAnalyzer("EventContentAnalyzer",
 
 process.p = cms.EndPath(process.eca)
 
+# foo bar baz

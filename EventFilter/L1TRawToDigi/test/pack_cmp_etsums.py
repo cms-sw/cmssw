@@ -88,3 +88,4 @@ for event in events:
     for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
         if a.getType() != b.getType():
             print(">>> Type different:", a.getType(), "vs", b.getType())
+# foo bar baz

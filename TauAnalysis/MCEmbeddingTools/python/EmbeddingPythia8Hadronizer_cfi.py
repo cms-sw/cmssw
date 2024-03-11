@@ -44,3 +44,4 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
     )
 )
 
+# foo bar baz

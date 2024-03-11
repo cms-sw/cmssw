@@ -106,3 +106,4 @@ process.reco_step = cms.Path(process.eegenfilter
 process.out_step = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.filter_step,process.reco_step,process.out_step)
+# foo bar baz

@@ -9,3 +9,4 @@ egammaIsolationSequencePAT = cms.Sequence(
     gamIsolationSequence
 )
 
+# foo bar baz

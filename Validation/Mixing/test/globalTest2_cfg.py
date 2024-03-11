@@ -20,3 +20,4 @@ process.test = DQMEDAnalyzer('GlobalTest',
 process.p = cms.Path(process.test)
 
 
+# foo bar baz

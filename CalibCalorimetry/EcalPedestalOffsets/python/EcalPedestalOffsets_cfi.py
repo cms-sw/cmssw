@@ -25,3 +25,4 @@ pedTest = cms.EDAnalyzer("EcalPedOffset",
 )
 
 
+# foo bar baz

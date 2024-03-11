@@ -84,3 +84,4 @@ def get_data(query, limit=None, threshold=None, idx=None, host=None, cmd=None):
   stdout, stderr = p.communicate()
   if not p.returncode: return loads(stdout)
   return {'status' : 'error', 'reason' : stdout}
+# foo bar baz

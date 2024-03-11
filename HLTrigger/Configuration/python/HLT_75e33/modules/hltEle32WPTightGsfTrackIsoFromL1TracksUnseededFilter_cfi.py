@@ -30,3 +30,4 @@ hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter = cms.EDFilter("HLTEgammaGe
     useEt = cms.bool(True),
     varTag = cms.InputTag("hltEgammaEleL1TrkIsoUnseeded")
 )
+# foo bar baz

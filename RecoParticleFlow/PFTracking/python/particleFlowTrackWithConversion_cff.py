@@ -9,3 +9,4 @@ particleFlowTrackWithConversionTask =cms.Task(
     pfConversions
     )
 particleFlowTrackWithConversion =cms.Sequence(particleFlowTrackWithConversionTask)
+# foo bar baz

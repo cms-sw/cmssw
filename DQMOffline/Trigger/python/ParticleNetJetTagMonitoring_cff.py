@@ -13,3 +13,4 @@ particleNetMonitoringHLT = cms.Sequence(
 #  on offline jet collections which are not present in HIon workflows
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(particleNetMonitoringHLT, cms.Sequence())
+# foo bar baz

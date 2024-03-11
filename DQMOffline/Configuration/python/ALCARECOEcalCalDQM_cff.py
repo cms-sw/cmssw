@@ -10,3 +10,4 @@ ALCARECOEcalCalPi0CalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalPi0_cfi.EcalPi
 ALCARECOEcalCalEtaCalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalPi0_cfi.EcalPi0MonDQM.clone()
 #ALCARECOEcalCalElectronCalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalEleCalib_cfi.EcalEleCalibMon.clone()
 
+# foo bar baz

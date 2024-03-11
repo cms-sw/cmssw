@@ -41,3 +41,4 @@ hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
         src = cms.InputTag("hltHbhereco")
     ))
 )
+# foo bar baz

@@ -19,3 +19,4 @@ def customiseHeavyFlavorDQMForMiniAOD(process):
         process.heavyFlavorDQM.pvCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
     
     return process
+# foo bar baz

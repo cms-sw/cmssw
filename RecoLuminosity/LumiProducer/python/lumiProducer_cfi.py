@@ -5,3 +5,4 @@ lumiProducer=cms.EDProducer("LumiProducer",
                             lumiversion=cms.untracked.string(''),
                             ncacheEntries=cms.untracked.uint32(5)
                             )
+# foo bar baz

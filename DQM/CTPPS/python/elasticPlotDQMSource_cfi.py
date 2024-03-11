@@ -8,3 +8,4 @@ elasticPlotDQMSource = DQMEDAnalyzer("ElasticPlotDQMSource",
   
     verbosity = cms.untracked.uint32(0),
 )
+# foo bar baz

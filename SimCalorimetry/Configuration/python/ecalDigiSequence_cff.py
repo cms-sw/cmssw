@@ -46,3 +46,4 @@ modifyDigi_Phase2EcalPed = phase2_ecal_devel.makeProcessModifier(_modifyEcalForP
 def _modifyEcalTPForPh2( process ):
     process.load("SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2ESProducer_cfi")
 modifyDigi_Phase2EcalTP = phase2_ecalTP_devel.makeProcessModifier(_modifyEcalTPForPh2)
+# foo bar baz

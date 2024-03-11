@@ -76,3 +76,4 @@ alpaka.toReplaceWith(ecalDigisTask, cms.Task(
     # copy the ECAL digis from GPU to CPU (if needed) and convert them from SoA to legacy format
     ecalDigis
 ))
+# foo bar baz

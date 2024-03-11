@@ -13,3 +13,4 @@ fileNames= cms.untracked.vstring(
  '/store/relval/CMSSW_7_1_0_pre6/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/PRE_LS171_V5-v1/00000/DEB8D195-31C7-E311-9C1C-002618943821.root',
  '/store/relval/CMSSW_7_1_0_pre6/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/PRE_LS171_V5-v1/00000/E47EE166-39C7-E311-AB00-0025905A605E.root'
        )
+# foo bar baz

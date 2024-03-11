@@ -470,3 +470,4 @@ process.p48 = cms.Path(process.m48)
 process.p49 = cms.Path(process.m49)
 process.p50 = cms.Path(process.m50)
 process.o = cms.EndPath(process.out)
+# foo bar baz

@@ -17,3 +17,4 @@ process.prod = cms.EDAnalyzer("TrackerDigiGeometryAnalyzer")
 process.p1 = cms.Path(process.prod)
 
 
+# foo bar baz

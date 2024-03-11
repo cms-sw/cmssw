@@ -26,3 +26,4 @@ def _addProcessCPEsAlpaka(process):
 
 modifyConfigurationForAlpakaCPEs_ = alpaka.makeProcessModifier(_addProcessCPEsAlpaka)
 
+# foo bar baz

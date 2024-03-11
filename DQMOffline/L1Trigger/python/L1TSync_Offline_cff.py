@@ -21,3 +21,4 @@ l1tSyncHltFilter = hltHighLevel.clone(
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 
 
+# foo bar baz

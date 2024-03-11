@@ -42,3 +42,4 @@ hepTopTaggerV2 = cms.EDProducer(
     writeCompound       = cms.bool(True),
     jetCollInstanceName = cms.string("SubJets")
 )
+# foo bar baz

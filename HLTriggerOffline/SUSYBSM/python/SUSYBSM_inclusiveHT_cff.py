@@ -246,3 +246,4 @@ SUSY_HLT_InclusiveHT_POSTPROCESSING = cms.Sequence(SUSYoHLToInclusiveHToAux125oP
                                                    SUSYoHLToInclusiveHTo800oPOSTPROCESSING +
                                                    SUSYoHLToInclusiveHTo900oPOSTPROCESSING
 )
+# foo bar baz

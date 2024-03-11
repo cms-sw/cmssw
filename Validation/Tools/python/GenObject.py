@@ -1631,3 +1631,4 @@ class GenObject (object):
             else:
                 retval = retval + "%s:%s  " % (varName, value)
         return retval
+# foo bar baz

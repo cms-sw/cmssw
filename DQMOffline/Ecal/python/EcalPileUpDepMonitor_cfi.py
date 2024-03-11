@@ -10,3 +10,4 @@ ecalPileUpDepMonitor = DQMEDAnalyzer('EcalPileUpDepMonitor',
 			   EleTag              = cms.InputTag("gedGsfElectrons")
                       )
 
+# foo bar baz

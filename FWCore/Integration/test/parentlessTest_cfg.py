@@ -27,3 +27,4 @@ process.maker = cms.EDProducer("ProdigalProducer",
 process.analyzer = cms.EDAnalyzer("ProdigalAnalyzer")
 
 process.p = cms.Path(process.ints * process.maker * process.analyzer)
+# foo bar baz

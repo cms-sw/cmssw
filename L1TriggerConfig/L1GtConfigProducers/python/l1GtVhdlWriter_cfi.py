@@ -11,3 +11,4 @@ l1GtVhdlWriter = cms.EDAnalyzer("L1GtVhdlWriter",
 )
 
 
+# foo bar baz

@@ -10,3 +10,4 @@ process.testTree = cms.EDAnalyzer(
       )
    )
 process.p = cms.Path(process.shallowClusters*process.testTree)
+# foo bar baz

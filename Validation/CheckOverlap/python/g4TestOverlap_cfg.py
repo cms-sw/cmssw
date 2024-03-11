@@ -20,3 +20,4 @@ process.g4SimHits.G4CheckOverlap = cms.PSet(
     Verbose = cms.untracked.bool(True)
 )
 
+# foo bar baz

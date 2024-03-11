@@ -14,3 +14,4 @@ SiStripGainsPCLWorker = DQMEDAnalyzer(
     ChargeHisto         = cms.untracked.vstring('TIB','TIB_layer_1','TOB','TOB_layer_1','TIDminus','TIDplus','TECminus','TECplus','TEC_thin','TEC_thick'),
     tracks=cms.InputTag("generalTracks",""),
     )
+# foo bar baz

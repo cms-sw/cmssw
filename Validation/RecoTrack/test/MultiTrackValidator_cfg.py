@@ -165,3 +165,4 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(8),
     wantSummary = cms.untracked.bool(True)
 )
+# foo bar baz

@@ -17,3 +17,4 @@ siPixelCalibDigis = cms.EDProducer("SiPixelCalibDigiProducer",
 )
 
 
+# foo bar baz

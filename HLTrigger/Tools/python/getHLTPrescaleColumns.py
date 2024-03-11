@@ -57,3 +57,4 @@ if options.jsonOut:
     jsonFile = open(options.jsonOut, "w")
     jsonFile.write(json.dumps(jsout))
     jsonFile.close()
+# foo bar baz

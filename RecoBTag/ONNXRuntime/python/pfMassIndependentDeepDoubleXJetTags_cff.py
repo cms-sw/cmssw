@@ -10,3 +10,4 @@ pfMassIndependentDeepDoubleCvLJetTags = pfDeepDoubleCvLJetTags.clone(
     model_path = "RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC_mass_independent.onnx")
 pfMassIndependentDeepDoubleCvBJetTags = pfDeepDoubleCvBJetTags.clone(
     model_path = "RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB_mass_independent.onnx")
+# foo bar baz

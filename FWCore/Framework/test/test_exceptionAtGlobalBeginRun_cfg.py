@@ -22,3 +22,4 @@ process2.tstGlobalSub = cms.EDAnalyzer("edmtest::global::RunIntAnalyzer",
                                    cachevalue = cms.int32(0))
 process2.p2 = cms.Path(process2.tstStreamSub+process2.tstGlobalSub)
 process.addSubProcess(cms.SubProcess(process2))
+# foo bar baz

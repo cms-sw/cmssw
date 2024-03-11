@@ -35,3 +35,4 @@ standAloneMuonsGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
 genTrackMatcher = cms.Sequence(trackAssociatorByHits*generalGenTrackMatcher*globalMuonsGenTrackMatcher*standAloneMuonsGenTrackMatcher)
 
 
+# foo bar baz

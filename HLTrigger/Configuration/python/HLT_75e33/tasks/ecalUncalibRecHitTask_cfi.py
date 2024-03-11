@@ -7,3 +7,4 @@ ecalUncalibRecHitTask = cms.Task(
     hltEcalDetIdToBeRecovered,
     ecalMultiFitUncalibRecHitTask
 )
+# foo bar baz

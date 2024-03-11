@@ -7,3 +7,4 @@ ctppsRPAlignmentCorrectionsDataESSourceXML = cms.ESSource("CTPPSRPAlignmentCorre
     RealFiles = cms.vstring(),
     MisalignedFiles = cms.vstring()
 )
+# foo bar baz

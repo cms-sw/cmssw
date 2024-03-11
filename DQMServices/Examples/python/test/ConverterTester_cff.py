@@ -7,3 +7,4 @@ DQMStore = cms.Service("DQMStore")
 dqmSaver.convention = 'Offline'
 dqmSaver.workflow = '/ConverterTester/Workflow/RECO'
 
+# foo bar baz

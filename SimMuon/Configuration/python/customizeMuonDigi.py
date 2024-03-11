@@ -278,3 +278,4 @@ def customise_rpcRedigi(process):
         cms.Sequence(process.simMuonRPCReDigis+process.rpcRecHits)
     )
     return process
+# foo bar baz

@@ -37,3 +37,4 @@ diSuperClusterSkimSequence = cms.Sequence(
 #    superClusterCandsPt50
 #    )
 
+# foo bar baz

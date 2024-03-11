@@ -21,3 +21,4 @@ globalhitstest = DQMEDAnalyzer('GlobalHitsTester',
 )
 
 
+# foo bar baz

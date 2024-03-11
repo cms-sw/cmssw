@@ -139,3 +139,4 @@ process.SiStripModuleHVBuilder = cms.Service("SiStripModuleHVBuilder",
 process.test = cms.EDAnalyzer("testbuilding")
 
 process.p = cms.Path(process.test)
+# foo bar baz

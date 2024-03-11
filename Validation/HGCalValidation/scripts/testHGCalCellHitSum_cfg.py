@@ -86,3 +86,4 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(outputFile) )
 
 process.p = cms.Path(process.hgcalCellHitSumEE*process.hgcalCellHitSumHEF*process.hgcalCellHitSumHEB)
+# foo bar baz

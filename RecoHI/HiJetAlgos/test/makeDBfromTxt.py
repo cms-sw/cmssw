@@ -52,3 +52,4 @@ process.makeUETableDB = cms.EDAnalyzer('UETableProducer',
                                        )
 
 process.step  = cms.Path(process.makeUETableDB)
+# foo bar baz

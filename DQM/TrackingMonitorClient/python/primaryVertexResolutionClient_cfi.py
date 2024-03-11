@@ -56,3 +56,4 @@ primaryVertexResolutionClient = DQMEDHarvester("DQMGenericClient",
     )
 )
 
+# foo bar baz

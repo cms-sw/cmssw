@@ -179,3 +179,4 @@ def customizeAll(process, verbose=False):
     miniAOD_customizeData(process)
 
     return process
+# foo bar baz

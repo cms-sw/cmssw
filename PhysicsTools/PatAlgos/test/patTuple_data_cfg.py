@@ -57,3 +57,4 @@ patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 # for data:
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )
+# foo bar baz

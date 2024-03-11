@@ -16,3 +16,4 @@ cosmicCandidateFinder = cms.EDProducer("CosmicTrackFinder",
 )
 
 
+# foo bar baz

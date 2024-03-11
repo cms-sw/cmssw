@@ -31,3 +31,4 @@ process.poolOutput = cms.OutputModule('DQMStreamerOutputRepackerTest')
 process.output = cms.EndPath(process.poolOutput)
 
 print(process.source) 
+# foo bar baz

@@ -26,3 +26,4 @@ generator = cms.EDFilter("Pythia6HadronizerFilter",
         drMin = cms.double(0.7)
         )
 )
+# foo bar baz

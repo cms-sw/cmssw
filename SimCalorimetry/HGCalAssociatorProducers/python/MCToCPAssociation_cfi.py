@@ -10,3 +10,4 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(multiClusterCaloParticleAssociation,
     label_cp = "mixData:MergedCaloTruth"
 )
+# foo bar baz

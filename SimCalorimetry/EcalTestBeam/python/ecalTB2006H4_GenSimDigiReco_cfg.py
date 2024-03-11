@@ -300,3 +300,4 @@ process.options = cms.untracked.PSet()
 process.options.SkipEvent = cms.untracked.vstring('EventCorruption')
 
 
+# foo bar baz

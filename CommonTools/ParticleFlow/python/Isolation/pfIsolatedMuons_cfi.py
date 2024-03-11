@@ -13,3 +13,4 @@ pfIsolatedMuons = cms.EDFilter(
     makeClones = cms.bool(True)
 )
 
+# foo bar baz

@@ -21,3 +21,4 @@ macrosDir += "/src/MuonAnalysis/MomentumScaleCalibration/test/Macros/"
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc++("+firstFile+", false, 100, 1, 2)")
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc++("+secondFile+", false, 100, 1, 2)")
 gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+", true)")
+# foo bar baz

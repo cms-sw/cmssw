@@ -6,3 +6,4 @@ BtagPerformanceESProducer_NAME = cms.ESProducer("BtagPerformanceESProducer",
     PayloadName = cms.string('NAME_T'),
     WorkingPointName = cms.string('NAME_WP')
 )
+# foo bar baz

@@ -136,3 +136,4 @@ process.siStripPopConDetVOff = cms.EDAnalyzer( "SiStripO2ODetVOff",
 # Specify the processes to be run.  Here, we only run one.
 # -----------------------------------------------------------------------------
 process.p = cms.Path(process.siStripPopConDetVOff)
+# foo bar baz

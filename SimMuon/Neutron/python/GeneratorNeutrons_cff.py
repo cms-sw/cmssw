@@ -6,3 +6,4 @@ from GeneratorInterface.Core.generatorSmearingProducer_cfi import *
 GenSmeared = cms.Sequence("generatorSmeared")
 pgen_neutrons = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared)
 
+# foo bar baz

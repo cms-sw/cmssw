@@ -28,3 +28,4 @@ GsfTrajectorySmoother_forPreId = cms.ESProducer("GsfTrajectorySmootherESProducer
     RecoGeometry = cms.string('GlobalDetLayerGeometry')
 )
 
+# foo bar baz

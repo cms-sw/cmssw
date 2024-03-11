@@ -12,3 +12,4 @@ process.cudaTestOpaqueAdditionModule = cms.EDAnalyzer('CUDATestOpaqueAdditionMod
 process.path = cms.Path(process.cudaTestOpaqueAdditionModule)
 
 process.maxEvents.input = 1
+# foo bar baz

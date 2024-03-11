@@ -14,3 +14,4 @@ dtResolutionAnalysisMonitor = DQMEDAnalyzer('DTResolutionAnalysisTask',
                                              )
 
 
+# foo bar baz

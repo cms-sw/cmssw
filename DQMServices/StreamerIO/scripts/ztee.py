@@ -138,3 +138,4 @@ if __name__ == "__main__":
         os.close(fd)
 
     capture(sys.stdin.fileno(), args)
+# foo bar baz

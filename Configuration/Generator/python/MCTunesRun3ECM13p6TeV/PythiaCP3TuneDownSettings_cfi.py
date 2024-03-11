@@ -27,3 +27,4 @@ pythia8CP3TuneDownSettingsBlock = cms.PSet(
         )
 )
 
+# foo bar baz

@@ -8,3 +8,4 @@ process.o = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string
 
 process.ep = cms.EndPath(process.o)
 
+# foo bar baz

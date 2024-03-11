@@ -217,3 +217,4 @@ process.p = cms.Path(process.testA *
 )
 
 process.endPath = cms.EndPath(process.out)
+# foo bar baz

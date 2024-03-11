@@ -56,3 +56,4 @@ electronMVAValueMapProducer = cms.EDProducer('ElectronMVAValueMapProducer',
                                              src = cms.InputTag('slimmedElectrons'),
                                              mvaConfigurations = mvaConfigsForEleProducer
                                              )
+# foo bar baz

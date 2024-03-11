@@ -11,3 +11,4 @@ hgcalHitIdCheckHEB = hgcalHitIdCheckEE.clone(
     nameDevice = "HGCal HE Scinitillator",
     nameSense  = "HGCalHEScintillatorSensitive",
     caloHitSource = "HGCHitsHEback")
+# foo bar baz

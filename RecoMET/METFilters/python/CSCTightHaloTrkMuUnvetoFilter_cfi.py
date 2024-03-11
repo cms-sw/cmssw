@@ -4,3 +4,4 @@ CSCTightHaloTrkMuUnvetoFilter = cms.EDFilter(
   "CSCTightHaloTrkMuUnvetoFilter",
   taggingMode = cms.bool(False),
 )
+# foo bar baz

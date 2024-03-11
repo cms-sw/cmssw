@@ -20,3 +20,4 @@ initialStepTrajectoryFilterShapePreSplitting = cms.PSet(
     trimMaxFracNeigh = cms.double(0.25),
     trimMaxFracTotal = cms.double(0.15)
 )
+# foo bar baz

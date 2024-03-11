@@ -115,3 +115,4 @@ MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 
+# foo bar baz

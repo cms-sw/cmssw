@@ -21,3 +21,4 @@ process.test = cms.EDAnalyzer("GlobalTrackingGeometryTest")
 
 process.p = cms.Path(process.test)
 
+# foo bar baz

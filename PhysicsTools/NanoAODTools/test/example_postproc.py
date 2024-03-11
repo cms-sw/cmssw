@@ -22,3 +22,4 @@ p = PostProcessor(outputDir=".",
                   maxEntries=50000, #just read the first maxEntries events
                   )
 p.run()
+# foo bar baz

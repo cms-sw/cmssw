@@ -9,3 +9,4 @@ EcalTrigTowerConstituentsMapBuilder = cms.ESProducer("EcalTrigTowerConstituentsM
 )
 
 
+# foo bar baz

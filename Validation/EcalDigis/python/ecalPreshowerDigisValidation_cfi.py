@@ -7,3 +7,4 @@ ecalPreshowerDigisValidation = DQMEDAnalyzer('EcalPreshowerDigisValidation',
 )
 
 
+# foo bar baz

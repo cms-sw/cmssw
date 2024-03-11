@@ -25,3 +25,4 @@ Run2_2018 = cms.ModifierChain(Run2_2017.copyAndExclude([run2_HEPlan1_2017, run2_
 run2_CSC_2018, run2_HCAL_2018, run2_HB_2018, run2_HE_2018,run2_DT_2018, run2_SiPixel_2018, 
 run2_HLTconditions_2018, run2_muon_2018, run2_egamma_2018, ctpps_2018, stage2L1Trigger_2018, run2_jme_2018
 )
+# foo bar baz

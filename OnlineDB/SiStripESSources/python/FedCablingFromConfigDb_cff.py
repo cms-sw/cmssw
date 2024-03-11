@@ -5,3 +5,4 @@ FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')
 )
 
+# foo bar baz

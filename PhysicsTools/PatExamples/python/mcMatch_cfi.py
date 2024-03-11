@@ -23,3 +23,4 @@ myJetGenJetMatch = cms.EDProducer("GenJetMatcher", # cut on deltaR, deltaPt/Pt; 
     resolveByMatchQuality = cms.bool(False) # False = just match input in order; True = pick lowest deltaR pair first
 )
 
+# foo bar baz

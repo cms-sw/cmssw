@@ -67,3 +67,4 @@ process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
 process.p = cms.Path(
     process.ctppsGeometryInfo
 )
+# foo bar baz

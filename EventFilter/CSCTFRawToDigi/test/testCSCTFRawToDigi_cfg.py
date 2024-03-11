@@ -20,3 +20,4 @@ process.csctfanalyzer = cms.EDAnalyzer('CSCTFAnalyzer',
                                        statusProducer = cms.untracked.InputTag('csctfunpacker:')
                                    )                             
 process.p = cms.Path(process.csctfsinglegen*process.csctfpacker*process.csctfunpacker*process.csctfanalyzer)
+# foo bar baz

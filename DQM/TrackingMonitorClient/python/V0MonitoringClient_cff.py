@@ -25,3 +25,4 @@ voMonitoringClientSequence = cms.Sequence(
     + LambdaMonitoringClient
 )
 
+# foo bar baz

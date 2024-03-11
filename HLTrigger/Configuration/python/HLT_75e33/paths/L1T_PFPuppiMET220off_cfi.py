@@ -9,3 +9,4 @@ L1T_PFPuppiMET220off = cms.Path(
     l1tPFPuppiMET220off +
     HLTEndSequence
 )
+# foo bar baz

@@ -5,3 +5,4 @@ from DQMOffline.EGamma.photonDataCertification_cfi import *
 egammaDataCertificationTask = cms.Sequence(photonDataCertification)
 
 
+# foo bar baz

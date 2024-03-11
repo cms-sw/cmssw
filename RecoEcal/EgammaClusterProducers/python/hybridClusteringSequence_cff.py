@@ -23,3 +23,4 @@ hybridClusteringTask = cms.Task(
                 correctedHybridSuperClusters,
                 uncleanedOnlyCorrectedHybridSuperClusters)
 hybridClusteringSequence = cms.Sequence(hybridClusteringTask)
+# foo bar baz

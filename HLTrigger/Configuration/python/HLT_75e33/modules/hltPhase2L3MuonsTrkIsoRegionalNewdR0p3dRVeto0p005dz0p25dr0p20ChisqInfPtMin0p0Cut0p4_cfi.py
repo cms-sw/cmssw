@@ -51,3 +51,4 @@ hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut
     inputMuonCollection = cms.InputTag("hltPhase2L3MuonCandidates"),
     printDebug = cms.bool(False)
 )
+# foo bar baz

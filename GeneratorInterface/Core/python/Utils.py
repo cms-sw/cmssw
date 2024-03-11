@@ -15,3 +15,4 @@ class LoadPrerequisiteSource(cms.Source):
     ext = platform.uname()[0] == "Darwin" and "dylib" or "so"
     [loader.LoadLibrary("lib%s.%s" % (l, ext)) for l in self.libraries]
     super(LoadPrerequisiteSource,self).insertInto(parameterSet,myname)
+# foo bar baz

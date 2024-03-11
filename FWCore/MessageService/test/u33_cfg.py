@@ -54,3 +54,4 @@ process.ssm_2b = cms.EDAnalyzer("UTC_V2",
 )
 
 process.q = cms.Path(process.ssm_1a*process.ssm_2a*process.ssm_1b*process.ssm_2b)
+# foo bar baz

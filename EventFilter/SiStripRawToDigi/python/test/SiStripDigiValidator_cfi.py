@@ -8,3 +8,4 @@ DigiValidator = cms.EDAnalyzer(
     RawCollection2 = cms.untracked.bool(False),
     )
 
+# foo bar baz

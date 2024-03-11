@@ -24,3 +24,4 @@ tobTecStepInOutTrajectoryFilter = cms.PSet(
     seedPairPenalty = cms.int32(1),
     strictSeedExtension = cms.bool(False)
 )
+# foo bar baz

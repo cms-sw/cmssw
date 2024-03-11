@@ -179,3 +179,4 @@ class QGLikelihoodCalculator:
     if Q==0. : return 0.
     else : return Q/(Q+G)
 
+# foo bar baz

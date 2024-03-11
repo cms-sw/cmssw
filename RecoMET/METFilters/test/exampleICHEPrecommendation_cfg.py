@@ -73,3 +73,4 @@ process.filtersSeq = cms.Sequence(
    process.ecalLaserCorrFilter *
    process.trkPOGFilters
 )
+# foo bar baz

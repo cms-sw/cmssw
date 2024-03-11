@@ -46,3 +46,4 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.p1 = cms.Path(process.egammaDQMOffline)
 process.schedule = cms.Schedule(process.p1)
 
+# foo bar baz

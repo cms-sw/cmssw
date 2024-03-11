@@ -59,3 +59,4 @@ config = cfg.Config( components = selectedComponents,
                      events_class = Events )
 
 # print config 
+# foo bar baz

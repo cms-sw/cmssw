@@ -265,3 +265,4 @@ fatVariables = cms.VPSet(
         quantity = cms.untracked.string("tauID('againstElectronMVA6category')")
         ),
     )  
+# foo bar baz

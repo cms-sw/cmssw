@@ -24,3 +24,4 @@ pfRecoTauDiscriminationAgainstMuon = cms.EDProducer("PFRecoTauDiscriminationAgai
 )
 
 
+# foo bar baz

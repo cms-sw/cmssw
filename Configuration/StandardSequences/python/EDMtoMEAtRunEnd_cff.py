@@ -11,3 +11,4 @@ EDMtoMEConverter.convertOnEndRun = True
 EDMtoME = cms.Sequence(EDMtoMEConverter)
 
 DQMSaver = cms.Sequence(dqmSaver)
+# foo bar baz

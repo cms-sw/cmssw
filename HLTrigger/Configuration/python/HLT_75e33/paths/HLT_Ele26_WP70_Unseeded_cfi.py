@@ -10,3 +10,4 @@ HLT_Ele26_WP70_Unseeded = cms.Path(
     HLTEle26WP70UnseededSequence +
     HLTEndSequence
 )
+# foo bar baz

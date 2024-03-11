@@ -131,3 +131,4 @@ process.options = cms.untracked.PSet(
 
 # Schedule definition
 process.schedule = cms.Schedule(process.analysis_step)
+# foo bar baz

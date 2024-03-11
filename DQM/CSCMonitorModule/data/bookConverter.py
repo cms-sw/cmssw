@@ -176,3 +176,4 @@ if __name__ == "__main__":
 
     if opts['cid'] != None:
       create_declaration(opts['cid'])
+# foo bar baz

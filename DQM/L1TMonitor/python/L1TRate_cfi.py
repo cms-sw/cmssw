@@ -69,3 +69,4 @@ l1tRate = DQMEDAnalyzer('L1TRate',
   fitParameters = RateParams
 
 )
+# foo bar baz

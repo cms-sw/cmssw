@@ -28,3 +28,4 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
 )
 
 genWeightsTableTask = cms.Task(genWeightsTable)
+# foo bar baz

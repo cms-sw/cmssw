@@ -276,3 +276,4 @@ susyMonitorHLT = cms.Sequence(
 
 susHLTDQMSourceExtra = cms.Sequence(
 )
+# foo bar baz

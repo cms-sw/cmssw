@@ -108,3 +108,4 @@ process.p = cms.Path(process.electronMcSignalValidator * process.MEtoEDMConverte
 process.outpath = cms.EndPath(
     process.EDM,
 )
+# foo bar baz

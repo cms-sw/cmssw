@@ -57,3 +57,4 @@ def custom_identification_histomax(process,
             )
     parameters_c3d.EGIdentification = identification
     return process
+# foo bar baz

@@ -13,3 +13,4 @@ MessageLogger.cerr =  cms.untracked.PSet(
     INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     Calibration = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 )
+# foo bar baz

@@ -8,3 +8,4 @@ HLTriggerFinalPath = cms.Path(
     hltTriggerSummaryAOD + 
     hltTriggerSummaryRAW + 
     hltBoolFalse )
+# foo bar baz

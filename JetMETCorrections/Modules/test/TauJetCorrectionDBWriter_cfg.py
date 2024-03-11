@@ -51,3 +51,4 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
 ) 
 
 process.p = cms.Path(process.dbWriterSequence)
+# foo bar baz

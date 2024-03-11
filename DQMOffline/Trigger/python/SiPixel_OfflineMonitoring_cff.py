@@ -25,3 +25,4 @@ sipixelMonitorHLTsequence = cms.Sequence(
     + hltSiPixelPhase1TrackClustersAnalyzer,
     cms.Task(SiPixelTemplateStoreESProducer)
 )
+# foo bar baz

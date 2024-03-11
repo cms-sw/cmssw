@@ -6,3 +6,4 @@ pfNoPileUpJME = cms.EDProducer("TPPFCandidatesOnPFCandidates",
     name = cms.untracked.string('pileUpOnPFCandidates'),
     topCollection = cms.InputTag("pfPileUpJME"),
 )
+# foo bar baz

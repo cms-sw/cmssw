@@ -24,3 +24,4 @@ trackPseudoSelectionBlock = cms.PSet(
                 useVariableJTA = cms.bool(False)    
 	)
 )
+# foo bar baz

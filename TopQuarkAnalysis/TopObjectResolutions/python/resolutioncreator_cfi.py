@@ -39,3 +39,4 @@ Resolutions_met  = cms.EDAnalyzer("ResolutionChecker",
 	pTbinValues  	= cms.vdouble(20,29,37,44,51,59,69,80,96,122,200)	
 ) 
 	
+# foo bar baz

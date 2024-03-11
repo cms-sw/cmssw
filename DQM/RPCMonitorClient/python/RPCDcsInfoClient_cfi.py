@@ -5,3 +5,4 @@ rpcDcsInfoClient = DQMEDHarvester("RPCDcsInfoClient",
                                   dcsInfoFolder = cms.untracked.string("RPC/DCSInfo"),
                                   dqmProvInfoFolder = cms.untracked.string("Info/EventInfo")
                                   )
+# foo bar baz

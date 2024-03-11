@@ -44,3 +44,4 @@ if __name__ == '__main__':
         alphaList.writeJSON (options.output)
     else:
         print(alphaList)
+# foo bar baz

@@ -39,3 +39,4 @@ class TFileService(Service):
         self.file.Write() 
         self.file.Close()
 
+# foo bar baz

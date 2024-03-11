@@ -7,3 +7,4 @@ L1TMuonGlobalObjectKeysOnline = cms.ESProducer("L1TMuonGlobalObjectKeysOnlinePro
     transactionSafe      = cms.bool(True) # any value has no effect on this particular producer  
 )
 
+# foo bar baz

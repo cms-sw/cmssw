@@ -83,3 +83,4 @@ process.source = cms.Source("PoolSource",
 process.p = cms.Path(process.demo)
 
 
+# foo bar baz

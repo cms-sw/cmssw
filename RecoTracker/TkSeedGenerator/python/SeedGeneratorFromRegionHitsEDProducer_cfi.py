@@ -56,3 +56,4 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
                                        MaxNumberOfPixelClusters = 100000)
                )
 
+# foo bar baz

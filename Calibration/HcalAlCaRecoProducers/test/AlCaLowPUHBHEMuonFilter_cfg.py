@@ -42,3 +42,4 @@ process.ALCARECOStreamHcalCalLowPUHBHEMuonOutPath = cms.EndPath(process.ALCARECO
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOHcalCalLowPUHBHEMuonFilter,process.endjob_step,process.ALCARECOStreamHcalCalLowPUHBHEMuonOutPath)
+# foo bar baz

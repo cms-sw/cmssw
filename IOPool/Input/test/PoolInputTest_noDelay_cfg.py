@@ -19,3 +19,4 @@ process.source = cms.Source("PoolSource",
 process.p = cms.Path(process.OtherThing*process.Analysis)
 
 process.add_(cms.Service("Tracer"))
+# foo bar baz

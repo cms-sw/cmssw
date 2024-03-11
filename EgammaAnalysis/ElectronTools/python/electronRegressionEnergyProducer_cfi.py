@@ -27,3 +27,4 @@ eleRegressionEnergy = cms.EDProducer("RegressionEnergyPatElectronProducer",
                                    )
 
 
+# foo bar baz

@@ -81,3 +81,4 @@ central_id_registry.register( mvaPhoID_Spring15_25ns_nonTrig_V2p1_wp90.idName,
                               '62eb8da6a5e26164d52d36cb81f952fc')
 
 mvaPhoID_Spring15_25ns_nonTrig_V2p1_wp90.isPOGApproved = cms.untracked.bool(True)
+# foo bar baz

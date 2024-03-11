@@ -84,3 +84,4 @@ process.p = cms.Path(process.EDMtoME *
                      process.hgcalSimHitClientHEF *
                      process.hgcalSimHitClientHEB *
                      process.dqmSaver)
+# foo bar baz

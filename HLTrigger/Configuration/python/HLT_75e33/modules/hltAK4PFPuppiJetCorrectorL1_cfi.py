@@ -6,3 +6,4 @@ hltAK4PFPuppiJetCorrectorL1 = cms.EDProducer("L1FastjetCorrectorProducer",
     level = cms.string('L1FastJet'),
     srcRho = cms.InputTag("fixedGridRhoFastjetAllTmp")
 )
+# foo bar baz

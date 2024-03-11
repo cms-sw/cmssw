@@ -12,3 +12,4 @@ pfMETBenchmark = cms.EDAnalyzer("PFMETBenchmarkAnalyzer",
     InputRecoLabel = cms.InputTag( pfMET ),
     InputTCLabel = cms.InputTag( 'tcMet' )
 )
+# foo bar baz

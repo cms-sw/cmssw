@@ -6,3 +6,4 @@ electronRecalibSCAssociator = cms.EDProducer("ElectronRecalibSuperClusterAssocia
     electronSrc = cms.InputTag('gedGsfElectrons'),
     outputLabel = cms.string('recalibSC')
 )
+# foo bar baz

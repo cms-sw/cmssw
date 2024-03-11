@@ -60,3 +60,4 @@ process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProd
 process.p = cms.Path(process.f+process.intProducer+process.intProducerAlias, process.t)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

@@ -14,3 +14,4 @@ premix_stage2.toModify(layerClusterCaloParticleAssociation,
 layerClusterCaloParticleAssociationHFNose = layerClusterCaloParticleAssociation.clone(
     label_lc = "hgcalLayerClustersHFNose"
 )
+# foo bar baz

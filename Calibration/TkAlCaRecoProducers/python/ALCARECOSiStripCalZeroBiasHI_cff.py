@@ -58,3 +58,4 @@ qualityStatistics = siStripQualityStatistics.clone(StripQualityLabel=cms.string(
 
 # Sequence #
 seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
+# foo bar baz

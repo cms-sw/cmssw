@@ -55,3 +55,4 @@ GlobalHaloData = cms.EDProducer("GlobalHaloDataProducer",
                                 )
 
 
+# foo bar baz

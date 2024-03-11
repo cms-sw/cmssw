@@ -9,3 +9,4 @@ L1TTkEm37TkEm24Sequence = cms.Sequence(
     l1tTkEmSingle37Filter +
     l1tTkEmDouble24Filter
 )
+# foo bar baz

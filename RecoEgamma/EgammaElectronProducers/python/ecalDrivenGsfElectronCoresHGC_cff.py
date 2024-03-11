@@ -5,3 +5,4 @@ ecalDrivenGsfElectronCoresHGC = ecalDrivenGsfElectronCores.clone(
   useGsfPfRecTracks = False,
   hgcalOnly = True,
 )
+# foo bar baz

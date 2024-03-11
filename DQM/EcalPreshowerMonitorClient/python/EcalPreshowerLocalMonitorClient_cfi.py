@@ -10,3 +10,4 @@ ecalPreshowerLocalMonitorClient = DQMEDHarvester('EcalPreshowerMonitorClient',
                                             debug = cms.untracked.bool(True),
                                             fitPedestal = cms.untracked.bool(False)
                                             )
+# foo bar baz

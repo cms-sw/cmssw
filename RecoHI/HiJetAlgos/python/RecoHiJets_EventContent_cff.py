@@ -35,3 +35,4 @@ RecoHiJetsFEVT = cms.PSet(
         'keep *_*PFJets_*_*')
 )
 RecoHiJetsFEVT.outputCommands.extend(RecoHiJetsRECO.outputCommands)
+# foo bar baz

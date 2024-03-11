@@ -298,3 +298,4 @@ for path in process.paths:
     getattr(process,path)._seq = process.hiSignal*getattr(process,path)._seq
 
         
+# foo bar baz

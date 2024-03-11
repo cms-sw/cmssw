@@ -22,3 +22,4 @@ hltEgammaHoverEUnseeded = cms.EDProducer("EgammaHLTHcalVarProducerFromRecHit",
     maxSeverityHB = cms.int32( 9 ),
     maxSeverityHE = cms.int32( 9 )
 )
+# foo bar baz

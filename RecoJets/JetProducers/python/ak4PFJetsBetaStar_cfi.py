@@ -6,3 +6,4 @@ ak4BetaStar = _mod.BetaStarVarProducer.clone(
     srcPF  = "packedPFCandidates",
     maxDR  = 0.4
 )
+# foo bar baz

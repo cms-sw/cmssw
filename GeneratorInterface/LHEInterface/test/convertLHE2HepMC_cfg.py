@@ -26,3 +26,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(process.lhe2HepMCConverter)
 process.e = cms.EndPath(process.out)
+# foo bar baz

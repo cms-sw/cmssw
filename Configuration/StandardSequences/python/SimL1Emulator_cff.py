@@ -10,3 +10,4 @@ def _fastSimTriggerDigis(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadTriggerDigiAliases
     loadTriggerDigiAliases(process)
 modifySimL1Emulator_fastSimTriggerDigis = fastSim.makeProcessModifier(_fastSimTriggerDigis)
+# foo bar baz

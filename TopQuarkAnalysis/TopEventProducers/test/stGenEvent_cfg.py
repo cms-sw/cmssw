@@ -33,3 +33,4 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.printGenParticles_cff
 process.p1 = cms.Path(process.printGenParticles *
                       process.makeGenEvt *
                       process.printDecaySubset)
+# foo bar baz

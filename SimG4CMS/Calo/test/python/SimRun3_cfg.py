@@ -122,3 +122,4 @@ process.schedule = cms.Schedule(process.simulation_step,
                                 process.out_step,
                                 process.analysis_step,
                                 )
+# foo bar baz

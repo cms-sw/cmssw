@@ -31,3 +31,4 @@ run3_common.toModify(OutALCARECOSiStripCalCosmics_noDrop, outputCommands = _run3
 
 OutALCARECOSiStripCalCosmics=OutALCARECOSiStripCalCosmics_noDrop.clone()
 OutALCARECOSiStripCalCosmics.outputCommands.insert(0,"drop *")
+# foo bar baz

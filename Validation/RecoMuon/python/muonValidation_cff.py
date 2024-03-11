@@ -355,3 +355,4 @@ phase2_muon.toReplaceWith( recoMuonValidation, _phase2_muonValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( recoMuonValidation, _phase2_ge0_muonValidation )
 
+# foo bar baz

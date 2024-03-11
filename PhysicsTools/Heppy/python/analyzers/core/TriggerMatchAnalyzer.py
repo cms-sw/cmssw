@@ -81,3 +81,4 @@ setattr(TriggerMatchAnalyzer,"defaultConfig",cfg.Analyzer(
 )
 
 
+# foo bar baz

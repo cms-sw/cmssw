@@ -7,3 +7,4 @@ def initL1UniformTags( tagBase = "IDEAL" ):
     for i in range( 0, L1CondEnum.NumL1Cond ):
         initL1UniformTags.tagBaseVec.append( tagBase )
 #        print i, initL1UniformTags.tagBaseVec[ i ]
+# foo bar baz

@@ -33,3 +33,4 @@ HLTPhoton108EBTightIDTightIsoL1SeededSequence = cms.Sequence(
     hltPhoton108EBTightIDTightIsoHcalIsoL1SeededFilter,
     HLTPhoton108EBTightIDTightIsoL1SeededTask
 )
+# foo bar baz

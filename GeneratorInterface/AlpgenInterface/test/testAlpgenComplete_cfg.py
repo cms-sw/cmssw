@@ -33,3 +33,4 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 )
 
 process.outpath = cms.EndPath(process.GEN)
+# foo bar baz

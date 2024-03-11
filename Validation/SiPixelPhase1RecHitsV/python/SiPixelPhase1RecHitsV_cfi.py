@@ -171,3 +171,4 @@ SiPixelPhase1RecHitsHarvesterV = DQMEDHarvester("SiPixelPhase1Harvester",
         geometry = SiPixelPhase1Geometry
 )
 
+# foo bar baz

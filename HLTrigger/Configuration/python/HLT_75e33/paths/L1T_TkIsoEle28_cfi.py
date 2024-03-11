@@ -9,3 +9,4 @@ L1T_TkIsoEle28 = cms.Path(
     L1TTkIsoEle28Sequence +
     HLTEndSequence
 )
+# foo bar baz

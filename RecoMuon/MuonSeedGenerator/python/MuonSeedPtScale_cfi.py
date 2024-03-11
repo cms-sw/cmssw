@@ -45,3 +45,4 @@ dphiScale = cms.PSet(
   SME_21_0_scale = cms.vdouble(  -0.040862, 0.000000 ), 
   SME_22_0_scale = cms.vdouble(  -3.457901, 0.000000 ) 
 )
+# foo bar baz

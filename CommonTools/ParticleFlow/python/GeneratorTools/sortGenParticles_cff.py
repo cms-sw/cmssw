@@ -14,3 +14,4 @@ decaysFromZs = cms.EDProducer(
 sortGenParticlesSequence = cms.Sequence(
     decaysFromZs
     )
+# foo bar baz

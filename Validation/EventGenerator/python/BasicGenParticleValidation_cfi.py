@@ -12,3 +12,4 @@ basicGenParticleValidation = DQMEDAnalyzer('BasicGenParticleValidation',
 )
 
 basicGenParticleValidationHiMix = basicGenParticleValidation.clone(signalParticlesOnly = True)
+# foo bar baz

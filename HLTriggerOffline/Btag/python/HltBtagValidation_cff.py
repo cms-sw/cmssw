@@ -108,3 +108,4 @@ fastSim.toModify(HltVertexValidationVertices, SimVertexCollection = "fastSimProd
     #    cms.InputTag("hltVerticesPF"), 
     #)
 
+# foo bar baz

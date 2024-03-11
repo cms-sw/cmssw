@@ -15,3 +15,4 @@ pfMuonTask = cms.Task(
     pfMuons 
     )
 pfMuonSequence = cms.Sequence(pfMuonTask)
+# foo bar baz

@@ -81,3 +81,4 @@ process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 process.outputDB.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.p = cms.Path(process.L1CondDBIOVWriter)
+# foo bar baz

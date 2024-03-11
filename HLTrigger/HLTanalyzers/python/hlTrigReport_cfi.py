@@ -8,3 +8,4 @@ hlTrigReport = cms.EDAnalyzer("HLTrigReport",
     serviceBy        = cms.untracked.string("never")
 )
 
+# foo bar baz

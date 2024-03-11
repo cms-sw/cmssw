@@ -11,3 +11,4 @@ def removeJECsForMC(process):
             module.jetCorrLabel = 'Uncorrected'
 
     process.basicJetsForMet.jetCorrLabel = 'Uncorrected'
+# foo bar baz

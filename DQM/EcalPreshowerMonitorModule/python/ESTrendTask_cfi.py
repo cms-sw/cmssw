@@ -7,3 +7,4 @@ ecalPreshowerTrendTask = DQMEDAnalyzer('ESTrendTask',
                                         prefixME = cms.untracked.string("EcalPreshower") 
                                         )
 
+# foo bar baz

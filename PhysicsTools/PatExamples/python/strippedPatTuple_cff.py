@@ -26,3 +26,4 @@ patJets.addJetCharge             = False
 patJets.addJetID                 = False
 patJets.embedGenPartonMatch      = False
 patJets.embedGenJetMatch         = False
+# foo bar baz

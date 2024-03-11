@@ -20,3 +20,4 @@ from RecoEcal.EgammaClusterProducers.cosmicClusteringSequence_cff import *
 ecalClustersCosmicsTask = cms.Task(hybridClusteringTask,cosmicClusteringTask)
 ecalClustersCosmics = cms.Sequence(ecalClustersCosmicsTask)
 
+# foo bar baz

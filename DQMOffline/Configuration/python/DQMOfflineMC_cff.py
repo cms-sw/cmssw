@@ -34,4 +34,4 @@ from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQMMC
 DQMOfflineNanoAOD.replace(nanoDQM, nanoDQMMC)
 #PostDQMOfflineNanoAOD.replace(nanoDQM, nanoDQMMC)
 from PhysicsTools.NanoAOD.nanojmeDQM_cff import nanojmeDQMMC
-DQMOfflineNanoJME.replace(nanojmeDQM, nanojmeDQMMC)
+DQMOfflineNanoJME.replace(nanojmeDQM, nanojmeDQMMC)# foo bar baz

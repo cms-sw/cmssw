@@ -6,3 +6,4 @@ simpleSecondaryVertex2TrkComputer = cms.ESProducer("SimpleSecondaryVertexESProdu
 	useSignificance = cms.bool(True),
 	minTracks = cms.uint32(2)
 )
+# foo bar baz

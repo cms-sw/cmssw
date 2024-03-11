@@ -3,3 +3,4 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 totemRPDQMHarvester = DQMEDHarvester("TotemRPDQMHarvester",
 )
+# foo bar baz

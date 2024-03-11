@@ -8,3 +8,4 @@ DigiSource = cms.EDProducer(
     UseFedKey = cms.untracked.bool(False),
     PedestalLevel = cms.untracked.int32(0),
     )
+# foo bar baz

@@ -125,3 +125,4 @@ elPFIsoValuePU03PFIdGsf = cms.EDProducer("PFCandIsolatorFromDeposits",
 eleIsoSequence = cms.Sequence((elPFIsoDepositChargedGsf + elPFIsoDepositChargedAllGsf + elPFIsoDepositNeutralGsf + elPFIsoDepositGammaGsf + elPFIsoDepositPUGsf))
 eleIsoSequence *= cms.Sequence(elPFIsoValueCharged03PFIdGsf+elPFIsoValueChargedAll03PFIdGsf+elPFIsoValueGamma03PFIdGsf+elPFIsoValueNeutral03PFIdGsf+elPFIsoValuePU03PFIdGsf )
 pfisoALCARECO = cms.Sequence(eleIsoSequence) #pfParticleSelectionSequence + eleIsoSequence)
+# foo bar baz

@@ -19,3 +19,4 @@ combinedSecondaryVertexCommon = cms.PSet(
 	trackMultiplicityMin = cms.uint32(2),
 	trackSort = cms.string('sip2dSig')
 )
+# foo bar baz

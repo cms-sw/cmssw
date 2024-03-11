@@ -3,3 +3,4 @@ def customiseForMaterialAnalyser(process):
   if getattr(process, 'schedule'):
     process.schedule.append(process.materialDumper_step)
   return process
+# foo bar baz

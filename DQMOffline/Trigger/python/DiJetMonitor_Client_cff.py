@@ -16,3 +16,4 @@ dijetEfficiency = DQMEDHarvester("DQMGenericClient",
 dijetClient = cms.Sequence(
     dijetEfficiency
 )
+# foo bar baz

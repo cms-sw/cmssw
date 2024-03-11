@@ -1172,3 +1172,4 @@ class TrackingVertices(_Collection, TrackingVertex):
         tree -- TTree object
         """
         super(TrackingVertex, self).__init__(tree, "simvtx_x")
+# foo bar baz

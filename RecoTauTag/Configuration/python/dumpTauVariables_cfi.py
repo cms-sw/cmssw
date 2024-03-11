@@ -13,3 +13,4 @@ dumpTauVariables = cms.EDProducer(
     ## define variables to be dumped
     variables  = cms.VPSet()
     )
+# foo bar baz

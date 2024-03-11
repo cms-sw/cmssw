@@ -27,3 +27,4 @@ process.TFileService = cms.Service("TFileService",
 process.TestHepMCEvt = cms.EDAnalyzer( "ZJetsTest" )
 
 process.p1 = cms.Path( process.TestHepMCEvt )
+# foo bar baz

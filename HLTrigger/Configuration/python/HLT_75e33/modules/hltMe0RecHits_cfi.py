@@ -7,3 +7,4 @@ hltMe0RecHits = cms.EDProducer("ME0RecHitProducer",
 
     )
 )
+# foo bar baz

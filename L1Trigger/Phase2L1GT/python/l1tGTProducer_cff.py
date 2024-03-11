@@ -17,3 +17,4 @@ l1tGTProducer = cms.EDProducer(
     CL2EtSum = cms.InputTag("l1tMETPFProducer"),
     CL2HtSum = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT")
 )
+# foo bar baz

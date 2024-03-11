@@ -266,3 +266,4 @@ process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
                      process.PVValidation)
+# foo bar baz

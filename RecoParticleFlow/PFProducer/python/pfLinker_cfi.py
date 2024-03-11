@@ -13,3 +13,4 @@ pfLinker = cms.EDProducer("PFLinker",
                           ValueMapMerged = cms.string("all"),
                           forceElectronsInHGCAL = cms.bool(False)
                           )
+# foo bar baz

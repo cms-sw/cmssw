@@ -90,3 +90,4 @@ for iJob in range(0, options.nJobs):
    #bsubCommand  = "echo -J %s_%i -q %s \"%s\"" % (options.eventType, iJob, options.lxbatchQueue, totalCommand)
    os.system(bsubCommand)
 
+# foo bar baz

@@ -82,3 +82,4 @@ MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
 
 
+# foo bar baz

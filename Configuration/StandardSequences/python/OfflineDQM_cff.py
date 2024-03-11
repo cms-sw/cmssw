@@ -8,3 +8,4 @@ DQMStore = cms.Service("DQMStore")
 
 offlinedqm = cms.Sequence(globaldigisanalyze*globalrechitsanalyze*globalhitsanalyze*MEtoEDMConverter)
 
+# foo bar baz

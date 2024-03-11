@@ -5,3 +5,4 @@ hgcalSimHitClientEE = DQMEDHarvester("HGCalSimHitsClient",
                                      DetectorName = cms.string("HGCalEESensitive"),
                                      Verbosity     = cms.untracked.int32(0)
                                      )
+# foo bar baz

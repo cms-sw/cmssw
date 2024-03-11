@@ -76,3 +76,4 @@ process.schedule = cms.Schedule(
       process.endjob_step,
       process.dqmsave_step
 )
+# foo bar baz

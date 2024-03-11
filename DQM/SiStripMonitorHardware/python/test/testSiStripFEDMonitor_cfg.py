@@ -108,3 +108,4 @@ process.p = cms.Path( #process.profilerStart*
                       process.siStripFEDMonitor
                       #*process.profilerStop 
                       )
+# foo bar baz

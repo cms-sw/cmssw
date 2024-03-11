@@ -146,3 +146,4 @@ process.p1 = cms.Path(
     process.testGenTtbarCategories,
     process.task
 )
+# foo bar baz

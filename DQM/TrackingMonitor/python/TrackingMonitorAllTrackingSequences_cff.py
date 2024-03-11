@@ -126,3 +126,4 @@ trkmon = cms.Sequence(
    # * trkmonloose
 )
 
+# foo bar baz

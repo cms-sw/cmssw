@@ -25,3 +25,4 @@ process.dump = cms.EDAnalyzer("DumpSimGeometry",
                               outputFileName = cms.untracked.string('totemT2.root'))
 
 process.p = cms.Path(process.dump)
+# foo bar baz

@@ -49,3 +49,4 @@ HITpixelTripletRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProdu
 )
 
 
+# foo bar baz

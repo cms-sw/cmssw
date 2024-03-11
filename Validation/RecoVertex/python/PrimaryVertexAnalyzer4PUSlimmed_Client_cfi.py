@@ -87,3 +87,4 @@ postProcessorVertex = DQMEDHarvester("DQMGenericClient",
                                      outputFileName = cms.untracked.string(""),
                                      verbose = cms.untracked.uint32(5)
 )
+# foo bar baz

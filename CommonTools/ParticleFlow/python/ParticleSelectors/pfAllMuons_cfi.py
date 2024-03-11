@@ -12,3 +12,4 @@ pfAllMuonsClones = cms.EDProducer("PFCandidateProductFromFwdPtrProducer",
 
 
 
+# foo bar baz

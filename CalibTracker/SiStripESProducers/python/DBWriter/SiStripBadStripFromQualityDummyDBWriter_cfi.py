@@ -9,3 +9,4 @@ siStripBadStripFromQualityDummyDBWriter = cms.EDAnalyzer("SiStripBadStripFromQua
 
 
 
+# foo bar baz

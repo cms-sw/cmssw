@@ -5,3 +5,4 @@ from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersCLUE3DHigh_cfi import *
 
 ticlTrackstersCLUE3DHighStepTask = cms.Task(filteredLayerClustersCLUE3DHigh, ticlSeedingGlobal, ticlTrackstersCLUE3DHigh)
+# foo bar baz

@@ -59,3 +59,4 @@ hltEcalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
         useLumiInfoRunHeader = cms.bool(False)
     )
 )
+# foo bar baz

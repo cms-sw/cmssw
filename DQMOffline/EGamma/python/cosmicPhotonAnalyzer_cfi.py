@@ -14,3 +14,4 @@ cosmicPhotonAnalysis =  DQMOffline.EGamma.photonAnalyzer_cfi.photonAnalysis.clon
     barrelRecHitProducer = 'ecalRecHit',
     endcapRecHitProducer = 'ecalRecHit'
 )
+# foo bar baz

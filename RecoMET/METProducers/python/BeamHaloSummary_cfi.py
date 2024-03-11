@@ -47,3 +47,4 @@ BeamHaloSummary = cms.EDProducer("BeamHaloSummaryProducer",
                                  
                                  )
 
+# foo bar baz

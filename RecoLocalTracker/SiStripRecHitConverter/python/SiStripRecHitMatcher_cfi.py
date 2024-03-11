@@ -7,3 +7,4 @@ SiStripRecHitMatcherESProducer = cms.ESProducer("SiStripRecHitMatcherESProducer"
 )
 
 
+# foo bar baz

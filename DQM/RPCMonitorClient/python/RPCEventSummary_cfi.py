@@ -10,3 +10,4 @@ rpcEventSummary = DQMEDHarvester("RPCEventSummary",
                                  OfflineDQM = cms.untracked.bool(True),
                                  RecHitTypeFolder = cms.untracked.string("AllHits")
                                  )
+# foo bar baz

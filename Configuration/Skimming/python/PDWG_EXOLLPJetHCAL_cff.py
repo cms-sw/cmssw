@@ -12,4 +12,4 @@ hltLLPJetHCAL = _hltHighLevel.hltHighLevel.clone(
 # disappTrk skim sequence
 EXOLLPJetHCALSkimSequence = cms.Sequence(
     hltLLPJetHCAL
-    )
+    )# foo bar baz

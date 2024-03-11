@@ -68,3 +68,4 @@ kinSolutionTtFullLepEvent = cms.EDProducer("TtFullLepKinSolutionProducer",
 )
 
 
+# foo bar baz

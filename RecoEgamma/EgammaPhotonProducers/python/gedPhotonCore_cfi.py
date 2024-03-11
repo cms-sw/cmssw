@@ -12,3 +12,4 @@ gedPhotonCore = cms.EDProducer("GEDPhotonCoreProducer",
 )
 
 
+# foo bar baz

@@ -15,3 +15,4 @@ simKBmtfStubs = cms.EDProducer("L1TMuonBarrelKalmanStubProducer",
 
 
 )
+# foo bar baz

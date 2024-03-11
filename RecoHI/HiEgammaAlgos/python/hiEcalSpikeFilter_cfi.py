@@ -10,3 +10,4 @@ hiEcalSpikeFilter = cms.EDFilter("HiEcalSpikeFilter",
 
 
 
+# foo bar baz

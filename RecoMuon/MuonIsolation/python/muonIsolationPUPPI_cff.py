@@ -42,3 +42,4 @@ muonIsolationMiniAODPUPPINoLeptons = _mod.CITKPFIsolationSumProducerForPUPPI.clo
                 usePUPPINoLepton = True,
                 isolationConeDefinitions = IsoConeDefinitions
 )
+# foo bar baz

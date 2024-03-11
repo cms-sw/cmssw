@@ -48,3 +48,4 @@ process.p = cms.Path(process.ecalModule)
     
     
 
+# foo bar baz

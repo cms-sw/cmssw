@@ -23,3 +23,4 @@ process.dump = cms.EDAnalyzer("DumpSimGeometry",
                               outputFileName = cms.untracked.string('run3.root'))
 
 process.p = cms.Path(process.dump)
+# foo bar baz

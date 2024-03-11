@@ -262,3 +262,4 @@ process.out_step = cms.EndPath(process.output1+process.output2+process.output3)
 
 process.schedule = cms.Schedule(process.skim1,process.skim2,process.skim3)
 process.schedule.append(process.out_step)
+# foo bar baz

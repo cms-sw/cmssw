@@ -55,3 +55,4 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 process.p1 = cms.Path(process.prod)
 
 
+# foo bar baz

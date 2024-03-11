@@ -24,3 +24,4 @@ process.source = cms.Source("PoolSource",
 ## Output file
 process.out.fileName = 'validate_ctag_pat.root'
 
+# foo bar baz

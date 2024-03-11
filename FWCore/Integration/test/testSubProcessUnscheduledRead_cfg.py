@@ -14,3 +14,4 @@ process.test = cms.EDAnalyzer("TestParentage",
 )
 process.o = cms.EndPath(process.test)
 
+# foo bar baz

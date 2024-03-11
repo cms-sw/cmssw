@@ -88,3 +88,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	Name           = cms.untracked.vstring('BTLCrystal1','BTLCrystal2','BTLCrystal3','EModule_Timingactive'),
 	type           = cms.string('PrintMTDSens')
 ))
+# foo bar baz

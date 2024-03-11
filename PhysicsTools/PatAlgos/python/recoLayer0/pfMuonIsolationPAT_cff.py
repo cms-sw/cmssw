@@ -10,3 +10,4 @@ muonPFIsolationPATTask = cms.Task(
     muonPFIsolationValuesPATTask
 )
 muonPFIsolationPATSequence = cms.Sequence(muonPFIsolationPATTask)
+# foo bar baz

@@ -9,3 +9,4 @@ byclustsummsistripmulteventfilter = cms.EDFilter('ByClusterSummarySingleMultipli
                                                  cut = cms.string("mult > 300")
                                                  )
 	
+# foo bar baz

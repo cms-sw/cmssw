@@ -42,3 +42,4 @@ updatedPatJets = _mod.PATJetUpdater.clone(
     tagInfoSources  = [],
     printWarning    = True
 )
+# foo bar baz

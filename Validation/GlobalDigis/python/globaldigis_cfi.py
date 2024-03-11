@@ -29,3 +29,4 @@ globaldigis = cms.EDProducer("GlobalDigisProducer",
 )
 
 
+# foo bar baz

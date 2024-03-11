@@ -22,3 +22,4 @@ decaySubset = cms.EDProducer("TopDecaySubset",
   addRadiation = cms.bool(True)
 )
 
+# foo bar baz

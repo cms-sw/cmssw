@@ -6,3 +6,4 @@ deltaROverlapExclusionSelector = cms.EDFilter( "DeltaROverlapExclusionSelector",
    maxDeltaR = cms.double(0.01),
 )
 
+# foo bar baz

@@ -12,3 +12,4 @@ pythia8CommonSettingsBlock = cms.PSet(
       'ParticleDecays:allowPhotonRadiation = on',
     )
 )
+# foo bar baz

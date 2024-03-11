@@ -15,3 +15,4 @@ l1tStage2uGTCaloLayer2Comp = DQMEDAnalyzer(
     EtSumCollection2  = cms.InputTag("gtStage2Digis",   "EtSum"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGT/calol2ouput_vs_uGTinput")
 )
+# foo bar baz

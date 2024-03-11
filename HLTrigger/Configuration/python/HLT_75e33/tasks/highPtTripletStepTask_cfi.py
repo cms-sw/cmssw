@@ -13,3 +13,4 @@ highPtTripletStepTask = cms.Task(
     highPtTripletStepTrackSelectionHighPurity,
     highPtTripletStepTracks
 )
+# foo bar baz

@@ -17,3 +17,4 @@ hgcalCheckToolRecHitHE = hgcalCheckToolDigiEE.clone(
     nameSense  = 'HGCalHESiliconSensitive',
     checkDigi = False,
 )
+# foo bar baz

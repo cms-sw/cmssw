@@ -45,3 +45,4 @@ correctionTermsCaloMetTask = cms.Task(
     )
 
 correctionTermsCaloMet = cms.Sequence(correctionTermsCaloMetTask)
+# foo bar baz

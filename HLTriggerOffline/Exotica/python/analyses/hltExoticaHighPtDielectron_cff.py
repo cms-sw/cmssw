@@ -13,3 +13,4 @@ HighPtDielectronPSet = cms.PSet(
                                    ),
     dropPt3 = cms.bool(True),
     )
+# foo bar baz

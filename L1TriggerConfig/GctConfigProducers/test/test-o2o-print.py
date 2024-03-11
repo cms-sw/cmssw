@@ -68,3 +68,4 @@ process.p = cms.Path(
     process.getter1
     +process.l1GctConfigDump
 )
+# foo bar baz

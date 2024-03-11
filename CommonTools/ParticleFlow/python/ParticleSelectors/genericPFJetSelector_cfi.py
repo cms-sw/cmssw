@@ -6,3 +6,4 @@ selectedPfJets = cms.EDFilter(
     src = cms.InputTag('pfJets'),
     cut = cms.string('')
     )
+# foo bar baz

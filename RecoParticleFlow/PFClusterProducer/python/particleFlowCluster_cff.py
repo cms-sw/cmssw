@@ -97,3 +97,4 @@ def _addProcessPFClusterAlpaka(process):
     process.load("RecoParticleFlow.PFClusterProducer.pfClusterHBHEAlpaka_cff")
 
 modifyConfigurationPFClusterAlpaka_ = alpaka.makeProcessModifier(_addProcessPFClusterAlpaka)
+# foo bar baz

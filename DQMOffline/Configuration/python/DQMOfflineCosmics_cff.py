@@ -113,3 +113,4 @@ DQMOfflineCosmics = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                   DQMMessageLogger )
 
 PostDQMOffline = cms.Sequence()
+# foo bar baz

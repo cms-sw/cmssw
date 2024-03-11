@@ -12,3 +12,4 @@ btagMuonInJetOutputModuleAODSIM = cms.OutputModule("PoolOutputModule",
 )
 
 
+# foo bar baz

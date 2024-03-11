@@ -30,3 +30,4 @@ process.prod = cms.EDAnalyzer("TestLumiCorrectionSource")
 
 process.p = cms.Path(process.prod)
 
+# foo bar baz

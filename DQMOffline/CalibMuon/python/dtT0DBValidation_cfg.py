@@ -90,3 +90,4 @@ process.DQM.collectorHost = ''
 process.p = cms.Path(process.qTester*
                      process.dtT0Analyzer*
                      process.dqmSaver)
+# foo bar baz

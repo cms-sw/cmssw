@@ -88,3 +88,4 @@ hiMultiTrackSelector = cms.EDProducer("HIMultiTrackSelector",
                                                                 hiTightMTS,
                                                                 hiHighpurityMTS)
                                     )
+# foo bar baz

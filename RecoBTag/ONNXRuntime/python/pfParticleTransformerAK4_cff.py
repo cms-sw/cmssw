@@ -27,3 +27,4 @@ pfParticleTransformerAK4Task = cms.Task(puppi, primaryVertexAssociation,
 pfParticleTransformerAK4FromMiniAODTask = cms.Task(pfParticleTransformerAK4TagInfos,
                              pfParticleTransformerAK4JetTags,
                              pfParticleTransformerAK4DiscriminatorsJetTags)
+# foo bar baz

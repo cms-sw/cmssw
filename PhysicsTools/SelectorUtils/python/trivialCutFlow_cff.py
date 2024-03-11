@@ -38,3 +38,4 @@ trivialCutFlow = cms.PSet(
 
 central_id_registry.register(trivialCutFlow.idName,
                              '406a42716bb40f14256446a98e25c1de')
+# foo bar baz

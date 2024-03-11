@@ -297,3 +297,4 @@ process.path1 = cms.Path(
     process.streamRunSumIntAna *
     process.streamLumiSumIntAna
 )
+# foo bar baz

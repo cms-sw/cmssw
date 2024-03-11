@@ -15,3 +15,4 @@ Njettiness = cms.EDProducer("NjettinessAdder",
                             akAxesR0 = cms.double(999.0),        # not used by default
                             srcWeights = cms.InputTag("puppi")
                             )
+# foo bar baz

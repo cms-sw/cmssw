@@ -24,3 +24,4 @@ cfWriter = cms.EDProducer("CFWriter",
     )
 )
 
+# foo bar baz

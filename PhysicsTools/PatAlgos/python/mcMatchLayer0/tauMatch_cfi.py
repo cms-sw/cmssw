@@ -29,3 +29,4 @@ tauGenJetMatch = cms.EDProducer("GenJetMatcher",             # cut on deltaR, de
     resolveAmbiguities    = cms.bool(True),                  # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(False),                 # False = just match input in order; True = pick lowest deltaR pair first
 )
+# foo bar baz

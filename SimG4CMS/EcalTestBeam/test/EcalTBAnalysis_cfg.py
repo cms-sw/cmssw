@@ -39,3 +39,4 @@ process.DaqMonitorROOTBackEnd = cms.Service("DaqMonitorROOTBackEnd")
 
 process.p1 = cms.Path(process.ecalHitsValidation*process.ecalDigisValidation*process.ecalBarrelDigisValidation)
 
+# foo bar baz

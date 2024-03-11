@@ -62,3 +62,4 @@ from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
 (stage2L1Trigger).toReplaceWith(L1TDigiToRawTask, cms.Task(caloLayer1Raw, caloStage2Raw, bmtfStage2Raw, omtfStage2Raw, gmtStage2Raw, gtStage2Raw))
 
 L1TDigiToRaw = cms.Sequence(L1TDigiToRawTask)
+# foo bar baz

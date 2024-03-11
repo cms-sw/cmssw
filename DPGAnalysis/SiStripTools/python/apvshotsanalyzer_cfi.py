@@ -9,3 +9,4 @@ apvshotsanalyzer = cms.EDAnalyzer('APVShotsAnalyzer',
                                   mapSuffix = cms.string(""),
                                   useCabling = cms.untracked.bool(False)
 )	
+# foo bar baz

@@ -18,3 +18,4 @@ pythia8CP1SettingsBlock = cms.PSet(
         'PDF:pSet=LHAPDF6:NNPDF31_lo_as_0130',
 	)
 )
+# foo bar baz

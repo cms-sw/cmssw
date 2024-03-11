@@ -47,3 +47,4 @@ process.options = dict( numberOfStreams = 4,
 
 process.add_(cms.Service("Tracer", printTimestamps = cms.untracked.bool(True)))
 process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stallMonitor.log")))
+# foo bar baz

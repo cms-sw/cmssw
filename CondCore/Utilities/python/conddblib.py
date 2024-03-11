@@ -673,3 +673,4 @@ def getPayload(session, hash):
     # get payload from DB:
     data, payloadType = session.query(Payload.data, Payload.object_type).filter(Payload.hash == hash).one()
     return data
+# foo bar baz

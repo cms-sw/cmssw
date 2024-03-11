@@ -31,3 +31,4 @@ ak8PFJetsCHSSoftDropMass = cms.EDProducer("RecoJetDeltaRValueMapProducer",
                                          distMax = cms.double(0.8),
                                          value = cms.string('mass')  
                         )
+# foo bar baz

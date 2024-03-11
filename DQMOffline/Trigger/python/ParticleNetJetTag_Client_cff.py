@@ -12,3 +12,4 @@ particleNetClientHLT = cms.Sequence(
 #  see DQMOffline/Trigger/python/ParticleNetJetTagMonitoring_cff.py
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(particleNetClientHLT, cms.Sequence())
+# foo bar baz

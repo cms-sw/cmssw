@@ -146,3 +146,4 @@ process.L1TMuonSeq = cms.Sequence(process.MuonEtaFilter*process.esProd*process.o
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.schedule = cms.Schedule(process.L1TMuonPath)
+# foo bar baz

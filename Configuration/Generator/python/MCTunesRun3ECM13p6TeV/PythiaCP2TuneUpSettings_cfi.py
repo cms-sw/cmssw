@@ -21,3 +21,4 @@ pythia8CP2TuneUpSettingsBlock = cms.PSet(
 	)
 )
 
+# foo bar baz

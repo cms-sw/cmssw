@@ -84,3 +84,4 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tEGammaEmuDiff,
     plotCfgs = {0:dict(plots = allPlots_HI)}
 )
+# foo bar baz

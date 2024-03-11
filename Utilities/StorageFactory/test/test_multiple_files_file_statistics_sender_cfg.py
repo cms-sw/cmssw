@@ -7,4 +7,4 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 inputCommands = cms.untracked.vstring('drop *_*_beginRun_*', 'drop *_*_endRun_*', 'drop *_*_beginLumi_*', 'drop *_*_endLumi_*')
 )
 
-process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))
+process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))# foo bar baz

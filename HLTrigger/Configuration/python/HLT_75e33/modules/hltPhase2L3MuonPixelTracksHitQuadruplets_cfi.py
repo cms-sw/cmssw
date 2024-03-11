@@ -24,3 +24,4 @@ hltPhase2L3MuonPixelTracksHitQuadruplets = cms.EDProducer("CAHitQuadrupletEDProd
     mightGet = cms.optional.untracked.vstring,
     useBendingCorrection = cms.bool(True)
 )
+# foo bar baz

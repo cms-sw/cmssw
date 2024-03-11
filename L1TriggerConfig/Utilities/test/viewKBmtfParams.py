@@ -64,3 +64,4 @@ process.l1bkpv = cms.EDAnalyzer("L1TMuonBarrelKalmanParamsViewer",
 process.p = cms.Path(process.l1bkpv)
 
 print(process.es_sources.viewitems())
+# foo bar baz

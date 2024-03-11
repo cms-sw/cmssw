@@ -8,3 +8,4 @@ OuterTrackerSource = cms.Sequence(OuterTrackerMonitorTTCluster
                                  * OuterTrackerMonitorTTStub
                                  * OuterTrackerMonitorTTTrack
                                  )
+# foo bar baz

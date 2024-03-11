@@ -46,3 +46,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.myProducerLabel)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

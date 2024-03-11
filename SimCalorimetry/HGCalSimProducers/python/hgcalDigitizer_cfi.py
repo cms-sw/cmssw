@@ -390,3 +390,4 @@ def HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     return process
 
 doseMapNose = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka_HFNose_3.7.20.12_Eta2.4.txt")
+# foo bar baz

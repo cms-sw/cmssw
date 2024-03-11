@@ -16,3 +16,4 @@ makeTtFullHadHypothesesTask = cms.Task(
     makeHypothesis_kinFitTask
 )
 makeTtFullHadHypotheses = cms.Sequence(makeTtFullHadHypothesesTask)
+# foo bar baz

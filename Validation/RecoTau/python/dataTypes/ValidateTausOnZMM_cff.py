@@ -81,3 +81,4 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesZMM
       )
+# foo bar baz

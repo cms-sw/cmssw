@@ -335,3 +335,4 @@ l1tObjectsTimingClient = cms.Sequence(
 +  l1tEtSumLastBunchRatioPlots
 +  l1tEtSumIsolatedBunchRatioPlots
 )
+# foo bar baz

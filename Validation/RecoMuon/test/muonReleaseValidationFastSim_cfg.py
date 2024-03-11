@@ -235,3 +235,4 @@ else:
     process.schedule = cms.Schedule(
         process.p
         )
+# foo bar baz

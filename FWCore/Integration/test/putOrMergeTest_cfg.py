@@ -33,3 +33,4 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 process.end = cms.EndPath(process.test)
 
 #process.add_(cms.Service("Tracer"))
+# foo bar baz

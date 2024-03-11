@@ -73,3 +73,4 @@ process.out.fileName = 'test_higgs_in_MINIAODSIM.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 # process.add_(cms.Service("InitRootHandlers", DebugLevel =cms.untracked.int32(3)))
+# foo bar baz

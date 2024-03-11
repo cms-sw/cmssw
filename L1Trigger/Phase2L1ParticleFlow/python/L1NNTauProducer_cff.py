@@ -32,3 +32,4 @@ l1tNNTauProducerPF = cms.EDProducer("L1NNTauProducer",
                                       NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer.pb")
 )
 
+# foo bar baz

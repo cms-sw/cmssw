@@ -93,3 +93,4 @@ process.load("Validation.RecoVertex.VertexValidation_cff")
 
 process.p = cms.Path(process.vertexreco*process.vertexValidation)
 
+# foo bar baz

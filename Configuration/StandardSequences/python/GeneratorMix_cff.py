@@ -13,3 +13,4 @@ GenSmeared = cms.Sequence(generatorSmeared)
 hiGenJets = cms.Sequence(genParticlesForJets*hiRecoGenJets)
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+cms.SequencePlaceholder("mix")+VertexSmearing+GenSmeared+genParticles+hiGenJets)
 
+# foo bar baz

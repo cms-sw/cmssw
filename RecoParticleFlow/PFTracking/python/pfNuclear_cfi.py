@@ -7,3 +7,4 @@ pfNuclear = cms.EDProducer("PFNuclearProducer",
                            )
 
 
+# foo bar baz

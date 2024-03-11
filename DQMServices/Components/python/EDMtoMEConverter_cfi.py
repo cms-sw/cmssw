@@ -12,3 +12,4 @@ EDMtoMEConverter = cms.EDProducer("EDMtoMEConverter",
     runInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterRun'),
     lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi')
 )
+# foo bar baz

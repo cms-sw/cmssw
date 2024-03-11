@@ -6,3 +6,4 @@ genTree = cms.EDAnalyzer(
     genParticleToken = cms.untracked.InputTag("genParticles"),
     pileupInfoToken     = cms.untracked.InputTag("addPileupInfo")
 )
+# foo bar baz

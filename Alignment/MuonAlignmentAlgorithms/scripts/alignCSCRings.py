@@ -152,3 +152,4 @@ ff.close()
 os.system('grep -v "</MuonAlignment>" %s > %s' % (options.xml, options.xml+".tmp"))
 os.system('cat %s %s > %s' % (options.xml+".tmp", options.xml+".ring", options.xml+".ring.xml") )
 os.system('rm %s %s' % (options.xml+".tmp", options.xml+".ring") )
+# foo bar baz

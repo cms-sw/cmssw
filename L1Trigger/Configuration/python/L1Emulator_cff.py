@@ -12,3 +12,4 @@ from L1Trigger.GlobalTrigger.gtDigis_cfi import *
 # Emulator sequence
 L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
 
+# foo bar baz

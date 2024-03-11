@@ -364,3 +364,4 @@ hltCscSegments = cms.EDProducer("CSCSegmentProducer",
     algo_type = cms.int32(5),
     inputObjects = cms.InputTag("hltCsc2DRecHits")
 )
+# foo bar baz

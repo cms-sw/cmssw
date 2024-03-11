@@ -13,3 +13,4 @@ DQMExample_qTester = DQMQualityTester(
                        testInEventloop         = cms.untracked.bool(False),
                        verboseQT               = cms.untracked.bool(True)
 )
+# foo bar baz

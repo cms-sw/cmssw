@@ -5,3 +5,4 @@ from ..tasks.particleFlowRecoTask_cfi import *
 highlevelrecoTask = cms.Task(
     particleFlowRecoTask
 )
+# foo bar baz

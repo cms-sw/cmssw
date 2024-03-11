@@ -109,3 +109,4 @@ else:
     process.p = cms.Path(process.calo*process.pf*process.jpt)    
 
 
+# foo bar baz

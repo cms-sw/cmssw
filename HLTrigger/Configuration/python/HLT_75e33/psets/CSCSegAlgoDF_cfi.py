@@ -78,3 +78,4 @@ CSCSegAlgoDF = cms.PSet(
         2, 1, 2, 1, 2
     )
 )
+# foo bar baz

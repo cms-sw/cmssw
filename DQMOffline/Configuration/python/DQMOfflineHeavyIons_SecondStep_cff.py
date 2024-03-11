@@ -87,3 +87,4 @@ DQMOfflineHeavyIons_SecondStep = cms.Sequence(
 DQMOfflineHeavyIons_SecondStep_FakeHLT = cms.Sequence( DQMOfflineHeavyIons_SecondStep )
 DQMOfflineHeavyIons_SecondStep_FakeHLT.remove( DQMOfflineHeavyIons_SecondStepTrigger )
 
+# foo bar baz

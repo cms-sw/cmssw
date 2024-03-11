@@ -28,3 +28,4 @@ EcalHaloData= cms.EDProducer("EcalHaloDataProducer",
                              )
 
 
+# foo bar baz

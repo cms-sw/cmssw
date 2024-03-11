@@ -11,3 +11,4 @@ slimmedOOTPhotons.saveNonZSClusterShapes = cms.string("(r9()>0.8)") # save addit
 
 slimmedOOTPhotons.modifyPhotons = cms.bool(False)
 
+# foo bar baz

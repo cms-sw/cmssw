@@ -30,3 +30,4 @@ hltEle26WP70EcalIsoUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEtaFi
     useEt = cms.bool(True),
     varTag = cms.InputTag("hltEgammaEcalPFClusterIsoUnseeded")
 )
+# foo bar baz

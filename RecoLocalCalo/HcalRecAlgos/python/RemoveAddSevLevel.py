@@ -117,3 +117,4 @@ if __name__=="__main__":
     ES.hcalRecAlgos=AddFlag(ES.hcalRecAlgos,flag="HOBit",severity=5)
     PrintLevels(ES.hcalRecAlgos)
 
+# foo bar baz

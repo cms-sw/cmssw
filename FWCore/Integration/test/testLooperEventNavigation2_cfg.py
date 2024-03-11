@@ -39,3 +39,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.path1 = cms.Path(process.readProcessBlocksOneAnalyzer)
 process.endpath1 = cms.EndPath(process.out * process.testOneOutput)
+# foo bar baz

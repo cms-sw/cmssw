@@ -15,3 +15,4 @@ l1EmulatorObjGtExternalQualityTests = DQMQualityTester(
     verboseQT=cms.untracked.bool(True)
 )
 
+# foo bar baz

@@ -4,3 +4,4 @@ ecalFEDErrorFilter = cms.EDFilter("EcalFEDErrorFilter",
     InputLabel = cms.InputTag("source")
 
 )
+# foo bar baz

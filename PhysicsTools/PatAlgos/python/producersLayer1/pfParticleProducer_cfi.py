@@ -44,3 +44,4 @@ patPFParticles = cms.EDProducer("PATPFParticleProducer",
 )
 
 
+# foo bar baz

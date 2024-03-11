@@ -123,3 +123,4 @@ makePatBoostedElectrons = cms.Sequence(
 )
 
 
+# foo bar baz

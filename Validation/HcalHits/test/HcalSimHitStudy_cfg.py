@@ -42,3 +42,4 @@ process.p1 = cms.Path(process.hcalSimHitStudy)
 process.hcalSimHitStudy.outputFile = 'hcalsimstudy.root'
 
 
+# foo bar baz

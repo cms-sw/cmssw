@@ -39,3 +39,4 @@ makePatMuonsTask = cms.Task(
     patMuons
     )
 makePatMuons = cms.Sequence(makePatMuonsTask)
+# foo bar baz

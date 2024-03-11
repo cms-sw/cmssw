@@ -35,3 +35,4 @@ photonAnalysis.useTriggerFiltering = cms.bool(False)
 
 process.p1 = cms.Path(process.cosmicPhotonAnalysis)
 process.schedule = cms.Schedule(process.p1)
+# foo bar baz

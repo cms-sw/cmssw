@@ -122,3 +122,4 @@ premix_stage2.toModify(me0MuonTPSet, src = "mixData:MergedTrackTruth")
 #muonSelector_step = cms.Sequence(muonTP+muonGlb+muonSta)
 
 #muonSelector_seq = cms.Sequence(muonTP)
+# foo bar baz

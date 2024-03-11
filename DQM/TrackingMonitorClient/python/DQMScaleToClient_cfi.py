@@ -12,3 +12,4 @@ dqmScaleToClient = DQMEDHarvester('DQMScaleToClient',
     name = cms.string('')
   )
 )
+# foo bar baz

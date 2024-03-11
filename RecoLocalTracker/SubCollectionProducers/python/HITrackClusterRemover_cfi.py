@@ -19,3 +19,4 @@ HITrackClusterRemover = cms.EDProducer( "HITrackClusterRemover",
      )
 )
 
+# foo bar baz

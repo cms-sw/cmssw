@@ -12,3 +12,4 @@ totemT2Digis = totemVFATRawToDigi.clone(
         useOlderT2TestFile = False # March '23 version with two 8-bit ID fields
     )
 )
+# foo bar baz

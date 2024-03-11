@@ -74,3 +74,4 @@ DQMFileSaverOutput = cms.EndPath(
     lumiProducer + ftsLuminosityFromLumiSummary + ftsPileupFromLumiSummary +
     siPixelDigis + siPixelClusters + ftsLuminosityFromPixelClusters +
     fastTimerServiceClient + dqmFileSaver )
+# foo bar baz

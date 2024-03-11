@@ -205,3 +205,4 @@ if(options.unitTest):
 process.options.numberOfThreads=cms.untracked.uint32(4)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 #process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(2)  ## not yet
+# foo bar baz

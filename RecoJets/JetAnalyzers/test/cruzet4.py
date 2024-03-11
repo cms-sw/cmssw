@@ -73,3 +73,4 @@ process.p = cms.Path(process.compare)
 process.e = cms.EndPath(process.myOut*process.evtInfo)
 
 
+# foo bar baz

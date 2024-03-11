@@ -65,3 +65,4 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(
     hltEle32WPTightGsfTrackIsoUnseededFilter,
     HLTEle32WPTightUnseededTask
 )
+# foo bar baz

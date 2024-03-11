@@ -11,3 +11,4 @@ l1tGTQuadObjectCond = cms.EDFilter(
     sanity_checks=cms.untracked.bool(False),
     inv_mass_checks=cms.untracked.bool(False)
 )
+# foo bar baz

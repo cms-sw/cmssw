@@ -105,3 +105,4 @@ process.p = cms.Path(process.ecalSelectiveReadoutValidation)
 process.ecalSelectiveReadoutValidation.outputFile = 'run69912hists_.root'
 
 process.source.fileNames = ['/store/data/Commissioning08/Cosmics/RAW/v1/000/069/912/049C2F4D-10AD-DD11-BFEA-000423D174FE.root' ]
+# foo bar baz

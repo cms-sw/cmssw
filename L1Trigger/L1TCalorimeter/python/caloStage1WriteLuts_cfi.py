@@ -9,3 +9,4 @@ writeLuts = cms.EDAnalyzer("L1TCaloStage1LutWriter",
                                 )
 
 
+# foo bar baz

@@ -23,3 +23,4 @@ L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
 )
 
+# foo bar baz

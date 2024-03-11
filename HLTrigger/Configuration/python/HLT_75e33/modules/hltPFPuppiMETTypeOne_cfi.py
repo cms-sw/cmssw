@@ -4,3 +4,4 @@ hltPFPuppiMETTypeOne = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag("hltPFPuppiMET"),
     srcCorrections = cms.VInputTag("hltPFPuppiMETTypeOneCorrector:type1")
 )
+# foo bar baz

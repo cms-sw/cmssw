@@ -38,3 +38,4 @@ l1csctpconf = cms.ESProducer("L1CSCTriggerPrimitivesConfigProducer",
         tmbTmbL1aWindowSize    = cms.uint32(7)
     )
 )
+# foo bar baz

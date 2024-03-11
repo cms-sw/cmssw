@@ -9,3 +9,4 @@ L1T_SingleTkMuon_22 = cms.Path(
     hltL1TkSingleMuFiltered22 +
     HLTEndSequence
 )
+# foo bar baz

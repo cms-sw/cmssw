@@ -32,3 +32,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 # path to be run
 process.p = cms.Path(process.l1GmtTriggerSource)
 
+# foo bar baz

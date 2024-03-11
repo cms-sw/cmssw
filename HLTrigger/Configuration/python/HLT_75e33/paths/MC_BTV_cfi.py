@@ -11,3 +11,4 @@ MC_BTV = cms.Path(
     HLTBtagDeepCSVSequencePFPuppi +
     HLTBtagDeepFlavourSequencePFPuppi
 )
+# foo bar baz

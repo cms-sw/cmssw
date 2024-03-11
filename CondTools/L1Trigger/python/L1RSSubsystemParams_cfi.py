@@ -136,3 +136,4 @@ def initL1RSSubsystems( tagBaseVec = [],
             key = cms.string(L1GtTriggerMaskVetoTechTrigRcdKey)
             ))
             )
+# foo bar baz

@@ -14,3 +14,4 @@ gpuValidationEcal.toModify(ecalMonitorTask, workerParameters = dict(GpuTask = ec
 # This is to be used as long as the GPU unpacker unpacks a dummy EcalRawData collection
 from Configuration.ProcessModifiers.gpu_cff import gpu
 gpu.toModify(ecalMonitorTask.skipCollections, func = lambda skipCollections: skipCollections.append("EcalRawData"))
+# foo bar baz

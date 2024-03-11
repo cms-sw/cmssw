@@ -47,3 +47,4 @@ process.demo = cms.EDAnalyzer('PixelPopConCalibChecker',
 
 
 process.p = cms.Path(process.demo)
+# foo bar baz

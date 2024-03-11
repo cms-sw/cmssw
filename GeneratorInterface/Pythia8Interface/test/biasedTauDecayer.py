@@ -42,3 +42,4 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
 process.p = cms.Path(process.generator)
 
 
+# foo bar baz

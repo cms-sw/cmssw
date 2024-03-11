@@ -32,3 +32,4 @@ hltMultiTrackValidationGsfTracks = cms.Sequence(
     hltGsfTrackValidator,
     hltMultiTrackValidationGsfTracksTask
 )    
+# foo bar baz

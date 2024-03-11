@@ -11,3 +11,4 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
   getSamplesCorrelationFromFile = cms.untracked.bool(True),
   SamplesCorrelationFile = cms.untracked.string('CondTools/Ecal/python/EcalSamplesCorrelation.txt')
 )
+# foo bar baz

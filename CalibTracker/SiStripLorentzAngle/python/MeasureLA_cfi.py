@@ -27,3 +27,4 @@ MeasureLA = cms.ESProducer(
                                         ),
     Calibrations = LorentzAngleCalibrations_DeconvolutionModeBEAM
     )
+# foo bar baz

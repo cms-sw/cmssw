@@ -44,4 +44,4 @@ if __name__=="__main__":
     logging.info('>>> Input file: [%s]' % args.input_file)
     logging.info('>>> Write to output: %s ' % args.output_file)
 
-    number_events(args.input_file, args.output_file)
+    number_events(args.input_file, args.output_file)# foo bar baz

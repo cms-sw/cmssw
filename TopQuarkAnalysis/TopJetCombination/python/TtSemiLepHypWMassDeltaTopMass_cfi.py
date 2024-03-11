@@ -29,3 +29,4 @@ ttSemiLepHypWMassDeltaTopMass = cms.EDProducer("TtSemiLepHypWMassDeltaTopMass",
     ## in all these cases (0, 1, 2, 3), only the real part is used if solutions are complex
     neutrinoSolutionType = cms.int32(-1)
 )
+# foo bar baz

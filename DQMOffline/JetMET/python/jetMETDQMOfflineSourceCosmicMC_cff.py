@@ -17,3 +17,4 @@ caloMetDQMAnalyzer.JetCorrections = cms.InputTag("")
 
 
 jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
+# foo bar baz

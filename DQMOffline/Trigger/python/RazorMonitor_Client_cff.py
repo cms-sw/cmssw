@@ -17,3 +17,4 @@ RazorEfficiency = DQMEDHarvester("DQMGenericClient",
 susyHLTRazorClient = cms.Sequence(
     RazorEfficiency
 )
+# foo bar baz

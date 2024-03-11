@@ -11,3 +11,4 @@ simBeamSpotFilter = cms.EDFilter("GaussianZBeamSpotFilter",
 
 
 
+# foo bar baz

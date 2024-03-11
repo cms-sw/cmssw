@@ -69,3 +69,4 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_ElecFakes_POSTPROCESSING+
                               SUSY_HLT_MuonFakes_POSTPROCESSING
                               )
+# foo bar baz

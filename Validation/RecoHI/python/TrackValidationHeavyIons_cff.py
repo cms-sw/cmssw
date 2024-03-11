@@ -52,3 +52,4 @@ hiTrackPrevalidation = cms.Sequence(
 
 # track validation sequence
 hiTrackValidation = cms.Sequence( trackAssociatorByHitsRecoDenom * hiTrackValidator )
+# foo bar baz

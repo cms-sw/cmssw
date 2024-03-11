@@ -14,3 +14,4 @@ cosmicseedfinderP5 = cosmicseedfinder.clone(
     GeometricStructure = 'STANDARD',
     HitsForSeeds       = 'pairs'
 )
+# foo bar baz

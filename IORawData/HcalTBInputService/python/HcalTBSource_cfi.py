@@ -18,3 +18,4 @@ source = cms.Source("HcalTBSource",
 )
 
 
+# foo bar baz

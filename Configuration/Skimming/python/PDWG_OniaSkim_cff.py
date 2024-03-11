@@ -20,3 +20,4 @@ oniaSkimSequence = cms.Sequence(
     OniaSkimDiMuons *
     OniaSkimDiMuonFilter
     )
+# foo bar baz

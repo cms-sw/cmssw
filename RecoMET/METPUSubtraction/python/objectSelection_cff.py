@@ -115,3 +115,4 @@ selectedPhotons,
 selectedJets
 )
 selectionSequenceForMVANoPUMET = cms.Sequence(selectionSequenceForMVANoPUMETTask)
+# foo bar baz

@@ -15,3 +15,4 @@ process.MessageLogger.cerr.threshold = 'INFO'
 process.writer = cms.EDAnalyzer("LHEWriter")
 
 process.outpath = cms.EndPath(process.writer)
+# foo bar baz

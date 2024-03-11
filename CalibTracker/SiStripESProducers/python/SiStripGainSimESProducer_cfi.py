@@ -12,3 +12,4 @@ siStripGainSimESProducer = cms.ESProducer("SiStripGainSimESProducer",
         ),
     )
 )
+# foo bar baz

@@ -9,3 +9,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                                                    'Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'),
                                         rootNodeName = cms.string('cms:MCMS')
                                         )
+# foo bar baz

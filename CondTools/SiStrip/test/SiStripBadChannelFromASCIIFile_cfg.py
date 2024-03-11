@@ -51,3 +51,4 @@ process.prod = siStripBadStripFromASCIIFile.clone(Record = cms.string('SiStripBa
 process.p = cms.Path(process.prod)
 
 
+# foo bar baz

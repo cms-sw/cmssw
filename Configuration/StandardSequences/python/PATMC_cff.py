@@ -13,3 +13,4 @@ patTask = cms.Task(
 )
 
 miniAOD=cms.Sequence()
+# foo bar baz

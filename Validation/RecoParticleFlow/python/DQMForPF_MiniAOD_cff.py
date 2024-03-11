@@ -27,3 +27,4 @@ DQMOfflinePFExtended = cms.Sequence(
     METValidationMiniAOD +
     JetValidationMiniAOD
 )
+# foo bar baz

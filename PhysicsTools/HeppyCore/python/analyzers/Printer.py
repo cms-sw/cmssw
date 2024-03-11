@@ -13,3 +13,4 @@ class Printer(Analyzer):
             self.firstEvent = False
         print("printing event", event.iEv, 'var1', event.input.var1)
         
+# foo bar baz

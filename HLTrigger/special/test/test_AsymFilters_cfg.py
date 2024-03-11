@@ -107,3 +107,4 @@ process.out_step     = cms.EndPath( process.hltTimer + process.output)
 # Schedule definition
 process.schedule = cms.Schedule(*( process.HLTriggerFirstPath, process.HLT_L1_BSC_BeamGas, process.HLT_L1_HF_BeamGas, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
 process.schedule.extend([process.endjob_step,process.out_step])
+# foo bar baz

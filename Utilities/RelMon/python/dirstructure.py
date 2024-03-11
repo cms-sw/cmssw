@@ -490,3 +490,4 @@ class Comparison(Weighted):
     return "%s , (%s=%s). IMG=%s. status=%s" %(self.name,self.test_name,self.rank,self.img_name,self.status)
 
 #-------------------------------------------------------------------------------  
+# foo bar baz

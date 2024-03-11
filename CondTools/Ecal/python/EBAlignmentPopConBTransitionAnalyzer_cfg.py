@@ -44,3 +44,4 @@ process.popConEBAlignment = cms.EDAnalyzer("EcalAlignmentPopConBTransitionAnalyz
                                                     )
 
 process.p = cms.Path(process.popConEBAlignment)
+# foo bar baz

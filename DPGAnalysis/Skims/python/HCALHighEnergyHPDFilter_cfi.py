@@ -8,3 +8,4 @@ HCALHighEnergyHPDFilter = cms.EDFilter("HLTHPDFilter",
                                        rbxSpikeEnergy = cms.double(50.0),
                                        rbxSpikeUnbalance = cms.double(0.2)
                                        )
+# foo bar baz

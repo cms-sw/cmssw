@@ -46,3 +46,4 @@ generator = cms.EDProducer("Pythia6PtGun",
         )
     )
 )
+# foo bar baz

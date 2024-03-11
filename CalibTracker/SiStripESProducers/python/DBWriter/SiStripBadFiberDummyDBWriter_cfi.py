@@ -9,3 +9,4 @@ siStripBadFiberDummyDBWriter = cms.EDAnalyzer("SiStripBadFiberDummyDBWriter",
 
 
 
+# foo bar baz

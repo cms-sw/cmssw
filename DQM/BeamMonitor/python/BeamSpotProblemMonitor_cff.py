@@ -13,3 +13,4 @@ dqmBeamSpotProblemMonitor = DQMEDAnalyzer("BeamSpotProblemMonitor",
                               Debug = cms.untracked.bool(False),
                               doTest= cms.untracked.bool(False)
                               )
+# foo bar baz

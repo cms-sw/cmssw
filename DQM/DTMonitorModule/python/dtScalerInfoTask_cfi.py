@@ -6,3 +6,4 @@ dtScalerInfoMonitor = DQMEDAnalyzer('DTScalerInfoTask',
 )
 
 
+# foo bar baz

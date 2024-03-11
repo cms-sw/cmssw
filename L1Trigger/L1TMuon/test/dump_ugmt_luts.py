@@ -38,3 +38,4 @@ process.dumper = cms.EDAnalyzer("L1TMicroGMTLUTDumper",
 
 process.dumpPath = cms.Path( process.dumper )
 process.schedule = cms.Schedule(process.dumpPath)
+# foo bar baz

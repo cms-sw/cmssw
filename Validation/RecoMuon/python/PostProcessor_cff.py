@@ -96,3 +96,4 @@ postProcessorMuonTrackComp = DQMEDHarvester("DQMGenericClient",
 recoMuonPostProcessors = cms.Sequence( postProcessorMuonTrack 
                                           * postProcessorMuonTrackComp 
                                           * postProcessorsRecoMuonValidator_seq )
+# foo bar baz

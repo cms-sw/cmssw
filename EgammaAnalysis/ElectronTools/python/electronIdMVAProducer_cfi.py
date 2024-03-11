@@ -56,3 +56,4 @@ mvaNonTrigV0 = cms.EDFilter("ElectronIdMVAProducer",
                             Trig = cms.bool(False),
                             NoIP = cms.bool(False),
 )
+# foo bar baz

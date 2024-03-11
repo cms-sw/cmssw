@@ -60,3 +60,4 @@ process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 process.p = cms.Path( process.beamSpotDipServer )
 print("Final Source settings:", process.source)
 
+# foo bar baz

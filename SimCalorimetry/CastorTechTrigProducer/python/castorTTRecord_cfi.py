@@ -19,3 +19,4 @@ simCastorTTRecord = cms.EDProducer("CastorTTRecord",
                                            65000,     # low pt jet energy threshold for total sector energy
                                          )
 )
+# foo bar baz

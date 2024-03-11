@@ -24,3 +24,4 @@ LooperFittingSmoother = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFitti
     LogPixelProbabilityCut = -14.0,
     MinNumberOfHits = 3
 )
+# foo bar baz

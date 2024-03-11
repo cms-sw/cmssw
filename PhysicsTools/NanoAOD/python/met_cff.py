@@ -133,3 +133,4 @@ metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
 
 metTablesTask = cms.Task( metTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, tkMetTable, chsMetTable, deepMetResolutionTuneTable, deepMetResponseTuneTable )
 metMCTask = cms.Task( metMCTable )
+# foo bar baz

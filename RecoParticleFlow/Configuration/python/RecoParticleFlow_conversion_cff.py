@@ -13,3 +13,4 @@ particleFlowRecoConversionTask = cms.Task( particleFlowTrackWithConversionTask,
                                            particleFlowBlock,
                                            particleFlowTmp )
 particleFlowRecoConversion = cms.Sequence(particleFlowRecoConversionTask)
+# foo bar baz

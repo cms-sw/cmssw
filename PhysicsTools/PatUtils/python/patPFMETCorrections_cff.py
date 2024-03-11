@@ -314,3 +314,4 @@ producePatPFMETCorrectionsUncTask = cms.Task(
     patPFMetT0Corr,
     pfCandMETcorr
 )
+# foo bar baz

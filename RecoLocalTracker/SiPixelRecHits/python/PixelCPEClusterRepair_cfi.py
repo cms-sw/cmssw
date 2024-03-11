@@ -6,3 +6,4 @@ templates2_speed0 = _templates2_default.clone(
     ComponentName = "PixelCPEClusterRepairWithoutProbQ",
     speed = 0
 )
+# foo bar baz

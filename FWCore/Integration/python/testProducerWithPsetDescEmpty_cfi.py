@@ -75,3 +75,4 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
   ),
   plugin5 = cms.VPSet()
 )
+# foo bar baz

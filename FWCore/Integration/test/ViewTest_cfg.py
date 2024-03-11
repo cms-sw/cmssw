@@ -96,3 +96,4 @@ process.p = cms.Path(process.simple +
                      process.intvecstdvecptr +
                      process.intvecstdvecuniqptr)
 process.e1 = cms.EndPath(process.testview)
+# foo bar baz

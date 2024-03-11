@@ -50,3 +50,4 @@ EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilte
 
 
 
+# foo bar baz

@@ -47,3 +47,4 @@ process.refTestAnalyzer = cms.EDAnalyzer("RefTestAnalyzer",
 process.p = cms.Path(process.cleanElectrons*process.cleanJets*process.convBtag*process.skimBtag*process.refTestAnalyzer)
 
 
+# foo bar baz

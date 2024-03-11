@@ -84,3 +84,4 @@ class ResonanceBuilder(Analyzer):
         setattr(event, self.instance_label, resonances)
         
 
+# foo bar baz

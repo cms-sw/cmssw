@@ -154,3 +154,4 @@ hiRegitMuonPixelPairStepTask = cms.Task(hiRegitMuPixelPairStepClusters,
                                         hiRegitMuPixelPairStepTracks,
                                         hiRegitMuPixelPairStepSelector)
 hiRegitMuonPixelPairStep = cms.Sequence(hiRegitMuonPixelPairStepTask)
+# foo bar baz

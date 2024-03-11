@@ -65,3 +65,4 @@ process.p = cms.Path(process.globalMuonLinks*
                      process.muons)
 
 process.e = cms.EndPath(process.out)
+# foo bar baz

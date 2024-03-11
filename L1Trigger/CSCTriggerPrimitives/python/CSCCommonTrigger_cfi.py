@@ -7,3 +7,4 @@ CSCCommonTrigger = cms.PSet(
     MinBX = cms.int32(5)
 )
 
+# foo bar baz

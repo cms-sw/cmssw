@@ -8,3 +8,4 @@ L1O2OTestAnalyzerExt = cms.EDAnalyzer("L1O2OTestAnalyzerExt",
                                    recordsToPrint = cms.vstring()
 #    'L1TUtmTriggerMenuRcd' ) # Run Settings records
                                   )
+# foo bar baz

@@ -21,4 +21,4 @@ process.DoodadESSource = cms.ESSource("DoodadESSource")
 
 process.p = cms.Path(process.WhatsItAnalyzer)
 
-process.options = cms.untracked.PSet(forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True))# foo bar baz

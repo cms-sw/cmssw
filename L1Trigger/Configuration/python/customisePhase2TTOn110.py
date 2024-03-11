@@ -8,3 +8,4 @@ def customisePhase2TTOn110(process):
     process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag('simSiPixelDigis','Tracker')
 
     return process
+# foo bar baz

@@ -42,3 +42,4 @@ process.analysis_step = cms.Path(process.hcalGeomCheck)
 process.schedule = cms.Schedule(process.analysis_step)
 
 process.hcalGeomCheck.verbosity = 0
+# foo bar baz

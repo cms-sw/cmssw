@@ -51,3 +51,4 @@ trackerRecHitsStripValidation = cms.Sequence(stripRecHitsValid+condDataValidatio
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith( trackerRecHitsValidation, trackerRecHitsStripValidation )
+# foo bar baz

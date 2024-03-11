@@ -7,3 +7,4 @@ import FWCore.ParameterSet.Config as cms
 #from L1TriggerConfig.L1GeometryProducers.l1CaloGeomConfig_cff import *
 from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
 
+# foo bar baz

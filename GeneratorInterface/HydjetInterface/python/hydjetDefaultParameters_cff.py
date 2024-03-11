@@ -237,3 +237,4 @@ pyquenPythiaDefaultBlock = cms.PSet(
     myParameters = cms.vstring('MDCY(310,1)=0')
 
 )
+# foo bar baz

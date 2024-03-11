@@ -41,3 +41,4 @@ def find(file, regularExpression, exceptRegEx = []):
                 lines.append(i+1)
     return lines
 
+# foo bar baz

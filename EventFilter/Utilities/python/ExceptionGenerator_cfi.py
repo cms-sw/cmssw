@@ -7,3 +7,4 @@ ExceptionGenerator = cms.EDAnalyzer( "ExceptionGenerator",
 )
 
 
+# foo bar baz

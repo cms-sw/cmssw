@@ -131,3 +131,4 @@ process.TFileService = cms.Service('TFileService',
 process.MainSeq= cms.Sequence(process.hltSelection+process.consecutiveHEs+process.APVPhases+process.ssclustermultprod+process.spclustermultprod+process.eventtimedistribution+process.multiplicitycorr+process.NoZeroSClusters+process.offdiagonal+process.eventtimedistributionAfter+process.multiplicitycorrAfter)
 
 process.p0 = cms.Path(process.MainSeq)
+# foo bar baz

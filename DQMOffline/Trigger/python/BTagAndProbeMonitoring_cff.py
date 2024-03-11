@@ -53,3 +53,4 @@ BTagAndProbeHLT = cms.Sequence(
 
     , cms.Task(egmGsfElectronIDsForDQM) # Use of electron VID requires this module being executed first
 )
+# foo bar baz

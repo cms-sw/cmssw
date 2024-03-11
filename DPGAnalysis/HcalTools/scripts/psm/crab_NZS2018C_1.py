@@ -51,3 +51,4 @@ config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
 config.Site.whitelist = ['T2_CH_CERN']
 
+# foo bar baz

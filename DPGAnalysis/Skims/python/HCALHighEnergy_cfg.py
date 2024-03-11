@@ -72,3 +72,4 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
 process.p = cms.EndPath(process.out)
+# foo bar baz

@@ -100,3 +100,4 @@ hltHpsSelectionDiscriminator = cms.EDProducer( "PFRecoTauDiscriminationByHPSSele
     minPixelHits = cms.int32( 0 ),
     requireTauChargedHadronsToBeChargedPFCands = cms.bool( False )
 )
+# foo bar baz

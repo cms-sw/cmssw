@@ -53,3 +53,4 @@ process.schedule = cms.Schedule(
     process.DQMoutput_step
 #    process.dqmsave_step
     )
+# foo bar baz

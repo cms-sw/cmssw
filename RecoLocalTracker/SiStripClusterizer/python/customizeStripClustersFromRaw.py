@@ -22,3 +22,4 @@ def customizeHLTStripClustersFromRaw(process):
                                    cms.Sequence(process.hltSiStripRawToClustersFacility, process.siStripClustersTaskCUDA))
 
     return process
+# foo bar baz

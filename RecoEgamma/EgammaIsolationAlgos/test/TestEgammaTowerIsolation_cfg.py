@@ -20,3 +20,4 @@ process.demo = cms.EDAnalyzer('TestEgammaTowerIsolation')
 process.mypath = cms.Path(process.demo)
 process.schedule = cms.Schedule(process.mypath)
 
+# foo bar baz

@@ -110,3 +110,4 @@ process.p = cms.Path(
    *
    process.ecalDisplaysByEvent
 )
+# foo bar baz

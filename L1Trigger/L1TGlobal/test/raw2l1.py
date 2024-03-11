@@ -258,3 +258,4 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 #outfile = open(dumpFile,'w')
 #print >> outfile,process.dumpPython()
 #outfile.close()
+# foo bar baz

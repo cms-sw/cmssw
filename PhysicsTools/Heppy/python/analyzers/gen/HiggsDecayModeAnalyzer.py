@@ -60,3 +60,4 @@ setattr(HiggsDecayModeAnalyzer,"defaultConfig",
         filterHiggsDecays = False, 
     )
 )
+# foo bar baz

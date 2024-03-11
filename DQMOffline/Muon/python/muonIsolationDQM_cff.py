@@ -151,3 +151,4 @@ muIsoDQM_seq_miniAOD_Phase2 = cms.Sequence(MuIsoDQM_trk_miniAOD_Phase2+MuIsoDQM_
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon                                                                         
 phase2_muon.toReplaceWith(muIsoDQM_seq, muIsoDQM_seq_Phase2)
 phase2_muon.toReplaceWith(muIsoDQM_seq_miniAOD, muIsoDQM_seq_miniAOD_Phase2)
+# foo bar baz

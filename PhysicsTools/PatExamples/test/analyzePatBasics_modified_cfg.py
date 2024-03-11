@@ -28,3 +28,4 @@ process.p = cms.Path(
     process.analyzeBasicPat2
 )
 
+# foo bar baz

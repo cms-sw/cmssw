@@ -66,3 +66,4 @@ process.analysis = cms.EDAnalyzer("SiStripCorrelateBadStripAndNoise")
 
 process.p = cms.Path(process.stat+process.analysis)
 
+# foo bar baz

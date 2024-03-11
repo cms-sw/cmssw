@@ -10,3 +10,4 @@ pfElectronTranslatorTask = cms.Task(
     pfElectronInterestingEcalDetIdEE
 )
 pfElectronTranslatorSequence = cms.Sequence(pfElectronTranslatorTask)
+# foo bar baz

@@ -57,3 +57,4 @@ L3Muons = _mod.L3MuonProducer.clone(
         )
     )
 )
+# foo bar baz

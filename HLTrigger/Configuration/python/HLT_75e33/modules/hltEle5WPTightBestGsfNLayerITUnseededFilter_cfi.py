@@ -22,3 +22,4 @@ hltEle5WPTightBestGsfNLayerITUnseededFilter = cms.EDFilter("HLTEgammaGenericFilt
     useEt = cms.bool(False),
     varTag = cms.InputTag("hltEgammaBestGsfTrackVarsUnseeded","NLayerIT")
 )
+# foo bar baz

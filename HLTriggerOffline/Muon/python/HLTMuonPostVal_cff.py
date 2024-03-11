@@ -8,3 +8,4 @@ HLTMuonPostVal = cms.Sequence(
     hltMuonPostProcessors
     )
 
+# foo bar baz

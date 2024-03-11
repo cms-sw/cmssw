@@ -16,3 +16,4 @@ siStripBackPlaneCorrectionDepESProducer = cms.ESProducer("SiStripBackPlaneCorrec
             label = cms.untracked.string('deconvolution')
             )
    )
+# foo bar baz

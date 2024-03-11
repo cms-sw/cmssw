@@ -64,3 +64,4 @@ process.myanalysis = cms.EDAnalyzer("StandaloneTrackerTopologyTest")
 ###################################################################
 process.p1 = cms.Path(process.myanalysis)
 
+# foo bar baz

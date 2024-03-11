@@ -14,3 +14,4 @@ AlignmentTreeMerger = cms.EDAnalyzer("TkAlCaSkimTreeMerger",
                                                    TECmaxhits=cms.int32(-1)
                                                    )
                                      )
+# foo bar baz

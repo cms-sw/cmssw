@@ -10,3 +10,4 @@ potentialTIBTECFrameHeaderEventsSPeak = cms.EDFilter('EventWithHistoryEDFilter',
                                                     )
                                                   )
                                                 )
+# foo bar baz

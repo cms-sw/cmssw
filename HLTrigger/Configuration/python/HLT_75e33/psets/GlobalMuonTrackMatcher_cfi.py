@@ -23,3 +23,4 @@ GlobalMuonTrackMatcher = cms.PSet(
         Quality_3 = cms.double(7.0)
     )
 )
+# foo bar baz

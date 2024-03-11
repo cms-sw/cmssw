@@ -5,3 +5,4 @@ from ..tasks.HLTParticleFlowTask_cfi import *
 HLTParticleFlowSequence = cms.Sequence(
     HLTParticleFlowTask
 )
+# foo bar baz

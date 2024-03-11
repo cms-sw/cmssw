@@ -616,3 +616,4 @@ fsqHLTOfflineSource = DQMEDAnalyzer('FSQDiJetAve',
     #useGenWeight = cms.bool(True),
     todo = cms.VPSet(getFSQAll())
 )
+# foo bar baz

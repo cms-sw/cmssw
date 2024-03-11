@@ -49,3 +49,4 @@ hiSelectedVertex = hiSelectedPixelVertex.clone(
     finalAdaptiveVertexCollection = cms.InputTag("hiBestOfflinePrimaryVertex")
 )
 bestFinalHiVertexTask = cms.Task(hiOfflinePrimaryVertices , hiBestOfflinePrimaryVertex , hiSelectedVertex )
+# foo bar baz

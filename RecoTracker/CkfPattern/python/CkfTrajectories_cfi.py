@@ -44,3 +44,4 @@ trackingParabolicMf.toModify(ckfTrajectoriesIterativeDefault,
 trackingParabolicMf.toModify(ckfTrajectoriesIterativeDefault.TransientInitialStateEstimatorParameters,
                              propagatorAlongTISE   ='PropagatorWithMaterialParabolicMf',
                              propagatorOppositeTISE='PropagatorWithMaterialParabolicMfOpposite')
+# foo bar baz

@@ -8,3 +8,4 @@ BeamHaloPropagatorOpposite = cms.ESProducer("BeamHaloPropagatorESProducer",
 )
 
 
+# foo bar baz

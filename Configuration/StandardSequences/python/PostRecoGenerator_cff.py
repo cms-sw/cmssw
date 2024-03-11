@@ -6,3 +6,4 @@ from SimTracker.TrackAssociation.trackMCMatchSequence_cff import *
 # define post-reco generator sequence
 postreco_generator = cms.Sequence(trackMCMatchSequence)
 
+# foo bar baz

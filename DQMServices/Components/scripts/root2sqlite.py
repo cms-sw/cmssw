@@ -119,3 +119,4 @@ for name, obj, rtype in read_objects_root(f):
     basic_objects[name] = obj
 
 save_keyvalue(basic_objects, "TDirectory")
+# foo bar baz

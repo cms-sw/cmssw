@@ -7,3 +7,4 @@ allGlobalMuonTracks = cms.EDProducer("ChargedCandidateProducer",
 )
 
 
+# foo bar baz

@@ -38,3 +38,4 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
         key = cms.string('3')
 ))
 
+# foo bar baz

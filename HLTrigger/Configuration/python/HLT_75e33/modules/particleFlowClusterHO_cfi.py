@@ -77,3 +77,4 @@ particleFlowClusterHO = cms.EDProducer("PFClusterProducer",
         )
     )
 )
+# foo bar baz

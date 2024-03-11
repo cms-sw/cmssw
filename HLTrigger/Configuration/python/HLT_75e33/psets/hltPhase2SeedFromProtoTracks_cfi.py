@@ -10,3 +10,4 @@ hltPhase2SeedFromProtoTracks = cms.PSet(
     magneticField = cms.string(''),
     propagator = cms.string('PropagatorWithMaterial')
 )
+# foo bar baz

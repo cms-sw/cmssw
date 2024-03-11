@@ -28,3 +28,4 @@ process.prod = cms.EDAnalyzer("PerfectGeometryAnalyzer",
 
 process.p1 = cms.Path(process.prod)
 process.e1 = cms.EndPath(process.myprint)
+# foo bar baz

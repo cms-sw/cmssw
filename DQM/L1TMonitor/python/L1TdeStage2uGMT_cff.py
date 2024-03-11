@@ -168,3 +168,4 @@ l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(
 _run3_l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(l1tStage2uGMTEmulatorOnlineDQMSeq.copy() + l1tdeStage2uGMTShowers)
 stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTEmulatorOnlineDQMSeq, _run3_l1tStage2uGMTEmulatorOnlineDQMSeq)
 
+# foo bar baz

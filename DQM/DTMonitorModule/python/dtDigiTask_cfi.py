@@ -47,3 +47,4 @@ dtDigiMonitor = DQMEDAnalyzer('DTDigiTask',
 )
 
 
+# foo bar baz

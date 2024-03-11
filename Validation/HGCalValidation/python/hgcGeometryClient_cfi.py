@@ -4,3 +4,4 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 hgcalGeometryClient = DQMEDHarvester("HGCalGeometryClient", 
                                      DirectoryName = cms.string("Geometry"),
                                      )
+# foo bar baz

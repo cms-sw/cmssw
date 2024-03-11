@@ -30,3 +30,4 @@ outInSeedsFromStandaloneMuons = cms.EDProducer('OutsideInMuonSeeder',
     debug = cms.untracked.bool(False),
 )
 
+# foo bar baz

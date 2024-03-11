@@ -41,3 +41,4 @@ pfRecoTauDiscriminationAgainstElectron2 = cms.EDProducer("PFRecoTauDiscriminatio
 )
 
 
+# foo bar baz

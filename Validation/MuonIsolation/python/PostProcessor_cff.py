@@ -73,3 +73,4 @@ postProcessorMuonIsolation = DQMEDHarvester(
 )        
 
 MuIsoValPostProcessor = cms.Sequence(postProcessorMuonIsolation)
+# foo bar baz

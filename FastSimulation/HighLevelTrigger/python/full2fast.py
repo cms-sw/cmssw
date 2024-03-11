@@ -23,3 +23,4 @@ def modify_hltL3TrajSeedIOHit(_hltL3TrajSeedIOHit):
     _hltL3TrajSeedIOHit.TrackerSeedCleaner = cms.PSet()
     
 
+# foo bar baz

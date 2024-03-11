@@ -10,3 +10,4 @@ pfTrack = cms.EDProducer("PFTrackProducer",
     TrajInEvents = cms.bool(False),
     UseQuality = cms.bool(True)
 )
+# foo bar baz

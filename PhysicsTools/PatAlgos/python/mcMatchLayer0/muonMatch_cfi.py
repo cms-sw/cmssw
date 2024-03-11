@@ -17,3 +17,4 @@ muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best b
     resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
 )
 
+# foo bar baz

@@ -36,3 +36,4 @@ the configuration file.""")
     parser.add_argument("file", type=str, help="Log file to parse")
     opts = parser.parse_args()
     main(opts)
+# foo bar baz

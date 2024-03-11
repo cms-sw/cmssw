@@ -37,3 +37,4 @@ egmPhotonIsolationMiniAODPUPPI = egmPhotonIsolationAODPUPPI.clone(
                           srcToIsolate        = "slimmedPhotons",
                           puppiValueMap       = ''
 )
+# foo bar baz

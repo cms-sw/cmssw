@@ -66,3 +66,4 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Geometry.HGCalCommonData.hgcalValidHexTesterHEF_cfi")
  
 process.p1 = cms.Path(process.generator*process.hgcalValidHexTesterHEF)
+# foo bar baz

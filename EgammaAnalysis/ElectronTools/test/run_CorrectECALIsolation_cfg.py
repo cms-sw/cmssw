@@ -26,3 +26,4 @@ process.correctEcalIso = cms.EDAnalyzer("CorrectECALIsolation",
 process.p = cms.Path(process.correctEcalIso)
 
 
+# foo bar baz

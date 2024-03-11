@@ -43,3 +43,4 @@ phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 from SimGeneral.MixingModule.ecalDigitizer_Ph2_cfi import ecalDigitizer_Ph2 as _ecalDigitizer_Ph2
 phase2_ecal_devel.toReplaceWith(ecalDigitizer,_ecalDigitizer_Ph2)
+# foo bar baz

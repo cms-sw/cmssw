@@ -86,3 +86,4 @@ process.SiPixelCondObjAllPayloadsReader = cms.EDAnalyzer("SiPixelCondObjAllPaylo
 process.p = cms.Path(process.SiPixelCondObjAllPayloadsReader)
 #process.ep = cms.EndPath(process.print)
 
+# foo bar baz

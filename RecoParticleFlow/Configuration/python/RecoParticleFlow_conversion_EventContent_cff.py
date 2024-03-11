@@ -34,3 +34,4 @@ RecoParticleFlowAOD = cms.PSet(
         'keep recoPFCandidates_*_*_*')
 )
 
+# foo bar baz

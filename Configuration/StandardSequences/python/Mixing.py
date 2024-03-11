@@ -220,3 +220,4 @@ def defineMixing(dict):
         commands.append('process.mix.input.fileNames = cms.untracked.vstring(%s)'%(repr(dict['F'])))
         dict.pop('F')
     return commands
+# foo bar baz

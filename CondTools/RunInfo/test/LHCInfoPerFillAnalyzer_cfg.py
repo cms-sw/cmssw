@@ -39,4 +39,4 @@ process.LHCInfoPerFillAnalyzer = cms.EDAnalyzer('LHCInfoPerFillAnalyzer')
 
 process.path = cms.Path(
     process.LHCInfoPerFillAnalyzer
-)
+)# foo bar baz

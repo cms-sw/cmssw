@@ -31,3 +31,4 @@ hlt4vector = cms.Path(
 
 #hlt4vector = cms.Path(onlineOccPlot * hltObjectMonitor)
 #hlt4vector = cms.Path(onlineOccPlot)
+# foo bar baz

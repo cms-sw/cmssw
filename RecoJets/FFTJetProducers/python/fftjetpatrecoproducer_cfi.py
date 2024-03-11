@@ -124,3 +124,4 @@ fftjetPatrecoProducer = cms.EDProducer(
     # Anomalous calo tower definition (comes from JetProducers default)
     anomalous = fftjet_anomalous_tower_default
 )
+# foo bar baz

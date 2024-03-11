@@ -46,3 +46,4 @@ process.p1 = cms.Path(process.siPixelDigis*process.SiPixelHLTSource)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.MessageLogger.cerr.threshold = 'INFO'
+# foo bar baz

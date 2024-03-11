@@ -10,3 +10,4 @@ selectedPatElectrons = cms.EDFilter("PATElectronSelector",
 )
 
 
+# foo bar baz

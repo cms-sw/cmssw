@@ -16,3 +16,4 @@ shallowSimhitClusters = cms.EDProducer(
       ),
    runningMode = cms.string("deconvolution")
    )
+# foo bar baz

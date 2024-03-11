@@ -71,3 +71,4 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 (phase2_muon & ~phase2_GE0).toModify( trackingParticleSelection, simHitCollections = dict(
         muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonME0Hits"]))
+# foo bar baz

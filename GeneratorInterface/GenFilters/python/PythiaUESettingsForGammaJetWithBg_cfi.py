@@ -23,3 +23,4 @@ pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation fun
     'PARP(91)=2.1   ! kt distribution', 
     'PARP(93)=15.0  ! ')
 
+# foo bar baz

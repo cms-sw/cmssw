@@ -1479,3 +1479,4 @@ jetCorrectorsAllAlgosTask = cms.Task(
     ic5PFL1FastL2L3L6CorrectorTask,
     ak7JPTL6SLBCorrector
 )
+# foo bar baz

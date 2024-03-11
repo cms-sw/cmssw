@@ -63,3 +63,4 @@ process.poolOutput = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('file:trigger.root')
 )
 process.output = cms.EndPath(process.poolOutput)
+# foo bar baz

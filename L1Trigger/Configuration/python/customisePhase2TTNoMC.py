@@ -6,3 +6,4 @@ def customisePhase2TTNoMC(process):
     process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
 
     return process
+# foo bar baz

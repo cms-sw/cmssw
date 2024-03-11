@@ -74,3 +74,4 @@ process.ak5caloDemo  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
 
 process.p = cms.Path(process.ak5caloDemo)
 
+# foo bar baz

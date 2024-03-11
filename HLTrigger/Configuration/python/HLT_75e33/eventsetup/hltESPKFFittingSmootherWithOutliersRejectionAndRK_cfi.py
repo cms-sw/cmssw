@@ -16,3 +16,4 @@ hltESPKFFittingSmootherWithOutliersRejectionAndRK = cms.ESProducer("KFFittingSmo
     Smoother = cms.string('hltESPRKTrajectorySmoother'),
     appendToDataLabel = cms.string('')
 )
+# foo bar baz

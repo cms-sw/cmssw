@@ -10,3 +10,4 @@ HLT_Ele32_WPTight_L1Seeded = cms.Path(
     HLTEle32WPTightL1SeededSequence +
     HLTEndSequence
 )
+# foo bar baz

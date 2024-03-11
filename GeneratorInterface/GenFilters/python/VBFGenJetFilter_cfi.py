@@ -61,3 +61,4 @@ vbfGenJetFilterD = cms.EDFilter("VBFGenJetFilter",
   deltaRNoLep               = cms.untracked.double(   0.3), # Maximum dijet invariant mass
 
 )
+# foo bar baz

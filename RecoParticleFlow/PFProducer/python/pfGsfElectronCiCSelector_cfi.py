@@ -69,3 +69,4 @@ electronsCiCLoose = cms.EDFilter("EleIdCutBased",
                                  reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  )
+# foo bar baz

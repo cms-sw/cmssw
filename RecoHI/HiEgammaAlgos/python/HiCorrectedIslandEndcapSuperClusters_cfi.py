@@ -24,3 +24,4 @@ correctedIslandEndcapSuperClusters = cms.EDProducer("HiEgammaSCCorrectionMaker",
 )
 
 
+# foo bar baz

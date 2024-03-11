@@ -135,3 +135,4 @@ if __name__=="__main__":
             sd = SortedAndFixedKeysDict([('a',1), ('b',2),('a',3)])
             self.assertEqual(['a','b'], [x for x in iter(sd)])
     unittest.main()
+# foo bar baz

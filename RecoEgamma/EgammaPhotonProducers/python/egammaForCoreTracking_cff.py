@@ -57,3 +57,4 @@ egammaForCoreTrackingTask = cms.Task(particleFlowSuperClusterECALForTrk,
                                      egammasForCoreTracking)
 
 egammaForCoreTrackingSeq = cms.Sequence(egammaForCoreTrackingTask)
+# foo bar baz

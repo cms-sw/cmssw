@@ -8,3 +8,4 @@ SiPixelFakeGenErrorDBObjectESSource = cms.ESSource("SiPixelFakeGenErrorDBObjectE
 )
 
 
+# foo bar baz

@@ -38,3 +38,4 @@ process.AlCaRecoTriggerBitsRcdRead = cms.EDAnalyzer( "AlCaRecoTriggerBitsRcdRead
 process.p = cms.Path(
   process.AlCaRecoTriggerBitsRcdRead
 )
+# foo bar baz

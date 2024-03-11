@@ -7,3 +7,4 @@ from DQM.DataScouting.alphaTScouting_cff import *
 #this file contains the sequence for data scouting
 dataScoutingDQMSequence = cms.Sequence(scoutingRazorDQMSequence*scoutingDiJetDQMSequence*scoutingAlphaTDQMSequence)
 
+# foo bar baz

@@ -7,3 +7,4 @@ HGCRecHitCollectionsBlock = cms.PSet(
         HGCBHInput = cms.InputTag('HGCalRecHit:HGCHEBRecHits'),
         )
     )
+# foo bar baz

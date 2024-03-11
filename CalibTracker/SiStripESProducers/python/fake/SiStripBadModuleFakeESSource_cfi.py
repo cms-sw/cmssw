@@ -6,3 +6,4 @@ siStripBadModuleFakeESSource = cms.ESSource("SiStripBadModuleFakeESSource",
 
 
 
+# foo bar baz

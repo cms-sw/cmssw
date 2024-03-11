@@ -23,3 +23,4 @@ correctedFixedMatrixSuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrect
 )
 
 
+# foo bar baz

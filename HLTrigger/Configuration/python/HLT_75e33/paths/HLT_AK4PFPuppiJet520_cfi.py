@@ -15,3 +15,4 @@ HLT_AK4PFPuppiJet520 = cms.Path(
     hltSingleAK4PFPuppiJet520 +
     HLTEndSequence
 )
+# foo bar baz

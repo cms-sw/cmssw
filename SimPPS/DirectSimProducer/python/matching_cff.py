@@ -29,3 +29,4 @@ def matchDirectSimOutputsMiniAOD(process):
         cms.InputTag('prunedGenParticles')
     )
     return process
+# foo bar baz

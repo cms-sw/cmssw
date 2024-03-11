@@ -6,3 +6,4 @@ egmPhotonIDs = cms.EDProducer(
     physicsObjectIDs = cms.VPSet( )
 )
     
+# foo bar baz

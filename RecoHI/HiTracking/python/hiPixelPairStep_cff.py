@@ -229,3 +229,4 @@ hiPixelPairStep = cms.Sequence(hiPixelPairStepTask)
 hiPixelPairStep_Phase1 = hiPixelPairStepTask.copy()
 hiPixelPairStep_Phase1.replace(hiPixelPairSeeds, cms.Task(hiPixelPairStepTrackingRegionPhase1,hiPixelPairStepHitDoubletsPhase1,hiPixelPairStepSeedsPhase1) )
 trackingPhase1.toReplaceWith(hiPixelPairStepTask, hiPixelPairStep_Phase1)
+# foo bar baz

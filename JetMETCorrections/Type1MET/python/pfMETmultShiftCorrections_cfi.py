@@ -37,3 +37,4 @@ pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
 pfMEtSysShiftCorrSequence = cms.Sequence( pfMEtMultShiftCorr )
 
 
+# foo bar baz

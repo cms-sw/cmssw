@@ -99,3 +99,4 @@ process.tst = cms.EDAnalyzer("IntTestAnalyzer", moduleLabel = cms.untracked.Inpu
 process.nonconsumedConsumer = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag(cms.InputTag("nonconsumed")))
 
 process.endp = cms.EndPath(process.tst+process.nonconsumedConsumer)
+# foo bar baz

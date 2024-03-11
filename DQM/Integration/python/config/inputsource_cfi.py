@@ -147,3 +147,4 @@ def set_BeamSplashRun_settings( source ):
 if options.BeamSplashRun : set_BeamSplashRun_settings( source )
 
 print("Initial Source settings:", source)
+# foo bar baz

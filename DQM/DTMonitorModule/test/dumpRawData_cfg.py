@@ -37,3 +37,4 @@ process.dump = cms.EDAnalyzer("DumpFEDRawDataProduct",
 
 
 process.dtRawDump = cms.Path(process.dump)
+# foo bar baz

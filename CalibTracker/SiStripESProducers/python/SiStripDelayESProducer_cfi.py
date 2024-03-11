@@ -15,3 +15,4 @@ siStripDelayESProducer = cms.ESProducer("SiStripDelayESProducer",
 	)
     )
 )
+# foo bar baz

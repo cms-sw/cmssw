@@ -38,3 +38,4 @@ doubleEMenrichingHepMCfilterParams = cms.PSet(
     AcceptPrompts     = cms.bool(True),
     PromptPtThreshold = cms.double(15.0),
     )
+# foo bar baz

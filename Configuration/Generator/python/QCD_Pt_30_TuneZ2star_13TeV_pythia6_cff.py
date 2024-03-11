@@ -25,3 +25,4 @@ parameterSets = cms.vstring(
 )
 
 ProductionFilterSequence = cms.Sequence(generator)
+# foo bar baz

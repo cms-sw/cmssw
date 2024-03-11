@@ -78,3 +78,4 @@ OuterTrackerMonitorTTCluster = DQMEDAnalyzer('OuterTrackerMonitorTTCluster',
         ymin = cms.double(0)
         ),
 )
+# foo bar baz

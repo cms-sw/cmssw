@@ -21,3 +21,4 @@ process.checker = cms.EDAnalyzer("EventSetupCacheIdentifierChecker",
 )
 
 process.p = cms.Path(process.checker)
+# foo bar baz

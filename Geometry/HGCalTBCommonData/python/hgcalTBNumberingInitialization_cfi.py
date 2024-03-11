@@ -7,3 +7,4 @@ hgcalTBEENumberingInitialize = cms.ESProducer("HGCalTBNumberingInitialization",
 hgcalTBHESiNumberingInitialize = cms.ESProducer("HGCalTBNumberingInitialization",
                                                 name = cms.untracked.string("HGCalHESiliconSensitive")
 )
+# foo bar baz

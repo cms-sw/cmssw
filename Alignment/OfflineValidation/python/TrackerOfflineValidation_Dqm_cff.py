@@ -66,3 +66,4 @@ seqTrackerOfflineValidationDqm = cms.Sequence(TrackerOfflineValidationDqm
                                               *TrackerOfflineValidationSummaryDqm
 					      *DqmSaverTkAl
 )
+# foo bar baz

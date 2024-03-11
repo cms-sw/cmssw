@@ -212,3 +212,4 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""
         objectProducer.genParticleMatch = ''
     if hasattr(process,attr): delattr(process,attr)
 
+# foo bar baz

@@ -18,3 +18,4 @@ cosmicInTracker = cms.EDFilter("CosmicGenFilterHelix",
 
     doMonitor = cms.untracked.bool(False) # Fill monitoring histograms? Needs TFileService!
 )
+# foo bar baz

@@ -204,3 +204,4 @@ process.e3 = cms.EndPath(process.outp1b*process.outp2b*process.outp3b*process.ou
 process.e4 = cms.EndPath(process.outp4*process.outp5)
 process.e5 = cms.EndPath(process.outp6)
 process.e6 = cms.EndPath(process.outp7)
+# foo bar baz

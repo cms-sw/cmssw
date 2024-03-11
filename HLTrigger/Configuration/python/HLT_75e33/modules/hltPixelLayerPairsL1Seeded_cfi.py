@@ -74,3 +74,4 @@ hltPixelLayerPairsL1Seeded = cms.EDProducer("SeedingLayersEDProducer",
         'BPix4+FPix3_neg'
     )
 )
+# foo bar baz

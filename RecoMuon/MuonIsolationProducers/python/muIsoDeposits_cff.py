@@ -79,3 +79,4 @@ muParamGlobalIsoDepositCalHcal.IOPSet = cms.PSet(
 muParamGlobalIsoDepositCalHcal.ExtractorPSet = cms.PSet(
     MIsoCaloExtractorHcalBlock
 )
+# foo bar baz

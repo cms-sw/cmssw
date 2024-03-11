@@ -18,3 +18,4 @@ slimmedPhotons = cms.EDProducer("PATPhotonSlimmer",
     modifyPhotons = cms.bool(True),
     modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
+# foo bar baz

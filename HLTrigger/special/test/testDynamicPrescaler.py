@@ -21,3 +21,4 @@ process.MessageLogger.HLTrigReport=dict()
 
 process.path = cms.Path(process.hltDynamicPrescaler)
 process.info = cms.EndPath(process.hltTrigReport)
+# foo bar baz

@@ -37,3 +37,4 @@ process.p1 = cms.Path(process.generator*
                       process.hgcalTopologyTesterEE*
                       process.hgcalTopologyTesterHEF*
                       process.hgcalTopologyTesterHEB)
+# foo bar baz

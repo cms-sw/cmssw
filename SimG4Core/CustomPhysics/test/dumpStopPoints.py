@@ -17,3 +17,4 @@ process.rhStopDump = cms.EDAnalyzer (
 
 process.rhStopDumpstep = cms.Path (process. rhStopDump)
 process.shadule = cms.Schedule(process.rhStopDumpstep)
+# foo bar baz

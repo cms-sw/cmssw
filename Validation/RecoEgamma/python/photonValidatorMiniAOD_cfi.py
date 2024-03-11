@@ -37,3 +37,4 @@ photonValidationMiniAOD = DQMEDAnalyzer('PhotonValidatorMiniAOD',
 )
 
 
+# foo bar baz

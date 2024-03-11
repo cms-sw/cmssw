@@ -43,3 +43,4 @@ class TreeAnalyzerNumpy( Analyzer ):
         if self.outservicename not in setup.services:
             self.file.Write() 
 
+# foo bar baz

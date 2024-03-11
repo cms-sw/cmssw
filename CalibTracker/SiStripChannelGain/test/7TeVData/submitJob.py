@@ -58,3 +58,4 @@ if(automatic==True):
    #call the script one more time to make sure that we do not have a new run to process
    os.chdir(scriptDir); #go back to initial location
    os.system('python automatic_RunOnCalibTree.py')
+# foo bar baz

@@ -626,3 +626,4 @@ def miniAOD_customizeAllMCFastSim(process):
     fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
 
     return process
+# foo bar baz

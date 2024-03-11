@@ -70,3 +70,4 @@ hltDeepSecondaryVertexTagInfosPFPuppi = cms.EDProducer("CandSecondaryVertexProdu
     ),
     weights = cms.InputTag("hltPFPuppi")
 )
+# foo bar baz

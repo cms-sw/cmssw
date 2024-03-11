@@ -82,3 +82,4 @@ XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
 )
 
 
+# foo bar baz

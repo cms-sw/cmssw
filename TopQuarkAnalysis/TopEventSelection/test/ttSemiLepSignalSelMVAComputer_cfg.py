@@ -57,3 +57,4 @@ process.out = cms.OutputModule(
 )
 ## output path
 process.outpath = cms.EndPath(process.out)
+# foo bar baz

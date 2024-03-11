@@ -15,3 +15,4 @@ from MagneticField.ParametrizedEngine.autoParabolicParametrizedField_cfi import 
 ParabolicParametrizedMagneticFieldProducer.label = "ParabolicMf"
 
 
+# foo bar baz

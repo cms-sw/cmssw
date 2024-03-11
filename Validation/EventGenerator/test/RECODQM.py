@@ -50,3 +50,4 @@ process.options = cms.untracked.PSet(
 
 process.path = cms.Path(process.tauValidation+process.endOfProcess)
 process.EDMtoMEconv_and_saver= cms.Path(process.EDMtoMEConverter*process.dqmSaver)
+# foo bar baz

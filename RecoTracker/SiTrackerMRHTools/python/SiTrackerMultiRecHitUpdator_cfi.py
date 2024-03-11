@@ -12,3 +12,4 @@ siTrackerMultiRecHitUpdator = cms.ESProducer("SiTrackerMultiRecHitUpdatorESProdu
 )
 
 
+# foo bar baz

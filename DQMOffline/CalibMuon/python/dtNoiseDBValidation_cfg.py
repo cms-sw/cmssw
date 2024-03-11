@@ -92,3 +92,4 @@ process.p = cms.Path(process.qTester*
                      process.dtNoiseAnalyzer*
                      process.dqmSaver)
 
+# foo bar baz

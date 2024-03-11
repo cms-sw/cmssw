@@ -4,3 +4,4 @@ dturospacker = cms.EDProducer("DTuROSDigiToRaw",
                                 digiColl = cms.InputTag("simMuonDTDigis"),
                                 debug = cms.untracked.bool(True),
                              )
+# foo bar baz

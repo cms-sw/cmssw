@@ -79,3 +79,4 @@ process.MessageLogger.files.pyDetailedInfo=dict(extension="txt")
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
+# foo bar baz

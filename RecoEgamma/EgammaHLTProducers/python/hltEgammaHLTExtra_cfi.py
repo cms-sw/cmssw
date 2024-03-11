@@ -47,3 +47,4 @@ hltEgammaHLTExtra = cms.EDProducer("EgammaHLTExtraProducer",
                                    
 )
 
+# foo bar baz

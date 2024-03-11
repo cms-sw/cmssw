@@ -15,3 +15,4 @@ siStripFedCabling.toGet = cms.VPSet(cms.PSet(
     tag = cms.string('SiStripFedCabling_20X')
 ))
 
+# foo bar baz

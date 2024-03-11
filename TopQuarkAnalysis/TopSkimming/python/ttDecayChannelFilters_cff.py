@@ -32,3 +32,4 @@ ttDecayChannelFiltersTask = cms.Task(
     ttSemiLeptonicFilter,
     ttFullLeptonicFilter
 )
+# foo bar baz

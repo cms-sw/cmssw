@@ -36,3 +36,4 @@ DTLinearDriftFromDBAlgo = cms.PSet(
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )
 
+# foo bar baz

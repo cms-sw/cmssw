@@ -63,3 +63,4 @@ for category in labels:
     setattr(process.MessageLogger.files, category, messageLogger[main_key])
 
 process.p = cms.Path(process.caloParticleDebugger)
+# foo bar baz

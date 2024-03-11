@@ -87,3 +87,4 @@ stage2MPRaw = cms.EDProducer(
     )
 
 )
+# foo bar baz

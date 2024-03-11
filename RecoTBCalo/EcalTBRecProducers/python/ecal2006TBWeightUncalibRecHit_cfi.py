@@ -10,3 +10,4 @@ ecal2006TBWeightUncalibRecHit = cms.EDProducer("EcalTBWeightUncalibRecHitProduce
 )
 
 
+# foo bar baz

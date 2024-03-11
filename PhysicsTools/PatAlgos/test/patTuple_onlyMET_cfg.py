@@ -27,3 +27,4 @@ process.maxEvents.input = 100
 process.out.fileName = 'patTuple_onlyMET.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+# foo bar baz

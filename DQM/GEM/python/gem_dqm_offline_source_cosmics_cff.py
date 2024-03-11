@@ -16,3 +16,4 @@ gemSourcesCosmics = cms.Sequence(
     gemEfficiencyAnalyzerCosmicsGlb *
     gemEfficiencyAnalyzerCosmicsSta
 )
+# foo bar baz

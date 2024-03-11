@@ -57,3 +57,4 @@ SUSYoHLToEleHToControlSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericCli
 # fastsim has no conversion collection (yet)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(SUSY_HLT_Ele_HT_Control_SingleLepton,conversionCollection=cms.InputTag(''))
+# foo bar baz

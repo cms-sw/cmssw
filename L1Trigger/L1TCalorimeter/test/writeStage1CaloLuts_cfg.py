@@ -18,3 +18,4 @@ process.load("L1Trigger.L1TCalorimeter.caloStage1WriteLuts_cfi")
 
 process.p = cms.Path(process.writeLuts)
 
+# foo bar baz

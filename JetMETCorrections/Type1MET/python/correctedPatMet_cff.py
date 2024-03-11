@@ -13,3 +13,4 @@ patMetTxy = cms.EDProducer(
     ),
 )   
 
+# foo bar baz

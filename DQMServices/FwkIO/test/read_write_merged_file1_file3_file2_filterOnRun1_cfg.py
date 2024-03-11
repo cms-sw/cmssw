@@ -14,3 +14,4 @@ process.e = cms.EndPath(process.out)
 
 process.add_(cms.Service("DQMStore"))
 
+# foo bar baz

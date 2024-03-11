@@ -5,3 +5,4 @@ from ..modules.siPhase2Clusters_cfi import *
 HLTDoLocalStripTask = cms.Task(
     siPhase2Clusters,
 )
+# foo bar baz

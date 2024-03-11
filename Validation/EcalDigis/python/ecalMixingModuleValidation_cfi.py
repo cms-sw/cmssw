@@ -15,3 +15,4 @@ ecalMixingModuleValidation = DQMEDAnalyzer('EcalMixingModuleValidation',
 )
 
 
+# foo bar baz

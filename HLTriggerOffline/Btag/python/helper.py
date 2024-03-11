@@ -21,3 +21,4 @@ def ConfigSectionMap(section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+# foo bar baz

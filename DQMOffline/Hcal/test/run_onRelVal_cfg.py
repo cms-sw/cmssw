@@ -64,3 +64,4 @@ process.p2 = cms.Path( process.HcalDQMOfflineSequence
                        * process.HcalDQMOfflinePostProcessor
                        * process.dqmStoreStats
                        * process.dqmSaver)
+# foo bar baz

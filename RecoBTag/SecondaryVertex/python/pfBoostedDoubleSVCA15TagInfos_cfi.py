@@ -13,3 +13,4 @@ pfBoostedDoubleSVCA15TagInfos = cms.EDProducer("BoostedDoubleSVProducer",
 )
 
 pfBoostedDoubleSVCA15TagInfos.trackSelection.jetDeltaRMax = cms.double(1.5)
+# foo bar baz

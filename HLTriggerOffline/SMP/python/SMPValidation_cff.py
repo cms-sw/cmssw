@@ -6,3 +6,4 @@ SMPValidationSequence = cms.Sequence(
     hltSMPValidator
     )
 
+# foo bar baz

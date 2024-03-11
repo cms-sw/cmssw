@@ -45,3 +45,4 @@ process.L1CSCTPEmulatorConfigAnalyzer = cms.EDAnalyzer("L1CSCTPEmulatorConfigAna
 )
 
 process.p = cms.Path(process.L1CSCTPEmulatorConfigAnalyzer)
+# foo bar baz

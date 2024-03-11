@@ -9,3 +9,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 tpPruningTask = cms.Task(prunedTrackingParticles,prunedDigiSimLinks)
 
 fastSim.toModify(tpPruningTask, lambda x: x.remove(prunedDigiSimLinks))
+# foo bar baz

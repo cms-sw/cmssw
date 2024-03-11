@@ -19,3 +19,4 @@ def appendGEMChamberMaskerAtReco(process):
         process.RawToDigi += process.filteredGEMDigiSequence
 
     return process
+# foo bar baz

@@ -28,3 +28,4 @@ from RecoHI.HiEgammaAlgos.HiCorrectedIslandBarrelSuperClusters_cfi import correc
 
 for e in [pA_2016, peripheralPbPb, pp_on_AA, pp_on_XeXe_2017, ppRef_2017]:
     e.toReplaceWith(correctedIslandBarrelSuperClusters, _hiCorrectedIslandBarrelSuperClusters)
+# foo bar baz

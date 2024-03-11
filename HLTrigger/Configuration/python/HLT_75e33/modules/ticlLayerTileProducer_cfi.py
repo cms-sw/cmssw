@@ -6,3 +6,4 @@ ticlLayerTileProducer = cms.EDProducer("TICLLayerTileProducer",
     layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
     mightGet = cms.optional.untracked.vstring
 )
+# foo bar baz

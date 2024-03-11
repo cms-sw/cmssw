@@ -107,3 +107,4 @@ process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 
 process.ep = cms.EndPath(process.out)
+# foo bar baz

@@ -102,3 +102,4 @@ process.p = cms.Path(process.CondDataMonitoring*process.SiStripOfflineDQMClient*
 
   
 
+# foo bar baz

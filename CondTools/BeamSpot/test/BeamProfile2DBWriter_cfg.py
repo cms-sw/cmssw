@@ -61,3 +61,4 @@ process.BeamProfile2DBWriter = beamProfile2DBWriter.clone(X0        = 0.0458532,
 #                                                          SigmaZ    = 3.6,)
 
 process.p = cms.Path(process.BeamProfile2DBWriter)
+# foo bar baz

@@ -28,3 +28,4 @@ hltRazorMonitoring = razorMonitoring.clone(
         hltPaths = ["HLT_Ele27_WPTight_Gsf*", "HLT_Ele30_WPTight_Gsf*", "HLT_Ele32_WPTight_Gsf*"])
 )
 
+# foo bar baz

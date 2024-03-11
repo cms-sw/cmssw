@@ -10,3 +10,4 @@ UniformMagneticFieldESProducer = cms.ESProducer("UniformMagneticFieldESProducer"
 es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
 
 
+# foo bar baz

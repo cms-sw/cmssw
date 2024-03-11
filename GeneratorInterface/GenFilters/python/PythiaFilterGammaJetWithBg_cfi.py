@@ -12,3 +12,4 @@ gj_filter = cms.EDFilter("PythiaFilterGammaJetWithBg",
 )
 
 
+# foo bar baz

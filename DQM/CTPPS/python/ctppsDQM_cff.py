@@ -124,3 +124,4 @@ ctppsDQMRandomSource = cms.Sequence()
 ctppsDQMRandomHarvest = cms.Sequence()
 ctpps.toReplaceWith(ctppsDQMRandomSource, _ctppsDQMRandomSource)
 ctpps.toReplaceWith(ctppsDQMRandomHarvest, _ctppsDQMRandomHarvest)
+# foo bar baz

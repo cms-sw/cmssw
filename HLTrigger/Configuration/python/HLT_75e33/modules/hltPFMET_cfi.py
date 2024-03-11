@@ -5,3 +5,4 @@ hltPFMET = cms.EDProducer("PFMETProducer",
     globalThreshold = cms.double(0.0),
     src = cms.InputTag("particleFlowTmp")
 )
+# foo bar baz

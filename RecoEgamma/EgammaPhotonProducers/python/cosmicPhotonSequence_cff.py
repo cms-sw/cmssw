@@ -12,3 +12,4 @@ photons.minSCEtEndcap    = 0.0
 
 cosmicPhotonTask = cms.Task(photonCore,photons)
 cosmicPhotonSequence = cms.Sequence(cosmicPhotonTask)
+# foo bar baz

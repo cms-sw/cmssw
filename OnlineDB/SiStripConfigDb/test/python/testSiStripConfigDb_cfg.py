@@ -29,3 +29,4 @@ process.test = cms.EDAnalyzer("testSiStripConfigDb",
 
 process.p = cms.Path(process.test)
 
+# foo bar baz

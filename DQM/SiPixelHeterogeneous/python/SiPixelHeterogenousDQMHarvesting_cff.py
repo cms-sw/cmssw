@@ -18,3 +18,4 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
 gpuValidationPixel.toReplaceWith(siPixelHeterogeneousDQMHarvesting,siPixelHeterogeneousDQMComparisonHarvesting)
 
 
+# foo bar baz

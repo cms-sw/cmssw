@@ -26,3 +26,4 @@ process.GlobalPositionRcdRead = cms.EDAnalyzer("GlobalPositionRcdRead")
 process.p = cms.Path(process.GlobalPositionRcdRead)
 
 
+# foo bar baz

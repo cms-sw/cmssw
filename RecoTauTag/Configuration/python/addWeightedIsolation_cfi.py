@@ -5,3 +5,4 @@ def addWeightedIsolation(process):
     process.hpsPFTauMVAIsolation2Seq+=process.hpsPFTauMVA3IsolationNeutralIsoPtSumWeight
 
     return process
+# foo bar baz

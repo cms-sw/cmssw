@@ -21,3 +21,4 @@ HiMixAOD = cms.PSet(
         )
 )
 
+# foo bar baz

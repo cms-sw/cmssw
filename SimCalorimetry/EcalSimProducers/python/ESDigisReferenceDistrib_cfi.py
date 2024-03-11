@@ -8,3 +8,4 @@ ESDigisReferenceDistrib = cms.EDAnalyzer("ESDigisReferenceDistrib",
 )
 
 
+# foo bar baz

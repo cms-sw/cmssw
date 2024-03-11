@@ -14,3 +14,4 @@ siStripClusters = cms.EDFilter("LaserClusterizer",
 )
 
 
+# foo bar baz

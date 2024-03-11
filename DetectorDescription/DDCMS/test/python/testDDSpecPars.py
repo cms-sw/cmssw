@@ -55,3 +55,4 @@ process.test = cms.EDAnalyzer("DDTestSpecPars",
                               )
 
 process.p = cms.Path(process.test)
+# foo bar baz

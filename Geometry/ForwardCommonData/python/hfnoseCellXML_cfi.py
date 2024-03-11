@@ -8,3 +8,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
+# foo bar baz

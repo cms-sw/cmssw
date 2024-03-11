@@ -11,3 +11,4 @@ muonIdDQM = DQMEDAnalyzer('MuonIdDQM',
     useGlobalMuonsNotTrackerMuons = cms.untracked.bool(False),
     baseFolder                    = cms.untracked.string("Muons/MuonIdDQM")
 )
+# foo bar baz

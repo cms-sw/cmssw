@@ -9,3 +9,4 @@ from DQM.EcalPreshowerMonitorModule.ESDcsInfoTask_cfi import *
 
 dcs_dqmoffline = cms.Sequence(siStripDcsInfo*sipixelDcsInfo*ecalDcsInfoTask*rpcDCSSummary*cscDcsInfo*ecalPreshowerDcsInfoTask)
 
+# foo bar baz

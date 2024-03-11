@@ -64,3 +64,4 @@ phase2_common.toModify( oldpfPhotonValidation, useTP = cms.bool(False) )
 phase2_common.toModify( tkConversionValidation, useTP = cms.bool(False) )
 
 
+# foo bar baz

@@ -8,3 +8,4 @@ FEVTSIMMetHighEventContent = cms.PSet(
 FEVTSIMMetHighEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
 FEVTSIMMetHighEventContent.outputCommands.extend(metHighEventContent.outputCommands)
 
+# foo bar baz

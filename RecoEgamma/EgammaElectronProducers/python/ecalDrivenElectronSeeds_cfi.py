@@ -10,3 +10,4 @@ ecalDrivenElectronSeeds = _ecalSeeds.ecalDrivenElectronSeedsDefault.clone(
     usePFThresholdsFromDB = egammaHBHERecHit.usePFThresholdsFromDB,
     maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity
 )
+# foo bar baz

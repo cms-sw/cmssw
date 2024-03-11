@@ -11,3 +11,4 @@ OppositeAnalyticalPropagatorParabolicMF = OppositeAnalyticalPropagator.clone(
     SimpleMagneticField = cms.string('ParabolicMf'),
     ComponentName = 'AnalyticalPropagatorParabolicMfOpposite'
 )
+# foo bar baz

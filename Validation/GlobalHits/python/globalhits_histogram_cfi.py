@@ -22,3 +22,4 @@ globalhithistogram = DQMEDAnalyzer('GlobalHitsHistogrammer',
 )
 
 
+# foo bar baz

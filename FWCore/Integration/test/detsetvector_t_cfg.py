@@ -25,3 +25,4 @@ process.a2 = cms.EDAnalyzer("DSVAnalyzer")
 process.p = cms.Path(process.scs*process.dsv1*process.a1*process.a2)
 
 
+# foo bar baz

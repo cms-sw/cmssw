@@ -15,3 +15,4 @@ process.hga = cms.EDAnalyzer("HcalGeometryPlan1Tester",
                              GeometryFromES = cms.bool(False))
 
 process.p1 = cms.Path(process.hga)
+# foo bar baz

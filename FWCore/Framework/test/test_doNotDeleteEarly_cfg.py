@@ -14,3 +14,4 @@ process.tester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
                                 expectedValues = cms.untracked.vuint32(1,3,5))
 
 process.p = cms.Path(process.maker+process.reader+process.tester)
+# foo bar baz

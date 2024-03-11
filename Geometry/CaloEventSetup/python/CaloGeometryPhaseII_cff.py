@@ -7,3 +7,4 @@ from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
+# foo bar baz

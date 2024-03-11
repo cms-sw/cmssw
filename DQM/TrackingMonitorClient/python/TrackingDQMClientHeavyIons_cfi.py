@@ -12,3 +12,4 @@ TrackerMapFoldedClient_heavyionTk = TrackerMapFoldedClient.clone(
     TrackQuality = ''
 )
 hiTrackingDqmClientHeavyIons=cms.Sequence(hiTrackingDqmClientHI*TrackerMapFoldedClient_heavyionTk)
+# foo bar baz

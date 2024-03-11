@@ -24,3 +24,4 @@ PixelP5DQMClient = cms.Sequence(sipixelEDAClientP5)
 PixelP5DQMClientWithDataCertification = cms.Sequence(sipixelEDAClientP5+
                                                           sipixelDaqInfo+
 							  sipixelDcsInfo)
+# foo bar baz

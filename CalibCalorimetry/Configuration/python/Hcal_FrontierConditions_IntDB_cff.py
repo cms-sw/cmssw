@@ -10,3 +10,4 @@ import FWCore.ParameterSet.Config as cms
 from CalibCalorimetry.HcalPlugins.Hcal_FrontierConditions_cff import *
 es_pool.connect = 'frontier://cms_conditions_data/CMS_COND_20X_HCAL'
 
+# foo bar baz

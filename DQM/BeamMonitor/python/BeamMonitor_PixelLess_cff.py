@@ -52,3 +52,4 @@ dqmBeamMonitor_pixelless = DQMEDAnalyzer("BeamMonitor",
                               phiMin = cms.double(-3.15),
                               phiMax = cms.double(3.15)
                               )
+# foo bar baz

@@ -101,3 +101,4 @@ class env:
         print('outputFile    :', os.environ['outputFile'])
         print('inputPostFile :', os.environ['inputPostFile'])
         print('beginTag : ', self.beginTag())
+# foo bar baz

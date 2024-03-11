@@ -50,3 +50,4 @@ GlobalParameters = cms.ESProducer("StableParametersTrivialProducer",
 )
 
 
+# foo bar baz

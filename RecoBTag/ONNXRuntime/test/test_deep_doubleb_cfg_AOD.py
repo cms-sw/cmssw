@@ -132,3 +132,4 @@ process.p = cms.Path(
     process.jetSequence,
     process.tsk
     )
+# foo bar baz

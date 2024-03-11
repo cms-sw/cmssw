@@ -44,3 +44,4 @@ ttFullLepEvent = cms.EDProducer("TtFullLepEvtBuilder",
         sumDR = cms.InputTag("ttFullLepJetPartonMatch","SumDR"),
     ),
 )
+# foo bar baz

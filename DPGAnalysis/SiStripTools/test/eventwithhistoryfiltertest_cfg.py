@@ -104,3 +104,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('eventwithhistoryfiltertest.root')
                                    )
 
+# foo bar baz

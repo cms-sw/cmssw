@@ -54,3 +54,4 @@ gpu.toReplaceWith(siStripClustersTask, cms.Task(
     # switch producer to legacy format
     siStripClusters,
 ))
+# foo bar baz

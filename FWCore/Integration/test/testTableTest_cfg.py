@@ -36,3 +36,4 @@ process.o = cms.EndPath(process.out)
 #process.add_(cms.Service("Tracer", dumpPathsAndConsumes= cms.untracked.bool(True) ) )
 
 #process.add_(cms.Service("InitRootHandlers", DebugLevel = cms.untracked.int32(10)))
+# foo bar baz

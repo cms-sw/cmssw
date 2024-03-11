@@ -4,3 +4,4 @@ patElectronEAIso03CorrectionProducer = cms.EDProducer( "PatElectronEAIsoCorrecti
                                                      , patElectrons = cms.InputTag( 'patElectrons' )
                                                      , eaIsolator   = cms.InputTag( 'elPFIsoValueEA03' )
                                                      )
+# foo bar baz

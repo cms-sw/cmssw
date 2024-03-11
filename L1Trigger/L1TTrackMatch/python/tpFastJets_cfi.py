@@ -10,3 +10,4 @@ tpFastJets = cms.EDProducer("TPFastJetProducer",
     tp_nStubLayerMin = cms.int32(4),  # minimum number of layers with stubs 
     coneSize=cms.double(0.4),         # cone size for anti-kt fast jet 
 )
+# foo bar baz

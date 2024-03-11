@@ -67,3 +67,4 @@ process.out.outputCommands += ['keep *_kinFitTtFullHadEvent_*_*']
 
 ## output path
 process.outpath = cms.EndPath(process.out)
+# foo bar baz

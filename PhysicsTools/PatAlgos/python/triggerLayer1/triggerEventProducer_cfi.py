@@ -10,3 +10,4 @@ patTriggerEvent = cms.EDProducer(
 , patTriggerMatches  = cms.VInputTag(
   )
 )
+# foo bar baz

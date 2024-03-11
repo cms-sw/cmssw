@@ -6,3 +6,4 @@ from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
 
 PFTauVertexandImpactParametersTask = cms.Task(PFTauPrimaryVertexProducer,PFTauSecondaryVertexProducer,PFTauTransverseImpactParameters)
 PFTauVertexandImpactParametersSeq = cms.Sequence(PFTauVertexandImpactParametersTask)
+# foo bar baz

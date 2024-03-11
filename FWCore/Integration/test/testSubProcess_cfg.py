@@ -394,3 +394,4 @@ prod2ProcessAlt.path3 = cms.Path(prod2ProcessAlt.get*prod2ProcessAlt.getInt)
 prod2ProcessAlt.path4 = cms.Path(prod2ProcessAlt.dependsOnNoPut)
 
 prod2ProcessAlt.endPath1 = cms.EndPath(prod2ProcessAlt.out)
+# foo bar baz

@@ -54,3 +54,4 @@ hltMuonOfflineAnalyzers = cms.Sequence(
     endcapAnalyzer *
     allAnalyzer
 )
+# foo bar baz

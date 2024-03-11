@@ -6,3 +6,4 @@ EgammaPostVal = DQMEDHarvester("EmDQMPostProcessor",
    dataSet = cms.untracked.string("unknown"),                  
    noPhiPlots = cms.untracked.bool(True),                  
                               )
+# foo bar baz

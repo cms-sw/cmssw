@@ -7,3 +7,4 @@ L1MuDTEtaPatternLutOnline = cms.ESProducer("DTEtaPatternLutOnlineProd",
 )
 
 
+# foo bar baz

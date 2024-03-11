@@ -19,3 +19,4 @@ generator = cms.EDFilter("ExhumeGeneratorFilter",
         HiggsDecay = cms.int32(5),
     )
 )
+# foo bar baz

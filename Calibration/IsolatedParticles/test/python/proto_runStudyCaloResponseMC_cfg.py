@@ -34,3 +34,4 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.p = cms.Path(process.studyCaloResponse)
+# foo bar baz

@@ -37,3 +37,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 patAlgosToolsTask = getPatAlgosToolsTask(process)
 process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+# foo bar baz

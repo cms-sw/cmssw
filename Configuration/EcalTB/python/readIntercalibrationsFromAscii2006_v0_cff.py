@@ -11,3 +11,4 @@ src = cms.ESSource("EcalTrivialConditionRetriever",
 )
 
 
+# foo bar baz

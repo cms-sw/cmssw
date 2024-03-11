@@ -24,3 +24,4 @@ ttSemiLepHypHitFit = cms.EDProducer("TtSemiLepHypHitFit",
 )
 
 
+# foo bar baz

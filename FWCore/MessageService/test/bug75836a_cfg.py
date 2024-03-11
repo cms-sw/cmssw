@@ -7,3 +7,4 @@ process.thing = cms.EDProducer ("IntProducer")
 
 process.o = cms.Path(process.thing)
 
+# foo bar baz

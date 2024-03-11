@@ -5,3 +5,4 @@ svTagInfoProxy = cms.EDProducer("SecondaryVertexTagInfoProxy",
     svTagInfoProducer = cms.untracked.InputTag("secondaryVertexTagInfos")
 )
 
+# foo bar baz

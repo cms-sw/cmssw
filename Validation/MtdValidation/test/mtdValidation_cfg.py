@@ -80,3 +80,4 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath( process.DQMoutput )
 
 process.schedule = cms.Schedule( process.p , process.endjob_step , process.DQMoutput_step )
+# foo bar baz

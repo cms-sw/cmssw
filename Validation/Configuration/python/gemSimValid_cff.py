@@ -9,3 +9,4 @@ GEMDigiSource.runType   = "relval"
 GEMRecHitSource.runType = "relval"
 
 gemSimValid = cms.Sequence(GEMDQMForRelval*gemSimValidation*gemDigiValidation*gemLocalRecoValidation)
+# foo bar baz

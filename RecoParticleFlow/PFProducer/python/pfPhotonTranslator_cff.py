@@ -10,3 +10,4 @@ pfPhotonTranslatorTask = cms.Task(
     pfPhotonInterestingEcalDetIdEE
 )
 pfPhotonTranslatorSequence = cms.Sequence(pfPhotonTranslatorTask)
+# foo bar baz

@@ -5,3 +5,4 @@ from DQMOffline.Trigger.HCALMonitoring_cff import *
 hcalOnlineMonitoringSequence = cms.Sequence(
     hcalMonitoringSequence
 )
+# foo bar baz

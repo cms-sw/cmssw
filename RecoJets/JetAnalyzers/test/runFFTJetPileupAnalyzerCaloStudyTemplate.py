@@ -38,3 +38,4 @@ process.pileupprocessor = fftjet_pileup_processor_calo
 process.pileupanalyzer = fftjet_pileup_analyzer
 
 process.p = cms.Path(process.pileupprocessor*process.pileupanalyzer)
+# foo bar baz

@@ -20,3 +20,4 @@ AODSIMbtagMuonInJetEventContent.outputCommands.extend(btagMuonInJetEventContent.
 RECOSIMbtagMuonInJetEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECOSIMbtagMuonInJetEventContent.outputCommands.extend(btagMuonInJetEventContent.outputCommands)
 
+# foo bar baz

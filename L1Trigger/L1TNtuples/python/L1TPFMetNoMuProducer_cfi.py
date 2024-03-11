@@ -6,3 +6,4 @@ l1tPFMetNoMu = cms.EDProducer(
     pfMETCollection=cms.InputTag("pfMetT1"),
     muonCollection=cms.InputTag("muons"),
 )
+# foo bar baz

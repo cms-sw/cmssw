@@ -38,3 +38,4 @@ vbfsusyEfficiency = DQMEDHarvester("DQMGenericClient",
 vbfsusyClient = cms.Sequence(
     vbfsusyEfficiency
 )
+# foo bar baz

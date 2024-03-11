@@ -10,3 +10,4 @@ l1CaloTowerTree = cms.EDAnalyzer(
     l1ClusterToken = cms.untracked.InputTag("")
 )
 
+# foo bar baz

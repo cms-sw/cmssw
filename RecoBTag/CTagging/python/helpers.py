@@ -30,3 +30,4 @@ def get_vars(xml_path, useFileInPath=True):
    var_names = [i.attrib['Title'] for i in variables]
    return [get_var_pset(i) for i in var_names]
    
+# foo bar baz

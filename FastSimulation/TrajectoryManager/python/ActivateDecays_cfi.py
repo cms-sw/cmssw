@@ -9,3 +9,4 @@ ActivateDecaysBlock = cms.PSet(
     )
 )
 
+# foo bar baz

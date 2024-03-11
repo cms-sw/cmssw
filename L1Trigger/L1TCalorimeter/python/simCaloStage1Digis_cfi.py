@@ -6,3 +6,4 @@ simCaloStage1Digis = cms.EDProducer(
     CaloEmCands = cms.InputTag("simRctUpgradeFormatDigis"),
     conditionsLabel = cms.string("")
 )
+# foo bar baz

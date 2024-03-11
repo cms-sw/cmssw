@@ -246,3 +246,4 @@ tserv8 = cms.Task(serv25, serv26)
 sserv3 = cms.Sequence(tserv5, tserv6)
 sserv4 = cms.Sequence(sserv3)
 eserv2 = cms.EndPath(sserv4, tserv7, tserv8)
+# foo bar baz

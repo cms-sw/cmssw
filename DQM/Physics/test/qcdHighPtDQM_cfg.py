@@ -28,3 +28,4 @@ process.QcdHighPtDQM = DQMEDAnalyzer('QcdHighPtDQM',
 )
 process.p = cms.Path(process.QcdHighPtDQM+process.dqmSaver)
 
+# foo bar baz

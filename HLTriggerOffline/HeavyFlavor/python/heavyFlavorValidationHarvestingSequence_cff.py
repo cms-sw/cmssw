@@ -137,3 +137,4 @@ heavyFlavorValidationHarvestingSequence = cms.Sequence(
     + hfupsilon
     +combiner+combiner2
 )
+# foo bar baz

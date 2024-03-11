@@ -19,3 +19,4 @@ TrackerKinkFinderParametersBlock = cms.PSet(
     )
 )
 
+# foo bar baz

@@ -61,3 +61,4 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
 
 _hfnose_hgcalAssociatorsTask = hgcalAssociators.copy()
 _hfnose_hgcalAssociatorsTask.add(layerClusterCaloParticleAssociationProducerHFNose, layerClusterSimClusterAssociationProducerHFNose)
+# foo bar baz

@@ -189,3 +189,4 @@ process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.si
 #process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.endjob_step,process.RECOSIMoutput_step)
 
 process.outpath = cms.EndPath(process.o1)
+# foo bar baz

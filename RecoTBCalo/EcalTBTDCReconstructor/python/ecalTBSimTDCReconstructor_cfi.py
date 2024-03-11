@@ -17,3 +17,4 @@ ecalTBSimTDCReconstructor = cms.EDProducer("EcalTBTDCRecInfoProducer",
 )
 
 
+# foo bar baz

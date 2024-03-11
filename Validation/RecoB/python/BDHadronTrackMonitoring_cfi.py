@@ -20,3 +20,4 @@ BDHadronTrackMonitoringAnalyze = DQMEDAnalyzer('BDHadronTrackMonitoringAnalyzer'
 
 BDHadronTrackMonitoringHarvest = DQMEDHarvester("BDHadronTrackMonitoringHarvester"
                                )
+# foo bar baz

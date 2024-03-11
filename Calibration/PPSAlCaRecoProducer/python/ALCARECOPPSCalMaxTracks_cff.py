@@ -102,4 +102,4 @@ recoPPSSequenceAlCaRecoProducer = cms.Sequence(recoPPSTaskAlCaRecoProducer)
 # 6. master sequence object
 #------------------------------------------------------
 
-seqALCARECOPPSCalMaxTracksReco = cms.Sequence( ALCARECOPPSCalMaxTracksFilter  + ALCARECOPPSCalMaxTracksRaw2Digi + recoPPSSequenceAlCaRecoProducer)
+seqALCARECOPPSCalMaxTracksReco = cms.Sequence( ALCARECOPPSCalMaxTracksFilter  + ALCARECOPPSCalMaxTracksRaw2Digi + recoPPSSequenceAlCaRecoProducer)# foo bar baz

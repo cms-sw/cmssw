@@ -9,3 +9,4 @@ from Validation.GlobalDigis.globaldigishistogrammer_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 
+# foo bar baz

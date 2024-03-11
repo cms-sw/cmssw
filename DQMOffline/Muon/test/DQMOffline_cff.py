@@ -112,3 +112,4 @@ DQMStepOne_Common_Ecal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal)
 DQMStepOne_Common_Ecal_Hcal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal*DQMOfflineHcal)
                                    
 DQMStepOne_Common_Muon_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineMuon*DQMOfflineJetMET)
+# foo bar baz

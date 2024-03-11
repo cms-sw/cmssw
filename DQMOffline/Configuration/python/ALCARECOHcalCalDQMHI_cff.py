@@ -25,3 +25,4 @@ ALCARECOHcalCalIsoTrackDQM =  DQMOffline.CalibCalo.MonitorHcalIsoTrackAlCaReco_c
 ALCARECOHcalCalIsolatedBunchDQM =  DQMOffline.CalibCalo.MonitorHcalIsolatedBunchAlCaReco_cfi.HcalIsolatedBunchMon.clone()
 
 ALCARECOHcalCalHODQM =  DQMOffline.CalibCalo.MonitorHOAlCaRecoStream_cfi.MonitorHOAlCaRecoStream.clone()
+# foo bar baz

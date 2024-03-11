@@ -25,3 +25,4 @@ electronEDIsolationDepositsTask = cms.Task(
     elEDIsoDepositPU
     )
 electronEDIsolationDepositsSequence = cms.Sequence(electronEDIsolationDepositsTask)
+# foo bar baz

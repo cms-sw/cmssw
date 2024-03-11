@@ -90,3 +90,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('SiStripHitEffBadModules')
     ))
 )
+# foo bar baz

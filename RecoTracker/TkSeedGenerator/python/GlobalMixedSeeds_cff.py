@@ -23,3 +23,4 @@ globalMixedSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProd
        maxElement    = 1000000
     )
 )
+# foo bar baz

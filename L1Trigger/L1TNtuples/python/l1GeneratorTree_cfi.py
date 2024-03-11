@@ -7,3 +7,4 @@ l1GeneratorTree = cms.EDAnalyzer(
     pileupInfoToken     = cms.untracked.InputTag("addPileupInfo"),
     genInfoToken     = cms.InputTag("generator")
 )
+# foo bar baz

@@ -13,3 +13,4 @@ HLTDoFullUnpackingEgammaEcalTask = cms.Task(
     hltEcalRecHit,
     hltEcalUncalibRecHit
 )
+# foo bar baz

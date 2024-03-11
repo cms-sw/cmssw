@@ -170,3 +170,4 @@ for p,m in pathParser._pathToModules.items():
 #print "modulesToConsumes =",consumesParser._consumesForModule
 
 
+# foo bar baz

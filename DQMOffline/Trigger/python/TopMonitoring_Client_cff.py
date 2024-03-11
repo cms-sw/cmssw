@@ -676,3 +676,4 @@ topClient = cms.Sequence(
   + topEfficiency_fullyhadronic_SingleBTag_DeepJet
   + topEfficiency_fullyhadronic_TripleBTag
 )
+# foo bar baz

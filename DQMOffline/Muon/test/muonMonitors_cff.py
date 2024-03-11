@@ -26,3 +26,4 @@ muonMonitors = cms.Sequence(muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muon
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
 
+# foo bar baz

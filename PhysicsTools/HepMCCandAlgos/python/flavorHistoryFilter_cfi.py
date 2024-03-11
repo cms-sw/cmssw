@@ -37,3 +37,4 @@ flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                    dr = cms.double(0.5),           # cutoff delta r
                                    verbose = cms.bool(False)
                                    )
+# foo bar baz

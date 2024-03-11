@@ -63,3 +63,4 @@ hcalRecHitTableTask = cms.Task(
     hfRecHitTable,
     hoRecHitTable,
 )
+# foo bar baz

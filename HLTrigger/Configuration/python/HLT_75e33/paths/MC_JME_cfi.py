@@ -11,3 +11,4 @@ MC_JME = cms.Path(
     hltPFPuppiHT +
     hltPFPuppiMHT
 )
+# foo bar baz

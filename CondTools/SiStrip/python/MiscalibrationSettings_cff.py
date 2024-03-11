@@ -259,3 +259,4 @@ byLayer = cms.VPSet(
              smearFactor = cms.double(0.0)
              )
     ) 
+# foo bar baz

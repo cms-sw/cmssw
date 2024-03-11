@@ -20,3 +20,4 @@ me0Segments = cms.EDProducer("ME0SegmentProducer",
      )
 )
 
+# foo bar baz

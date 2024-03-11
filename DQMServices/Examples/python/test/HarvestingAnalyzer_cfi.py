@@ -5,3 +5,4 @@ harvestinganalyzer = cms.EDAnalyzer("HarvestingAnalyzer",
     Name = cms.untracked.string('HarvestingAnalyzer')
 )
 
+# foo bar baz

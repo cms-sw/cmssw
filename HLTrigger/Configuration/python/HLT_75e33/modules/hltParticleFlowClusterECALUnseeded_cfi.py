@@ -19,3 +19,4 @@ hltParticleFlowClusterECALUnseeded = cms.EDProducer("CorrectedECALPFClusterProdu
     skipPS = cms.bool(True),
     minimumPSEnergy = cms.double(0)
 )
+# foo bar baz

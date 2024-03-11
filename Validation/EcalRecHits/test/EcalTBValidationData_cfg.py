@@ -30,3 +30,4 @@ process.tbValidData = DQMEDAnalyzer('EcalTBValidation',
 
 process.p = cms.Path(process.tbValidData)
 
+# foo bar baz

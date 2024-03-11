@@ -18,3 +18,4 @@ mvaHaloVariable = cms.PSet(
 )
 
 
+# foo bar baz

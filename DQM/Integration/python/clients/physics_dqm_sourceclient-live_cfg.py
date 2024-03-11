@@ -75,3 +75,4 @@ print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+# foo bar baz

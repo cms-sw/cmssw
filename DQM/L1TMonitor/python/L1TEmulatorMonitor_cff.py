@@ -136,3 +136,4 @@ l1Stage1HwValEmulatorMonitor = cms.Sequence(
     l1EmulatorMonitorStage1,
     l1Stage1HwValEmulatorMonitorTask
     )
+# foo bar baz

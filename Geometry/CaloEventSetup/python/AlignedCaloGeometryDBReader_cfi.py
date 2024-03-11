@@ -10,3 +10,4 @@ HcalGeometryFromDBEP.applyAlignment = True
 #CaloTowerGeometryFromDBEP.applyAlignment = True
 #ZdcGeometryFromDBEP.applyAlignment = True
 #CastorGeometryFromDBEP.applyAlignment = True
+# foo bar baz

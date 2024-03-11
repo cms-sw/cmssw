@@ -18,3 +18,4 @@ jec = cms.ESSource("PoolDBESSource",
 )
 
 es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+# foo bar baz

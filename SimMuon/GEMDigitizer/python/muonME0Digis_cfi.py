@@ -44,3 +44,4 @@ simMuonME0Digis = cms.EDProducer("ME0DigiProducer",
     me0DigiCommonParameters
 )
 
+# foo bar baz

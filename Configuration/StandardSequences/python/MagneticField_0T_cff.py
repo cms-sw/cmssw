@@ -4,3 +4,4 @@ from Configuration.StandardSequences.MagneticField_cff import *
 
 VolumeBasedMagneticFieldESProducer.valueOverride = 0
 ParabolicParametrizedMagneticFieldProducer.valueOverride = 0
+# foo bar baz

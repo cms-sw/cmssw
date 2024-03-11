@@ -5,3 +5,4 @@ ecalMixingModuleValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 ecalMixingModuleValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
 ecalMixingModuleValidation.ESdigiCollection = 'simEcalUnsuppressedDigis'
 
+# foo bar baz

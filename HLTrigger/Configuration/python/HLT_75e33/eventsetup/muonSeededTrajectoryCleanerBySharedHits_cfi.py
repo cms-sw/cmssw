@@ -8,3 +8,4 @@ muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer("TrajectoryCleanerESPro
     allowSharedFirstHit = cms.bool(True),
     fractionShared = cms.double(0.1)
 )
+# foo bar baz

@@ -50,3 +50,4 @@ from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 (phase2_tracker & pixelNtupletFit).toModify(siPixelClusters, #at the moment the duplicate dropping is not imnplemented in Phase2
     DropDuplicates = False
 )
+# foo bar baz

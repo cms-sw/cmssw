@@ -29,3 +29,4 @@ teVJetsCountFilter = cms.EDFilter("CandViewCountFilter",
 
 #sequences
 teVJetSequence = cms.Sequence(teVJets*teVJetsCountFilter )
+# foo bar baz

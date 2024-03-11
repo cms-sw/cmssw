@@ -36,3 +36,4 @@ HITmixedPairRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer
 )
 
 
+# foo bar baz

@@ -6,3 +6,4 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.HcalAlCaRecoProducers.alcaminbias_cfi import *
 seqAlcastreamHcalMinbias = cms.Sequence(MinProd)
 
+# foo bar baz

@@ -23,3 +23,4 @@ SiStripSpyEventMatcher = cms.EDFilter(
     CounterDiffMaxAllowed = cms.uint32(100)
     )
 
+# foo bar baz

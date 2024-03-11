@@ -26,3 +26,4 @@ hcalTBWriter = cms.EDAnalyzer("HcalTBWriter",
 )
 
 
+# foo bar baz

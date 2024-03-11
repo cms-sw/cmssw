@@ -10,3 +10,4 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     hcalToken     = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     firmware      = cms.int32(1)
 )
+# foo bar baz

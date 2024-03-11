@@ -21,3 +21,4 @@ findTtSemiLepJetCombGeom = cms.EDProducer("TtSemiLepJetCombGeom",
     minBDiscBJets     = cms.double(1.0),
     maxBDiscLightJets = cms.double(3.0)
 )
+# foo bar baz

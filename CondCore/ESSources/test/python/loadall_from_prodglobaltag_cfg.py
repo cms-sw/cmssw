@@ -47,3 +47,4 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
                              )
 
 process.p = cms.Path(process.get)
+# foo bar baz

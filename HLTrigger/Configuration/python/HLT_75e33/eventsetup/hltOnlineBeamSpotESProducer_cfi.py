@@ -5,3 +5,4 @@ hltOnlineBeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer",
     sigmaZThreshold = cms.double( 2.0 ),
     sigmaXYThreshold = cms.double( 4.0 )
 )
+# foo bar baz

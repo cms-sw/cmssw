@@ -142,3 +142,4 @@ def autoCondPhase2(autoCond):
            autoCond[key] = ( autoCond[val[0]],) + val[1]
 
     return autoCond
+# foo bar baz

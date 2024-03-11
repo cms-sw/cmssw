@@ -204,3 +204,4 @@ process.siPixelClusters.src = 'siPixelDigis'
 process.p1 = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.d)
 
 #process.outpath = cms.EndPath(process.o1)
+# foo bar baz

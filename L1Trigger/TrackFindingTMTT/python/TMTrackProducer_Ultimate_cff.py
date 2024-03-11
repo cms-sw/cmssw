@@ -76,3 +76,4 @@ TMTrackProducer.TrackDigi.KF_phi0Range = 2*0.6981317
 # This works for Pt > 3 GeV, gives truncation for Pt > 2 GeV. To solve, need to double number of outputs,
 # with one for each phi sector in nonant. Not yet implemented, so for now disable HT output truncation.
 TMTrackProducer.HTFillingRphi.BusySectorNumStubs = 999 
+# foo bar baz

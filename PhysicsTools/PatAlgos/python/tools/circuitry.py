@@ -90,3 +90,4 @@ def plotModuleInputs(seq,filename,printOuter=True,printLinkNames=True):
     dot.close()
 
 
+# foo bar baz

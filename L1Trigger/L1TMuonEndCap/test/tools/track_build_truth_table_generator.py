@@ -102,3 +102,4 @@ if generate_cpp_array:
     i += 1
   s += "\n};"
   print(s)
+# foo bar baz

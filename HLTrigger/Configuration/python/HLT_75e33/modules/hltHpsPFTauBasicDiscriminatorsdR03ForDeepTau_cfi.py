@@ -104,3 +104,4 @@ hltHpsPFTauBasicDiscriminatorsdR03ForDeepTau = cms.EDProducer( "PFRecoTauDiscrim
     IDWPdefinitions = cms.VPSet( 
     )
 )
+# foo bar baz

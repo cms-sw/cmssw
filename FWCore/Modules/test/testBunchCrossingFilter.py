@@ -78,3 +78,4 @@ process.VetoEmpty         = cms.Path( ~ process.selectEmpty )
 process.VetoSingle        = cms.Path( ~ process.selectSingle )
 process.VetoTrain         = cms.Path( ~ process.selectTrain )
 process.SelectTrainButOne = cms.Path( process.selectTrain * ~ process.selectSingle )
+# foo bar baz

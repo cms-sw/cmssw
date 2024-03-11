@@ -88,3 +88,4 @@ class JSONAnalyzer( Analyzer ):
         super(JSONAnalyzer, self).write(setup)
         self.rltInfo.write( self.dirName )
 
+# foo bar baz

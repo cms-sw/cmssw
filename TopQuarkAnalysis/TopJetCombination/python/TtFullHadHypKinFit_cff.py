@@ -18,3 +18,4 @@ makeHypothesis_kinFitTask = cms.Task(
     ttFullHadHypKinFit
 )
 makeHypothesis_kinFit = cms.Sequence(makeHypothesis_kinFitTask)
+# foo bar baz

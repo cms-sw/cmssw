@@ -27,3 +27,4 @@ HLTPhoton187UnseededSequence = cms.Sequence(
     hltPhoton187HEUnseededFilter,
     HLTPhoton187UnseededTask
 )
+# foo bar baz

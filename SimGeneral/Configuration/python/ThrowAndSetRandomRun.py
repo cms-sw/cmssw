@@ -32,3 +32,4 @@ def throwAndSetRandomRun(source,runsAndProbs):
         source.firstRun = cms.untracked.uint32(runNumber)
 
     return
+# foo bar baz

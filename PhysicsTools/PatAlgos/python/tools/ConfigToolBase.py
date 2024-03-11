@@ -191,3 +191,4 @@ class ConfigToolBase(object) :
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
     def getAllowedValues(self,name):
         return self._defaultParameters[name].allowedValues
+# foo bar baz

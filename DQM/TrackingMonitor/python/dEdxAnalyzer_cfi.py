@@ -80,3 +80,4 @@ dEdxHitAnalyzer = DQMEDAnalyzer('dEdxHitAnalyzer',
 
     )                          
 )
+# foo bar baz

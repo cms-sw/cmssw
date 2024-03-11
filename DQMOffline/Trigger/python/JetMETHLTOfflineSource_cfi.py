@@ -239,3 +239,4 @@ jetMETHLTOfflineSourceAK4Fwd = jetMETHLTOfflineSourceAK4.clone(
 )
 
 jetMETHLTOfflineSource = cms.Sequence( jetMETHLTOfflineSourceAK4 * jetMETHLTOfflineSourceAK8 * jetMETHLTOfflineSourceAK4Fwd * jetMETHLTOfflineSourceAK8Fwd)
+# foo bar baz

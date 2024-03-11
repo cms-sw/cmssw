@@ -10,3 +10,4 @@ CastorFastjetRecoAntiKt07 = cms.EDProducer(
     jetAlgorithm = cms.string("AntiKt"),
     rParam       = cms.double(0.7)
     )
+# foo bar baz

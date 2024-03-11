@@ -6,3 +6,4 @@ L2OfflineMuonSeeds = ancientMuonSeed.clone(
     CSCRecSegmentLabel = 'hltCscSegments',
     DTRecSegmentLabel  = 'hltDt4DSegments'
 )
+# foo bar baz

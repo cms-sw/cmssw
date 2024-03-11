@@ -90,3 +90,4 @@ if __name__ == '__main__' :
     oDir = options.directory
     os.system("mkdir -p "+oDir )
     draw_plot(args[0],tDir,oDir,min,max)  
+# foo bar baz

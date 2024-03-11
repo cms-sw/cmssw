@@ -52,3 +52,4 @@ process.reader = siStripQualityStatistics.clone()
 process.p1 = cms.Path(process.reader)
 
 
+# foo bar baz

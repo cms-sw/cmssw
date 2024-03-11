@@ -10,3 +10,4 @@ HLT_Diphoton30_23_IsoCaloId_L1Seeded = cms.Path(
     HLTDiphoton3023IsoCaloIdL1SeededSequence +
     HLTEndSequence
 )
+# foo bar baz

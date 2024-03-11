@@ -57,3 +57,4 @@ def customiseEarlyDeleteForCKF(process, products):
         trackListMergers = noTrajectoryYet
 
     return (products, references)
+# foo bar baz

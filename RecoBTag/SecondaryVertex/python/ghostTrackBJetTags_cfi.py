@@ -5,3 +5,4 @@ ghostTrackBJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfos"),
 	                         cms.InputTag("ghostTrackVertexTagInfos"))
 )
+# foo bar baz

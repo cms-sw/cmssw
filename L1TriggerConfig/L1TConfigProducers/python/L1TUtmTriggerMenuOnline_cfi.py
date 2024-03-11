@@ -6,3 +6,4 @@ L1TUtmTriggerMenuOnlineProd = cms.ESProducer("L1TUtmTriggerMenuOnlineProd",
     onlineDB             = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
     # menu producer must be transaction safe otherwise everyone is screwed
 )
+# foo bar baz

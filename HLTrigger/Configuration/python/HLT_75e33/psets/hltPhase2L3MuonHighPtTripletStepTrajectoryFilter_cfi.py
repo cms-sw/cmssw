@@ -11,3 +11,4 @@ hltPhase2L3MuonHighPtTripletStepTrajectoryFilter = cms.PSet(
         )
     )
 )
+# foo bar baz

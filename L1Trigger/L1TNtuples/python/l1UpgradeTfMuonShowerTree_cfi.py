@@ -10,3 +10,4 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 stage1L1Trigger.toModify( l1UpgradeTfMuonShowerTree,
     emtfMuonShowerToken = "none",
 )
+# foo bar baz

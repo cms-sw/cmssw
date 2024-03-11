@@ -96,3 +96,4 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
 )
 
 
+# foo bar baz

@@ -36,3 +36,4 @@ DiMuonMassBiasClient = DQMEDHarvester("DiMuonMassBiasClient",
                                           'DiMuMassVsCosThetaCS'
                                       )
                                   )
+# foo bar baz

@@ -60,3 +60,4 @@ l1tHGCalTowerMapProducerHFNose = l1tHGCalTowerMapProducer.clone(
     InputTriggerSums = cms.InputTag('l1tHGCalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection'),
     ProcessorParameters = towerHFNose_map.clone()
 )
+# foo bar baz

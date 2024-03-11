@@ -37,3 +37,4 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_cff import ALCARECODtCalibCo
 ALCARECODTCalibSynchCosmicsDQM = cms.Sequence( dtPreCalibrationTaskAlcaCosmics +
                                                dtAlcaResolutionMonitorCosmics )
 
+# foo bar baz

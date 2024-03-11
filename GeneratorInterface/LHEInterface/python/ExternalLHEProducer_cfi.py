@@ -9,3 +9,4 @@ externalLHEProducer = cms.EDProducer('ExternalLHEProducer',
     storeXML = cms.untracked.bool(False)                                 
 )
 
+# foo bar baz

@@ -5,3 +5,4 @@ from ..modules.hltOnlineBeamSpot_cfi import *
 HLTBeamSpotTask = cms.Task(
     hltOnlineBeamSpot
 )
+# foo bar baz

@@ -9,3 +9,4 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.JetMET.caloTowers_cfi import *
 analyzecaloTowersDQM = cms.Sequence(towerSchemeBAnalyzer)
 
+# foo bar baz

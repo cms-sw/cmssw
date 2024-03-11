@@ -22,3 +22,4 @@ def getFilePathsFromWalk(osWalkResult, file, exceptPaths = []):
             if not excepted and re.match(file, name):
                 listOfFiles.append(fullPath)
     return listOfFiles
+# foo bar baz

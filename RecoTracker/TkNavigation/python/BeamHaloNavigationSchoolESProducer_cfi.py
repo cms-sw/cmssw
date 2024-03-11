@@ -5,3 +5,4 @@ beamHaloNavigationSchoolESProducer = navigationSchoolESProducer.clone(
     ComponentName       = 'BeamHaloNavigationSchool',
     SimpleMagneticField = '',
 )
+# foo bar baz

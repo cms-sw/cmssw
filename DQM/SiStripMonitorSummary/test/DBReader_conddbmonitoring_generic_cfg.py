@@ -347,3 +347,4 @@ if options.CablingMon == True:
     process.reader = cms.EDAnalyzer("SiStripFedCablingReader")
     
     process.e = cms.EndPath(process.stat*process.reader)
+# foo bar baz

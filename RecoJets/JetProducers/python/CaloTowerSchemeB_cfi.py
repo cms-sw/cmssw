@@ -5,3 +5,4 @@ from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import *
 towerMaker = calotowermaker.clone(
     UseHO = False
 )
+# foo bar baz

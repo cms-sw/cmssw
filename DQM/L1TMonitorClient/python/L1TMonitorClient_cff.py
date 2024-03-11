@@ -121,3 +121,4 @@ l1tMonitorStage1Client = cms.Sequence(
 l1tMonitorClientEndPathSeq = cms.Sequence(
     l1tsClient
 )
+# foo bar baz

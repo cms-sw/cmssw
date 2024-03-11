@@ -4,3 +4,4 @@ hltPFPuppiJetForBtagEta2p4 = cms.EDProducer("HLTPFJetCollectionProducer",
     HLTObject = cms.InputTag("hltPFPuppiJetForBtagSelectorEta2p4"),
     TriggerTypes = cms.vint32(86)
 )
+# foo bar baz

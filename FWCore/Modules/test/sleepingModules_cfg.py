@@ -64,4 +64,4 @@ process.o = cms.EndPath(process.out, cms.Task(process.s1,process.s2,process.p1,p
 
 #process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stall_sleep.log")))
 
-process.add_(cms.Service("ZombieKillerService", secondsBetweenChecks = cms.untracked.uint32(10)))
+process.add_(cms.Service("ZombieKillerService", secondsBetweenChecks = cms.untracked.uint32(10)))# foo bar baz

@@ -6,3 +6,4 @@ dqmFileReader = cms.EDAnalyzer("DQMFileReader",
    FileNames = cms.untracked.vstring(),
                              
 )
+# foo bar baz

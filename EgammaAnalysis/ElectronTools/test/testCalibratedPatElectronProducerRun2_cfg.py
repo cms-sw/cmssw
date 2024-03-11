@@ -120,3 +120,4 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
+# foo bar baz

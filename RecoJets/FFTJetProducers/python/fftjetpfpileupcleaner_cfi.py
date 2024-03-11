@@ -52,3 +52,4 @@ fftjetPfPileupCleaner = cms.EDProducer(
     vertexZmaxCut = cms.double(24.0),
     vertexRhoCut = cms.double(1.0e20)
 )
+# foo bar baz

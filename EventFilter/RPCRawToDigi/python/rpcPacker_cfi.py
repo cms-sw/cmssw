@@ -5,3 +5,4 @@ rpcpacker = cms.EDProducer("RPCPackingModule",
 )
 
 
+# foo bar baz

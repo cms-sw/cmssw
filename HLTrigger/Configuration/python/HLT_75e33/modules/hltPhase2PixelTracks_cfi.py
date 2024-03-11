@@ -8,3 +8,4 @@ hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducer",
     mightGet = cms.optional.untracked.vstring,
     passLabel = cms.string('hltPhase2PixelTracks')
 )
+# foo bar baz

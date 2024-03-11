@@ -30,3 +30,4 @@ process.hlTrigReport.ReferenceRate      = cms.untracked.double( 100.0 )
 process.hlTrigReport.ReportEvery        = "lumi"
 
 process.report = cms.EndPath( process.hlTrigReport )
+# foo bar baz

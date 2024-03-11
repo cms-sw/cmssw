@@ -69,3 +69,4 @@ htaccess=open("%s/.htaccess"%directory,"w")
 htaccess.write(htaccess_content)
 htaccess.close()
 print("Apache .htaccess file successfully added!")
+# foo bar baz
