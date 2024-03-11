@@ -15,6 +15,7 @@
 
 #include "TString.h"
 #include "TASImage.h"
+#include "TGraph.h"
 
 #include "Alignment/OfflineValidation/macros/loopAndPlot.C"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
