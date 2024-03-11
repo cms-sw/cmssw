@@ -29,20 +29,6 @@
 
 using namespace std;
 
-int MotherID_geniso(const reco::GenParticle* p){
-    int ID = 0;
-    int nMo = p->numberOfMothers();
-    const reco::Candidate* g = (const reco::Candidate*) p;
-    while(nMo>0){
-        if(g->pdgId()!=g->mother()->pdgId()) { ID = g->mother()->pdgId(); return ID;  }
-        else {
-            g = (g->mother());
-            nMo = g->numberOfMothers();
-        }
-    }
-    return ID;
-}
-
 class GenPartIsoProducer : public edm::stream::EDProducer<> {
 public:
   explicit GenPartIsoProducer(const edm::ParameterSet& iConfig):
@@ -75,33 +61,21 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   reco::GenParticleCollection::const_iterator genPart;
 
   Lepts_RelIso.clear();
-  int j = -1;
 
   for(genPart = finalParticles->begin(); genPart != finalParticles->end(); genPart++){
-    j++;
-    if(abs(genPart->pdgId())==11  || abs(genPart->pdgId())==13 || abs(genPart->pdgId())==15) {
-      if (!(genPart->status()==1 || abs(genPart->pdgId())==15)) {
-        Lepts_RelIso.push_back(999);
-        continue;
-      }
-      int ID = MotherID_geniso(&finalParticles->at(j));
-      if (!(ID==23 || ID==443 || ID==553 || ID==24)) {
-        Lepts_RelIso.push_back(999);
-        continue;
-      }
-
+    if(abs(genPart->pdgId())==11 || abs(genPart->pdgId())==13 || abs(genPart->pdgId())==15) {
       TLorentzVector lep_dressed;
       lep_dressed.SetPtEtaPhiE(genPart->pt(),genPart->eta(),genPart->phi(),genPart->energy());
       std::set<int> gen_fsrset;
       for(size_t k=0; k<packedgenParticles->size();k++){
-          if( (*packedgenParticles)[k].status() != 1) continue;
-          if( (*packedgenParticles)[k].pdgId() != 22) continue;
+          if((*packedgenParticles)[k].status() != 1) continue;
+          if((*packedgenParticles)[k].pdgId() != 22) continue;
           double this_dR_lgamma = reco::deltaR(genPart->eta(), genPart->phi(), (*packedgenParticles)[k].eta(), (*packedgenParticles)[k].phi());
           bool idmatch=false;
           if ((*packedgenParticles)[k].mother(0)->pdgId()==genPart->pdgId() ) idmatch=true;
           const reco::Candidate * mother = (*packedgenParticles)[k].mother(0);
           for(size_t m=0;m<mother->numberOfMothers();m++) {
-              if ( (*packedgenParticles)[k].mother(m)->pdgId() == genPart->pdgId() ) idmatch=true;
+              if ((*packedgenParticles)[k].mother(m)->pdgId() == genPart->pdgId()) idmatch=true;
           }
           if (!idmatch) continue;
           if(this_dR_lgamma<0.3) {
@@ -136,9 +110,9 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 float GenPartIsoProducer::computeIso(TLorentzVector thisPart, edm::Handle<edm::View<pat::PackedGenParticle> > packedgenParticles, std::set<int> gen_fsrset, bool skip_leptons){
   double this_GENiso=0.0;
   for(size_t k=0; k<packedgenParticles->size();k++){
-    if( (*packedgenParticles)[k].status() != 1 ) continue;
+    if((*packedgenParticles)[k].status() != 1) continue;
     if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
-    if ( abs((*packedgenParticles)[k].pt() - thisPart.Pt())<0.1 && abs((*packedgenParticles)[k].eta() - thisPart.Eta())<0.1 && abs((*packedgenParticles)[k].phi() - thisPart.Phi())<0.1 ) continue;
+    if (abs((*packedgenParticles)[k].pt() - thisPart.Pt())<0.1 && abs((*packedgenParticles)[k].eta() - thisPart.Eta())<0.1 && abs((*packedgenParticles)[k].phi() - thisPart.Phi())<0.1) continue;
     if (skip_leptons == true) {
       if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
       if (gen_fsrset.find(k)!=gen_fsrset.end()) continue;
