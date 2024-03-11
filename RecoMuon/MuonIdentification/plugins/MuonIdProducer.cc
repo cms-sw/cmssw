@@ -1534,5 +1534,5 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

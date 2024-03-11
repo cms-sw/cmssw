@@ -137,7 +137,7 @@ void RunInfoTestESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.addVPSet("runInfos", runInfoDesc, {});
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

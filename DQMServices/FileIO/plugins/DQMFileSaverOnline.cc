@@ -189,7 +189,7 @@ void DQMFileSaverOnline::fillDescriptions(edm::ConfigurationDescriptions& descri
   // DQMFileSaverOnline and DQMFileSaverPB both used the module label
   // "saver" which caused conflicting cfi filenames to be generated.
   // add could be used if unique module labels were given.
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

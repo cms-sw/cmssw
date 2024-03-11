@@ -134,7 +134,7 @@ void DD4hep_VolumeBasedMagneticFieldESProducer::fillDescriptions(edm::Configurat
   //default used to be compatible with older configurations
   desc.add<std::vector<double> >("paramData", std::vector<double>());
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DD4hep_VolumeBasedMagneticFieldESProducer);

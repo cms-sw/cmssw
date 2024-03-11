@@ -380,7 +380,7 @@ void SkippingLayerCosmicNavigationSchoolESProducer::fillDescriptions(edm::Config
   desc.add<bool>("selfSearch");
   desc.add<bool>("allSelf");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

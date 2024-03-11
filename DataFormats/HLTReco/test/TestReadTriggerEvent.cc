@@ -183,7 +183,7 @@ namespace edmtest {
     desc.add<std::vector<int>>("expectedFilterIds");
     desc.add<std::vector<unsigned int>>("expectedFilterKeys");
     desc.add<edm::InputTag>("triggerEventTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

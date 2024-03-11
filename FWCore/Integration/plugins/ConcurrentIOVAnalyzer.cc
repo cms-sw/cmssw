@@ -206,7 +206,7 @@ namespace edmtest {
     desc.addUntracked<std::vector<int>>("expectedESAcquireTestResults", std::vector<int>());
     desc.addUntracked<int>("expectedUniquePtrTestValue", 0);
     desc.addUntracked<int>("expectedOptionalTestValue", 0);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 using namespace edmtest;

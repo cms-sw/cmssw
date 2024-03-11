@@ -71,7 +71,7 @@ void MCDisplacementFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
   desc.add<double>("LengMax", -1.);
   desc.add<double>("LengMin", -1.);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called to skim the data  ------------

@@ -56,7 +56,7 @@ namespace edm {
     void JobReportService::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
       desc.setComment("Enables job reports.");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
   }  // namespace service
 }  // namespace edm

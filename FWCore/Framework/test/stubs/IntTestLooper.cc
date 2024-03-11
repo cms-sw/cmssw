@@ -58,7 +58,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<int>>("expectEndLumiValues", std::vector<int>{});
       desc.addUntracked<std::vector<int>>("expectEndRunValues", std::vector<int>{});
       desc.addUntracked<int>("expectESValue");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override {

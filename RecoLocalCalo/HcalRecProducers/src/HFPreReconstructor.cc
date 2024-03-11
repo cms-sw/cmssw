@@ -272,7 +272,7 @@ void HFPreReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("tsFromDB");
   desc.add<bool>("sumAllTimeSlices");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

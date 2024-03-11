@@ -1062,5 +1062,5 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   std::vector<edm::ParameterSet> default_sipm(1);
   desc.addVPSet("SiPMCharacteristics", validator_sipm, default_sipm);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

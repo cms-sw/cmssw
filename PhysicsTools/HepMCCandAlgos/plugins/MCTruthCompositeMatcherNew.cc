@@ -48,7 +48,7 @@ namespace reco {
       desc.add<std::vector<edm::InputTag>>("matchMaps");
       desc.add<std::vector<int>>("matchPDGId");
 
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void MCTruthCompositeMatcher::produce(edm::StreamID, edm::Event &evt, const edm::EventSetup &) const {

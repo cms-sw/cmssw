@@ -151,7 +151,7 @@ void L1TCaloRCTToUpgradeConverter::fillDescriptions(edm::ConfigurationDescriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("regionTag");
   desc.add<edm::InputTag>("emTag");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

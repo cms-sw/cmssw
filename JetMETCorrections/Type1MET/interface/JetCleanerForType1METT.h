@@ -116,7 +116,7 @@ public:
         ->setComment(
             "calculate muon-subtracted raw pt as a ValueMap for the input collection (only for selected jets, zero for "
             "others)");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 private:

@@ -222,7 +222,7 @@ void StandaloneTrackerTopologyTest::analyze(edm::StreamID,
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void StandaloneTrackerTopologyTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

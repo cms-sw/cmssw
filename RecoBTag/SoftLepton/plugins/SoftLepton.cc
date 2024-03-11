@@ -518,7 +518,7 @@ void SoftLepton::fillDescriptions(edm::ConfigurationDescriptions &descriptions) 
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<double>("leptonDeltaRCut", 0.4);
   desc.add<double>("leptonChi2Cut", 9999.0);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(SoftLepton);

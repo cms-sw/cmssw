@@ -91,7 +91,7 @@ void SoftPFElectronTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("electrons");
   desc.add<double>("DeltaRElectronJet");
   desc.add<double>("MaxSip3Dsig");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void SoftPFElectronTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

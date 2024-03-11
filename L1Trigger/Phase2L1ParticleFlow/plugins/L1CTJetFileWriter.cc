@@ -177,7 +177,7 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<uint32_t>("TMUX", 6);
   desc.add<uint32_t>("maxLinesPerFile", 1024);
   desc.add<std::string>("format", "EMPv2");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

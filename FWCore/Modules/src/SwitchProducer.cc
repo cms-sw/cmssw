@@ -48,7 +48,7 @@ namespace edm {
     desc.add<std::vector<std::string>>("@all_cases");
     desc.addUntracked<std::string>("@chosen_case");
     desc.addUntracked<std::string>("@process_name");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edm
 

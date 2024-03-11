@@ -172,7 +172,7 @@ void MVAValueMapProducer<ParticleType>::fillDescriptions(edm::ConfigurationDescr
     mvaConfigurations.setUnknown();
     desc.addVPSet("mvaConfigurations", mvaConfigurations);
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif

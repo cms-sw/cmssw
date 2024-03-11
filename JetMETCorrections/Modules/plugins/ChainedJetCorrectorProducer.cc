@@ -173,7 +173,7 @@ void ChainedJetCorrectorProducer::fillDescriptions(edm::ConfigurationDescription
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::vector<edm::InputTag>>("correctors");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

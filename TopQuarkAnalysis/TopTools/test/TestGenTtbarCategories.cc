@@ -111,7 +111,7 @@ void TestGenTtbarCategories::beginJob() {
 void TestGenTtbarCategories::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("genTtbarId");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

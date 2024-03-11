@@ -236,7 +236,7 @@ void ProduceAgingObject::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::vector<int>>("maskedGEMIDs", {});
   desc.add<std::vector<int>>("maskedME0IDs", {});
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

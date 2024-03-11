@@ -89,6 +89,6 @@ void GsfTrajectorySmootherESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("RecoGeometry");
   desc.add<double>("ErrorRescaling");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_EVENTSETUP_MODULE(GsfTrajectorySmootherESProducer);

@@ -89,7 +89,7 @@ bool CastorInvalidDataFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CastorInvalidDataFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(CastorInvalidDataFilter);

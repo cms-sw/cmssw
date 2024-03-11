@@ -173,7 +173,7 @@ public:
 
     pat::GenJetMatcher::fillDescriptions(desc);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void produce(edm::Event& event, const edm::EventSetup& setup) override {

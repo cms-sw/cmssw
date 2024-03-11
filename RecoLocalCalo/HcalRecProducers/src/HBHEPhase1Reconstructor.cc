@@ -800,7 +800,7 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   add_param_set(pulseShapeParametersQIE8);
   add_param_set(pulseShapeParametersQIE11);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

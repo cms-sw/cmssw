@@ -225,7 +225,7 @@ void DQMFileSaverPB::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   // DQMFileSaverOnline and DQMFileSaverPB both used the module label
   // "saver" which caused conflicting cfi filenames to be generated.
   // add could be used if unique module labels were given.
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int run, int lumi) const {

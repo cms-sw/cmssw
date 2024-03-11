@@ -345,7 +345,7 @@ void PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("ptThreshold", 15.0);
   desc.add<double>("deltaR", 0.1);
   desc.add<std::string>("variableDefinition");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

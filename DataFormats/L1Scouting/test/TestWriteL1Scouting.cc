@@ -179,7 +179,7 @@ namespace edmtest {
     desc.add<std::vector<int>>("eGammaValues");
     desc.add<std::vector<int>>("tauValues");
     desc.add<std::vector<int>>("bxSumsValues");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestWriteL1Scouting::throwWithMessage(const char* msg) const {

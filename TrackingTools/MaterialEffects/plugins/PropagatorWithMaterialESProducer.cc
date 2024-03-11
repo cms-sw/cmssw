@@ -56,5 +56,5 @@ void PropagatorWithMaterialESProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<bool>("useRungeKutta");
   desc.add<bool>("useOldAnalPropLogic", true);
   desc.add<double>("ptMin", -1.0);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

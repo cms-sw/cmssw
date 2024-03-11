@@ -228,7 +228,7 @@ void PFRecHitProducerTest::fillDescriptions(edm::ConfigurationDescriptions& desc
       ->setComment("Dump PFRecHits of first event, regardless of result of comparison");
   desc.addUntracked<bool>("dumpFirstError", false)->setComment("Dump PFRecHits upon first encountered error");
   desc.addUntracked<bool>("strictCompare", false)->setComment("Compare all floats for equality");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void PFRecHitProducerTest::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {

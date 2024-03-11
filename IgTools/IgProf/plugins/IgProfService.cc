@@ -143,7 +143,7 @@ void IgProfService::fillDescriptions(edm::ConfigurationDescriptions &description
   desc.addUntracked<std::string>("reportToFileAtPostOpenFile", "");
   desc.addUntracked<std::string>("reportToFileAtPostCloseFile", "");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void IgProfService::postBeginJob() { makeDump(atPostBeginJob_); }

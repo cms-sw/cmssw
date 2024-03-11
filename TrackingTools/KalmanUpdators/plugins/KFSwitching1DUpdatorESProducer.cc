@@ -49,6 +49,6 @@ void KFSwitching1DUpdatorESProducer::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
   desc.add<bool>("doEndCap");
   desc.add<std::string>("ComponentName");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_EVENTSETUP_MODULE(KFSwitching1DUpdatorESProducer);

@@ -167,7 +167,7 @@ void LumiProducerFromBrilcalc::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<std::string>("lumiFile");
   desc.add<bool>("throwIfNotFound", false);
   desc.add<bool>("doBunchByBunch", false);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

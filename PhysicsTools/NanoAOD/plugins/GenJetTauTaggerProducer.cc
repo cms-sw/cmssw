@@ -86,7 +86,7 @@ void GenJetTauTaggerProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

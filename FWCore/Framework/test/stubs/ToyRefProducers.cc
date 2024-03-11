@@ -50,7 +50,7 @@ namespace edmtest {
       edm::ParameterSetDescription desc;
       desc.add<int>("select", 0);
       desc.add<edm::InputTag>("target");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:

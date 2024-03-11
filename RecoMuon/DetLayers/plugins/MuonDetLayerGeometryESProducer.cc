@@ -110,7 +110,7 @@ std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(co
 void MuonDetLayerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   //no parameters are used
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer);

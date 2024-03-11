@@ -98,7 +98,7 @@ void L1GTBoardWriter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<unsigned int>("maxLines", 1024);
   desc.add<std::string>("patternFormat", "EMPv2");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(L1GTBoardWriter);

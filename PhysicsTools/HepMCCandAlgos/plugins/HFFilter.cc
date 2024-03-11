@@ -72,7 +72,7 @@ void HFFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("ptMin");
   desc.add<double>("etaMax");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //

@@ -321,7 +321,7 @@ void ElectronHEEPIDValueMapProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add("trkIsoConfig", EleTkIsolFromCands::pSetDescript());
   desc.add("trkIso04Config", EleTkIsolFromCands::pSetDescript());
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(ElectronHEEPIDValueMapProducer);

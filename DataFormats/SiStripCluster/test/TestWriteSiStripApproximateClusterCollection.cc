@@ -96,7 +96,7 @@ namespace edmtest {
   void TestWriteSiStripApproximateClusterCollection::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("integralValues");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

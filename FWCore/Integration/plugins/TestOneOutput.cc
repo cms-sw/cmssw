@@ -406,7 +406,7 @@ namespace edm {
     desc.addUntracked<unsigned int>("expectedNAddedProcesses", kDoNotTest);
     desc.addUntracked<bool>("expectedProductsFromInputKept", true);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edm
 

@@ -269,7 +269,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.addUntracked<unsigned int>("numberOfIOVsToAccumulate", 8);
     desc.addUntracked<unsigned int>("secondsToWaitForWork", 1);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace edmtest

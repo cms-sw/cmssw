@@ -44,7 +44,7 @@ namespace edmtest {
       desc.add<int>("ivalue", 0);
       desc.add<int>("count", 0);
       desc.add<int>("delta", 0);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -184,7 +184,7 @@ namespace edmtest {
       desc.add<int>("ivalue", 0);
       desc.add<int>("count", 0);
       desc.add<int>("delta", 0);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:

@@ -56,5 +56,5 @@ void DistanceBetweenComponentsESProducer<N>::fillDescriptions(edm::Configuration
   desc.add<std::string>("DistanceMeasure");
   desc.add<std::string>("ComponentName");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

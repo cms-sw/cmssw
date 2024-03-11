@@ -380,7 +380,7 @@ void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
   //desc.add<std::string>("algoConfigClass");
   //add_param_set(algorithm);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -207,7 +207,7 @@ void BeamSpotOnlineRecordsReader::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<bool>("isHLT", true);
   desc.addUntracked<std::string>("rawFileName", "");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -114,7 +114,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("expectedIntegralValues");
     desc.add<edm::InputTag>("collectionTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

@@ -196,7 +196,7 @@ namespace edmtest {
     desc.add<std::vector<int>>("tracksIntegralValues");
     desc.add<std::vector<double>>("vertexesFloatingPointValues");
     desc.add<std::vector<int>>("vertexesIntegralValues");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestWriteRun3Scouting::produceCaloJets(edm::Event& iEvent) const {

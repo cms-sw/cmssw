@@ -25,5 +25,5 @@ void TransientTrackBuilderESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("ComponentName", "TransientTrackBuilder")
       ->setComment("data label to use when getting the data product");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

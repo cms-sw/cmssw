@@ -458,7 +458,7 @@ void SimHitsValidationHcal::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<bool>("Verbose", false);
   desc.add<bool>("TestNumber", false);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(SimHitsValidationHcal);

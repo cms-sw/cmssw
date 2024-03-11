@@ -142,7 +142,7 @@ void HBHEPlan1Combiner::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   add_param_set(algorithm);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

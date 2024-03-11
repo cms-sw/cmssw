@@ -107,7 +107,7 @@ namespace timestudy {
     desc.add<int>("ivalue")->setComment("Value to put into Event");
     Sleeper::fillDescription(desc);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   class OneSleepingProducer : public edm::one::EDProducer<edm::one::SharedResources> {
@@ -140,7 +140,7 @@ namespace timestudy {
     desc.add<std::string>("resource", std::string())->setComment("The name of the resource that is being shared");
     Sleeper::fillDescription(desc);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   class OneSleepingAnalyzer : public edm::one::EDAnalyzer<> {
@@ -164,7 +164,7 @@ namespace timestudy {
 
     Sleeper::fillDescription(desc);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   /*
@@ -343,7 +343,7 @@ namespace timestudy {
     desc.add<std::vector<double>>("serviceFinishTimes");
     Sleeper::fillDescription(desc);
 
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace timestudy

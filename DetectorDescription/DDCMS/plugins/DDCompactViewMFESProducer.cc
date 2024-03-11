@@ -62,7 +62,7 @@ DDCompactViewMFESProducer::~DDCompactViewMFESProducer() {}
 
 void DDCompactViewMFESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DDCompactViewMFESProducer::ReturnType DDCompactViewMFESProducer::produce(const IdealMagneticFieldRecord &iRecord) {

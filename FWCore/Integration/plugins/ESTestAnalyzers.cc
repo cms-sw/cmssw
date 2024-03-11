@@ -64,7 +64,7 @@ namespace edmtest {
         ->setComment("ID number for each Run for which we should get EventSetup data.");
     desc.addUntracked<std::vector<int>>("expectedValues", std::vector<int>())
         ->setComment("EventSetup value expected for each Run. If empty, no values compared.");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   class ESTestAnalyzerB : public edm::one::EDAnalyzer<> {
@@ -110,7 +110,7 @@ namespace edmtest {
         ->setComment("ID number for each Run for which we should get EventSetup data.");
     desc.addUntracked<std::vector<int>>("expectedValues", std::vector<int>())
         ->setComment("EventSetup value expected for each Run. If empty, no values compared.");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   class ESTestAnalyzerK : public edm::global::EDAnalyzer<> {
@@ -197,7 +197,7 @@ namespace edmtest {
         ->setComment("EventSetup value for ESTestDataA:foo expected for each Run. If empty, no values compared.");
     desc.addUntracked<std::vector<int>>("expectedValuesZ", std::vector<int>())
         ->setComment("EventSetup value for ESTestDataZ:foo expected for each Run. If empty, no values compared.");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   class ESTestAnalyzerJ : public edm::stream::EDAnalyzer<> {

@@ -100,7 +100,7 @@ void GsfMaterialEffectsESProducer::fillDescriptions(edm::ConfigurationDescriptio
                                    edm::ParameterDescription<int>("BetheHeitlerCorrection", true)) or
           "EnergyLossUpdator" >> edm::EmptyGroupDescription()  //No additional parameters needed
   );
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GsfMaterialEffectsESProducer);
