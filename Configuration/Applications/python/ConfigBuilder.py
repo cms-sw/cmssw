@@ -1103,8 +1103,8 @@ class ConfigBuilder(object):
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
-            self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
-            self.RECODefaultSeq='reconstructionHeavyIons'
+            self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+            self.RECODefaultSeq='reconstruction'
             self.ALCADefaultCFF = "Configuration/StandardSequences/AlCaRecoStreamsHeavyIons_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineHeavyIons_cff"
             self.DQMDefaultSeq='DQMOfflineHeavyIons'
