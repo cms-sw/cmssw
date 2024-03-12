@@ -33,3 +33,4 @@ slimmedMETs = cms.EDProducer("PATMETSlimmer",
 
 # foo bar baz
 # pcSJTpLtzHlpe
+# LJIsjlHbGs8u9

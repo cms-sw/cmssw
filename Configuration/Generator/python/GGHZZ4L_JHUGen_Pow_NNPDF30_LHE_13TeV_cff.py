@@ -15,3 +15,4 @@ externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 
 # foo bar baz
 # sNuoFvx3xPTBa
+# tKnkPvAyHrCUO

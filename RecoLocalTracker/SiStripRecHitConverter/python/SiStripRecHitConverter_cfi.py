@@ -5,3 +5,4 @@ from RecoLocalTracker.SiStripRecHitConverter.siStripRecHitConverter_cfi import s
 siStripMatchedRecHits = _siStripRecHitConverter.clone()
 # foo bar baz
 # 5Gfs8wbRUHAeo
+# dLVlSWnQVSoNO

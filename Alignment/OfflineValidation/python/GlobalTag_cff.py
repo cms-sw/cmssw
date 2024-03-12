@@ -26,3 +26,4 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag
 # foo bar baz
 # NXSxOgh8Z0Hdd
+# wK1AzQVExwmPW

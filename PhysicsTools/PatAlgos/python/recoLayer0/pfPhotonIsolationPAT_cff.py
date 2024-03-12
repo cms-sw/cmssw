@@ -10,3 +10,4 @@ pfPhotonIsolationPATTask = cms.Task(
 pfPhotonIsolationPATSequence = cms.Sequence(pfPhotonIsolationPATTask)
 # foo bar baz
 # UGtVXNmsZu9pr
+# CDIhEdyplFagu

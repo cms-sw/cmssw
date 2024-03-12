@@ -12,3 +12,4 @@ MuonPFElectron.filterName = cms.string("MuonPFElectron")
 
 # foo bar baz
 # AGfQbsUG13AXE
+# 5DjJHhgGrS25M

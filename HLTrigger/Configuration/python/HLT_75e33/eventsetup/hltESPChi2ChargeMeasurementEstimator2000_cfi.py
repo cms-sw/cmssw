@@ -16,3 +16,4 @@ hltESPChi2ChargeMeasurementEstimator2000 = cms.ESProducer("Chi2ChargeMeasurement
 )
 # foo bar baz
 # olJtVAhYh91jF
+# 64xfDa2gPmJh0

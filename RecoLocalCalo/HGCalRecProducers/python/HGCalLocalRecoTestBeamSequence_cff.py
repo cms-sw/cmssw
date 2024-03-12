@@ -10,3 +10,4 @@ HGCalLocalRecoTestBeamTask = cms.Task(HGCalUncalibRecHit,HGCalRecHit,hgcalMergeL
 HGCalLocalRecoTestBeamSequence = cms.Sequence(HGCalLocalRecoTestBeamTask)
 # foo bar baz
 # sgojv1ETmBm96
+# RkYEyepFFNQVs

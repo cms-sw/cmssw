@@ -43,3 +43,4 @@ idealForDigiCSCGeometry.alignmentsLabel = 'fakeForIdeal'
 # - I'll try to contact framework people for CMSSW_2_2_0 and above.
 # foo bar baz
 # ToHG4LctgJD8f
+# vy59a51mWn6Cj

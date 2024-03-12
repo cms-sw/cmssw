@@ -45,3 +45,4 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorCUDA, "from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA import ProcessAcceleratorCUDA")
 # foo bar baz
 # McLXF897g21Qx
+# nOysGFI7ljs5p

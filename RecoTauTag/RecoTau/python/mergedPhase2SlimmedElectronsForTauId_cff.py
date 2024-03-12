@@ -6,3 +6,4 @@ mergedSlimmedElectronsForTauId = cms.EDProducer('PATElectronCollectionMerger',
 )
 # foo bar baz
 # 1GLUzRo7WNj66
+# FBeeYtRp1tfsp

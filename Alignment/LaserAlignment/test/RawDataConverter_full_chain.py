@@ -74,3 +74,4 @@ process.out = cms.OutputModule( "PoolOutputModule",
 process.p = cms.Path(process.LaserAlignmentEventFilter + process.siStripDigis + process.laserAlignmentT0Producer + process.RawDataConverter + process.out)
 # foo bar baz
 # uBSaNSPyQxu6o
+# ZNIxDXJEXbV7C

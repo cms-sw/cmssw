@@ -13,3 +13,4 @@ hltRpcRecHits = cms.EDProducer("RPCRecHitProducer",
 )
 # foo bar baz
 # MSnaG7B8fr0wL
+# QRj0PJAKkD0FZ

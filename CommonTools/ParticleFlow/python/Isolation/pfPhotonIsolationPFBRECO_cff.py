@@ -10,3 +10,4 @@ pfPhotonIsolationPFBRECOTask = cms.Task(
 pfPhotonIsolationPFBRECOSequence = cms.Sequence(pfPhotonIsolationPFBRECOTask)
 # foo bar baz
 # CN2aSXPVNMhVP
+# ce8vtf55Delzy

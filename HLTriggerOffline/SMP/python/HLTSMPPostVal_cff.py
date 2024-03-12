@@ -8,3 +8,4 @@ HLTSMPPostVal = cms.Sequence(
 
 # foo bar baz
 # s4WPF4oMeDARd
+# H6GmpaAel2WjL

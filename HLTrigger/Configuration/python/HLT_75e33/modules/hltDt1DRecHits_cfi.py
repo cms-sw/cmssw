@@ -29,3 +29,4 @@ hltDt1DRecHits = cms.EDProducer("DTRecHitProducer",
 )
 # foo bar baz
 # fDUdx8SXmX3M7
+# 1P77pAJ629MNk

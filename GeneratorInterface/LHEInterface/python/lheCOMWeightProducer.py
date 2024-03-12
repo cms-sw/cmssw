@@ -6,3 +6,4 @@ lheCOMWeightProducer = cms.EDProducer("LHECOMWeightProducer",
 )
 # foo bar baz
 # LzHeCD7OGOzx7
+# VEygbcoTRJMM9

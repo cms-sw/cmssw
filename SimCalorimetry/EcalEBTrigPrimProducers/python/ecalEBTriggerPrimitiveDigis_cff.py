@@ -14,3 +14,4 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( simEcalEBTriggerPrimitiveDigis, BarrelOnly = cms.bool(True) )
 # foo bar baz
 # SozrkatC8AawB
+# qzu83hegG9Hh4

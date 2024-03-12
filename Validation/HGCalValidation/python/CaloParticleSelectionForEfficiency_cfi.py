@@ -24,3 +24,4 @@ CaloParticleSelectionForEfficiency = cms.PSet(
 )
 # foo bar baz
 # 0ZsAi0tKsVXUl
+# lBLpI9swFr7Yc

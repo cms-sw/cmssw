@@ -24,3 +24,4 @@ hltDiEG3023IsoCaloIdClusterShapeSigmavvL1SeededFilter = cms.EDFilter("HLTEgammaG
 )
 # foo bar baz
 # hn7ZmHCO5HrzP
+# UO8FCb2U3lpOI

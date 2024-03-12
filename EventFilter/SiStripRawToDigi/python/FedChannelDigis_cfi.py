@@ -21,3 +21,4 @@ FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
 
 # foo bar baz
 # emjw9TUPp34O9
+# vF8Exdv3V3wrd

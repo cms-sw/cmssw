@@ -28,3 +28,4 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
 
 # foo bar baz
 # FABNgwGZ8K7jN
+# x5MCddhdaLMHU

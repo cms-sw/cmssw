@@ -60,3 +60,4 @@ process.WriteInDB = cms.EDAnalyzer("SiPixelQualityProbabilitiesWriteFromASCII",
 process.p = cms.Path(process.WriteInDB)
 # foo bar baz
 # eeYgK2hG1QMQQ
+# BZYfo8wIl4tW3

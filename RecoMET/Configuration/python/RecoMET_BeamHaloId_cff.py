@@ -25,3 +25,4 @@ fastSim.toReplaceWith(BeamHaloIdTask, BeamHaloIdTask.copyAndExclude([CSCHaloData
 #BeamHaloIdWithGtRecord = cms.Sequence(gtDigis*l1GtRecord*CSCHaloData*EcalHaloData*HcalHaloData*GlobalHaloData*BeamHaloSummary)
 # foo bar baz
 # oyeUZ8aBIc9ZT
+# rVeX6jkTfMcUK

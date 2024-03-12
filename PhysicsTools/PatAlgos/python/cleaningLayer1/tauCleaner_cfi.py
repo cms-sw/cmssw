@@ -46,3 +46,4 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
 )
 # foo bar baz
 # f86Gny0M6k8P2
+# 8jhdrSpjTsfc8

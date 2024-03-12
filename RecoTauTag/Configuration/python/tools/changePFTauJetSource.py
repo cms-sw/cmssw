@@ -27,3 +27,4 @@ def changePFTauJetSource(process, jetSrc):
     #print process.ak4PFJetsLegacyTaNCPiZeros.src
 # foo bar baz
 # pAmaymECnHW9D
+# u4rc3zaA8RCAU

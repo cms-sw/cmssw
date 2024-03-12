@@ -28,3 +28,4 @@ process.p3 = cms.Path(process.c)
 process.add_(cms.Service("ConcurrentModuleTimer", padding = cms.untracked.uint32(2), trackGlobalBeginRun = cms.untracked.bool(True)))
 # foo bar baz
 # Ypr31PJrHy1Gr
+# npsMiON0L1H2X

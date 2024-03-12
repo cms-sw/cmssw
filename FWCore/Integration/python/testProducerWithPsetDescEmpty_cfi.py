@@ -77,3 +77,4 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
 )
 # foo bar baz
 # SgPLxvoiJJtgT
+# CrZNSMWXz8PuZ

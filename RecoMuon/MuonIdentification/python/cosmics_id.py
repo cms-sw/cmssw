@@ -36,3 +36,4 @@ cosmicsMuonIdTask = cms.Task(cosmicsVetoSeeds,cosmicsVetoTrackCandidates,cosmics
 cosmicsMuonIdSequence = cms.Sequence(cosmicsMuonIdTask)
 # foo bar baz
 # 7ARbcTWzD2Nj6
+# oOzlJpLoWDsV8

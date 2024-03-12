@@ -24,3 +24,4 @@ hltEgammaHoverEL1Seeded = cms.EDProducer("EgammaHLTHcalVarProducerFromRecHit",
 )
 # foo bar baz
 # 0w8pYPm0qn3md
+# Eic5ZDRk1XsxG

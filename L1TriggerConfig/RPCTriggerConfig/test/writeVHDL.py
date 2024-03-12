@@ -43,3 +43,4 @@ process.write = cms.EDAnalyzer("WriteVHDL",
 process.p1 = cms.Path(process.write)
 # foo bar baz
 # kKDADJCtbfO2J
+# USOxpvcMooaBU

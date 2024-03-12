@@ -9,3 +9,4 @@ hgcalSimHitClientHEB = hgcalSimHitClientEE.clone(
     DetectorName  = cms.string("HGCalHEScintillatorSensitive"))
 # foo bar baz
 # LlSB5swt2EOUZ
+# vHplTTvhZj56r

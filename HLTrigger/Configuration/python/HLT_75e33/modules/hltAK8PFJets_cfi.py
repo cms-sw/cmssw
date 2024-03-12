@@ -31,3 +31,4 @@ hltAK8PFJets = cms.EDProducer("FastjetJetProducer",
 )
 # foo bar baz
 # N7E6VY2nf7Gzt
+# r3oJoi93v3RCB

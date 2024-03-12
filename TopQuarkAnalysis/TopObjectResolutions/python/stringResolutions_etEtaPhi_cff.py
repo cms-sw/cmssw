@@ -5,3 +5,4 @@ print("***          Please migrate to a more recent one (possibly found in the s
 from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Spring10_cff import *
 # foo bar baz
 # EnWQFYyGAqvKk
+# FhTN0G20BLXDt

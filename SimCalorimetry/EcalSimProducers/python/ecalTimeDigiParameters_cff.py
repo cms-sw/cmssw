@@ -14,3 +14,4 @@ from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff 
 (ecal_component_finely_sampled_waveforms).toModify(ecal_time_digi_parameters,componentWaveform=True)
 # foo bar baz
 # 58PXycWgxS5qL
+# CdWI7SsNQ2xnU

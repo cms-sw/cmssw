@@ -8,3 +8,4 @@ gemRecHit = cms.PSet(
 )
 # foo bar baz
 # KM3ji2xTYrZNE
+# wXF8II0xrDXLX

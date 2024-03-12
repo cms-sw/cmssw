@@ -7,3 +7,4 @@ cosmicCandidateFinder.Chi2Cut = cms.double(300.0)
 cosmicCandidateFinder.GeometricStructure = cms.untracked.string('STANDARD')
 # foo bar baz
 # RZyFOjM6A5k4r
+# Z89fKWTBzD75h

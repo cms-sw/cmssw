@@ -86,3 +86,4 @@ process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 # foo bar baz
 # WqhXg28sbc4d7
+# 7SjK2buuBbD1w

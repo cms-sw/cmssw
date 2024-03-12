@@ -8,3 +8,4 @@ hgcalSiliconAnalysisHEF = hgcalSiliconAnalysisEE.clone(
     DigiCollection = cms.untracked.InputTag("simHGCalUnsuppressed","HEfront"))
 # foo bar baz
 # vMp6SzjBH73Y2
+# xKhHuua6E204W

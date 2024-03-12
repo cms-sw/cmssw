@@ -100,3 +100,4 @@ stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
 stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
 # foo bar baz
 # 9mzeN9C8zgEZz
+# F9h2JL89CMQtz

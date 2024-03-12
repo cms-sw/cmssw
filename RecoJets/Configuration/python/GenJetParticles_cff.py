@@ -31,3 +31,4 @@ genJetParticlesTask = cms.Task(genParticlesForJets, genParticlesForJetsNoNu)
 genJetParticles = cms.Sequence(genJetParticlesTask)
 # foo bar baz
 # GJAA6kwKilydJ
+# kjmjRx4FnrATh

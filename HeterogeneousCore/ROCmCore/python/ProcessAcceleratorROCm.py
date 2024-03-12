@@ -45,3 +45,4 @@ class ProcessAcceleratorROCm(cms.ProcessAccelerator):
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorROCm, "from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm import ProcessAcceleratorROCm")
 # foo bar baz
 # pD0YIletttRsl
+# N7rORiL3rSIvH

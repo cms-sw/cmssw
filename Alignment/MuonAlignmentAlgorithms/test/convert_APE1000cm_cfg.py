@@ -3,3 +3,4 @@ process.MuonGeometryDBConverter.fileName = "Alignment/MuonAlignmentAlgorithms/te
 process.PoolDBOutputService.connect = "sqlite_file:APE1000cm.db"
 # foo bar baz
 # tXcFl5DFa4PzW
+# 9hOtR4VnxiCwU

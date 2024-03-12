@@ -5,3 +5,4 @@ pfDeltaBetaWeightingTask = cms.Task(pfWeightedPhotons,pfWeightedNeutralHadrons)
 pfDeltaBetaWeightingSequence = cms.Sequence(pfDeltaBetaWeightingTask)
 # foo bar baz
 # LD35Pll40pVj6
+# qsDRn0goplGfE

@@ -16,3 +16,4 @@ cscRecHitPSet = cms.PSet(
 )
 # foo bar baz
 # TMyiEE0iGHLqm
+# 0k6fMNL5LL5f2

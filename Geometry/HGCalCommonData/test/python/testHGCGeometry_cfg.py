@@ -74,3 +74,4 @@ process.maxEvents = cms.untracked.PSet(
 process.p1 = cms.Path(process.generator*process.hgcGeometryTester)
 # foo bar baz
 # WREHGYl4GeXZh
+# P56Yvgqrx1KCc

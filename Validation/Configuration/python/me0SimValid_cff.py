@@ -7,3 +7,4 @@ from Validation.MuonME0Validation.MuonME0RecHits_cfi import *
 me0SimValid = cms.Sequence(me0HitsValidation*me0DigiValidation*me0LocalRecoValidation)
 # foo bar baz
 # 6LzD7KFJSiJAs
+# X6wgX5YKh57rM

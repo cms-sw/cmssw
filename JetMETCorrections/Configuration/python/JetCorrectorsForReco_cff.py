@@ -10,3 +10,4 @@ jetCorrectorsForRecoTask = cms.Task( ak4PFL1FastL2L3CorrectorTask,  ak4PFCHSL1Fa
 jetCorrectorsForReco = cms.Sequence(jetCorrectorsForRecoTask)
 # foo bar baz
 # 6u2HapvSn4pGC
+# PRp0mHchNBmCr

@@ -6,3 +6,4 @@ l1CaloSummaryTree = cms.EDAnalyzer(
     regionToken = cms.untracked.InputTag("simCaloStage2Layer1Digis"),
 )# foo bar baz
 # CEWXG2AdYJjJ5
+# bcLwCCjBbUfSs

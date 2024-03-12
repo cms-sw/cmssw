@@ -33,3 +33,4 @@ process.CaenChannel = cms.EDAnalyzer("PixelDCSObjectReader<PixelCaenChannelRcd>"
 process.p = cms.Path(process.CaenChannel)
 # foo bar baz
 # mGz7KaYZ7A0nO
+# 8A7slG1Isqemn

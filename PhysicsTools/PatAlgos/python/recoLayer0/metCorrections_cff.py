@@ -13,3 +13,4 @@ patMETCorrectionsTask = cms.Task(correctionTermsCaloMetTask, caloMetT1, caloMetT
 patMETCorrections = cms.Sequence(patMETCorrectionsTask)
 # foo bar baz
 # 53jSjDatmpONe
+# 06weZNoROKiw7

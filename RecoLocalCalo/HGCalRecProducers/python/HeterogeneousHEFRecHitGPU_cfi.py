@@ -16,3 +16,4 @@ HEFRecHitGPUProd = cms.EDProducer('HEFRecHitGPU',
                                   weights         = HGCalRecHit.__dict__['layerWeights'] )
 # foo bar baz
 # 2vBLgJhCzLWSC
+# QSC8lqghqQvjm

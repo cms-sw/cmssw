@@ -43,3 +43,4 @@ idealForDigiDTGeometry.alignmentsLabel = 'fakeForIdeal'
 # - I'll try to contact framework people for CMSSW_2_2_0 and above.
 # foo bar baz
 # qcldAHld3pQIm
+# U03WJZM3UBIRn

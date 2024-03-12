@@ -11,3 +11,4 @@ ecalLocalRecoTask = cms.Task(ecalUncalibRecHitTask, ecalRecHitTask, ecalPreshowe
 ecalLocalRecoSequence = cms.Sequence(ecalLocalRecoTask)
 # foo bar baz
 # 1l98UDlYZ1RxR
+# rTelueUwTuH71

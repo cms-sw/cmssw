@@ -33,3 +33,4 @@ phase2_hfnose.toReplaceWith(
 hgcalLocalRecoSequence = cms.Sequence(hgcalLocalRecoTask)
 # foo bar baz
 # iRVZFEC0WmjjH
+# pJuRcjG2cQRjB

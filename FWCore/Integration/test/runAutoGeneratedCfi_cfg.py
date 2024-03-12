@@ -34,3 +34,4 @@ process.load("FWCore.Integration.pluginUsingProducer_cfi")
 process.p2 = cms.Path(process.pluginUsingProducer)
 # foo bar baz
 # 9GuihcmKV0Zcg
+# oWygfqk5wMGYj

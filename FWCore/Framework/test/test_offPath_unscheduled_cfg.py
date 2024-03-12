@@ -41,3 +41,4 @@ process.t = cms.Task(process.one, process.two)
 process.p = cms.Path(process.getOne+process.getTwo, process.t)
 # foo bar baz
 # CtO3VcsFwx5uW
+# vIlcMFHsMZWuk

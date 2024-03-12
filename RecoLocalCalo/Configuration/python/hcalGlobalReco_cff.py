@@ -33,3 +33,4 @@ from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURec
 )
 # foo bar baz
 # h5xsat2i6kW2h
+# 5BKc6fDTyx6uP

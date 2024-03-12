@@ -26,3 +26,4 @@ PFTauDiscriminatorLogicalAndProducer = cms.EDProducer("PFTauDiscriminatorLogical
 )
 # foo bar baz
 # 6FrU9BmBDtcu9
+# Dg374AlnfnNI9

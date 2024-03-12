@@ -72,3 +72,4 @@ mvaPhoID_Spring16_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaPhoID_Spring16_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # qdB37k4TlrzBZ
+# gvjZTa3tW6wy4

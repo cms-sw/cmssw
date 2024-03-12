@@ -11,3 +11,4 @@ ecalLocalRecoSequence = cms.Sequence(cms.SequencePlaceholder("getEcalConditions_
 
 # foo bar baz
 # 6Pb8L5xdbmI02
+# DLCLImS3l5zlE

@@ -23,3 +23,4 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(reducedHcalRecHits.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoHCALDetId")) )
 # foo bar baz
 # ju76s45Hu62HM
+# Y9h6nZuIJi1k0

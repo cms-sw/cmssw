@@ -51,3 +51,4 @@ hiSelectedVertex = hiSelectedPixelVertex.clone(
 bestFinalHiVertexTask = cms.Task(hiOfflinePrimaryVertices , hiBestOfflinePrimaryVertex , hiSelectedVertex )
 # foo bar baz
 # 3HLI1XDRNhC5w
+# 6QAUjzwpM8gdb

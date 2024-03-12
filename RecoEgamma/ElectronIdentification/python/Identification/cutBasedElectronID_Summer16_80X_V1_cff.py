@@ -169,3 +169,4 @@ cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved = cms.untracked.bool(Tru
 cutBasedElectronID_Summer16_80X_V1_tight.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # X2UvMhQvOmBe7
+# A7T928Vjhb2pL

@@ -90,3 +90,4 @@ herwigppLHEFileSettingsBlock = cms.PSet(
 
 # foo bar baz
 # xnNJcu23wDWIX
+# psGgfvxsCImk7

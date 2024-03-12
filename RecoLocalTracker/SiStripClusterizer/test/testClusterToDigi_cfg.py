@@ -94,3 +94,4 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source.fileNames = cms.untracked.vstring("/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/00A7606D-22F9-E011-8437-001A92971BDC.root")
 # foo bar baz
 # uJCzysmdQ3XjV
+# MOgfUVAX1BBHa

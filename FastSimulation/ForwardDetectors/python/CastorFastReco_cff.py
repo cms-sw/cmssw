@@ -11,3 +11,4 @@ from FastSimulation.ForwardDetectors.CastorFastClusterProducer_cfi import *
 CastorFastReco = cms.Sequence(CastorFastTowerReco*CastorFastClusterReco)
 # foo bar baz
 # tgf2xHYLwIkLI
+# AZ4hSbYnKXwrR

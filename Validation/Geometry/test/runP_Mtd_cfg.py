@@ -85,3 +85,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 process.g4SimHits.G4Commands = cms.vstring("/material/g4/printMaterial")
 # foo bar baz
 # 6zHMrPbapTBvF
+# gtpsj6kcbcK6C

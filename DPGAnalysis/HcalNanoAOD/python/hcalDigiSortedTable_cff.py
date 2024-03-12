@@ -18,3 +18,4 @@ hcalDigiSortedTable= cms.EDProducer("HcalDigiSortedTableProducer",
 hcalDigiSortedTableTask = cms.Task(hcalDigiSortedTable)
 hcalDigiSortedTableSeq = cms.Sequence(hcalDigiSortedTable)# foo bar baz
 # YPb7aTHyvRnmI
+# ZshiC2Waax5LG

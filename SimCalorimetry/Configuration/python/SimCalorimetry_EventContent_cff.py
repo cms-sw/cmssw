@@ -91,3 +91,4 @@ phase2_hfnose.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outp
 phase2_hfnose.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
 # foo bar baz
 # 6X55zfSt3fStg
+# zpCqMXoZVIJsu

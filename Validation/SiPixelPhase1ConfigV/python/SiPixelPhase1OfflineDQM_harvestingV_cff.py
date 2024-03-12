@@ -12,3 +12,4 @@ siPixelPhase1OfflineDQM_harvestingV = cms.Sequence(SiPixelPhase1DigisHarvesterV
 
 # foo bar baz
 # W9mppJoJmGnCp
+# ZgO2tQrl5waL3

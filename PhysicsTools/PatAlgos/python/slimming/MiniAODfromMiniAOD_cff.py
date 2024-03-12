@@ -6,3 +6,4 @@ from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 EIsequence = cms.Sequence( modifyPrimaryPhysicsObjects )
 # foo bar baz
 # pkhgd3vpVx2tz
+# vLiKbps1QSrEK

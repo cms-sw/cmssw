@@ -113,3 +113,4 @@ process.hcalHitsValidation_step = cms.EndPath(
 process.schedule.extend([process.hcalHitsValidation_step,process.FEVTDEBUGHLToutput_step])
 # foo bar baz
 # qYEqxjhV5Mat6
+# SUXSCXrYAGJyF

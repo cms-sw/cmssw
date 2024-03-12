@@ -115,3 +115,4 @@ muplusfilter = cms.EDFilter("PythiaDauVFilter",
 ProductionFilterSequence = cms.Sequence(generator*pwaveIDfilter*pwaveMassfilter*muminusfilter*muplusfilter)
 # foo bar baz
 # FHgFp71DWTN4h
+# 8kqcbPaQ26M4n

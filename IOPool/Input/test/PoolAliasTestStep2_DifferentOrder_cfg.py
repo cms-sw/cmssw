@@ -31,3 +31,4 @@ process.Analysis2 = cms.EDAnalyzer("OtherThingAnalyzer",
 process.p2 = cms.Path(process.OtherThing2+process.Analysis2)
 # foo bar baz
 # pm4h31sixvfr8
+# d46X8nm8u1nCy

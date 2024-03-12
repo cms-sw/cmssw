@@ -14,3 +14,4 @@ btagMuonInJetOutputModuleRECOSIM = cms.OutputModule("PoolOutputModule",
 
 # foo bar baz
 # 1LjX9V2O9Dm0V
+# FS0MraGN3RTHk

@@ -22,3 +22,4 @@ electronMcSignalPostValidatorMiniAOD = DQMEDHarvester("ElectronMcSignalPostValid
 
 # foo bar baz
 # E1tur9260qS6W
+# xEwFhH9bBQswl

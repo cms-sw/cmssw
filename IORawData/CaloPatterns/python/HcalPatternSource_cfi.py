@@ -8,3 +8,4 @@ hcalPatternSource = cms.EDProducer("HcalPatternSource",
                                    )
 # foo bar baz
 # gf4Q6X8FJUqK9
+# lKmD1oAAnSmyF

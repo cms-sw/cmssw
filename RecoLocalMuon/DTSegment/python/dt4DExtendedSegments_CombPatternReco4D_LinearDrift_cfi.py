@@ -4,3 +4,4 @@ from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDrift_cfi impo
 dt4DSegments.recHits2DLabel= "dt2DExtendedSegments"
 # foo bar baz
 # 2MD2Bs5aGzYUM
+# yz06KsNhFel7Y

@@ -65,3 +65,4 @@ offlineHLTSource = cms.Sequence(
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource)
 # foo bar baz
 # ORzQMQ1nNriuc
+# 5YVK9oCgJmdne

@@ -15,3 +15,4 @@ noBadGlobalMuonsMAOD = cms.Sequence(~cloneGlobalMuonTaggerMAOD + ~badGlobalMuonT
     
 # foo bar baz
 # OZlBpP0xD6lyX
+# DhEgl3zfRFmT2

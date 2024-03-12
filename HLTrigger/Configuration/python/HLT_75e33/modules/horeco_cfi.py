@@ -30,3 +30,4 @@ horeco = cms.EDProducer("HcalHitReconstructor",
 )
 # foo bar baz
 # Ze1RAwW1R7K4A
+# I7a5mQTCnwMEd

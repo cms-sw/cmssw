@@ -55,3 +55,4 @@ theBigNtupleDigi = cms.Sequence( siStripDigis + bigNtupleDigis )
 
 # foo bar baz
 # 5HAMX02in73sO
+# 0TPgLPXTP39WN

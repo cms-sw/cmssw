@@ -94,3 +94,4 @@ def main():
     TkMap_drange_strips = TkAlMap('test', title, in_file, use_default_range=True,  two_sigma_cap=False, GEO_file=geometry_file, tracker='strips', palette=palette, check_tracker=auto_tk)
 # foo bar baz
 # MMufInzhv5AXG
+# pXh9YXyv7dzQS

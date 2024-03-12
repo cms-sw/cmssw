@@ -9,3 +9,4 @@ AdaptorConfig = cms.Service("AdaptorConfig",
 )
 # foo bar baz
 # USKqYNmV4ul0R
+# fRIz4Hzs5WmWY

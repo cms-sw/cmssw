@@ -13,3 +13,4 @@ RecoPixelVertexingFEVT = cms.PSet(
 RecoPixelVertexingFEVT.outputCommands.extend(RecoPixelVertexingRECO.outputCommands)
 # foo bar baz
 # nLjUXmHbzGdDA
+# khvT73dQneX40

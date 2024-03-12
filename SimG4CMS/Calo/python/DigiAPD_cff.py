@@ -9,3 +9,4 @@ doAllDigi = cms.Sequence(ecalDigiSequence)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
 # foo bar baz
 # qeigWlG0yEa8R
+# LwjE10kAn004M

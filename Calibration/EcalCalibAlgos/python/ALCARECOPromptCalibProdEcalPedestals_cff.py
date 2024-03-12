@@ -40,3 +40,4 @@ seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCALRECOEcalTCDSDigis   
                                                        MEtoEDMConvertEcalPedestals)
 # foo bar baz
 # d5OWMjdNwBbTm
+# iBUqhxgx0BRGn

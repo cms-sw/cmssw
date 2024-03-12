@@ -29,3 +29,4 @@ muonreco_with_standAloneSET_Task = cms.Task(SETMuonSeed,standAloneSETMuons)
 muonreco_with_standAloneSET = cms.Sequence(muonreco_with_standAloneSET_Task)
 # foo bar baz
 # IrdJIawj54DmR
+# Kk8q8qJiTAqte

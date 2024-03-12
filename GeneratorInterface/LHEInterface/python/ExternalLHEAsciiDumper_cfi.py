@@ -6,3 +6,4 @@ externalLHEAsciiDumper = cms.EDAnalyzer('ExternalLHEAsciiDumper',
 )
 # foo bar baz
 # vS03X1SNBSiA9
+# 6xppNHshx6BN4

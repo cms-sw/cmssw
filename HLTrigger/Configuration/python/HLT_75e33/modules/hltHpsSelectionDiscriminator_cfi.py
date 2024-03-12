@@ -102,3 +102,4 @@ hltHpsSelectionDiscriminator = cms.EDProducer( "PFRecoTauDiscriminationByHPSSele
 )
 # foo bar baz
 # VIzpJV9js7RfX
+# h3Ovo4NdWSq7k

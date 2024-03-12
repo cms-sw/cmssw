@@ -16,3 +16,4 @@ cscBadChambers = cms.ESSource("PoolDBESSource",
 
 # foo bar baz
 # kzaZe6kKdUwY7
+# XMYnV914K17tM

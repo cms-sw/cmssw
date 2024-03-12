@@ -217,3 +217,4 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
     disk_template.save(filename)
 # foo bar baz
 # u9EMHoiOtW8bb
+# vPs9bUUpiIBOM

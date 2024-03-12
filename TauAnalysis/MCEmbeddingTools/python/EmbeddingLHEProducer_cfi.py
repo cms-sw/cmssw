@@ -12,3 +12,4 @@ externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
 
 makeexternalLHEProducer = cms.Sequence( externalLHEProducer)# foo bar baz
 # MEUlYYTW8317Y
+# LK7dXNhYWwmNB

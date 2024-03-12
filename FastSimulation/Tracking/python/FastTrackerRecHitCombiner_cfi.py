@@ -8,3 +8,4 @@ fastTrackerRecHitCombinations = cms.EDProducer(
     )
 # foo bar baz
 # yngcYdZFRpbwW
+# kEghjZ4MtXKxU

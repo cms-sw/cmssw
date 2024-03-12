@@ -16,3 +16,4 @@ ecalLocalRecoTask = cms.Task(ecalUncalibRecHit,ecalDetIdToBeRecovered,ecalRecHit
 ecalLocalRecoSequence = cms.Sequence(ecalLocalRecoTask)
 # foo bar baz
 # JnJ2FDIT5zxNP
+# 4h0S9uaZ4HGA4

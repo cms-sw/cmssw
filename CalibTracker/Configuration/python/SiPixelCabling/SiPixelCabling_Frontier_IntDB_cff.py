@@ -16,3 +16,4 @@ siPixelCabling.toGet = cms.VPSet(cms.PSet(
 
 # foo bar baz
 # MyfYGRRa8Hlw6
+# PNPwoJGC1to3k

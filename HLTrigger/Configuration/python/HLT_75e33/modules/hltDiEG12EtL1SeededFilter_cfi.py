@@ -10,3 +10,4 @@ hltDiEG12EtL1SeededFilter = cms.EDFilter("HLTEgammaEtFilter",
 )
 # foo bar baz
 # 0TXvb3YNo6Ge4
+# Hc71B9zQE8s7C

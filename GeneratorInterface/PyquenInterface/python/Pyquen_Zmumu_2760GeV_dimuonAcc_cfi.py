@@ -32,3 +32,4 @@ hiSignal = cms.EDFilter("PyquenGeneratorFilter",
 hiSignal.embeddingMode = 0
 # foo bar baz
 # C4vNGUoF6TAdG
+# BaDocwnNwLy4m

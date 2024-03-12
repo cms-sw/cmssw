@@ -4,3 +4,4 @@ from Calibration.TkAlCaRecoProducers.AlcaBeamSpotProducerHP_cfi import alcaBeamS
 alcaBeamSpotHP = cms.Sequence( alcaBeamSpotProducerHP )
 # foo bar baz
 # xq4MgG018lvH4
+# xjsckYQiXB2VZ

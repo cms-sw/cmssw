@@ -83,3 +83,4 @@ mvaEleID_Spring15_50ns_Trig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaEleID_Spring15_50ns_Trig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # gEovSj9FXnXUi
+# MYV8LvaZsuor7

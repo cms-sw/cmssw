@@ -18,3 +18,4 @@ hltEcalDetIdToBeRecovered = cms.EDProducer("EcalDetIdToBeRecoveredProducer",
 )
 # foo bar baz
 # xTtXqcDoDjGki
+# tVIN9Q2J8Rbuz

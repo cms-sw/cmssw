@@ -60,3 +60,4 @@ dirhadrongenfilter = cms.EDFilter("MCParticlePairFilter",
 ProductionFilterSequence = cms.Sequence(generator*dirhadrongenfilter)
 # foo bar baz
 # Ev2od2oeAPBXV
+# 4q3RbOqdIDaTT

@@ -36,3 +36,4 @@ process.p = cms.Path(process.cosmicRateAnalyzer)
 
 # foo bar baz
 # oMHLdFpOCgYYY
+# aS0uXxGZhhzHG

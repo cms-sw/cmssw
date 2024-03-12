@@ -23,3 +23,4 @@ def collectAlgorithmPaths(process) -> "tuple[cms.Path]":
     return tuple(paths)
 # foo bar baz
 # LCeNBBgfmsqsD
+# KcRhMtxjYD5pB

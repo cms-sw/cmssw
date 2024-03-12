@@ -12,3 +12,4 @@ patJetCharge = cms.EDProducer("JetChargeProducer",
 # patJetTracksCharge = cms.Sequence(patAK5CaloJetCharge)
 # foo bar baz
 # GnuO224jXTTCr
+# cPGXjCKfex11M

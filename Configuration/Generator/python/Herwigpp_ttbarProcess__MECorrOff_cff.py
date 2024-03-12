@@ -37,3 +37,4 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 ProductionFilterSequence = cms.Sequence(generator)
 # foo bar baz
 # Ep5aEfMUz9PoF
+# tyTbDk7i6UHAQ

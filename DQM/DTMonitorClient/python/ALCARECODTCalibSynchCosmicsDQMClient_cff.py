@@ -7,3 +7,4 @@ dtResolutionAnalysisTestAlcaCosmics = dtResolutionAnalysisTest.clone(
 ALCARECODTCalibSynchCosmicsDQMClient = cms.Sequence(dtResolutionAnalysisTestAlcaCosmics)
 # foo bar baz
 # fkSkMQNy4Vrkb
+# B9hTgRdDvWgdc

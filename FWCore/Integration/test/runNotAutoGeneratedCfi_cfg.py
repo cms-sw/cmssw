@@ -24,3 +24,4 @@ process.testProducerWithPsetDesc = testProducerWithPsetDesc
 process.p1 = cms.Path(process.testProducerWithPsetDesc)
 # foo bar baz
 # xHUOfFQ7Mirsr
+# R2ErdRo3IQcOY

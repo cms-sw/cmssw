@@ -4,3 +4,4 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_noise_fC a
 HGCAL_noise_fC = _HGCAL_noise_fC.clone()
 # foo bar baz
 # NKMHmHsCmwDHV
+# XgZPHCKAlVb4m

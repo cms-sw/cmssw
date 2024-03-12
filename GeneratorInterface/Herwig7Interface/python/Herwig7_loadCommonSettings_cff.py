@@ -48,3 +48,4 @@ generator = cms.EDFilter("Herwig7GeneratorFilter",
     runModeList = cms.untracked.string('read,run'),
 )# foo bar baz
 # C5eLLbMS4zkmm
+# ijOx2IyLVu1ye

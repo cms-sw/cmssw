@@ -8,3 +8,4 @@ electronValidationSequence = cms.Sequence(electronMcSignalValidator+electronMcFa
 
 # foo bar baz
 # CR89fYWcehezJ
+# MAAZmtrOYXedV

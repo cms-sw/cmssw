@@ -22,3 +22,4 @@ KT6byValAlgo = cms.EDProducer("JetFlavourIdentifier",
 )
 # foo bar baz
 # ufU4CVP4CevBS
+# BJ2ZjvOJtbhrA

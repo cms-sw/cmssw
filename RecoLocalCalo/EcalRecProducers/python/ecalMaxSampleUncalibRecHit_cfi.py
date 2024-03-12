@@ -4,3 +4,4 @@ import  RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHitProducer_cfi as
 ecalMaxSampleUncalibRecHit = _mod.ecalMaxSampleUncalibRecHitProducer.clone()
 # foo bar baz
 # 52C1vOdS7RDPF
+# SoDiONkFPpNwQ

@@ -33,3 +33,4 @@ process.compare = cms.EDAnalyzer("CompareGeneratorResultsAnalyzer", module1 = cm
 process.p = cms.Path(process.gen1+process.gen2+process.compare)
 # foo bar baz
 # ShaaN4M2llNeG
+# VTaczMHq71GCK

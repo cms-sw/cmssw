@@ -8,3 +8,4 @@ slimmedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneSlimmer",
 )
 # foo bar baz
 # WwNhyknuODb38
+# RBw5gT6AaGvEi

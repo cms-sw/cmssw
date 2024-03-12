@@ -5,3 +5,4 @@ BTauMVAJetTagComputerRecord.connect = 'frontier://cms_conditions_data/CMS_COND_2
 
 # foo bar baz
 # c9VNxu3E9mTs1
+# 7UdzjaVu1ZDed

@@ -6,3 +6,4 @@ slimmedSecondaryVertices = cms.EDProducer("PATSecondaryVertexSlimmer",
 )
 # foo bar baz
 # HZ2kBnJ31aHcl
+# 1DTWotx8BjESr

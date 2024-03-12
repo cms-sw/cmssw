@@ -4,3 +4,4 @@ from HeterogeneousCore.CUDATest.testCUDAProducerGPUtoCPU_cfi import testCUDAProd
 prod6FromCUDA = _testCUDAProducerGPUtoCPU.clone(src = "prod6CUDA")
 # foo bar baz
 # U9LITkIhQ3SGz
+# vmaBKeT4lMzFu

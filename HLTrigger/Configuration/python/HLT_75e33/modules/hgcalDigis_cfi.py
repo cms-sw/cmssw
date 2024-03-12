@@ -8,3 +8,4 @@ hgcalDigis = cms.EDProducer("HGCalRawToDigiFake",
 )
 # foo bar baz
 # Ob65s6OE8YRcF
+# LCf08cl4yehv4

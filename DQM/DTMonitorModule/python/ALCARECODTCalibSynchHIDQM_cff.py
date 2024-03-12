@@ -37,3 +37,4 @@ ALCARECODTCalibSynchHIDQM = cms.Sequence( dtPreCalibrationTaskAlcaHI +
                                           dtAlcaResolutionMonitorHI )
 # foo bar baz
 # UUlOav6GP4RnJ
+# X6GpJiOUWhUh3

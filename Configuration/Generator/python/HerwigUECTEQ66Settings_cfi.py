@@ -13,3 +13,4 @@ herwigUESettingsBlock = cms.PSet(
 )
 # foo bar baz
 # gh4HCi62ZVq26
+# UZJT60qHr1VTE

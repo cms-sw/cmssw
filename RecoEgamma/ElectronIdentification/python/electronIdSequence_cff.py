@@ -26,3 +26,4 @@ eIdTask = cms.Task(eidRobustLoose,eidRobustTight,eidRobustHighEnergy,eidLoose,ei
 eIdSequence = cms.Sequence(eIdTask)
 # foo bar baz
 # cTBKXhUcoLRPn
+# IZ9sUCeRJGOmZ

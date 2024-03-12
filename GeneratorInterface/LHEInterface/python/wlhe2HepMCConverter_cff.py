@@ -6,3 +6,4 @@ generator = cms.EDProducer("LHE2HepMCConverter",
                            )
 # foo bar baz
 # w16iPPcAARSyT
+# huWrM1tzVXejW

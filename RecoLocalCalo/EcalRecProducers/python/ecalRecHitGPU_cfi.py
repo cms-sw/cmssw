@@ -66,3 +66,4 @@ ecalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",
 
 # foo bar baz
 # 7zRxbA4SE0309
+# 1HF6mCv87wMkC

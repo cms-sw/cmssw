@@ -29,3 +29,4 @@ patMCTruth = cms.Sequence(patMCTruth_LeptonPhoton+
 
 # foo bar baz
 # ae4dmOyrQX34H
+# ovUEppCUXonoK

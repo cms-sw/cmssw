@@ -109,3 +109,4 @@ workflows[25408.18] = ['SMS-T1tttt_mGl-1500_mLSP-100_13',["FS_SMS-T1tttt_mGl-150
 workflows[25409.18] = ['QCD_FlatPt_15_3000HS_13',["FS_QCD_FlatPt_15_3000HS_13_UP18_PU50","HARVESTUP18FS","MINIAODMCUP18FS"]]
 # foo bar baz
 # atisgkMFcu7xR
+# R1DSFez7uOIPt

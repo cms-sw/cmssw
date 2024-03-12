@@ -32,3 +32,4 @@ process.SiPixelCalibConfigurationObjectMaker = cms.EDAnalyzer("SiPixelCalibConfi
 process.p1 = cms.Path(process.SiPixelCalibConfigurationObjectMaker)
 # foo bar baz
 # yMyM165ejowdP
+# H96MDHyWBuryP

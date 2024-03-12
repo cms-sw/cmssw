@@ -7,3 +7,4 @@ siStripBFieldOffFilter = cms.EDFilter("SiStripBFieldFilter",
                                      )
 # foo bar baz
 # cXjZhv2de8DLJ
+# oAhkJyTnKi96N

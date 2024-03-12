@@ -43,3 +43,4 @@ softActivityTask = cms.Task(chsForSATkJets,softActivityJets,softActivityJets2,so
 softActivityTablesTask = cms.Task(saJetTable,saTable)
 # foo bar baz
 # KKoySubKW5cgC
+# dyVOnWuA8b4tt

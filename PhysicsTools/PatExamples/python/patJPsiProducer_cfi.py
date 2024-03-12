@@ -5,3 +5,4 @@ patJPsiCandidates = cms.EDProducer("PatJPsiProducer",
                                  )
 # foo bar baz
 # 28KQShPzIRi4O
+# OZ9I6W9tRw2fU

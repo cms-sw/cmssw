@@ -14,3 +14,4 @@ staticKBmtfParams = cms.ESProducer(
 )
 # foo bar baz
 # B7Z8xnRJcywEK
+# KH1zO5es3kLXt

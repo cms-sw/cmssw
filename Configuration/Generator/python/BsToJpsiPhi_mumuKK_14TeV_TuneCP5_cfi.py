@@ -112,3 +112,4 @@ phifilter = cms.EDFilter(
 ProductionFilterSequence = cms.Sequence(generator*bfilter*jpsifilter*phifilter)
 # foo bar baz
 # eNPtCD43MPOl4
+# OIvq9JJT6j6ez

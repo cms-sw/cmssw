@@ -15,3 +15,4 @@ recoCaloTowersGRTask = cms.Task(towerMaker,towerMakerWithHO)
 recoCaloTowersGR = cms.Sequence(recoCaloTowersGRTask)
 # foo bar baz
 # YWZon46oNkvE5
+# vasGkSQyYlWa7

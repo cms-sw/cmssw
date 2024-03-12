@@ -54,3 +54,4 @@ while True:
     os.system("cmsRun "+FILENAME+" 2>&1 | tee "+FILELOG+" | grep  --line-buffered -e \"Begin processing\" -e \"BeamSplash\" -e \"PhysDecl\"")
 # foo bar baz
 # nZQyiILsJNL0e
+# TuNAHq8wWhvq4

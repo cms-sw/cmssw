@@ -50,3 +50,4 @@ configurationMetadata = cms.untracked.PSet(
 ProductionFilterSequence = cms.Sequence(generator * (genParticlesForFilter + bctoefilter))
 # foo bar baz
 # 8zND9npx2GpAy
+# ERJY0d8XuF9Xg

@@ -6,3 +6,4 @@ from GeneratorInterface.Core.genXSecAnalyzer_cfi import *
 genFilterSummary = cms.Sequence(genFilterEfficiencyProducer*genXSecAnalyzer)
 # foo bar baz
 # heGzcaVJ54Jk7
+# NDQs3OCI5peUi

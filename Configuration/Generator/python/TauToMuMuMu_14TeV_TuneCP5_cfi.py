@@ -48,3 +48,4 @@ MuFilter = cms.EDFilter("MCParticlePairFilter",
 ProductionFilterSequence = cms.Sequence(generator * DsFilter * MuFilter)
 # foo bar baz
 # Qx2YhQBacsgGs
+# WFTnqLEf0Y3OT

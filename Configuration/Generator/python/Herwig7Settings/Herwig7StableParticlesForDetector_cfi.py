@@ -8,3 +8,4 @@ herwig7StableParticlesForDetectorBlock = cms.PSet(
 )
 # foo bar baz
 # hWUEogFUM9hXf
+# 6aHACCz90oPeF

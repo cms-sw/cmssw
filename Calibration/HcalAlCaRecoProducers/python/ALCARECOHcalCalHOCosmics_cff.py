@@ -18,3 +18,4 @@ seqALCARECOHcalCalHOCosmics = cms.Sequence(ALCARECOHcalCalHOCosmicHLT*hoCalibCos
 
 # foo bar baz
 # wAZPqX8twI51b
+# fZRABmvsxRPAx

@@ -28,3 +28,4 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          )
 # foo bar baz
 # 0dXbv5LSccmYK
+# YBu3qZfnQZtWA

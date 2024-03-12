@@ -16,3 +16,4 @@ pfCorMETTask = cms.Task( pfRawMET , pfType1METChainTask )
 pfCorMET = cms.Sequence( pfCorMETTask )
 # foo bar baz
 # FuQ3Pc0blD9HF
+# tR6PG5QcF3JsD

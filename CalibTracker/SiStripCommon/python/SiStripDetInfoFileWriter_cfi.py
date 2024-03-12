@@ -7,3 +7,4 @@ siStripDetInfoFileWriter = cms.EDAnalyzer("SiStripDetInfoFileWriter",
 
 # foo bar baz
 # ICd64gi1S31iD
+# h0jUT1PnZr9nT

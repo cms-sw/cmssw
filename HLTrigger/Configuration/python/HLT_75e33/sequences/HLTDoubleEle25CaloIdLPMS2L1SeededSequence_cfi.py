@@ -38,3 +38,4 @@ HLTDoubleEle25CaloIdLPMS2L1SeededSequence = cms.Sequence(
 )
 # foo bar baz
 # YYmtRPHCQ8W9q
+# eBYrcrjC7LDjR

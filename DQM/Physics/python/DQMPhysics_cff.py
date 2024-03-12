@@ -63,3 +63,4 @@ dqmPhysicsCosmics = cms.Sequence(dqmPhysics)
 dqmPhysicsCosmics.replace(qcdPhotonsDQM, qcdPhotonsCosmicDQM)
 # foo bar baz
 # zTBfGhD5heFK1
+# JbqJuv2FZNCnJ

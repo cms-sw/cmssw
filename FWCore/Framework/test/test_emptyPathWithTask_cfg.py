@@ -14,3 +14,4 @@ process.intProducer2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag(
 process.p = cms.Path(cms.Task(process.intProducer1, process.intProducer2))
 # foo bar baz
 # PszLWIJkDhJpM
+# yBoHsRyNi2oc4

@@ -24,3 +24,4 @@ hltEle32WPTightClusterShapeL1SeededFilter = cms.EDFilter("HLTEgammaGenericFilter
 )
 # foo bar baz
 # MKvj0z57jYqJu
+# 14i2Mm8cLlQ7s

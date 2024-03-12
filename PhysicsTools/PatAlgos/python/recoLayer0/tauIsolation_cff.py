@@ -60,3 +60,4 @@ patPFTauIsolationTask = cms.Task(
 patPFTauIsolation = cms.Sequence(patPFTauIsolationTask)
 # foo bar baz
 # CIi2MMFuufeKN
+# b4yHyy1fHPIWL

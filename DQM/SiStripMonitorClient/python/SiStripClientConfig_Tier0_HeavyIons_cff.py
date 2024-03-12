@@ -62,3 +62,4 @@ SiStripOfflineDQMClientHI = cms.Sequence(siStripQTesterHI*siStripOfflineAnalyser
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
 # foo bar baz
 # tpcZrEMrttGjG
+# hXVpZVyKiS9RO

@@ -40,3 +40,4 @@ herwig7CH2SettingsBlock = cms.PSet(
 )
 # foo bar baz
 # j9KgsRb8Ve6FL
+# coWzPwiENZpXD

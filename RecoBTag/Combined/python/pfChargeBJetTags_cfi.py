@@ -9,3 +9,4 @@ pfChargeBJetTags = cms.EDProducer("JetTagProducer",
 )
 # foo bar baz
 # MiN6RYzqG8PKY
+# ySfWRriJsEx8H

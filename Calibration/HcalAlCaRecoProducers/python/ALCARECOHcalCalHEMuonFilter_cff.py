@@ -15,3 +15,4 @@ seqALCARECOHcalCalHEMuonFilter = cms.Sequence(ALCARECOHcalCalHEMuonFilterHLT *
                                               alcaHEMuonFilter)
 # foo bar baz
 # E4nGSGSg4A43q
+# 4h4OVF2BBW6jR

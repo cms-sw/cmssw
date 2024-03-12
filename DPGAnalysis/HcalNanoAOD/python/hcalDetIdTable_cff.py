@@ -6,3 +6,4 @@ hcalDetIdTableTask = cms.Task(hcalDetIdTable)
 hcalDetIdTableSeq = cms.Sequence(hcalDetIdTable)
 # foo bar baz
 # 6lERSJs7wFCGr
+# SH1W09fGkKtEz

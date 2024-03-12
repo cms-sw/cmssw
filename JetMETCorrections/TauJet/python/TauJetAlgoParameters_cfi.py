@@ -7,3 +7,4 @@ tauJetAlgoParameters = cms.PSet(
 )
 # foo bar baz
 # 7LOt6ZqoKdJUU
+# 2Gbx5m3MpUaUc

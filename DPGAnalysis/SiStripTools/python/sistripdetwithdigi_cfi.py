@@ -6,3 +6,4 @@ sistripdetwithdigi = cms.EDFilter('SiStripDetWithDigi',
 )	
 # foo bar baz
 # iBaoMvxwYfpD1
+# 4L5kOk1KNc1SM

@@ -25,3 +25,4 @@ hltDiEle2312IsoPixelMatchL1SeededFilter = cms.EDFilter("HLTElectronPixelMatchFil
 )
 # foo bar baz
 # 0ccmtHWaFR5Nf
+# wa8NSocT33OcV

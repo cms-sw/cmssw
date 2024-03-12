@@ -12,3 +12,4 @@ fastTimingLocalRecoTask = cms.Task(mtdUncalibratedRecHits,mtdRecHits,mtdClusters
 fastTimingLocalReco = cms.Sequence(fastTimingLocalRecoTask)
 # foo bar baz
 # Vrovgmjd67X3J
+# DR3puYljnmbv5

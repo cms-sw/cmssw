@@ -40,3 +40,4 @@ doAllCosmicdEdXEstimatorsTask = cms.Task( doAlldEdXEstimatorsCTFTask , doAlldEdX
 doAllCosmicdEdXEstimators = cms.Sequence(doAllCosmicdEdXEstimatorsTask)
 # foo bar baz
 # RU02f6jMbq8p1
+# 8shXXqZSuIf2R

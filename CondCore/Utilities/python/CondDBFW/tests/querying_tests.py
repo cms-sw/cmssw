@@ -326,3 +326,4 @@ class result_type_tests(querying_tests):
 		self.connection.tear_down()
 # foo bar baz
 # ywGGusmt51Qcu
+# BK2zhL9kYiT4d

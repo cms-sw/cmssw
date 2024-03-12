@@ -12,3 +12,4 @@ CastorFullRecoTask = cms.Task(CastorTowerReco,
 CastorFullReco = cms.Sequence(CastorFullRecoTask)
 # foo bar baz
 # IVKBItndUY4Qp
+# FNXVOSJqWfzua

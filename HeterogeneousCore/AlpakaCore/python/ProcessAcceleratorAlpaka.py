@@ -114,3 +114,4 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorAlpaka, "from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka import ProcessAcceleratorAlpaka")
 # foo bar baz
 # Ej6tEWYzyu1sR
+# 9I7QLBW5pEhiN

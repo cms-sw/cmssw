@@ -80,3 +80,4 @@ if __name__ == '__main__':
   main(rf, rt)
 # foo bar baz
 # sMIdkCUM80I2C
+# S5MP5sM50Q1F1

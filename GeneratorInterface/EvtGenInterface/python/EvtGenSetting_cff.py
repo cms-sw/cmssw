@@ -36,3 +36,4 @@ EvtGenExtraParticles = cms.vstring(#'absPDGCode:new = aliasName  antiName spin c
 
 # foo bar baz
 # m9Prxd84taYqN
+# aoom8uPvKlQfn

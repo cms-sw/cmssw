@@ -8,3 +8,4 @@ def initL1RSSubsystemsExt( tagBaseVec = [],
     initL1RSSubsystemsExt.params = cms.PSet( recordInfo = cms.VPSet() )
 # foo bar baz
 # BY2sRdO8InvB4
+# s6abqIPJabM9l

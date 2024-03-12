@@ -6,3 +6,4 @@ duplicaterechits = cms.EDAnalyzer('DuplicateRecHits',
                       )
 # foo bar baz
 # pVuVl78axDnIa
+# bnCFGysbkDfaM

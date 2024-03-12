@@ -98,3 +98,4 @@ hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF+hl
 
 # foo bar baz
 # DupG52BLv8M8D
+# lbi4XXYg7rwp5

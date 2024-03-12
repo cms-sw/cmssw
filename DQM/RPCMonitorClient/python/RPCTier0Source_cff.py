@@ -23,3 +23,4 @@ rpcTier0Source = cms.Sequence(rpcdigidqm*rpcrechitprobability*rpcEventInfo*rpcFE
 
 # foo bar baz
 # Cl5pbV88DjtqG
+# 7jRRIeprc5QoX

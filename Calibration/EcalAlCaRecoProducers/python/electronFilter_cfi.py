@@ -11,3 +11,4 @@ electronFilter = cms.EDFilter("EtaPtMinGsfElectronFullCloneSelector",
 
 # foo bar baz
 # 0APJTY3BBuehx
+# SmksdYJ1zYEhB

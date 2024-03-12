@@ -47,3 +47,4 @@ externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 ProductionFilterSequence = cms.Sequence(generator)
 # foo bar baz
 # N5OE3GvI2LMXb
+# MGgbmNCmPqvVB

@@ -15,3 +15,4 @@ slimmedTaus = cms.EDProducer("PATTauSlimmer",
 
 # foo bar baz
 # PTVpfu4VgCq1l
+# pHZl05XzWsle9

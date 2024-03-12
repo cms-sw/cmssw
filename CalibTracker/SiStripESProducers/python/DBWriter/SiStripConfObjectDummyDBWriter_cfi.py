@@ -11,3 +11,4 @@ siStripConfObjectDummyDBWriter = cms.EDAnalyzer("SiStripConfObjectDummyDBWriter"
 
 # foo bar baz
 # IU5TwLAdWCEC3
+# VNJ9gsF9UR5ON

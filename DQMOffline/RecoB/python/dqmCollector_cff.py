@@ -20,3 +20,4 @@ bTagCollectorMCbcl = bTagCollectorMC.clone(flavPlots = "bcl") #harvest b, c, dus
 bTagCollectorSequenceMCbcl = cms.Sequence(bTagCollectorMCbcl)
 # foo bar baz
 # 0MN8UmLIGegBi
+# E3mJfe2pzVBX5

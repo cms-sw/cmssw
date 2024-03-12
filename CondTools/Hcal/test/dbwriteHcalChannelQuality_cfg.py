@@ -54,3 +54,4 @@ process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
 process.p = cms.Path(process.mytest)
 # foo bar baz
 # wdG6t1Lq3YaHY
+# uDKTYiSjx6jrY

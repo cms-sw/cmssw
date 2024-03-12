@@ -10,3 +10,4 @@ uHTRTable= cms.EDProducer("HcalUHTRTableProducer",
 uHTRTableTask = cms.Task(uHTRTable)
 uHTRTableSeq = cms.Sequence(uHTRTable)# foo bar baz
 # 48asWV7mE89s2
+# UOgM5pf1kRE7X

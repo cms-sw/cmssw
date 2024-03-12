@@ -7,3 +7,4 @@ hltLogMonitorFilter = cms.EDFilter("HLTLogMonitorFilter",
 )
 # foo bar baz
 # 9PlJXIlxhZaSA
+# qeeeuiypfRijZ

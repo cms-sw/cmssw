@@ -31,3 +31,4 @@ theBigNtuple = cms.Sequence( (shallowEventRun +
                              )
 # foo bar baz
 # QWE17Z5p3w1bm
+# 7wyrzNBUtjVUQ

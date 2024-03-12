@@ -18,3 +18,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(ecalRecHitsValidation, hitsProducer = "fastSimProducer")
 # foo bar baz
 # LNNg0L0AaZHvR
+# 99LHSkq60d1ya

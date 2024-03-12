@@ -11,3 +11,4 @@ CaloTriggerPrimitives = cms.Sequence(simEcalTriggerPrimitiveDigis*simHcalTrigger
 
 # foo bar baz
 # iK3ol4y6YGiHY
+# A5lPxori4mRDL

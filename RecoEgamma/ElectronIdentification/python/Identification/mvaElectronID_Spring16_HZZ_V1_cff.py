@@ -88,3 +88,4 @@ central_id_registry.register(mvaEleID_Spring16_HZZ_V1_wpLoose.idName,
 mvaEleID_Spring16_HZZ_V1_wpLoose.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # AqL9NrBglXo66
+# WsNpsaXgJGeZP

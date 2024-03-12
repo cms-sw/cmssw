@@ -30,3 +30,4 @@ seqALCARECOTkAlMuonIsolatedHI = cms.Sequence(ALCARECOTkAlMuonIsolatedHIHLT
                                              )
 # foo bar baz
 # UxSxJyIRrBBAs
+# 2BRrQctxymKHI

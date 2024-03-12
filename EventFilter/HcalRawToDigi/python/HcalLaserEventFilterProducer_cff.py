@@ -5,3 +5,4 @@ from EventFilter.HcalRawToDigi.HcalLaserEventFilterProducer_cfi import *
 hcallLaserEventFilterResultSeq = cms.Sequence(HcalLaserEventFilterResult)
 # foo bar baz
 # eZQSqBY1jJMDY
+# edGBOvtVvE2tU

@@ -35,3 +35,4 @@ rpcTnPEfficiencyClient = DQMEDHarvester("TnPEfficiencyClient",
                                        diagnosticPrescale = cms.untracked.int32(1))
 # foo bar baz
 # lDeQL9zVBtSxl
+# QgKczJuCc3RNp

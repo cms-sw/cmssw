@@ -31,3 +31,4 @@ process.task = cms.Task(process.thingWithMergeProducer)
 process.e = cms.EndPath(process.out, process.task)
 # foo bar baz
 # sF4fxHEkeTSa9
+# AAhKZNGmmWKC4

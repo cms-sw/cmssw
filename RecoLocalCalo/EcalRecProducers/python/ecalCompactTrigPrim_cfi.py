@@ -7,3 +7,4 @@ ecalCompactTrigPrim = cms.EDProducer("EcalCompactTrigPrimProducer",
                                      )
 # foo bar baz
 # UWYZn5Smo7ICP
+# vVI7YxfXVepMy

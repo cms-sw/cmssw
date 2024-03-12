@@ -10,3 +10,4 @@ CondDBSetup.__delattr__('connect')
 
 # foo bar baz
 # ipsLxIumKyodx
+# RXAnwFPNG6frT

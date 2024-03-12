@@ -25,3 +25,4 @@ hltPhase2PixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
 )
 # foo bar baz
 # SLvDQ9GUpdG1h
+# 6jUxrNDGo4PzT

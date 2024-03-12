@@ -12,3 +12,4 @@ from Geometry.MuonNumbering.muonGeometryConstants_cff import *
 
 # foo bar baz
 # iHdOozGiyijkr
+# AroM2g06g549X

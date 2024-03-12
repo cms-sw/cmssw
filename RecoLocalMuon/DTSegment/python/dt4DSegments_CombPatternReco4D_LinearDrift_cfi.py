@@ -29,3 +29,4 @@ dt4DCosmicSegments = cms.EDProducer("DTRecSegment4DProducer",
 )
 # foo bar baz
 # CHCBdJ1FIIV2I
+# rrNXxS2OfserH

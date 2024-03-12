@@ -9,3 +9,4 @@ fil = cms.EDFilter("CosmicTIFTrigFilter",
 
 # foo bar baz
 # u0xwpK8QwxMZd
+# Vn0efMVycPsH4

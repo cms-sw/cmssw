@@ -5,3 +5,4 @@ selectedPatOOTPhotons = selectedPatPhotons.clone()
 selectedPatOOTPhotons.src = cms.InputTag("patOOTPhotons")
 # foo bar baz
 # 9j90UPefjWIG6
+# M00PTod3JTPyT

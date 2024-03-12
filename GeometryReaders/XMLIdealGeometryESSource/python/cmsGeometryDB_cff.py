@@ -6,3 +6,4 @@ XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
                                  )
 # foo bar baz
 # I3ZlKFJ8puXGt
+# ARDAww6Vv3JUO

@@ -16,3 +16,4 @@ premix_stage2.toModify(hgcalDigis,
 
 # foo bar baz
 # oHTpUEm3CoSbT
+# 7CO40T9C91XX6

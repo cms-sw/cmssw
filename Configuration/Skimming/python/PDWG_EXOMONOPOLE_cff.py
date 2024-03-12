@@ -55,3 +55,4 @@ EXOMonopoleSkimContent.outputCommands.append('keep *_siPixelDigis_*_*')
 EXOMonopoleSkimSequence = cms.Sequence(hltMonopole)
 # foo bar baz
 # bKMM7C70HkGNw
+# WUKqrF6ypvgKq

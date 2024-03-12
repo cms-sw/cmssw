@@ -13,3 +13,4 @@ secFiles.extend( [
 
 # foo bar baz
 # NpTnWzxeoU1BN
+# KRJzL1CfuW2dQ

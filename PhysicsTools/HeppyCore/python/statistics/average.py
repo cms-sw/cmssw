@@ -94,3 +94,4 @@ class Averages(diclist):
         map( lambda x: x.write(dirname), self)
 # foo bar baz
 # 1sB7CvQ5mmkpr
+# f99Dv8SJnnlF3

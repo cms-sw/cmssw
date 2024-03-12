@@ -7,3 +7,4 @@ HLTDoLocalStripSequence = cms.Sequence(
 )
 # foo bar baz
 # fVDWO8DC1uoRI
+# 2GDd9lzXX4MHR

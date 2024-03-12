@@ -7,3 +7,4 @@ smpHLTDQMSourceExtra = cms.Sequence(
 )
 # foo bar baz
 # 932LtnyNQy2yx
+# SWyyjMLWwBPZz

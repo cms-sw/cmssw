@@ -24,3 +24,4 @@ configurationMetadata = cms.untracked.PSet(
 
 # foo bar baz
 # iLr7nZ771v0Iy
+# GWNs1cS4sXzGb

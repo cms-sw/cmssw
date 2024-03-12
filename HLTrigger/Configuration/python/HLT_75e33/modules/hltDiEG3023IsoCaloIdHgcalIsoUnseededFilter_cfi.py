@@ -32,3 +32,4 @@ hltDiEG3023IsoCaloIdHgcalIsoUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadr
 )
 # foo bar baz
 # 7waKeME0MJwAG
+# 8IXKWH2wYFnHw

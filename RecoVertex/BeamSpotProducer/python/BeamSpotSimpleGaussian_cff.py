@@ -6,3 +6,4 @@ BeamSpotGaussian.connect = 'frontier://FrontierProd/CMS_COND_20X_BEAMSPOT' ##Fro
 
 # foo bar baz
 # ze0L5p5Wif1m8
+# EB0FWMgk1xrLv

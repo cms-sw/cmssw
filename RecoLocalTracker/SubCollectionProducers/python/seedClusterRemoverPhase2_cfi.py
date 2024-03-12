@@ -8,3 +8,4 @@ seedClusterRemoverPhase2 = cms.EDProducer("SeedClusterRemoverPhase2",
 
 # foo bar baz
 # rDWSWoSRwkdca
+# nJHC6H506P9Nt

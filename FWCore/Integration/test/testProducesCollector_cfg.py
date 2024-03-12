@@ -36,3 +36,4 @@ process.p = cms.Path(process.producerUsingCollector * process.test)
 process.e = cms.EndPath(process.out)
 # foo bar baz
 # uMwcQI60GVU57
+# EXxwOhVTr9wXS

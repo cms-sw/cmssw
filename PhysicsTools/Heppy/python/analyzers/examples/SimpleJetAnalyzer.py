@@ -40,3 +40,4 @@ class SimpleJetAnalyzer(Analyzer):
         setattr(event, '_'.join([self.instance_label, 'gen']), genjets)
 # foo bar baz
 # rpWeBqYWPH4CE
+# HQG46SfCey3ir

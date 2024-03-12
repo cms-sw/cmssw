@@ -120,3 +120,4 @@ class VIDSelectorValidator:
             print('\t%s hash -> %s'%(sub_cutnames[i],sub_hash.hexdigest()))
 # foo bar baz
 # 27jCCAoSb9tVT
+# OKx2wKENJWzku

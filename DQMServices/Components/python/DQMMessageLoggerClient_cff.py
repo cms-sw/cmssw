@@ -12,3 +12,4 @@ dqmMessageLoggerQTester = DQMQualityTester(
 DQMMessageLoggerClientSeq = cms.Sequence(DQMMessageLoggerClient*dqmMessageLoggerQTester)
 # foo bar baz
 # mFrWAsMW8BIu2
+# tLr6DHWUQBvuR

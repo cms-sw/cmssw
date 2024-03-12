@@ -16,3 +16,4 @@ highPtTripletStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProdu
 )
 # foo bar baz
 # cEINA1hByHqXP
+# V2Gttym7kiOBF

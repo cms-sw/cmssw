@@ -13,3 +13,4 @@ hltElePixelHitDoubletsUnseeded = cms.EDProducer("HitPairEDProducer",
 )
 # foo bar baz
 # 9PR9YAQ7G6sTR
+# U20hP0EJnnQCR

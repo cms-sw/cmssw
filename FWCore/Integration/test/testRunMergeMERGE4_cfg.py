@@ -121,3 +121,4 @@ process.path1 = cms.Path(process.thingWithMergeProducer + process.test)
 process.e = cms.EndPath(process.out * process.checker)
 # foo bar baz
 # gH3djAJQh95H2
+# nAjmd5ORk5tbG

@@ -22,3 +22,4 @@ alcaBeamMonitor = cms.Sequence( scalerBeamSpot*AlcaBeamMonitor )
 
 # foo bar baz
 # tQsJCzr1TW6Cn
+# kBjEtTs7DHO1F

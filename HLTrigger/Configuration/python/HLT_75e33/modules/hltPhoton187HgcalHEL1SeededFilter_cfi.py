@@ -32,3 +32,4 @@ hltPhoton187HgcalHEL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEtaFi
 )
 # foo bar baz
 # AuP1kR1qgOfAa
+# LhUNK659X8Afr

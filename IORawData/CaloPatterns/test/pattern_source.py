@@ -17,3 +17,4 @@ process.p = cms.Path(process.hcalPatternSource)
 
 # foo bar baz
 # fi8w9A8AOeVtl
+# 8fJs7VI1dB1ee

@@ -56,3 +56,4 @@ configurationMetadata = cms.untracked.PSet(
 ProductionFilterSequence = cms.Sequence(generator*mugenfilter)
 # foo bar baz
 # mnitOTnNysBC8
+# 0DBb2N6VjOYrc

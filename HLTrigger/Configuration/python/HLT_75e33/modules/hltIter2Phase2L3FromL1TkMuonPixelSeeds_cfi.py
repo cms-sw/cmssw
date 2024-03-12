@@ -15,3 +15,4 @@ hltIter2Phase2L3FromL1TkMuonPixelSeeds = cms.EDProducer("SeedCreatorFromRegionCo
 )
 # foo bar baz
 # 8TAa9qf1yfRpQ
+# AcS9rWfGEZyGd

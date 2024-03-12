@@ -9,3 +9,4 @@ recoJPTJetsTask=cms.Task(jetPlusTrackZSPCorJetAntiKt4Task)
 recoJPTJets=cms.Sequence(recoJPTJetsTask) 
 # foo bar baz
 # 5L5TZwrgjX5F1
+# AMR1eCXtkpT4z

@@ -6,3 +6,4 @@ from SimTracker.TrackAssociation.trackPrunedMCMatchTask_cff import *
 recosim = cms.Task( muonSimClassificationByHitsTask, trackPrunedMCMatchTask )
 # foo bar baz
 # vilWYdjoHSNnn
+# 6ZO9R8GlFJHP3

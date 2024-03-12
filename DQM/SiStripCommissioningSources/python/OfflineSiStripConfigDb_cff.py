@@ -20,3 +20,4 @@ myNoisePrefer = cms.ESPrefer("SiStripNoiseBuilderFromDb", "NoiseFromConfigDb")
 sistripconn = cms.ESProducer("SiStripConnectivity")
 # foo bar baz
 # NwtkWjJB9jLNt
+# RaBUHYWOQRNKU

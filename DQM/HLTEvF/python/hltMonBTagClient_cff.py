@@ -13,3 +13,4 @@ hltMonBTagMu_Jet10U_Client.updateLuminosityBlock = True
 hltMonBTagClient = cms.Sequence( hltMonBTagIP_Jet50U_Client + hltMonBTagMu_Jet10U_Client )
 # foo bar baz
 # 69kzkqlSPOgFu
+# 4B9IIwUqGS44y

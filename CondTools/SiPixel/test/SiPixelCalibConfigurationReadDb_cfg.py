@@ -30,3 +30,4 @@ process.sipixelcalib_essource.connect='sqlite_file:siPixelCalibConfiguration.db'
 
 # foo bar baz
 # dQLLhl87ZNoI2
+# AKVvmsEAOT8H8

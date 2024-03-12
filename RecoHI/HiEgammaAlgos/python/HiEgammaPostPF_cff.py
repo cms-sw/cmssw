@@ -16,3 +16,4 @@ egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIdsTask,egmIsola
 egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 # foo bar baz
 # 1SMUQ72J57n2C
+# t28SsCXwHpcyS

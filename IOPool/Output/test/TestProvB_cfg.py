@@ -10,3 +10,4 @@ process.test = cms.OutputModule("ProvenanceCheckerOutputModule")
 process.o = cms.EndPath(process.test+process.out)
 # foo bar baz
 # eorxNlXH9y1EP
+# pDH3b71MQ3R09

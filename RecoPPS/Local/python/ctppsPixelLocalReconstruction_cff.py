@@ -17,3 +17,4 @@ ctppsPixelLocalReconstructionTask = cms.Task(
 ctppsPixelLocalReconstruction = cms.Sequence(ctppsPixelLocalReconstructionTask)
 # foo bar baz
 # QD4CDAr3pnSfa
+# 8JmXtrS0Ipa0d

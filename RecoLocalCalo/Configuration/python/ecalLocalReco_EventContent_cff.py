@@ -42,3 +42,4 @@ ecalLocalRecoFEVT = cms.PSet(
 ecalLocalRecoFEVT.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 # foo bar baz
 # u2Fy6VPJYqAvV
+# dqxnKrW6zAoOH

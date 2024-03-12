@@ -13,3 +13,4 @@ RPCCalibPerf.connect = 'frontier://FrontierDev/CMS_COND_RPC'
 
 # foo bar baz
 # hH6jhPMJQOKy0
+# jd1RdSDa2xmnQ

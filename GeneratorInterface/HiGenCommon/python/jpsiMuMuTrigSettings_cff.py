@@ -72,3 +72,4 @@ jpsiMuMuTrigPt2730 = jpsiMuMuTrigCommon.clone(hadronPtMax  = cms.vdouble(30.),
 
 # foo bar baz
 # sICRBVDzOMlA2
+# 6Ujte4qTOA3X0

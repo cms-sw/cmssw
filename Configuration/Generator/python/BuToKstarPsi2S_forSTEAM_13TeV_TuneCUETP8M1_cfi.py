@@ -62,3 +62,4 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
 ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
 # foo bar baz
 # tneqUvFdVR7Us
+# 3zGQb2lLnClvj

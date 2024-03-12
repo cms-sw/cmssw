@@ -7,3 +7,4 @@ patJetCorrectionsTask = cms.Task(patJetCorrFactors)
 patJetCorrections = cms.Sequence(patJetCorrectionsTask)
 # foo bar baz
 # HjykCPlqU6geX
+# FOoiRgAqgdzgU

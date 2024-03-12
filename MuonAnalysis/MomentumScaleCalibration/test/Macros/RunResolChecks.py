@@ -23,3 +23,4 @@ gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc++("+secondFile+", false, 100, 1,
 gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+", true)")
 # foo bar baz
 # cDr6fGKxfBJvT
+# caGHihh4WrSeD

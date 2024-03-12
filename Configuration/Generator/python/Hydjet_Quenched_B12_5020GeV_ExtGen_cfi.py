@@ -30,3 +30,4 @@ _generator = cms.EDFilter("HydjetGeneratorFilter",
 from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 generator = ExternalGeneratorFilter(_generator)# foo bar baz
 # xfQqFbqD21fhd
+# 06I9zaRAEynPE

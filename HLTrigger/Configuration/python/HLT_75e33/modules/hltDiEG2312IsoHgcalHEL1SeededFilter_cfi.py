@@ -32,3 +32,4 @@ hltDiEG2312IsoHgcalHEL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEta
 )
 # foo bar baz
 # fAJXBK9GTBa8i
+# 3eHOGfqMA4ruc

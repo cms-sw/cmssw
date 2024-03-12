@@ -8,3 +8,4 @@ hltHpsPFTauTrackPt1Discriminator = cms.EDProducer( "PFRecoTauDiscriminationByLea
 )
 # foo bar baz
 # jwIQo8EWhavlT
+# 6PKv5KOh3680K

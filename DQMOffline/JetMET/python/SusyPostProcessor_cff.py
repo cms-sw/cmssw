@@ -10,3 +10,4 @@ SusyPostProcessor = DQMEDHarvester("SusyPostProcessor",
 SusyPostProcessorSequence = cms.Sequence(SusyPostProcessor)
 # foo bar baz
 # ZjqJeVvFLGrxR
+# tDcH27YPS3BJJ

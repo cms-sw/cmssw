@@ -11,3 +11,4 @@ PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 
 # foo bar baz
 # 0vmuCnQvULzQ2
+# yT30KqBFojI34

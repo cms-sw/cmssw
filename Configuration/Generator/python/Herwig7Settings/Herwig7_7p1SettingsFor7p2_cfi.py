@@ -36,3 +36,4 @@ herwig7p1SettingsFor7p2Block = cms.PSet(
         )
 )# foo bar baz
 # lKpBdXx2HA4YX
+# p3w7Yt31FbwHa

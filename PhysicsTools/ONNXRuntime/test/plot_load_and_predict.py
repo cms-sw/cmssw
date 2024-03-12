@@ -53,3 +53,4 @@ res = sess.run([output_name], {input_name: x})
 print(res)
 # foo bar baz
 # FxcoF02vHnYF6
+# H5Xpq1mOuz80X

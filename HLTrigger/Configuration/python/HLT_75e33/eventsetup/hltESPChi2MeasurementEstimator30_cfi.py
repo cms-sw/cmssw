@@ -12,3 +12,4 @@ hltESPChi2MeasurementEstimator30 = cms.ESProducer("Chi2MeasurementEstimatorESPro
 )
 # foo bar baz
 # HIxK2YFgyl53k
+# DbC7tUEEAHZAr

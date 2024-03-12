@@ -13,3 +13,4 @@ ALCARECORpcCalHLTFilter.throw = False## dont throw except on unknown path name
 ALCARECORpcCalHLTFilter.eventSetupPathsKey='RpcCalHLT'
 # foo bar baz
 # L9UXFOysGBFxX
+# dEsWcwrKSi5JU

@@ -20,3 +20,4 @@ HGCalHESciGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
 
 # foo bar baz
 # rQSyf0TbZmfnK
+# Upi6gA3PKl9OW

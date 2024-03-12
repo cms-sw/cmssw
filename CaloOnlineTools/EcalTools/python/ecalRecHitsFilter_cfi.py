@@ -13,3 +13,4 @@ ecalRecHitsFilter = cms.EDFilter("EcalRecHitsFilter",
 )
 # foo bar baz
 # M0Yr6uqxV5mkb
+# xLJhSo2F5DD1T

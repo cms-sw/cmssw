@@ -19,3 +19,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(cscRecHitValidation, simHitsTag = "mix:MuonSimHitsMuonCSCHits")
 # foo bar baz
 # PwduuyZiiLLfJ
+# NwxK71tUz6Nj4

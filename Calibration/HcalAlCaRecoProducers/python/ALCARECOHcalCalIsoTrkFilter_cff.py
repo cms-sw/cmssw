@@ -28,3 +28,4 @@ seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * a
 
 # foo bar baz
 # b5Sr8W7mBBrob
+# d93d3xf0215sW

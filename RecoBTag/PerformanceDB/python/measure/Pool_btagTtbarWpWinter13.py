@@ -82,3 +82,4 @@ PoolDBESSourcebtagTtbarWp = cms.ESSource("PoolDBESSource",
 PoolDBESSourcebtagTtbarWp.connect = 'frontier://FrontierProd/CMS_COND_PAT_000'
 # foo bar baz
 # VTaRebITqIic2
+# SHMkpfboQMvee

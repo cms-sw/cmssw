@@ -8,3 +8,4 @@ simpleSecondaryVertex3TrkComputer = cms.ESProducer("SimpleSecondaryVertexESProdu
 )
 # foo bar baz
 # cv7rNHVvGglYH
+# kLvY3H6ho7Zpi

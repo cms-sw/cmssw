@@ -209,3 +209,4 @@ helpMsg += "By default cmsCodeRulesChecker.py checks all rules in current direct
 helpMsg += rulesDescription
 # foo bar baz
 # QS7bhZTgsYQFg
+# pDXhDUJj1E3aH

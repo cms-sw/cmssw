@@ -14,3 +14,4 @@ cosmicPhotonTask = cms.Task(photonCore,photons)
 cosmicPhotonSequence = cms.Sequence(cosmicPhotonTask)
 # foo bar baz
 # 5end6TZ8mxq92
+# CckI4FAFZhpYe

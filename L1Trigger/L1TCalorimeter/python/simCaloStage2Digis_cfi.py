@@ -8,3 +8,4 @@ simCaloStage2Digis = cms.EDProducer(
 )
 # foo bar baz
 # CPPCaZwdyGnQv
+# hk2HgRMHriA3r

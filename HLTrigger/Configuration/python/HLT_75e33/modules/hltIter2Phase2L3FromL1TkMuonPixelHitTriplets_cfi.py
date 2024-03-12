@@ -20,3 +20,4 @@ hltIter2Phase2L3FromL1TkMuonPixelHitTriplets = cms.EDProducer("CAHitTripletEDPro
 )
 # foo bar baz
 # WjXFa6cH52OOU
+# zSaUp3POi0BLu

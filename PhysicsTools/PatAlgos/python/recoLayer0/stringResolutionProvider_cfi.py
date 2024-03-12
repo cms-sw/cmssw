@@ -23,3 +23,4 @@ stringResolution = cms.ESProducer("StringResolutionProviderESProducer",
 )
 # foo bar baz
 # dFjeDJHuXHWG6
+# yqUQHlnoX9opP

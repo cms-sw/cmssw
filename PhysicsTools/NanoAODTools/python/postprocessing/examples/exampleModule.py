@@ -54,3 +54,4 @@ class exampleProducer(Module):
 exampleModuleConstr = lambda: exampleProducer(jetSelection=lambda j: j.pt > 30)
 # foo bar baz
 # djLNVPeVIoM5L
+# yNcGnZBbkz9LH

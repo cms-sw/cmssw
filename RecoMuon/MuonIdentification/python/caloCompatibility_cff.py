@@ -13,3 +13,4 @@ MuonCaloCompatibilityBlock = cms.PSet(
 
 # foo bar baz
 # bhYD2ZmsrcYb4
+# g5QIsxKxDr0Kp

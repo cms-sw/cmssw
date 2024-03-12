@@ -43,3 +43,4 @@ seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsDCSFilter*
                                             ALCARECOSiPixelCalCosmics)
 # foo bar baz
 # 39C0tYAeZSzHW
+# afCqDOuXvnXJ5

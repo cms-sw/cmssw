@@ -5,3 +5,4 @@ hltHpsPFTauSecondaryVertexProducerForDeepTau = cms.EDProducer( "PFTauSecondaryVe
 )
 # foo bar baz
 # 2FbrmfW86SR7t
+# Cs4CFbw41F3Hw

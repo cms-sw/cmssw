@@ -11,3 +11,4 @@ hgcalMergeLayerClustersL1Seeded = cms.EDProducer('MergeClusterProducer',
   mightGet = cms.optional.untracked.vstring
 )# foo bar baz
 # wdTlHet60Yr61
+# dkWw9y1fAVGvo

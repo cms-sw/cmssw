@@ -106,3 +106,4 @@ hltHpsPFTauBasicDiscriminatorsForDeepTau = cms.EDProducer( "PFRecoTauDiscriminat
 )
 # foo bar baz
 # xvXuSS4Rte5PF
+# 27Ox4rHf88j1s

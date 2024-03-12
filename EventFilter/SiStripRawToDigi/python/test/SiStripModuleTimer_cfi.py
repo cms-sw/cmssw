@@ -7,3 +7,4 @@ ModuleTimer = cms.EDFilter("SiStripModuleTimer",
 
 # foo bar baz
 # VlSJ1QBkx9f70
+# 1gvXKTQrk9Gw3

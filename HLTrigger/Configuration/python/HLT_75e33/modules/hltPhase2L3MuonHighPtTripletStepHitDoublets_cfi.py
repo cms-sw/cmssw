@@ -14,3 +14,4 @@ hltPhase2L3MuonHighPtTripletStepHitDoublets = cms.EDProducer("HitPairEDProducer"
 )
 # foo bar baz
 # 0STIQN98R7H2s
+# j7ncHDI4h0ntF

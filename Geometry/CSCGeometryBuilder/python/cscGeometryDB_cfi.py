@@ -26,3 +26,4 @@ from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( CSCGeometryESModule, useGangedStripsInME1a=False )
 # foo bar baz
 # OvyfxgEjTGy1W
+# 9X7rDxnXEb8yF

@@ -28,3 +28,4 @@ hiPixelVerticesTask = cms.Task(hiPixelClusterVertex
 hiPixelVertices = cms.Sequence(hiPixelVerticesTask)
 # foo bar baz
 # eecWxznxNi34T
+# qkxolXPEAvtSn

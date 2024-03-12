@@ -5,3 +5,4 @@ SiStripClusterChargeCutTight = cms.PSet(
 )
 # foo bar baz
 # 5Nr3x16Nshg12
+# IHUCgmG6OUlq3

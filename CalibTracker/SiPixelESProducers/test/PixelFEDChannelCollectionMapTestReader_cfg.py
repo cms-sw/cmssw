@@ -80,3 +80,4 @@ process.ReadDB.outputFile = cms.untracked.string('PixelFEDChannelCollectionMap.l
 process.p = cms.Path(process.get+process.ReadDB)
 # foo bar baz
 # faAyRS2PXbcoc
+# t4QwyhkfI1nmO

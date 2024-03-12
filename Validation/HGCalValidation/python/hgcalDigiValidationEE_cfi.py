@@ -3,3 +3,4 @@ from Validation.HGCalValidation.hgcalDigiValidationEEDefault_cfi import hgcalDig
 hgcalDigiValidationEE = _hgcalDigiValidationEEDefault.clone()
 # foo bar baz
 # ZHGfMCa38HUI9
+# E1G6BWfQACbc1

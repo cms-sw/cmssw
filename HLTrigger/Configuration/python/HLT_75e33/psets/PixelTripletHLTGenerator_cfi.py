@@ -15,3 +15,4 @@ PixelTripletHLTGenerator = cms.PSet(
 )
 # foo bar baz
 # dyH8PUUdETWMN
+# 7bcJQPKgJCTia

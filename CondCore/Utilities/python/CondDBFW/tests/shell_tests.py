@@ -27,3 +27,4 @@ class shell_tests(unittest.TestCase):
 		self.connection.tear_down()
 # foo bar baz
 # a4X9jNNROtLOe
+# HYgEJsYr72BBr

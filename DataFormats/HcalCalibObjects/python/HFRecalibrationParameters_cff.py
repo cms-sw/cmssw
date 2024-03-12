@@ -21,3 +21,4 @@ HFRecalParameterBlock = cms.PSet(
     HFdepthTwoParameterB = cms.vdouble(-0.000002, -0.000000, -0.000007, -0.000006, -0.000002, 0.000001, 0.000019, 0.000031, 0.000067, 0.000012, 0.000157, -0.000003)
 )# foo bar baz
 # dKF06enZa5Bps
+# 2jMKFOnist4PX

@@ -32,3 +32,4 @@ hltEle26WP70HgcalHEUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEtaFi
 )
 # foo bar baz
 # 05ALTZ31J72m2
+# 70m5quaGvI2Lb

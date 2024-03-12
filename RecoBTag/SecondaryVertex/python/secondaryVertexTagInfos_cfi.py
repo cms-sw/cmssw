@@ -26,3 +26,4 @@ secondaryVertexTagInfos.trackSelection.pixelHitsMin = cms.uint32(2)
 secondaryVertexTagInfos.trackSelection.totalHitsMin = cms.uint32(8)
 # foo bar baz
 # EAThvN7E0Cq3b
+# 2EzCjB2z5XHWj

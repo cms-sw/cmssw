@@ -12,3 +12,4 @@ chi2_x0p1 = cms.vdouble(4.11095e-05,0.577451,-10.378)     #parameters for determ
 chi2_x2   = cms.vdouble(5.45058e-05,0.268756,-11.7515)    #parameters for determination of chi2-threshold
 # foo bar baz
 # njG0Ader4ctgR
+# uExFphU21uIYg

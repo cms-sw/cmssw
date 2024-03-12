@@ -89,3 +89,4 @@ def hgcSiSensorCCE(sensor,version):
     raise ValueError('sensor={} version={} is unknown to retrieve CCE parameterization for HGC Si sensors'.format(sensor,version))
 # foo bar baz
 # kCAiVlxDXtQw6
+# mqw0aUJAXz17s

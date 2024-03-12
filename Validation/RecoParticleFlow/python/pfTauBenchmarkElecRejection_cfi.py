@@ -17,3 +17,4 @@ pfTauBenchmarkElecRejection = cms.EDAnalyzer("PFTauElecRejectionBenchmarkAnalyze
 )
 # foo bar baz
 # a6gLx6rGpjqmQ
+# vLP2c0ccXEeXj

@@ -6,3 +6,4 @@ from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cfi import *
 hgcalPhotonIDValueMap.dEdXWeights = dEdX.weights
 # foo bar baz
 # stMd0j1yhhYFz
+# U8gVQbtJ2ZopB

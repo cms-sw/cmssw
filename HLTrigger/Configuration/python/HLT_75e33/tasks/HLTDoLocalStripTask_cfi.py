@@ -7,3 +7,4 @@ HLTDoLocalStripTask = cms.Task(
 )
 # foo bar baz
 # mQpEpm4c4EyGh
+# pRifJuWDtrIaB

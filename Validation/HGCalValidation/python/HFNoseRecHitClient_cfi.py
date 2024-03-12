@@ -6,3 +6,4 @@ hfnoseRecHitClient = hgcalRecHitClientEE.clone(
     DetectorName  = cms.string("HGCalHFNoseSensitive"))
 # foo bar baz
 # fdSDaGdNrwetW
+# LJNRAidDK9Bp1

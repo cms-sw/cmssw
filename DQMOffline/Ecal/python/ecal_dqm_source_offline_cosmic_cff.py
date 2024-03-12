@@ -25,3 +25,4 @@ ecalMonitorTask.collectionTags.EBUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUn
 ecalMonitorTask.collectionTags.EEUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
 # foo bar baz
 # JU87wRWVmVtZV
+# YEGszHSSvlUO0

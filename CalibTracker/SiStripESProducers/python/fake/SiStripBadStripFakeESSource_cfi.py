@@ -8,3 +8,4 @@ siStripBadStripFakeESSource = cms.ESSource("SiStripBadStripFakeESSource",
 
 # foo bar baz
 # zAy7AVj1N35Sy
+# w43W5NVGoFiQT

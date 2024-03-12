@@ -8,3 +8,4 @@ HcalDQMOfflinePostProcessor = cms.Sequence(hcalNoiseRatesClient*hcalRecHitsDQMCl
 #HcalDQMOfflinePostProcessor = cms.Sequence(hcalNoiseRatesClient*calotowersDQMClient)
 # foo bar baz
 # DzX0h8t6APZjx
+# NTzCHLe7NmhPf

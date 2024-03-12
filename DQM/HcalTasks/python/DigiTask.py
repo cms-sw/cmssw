@@ -47,3 +47,4 @@ run2_HCAL_2018.toModify(digiTask, qie10InConditions=True)
 run2_HCAL_2018.toModify(digiTask, refDigiSize=[8, 8, 10, 3])
 # foo bar baz
 # SfhnF7fCFkpz5
+# Zt0b1FdGDNU3z

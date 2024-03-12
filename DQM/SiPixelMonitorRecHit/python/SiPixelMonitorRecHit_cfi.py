@@ -28,3 +28,4 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelRecHitSource, isUpgrade=cms.untracked.bool(True) )
 # foo bar baz
 # m6VNuJUuDFl4R
+# O5hslR5cE8cM4

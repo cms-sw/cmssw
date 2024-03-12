@@ -4,3 +4,4 @@ slimmedKshortVertices=slimmedSecondaryVertices.clone(src=cms.InputTag("generalV0
 slimmedLambdaVertices=slimmedSecondaryVertices.clone(src=cms.InputTag("generalV0Candidates","Lambda"))
 # foo bar baz
 # 8dyJRNG2ci3Vr
+# 7SKZl0z9icDpJ

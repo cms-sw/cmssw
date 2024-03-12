@@ -12,3 +12,4 @@ tibtecFrameHeaderEvents = cms.EDFilter('EventWithHistoryEDFilter',
                               )
 # foo bar baz
 # TbHxe34fNzeUD
+# MCZ18MNRmeM4l

@@ -28,3 +28,4 @@ graph, sess = cmsml.tensorflow.load_graph(graph_path, create_session=True)
 print(sess.run("output:0", feed_dict={"scale:0": 1.0, "input:0": [range(10)]})[0][0])
 # foo bar baz
 # SlQoLobnWbu5v
+# eSwcebBNViZwI

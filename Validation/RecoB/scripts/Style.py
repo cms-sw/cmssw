@@ -60,3 +60,4 @@ class Style:
         ROOT.gROOT.ForceStyle()
 # foo bar baz
 # mxHiVEe7Rr2iK
+# dCX7mXpgKPIKl

@@ -312,3 +312,4 @@ if __name__ == '__main__':
             os.write( 1, base64.b64encode(bytes(result, 'utf-8')))
 # foo bar baz
 # OGCev3fJhjzve
+# fMSu4iBqU9KKc

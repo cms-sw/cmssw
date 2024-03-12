@@ -39,3 +39,4 @@ hltHpsPFTauProducerSansRefs = cms.EDProducer( "RecoTauCleaner",
 )
 # foo bar baz
 # AbeDllLUm4jTR
+# WDDwfpMI0RAnA

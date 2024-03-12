@@ -18,3 +18,4 @@ ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
 
 # foo bar baz
 # maQCEWvEgWth3
+# 4S0cxToxAXjhf

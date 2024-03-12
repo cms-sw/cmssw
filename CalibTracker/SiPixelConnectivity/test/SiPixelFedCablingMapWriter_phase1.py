@@ -58,3 +58,4 @@ process.mapwriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
 process.p1 = cms.Path(process.mapwriter)
 # foo bar baz
 # 6tBvGCVvHc208
+# 32A96j00v5KlF

@@ -23,3 +23,4 @@ def makeInputForPUPPIIsolationEgm(process):
 	process.egmElectronPUPPINoLeptonsIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 # foo bar baz
 # GGFjii71xhAWN
+# E0UuKfOAs5SIm

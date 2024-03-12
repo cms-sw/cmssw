@@ -38,3 +38,4 @@ phase1Pixel.toModify( SiPixelDigiSource, isUpgrade=cms.untracked.bool(True) )
 
 # foo bar baz
 # ZAqR6PBEf7jyP
+# VdIxRe1w0vTrE

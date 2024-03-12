@@ -6,3 +6,4 @@ VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
     VtxSmearedCommon
 )# foo bar baz
 # qVV6cuCB596fB
+# YeN8iAIjmMhc7

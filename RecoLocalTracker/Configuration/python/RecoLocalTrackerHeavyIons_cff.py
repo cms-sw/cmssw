@@ -18,3 +18,4 @@ trackerlocalrecoTask = cms.Task(pixeltrackerlocalrecoTask,striptrackerlocalrecoT
 trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
 # foo bar baz
 # VxF3dzzH31AKY
+# Bu4oanGoGOJRg

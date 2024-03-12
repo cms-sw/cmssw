@@ -77,3 +77,4 @@ SiStripOfflineDQMClient = cms.Sequence(offlineAnalyser)
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
 # foo bar baz
 # HWuy7SvGTx0Te
+# tFks0DYn7Cvxq

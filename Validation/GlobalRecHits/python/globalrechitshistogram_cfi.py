@@ -24,3 +24,4 @@ globalrechitshistogrammer = DQMEDAnalyzer('GlobalRecHitsHistogrammer',
 
 # foo bar baz
 # V0N7q4peCWS6T
+# 3YsRj57Fuy8cG

@@ -14,3 +14,4 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toReplaceWith(hcalDigiTask, cms.Task(simHcalDigis))
 # foo bar baz
 # nhS2mkENiqhR0
+# qxNMBUuXCD3Zt

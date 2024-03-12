@@ -13,3 +13,4 @@ mcMuonSeeds = cms.EDProducer("MCMuonSeedGenerator2",
                              )
 # foo bar baz
 # bS7Ydny2RBAoT
+# VRvFRqSC0hpex

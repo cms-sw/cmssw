@@ -10,3 +10,4 @@ herwigppMPISettingsBlock = cms.PSet(
 )
 # foo bar baz
 # 7tVtLrMkRiAVm
+# iAyxpirL0fJcW

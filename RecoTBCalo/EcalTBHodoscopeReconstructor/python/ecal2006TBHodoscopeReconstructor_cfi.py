@@ -13,3 +13,4 @@ ecal2006TBHodoscopeReconstructor = cms.EDProducer("EcalTBHodoscopeRecInfoProduce
 
 # foo bar baz
 # HHzqet2XZpqJM
+# kUYe6BhRMaDgj

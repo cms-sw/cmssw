@@ -52,3 +52,4 @@ process.inertGlobalPositionRcd = cms.ESSource("PoolDBESSource",
 process.Path = cms.Path(process.MuonGeometryDBConverter)
 # foo bar baz
 # 6dy8dJnOuxOaL
+# STRKUzJ9PL7Pr

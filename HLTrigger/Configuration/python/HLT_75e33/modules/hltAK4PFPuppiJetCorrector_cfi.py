@@ -5,3 +5,4 @@ hltAK4PFPuppiJetCorrector = cms.EDProducer("ChainedJetCorrectorProducer",
 )
 # foo bar baz
 # M2JjPRCP92MLE
+# HoOiUS6G6FXKE

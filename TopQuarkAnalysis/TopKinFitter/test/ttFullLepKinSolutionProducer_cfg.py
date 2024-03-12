@@ -52,3 +52,4 @@ process.out.outputCommands += ['keep *_kinSolutionTtFullLepEvent_*_*']
 process.outpath = cms.EndPath(process.out, process.task)
 # foo bar baz
 # nZmZuBN8E7tgk
+# 4atjfsTY2zAvA

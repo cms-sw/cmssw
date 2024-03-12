@@ -8,3 +8,4 @@ etaRangeCaloJetSelector = cms.EDFilter( "EtaRangeCaloJetSelector",
 
 # foo bar baz
 # f8hpaL6SZveGr
+# CnpF9sI8IjEUE

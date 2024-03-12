@@ -15,3 +15,4 @@ throughputServiceClient.dqmPath = "HLT/Throughput"
 HLTHarvestingSequence = cms.Sequence( fastTimerServiceClient + throughputServiceClient )
 # foo bar baz
 # NsTlmvL0oQE44
+# zQcceyiBDQoDE

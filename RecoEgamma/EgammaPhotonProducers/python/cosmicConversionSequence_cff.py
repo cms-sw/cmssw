@@ -11,3 +11,4 @@ cosmicConversionTask = cms.Task(conversionTask)
 cosmicConversionSequence = cms.Sequence(cosmicConversionTask)
 # foo bar baz
 # U9rDOu3B0U7MU
+# 7LXZT9fYGrC1O

@@ -4,3 +4,4 @@ from CalibTracker.SiStripLorentzAngle.siStripLorentzAnglePCLHarvester_cfi import
 SiStripLorentzAnglePCLHarvester = siStripLorentzAnglePCLHarvester.clone()
 # foo bar baz
 # 3X8cfATrZAyoo
+# LS4t9qvXA9RYU

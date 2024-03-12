@@ -72,3 +72,4 @@ mvaEleID_Fall17_noIso_V2_wpLoose.isPOGApproved = cms.untracked.bool(True)
 mvaEleID_Fall17_noIso_V2_wp90.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # rsKx3QBxT8FU4
+# W2CLkdPE4DaT8

@@ -220,3 +220,4 @@ RunQTests_offline = cms.Sequence(ADCQTester_offline * NumClustersQTester_offline
 RunQTests_cosmics = cms.Sequence(NumDigisQTester_cosmics * SizeQTester_cosmics * ChargeQTester_cosmics)
 # foo bar baz
 # e8YRw5e3WJlif
+# z5P0JMBK2Otbv

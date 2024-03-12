@@ -70,3 +70,4 @@ from Configuration.PyReleaseValidation.ConfigBuilder import MassReplaceInputTag
 MassReplaceInputTag(process)
 # foo bar baz
 # OVL5qHHGgr80H
+# GoYBK6e2i2SXN

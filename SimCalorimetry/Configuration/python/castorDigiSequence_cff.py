@@ -6,3 +6,4 @@ castorDigiSequence = cms.Sequence()
 
 # foo bar baz
 # zfbJIQP8U5oBu
+# 8jvWh0Ys8rNDK

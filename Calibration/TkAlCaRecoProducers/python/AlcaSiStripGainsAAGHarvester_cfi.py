@@ -7,3 +7,4 @@ alcaSiStripGainsAAGHarvester.DQMdir              = cms.untracked.string('AlCaRec
 alcaSiStripGainsAAGHarvester.Record              = cms.untracked.string('SiStripApvGainRcdAAG')
 # foo bar baz
 # 9SRI66L7G96DT
+# 6U5INn09LSZYb

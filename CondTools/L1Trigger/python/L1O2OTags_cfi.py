@@ -74,3 +74,4 @@ def initL1O2OTags():
 #        print i, initL1O2OTags.tagBaseVec[ i ]
 # foo bar baz
 # xstaoyVzuYFu7
+# hQXRQirMmNn2x

@@ -6,3 +6,4 @@ simpleSecondaryVertexHighPurBJetTags = cms.EDProducer("JetTagProducer",
 )
 # foo bar baz
 # iw6MSs59A3cy7
+# 3ZFbdtVC8ZfQV

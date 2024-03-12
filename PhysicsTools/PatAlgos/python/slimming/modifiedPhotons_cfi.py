@@ -10,3 +10,4 @@ from RecoEgamma.EgammaTools.egammaObjectModificationsPatches_cff import *
 modifiedPhotons.modifierConfig.modifications = egamma_modifications
 # foo bar baz
 # iJPYd7QKUWfEV
+# zbEmtdBhl8Gbj

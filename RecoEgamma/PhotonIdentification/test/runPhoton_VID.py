@@ -82,3 +82,4 @@ for idmod in my_id_modules:
 process.p = cms.Path(process.egmPhotonIDSequence)
 # foo bar baz
 # YaodaI4Sh1DNR
+# 8U1mSyVLNnVsB

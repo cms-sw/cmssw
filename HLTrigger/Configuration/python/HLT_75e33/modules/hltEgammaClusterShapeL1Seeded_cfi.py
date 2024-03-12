@@ -7,3 +7,4 @@ hltEgammaClusterShapeL1Seeded = cms.EDProducer("EgammaHLTClusterShapeProducer",
 )
 # foo bar baz
 # Omf6k98bJXIlm
+# X7dzYUB3kLSBX

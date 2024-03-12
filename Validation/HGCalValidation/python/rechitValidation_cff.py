@@ -11,3 +11,4 @@ hgcalRecHitValidationHEB = hgcalRecHitValidationEE.clone(
     RecHitSource  = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"))
 # foo bar baz
 # 1JeZBgl6aIIad
+# L9PZ5WPVqi0CA

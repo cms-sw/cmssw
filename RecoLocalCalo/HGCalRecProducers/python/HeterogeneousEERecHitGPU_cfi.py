@@ -16,3 +16,4 @@ EERecHitGPUProd = cms.EDProducer('EERecHitGPU',
                                  weights        = HGCalRecHit.__dict__['layerWeights'] )
 # foo bar baz
 # sPdz0sHqTUkgq
+# 6NH4Pf6RTDrS2

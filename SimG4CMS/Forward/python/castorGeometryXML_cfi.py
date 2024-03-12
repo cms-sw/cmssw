@@ -23,3 +23,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
 
 # foo bar baz
 # EYFfDJwPnzO64
+# DvQ76lLPFRuiC

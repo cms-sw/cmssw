@@ -19,3 +19,4 @@ process.p = cms.Path(process.thingWithMergeProducer)
 process.t = cms.EndPath(process.out)
 # foo bar baz
 # 8GuHDBLf3Gw1e
+# 2GX7cXubjmgfK

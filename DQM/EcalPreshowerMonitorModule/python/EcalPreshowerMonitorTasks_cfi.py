@@ -26,3 +26,4 @@ ecalPreshowerLocalTasksSequence = cms.Sequence(ecalPreshowerPedestalTask)
 
 # foo bar baz
 # qah9k0PFjHzCW
+# UPMRTDLELTLQF

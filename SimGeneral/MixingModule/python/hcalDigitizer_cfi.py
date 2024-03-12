@@ -8,3 +8,4 @@ hcalDigitizer = cms.PSet(
     makeDigiSimLinks = cms.untracked.bool(False))
 # foo bar baz
 # trHrpCQaIqEPV
+# lARXGPQXu1xE2

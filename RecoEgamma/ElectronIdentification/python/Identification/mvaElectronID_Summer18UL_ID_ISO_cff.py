@@ -49,3 +49,4 @@ mvaEleID_Summer18UL_ID_ISO_HZZ = configureVIDMVAEleID( mvaEleID_Summer18UL_ID_IS
 mvaEleID_Summer18UL_ID_ISO_HZZ.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # F68J2XQTJMUoO
+# t6ZQNZSJg6uiN

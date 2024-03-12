@@ -9,3 +9,4 @@ class Filter(Analyzer):
         setattr(event, self.instance_label, output_collection)
 # foo bar baz
 # kwG62WBRTRlhr
+# Cq4SrB6ZHWfti

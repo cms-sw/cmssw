@@ -66,3 +66,4 @@ logURLs= {	"dqmpro":"xml://cmsrc-dqm:22010",
 knownlogLevels=["DEBUG","INFO","ERROR"]
 # foo bar baz
 # OZLT9w0Am3N5A
+# h6vF78J76w9Ug

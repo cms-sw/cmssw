@@ -10,3 +10,4 @@ ecalTrgHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 seqALCARECOEcalTrg = cms.Sequence(ecalTrgHLT)
 # foo bar baz
 # 9PTVM3RP6kVYW
+# 75yHaIdSZ5dNZ

@@ -18,3 +18,4 @@ from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toReplaceWith(hcalRecHitsValidationSequence, _run3_hcalRecHitsValidationSequence)
 # foo bar baz
 # vPgZoCkKMSOeA
+# 3DHMTvZkN6Zfn

@@ -17,3 +17,4 @@ dqmEnvSiStripGains = DQMEDHarvester('DQMHarvestingMetadata',
 ALCAHARVESTSiStripGains = cms.Sequence( EDMtoMEConvertSiStripGains + alcaSiStripGainsHarvester + dqmEnvSiStripGains )
 # foo bar baz
 # s0NJZ9mbPilFM
+# H51IHVYx4kEie

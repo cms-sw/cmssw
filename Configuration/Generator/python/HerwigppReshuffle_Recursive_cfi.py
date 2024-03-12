@@ -12,3 +12,4 @@ herwigppReshuffleSettingsBlock = cms.PSet(
 
 # foo bar baz
 # vZ3c4jIi2coOM
+# fETyMPHQlTMRS

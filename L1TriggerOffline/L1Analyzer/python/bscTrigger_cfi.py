@@ -20,3 +20,4 @@ bscTrigger=cms.EDProducer("BSCTrigger",
 
 # foo bar baz
 # vruGTr502ybMh
+# u3WhGo0R3AYYP

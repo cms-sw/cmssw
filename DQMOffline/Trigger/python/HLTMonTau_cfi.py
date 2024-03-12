@@ -113,3 +113,4 @@ hltMonTauReco =cms.Sequence(hltTauMonitor+hltTauElectronMonitor)
 
 # foo bar baz
 # WrsMAcHmQ7KjM
+# k0r0HbipmjtwK

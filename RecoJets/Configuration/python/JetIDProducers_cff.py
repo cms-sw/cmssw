@@ -7,3 +7,4 @@ recoJetIds = cms.Sequence(recoJetIdsTask)
 recoAllJetIds = cms.Sequence(recoJetIdsTask)
 # foo bar baz
 # GK3GNkz34qtpk
+# Gf2XdpMhHi9jf

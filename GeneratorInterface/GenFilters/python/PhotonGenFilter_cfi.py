@@ -8,3 +8,4 @@ photonGenFilter = cms.EDFilter('PhotonGenFilter',
                       ptThreshold = cms.untracked.double(2.)
                   )# foo bar baz
 # 51WkoxpaYsY4E
+# 28hOOdSxdOqY8

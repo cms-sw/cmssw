@@ -132,3 +132,4 @@ recopixelvertexingTask = cms.Task(
 recopixelvertexing = cms.Sequence(recopixelvertexingTask)
 # foo bar baz
 # FTSb93oQx1jSK
+# 9CxSlftOVkk8t

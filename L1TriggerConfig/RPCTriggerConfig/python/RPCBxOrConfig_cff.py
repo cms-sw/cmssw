@@ -13,3 +13,4 @@ rpcBxOrConfSrc = cms.ESSource("EmptyESSource",
 
 # foo bar baz
 # mfr2xLXcFjyUG
+# swhbL5S5PXZ63

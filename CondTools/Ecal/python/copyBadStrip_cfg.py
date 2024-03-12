@@ -56,3 +56,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadStripAnalyzer",
 process.p = cms.Path(process.Test1)
 # foo bar baz
 # y2Gzu7OjhCrwe
+# C4Zg9eLZhEW7D

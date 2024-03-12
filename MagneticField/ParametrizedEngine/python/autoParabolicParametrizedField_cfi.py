@@ -17,3 +17,4 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("AutoParametrizedMagneticFiel
 
 # foo bar baz
 # RzNrbCZ87klp1
+# dh8jPxR8Gi3VT

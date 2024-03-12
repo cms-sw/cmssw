@@ -12,3 +12,4 @@ from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 
 # foo bar baz
 # abotjamqF4x4N
+# PmiI1MQJZ1bXX

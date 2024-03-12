@@ -25,3 +25,4 @@ process.MakeCondDB = cms.EDAnalyzer("testWriteMVAComputerCondDB",
 process.p = cms.Path(process.MakeCondDB)
 # foo bar baz
 # e3cb2nstqFo6S
+# APVVFjGcTl7Eh

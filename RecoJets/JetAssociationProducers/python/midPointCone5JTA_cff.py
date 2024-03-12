@@ -27,3 +27,4 @@ midPointCone5JTATask = cms.Task(midPointCone5JetTracksAssociatorAtVertex,
 midPointCone5JTA = cms.Sequence(midPointCone5JTATask)
 # foo bar baz
 # tQ19ucGFMugtz
+# pyR9oe4O491sj

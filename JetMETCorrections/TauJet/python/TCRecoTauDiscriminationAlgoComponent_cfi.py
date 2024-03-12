@@ -10,3 +10,4 @@ tcRecoTauDiscriminationAlgoComponent = cms.EDProducer("TCRecoTauDiscriminationAl
 )
 # foo bar baz
 # uINAd1iXAtstw
+# r9WYyT9JQLl5Q

@@ -68,3 +68,4 @@ def get_credentials_for_schema( service, schema, role, authPath=None ):
 
 # foo bar baz
 # 1YlLdfnBy03Jl
+# oDSvKwagLhW47

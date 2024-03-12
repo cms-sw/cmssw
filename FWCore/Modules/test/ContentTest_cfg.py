@@ -21,3 +21,4 @@ process.OtherThing = cms.EDProducer("OtherThingProducer")
 process.p = cms.Path(process.Thing*process.OtherThing*process.printContent)
 # foo bar baz
 # Td1Ix3Aqx4fM3
+# 1isfJQj2wW90M

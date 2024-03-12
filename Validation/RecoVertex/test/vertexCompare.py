@@ -31,3 +31,4 @@ val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels],
 val.doPlots(Collections, Qualities, vertexPlots.plotter, algoDirMap=lambda a, q: a, newdirFunc=newdirname)
 # foo bar baz
 # i7ERTwvwQnjnh
+# XrDhjsIzE7Z7n

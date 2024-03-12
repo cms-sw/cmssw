@@ -4,3 +4,4 @@ HEFRecHitFromSoAProd = cms.EDProducer('HEFRecHitFromSoA',
                                       HEFRecHitSoATok = cms.InputTag('HEFRecHitGPUtoSoAProd'))
 # foo bar baz
 # JckW5t6fUYtId
+# 31WmHyjFIWFgq

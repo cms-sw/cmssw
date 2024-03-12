@@ -58,3 +58,4 @@ mvaPhoID_RunIIFall17_v1p1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaPhoID_RunIIFall17_v1p1_wp80.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
 # 9NxgM2EExeu1s
+# SCSVSn8OPCVEG

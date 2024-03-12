@@ -32,3 +32,4 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
         setattr(process, "puppiMETSequence", puppiMETSequence)
 # foo bar baz
 # Bqh67uqSPWFfS
+# 9nHWtN1EzZycV

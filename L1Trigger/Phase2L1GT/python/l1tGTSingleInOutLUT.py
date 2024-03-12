@@ -105,3 +105,4 @@ COSH_ETA_LUT_2 = SingleInOutLUT(
     math.cosh, 2**13 * scale_parameter.eta_lsb.value(), "[2pi, 4pi)")
 # foo bar baz
 # GP1UoWotFqc9Y
+# mrsEuhvcrhOpR

@@ -38,3 +38,4 @@ electronEDIsolationValuesTask = cms.Task(
 electronEDIsolationValuesSequence = cms.Sequence(electronEDIsolationValuesTask)
 # foo bar baz
 # bpRwYJVry13T0
+# c7md5DX9NV2IW

@@ -375,3 +375,4 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
 )
 # foo bar baz
 # C1Oz48cfDZCV0
+# JrBJfhMPVGu1w

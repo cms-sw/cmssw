@@ -273,3 +273,4 @@ process.p = cms.Path(process.thinningThingProducerE2 *
 process.endPath = cms.EndPath(process.out*process.outSlim)
 # foo bar baz
 # XQZV6RQTWpiG3
+# hcQCkSuuJ3EWw

@@ -103,3 +103,4 @@ class env:
         print('beginTag : ', self.beginTag())
 # foo bar baz
 # nQ8uVCShNKqtd
+# aE8cgW0BNqs6c

@@ -9,3 +9,4 @@ HGCRecHitCollectionsBlock = cms.PSet(
     )
 # foo bar baz
 # Ghc5MXQJJ5NEG
+# jYmd2oKZvzhEx

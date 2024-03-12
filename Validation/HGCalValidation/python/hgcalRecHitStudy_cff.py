@@ -13,3 +13,4 @@ hgcalRecHitStudyBH = hgcalRecHitStudyEE.clone(
     layers        = cms.untracked.int32(24))
 # foo bar baz
 # uoRTw6m9kXTVC
+# jwbo8p9mh650a

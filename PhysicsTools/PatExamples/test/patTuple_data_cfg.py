@@ -170,3 +170,4 @@ process.patTrigger.addL1Algos = cms.bool( True )
 switchOnTrigger( process ) # to fix event content
 # foo bar baz
 # QjtTgCSySoLgv
+# cMFQe2W0rYg1c

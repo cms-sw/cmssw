@@ -240,3 +240,4 @@ process.stat = siStripQualityStatistics.clone()
 process.e = cms.EndPath(process.stat)
 # foo bar baz
 # 0Mopp14N5NBGd
+# aS0vpFQ5xOu5n

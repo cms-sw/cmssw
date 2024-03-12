@@ -93,3 +93,4 @@ DigiToApproxClusterRawTask = cms.Task(hltSiStripRawToDigi,siStripZeroSuppression
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)
 # foo bar baz
 # nK3YEKbyu1gSv
+# Hweo7dfnKuq3t

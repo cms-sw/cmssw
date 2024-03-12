@@ -4,3 +4,4 @@ from HeterogeneousCore.CUDATest.testCUDAProducerCPU_cfi import testCUDAProducerC
 prod5CPU = _testCUDAProducerCPU.clone()
 # foo bar baz
 # 9ikJsBPRhb4Uu
+# pleAwMdkZYnme

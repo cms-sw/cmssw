@@ -50,3 +50,4 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSResidualCo
 jetCorrectorsForRecoTask.replace(ak4PFCHSL1FastL2L3CorrectorTask, ak4PFCHSL1FastL2L3ResidualCorrectorTask)
 # foo bar baz
 # g04zDYxt33EaI
+# 3IOrOe2IoRGMB

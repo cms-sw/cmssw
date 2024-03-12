@@ -21,3 +21,4 @@ ctppsDiamondRawToDigi = totemVFATRawToDigi.clone(
 # empty list of fedIds means that the ids will be read from DataFormats/FEDRawData/interface/FEDNumbering.h
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsDiamondRawToDigi, fedIds = [] )# foo bar baz
 # TNRmeY7dN0cLI
+# bn1mMpOuYzF6F

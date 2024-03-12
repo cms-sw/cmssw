@@ -23,3 +23,4 @@ l1GtTriggerMenuXml.VmeXmlFile = ''
 # default: no prescale, no bit masked, no bit vetoed 
 # foo bar baz
 # erTrjR4gbEdRL
+# I2WvxSR3mTcsE

@@ -8,3 +8,4 @@ lheGenericFilter = cms.EDFilter("LHEGenericFilter",
 )                                
 # foo bar baz
 # 1pKR1I2fTA86c
+# CaxlJF3Wv4H5M

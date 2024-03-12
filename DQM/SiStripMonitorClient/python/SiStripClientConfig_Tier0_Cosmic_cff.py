@@ -52,3 +52,4 @@ SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siSt
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
 # foo bar baz
 # 19ndKeeofb6Fe
+# EXQiOcqpZ4oNE

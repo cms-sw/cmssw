@@ -52,3 +52,4 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 
 # foo bar baz
 # cG0Sad2aTwdDd
+# U46ZMFujsWakT

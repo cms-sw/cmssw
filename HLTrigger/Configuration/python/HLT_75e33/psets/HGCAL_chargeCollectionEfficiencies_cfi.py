@@ -5,3 +5,4 @@ HGCAL_chargeCollectionEfficiencies = cms.PSet(
 )
 # foo bar baz
 # nt5W3fXjPU3Z2
+# SedVnLaOfbZqw

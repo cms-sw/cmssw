@@ -7,3 +7,4 @@ hltPixelTracksCleanerBySharedHits = cms.ESProducer("PixelTrackCleanerBySharedHit
 )
 # foo bar baz
 # z1fw2sAXiI8pP
+# YvnKRo4vlg8EF

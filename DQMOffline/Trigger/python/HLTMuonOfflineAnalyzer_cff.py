@@ -73,3 +73,4 @@ for muAna in [globalAnalyzerTnP.binParams,
 	    e.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))
 # foo bar baz
 # XA1MMTlYJATDf
+# qFOQ6tf4ialXV

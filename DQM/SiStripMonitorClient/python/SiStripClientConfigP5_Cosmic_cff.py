@@ -39,3 +39,4 @@ SiStripAnalyserCosmic = cms.EDAnalyzer("SiStripAnalyser",
 from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
 # foo bar baz
 # 700wuFTufRGhO
+# 4BeEOtW8j6PjE

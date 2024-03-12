@@ -18,3 +18,4 @@ softMuonTagInfos = cms.EDProducer("SoftLepton",
 )
 # foo bar baz
 # MIc726bmOTf59
+# E3gWt2ZxlO01Q

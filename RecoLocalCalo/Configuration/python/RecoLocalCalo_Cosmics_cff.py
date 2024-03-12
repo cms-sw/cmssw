@@ -109,3 +109,4 @@ calolocalrecoTaskCosmicsNZS = cms.Task(ecalLocalRecoTaskCosmics,hcalLocalRecoTas
 calolocalrecoCosmicsNZS = cms.Sequence(calolocalrecoTaskCosmicsNZS) 
 # foo bar baz
 # aCFFCel2Wu0CP
+# SANyqCtsg2qFS

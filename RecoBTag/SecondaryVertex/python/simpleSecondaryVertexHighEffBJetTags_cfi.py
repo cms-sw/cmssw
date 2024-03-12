@@ -6,3 +6,4 @@ simpleSecondaryVertexHighEffBJetTags = cms.EDProducer("JetTagProducer",
 )
 # foo bar baz
 # OXRL5WktZkKIm
+# i3iOV1D7EDk9Y

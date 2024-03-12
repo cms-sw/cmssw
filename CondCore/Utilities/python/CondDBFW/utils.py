@@ -26,3 +26,4 @@ def friendly_since(time_type, since):
     else:
         return since# foo bar baz
 # mPXX50kKYK1pr
+# eAk2x3Ak24NCa

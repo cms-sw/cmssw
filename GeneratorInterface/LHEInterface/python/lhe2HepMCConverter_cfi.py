@@ -6,3 +6,4 @@ lhe2HepMCConverter = cms.EDProducer("LHE2HepMCConverter",
 )
 # foo bar baz
 # ZDXHdQMBl07kw
+# oIyTUobSK0oUl

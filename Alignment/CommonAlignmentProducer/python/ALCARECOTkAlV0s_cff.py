@@ -40,3 +40,4 @@ seqALCARECOTkAlK0s = cms.Sequence(ALCARECOTkAlV0sHLTFilter + ALCARECOTkAlV0sKSho
 seqALCARECOTkAlLambdas = cms.Sequence(ALCARECOTkAlV0sHLTFilter + ALCARECOTkAlV0sLambdaEventSelector + ALCARECOTkAlLambdaTracks)
 # foo bar baz
 # 0TjcZ4RoXyuGs
+# 92BoikmwmLwRK
