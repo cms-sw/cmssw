@@ -92,17 +92,25 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //HLS4ML stuff
   std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
 
-  //if model version is not valid, do not evaluate the condition
-  // TODO: base emulator class to be updated to return default value when model not fount. Need to update this conditional to reflect that change
-  // if (m_AXOL1TLmodelversion.empty()) {
-  //   LogDebug("AXOL1TLCondition") << "Warning: AXOL1TL model version not found, not evaluating condition!" << std::endl;
-  //   return false;
-  // }
+  //if model version is empty, return false. Should not happen.
+  if (AXOL1TLmodelversion == "") {
+    edm::LogWarning("AXOL1TLCondition") << "Warning: AXOL1TL model version empty, not evaluating condition!"
+                                        << std::endl;
+    return false;
+  }
 
-  //otherwise load model and run inference
+  //otherwise load model (if possible) and run inference
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
-  model = loader.load_model();
+
+  //model = loader.load_model();
+  try {
+    model = loader.load_model();
+  } catch (std::runtime_error& e) {
+    edm::LogWarning("AXOL1TLCondition") << "ERROR: failed to load model version " << AXOL1TLmodelversion
+                                        << ". Not evaluating condition!" << std::endl;
+    return false;
+  }
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -261,7 +269,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 //in order to set model version from menu->triggermenuparser->globalproducer->globalboard->here
 void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
   m_AXOL1TLmodelversion = "GTADModel_" + modelversionname;
-  // LogDebug("AXOL1TLCondition") << "AXOL1TL model version: "<< m_AXOL1TLmodelversion << std::endl;
+  // edm::LogWarning("AXOL1TLCondition") << "AXOL1TL model version: "<< m_AXOL1TLmodelversion << std::endl;
 }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {
