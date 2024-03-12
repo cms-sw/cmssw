@@ -17,6 +17,7 @@ namespace l1t {
     public:
       inline const edm::EDGetTokenT<EGammaBxCollection>& getEGammaToken() const { return egammaToken_; };
       inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
+      inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumZDCToken() const { return etSumZDCToken_; };
       inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
       inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
       inline const edm::EDGetTokenT<MuonBxCollection>& getMuonToken() const { return muonToken_; };
@@ -25,6 +26,7 @@ namespace l1t {
     protected:
       edm::EDGetTokenT<EGammaBxCollection> egammaToken_;
       edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
+      edm::EDGetTokenT<EtSumBxCollection> etSumZDCToken_;
       edm::EDGetTokenT<JetBxCollection> jetToken_;
       edm::EDGetTokenT<TauBxCollection> tauToken_;
       edm::EDGetTokenT<MuonBxCollection> muonToken_;
