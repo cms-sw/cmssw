@@ -93,7 +93,7 @@ namespace edm {
   public:
     enum State { Ready, Pass, Fail, Exception };
     enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
-    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream, kLegacy };
+    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream };
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;

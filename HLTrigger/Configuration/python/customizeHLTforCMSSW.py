@@ -233,11 +233,15 @@ def customiseForOffline(process):
 
     return process
 
+def checkHLTfor43774(process):
+    filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
+    absAbleVar = ["DEta","deta","DetaSeed","Dphi","OneOESuperMinusOneOP","OneOESeedMinusOneOP"]
+    for filt_type in filt_types:
+        for filt in filters_by_type(process, filt_type):
+            if filt.varTag.productInstanceLabel in absAbleVar:
+                if (filt.useAbs != cms.bool(True)):
+                    print('# TSG WARNING: check value of parameter "useAbs" in',filt,'(expect True but is False)!')
 
-def customizeHLTfor43885(process):
-    for producer in producers_by_type(process, "EgammaHLTClusterShapeProducer"):
-        if hasattr(producer, 'isIeta'):
-            delattr(producer, 'isIeta')
     return process
 
 def customizeHLTfor44054(process):
@@ -263,7 +267,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor43885(process)
+    process = checkHLTfor43774(process)
 
     # customizes AXOL1TL condition in the L1 menu 
     process = customizeHLTfor44054(process)

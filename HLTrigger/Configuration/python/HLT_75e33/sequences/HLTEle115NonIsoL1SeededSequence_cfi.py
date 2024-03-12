@@ -13,35 +13,12 @@ from ..modules.hltEle115NonIsoHgcalHEL1SeededFilter_cfi import *
 from ..modules.hltEle115NonIsoPixelMatchL1SeededFilter_cfi import *
 from ..modules.hltEle115NonIsoPMS2L1SeededFilter_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalL1SeededSequence_cfi import *
-from ..sequences.HLTDoLocalHcalSequence_cfi import *
+from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
+from ..sequences.HLTEle115NonIsoL1SeededGsfElectronL1SeededSequence_cfi import *
+from ..sequences.HLTEle115NonIsoL1SeededInnerSequence_cfi import *
 from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
-from ..sequences.HLTFastJetForEgamma_cfi import *
-from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
-from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1Seeded_cfi import *
+from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
-from ..sequences.HLTPFClusteringForEgammaL1Seeded_cfi import *
-from ..tasks.HLTEle115NonIsoL1SeededTask_cfi import *
+from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 
-HLTEle115NonIsoL1SeededSequence = cms.Sequence(
-    HLTL1Sequence +
-    hltEGL1SeedsForSingleEleNonIsolatedFilter +
-    HLTDoFullUnpackingEgammaEcalL1SeededSequence +
-    HLTPFClusteringForEgammaL1Seeded +
-    HLTHgcalTiclPFClusteringForEgammaL1Seeded +
-    hltEgammaCandidatesWrapperL1Seeded +
-    hltEG115EtL1SeededFilter +
-    hltEle115NonIsoClusterShapeL1SeededFilter +
-    hltEle115NonIsoClusterShapeSigmavvL1SeededFilter +
-    hltEle115NonIsoClusterShapeSigmawwL1SeededFilter +
-    hltEle115NonIsoHgcalHEL1SeededFilter +
-    HLTDoLocalHcalSequence +
-    HLTFastJetForEgamma +
-    hltEle115NonIsoHEL1SeededFilter +
-    HLTElePixelMatchL1SeededSequence +
-    hltEle115NonIsoPixelMatchL1SeededFilter +
-    hltEle115NonIsoPMS2L1SeededFilter +
-    HLTGsfElectronL1SeededSequence +
-    hltEle115NonIsoGsfDetaL1SeededFilter +
-    hltEle115NonIsoGsfDphiL1SeededFilter,
-    HLTEle115NonIsoL1SeededTask
-)
+HLTEle115NonIsoL1SeededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSingleEleNonIsolatedFilter+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaL1SeededSequence+HLTHgcalTiclPFClusteringForEgammaL1SeededSequence+HLTElePixelMatchL1SeededSequence+HLTEle115NonIsoL1SeededInnerSequence+hltEgammaCandidatesWrapperL1Seeded+hltEG115EtL1SeededFilter+hltEle115NonIsoClusterShapeL1SeededFilter+hltEle115NonIsoClusterShapeSigmavvL1SeededFilter+hltEle115NonIsoClusterShapeSigmawwL1SeededFilter+hltEle115NonIsoHgcalHEL1SeededFilter+hltEle115NonIsoHEL1SeededFilter+hltEle115NonIsoPixelMatchL1SeededFilter+hltEle115NonIsoPMS2L1SeededFilter+HLTEle115NonIsoL1SeededGsfElectronL1SeededSequence+hltEle115NonIsoGsfDetaL1SeededFilter+hltEle115NonIsoGsfDphiL1SeededFilter)

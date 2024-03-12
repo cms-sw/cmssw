@@ -4,6 +4,7 @@
 #ifndef SimDataFormats_CaloAnalysis_MtdSimCluster_h
 #define SimDataFormats_CaloAnalysis_MtdSimCluster_h
 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include <vector>
@@ -30,6 +31,9 @@ public:
     mtdHits_.emplace_back(hit);
     fractions_.emplace_back(fraction);
   }
+
+  /** @brief add hit position*/
+  void addHitPosition(LocalPoint pos) { positions_.emplace_back(pos); }
 
   /** @brief Returns list of hit IDs and fractions for this SimCluster */
   std::vector<std::pair<uint64_t, float>> hits_and_fractions() const {
@@ -70,6 +74,17 @@ public:
     return result;
   }
 
+  /** @brief Returns list of hit IDs and times for this SimCluster */
+  std::vector<std::pair<uint64_t, LocalPoint>> hits_and_positions() const {
+    assert(mtdHits_.size() == times_.size());
+    std::vector<std::pair<uint64_t, LocalPoint>> result;
+    result.reserve(mtdHits_.size());
+    for (size_t i = 0; i < mtdHits_.size(); ++i) {
+      result.emplace_back(mtdHits_[i], positions_[i]);
+    }
+    return result;
+  }
+
   /** @brief Returns list of detIds, rows and columns for this SimCluster */
   std::vector<std::pair<uint32_t, std::pair<uint8_t, uint8_t>>> detIds_and_rows() const {
     std::vector<std::pair<uint32_t, std::pair<uint8_t, uint8_t>>> result;
@@ -85,10 +100,14 @@ public:
   /** @brief clear the times list */
   void clearHitsTime() { std::vector<float>().swap(times_); }
 
+  /** @brief clear the positions list */
+  void clearHitsPosition() { std::vector<LocalPoint>().swap(positions_); }
+
   void clear() {
     clearHitsAndFractions();
     clearHitsEnergy();
     clearHitsTime();
+    clearHitsPosition();
   }
 
   /** @brief add simhit's energy to cluster */
@@ -97,9 +116,15 @@ public:
     ++nsimhits_;
   }
 
+  void setTrackIdOffset(unsigned int offset) { idOffset_ = offset; }
+
+  unsigned int trackIdOffset() const { return idOffset_; }
+
 protected:
   std::vector<uint64_t> mtdHits_;
   std::vector<float> times_;
+  std::vector<LocalPoint> positions_;
+  unsigned int idOffset_{0};
 };
 
 #endif

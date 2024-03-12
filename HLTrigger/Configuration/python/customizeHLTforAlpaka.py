@@ -190,9 +190,12 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
             pfRecHits = cms.InputTag("hltPFRecHitSoAProducerHCALCPUSerial"),
             )
 
+    ## failsafe for fake menus
+    if(not hasattr(process,'hltParticleFlowClusterHBHE')):
+        return process
+
     process.hltLegacyPFClusterProducer = cms.EDProducer("LegacyPFClusterProducer",
             src = cms.InputTag("hltPFClusterSoAProducer"),
-            pfClusterParams = cms.ESInputTag("pfClusterParamsESProducer:"),
             pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
             usePFThresholdsFromDB = cms.bool(True),
             recHitsSource = cms.InputTag("hltLegacyPFRecHitProducer"),
@@ -245,18 +248,26 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     process.HLTPFClusterHBHECPUSerial = cms.Sequence(process.hltHBHERecHitToSoA+process.hltPFRecHitSoAProducerHCALCPUSerial+process.hltPFClusterSoAProducerCPUSerial)
 
-    # Add CPUSerial sequences to DQM_HcalReconstruction_v6 Path
-    dqmHcalRecoPathName = "DQM_HcalReconstruction_v6"
-    dqmHcalPath= getattr(process, dqmHcalRecoPathName)
-    dqmHcalRecoPathIndex = dqmHcalPath.index(process.hltHcalConsumerGPU) + 1
-    dqmHcalPath.insert(dqmHcalRecoPathIndex , process.HLTPFClusterHBHECPUSerial)
-
     # modify EventContent of DQMGPUvsCPU stream
     if hasattr(process, 'hltOutputDQMGPUvsCPU'):
         process.hltOutputDQMGPUvsCPU.outputCommands.extend([
             'keep *_hltPFClusterSoAProducer_*_*',
             'keep *_hltPFClusterSoAProducerCPUSerial_*_*',
         ])
+
+    # Add CPUSerial sequences to DQM_HcalReconstruction_v Path
+    dqmHcalRecoPathName = None
+    for pathName in process.paths_():
+        if pathName.startswith('DQM_HcalReconstruction_v'):
+            dqmHcalRecoPathName = pathName
+            break
+
+    if dqmHcalRecoPathName == None:
+        return process
+
+    dqmHcalPath = getattr(process, dqmHcalRecoPathName)
+    dqmHcalRecoPathIndex = dqmHcalPath.index(process.hltHcalConsumerGPU) + 1
+    dqmHcalPath.insert(dqmHcalRecoPathIndex , process.HLTPFClusterHBHECPUSerial)
 
     return process
 
@@ -405,7 +416,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
     '''
-    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka', 
+    process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka',
         CablingMapLabel = cms.string(''),
         UseQualityInfo = cms.bool(False),
         appendToDataLabel = cms.string(''),
@@ -421,7 +432,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         )
     )
 
-    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka', 
+    process.hltESPPixelCPEFastParamsPhase1 = cms.ESProducer('PixelCPEFastParamsESProducerAlpakaPhase1@alpaka',
         appendToDataLabel = cms.string(''),
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string('')
@@ -717,11 +728,15 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         src = cms.InputTag("hltPixelVerticesCPUSerial")
     )
 
+    ## failsafe for fake menus
+    if(not hasattr(process,'hltTrimmedPixelVertices')):
+        return process
+
     process.HLTRecopixelvertexingTask = cms.ConditionalTask(
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
         process.hltPixelVertices,
-        process.hltTrimmedPixelVertices 
+        process.hltTrimmedPixelVertices
     )
 
     process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
@@ -789,7 +804,7 @@ def customizeHLTforAlpakaPixelRecoTheRest(process):
         track_pt_max = cms.double(10.0),
         track_pt_min = cms.double(1.0)
     )
-    
+
     return process
 
 def customizeHLTforAlpakaPixelReco(process):
@@ -799,7 +814,7 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforAlpakaPixelRecoLocal(process)
     process = customizeHLTforAlpakaPixelRecoTracking(process)
     process = customizeHLTforAlpakaPixelRecoVertexing(process)
-    process = customizeHLTforDQMGPUvsCPUPixel(process)    
+    process = customizeHLTforDQMGPUvsCPUPixel(process)
     process = customizeHLTforAlpakaPixelRecoTheRest(process)
 
     return process
@@ -807,7 +822,7 @@ def customizeHLTforAlpakaPixelReco(process):
 ## ECAL HLT in Alpaka
 
 def customizeHLTforAlpakaEcalLocalReco(process):
-    
+
     if hasattr(process, 'hltEcalDigisGPU'):
         process.hltEcalDigisPortable = cms.EDProducer("EcalRawToDigiPortable@alpaka",
             FEDs = process.hltEcalDigisGPU.FEDs,
@@ -897,7 +912,9 @@ def customizeHLTforAlpakaEcalLocalReco(process):
         if hasattr(process, 'hltEcalUncalibRecHitSoA'):
             delattr(process, 'hltEcalUncalibRecHitSoA')
 
-    process.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask(process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask, process.HLTPreshowerTask)
+        ## failsafe for fake menus
+        if hasattr(process, 'HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask') and hasattr(process, 'HLTPreshowerTask'):
+            process.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask(process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask, process.HLTPreshowerTask)
 
     return process
 
@@ -905,7 +922,7 @@ def customizeHLTforAlpaka(process):
 
     process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
     process.load('Configuration.StandardSequences.Accelerators_cff')
-    
+
     process = customizeHLTforAlpakaEcalLocalReco(process)
     process = customizeHLTforAlpakaPixelReco(process)
     process = customizeHLTforAlpakaParticleFlowClustering(process)

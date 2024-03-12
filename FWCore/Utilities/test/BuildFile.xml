@@ -3,10 +3,8 @@
 
 <test name="TestHelper_t" command="${value}.sh" foreach="testFriendlyNames,testAdler32"/>
 
-<bin file="atomic_value_ptr_t.cpp">
-</bin>
-
 <bin file="typedefs_t.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
 
 <bin file="HRTime_t.cpp">

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
 
-hiPixelAdaptiveVertex = _mod.primaryVertexProducer.clone(
+hiPixelAdaptiveVertex = offlinePrimaryVertices.clone(
     verbose = False,
     TkFilterParameters = dict(
         algorithm = 'filterWithThreshold',
@@ -11,13 +11,12 @@ hiPixelAdaptiveVertex = _mod.primaryVertexProducer.clone(
         maxD0Significance = 3.0,     ## keep most primary tracks (was 5.0)
         minPt = 0.0,                 ## better for softish events
         maxEta = 100.,
-        numTracksThreshold = 2
     ),
     # label of tracks to be used
     TrackLabel = "hiSelectedProtoTracks",
     # clustering
-    TkClusParameters = dict(
-        algorithm = "gap",
+    TkClusParameters = cms.PSet(
+        algorithm = cms.string("gap"),
         TkGapClusParameters = cms.PSet(
             zSeparation = cms.double(1.0)       ## 1 cm max separation between clusters
         )
@@ -33,3 +32,5 @@ hiPixelAdaptiveVertex = _mod.primaryVertexProducer.clone(
         )
       )
 )
+
+hiPixelAdaptiveVertex.TkFilterParameters.numTracksThreshold = cms.int32(2)

@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sys
 import string
-from ROOT import *
+from ROOT import TFile
 from array import array
 
 def getFileInPath(rfile):

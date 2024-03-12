@@ -33,6 +33,7 @@ public:
   void setArbitratedTracker(pat::Muon &mu) const;
   void setInnerTrackDxyz(pat::Muon &mu, const reco::Vertex &vtx) const;
   void setTrkiso04(pat::Muon &mu, const std::vector<reco::Track> tracks) const;
+  void setTrkiso03(pat::Muon &mu, const std::vector<reco::Track> tracks) const;
   void setNSegements(pat::Muon &mu) const;
 
 private:
@@ -63,9 +64,21 @@ void MuonSpecialVariables::setTrkiso04(pat::Muon &mu, const std::vector<reco::Tr
       continue;
     energy += trk.pt();
   }
-  float Trkiso04 = (energy - mu.pt()) / mu.pt();
-  float relTrkiso4 = (Trkiso04 > 0) ? Trkiso04 : 0;
-  mu.addUserFloat("relTrkiso4", relTrkiso4);
+  float Trkiso04 = (energy - mu.pt());
+  float absTrkiso04 = (Trkiso04 > 0) ? Trkiso04 : 0;
+  mu.addUserFloat("absTrkiso04", absTrkiso04);
+}
+
+void MuonSpecialVariables::setTrkiso03(pat::Muon &mu, const std::vector<reco::Track> tracks) const {
+  float energy = 0;
+  for (const auto &trk : tracks) {
+    if (deltaR(mu.eta(), mu.phi(), trk.eta(), trk.phi()) > 0.3)
+      continue;
+    energy += trk.pt();
+  }
+  float Trkiso03 = (energy - mu.pt());
+  float absTrkiso03 = (Trkiso03 > 0) ? Trkiso03 : 0;
+  mu.addUserFloat("absTrkiso03", absTrkiso03);
 }
 
 void MuonSpecialVariables::setNSegements(pat::Muon &mu) const {
@@ -109,6 +122,7 @@ void MuonSpecialVariables::produce(edm::Event &iEvent, const edm::EventSetup &iS
     }
     mu.addUserInt("isGoodVertex", good_vertex);
     setTrkiso04(mu, *trkCollection);
+    setTrkiso03(mu, *trkCollection);
     setNSegements(mu);
     out->push_back(mu);
   }

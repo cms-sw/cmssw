@@ -49,10 +49,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("pfRecHits");
-      desc.add<edm::ESInputTag>("pfClusterParams");
-      desc.add<edm::ESInputTag>("topology");
-      desc.add<bool>("synchronise");
+      desc.add<edm::InputTag>("pfRecHits", edm::InputTag(""));
+      desc.add<edm::ESInputTag>("pfClusterParams", edm::ESInputTag(""));
+      desc.add<edm::ESInputTag>("topology", edm::ESInputTag(""));
+      desc.add<bool>("synchronise", false);
       desc.add<int>("pfRecHitFractionAllocation", 120);
       descriptions.addWithDefaultLabel(desc);
     }

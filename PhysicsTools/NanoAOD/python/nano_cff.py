@@ -56,7 +56,11 @@ run3_nanoAOD_122.toModify(
     linkedObjects, boostedTaus=None,
 )
 
-lhcInfoTable = cms.EDProducer("LHCInfoProducer")
+from PhysicsTools.NanoAOD.lhcInfoProducer_cfi import lhcInfoProducer
+lhcInfoTable = lhcInfoProducer.clone()
+(~run3_common).toModify(
+    lhcInfoTable, useNewLHCInfo=False
+)
 
 nanoTableTaskCommon = cms.Task(
     cms.Task(nanoMetadata), 
@@ -283,4 +287,3 @@ def nanoL1TrigObjCustomize(process):
 def nanoL1TrigObjCustomizeFull(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
-

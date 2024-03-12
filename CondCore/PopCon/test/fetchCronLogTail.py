@@ -4,7 +4,6 @@ from __future__ import print_function
 import os, sys, re
 import string
 import math
-from ROOT import *
 import cx_Oracle
 import time
 

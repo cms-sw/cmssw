@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DTVDriftAnalyzer")
+process = cms.Process("DTVDriftAnalyzer",eras.Run3)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 

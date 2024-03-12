@@ -1,4 +1,6 @@
 
+#include "catch.hpp"
+
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,10 +18,6 @@
 
 using namespace edm;
 
-size_t const numBits = 12;  // There must be a better way than this but I choose to
-                            // avoid modifying a whole slew of code using the array
-                            // instead of push_back()s.
-
 typedef std::vector<std::vector<bool> > Answers;
 
 typedef std::vector<std::string> Strings;
@@ -27,114 +25,122 @@ typedef std::vector<Strings> VStrings;
 typedef std::vector<bool> Bools;
 typedef std::vector<Bools> VBools;
 
-std::ostream& operator<<(std::ostream& ost, const Strings& s) {
-  for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
-    ost << *i << " ";
-  }
-  return ost;
-}
+namespace {
 
-std::ostream& operator<<(std::ostream& ost, const Bools& b) {
-  for (unsigned int i = 0; i < b.size(); ++i) {
-    ost << b[i] << " ";
-  }
-  return ost;
-}
+  size_t constexpr numBits = 12;  // There must be a better way than this but I choose to
+                                  // avoid modifying a whole slew of code using the array
+                                  // instead of push_back()s.
 
-template <size_t nb>
-Bools toBools(std::array<bool, nb> const& t) {
-  Bools b;
-  b.insert(b.end(), t.begin(), t.end());
-  return b;
-}
-
-void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bool answer, int jmask) {
-  // There are 2 different ways to build the EventSelector.
-  // Both should give the same result.  We exercise both here.
-  EventSelector select_based_on_pattern_paths(pattern, paths);
-  EventSelector select_based_on_pattern(pattern);
-
-  int number_of_trigger_paths = 0;
-  std::vector<unsigned char> bitArray;
-
-  HLTGlobalStatus bm(mask.size());
-  const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);
-  const HLTPathStatus fail = HLTPathStatus(edm::hlt::Fail);
-  const HLTPathStatus ex = HLTPathStatus(edm::hlt::Exception);
-  const HLTPathStatus ready = HLTPathStatus(edm::hlt::Ready);
-  for (unsigned int b = 0; b < mask.size(); ++b) {
-    bm[b] = (mask[b] ? pass : fail);
-
-    // There is an alternate version of the function acceptEvent
-    // that takes an array of characters as an argument instead
-    // of a TriggerResults object.  These next few lines build
-    // that array so we can test that also.
-    if ((number_of_trigger_paths % 4) == 0)
-      bitArray.push_back(0);
-    int byteIndex = number_of_trigger_paths / 4;
-    int subIndex = number_of_trigger_paths % 4;
-    bitArray[byteIndex] |= (mask[b] ? edm::hlt::Pass : edm::hlt::Fail) << (subIndex * 2);
-    ++number_of_trigger_paths;
+  std::ostream& operator<<(std::ostream& ost, const Strings& s) {
+    for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
+      ost << *i << " ";
+    }
+    return ost;
   }
 
-  if (jmask == 8 && mask.size() > 4) {
-    bm[0] = ready;
-    bm[4] = ex;
-    bitArray[0] = (bitArray[0] & 0xfc) | edm::hlt::Ready;
-    bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
+  std::ostream& operator<<(std::ostream& ost, const Bools& b) {
+    for (unsigned int i = 0; i < b.size(); ++i) {
+      ost << b[i] << " ";
+    }
+    return ost;
+  }
+  template <size_t nb>
+  Bools toBools(std::array<bool, nb> const& t) {
+    Bools b;
+    b.insert(b.end(), t.begin(), t.end());
+    return b;
   }
 
-  TriggerResults results(bm, paths);
+  void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bool answer, int jmask) {
+    // There are 2 different ways to build the EventSelector.
+    // Both should give the same result.  We exercise both here.
+    EventSelector select_based_on_pattern_paths(pattern, paths);
+    EventSelector select_based_on_pattern(pattern);
 
-  bool a = select_based_on_pattern_paths.acceptEvent(results);
-  bool b = select_based_on_pattern.acceptEvent(results);
-  bool aa = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
-  // select_based_on_pattern.acceptEvent(&(bitArray[0]),
-  //                                     number_of_trigger_paths);
-  // is not a valid way to use acceptEvent.
+    int number_of_trigger_paths = 0;
+    std::vector<unsigned char> bitArray;
 
-  if (a != answer || b != answer || aa != answer) {
-    std::cerr << "failed to compare pattern with mask: "
-              << "correct=" << answer << " "
-              << "results=" << a << "  " << b << "  " << aa << "\n"
-              << "pattern=" << pattern << "\n"
-              << "mask=" << mask << "\n"
-              << "jmask = " << jmask << "\n";
-    abort();
+    HLTGlobalStatus bm(mask.size());
+    const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);
+    const HLTPathStatus fail = HLTPathStatus(edm::hlt::Fail);
+    const HLTPathStatus ex = HLTPathStatus(edm::hlt::Exception);
+    const HLTPathStatus ready = HLTPathStatus(edm::hlt::Ready);
+    for (unsigned int b = 0; b < mask.size(); ++b) {
+      bm[b] = (mask[b] ? pass : fail);
+
+      // There is an alternate version of the function acceptEvent
+      // that takes an array of characters as an argument instead
+      // of a TriggerResults object.  These next few lines build
+      // that array so we can test that also.
+      if ((number_of_trigger_paths % 4) == 0)
+        bitArray.push_back(0);
+      int byteIndex = number_of_trigger_paths / 4;
+      int subIndex = number_of_trigger_paths % 4;
+      bitArray[byteIndex] |= (mask[b] ? edm::hlt::Pass : edm::hlt::Fail) << (subIndex * 2);
+      ++number_of_trigger_paths;
+    }
+
+    if (jmask == 8 && mask.size() > 4) {
+      bm[0] = ready;
+      bm[4] = ex;
+      bitArray[0] = (bitArray[0] & 0xfc) | edm::hlt::Ready;
+      bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
+    }
+
+    TriggerResults results(bm, paths);
+
+    bool a = select_based_on_pattern_paths.acceptEvent(results);
+    bool b = select_based_on_pattern.acceptEvent(results);
+    bool aa = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
+    // select_based_on_pattern.acceptEvent(&(bitArray[0]),
+    //                                     number_of_trigger_paths);
+    // is not a valid way to use acceptEvent.
+    std::ostringstream s;
+    if (a != answer || b != answer || aa != answer) {
+      s << "failed to compare pattern with mask: "
+        << "correct=" << answer << " "
+        << "results=" << a << "  " << b << "  " << aa << "\n"
+        << "pattern=" << pattern << "\n"
+        << "mask=" << mask << "\n"
+        << "jmask = " << jmask << "\n";
+    }
+    REQUIRE_THAT(answer,
+                 Catch::Predicate<bool>(
+                     [a, b, aa](bool answer) { return a == answer and b == answer and aa == answer; }, s.str()));
+
+    // Repeat putting the list of trigger names in the pset
+    // registry
+
+    ParameterSet trigger_pset;
+    trigger_pset.addParameter<Strings>("@trigger_paths", paths);
+    trigger_pset.registerIt();
+
+    TriggerResults results_id(bm, trigger_pset.id());
+
+    bool x = select_based_on_pattern_paths.acceptEvent(results_id);
+    bool y = select_based_on_pattern.acceptEvent(results_id);
+
+    if (x != answer || y != answer) {
+      s << "failed to compare pattern with mask using pset ID: "
+        << "correct=" << answer << " "
+        << "results=" << x << "  " << y << "\n"
+        << "pattern=" << pattern << "\n"
+        << "mask=" << mask << "\n"
+        << "jmask = " << jmask << "\n";
+    }
+    REQUIRE_THAT(answer, Catch::Predicate<bool>([x, y](bool answer) { return x == answer and y == answer; }, s.str()));
   }
 
-  // Repeat putting the list of trigger names in the pset
-  // registry
-
-  ParameterSet trigger_pset;
-  trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-  trigger_pset.registerIt();
-
-  TriggerResults results_id(bm, trigger_pset.id());
-
-  bool x = select_based_on_pattern_paths.acceptEvent(results_id);
-  bool y = select_based_on_pattern.acceptEvent(results_id);
-
-  if (x != answer || y != answer) {
-    std::cerr << "failed to compare pattern with mask using pset ID: "
-              << "correct=" << answer << " "
-              << "results=" << x << "  " << y << "\n"
-              << "pattern=" << pattern << "\n"
-              << "mask=" << mask << "\n"
-              << "jmask = " << jmask << "\n";
-    abort();
-  }
-}
-
-void testall(const Strings& paths, const VStrings& patterns, const VBools& masks, const Answers& answers) {
-  for (unsigned int i = 0; i < patterns.size(); ++i) {
-    for (unsigned int j = 0; j < masks.size(); ++j) {
-      testone(paths, patterns[i], masks[j], answers[i][j], j);
+  void testall(const Strings& paths, const VStrings& patterns, const VBools& masks, const Answers& answers) {
+    for (unsigned int i = 0; i < patterns.size(); ++i) {
+      for (unsigned int j = 0; j < masks.size(); ++j) {
+        testone(paths, patterns[i], masks[j], answers[i][j], j);
+      }
     }
   }
-}
+}  // namespace
 
-int main() try {
+TEST_CASE("test EventSelector wildcard", "[EventSelector wildcard]") {
   // Name all our paths. We have as many paths as there are trigger
   // bits.
 
@@ -427,11 +433,4 @@ int main() try {
   // We are ready to run some tests
 
   testall(paths, patterns, testmasks, ans);
-  return 0;
-} catch (cms::Exception const& e) {
-  std::cerr << e.explainSelf() << std::endl;
-  return 1;
-} catch (std::exception const& e) {
-  std::cerr << e.what() << std::endl;
-  return 1;
 }

@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltIter0Phase2L3FromL1TkMuonCkfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
-    # MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     RedundantSeedCleaner = cms.string('none'),
-    # SimpleMagneticField = cms.string('ParabolicMf'),
-    # TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('HLTIter0Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT')
     ),

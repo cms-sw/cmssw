@@ -23,9 +23,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 // Condition Format
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-// LHCinfo
-//#include "CondFormats/RunInfo/interface/LHCInfo.h"
-//#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 // CondOutput
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

@@ -21,10 +21,10 @@ public:
   virtual int getGlobalEta(const DTChamberId dTChamberId, const L1MuDTChambThContainer *dtThDigis, int bxNum) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
-  virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi) const;
+  virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi, float &r) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
-  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int &aDigi) const;
+  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int &aDigi, float &r) const;
 
   //to avoid  Clang Warnings "hides overloaded virtual functions"
   using AngleConverterBase::getGlobalEta;

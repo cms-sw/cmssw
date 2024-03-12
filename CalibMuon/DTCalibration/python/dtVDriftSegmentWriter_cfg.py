@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DTVDriftWriter")
+process = cms.Process("DTVDriftWriter",eras.Run3)
 
 ### Set to true to switch to writing constants in the new DB format.
 NEWDBFORMAT = False 

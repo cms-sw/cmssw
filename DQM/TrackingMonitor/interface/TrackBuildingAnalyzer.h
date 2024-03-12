@@ -60,7 +60,7 @@ public:
                const std::vector<const MVACollection*>& mvaCollections,
                const std::vector<const QualityMaskCollection*>& qualityMaskCollections);
   void analyze(const reco::CandidateView& regionCandidates);
-  void analyze(const edm::OwnVector<TrackingRegion>& regions);
+  void analyze(const std::vector<std::unique_ptr<TrackingRegion>>& regions);
   void analyze(const TrackingRegionsSeedingLayerSets& regions);
 
 private:

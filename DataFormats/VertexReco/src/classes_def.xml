@@ -48,4 +48,9 @@
   <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> >" />
   <class name="std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int>" />
 
+  <class name="TrackTimeLifeInfo" />
+  <class name="std::vector<TrackTimeLifeInfo>"/>
+  <class name="edm::Wrapper<std::vector<TrackTimeLifeInfo> >"/>
+  <class name="edm::ValueMap<TrackTimeLifeInfo>"/>
+  <class name="edm::Wrapper<edm::ValueMap<TrackTimeLifeInfo> >"/>
 </lcgdict>

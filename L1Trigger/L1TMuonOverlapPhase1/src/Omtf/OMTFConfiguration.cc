@@ -66,13 +66,18 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
   const std::vector<int> *connectedSectorsStartVec = omtfParams->connectedSectorsStart();
   const std::vector<int> *connectedSectorsEndVec = omtfParams->connectedSectorsEnd();
 
-  std::copy(connectedSectorsStartVec->begin(), connectedSectorsStartVec->begin() + 6, barrelMin.begin());
-  std::copy(connectedSectorsStartVec->begin() + 6, connectedSectorsStartVec->begin() + 12, endcap10DegMin.begin());
-  std::copy(connectedSectorsStartVec->begin() + 12, connectedSectorsStartVec->end(), endcap20DegMin.begin());
+  std::copy(connectedSectorsStartVec->begin(), connectedSectorsStartVec->begin() + nProcessors(), barrelMin.begin());
+  std::copy(connectedSectorsStartVec->begin() + nProcessors(),
+            connectedSectorsStartVec->begin() + 2 * nProcessors(),
+            endcap10DegMin.begin());
+  std::copy(
+      connectedSectorsStartVec->begin() + 2 * nProcessors(), connectedSectorsStartVec->end(), endcap20DegMin.begin());
 
-  std::copy(connectedSectorsEndVec->begin(), connectedSectorsEndVec->begin() + 6, barrelMax.begin());
-  std::copy(connectedSectorsEndVec->begin() + 6, connectedSectorsEndVec->begin() + 12, endcap10DegMax.begin());
-  std::copy(connectedSectorsEndVec->begin() + 12, connectedSectorsEndVec->end(), endcap20DegMax.begin());
+  std::copy(connectedSectorsEndVec->begin(), connectedSectorsEndVec->begin() + nProcessors(), barrelMax.begin());
+  std::copy(connectedSectorsEndVec->begin() + nProcessors(),
+            connectedSectorsEndVec->begin() + 2 * nProcessors(),
+            endcap10DegMax.begin());
+  std::copy(connectedSectorsEndVec->begin() + 2 * nProcessors(), connectedSectorsEndVec->end(), endcap20DegMax.begin());
 
   ///Set connections tables
   const std::vector<L1TMuonOverlapParams::LayerMapNode> *layerMap = omtfParams->layerMap();
@@ -162,15 +167,18 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
   //the default values of the parameters are used, if not set here, so don't mess them!
   if (fwVersion() <= 4) {
     setMinDtPhiQuality(4);
+    setMinDtPhiBQuality(4);
   } else if (fwVersion() == 5) {
     setMinDtPhiQuality(2);
+    setMinDtPhiBQuality(2);
     setGhostBusterType("GhostBusterPreferRefDt");
   } else if (fwVersion() == 6) {
     setMinDtPhiQuality(2);
+    setMinDtPhiBQuality(2);
     setGhostBusterType("GhostBusterPreferRefDt");
   } else if (fwVersion() == 8) {
     setMinDtPhiQuality(2);
-    setMinDtPhiBQuality(2);  //should be 4, but in the fwVersion = 8 was not yet implemented
+    setMinDtPhiBQuality(2);
 
     setSorterType(1);  //"byLLH"
 
@@ -183,6 +191,28 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
     setNoHitValueInPdf(true);
 
     setGhostBusterType("GhostBusterPreferRefDt");
+  } else if (fwVersion() == 9) {
+    setMinDtPhiQuality(2);
+    setMinDtPhiBQuality(4);
+
+    setSorterType(1);  //"byLLH"
+
+    setRpcMaxClusterSize(3);
+    setRpcMaxClusterCnt(2);
+    setRpcDropAllClustersIfMoreThanMax(true);
+
+    setGoldenPatternResultFinalizeFunction(10);
+
+    setNoHitValueInPdf(true);
+
+    usePhiBExtrapolationFromMB1_ = true;
+    usePhiBExtrapolationFromMB2_ = true;
+    useStubQualInExtr_ = false;
+    useEndcapStubsRInExtr_ = false;
+
+    dtRefHitMinQuality = 4;
+
+    setGhostBusterType("byRefLayer");
   }
 }
 
@@ -224,6 +254,51 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
   }
 
   setFixCscGeometryOffset(true);  //for the OMTF by default is true, read from python if needed
+
+  if (edmParameterSet.exists("usePhiBExtrapolationFromMB1")) {
+    usePhiBExtrapolationFromMB1_ = edmParameterSet.getParameter<bool>("usePhiBExtrapolationFromMB1");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "usePhiBExtrapolationFromMB1: " << usePhiBExtrapolationFromMB1_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("usePhiBExtrapolationFromMB2")) {
+    usePhiBExtrapolationFromMB2_ = edmParameterSet.getParameter<bool>("usePhiBExtrapolationFromMB2");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "usePhiBExtrapolationFromMB2: " << usePhiBExtrapolationFromMB2_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("useStubQualInExtr")) {
+    useStubQualInExtr_ = edmParameterSet.getParameter<bool>("useStubQualInExtr");
+    edm::LogVerbatim("OMTFReconstruction") << "useStubQualInExtr: " << useStubQualInExtr_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("useEndcapStubsRInExtr")) {
+    useEndcapStubsRInExtr_ = edmParameterSet.getParameter<bool>("useEndcapStubsRInExtr");
+    edm::LogVerbatim("OMTFReconstruction") << "useEndcapStubsRInExtr: " << useEndcapStubsRInExtr_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("dtRefHitMinQuality")) {
+    dtRefHitMinQuality = edmParameterSet.getParameter<int>("dtRefHitMinQuality");
+    edm::LogVerbatim("OMTFReconstruction") << "dtRefHitMinQuality: " << dtRefHitMinQuality << std::endl;
+  }
+
+  if (edmParameterSet.exists("dumpResultToXML")) {
+    dumpResultToXML = edmParameterSet.getParameter<bool>("dumpResultToXML");
+  }
+
+  if (edmParameterSet.exists("minCSCStubRME12")) {
+    minCSCStubRME12_ = edmParameterSet.getParameter<int>("minCSCStubRME12");
+    edm::LogVerbatim("OMTFReconstruction") << "minCSCStubRME12: " << minCSCStubRME12_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("minCSCStubR")) {
+    minCSCStubR_ = edmParameterSet.getParameter<int>("minCSCStubR");
+    edm::LogVerbatim("OMTFReconstruction") << "minCSCStubR: " << minCSCStubR_ << std::endl;
+  }
+
+  if (edmParameterSet.exists("cleanStubs")) {
+    cleanStubs_ = edmParameterSet.getParameter<bool>("cleanStubs");
+  }
 }
 
 ///////////////////////////////////////////////
@@ -324,6 +399,126 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
   return hwNumber;
 }
 
+int OMTFConfiguration::calcGlobalPhi(int locPhi, int proc) const {
+  int globPhi = 0;
+  //60 degree sectors = 96 in int-scale
+  globPhi = (proc) * 96 * 6 / nProcessors() + locPhi;
+  // first processor starts at CMS phi = 15 degrees (24 in int)... Handle wrap-around with %. Add 576 to make sure the number is positive
+  globPhi = (globPhi + 600) % 576;
+  return globPhi;
+}
+
+unsigned int OMTFConfiguration::eta2Bits(unsigned int eta) {
+  if (eta == 73)
+    return 0b100000000;
+  else if (eta == 78)
+    return 0b010000000;
+  else if (eta == 85)
+    return 0b001000000;
+  else if (eta == 90)
+    return 0b000100000;
+  else if (eta == 94)
+    return 0b000010000;
+  else if (eta == 99)
+    return 0b000001000;
+  else if (eta == 103)
+    return 0b000000100;
+  else if (eta == 110)
+    return 0b000000010;
+  else if (eta == 75)
+    return 0b110000000;
+  else if (eta == 79)
+    return 0b011000000;
+  else if (eta == 92)
+    return 0b000110000;
+  else if (eta == 115)
+    return 0b000000001;
+  else if (eta == 121)
+    return 0b000000000;
+  else
+    return 0b111111111;
+  ;
+}
+
+unsigned int OMTFConfiguration::etaBits2HwEta(unsigned int bits) {
+  if (bits == 0b100000000)
+    return 73;
+  else if (bits == 0b010000000)
+    return 78;
+  else if (bits == 0b001000000)
+    return 85;
+  else if (bits == 0b000100000)
+    return 90;
+  else if (bits == 0b000010000)
+    return 94;
+  else if (bits == 0b000001000)
+    return 99;
+  else if (bits == 0b000000100)
+    return 103;
+  else if (bits == 0b000000010)
+    return 110;
+  else if (bits == 0b110000000)
+    return 75;
+  else if (bits == 0b011000000)
+    return 79;
+  else if (bits == 0b000110000)
+    return 92;
+  else if (bits == 0b000000001)
+    return 115;
+  else if (bits == 0b000000000)
+    return 121;
+  else
+    return 0b111111111;
+  ;
+}
+
+int OMTFConfiguration::etaBit2Code(unsigned int bit) {
+  int code = 73;
+  switch (bit) {
+    case 0: {
+      code = 115;
+      break;
+    }
+    case 1: {
+      code = 110;
+      break;
+    }
+    case 2: {
+      code = 103;
+      break;
+    }
+    case 3: {
+      code = 99;
+      break;
+    }
+    case 4: {
+      code = 94;
+      break;
+    }
+    case 5: {
+      code = 90;
+      break;
+    }
+    case 6: {
+      code = 85;
+      break;
+    }
+    case 7: {
+      code = 78;
+      break;
+    }
+    case 8: {
+      code = 73;
+      break;
+    }
+    default: {
+      code = 95;
+      break;
+    }
+  }
+  return code;
+}
+
 ///////////////////////////////////////////////
 // phiRad should be in the range [-pi,pi]
 int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) const {
@@ -402,4 +597,12 @@ void OMTFConfiguration::printConfig() const {
   edm::LogVerbatim("OMTFReconstruction") << "noHitValueInPdf " << noHitValueInPdf << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "sorterType " << sorterType << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "ghostBusterType " << ghostBusterType << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "usePhiBExtrapolationFromMB1 " << usePhiBExtrapolationFromMB1_ << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "usePhiBExtrapolationFromMB2 " << usePhiBExtrapolationFromMB2_ << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "useStubQualInExtr " << useStubQualInExtr_ << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "useEndcapStubsRInExtr " << useEndcapStubsRInExtr_ << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "dtRefHitMinQuality " << dtRefHitMinQuality << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "cleanStubs " << cleanStubs_ << std::endl;
 }

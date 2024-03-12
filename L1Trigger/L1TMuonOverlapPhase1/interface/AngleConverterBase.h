@@ -61,10 +61,8 @@ public:
   /// phiZero - desired phi where the scale should start, should be in the desired scale, use getProcessorPhiZero to obtain it
   virtual int getProcessorPhi(int phiZero, l1t::tftype part, int dtScNum, int dtPhi) const;
 
-  virtual int getProcessorPhi(int phiZero,
-                              l1t::tftype part,
-                              const CSCDetId& csc,
-                              const CSCCorrelatedLCTDigi& digi) const;
+  virtual int getProcessorPhi(
+      int phiZero, l1t::tftype part, const CSCDetId& csc, const CSCCorrelatedLCTDigi& digi, unsigned int iInput) const;
 
   virtual int getProcessorPhi(unsigned int iProcessor,
                               l1t::tftype part,

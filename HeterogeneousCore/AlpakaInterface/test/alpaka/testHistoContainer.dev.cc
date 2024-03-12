@@ -7,6 +7,9 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
+#include <alpaka/alpaka.hpp>
+
+#include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -235,14 +238,15 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
 
 TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestHistoContainer), s_tag) {
   SECTION("HistoContainerKernel") {
+    auto const& host = cms::alpakatools::host();
+
     // get the list of devices on the current platform
     auto const& devices = cms::alpakatools::devices<Platform>();
-    auto const& host = cms::alpakatools::host();
     if (devices.empty()) {
-      std::cout << "No devices available on the platform " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-                << ", the test will be skipped.\n";
-      return;
+      FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
+           "the test will be skipped.\n");
     }
+
     // run the test on each device
     for (auto const& device : devices) {
       std::cout << "Test Histo Container on " << alpaka::getName(device) << '\n';

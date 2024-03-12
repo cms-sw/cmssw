@@ -1,6 +1,6 @@
 import math
 import ROOT
-from ROOT import *
+from ROOT import gSystem, TH2F, gStyle
 from DataFormats.FWLite import Events, Handle
 from PhysicsTools.PythonAnalysis import *
 #import print_options

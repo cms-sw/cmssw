@@ -262,8 +262,12 @@ DAClusterizerInZT_vect::track_t DAClusterizerInZT_vect::fill(const vector<reco::
     sumtkwt += t_tkwt;
   }
 
-  tks.extractRaw();
-  tks.osumtkwt = sumtkwt > 0 ? 1. / sumtkwt : 0.;
+  if (sumtkwt > 0) {
+    tks.extractRaw();
+    tks.osumtkwt = 1. / sumtkwt;
+  } else {
+    tks.osumtkwt = 0.;
+  }
 
 #ifdef DEBUG
   if (DEBUGLEVEL > 0) {
@@ -1109,14 +1113,13 @@ bool DAClusterizerInZT_vect::split(const double beta, track_t& tks, vertex_t& y,
 
 vector<TransientVertex> DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack>& tracks) const {
   track_t&& tks = fill(tracks);
+  vector<TransientVertex> clusters;
+  if (tks.getSize() == 0)
+    return clusters;
   tks.extractRaw();
 
   unsigned int nt = tks.getSize();
   double rho0 = 0.0;  // start with no outlier rejection
-
-  vector<TransientVertex> clusters;
-  if (tks.getSize() == 0)
-    return clusters;
 
   vertex_t y;  // the vertex prototypes
 

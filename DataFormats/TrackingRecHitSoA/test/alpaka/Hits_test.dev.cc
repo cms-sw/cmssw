@@ -9,6 +9,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
+#include "Hits_test.h"
+
 using namespace alpaka;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

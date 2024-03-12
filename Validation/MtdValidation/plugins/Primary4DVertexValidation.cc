@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -1323,7 +1324,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               unsigned int noPIDtype = 0;
               if (probPi[*iTrack] == -1) {
                 noPIDtype = 1;
-              } else if (std::isnan(probPi[*iTrack])) {
+              } else if (edm::isNotFinite(probPi[*iTrack])) {
                 noPIDtype = 2;
               } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
                 noPIDtype = 3;
@@ -1602,7 +1603,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   //fill vertices histograms here in a new loop
   for (unsigned int is = 0; is < simpv.size(); is++) {
     // protect against particle guns with very displaced vertices
-    if (std::isinf(1. / puLineDensity(simpv.at(is).z))) {
+    if (edm::isNotFinite(1. / puLineDensity(simpv.at(is).z))) {
       continue;
     }
     meSimPVZ_->Fill(simpv.at(is).z, 1. / puLineDensity(simpv.at(is).z));

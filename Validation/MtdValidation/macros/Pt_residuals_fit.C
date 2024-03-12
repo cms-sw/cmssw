@@ -114,8 +114,8 @@ void fit_to_data(TH1D* h_TrackMatchedTP, TString str) {
   // The PDF fit to that data set using an un-binned maximum likelihood fit
   // Then the data are visualized with the PDF overlaid
 
-  // Perform extended ML fit of PDF to data and save results in a pointer
-  RooFitResult* r1 = model->fitTo(*h_, Save());
+  // Perform extended ML fit of PDF to data
+  model->fitTo(*h_);
 
   // Retrieve values from the fit
   Double_t mean_fit = mean.getVal();

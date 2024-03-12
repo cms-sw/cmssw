@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 highPtTripletStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
-    # MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    # SimpleMagneticField = cms.string('ParabolicMf'),
-    # TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('highPtTripletStepTrajectoryBuilder')
     ),

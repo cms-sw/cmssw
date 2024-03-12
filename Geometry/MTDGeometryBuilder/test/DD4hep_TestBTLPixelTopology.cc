@@ -264,8 +264,9 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
                                 convertMmToCm(refLocalPoints[iloop].y() / dd4hep::mm),
                                 convertMmToCm(refLocalPoints[iloop].z() / dd4hep::mm));
         Local3DPoint modLocal = topo.pixelToModuleLocalPoint(cmRefLocal, origRow, origCol);
-        const auto& thepixel = topo.pixel(modLocal);
-        uint8_t recoRow(thepixel.first), recoCol(thepixel.second);
+        const auto& thepixel = topo.pixelIndex(modLocal);
+        uint8_t recoRow = static_cast<uint8_t>(thepixel.first);
+        uint8_t recoCol = static_cast<uint8_t>(thepixel.second);
 
         if (origRow != recoRow || origCol != recoCol) {
           std::stringstream warnmsg;
