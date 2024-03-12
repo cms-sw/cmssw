@@ -92,11 +92,9 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //HLS4ML stuff
   std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
 
-  //if model version is empty, return false. Should not ever happen
+  //if model version is empty, throw exception. Should not ever happen unless not found in menu
   if (AXOL1TLmodelversion == "" || AXOL1TLmodelversion == "GTADModel_") {
-    edm::LogWarning("AXOL1TLCondition") << "Warning: AXOL1TL model version empty, not evaluating condition!"
-                                        << std::endl;
-    return false;
+    throw cms::Exception("ModelError") << " Error model version not found in menu!";
   }
 
   //otherwise load model (if possible) and run inference
