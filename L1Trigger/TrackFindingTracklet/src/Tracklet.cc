@@ -728,6 +728,15 @@ std::string Tracklet::trackfitstr() const {
 
     oss += "1|";  // valid bit
     oss += tmp.str() + "|";
+    if (settings_.combined()) {
+      if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
+        oss += outerFPGAStub()->phiregionstr() + "|";
+        oss += innerFPGAStub()->phiregionstr() + "|";
+      } else {
+        oss += innerFPGAStub()->phiregionstr() + "|";
+        oss += outerFPGAStub()->phiregionstr() + "|";
+      }
+    }
     oss += innerFPGAStub()->stubindex().str() + "|";
     oss += outerFPGAStub()->stubindex().str() + "|";
     oss += fpgapars_.rinv().str() + "|";
