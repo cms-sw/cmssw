@@ -401,8 +401,8 @@ namespace mkfit {
 
         const float z = m_Par[iI].constAt(itrack, 2, 0);
         const float dz = std::abs(nSigmaZ * std::sqrt(m_Err[iI].constAt(itrack, 2, 2)));
-        const float edgeCorr = std::abs(0.5f * (L.layer_info().rout() - L.layer_info().rin()) /
-                                        std::tan(m_Par[iI].constAt(itrack, 5, 0)));
+        const float edgeCorr =
+            std::abs(0.5f * (L.layer_info().rout() - L.layer_info().rin()) / std::tan(m_Par[iI].constAt(itrack, 5, 0)));
         // XXX-NUM-ERR above, m_Err(2,2) gets negative!
 
         m_XWsrResult[itrack] = L.is_within_z_sensitive_region(z, std::sqrt(dz * dz + edgeCorr * edgeCorr));

@@ -40,8 +40,8 @@ namespace mkfit {
     EventOfHits *eoh() { return m_eoh; }
     MkBuilder *builder() { return m_builder; }
 
-    const TrackVec& seeds() const { return m_seeds; }
-    const TrackVec& tracks() const { return m_tracks; }
+    const TrackVec &seeds() const { return m_seeds; }
+    const TrackVec &tracks() const { return m_tracks; }
 
     // --------------------------------------------------------
     // Analysis helpers

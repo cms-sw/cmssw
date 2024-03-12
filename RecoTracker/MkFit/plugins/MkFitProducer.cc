@@ -175,7 +175,8 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
       stripContainerMask.copyMaskTo(stripMask);
     }
   } else {
-    stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
+    if (mkFitGeom.isPhase1())
+      stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
   }
 
   // seeds need to be mutable because of the possible cleaning

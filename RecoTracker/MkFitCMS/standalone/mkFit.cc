@@ -44,7 +44,7 @@ using namespace mkfit;
 namespace mkfit::internal {
   // Filled in geometry plugin.
   std::vector<DeadVec> deadvectors;
-}
+}  // namespace mkfit::internal
 
 void initGeom() {
   std::cout << "Constructing geometry '" << Config::geomPlugin << "'\n";

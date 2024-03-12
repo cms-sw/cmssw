@@ -118,7 +118,7 @@ struct CandInfo {
   }
 
   bool assignIdxChi2List(const mkfit::IdxChi2List& ic2l) {
-    for (auto & hm : hmi) {
+    for (auto& hm : hmi) {
       if (hm.hit_index == ic2l.hitIdx) {
         hm.has_ic2list = true;
         hm.ic2list = ic2l;

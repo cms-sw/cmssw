@@ -437,6 +437,28 @@ upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
 }
 
+# mkFit for phase-2 initialStep tracking
+class UpgradeWorkflow_trackingMkFitPhase2(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ('2026' in key)
+upgradeWFs['trackingMkFitPhase2'] = UpgradeWorkflow_trackingMkFitPhase2(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [],
+    suffix = '_trackingMkFitPhase2',
+    offset = 0.702,
+)
+upgradeWFs['trackingMkFitPhase2'].step3 = {
+    '--procModifiers': 'trackingMkFitCommon,trackingMkFitInitialStep'
+}
+
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

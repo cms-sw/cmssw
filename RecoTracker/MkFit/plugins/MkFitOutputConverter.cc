@@ -12,6 +12,7 @@
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -81,6 +82,7 @@ private:
                                              const MagneticField& mf,
                                              const Propagator& propagatorAlong,
                                              const Propagator& propagatorOpposite,
+                                             const MkFitGeometry& mkFitGeom,
                                              const TkClonerImpl& hitCloner,
                                              const std::vector<const DetLayer*>& detLayers,
                                              const mkfit::TrackVec& mkFitSeeds,
@@ -243,6 +245,7 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
                                    iSetup.getData(mfToken_),
                                    iSetup.getData(propagatorAlongToken_),
                                    iSetup.getData(propagatorOppositeToken_),
+                                   iSetup.getData(mkFitGeomToken_),
                                    tkBuilder->cloner(),
                                    mkFitGeom.detLayers(),
                                    mkfitSeeds.seeds(),
@@ -262,6 +265,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                                                  const MagneticField& mf,
                                                                  const Propagator& propagatorAlong,
                                                                  const Propagator& propagatorOpposite,
+                                                                 const MkFitGeometry& mkFitGeom,
                                                                  const TkClonerImpl& hitCloner,
                                                                  const std::vector<const DetLayer*>& detLayers,
                                                                  const mkfit::TrackVec& mkFitSeeds,
@@ -370,14 +374,18 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         auto const& hits = isPixel ? pixelClusterIndexToHit.hits() : stripClusterIndexToHit.hits();
 
         auto const& thit = static_cast<BaseTrackerRecHit const&>(*hits[hitOnTrack.index]);
-        if (thit.firstClusterRef().isPixel() || thit.detUnit()->type().isEndcap()) {
-          recHits.push_back(hits[hitOnTrack.index]->clone());
+        if (mkFitGeom.isPhase1()) {
+          if (thit.firstClusterRef().isPixel() || thit.detUnit()->type().isEndcap()) {
+            recHits.push_back(hits[hitOnTrack.index]->clone());
+          } else {
+            recHits.push_back(std::make_unique<SiStripRecHit1D>(
+                thit.localPosition(),
+                LocalError(thit.localPositionError().xx(), 0.f, std::numeric_limits<float>::max()),
+                *thit.det(),
+                thit.firstClusterRef()));
+          }
         } else {
-          recHits.push_back(std::make_unique<SiStripRecHit1D>(
-              thit.localPosition(),
-              LocalError(thit.localPositionError().xx(), 0.f, std::numeric_limits<float>::max()),
-              *thit.det(),
-              thit.firstClusterRef()));
+          recHits.push_back(hits[hitOnTrack.index]->clone());
         }
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "

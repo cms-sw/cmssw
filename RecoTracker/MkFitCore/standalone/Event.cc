@@ -870,9 +870,7 @@ namespace mkfit {
     currentSeedSimFromHits_.clear();
   }
 
-  const Track &Event::currentSeed(int i) const {
-    return (*currentSeedTracks_)[i];
-  }
+  const Track &Event::currentSeed(int i) const { return (*currentSeedTracks_)[i]; }
 
   Event::SimLabelFromHits Event::simLabelForCurrentSeed(int i) const {
     assert(currentSeedTracks_ != nullptr);

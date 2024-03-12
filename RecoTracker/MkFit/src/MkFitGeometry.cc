@@ -62,3 +62,7 @@ int MkFitGeometry::mkFitLayerNumber(DetId detId) const {
   return lnc_->convertLayerNumber(
       detId.subdetId(), ttopo_->layer(detId), false, ttopo_->isStereo(detId), isPlusSide(*ttopo_, detId));
 }
+
+bool MkFitGeometry::isPhase1() const { return lnc_->isPhase1(); }
+
+bool MkFitGeometry::isPhase2() const { return lnc_->isPhase2(); }

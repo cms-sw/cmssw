@@ -42,6 +42,6 @@ namespace mkfit {
     ssi.seed_idx = seed_idx;
     return ssi;
   }
-}
+}  // namespace mkfit
 
 #endif
