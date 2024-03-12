@@ -180,10 +180,8 @@ namespace Pythia8 {
 
         // find the resonance the radiator originates from
         int iRes = e[iRadBef].mother1();
-        int distance = 1;
         while (iRes > 0 && (abs(e[iRes].id()) != 6 && abs(e[iRes].id()) != 24)) {
           iRes = e[iRes].mother1();
-          distance++;
         }
         if (iRes == 0) {
           infoPtr->errorMsg(
