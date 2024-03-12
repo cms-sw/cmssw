@@ -5,3 +5,4 @@ from Validation.HGCalValidation.HGCalSimHitsClient_cfi import *
 hfnoseSimHitClient = hgcalSimHitClientEE.clone(
     DetectorName  = cms.string("HGCalHFNoseSensitive"))
 # foo bar baz
+# Ux1KxvP2PfdIq

@@ -8,3 +8,4 @@ pfChargeBJetTags = cms.EDProducer("JetTagProducer",
                              cms.InputTag("softPFElectronsTagInfos"))
 )
 # foo bar baz
+# MiN6RYzqG8PKY

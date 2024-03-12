@@ -31,3 +31,4 @@ hltEle5WPTightHcalIsoUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEta
     varTag = cms.InputTag("hltEgammaHcalPFClusterIsoUnseeded")
 )
 # foo bar baz
+# H1RbErw4TKh8a

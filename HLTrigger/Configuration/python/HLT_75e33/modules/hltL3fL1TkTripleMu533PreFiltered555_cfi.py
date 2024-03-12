@@ -15,3 +15,4 @@ hltL3fL1TkTripleMu533PreFiltered555 = cms.EDFilter("HLTMuonTrkL1TkMuFilter",
     saveTags = cms.bool(True)
 )
 # foo bar baz
+# v2vO5y8Ajl9ND

@@ -63,3 +63,4 @@ process.p1 = cms.Path(process.pAStd)
 
 process.e1 = cms.EndPath(process.myprint)
 # foo bar baz
+# b2HC1ScSWTnAH

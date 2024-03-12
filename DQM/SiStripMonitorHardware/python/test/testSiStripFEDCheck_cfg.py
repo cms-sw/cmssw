@@ -33,3 +33,4 @@ process.siStripFEDCheck.WriteDQMStore = True
 
 process.p = cms.Path( process.siStripFEDCheck )
 # foo bar baz
+# K5jtvCo8GUp0y

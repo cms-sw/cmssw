@@ -77,3 +77,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 #process.DQM.collectorHost = ''
 process.hcalHitValid.outputFile = 'valid_HE.root'
 # foo bar baz
+# nm9NSD6OvcwaY

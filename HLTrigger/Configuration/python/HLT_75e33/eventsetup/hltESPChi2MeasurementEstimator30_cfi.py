@@ -11,3 +11,4 @@ hltESPChi2MeasurementEstimator30 = cms.ESProducer("Chi2MeasurementEstimatorESPro
     nSigma = cms.double(3.0)
 )
 # foo bar baz
+# HIxK2YFgyl53k

@@ -6,3 +6,4 @@ hltFixedGridRhoProducerFastjetAllTau = cms.EDProducer( "FixedGridRhoProducerFast
     gridSpacing = cms.double( 0.55 )
 )
 # foo bar baz
+# W0YmeRHbfMJ9I

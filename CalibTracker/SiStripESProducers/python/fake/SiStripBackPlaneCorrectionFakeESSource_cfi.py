@@ -6,3 +6,4 @@ siStripBackPlaneCorrectionFakeESSource = cms.ESSource("SiStripBackPlaneCorrectio
         BackPlaneCorrection_PerModuleGeometry = cms.vdouble(0.034, 0.034, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     )
 # foo bar baz
+# x6BUq7cLFsDpC

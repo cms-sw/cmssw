@@ -6,3 +6,4 @@ shallowTrackClusters = cms.EDProducer("ShallowTrackClustersProducer",
                                       Prefix=cms.string("tsos"),
                                       Suffix=cms.string(""))
 # foo bar baz
+# NcJXnIMdGxUHS

@@ -6,3 +6,4 @@ hgcalRecHitClientEE = DQMEDHarvester("HGCalRecHitsClient",
                                      Verbosity     = cms.untracked.int32(0)
                                      )
 # foo bar baz
+# UFHN6Qknr70zN

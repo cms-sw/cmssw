@@ -10,3 +10,4 @@ class VIDPhotonSelector(VIDSelectorBase):
         VIDSelectorBase.__init__(self,builder,ptrmaker,pythonpset)
         
 # foo bar baz
+# U8nyBEG558WsZ

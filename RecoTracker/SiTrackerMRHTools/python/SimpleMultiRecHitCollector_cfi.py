@@ -12,3 +12,4 @@ simpleMultiRecHitCollector = cms.ESProducer("MultiRecHitCollectorESProducer",
 
 
 # foo bar baz
+# 9VqB5IbsuqB1B

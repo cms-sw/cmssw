@@ -13,3 +13,4 @@ consumer = cms.EDFilter("GlobalEvFOutputModule",
     max_event_size = cms.untracked.int32(25000000) ##@@ 440 FEDs @ 50kB each = 22 MB
 )
 # foo bar baz
+# KNKcYIEX5GZ7C

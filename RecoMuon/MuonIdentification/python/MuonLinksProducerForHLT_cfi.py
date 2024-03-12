@@ -8,3 +8,4 @@ hltMuonLinks = cms.EDProducer("MuonLinksProducerForHLT",
                               shareHitFraction = cms.double(0.80)
                               )
 # foo bar baz
+# 6LTQ1lMJ85uJo

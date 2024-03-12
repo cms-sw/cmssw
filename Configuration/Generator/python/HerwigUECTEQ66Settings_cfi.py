@@ -12,3 +12,4 @@ herwigUESettingsBlock = cms.PSet(
             'MAXER      = 1000000    ! max error')
 )
 # foo bar baz
+# gh4HCi62ZVq26

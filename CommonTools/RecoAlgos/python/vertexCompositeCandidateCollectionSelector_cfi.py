@@ -12,3 +12,4 @@ vertexCompositeCandidateCollectionSelector = VertexCompositeCandidateCollectionS
     #debug         = cms.untracked.bool(False)
 )
 # foo bar baz
+# 92nb2hrMpQ7I1

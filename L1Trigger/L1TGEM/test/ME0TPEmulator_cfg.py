@@ -55,3 +55,4 @@ process.output = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.me0TriggerConvertedPseudoDigis)
 process.out = cms.EndPath(process.output)
 # foo bar baz
+# dTpLnxG0qixeC

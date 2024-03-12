@@ -51,3 +51,4 @@ process.c = cms.EDProducer("NonEventIntProducer",
 process.t = cms.Task(process.d, process.c)
 process.p = cms.Path(process.b, process.t)
 # foo bar baz
+# 5WPIp3oNt60mN

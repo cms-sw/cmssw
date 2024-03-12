@@ -12,3 +12,4 @@ herwig7LHEPowhegSettingsBlock = cms.PSet(
     )
 )
 # foo bar baz
+# bqFQ8EUsVey4Z

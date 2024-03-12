@@ -25,3 +25,4 @@ hltPhase2L3MuonHighPtTripletStepTrajectoryFilterBase = cms.PSet(
     strictSeedExtension = cms.bool(False)
 )
 # foo bar baz
+# 8pM1ndXA6Mmnz

@@ -10,3 +10,4 @@ PixelTripletNoTipGenerator = cms.PSet(
   chi2Cut = cms.double(25.)
 )
 # foo bar baz
+# nfy2I295umvyY

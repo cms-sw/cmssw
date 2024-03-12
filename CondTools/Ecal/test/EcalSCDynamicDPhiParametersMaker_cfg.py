@@ -29,3 +29,4 @@ process.ecalSCDynamicDPhiParamsMaker = cms.EDAnalyzer("EcalSCDynamicDPhiParamete
 process.path = cms.Path(process.ecalSCDynamicDPhiParamsMaker)
 
 # foo bar baz
+# xOzrvZblmPPEM

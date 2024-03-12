@@ -6,3 +6,4 @@ l1tMHTPFProducer = cms.EDProducer("L1MhtPfProducer",
                                  maxJetEta = cms.double(2.4)
 )
 # foo bar baz
+# 6HhwMwKsiLiCM

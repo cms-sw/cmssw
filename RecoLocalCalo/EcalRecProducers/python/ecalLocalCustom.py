@@ -15,3 +15,4 @@ def configureEcalLocalNoOOTPU(process):
     process.ecalMultiFitUncalibRecHitCPU.useLumiInfoRunHeader = False
     return process
 # foo bar baz
+# dZ4vhkhdXma7b

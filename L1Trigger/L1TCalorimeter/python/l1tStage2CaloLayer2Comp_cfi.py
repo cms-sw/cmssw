@@ -16,3 +16,4 @@ l1tStage2CaloLayer2Comp = cms.EDProducer(
     calol2CaloTowerCollectionEmul  = cms.InputTag("simCaloStage2Digis", "MP"),
 )
 # foo bar baz
+# fwtpPHTwKGhp1

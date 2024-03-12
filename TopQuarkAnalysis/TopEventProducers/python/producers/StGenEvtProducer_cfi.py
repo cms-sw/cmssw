@@ -9,3 +9,4 @@ genEvtSingleTop = cms.EDProducer("StGenEventReco",
     init = cms.InputTag("initSubset")
 )
 # foo bar baz
+# SnjRsUh77eSnH

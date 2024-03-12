@@ -20,3 +20,4 @@ RPCRecHitsFilter = cms.EDFilter("RPCRecHitFilter",
                                 CosmicsVeto = cms.untracked.bool(False)
                                 )
 # foo bar baz
+# hNRzqMlJHPaYV

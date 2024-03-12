@@ -213,3 +213,4 @@ process = customise(process)
 #--------------------------
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 # foo bar baz
+# mvYf5zrdXnjgt

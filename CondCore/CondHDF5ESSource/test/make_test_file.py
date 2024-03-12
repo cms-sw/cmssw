@@ -28,3 +28,4 @@ with h5py.File('test.h5', 'w') as h5file:
     SyncGroup = h5file.create_group("SyncGroup")
     sDS = SyncGroup.create_dataset("sync", data=first_np)
 # foo bar baz
+# goAilBRrb9hvv

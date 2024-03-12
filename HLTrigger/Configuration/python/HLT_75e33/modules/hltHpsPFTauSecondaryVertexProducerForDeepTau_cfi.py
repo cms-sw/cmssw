@@ -4,3 +4,4 @@ hltHpsPFTauSecondaryVertexProducerForDeepTau = cms.EDProducer( "PFTauSecondaryVe
     PFTauTag = cms.InputTag( "hltHpsPFTauProducer" )
 )
 # foo bar baz
+# 2FbrmfW86SR7t

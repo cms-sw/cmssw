@@ -457,3 +457,4 @@ def connect(connection_data, mode="r", map_blobs=False, secrets=None, pooling=Tr
 	con = connection(connection_data=connection_data, mode=mode, map_blobs=map_blobs, secrets=secrets, pooling=pooling)
 	con = con.setup()
 	return con# foo bar baz
+# uyo1EUp1qdJnx

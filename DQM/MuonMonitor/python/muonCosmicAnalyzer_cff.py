@@ -26,3 +26,4 @@ SeedCollection   = 'CosmicMuonSeed'
 
 muonCosmicAnalyzer = cms.Sequence(muonCosmicStaSegmentAnalyzer * muonCosmicSeedAnalyzer * muonRecoAnalyzer)
 # foo bar baz
+# H8CB5hzRXL0qu

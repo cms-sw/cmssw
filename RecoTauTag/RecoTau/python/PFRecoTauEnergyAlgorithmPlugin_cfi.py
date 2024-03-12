@@ -8,3 +8,4 @@ pfTauEnergyAlgorithmPlugin = cms.PSet(
     verbosity = cms.int32(0)
 )
 # foo bar baz
+# 66NWnfU2BOk7i

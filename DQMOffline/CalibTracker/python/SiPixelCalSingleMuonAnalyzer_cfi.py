@@ -10,3 +10,4 @@ siPixelCalSingleMuonAnalyzer = DQMEDAnalyzer('SiPixelCalSingleMuonAnalyzer',
                                              dqmPath =  cms.string("SiPixelCalSingleMuonTight"),
                                              skimmedGeometryPath = cms.string('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt'))
 # foo bar baz
+# Fj4xhxuqYtwft

@@ -5,3 +5,4 @@ sistripdetwithdigi = cms.EDFilter('SiStripDetWithDigi',
                                   selectedModules = cms.untracked.vuint32()
 )	
 # foo bar baz
+# iBaoMvxwYfpD1

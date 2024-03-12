@@ -23,3 +23,4 @@ SiPixelLorentzAngleCalibration = cms.PSet(
     lorentzAngleLabel = cms.string("fromAlignment"),
     )
 # foo bar baz
+# fv6KKqLpPVQ5z

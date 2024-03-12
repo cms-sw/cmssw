@@ -20,3 +20,4 @@ ctppsDiamondRawToDigi = totemVFATRawToDigi.clone(
 # for Run 2 backward compatibility
 # empty list of fedIds means that the ids will be read from DataFormats/FEDRawData/interface/FEDNumbering.h
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsDiamondRawToDigi, fedIds = [] )# foo bar baz
+# TNRmeY7dN0cLI

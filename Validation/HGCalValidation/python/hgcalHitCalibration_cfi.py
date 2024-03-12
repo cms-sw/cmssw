@@ -6,3 +6,4 @@ hgcalHitCalibration = _hgcalHitCalibrationDefault.clone()
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(hgcalHitCalibration, caloParticles = "mixData:MergedCaloTruth")
 # foo bar baz
+# 62Q8MOlm0mlQD

@@ -87,3 +87,4 @@ process.prod = cms.EDAnalyzer("SiPhase2BadStripChannelBuilder",
 process.p = cms.Path(process.prod)
 #process.ep = cms.EndPath(process.print)
 # foo bar baz
+# W8dnaYF74jlFb

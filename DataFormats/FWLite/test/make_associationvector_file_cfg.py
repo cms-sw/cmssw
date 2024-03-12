@@ -18,3 +18,4 @@ process.t = cms.Task(process.vsimple, process.tester)
 
 process.o = cms.EndPath(process.out, process.t)
 # foo bar baz
+# 9HnYWaqiDsWM1

@@ -44,3 +44,4 @@ singlePfTauPt15QualitySeq = cms.Sequence(
     looseShrikingConePFTaus+thePFTauDiscByLeadTrkFinding+thePFTauDiscByIsolation+PFTausSelected+PFTauSkimmed
     )
 # foo bar baz
+# maJggIGxx4piO

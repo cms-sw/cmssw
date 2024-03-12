@@ -31,3 +31,4 @@ hltEle5WPTightGsfTrackIsoL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadrati
     varTag = cms.InputTag("hltEgammaEleGsfTrackIsoL1Seeded")
 )
 # foo bar baz
+# Rjr5yg3Utp36k

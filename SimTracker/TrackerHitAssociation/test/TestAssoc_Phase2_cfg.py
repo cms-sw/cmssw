@@ -127,3 +127,4 @@ process.validation_step = cms.Path(process.testassociator)
 
 process.schedule = cms.Schedule(process.rechits_step, process.validation_step)
 # foo bar baz
+# pBPAnSY6pBhbQ

@@ -7,3 +7,4 @@ softKiller = cms.EDProducer("SoftKillerProducer",
                        rParam = cms.double( 0.4 )
 )
 # foo bar baz
+# bwgvMic2UFh3g

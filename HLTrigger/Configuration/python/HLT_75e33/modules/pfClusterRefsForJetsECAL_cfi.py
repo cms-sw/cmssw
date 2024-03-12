@@ -5,3 +5,4 @@ pfClusterRefsForJetsECAL = cms.EDProducer("PFClusterRefCandidateProducer",
     src = cms.InputTag("particleFlowClusterECAL")
 )
 # foo bar baz
+# 8YRIhakeMyUSg

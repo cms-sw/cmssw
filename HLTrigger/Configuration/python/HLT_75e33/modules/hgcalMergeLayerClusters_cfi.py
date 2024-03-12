@@ -10,3 +10,4 @@ hgcalMergeLayerClusters = cms.EDProducer('MergeClusterProducer',
   timeClname = cms.string('timeLayerCluster'),
   mightGet = cms.optional.untracked.vstring
 )# foo bar baz
+# eLhVhX9EMOfQZ

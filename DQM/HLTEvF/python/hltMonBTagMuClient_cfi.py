@@ -10,3 +10,4 @@ hltMonBTagMuClient = cms.EDAnalyzer('HLTMonBTagClient',
     outputFile              = cms.untracked.string('HLTMonBTag.root')
 )
 # foo bar baz
+# cjAoVcvsPx7wQ

@@ -35,3 +35,4 @@ BtagPerformanceESProducer_MISTAGTCHPT = cms.ESProducer("BtagPerformanceESProduce
     WorkingPointName = cms.string('BTagMISTAGTCHPTwp_v3_offline')
 )
 # foo bar baz
+# 27eZ4jLjtZr3t

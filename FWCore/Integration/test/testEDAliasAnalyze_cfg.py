@@ -14,3 +14,4 @@ process.analyzer = cms.EDAnalyzer("IntTestAnalyzer",
 
 process.p = cms.Path(process.analyzer)
 # foo bar baz
+# VXTM7gJX3eUS3

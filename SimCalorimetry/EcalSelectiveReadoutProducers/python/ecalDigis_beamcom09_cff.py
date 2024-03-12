@@ -20,3 +20,4 @@ simEcalDigis.eeDccAdcToGeV = cms.double(0.06)
 simEcalDigis.srpEndcapLowInterestChannelZS = cms.double(3.75*0.06)
 
 # foo bar baz
+# b4kE41FnS5KYj

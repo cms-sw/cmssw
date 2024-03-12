@@ -23,3 +23,4 @@ generator = cms.EDFilter("Hydjet2GeneratorFilter",
                          fBfix 	= cms.double(0.), 	# Fixed impact parameter, fBfix (fm)
                      )
 # foo bar baz
+# cqLoXpItH6mQ4

@@ -11,3 +11,4 @@ from L1Trigger.TrackTrigger.ProducerSetup_cff import TrackTriggerSetup
 from SimTracker.TrackTriggerAssociation.StubAssociator_cfi import StubAssociator_params
 
 StubAssociator = cms.EDProducer('tt::StubAssociator', StubAssociator_params)# foo bar baz
+# w3d3dYueoEHG1

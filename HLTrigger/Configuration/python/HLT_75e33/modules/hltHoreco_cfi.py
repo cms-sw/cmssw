@@ -48,3 +48,4 @@ hltHoreco = cms.EDProducer("HcalHitReconstructor",
     useLeakCorrection = cms.bool(False)
 )
 # foo bar baz
+# RwtzeGrIqzQl3

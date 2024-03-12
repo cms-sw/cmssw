@@ -17,3 +17,4 @@ SiStripSpyDigiConverter = cms.EDProducer(
     ExpectedPositionOfFirstHeaderBit = cms.uint32(6)
     )
 # foo bar baz
+# B50dOsRVhIBsd

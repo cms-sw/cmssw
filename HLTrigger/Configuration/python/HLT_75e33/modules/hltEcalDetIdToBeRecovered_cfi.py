@@ -17,3 +17,4 @@ hltEcalDetIdToBeRecovered = cms.EDProducer("EcalDetIdToBeRecoveredProducer",
     integrityTTIdErrors = cms.InputTag("hltEcalDigis","EcalIntegrityTTIdErrors")
 )
 # foo bar baz
+# xTtXqcDoDjGki

@@ -31,3 +31,4 @@ hltDiEG3023IsoCaloIdHEUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEt
     varTag = cms.InputTag("hltEgammaHoverEUnseeded")
 )
 # foo bar baz
+# JnA6lS4LMz7zC

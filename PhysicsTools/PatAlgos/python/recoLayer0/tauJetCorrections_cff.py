@@ -33,3 +33,4 @@ patTauJetCorrections = cms.Sequence(patTauJetCorrFactors)
 
 
 # foo bar baz
+# s7EuKsaBHKAwc

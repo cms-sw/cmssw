@@ -6,3 +6,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     rootNodeName = cms.string('testMuon:TestMuon')
 )
 # foo bar baz
+# fag7xrBX90Dy8

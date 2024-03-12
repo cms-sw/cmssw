@@ -24,3 +24,4 @@ hltDiEle25CaloIdLPixelMatchL1SeededFilter = cms.EDFilter("HLTElectronPixelMatchF
     useS = cms.bool(False)
 )
 # foo bar baz
+# fP1A32zSQpCqe

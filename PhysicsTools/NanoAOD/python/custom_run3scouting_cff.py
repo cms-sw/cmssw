@@ -40,3 +40,4 @@ nanoSequenceMC = cms.Sequence(nanoSequenceCommon + cms.Sequence(cms.Task(genJetT
 def nanoAOD_customizeCommon(process):
     return process
 # foo bar baz
+# oOqT2mfhlxxwB

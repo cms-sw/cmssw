@@ -15,3 +15,4 @@ EERecHitGPUProd = cms.EDProducer('EERecHitGPU',
                                  rcorr          = cms.vdouble( HGCalRecHit.__dict__['thicknessCorrection'][0:3] ),
                                  weights        = HGCalRecHit.__dict__['layerWeights'] )
 # foo bar baz
+# sPdz0sHqTUkgq

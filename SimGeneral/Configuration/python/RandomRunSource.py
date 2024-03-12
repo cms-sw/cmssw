@@ -35,3 +35,4 @@ class RandomRunSource (cms.Source):
             self.firstRun = cms.untracked.uint32(runNumber)
         super(RandomRunSource,self).insertInto(parameterSet,myname)
 # foo bar baz
+# FOOQU2kEOtz4g

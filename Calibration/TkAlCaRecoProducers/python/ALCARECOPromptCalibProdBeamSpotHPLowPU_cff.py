@@ -14,3 +14,4 @@ seqALCARECOPromptCalibProdBeamSpotHPLowPU = cms.Sequence(ALCARECOTkAlMinBiasFilt
                                                          ALCARECOHltFilterForBSHP *
                                                          alcaBeamSpotProducerHPLowPU)
 # foo bar baz
+# GoVxwDNEv9i0y

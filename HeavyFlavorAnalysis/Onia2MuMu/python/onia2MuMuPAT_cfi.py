@@ -13,3 +13,4 @@ onia2MuMuPAT = cms.EDProducer('Onia2MuMuPAT',
   resolvePileUpAmbiguity = cms.bool(True)   ## Order PVs by their vicinity to the J/psi vertex, not by sumPt                            
 )
 # foo bar baz
+# r5lv0OiBqH9Cy

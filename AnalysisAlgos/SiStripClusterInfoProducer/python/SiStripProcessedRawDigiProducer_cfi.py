@@ -11,3 +11,4 @@ siStripProcessedRawDigis = cms.EDProducer("SiStripProcessedRawDigiProducer",
                                           #CutToAvoidSignal = cms.double(3.0), ##This is just for CMNSub...Mode TT6
                                           )
 # foo bar baz
+# OMvQzkwJjOelO

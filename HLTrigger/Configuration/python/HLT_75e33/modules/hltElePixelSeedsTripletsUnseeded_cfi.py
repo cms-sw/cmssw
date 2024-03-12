@@ -14,3 +14,4 @@ hltElePixelSeedsTripletsUnseeded = cms.EDProducer("SeedCreatorFromRegionConsecut
     seedingHitSets = cms.InputTag("hltElePixelHitTripletsUnseeded")
 )
 # foo bar baz
+# GXFxd4KI9OqN9

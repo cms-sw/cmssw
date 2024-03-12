@@ -23,3 +23,4 @@ hltEle26WP70PMS2UnseededFilter = cms.EDFilter("HLTEgammaGenericFilter",
     varTag = cms.InputTag("hltEgammaPixelMatchVarsUnseeded","s2")
 )
 # foo bar baz
+# 6fHFjcHExlc0x

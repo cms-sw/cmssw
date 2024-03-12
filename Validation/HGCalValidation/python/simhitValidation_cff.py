@@ -11,3 +11,4 @@ hgcalSimHitValidationHEB = hgcalSimHitValidationEE.clone(
     CaloHitSource = cms.string("HGCHitsHEback"),
 )
 # foo bar baz
+# zdSbPLOFBGgQZ

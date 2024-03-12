@@ -111,3 +111,4 @@ process.FastSiPixelFEDChannelContainerFromQuality.output   = "summary_StuckTBM_t
 
 process.p = cms.Path(process.FastSiPixelFEDChannelContainerFromQuality)
 # foo bar baz
+# I2NSzP778c4gW

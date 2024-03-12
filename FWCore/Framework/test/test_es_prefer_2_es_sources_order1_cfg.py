@@ -27,3 +27,4 @@ process.bad = cms.ESSource("EmptyESSource",
 process.prefer("good")
 process.p1 = cms.Path(process.m)
 # foo bar baz
+# HkXz3s3MBeghx

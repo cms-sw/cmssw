@@ -23,3 +23,4 @@ hltEle32WPTightClusterShapeSigmawwUnseededFilter = cms.EDFilter("HLTEgammaGeneri
     varTag = cms.InputTag("hltEgammaHGCALIDVarsUnseeded","sigma2ww")
 )
 # foo bar baz
+# lIn7WT9Xp5QCt

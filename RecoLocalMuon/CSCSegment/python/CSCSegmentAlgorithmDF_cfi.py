@@ -69,3 +69,4 @@ CSCSegAlgoDF = cms.PSet(
 )
 
 # foo bar baz
+# B7KGJM8R9sN4N

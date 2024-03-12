@@ -44,3 +44,4 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
 # Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorCUDA, "from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA import ProcessAcceleratorCUDA")
 # foo bar baz
+# McLXF897g21Qx

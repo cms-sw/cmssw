@@ -44,3 +44,4 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
 
 ProductionFilterSequence = cms.Sequence(externalLHEProducer*generator)
 # foo bar baz
+# wlN8zT4Oa4OSm

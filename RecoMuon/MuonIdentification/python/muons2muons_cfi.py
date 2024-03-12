@@ -66,3 +66,4 @@ muons = cms.EDProducer("MuonProducer",
                        CosmicIdMap = cms.InputTag("muons","cosmicsVeto")
                        )
 # foo bar baz
+# 9Wn5gWwfA9HXj

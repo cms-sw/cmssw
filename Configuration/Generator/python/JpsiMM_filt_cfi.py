@@ -10,3 +10,4 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 # foo bar baz
+# r57WB0a3cI57O

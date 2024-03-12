@@ -9,3 +9,4 @@ metFiltersMiniAOD =cms.EDFilter(
 , HLTPaths           = cms.vstring( 'Flag_METFilters' )
 )
 # foo bar baz
+# z1yoJHWw1V6sB

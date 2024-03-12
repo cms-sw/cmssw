@@ -11,3 +11,4 @@ _EcalBarrelGeometryEP_dd4hep = cms.ESProducer("EcalBarrelGeometryEPdd4hep",
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toReplaceWith(EcalBarrelGeometryEP, _EcalBarrelGeometryEP_dd4hep)
 # foo bar baz
+# x0EIGESStp3Im

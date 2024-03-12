@@ -6,3 +6,4 @@ from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 patJetCorrectionsTask = cms.Task(patJetCorrFactors)
 patJetCorrections = cms.Sequence(patJetCorrectionsTask)
 # foo bar baz
+# HjykCPlqU6geX

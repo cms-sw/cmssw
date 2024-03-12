@@ -28,3 +28,4 @@ sipixelcalib_essource.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/con
 sipixelcalib_essource.DBParameters.messageLevel = 0
 
 # foo bar baz
+# 5SZmEOrZLqanp

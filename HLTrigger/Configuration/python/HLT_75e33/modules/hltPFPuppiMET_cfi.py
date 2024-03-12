@@ -8,3 +8,4 @@ hltPFPuppiMET = cms.EDProducer("PFMETProducer",
     srcWeights = cms.InputTag("hltPFPuppiNoLep")
 )
 # foo bar baz
+# Pr7ZkrYMzSVUK

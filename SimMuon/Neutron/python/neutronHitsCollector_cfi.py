@@ -6,3 +6,4 @@ g4SimHits = cms.EDProducer("NeutronHitsCollector",
     neutronLabelDT = cms.untracked.string('dtNeutronWriter')
 )
 # foo bar baz
+# HQpiwV1VezTAn

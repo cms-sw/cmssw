@@ -6,3 +6,4 @@ hiBasicGenTest = DQMEDAnalyzer('HiBasicGenTest',
                                 outputFile = cms.string('')
 )
 # foo bar baz
+# CBgkaI9YNFYAd

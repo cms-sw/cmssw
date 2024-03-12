@@ -18,3 +18,4 @@ TauSpinnerGen = cms.EDProducer( "TauSpinnerCMS",
                                 gensrc = cms.InputTag('generatorSmeared'),
                                 )
 # foo bar baz
+# iGM1MsZd6iW96

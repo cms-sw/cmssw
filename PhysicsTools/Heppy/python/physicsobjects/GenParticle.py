@@ -17,3 +17,4 @@ setattr(ROOT.reco.GenParticle,"__str__",printGenParticle)
 #from ROOT.reco import GenParticle   # sometimes doesn't work
 GenParticle = ROOT.reco.GenParticle  # this instead does
 # foo bar baz
+# naJTcNLGgnvbQ

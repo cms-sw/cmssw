@@ -5,3 +5,4 @@ hltCandViewSelector = cms.EDFilter("CandViewSelector",
    cut = cms.string( "pt()>-1" )
 )
 # foo bar baz
+# TmQR0XcP5ZQSs

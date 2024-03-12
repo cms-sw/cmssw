@@ -94,3 +94,4 @@ def loadXML(xml,eventType,source):
         node = (fname.childNodes)[0] #childNodes should be a one element array
         source.fileNames.append(str(node.nodeValue).replace('\n','').replace('\t',''))
 # foo bar baz
+# EUjko246TmXYP

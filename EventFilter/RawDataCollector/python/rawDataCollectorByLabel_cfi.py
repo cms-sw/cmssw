@@ -12,3 +12,4 @@ rawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("l1tDigiToRaw")) )
 # foo bar baz
+# 4fmrWcAN1dlmN

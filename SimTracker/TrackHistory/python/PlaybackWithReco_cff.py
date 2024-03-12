@@ -26,3 +26,4 @@ trackingTruth = cms.Sequence(mix * doAllDigi * trackingParticles)
 playback = cms.Sequence(RawToDigi * trackingTruth * reconstruction)
 
 # foo bar baz
+# vvaJXkIEfVY4E

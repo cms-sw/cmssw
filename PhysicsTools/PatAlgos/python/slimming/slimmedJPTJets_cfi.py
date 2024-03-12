@@ -6,3 +6,4 @@ slimmedJPTJets = cms.EDProducer("JPTJetSlimmer",
     cut = cms.string("pt>25 && abs(eta) < 2.2")
 )
 # foo bar baz
+# GsN9TF957Nr5p

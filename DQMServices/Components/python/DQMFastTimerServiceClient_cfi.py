@@ -5,3 +5,4 @@ import HLTrigger.Timer.fastTimerServiceClient_cfi as __fastTimerServiceClient_cf
 dqmFastTimerServiceClient = __fastTimerServiceClient_cfi.fastTimerServiceClient.clone()
 dqmFastTimerServiceClient.dqmPath = cms.untracked.string( "DQM/TimerService" )
 # foo bar baz
+# j8yuXr6eBAaCy

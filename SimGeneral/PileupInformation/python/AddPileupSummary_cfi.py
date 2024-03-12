@@ -28,3 +28,4 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import addPileupInfo as _addPileupInfoPreMixed
 premix_stage2.toReplaceWith(addPileupInfo, _addPileupInfoPreMixed)
 # foo bar baz
+# 8TWkwxYtDQ6uA

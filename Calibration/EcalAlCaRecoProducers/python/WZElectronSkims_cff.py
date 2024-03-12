@@ -276,3 +276,4 @@ checkMCWSeq = cms.Sequence(genEleFromW * genNuFromW * combW * WFilterMC) #sequen
 
 #FilterMuSeq = cms.Sequence(muSelSeq * (ZeeSelector + WenuSelector + EleSCSelector) * WZSelector)
 # foo bar baz
+# 6IGn8iTM9ddCm

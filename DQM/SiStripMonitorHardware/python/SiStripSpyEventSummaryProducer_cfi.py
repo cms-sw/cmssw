@@ -5,3 +5,4 @@ SiStripSpyEventSummary = cms.EDProducer('SiStripSpyEventSummaryProducer',
   RunType = cms.uint32(2) #Pedestals, see DataFormats/SiStripCommon/interface/ConstantsForRunType.h
 )
 # foo bar baz
+# 4KET642rrQ1XQ

@@ -15,3 +15,4 @@ HLTMuonVal = cms.Sequence(
     #+ relvalMuonBits
     )
 # foo bar baz
+# dQCjTJnuSrAJT

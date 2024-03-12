@@ -14,3 +14,4 @@ def pipe(cmdline, input = None):
   (out, err) = command.communicate(input)
   return out
 # foo bar baz
+# skO2AJLp5cr6n

@@ -31,3 +31,4 @@ hltPhoton108EBTightIDTightIsoEcalIsoUnseededFilter = cms.EDFilter("HLTEgammaGene
     varTag = cms.InputTag("hltEgammaEcalPFClusterIsoUnseeded")
 )
 # foo bar baz
+# VQcTlbCV4KZhe

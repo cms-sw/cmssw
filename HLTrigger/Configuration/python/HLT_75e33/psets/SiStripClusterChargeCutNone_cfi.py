@@ -4,3 +4,4 @@ SiStripClusterChargeCutNone = cms.PSet(
     value = cms.double(-1.0)
 )
 # foo bar baz
+# cOo5WhTDpx3yu

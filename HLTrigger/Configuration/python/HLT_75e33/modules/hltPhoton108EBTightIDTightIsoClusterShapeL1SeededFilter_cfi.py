@@ -23,3 +23,4 @@ hltPhoton108EBTightIDTightIsoClusterShapeL1SeededFilter = cms.EDFilter("HLTEgamm
     varTag = cms.InputTag("hltEgammaClusterShapeL1Seeded","sigmaIEtaIEta5x5")
 )
 # foo bar baz
+# eqUhtczyCXTRz

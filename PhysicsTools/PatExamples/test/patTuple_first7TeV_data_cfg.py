@@ -111,3 +111,4 @@ switchOnTrigger( process )
 process.patTrigger.addL1Algos = cms.bool( True )
 
 # foo bar baz
+# fMDnA6z5czVqB

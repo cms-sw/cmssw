@@ -98,3 +98,4 @@ process.ecalSelectiveReadoutValidation.histograms = [
     "zsEeLiFIRemu", #Emulated ouput of ZS FIR filter for EE low interest crystals;ADC count*4;Event count
     ]
 # foo bar baz
+# kAMNnJDudgosh

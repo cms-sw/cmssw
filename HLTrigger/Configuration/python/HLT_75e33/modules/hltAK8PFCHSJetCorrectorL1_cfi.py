@@ -6,3 +6,4 @@ hltAK8PFCHSJetCorrectorL1 = cms.EDProducer("L1FastjetCorrectorProducer",
     srcRho = cms.InputTag("fixedGridRhoFastjetAllTmp")
 )
 # foo bar baz
+# aO7sSgG3YnVot

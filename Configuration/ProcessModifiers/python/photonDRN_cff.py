@@ -8,3 +8,4 @@ _photonDRN = cms.Modifier()
 #requires also having enableSonicTriton
 photonDRN = cms.ModifierChain(_photonDRN, enableSonicTriton)
 # foo bar baz
+# NyrcIdwtpi8JB

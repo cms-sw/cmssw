@@ -12,3 +12,4 @@ hltIter2Phase2L3FromL1TkMuonClustersRefRemoval = cms.EDProducer("TrackClusterRem
     trajectories = cms.InputTag("hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity")
 )
 # foo bar baz
+# StIXHJJM02thQ

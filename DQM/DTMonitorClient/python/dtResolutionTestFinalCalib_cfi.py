@@ -10,3 +10,4 @@ resolutionTest = DQMEDHarvester("DTResolutionAnalysisTest",
                                  doCalibAnalysis = cms.untracked.bool(True)
                                 )
 # foo bar baz
+# JsMh5ZV3QvXCu

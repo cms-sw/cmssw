@@ -48,3 +48,4 @@ process.path = cms.Path(process.consumer, process.task)
 # The content of the summary is tested by testGenericConsumer.sh
 process.options.wantSummary = True
 # foo bar baz
+# iz5kPYRB63kUf

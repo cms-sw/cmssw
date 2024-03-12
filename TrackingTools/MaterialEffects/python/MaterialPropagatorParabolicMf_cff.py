@@ -12,3 +12,4 @@ OppositeMaterialPropagatorParabolicMF = OppositeMaterialPropagator.clone(
     ComponentName       = 'PropagatorWithMaterialParabolicMfOpposite'
 )
 # foo bar baz
+# 2F3MdegPWFifx

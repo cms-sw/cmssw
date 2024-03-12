@@ -25,3 +25,4 @@ from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGeneric')
 PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplateWithoutProbQ, PixelCPE = 'PixelCPEGeneric')
 # foo bar baz
+# bN731omGpiJ1H

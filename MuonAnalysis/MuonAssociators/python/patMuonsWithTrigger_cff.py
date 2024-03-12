@@ -264,3 +264,4 @@ def appendL1MatchingAlgo(process, algo = "quality"):
         process.patMuonsWithTriggerSequence.replace(process.muonL1Info, process.muonL1Info + getattr(process, 'muonL1Info' + algo.title()))
         addL1UserData(patMuonsWithoutTrigger, "muonL1Info" + algo.title())
 # foo bar baz
+# EKxRoMzvmZncO

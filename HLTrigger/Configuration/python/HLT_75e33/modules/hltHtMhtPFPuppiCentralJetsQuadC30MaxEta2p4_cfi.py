@@ -13,3 +13,4 @@ hltHtMhtPFPuppiCentralJetsQuadC30MaxEta2p4 = cms.EDProducer("HLTHtMhtProducer",
     usePt = cms.bool(True)
 )
 # foo bar baz
+# WOmR82XbTwmU9

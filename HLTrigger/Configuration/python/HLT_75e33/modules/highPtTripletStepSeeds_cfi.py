@@ -15,3 +15,4 @@ highPtTripletStepSeeds = cms.EDProducer("SeedCreatorFromRegionConsecutiveHitsEDP
     seedingHitSets = cms.InputTag("highPtTripletStepHitTriplets")
 )
 # foo bar baz
+# BnGWKqLYj5i0Q

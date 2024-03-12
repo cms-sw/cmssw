@@ -31,3 +31,4 @@ process.rivetAnalyzer.useLHEweights = True
 
 process.p = cms.Path(process.mergedGenParticles*process.genParticles2HepMC*process.rivetAnalyzer)
 # foo bar baz
+# Q3DrMn7oZTRdK

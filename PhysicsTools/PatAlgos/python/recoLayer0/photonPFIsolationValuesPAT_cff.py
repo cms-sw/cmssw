@@ -48,3 +48,4 @@ photonPFIsolationValuesPATTask = cms.Task(
 
 photonPFIsolationValuesPATSequence = cms.Sequence(photonPFIsolationValuesPATTask)
 # foo bar baz
+# tTtGg7dh0C5c3

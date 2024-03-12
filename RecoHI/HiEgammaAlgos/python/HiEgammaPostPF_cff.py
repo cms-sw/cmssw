@@ -15,3 +15,4 @@ hfRecoEcalCandidate.VertexCollection = "hiSelectedVertex"
 egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIdsTask,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
 egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 # foo bar baz
+# 1SMUQ72J57n2C

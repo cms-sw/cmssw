@@ -5,3 +5,4 @@ pfNegativeSimpleInclusiveSecondaryVertexHighPurBJetTags = cms.EDProducer("JetTag
 	tagInfos = cms.VInputTag(cms.InputTag("pfInclusiveSecondaryVertexFinderNegativeTagInfos"))
 )
 # foo bar baz
+# KMrOmMCVOGePM

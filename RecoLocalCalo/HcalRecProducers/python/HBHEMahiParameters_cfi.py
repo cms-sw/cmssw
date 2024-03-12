@@ -21,3 +21,4 @@ from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 #--- >= Run3 modification:
 (run3_HB & run2_HE_2017).toModify(mahiParameters, chiSqSwitch = -1)
 # foo bar baz
+# LD9oNh8Sc7L88

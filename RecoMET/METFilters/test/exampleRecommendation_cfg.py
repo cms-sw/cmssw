@@ -67,3 +67,4 @@ process.filtersSeq = cms.Sequence(
    ~process.manystripclustersFilter * ~process.toomanystripclustersFilter * ~process.logErrorTooManyClusters
 )
 # foo bar baz
+# swFS6eJm47vi3

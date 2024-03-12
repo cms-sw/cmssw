@@ -168,3 +168,4 @@ alpaka.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
                         # Convert hit soa on host to legacy formats
                         siPixelRecHitsPreSplitting))
 # foo bar baz
+# 1g6kLpVMudMMs

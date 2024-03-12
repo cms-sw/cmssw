@@ -50,3 +50,4 @@ configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('ZmumuJets pt hat 20-300')
 )
 # foo bar baz
+# kdWbPmuYW1Zcj

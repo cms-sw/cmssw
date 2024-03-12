@@ -37,3 +37,4 @@ process.p1 = cms.Path(process.TauSpinnerReco )
 process.schedule = cms.Schedule(process.p1)
 process.schedule.append(process.out_step)
 # foo bar baz
+# l9PA8W7Bqg7HC

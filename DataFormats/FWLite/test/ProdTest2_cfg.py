@@ -26,3 +26,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.Thing)
 process.outp = cms.EndPath(process.out)
 # foo bar baz
+# vXHFiHg9grLNn

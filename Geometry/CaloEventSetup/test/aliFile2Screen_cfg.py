@@ -42,3 +42,4 @@ process.CaloAlignmentRcdRead = cms.EDAnalyzer("CaloAlignmentRcdRead")
 
 process.p = cms.Path(process.CaloAlignmentRcdRead)
 # foo bar baz
+# J66MHl1IiOFhI

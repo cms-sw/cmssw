@@ -38,3 +38,4 @@ hltHpsPFTauProducerSansRefs = cms.EDProducer( "RecoTauCleaner",
     src = cms.InputTag( "hltHpsCombinatoricRecoTaus" )
 )
 # foo bar baz
+# AbeDllLUm4jTR

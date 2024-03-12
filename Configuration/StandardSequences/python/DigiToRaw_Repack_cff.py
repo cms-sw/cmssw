@@ -92,3 +92,4 @@ BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
 DigiToApproxClusterRawTask = cms.Task(hltSiStripRawToDigi,siStripZeroSuppressionHLT,hltScalersRawToDigi,hltBeamSpotProducer,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)
 # foo bar baz
+# nK3YEKbyu1gSv

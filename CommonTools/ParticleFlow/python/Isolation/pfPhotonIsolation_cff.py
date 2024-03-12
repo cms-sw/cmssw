@@ -8,3 +8,4 @@ pfPhotonIsolationTask = cms.Task(
     photonPFIsolationValuesTask
     )
 # foo bar baz
+# KwjPN3oSjx12Z

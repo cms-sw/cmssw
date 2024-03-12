@@ -15,3 +15,4 @@ gpuValidationEcal.toModify(ecalMonitorTask, workerParameters = dict(GpuTask = ec
 from Configuration.ProcessModifiers.gpu_cff import gpu
 gpu.toModify(ecalMonitorTask.skipCollections, func = lambda skipCollections: skipCollections.append("EcalRawData"))
 # foo bar baz
+# 8tYl35L0iBM1g

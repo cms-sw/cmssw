@@ -8,3 +8,4 @@ pu = fin.Get("pileup")
 pileup = map( pu.GetBinContent, range(1,pu.GetNbinsX()+1) )
 print(",".join(map(lambda x: "%1.3g"%x, pileup)))
 # foo bar baz
+# 9Py9MWF58h3fv

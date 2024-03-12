@@ -30,3 +30,4 @@ def addUserData(patMuonProducer, matcherLabel='muonL1MatchExtended', addExtraInf
              patMuonProducer.userData.userFloats.src += [  cms.InputTag(matcherLabel,L) ]
 
 # foo bar baz
+# lcXJpXHIr7If6

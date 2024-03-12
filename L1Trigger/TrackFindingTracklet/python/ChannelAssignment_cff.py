@@ -4,3 +4,4 @@ from L1Trigger.TrackFindingTracklet.ChannelAssignment_cfi import ChannelAssignme
 
 ChannelAssignment = cms.ESProducer("trklet::ProducerChannelAssignment", ChannelAssignment_params)
 # foo bar baz
+# AfxP9fClAsqW7

@@ -231,3 +231,4 @@ process.CondDB.connect = sqlitefilename
 process.CondDB.DBParameters.messageLevel = 0
 process.CondDB.DBParameters.authenticationPath = './'
 # foo bar baz
+# 3VDBsvgf2nkJm

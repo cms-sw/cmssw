@@ -14,3 +14,4 @@ hltIter2Phase2L3FromL1TkMuonPixelSeeds = cms.EDProducer("SeedCreatorFromRegionCo
     seedingHitSets = cms.InputTag("hltIter2Phase2L3FromL1TkMuonPixelHitTriplets")
 )
 # foo bar baz
+# 8TAa9qf1yfRpQ

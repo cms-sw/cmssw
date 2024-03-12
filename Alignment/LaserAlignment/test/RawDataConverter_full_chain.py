@@ -73,3 +73,4 @@ process.out = cms.OutputModule( "PoolOutputModule",
 # Run the full chain of LAS analysis
 process.p = cms.Path(process.LaserAlignmentEventFilter + process.siStripDigis + process.laserAlignmentT0Producer + process.RawDataConverter + process.out)
 # foo bar baz
+# uBSaNSPyQxu6o

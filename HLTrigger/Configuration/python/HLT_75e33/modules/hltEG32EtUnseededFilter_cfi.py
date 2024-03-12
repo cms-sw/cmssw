@@ -9,3 +9,4 @@ hltEG32EtUnseededFilter = cms.EDFilter("HLTEgammaEtFilter",
     saveTags = cms.bool(True)
 )
 # foo bar baz
+# 4O7XHWnDTz4Gc

@@ -6,3 +6,4 @@ vertexConstraint = cms.EDProducer(
     srcVtx = cms.InputTag("offlinePrimaryVertices")
 )
 # foo bar baz
+# 2Xzt2GnGtcL0s

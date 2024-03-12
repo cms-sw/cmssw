@@ -59,3 +59,4 @@ process.dtUnpackAndDQM = cms.Path( process.dtunpacker ) #has to be run in hlt pa
 process.evfDQMmodulesPath = cms.Path( process.dqmmodules ) 
 process.schedule = cms.Schedule(process.dtUnpackAndDQM,process.evfDQMmodulesPath)
 # foo bar baz
+# WmuYhGq5el5Px

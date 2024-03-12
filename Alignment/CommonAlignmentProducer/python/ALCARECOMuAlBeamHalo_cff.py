@@ -30,3 +30,4 @@ ALCARECOMuAlBeamHalo = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
 seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + ALCARECOMuAlBeamHaloDCSFilter + ALCARECOMuAlBeamHalo)
 
 # foo bar baz
+# yoXBr6hGNZKkW

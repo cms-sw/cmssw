@@ -9,3 +9,4 @@ from Validation.RecoMuon.muonValidation_cff import *
 
 muonSimValid = cms.Sequence(validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
 # foo bar baz
+# vYOoRaB6It0PA

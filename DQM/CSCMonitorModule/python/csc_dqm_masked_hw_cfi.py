@@ -42,3 +42,4 @@ CSCMaskedHW = cms.untracked.vstring(
   #'2,4,2,*,*,*,*',
 )
 # foo bar baz
+# 0spp9A5fHKWoE

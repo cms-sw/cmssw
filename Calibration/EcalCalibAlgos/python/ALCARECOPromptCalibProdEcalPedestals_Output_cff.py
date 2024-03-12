@@ -13,3 +13,4 @@ OutALCARECOPromptCalibProdEcalPedestals_noDrop = cms.PSet(
 OutALCARECOPromptCalibProdEcalPedestals = copy.deepcopy(OutALCARECOPromptCalibProdEcalPedestals_noDrop)
 OutALCARECOPromptCalibProdEcalPedestals.outputCommands.insert(0, "drop *")
 # foo bar baz
+# RbXKYDPCUjyLP

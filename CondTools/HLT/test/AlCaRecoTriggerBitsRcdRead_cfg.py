@@ -52,3 +52,4 @@ process.GlobalTag.globaltag = autoCond['run2_data'] #choose your tag
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdRead)
 # foo bar baz
+# 8JkDqa1aJM2mV

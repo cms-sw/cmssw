@@ -7,3 +7,4 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 Run2_HI = cms.ModifierChain(run2_common, run2_HI_specific, stage1L1Trigger)
 
 # foo bar baz
+# L3MVfND3N8j0C

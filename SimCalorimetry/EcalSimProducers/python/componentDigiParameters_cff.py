@@ -12,3 +12,4 @@ from Configuration.ProcessModifiers.ecal_component_cff import ecal_component
 from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
 (ecal_component | ecal_component_finely_sampled_waveforms).toModify(component_digi_parameters,componentSeparateDigi=True)
 # foo bar baz
+# oram6LvG0Sf1o

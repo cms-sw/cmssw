@@ -25,3 +25,4 @@ pixelPairStepTrajectoryFilterInOut = cms.PSet(
     strictSeedExtension = cms.bool(False)
 )
 # foo bar baz
+# MJZHtATTU9McV

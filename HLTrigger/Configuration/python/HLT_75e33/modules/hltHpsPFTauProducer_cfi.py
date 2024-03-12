@@ -4,3 +4,4 @@ hltHpsPFTauProducer = cms.EDProducer( "RecoTauPiZeroUnembedder",
     src = cms.InputTag( "hltHpsPFTauProducerSansRefs" )
 )
 # foo bar baz
+# fw8PrctSlWTTV

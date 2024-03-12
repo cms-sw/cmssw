@@ -19,3 +19,4 @@ hltElePixelHitTripletsL1Seeded = cms.EDProducer("CAHitTripletEDProducer",
     useBendingCorrection = cms.bool(True)
 )
 # foo bar baz
+# BZVYUeg8pSWw5

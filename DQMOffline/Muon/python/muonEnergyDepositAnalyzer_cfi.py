@@ -28,3 +28,4 @@ muonEnergyDepositAnalyzer = DQMEDAnalyzer('MuonEnergyDepositAnalyzer',
                                            hadSizeBin = cms.int32(200)
                                            )
 # foo bar baz
+# rK83OWkqpfJg6

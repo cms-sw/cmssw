@@ -16,3 +16,4 @@ dqmInfoES = DQMEDAnalyzer('DQMEventInfo',
 ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerFEDIntegrityTask*ecalPreshowerIntegrityTask*ecalPreshowerOccupancyTask*ecalPreshowerTimingTask)
 
 # foo bar baz
+# qXAQvHuZ6cRES

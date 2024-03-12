@@ -57,3 +57,4 @@ electronMVAValueMapProducer = cms.EDProducer('ElectronMVAValueMapProducer',
                                              mvaConfigurations = mvaConfigsForEleProducer
                                              )
 # foo bar baz
+# jbG9vhugqW5Ze

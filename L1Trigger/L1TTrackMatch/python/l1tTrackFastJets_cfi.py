@@ -12,3 +12,4 @@ l1tTrackFastJetsExtended = cms.EDProducer("L1TrackFastJetProducer",
     displaced = cms.bool(True)        # use prompt/displaced tracks
 )
 # foo bar baz
+# XTX8xzKTjrG7h

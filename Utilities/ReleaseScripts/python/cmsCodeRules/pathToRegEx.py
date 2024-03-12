@@ -18,3 +18,4 @@ def pathToRegEx(path):
     path = path.replace("*",".*")
     return path
 # foo bar baz
+# TP1Jc1aIyCCwA

@@ -47,3 +47,4 @@ AnalyzeBeamHalo = DQMEDAnalyzer('BeamHaloAnalyzer',
 #                                 folderName = cms.string("JetMET/BeamHalo/")
                                  )
 # foo bar baz
+# kLzdBkaRW7UVq

@@ -325,3 +325,4 @@ class result_type_tests(querying_tests):
 	def tearDown(self):
 		self.connection.tear_down()
 # foo bar baz
+# ywGGusmt51Qcu

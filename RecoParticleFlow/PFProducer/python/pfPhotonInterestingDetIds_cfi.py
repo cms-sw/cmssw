@@ -11,3 +11,4 @@ pfPhotonInterestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetI
     recHitsLabel       = "ecalRecHit:EcalRecHitsEE"
     )
 # foo bar baz
+# jGMDd1gyjwvMC

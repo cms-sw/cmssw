@@ -51,3 +51,4 @@ oniafilter = cms.EDFilter("PythiaFilter",
 
 ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter)
 # foo bar baz
+# 10IgbE1FNhmyK

@@ -8,3 +8,4 @@ SiStripSpyExtractRun = cms.EDProducer(
     OutputTextFile = cms.string('runNumber.txt')
     )
 # foo bar baz
+# 7QMi3lSmuL4kG

@@ -30,3 +30,4 @@ hltAK8PFJets = cms.EDProducer("FastjetJetProducer",
     voronoiRfact = cms.double(-0.9)
 )
 # foo bar baz
+# N7E6VY2nf7Gzt

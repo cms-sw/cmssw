@@ -3,3 +3,4 @@ print("MuonAnalysis.MuonAssociators.patMuonsWithTrigger_8E29_cff is deprecated.\
 
 from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import *
 # foo bar baz
+# qzyjYBnbmjr46

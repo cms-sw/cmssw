@@ -7,3 +7,4 @@ candidateSimpleSecondaryVertex2TrkComputer = cms.ESProducer("CandidateSimpleSeco
 	minTracks = cms.uint32(2)
 )
 # foo bar baz
+# RJTeG6Es73PR9

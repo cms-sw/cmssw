@@ -10,3 +10,4 @@ from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 CaloTriggerPrimitives = cms.Sequence(simEcalTriggerPrimitiveDigis*simHcalTriggerPrimitiveDigis)
 
 # foo bar baz
+# iK3ol4y6YGiHY

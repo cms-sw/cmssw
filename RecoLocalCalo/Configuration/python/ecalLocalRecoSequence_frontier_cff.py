@@ -10,3 +10,4 @@ from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 ecalLocalRecoSequence = cms.Sequence(cms.SequencePlaceholder("getEcalConditions_frontier")*ecalWeightUncalibRecHit*ecalRecHit*ecalPreshowerRecHit)
 
 # foo bar baz
+# OvpOYMHzHr4gK

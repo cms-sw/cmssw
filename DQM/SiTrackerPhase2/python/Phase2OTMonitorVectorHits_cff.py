@@ -9,3 +9,4 @@ rejectedVecHitsmon = Phase2OTMonitorVectorHits.clone(
     vechitsSrc = cms.InputTag('siPhase2VectorHits', 'rejected')
 )
 # foo bar baz
+# 0vnHGxGq0fC5J

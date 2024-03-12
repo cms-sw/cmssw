@@ -6,3 +6,4 @@ siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     src = cms.InputTag("siPixelClusters")
 )
 # foo bar baz
+# kJg5BaMLWbg8y

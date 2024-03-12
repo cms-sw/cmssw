@@ -29,3 +29,4 @@ horeco = cms.EDProducer("HcalHitReconstructor",
     useLeakCorrection = cms.bool(False)
 )
 # foo bar baz
+# Ze1RAwW1R7K4A

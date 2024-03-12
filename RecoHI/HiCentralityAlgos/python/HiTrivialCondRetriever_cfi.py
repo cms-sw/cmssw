@@ -5,3 +5,4 @@ HiTrivialConditionRetriever = cms.ESSource('HiTrivialConditionRetriever',
                                            verbose = cms.untracked.int32(1)
                                            )
 # foo bar baz
+# 4SDJ65CQMo4x6

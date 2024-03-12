@@ -8,3 +8,4 @@ ecalPreshowerRecHitAnalytic = cms.EDProducer("ESRecHitProducer",
                                         ESRecoAlgo = cms.int32(2)
                                         )
 # foo bar baz
+# hFJ4ZV3LLM9jw

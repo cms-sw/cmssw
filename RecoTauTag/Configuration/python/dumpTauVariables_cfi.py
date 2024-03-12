@@ -14,3 +14,4 @@ dumpTauVariables = cms.EDProducer(
     variables  = cms.VPSet()
     )
 # foo bar baz
+# Hbukcxc71hc7g

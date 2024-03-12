@@ -17,3 +17,4 @@ simHcalTTPDigis = cms.EDProducer("HcalTTPDigiProducer",
     threshold        = cms.uint32( 2 )
 )
 # foo bar baz
+# XBkEeYlMoZ4Pt

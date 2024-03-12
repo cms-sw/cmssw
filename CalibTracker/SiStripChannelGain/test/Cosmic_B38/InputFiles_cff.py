@@ -113,3 +113,4 @@
 'rfio:///?svcClass=cmscaf&path=/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_V2P_StreamALCARECOTkAlCosmics0T_v7/0013/966DFADC-E89D-DD11-A90E-000423D99264.root',
 'rfio:///?svcClass=cmscaf&path=/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_V2P_StreamALCARECOTkAlCosmics0T_v7/0014/B4FD3F7C-409F-DD11-8F2B-001617DBCF90.root'
 # foo bar baz
+# eJEUXRCRLBIyj

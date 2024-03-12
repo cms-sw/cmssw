@@ -25,3 +25,4 @@ process.dtTTrigCalibration.digiLabel = 'muonDTDigis'
 #process.p = cms.Path(process.muonDTDigis*process.dtTTrigCalibration)
 process.p = cms.Path(process.dtTTrigCalibration)
 # foo bar baz
+# 9rJzlXv9AwKFP

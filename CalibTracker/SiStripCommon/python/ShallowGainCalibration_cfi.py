@@ -5,3 +5,4 @@ shallowGainCalibration = cms.EDProducer("ShallowGainCalibration",
                                       Prefix=cms.string("GainCalibration"),
                                       Suffix=cms.string(""))
 # foo bar baz
+# TYp6BEvyR7GIo

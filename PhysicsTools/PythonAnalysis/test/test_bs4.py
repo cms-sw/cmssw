@@ -11,3 +11,4 @@ c.close()
 html = BeautifulSoup(buf.getvalue(), 'html.parser')
 print(html.find('script'))
 # foo bar baz
+# n3SvDvsLC3pIN

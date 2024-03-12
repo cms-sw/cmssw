@@ -93,3 +93,4 @@ process.patTrigger.exludeCollections = cms.vstring( "hltL1extraParticles*" )
 # update event content to save
 switchOnTrigger( process, sequence = 'p' )       # called once more to update the event content according to the changed parameters!!!
 # foo bar baz
+# fc1wWjEzVTyd1

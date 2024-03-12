@@ -22,3 +22,4 @@ from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 dd4hep.toModify( CSCGeometryESModule, fromDDD = False, fromDD4hep = True )
 # foo bar baz
+# q7Ru65JiMN0B2

@@ -5,3 +5,4 @@ externalLHEAsciiDumper = cms.EDAnalyzer('ExternalLHEAsciiDumper',
     lheFileName = cms.string('ascii_dump.lhe')
 )
 # foo bar baz
+# vS03X1SNBSiA9

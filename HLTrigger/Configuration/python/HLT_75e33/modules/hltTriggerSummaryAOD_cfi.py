@@ -7,3 +7,4 @@ hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  )
 )
 # foo bar baz
+# p3fgaicu3nLlC

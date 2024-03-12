@@ -10,3 +10,4 @@ dtPreCalibTask = DQMEDAnalyzer('DTPreCalibrationTask',
     folderName = cms.untracked.string('')
 )
 # foo bar baz
+# ZWtdr3j0kgJVF

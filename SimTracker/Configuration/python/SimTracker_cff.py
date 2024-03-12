@@ -5,3 +5,4 @@ import FWCore.ParameterSet.Config as cms
 
 import SimGeneral.MixingModule.stripDigitizer_APVModeDec_cff 
 # foo bar baz
+# kBHmnuxF68NXb

@@ -11,3 +11,4 @@ herwigppEnergySettingsBlock = cms.PSet(
 )
 
 # foo bar baz
+# XFYO4WMFBPpOC

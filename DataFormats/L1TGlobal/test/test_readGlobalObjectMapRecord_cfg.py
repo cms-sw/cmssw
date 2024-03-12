@@ -31,3 +31,4 @@ process.path = cms.Path(process.testReadGlobalObjectMapRecord)
 
 process.endPath = cms.EndPath(process.out)
 # foo bar baz
+# vSFsl2sGSOPWI

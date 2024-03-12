@@ -5,3 +5,4 @@ from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX
 from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cfi import *
 hgcalPhotonIDValueMap.dEdXWeights = dEdX.weights
 # foo bar baz
+# stMd0j1yhhYFz

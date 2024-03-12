@@ -9,3 +9,4 @@ mbueAndqcdValidation = DQMEDAnalyzer('MBUEandQCDValidation',
     UseWeightFromHepMC = cms.bool(True)
 )
 # foo bar baz
+# dhr0xmNKUDOKo

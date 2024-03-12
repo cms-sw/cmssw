@@ -18,3 +18,4 @@ EcalBarrelGeometryToDBEP = cms.ESProducer("EcalBarrelGeometryToDBEP",
                                           appendToDataLabel = cms.string("_toDB")
 )
 # foo bar baz
+# 288ETQWgsT25D

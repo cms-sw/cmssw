@@ -19,3 +19,4 @@ makeHypothesis_kinFitTask = cms.Task(
 )
 makeHypothesis_kinFit = cms.Sequence(makeHypothesis_kinFitTask)
 # foo bar baz
+# QWFT8OLPZ1eIx

@@ -60,3 +60,4 @@ process.WriteInDB = cms.EDAnalyzer("SiPixelFEDChannelContainerWriteFromASCII",
 
 process.p = cms.Path(process.WriteInDB)
 # foo bar baz
+# Yhk4Ua7EiNFvo

@@ -13,3 +13,4 @@ hltPFPuppiMETTypeOne140 = cms.EDFilter("HLT1PFMET",
     triggerType = cms.int32(87)
 )
 # foo bar baz
+# s8y9nSu0sqQdh

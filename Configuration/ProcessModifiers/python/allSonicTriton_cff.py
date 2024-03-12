@@ -9,3 +9,4 @@ from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTr
 # collect all SonicTriton-related process modifiers here
 allSonicTriton = cms.ModifierChain(enableSonicTriton,deepMETSonicTriton,particleNetSonicTriton,deepTauSonicTriton)
 # foo bar baz
+# S7s70s7vzvMDH

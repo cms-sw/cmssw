@@ -47,3 +47,4 @@ process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis
 process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 
 # foo bar baz
+# SmE0di26qbbby

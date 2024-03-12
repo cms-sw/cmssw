@@ -7,3 +7,4 @@ siStripShotFilter = cms.EDFilter(
     ZeroSuppressed =  cms.untracked.bool(True)
     )
 # foo bar baz
+# 6TNtfyikBEwvL

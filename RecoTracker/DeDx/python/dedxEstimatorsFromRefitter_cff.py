@@ -38,3 +38,4 @@ dedxDiscrimASmi.trajectoryTrackAssociation = "RefitterForDeDx"
 doAlldEdXEstimatorsTask = cms.Task(RefitterForDeDx, dedxTruncated40, dedxHarmonic2, dedxHitInfo )
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
 # foo bar baz
+# CcIYXfwyxvMei

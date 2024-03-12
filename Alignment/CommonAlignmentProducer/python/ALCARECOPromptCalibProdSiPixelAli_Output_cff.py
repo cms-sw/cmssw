@@ -11,3 +11,4 @@ OutALCARECOPromptCalibProdSiPixelAli_noDrop = cms.PSet(
 OutALCARECOPromptCalibProdSiPixelAli=OutALCARECOPromptCalibProdSiPixelAli_noDrop.clone()
 OutALCARECOPromptCalibProdSiPixelAli.outputCommands.insert(0, "drop *")
 # foo bar baz
+# 5i5kxUIqPb6Xf

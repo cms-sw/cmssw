@@ -33,3 +33,4 @@ seqALCARECOEcalRecalElectron = cms.Sequence(ALCARECOEcalRecalElectronHLT * rerec
 
 
 # foo bar baz
+# StS3XjXHT3aUa

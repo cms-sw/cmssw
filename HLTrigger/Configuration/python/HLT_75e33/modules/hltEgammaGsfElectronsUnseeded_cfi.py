@@ -7,3 +7,4 @@ hltEgammaGsfElectronsUnseeded = cms.EDProducer("EgammaHLTPixelMatchElectronProdu
     UseGsfTracks = cms.bool(True)
 )
 # foo bar baz
+# V7Xr2POMNtlzX

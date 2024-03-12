@@ -93,3 +93,4 @@ process.out.outputCommands += patEventContentNoCleaning
 from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import tqafEventContent
 process.out.outputCommands += tqafEventContent
 # foo bar baz
+# SP4nN7TBbQz8G

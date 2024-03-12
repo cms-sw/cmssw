@@ -40,3 +40,4 @@ muonSeedsAnalyzer = DQMEDAnalyzer('MuonSeedsAnalyzer',
                                    PhiMax = cms.double(3.2)
                                    )
 # foo bar baz
+# tMN59UbIStVla

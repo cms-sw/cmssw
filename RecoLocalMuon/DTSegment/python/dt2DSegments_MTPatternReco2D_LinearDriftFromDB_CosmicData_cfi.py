@@ -24,3 +24,4 @@ dt2DCosmicSegments = cms.EDProducer("DTRecSegment2DProducer",
     recHits1DLabel = cms.InputTag("dt1DCosmicRecHits")
 )
 # foo bar baz
+# 5PtmObUNvKmcp

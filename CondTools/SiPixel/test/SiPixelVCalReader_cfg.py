@@ -102,3 +102,4 @@ process.VCalReader = cms.EDAnalyzer("SiPixelVCalReader",
 #process.p = cms.Path(process.VCalReader*process.VCalSimReader)
 process.p = cms.Path(process.VCalReader)
 # foo bar baz
+# 1CHjJXpPtCENI

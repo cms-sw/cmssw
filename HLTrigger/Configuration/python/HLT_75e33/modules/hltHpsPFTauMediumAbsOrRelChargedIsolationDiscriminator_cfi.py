@@ -17,3 +17,4 @@ hltHpsPFTauMediumAbsOrRelChargedIsolationDiscriminator = cms.EDProducer( "PFTauD
     PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
 )
 # foo bar baz
+# FYQ1hgeGGGo3j

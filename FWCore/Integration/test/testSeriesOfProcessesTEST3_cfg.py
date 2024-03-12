@@ -25,3 +25,4 @@ process.hk = cms.EDAnalyzer("TestHistoryKeeping",
 
 process.hist = cms.Path(process.hk)
 # foo bar baz
+# 0UnMdJqZYnyFE

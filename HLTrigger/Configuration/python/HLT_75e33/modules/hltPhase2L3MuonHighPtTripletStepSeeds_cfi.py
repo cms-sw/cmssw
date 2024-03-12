@@ -14,3 +14,4 @@ hltPhase2L3MuonHighPtTripletStepSeeds = cms.EDProducer("SeedCreatorFromRegionCon
     seedingHitSets = cms.InputTag("hltPhase2L3MuonHighPtTripletStepHitTriplets")
 )
 # foo bar baz
+# lQW7JCKtIy10u

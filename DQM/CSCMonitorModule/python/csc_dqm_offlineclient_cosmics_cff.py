@@ -4,3 +4,4 @@ from DQM.CSCMonitorModule.csc_dqm_offlineclient_cfi import *
 
 cscOfflineCosmicsClients = cms.Sequence(dqmCSCOfflineClient)
 # foo bar baz
+# PLMMZmvZxhzCe

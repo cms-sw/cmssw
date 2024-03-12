@@ -7,3 +7,4 @@ SiPixelLorentzAnglePCLHarvesterMCS = _defaultHarvester.clone(
     dqmDir = worker.folder.value(), # taken from worker configuration, need to stay in synch
 )
 # foo bar baz
+# rmED242bBPyRD

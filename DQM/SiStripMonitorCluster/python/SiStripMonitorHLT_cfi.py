@@ -5,3 +5,4 @@ SiStripMonitorHLT = DQMEDAnalyzer('SiStripMonitorHLT',
     HLTProducer = cms.string('trigger')
 )
 # foo bar baz
+# AHB8IpXu8UHqq

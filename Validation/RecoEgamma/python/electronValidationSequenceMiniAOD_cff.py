@@ -17,3 +17,4 @@ electronValidationTaskMiniAOD = cms.Task(egmElectronIsolationCITK, miniAODElectr
 electronValidationSequenceMiniAOD = cms.Sequence(electronMcSignalValidatorMiniAOD, electronValidationTaskMiniAOD)
 
 # foo bar baz
+# nH2iV0CepVwar

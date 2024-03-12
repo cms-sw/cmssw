@@ -14,3 +14,4 @@ def isoDepositReplace( toBeIsolated, isolating):
 #    newCandIsolator.deposits.src = isoDepositsSource
 #    return newCandIsolator
 # foo bar baz
+# 9f3DMKQ8fcDSm

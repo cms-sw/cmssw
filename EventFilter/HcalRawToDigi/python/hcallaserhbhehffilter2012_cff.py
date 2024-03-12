@@ -4,3 +4,4 @@ from EventFilter.HcalRawToDigi.hcallaserhbhehffilter2012_cfi import *
 
 hcallLaser2012Filter = cms.Sequence(hcallaserhbhehffilter2012)
 # foo bar baz
+# eZOwjnX8ynI8c

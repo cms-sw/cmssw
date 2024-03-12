@@ -10,3 +10,4 @@ DQMExampleGenericClient = DQMEDHarvester("DQMGenericClient",
                                           resolution = cms.vstring("")
     )
 # foo bar baz
+# Cz8HGDoew2nP4

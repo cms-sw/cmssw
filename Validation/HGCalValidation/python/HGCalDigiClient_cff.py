@@ -8,3 +8,4 @@ hgcalDigiClientHEF = hgcalDigiClientEE.clone(
 hgcalDigiClientHEB = hgcalDigiClientEE.clone(
     DetectorName  = cms.string("HGCalHEScintillatorSensitive"))
 # foo bar baz
+# ukHT47LIqoieF

@@ -25,3 +25,4 @@ detachedQuadStepTrajectoryFilterBase = cms.PSet(
     strictSeedExtension = cms.bool(False)
 )
 # foo bar baz
+# lHZso5cEn0R90

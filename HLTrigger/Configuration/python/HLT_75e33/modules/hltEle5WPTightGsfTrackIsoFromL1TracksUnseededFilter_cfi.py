@@ -31,3 +31,4 @@ hltEle5WPTightGsfTrackIsoFromL1TracksUnseededFilter = cms.EDFilter("HLTEgammaGen
     varTag = cms.InputTag("hltEgammaEleL1TrkIsoUnseeded")
 )
 # foo bar baz
+# CNSEmtkb8nWvZ

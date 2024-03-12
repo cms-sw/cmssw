@@ -31,3 +31,4 @@ outInSeedsFromStandaloneMuons = cms.EDProducer('OutsideInMuonSeeder',
 )
 
 # foo bar baz
+# 0Bp1CQ8t16cGB

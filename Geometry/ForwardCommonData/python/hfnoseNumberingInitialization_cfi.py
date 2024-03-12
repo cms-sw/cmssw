@@ -4,3 +4,4 @@ hfnoseNumberingInitialize = cms.ESProducer("HGCalNumberingInitialization",
                                            Name = cms.untracked.string("HGCalHFNoseSensitive")
 )
 # foo bar baz
+# sm1LnBmwTErAM

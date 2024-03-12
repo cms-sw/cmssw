@@ -133,3 +133,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.dtTriggerPrimitiveDigis)
 process.this_is_the_end = cms.EndPath(process.out)
 # foo bar baz
+# N3wiaSJ0CPfTz

@@ -30,3 +30,4 @@ def newdirname(algo, quality):
 val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
 val.doPlots(Collections, Qualities, vertexPlots.plotter, algoDirMap=lambda a, q: a, newdirFunc=newdirname)
 # foo bar baz
+# i7ERTwvwQnjnh

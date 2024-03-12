@@ -30,3 +30,4 @@ process.runUnitTests = cms.EDAnalyzer("ClusterizerUnitTester",           Cluster
 
 process.path = cms.Path( process.runUnitTests )
 # foo bar baz
+# X4B6NV33RTMed

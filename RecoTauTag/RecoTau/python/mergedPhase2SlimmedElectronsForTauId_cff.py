@@ -5,3 +5,4 @@ mergedSlimmedElectronsForTauId = cms.EDProducer('PATElectronCollectionMerger',
     src = cms.VInputTag('slimmedElectrons', 'slimmedElectronsHGC')
 )
 # foo bar baz
+# 1GLUzRo7WNj66

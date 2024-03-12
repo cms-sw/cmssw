@@ -24,3 +24,4 @@ def close_connections(verbose=True):
 		connection.tear_down()
 		if verbose:
 			print("Connection to %s was closed." % connection_string)# foo bar baz
+# csyVRuasC4nSn

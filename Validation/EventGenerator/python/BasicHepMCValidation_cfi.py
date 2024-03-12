@@ -6,3 +6,4 @@ basicHepMCValidation = DQMEDAnalyzer('BasicHepMCValidation',
     UseWeightFromHepMC = cms.bool(True)
 )
 # foo bar baz
+# A3NsPlXUOQot3

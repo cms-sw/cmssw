@@ -18,3 +18,4 @@ l1tPhase1JetSumsProducer = cms.EDProducer('Phase1L1TJetSumsProducer',
   outputCollectionName = cms.string("Sums"),
 )
 # foo bar baz
+# JagDV6XODKJKI

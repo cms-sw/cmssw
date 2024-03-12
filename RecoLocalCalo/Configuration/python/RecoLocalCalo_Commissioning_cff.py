@@ -36,3 +36,4 @@ from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoTaskNZS = cms.Task(ecalLocalRecoTask,hcalLocalRecoTask,hcalLocalRecoTaskNZS) 
 calolocalrecoNZS = cms.Sequence(calolocalrecoTaskNZS) 
 # foo bar baz
+# 3X102WIlcTqg8

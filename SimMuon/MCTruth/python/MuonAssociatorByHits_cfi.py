@@ -141,3 +141,4 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
 
 premix_stage2.toModify(muonAssociatorByHits, tpTag = "mixData:MergedTrackTruth")
 # foo bar baz
+# nTB1hHTiKDL0m

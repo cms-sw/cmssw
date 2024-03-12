@@ -5,3 +5,4 @@ chargedPackedCandsForTkMet = cms.EDFilter("CandPtrSelector",
                                           cut=cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0")
                                       )
 # foo bar baz
+# PloW4YyirIfVW

@@ -11,3 +11,4 @@ pfMEtMultShiftCorrDB = cms.EDProducer("MultShiftMETcorrDBInputProducer",
     )
 
 # foo bar baz
+# xLnU2ybW0Ydvq

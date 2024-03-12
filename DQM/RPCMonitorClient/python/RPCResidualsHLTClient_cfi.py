@@ -11,3 +11,4 @@ rpcGlobalEfficiencyHLT = DQMEDHarvester("RPCEfficiencySecond",
 
 rpcClientHLT = cms.Sequence(rpcGlobalEfficiencyHLT)
 # foo bar baz
+# 9WmAAXqrU7QhW

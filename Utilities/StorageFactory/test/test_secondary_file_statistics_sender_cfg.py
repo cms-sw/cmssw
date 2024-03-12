@@ -42,3 +42,4 @@ process.pD = cms.Path(process.d)
 process.pE = cms.Path(process.e)
 
 process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))# foo bar baz
+# rK7Y8ljOKKVEz

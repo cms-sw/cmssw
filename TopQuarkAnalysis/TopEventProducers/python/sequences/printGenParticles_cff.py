@@ -25,3 +25,4 @@ printGenParticlesAndSubsets = cms.Sequence(printGenParticles *
                                            printDecaySubset
                                            )
 # foo bar baz
+# fOgmUa2mc38wY

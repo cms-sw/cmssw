@@ -100,3 +100,4 @@ hltHpsPFTauDiscriminationByDecayModeFindingNewDMs = cms.EDProducer( "PFRecoTauDi
     requireTauChargedHadronsToBeChargedPFCands = cms.bool( False )
 )
 # foo bar baz
+# WgC2BJzp19Lzn

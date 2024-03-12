@@ -21,3 +21,4 @@ process.reader = cms.EDAnalyzer('SiPixelFakeTemplateDBSourceReader'
 
 process.p = cms.Path(process.reader)
 # foo bar baz
+# hlJnmd5gGsXig

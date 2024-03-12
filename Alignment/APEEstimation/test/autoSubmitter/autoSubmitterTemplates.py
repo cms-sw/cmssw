@@ -75,3 +75,4 @@ conditionsTemplate="""
     process.prefer_my{record}Conditions = cms.ESPrefer("PoolDBESSource", "my{record}Conditions")
 """
 # foo bar baz
+# EAoo1rTGkfd7X

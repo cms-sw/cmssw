@@ -40,3 +40,4 @@ ttFullHadEvent = cms.EDProducer("TtFullHadEvtBuilder",
     )
 )
 # foo bar baz
+# PpAMBJSLtTgBs

@@ -13,3 +13,4 @@ ecal_time_digi_parameters = cms.PSet(
 from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
 (ecal_component_finely_sampled_waveforms).toModify(ecal_time_digi_parameters,componentWaveform=True)
 # foo bar baz
+# 58PXycWgxS5qL

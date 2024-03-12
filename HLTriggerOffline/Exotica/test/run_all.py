@@ -7,3 +7,4 @@ samples = []
 for sample in samples:
   os.system("cmsRun hltExoticaValidator_cfg.py _input "+sample+"; cmsRun hltExoticaPostProcessor_cfg.py _input "+sample+"; cp DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root correctVal_DQM_"+sample+".root; root -l -b -q \"saveDQMHistograms.C(\\\"correctVal_DQM_"+sample+".root\\\",\\\"correct"+sample+"\\\")\";")
 # foo bar baz
+# vfsR2MWYEyMha

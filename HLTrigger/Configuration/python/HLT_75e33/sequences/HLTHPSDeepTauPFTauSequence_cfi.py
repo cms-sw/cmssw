@@ -20,3 +20,4 @@ HLTHPSDeepTauPFTauSequence = cms.Sequence(
     hltHpsPFTauDeepTauProducer 
 )
 # foo bar baz
+# KViWe7OWuMJjZ

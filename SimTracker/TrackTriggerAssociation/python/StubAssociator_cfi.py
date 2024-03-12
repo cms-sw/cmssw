@@ -7,3 +7,4 @@ StubAssociator_params = cms.PSet (
   BranchReconstructable   = cms.string  ( "Reconstructable" ),                                      # name of StubAssociation collection made with reconstractable TPs
   BranchSelection         = cms.string  ( "UseForAlgEff"    )                                       # name of StubAssociation collection used for tracking efficiency
 )# foo bar baz
+# Ch2TPkB1D8XGQ

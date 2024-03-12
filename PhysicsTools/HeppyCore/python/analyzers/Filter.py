@@ -8,3 +8,4 @@ class Filter(Analyzer):
                              if self.cfg_ana.filter_func(obj)]
         setattr(event, self.instance_label, output_collection)
 # foo bar baz
+# kwG62WBRTRlhr

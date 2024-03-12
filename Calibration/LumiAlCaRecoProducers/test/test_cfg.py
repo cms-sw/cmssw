@@ -47,3 +47,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService", process.CondDB,
 
 process.p1 = cms.Path(process.raw+process.cor)
 # foo bar baz
+# 4fMwG24avACWE

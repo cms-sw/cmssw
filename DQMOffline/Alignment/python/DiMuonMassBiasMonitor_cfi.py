@@ -19,3 +19,4 @@ DiMuonMassBiasMonitor = DQMEDAnalyzer('DiMuonMassBiasMonitor',
                                           maxDeltaEta =  cms.double(3.7),
                                       ))
 # foo bar baz
+# HvU2K34MD7ABp

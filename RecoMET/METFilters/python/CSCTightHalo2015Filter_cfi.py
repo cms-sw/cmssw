@@ -5,3 +5,4 @@ CSCTightHalo2015Filter = cms.EDFilter(
   taggingMode = cms.bool(False)
 )
 # foo bar baz
+# OVlDAHD9x1ZvN

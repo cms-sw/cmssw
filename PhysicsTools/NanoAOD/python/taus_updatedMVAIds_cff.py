@@ -302,3 +302,4 @@ slimmedTausUpdated = cms.EDProducer("PATTauIDEmbedder",
 
 patTauMVAIDsTask.add(slimmedTausUpdated)
 # foo bar baz
+# h3zsC4Vgv7p55

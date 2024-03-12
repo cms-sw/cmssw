@@ -16,3 +16,4 @@ process.simTrackSimVertexDumper.dumpHepMC = True
 
 process.p1 = cms.Path(process.simTrackSimVertexDumper)
 # foo bar baz
+# e2Jmt2M2x7rS6

@@ -697,3 +697,4 @@ class MatrixInjector(object):
             print("\n*** WARNING: "+str(len(self.longWFName))+" workflows have too long names for submission (>"+str(MAXWORKFLOWLENGTH)+ "characters) ***")
             print('\n'.join(self.longWFName))
 # foo bar baz
+# gJTxsjstKXO5J

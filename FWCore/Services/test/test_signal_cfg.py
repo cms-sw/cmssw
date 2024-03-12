@@ -10,3 +10,4 @@ process.signal = cms.EDAnalyzer("SignallingAnalyzer", signal = cms.untracked.str
 
 process.p = cms.Path(process.signal)
 # foo bar baz
+# LAYgvRVSFHKFt

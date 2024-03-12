@@ -362,3 +362,4 @@ import pickle
 with open('GroupingComparison_StdToBayes.pickle', 'wb') as handle:
     pickle.dump(outputDict,   handle, protocol=pickle.HIGHEST_PROTOCOL)
 # foo bar baz
+# kK1gXrZIEHxL8

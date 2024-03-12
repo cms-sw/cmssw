@@ -543,3 +543,4 @@ if __name__ == "__main__":
                 args.showpluginlabel = True
             formatsequenceinfo(modconfig, modclass, plugininfo, args.showpluginlabel, args.showpluginclass, args.showplugintype,    args.showpluginconfig)
 # foo bar baz
+# LcL0UASZXlbnT

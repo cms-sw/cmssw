@@ -8,3 +8,4 @@ tauValidation = DQMEDAnalyzer('TauValidation',
                                UseWeightFromHepMC = cms.bool(True)
                                )
 # foo bar baz
+# PBlttHzObKiX4

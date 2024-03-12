@@ -5,3 +5,4 @@ fedbadmodulefilter = cms.EDFilter('FEDBadModuleFilter',
                                   badModThr = cms.uint32(35000)
                                   )
 # foo bar baz
+# 0bgn7fycgZDby

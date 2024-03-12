@@ -21,3 +21,4 @@ siPixelClustersForLumi = siPixelClustersPreSplitting.cpu.clone(
 # Sequence #
 seqALCARECOLumiPixels = cms.Sequence(ALCARECOLumiPixelsHLT + siPixelDigisForLumi + siPixelClustersForLumi)
 # foo bar baz
+# nNn6eurMysnHb

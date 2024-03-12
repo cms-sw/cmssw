@@ -23,3 +23,4 @@ SiStripLorentzAngleCalibration_deco = SiStripLorentzAngleCalibration_peak.clone(
     recordNameDBwrite = cms.string('SiStripLorentzAngleRcd_deco'),
     )
 # foo bar baz
+# rEa0xBpmieuWA

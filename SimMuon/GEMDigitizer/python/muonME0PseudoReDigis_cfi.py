@@ -15,3 +15,4 @@ simMuonME0PseudoReDigis = cms.EDProducer("ME0ReDigiProducer",
     mergeDigis         =cms.bool(True),   # Keep only one digi at the same chamber, strip, partition, and BX           
 )
 # foo bar baz
+# YtzAfhn1ju5ri

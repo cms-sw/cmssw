@@ -40,3 +40,4 @@ recoJetsHITask =cms.Task(fixedGridRhoFastjetAllCalo,
                          )
 recoJetsHI =cms.Sequence(recoJetsHITask)
 # foo bar baz
+# q3hJJ2CsTE0XP

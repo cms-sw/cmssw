@@ -9,3 +9,4 @@ CondDBSetup = CondDB.clone()
 CondDBSetup.__delattr__('connect')
 
 # foo bar baz
+# ipsLxIumKyodx

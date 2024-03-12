@@ -120,3 +120,4 @@ for label, prod in process.producers_().items():
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
 # foo bar baz
+# GE0s5ZeRgFoba

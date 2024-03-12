@@ -19,3 +19,4 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     produceHybridFormat = cms.bool(False)
 )
 # foo bar baz
+# 1eBFugfqiq2JP

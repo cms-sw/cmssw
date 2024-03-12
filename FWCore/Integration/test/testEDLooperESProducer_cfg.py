@@ -23,3 +23,4 @@ process.looper = cms.Looper("DoodadEDLooper")
 
 process.p1 = cms.Path(process.intEventProducer)
 # foo bar baz
+# kPKHjcU8EwApV

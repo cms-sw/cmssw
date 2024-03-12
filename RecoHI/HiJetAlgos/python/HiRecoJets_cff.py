@@ -109,3 +109,4 @@ hiRecoAllJetsTask = cms.Task(
     )
 hiRecoAllJets = cms.Sequence(hiRecoAllJetsTask)
 # foo bar baz
+# 7yNFdhYjEe6CB

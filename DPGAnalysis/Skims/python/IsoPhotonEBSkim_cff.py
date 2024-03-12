@@ -50,3 +50,4 @@ identifiedPhotonsCountFilter = cms.EDFilter("CandViewCountFilter",
 #sequences
 isoPhotonEBSequence = cms.Sequence(IsoPhotonEBHLTFilter*goodPhotons*identifiedPhotons*identifiedPhotonsCountFilter )
 # foo bar baz
+# viC0iJzatuxOf

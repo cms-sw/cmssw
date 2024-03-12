@@ -6,3 +6,4 @@ HLTDoLocalStripSequence = cms.Sequence(
     HLTDoLocalStripTask
 )
 # foo bar baz
+# fVDWO8DC1uoRI

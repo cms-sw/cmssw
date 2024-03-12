@@ -15,3 +15,4 @@ MonitorHOAlCaRecoStream = DQMEDAnalyzer('DQMHOAlCaRecoStream',
     hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 )
 # foo bar baz
+# tuEuqWKyOOOLq

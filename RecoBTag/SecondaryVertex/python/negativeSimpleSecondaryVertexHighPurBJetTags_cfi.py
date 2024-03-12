@@ -5,3 +5,4 @@ negativeSimpleSecondaryVertexHighPurBJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(cms.InputTag("secondaryVertexNegativeTagInfos"))
 )
 # foo bar baz
+# oxdIM0AJFhM15

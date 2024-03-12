@@ -28,3 +28,4 @@ HLTIter0Phase2L3FromL1TkMuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
     useSameTrajFilter = cms.bool(True)
 )
 # foo bar baz
+# KFP7fZDbX28mv

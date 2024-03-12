@@ -5,3 +5,4 @@ lheCOMWeightProducer = cms.EDProducer("LHECOMWeightProducer",
   NewECMS = cms.double(7000)
 )
 # foo bar baz
+# LzHeCD7OGOzx7

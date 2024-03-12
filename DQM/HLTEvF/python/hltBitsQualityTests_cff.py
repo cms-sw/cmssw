@@ -10,3 +10,4 @@ hltqTester = DQMQualityTester(
 
 hltqtest = cms.Sequence(hltqTester)
 # foo bar baz
+# CBqzwmjl6QuY6

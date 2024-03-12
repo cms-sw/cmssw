@@ -85,3 +85,4 @@ hltEcalRecHit = cms.EDProducer("EcalRecHitProducer",
     triggerPrimitiveDigiCollection = cms.InputTag("hltEcalDigis","EcalTriggerPrimitives")
 )
 # foo bar baz
+# d5uscSWXa4HkU

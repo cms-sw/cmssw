@@ -32,3 +32,4 @@ process.TFileService = cms.Service("TFileService",
 
 process.p = cms.Path(process.isoTrigHB+process.isoTrigHE)
 # foo bar baz
+# 3HTjOsAKdNSoY

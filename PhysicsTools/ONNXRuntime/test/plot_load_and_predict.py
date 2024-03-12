@@ -52,3 +52,4 @@ x = x.astype(numpy.float32)
 res = sess.run([output_name], {input_name: x})
 print(res)
 # foo bar baz
+# FxcoF02vHnYF6

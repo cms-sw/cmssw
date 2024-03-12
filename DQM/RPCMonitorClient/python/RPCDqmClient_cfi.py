@@ -26,3 +26,4 @@ rpcdqmMuonclient = DQMEDHarvester("RPCDqmClient",
                                   NumberOfEndcapRings  = cms.untracked.int32(2)
                               )
 # foo bar baz
+# R4FFRrzU8iNX7

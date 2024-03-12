@@ -67,3 +67,4 @@ process.hgcalPartialWaferTester.nameSense = "HGCalEESensitive"
  
 process.p1 = cms.Path(process.generator*process.hgcalPartialWaferTester)
 # foo bar baz
+# FHp0V4iX967ko

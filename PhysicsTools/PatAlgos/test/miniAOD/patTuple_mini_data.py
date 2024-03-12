@@ -48,3 +48,4 @@ process.out.outputCommands = process.MicroEventContent.outputCommands
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
 miniAOD_customizeOutput(process.out)
 # foo bar baz
+# 0w9mJC7R8FI11

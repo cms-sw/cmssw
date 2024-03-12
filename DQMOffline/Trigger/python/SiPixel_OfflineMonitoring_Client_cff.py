@@ -59,3 +59,4 @@ sipixelHarvesterHLTsequence = cms.Sequence(
 #    + pixelTrackClusterVsLumiPXForward
 )    
 # foo bar baz
+# qqKbyXkuQX2rx

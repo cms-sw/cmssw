@@ -7,3 +7,4 @@ import TopQuarkAnalysis.TopSkimming.TtDecayChannelFilter_cfi
 ttDecaySelection = TopQuarkAnalysis.TopSkimming.TtDecayChannelFilter_cfi.ttDecayChannelFilter.clone()
 ttDecaySelection.src = "genEvt"
 # foo bar baz
+# lSwnAEWPnzGUw

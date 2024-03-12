@@ -16,3 +16,4 @@ hltvalidationqt = cms.Sequence(
     + hltSusyExoQualityTester
     )
 # foo bar baz
+# 7QL0yhX6e4xuq

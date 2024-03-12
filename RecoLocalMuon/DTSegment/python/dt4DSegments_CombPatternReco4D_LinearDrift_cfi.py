@@ -28,3 +28,4 @@ dt4DCosmicSegments = cms.EDProducer("DTRecSegment4DProducer",
     recHits2DLabel = cms.InputTag("dt2DCosmicSegments")
 )
 # foo bar baz
+# CHCBdJ1FIIV2I

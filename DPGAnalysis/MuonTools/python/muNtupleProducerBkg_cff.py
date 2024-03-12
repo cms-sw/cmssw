@@ -16,3 +16,4 @@ def muDPGNanoBkgCustomize(process) :
           process.NANOAODoutput.outputCommands.append("drop edmTriggerResults_*_*_*")
      
      return process# foo bar baz
+# E5t6hGHbIbt1D

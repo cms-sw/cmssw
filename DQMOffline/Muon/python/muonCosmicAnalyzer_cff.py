@@ -33,3 +33,4 @@ muonSACosmicAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
 
                                   
 # foo bar baz
+# PADI3RR5pSuTN

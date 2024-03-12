@@ -25,3 +25,4 @@ HLTPSetMuonCkfTrajectoryFilter = cms.PSet(
     strictSeedExtension = cms.bool(False)
 )
 # foo bar baz
+# RHBhSJNaaIr1V

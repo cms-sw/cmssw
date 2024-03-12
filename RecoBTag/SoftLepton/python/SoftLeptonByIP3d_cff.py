@@ -30,3 +30,4 @@ positiveSoftPFMuonByIP3dBJetTags = cms.EDProducer("JetTagProducer",
     tagInfos = cms.VInputTag(cms.InputTag("softPFMuonsTagInfos"))
 )
 # foo bar baz
+# uT2yLGBba68Ob

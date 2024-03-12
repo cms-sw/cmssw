@@ -24,3 +24,4 @@ l1tTkIsoEleSingle28Filter = cms.EDFilter("L1TTkEleFilter",
     saveTags = cms.bool(True)
 )
 # foo bar baz
+# 5P1X6TVXtALCo

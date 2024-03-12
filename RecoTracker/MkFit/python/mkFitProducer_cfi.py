@@ -8,3 +8,4 @@ mkFitProducer = _mkFitProducerDefault.clone(
         refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 # foo bar baz
+# xVX2oKyQyFBOW

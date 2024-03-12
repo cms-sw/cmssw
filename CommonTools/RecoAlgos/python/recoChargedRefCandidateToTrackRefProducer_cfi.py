@@ -4,3 +4,4 @@ recoChargedRefCandidateToTrackRefProducer = cms.EDProducer("RecoChargedRefCandid
     src = cms.InputTag('trackRefsForJets')
 )
 # foo bar baz
+# 8ElQeMLRxLuaj

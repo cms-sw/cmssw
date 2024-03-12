@@ -81,3 +81,4 @@ dqmBeamMonitor = DQMEDAnalyzer("BeamMonitor",
                               phiMax = cms.double(3.15)
                               )
 # foo bar baz
+# 5SoR0uL3amSKI

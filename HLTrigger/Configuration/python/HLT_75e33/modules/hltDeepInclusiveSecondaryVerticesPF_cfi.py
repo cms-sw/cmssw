@@ -6,3 +6,4 @@ hltDeepInclusiveSecondaryVerticesPF = cms.EDProducer("CandidateVertexMerger",
     secondaryVertices = cms.InputTag("hltDeepInclusiveVertexFinderPF")
 )
 # foo bar baz
+# E8B5oZkild6MV

@@ -74,3 +74,4 @@ process.myprint = cms.OutputModule("AsciiOutputModule")
 process.p1 = cms.Path(process.CSCGeometryWriter)
 process.ep = cms.EndPath(process.myprint)
 # foo bar baz
+# Ec4qxFI2ZQXAF

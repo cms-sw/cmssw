@@ -39,3 +39,4 @@ from DQM.SiStripMonitorClient.SiStripDQMSourceConfigOfflineGlobalRunCAF_cfi impo
 ## SiStrip DQM client ##
 from DQM.SiStripMonitorClient.SiStripClientConfig_cff import *
 # foo bar baz
+# rN7lCU51kMHKt

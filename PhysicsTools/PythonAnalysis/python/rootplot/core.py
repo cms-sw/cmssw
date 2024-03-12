@@ -2012,3 +2012,4 @@ def parse_arguments(argv, scope='global'):
     if options.merge: options.ext = 'pdf'
     return options
 # foo bar baz
+# P2zOfMHQPiYkA

@@ -22,3 +22,4 @@ herwigppPDFSettingsBlock = cms.PSet(
 )
 
 # foo bar baz
+# rMzVmCGoHej7T

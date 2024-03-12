@@ -28,3 +28,4 @@ photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            mvaConfigurations = mvaConfigsForPhoProducer
                                            )
 # foo bar baz
+# iUAg4jKLnmfo8

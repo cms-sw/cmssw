@@ -10,3 +10,4 @@ hgcalDigiValidationHEB = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HGCalHEScintillatorSensitive"),
     DigiSource   = cms.InputTag("hgcalDigis","HEback"))
 # foo bar baz
+# 5OJN0iQzWJA2k

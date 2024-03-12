@@ -24,3 +24,4 @@ seqPVSelection = cms.Sequence(goodVertices + noFakeVertices + goodVerticesD0s5 +
 seqSimplePVSelection = cms.Sequence(goodVertices + noFakeVertices)
 
 # foo bar baz
+# 7lgCUmRo4ocwE

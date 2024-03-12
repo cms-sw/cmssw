@@ -11,3 +11,4 @@ hltPhase2L3MuonSeedFromProtoTracks = cms.PSet(
     propagator = cms.string('PropagatorWithMaterial')
 )
 # foo bar baz
+# 4CBHYPTDJCWXr

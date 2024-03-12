@@ -137,3 +137,4 @@ mssmHbbMonitorHLT = cms.Sequence(
     hltMssmHbbMonitoringMu12Jet40
 )
 # foo bar baz
+# xLBRTrnq3OoFt

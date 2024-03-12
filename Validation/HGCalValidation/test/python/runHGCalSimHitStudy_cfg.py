@@ -71,3 +71,4 @@ process.TFileService = cms.Service("TFileService",
 
 process.p = cms.Path(process.hgcalSimHitStudy)
 # foo bar baz
+# DBF8HUC99WdB2

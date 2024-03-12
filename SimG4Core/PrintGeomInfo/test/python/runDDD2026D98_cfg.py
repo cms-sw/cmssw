@@ -92,3 +92,4 @@ elif (options.type == "Muon"):
 else:
     process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'EcalSensitiveDetector', 'HcalSensitiveDetector', 'HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'ZdcSensitiveDetector']
 # foo bar baz
+# JtZ8OWskkyjkf

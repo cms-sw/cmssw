@@ -7,3 +7,4 @@ from DQMOffline.MuonDPG.cscTnPEfficiencyTask_cfi import *
 cscSources = cms.Sequence(dqmCSCClient + 
                           cscTnPEfficiencyMonitor)
 # foo bar baz
+# 2lFTjbn07xHGl

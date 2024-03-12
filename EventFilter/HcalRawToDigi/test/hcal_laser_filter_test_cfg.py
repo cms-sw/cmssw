@@ -94,3 +94,4 @@ process.schedule=cms.Schedule(process.digipath,  # make digis from raw
                               process.HcalLaser
                               )
 # foo bar baz
+# s5uVYF7RnfMp7

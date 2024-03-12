@@ -16,3 +16,4 @@ fixedMatrixClusteringTask = cms.Task(fixedMatrixBasicClusters,
 fixedMatrixClusteringSequence = cms.Sequence(fixedMatrixClusteringTask)
 
 # foo bar baz
+# 54CF8aMo27ObQ

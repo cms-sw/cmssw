@@ -44,3 +44,4 @@ process.mix.input.fileNames = cms.untracked.vstring(
     '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/5E309A39-7264-DE11-978E-001D09F2A690.root')
 
 # foo bar baz
+# MPgcXIQYG3mmE

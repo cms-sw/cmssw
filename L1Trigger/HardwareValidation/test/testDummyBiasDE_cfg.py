@@ -85,3 +85,4 @@ process.l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0]
 process.p = cms.Path(process.l1dummy*process.l1bias*process.l1compare*process.l1demon)
 
 # foo bar baz
+# GfAvyeLzRDpkI

@@ -73,3 +73,4 @@ shortTrackResolution3to8 = cms.Sequence(SingleLongTrackProducer *
                                         RefittedShortTracks8 *
                                         trackingResolution)
 # foo bar baz
+# 0S3vJIHHVKFfB

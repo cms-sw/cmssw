@@ -16,3 +16,4 @@ l1tSummaryStage2HltDigis = cms.EDAnalyzer(
     muonToken  = cms.InputTag("hltGmtStage2Digis","Muon"),
 )
 # foo bar baz
+# MCKn47Y89ixut

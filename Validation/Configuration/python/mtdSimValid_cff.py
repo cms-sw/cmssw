@@ -16,3 +16,4 @@ mtdDigiValid = cms.Sequence(btlDigiHitsValid + etlDigiHitsValid)
 mtdRecoValid = cms.Sequence(btlLocalRecoValid  + etlLocalRecoValid + mtdTracksValid + vertices4DValid + mtdEleIsoValid)
 
 # foo bar baz
+# VqTCF7oBmMraF

@@ -18,3 +18,4 @@ generator = cms.EDProducer("FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1)
 )
 # foo bar baz
+# gUTaRH6eNY7co

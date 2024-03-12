@@ -5,3 +5,4 @@ from HLTriggerOffline.Tau.Validation.HLTTauValidation_cfi import *
 
 HLTTauVal    = cms.Sequence(hltTauRef+hltTauValIdeal)
 # foo bar baz
+# Pc4zoEHriA6eC

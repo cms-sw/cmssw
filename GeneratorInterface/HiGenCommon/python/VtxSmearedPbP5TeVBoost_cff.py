@@ -8,3 +8,4 @@ VtxSmeared = cms.EDProducer("BetaBoostEvtVtxGenerator",
     Beta=cms.double(0.434)
 )
 # foo bar baz
+# AtYqlvRhEx0VP

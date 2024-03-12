@@ -58,3 +58,4 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
     finalCut = cms.string(''),
 )
 # foo bar baz
+# y8krOZ6Xha0To

@@ -12,3 +12,4 @@ HLTPFClusterJMEReconstruction = cms.Sequence(
     hltPFClusterMET
 )
 # foo bar baz
+# FBK0dGi6HoNnd

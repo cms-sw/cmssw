@@ -7,3 +7,4 @@ hltEtaPtMinCandViewSelector = cms.EDFilter("EtaPtMinCandViewSelector",
    etaMax = cms.double(+1e125)
 )
 # foo bar baz
+# LFFM6jBXOQLeU

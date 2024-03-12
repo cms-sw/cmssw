@@ -166,3 +166,4 @@ stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = True, Era = 'Run2_2018')
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = True, UseRun3CCLUT_OTMB = True, Era = 'Run3_2021')
 # foo bar baz
+# DVk2LWYc14HRu

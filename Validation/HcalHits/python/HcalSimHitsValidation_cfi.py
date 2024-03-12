@@ -23,3 +23,4 @@ run2_common.toModify( HcalSimHitsAnalyser,
     hf2 = cms.double(1/0.67)
 )
 # foo bar baz
+# 4RZNErY60elw6

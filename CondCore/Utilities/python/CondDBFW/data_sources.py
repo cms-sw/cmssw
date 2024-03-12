@@ -382,3 +382,4 @@ class json_basic(json_data_node):
 
 	def __init__(self, data=None):
 		self._data = data if data != None else ""# foo bar baz
+# xEQlcUDBg3uFB

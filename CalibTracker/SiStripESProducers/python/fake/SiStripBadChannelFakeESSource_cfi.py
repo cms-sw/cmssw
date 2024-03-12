@@ -7,3 +7,4 @@ siStripBadChannelFakeESSource = cms.ESSource("SiStripBadChannelFakeESSource",
 
 
 # foo bar baz
+# SRegewe00GUIJ

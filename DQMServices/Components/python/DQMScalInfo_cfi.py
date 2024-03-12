@@ -5,3 +5,4 @@ dqmscalInfo = DQMEDAnalyzer('DQMScalInfo',
     dqmScalFolder = cms.untracked.string('Scal')
 )
 # foo bar baz
+# cMoU1Ika7UhwN

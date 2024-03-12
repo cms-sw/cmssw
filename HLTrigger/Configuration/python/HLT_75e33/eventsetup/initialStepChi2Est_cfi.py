@@ -15,3 +15,4 @@ initialStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProducer",
     pTChargeCutThreshold = cms.double(15.0)
 )
 # foo bar baz
+# 9Y0uQDgaUQ9yW

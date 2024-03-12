@@ -75,3 +75,4 @@ dqmBeamMonitorBx = cms.EDAnalyzer("BeamMonitorBx",
                               phiMax = cms.double(3.15)
                               )
 # foo bar baz
+# 4K2hZis9dYddW

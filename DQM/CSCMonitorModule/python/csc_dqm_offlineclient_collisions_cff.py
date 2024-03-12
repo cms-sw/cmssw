@@ -5,3 +5,4 @@ from DQMOffline.MuonDPG.cscTnPEfficiencyClient_cfi import *
 
 cscOfflineCollisionsClients = cms.Sequence(dqmCSCOfflineClient+cscTnPEfficiencyClient)
 # foo bar baz
+# 32vhz7FqWCHsY

@@ -6,3 +6,4 @@ hltElePixelHitTripletsClusterRemoverL1Seeded = cms.EDProducer("SeedClusterRemove
     trajectories = cms.InputTag("hltElePixelSeedsTripletsL1Seeded")
 )
 # foo bar baz
+# xw2DzPlsfMciW

@@ -14,3 +14,4 @@ QJetsAdder = cms.EDProducer("QjetsAdder",
                             preclustering = cms.int32(50),
                             )
 # foo bar baz
+# WU76zRv6U0XMy

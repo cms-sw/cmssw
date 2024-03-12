@@ -90,3 +90,4 @@ susyHLTSoftMuHardJetMETMonitoring = cms.Sequence(
   + SoftMuHardJetMETSUSYmonitoring_metPt
 )
 # foo bar baz
+# LB9VP9WIH7SEf

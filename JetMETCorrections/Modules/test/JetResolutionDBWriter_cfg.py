@@ -33,3 +33,4 @@ process.dbWriterAK4PF_JER_SF = cms.EDAnalyzer('JetResolutionDBWriter',
 
 process.p = cms.Path(process.dbWriterAK4PF_JER * process.dbWriterAK4PF_JER_SF)
 # foo bar baz
+# q9ZlQgbRfMPKs

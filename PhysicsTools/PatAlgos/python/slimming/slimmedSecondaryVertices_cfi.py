@@ -5,3 +5,4 @@ slimmedSecondaryVertices = cms.EDProducer("PATSecondaryVertexSlimmer",
     packedPFCandidates = cms.InputTag("packedPFCandidates")
 )
 # foo bar baz
+# HZ2kBnJ31aHcl

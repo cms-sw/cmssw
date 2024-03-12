@@ -44,3 +44,4 @@ class ProcessAcceleratorROCm(cms.ProcessAccelerator):
 # Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorROCm, "from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm import ProcessAcceleratorROCm")
 # foo bar baz
+# pD0YIletttRsl

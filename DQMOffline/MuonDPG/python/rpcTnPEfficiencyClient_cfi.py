@@ -34,3 +34,4 @@ rpcTnPEfficiencyClient = DQMEDHarvester("TnPEfficiencyClient",
                                                                           "RPC_nPassingProbe_Endcap_allCh_1D:RPC_nFailingProbe_Endcap_allCh_1D"),
                                        diagnosticPrescale = cms.untracked.int32(1))
 # foo bar baz
+# lDeQL9zVBtSxl

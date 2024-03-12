@@ -67,3 +67,4 @@ process.siPixelQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 
 process.p = cms.Path(process.BadModuleReader)
 # foo bar baz
+# kbzY1fOaRa38L

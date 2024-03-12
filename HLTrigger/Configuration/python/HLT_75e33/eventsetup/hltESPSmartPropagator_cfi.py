@@ -8,3 +8,4 @@ hltESPSmartPropagator = cms.ESProducer("SmartPropagatorESProducer",
     TrackerPropagator = cms.string('PropagatorWithMaterial')
 )
 # foo bar baz
+# YAW8lkhbASYUU

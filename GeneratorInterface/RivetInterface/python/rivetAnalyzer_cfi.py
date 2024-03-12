@@ -21,3 +21,4 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   OutputFile = cms.string('out.yoda')
 )
 # foo bar baz
+# gvYrC55Chckef

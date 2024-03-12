@@ -53,3 +53,4 @@ process.zdcSimHitStudy.Verbose = True
 process.schedule = cms.Path(process.zdcSimHitStudy)
 
 # foo bar baz
+# GBoB3pSfyP3rI

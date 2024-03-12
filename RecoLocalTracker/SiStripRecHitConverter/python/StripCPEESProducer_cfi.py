@@ -6,3 +6,4 @@ stripCPEESProducer = cms.ESProducer("StripCPEESProducer",
                                     parameters    = cms.PSet()
 )
 # foo bar baz
+# ZHdZFwXGoQ7L7

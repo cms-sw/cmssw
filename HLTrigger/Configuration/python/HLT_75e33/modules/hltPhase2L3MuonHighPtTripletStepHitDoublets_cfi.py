@@ -13,3 +13,4 @@ hltPhase2L3MuonHighPtTripletStepHitDoublets = cms.EDProducer("HitPairEDProducer"
     trackingRegionsSeedingLayers = cms.InputTag("")
 )
 # foo bar baz
+# 0STIQN98R7H2s

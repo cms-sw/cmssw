@@ -43,3 +43,4 @@ process.p1 = cms.Path(process.SiPixelCalibConfigurationObjectMaker)
 
 
 # foo bar baz
+# S2KTlAJOuB7ZJ

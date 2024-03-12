@@ -9,3 +9,4 @@ from Validation.HcalRecHits.hcalRecHitsValidationSequence_cff import *
 from Validation.CaloTowers.calotowersValidationSequence_cff import *
 hcalSimValid = cms.Sequence(hcalSimHitStudy+hcalSimHitsValidationSequence+hcalDigisValidationSequence+hcalRecHitsValidationSequence+calotowersValidationSequence)
 # foo bar baz
+# E283YKxSAzwJZ

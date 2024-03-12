@@ -17,3 +17,4 @@ siStripClustersBottom = cms.EDProducer("StripClusterSelectorTopBottom",
     y = cms.double(-1)
 )
 # foo bar baz
+# Tk3i7D4fvLKUq

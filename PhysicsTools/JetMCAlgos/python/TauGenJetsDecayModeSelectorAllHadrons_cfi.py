@@ -13,3 +13,4 @@ tauGenJetsSelectorAllHadrons = cms.EDFilter("TauGenJetDecayModeSelector",
      filter = cms.bool(False)
 )
 # foo bar baz
+# 1cMvjtbiCFswH

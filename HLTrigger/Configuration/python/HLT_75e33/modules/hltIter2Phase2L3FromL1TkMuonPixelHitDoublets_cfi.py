@@ -11,3 +11,4 @@ hltIter2Phase2L3FromL1TkMuonPixelHitDoublets = cms.EDProducer("HitPairEDProducer
     trackingRegionsSeedingLayers = cms.InputTag("")
 )
 # foo bar baz
+# HQZ60Buhnb49L

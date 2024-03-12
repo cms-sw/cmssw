@@ -26,3 +26,4 @@ pfPhotonTranslator = cms.EDProducer("PFPhotonTranslator",
                                     hOverEConeSize = cms.double(0.15)
                                     )
 # foo bar baz
+# 5qR44ZXvzb3AZ

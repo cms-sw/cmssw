@@ -9,3 +9,4 @@ analyzeBasicPat = cms.EDAnalyzer("PatBasicAnalyzer",
   metSrc      = cms.untracked.InputTag("patMETs")
 )
 # foo bar baz
+# IA6CsZgybXMKa

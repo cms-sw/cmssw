@@ -17,3 +17,4 @@ dqmEnvSiStripLorentzAngle = DQMEDHarvester('DQMHarvestingMetadata',
 
 ALCAHARVESTSiStripLorentzAngle = cms.Sequence( EDMtoMEConvertSiStripLorentzAngle + alcaSiStripLorentzAngleHarvester + dqmEnvSiStripLorentzAngle )
 # foo bar baz
+# lk0ifc6LXbzRK

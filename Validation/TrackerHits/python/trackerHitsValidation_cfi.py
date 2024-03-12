@@ -56,3 +56,4 @@ trackerSiStripHitsValid = DQMEDAnalyzer('TrackerHitAnalyzer',
     pixelOutput = cms.bool(False)
 )
 # foo bar baz
+# M4VY9kTlZeESU

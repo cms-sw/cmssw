@@ -5,3 +5,4 @@ duplicaterechits = cms.EDAnalyzer('DuplicateRecHits',
                                   TTRHBuilder = cms.string('WithTrackAngle')
                       )
 # foo bar baz
+# pVuVl78axDnIa

@@ -7,3 +7,4 @@ JetMETPostVal = DQMEDHarvester("JetMETDQMPostProcessor",
      PatternMetTrg = cms.untracked.string("M([E,H])+T([0-9])+")
        )
 # foo bar baz
+# 0J6RTCEr1ynVX

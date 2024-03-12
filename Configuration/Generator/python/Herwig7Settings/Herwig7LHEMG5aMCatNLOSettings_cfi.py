@@ -12,3 +12,4 @@ herwig7LHEMG5aMCatNLOSettingsBlock = cms.PSet(
     )
 )
 # foo bar baz
+# gzViYGSP83z8O

@@ -4,3 +4,4 @@ hltPhase2L3MuonCandidates = cms.EDProducer("L3MuonCandidateProducerFromMuons",
     InputObjects = cms.InputTag("hltPhase2L3Muons")
 )
 # foo bar baz
+# 7Z8buLFwwoDEs

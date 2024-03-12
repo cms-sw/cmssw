@@ -96,3 +96,4 @@ DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep
 DQMOfflineCosmics_SecondStep_FakeHLT.remove( DQMOfflineCosmics_SecondStepTrigger )
 
 # foo bar baz
+# vzDiY7G8Eva7M

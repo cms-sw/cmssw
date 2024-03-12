@@ -16,3 +16,4 @@ ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
 cosmicConversionTrackTask = cms.Task(ckfTracksFromConversionsTask)
 cosmicConversionTrackSequence = cms.Sequence(cosmicConversionTrackTask)
 # foo bar baz
+# CL6NufA21RUee

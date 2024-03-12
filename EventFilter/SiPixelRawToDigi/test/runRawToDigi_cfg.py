@@ -71,3 +71,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.siPixelDigis)
 process.ep = cms.EndPath(process.out)
 # foo bar baz
+# 6d3lRozwkD5Jt

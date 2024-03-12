@@ -23,3 +23,4 @@ hltEle115NonIsoClusterShapeL1SeededFilter = cms.EDFilter("HLTEgammaGenericFilter
     varTag = cms.InputTag("hltEgammaClusterShapeL1Seeded","sigmaIEtaIEta5x5")
 )
 # foo bar baz
+# oOz1FvS4tgZrB

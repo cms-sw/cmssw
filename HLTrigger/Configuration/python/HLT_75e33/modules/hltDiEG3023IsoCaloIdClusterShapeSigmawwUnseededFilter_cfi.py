@@ -23,3 +23,4 @@ hltDiEG3023IsoCaloIdClusterShapeSigmawwUnseededFilter = cms.EDFilter("HLTEgammaG
     varTag = cms.InputTag("hltEgammaHGCALIDVarsUnseeded","sigma2ww")
 )
 # foo bar baz
+# O0pq2FyaExSks

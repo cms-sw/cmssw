@@ -45,3 +45,4 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
     finalCut = cms.string('pt > 18. & abs(eta) < 2.3'),
 )
 # foo bar baz
+# f86Gny0M6k8P2

@@ -27,3 +27,4 @@ mumufilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 # foo bar baz
+# DPSfsTqrGstqI

@@ -100,3 +100,4 @@ muonSelectionTypeTask = cms.Task(
     ,muidRPCMuLoose)
 muonSelectionTypeSequence = cms.Sequence(muonSelectionTypeTask)
 # foo bar baz
+# r7DZn6eMLgN5j

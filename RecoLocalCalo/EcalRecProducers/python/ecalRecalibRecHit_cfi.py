@@ -14,3 +14,4 @@ ecalRecHit = cms.EDProducer("EcalRecalibRecHitProducer",
     EERecalibRecHitCollection = cms.string('EcalRecHitsEE')
 )
 # foo bar baz
+# TdHxeyMsB3FPg

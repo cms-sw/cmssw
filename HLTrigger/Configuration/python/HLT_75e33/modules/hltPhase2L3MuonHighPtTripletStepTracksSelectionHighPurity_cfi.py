@@ -9,3 +9,4 @@ hltPhase2L3MuonHighPtTripletStepTracksSelectionHighPurity = cms.EDProducer("Trac
     originalSource = cms.InputTag("hltPhase2L3MuonHighPtTripletStepTracks")
 )
 # foo bar baz
+# YLT9hwxbd4M77

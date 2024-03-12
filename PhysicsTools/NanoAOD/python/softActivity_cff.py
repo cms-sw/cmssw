@@ -42,3 +42,4 @@ saTable = globalVariablesTableProducer.clone(
 softActivityTask = cms.Task(chsForSATkJets,softActivityJets,softActivityJets2,softActivityJets5,softActivityJets10)
 softActivityTablesTask = cms.Task(saJetTable,saTable)
 # foo bar baz
+# KKoySubKW5cgC

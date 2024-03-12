@@ -31,3 +31,4 @@ hltEle115NonIsoGsfDetaL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEt
     varTag = cms.InputTag("hltEgammaGsfTrackVarsL1Seeded","DetaSeed")
 )
 # foo bar baz
+# KIjTVDhqiJglC

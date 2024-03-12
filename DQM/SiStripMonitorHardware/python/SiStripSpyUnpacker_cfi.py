@@ -12,3 +12,4 @@ SiStripSpyUnpacker = cms.EDProducer(
     StoreScopeRawDigis = cms.bool(True)         # Note - needs to be True for use in other modules.
     )
 # foo bar baz
+# UzoZ0BbZuVMEd

@@ -6,3 +6,4 @@ hltAK8PFPuppiJetCorrectorL3 = cms.EDProducer("LXXXCorrectorProducer",
     level = cms.string('L3Absolute')
 )
 # foo bar baz
+# sBdqQ19CGvXgN

@@ -6,3 +6,4 @@ packedGenParticles = cms.EDProducer("PATPackedGenParticleProducer",
     maxRapidity = cms.double(6)
 )
 # foo bar baz
+# joL3BYLXuvS3U

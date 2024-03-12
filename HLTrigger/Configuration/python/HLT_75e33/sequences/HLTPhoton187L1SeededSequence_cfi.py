@@ -28,3 +28,4 @@ HLTPhoton187L1SeededSequence = cms.Sequence(
     HLTPhoton187L1SeededTask
 )
 # foo bar baz
+# 5HaTDNOKXNqri

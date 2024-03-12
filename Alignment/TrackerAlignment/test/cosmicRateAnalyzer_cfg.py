@@ -35,3 +35,4 @@ process.load("Alignment.TrackerAlignment.cosmicRateAnalyzer_cfi")
 process.p = cms.Path(process.cosmicRateAnalyzer)
 
 # foo bar baz
+# oMHLdFpOCgYYY

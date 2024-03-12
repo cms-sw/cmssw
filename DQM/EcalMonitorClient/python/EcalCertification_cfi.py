@@ -19,3 +19,4 @@ ecalCertification = DQMEDHarvester("EcalDQMonitorClient",
     verbosity = cms.untracked.int32(0)
 )
 # foo bar baz
+# juGtEmEi4FMQA

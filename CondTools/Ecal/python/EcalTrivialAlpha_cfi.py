@@ -6,3 +6,4 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     EELaserAlphaFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/endcap_ly.txt')
 )
 # foo bar baz
+# lq1GwedIskZkM

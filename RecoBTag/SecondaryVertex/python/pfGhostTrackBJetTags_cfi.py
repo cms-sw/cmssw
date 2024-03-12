@@ -6,3 +6,4 @@ pfGhostTrackBJetTags = cms.EDProducer("JetTagProducer",
 	                         cms.InputTag("pfGhostTrackVertexTagInfos"))
 )
 # foo bar baz
+# 7DypNIaUP1oVs

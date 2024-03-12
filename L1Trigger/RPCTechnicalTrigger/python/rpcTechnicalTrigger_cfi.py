@@ -21,3 +21,4 @@ rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                                            ) )
 
 # foo bar baz
+# dzKZa5i18ioQw

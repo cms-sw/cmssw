@@ -9,3 +9,4 @@ process.a = cms.EDProducer("edmtest::one::WatchLumiBlocksProducer", transitions 
 
 process.p = cms.Path(process.a)
 # foo bar baz
+# am1PIvrZf3GTl

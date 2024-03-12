@@ -4,3 +4,4 @@ AlcaBeamMonitorClient = cms.EDAnalyzer("AlcaBeamMonitorClient",
                               	 MonitorName = cms.untracked.string('AlcaBeamMonitor'),
                                )
 # foo bar baz
+# 8T6Env2w14b3h

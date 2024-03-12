@@ -182,3 +182,4 @@ susyClient = cms.Sequence(
   + susyHLTSoftMuHardJetMETClient
 )
 # foo bar baz
+# 2rUQ6pQ2y3gQ2

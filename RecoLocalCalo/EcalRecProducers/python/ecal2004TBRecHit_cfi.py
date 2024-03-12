@@ -9,3 +9,4 @@ ecal2004TBRecHit = cms.EDProducer("EcalRecHitProducer",
     algo = cms.string("EcalRecHitWorkerSimple")
 )
 # foo bar baz
+# EnKHG3RILcFot

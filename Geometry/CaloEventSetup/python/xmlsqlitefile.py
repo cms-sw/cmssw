@@ -15,3 +15,4 @@ PoolDBESSource = cms.ESSource( "PoolDBESSource",
 
 PoolDBESSource.connect = cms.string('sqlite_file:allxml.db')
 # foo bar baz
+# xijtxVbuoP7dv

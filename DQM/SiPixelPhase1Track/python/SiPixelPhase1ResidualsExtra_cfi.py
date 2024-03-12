@@ -6,3 +6,4 @@ SiPixelPhase1ResidualsExtra = DQMEDHarvester("SiPixelPhase1ResidualsExtra",
     MinHits = cms.int32(30)
 )
 # foo bar baz
+# 6HQbFJssKt6HI

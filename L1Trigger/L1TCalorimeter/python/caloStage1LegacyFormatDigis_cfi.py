@@ -9,3 +9,4 @@ caloStage1LegacyFormatDigis = cms.EDProducer(
     InputHFCountsCollection = cms.InputTag("caloStage1Digis:HFBitCounts")
 )
 # foo bar baz
+# h0eGtvjMtWhfK

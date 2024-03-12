@@ -157,3 +157,4 @@ run2_common.toModify(SiStripSimBlock,
                      APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
                      )
 # foo bar baz
+# oY8GUMkYOVj4i

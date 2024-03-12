@@ -87,3 +87,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.p1 = cms.Path(process.pcsc*process.prpc*process.pdt*process.ptrak*process.etta*process.ctgw*process.cga*process.mfa) #*process.pcalo)
 process.ep = cms.EndPath(process.myprint)
 # foo bar baz
+# JBJFWBqZbZsY5

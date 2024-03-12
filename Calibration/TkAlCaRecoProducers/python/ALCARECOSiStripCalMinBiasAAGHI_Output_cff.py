@@ -32,3 +32,4 @@ run3_common.toModify(OutALCARECOSiStripCalMinBiasAAG_noDrop, outputCommands = _r
 OutALCARECOSiStripCalMinBiasAAG=OutALCARECOSiStripCalMinBiasAAG_noDrop.clone()
 OutALCARECOSiStripCalMinBiasAAG.outputCommands.insert(0,"drop *")
 # foo bar baz
+# SnTZiJld5I44k

@@ -11,3 +11,4 @@ from RecoEgamma.EgammaPhotonProducers.photons_cfi import *
 photonSequence = cms.Sequence(photons)
 
 # foo bar baz
+# x0jeK96dtZ5zk

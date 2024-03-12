@@ -29,3 +29,4 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 for e in [pA_2016, peripheralPbPb, pp_on_AA, pp_on_XeXe_2017, ppRef_2017]:
     e.toReplaceWith(photonTask, _photonTaskWithIsland)
 # foo bar baz
+# EVcxzHBkZP5oC

@@ -43,3 +43,4 @@ process.p = cms.Path( process.offlinePrimaryVertices + process.cVRTest )
 process.MessageLogger.debugModules = ['cVRTest']
 
 # foo bar baz
+# tvhxYQA57pSl2

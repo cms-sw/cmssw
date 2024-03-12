@@ -5,3 +5,4 @@ from Validation.HcalRecHits.NoiseRatesClient_cfi import *
 
 hcalrechitsPostProcessor = cms.Sequence(noiseratesClient*hcalrechitsClient)
 # foo bar baz
+# gRY1YSx7i3Rkf

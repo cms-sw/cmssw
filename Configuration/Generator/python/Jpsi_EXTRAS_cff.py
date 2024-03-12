@@ -4,3 +4,4 @@ from Configuration.Generator.JpsiMM_filt_cfi import *
 
 ProductionFilterSequence = cms.Sequence(mumugenfilter)
 # foo bar baz
+# iujIp0NHj60xT

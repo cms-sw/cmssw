@@ -27,3 +27,4 @@ rpcTnPEfficiencyMonitor = DQMEDAnalyzer('RPCTnPEfficiencyTask',
                                        detailedAnalysis = cms.untracked.bool(True)
 )
 # foo bar baz
+# 8efTGNNgA4hiJ

@@ -49,3 +49,4 @@ from SimG4Core.PrintGeomInfo.g4PrintGeomSummary_cfi import *
 
 process = printGeomSummary(process)
 # foo bar baz
+# g5VDZIl6aNR8F

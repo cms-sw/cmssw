@@ -40,3 +40,4 @@ hfprereco = cms.EDProducer("HFPreReconstructor",
     soiShift = cms.int32(0)
 )
 # foo bar baz
+# GOVWSBNLUvA39

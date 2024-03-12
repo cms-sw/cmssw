@@ -5,3 +5,4 @@ hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
 # foo bar baz
+# eti2XxSCGL3Zh

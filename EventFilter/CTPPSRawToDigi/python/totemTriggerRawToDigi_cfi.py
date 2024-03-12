@@ -8,3 +8,4 @@ totemTriggerRawToDigi = cms.EDProducer("TotemTriggerRawToDigi",
   fedId = cms.uint32(0)
 )
 # foo bar baz
+# G0VVaTKS2zq96

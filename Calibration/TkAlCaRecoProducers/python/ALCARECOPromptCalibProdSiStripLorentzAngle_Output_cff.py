@@ -12,3 +12,4 @@ OutALCARECOPromptCalibProdSiStripLA_noDrop = cms.PSet(
 OutALCARECOPromptCalibProdSiStripLA=OutALCARECOPromptCalibProdSiStripLA_noDrop.clone()
 OutALCARECOPromptCalibProdSiStripLA.outputCommands.insert(0, "drop *")
 # foo bar baz
+# zhoGRLInEYk9I

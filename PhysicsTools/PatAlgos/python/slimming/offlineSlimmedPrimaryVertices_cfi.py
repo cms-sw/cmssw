@@ -8,3 +8,4 @@ offlineSlimmedPrimaryVertices = cms.EDProducer("PATVertexSlimmer",
 #   score = cms.InputTag("offlinePrimaryVertices"), 
 )
 # foo bar baz
+# sU1lNEEn1lv8u

@@ -38,3 +38,4 @@ ALCARECODTCalibSynchCosmicsDQM = cms.Sequence( dtPreCalibrationTaskAlcaCosmics +
                                                dtAlcaResolutionMonitorCosmics )
 
 # foo bar baz
+# Hx5sYwogy7XYr

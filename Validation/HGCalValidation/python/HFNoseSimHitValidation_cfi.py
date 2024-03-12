@@ -6,3 +6,4 @@ hfnoseSimHitValidationHEF = hgcalSimHitValidationEE.clone(
     DetectorName  = cms.string("HGCalHFNoseSensitive"),
     CaloHitSource = cms.string("HFNoseHits"))
 # foo bar baz
+# KZBINDE07iR5T

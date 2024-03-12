@@ -28,3 +28,4 @@ RPCLinkMapSource = cms.ESSource('PoolDBESSource'
                                 , connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
 )
 # foo bar baz
+# oQmLZW9nPv1vj

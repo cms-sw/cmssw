@@ -29,3 +29,4 @@ cleanPatCandidatesTask = cms.Task(
 )
 cleanPatCandidates = cms.Sequence(cleanPatCandidateSummary, cleanPatCandidatesTask)
 # foo bar baz
+# papqoVZj7VciP

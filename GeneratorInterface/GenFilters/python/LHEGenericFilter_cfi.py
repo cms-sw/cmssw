@@ -7,3 +7,4 @@ lheGenericFilter = cms.EDFilter("LHEGenericFilter",
     AcceptLogic = cms.string("LT") # LT meaning < NumRequired, GT >, EQ =, NE !=
 )                                
 # foo bar baz
+# 1pKR1I2fTA86c

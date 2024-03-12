@@ -70,3 +70,4 @@ process.hgcalScintIDTester.fileName = inputFile
 
 process.p1 = cms.Path(process.generator*process.hgcalScintIDTester)
 # foo bar baz
+# CCPSsT9cfha6x

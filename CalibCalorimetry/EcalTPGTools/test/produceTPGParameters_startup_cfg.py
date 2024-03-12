@@ -98,3 +98,4 @@ process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
 process.p = cms.Path(process.TPGParamProducer)
 
 # foo bar baz
+# q5KH1PkfGIK3v

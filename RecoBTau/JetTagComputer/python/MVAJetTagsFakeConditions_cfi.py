@@ -13,3 +13,4 @@ BTauMVAJetTagComputerRecord = cms.ESSource("PoolDBESSource",
 	BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
 # foo bar baz
+# MMt1gP1gjn9iS

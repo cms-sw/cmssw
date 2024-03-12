@@ -9,3 +9,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.test = cms.OutputModule("ProvenanceCheckerOutputModule")
 process.o = cms.EndPath(process.test+process.out)
 # foo bar baz
+# eorxNlXH9y1EP

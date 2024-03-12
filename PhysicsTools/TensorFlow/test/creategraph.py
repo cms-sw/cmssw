@@ -48,3 +48,4 @@ builder = tf.saved_model.builder.SavedModelBuilder(os.path.join(datadir, "simple
 builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING])
 builder.save()
 # foo bar baz
+# lTdQ3AjfCd1W2

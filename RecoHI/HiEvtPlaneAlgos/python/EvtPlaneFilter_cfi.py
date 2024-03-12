@@ -8,3 +8,4 @@ evtplaneFilter = cms.EDFilter("EvtPlaneFilter",
                               EPidx = cms.int32(8) # HF2
         )
 # foo bar baz
+# BpmSLn8wePCo3

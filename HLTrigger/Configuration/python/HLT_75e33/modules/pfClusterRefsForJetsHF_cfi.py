@@ -5,3 +5,4 @@ pfClusterRefsForJetsHF = cms.EDProducer("PFClusterRefCandidateProducer",
     src = cms.InputTag("particleFlowClusterHF")
 )
 # foo bar baz
+# yX4Ts5ctOLEIj

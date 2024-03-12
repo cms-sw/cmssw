@@ -48,3 +48,4 @@ process.write = cms.EDAnalyzer("DumpL1RPCHsbConfig",
 
 process.p1 = cms.Path(process.write)
 # foo bar baz
+# 7qKjfh43i2IQD

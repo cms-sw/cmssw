@@ -6,3 +6,4 @@ HLTPFClusteringForEgammaUnseeded = cms.Sequence(
     HLTPFClusteringForEgammaUnseededTask
 )
 # foo bar baz
+# sVWi5Ha1PRWm7

@@ -24,3 +24,4 @@ materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)
 
 # foo bar baz
+# kULSknoqO0eXc

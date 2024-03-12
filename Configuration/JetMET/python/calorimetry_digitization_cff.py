@@ -6,3 +6,4 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 caloDigi = cms.Sequence(mix*calDigi)
 
 # foo bar baz
+# WTJBuS7e8Mx2l

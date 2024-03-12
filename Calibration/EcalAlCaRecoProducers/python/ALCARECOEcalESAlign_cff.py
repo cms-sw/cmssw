@@ -38,3 +38,4 @@ EcalESAlignTracksSkimSeq = cms.Sequence( esSelectedTracks * ecalAlCaESAlignTrack
 seqEcalESAlign = cms.Sequence(ALCARECOEcalESAlignHLT * EcalESAlignTracksSkimSeq)
 
 # foo bar baz
+# KtHnpBZSE8V9B

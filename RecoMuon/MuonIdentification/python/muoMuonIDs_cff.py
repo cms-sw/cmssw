@@ -5,3 +5,4 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 muoMuonIDTask = cms.Task(muoMuonIDs)
 muoMuonIDSequence = cms.Sequence(muoMuonIDTask)
 # foo bar baz
+# LQsCWeDuHecXI

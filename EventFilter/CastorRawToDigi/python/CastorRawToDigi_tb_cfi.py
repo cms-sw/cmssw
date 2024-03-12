@@ -27,3 +27,4 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     InputLabel = cms.InputTag("rawDataCollector")
 )
 # foo bar baz
+# DcKp3wK8pCub7

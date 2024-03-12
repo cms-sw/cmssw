@@ -5,3 +5,4 @@ negativeTrackCountingHighEffBJetTags = cms.EDProducer("JetTagProducer",
     tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfos"))
 )
 # foo bar baz
+# 3i3y68TNGO19Q

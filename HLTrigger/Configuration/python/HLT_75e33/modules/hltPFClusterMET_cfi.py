@@ -6,3 +6,4 @@ hltPFClusterMET = cms.EDProducer("PFClusterMETProducer",
     src = cms.InputTag("pfClusterRefsForJets")
 )
 # foo bar baz
+# 6UjKkFAAUd4Rt

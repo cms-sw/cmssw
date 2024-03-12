@@ -56,3 +56,4 @@ hiPhotonCleaningTask = cms.Task(hiSpikeCleanedSC,
                                 cleanPhotons)
 hiPhotonCleaningSequence = cms.Sequence(hiPhotonCleaningTask)
 # foo bar baz
+# mYm6UDJNkdfIy

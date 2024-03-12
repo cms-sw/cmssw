@@ -27,3 +27,4 @@ cscTnPEfficiencyMonitor = DQMEDAnalyzer('CSCTnPEfficiencyTask',
                                        detailedAnalysis = cms.untracked.bool(True)
 )
 # foo bar baz
+# YQHnZzetl9adY

@@ -88,3 +88,4 @@ process.hgcalWaferStudy.layerMaxDig = cms.untracked.vint32(10,10)
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.analysis_step)
 # foo bar baz
+# C1UIFlBrI3GHu

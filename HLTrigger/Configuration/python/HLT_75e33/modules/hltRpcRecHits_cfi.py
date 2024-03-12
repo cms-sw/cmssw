@@ -12,3 +12,4 @@ hltRpcRecHits = cms.EDProducer("RPCRecHitProducer",
     rpcDigiLabel = cms.InputTag("simMuonRPCDigis")
 )
 # foo bar baz
+# MSnaG7B8fr0wL

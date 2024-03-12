@@ -31,3 +31,4 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
         puppiMETSequence = cms.Sequence(puppiMETTask)
         setattr(process, "puppiMETSequence", puppiMETSequence)
 # foo bar baz
+# Bqh67uqSPWFfS

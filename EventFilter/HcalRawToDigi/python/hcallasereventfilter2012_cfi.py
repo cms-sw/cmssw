@@ -15,3 +15,4 @@ hcallasereventfilter2012=cms.EDFilter("HcalLaserEventFilter2012",
                                       forceFilterTrue=cms.untracked.bool(False) # if specified, filter will always return 'True'.  You could use this along with the 'verbose' or 'WriteBadToFile' booleans in order to dump out bad event numbers without actually filtering them
                                       )
 # foo bar baz
+# 2WtITWj6sQO0o

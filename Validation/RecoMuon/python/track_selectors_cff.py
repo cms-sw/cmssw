@@ -79,3 +79,4 @@ seedsOfDisplacedSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackPr
 )
 seedsOfDisplacedSTAmuons_seq = cms.Sequence( seedsOfDisplacedSTAmuons )
 # foo bar baz
+# CE0vEs25bWbOK

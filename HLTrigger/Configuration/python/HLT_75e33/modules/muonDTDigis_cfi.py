@@ -5,3 +5,4 @@ muonDTDigis = cms.EDProducer("DTuROSRawToDigi",
     inputLabel = cms.InputTag("rawDataCollector")
 )
 # foo bar baz
+# 1rjGFYsPeC9aV

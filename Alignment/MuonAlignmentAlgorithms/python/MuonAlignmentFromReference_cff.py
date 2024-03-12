@@ -74,3 +74,4 @@ PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                     cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")),
                                                     cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
 # foo bar baz
+# MA8NC2iPdy0OQ

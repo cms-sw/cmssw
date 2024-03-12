@@ -7,3 +7,4 @@ duplicationChecker = DQMEDAnalyzer('DuplicationChecker',
     UseWeightFromHepMC = cms.bool(True)
 )
 # foo bar baz
+# UBckjMqJI0GNz

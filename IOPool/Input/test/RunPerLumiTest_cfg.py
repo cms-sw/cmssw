@@ -38,3 +38,4 @@ process.p = cms.Path(process.OtherThing*process.Analysis)
 
 process.e = cms.EndPath(process.check+process.output)
 # foo bar baz
+# UqGkdFPQEk3ft

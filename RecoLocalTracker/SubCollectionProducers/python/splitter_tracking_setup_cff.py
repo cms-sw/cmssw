@@ -162,3 +162,4 @@ def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstripr
     convLayerPairs.TID3.stereoRecHits = cms.InputTag(newstriprechits,"stereoRecHit")
     convLayerPairs.TEC.stereoRecHits  = cms.InputTag(newstriprechits,"stereoRecHit")
 # foo bar baz
+# XB5JfUgdYPC0D

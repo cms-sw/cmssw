@@ -60,3 +60,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
 
 # foo bar baz
+# 2ccRBsF0FEOAw

@@ -6,3 +6,4 @@ hltPixelTracksCleanerBySharedHits = cms.ESProducer("PixelTrackCleanerBySharedHit
     useQuadrupletAlgo = cms.bool(False)
 )
 # foo bar baz
+# z1fw2sAXiI8pP

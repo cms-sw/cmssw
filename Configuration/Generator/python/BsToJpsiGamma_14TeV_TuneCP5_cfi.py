@@ -93,3 +93,4 @@ jpsifilter = cms.EDFilter(
 
 ProductionFilterSequence = cms.Sequence(generator*decayfilter*jpsifilter)
 # foo bar baz
+# CCM0hW90Iu4sH

@@ -7,3 +7,4 @@ hfnoseRecHitValidation = hgcalRecHitValidationEE.clone(
     RecHitSource = cms.InputTag("HGCalRecHit","HGCHFNoseRecHits"))
 
 # foo bar baz
+# RDa6q7ALrn92O

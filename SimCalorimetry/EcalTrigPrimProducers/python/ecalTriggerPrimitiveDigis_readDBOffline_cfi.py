@@ -16,3 +16,4 @@ simEcalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 
 
 # foo bar baz
+# cnbdgeGYR4ASW

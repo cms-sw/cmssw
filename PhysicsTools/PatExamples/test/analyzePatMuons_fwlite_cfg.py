@@ -17,3 +17,4 @@ process.patMuonAnalyzer = cms.PSet(
     muons = cms.InputTag('selectedPatMuons')
 )
 # foo bar baz
+# Y6HKkZihNwPAc

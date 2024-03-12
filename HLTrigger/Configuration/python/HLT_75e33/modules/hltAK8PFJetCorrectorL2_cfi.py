@@ -5,3 +5,4 @@ hltAK8PFJetCorrectorL2 = cms.EDProducer("LXXXCorrectorProducer",
     level = cms.string('L2Relative')
 )
 # foo bar baz
+# 0mIDaALkX5nuD

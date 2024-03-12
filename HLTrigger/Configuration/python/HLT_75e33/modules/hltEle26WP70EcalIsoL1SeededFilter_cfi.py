@@ -31,3 +31,4 @@ hltEle26WP70EcalIsoL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadraticEtaFi
     varTag = cms.InputTag("hltEgammaEcalPFClusterIsoL1Seeded")
 )
 # foo bar baz
+# lL6sdv77LTIgi

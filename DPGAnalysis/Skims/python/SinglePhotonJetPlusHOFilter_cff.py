@@ -11,3 +11,4 @@ SinglePhotonJetPlusHOFilterSkim = _singlePhotonJetPlusHOFilter.clone(
 SinglePhotonJetPlusHOFilterSequence = cms.Sequence(SinglePhotonJetPlusHOFilterSkim)
 
 # foo bar baz
+# RmrlosXL0uN8P

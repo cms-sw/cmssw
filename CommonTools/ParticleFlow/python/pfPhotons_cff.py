@@ -12,3 +12,4 @@ pfPhotonTask = cms.Task(
     )
 pfPhotonSequence = cms.Sequence(pfPhotonTask)
 # foo bar baz
+# 0H6PRIitrSxkz

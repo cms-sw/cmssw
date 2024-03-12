@@ -123,3 +123,4 @@ dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + d
 dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)
 
 # foo bar baz
+# rBTvydcK0Ka0P

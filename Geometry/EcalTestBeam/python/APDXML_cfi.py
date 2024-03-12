@@ -7,3 +7,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     rootNodeName = cms.string('ebapd:ECAL')
 )
 # foo bar baz
+# PWStKrzw5iDkM

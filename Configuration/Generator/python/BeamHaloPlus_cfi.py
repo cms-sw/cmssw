@@ -12,3 +12,4 @@ generator = cms.EDProducer("BeamHaloProducer",
     BXNS = cms.untracked.double(25.)      ## time between 2 bx s, in ns
 )
 # foo bar baz
+# gaugCFn4arRlS

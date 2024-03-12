@@ -6,3 +6,4 @@ modifiedTaus = cms.EDProducer(
     modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 # foo bar baz
+# Sdhr00du8Y6mq

@@ -5,3 +5,4 @@ import FWCore.ParameterSet.Config as cms
 #
 from GeometryReaders.XMLIdealGeometryESSource.cmsMagneticFieldGeometryDB_cff import *
 # foo bar baz
+# YkC54KWWWbGQU

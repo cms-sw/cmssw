@@ -22,3 +22,4 @@ hltPhase2L3MuonHighPtTripletStepHitTriplets = cms.EDProducer("CAHitTripletEDProd
     useBendingCorrection = cms.bool(True)
 )
 # foo bar baz
+# BtzBVYkSFsxGX

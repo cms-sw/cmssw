@@ -6,3 +6,4 @@ hltIter2Phase2L3FromL1TkMuonMaskedMeasurementTrackerEvent = cms.EDProducer("Mask
     src = cms.InputTag("MeasurementTrackerEvent")
 )
 # foo bar baz
+# KaXDEPeA8VCNQ

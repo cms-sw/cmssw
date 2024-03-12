@@ -17,3 +17,4 @@ SiStripApprox2Clusters.inputApproxClusters = 'SiStripClusters2ApproxClusters'
 approxSiStripClusters.toModify(SiStripApprox2Clusters, inputApproxClusters = 'hltSiStripClusters2ApproxClusters')
 approxSiStripClusters.toReplaceWith(siStripClusters,SiStripApprox2Clusters)
 # foo bar baz
+# BVAa6iDRjJiwz

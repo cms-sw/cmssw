@@ -56,3 +56,4 @@ HGCalUncalibRecHitL1Seeded = cms.EDProducer("HGCalUncalibRecHitProducer",
     algo = cms.string('HGCalUncalibRecHitWorkerWeights')
 )
 # foo bar baz
+# fbi87Sqo4vJhD

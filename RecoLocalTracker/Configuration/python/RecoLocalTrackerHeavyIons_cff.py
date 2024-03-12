@@ -17,3 +17,4 @@ striptrackerlocalrecoTask = cms.Task(siStripZeroSuppression,siStripClusters,siSt
 trackerlocalrecoTask = cms.Task(pixeltrackerlocalrecoTask,striptrackerlocalrecoTask,clusterSummaryProducer)
 trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
 # foo bar baz
+# VxF3dzzH31AKY

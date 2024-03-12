@@ -55,3 +55,4 @@ MaxEta = cms.untracked.vdouble( 2.6, 2.6)
 # )
 ProductionFilterSequence = cms.Sequence(generator*etafilter*jpsifilter)
 # foo bar baz
+# G1PXNub3eSiSS

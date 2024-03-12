@@ -10,3 +10,4 @@ hltTauPFJets08Region = cms.EDProducer( "RecoTauJetRegionProducer",
     pfCandSrc = cms.InputTag( "particleFlowTmp" )
 )
 # foo bar baz
+# nFuzSfTxKlpIE

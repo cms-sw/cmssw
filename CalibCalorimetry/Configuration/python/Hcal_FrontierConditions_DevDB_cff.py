@@ -11,3 +11,4 @@ from CalibCalorimetry.HcalPlugins.Hcal_FrontierConditions_cff import *
 es_pool.connect = 'frontier://FrontierDev/CMS_COND_HCAL'
 
 # foo bar baz
+# JVou6XyeVD4ar

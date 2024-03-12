@@ -10,3 +10,4 @@ hltbeamgas = cms.EDFilter("HLTHighLevel",
                           )
 pfgskim3noncrossseq = cms.Sequence(hltPhysicsDeclared*hltbeamgas)
 # foo bar baz
+# 6O50gGxh2qHFZ

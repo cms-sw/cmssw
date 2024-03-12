@@ -9,3 +9,4 @@ process.FWLiteParams = cms.PSet(
     overlaps = cms.string('electrons')
 )
 # foo bar baz
+# bJVM48gv5Zm8F

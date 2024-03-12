@@ -11,3 +11,4 @@ pfElectronTranslatorTask = cms.Task(
 )
 pfElectronTranslatorSequence = cms.Sequence(pfElectronTranslatorTask)
 # foo bar baz
+# UZxtB4Vw5bvVP

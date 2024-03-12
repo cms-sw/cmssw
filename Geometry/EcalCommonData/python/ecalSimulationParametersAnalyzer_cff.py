@@ -8,3 +8,4 @@ ecalSimulationParametersAnalyzerEE = ecalSimulationParametersAnalyzerEB.clone(
 ecalSimulationParametersAnalyzerES = ecalSimulationParametersAnalyzerEB.clone(
     name  = "EcalHitsES")
 # foo bar baz
+# NnTwFiIXSir4C

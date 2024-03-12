@@ -23,3 +23,4 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     src = cms.InputTag("simSiPixelDigis","Pixel")
 )
 # foo bar baz
+# 3EetYEah2nbiK

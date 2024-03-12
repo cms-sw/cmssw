@@ -29,3 +29,4 @@ diamondSampicDQMSourceOffline = DQMEDAnalyzer('DiamondSampicDQMSource',
     plotOnline=cms.untracked.bool(False)
 )
 # foo bar baz
+# HdfsRZXIJsB0R

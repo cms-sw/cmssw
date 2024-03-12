@@ -142,3 +142,4 @@ process.CondDataMonitoring.SiStripQualityDQM_PSet.maxValue     = 1.
 process.p = cms.Path(process.CondDataMonitoring*process.qTester)
 #process.p = cms.Path(process.CondDataMonitoring)
 # foo bar baz
+# wp3JOmlBFWqxE

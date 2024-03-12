@@ -20,3 +20,4 @@ photonPFIsolationDepositsPATTask = cms.Task(
 
 photonPFIsolationDepositsPATSequence = cms.Sequence(photonPFIsolationDepositsPATTask)
 # foo bar baz
+# 3n8gRvlBIGXMm

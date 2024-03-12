@@ -16,3 +16,4 @@ l1tSummaryStage2Digis = cms.EDAnalyzer(
     muonToken  = cms.InputTag("gtStage2Digis","Muon"),
 )
 # foo bar baz
+# ViTCND9b0tHFx

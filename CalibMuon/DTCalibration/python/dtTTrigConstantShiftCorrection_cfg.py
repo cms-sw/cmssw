@@ -40,3 +40,4 @@ process.dtTTrigConstantShiftCorrection.correctionAlgoConfig.calibChamber = 'All'
 
 process.p = cms.Path(process.dtTTrigConstantShiftCorrection)
 # foo bar baz
+# 0OXSbzqCrptY9

@@ -44,3 +44,4 @@ annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu 
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 ProductionFilterSequence = cms.Sequence(generator*bufilter)
 # foo bar baz
+# RGislhXX01MsY

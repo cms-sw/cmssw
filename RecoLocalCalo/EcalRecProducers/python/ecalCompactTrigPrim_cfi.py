@@ -6,3 +6,4 @@ ecalCompactTrigPrim = cms.EDProducer("EcalCompactTrigPrimProducer",
                                      outColl = cms.string("")
                                      )
 # foo bar baz
+# UWYZn5Smo7ICP

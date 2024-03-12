@@ -24,3 +24,4 @@ process.comparerC = cms.EDAnalyzer("OtherThingRefComparer",
 
 process.p = cms.Path(process.otherThing3+process.comparerA+process.comparerB+process.comparerC)
 # foo bar baz
+# 3v2vNpzVsnHvz

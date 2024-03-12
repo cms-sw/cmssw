@@ -11,3 +11,4 @@ from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
 run2_DT_2018.toModify( blockedROChannelTest, checkUros= True)
 
 # foo bar baz
+# Vr4ao4SYfLaEu

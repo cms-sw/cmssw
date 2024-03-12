@@ -10,3 +10,4 @@ fixedTrackerDrivenElectronSeeds = cms.EDProducer(
     idCollection = cms.VInputTag("trackerDrivenElectronSeeds:preid",)
     )
 # foo bar baz
+# E2Nwbge9VmEbT

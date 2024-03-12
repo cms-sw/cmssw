@@ -49,3 +49,4 @@ process.path = cms.Path(
   process.writeCTPPSPixelDAQMapping
 )
 # foo bar baz
+# HYaaf1Ksqnmri

@@ -11,3 +11,4 @@ MuScleFitGenFilter = cms.EDFilter(
     resfind = cms.vint32(0, 0, 0, 0, 0, 1)
 )
 # foo bar baz
+# 8Ph2bdB5hRcDE

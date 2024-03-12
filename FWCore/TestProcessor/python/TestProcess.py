@@ -24,3 +24,4 @@ class TestProcess(cms.Process):
         cms.Process.fillProcessDesc(self,processPSet)
         processPSet.addString(True, "@moduleToTest",self.__dict__["_TestProcess__moduleToTest"].label_())
 # foo bar baz
+# 40T1IblUiChMN

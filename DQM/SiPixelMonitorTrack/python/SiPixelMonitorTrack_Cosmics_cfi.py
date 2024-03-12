@@ -30,3 +30,4 @@ SiPixelTrackResidualSource_Cosmics = DQMEDAnalyzer('SiPixelTrackResidualSource',
     trajectoryInput = cms.InputTag('ctfWithMaterialTracksP5')              
 )
 # foo bar baz
+# a8UPDXOq50Vdr

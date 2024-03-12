@@ -55,3 +55,4 @@ process.test = cms.EDAnalyzer("DDTestCompactView",
 
 process.p = cms.Path(process.test)
 # foo bar baz
+# t0effjaaw1ZWM

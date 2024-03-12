@@ -4,3 +4,4 @@ particleFlowPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
     src = cms.InputTag("particleFlowTmp")
 )
 # foo bar baz
+# THbYSQsKBae8S

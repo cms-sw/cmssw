@@ -17,3 +17,4 @@ hltEgammaEleGsfTrackIsoL1Seeded = cms.EDProducer("EgammaHLTElectronTrackIsolatio
     useSCRefs = cms.bool(True)
 )
 # foo bar baz
+# 6nZjkHpi6pjUw

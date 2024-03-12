@@ -7,3 +7,4 @@ siStripLatencyDummyDBWriter = cms.EDAnalyzer("SiStripLatencyDummyDBWriter",
                                           OpenIovAt = cms.untracked.string("beginOfTime"),
                                           OpenIovAtTime = cms.untracked.uint32(1))
 # foo bar baz
+# LNRMTVOKoI74n

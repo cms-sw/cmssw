@@ -4,3 +4,4 @@ process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:
 process.test = cms.OutputModule("ProvenanceCheckerOutputModule")
 process.o = cms.EndPath(process.test)
 # foo bar baz
+# xE87fb9cqb2C0

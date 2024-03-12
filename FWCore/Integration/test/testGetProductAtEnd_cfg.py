@@ -12,3 +12,4 @@ process.getThing = cms.EDAnalyzer("edmtest::ThingAnalyzer")
 
 process.e = cms.EndPath(process.thing+process.getThing)
 # foo bar baz
+# MnbS03IrWPyG3

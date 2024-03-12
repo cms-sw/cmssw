@@ -5,3 +5,4 @@ hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 # foo bar baz
+# 3CeNECxZapYbP

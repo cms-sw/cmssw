@@ -30,3 +30,4 @@ process.t = cms.Task(process.maker)
 process.p = cms.Path(cms.wait(process.reader)+process.tester+process.consumer2)
 process.p.associate(process.t)
 # foo bar baz
+# wExlvuhSkpSCl

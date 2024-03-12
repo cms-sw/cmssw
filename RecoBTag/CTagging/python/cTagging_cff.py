@@ -17,3 +17,4 @@ cTaggingTask = cms.Task(
     CombinedCharmTagJetTagsTask
 )
 # foo bar baz
+# R9rg3oP563gCf

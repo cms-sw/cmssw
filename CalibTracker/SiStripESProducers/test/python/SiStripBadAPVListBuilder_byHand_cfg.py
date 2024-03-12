@@ -131,3 +131,4 @@ process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)
 
 
 # foo bar baz
+# cNXWWZ7W5NGtC

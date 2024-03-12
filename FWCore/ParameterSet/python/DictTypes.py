@@ -136,3 +136,4 @@ if __name__=="__main__":
             self.assertEqual(['a','b'], [x for x in iter(sd)])
     unittest.main()
 # foo bar baz
+# QAPSAaME8LVIu

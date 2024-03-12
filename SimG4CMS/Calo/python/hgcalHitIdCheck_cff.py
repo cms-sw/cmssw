@@ -12,3 +12,4 @@ hgcalHitIdCheckHEB = hgcalHitIdCheckEE.clone(
     nameSense  = "HGCalHEScintillatorSensitive",
     caloHitSource = "HGCHitsHEback")
 # foo bar baz
+# mnIVKMHQnUsB7

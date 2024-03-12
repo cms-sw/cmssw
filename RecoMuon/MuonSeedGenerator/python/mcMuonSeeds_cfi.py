@@ -12,3 +12,4 @@ mcMuonSeeds = cms.EDProducer("MCMuonSeedGenerator2",
                              SeedType = cms.string("FromTracks")
                              )
 # foo bar baz
+# bS7Ydny2RBAoT

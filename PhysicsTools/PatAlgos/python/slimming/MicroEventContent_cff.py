@@ -217,3 +217,4 @@ _phase2_timing_extraCommands = ["keep *_offlineSlimmedPrimaryVertices4D_*_*"]
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_timing_extraCommands)
 # foo bar baz
+# S3oii4zmjQDBG

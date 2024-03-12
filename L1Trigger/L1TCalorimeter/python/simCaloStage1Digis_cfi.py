@@ -7,3 +7,4 @@ simCaloStage1Digis = cms.EDProducer(
     conditionsLabel = cms.string("")
 )
 # foo bar baz
+# Bnj4USmIL8Qgf

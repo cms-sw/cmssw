@@ -60,3 +60,4 @@ ppsAlignmentConfigESSource = cms.ESSource("PPSAlignmentConfigurationESSource",
 		pixel_x_offset = cms.double(0.)
 	)
 )# foo bar baz
+# wWcT9aeX86E6E

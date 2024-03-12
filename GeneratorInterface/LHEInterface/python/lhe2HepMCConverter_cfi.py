@@ -5,3 +5,4 @@ lhe2HepMCConverter = cms.EDProducer("LHE2HepMCConverter",
   LHERunInfoProduct = cms.InputTag("generatorSmeared")
 )
 # foo bar baz
+# ZDXHdQMBl07kw

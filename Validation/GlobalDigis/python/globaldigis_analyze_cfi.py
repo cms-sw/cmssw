@@ -31,3 +31,4 @@ globaldigisanalyze = DQMEDAnalyzer('GlobalDigisAnalyzer',
     HCalDigi = cms.InputTag("simHcalDigis")
 )
 # foo bar baz
+# i6sFlETKn45Vs

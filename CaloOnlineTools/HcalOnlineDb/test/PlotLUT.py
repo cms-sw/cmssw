@@ -43,3 +43,4 @@ process.plot  = cms.EDAnalyzer("HcalLutAnalyzer",
 process.p = cms.Path(process.plot)
 
 # foo bar baz
+# oY6MfhaitKI4v

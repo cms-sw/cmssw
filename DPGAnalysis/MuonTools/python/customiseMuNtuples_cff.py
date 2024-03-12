@@ -35,3 +35,4 @@ def customiseForMuonWorkflow(process) :
     process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.nEvents))
 
     return process# foo bar baz
+# sZBiMGLA4GPbK

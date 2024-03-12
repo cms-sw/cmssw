@@ -278,3 +278,4 @@ class AbstractPkg(object):
         if  msg.find('New package') != -1:
             tree(self.pname)
 # foo bar baz
+# Vfb1VjW1Np8m3

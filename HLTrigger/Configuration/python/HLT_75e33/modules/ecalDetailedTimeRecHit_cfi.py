@@ -14,3 +14,4 @@ ecalDetailedTimeRecHit = cms.EDProducer("EcalDetailedTimeRecHitProducer",
     useMCTruthVertex = cms.bool(False)
 )
 # foo bar baz
+# 1TWT6f7GCgCKo

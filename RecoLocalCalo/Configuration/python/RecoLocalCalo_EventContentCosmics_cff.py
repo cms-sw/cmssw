@@ -42,3 +42,4 @@ RecoLocalCaloFEVT = cms.PSet(
 RecoLocalCaloFEVT.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 # foo bar baz
+# CD3WbrlA3Gn56

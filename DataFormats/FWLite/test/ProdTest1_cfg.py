@@ -36,3 +36,4 @@ process.p2 = cms.Path(process.Thing*process.OtherThing)
 
 process.outp = cms.EndPath(process.out)
 # foo bar baz
+# HnkvxpOxBjUwV

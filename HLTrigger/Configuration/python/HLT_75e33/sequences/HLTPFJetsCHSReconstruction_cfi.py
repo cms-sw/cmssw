@@ -36,3 +36,4 @@ HLTPFJetsCHSReconstruction = cms.Sequence(
     hltAK8PFCHSJetsCorrected
 )
 # foo bar baz
+# kSpKRhxB22ZP7

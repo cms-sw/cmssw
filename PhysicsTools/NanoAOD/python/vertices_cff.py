@@ -43,3 +43,4 @@ vertexTask = cms.Task()
 vertexTablesTask = cms.Task( vertexTable, svCandidateTable )
 
 # foo bar baz
+# wrSxMrfoXSN91

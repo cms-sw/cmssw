@@ -17,3 +17,4 @@ hltEgammaSuperClustersToPixelMatchUnseeded = cms.EDProducer("EgammaHLTFilteredSu
     minEtCutEE = cms.double(10.0)
 )
 # foo bar baz
+# yJ0B2ML3kHQMC

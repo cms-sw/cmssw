@@ -16,3 +16,4 @@ process.writer = cms.EDAnalyzer("LHEWriter")
 
 process.outpath = cms.EndPath(process.writer)
 # foo bar baz
+# ye7v74iA78V9f

@@ -8,3 +8,4 @@ HcalStripHaloFilter = cms.EDFilter(
   minHadEt = cms.double(100.0)
 )
 # foo bar baz
+# 4eZwrwcVZVdNI

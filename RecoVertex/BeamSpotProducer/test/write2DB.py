@@ -38,3 +38,4 @@ process.beamspot = cms.EDAnalyzer("BeamSpotWrite2DB",
 
 process.p = cms.Path(process.beamspot)
 # foo bar baz
+# OtFE76Ljl2Kkt

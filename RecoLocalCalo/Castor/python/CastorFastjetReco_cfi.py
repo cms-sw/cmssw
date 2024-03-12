@@ -11,3 +11,4 @@ CastorFastjetRecoAntiKt07 = cms.EDProducer(
     rParam       = cms.double(0.7)
     )
 # foo bar baz
+# vYWOmBTdLVfgN

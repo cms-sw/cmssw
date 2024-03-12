@@ -17,3 +17,4 @@ egmIsolationTask = cms.Task( pfParticleSelectionTask,
                              )
 egmIsolationSequence = cms.Sequence(egmIsolationTask)
 # foo bar baz
+# 3VRM5OFi4azKL

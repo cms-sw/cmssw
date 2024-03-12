@@ -265,3 +265,4 @@ class Specification(cms.PSet):
   def pythonTypeName(self):
     return 'cms.PSet';
 # foo bar baz
+# oXom2JjXQH9rY

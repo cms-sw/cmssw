@@ -23,3 +23,4 @@ pfClientJetRes = DQMEDHarvester("PFClient_JetRes",
                                   VariablePtBins  = cms.vint32(20,40,60,80,100,150,200,250,300,400,500,750)
                                  )
 # foo bar baz
+# PwqB8tQlIV4XW

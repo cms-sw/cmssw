@@ -7,3 +7,4 @@ hltHpsPFTauTrackPt1Discriminator = cms.EDProducer( "PFRecoTauDiscriminationByLea
     PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
 )
 # foo bar baz
+# jwIQo8EWhavlT

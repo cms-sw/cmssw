@@ -11,3 +11,4 @@ HSCPSD.andOr = cms.bool( True )
 HSCPSD.throw = cms.bool( False )
 
 # foo bar baz
+# WwqHJp0s4tiRV

@@ -18,3 +18,4 @@ HLTJMESequence = cms.Sequence(
     HLTPFPuppiJMEReconstruction
 )
 # foo bar baz
+# 8zYNYy7e94JTe

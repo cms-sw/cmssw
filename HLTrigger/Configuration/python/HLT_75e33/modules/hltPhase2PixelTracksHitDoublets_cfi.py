@@ -12,3 +12,4 @@ hltPhase2PixelTracksHitDoublets = cms.EDProducer("HitPairEDProducer",
     trackingRegionsSeedingLayers = cms.InputTag("")
 )
 # foo bar baz
+# PUFw7aFs7a1T8

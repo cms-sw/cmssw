@@ -10,3 +10,4 @@ ecalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     algoPSet = cms.PSet()
 )
 # foo bar baz
+# z10CKiMnRHMUN

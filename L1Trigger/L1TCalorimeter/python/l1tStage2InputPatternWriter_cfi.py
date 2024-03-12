@@ -11,3 +11,4 @@ l1tStage2InputPatternWriter = cms.EDAnalyzer('L1TStage2InputPatternWriter',
     nClearFrames   = cms.untracked.uint32(13)
 )
 # foo bar baz
+# Vst3vGkworetB

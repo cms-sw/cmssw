@@ -28,3 +28,4 @@ pythiaUESettingsBlock = cms.PSet(
     )
 )
 # foo bar baz
+# 3PrrMPXKQjBwq

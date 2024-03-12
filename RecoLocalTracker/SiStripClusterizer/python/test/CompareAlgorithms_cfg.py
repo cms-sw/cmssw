@@ -80,3 +80,4 @@ process.p1 = cms.Path(   process.siStripDigis *
                          process.CompareNewNew
                          )
 # foo bar baz
+# HDVr1aiMhPqNe

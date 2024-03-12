@@ -5,3 +5,4 @@ globalSuperTightHalo2016Filter = cms.EDFilter(
   taggingMode = cms.bool(False)
 )
 # foo bar baz
+# 8SxQnwHV9Uqi8

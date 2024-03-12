@@ -7,3 +7,4 @@ rpcDcsInfo = DQMEDAnalyzer('RPCDcsInfo',
                             ScalersRawToDigiLabel = cms.InputTag('scalersRawToDigi')
                             )
 # foo bar baz
+# 5N0gQnFv2WQdF

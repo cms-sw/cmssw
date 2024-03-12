@@ -5,3 +5,4 @@ hltPreDoubleEle25CaloIdLPMS2L1Seeded = cms.EDFilter("HLTPrescaler",
     offset = cms.uint32(0)
 )
 # foo bar baz
+# xHErGOKJDzK9v

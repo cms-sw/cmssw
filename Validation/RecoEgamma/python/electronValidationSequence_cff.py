@@ -7,3 +7,4 @@ from Validation.RecoEgamma.ElectronMcSignalValidatorPt1000_gedGsfElectrons_cfi i
 electronValidationSequence = cms.Sequence(electronMcSignalValidator+electronMcFakeValidator+electronMcSignalValidatorPt1000)
 
 # foo bar baz
+# CR89fYWcehezJ

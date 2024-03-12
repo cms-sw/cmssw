@@ -21,3 +21,4 @@ SC7byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     leptonInfo = cms.bool(True)
 )
 # foo bar baz
+# XU7B6EsAJ3i14

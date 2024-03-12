@@ -9,3 +9,4 @@ def lumi_to_run(runs, events_in_sample, events_per_job):
         pairs.append((run, 1 + i*n_lumis//n_iovs))
     return tuple(pairs)
 # foo bar baz
+# smpGyTZl08gaj

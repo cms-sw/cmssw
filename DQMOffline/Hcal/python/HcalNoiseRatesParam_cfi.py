@@ -11,3 +11,4 @@ hcalNoiseRates = DQMEDAnalyzer('HcalNoiseRates',
     noiselabel   = cms.InputTag('hcalnoise')
 )
 # foo bar baz
+# Dd34hlQykaZJf

@@ -6,3 +6,4 @@ hltPreDoublePFTauHPS = cms.EDFilter("HLTPrescaler",
     offset = cms.uint32(0)
 )
 # foo bar baz
+# 9hx3IXW0NvbGP

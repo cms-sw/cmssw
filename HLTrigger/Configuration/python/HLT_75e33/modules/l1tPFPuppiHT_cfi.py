@@ -6,3 +6,4 @@ l1tPFPuppiHT = cms.EDProducer("HLTHtMhtProducer",
     minPtJetHt = cms.double(30.0)
 )
 # foo bar baz
+# x6tkwSMdTNsv2

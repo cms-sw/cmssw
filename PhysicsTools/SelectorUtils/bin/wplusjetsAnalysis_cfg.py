@@ -25,3 +25,4 @@ process.outputs = cms.PSet (
     outputName = cms.string('wplusjetsPlots_mu.root')
 )
 # foo bar baz
+# SoBmdQ3RYYtYp

@@ -18,3 +18,4 @@ diJetAnalyzer = cms.EDAnalyzer(
     debug               = cms.untracked.bool(False)
     )
 # foo bar baz
+# 6SD3s0a8klnju

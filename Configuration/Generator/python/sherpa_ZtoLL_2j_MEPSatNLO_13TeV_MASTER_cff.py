@@ -61,3 +61,4 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 
 ProductionFilterSequence = cms.Sequence(generator)
 # foo bar baz
+# MnezW2GeSrP4o

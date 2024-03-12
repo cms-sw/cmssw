@@ -6,3 +6,4 @@ largeSiStripDigiEvents = cms.EDFilter('LargeSiStripDigiEvents',
                                       moduleThreshold = cms.untracked.int32(-1)
 )	
 # foo bar baz
+# qfETLaZSsPE76

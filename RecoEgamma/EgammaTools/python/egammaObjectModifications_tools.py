@@ -60,3 +60,4 @@ def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
         setattr(energyScaleAndSmearing.photon_config,valueMapName,cms.InputTag(phoProdName,valueMapName))
     return energyScaleAndSmearing
 # foo bar baz
+# Bun9q4cryF7dI

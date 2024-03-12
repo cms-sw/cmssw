@@ -4,3 +4,4 @@ from RecoMET.METProducers.TCMET_cfi import *
 
 tcMetSequence = cms.Sequence(tcMet)
 # foo bar baz
+# XIeFBRV1ABr3m

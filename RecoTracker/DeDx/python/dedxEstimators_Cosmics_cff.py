@@ -39,3 +39,4 @@ doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(doAlldEdXEstimatorsCTFP5LHCTask)
 doAllCosmicdEdXEstimatorsTask = cms.Task( doAlldEdXEstimatorsCTFTask , doAlldEdXEstimatorsCosmicTFTask , doAlldEdXEstimatorsCTFP5LHCTask)
 doAllCosmicdEdXEstimators = cms.Sequence(doAllCosmicdEdXEstimatorsTask)
 # foo bar baz
+# RU02f6jMbq8p1

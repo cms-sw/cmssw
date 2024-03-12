@@ -9,3 +9,4 @@ l1tPFPuppiMET220off = cms.EDFilter("L1TEnergySumFilter",
     inputTag = cms.InputTag("l1tMETPFProducer")
 )
 # foo bar baz
+# d1AM6kJYTl4De

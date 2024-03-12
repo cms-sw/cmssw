@@ -14,3 +14,4 @@ hltL1DoubleNNTau52 = cms.EDFilter("L1TPFTauFilter",
     saveTags = cms.bool(True)
 )
 # foo bar baz
+# AEKIRd5asrZji

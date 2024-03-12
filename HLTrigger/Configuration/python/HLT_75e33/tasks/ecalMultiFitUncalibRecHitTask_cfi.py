@@ -6,3 +6,4 @@ ecalMultiFitUncalibRecHitTask = cms.Task(
     ecalMultiFitUncalibRecHit
 )
 # foo bar baz
+# uLQJJ1NNYyZq6

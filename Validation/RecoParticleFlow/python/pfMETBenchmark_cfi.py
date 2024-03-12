@@ -13,3 +13,4 @@ pfMETBenchmark = cms.EDAnalyzer("PFMETBenchmarkAnalyzer",
     InputTCLabel = cms.InputTag( 'tcMet' )
 )
 # foo bar baz
+# JNyw4aAV5DMFE

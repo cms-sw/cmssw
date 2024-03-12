@@ -19,3 +19,4 @@ hltDeepBLifetimeTagInfosPFPuppiModEta2p4 = cms.EDProducer("CandIPProducer",
     useTrackQuality = cms.bool(False)
 )
 # foo bar baz
+# 428WJbJd4XHHz

@@ -13,3 +13,4 @@ ecalSimHitsValidation = DQMEDAnalyzer("EcalSimHitsValidation",
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(ecalSimHitsValidation, moduleLabelG4 = "fastSimProducer")
 # foo bar baz
+# noSYn8l2KYDdq

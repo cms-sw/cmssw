@@ -24,3 +24,4 @@ siStripFineDelayHit = cms.EDProducer("SiStripFineDelayHit",
     InputModuleLabel = cms.InputTag("FedChannelDigis")
 )
 # foo bar baz
+# qvnOfJ1QxHppk

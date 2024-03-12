@@ -39,3 +39,4 @@ hltPFTauQualityCuts = cms.PSet(
     pvFindingAlgo = cms.string("highestPtInEvent"),
 )
 # foo bar baz
+# e3ZKC4GLlHi3U

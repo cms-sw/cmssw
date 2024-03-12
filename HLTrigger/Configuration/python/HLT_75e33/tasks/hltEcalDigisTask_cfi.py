@@ -6,3 +6,4 @@ hltEcalDigisTask = cms.Task(
     hltEcalDigis
 )
 # foo bar baz
+# 09UbvhCzg4OCm

@@ -5,3 +5,4 @@ g4SimHits.Physics.EmaxBERT   = cms.double(6.)  # in GeV
 g4SimHits.Physics.EmaxBERTpi = cms.double(6.)  # in GeV
 g4SimHits.Physics.EminFTFP   = cms.double(3.)  # in GeV
 # foo bar baz
+# JNuwbPzU1WUCD

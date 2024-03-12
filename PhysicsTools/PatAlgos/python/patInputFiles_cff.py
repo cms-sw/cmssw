@@ -96,3 +96,4 @@ filesSingleMuRECO = cms.untracked.vstring(
         '/store/relval/CMSSW_8_0_0/SingleMu/RECO/80X_dataRun2_v5_RelVal_mu2012D-v3/10000/002B5DB2-28DD-E511-BEFD-0CC47A4D7638.root'
     )
 # foo bar baz
+# 9S9X2E5Jxfa9z

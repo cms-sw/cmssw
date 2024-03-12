@@ -22,3 +22,4 @@ process.myrootwriter = cms.EDAnalyzer("BTagPerformaceRootProducerFromSQLITE",
 
 process.p = cms.Path(process.myrootwriter)
 # foo bar baz
+# 3DnkU0O5JmVQG

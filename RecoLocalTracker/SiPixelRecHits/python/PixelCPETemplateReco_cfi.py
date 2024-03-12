@@ -4,3 +4,4 @@ from RecoLocalTracker.SiPixelRecHits._templates_default_cfi import _templates_de
 templates = _templates_default.clone()
 
 # foo bar baz
+# RUOhX44QnaI29

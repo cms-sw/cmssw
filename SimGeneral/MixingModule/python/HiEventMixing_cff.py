@@ -68,3 +68,4 @@ mix = cms.EDProducer("MixingModule",
 mixVal = mixGen.clone(playback = cms.untracked.bool(True),LabelPlayback = cms.string('mixGen'))
 
 # foo bar baz
+# JXqEXKU99dYZX

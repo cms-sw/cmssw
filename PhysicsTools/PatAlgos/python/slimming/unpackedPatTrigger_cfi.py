@@ -6,3 +6,4 @@ unpackedPatTrigger = cms.EDProducer(
 , triggerResults              = cms.InputTag( 'TriggerResults::HLT' )
 )
 # foo bar baz
+# SdBbfpi1DMpzT

@@ -5,3 +5,4 @@ from Validation.HGCalValidation.HGCalDigiClient_cfi import *
 hfnoseDigiClient = hgcalDigiClientEE.clone(
     DetectorName  = cms.string("HGCalHFNoseSensitive"))
 # foo bar baz
+# 6TixRtPauncYH

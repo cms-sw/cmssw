@@ -7,3 +7,4 @@ simCaloStage2Digis = cms.EDProducer(
     useStaticConfig = cms.bool(False)
 )
 # foo bar baz
+# CPPCaZwdyGnQv

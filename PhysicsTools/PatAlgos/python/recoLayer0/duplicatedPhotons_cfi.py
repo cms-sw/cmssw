@@ -12,3 +12,4 @@ photonsNoDuplicates = cms.EDFilter("DuplicatedPhotonCleaner",
     removalAlgo  = cms.string("bySeed"),
 )
 # foo bar baz
+# SUaxUpRbY8OBh

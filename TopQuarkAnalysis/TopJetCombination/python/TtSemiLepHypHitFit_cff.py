@@ -19,3 +19,4 @@ makeHypothesis_hitFitTask = cms.Task(
 )
 makeHypothesis_hitFit = cms.Sequence(makeHypothesis_hitFitTask)
 # foo bar baz
+# 1HwcQ2QI83hcz

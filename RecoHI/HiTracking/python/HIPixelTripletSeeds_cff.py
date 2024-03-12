@@ -13,3 +13,4 @@ hiPixelTrackSeeds = RecoTracker.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSee
 hiPrimSeedsTask = cms.Task( PixelLayerTriplets , hiPixel3PrimTracksTask , hiPixelTrackSeeds )
 hiPrimSeeds = cms.Sequence(hiPrimSeedsTask)
 # foo bar baz
+# BcloRNC6eo20A

@@ -37,3 +37,4 @@ process.demo  = cms.EDAnalyzer('JetResolutionDemo',
 process.p = cms.Path(process.demo)
 
 # foo bar baz
+# 1HXHd29AdHsnI

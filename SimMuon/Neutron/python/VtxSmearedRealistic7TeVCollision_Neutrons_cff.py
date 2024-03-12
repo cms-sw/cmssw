@@ -6,3 +6,4 @@ from IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision_cfi import *
 VtxSmeared.src = cms.InputTag("generatorNeutrons")
 
 # foo bar baz
+# cmvADuKrwzkvv

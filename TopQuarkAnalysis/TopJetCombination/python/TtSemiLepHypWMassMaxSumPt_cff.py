@@ -16,3 +16,4 @@ makeHypothesis_wMassMaxSumPtTask = cms.Task(
 )
 makeHypothesis_wMassMaxSumPt = cms.Sequence(makeHypothesis_wMassMaxSumPtTask)
 # foo bar baz
+# oQjOzScIsMtHy

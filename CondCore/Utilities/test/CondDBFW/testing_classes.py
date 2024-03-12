@@ -337,3 +337,4 @@ class script_tests(unittest.TestCase):
 
 	def tearDown(self):
 		self.connection.close_session()# foo bar baz
+# PeTWOyVdfuSjo

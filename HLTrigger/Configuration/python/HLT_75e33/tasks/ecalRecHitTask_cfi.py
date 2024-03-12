@@ -8,3 +8,4 @@ ecalRecHitTask = cms.Task(
     ecalRecHitNoTPTask
 )
 # foo bar baz
+# DmYG3FRquzwve

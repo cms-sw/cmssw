@@ -6,3 +6,4 @@ simTwinMuxDigis = cms.EDProducer('L1TTwinMuxProducer',
     RPC_Source = cms.InputTag("simMuonRPCDigis"),
 )
 # foo bar baz
+# EiBVU6vMb6Fqt

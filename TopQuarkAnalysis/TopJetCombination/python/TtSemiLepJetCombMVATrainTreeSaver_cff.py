@@ -27,3 +27,4 @@ looper = cms.Looper("TtSemiLepJetCombMVATrainerLooper",
 ## provide a sequence to save a tree for the training
 saveTtSemiLepJetCombMVATrainTree = cms.Sequence(trainTtSemiLepJetCombMVA)
 # foo bar baz
+# 7Rxy2qSHNzMLx

@@ -78,3 +78,4 @@ alcaHarvesting = cms.Path()
 validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*bTagMiniValidationHarvesting*postValidationMiniAOD)
 #validationHarvestingMiniAOD = cms.Sequence(JetPostProcessor*METPostProcessorHarvesting*postValidationMiniAOD)
 # foo bar baz
+# zfYM7kX4tdYOD

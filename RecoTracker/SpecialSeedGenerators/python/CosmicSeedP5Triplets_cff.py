@@ -14,3 +14,4 @@ cosmicseedfinderP5 = cosmicseedfinder.clone(
     HitsForSeeds = 'pairsandtriplets'
 )
 # foo bar baz
+# rZnRCrCcwPQVU

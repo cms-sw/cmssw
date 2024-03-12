@@ -28,3 +28,4 @@ from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toReplaceWith(hcalDigis, _hcalDigisFake)
 
 # foo bar baz
+# 8ksNoCblBF2Zv

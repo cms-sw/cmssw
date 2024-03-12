@@ -14,3 +14,4 @@ hltIter0Phase2L3FromL1TkMuonPixelSeedsFromPixelTracks = cms.EDProducer("SeedGene
     useProtoTrackKinematics = cms.bool(False)
 )
 # foo bar baz
+# wJc6Hly7ECw64

@@ -24,3 +24,4 @@ ecalMonitorTask.collectionTags.EESuperCluster = 'cosmicSuperClusters:CosmicEndca
 ecalMonitorTask.collectionTags.EBUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
 ecalMonitorTask.collectionTags.EEUncalibRecHit = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
 # foo bar baz
+# JU87wRWVmVtZV

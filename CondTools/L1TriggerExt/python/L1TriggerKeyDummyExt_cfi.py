@@ -18,3 +18,4 @@ from CondTools.L1TriggerExt.L1SubsystemParamsExt_cfi import initL1SubsystemsExt
 initL1SubsystemsExt( tagBaseVec = initL1UniformTagsExt.tagBaseVec, objectKey = 'dummy' )
 L1TriggerKeyDummyExt.objectKeys.extend(initL1SubsystemsExt.params.recordInfo)
 # foo bar baz
+# w4RODAaNo6toM

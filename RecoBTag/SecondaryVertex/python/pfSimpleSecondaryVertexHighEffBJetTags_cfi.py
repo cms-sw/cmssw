@@ -5,3 +5,4 @@ pfSimpleSecondaryVertexHighEffBJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
 )
 # foo bar baz
+# ABmna2GeXQkpF

@@ -6,3 +6,4 @@ LowPtClusterShapeSeedComparitor = cms.PSet(
     clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
 )
 # foo bar baz
+# RF8oIOBlBOrsd

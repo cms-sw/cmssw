@@ -7,3 +7,4 @@ hcalPatternSource = cms.EDProducer("HcalPatternSource",
                                    Patterns = cms.untracked.string("/tmp/example/example_crate_0.xml")
                                    )
 # foo bar baz
+# gf4Q6X8FJUqK9

@@ -67,3 +67,4 @@ def get_credentials_for_schema( service, schema, role, authPath=None ):
         return (username,dbuser,password)
 
 # foo bar baz
+# 1YlLdfnBy03Jl

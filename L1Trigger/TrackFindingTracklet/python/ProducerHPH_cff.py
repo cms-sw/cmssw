@@ -10,3 +10,4 @@ from L1Trigger.TrackFindingTracklet.ProducerHPH_cfi import HitPatternHelper_para
 
 HitPatternHelperSetup = cms.ESProducer("hph::ProducerHPH", HitPatternHelper_params)
 # foo bar baz
+# 5svF5gFJH680F

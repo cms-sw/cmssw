@@ -18,3 +18,4 @@ process.hcalTopologyIdeal.MergePosition = False
 process.p1 = cms.Path(process.hga)
 
 # foo bar baz
+# Og4IR3X9MgdCI

@@ -15,3 +15,4 @@ OutALCARECOEcalTestPulsesRaw_noDrop = cms.PSet(
 OutALCARECOEcalTestPulsesRaw = copy.deepcopy(OutALCARECOEcalTestPulsesRaw_noDrop)
 OutALCARECOEcalTestPulsesRaw.outputCommands.insert(0, "drop *")
 # foo bar baz
+# mJLLt73vuHOoo

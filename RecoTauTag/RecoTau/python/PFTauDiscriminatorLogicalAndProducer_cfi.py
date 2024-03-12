@@ -25,3 +25,4 @@ PFTauDiscriminatorLogicalAndProducer = cms.EDProducer("PFTauDiscriminatorLogical
     FailValue = cms.double(0.)
 )
 # foo bar baz
+# 6FrU9BmBDtcu9

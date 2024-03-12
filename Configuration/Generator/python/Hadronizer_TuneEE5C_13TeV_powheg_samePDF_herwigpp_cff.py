@@ -30,3 +30,4 @@ generator = cms.EDFilter("ThePEGHadronizerFilter",
 )
 ProductionFilterSequence = cms.Sequence(generator)
 # foo bar baz
+# J6Kb3PZryebOc

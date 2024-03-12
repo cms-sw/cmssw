@@ -7,3 +7,4 @@ hltEgammaHGCALIDVarsL1Seeded = cms.EDProducer("EgammaHLTHGCalIDVarProducer",
     recoEcalCandidateProducer = cms.InputTag("hltEgammaCandidatesL1Seeded")
 )
 # foo bar baz
+# bQ5SWhuUl6l0J

@@ -53,3 +53,4 @@ SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
                                   SiStripMonitorTrack_hi *
                                   MonitorTrackResiduals_hi)
 # foo bar baz
+# 754e7BAtiYEYA

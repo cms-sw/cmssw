@@ -192,3 +192,4 @@ class ConfigToolBase(object) :
     def getAllowedValues(self,name):
         return self._defaultParameters[name].allowedValues
 # foo bar baz
+# cjg1LNppP42gD

@@ -15,3 +15,4 @@ def _removeSiPixelQualityForRawToDigiESProducer(process):
 from Configuration.ProcessModifiers.siPixelQualityRawToDigi_cff import siPixelQualityRawToDigi
 removeSiPixelQualityForRawToDigiESProducer_ = (~siPixelQualityRawToDigi).makeProcessModifier( _removeSiPixelQualityForRawToDigiESProducer )
 # foo bar baz
+# Ce9cyk1GamLxy

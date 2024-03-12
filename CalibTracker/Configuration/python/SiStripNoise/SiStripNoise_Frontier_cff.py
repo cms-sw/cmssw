@@ -13,3 +13,4 @@ siStripNoise.toGet = cms.VPSet(cms.PSet(
 siStripNoise.BlobStreamerName = 'TBufferBlobStreamingService'
 
 # foo bar baz
+# 6o55g2PTYsLfZ

@@ -4,3 +4,4 @@ pfClusterRefsForJets = cms.EDProducer("PFClusterRefCandidateMerger",
     src = cms.VInputTag("pfClusterRefsForJetsHCAL", "pfClusterRefsForJetsECAL", "pfClusterRefsForJetsHF", "pfClusterRefsForJetsHO", "pfClusterRefsForJetsHGCAL")
 )
 # foo bar baz
+# Z39sXjYyqv8RQ

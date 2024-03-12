@@ -25,3 +25,4 @@ def setCondition(process,
         = cms.VPSet([x for x in process.GlobalTag.toGet.value() if x.record.value() != record])
     process.GlobalTag.toGet.append(cms.PSet(**args))
 # foo bar baz
+# dhQH660rlMKQQ

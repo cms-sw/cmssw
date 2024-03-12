@@ -5,3 +5,4 @@ from CalibMuon.Configuration.Muon_FrontierAlignment_cfi import *
 muonAlignment.connect = 'frontier://FrontierPrep/CMS_COND_ALIGNMENT'
 
 # foo bar baz
+# gJoruVfSHr5iV

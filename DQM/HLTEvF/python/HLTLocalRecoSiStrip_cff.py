@@ -17,3 +17,4 @@ hltHighLevelSiStrip = cms.EDFilter("HLTHighLevel",
 hltLocalRecoSiStrip = cms.Path(hltHighLevelSiStrip)
 
 # foo bar baz
+# 5OjRliHBCMPqg

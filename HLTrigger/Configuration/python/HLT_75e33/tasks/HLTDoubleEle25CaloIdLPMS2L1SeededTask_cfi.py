@@ -12,3 +12,4 @@ HLTDoubleEle25CaloIdLPMS2L1SeededTask = cms.Task(
     hltEgammaHoverEL1Seeded
 )
 # foo bar baz
+# l0Sq0ODrkGjVG

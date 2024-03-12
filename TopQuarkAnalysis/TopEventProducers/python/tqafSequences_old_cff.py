@@ -15,3 +15,4 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtDilepEvtSolProducer_cfi impo
 ## make tqaf layer2
 tqafLayer2_ttFullLeptonic_old = cms.Sequence(makeGenEvt*solutions)
 # foo bar baz
+# FZFcQrRYvIA6Q

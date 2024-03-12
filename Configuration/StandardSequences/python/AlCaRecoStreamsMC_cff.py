@@ -6,3 +6,4 @@ from Configuration.StandardSequences.AlCaRecoStreams_cff import *
 hcalDigiAlCaMB.InputLabel = 'rawDataCollector'
 
 # foo bar baz
+# CO6g04PPZsfrz

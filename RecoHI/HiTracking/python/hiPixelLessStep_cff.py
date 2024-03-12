@@ -100,3 +100,4 @@ hiPixelLessStepTask = cms.Task(hiPixelLessStepClusters,
                              )
 hiPixelLessStep = cms.Sequence(hiPixelLessStepTask)
 # foo bar baz
+# PKNYeRjdwKDNC

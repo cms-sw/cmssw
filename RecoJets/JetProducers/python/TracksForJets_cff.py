@@ -7,3 +7,4 @@ trackRefsForJets = cms.EDProducer("ChargedRefCandidateProducer",
     particleType = cms.string('pi+')
 )
 # foo bar baz
+# 0lEpLFqvbJlN3

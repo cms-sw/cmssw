@@ -38,3 +38,4 @@ PhotonCandidates = cms.EDProducer('OniaPhotonConversionProducer',
     minDistanceOfApproachMaxCut = cms.double(1.00)
     )
 # foo bar baz
+# R0KPGYBqCxsoK

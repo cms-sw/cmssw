@@ -7,3 +7,4 @@ from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi import ProcessAcceler
 from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm_cfi import ProcessAcceleratorROCm
 from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi import ProcessAcceleratorAlpaka
 # foo bar baz
+# OKMNQD29mrzi3

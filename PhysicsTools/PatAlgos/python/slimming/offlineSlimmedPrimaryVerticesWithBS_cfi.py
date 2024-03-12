@@ -5,3 +5,4 @@ offlineSlimmedPrimaryVerticesWithBS = cms.EDProducer("PATVertexSlimmer",
     score = cms.InputTag("primaryVertexWithBSAssociation","original"),
 )
 # foo bar baz
+# tz7hu6QNLS5uF

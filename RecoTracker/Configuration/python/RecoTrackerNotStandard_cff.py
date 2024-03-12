@@ -60,3 +60,4 @@ regionalCosmicTracksTask = cms.Task(regionalCosmicTrackerSeedingLayers,
                                              regionalCosmicTracks )
 regionalCosmicTracksSeq = cms.Sequence(regionalCosmicTracksTask)
 # foo bar baz
+# MRxDVRXg8ZHNa

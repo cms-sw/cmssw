@@ -6,3 +6,4 @@ alcaSiStripGainsAAGHarvester.calibrationMode     = cms.untracked.string('AagBunc
 alcaSiStripGainsAAGHarvester.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAAG')
 alcaSiStripGainsAAGHarvester.Record              = cms.untracked.string('SiStripApvGainRcdAAG')
 # foo bar baz
+# 9SRI66L7G96DT

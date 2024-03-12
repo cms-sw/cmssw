@@ -4,3 +4,4 @@ from DQM.SiStripCommon.MessageLogger_cfi import *
 
 options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # foo bar baz
+# mjmD49obnfCls

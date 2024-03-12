@@ -12,3 +12,4 @@ def analyzerUseTMTT(process):
     TrackerDTCProducer_params.UseHybrid = cms.bool( False )
     process.TrackerDTCAnalyzer = cms.EDAnalyzer('trackerDTC::Analyzer', TrackerDTCAnalyzer_params, TrackerDTCProducer_params)
     return process# foo bar baz
+# 3kv3vcP5Go5FJ

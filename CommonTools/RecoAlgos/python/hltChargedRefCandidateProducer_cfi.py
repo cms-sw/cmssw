@@ -5,3 +5,4 @@ hltChargedRefCandidateProducer = cms.EDProducer("ChargedRefCandidateProducer",
     particleType = cms.string('pi+')
 )
 # foo bar baz
+# kcnq4j2KE4wkK

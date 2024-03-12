@@ -5,3 +5,4 @@ SiStripMonitorFilter = DQMEDAnalyzer('SiStripMonitorFilter',
     FilterProducer = cms.string('ClusterMTCCFilter')
 )
 # foo bar baz
+# vwdtHbDe7fmLc

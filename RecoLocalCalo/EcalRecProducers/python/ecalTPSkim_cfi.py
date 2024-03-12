@@ -17,3 +17,4 @@ ecalTPSkim = cms.EDProducer("EcalTPSkimmer",
     tpOutputCollection = cms.string("")
 )
 # foo bar baz
+# nV4O8f3JSG942

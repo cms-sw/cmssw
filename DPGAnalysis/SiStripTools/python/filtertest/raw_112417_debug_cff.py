@@ -5,3 +5,4 @@ fileNames = cms.untracked.vstring(
         '/store/data/CRAFT09/Cosmics/RAW/v1/000/112/417/FA8CB4E8-3395-DE11-AA3D-001D09F29321.root',
         )
 # foo bar baz
+# VYrNNAkYO6K0P

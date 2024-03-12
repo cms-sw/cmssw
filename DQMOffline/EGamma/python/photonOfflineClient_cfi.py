@@ -34,3 +34,4 @@ photonOfflineClient = DQMEDHarvester("PhotonOfflineClient",
     OutputFileName = cms.string('DQMOfflinePhotonsAfterSecondStep.root'),
 )
 # foo bar baz
+# Y6gIClKX7NX10

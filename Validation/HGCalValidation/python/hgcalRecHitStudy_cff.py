@@ -12,3 +12,4 @@ hgcalRecHitStudyBH = hgcalRecHitStudyEE.clone(
     source        = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
     layers        = cms.untracked.int32(24))
 # foo bar baz
+# uoRTw6m9kXTVC

@@ -113,3 +113,4 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
 # Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorAlpaka, "from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka import ProcessAcceleratorAlpaka")
 # foo bar baz
+# Ej6tEWYzyu1sR

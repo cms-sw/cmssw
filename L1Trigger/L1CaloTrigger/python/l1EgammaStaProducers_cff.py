@@ -6,3 +6,4 @@ L1TEgammaStaProducers = cms.Sequence(l1tEGammaClusterEmuProducer)
 
 L1TEgammaStaProducersEB = cms.Sequence(l1tEGammaClusterEmuProducer)
 # foo bar baz
+# g8in6p7YjQyXS

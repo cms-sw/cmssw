@@ -8,3 +8,4 @@ SiPixelPhase1EfficiencyExtras = DQMEDHarvester("SiPixelPhase1EfficiencyExtras",
 				     InstLumiFolderName = cms.string('HLT/LumiMonitoring/')
 )
 # foo bar baz
+# Qv2aZR8RLNPTc

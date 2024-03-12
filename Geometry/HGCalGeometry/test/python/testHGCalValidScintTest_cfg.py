@@ -38,3 +38,4 @@ process.load("Geometry.HGCalGeometry.hgcalValidScintTest_cfi")
 
 process.p1 = cms.Path(process.generator*process.hgcalValidScintTest)
 # foo bar baz
+# yZ8Ms8FyP8eiw

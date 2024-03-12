@@ -11,3 +11,4 @@ HcalSimHitsAnalyser = Validation.HcalHits.HcalSimHitsValidation_cfi.HcalSimHitsA
 
 hcalSimHitsValidationSequence = cms.Sequence(AllSimHitsValidation*HcalSimHitsAnalyser)
 # foo bar baz
+# 4Tg0QWff4MwLQ

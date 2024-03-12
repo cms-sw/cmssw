@@ -5,3 +5,4 @@ l1tGTTFileReader = cms.EDProducer('GTTFileReader',
   format = cms.untracked.string("APx")
 )
 # foo bar baz
+# AJBppN82kUYxf

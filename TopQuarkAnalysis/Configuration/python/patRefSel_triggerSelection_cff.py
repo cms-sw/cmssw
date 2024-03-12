@@ -13,3 +13,4 @@ triggerSelection = cms.Sequence(
   hltPhysicsDeclared
 * triggerResults
 )# foo bar baz
+# FB0ZE3zdzhdEw

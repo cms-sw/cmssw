@@ -110,3 +110,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	type           = cms.string('PrintMaterialBudgetInfo')
 ))
 # foo bar baz
+# 1jwQ4GbF7utn8

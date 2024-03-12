@@ -72,3 +72,4 @@ process.p = cms.Path(process.fsqHLTOfflineSourceSequence*process.fsqClient *proc
 # - Fix efficiency histos - add a check, that both reference and tested path simultaneusly
 #    went beyond the hlt prescale module
 # foo bar baz
+# hQjTfhM7fq5JA

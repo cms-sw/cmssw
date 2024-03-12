@@ -5,3 +5,4 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from DQM.SiStripMonitorApproximateCluster.siStripMonitorApproximateCluster_cfi import siStripMonitorApproximateCluster
 SiStripMonitorApproximateCluster =  siStripMonitorApproximateCluster.clone()
 # foo bar baz
+# 9cuz0QQBX3EQu

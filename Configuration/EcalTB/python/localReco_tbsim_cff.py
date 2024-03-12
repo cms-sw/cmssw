@@ -13,3 +13,4 @@ from RecoLocalCalo.EcalRecProducers.ecalTBSimRecHit_cfi import *
 localReco_tbsim = cms.Sequence(ecalTBSimHodoscopeReconstructor*ecalTBSimTDCReconstructor*ecalTBSimWeightUncalibRecHit*ecalTBSimRecHit)
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 # foo bar baz
+# bg6ZXVfKe92zu

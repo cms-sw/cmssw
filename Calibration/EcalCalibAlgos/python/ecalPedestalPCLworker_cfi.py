@@ -16,3 +16,4 @@ ecalpedestalPCL =DQMEDAnalyzer('ECALpedestalPCLworker',
                                 nBins       = cms.int32(40)      # number of bins per histogram
 )
 # foo bar baz
+# tWNfM7tNPOE83

@@ -6,3 +6,4 @@ muonShowerInformation = cms.EDProducer("MuonShowerInformationProducer",
     ShowerInformationFillerParameters = MuonShowerParameters.MuonShowerInformationFillerParameters
 )
 # foo bar baz
+# Aee8d8p7iR4Wo

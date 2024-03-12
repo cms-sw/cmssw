@@ -2,3 +2,4 @@ from SimCalorimetry.HGCalAssociatorProducers.layerClusterAssociatorByEnergyScore
 
 from SimCalorimetry.HGCalAssociatorProducers.simClusterAssociatorByEnergyScore_cfi import simClusterAssociatorByEnergyScore as scAssocByEnergyScoreProducer
 # foo bar baz
+# bUKxuzAXclKOR

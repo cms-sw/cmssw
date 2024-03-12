@@ -16,3 +16,4 @@ Njettiness = cms.EDProducer("NjettinessAdder",
                             srcWeights = cms.InputTag("puppi")
                             )
 # foo bar baz
+# OYH05nig9qIn8

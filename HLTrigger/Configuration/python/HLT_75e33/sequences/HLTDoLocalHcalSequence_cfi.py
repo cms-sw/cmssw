@@ -6,3 +6,4 @@ HLTDoLocalHcalSequence = cms.Sequence(
     HLTDoLocalHcalTask
 )
 # foo bar baz
+# HeK1rtUq21I4m

@@ -15,3 +15,4 @@ dqmEnvSiStripHitEfficiency = DQMEDHarvester('DQMHarvestingMetadata',
 
 ALCAHARVESTSiStripHitEfficiency = cms.Sequence(EDMtoMEConvertSiStripHitEfficiency + alcasiStripHitEfficiencyHarvester + dqmEnvSiStripHitEfficiency)
 # foo bar baz
+# IHefbCZVdOe6g

@@ -8,3 +8,4 @@ globalPrevalidationCosmics = cms.Sequence(simHitTPAssocProducer)
 
 globalValidationCosmics = cms.Sequence(recoCosmicMuonValidation)
 # foo bar baz
+# W2vUDNU9la6VV

@@ -90,3 +90,4 @@ from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
 phase2_hfnose.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
 # foo bar baz
+# 6X55zfSt3fStg

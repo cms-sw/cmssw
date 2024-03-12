@@ -13,3 +13,4 @@ cleanPatMuons = cms.EDProducer("PATMuonCleaner",
     finalCut = cms.string(''),
 )
 # foo bar baz
+# 8heiX7z8o0O2Y

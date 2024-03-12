@@ -10,3 +10,4 @@ customSelection = cms.Sequence(
     isolatedPatElectrons *isolatedPatMuons
     )
 # foo bar baz
+# vPK5YBOumQe81

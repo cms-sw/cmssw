@@ -24,3 +24,4 @@ hiCaloCompatibleTracks  = cms.EDProducer("HICaloCompatibleTrackSelector",
                                          funcDeltaRTowerMatch = cms.string("0.087/(1.0+0.1*exp(-0.28*(x-20.)))") 
 )
 # foo bar baz
+# FZ6e9nYXwkEGU

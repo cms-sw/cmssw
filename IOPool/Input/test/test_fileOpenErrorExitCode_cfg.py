@@ -12,3 +12,4 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring("/store/"+x for x in args.input)
 )
 # foo bar baz
+# HGLZnylLFAWSB

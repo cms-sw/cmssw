@@ -14,3 +14,4 @@ hltL1SingleMuFiltered5 = cms.EDFilter("L1TTkMuonFilter",
     saveTags = cms.bool(True)
 )
 # foo bar baz
+# RgZXlDaQD5ITQ

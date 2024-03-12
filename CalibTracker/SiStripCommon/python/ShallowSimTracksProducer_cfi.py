@@ -10,3 +10,4 @@ shallowSimTracks = cms.EDProducer("ShallowSimTracksProducer",
                                   Suffix=cms.string(""))
 
 # foo bar baz
+# SV1YY8m86Vm6F

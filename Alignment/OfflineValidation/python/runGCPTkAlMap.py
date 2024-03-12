@@ -262,3 +262,4 @@ TkMap_drange_strips.clean_up()
 
 print('TOOK: '+str(time.time()-ts_start)+' s') 
 # foo bar baz
+# OFKkYxV5eujI2

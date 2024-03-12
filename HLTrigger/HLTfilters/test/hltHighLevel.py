@@ -172,3 +172,4 @@ process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
 )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltTrigReport )
 # foo bar baz
+# tnkmH44ED9vjX

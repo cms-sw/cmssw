@@ -12,3 +12,4 @@ process.source = cms.Source("PoolSource",
                                                               "file:PoolOutputTest.root"))
 process.ep = cms.EndPath(process.output)
 # foo bar baz
+# uwqRmGSXv8xj0

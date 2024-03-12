@@ -8,3 +8,4 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 doAllDigi = cms.Sequence(ecalDigiSequence)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
 # foo bar baz
+# qeigWlG0yEa8R

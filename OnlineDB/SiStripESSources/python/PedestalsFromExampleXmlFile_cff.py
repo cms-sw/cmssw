@@ -10,3 +10,4 @@ SiStripConfigDb.Partitions.PrimaryPartition.InputFedXml = ['/afs/cern.ch/cms/cmt
 PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 
 # foo bar baz
+# 0vmuCnQvULzQ2

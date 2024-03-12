@@ -16,3 +16,4 @@ process.test = cms.EDAnalyzer("RPCGeometryServTest")
 process.a = cms.Path(process.test)
 
 # foo bar baz
+# lHLSkwVjXyLX7

@@ -9,3 +9,4 @@ highPtTripletStepTrackSelectionHighPurity = cms.EDProducer("TrackCollectionFilte
     originalSource = cms.InputTag("highPtTripletStepTracks")
 )
 # foo bar baz
+# 1hT5ERwJaT6Bp

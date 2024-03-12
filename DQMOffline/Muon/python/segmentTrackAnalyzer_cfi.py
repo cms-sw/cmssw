@@ -45,3 +45,4 @@ staMuonSegmentAnalyzer = DQMEDAnalyzer('SegmentTrackAnalyzer',
                                          MuTrackCollection = cms.InputTag("standAloneMuons"),
                                          )
 # foo bar baz
+# lSPvdisC4igUA

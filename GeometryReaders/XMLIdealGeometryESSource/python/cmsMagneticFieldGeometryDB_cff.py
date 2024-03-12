@@ -5,3 +5,4 @@ XMLFromDBSource = cms.ESProducer("XMLIdealMagneticFieldGeometryESProducer",
                                  label = cms.string('magfield')
                                  )
 # foo bar baz
+# EkD1GTGoguW9T

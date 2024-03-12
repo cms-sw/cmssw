@@ -44,3 +44,4 @@ CSCOverlapsAlignmentAlgorithm = cms.PSet(
     fitters = Alignment.MuonAlignmentAlgorithms.CSCOverlapsAlignmentAlgorithm_ringfitters_cff.fitters,
     )
 # foo bar baz
+# 0YR13GQS0WCmc

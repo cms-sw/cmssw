@@ -11,3 +11,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p1 = cms.Path(process.expressLumiProducer)
 process.e = cms.EndPath(process.out)
 # foo bar baz
+# 6pGlOIs8UCWhJ

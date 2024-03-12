@@ -6,3 +6,4 @@ tauJetAlgoParameters = cms.PSet(
         TauTriggerType = cms.int32(1)
 )
 # foo bar baz
+# 7LOt6ZqoKdJUU

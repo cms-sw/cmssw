@@ -52,3 +52,4 @@ egHLTOffDQMSummaryClient = cms.EDAnalyzer("EgHLTOfflineSummaryClient",
 
 egHLTOffCertSeq = cms.Sequence(egHLTOffQTester*egHLTOffDQMSummaryClient)
 # foo bar baz
+# REz1Ez5JGNUwc

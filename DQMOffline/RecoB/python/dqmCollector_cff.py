@@ -19,3 +19,4 @@ bTagCollectorSequenceMC = cms.Sequence(bTagCollectorMC)
 bTagCollectorMCbcl = bTagCollectorMC.clone(flavPlots = "bcl") #harvest b, c, dusg and ni histos, all not harvested
 bTagCollectorSequenceMCbcl = cms.Sequence(bTagCollectorMCbcl)
 # foo bar baz
+# 0MN8UmLIGegBi

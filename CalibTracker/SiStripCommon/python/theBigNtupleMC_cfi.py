@@ -30,3 +30,4 @@ theBigNtuple = cms.Sequence( (shallowEventRun +
                              shallowTree
                              )
 # foo bar baz
+# QWE17Z5p3w1bm

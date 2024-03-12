@@ -4,3 +4,4 @@ SiStripClusterChargeCutTight = cms.PSet(
     value = cms.double(1945.0)
 )
 # foo bar baz
+# 5Nr3x16Nshg12

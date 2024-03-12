@@ -143,3 +143,4 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 #process.outpath = cms.EndPath(process.o1)
 # foo bar baz
+# La2RSDvVBPTBT

@@ -7,3 +7,4 @@ from Calibration.HcalAlCaRecoProducers.alcadijets_cfi import *
 seqAlcastreamHcalDijets = cms.Sequence(DiJProd)
 
 # foo bar baz
+# zojVCJWq6ZRiy

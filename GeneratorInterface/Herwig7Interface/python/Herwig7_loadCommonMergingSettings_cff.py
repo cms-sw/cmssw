@@ -43,3 +43,4 @@ generator = cms.EDFilter("Herwig7GeneratorFilter",
     run = cms.string('Merging'),
     runModeList = cms.untracked.string('read,run'),
 )# foo bar baz
+# ivfxLFjtEe2JZ

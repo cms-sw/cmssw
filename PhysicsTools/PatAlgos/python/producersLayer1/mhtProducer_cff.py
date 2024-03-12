@@ -10,3 +10,4 @@ makePatMHTs = cms.Sequence(
     patMHTs
     )
 # foo bar baz
+# 8JGiPFZBuXp8H

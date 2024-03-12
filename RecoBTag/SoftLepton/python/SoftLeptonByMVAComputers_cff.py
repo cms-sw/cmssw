@@ -55,3 +55,4 @@ positiveSoftPFMuonComputer = cms.ESProducer("MuonTaggerESProducer",
     ipSign = cms.string("positive")
 )
 # foo bar baz
+# 7aKfXKybtxDlL

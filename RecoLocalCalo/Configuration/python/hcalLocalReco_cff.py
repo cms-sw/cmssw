@@ -85,3 +85,4 @@ _fastSim_hcalLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith( hcalLocalRecoTask, _fastSim_hcalLocalRecoTask )
 # foo bar baz
+# zIhqjs6JgzekI

@@ -6,3 +6,4 @@ hcalsimhitsClient = DQMEDHarvester("HcalSimHitsClient",
      Verbosity  = cms.untracked.bool(False),
 )
 # foo bar baz
+# aHcX4dHG36ZFL

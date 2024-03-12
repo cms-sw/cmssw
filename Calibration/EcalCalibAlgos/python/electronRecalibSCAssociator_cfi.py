@@ -7,3 +7,4 @@ electronRecalibSCAssociator = cms.EDProducer("ElectronRecalibSuperClusterAssocia
     outputLabel = cms.string('recalibSC')
 )
 # foo bar baz
+# XTuqWFpCJWY8Z

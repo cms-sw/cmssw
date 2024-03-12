@@ -38,3 +38,4 @@ gemTnPEfficiencyClient = DQMEDHarvester("TnPEfficiencyClient",
                                                                           "ME0_nPassingProbe_chamber_1D:ME0_nFailingProbe_chamber_1D",
                                                                           "GEM_nPassingProbe_Ch_region_layer_phase2:GEM_nFailingProbe_Ch_region_layer_phase2"),
                                        diagnosticPrescale = cms.untracked.int32(1))# foo bar baz
+# eQsgJdHhvcuKs

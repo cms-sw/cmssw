@@ -22,3 +22,4 @@ rpcEventInfo = DQMEDAnalyzer('DQMEventInfo',
 rpcTier0Source = cms.Sequence(rpcdigidqm*rpcrechitprobability*rpcEventInfo*rpcFEDIntegrity*rpcTnPEfficiencyMonitor)
 
 # foo bar baz
+# Cl5pbV88DjtqG

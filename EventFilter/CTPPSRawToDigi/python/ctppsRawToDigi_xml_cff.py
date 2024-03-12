@@ -159,3 +159,4 @@ ctppsRawToDigiTask = cms.Task(
 )
 ctppsRawToDigi = cms.Sequence(ctppsRawToDigiTask)
 # foo bar baz
+# 18McE3G1JEEBq

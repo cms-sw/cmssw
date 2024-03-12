@@ -27,3 +27,4 @@ ecalDetIdToBeRecovered = cms.EDProducer("EcalDetIdToBeRecoveredProducer",
         eeFEToBeRecovered = cms.string("eeFE")
 )
 # foo bar baz
+# QRScbfERa8DTj

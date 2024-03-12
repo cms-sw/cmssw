@@ -34,3 +34,4 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 _stage1_L1NTupleRAW = L1NtupleRAW.copyAndExclude([l1CaloTowerTree,l1UpgradeTfMuonTree])
 stage1L1Trigger.toReplaceWith(L1NtupleRAW,_stage1_L1NTupleRAW)
 # foo bar baz
+# GmHYYy4SuDLpL

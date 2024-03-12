@@ -77,3 +77,4 @@ process.p = cms.Path(process.L1CondDBPayloadWriter)
 #process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
 process.l1CSCTFConfig.ptLUT_path = './PtLUT.dat'
 # foo bar baz
+# c1AkMOfEnMI31

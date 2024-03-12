@@ -10,3 +10,4 @@ pfCandidateManagerSequence = cms.Sequence(
     pfCandidateManager
     )
 # foo bar baz
+# jBrB64eg1mSi5

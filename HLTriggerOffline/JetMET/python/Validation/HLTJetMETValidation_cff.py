@@ -6,3 +6,4 @@ from HLTriggerOffline.JetMET.Validation.SingleJetValidation_cfi import *
 HLTJetMETValSeq    = cms.Sequence(SingleJetValidation)
 
 # foo bar baz
+# lCPvZKGHVXOvo

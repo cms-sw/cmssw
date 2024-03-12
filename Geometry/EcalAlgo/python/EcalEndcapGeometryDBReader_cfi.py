@@ -4,3 +4,4 @@ EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP",
                                              applyAlignment = cms.bool(False)
                                              )
 # foo bar baz
+# Rv4AbSs67CuvO

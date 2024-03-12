@@ -87,3 +87,4 @@ miniAODDQMSequence = cms.Sequence(
     slimmedElectronValidation1
 )
 # foo bar baz
+# NAJZ36f64OIGO

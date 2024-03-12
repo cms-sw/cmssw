@@ -6,3 +6,4 @@ myTTRHBuilderWithoutAngle4MixedPairs = RecoTracker.TransientTrackingRecHit.Trans
     ComponentName = 'TTRHBuilderWithoutAngle4MixedPairs'
 )
 # foo bar baz
+# kIoYejt8Y7Hel

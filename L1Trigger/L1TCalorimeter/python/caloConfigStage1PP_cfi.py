@@ -13,3 +13,4 @@ caloConfig = cms.ESProducer(
     fwVersionLayer2 = cms.uint32(3)  ## 1=HI algo, 2= pp algo (obsolete), 3= pp algo in HW
 )
 # foo bar baz
+# GtiYEYgnLrbw4

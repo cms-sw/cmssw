@@ -6,3 +6,4 @@ combinedInclusiveSecondaryVertexV2BJetTags = cms.EDProducer("JetTagProducer",
 	                         cms.InputTag("inclusiveSecondaryVertexFinderTagInfos"))
 )
 # foo bar baz
+# CPU6XG3xXN4Bo

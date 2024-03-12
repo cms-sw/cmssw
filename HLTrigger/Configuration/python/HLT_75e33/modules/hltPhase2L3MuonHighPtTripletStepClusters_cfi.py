@@ -13,3 +13,4 @@ hltPhase2L3MuonHighPtTripletStepClusters = cms.EDProducer("TrackClusterRemoverPh
     trajectories = cms.InputTag("hltPhase2L3MuonInitialStepTracksSelectionHighPurity")
 )
 # foo bar baz
+# rNtpCqHR0lapi

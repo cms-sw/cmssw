@@ -11,3 +11,4 @@ patTriggerEvent = cms.EDProducer(
   )
 )
 # foo bar baz
+# VjUzefDPK0AvY

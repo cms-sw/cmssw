@@ -5,3 +5,4 @@ simpleInclusiveSecondaryVertexHighPurBJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(cms.InputTag("inclusiveSecondaryVertexFinderFilteredTagInfos"))
 )
 # foo bar baz
+# a4p0qPxqtStmb

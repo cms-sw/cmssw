@@ -21,3 +21,4 @@ mergedStandAloneMuonSeeds = cms.EDProducer("MuonSeedMerger",
 standAloneMuonSeedsTask = cms.Task(ancientMuonSeed)
 standAloneMuonSeeds = cms.Sequence(standAloneMuonSeedsTask)
 # foo bar baz
+# P01vof1mYXi86

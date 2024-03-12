@@ -13,3 +13,4 @@ candidateCombinedSecondaryVertexV2Computer = cms.ESProducer("CandidateCombinedSe
         categoryVariableName = cms.string('vertexCategory')
 )
 # foo bar baz
+# a2M9lkhk46bdG

@@ -95,3 +95,4 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
 #    hitErrorRPhi = cms.double(0.0027)
 #)
 # foo bar baz
+# 0rw2Yz5hG2Rsq

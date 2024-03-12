@@ -13,3 +13,4 @@ ecalPreshowerMonitorClient = DQMEDHarvester('EcalPreshowerMonitorClient',
                                             cloneME = cms.untracked.bool(True)
                                             )
 # foo bar baz
+# NM2K3SHlWNYTK

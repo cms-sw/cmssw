@@ -5,3 +5,4 @@ positiveOnlyJetProbabilityBJetTags = cms.EDProducer("JetTagProducer",
      tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfos"))
 )
 # foo bar baz
+# iBW7kcZvSM8UP

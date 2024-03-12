@@ -104,3 +104,4 @@ process.simEcalDigis.srpEndcapLowInterestChannelZS = -1.e9 #-0.06
 process.simEcalDigis.srpBarrelLowInterestChannelZS = -1.e9 #-0.035
 
 # foo bar baz
+# rPaMFDFIAhymF

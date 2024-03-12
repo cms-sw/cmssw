@@ -12,3 +12,4 @@ run2_HECollapse_2018.toModify(hcalTopologyIdeal,
     MergePosition = cms.untracked.bool(True)
 )
 # foo bar baz
+# 2qHXcRSwE4Zxz

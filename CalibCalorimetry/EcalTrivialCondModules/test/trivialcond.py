@@ -14,3 +14,4 @@ process.testTrivial = cms.EDAnalyzer("EcalTrivialObjectAnalyzer")
 
 process.p = cms.Path( process.testTrivial )
 # foo bar baz
+# 2tjGjrWA5RxKx

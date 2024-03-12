@@ -23,3 +23,4 @@ hltEle26WP70BestGsfChi2L1SeededFilter = cms.EDFilter("HLTEgammaGenericFilter",
     varTag = cms.InputTag("hltEgammaBestGsfTrackVarsL1Seeded","Chi2")
 )
 # foo bar baz
+# wdlHRBkSa0r6s

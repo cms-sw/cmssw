@@ -47,3 +47,4 @@ process.output = cms.OutputModule("PoolOutputModule",
 # schedule definition                                                                                                       
 process.outpath  = cms.EndPath(process.output) 
 # foo bar baz
+# XdFjg7raAcd2J

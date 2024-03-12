@@ -51,3 +51,4 @@ process.p1 = cms.Path(process.siStripBadModuleDummyDBWriter)
 
 
 # foo bar baz
+# fTipRGSxDmgdB

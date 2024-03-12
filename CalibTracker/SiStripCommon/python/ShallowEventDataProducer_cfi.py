@@ -7,3 +7,4 @@ shallowEventRun = cms.EDProducer(
    metadata = cms.InputTag('onlineMetaDataDigis')
    )
 # foo bar baz
+# HWU7lCMLsNhli

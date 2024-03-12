@@ -17,3 +17,4 @@ updateHPSPFTausTask = cms.Task(
 )
 updateHPSPFTaus = cms.Sequence(updateHPSPFTausTask)
 # foo bar baz
+# XBbgnCHWsDRhi

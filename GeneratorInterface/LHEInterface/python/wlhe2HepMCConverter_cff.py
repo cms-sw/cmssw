@@ -5,3 +5,4 @@ generator = cms.EDProducer("LHE2HepMCConverter",
                            LHERunInfoProduct = cms.InputTag("externalLHEProducer")
                            )
 # foo bar baz
+# w16iPPcAARSyT

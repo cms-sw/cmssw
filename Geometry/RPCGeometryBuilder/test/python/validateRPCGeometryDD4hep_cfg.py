@@ -29,3 +29,4 @@ process.valid = cms.EDAnalyzer("RPCGeometryValidate",
 
 process.p = cms.Path(process.valid)
 # foo bar baz
+# 4VzRAzwV3BZrd

@@ -28,3 +28,4 @@ def calibrateReducedEgamma(process):
         process.reducedEgamma.photonFloatValueMapOutput.append(prefixName("calibPho",valueMapName))
 
 # foo bar baz
+# E3UbE0GbXXbXy

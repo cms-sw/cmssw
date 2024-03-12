@@ -14,3 +14,4 @@ hltEcalBarrelDigisInRegions = cms.EDProducer("HLTEcalEBDigisInRegionsProducer",
     outputProductNames = cms.vstring('ebDigis')
 )
 # foo bar baz
+# HiHhyOPBeKvqD

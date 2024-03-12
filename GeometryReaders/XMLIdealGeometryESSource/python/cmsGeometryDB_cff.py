@@ -5,3 +5,4 @@ XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
                                  label = cms.string('Extended')
                                  )
 # foo bar baz
+# I3ZlKFJ8puXGt

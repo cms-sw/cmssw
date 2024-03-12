@@ -38,3 +38,4 @@ process.p = cms.Path(process.BeamHaloId*process.AnalyzeBeamHalo*process.dqmStore
 #### If cosmic muons are not by default in the event, then you should run this sequence
 #process.p = cms.Path(process.ctfWithMaterialTracksP5LHCNavigation*process.muonRecoLHC*process.CSCHaloData*process.EcalHaloData*process.HcalHaloData*process.GlobalHaloData*process.AnalyzeBeamHalo)
 # foo bar baz
+# vqThvF4m71H28

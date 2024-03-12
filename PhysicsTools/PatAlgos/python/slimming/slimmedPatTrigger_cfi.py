@@ -7,3 +7,4 @@ slimmedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneSlimmer",
     packP4 = cms.bool(True),
 )
 # foo bar baz
+# WwNhyknuODb38

@@ -5,3 +5,4 @@ trackRefsForJetsBeforeSorting = cms.EDProducer("ChargedRefCandidateProducer",
     src = cms.InputTag("trackWithVertexRefSelectorBeforeSorting")
 )
 # foo bar baz
+# TxgzAz7A1AJrW

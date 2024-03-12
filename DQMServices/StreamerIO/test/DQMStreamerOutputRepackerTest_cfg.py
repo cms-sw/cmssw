@@ -32,3 +32,4 @@ process.output = cms.EndPath(process.poolOutput)
 
 print(process.source) 
 # foo bar baz
+# xG47GN4W2xB7t

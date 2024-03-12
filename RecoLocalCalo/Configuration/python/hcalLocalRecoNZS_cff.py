@@ -81,3 +81,4 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 run2_HECollapse_2018.toReplaceWith(hbherecoMB, hbhecollapseMB)
 run2_HECollapse_2018.toReplaceWith(hcalLocalRecoTaskNZS, _collapse_hcalLocalRecoTaskNZS)
 # foo bar baz
+# IKGmmlRQwSsK8

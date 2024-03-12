@@ -11,3 +11,4 @@ TauSpinnerWHpmFilter = cms.EDFilter("TauSpinnerFilter",
                                     )
 
 # foo bar baz
+# XWC054D3cVjCj

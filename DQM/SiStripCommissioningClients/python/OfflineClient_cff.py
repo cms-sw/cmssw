@@ -31,3 +31,4 @@ client = cms.EDAnalyzer("SiStripCommissioningOfflineClient",
   VpspScanParameters	   = cms.PSet(),
 )
 # foo bar baz
+# B8bKiE9cRViYC

@@ -59,3 +59,4 @@ eventshapeDQM_Q2_bottom05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
 
 eventshapeDQMSequence = cms.Sequence(eventshapeDQM_Q2_top05_cent1030 * eventshapeDQM_Q2_bottom05_cent1030 * eventshapeDQM_Q2_top05_cent3050 * eventshapeDQM_Q2_bottom05_cent3050 * eventshapeDQM_Q2_top05_cent5070 * eventshapeDQM_Q2_bottom05_cent5070 )
 # foo bar baz
+# rxIrgm67aigwz

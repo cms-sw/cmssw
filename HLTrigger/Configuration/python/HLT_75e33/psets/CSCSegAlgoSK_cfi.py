@@ -42,3 +42,4 @@ CSCSegAlgoSK = cms.PSet(
     )
 )
 # foo bar baz
+# QKupQIxmDSEGT

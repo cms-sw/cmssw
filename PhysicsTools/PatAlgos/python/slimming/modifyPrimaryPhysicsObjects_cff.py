@@ -30,3 +30,4 @@ modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAValueMapProducer *
                                             slimmedJetsAK8   *
                                             slimmedJetsPuppi   )
 # foo bar baz
+# FvjWMh0YKdnn4

@@ -18,3 +18,4 @@ StripClusterMCanalysis = cms.EDAnalyzer('StripClusterMCanalysis',
                                       )
                                    )
 # foo bar baz
+# 6dA8tIjMuqdS0

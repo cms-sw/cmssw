@@ -66,3 +66,4 @@ patGenericParticles = cms.EDProducer("PATGenericParticleProducer",
     resolutions     = cms.PSet(),
 )
 # foo bar baz
+# mECFInFhDqOF1

@@ -13,3 +13,4 @@ process.path = cms.Path(process.cudaTestKernelAdditionModule)
 
 process.maxEvents.input = 1
 # foo bar baz
+# bJwocoz6YJ3kb

@@ -9,3 +9,4 @@ SiStripFEDEmulator = cms.EDProducer("SiStripFEDEmulatorModule",
     Algorithms = DefaultAlgorithms
 )
 # foo bar baz
+# W1MT80HF91GRA

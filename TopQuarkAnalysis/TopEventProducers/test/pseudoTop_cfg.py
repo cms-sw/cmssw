@@ -37,3 +37,4 @@ process.printDecay = cms.EDAnalyzer("ParticleListDrawer",
 ## path
 process.p = cms.Path(process.printDecay, process.task)
 # foo bar baz
+# wpsE3TruYiEyA

@@ -33,3 +33,4 @@ photonIsolationHITask = cms.Task(islandBasicClusters , photonIsolationHIProducer
 photonIsolationHITaskGED = cms.Task(islandBasicClustersGED , photonIsolationHIProducerppGED)
 photonIsolationHITaskIsland = cms.Task(islandBasicClusters , photonIsolationHIProducerppIsland)
 # foo bar baz
+# 9llsi5dbrprJA

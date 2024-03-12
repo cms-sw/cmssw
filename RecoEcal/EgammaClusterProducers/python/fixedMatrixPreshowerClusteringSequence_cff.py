@@ -14,3 +14,4 @@ fixedMatrixPreshowerClusteringTask = cms.Task(correctedFixedMatrixSuperClustersW
 fixedMatrixPreshowerClusteringSequence = cms.Sequence(fixedMatrixPreshowerClusteringTask)
 
 # foo bar baz
+# GBW2ZOOW1DdzU

@@ -7,3 +7,4 @@ hgcalWaferHitCheckHEF = hgcalWaferHitCheckEE.clone(
     caloHitSource = cms.string('HGCHitsHEfront'),
     source   = cms.InputTag("simHGCalUnsuppressedDigis","HEfront"))
 # foo bar baz
+# X291gziKUlNDm

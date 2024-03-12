@@ -86,3 +86,4 @@ hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitDoublets, cms.Task(hi
 hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
 trackingPhase1.toReplaceWith(hiPixel3PrimTracksTask,hiPixel3PrimTracksTask_Phase1)
 # foo bar baz
+# 9TdBMcYAyCrap

@@ -9,3 +9,4 @@ genParticles2HepMC = cms.EDProducer("GenParticles2HepMCConverter",
     #signalParticlePdgIds = cms.vint32(6,-6), ## for the top quark analysis
 )
 # foo bar baz
+# lLimv6kCQwCRC

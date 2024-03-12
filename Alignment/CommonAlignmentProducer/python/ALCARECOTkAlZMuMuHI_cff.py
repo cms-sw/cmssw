@@ -22,3 +22,4 @@ seqALCARECOTkAlZMuMuHI = cms.Sequence(ALCARECOTkAlZMuMuHIHLT
                                       +ALCARECOTkAlZMuMuHI
                                       )
 # foo bar baz
+# 6T4Qw5CmX4D76

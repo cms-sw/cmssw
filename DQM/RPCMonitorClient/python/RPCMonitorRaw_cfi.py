@@ -7,3 +7,4 @@ rpcMonitorRaw = DQMEDAnalyzer('RPCMonitorRaw',
   rpcRawDataCountsTag = cms.InputTag('rpcunpacker')
 )
 # foo bar baz
+# E1PNKPUYBNukE

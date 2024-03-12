@@ -19,3 +19,4 @@ process.prod = cms.EDAnalyzer("GeometricDetAnalyzer")
 process.p1 = cms.Path(process.prod)
 
 # foo bar baz
+# T0oIEP4AFxCvY

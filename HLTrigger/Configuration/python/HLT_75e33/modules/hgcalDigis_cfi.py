@@ -7,3 +7,4 @@ hgcalDigis = cms.EDProducer("HGCalRawToDigiFake",
     mightGet = cms.optional.untracked.vstring
 )
 # foo bar baz
+# Ob65s6OE8YRcF

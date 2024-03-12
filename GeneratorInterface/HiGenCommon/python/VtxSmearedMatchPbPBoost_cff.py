@@ -9,3 +9,4 @@ VtxSmeared = cms.EDProducer("MixBoostEvtVtxGenerator",
                             Beta=cms.double(0.434)                          
                             )
 # foo bar baz
+# 2vVm4uZPI992n

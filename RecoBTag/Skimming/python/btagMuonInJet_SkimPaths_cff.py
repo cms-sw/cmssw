@@ -5,3 +5,4 @@ from RecoBTag.Skimming.btagMuonInJet_cfi import *
 btagMuonInJetPath = cms.Path(btagMuonInJet_HLT*btagMuonInJet)
 
 # foo bar baz
+# ZZxiQqqi4QIlr

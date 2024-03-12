@@ -22,3 +22,4 @@ L1TMuonBarrelParamsOnlineProd = cms.ESProducer("L1TMuonBarrelParamsOnlineProd",
     transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
 )
 # foo bar baz
+# e03I5pj0cnCTD

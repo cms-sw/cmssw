@@ -126,3 +126,4 @@ eleIsoSequence = cms.Sequence((elPFIsoDepositChargedGsf + elPFIsoDepositChargedA
 eleIsoSequence *= cms.Sequence(elPFIsoValueCharged03PFIdGsf+elPFIsoValueChargedAll03PFIdGsf+elPFIsoValueGamma03PFIdGsf+elPFIsoValueNeutral03PFIdGsf+elPFIsoValuePU03PFIdGsf )
 pfisoALCARECO = cms.Sequence(eleIsoSequence) #pfParticleSelectionSequence + eleIsoSequence)
 # foo bar baz
+# 6Uk5UFy8RO83d

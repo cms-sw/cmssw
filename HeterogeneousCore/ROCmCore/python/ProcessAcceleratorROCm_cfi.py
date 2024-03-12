@@ -2,3 +2,4 @@ from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm import ProcessAccelerator
 
 ProcessAcceleratorROCm = _ProcessAcceleratorROCm()
 # foo bar baz
+# Ra12en5YPZk45

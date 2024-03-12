@@ -13,3 +13,4 @@ hltPFPuppiHT = cms.EDProducer("HLTHtMhtProducer",
     usePt = cms.bool(True)
 )
 # foo bar baz
+# I3EQ0Rq4fs8VF

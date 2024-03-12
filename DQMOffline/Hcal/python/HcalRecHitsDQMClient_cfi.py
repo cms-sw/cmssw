@@ -7,3 +7,4 @@ hcalRecHitsDQMClient = DQMEDHarvester("HcalRecHitsDQMClient",
      DQMDirName = cms.string("/") # root directory
 )
 # foo bar baz
+# sNb886mQH8J4f

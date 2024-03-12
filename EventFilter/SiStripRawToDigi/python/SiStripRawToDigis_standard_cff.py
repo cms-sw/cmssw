@@ -9,3 +9,4 @@ from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 SiStripRawToDigis = cms.Sequence(siStripDigis)
 
 # foo bar baz
+# 9tRagT2VC5Lh3

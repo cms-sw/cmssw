@@ -16,3 +16,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
 	rootNodeName = cms.string('zdcworld:ZDCWorld')
 )
 # foo bar baz
+# TWNXU7pnKTXXY

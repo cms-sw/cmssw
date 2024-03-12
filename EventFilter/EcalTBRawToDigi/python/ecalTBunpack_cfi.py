@@ -4,3 +4,4 @@ ecalTBunpack = cms.EDProducer("EcalDCCTBUnpackingModule",
                               fedRawDataCollectionTag = cms.InputTag('rawDataCollector')
 )
 # foo bar baz
+# 6UpGDNQPMb9Z2

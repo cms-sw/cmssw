@@ -145,3 +145,4 @@ for f in fnames :
         process.source.fileNames.extend(cms.untracked.vstring('file:'+f))
 
 # foo bar baz
+# XxrpfNMSxkOOi

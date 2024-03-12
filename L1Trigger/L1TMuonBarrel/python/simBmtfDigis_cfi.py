@@ -6,3 +6,4 @@ simBmtfDigis = cms.EDProducer("L1TMuonBarrelTrackProducer",
     DTDigi_Theta_Source = cms.InputTag("simTwinMuxDigis"),
 )
 # foo bar baz
+# PTEuHAnm38uAS

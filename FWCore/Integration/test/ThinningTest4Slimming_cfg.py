@@ -35,3 +35,4 @@ process.slimmingTestA = cms.EDAnalyzer("ThinningTestAnalyzer",
 
 process.p = cms.Path(process.slimmingTestA)
 # foo bar baz
+# tHnugbB7lklps

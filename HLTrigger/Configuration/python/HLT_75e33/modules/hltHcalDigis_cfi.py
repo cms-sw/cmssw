@@ -23,3 +23,4 @@ hltHcalDigis = cms.EDProducer("HcalRawToDigi",
     silent = cms.untracked.bool(True)
 )
 # foo bar baz
+# w59g2ah1W2fiH

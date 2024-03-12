@@ -112,3 +112,4 @@ process.p = cms.Path(process.rawDataCollectorCSC)
 
 process.outpath = cms.EndPath(process.FEVT)
 # foo bar baz
+# 0rcZwsF1TyGrp

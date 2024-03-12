@@ -63,3 +63,4 @@ process.siStripBaseDelayDummyDBWriter.record=process.PoolDBOutputService.toPut[0
 
 process.p1 = cms.Path(process.siStripBaseDelayDummyDBWriter)
 # foo bar baz
+# 0lOVeD8CK9r1v

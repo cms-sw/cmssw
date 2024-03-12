@@ -5,3 +5,4 @@ pixelMedianVertices = cms.EDProducer( "PixelVertexProducerMedian",
      PtMin = cms.double( 0.5 )
 )
 # foo bar baz
+# KtQ3mI7PQyPUP

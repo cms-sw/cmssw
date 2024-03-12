@@ -36,3 +36,4 @@ dumpRaw = cms.EDAnalyzer("EcalDumpRaw",
                          l1AcceptBunchCrossingCollectionTag = cms.InputTag('scalersRawToDigi')
                          )
 # foo bar baz
+# 1cuaKtDNV9Srh

@@ -38,3 +38,4 @@ offlinePrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSor
     vertices = cms.InputTag("unsortedOfflinePrimaryVertices")
 )
 # foo bar baz
+# cBQW5NIUXFY6O

@@ -16,3 +16,4 @@ from RecoEcal.EgammaClusterProducers.cosmicSuperClusters_cfi import *
 cosmicClusteringTask = cms.Task(cosmicBasicClusters, cosmicSuperClusters)
 cosmicClusteringSequence = cms.Sequence(cosmicClusteringTask)
 # foo bar baz
+# pjokdqyHNbvlH

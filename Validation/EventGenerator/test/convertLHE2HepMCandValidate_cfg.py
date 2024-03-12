@@ -61,3 +61,4 @@ process.p = cms.Path(process.lhe2HepMCConverter +
                       )
 process.e = cms.EndPath(process.out)
 # foo bar baz
+# LGeQ6NJHoENp5

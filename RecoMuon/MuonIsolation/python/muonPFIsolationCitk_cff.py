@@ -14,3 +14,4 @@ muonIsolationTask = cms.Task(pfParticleSelectionTask,
                              muonPFPileUpIsolation)
 muonIsolationSequence = cms.Sequence(muonIsolationTask)
 # foo bar baz
+# DB7RYQjxwEzcg

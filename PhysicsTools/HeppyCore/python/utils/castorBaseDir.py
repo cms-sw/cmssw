@@ -34,3 +34,4 @@ def myCastorBaseDir():
     """Gets the top level directory to use for writing for the current user"""
     return castorBaseDir()
 # foo bar baz
+# rwloTP8PP0lha

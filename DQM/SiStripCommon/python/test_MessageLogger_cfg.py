@@ -11,3 +11,4 @@ process.p = cms.Path(process.test)
 process.maxEvents.input = 2
 
 # foo bar baz
+# sMtRiCEXif1Bz

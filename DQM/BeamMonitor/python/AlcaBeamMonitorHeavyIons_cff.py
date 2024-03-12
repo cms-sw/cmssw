@@ -21,3 +21,4 @@ scalerBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotPr
 alcaBeamMonitor = cms.Sequence( scalerBeamSpot*AlcaBeamMonitor )
 
 # foo bar baz
+# tQsJCzr1TW6Cn

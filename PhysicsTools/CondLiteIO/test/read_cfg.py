@@ -16,3 +16,4 @@ process.add_(cms.ESSource("FWLiteESSource", fileName = cms.string("cond_test.roo
 process.tst = cms.EndPath(process.dump+process.tester)
 
 # foo bar baz
+# qSaUbmdKtAlGu

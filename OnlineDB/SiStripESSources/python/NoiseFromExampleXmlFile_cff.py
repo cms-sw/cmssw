@@ -9,3 +9,4 @@ SiStripConfigDb.Partitions.PrimaryPartition.InputDcuInfoXml = ''
 SiStripConfigDb.Partitions.PrimaryPartition.InputFedXml = ['/afs/cern.ch/cms/cmt/onlinedev/data/fed9.xml', '/afs/cern.ch/cms/cmt/onlinedev/data/fed15.xml']
 
 # foo bar baz
+# CVcLIiHmQtoU1

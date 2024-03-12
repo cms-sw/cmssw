@@ -47,3 +47,4 @@ rpcPointVsRecHitValidation_step = cms.Sequence(dtVsRPCRecHitV+cscVsRPCRecHitV)#+
 simVsRPCPointValidation_step = cms.Sequence(simVsDTExtV+simVsCSCExtV)#+simVsTrackExtV)
 
 # foo bar baz
+# CTJKKRZpnAsLD

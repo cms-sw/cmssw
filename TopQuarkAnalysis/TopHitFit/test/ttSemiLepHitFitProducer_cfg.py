@@ -52,3 +52,4 @@ process.out.outputCommands += ['keep *_hitFitTtSemiLepEvent_*_*']
 ## output path
 process.outpath = cms.EndPath(process.out, process.task)
 # foo bar baz
+# yG00iKJR20Pn7

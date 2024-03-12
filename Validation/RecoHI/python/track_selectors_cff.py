@@ -13,3 +13,4 @@ cutsTpMuons = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingPartic
 cutsTpMuons.ptMin = 0.0
 
 # foo bar baz
+# LHUXTClHtaA3S

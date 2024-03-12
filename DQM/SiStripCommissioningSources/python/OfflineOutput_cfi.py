@@ -5,3 +5,4 @@ consumer = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('digis.root')
 )
 # foo bar baz
+# MRNQ2HAUovFsO

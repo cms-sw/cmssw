@@ -154,3 +154,4 @@ pfPuppiMetAnalyzerMiniAOD = DQMEDAnalyzer(
    PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
    )
 # foo bar baz
+# HMtddCA771tqD

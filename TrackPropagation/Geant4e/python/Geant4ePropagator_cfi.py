@@ -11,3 +11,4 @@ Geant4ePropagator = cms.ESProducer("GeantPropagatorESProducer",
                                    PropagationPtotLimit = cms.double(1.0) ## GeV/c
                                    )
 # foo bar baz
+# d82lHfjUSps7R

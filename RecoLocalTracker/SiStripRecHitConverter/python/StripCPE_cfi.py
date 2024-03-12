@@ -7,3 +7,4 @@ StripCPEESProducer = stripCPEESProducer.clone(
      parameters    = cms.PSet()
 )
 # foo bar baz
+# 8dvcAmcdyYr7Z

@@ -7,3 +7,4 @@ omtfStage2Raw = cms.EDProducer("OmtfPacker",
   dtThInputLabel = cms.InputTag('simTwinMuxDigis'),
 )
 # foo bar baz
+# FVHznH0S3lDaz

@@ -138,3 +138,4 @@ tauValidationSequenceMiniAOD = cms.Sequence(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))
 # foo bar baz
+# 3pVP5abitE12e

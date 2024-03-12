@@ -8,3 +8,4 @@ inputCommands = cms.untracked.vstring('drop *_*_beginRun_*', 'drop *_*_endRun_*'
 )
 
 process.add_(cms.Service("StatisticsSenderService", debug = cms.untracked.bool(True)))# foo bar baz
+# 9Rel0Lyh785XX

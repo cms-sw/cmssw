@@ -8,3 +8,4 @@ HFNoseGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
                                           Name = cms.untracked.string("HGCalHFNoseSensitive")
                                           )
 # foo bar baz
+# kUqr5BTfKuoUQ

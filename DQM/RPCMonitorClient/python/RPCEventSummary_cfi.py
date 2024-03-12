@@ -11,3 +11,4 @@ rpcEventSummary = DQMEDHarvester("RPCEventSummary",
                                  RecHitTypeFolder = cms.untracked.string("AllHits")
                                  )
 # foo bar baz
+# Yn9WLhaV9tQcV

@@ -6,3 +6,4 @@ hltEgammaCandidatesUnseeded = cms.EDProducer("EgammaHLTRecoEcalCandidateProducer
     scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterHGCalFromTICLUnseeded")
 )
 # foo bar baz
+# fQvY6nvfPsvUm

@@ -66,3 +66,4 @@ class CreateNtuple(object):
         ntuplizer.Ntuples = cms.VPSet(vpset)
         return ntuplizer
 # foo bar baz
+# g5B1Rwhpl8NaA

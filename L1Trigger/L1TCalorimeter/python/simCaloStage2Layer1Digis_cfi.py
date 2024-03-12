@@ -11,3 +11,4 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     firmware      = cms.int32(1)
 )
 # foo bar baz
+# yIhV8jj3RnYTe

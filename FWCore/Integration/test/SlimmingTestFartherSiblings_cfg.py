@@ -55,3 +55,4 @@ process.p = cms.Path(
     process.slimmingThingProducerC
 )
 # foo bar baz
+# hxEjeqpXGKCDx

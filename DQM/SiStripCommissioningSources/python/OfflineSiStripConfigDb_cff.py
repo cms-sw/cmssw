@@ -19,3 +19,4 @@ myNoisePrefer = cms.ESPrefer("SiStripNoiseBuilderFromDb", "NoiseFromConfigDb")
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
 # foo bar baz
+# NwtkWjJB9jLNt

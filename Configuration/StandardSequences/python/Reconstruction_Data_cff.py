@@ -49,3 +49,4 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSResidualCorrector, ak4PFCHSL1FastL2L3ResidualCorrector
 jetCorrectorsForRecoTask.replace(ak4PFCHSL1FastL2L3CorrectorTask, ak4PFCHSL1FastL2L3ResidualCorrectorTask)
 # foo bar baz
+# g04zDYxt33EaI

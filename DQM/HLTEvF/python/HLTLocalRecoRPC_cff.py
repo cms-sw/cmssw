@@ -21,3 +21,4 @@ hltHighLevelRPC = cms.EDFilter("HLTHighLevel",
 
 hltLocalRecoRPC = cms.Path(hltHighLevelRPC*rpcSourceHLT)
 # foo bar baz
+# g5kt2LWhP141z

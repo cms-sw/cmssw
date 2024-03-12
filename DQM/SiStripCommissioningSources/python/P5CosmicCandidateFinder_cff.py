@@ -6,3 +6,4 @@ cosmicCandidateFinder.MinHits = cms.int32(4)
 cosmicCandidateFinder.Chi2Cut = cms.double(300.0)
 cosmicCandidateFinder.GeometricStructure = cms.untracked.string('STANDARD')
 # foo bar baz
+# RZyFOjM6A5k4r

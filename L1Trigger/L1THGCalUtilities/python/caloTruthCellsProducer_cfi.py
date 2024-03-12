@@ -12,3 +12,4 @@ l1tCaloTruthCellsProducer = cms.EDProducer('CaloTruthCellsProducer',
     dummyClustering = dummy_C2d_params.clone()
 )
 # foo bar baz
+# 0c8obceBZd5YI

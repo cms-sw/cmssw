@@ -24,3 +24,4 @@ BtagPerformanceESProducer_TTBARDISCRIMBTAGTCHP = cms.ESProducer("BtagPerformance
     WorkingPointName = cms.string('TTBARDISCRIMBTAGTCHP_WP')
 )
 # foo bar baz
+# cfBcR0pT6ikP9

@@ -16,3 +16,4 @@ def makeInputForPUPPIIsolationMuon(process):
 	process.muonPUPPINoLeptonsIsolation.srcToIsolate = cms.InputTag("muons")
 	process.muonPUPPINoLeptonsIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 # foo bar baz
+# pXMbtb7X1smDW

@@ -41,3 +41,4 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tJetEfficiency, efficiencyProfile=efficiencyStrings_HI)
 ppRef_2017.toModify(l1tJetEmuEfficiency, efficiencyProfile=efficiencyStrings_HI)
 # foo bar baz
+# dtEFBNI3LYCas

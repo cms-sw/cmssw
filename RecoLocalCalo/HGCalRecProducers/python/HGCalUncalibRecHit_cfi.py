@@ -90,3 +90,4 @@ phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig ,
           fCPerMIP = fCPerMIP_mean
 )
 # foo bar baz
+# MNRzA5Hn0W6xX

@@ -6,3 +6,4 @@ hcalCalibTypeFilter = cms.EDFilter( "HcalCalibTypeFilter",
    FilterSummary = cms.untracked.bool( False ) 
 )
 # foo bar baz
+# daeTfyzEcHMiX

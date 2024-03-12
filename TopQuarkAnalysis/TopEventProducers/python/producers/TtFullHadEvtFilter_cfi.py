@@ -8,3 +8,4 @@ ttFullHadEventFilter = cms.EDFilter("TtFullHadEvtFilter",
     cut = cms.string("isHypoValid('kGenMatch') & genMatchSumDR < 999.")
 )
 # foo bar baz
+# 4ljyYqSmeZr6U

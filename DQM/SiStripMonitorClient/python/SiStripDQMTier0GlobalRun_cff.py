@@ -21,3 +21,4 @@ SiStripDQMTest_ckf = cms.Sequence(SiStripDQMTier0_ckf*MEtoEDMConverter)
 SiStripDQMTest = cms.Sequence(SiStripDQMTier0*MEtoEDMConverter)
 
 # foo bar baz
+# uS19zJwaEttTx

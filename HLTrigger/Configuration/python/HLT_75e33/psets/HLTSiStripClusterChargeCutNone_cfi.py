@@ -4,3 +4,4 @@ HLTSiStripClusterChargeCutNone = cms.PSet(
     value = cms.double(-1.0)
 )
 # foo bar baz
+# WxfQMPXiZAaGB

@@ -7,3 +7,4 @@ HLTAnalyzerEndpath = cms.EndPath(
     hltPreHLTAnalyzerEndpath + 
     hltTrigReport )
 # foo bar baz
+# VGSdsTxcr19Lw

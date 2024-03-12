@@ -72,3 +72,4 @@ from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHCAL,
                            usePFThresholdsFromDB = True)
 # foo bar baz
+# qmafj0fpce5i7

@@ -72,3 +72,4 @@ SUSY_HLT_MET_MUON_POSTPROCESSING = cms.Sequence( SUSYoHLToMET120oMUON5oPOSTPROCE
                                                  SUSYoHLToMET50oDIMUON3oPOSTPROCESSING            
 )
 # foo bar baz
+# VfuyHOXe6fvPZ

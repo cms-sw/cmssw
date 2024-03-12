@@ -10,3 +10,4 @@ from RecoEgamma.EgammaElectronProducers.gedGsfElectronValueMapsTmp_cfi import *
 
 gedGsfElectronTaskTmp = cms.Task(gedGsfElectronCores, gedGsfElectronsTmp, gedGsfElectronValueMapsTmp)
 # foo bar baz
+# LcEcsM6LjXtnp

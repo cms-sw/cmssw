@@ -33,3 +33,4 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 process.p = cms.Path(process.ecalEBunpacker)
 
 # foo bar baz
+# vSumLJLJ8NPES

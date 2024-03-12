@@ -17,3 +17,4 @@ softMuonTagInfos = cms.EDProducer("SoftLepton",
     muonSelection = muonSelection.AllGlobalMuons
 )
 # foo bar baz
+# MIc726bmOTf59

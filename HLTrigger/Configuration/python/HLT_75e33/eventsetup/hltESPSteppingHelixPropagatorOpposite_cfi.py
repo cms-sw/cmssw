@@ -21,3 +21,4 @@ hltESPSteppingHelixPropagatorOpposite = cms.ESProducer("SteppingHelixPropagatorE
     useTuningForL2Speed = cms.bool(False)
 )
 # foo bar baz
+# sR6u3xoM10ZEq

@@ -7,3 +7,4 @@ hgcalSimHitClientEE = DQMEDHarvester("HGCalSimHitsClient",
                                      Verbosity    = cms.untracked.int32(0),
 )
 # foo bar baz
+# rDMBdS9VZWvN0

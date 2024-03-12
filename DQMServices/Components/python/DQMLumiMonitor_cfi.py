@@ -11,3 +11,4 @@ dqmLumiMonitor = DQMEDAnalyzer("DQMLumiMonitor",
     TH1LSPar = cms.PSet(Xbins = cms.int32(2001),Xmin = cms.double(-0.5),Xmax = cms.double(2000.50))                                
 )
 # foo bar baz
+# TACLss2LsQrZR

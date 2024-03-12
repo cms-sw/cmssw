@@ -7,3 +7,4 @@ pixelFitterByHelixProjections = pixelFitterByHelixProjectionsDefault.clone()
 
 phase1Pixel.toModify( pixelFitterByHelixProjections, scaleErrorsForBPix1 = True)
 # foo bar baz
+# MWyCFKsM27xBM

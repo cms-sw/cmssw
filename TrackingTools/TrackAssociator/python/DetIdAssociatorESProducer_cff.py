@@ -61,3 +61,4 @@ preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     nPhi = cms.int32(30)
 )
 # foo bar baz
+# BY8DBC1y1ulW0

@@ -40,3 +40,4 @@ ALCARECOTkAlBeamHalo.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
 seqALCARECOTkAlBeamHalo = cms.Sequence(ALCARECOTkAlBeamHaloDCSFilter+ALCARECOTkAlBeamHalo)
 # foo bar baz
+# VvFwRwkytGhN0

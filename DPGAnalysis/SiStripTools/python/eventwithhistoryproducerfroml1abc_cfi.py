@@ -8,3 +8,4 @@ consecutiveHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(consecutiveHEs, forceSCAL = False)
 # foo bar baz
+# 3yUAOJPBCZA0i

@@ -7,3 +7,4 @@ import FWCore.ParameterSet.Config as cms
 from SimG4Core.Application.g4SimHits_cfi import *
 g4SimHits.g4GeometryDD4hepSource = True
 # foo bar baz
+# zd4SQfr45vSyN

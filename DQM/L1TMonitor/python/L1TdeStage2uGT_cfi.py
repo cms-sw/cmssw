@@ -9,3 +9,4 @@ l1tdeStage2uGT = DQMEDAnalyzer('L1TdeStage2uGT',
     histFolder = cms.string('L1TEMU/L1TdeStage2uGT')
 )
 # foo bar baz
+# 5uUWJaKM4Fugy

@@ -110,3 +110,4 @@ def _modifyParticleFlowClusterHOForRun2( object ) :
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )
 # foo bar baz
+# 9ktnt8vLeB0Ih

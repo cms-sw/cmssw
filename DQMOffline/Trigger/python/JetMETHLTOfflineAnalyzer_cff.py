@@ -16,3 +16,4 @@ jetMETHLTOfflineAnalyzer = cms.Sequence(
 jmeHLTDQMSourceExtra = cms.Sequence(
 )
 # foo bar baz
+# sFWtzGAvOXRea

@@ -7,3 +7,4 @@ cosmicPhotonAnalysis.useTriggerFiltering = cms.bool(False)
 
 egammaCosmicPhotonMonitors = cms.Sequence(cosmicPhotonAnalysis)
 # foo bar baz
+# AAC7PCxdfiSk8

@@ -79,3 +79,4 @@ RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 phase2_hgcal.toModify( RecoLocalCaloFEVT, 
     outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep *_HGCalUncalibRecHit_*_*'])
 # foo bar baz
+# 1jA4VoqT7qsaC

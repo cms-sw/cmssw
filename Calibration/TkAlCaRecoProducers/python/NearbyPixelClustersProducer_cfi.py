@@ -7,3 +7,4 @@ NearbyPixelClustersProducer = cms.EDProducer('NearbyPixelClustersProducer',
                                              dumpWholeDetIds = cms.bool(False)                    # write all clusters in Det
                                              )
 # foo bar baz
+# u9mmwupeSW8HP

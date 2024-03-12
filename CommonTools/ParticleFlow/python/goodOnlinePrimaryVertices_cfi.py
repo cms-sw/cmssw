@@ -7,3 +7,4 @@ goodOnlinePrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
     src = cms.InputTag('offlinePrimaryVertices')
 )
 # foo bar baz
+# W78Ea9bttRuPy

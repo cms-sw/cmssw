@@ -10,3 +10,4 @@ ecalActivityHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone
 
 ecalActivitySeq = cms.Sequence( ecalActivityHltFilter )
 # foo bar baz
+# ZvBUHRXZn0b6E

@@ -13,3 +13,4 @@ hltHpsPFTauTrack = cms.EDFilter( "HLT1PFTau",
     MinN = cms.int32( 1 )
 )
 # foo bar baz
+# p6MuZSXxOOWJW

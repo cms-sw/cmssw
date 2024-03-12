@@ -7,3 +7,4 @@ L1TUtmTriggerMenuOnlineProd = cms.ESProducer("L1TUtmTriggerMenuOnlineProd",
     # menu producer must be transaction safe otherwise everyone is screwed
 )
 # foo bar baz
+# bR5Ep1wh23vR6

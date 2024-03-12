@@ -32,3 +32,4 @@ photonfilter = cms.EDFilter("MCSingleParticleFilter",
 
 ProductionFilterSequence = cms.Sequence(generator*photonfilter)
 # foo bar baz
+# EGFKHmVQD5Joc

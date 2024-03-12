@@ -36,3 +36,4 @@ def SecondaryVertexTagInfoCategorySelector(src, pxy, cut):
     vertexClassifier.vertexProducer.setIsTracked(False)    
     return cms.EDFilter('SecondaryVertexTagInfoCategorySelector', vertexClassifier, src = src, cut = cut)
 # foo bar baz
+# KgDkT5x8CrPy6

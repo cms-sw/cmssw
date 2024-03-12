@@ -35,3 +35,4 @@ herwig7p1SettingsFor7p2Block = cms.PSet(
         'set /Herwig/UnderlyingEvent/MPIHandler:DiffractiveRatio 0.21',
         )
 )# foo bar baz
+# lKpBdXx2HA4YX

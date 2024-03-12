@@ -24,3 +24,4 @@ pfMETBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     doMetPlots  = cms.bool(True)
 )
 # foo bar baz
+# coXUqPRa1iBXr

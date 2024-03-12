@@ -4,3 +4,4 @@ HcalHardcodeGeometryEP = cms.ESProducer("HcalHardcodeGeometryEP" ,
                                         UseOldLoader = cms.bool(False)
                                         )
 # foo bar baz
+# oYCZdwUWXKSQ3

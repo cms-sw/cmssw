@@ -104,3 +104,4 @@ hiRegitPixelPairStepTask = cms.Task(hiRegitPixelPairStepClusters,
                                     hiRegitPixelPairStepSelector)
 hiRegitPixelPairStep = cms.Sequence(hiRegitPixelPairStepTask)
 # foo bar baz
+# m1RLhyXbC7kE2

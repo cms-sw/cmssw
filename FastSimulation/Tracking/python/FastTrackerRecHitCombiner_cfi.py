@@ -7,3 +7,4 @@ fastTrackerRecHitCombinations = cms.EDProducer(
     minNHits = cms.uint32(3)
     )
 # foo bar baz
+# yngcYdZFRpbwW

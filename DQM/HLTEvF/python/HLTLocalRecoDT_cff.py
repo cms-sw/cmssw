@@ -26,3 +26,4 @@ dtClient = cms.Sequence(dtResolutionTaskHLT+dtSegmentTaskHLT+dtResolutionTestHLT
 hltLocalRecoDT = cms.Path(hltHighLevel*dtClient)
 
 # foo bar baz
+# 9iKkqi9koJVwj

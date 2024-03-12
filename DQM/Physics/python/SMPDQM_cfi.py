@@ -10,3 +10,4 @@ SMPDQM= DQMEDAnalyzer('SMPDQM',
                       pfMETCollection          = cms.InputTag("pfMet"),
                       )
 # foo bar baz
+# bjQpjVc0IBzi8

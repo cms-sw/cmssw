@@ -26,3 +26,4 @@ kt4JTATask = cms.Task(kt4JetTracksAssociatorAtVertex,
                       kt4JetExtender)
 kt4JTA = cms.Sequence(kt4JTATask)
 # foo bar baz
+# dZ8G4qN89IQmu

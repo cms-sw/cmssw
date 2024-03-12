@@ -15,3 +15,4 @@ validationMuonRPCDigis = DQMEDAnalyzer('RPCDigiValid',
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(validationMuonRPCDigis, simHitTag = "MuonSimHits:MuonRPCHits")
 # foo bar baz
+# eqDQqXWsDHRbI

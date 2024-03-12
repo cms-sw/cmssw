@@ -26,3 +26,4 @@ sipixelMonitorHLTsequence = cms.Sequence(
     cms.Task(SiPixelTemplateStoreESProducer)
 )
 # foo bar baz
+# 9PuaF6zTzaJHu

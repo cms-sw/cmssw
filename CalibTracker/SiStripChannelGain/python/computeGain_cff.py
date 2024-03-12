@@ -53,3 +53,4 @@ SiStripCalibValidation.UseCalibration      = cms.untracked.bool(True)
 SiStripCalibValidation.calibrationPath     = cms.untracked.string("file:Gains.root") 
 SiStripCalibValidation.doStoreOnDB         = cms.bool(False) 
 # foo bar baz
+# WgosNEjpcMs88

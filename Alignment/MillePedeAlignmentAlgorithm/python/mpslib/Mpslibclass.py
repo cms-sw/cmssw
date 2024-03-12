@@ -254,3 +254,4 @@ class jobdatabase:
             print('\nget_class():\n  Know class only for \'mille\' or \'pede\', not %s!\n\n' %argument)
             sys.exit(1)
 # foo bar baz
+# yNbvyFRliVwvm

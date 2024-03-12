@@ -48,3 +48,4 @@ ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
 extraFlagsProducersTask = cms.Task()
 extraFlagsTableTask = cms.Task()
 # foo bar baz
+# Xs2cBtXaCh4wM

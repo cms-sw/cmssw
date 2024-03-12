@@ -55,3 +55,4 @@ def customHGCdigitizer(process, version='simple0', debug=False):
         process.mix.digitizers.hgchebackDigitizer.digiCfg.doTimeSamples  = cms.bool(True)
         process.mix.digitizers.hfnoseDigitizer.digiCfg.doTimeSamples      = cms.bool(True)
 # foo bar baz
+# SjmrOUfOufiTs

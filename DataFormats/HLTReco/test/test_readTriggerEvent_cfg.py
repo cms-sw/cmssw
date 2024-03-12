@@ -34,3 +34,4 @@ process.path = cms.Path(process.testReadTriggerEvent)
 
 process.endPath = cms.EndPath(process.out)
 # foo bar baz
+# vsxvNdBaEuhbA

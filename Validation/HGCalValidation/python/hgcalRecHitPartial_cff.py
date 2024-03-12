@@ -7,3 +7,4 @@ hgcalRecHitPartialHE = hgcalRecHitPartialEE.clone(
     source = 'HGCalRecHit::HGCHEFRecHits'
 )
 # foo bar baz
+# uh9iJ2OTGURHL

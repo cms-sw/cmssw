@@ -74,3 +74,4 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.DQMoutput_step)
 process.ecalDigis.InputLabel = cms.InputTag('hltEcalCalibrationRaw')
 
 # foo bar baz
+# Yp0QocU64TQLe

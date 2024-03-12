@@ -16,3 +16,4 @@ striptrackerlocalreco = cms.Sequence(siStripClusters*siStripMatchedRecHits)
 trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco)
 
 # foo bar baz
+# I6sZOoIbiovYN

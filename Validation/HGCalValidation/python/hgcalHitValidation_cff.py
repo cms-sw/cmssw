@@ -20,3 +20,4 @@ from Validation.HGCalValidation.caloparticlevalidation_cfi import caloparticleva
 
 hgcalHitValidationSequence = cms.Sequence(hgcalHitValidation+hgcalHitCalibration+caloparticlevalidation)
 # foo bar baz
+# UvAMFElrZl20S

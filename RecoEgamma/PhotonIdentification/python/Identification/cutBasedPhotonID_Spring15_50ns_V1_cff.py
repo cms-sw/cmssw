@@ -151,3 +151,4 @@ cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.isPOGApproved = cms.untracked
 cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.isPOGApproved = cms.untracked.bool(True)
 cutBasedPhotonID_Spring15_50ns_V1_standalone_tight.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
+# ylyqGGMoGJueR

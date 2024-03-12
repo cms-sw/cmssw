@@ -30,3 +30,4 @@ tauGenJetMatch = cms.EDProducer("GenJetMatcher",             # cut on deltaR, de
     resolveByMatchQuality = cms.bool(False),                 # False = just match input in order; True = pick lowest deltaR pair first
 )
 # foo bar baz
+# 3wcwxLdltRqpe

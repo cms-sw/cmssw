@@ -4,3 +4,4 @@ hltElePixelSeedsCombinedL1Seeded = cms.EDProducer("SeedCombiner",
     seedCollections = cms.VInputTag("hltElePixelSeedsDoubletsL1Seeded", "hltElePixelSeedsTripletsL1Seeded")
 )
 # foo bar baz
+# hgmbapFQXsuyo

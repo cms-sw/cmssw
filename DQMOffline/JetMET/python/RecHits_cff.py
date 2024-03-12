@@ -11,3 +11,4 @@ from DQMOffline.JetMET.RecHits_cfi import *
 analyzeRecHits = cms.Sequence(ECALAnalyzer*HCALAnalyzer)
 
 # foo bar baz
+# Qpy6lqPqsiKeN

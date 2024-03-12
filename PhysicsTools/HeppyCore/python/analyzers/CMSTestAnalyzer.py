@@ -7,3 +7,4 @@ class CMSTestAnalyzer(Analyzer):
         evid = event.input.eventAuxiliary().id()
         print('run/lumi/event:', evid.run(), evid.luminosityBlock(), evid.event())
 # foo bar baz
+# 2x4BXhe2eNMRY

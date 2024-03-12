@@ -6,3 +6,4 @@ SubJetParameters = cms.PSet(
     rcut_factor = cms.double(0.5)           # rcut factor for pruning (the ref. uses 0.5)
 )
 # foo bar baz
+# tHvRbas6SYPu1

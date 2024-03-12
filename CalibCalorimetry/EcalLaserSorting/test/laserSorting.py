@@ -21,3 +21,4 @@ process.load("CalibCalorimetry.EcalLaserSorting.laserSorter_cfi")
 
 process.p = cms.Path(process.laserSorter)
 # foo bar baz
+# wWEoovVirm5UD

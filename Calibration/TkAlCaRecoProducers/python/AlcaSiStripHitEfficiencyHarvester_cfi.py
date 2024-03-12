@@ -17,3 +17,4 @@ alcasiStripHitEfficiencyHarvester =  siStripHitEfficiencyHarvester.clone(
     TkMapMin            = 0.90, # default 0.90
     Title               = 'SiStrip Hit Efficiency Map')
 # foo bar baz
+# A9oXM0V3sLZyG

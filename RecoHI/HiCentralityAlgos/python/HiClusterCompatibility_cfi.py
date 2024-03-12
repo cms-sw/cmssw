@@ -7,3 +7,4 @@ hiClusterCompatibility = cms.EDProducer("ClusterCompatibilityProducer",
    zStep         = cms.double(0.2)
 )
 # foo bar baz
+# 9Cbz3VeYtea3l

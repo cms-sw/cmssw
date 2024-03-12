@@ -101,3 +101,4 @@ central_id_registry.register(heepElectronID_HEEPV60.idName,"df10ac7e3a9c22f63fa7
 
 heepElectronID_HEEPV60.isPOGApproved = cms.untracked.bool(True)
 # foo bar baz
+# hU89F1bLtsjTa

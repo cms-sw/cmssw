@@ -89,3 +89,4 @@ class JSONAnalyzer( Analyzer ):
         self.rltInfo.write( self.dirName )
 
 # foo bar baz
+# EaKw6UyCTDB5D

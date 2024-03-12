@@ -9,3 +9,4 @@ dtTTrigWriter = cms.EDAnalyzer("DTTTrigWriter",
     kFactor = cms.untracked.double(-0.7)
 )
 # foo bar baz
+# 3fm3rXl0CGwLr

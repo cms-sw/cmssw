@@ -7,3 +7,4 @@ SimSingleMuFilter.nMuSel = 1
 
 SimMuFiltSeq = cms.Sequence(SimSingleMuFilter)
 # foo bar baz
+# uBoQc3G5g5A4F

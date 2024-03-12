@@ -12,3 +12,4 @@ filteredLayerClustersCLUE3DHigh = cms.EDProducer("FilteredLayerClustersProducer"
     min_layerId = cms.int32(0)
 )
 # foo bar baz
+# JKDIDiaLMD43X

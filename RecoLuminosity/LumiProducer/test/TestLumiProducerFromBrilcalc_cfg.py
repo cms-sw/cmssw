@@ -31,3 +31,4 @@ process.test = cms.EDAnalyzer('TestLumiProducerFromBrilcalc',
 process.p = cms.Path(process.LumiInfo*process.test)
 
 # foo bar baz
+# SI7W33BYi7pjo

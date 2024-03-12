@@ -7,3 +7,4 @@ lhemttFilter = cms.EDFilter("LHEmttFilter",
     ptMin = cms.double(0)
 )
 # foo bar baz
+# RHZVK7GN7107Z

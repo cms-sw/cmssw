@@ -18,3 +18,4 @@ ttFullHadHypKinFit = cms.EDProducer("TtFullHadHypKinFit",
     bBarTag      = cms.InputTag("kinFitTtFullHadEventHypothesis","PartonsBBar")
 )
 # foo bar baz
+# NnjXTzwYih9iO

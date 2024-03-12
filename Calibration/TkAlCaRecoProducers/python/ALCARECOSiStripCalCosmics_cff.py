@@ -41,3 +41,4 @@ ALCARECOSiStripCalCosmics.TwoBodyDecaySelector.applyMissingETFilter    = False
 # Sequence #
 seqALCARECOSiStripCalCosmics = cms.Sequence(ALCARECOSiStripCalCosmicsHLT*DCSStatusForSiStripCalCosmics*ALCARECOSiStripCalCosmics)
 # foo bar baz
+# JzJAMp8GB192Q

@@ -78,3 +78,4 @@ decayfilter = cms.EDFilter(
 
 ProductionFilterSequence = cms.Sequence(generator*bfilter*decayfilter)
 # foo bar baz
+# VpBa9MX6AIrkY

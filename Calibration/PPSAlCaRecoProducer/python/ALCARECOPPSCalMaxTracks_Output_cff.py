@@ -37,3 +37,4 @@ OutALCARECOPPSCalMaxTracks_noDrop = cms.PSet(
 
 OutALCARECOPPSCalMaxTracks = OutALCARECOPPSCalMaxTracks_noDrop.clone()
 OutALCARECOPPSCalMaxTracks.outputCommands.insert(0, 'drop *')# foo bar baz
+# qHIG7DRzbebS8

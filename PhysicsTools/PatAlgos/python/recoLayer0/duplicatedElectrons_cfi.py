@@ -7,3 +7,4 @@ electronsNoDuplicates = cms.EDFilter("DuplicatedElectronCleaner",
     electronSource = cms.InputTag("gsfElectrons"), 
 )
 # foo bar baz
+# mUq0mq2x30a1f

@@ -7,3 +7,4 @@ FilterByPartonMaxPt = cms.EDFilter("HerwigMaxPtPartonFilter",
   ProcessID = cms.untracked.int32(0)
 )
 # foo bar baz
+# 3xvyTpf572DaF

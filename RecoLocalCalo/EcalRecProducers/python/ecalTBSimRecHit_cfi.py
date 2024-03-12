@@ -39,3 +39,4 @@ ecalTBSimRecHit = cms.EDProducer("EcalRecHitProducer",
     triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis")
 )
 # foo bar baz
+# GKdM0jbIkKmzg

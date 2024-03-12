@@ -11,3 +11,4 @@ SiStripDigiToRaw = cms.EDProducer(
     RawDataTag = cms.InputTag('rawDataCollector')
     )
 # foo bar baz
+# k1cu4jlgS5hxM
