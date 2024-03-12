@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="portabletest::TestSoA"/>
   <class name="portabletest::TestHostCollection"/>
   <class name="edm::Wrapper<portabletest::TestHostCollection>" splitLevel="0"/>
 
