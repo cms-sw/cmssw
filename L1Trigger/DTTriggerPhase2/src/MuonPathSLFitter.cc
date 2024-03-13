@@ -99,7 +99,7 @@ void MuonPathSLFitter::analyze(MuonPathPtr &inMPath,
   auto sl = inMPath->primitive(0)->superLayerId();  // 0, 1, 2
 
   int selected_lay = 1;
-  if (inMPath->primitive(0)->tdcTimeStamp() != -1)
+  if (inMPath->primitive(0)->cameraId() > 0)
     selected_lay = 0;
 
   int dumLayId = inMPath->primitive(selected_lay)->cameraId();
