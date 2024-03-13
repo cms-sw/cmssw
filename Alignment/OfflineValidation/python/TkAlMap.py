@@ -45,7 +45,7 @@ KNOWN_VARIABLES = {
         'name' : 'r #Delta#phi',
         'units': '#mum rad',
         'scale': 10000.,
-        'range': [-200., 200.],
+        'range': [-100., 100.],
         },
     'dphi': {
         'name' : '#Delta#phi',
@@ -222,7 +222,7 @@ class TkAlMap:
         self.colors = []
         #self.palette = array('i', [])
         col_idx = self.start_color_idx + self.n_color_color_bar + 10
-        self.col_dic = {}
+        self.col_dic = {} #Never used explicitly but needs to keep TColor values in the global memory
         self.rgb_map = {}
         #pal_idx = 0
         #self.pal_map = {}
@@ -236,16 +236,17 @@ class TkAlMap:
             self.colors.append(idx)
             col_idx +=1
             self.rgb_map[idx] = col_idx
-            #print( idx, (r+0.)/255., (g+0.)/255., (b+0.)/255.)
-            #color = ROOT.TColor(col_idx, (r+0.)/255., (g+0.)/255., (b+0.)/255.)
 
-            #self.col_dic[idx] = ROOT.TColor(col_idx, (r+0.)/255., (g+0.)/255., (b+0.)/255.)
             try:
-                col = ROOT.gROOT.GetColor(col_idx)
-                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.)
-                self.col_dic[idx] = col
+                col = ROOT.gROOT.GetColor(col_idx) #Here still OK
+                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.) #Here segmentation if color index does not exist
+                self.col_dic[idx] = col #Here the new color is saved in in the global variable
             except:
-                self.col_dic[idx] = ROOT.TColor(col_idx, (r+0.)/255., (g+0.)/255., (b+0.)/255.)
+                #Here the 6 argument TColor init with dummy rgb must be used, 4 argument one does not work (ROOT bug?)
+                #New color index is defined and SetRGB must also be called to overwrite dummy rgb
+                col = ROOT.TColor(col_idx, 0., 0., 0., "", 1)
+                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.)
+                self.col_dic[idx] = col #Here the new color is saved in in the global variable
             #self.palette.append(col_idx)
         print('TkAlMap: map contains '+str(len(self.colors))+' colors')
      
@@ -273,7 +274,6 @@ class TkAlMap:
                 value_range = self.max_val - self.min_val
                 if value_range == 0.: value_frac = 0.5
                 else: value_frac = (val - self.min_val + 0.)/(value_range + 0.)
-
         if self.palette == 1:
             r = 255
             g = 255
@@ -323,7 +323,6 @@ class TkAlMap:
                 col = self.rgb_map[rgb]
                 #col = self.pal_map[rgb]
                 #col = self.col_dic[rgb]
-                #print(val, rgb, col)
                 self.TkAlMap_TPL_dict[module].SetFillColor(col)
                 #self.TkAlMap_TPL_dict[module].SetFillColor(TEST_COLOR_IDX)
             ####else: print('Warning: Unknown module '+str(module))
@@ -373,11 +372,15 @@ class TkAlMap:
             col_idx += 1
             r, g, b = self.get_color_rgb(val)
             try:
-                col = ROOT.gROOT.GetColor(col_idx)
-                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.)
-                self.color_bar_colors[col_idx] = col
+                col = ROOT.gROOT.GetColor(col_idx) #Here still OK
+                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.) #Here segmentation if color index does not exist
+                self.color_bar_colors[col_idx] = col #Here the new color is saved in in the global variable
             except:
-                self.color_bar_colors[col_idx] = ROOT.TColor(col_idx, (r+0.)/255., (g+0.)/255., (b+0.)/255.)
+                #Here the 6 argument TColor init with dummy rgb must be used, 4 argument one does not work (ROOT bug?)
+                #New color index is defined and SetRGB must also be called to overwrite dummy rgb
+                col = ROOT.TColor(col_idx, 0., 0., 0., "", 1)
+                col.SetRGB((r+0.)/255., (g+0.)/255., (b+0.)/255.)
+                self.color_bar_colors[col_idx] = col #Here the new color is saved in in the global variable 
             x2 = x1 + b_dx 
             y2 = y1 + b_dy + b_width 
             x = array('d', [x1, x1, x2, x2])
