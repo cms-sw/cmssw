@@ -168,7 +168,7 @@ namespace l1ct {
       ele.v3.eta = CTtoGT_eta(hwVtxEta());
       ele.qualityFlags = hwQual;
       // NOTE: GT:  0 = positive, 1 = negative, CT: 0 = negative, 1 = positive
-      ele.charge = !hwCharge & ele.valid;
+      ele.charge = (!hwCharge) & ele.valid;
       ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       ele.isolationPT = hwIso;
       return ele;
