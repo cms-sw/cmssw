@@ -404,7 +404,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     //get model version to condition class via GlobalBoard.runGTL, comes from menu rather than config
     //for throwing exception when using L1Menu_Collisions2024_v1_0_0
-    if (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") {
+    if ((gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") ||
+        (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v0_0_0")) {
       throw cms::Exception("ConditionsError")
           << " Error L1T menu version " << gtParser.gtTriggerMenuName()
           << " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";

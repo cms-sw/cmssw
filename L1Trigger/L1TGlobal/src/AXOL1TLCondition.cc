@@ -101,14 +101,13 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
 
-  //model = loader.load_model();
   try {
     model = loader.load_model();
   } catch (std::runtime_error& e) {
     // for stopping with exception if model version cannot be loaded
     throw cms::Exception("ModelError")
         << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion
-        << " that was specified in menu. Model version not found in cms-hls4l externals. " << std::endl;
+        << " that was specified in menu. Model version not found in cms-hls4ml externals. " << std::endl;
   }
 
   // //pointers to objects
@@ -268,7 +267,6 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 //in order to set model version from menu->triggermenuparser->globalproducer->globalboard->here
 void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
   m_AXOL1TLmodelversion = "GTADModel_" + modelversionname;
-  // edm::LogWarning("AXOL1TLCondition") << "AXOL1TL model version: "<< m_AXOL1TLmodelversion << std::endl;
 }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {
