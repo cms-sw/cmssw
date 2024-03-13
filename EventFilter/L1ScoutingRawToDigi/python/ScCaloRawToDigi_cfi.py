@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # default parameters for the DMA input source
 dmaDataModeParameters = cms.PSet(
   dataSourceMode=cms.string("DMA"),
-  sourceId=cms.int32(2)
+  dmaSourceId=cms.int32(2)
 )
 
 # default parameters for the TCP source
@@ -24,3 +24,4 @@ ScCaloUnpacker = cms.EDProducer("ScCaloRawToDigi",
   # print all objects
   debug = cms.untracked.bool(False)
 )
+
