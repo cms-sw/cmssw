@@ -402,15 +402,21 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     m_l1GtMenuCacheID = l1GtMenuCacheID;
 
-    //for getting model version to condition class via GlobalBoard.runGTL, comes from menu rather than config
+    //get model version to condition class via GlobalBoard.runGTL, comes from menu rather than config
+    //for throwing exception when using L1Menu_Collisions2024_v1_0_0
     if (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") {
-      // m_AXOL1TLModelVersion = "GTADModel_v3"; //will run, but exception preferred
       throw cms::Exception("ConditionsError")
-          << " Error L1T menu version " << gtParser.gtTriggerMenuName()
-          << " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";
+	<< " Error L1T menu version " << gtParser.gtTriggerMenuName()
+	<< " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";
     } else {
       m_AXOL1TLModelVersion = gtParser.AXOL1TLModelVersion();
-    }
+    }    
+    ////// for compatibility for menu version L1Menu_Collisions2024_v1_0_0 - will issue warning and set model version to v3
+    // m_AXOL1TLModelVersion = gtParser.AXOL1TLModelVersion();
+    // if (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") {
+    //   m_AXOL1TLModelVersion = "v3";
+    //   edm::LogWarning("L1TGlobalProducer") << "Warning: menu version L1Menu_Collisions2024_v1_0_0: This is not the supported menu verison. Please use L1Menu_Collisions2024_v1_0_1. AXOL1TL Model version will be set to v3." << std::endl;
+    // } //////
   }
 
   // get / update the board maps from the EventSetup

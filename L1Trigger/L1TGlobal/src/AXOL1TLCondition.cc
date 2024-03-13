@@ -92,9 +92,9 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //HLS4ML stuff
   std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
 
-  //if model version is empty, throw exception. Should not ever happen unless not found in menu
+  //if model version is empty, throw exception. Should not ever happen
   if (AXOL1TLmodelversion == "" || AXOL1TLmodelversion == "GTADModel_") {
-    throw cms::Exception("ModelError") << " Error model version not found in menu!";
+    throw cms::Exception("ModelError") << " Error: AXOL1TL model version not set!";
   }
 
   //otherwise load model (if possible) and run inference
@@ -105,9 +105,13 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   try {
     model = loader.load_model();
   } catch (std::runtime_error& e) {
-    edm::LogWarning("AXOL1TLCondition") << "ERROR: failed to load model version " << AXOL1TLmodelversion
-                                        << ". Not evaluating condition!" << std::endl;
-    return false;
+    // for warning without stopping
+    // edm::LogWarning("AXOL1TLCondition") << "ERROR: failed to load model version " << AXOL1TLmodelversion
+    //                                     << ". Not evaluating condition!" << std::endl;
+    // return false;
+
+    // for stopping with exception if model version cannot be loaded
+    throw cms::Exception("ModelError") << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion << std::endl;
   }
 
   // //pointers to objects
