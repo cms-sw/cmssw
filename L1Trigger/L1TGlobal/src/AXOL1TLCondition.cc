@@ -105,13 +105,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   try {
     model = loader.load_model();
   } catch (std::runtime_error& e) {
-    // for warning without stopping
-    // edm::LogWarning("AXOL1TLCondition") << "ERROR: failed to load model version " << AXOL1TLmodelversion
-    //                                     << ". Not evaluating condition!" << std::endl;
-    // return false;
-
     // for stopping with exception if model version cannot be loaded
-    throw cms::Exception("ModelError") << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion << std::endl;
+    throw cms::Exception("ModelError")
+        << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion
+        << " that was specified in menu. Model version not found in cms-hls4l externals. " << std::endl;
   }
 
   // //pointers to objects
