@@ -3,6 +3,7 @@
 ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   using namespace edm;
   srcInputTag = iConfig.getParameter<InputTag>("srcInputTag");
+  skipInterm_ = iConfig.getParameter<bool>("skipInterm");
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
   // initialize orbit buffer for BX 1->3564;
@@ -78,7 +79,7 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
 
     for (unsigned int i = 0; i < mAcount + mBcount; i++) {
       uint32_t interm = (bl->mu[i].extra >> ugmt::shiftsMuon::interm) & ugmt::masksMuon::interm;
-      if (interm == 1) {
+      if ((interm == 1) && (skipInterm_)) {
         if (debug_) {
           std::cout << " -> Excluding intermediate muon\n";
         }
@@ -162,8 +163,10 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
 
 void ScGMTRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("srcInputTag", edm::InputTag("rawDataCollector"));
+  desc.add<bool>("skipInterm", true);
+  desc.addUntracked<bool>("debug", false);
+  descriptions.add("ScGMTRawToDigi", desc);
 }
 
 DEFINE_FWK_MODULE(ScGMTRawToDigi);

@@ -22,8 +22,8 @@ namespace l1ScoutingRun3 {
 
   namespace demux {
 
-    // unrolled frame block
-    struct block {
+    // unrolled DMA block
+    struct dmaBlock {
       uint32_t header;
       uint32_t bx;
       uint32_t orbit;
@@ -44,7 +44,27 @@ namespace l1ScoutingRun3 {
       uint32_t link7;
       uint32_t tau1[6];
     };
+
+    struct caloObjTcpBlock {
+      uint32_t header;
+      uint32_t bx;
+      uint32_t orbit;
+      uint32_t obj[12];
+    };
+
+    struct caloSumTcpBlock {
+      uint32_t bx;
+      uint32_t orbit;
+      uint32_t sum[6];
+    };
+
   }  // namespace demux
+
+  namespace bmtf {
+    struct block {
+        uint64_t stub[8];
+    };
+  } // namespace bmtf
 
 }  // namespace l1ScoutingRun3
 #endif  // L1ScoutingRawToDigi_blocks_h
