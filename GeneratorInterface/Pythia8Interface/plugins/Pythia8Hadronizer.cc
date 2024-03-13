@@ -77,6 +77,43 @@ namespace CLHEP {
 
 using namespace gen;
 
+//Insert class for use w/ PDFPtr for proton-photon flux
+//parameters hardcoded according to main70.cc in PYTHIA8 v3.10
+class Nucleus2gamma2 : public Pythia8::PDF {
+public:
+  // Constructor.
+  Nucleus2gamma2(int idBeamIn) : Pythia8::PDF(idBeamIn) {}
+
+  // Update the photon flux.
+  void xfUpdate(int, double x, double) override {
+    // lead
+    double radius = 0;  // radius in [fm]
+    double z = 0;
+    if (idBeam == 1000822080) {
+      radius = 6.636;
+      z = 82;
+    }
+    // oxygen
+    else if (idBeam == 80160) {
+      radius = 3.02;
+      z = 8;
+    }
+
+    // Minimum impact parameter (~2*radius) [fm].
+    double bmin = 2 * radius;
+
+    // Per-nucleon mass for lead.
+    double m2 = pow2(0.9314);
+    double alphaEM = 0.007297353080;
+    double hbarc = 0.197;
+    double xi = x * sqrt(m2) * bmin / hbarc;
+    double bK0 = besselK0(xi);
+    double bK1 = besselK1(xi);
+    double intB = xi * bK1 * bK0 - 0.5 * pow2(xi) * (pow2(bK1) - pow2(bK0));
+    xgamma = 2. * alphaEM * pow2(z) / M_PI * intB;
+  }
+};
+
 class Pythia8Hadronizer : public Py8InterfaceBase {
 public:
   Pythia8Hadronizer(const edm::ParameterSet &params);
@@ -113,6 +150,11 @@ private:
 
   double fBeam1PZ;
   double fBeam2PZ;
+
+  //PDFPtr for the photonFlux
+  //Following main70.cc example in PYTHIA8 v3.10
+  bool doProtonPhotonFlux = false;
+  Pythia8::PDFPtr photonFlux = nullptr;
 
   //helper class to allow multiple user hooks simultaneously
   std::shared_ptr<UserHooksVector> fUserHooksVector;
@@ -184,6 +226,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       comEnergy(params.getParameter<double>("comEnergy")),
       LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName", "")),
       fInitialState(PP),
+      doProtonPhotonFlux(params.getUntrackedParameter<bool>("doProtonPhotonFlux", false)),
       UserHooksSet(false),
       nME(-1),
       nMEFiltered(-1),
@@ -369,6 +412,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   } else {
     fMasterGen->settings.mode("Beams:frameType", 4);
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
+  }
+
+  if (doProtonPhotonFlux) {
+    photonFlux = make_shared<Nucleus2gamma2>(1000822080);
+    fMasterGen->setPhotonFluxPtr(photonFlux, nullptr);
   }
 
   if (!fUserHooksVector.get())
