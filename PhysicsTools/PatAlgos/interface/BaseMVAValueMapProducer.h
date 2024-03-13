@@ -100,13 +100,13 @@ public:
     std::vector<edm::ParameterSet> const& varsPSet = iConfig.getParameter<std::vector<edm::ParameterSet>>("variables");
     values_.resize(varsPSet.size());
     size_t i = 0;
-    for (const edm::ParameterSet& var_pset : varsPSet){
+    for (const edm::ParameterSet& var_pset : varsPSet) {
       const std::string& vname = var_pset.getParameter<std::string>("name");
       funcs_.emplace_back(
-			  std::pair<std::string, StringObjectFunction<T, true>>(vname,var_pset.getParameter<std::string>("expr")));
+          std::pair<std::string, StringObjectFunction<T, true>>(vname, var_pset.getParameter<std::string>("expr")));
       positions_[vname] = i;
       if (tmva_)
-	reader_->AddVariable(vname, (&values_.front()) + i);
+        reader_->AddVariable(vname, (&values_.front()) + i);
       i++;
     }
 
@@ -273,9 +273,8 @@ std::unique_ptr<BaseMVACache> BaseMVAValueMapProducer<T>::initializeGlobalCache(
   bool disableONNXGraphOpt = false;
   if (backend == "ONNX")
     disableONNXGraphOpt = cfg.getParameter<bool>("disableONNXGraphOpt");
-  return std::make_unique<BaseMVACache>(cfg.getParameter<edm::FileInPath>("weightFile").fullPath(),
-					backend,
-					disableONNXGraphOpt);
+  return std::make_unique<BaseMVACache>(
+      cfg.getParameter<edm::FileInPath>("weightFile").fullPath(), backend, disableONNXGraphOpt);
 }
 
 template <typename T>
@@ -296,17 +295,28 @@ edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   variable.setComment("a PSet to define an entry to the ML model");
   desc.addVPSet("variables", variable);
 
-  auto itn = edm::ParameterDescription<std::string>("inputTensorName", "", true, edm::Comment("Name of tensorflow input tensor in the model"));
-  auto otn = edm::ParameterDescription<std::string>("outputTensorName", "", true, edm::Comment("Name of tensorflow output tensor in the model"));
-  auto on = edm::ParameterDescription<std::vector<std::string>>("outputNames", std::vector<std::string>(), true, edm::Comment("Names of the output values to be used in the output valuemap"));
-  auto of = edm::ParameterDescription<std::vector<std::string>>("outputFormulas", std::vector<std::string>(), true, edm::Comment("Formulas to be used to post process the output"));
-  auto dog = edm::ParameterDescription<bool>("disableONNXGraphOpt", false, true, edm::Comment("Disable ONNX runtime graph optimization"));
+  auto itn = edm::ParameterDescription<std::string>(
+      "inputTensorName", "", true, edm::Comment("Name of tensorflow input tensor in the model"));
+  auto otn = edm::ParameterDescription<std::string>(
+      "outputTensorName", "", true, edm::Comment("Name of tensorflow output tensor in the model"));
+  auto on = edm::ParameterDescription<std::vector<std::string>>(
+      "outputNames",
+      std::vector<std::string>(),
+      true,
+      edm::Comment("Names of the output values to be used in the output valuemap"));
+  auto of = edm::ParameterDescription<std::vector<std::string>>(
+      "outputFormulas",
+      std::vector<std::string>(),
+      true,
+      edm::Comment("Formulas to be used to post process the output"));
+  auto dog = edm::ParameterDescription<bool>(
+      "disableONNXGraphOpt", false, true, edm::Comment("Disable ONNX runtime graph optimization"));
 
-  desc.ifValue(edm::ParameterDescription<std::string>("backend", "TMVA", true, edm::Comment("the backend to evaluate the model:tmva, tf or onnx")),
-	       "TMVA" >> edm::ParameterDescription<bool>("isClassifier", true, true, edm::Comment("a classification or regression")) or
-	       "TF" >> (itn and otn and on and of) or
-	       "ONNX" >> (itn and otn and on and of and dog)
-	       );
+  desc.ifValue(edm::ParameterDescription<std::string>(
+                   "backend", "TMVA", true, edm::Comment("the backend to evaluate the model:tmva, tf or onnx")),
+               "TMVA" >> edm::ParameterDescription<bool>(
+                             "isClassifier", true, true, edm::Comment("a classification or regression")) or
+                   "TF" >> (itn and otn and on and of) or "ONNX" >> (itn and otn and on and of and dog));
 
   return desc;
 }
