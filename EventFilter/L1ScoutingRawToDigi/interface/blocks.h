@@ -62,9 +62,9 @@ namespace l1ScoutingRun3 {
 
   namespace bmtf {
     struct block {
-        uint64_t stub[8];
+      uint64_t stub[8];
     };
-  } // namespace bmtf
+  }  // namespace bmtf
 
 }  // namespace l1ScoutingRun3
 #endif  // L1ScoutingRawToDigi_blocks_h
