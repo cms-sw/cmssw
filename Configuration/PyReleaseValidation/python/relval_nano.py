@@ -267,7 +267,7 @@ workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANO
 workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
-workflows[_wfn()] = ['lepTimeLifeNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'lepTimeLifeNANO_data13.0']]
+workflows[_wfn()] = ['lepTimeLifeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'lepTimeLifeNANO_data13.0']]
 
 _wfn.next()
 ################
