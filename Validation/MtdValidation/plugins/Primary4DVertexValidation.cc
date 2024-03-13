@@ -251,9 +251,9 @@ private:
   static constexpr double minThrSumWnt_ = 0.01; // min threshold for filling histograms with logarithmic scale
   static constexpr double minThrSumWos_ = 0.1;
   static constexpr double minThrSumPt_ = 0.01;
-  static constexpr double minThrSumPt2_ = 0.001;
-  static constexpr double minThrMetPt_ = 0.001;
-  static constexpr double minThrSumPz_ = 0.0001;
+  static constexpr double minThrSumPt2_ = 1.e-3;
+  static constexpr double minThrMetPt_ = 1.e-3;
+  static constexpr double minThrSumPz_ = 1.e-4;
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
@@ -1104,7 +1104,7 @@ void Primary4DVertexValidation::isParticle(const reco::TrackBaseRef& recoTrack, 
   is_P = false;
   if (probPi[recoTrack] == -1) {
     no_PIDtype = 1;
-  } else if (std::isnan(probPi[recoTrack])) {
+  } else if (edm::isNotFinite(probPi[recoTrack])) {
     no_PIDtype = 2;
   } else if (probPi[recoTrack] == 1 && probK[recoTrack] == 0 && probP[recoTrack] == 0) {
     no_PIDtype = 3;
@@ -2263,9 +2263,17 @@ void Primary4DVertexValidation::printMatchedRecoTrackInfo(const reco::Vertex& vt
                                                    const TrackingParticleRef& tp,
                                                    const unsigned int& categ) {
   std::string strTrk;
-  if (categ == 0) strTrk = "Reco_Track:";
-  if (categ == 1) strTrk = "SecRecoTrk:";
-  if (categ == 2)  strTrk = "PU_RecoTrk:";
+  switch (categ) {
+    case 0:
+      strTrk = "Reco_Track:";
+      break;
+    case 1:
+      strTrk = "SecRecoTrk:";
+      break;
+    case 2:
+      strTrk = "PU_RecoTrk:";
+      break;
+  }
   edm::LogPrint("Primary4DVertexValidation") << strTrk << " w =" << std::setw(6) << std::setprecision(2)
                                              << vtx.trackWeight(trk) << " pt =" << std::setw(6)
                                              << std::setprecision(2) << trk->pt() << " eta ="
