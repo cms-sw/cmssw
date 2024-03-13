@@ -177,8 +177,13 @@ steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '10
 steps['EGMNano_mc13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.0']])
 
+
 steps['jmeNano_data13.0'] = merge([{'-s':'NANO:@JME', '-n' : '1000'},
                                  steps['NANO_data13.0']])
+
+steps['lepTimeLifeNANO_data13.0']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
+                                          '-n' : '1000'},
+                                         steps['NANO_data13.0']])
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
@@ -197,6 +202,10 @@ steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000
 
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
+
+steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
+                                        '-n' : '1000'},
+                                        steps['NANO_mc13.2']])
 
 ##13.X INPUT
 steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
@@ -258,6 +267,7 @@ workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANO
 workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
+workflows[_wfn()] = ['lepTimeLifeNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'lepTimeLifeNANO_data13.0']]
 
 _wfn.next()
 ################
@@ -266,6 +276,7 @@ workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO
 workflows[_wfn()] = ['muPOGNANOmc132X', ['TTBarMINIAOD13.2', 'muPOGNANO_mc13.2']]
 workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
 workflows[_wfn()] = ['jmeNANOmc132X', ['TTBarMINIAOD13.2', 'jmeNANO_mc13.2']]
+workflows[_wfn()] = ['lepTimeLifeNANO_mc13.2', ['TTBarMINIAOD13.2', 'lepTimeLifeNANO_mc13.2']]
 
 _wfn.next()
 ################

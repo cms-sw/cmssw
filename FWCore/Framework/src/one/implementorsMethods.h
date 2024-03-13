@@ -35,10 +35,6 @@ namespace edm {
         resourceNames_.insert(iName);
         SharedResourcesRegistry::instance()->registerSharedResource(iName);
       }
-      template <typename T>
-      void SharedResourcesUser<T>::usesResource() {
-        this->usesResource(SharedResourcesRegistry::kLegacyModuleResourceName);
-      }
 
       template <typename T>
       SharedResourcesAcquirer SharedResourcesUser<T>::createAcquirer() {
