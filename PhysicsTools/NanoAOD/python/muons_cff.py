@@ -53,8 +53,13 @@ muonMVAID = cms.EDProducer("EvaluateMuonMVAID",
         LepGood_tracker_layers = cms.string("?innerTrack.isNonnull()?innerTrack().hitPattern().trackerLayersWithMeasurement():-99"),
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
-    ) 
+    )
 )
+
+
+
+
+
 
 slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
      src = cms.InputTag("slimmedMuonsUpdated"),
@@ -87,6 +92,7 @@ finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml"),
+    backend = cms.string("TMVA"),
     name = cms.string("muonMVATTH"),
     isClassifier = cms.bool(True),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_segmentComp"]),
