@@ -276,7 +276,7 @@ workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO
 workflows[_wfn()] = ['muPOGNANOmc132X', ['TTBarMINIAOD13.2', 'muPOGNANO_mc13.2']]
 workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
 workflows[_wfn()] = ['jmeNANOmc132X', ['TTBarMINIAOD13.2', 'jmeNANO_mc13.2']]
-workflows[_wfn()] = ['lepTimeLifeNANO_mc13.2', ['TTBarMINIAOD13.2', 'lepTimeLifeNANO_mc13.2']]
+workflows[_wfn()] = ['lepTimeLifeNANOmc132X', ['TTBarMINIAOD13.2', 'lepTimeLifeNANO_mc13.2']]
 
 _wfn.next()
 ################
