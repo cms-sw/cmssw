@@ -89,13 +89,14 @@ public:
         name_(iConfig.getParameter<std::string>("name")),
         backend_(iConfig.getParameter<std::string>("backend")),
         weightfilename_(iConfig.getParameter<edm::FileInPath>("weightFile").fullPath()),
-        isClassifier_(iConfig.getParameter<bool>("isClassifier")),
         tmva_(backend_ == "TMVA"),
         tf_(backend_ == "TF"),
         onnx_(backend_ == "ONNX"),
         batch_eval_(iConfig.getParameter<bool>("batch_eval")) {
-    if (tmva_)
+    if (tmva_) {
       reader_ = new TMVA::Reader();
+      isClassifier_ = iConfig.getParameter<bool>("isClassifier");
+    }
 
     std::vector<edm::ParameterSet> const& varsPSet = iConfig.getParameter<std::vector<edm::ParameterSet>>("variables");
     values_.resize(varsPSet.size());
