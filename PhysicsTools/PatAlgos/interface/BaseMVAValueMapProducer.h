@@ -103,8 +103,9 @@ public:
     size_t i = 0;
     for (const edm::ParameterSet& var_pset : varsPSet) {
       const std::string& vname = var_pset.getParameter<std::string>("name");
-      funcs_.emplace_back(
-          std::pair<std::string, StringObjectFunction<T, true>>(vname, var_pset.getParameter<std::string>("expr")));
+      if (var_pset.existsAs<std::string>("expr"))
+        funcs_.emplace_back(
+            std::pair<std::string, StringObjectFunction<T, true>>(vname, var_pset.getParameter<std::string>("expr")));
       positions_[vname] = i;
       if (tmva_)
         reader_->AddVariable(vname, (&values_.front()) + i);
@@ -291,8 +292,9 @@ edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   desc.add<bool>("batch_eval", false)->setComment("Run inference in batch instead of per-object");
 
   edm::ParameterSetDescription variable;
-  variable.add<std::string>("expr")->setComment("a function to define the content of the leaf");
-  variable.add<std::string>("name")->setComment("name of the variable (only for bookkeeping");
+  variable.add<std::string>("name")->setComment("name of the variable, either created by expr, or internally by code");
+  variable.addOptional<std::string>("expr")->setComment(
+      "a function to define the content of the model input, absence of it means the leaf is computed internally");
   variable.setComment("a PSet to define an entry to the ML model");
   desc.addVPSet("variables", variable);
 
