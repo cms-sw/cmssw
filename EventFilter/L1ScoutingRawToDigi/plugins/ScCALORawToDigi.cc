@@ -19,10 +19,10 @@ ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
   nTausOrbit_ = 0;
   nEtSumsOrbit_ = 0;
 
-  produces<JetOrbitCollection>().setBranchAlias("JetOrbitCollection");
-  produces<TauOrbitCollection>().setBranchAlias("TauOrbitCollection");
-  produces<EGammaOrbitCollection>().setBranchAlias("EGammaOrbitCollection");
-  produces<BxSumsOrbitCollection>().setBranchAlias("BxSumsOrbitCollection");
+  produces<JetOrbitCollection>("Jet").setBranchAlias("JetOrbitCollection");
+  produces<TauOrbitCollection>("Tau").setBranchAlias("TauOrbitCollection");
+  produces<EGammaOrbitCollection>("EGamma").setBranchAlias("EGammaOrbitCollection");
+  produces<BxSumsOrbitCollection>("EtSum").setBranchAlias("BxSumsOrbitCollection");
 }
 
 ScCaloRawToDigi::~ScCaloRawToDigi(){};
@@ -48,36 +48,29 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::string dataSourceMode = dataSourceConfig_.getParameter<std::string>("dataSourceMode");
   if (dataSourceMode == "DMA") {
     // Packet from DMA contains all the objects
-    int sourceId = dataSourceConfig_.getParameter<int>("sourceId"); 
-    if (sourceId!=SDSNumbering::CaloSDSID) edm::LogWarning("ScCaloRawToDIgi::produce")
-                                            << "Provided an unexpected source ID: "
-                                            << sourceId << "/" << SDSNumbering::CaloSDSID
-                                            << " [provided/expected]";
+    int sourceId = dataSourceConfig_.getParameter<int>("sourceId");
+    if (sourceId != SDSNumbering::CaloSDSID)
+      edm::LogWarning("ScCaloRawToDIgi::produce") << "Provided an unexpected source ID: " << sourceId << "/"
+                                                  << SDSNumbering::CaloSDSID << " [provided/expected]";
     unpackOrbitFromDMA(ScoutingRawDataCollection, sourceId);
-  }
-  else if (dataSourceMode == "TCP") {
+  } else if (dataSourceMode == "TCP") {
     // unpack jets
     jetSourceIdList_ = dataSourceConfig_.getParameter<std::vector<int>>("jetSourceIdList");
-    unpackTcpData(ScoutingRawDataCollection,
-                  jetSourceIdList_, CaloObjectType::Jet);
+    unpackTcpData(ScoutingRawDataCollection, jetSourceIdList_, CaloObjectType::Jet);
 
     // unpack e/gamma
     eGammaSourceIdList_ = dataSourceConfig_.getParameter<std::vector<int>>("eGammaSourceIdList");
-    unpackTcpData(ScoutingRawDataCollection,
-                  eGammaSourceIdList_, CaloObjectType::EGamma);
+    unpackTcpData(ScoutingRawDataCollection, eGammaSourceIdList_, CaloObjectType::EGamma);
 
     // unpack taus
     tauSourceIdList_ = dataSourceConfig_.getParameter<std::vector<int>>("tauSourceIdList");
-    unpackTcpData(ScoutingRawDataCollection,
-                  tauSourceIdList_, CaloObjectType::Tau);
+    unpackTcpData(ScoutingRawDataCollection, tauSourceIdList_, CaloObjectType::Tau);
 
     // unpack et sums
     etSumSourceIdList_ = dataSourceConfig_.getParameter<std::vector<int>>("etSumSourceIdList");
-    unpackTcpData(ScoutingRawDataCollection,
-                  etSumSourceIdList_, CaloObjectType::EtSum);
+    unpackTcpData(ScoutingRawDataCollection, etSumSourceIdList_, CaloObjectType::EtSum);
   } else {
-    throw cms::Exception("ScCaloRawToDIgi::produce") 
-            << "Unknown data source mode. Use DMA or TCP(default).";
+    throw cms::Exception("ScCaloRawToDIgi::produce") << "Unknown data source mode. Use DMA or TCP(default).";
   }
 
   // fill orbit collection and clear the Bx buffer vector
@@ -87,14 +80,13 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   unpackedEtSums->fillAndClear(orbitBufferEtSums_, nEtSumsOrbit_);
 
   // store collections in the event
-  iEvent.put(std::move(unpackedJets));
-  iEvent.put(std::move(unpackedTaus));
-  iEvent.put(std::move(unpackedEGammas));
-  iEvent.put(std::move(unpackedEtSums));
+  iEvent.put(std::move(unpackedJets), "Jet");
+  iEvent.put(std::move(unpackedTaus), "Tau");
+  iEvent.put(std::move(unpackedEGammas), "EGamma");
+  iEvent.put(std::move(unpackedEtSums), "EtSum");
 }
 
-void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection> &ScoutingRawDataCollection,
-                                         int sourceId) {
+void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection, int sourceId) {
   using namespace l1ScoutingRun3;
 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sourceId);
@@ -160,16 +152,16 @@ void ScCaloRawToDigi::unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection> &Scou
   }  // end of bx objects
 }
 
-void ScCaloRawToDigi::unpackTcpData(edm::Handle<SDSRawDataCollection> &ScoutingRawDataCollection,
+void ScCaloRawToDigi::unpackTcpData(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection,
                                     std::vector<int> sourceList,
-                                    CaloObjectType dataType){
+                                    CaloObjectType dataType) {
   using namespace l1ScoutingRun3;
-  for (const int &sourceId: sourceList){
-    if ((sourceId<SDSNumbering::CaloTCPMinSDSID)||(sourceId>SDSNumbering::CaloTCPMaxSDSID)) {
+  for (const int& sourceId : sourceList) {
+    if ((sourceId < SDSNumbering::CaloTCPMinSDSID) || (sourceId > SDSNumbering::CaloTCPMaxSDSID)) {
       edm::LogWarning("ScCaloRawToDIgi::unpackTCPData")
-                      << "Source ID outside the expected range " << sourceId 
-                      << "/[" << SDSNumbering::CaloTCPMinSDSID << "-" << SDSNumbering::CaloTCPMaxSDSID << "]"
-                      << " [provided/expected range]";
+          << "Source ID outside the expected range " << sourceId << "/[" << SDSNumbering::CaloTCPMinSDSID << "-"
+          << SDSNumbering::CaloTCPMaxSDSID << "]"
+          << " [provided/expected range]";
     }
     const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(sourceId);
     size_t orbitSize = sourceRawData.size();
@@ -190,9 +182,9 @@ void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, C
   while (pos < len) {
     // frame header is present
     assert(pos + 4 <= len);
-    
+
     // unpack calo sums block
-    if (dataType==CaloObjectType::EtSum){
+    if (dataType == CaloObjectType::EtSum) {
       demux::caloSumTcpBlock* bl = (demux::caloSumTcpBlock*)(buf + pos);
       pos += sizeof(demux::caloSumTcpBlock);
       assert(pos <= len);
@@ -203,7 +195,7 @@ void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, C
       // unpack jet/eg/tau
       demux::caloObjTcpBlock* bl = (demux::caloObjTcpBlock*)(buf + pos);
       int nObj = (bl->header) & 0xff;
-      pos += 12 + nObj*4;
+      pos += 12 + nObj * 4;
 
       switch (dataType) {
         case CaloObjectType::Jet:
@@ -225,13 +217,12 @@ void ScCaloRawToDigi::unpackOrbitFromTCP(const unsigned char* buf, size_t len, C
           break;
 
         default:
-          throw cms::Exception("ScCaloRawToDigi::unpackOrbitFromTCP") 
-                << "Unknown data type.";
+          throw cms::Exception("ScCaloRawToDigi::unpackOrbitFromTCP") << "Unknown data type.";
           break;
       }
 
-    } // unpack sums and calo objects
-    
+    }  // unpack sums and calo objects
+
   }  // end of bx objects
 }
 
@@ -422,7 +413,7 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
 
   if (debug_) {
     std::cout << "Raw frames:\n";
-    for (int frame = 0; frame < 6; frame++) { 
+    for (int frame = 0; frame < 6; frame++) {
       std::cout << "  frame " << frame << ": 0x" << std::hex << dataBlock[frame] << std::dec << std::endl;
     }
     printBxSums(bxSums);

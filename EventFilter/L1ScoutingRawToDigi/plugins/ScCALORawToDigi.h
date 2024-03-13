@@ -32,11 +32,10 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  enum class CaloObjectType {Jet, EGamma, Tau, EtSum};
+  enum class CaloObjectType { Jet, EGamma, Tau, EtSum };
 
-  void unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection> &ScoutingRawDataCollection,
-                          int sourceId);
-  void unpackTcpData(edm::Handle<SDSRawDataCollection> &ScoutingRawDataCollection,
+  void unpackOrbitFromDMA(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection, int sourceId);
+  void unpackTcpData(edm::Handle<SDSRawDataCollection>& ScoutingRawDataCollection,
                      std::vector<int> sourceList,
                      CaloObjectType dataType);
   void unpackOrbitFromTCP(const unsigned char* buf, size_t len, CaloObjectType dataType);
@@ -55,13 +54,13 @@ private:
   std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferEtSums_;
 
   bool debug_ = false;
-  bool enableAllSums_ = false; // write the full sert of ET sums
+  bool enableAllSums_ = false;  // write the full sert of ET sums
   edm::InputTag srcInputTag_;
   edm::EDGetToken rawToken_;
-  std::string dataSourceMode_; // data from TCP / DMA
+  std::string dataSourceMode_;  // data from TCP / DMA
   edm::ParameterSet dataSourceConfig_;
   std::vector<int> jetSourceIdList_;
   std::vector<int> eGammaSourceIdList_;
   std::vector<int> tauSourceIdList_;
-  std::vector<int> etSumSourceIdList_; 
+  std::vector<int> etSumSourceIdList_;
 };

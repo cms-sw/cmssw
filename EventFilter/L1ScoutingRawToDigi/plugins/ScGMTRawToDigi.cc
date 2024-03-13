@@ -13,7 +13,7 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   }
   nMuonsOrbit_ = 0;
 
-  produces<l1ScoutingRun3::MuonOrbitCollection>().setBranchAlias("MuonOrbitCollection");
+  produces<l1ScoutingRun3::MuonOrbitCollection>("Muon").setBranchAlias("MuonOrbitCollection");
   rawToken = consumes<SDSRawDataCollection>(srcInputTag);
 }
 
@@ -41,7 +41,7 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   unpackedMuons->fillAndClear(orbitBuffer_, nMuonsOrbit_);
 
   // store collection in the event
-  iEvent.put(std::move(unpackedMuons));
+  iEvent.put(std::move(unpackedMuons), "Muon");
 }
 
 void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
