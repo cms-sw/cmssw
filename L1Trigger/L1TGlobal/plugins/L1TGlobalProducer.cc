@@ -406,8 +406,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     if (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") {
       // m_AXOL1TLModelVersion = "GTADModel_v3"; //will run, but exception preferred
       throw cms::Exception("ConditionsError")
-          << " Error L1 menu version " << gtParser.gtTriggerMenuName()
-          << "is unsupported due to incompatible utm grammar, please use v1_0_1 or later";
+          << " Error L1T menu version " << gtParser.gtTriggerMenuName()
+          << " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";
     } else {
       m_AXOL1TLModelVersion = gtParser.AXOL1TLModelVersion();
     }
