@@ -7,3 +7,4 @@ siStripLatencyFakeESSource = cms.ESSource("SiStripLatencyFakeESSource",
                                          latency = cms.uint32(1),
                                          mode = cms.uint32(37)
                                          )
+# dummy dummy

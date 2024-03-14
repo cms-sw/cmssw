@@ -10,3 +10,4 @@ siStripDetVOffDummyDBWriter = cms.EDAnalyzer("SiStripDetVOffDummyDBWriter",
 
 
 
+# dummy dummy

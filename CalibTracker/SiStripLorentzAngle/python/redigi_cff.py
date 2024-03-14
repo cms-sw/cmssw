@@ -39,3 +39,4 @@ SiStripLorentzAngleSim = cms.ESSource("PoolDBESSource",
 es_prefer_SiStripLorentzAngleSim = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngleSim")
 
 redigi_step       = cms.Path( pdigi )
+# dummy dummy

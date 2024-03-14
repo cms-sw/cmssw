@@ -6,3 +6,4 @@ shallowTree = cms.EDAnalyzer(
       'drop *',
       )
    )
+# dummy dummy

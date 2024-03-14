@@ -104,3 +104,4 @@ process.load('CalibTracker/SiStripDCS/FilterTrackerOn_cfi')
 # process.schedule = cms.Schedule(process.raw2digi_step)
 
 process.p = cms.EndPath(process.siStripDigis+process.filterTrackerOn)
+# dummy dummy

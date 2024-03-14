@@ -4,3 +4,4 @@ dqmXMLFileGetter=cms.EDAnalyzer("DQMXMLFileEventSetupAnalyzer",
                                 labelToGet = cms.string('GenericXML')
                                 ) 
 
+# dummy dummy

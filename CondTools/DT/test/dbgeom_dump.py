@@ -43,3 +43,4 @@ process.dump = cms.EDAnalyzer("DTGeometryDump"
 
 process.p = cms.Path(process.dump)
 
+# dummy dummy

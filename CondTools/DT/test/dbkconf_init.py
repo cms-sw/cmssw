@@ -48,3 +48,4 @@ process.conf_init = cms.EDAnalyzer("DTKeyedConfigDBInit",
 
 process.p = cms.Path(process.conf_init)
 
+# dummy dummy

@@ -35,3 +35,4 @@ def setupPuppiPhotonMiniAOD(process):
 
 
 #puppiPhotonSeq = cms.Sequence(egmPhotonIDSequence*puppiPhoton)
+# dummy dummy

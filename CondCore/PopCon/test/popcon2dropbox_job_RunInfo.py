@@ -19,3 +19,4 @@ process.RunInfo = cms.EDAnalyzer( "RunInfoPopConAnalyzer"
                                                      , IsDestDbCheckedInQueryLog = cms.untracked.bool(False) )
 
 process.p = cms.Path(process.RunInfo)
+# dummy dummy

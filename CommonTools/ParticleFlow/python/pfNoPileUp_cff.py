@@ -8,3 +8,4 @@ pfNoPileUpTask = cms.Task(
     pfNoPileUp 
     )
 pfNoPileUpSequence = cms.Sequence(pfNoPileUpTask)
+# dummy dummy

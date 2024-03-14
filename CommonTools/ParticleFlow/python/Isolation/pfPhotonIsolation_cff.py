@@ -7,3 +7,4 @@ pfPhotonIsolationTask = cms.Task(
     photonPFIsolationDepositsTask ,
     photonPFIsolationValuesTask
     )
+# dummy dummy

@@ -6,3 +6,4 @@ etMinCaloJetSelector = cms.EDFilter( "EtMinPFJetSelector",
     etMin = cms.double( 20.0 )
 )
 
+# dummy dummy

@@ -12,3 +12,4 @@ SiStripGainsPCLHarvester = DQMEDHarvester(
     NClustersForTagProd = cms.untracked.double(8E8),
     ChargeHisto         = cms.untracked.vstring('TIB','TIB_layer_1','TOB','TOB_layer_1','TIDminus','TIDplus','TECminus','TECplus','TEC_thin','TEC_thick')
     )
+# dummy dummy

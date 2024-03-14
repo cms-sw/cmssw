@@ -73,3 +73,4 @@ else:
     process.dqmXMLFileGetter.labelToGet = cms.string('SiPixelDQMQTests')
     process.path = cms.Path(process.dqmXMLFileGetter)
 
+# dummy dummy

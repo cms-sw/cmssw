@@ -20,3 +20,4 @@ process.p = cms.Path(
    process.shallowSimTracks*
    process.testTree
    )
+# dummy dummy

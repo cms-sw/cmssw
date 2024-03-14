@@ -5,3 +5,4 @@ shallowTrackClusters = cms.EDProducer("ShallowTrackClustersProducer",
                                       Clusters=cms.InputTag("siStripClusters"),
                                       Prefix=cms.string("tsos"),
                                       Suffix=cms.string(""))
+# dummy dummy

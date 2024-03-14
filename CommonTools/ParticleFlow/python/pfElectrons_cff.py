@@ -14,3 +14,4 @@ pfElectronTask = cms.Task(
     pfElectrons 
     )
 pfElectronSequence = cms.Sequence(pfElectronTask)
+# dummy dummy

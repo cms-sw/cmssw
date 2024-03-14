@@ -39,3 +39,4 @@ process.parameters_maker = cms.EDAnalyzer("WriteCTPPSBeamParameters",
 )
 
 process.path = cms.Path(process.parameters_maker)
+# dummy dummy

@@ -16,3 +16,4 @@ FirstVertexPFCandidates = cms.EDProducer('PFCand_NoPU_WithAM',
           MinQuality = cms.int32(2),
 )
 
+# dummy dummy

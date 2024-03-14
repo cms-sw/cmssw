@@ -8,3 +8,4 @@ shallowDigis = cms.EDProducer("ShallowDigisProducer",
     cms.InputTag('siStripZeroSuppression','ScopeMode'))
                               )
 
+# dummy dummy

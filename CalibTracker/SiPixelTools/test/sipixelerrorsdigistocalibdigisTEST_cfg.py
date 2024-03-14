@@ -32,3 +32,4 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.siPixelErrorsDigisToCalibDigis)
 
 
+# dummy dummy

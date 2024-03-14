@@ -72,3 +72,4 @@ process.BeamSpotRcdPrinter.output   = "summary.txt"
 #process.BeamSpotRcdPrinter.endIOV   = 1406876667347162
 
 process.p = cms.Path(process.BeamSpotRcdPrinter)
+# dummy dummy

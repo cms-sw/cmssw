@@ -49,3 +49,4 @@ from SimGeneral.MixingModule.stripDigitizer_cfi import *
 siStripNoisesFakeESSource.electronPerAdc = stripDigitizer.electronPerAdcDec
 
 
+# dummy dummy

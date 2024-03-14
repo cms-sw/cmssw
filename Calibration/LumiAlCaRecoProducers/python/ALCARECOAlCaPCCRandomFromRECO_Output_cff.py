@@ -14,3 +14,4 @@ OutALCARECOAlCaPCCRandomFromRECO_noDrop = cms.PSet(
 import copy
 OutALCARECOAlCaPCCRandomFromRECO=copy.deepcopy(OutALCARECOAlCaPCCRandomFromRECO_noDrop)
 OutALCARECOAlCaPCCRandomFromRECO.outputCommands.insert(0,"drop *")
+# dummy dummy

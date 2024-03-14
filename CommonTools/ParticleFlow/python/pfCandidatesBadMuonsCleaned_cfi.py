@@ -4,3 +4,4 @@ pfCandidatesBadMuonsCleaned = cms.EDProducer("PFCandidateMuonUntagger",
     pfcandidates = cms.InputTag("particleFlow"),
     oldToNewMuons = cms.InputTag("muonsCleaned","oldToNew"), 
 )
+# dummy dummy

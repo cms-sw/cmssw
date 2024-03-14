@@ -5,3 +5,4 @@ pfNoJetClones = cms.EDProducer(
     "PFCandidateFromFwdPtrProducer",
     src = cms.InputTag("pfNoJet")
 )
+# dummy dummy

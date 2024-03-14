@@ -562,3 +562,4 @@ class O2OTool():
     def run(self):
         rmgr = self.mgr.runManager()
         return rmgr.executeJob( self.args )
+# dummy dummy

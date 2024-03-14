@@ -42,3 +42,4 @@ process.popConEcalPedestals = cms.EDAnalyzer("EcalPedestalsPopConBTransitionAnal
                                                     )
 
 process.p = cms.Path(process.popConEcalPedestals)
+# dummy dummy

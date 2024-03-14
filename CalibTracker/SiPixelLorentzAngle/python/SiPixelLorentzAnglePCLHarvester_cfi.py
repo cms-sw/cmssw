@@ -6,3 +6,4 @@ SiPixelLorentzAnglePCLHarvester = _defaultHarvester.clone(
     newmodulelist = worker.newmodulelist.value(), # taken from worker configuration, need to stay in synch
     dqmDir = worker.folder.value(), # taken from worker configuration, need to stay in synch
 )
+# dummy dummy

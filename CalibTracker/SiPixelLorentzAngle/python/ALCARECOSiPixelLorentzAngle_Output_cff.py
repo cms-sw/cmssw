@@ -11,3 +11,4 @@ OutALCARECOSiPixelLorentzAngle = cms.PSet(
         'drop *_*_*_HLT')
 )
 
+# dummy dummy

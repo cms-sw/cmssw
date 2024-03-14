@@ -33,3 +33,4 @@ process.mytest = cms.EDAnalyzer("writeKeyed")
 
 process.p = cms.Path(process.mytest)
 
+# dummy dummy

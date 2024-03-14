@@ -50,3 +50,4 @@ process.retrieve_config = cms.EDAnalyzer("RetrievePPSAlignmentConfiguration",
 )
 
 process.path = cms.Path(process.retrieve_config)
+# dummy dummy

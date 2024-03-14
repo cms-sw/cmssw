@@ -28,3 +28,4 @@ print("Final connection string =", process.GlobalTag.connect)
 print("Final globalTag =", process.GlobalTag.globaltag)
 
 process.path = cms.Path()
+# dummy dummy

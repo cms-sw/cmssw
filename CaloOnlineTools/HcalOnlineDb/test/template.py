@@ -93,3 +93,4 @@ process.writeL1TriggerObjectsTxt = cms.EDAnalyzer('WriteL1TriggerObjectsTxt',
 process.p = cms.Path(
    process.generateLuts + process.writeL1TriggerObjectsTxt
 )
+# dummy dummy

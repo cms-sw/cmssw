@@ -43,3 +43,4 @@ process.readSqlite = cms.EDAnalyzer("CTPPSPixelDAQMappingAnalyzer",
 )
 
 process.p = cms.Path(process.readSqlite)
+# dummy dummy

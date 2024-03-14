@@ -57,3 +57,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightGroupAnalyzer",
 )
 
 process.p = cms.Path(process.Test1)
+# dummy dummy

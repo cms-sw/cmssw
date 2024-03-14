@@ -8,3 +8,4 @@ pfElectronIsolationTask = cms.Task(
     electronPFIsolationValuesTask
     )
 pfElectronIsolationSequence = cms.Sequence(pfElectronIsolationTask)
+# dummy dummy

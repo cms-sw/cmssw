@@ -71,3 +71,4 @@ process.EcalTrivialConditionRetriever.producedChannelStatus = cms.untracked.bool
 #process.EcalTrivialConditionRetriever.producedChannelStatus = True
 #process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v5.hashed.txt'
 #es_prefer_EcalChannelStatus = cms.ESPrefer("EcalTrivialConditionRetriever","EcalChannelStatus")
+# dummy dummy

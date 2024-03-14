@@ -44,3 +44,4 @@ siStripBadModuleConfigurableFakeESSource = cms.ESSource("SiStripBadModuleConfigu
                 )
             )
     )
+# dummy dummy

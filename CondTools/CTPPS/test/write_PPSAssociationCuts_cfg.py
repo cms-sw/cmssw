@@ -65,3 +65,4 @@ process.config_writer = cms.EDAnalyzer("WritePPSAssociationCuts",
                                        )
 
 process.path = cms.Path(process.config_writer)
+# dummy dummy

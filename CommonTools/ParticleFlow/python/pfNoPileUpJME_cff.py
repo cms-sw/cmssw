@@ -40,3 +40,4 @@ pfNoPileUpJMETask = cms.Task(
     )
 
 pfNoPileUpJMESequence = cms.Sequence(pfNoPileUpJMETask)
+# dummy dummy

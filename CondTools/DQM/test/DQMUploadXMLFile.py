@@ -47,3 +47,4 @@ process.dqmxmlFileTest = cms.EDAnalyzer("DQMXMLFilePopConAnalyzer",
                                         )
 
 process.p = cms.Path(process.dqmxmlFileTest)
+# dummy dummy

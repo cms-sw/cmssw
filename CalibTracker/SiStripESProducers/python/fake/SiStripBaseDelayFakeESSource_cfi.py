@@ -7,3 +7,4 @@ siStripBaseDelayFakeESSource = cms.ESSource("SiStripBaseDelayFakeESSource",
                                             CoarseDelay = cms.uint32(0),
                                             FineDelay = cms.uint32(0)
 					   )
+# dummy dummy

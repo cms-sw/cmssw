@@ -54,3 +54,4 @@ process.fedcablingreader = cms.EDAnalyzer("SiStripDeDxMipReader")
 process.p1 = cms.Path(process.fedcablingreader)
 
 
+# dummy dummy

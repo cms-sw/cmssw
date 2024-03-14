@@ -13,3 +13,4 @@ alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
     )
 )
 
+# dummy dummy

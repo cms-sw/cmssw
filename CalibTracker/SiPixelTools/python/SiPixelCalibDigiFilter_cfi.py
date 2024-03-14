@@ -6,3 +6,4 @@ siPixelCalibDigiFilter = cms.EDFilter("SiPixelCalibDigiFilter",
 
 siPixelCalibDigiFilterPath = cms.Path(siPixelCalibDigiFilter)
 
+# dummy dummy

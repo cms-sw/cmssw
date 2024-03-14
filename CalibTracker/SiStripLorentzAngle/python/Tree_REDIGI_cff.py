@@ -6,3 +6,4 @@ siStripDigis.ProductLabel = 'SiStripDigiToRaw'
 
 #Schedule
 schedule = cms.Schedule( redigi_step, reconstruction_step, filter_refit_ntuplize_step )
+# dummy dummy

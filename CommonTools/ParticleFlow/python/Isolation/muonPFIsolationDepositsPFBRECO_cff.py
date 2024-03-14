@@ -18,3 +18,4 @@ muonPFIsolationDepositsPFBRECOTask = cms.Task(
     muPFIsoDepositPUPFBRECO
     )
 muonPFIsolationDepositsPFBRECOSequence = cms.Sequence(muonPFIsolationDepositsPFBRECOTask)
+# dummy dummy

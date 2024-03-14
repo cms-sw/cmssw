@@ -202,3 +202,4 @@ process.siStripPopConDetVOff = cms.EDAnalyzer("SiStripPopConDetVOff",
 
 process.p = cms.Path(process.siStripPopConDetVOff)
     
+# dummy dummy

@@ -104,4 +104,4 @@ class url_query():
 					print("Unforesoon error occurred when sending data to server.")
 					traceback.print_exc()
 		if attempt == max_retries:
-			raise NoMoreRetriesException(max_retries)"""
+			raise NoMoreRetriesException(max_retries)"""# dummy dummy

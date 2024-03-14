@@ -74,3 +74,4 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.p = cms.Path(process.pixGainDB)
+# dummy dummy

@@ -10,3 +10,4 @@ ALCARECOPromptCalibProdSiStripHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHig
 seqALCARECOPromptCalibProdSiStrip = cms.Sequence(ALCARECOPromptCalibProdSiStripHLT)
 
 
+# dummy dummy

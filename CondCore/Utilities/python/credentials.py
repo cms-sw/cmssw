@@ -66,3 +66,4 @@ def get_credentials_for_schema( service, schema, role, authPath=None ):
             raise Exception('No credentials found to connect on %s with the required access role.'%connection_string)       
         return (username,dbuser,password)
 
+# dummy dummy

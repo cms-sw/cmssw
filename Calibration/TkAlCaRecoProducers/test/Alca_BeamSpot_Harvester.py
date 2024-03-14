@@ -87,3 +87,4 @@ process.alcaHarvesting = cms.Path(process.alcaBeamSpotHarvester)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.alcaHarvesting)
+# dummy dummy

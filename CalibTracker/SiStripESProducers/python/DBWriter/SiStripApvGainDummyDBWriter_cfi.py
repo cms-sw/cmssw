@@ -9,3 +9,4 @@ siStripApvGainDummyDBWriter = cms.EDAnalyzer("SiStripApvGainDummyDBWriter",
 
 
 
+# dummy dummy

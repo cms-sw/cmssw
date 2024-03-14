@@ -33,3 +33,4 @@ trackWithVertexSelectorParams = cms.PSet(
     copyExtras = cms.untracked.bool(False), ## copies also extras and rechits on RECO
     copyTrajectories = cms.untracked.bool(False), # don't set this to true on AOD!
 )
+# dummy dummy

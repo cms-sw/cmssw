@@ -111,3 +111,4 @@ process.syncDCSO2O = cms.EDAnalyzer(
 # process.schedule = cms.Schedule(process.raw2digi_step)
 
 process.p = cms.EndPath(process.siStripDigis+process.syncDCSO2O)
+# dummy dummy

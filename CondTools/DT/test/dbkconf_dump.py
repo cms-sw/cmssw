@@ -31,3 +31,4 @@ process.conf_dump = cms.EDAnalyzer("DTKeyedConfigDBDump")
 
 process.p = cms.Path(process.conf_dump)
 
+# dummy dummy

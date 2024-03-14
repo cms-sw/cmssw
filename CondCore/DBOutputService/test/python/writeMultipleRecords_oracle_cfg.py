@@ -33,3 +33,4 @@ process.mytest = cms.EDAnalyzer("writeMultipleRecords",
 process.p = cms.Path(process.mytest)
 
 
+# dummy dummy

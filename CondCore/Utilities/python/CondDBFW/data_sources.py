@@ -381,4 +381,4 @@ class json_dict(json_data_node):
 class json_basic(json_data_node):
 
 	def __init__(self, data=None):
-		self._data = data if data != None else ""
+		self._data = data if data != None else ""# dummy dummy

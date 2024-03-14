@@ -30,3 +30,4 @@ process.get = cms.EDAnalyzer("DTMapPrint")
 process.p = cms.Path(process.get)
 
 
+# dummy dummy

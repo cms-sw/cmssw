@@ -22,3 +22,4 @@ LorentzAngleNtuple = cms.Sequence( (shallowClusters +
                                     shallowTrackClusters) *
                                    laCalibrationTree
                                    )
+# dummy dummy

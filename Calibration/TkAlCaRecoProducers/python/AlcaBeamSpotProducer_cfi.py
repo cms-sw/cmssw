@@ -56,3 +56,4 @@ alcaBeamSpotProducer = cms.EDProducer("AlcaBeamSpotProducer",
      )
 )
 
+# dummy dummy

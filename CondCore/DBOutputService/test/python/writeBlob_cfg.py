@@ -25,3 +25,4 @@ process.mytest = cms.EDAnalyzer("writeBlob")
 process.p = cms.Path(process.mytest)
 
 
+# dummy dummy

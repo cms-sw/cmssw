@@ -38,3 +38,4 @@ MessageLogger = cms.Service("MessageLogger",
                                                 'debug',
                                                 'error')
 )
+# dummy dummy

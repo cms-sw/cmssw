@@ -58,3 +58,4 @@ process.l1GtTrigReport.PrintVerbosity = 0
 #=============================================================================
 
 process.p1 = cms.Path(process.primaryVertexFilter*process.isolatedGenParticles)
+# dummy dummy

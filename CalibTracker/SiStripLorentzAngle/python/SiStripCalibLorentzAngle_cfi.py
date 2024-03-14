@@ -41,3 +41,4 @@ sistripLACalib = cms.EDFilter("SiStripCalibLorentzAngle",
 )
 
 
+# dummy dummy

@@ -6,3 +6,4 @@ pfJetSelector= cms.EDFilter( "PFJetSelector",
     cut = cms.string( "abs(eta)<3" )
 )
 
+# dummy dummy

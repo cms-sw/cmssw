@@ -8,3 +8,4 @@ pfPhotonIsolationPFBRECOTask = cms.Task(
     photonPFIsolationValuesPFBRECOTask
     )
 pfPhotonIsolationPFBRECOSequence = cms.Sequence(pfPhotonIsolationPFBRECOTask)
+# dummy dummy

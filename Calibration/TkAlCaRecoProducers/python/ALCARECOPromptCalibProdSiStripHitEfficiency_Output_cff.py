@@ -7,3 +7,4 @@ OutALCARECOPromptCalibProdSiStripHitEff_noDrop = cms.PSet(
 
 OutALCARECOPromptCalibProdSiStripHitEff = OutALCARECOPromptCalibProdSiStripHitEff_noDrop.clone()
 OutALCARECOPromptCalibProdSiStripHitEff.outputCommands.insert(0, "drop *")
+# dummy dummy

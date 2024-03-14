@@ -56,3 +56,4 @@ process.fedcablingbuilder = cms.EDAnalyzer("SiStripDeDxMipBuilder")
 process.p1 = cms.Path(process.fedcablingbuilder)
 
 
+# dummy dummy

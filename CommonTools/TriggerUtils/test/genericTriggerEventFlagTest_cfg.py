@@ -107,3 +107,4 @@ process.pHLTTestLoose = cms.Path(
 process.pHLTTestFail = cms.Path(
   process.genericTriggerEventFlagHLTTestFail
 )
+# dummy dummy

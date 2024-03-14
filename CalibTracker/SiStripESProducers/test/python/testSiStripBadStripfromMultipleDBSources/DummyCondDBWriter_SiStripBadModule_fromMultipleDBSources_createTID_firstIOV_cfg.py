@@ -70,3 +70,4 @@ process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)
 
 
+# dummy dummy

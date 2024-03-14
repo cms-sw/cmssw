@@ -38,3 +38,4 @@ def enablePileUpCorrection( process, postfix, sequence='patPF2PATSequence'):
     enablePileUpCorrectionInPAT( process, postfix, sequence)
 
 
+# dummy dummy

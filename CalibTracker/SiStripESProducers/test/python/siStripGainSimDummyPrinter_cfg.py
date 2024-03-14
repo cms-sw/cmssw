@@ -57,3 +57,4 @@ process.reader = cms.EDFilter("SiStripGainSimDummyPrinter")
 process.p1 = cms.Path(process.reader)
 
 
+# dummy dummy

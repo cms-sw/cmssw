@@ -16,3 +16,4 @@ HBHENoiseFilterResultProducer = cms.EDProducer(
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify(HBHENoiseFilterResultProducer, IgnoreTS4TS5ifJetInLowBVRegion=False)
+# dummy dummy

@@ -11,3 +11,4 @@ shallowRechitClusters = cms.EDProducer("ShallowRechitClustersProducer",
     cms.InputTag('siStripMatchedRecHits:stereoRecHitUnmatched')
     )
                                        )
+# dummy dummy

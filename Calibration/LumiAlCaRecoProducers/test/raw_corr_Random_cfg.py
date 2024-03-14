@@ -123,3 +123,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.outpath = cms.EndPath(process.out)
+# dummy dummy

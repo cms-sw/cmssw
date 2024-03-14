@@ -44,3 +44,4 @@ process.conf_o2o = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
 
 process.p = cms.Path(process.conf_o2o)
 
+# dummy dummy

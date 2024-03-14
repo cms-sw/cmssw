@@ -82,3 +82,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGOddWeightIdMapAnalyzer",
 )
 
 process.p = cms.Path(process.Test1)
+# dummy dummy

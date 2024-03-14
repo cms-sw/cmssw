@@ -14,3 +14,4 @@ GlobalTag = cms.ESSource( "PoolDBESSource",
                           pfnPostfix       = cms.untracked.string( '' ),
                           pfnPrefix        = cms.untracked.string( '' ),
                           )
+# dummy dummy

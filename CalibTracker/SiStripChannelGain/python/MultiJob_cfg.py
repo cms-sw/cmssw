@@ -55,3 +55,4 @@ process.SiStripCalib = cms.EDFilter("SiStripGainFromData",
 
 process.p = cms.Path(process.TrackRefitter*process.SiStripCalib)
 
+# dummy dummy

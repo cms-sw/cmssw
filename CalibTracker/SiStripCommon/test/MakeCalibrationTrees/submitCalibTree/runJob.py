@@ -88,3 +88,4 @@ if stageout:
    os.system('rm -f ConfigFile_'+str(run)+'_'+str(firstFile)+'_cfg.py')
    os.system('cd ' + conf.RUNDIR)
    os.system('rm -rf LSFJOB_${LSB_JOBID}')
+# dummy dummy

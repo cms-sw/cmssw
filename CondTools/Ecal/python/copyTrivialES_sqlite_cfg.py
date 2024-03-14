@@ -79,3 +79,4 @@ process.dbCopy = cms.EDAnalyzer("ESDBCopy",
 
 process.p = cms.Path(process.dbCopy)
 
+# dummy dummy

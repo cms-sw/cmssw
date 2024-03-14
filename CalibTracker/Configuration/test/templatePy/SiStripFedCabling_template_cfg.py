@@ -49,3 +49,4 @@ process.fedcablingbuilder = cms.EDFilter("SiStripFedCablingBuilder")
 
 process.p1 = cms.Path(process.fedcablingbuilder)
 
+# dummy dummy

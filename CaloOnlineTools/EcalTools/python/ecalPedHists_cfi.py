@@ -18,3 +18,4 @@ ecalPedHists = cms.EDAnalyzer("EcalPedHists",
 )
 
 
+# dummy dummy

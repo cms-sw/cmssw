@@ -30,3 +30,4 @@ anResol = cms.EDAnalyzer("HitResol",
                          UsePairsOnly = cms.untracked.uint32(1))
 
 hitresol = cms.Sequence( anResol )
+# dummy dummy

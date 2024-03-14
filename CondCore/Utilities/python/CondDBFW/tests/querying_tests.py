@@ -324,3 +324,4 @@ class result_type_tests(querying_tests):
 
 	def tearDown(self):
 		self.connection.tear_down()
+# dummy dummy

@@ -5,3 +5,4 @@ alcaSiStripGainsAAGHarvester = SiStripGainsPCLHarvester.clone()
 alcaSiStripGainsAAGHarvester.calibrationMode     = cms.untracked.string('AagBunch')
 alcaSiStripGainsAAGHarvester.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAAG')
 alcaSiStripGainsAAGHarvester.Record              = cms.untracked.string('SiStripApvGainRcdAAG')
+# dummy dummy

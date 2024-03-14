@@ -45,3 +45,4 @@ process.dqmSummaryTest = cms.EDAnalyzer("DQMSummaryPopConAnalyzer",
 )
 
 process.p = cms.Path(process.dqmSummaryTest)
+# dummy dummy

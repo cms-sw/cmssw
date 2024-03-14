@@ -54,3 +54,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadXTAnalyzer",
 )
 
 process.p = cms.Path(process.Test1)
+# dummy dummy

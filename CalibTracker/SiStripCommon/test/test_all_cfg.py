@@ -58,3 +58,4 @@ process.p = cms.Path(
    #tree dumping
    process.testTree
 )
+# dummy dummy

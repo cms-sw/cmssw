@@ -10,3 +10,4 @@ muonPFIsolationPFBRECOTask =  cms.Task(
     muonPFIsolationValuesPFBRECOTask
 )
 muonPFIsolationPFBRECOSequence =  cms.Sequence(muonPFIsolationPFBRECOTask)
+# dummy dummy

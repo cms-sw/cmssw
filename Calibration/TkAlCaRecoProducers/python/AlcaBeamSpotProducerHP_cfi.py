@@ -56,3 +56,4 @@ alcaBeamSpotProducerHP = cms.EDProducer("AlcaBeamSpotProducer",
      )
 )
 
+# dummy dummy

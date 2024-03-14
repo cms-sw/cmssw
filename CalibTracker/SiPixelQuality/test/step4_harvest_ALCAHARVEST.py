@@ -85,3 +85,4 @@ process.GlobalTag.toGet.append(cms.PSet(record=cms.string("SiPixelQualityFromDbR
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+# dummy dummy

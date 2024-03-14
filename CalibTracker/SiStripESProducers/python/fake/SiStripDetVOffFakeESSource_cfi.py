@@ -6,3 +6,4 @@ siStripDetVOffFakeESSource = cms.ESSource("SiStripDetVOffFakeESSource",
 
 
 
+# dummy dummy

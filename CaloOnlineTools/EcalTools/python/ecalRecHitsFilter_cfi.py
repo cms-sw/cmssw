@@ -11,3 +11,4 @@ ecalRecHitsFilter = cms.EDFilter("EcalRecHitsFilter",
     energycut = cms.untracked.double(0.2)
 
 )
+# dummy dummy

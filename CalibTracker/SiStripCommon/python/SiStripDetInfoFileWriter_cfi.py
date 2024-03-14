@@ -5,3 +5,4 @@ siStripDetInfoFileWriter = cms.EDAnalyzer("SiStripDetInfoFileWriter",
 )
 
 
+# dummy dummy

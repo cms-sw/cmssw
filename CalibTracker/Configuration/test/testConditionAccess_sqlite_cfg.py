@@ -55,3 +55,4 @@ process.fedcablingreader = cms.EDAnalyzer("SiStripFedCablingReader")
 process.p1 = cms.Path(process.fedcablingreader) #*process.noise)
 
 
+# dummy dummy

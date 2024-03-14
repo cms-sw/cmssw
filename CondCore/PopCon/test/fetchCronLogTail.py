@@ -121,3 +121,4 @@ print(sql)
 curs.execute(sql)
 curs.close()
 orcl.commit()
+# dummy dummy

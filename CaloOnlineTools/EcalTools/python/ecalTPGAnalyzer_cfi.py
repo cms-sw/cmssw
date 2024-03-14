@@ -14,3 +14,4 @@ tpAnalyzer = cms.EDAnalyzer("EcalTPGAnalyzer",
     UseEndCap = cms.bool(False)
 
 )
+# dummy dummy

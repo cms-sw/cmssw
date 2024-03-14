@@ -10,3 +10,4 @@ siStripBadModuleDummyDBWriter = cms.EDAnalyzer("SiStripBadModuleDummyDBWriter",
 
 
 
+# dummy dummy

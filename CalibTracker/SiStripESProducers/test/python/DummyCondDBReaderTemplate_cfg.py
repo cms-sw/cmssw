@@ -47,3 +47,4 @@ process.reader = cms.EDAnalyzer("TAGNAMEDummyPrinter")
 process.p1 = cms.Path(process.reader)
 
 
+# dummy dummy

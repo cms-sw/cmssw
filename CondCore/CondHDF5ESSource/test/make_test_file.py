@@ -27,3 +27,4 @@ with h5py.File('test.h5', 'w') as h5file:
     first_np['low'] = [ x[1] for x in firstValues]
     SyncGroup = h5file.create_group("SyncGroup")
     sDS = SyncGroup.create_dataset("sync", data=first_np)
+# dummy dummy

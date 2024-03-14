@@ -22,3 +22,4 @@ recotrackP5 = cms.Sequence(offlineBeamSpot + siPixelRecHitsPreSplitting + siStri
 # Schedule
 reconstruction_step = cms.Path(recolocal + recotrack)
 reconstructionP5_step = cms.Path(recolocal + recotrackP5)
+# dummy dummy

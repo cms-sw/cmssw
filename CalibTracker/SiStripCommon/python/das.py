@@ -19,3 +19,4 @@ def query(query_str, verbose=False):
    #-1 works both when getting dataset from files and files from datasets, 
    #not checked on everything
    return [i[to_get][-1]['name'] for i in data['data']]
+# dummy dummy

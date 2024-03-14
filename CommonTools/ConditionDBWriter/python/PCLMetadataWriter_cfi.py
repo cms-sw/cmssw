@@ -5,3 +5,4 @@ pclMetadataWriter = cms.EDAnalyzer("PCLMetadataWriter",
                                    recordsToMap = cms.VPSet()
                                    )
 
+# dummy dummy

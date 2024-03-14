@@ -75,3 +75,4 @@ process.siStripBadStripFromQualityDummyDBWriter.record=process.PoolDBOutputServi
 process.p1 = cms.Path(process.reader*process.siStripBadStripFromQualityDummyDBWriter)
 
 
+# dummy dummy

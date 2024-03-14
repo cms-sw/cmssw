@@ -5,3 +5,4 @@ shallowClusters = cms.EDProducer("ShallowClustersProducer",
                                  Prefix=cms.string("cluster"),
                                  )
 
+# dummy dummy

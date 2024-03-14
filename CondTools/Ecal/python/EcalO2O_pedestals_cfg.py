@@ -68,3 +68,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalPedestalsAnalyzer",
 process.p = cms.Path(process.Test1)
 
 
+# dummy dummy

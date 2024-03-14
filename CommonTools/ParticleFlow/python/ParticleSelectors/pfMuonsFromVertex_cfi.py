@@ -11,3 +11,4 @@ pfMuonsFromVertex = cms.EDFilter(
     dzSigCut = cms.double(99.),  # longitudinal IP significance
     dtSigCut = cms.double(-1.0), # time significance
     )
+# dummy dummy

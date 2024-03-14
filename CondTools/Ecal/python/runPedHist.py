@@ -55,3 +55,4 @@ process.PedHist = cms.EDAnalyzer("EcalPedestalHistory",
 
 process.p = cms.Path(process.PedHist)
 
+# dummy dummy

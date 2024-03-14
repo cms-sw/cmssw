@@ -10,3 +10,4 @@ SiPixelFakeTemplateDBObjectESSource = cms.ESSource("SiPixelFakeTemplateDBObjectE
 )
 
 
+# dummy dummy

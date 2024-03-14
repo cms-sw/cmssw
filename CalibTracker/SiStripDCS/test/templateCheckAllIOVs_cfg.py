@@ -82,3 +82,4 @@ process.reader = cms.EDAnalyzer("SiStripDetVOffDummyPrinter")
 process.p1 = cms.Path(process.reader)
 
 
+# dummy dummy

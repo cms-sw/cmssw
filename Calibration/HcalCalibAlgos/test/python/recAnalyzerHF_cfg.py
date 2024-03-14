@@ -27,3 +27,4 @@ process.TFileService = cms.Service("TFileService",
 process.recAnalyzerHF.Ratio = cms.bool(False)
 process.recAnalyzerHF.IgnoreL1 = cms.untracked.bool(True)
 process.schedule = cms.Path(process.recAnalyzerHF)
+# dummy dummy

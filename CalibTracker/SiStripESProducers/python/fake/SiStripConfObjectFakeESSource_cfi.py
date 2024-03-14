@@ -23,3 +23,4 @@ siStripConfObjectFakeESSource = cms.ESSource("SiStripConfObjectFakeESSource",
 
 
 
+# dummy dummy

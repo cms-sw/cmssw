@@ -38,3 +38,4 @@ process.FNAME = cms.EDAnalyzer("VNAMEValidateDBWrite",
 
 process.p = cms.Path(process.FNAME)
 
+# dummy dummy

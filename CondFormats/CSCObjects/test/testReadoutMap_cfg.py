@@ -27,3 +27,4 @@ process.printEvent = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.action)
 process.ep = cms.EndPath(process.printEvent)
 
+# dummy dummy

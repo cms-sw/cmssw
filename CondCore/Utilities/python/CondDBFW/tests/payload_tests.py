@@ -57,3 +57,4 @@ class payload_tests(unittest.TestCase):
 		# check that payload isn't in sqlite anymore
 		payload_in_sqlite = sqlite_con.payload(hash=self.payload.hash)
 		self.assertEqual(payload_in_sqlite, None)
+# dummy dummy

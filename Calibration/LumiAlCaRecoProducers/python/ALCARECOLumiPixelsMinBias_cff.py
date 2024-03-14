@@ -9,3 +9,4 @@ ALCARECOLumiPixelsMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
 
 # Sequence #
 seqALCARECOLumiPixelsMinBias = cms.Sequence(ALCARECOLumiPixelsMinBiasHLT)
+# dummy dummy
