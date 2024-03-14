@@ -45,7 +45,6 @@ namespace l1t {
           int hweta = 0,
           int hwphi = 0);
     float chargedIso() const { return iso_; }
-    float qualityScore() const { return iso_; }
     float fullIso() const { return fullIso_; }
     int id() const { return id_; }
 
