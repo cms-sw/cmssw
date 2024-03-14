@@ -22,6 +22,11 @@ namespace reco {
       T operator()(T lhs, T rhs) const { return pow(lhs, rhs); }
     };
 
+    template <typename T>
+    struct int_div_remainder {
+      T operator()(T lhs, T rhs) const { return int(lhs) % int(rhs); }
+    };
+
     template <typename Op>
     struct ExpressionBinaryOperatorSetter {
       ExpressionBinaryOperatorSetter(ExpressionStack& stack) : stack_(stack) {}

@@ -233,12 +233,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor43885(process):
-    for producer in producers_by_type(process, "EgammaHLTClusterShapeProducer"):
-        if hasattr(producer, 'isIeta'):
-            delattr(producer, 'isIeta')
-    return process
-
 def customizeHLTfor44054(process):
     """
     Customisation for running HLT with the updated L1 UTM and AXOL1TL condition parsing from the PR 44054
@@ -247,7 +241,7 @@ def customizeHLTfor44054(process):
         if hasattr(producer, 'AXOL1TLModelVersion'):
             delattr(producer, 'AXOL1TLModelVersion')
     return process
-    
+
 def checkHLTfor43774(process):
     filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
     absAbleVar = ["DEta","deta","DetaSeed","Dphi","OneOESuperMinusOneOP","OneOESeedMinusOneOP"]
@@ -273,7 +267,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor43885(process)
     process = checkHLTfor43774(process)
 
     # customizes AXOL1TL condition in the L1 menu 

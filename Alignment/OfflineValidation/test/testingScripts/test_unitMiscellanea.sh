@@ -14,4 +14,7 @@ echo "TESTING Pixel BaryCenter Analyser ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/PixelBaryCentreAnalyzer_cfg.py unitTest=True || die "Failure running PixelBaryCentreAnalyzer_cfg.py" $?
 
 echo "TESTING CosmicTrackSplitting Analyser ..."
-cmsRun  ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testSplitterValidation_cfg.py unitTest=True || die "Failure running testSplitterValidation_cfg.py" $?
+cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testSplitterValidation_cfg.py unitTest=True || die "Failure running testSplitterValidation_cfg.py" $?
+
+echo "TESTING SagittaBiasNtuplizer Analyser ..."
+cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/SagittaBiasNtuplizer_cfg.py || die "Failure running SagittaBiasNtuplizer_cfg.py" $?

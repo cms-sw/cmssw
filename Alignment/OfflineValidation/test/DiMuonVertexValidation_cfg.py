@@ -27,13 +27,13 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 options.register ('era',
-                  '2017', # default value
+                  '2022', # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "CMS running era")
 
 options.register ('GlobalTag',
-                  '113X_mc2017_realistic_v4', # default value
+                  'auto:phase1_2022_realistic', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "seed number")

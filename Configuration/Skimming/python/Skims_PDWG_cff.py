@@ -362,6 +362,17 @@ SKIMStreamEXODisappMuon = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+from Configuration.Skimming.PDWG_EXOSoftDisplacedVertices_cff import *
+EXOSoftDisplacedVerticesPath = cms.Path(EXOSoftDisplacedVerticesSkimSequence)
+SKIMStreamEXOSoftDisplacedVertices = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOSoftDisplacedVertices',
+    paths = (EXOSoftDisplacedVerticesPath ),
+    content = EXOSoftDisplacedVerticesSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+)
+
 #####################
 # For the Data on Data Mixing in TSG
 from HLTrigger.Configuration.HLT_Fake1_cff import fragment as _fragment

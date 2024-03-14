@@ -9,16 +9,16 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.Configuration.Tools.options as options
 from HLTrigger.Configuration.extend_argparse import *
 
-def getHLTProcess(config):
-    if config.menu.run:
-        configline = f'--runNumber {config.menu.run}'
+def getHLTProcess(args):
+    if args.menu.run:
+        configline = f'--runNumber {args.menu.run}'
     else:
-        configline = f'--{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
+        configline = f'--{args.menu.database} --{args.menu.version} --configName {args.menu.name}'
 
     # cmd to download HLT configuration
     cmdline = f'hltConfigFromDB {configline} --noedsources --noes --nooutput'
-    if config.proxy:
-        cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
+    if args.proxy:
+        cmdline += f' --dbproxy --dbproxyhost {args.proxy_host} --dbproxyport {args.proxy_port}'
 
     # download HLT configuration
     proc = subprocess.Popen(cmdline, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = None)
@@ -88,26 +88,39 @@ def main():
                         default = 'hltPathOwners.json',
                         help    = 'Path to .json file with metadata on HLT Paths (online?, group-owners)' )
 
+    parser.add_argument('-o', '--output-json',
+                        dest    = 'output_json',
+                        action  = 'store',
+                        default = None,
+                        help    = 'Path to name of new .json file (without triggers missing in MENU)' )
+
     # redefine "--help" to be the last option, and use a customized message 
     parser.add_argument('-h', '--help', 
                         action  = 'help', 
                         help    = 'Show this help message and exit' )
 
     # parse command line arguments and options
-    config = parser.parse_args()
+    args = parser.parse_args()
 
-    if not os.path.isfile(config.metadata_json):
-        raise RuntimeError(f'invalid path to metadata JSON file [--metadata-json]: {config.metadata_json}')
+    if not os.path.isfile(args.metadata_json):
+        raise RuntimeError(f'invalid path to metadata JSON file [--metadata-json]: {args.metadata_json}')
 
-    metadataDict = json.load(open(config.metadata_json))
+    metadataDict = json.load(open(args.metadata_json))
 
-    process = getHLTProcess(config)
+    process = getHLTProcess(args)
 
     pathNames = sorted([pathName if '_v' not in pathName else pathName[:pathName.rfind('_v')]+'_v' for pathName, path in process.paths_().items() if not pathName.startswith('Dataset_')])
 
     for pathName in pathNames:
         if pathName not in metadataDict:
             print(pathName)
+
+    if args.output_json != None:
+        metadataDict_out = {}
+        for pathName in metadataDict:
+            if pathName in pathNames:
+                metadataDict_out[pathName] = metadataDict[pathName]
+        json.dump(metadataDict_out, open(args.output_json, 'w'), sort_keys = True, indent = 2)
 
 ###
 ### main

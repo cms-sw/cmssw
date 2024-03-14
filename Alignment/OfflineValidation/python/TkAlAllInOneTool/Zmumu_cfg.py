@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Define process
@@ -26,20 +27,27 @@ valiMode = "StandAlone"
 ###################################################################
 # Read in AllInOne config in JSON format
 ###################################################################
-with open(options.config, "r") as configFile:
-    if version_info.major == 2:
-        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
-    else:
-        config = json.load(configFile)
+if options.config == "":
+    config = {"validation": {},
+              "alignment": {}}
+else:
+    with open(options.config, "r") as configFile:
+        if version_info.major == 2:
+            config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+        else:
+            config = json.load(configFile)
 
 ###################################################################
 # Read filenames from given TXT file
 ###################################################################
 readFiles = []
 
-with open(config["validation"]["dataset"], "r") as datafiles:
-    for fileName in datafiles.readlines():
-        readFiles.append(fileName.replace("\n", ""))
+if "dataset" in config["validation"]:
+    with open(config["validation"]["dataset"], "r") as datafiles:
+        for fileName in datafiles.readlines():
+            readFiles.append(fileName.replace("\n", ""))
+else:
+    readFiles = filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Get good lumi section
@@ -98,9 +106,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter = process.TrackRefitterP5.clone(
-    src =  'ALCARECOTkAlZMuMu',
+    src = config["validation"].get("trackcollection", "ALCARECOTkAlZMuMu"),
     TrajectoryInEvent = True,
-    TTRHBuilder = "WithAngleAndTemplate",
+    TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
     NavigationSchool = "",
 )
 
@@ -109,7 +117,7 @@ process.TrackRefitter = process.TrackRefitterP5.clone(
 ###################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:run2_data"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2024_realistic"))
 
 ###################################################################
 # Load conditions if wished
@@ -182,7 +190,7 @@ process.DiMuonMassValidation = _diMuonValidation.clone(
 if valiMode == "StandAlone":
     # Output file
     process.TFileService = cms.Service("TFileService",
-            fileName = cms.string("{}/Zmumu.root".format(config["output"])),
+            fileName = cms.string("{}/Zmumu.root".format(config.get("output", os.getcwd()))),
             closeFileFast = cms.untracked.bool(True),
     )
 
