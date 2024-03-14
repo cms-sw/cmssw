@@ -125,8 +125,9 @@ steps['MuonEG2022MINIAOD12.4'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis
 steps['NANO_data12.4']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
-steps['NANO_data12.4_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
+steps['NANO_data12.4_prompt']=merge([{'-n' : '1000'},
                                      steps['NANO_data12.4']])
+steps['NANO_data12.4_prompt']['-s']=steps['NANO_data12.4_prompt']['-s'].replace('NANO','NANO:@PHYS+@L1')
 
 ###13.0 workflows
 steps['TTBarMINIAOD13.0'] = {'INPUT':InputInfo(location='STD',
@@ -149,8 +150,9 @@ steps['NANO_data13.0']=merge([{'--era':'Run3',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
 
-steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
+steps['NANO_data13.0_prompt']=merge([{'-n' : '1000'},
                                      steps['NANO_data13.0']])
+steps['NANO_data13.0_prompt']['-s']=steps['NANO_data13.0_prompt']['-s'].replace('NANO','NANO:@PHYS+@L1')
 
 
 steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
@@ -196,8 +198,7 @@ steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@MUPOG ', '-n' : '1000'},
 steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.2']])
 
-steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
-                                        '-n' : '1000'},
+steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM', '-n' : '1000'},
                                         steps['NANO_mc13.2']])
 
 ##13.X INPUT
