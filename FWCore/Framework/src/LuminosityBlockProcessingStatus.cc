@@ -26,6 +26,34 @@ namespace edm {
     globalEndRunHolder_ = std::move(holder);
   }
 
+  bool LuminosityBlockProcessingStatus::shouldStreamStartLumi() {
+    if (state_ == State::kNoMoreEvents)
+      return false;
+
+    bool changed = false;
+    do {
+      auto expected = State::kRunning;
+      changed = state_.compare_exchange_strong(expected, State::kUpdating);
+      if (expected == State::kNoMoreEvents)
+        return false;
+    } while (changed == false);
+
+    ++nStreamsProcessingLumi_;
+    state_ = State::kRunning;
+    return true;
+  }
+
+  void LuminosityBlockProcessingStatus::noMoreEventsInLumi() {
+    bool changed = false;
+    do {
+      auto expected = State::kRunning;
+      changed = state_.compare_exchange_strong(expected, State::kUpdating);
+      assert(expected != State::kNoMoreEvents);
+    } while (changed == false);
+    nStreamsStillProcessingLumi_.store(nStreamsProcessingLumi_);
+    state_ = State::kNoMoreEvents;
+  }
+
   void LuminosityBlockProcessingStatus::setEndTime() {
     constexpr char kUnset = 0;
     constexpr char kSetting = 1;

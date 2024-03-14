@@ -28,8 +28,9 @@ process.source = cms.Source("EmptySource",
 )
 
 process.StreamIntProd = cms.EDProducer("edmtest::global::StreamIntProducer",
-    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2*(nEvt/nEvtLumi)+2)))
+    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2)))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntProd = cms.EDProducer("edmtest::global::RunIntProducer",
@@ -48,7 +49,7 @@ process.RunSumIntProd = cms.EDProducer("edmtest::global::RunSummaryIntProducer",
 )
 
 process.LumiSumIntProd = cms.EDProducer("edmtest::global::LumiSummaryIntProducer",
-    transitions = cms.int32(int(nStreams*(nEvt/nEvtLumi)+2*(nEvt/nEvtLumi)))
+    transitions = cms.int32(int(nEvt+nStreams+2*(nEvt/nEvtLumi)))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
@@ -95,8 +96,9 @@ process.TestEndLumiBlockProd = cms.EDProducer("edmtest::global::TestEndLumiBlock
 )
 
 process.StreamIntAn = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer",
-    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2*(nEvt/nEvtLumi)+2)))
+    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2)))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntAn= cms.EDAnalyzer("edmtest::global::RunIntAnalyzer",
@@ -117,7 +119,7 @@ process.RunSumIntAn = cms.EDAnalyzer("edmtest::global::RunSummaryIntAnalyzer",
 )
 
 process.LumiSumIntAn = cms.EDAnalyzer("edmtest::global::LumiSummaryIntAnalyzer",
-    transitions = cms.int32(int(nEvt+nStreams*((nEvt/nEvtLumi)+1)+2*(nEvt/nEvtLumi)))
+    transitions = cms.int32(int(nEvt+nStreams+2*(nEvt/nEvtLumi)))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
@@ -128,8 +130,9 @@ process.ProcessBlockIntAn = cms.EDAnalyzer("edmtest::global::ProcessBlockIntAnal
 )
 
 process.StreamIntFil = cms.EDFilter("edmtest::global::StreamIntFilter",
-    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2*(nEvt/nEvtLumi)+2)))
+    transitions = cms.int32(int(nEvt+nStreams*(2*(nEvt/nEvtRun)+2)))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntFil = cms.EDFilter("edmtest::global::RunIntFilter",
@@ -148,7 +151,7 @@ process.RunSumIntFil = cms.EDFilter("edmtest::global::RunSummaryIntFilter",
 )
 
 process.LumiSumIntFil = cms.EDFilter("edmtest::global::LumiSummaryIntFilter",
-    transitions = cms.int32(int(nEvt+nStreams*((nEvt/nEvtLumi)+1)+2*(nEvt/nEvtLumi)))
+    transitions = cms.int32(int(nEvt+nStreams+2*(nEvt/nEvtLumi)))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
