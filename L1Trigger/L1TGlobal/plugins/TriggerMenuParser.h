@@ -187,6 +187,11 @@ namespace l1t {
     void setVecCorrelationWithOverlapRemovalTemplate(
         const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
 
+    // get/set the AXO model version so it can be fetched from the GlobalProducer
+    inline const std::string& AXOL1TLModelVersion() const { return m_axol1tlModelVersion; }
+
+    void setAXOL1TLModelVersion(const std::string&);
+
     // get / set the vectors containing the conditions for correlation templates
     //
     inline const std::vector<std::vector<MuonTemplate> >& corMuonTemplate() const { return m_corMuonTemplate; }
@@ -424,6 +429,9 @@ namespace l1t {
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;
+
+    /// AXOL1TL Model Version
+    std::string m_axol1tlModelVersion = "";
 
     /// map containing the physics algorithms (by name)
     AlgorithmMap m_algorithmMap;
