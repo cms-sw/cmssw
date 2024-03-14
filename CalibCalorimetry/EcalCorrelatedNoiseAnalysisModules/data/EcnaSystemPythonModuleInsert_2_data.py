@@ -25,3 +25,4 @@ process.myCnaPackage = cms.EDAnalyzer("EcnaAnalyzer",
                                       EEdigiCollection = cms.string("eeDigis"),
 #-------------- EcnaSystemPythoModuleInsert_2 _data/ end
 
+# dummy dummy

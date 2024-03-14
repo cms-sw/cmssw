@@ -7,3 +7,4 @@ OverlapTagger = cms.EDProducer("TkAlCaOverlapTagger",
                                BadMods = cms.vuint32()
 
                                )###end of module
+# dummy dummy

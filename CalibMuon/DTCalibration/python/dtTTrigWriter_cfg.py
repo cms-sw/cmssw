@@ -38,3 +38,4 @@ process.dtTTrigWriter.rootFileName = 'DTTimeBoxes.root'
 process.dtTTrigWriter.debug = False
 
 process.p = cms.Path(process.dtTTrigWriter)
+# dummy dummy

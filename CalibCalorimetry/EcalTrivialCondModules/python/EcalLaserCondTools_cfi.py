@@ -42,3 +42,4 @@ ecalLaserCondTools = cms.EDAnalyzer("EcalLaserCondTools",
                                 )
 
 
+# dummy dummy

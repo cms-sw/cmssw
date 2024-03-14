@@ -19,3 +19,4 @@ CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
 
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=True)
+# dummy dummy

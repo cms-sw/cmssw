@@ -17,3 +17,4 @@ ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibCosmics'
 
 #seqALCARECODtCalibCosmics = cms.Sequence(ALCARECODtCalibCosmicsHLTFilter * dt4DSegmentsNoWire)
 seqALCARECODtCalibCosmics = cms.Sequence(ALCARECODtCalibCosmicsHLTFilter)
+# dummy dummy

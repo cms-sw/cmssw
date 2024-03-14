@@ -15,3 +15,4 @@ ecalpedestalPCL =DQMEDAnalyzer('ECALpedestalPCLworker',
                                 fixedBookingCenterBin = cms.int32(200), # if dynamicBooking = false, use this as center bin 
                                 nBins       = cms.int32(40)      # number of bins per histogram
 )
+# dummy dummy

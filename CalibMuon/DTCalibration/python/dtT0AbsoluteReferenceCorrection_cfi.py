@@ -9,3 +9,4 @@ dtT0AbsoluteReferenceCorrection = cms.EDAnalyzer("DTT0Correction",
         reference = cms.double(640.) 
     )
 )
+# dummy dummy

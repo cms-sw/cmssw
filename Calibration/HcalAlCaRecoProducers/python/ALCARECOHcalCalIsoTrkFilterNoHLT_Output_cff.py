@@ -26,3 +26,4 @@ OutALCARECOHcalCalIsoTrkFilterNoHLT_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalIsoTrkFilterNoHLT=copy.deepcopy(OutALCARECOHcalCalIsoTrkFilterNoHLT_noDrop)
 OutALCARECOHcalCalIsoTrkFilterNoHLT.outputCommands.insert(0, "drop *")
+# dummy dummy

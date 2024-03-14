@@ -12,3 +12,4 @@ AnalyzerMinbias  = cms.EDAnalyzer("AnalyzerMinbias",
                                   RunNZS         = cms.untracked.bool(False),
                                   HistOutFile    = cms.untracked.string('analysis_minbias.root'),           
                                   )                                   
+# dummy dummy

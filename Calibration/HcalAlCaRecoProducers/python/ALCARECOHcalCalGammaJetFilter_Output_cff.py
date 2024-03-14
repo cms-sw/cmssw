@@ -50,3 +50,4 @@ OutALCARECOHcalCalGammaJet_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalGammaJet=copy.deepcopy(OutALCARECOHcalCalGammaJet_noDrop)
 OutALCARECOHcalCalGammaJet.outputCommands.insert(0, "drop *")
+# dummy dummy

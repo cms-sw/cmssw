@@ -8,3 +8,4 @@ dtTTrigWriter = cms.EDAnalyzer("DTTTrigWriter",
     # the kfactor to be uploaded in the ttrig DB
     kFactor = cms.untracked.double(-0.7)
 )
+# dummy dummy

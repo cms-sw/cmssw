@@ -248,3 +248,4 @@ BrokenLinesBzeroTrajectoryFactory = BzeroReferenceTrajectoryFactory.clone(
     MaterialEffects = 'BrokenLinesCoarse', # see BrokenLinesTrajectoryFactory
     UseInvalidHits = True # to account for multiple scattering in these layers
     )
+# dummy dummy

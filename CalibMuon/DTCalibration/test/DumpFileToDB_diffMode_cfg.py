@@ -74,3 +74,4 @@ process.dumpToDB = cms.EDFilter("DumpFileToDB",
 process.p = cms.Path(process.dumpToDB)
     
 
+# dummy dummy

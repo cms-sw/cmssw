@@ -254,3 +254,4 @@ elif TYPE=='DeadDB' :      process.p2 = cms.Path(process.dumpDeadToFile)
 elif TYPE=='ChannelsDB' :  process.p2 = cms.Path(process.dumpChannelsToFile)
 
 
+# dummy dummy

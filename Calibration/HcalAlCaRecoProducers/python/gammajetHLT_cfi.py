@@ -14,3 +14,4 @@ gammajetHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     eventSetupPathsKey='HcalCalGammaJet',
     throw = False
 )
+# dummy dummy

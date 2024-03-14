@@ -39,3 +39,4 @@ process.prod = cms.EDAnalyzer("TestConverter2",
 process.p1 = cms.Path(process.prod)
 process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
+# dummy dummy

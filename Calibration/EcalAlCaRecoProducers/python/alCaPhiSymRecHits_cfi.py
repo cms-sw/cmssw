@@ -13,3 +13,4 @@ alCaPhiSymRecHits = cms.EDProducer("AlCaPhiSymRecHitsProducer",
 )
 
 
+# dummy dummy

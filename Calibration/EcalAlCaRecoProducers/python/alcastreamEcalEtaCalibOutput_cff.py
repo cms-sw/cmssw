@@ -6,3 +6,4 @@ alcastreamEcalEtaCalibOutput = cms.PSet(
         'keep *_*_etaEcalRecHitsEE_*')
 )
 
+# dummy dummy

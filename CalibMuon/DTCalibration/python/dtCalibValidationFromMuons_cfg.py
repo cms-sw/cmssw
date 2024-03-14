@@ -41,3 +41,4 @@ process.dtValidSequence = cms.Sequence(process.dt1DRecHits*process.dt2DSegments*
 process.analysis_step = cms.Path(process.dtValidSequence*process.MEtoEDMConverter)
 process.out_step = cms.EndPath(process.output)
 #process.DQM.collectorHost = ''
+# dummy dummy

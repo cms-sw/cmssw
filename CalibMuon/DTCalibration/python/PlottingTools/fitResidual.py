@@ -17,3 +17,4 @@ def fitResidual(histo,nSigmas=2,verbose=False):
     histo.Fit(fitFunc,option)
 
     return (histo,fitFunc)
+# dummy dummy

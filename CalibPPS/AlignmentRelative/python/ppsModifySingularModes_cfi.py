@@ -18,3 +18,4 @@ ppsModifySingularModes = cms.EDAnalyzer("PPSModifySingularModes",
     de_rho1 = cms.untracked.double(0),
     de_rho2 = cms.untracked.double(0),
 )
+# dummy dummy

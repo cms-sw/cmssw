@@ -12,3 +12,4 @@ ctppsPixelDAQMappingESSourceXML = cms.ESSource("CTPPSPixelDAQMappingESSourceXML"
             )
         )
                                                )
+# dummy dummy

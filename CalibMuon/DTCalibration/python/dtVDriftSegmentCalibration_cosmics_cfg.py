@@ -27,3 +27,4 @@ process.p = cms.Path(process.muonDTDigis*
 """
 process.p = cms.Path(process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*
                      process.dtVDriftSegmentCalibration)
+# dummy dummy

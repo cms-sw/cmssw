@@ -17,3 +17,4 @@ OutALCARECOHcalCalHBHEMuonProducerFilter_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalHBHEMuonProducerFilter=copy.deepcopy(OutALCARECOHcalCalHBHEMuonProducerFilter_noDrop)
 OutALCARECOHcalCalHBHEMuonProducerFilter.outputCommands.insert(0, "drop *")
+# dummy dummy

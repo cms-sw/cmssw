@@ -14,3 +14,4 @@ AlignmentTreeMerger = cms.EDAnalyzer("TreeMerger",
                                                    TECmaxhits=cms.int32(-1)
                                                    )
                                      )
+# dummy dummy

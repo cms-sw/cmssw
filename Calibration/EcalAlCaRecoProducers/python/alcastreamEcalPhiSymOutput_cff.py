@@ -8,3 +8,4 @@ alcastreamEcalPhiSymOutput = cms.PSet(
         'keep EcalRecHitsSorted__*_*')
 )
 
+# dummy dummy

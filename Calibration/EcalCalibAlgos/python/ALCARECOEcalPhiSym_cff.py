@@ -49,3 +49,4 @@ seqALCARECOEcalPhiSymByLumi = cms.Sequence( ALCARECOEcalPhiSymRecHitProducerLumi
                                             ALCARECOecalPhiSymRecHitLumiTableEE *
                                             ALCARECOecalPhiSymInfoLumiTable )
 
+# dummy dummy

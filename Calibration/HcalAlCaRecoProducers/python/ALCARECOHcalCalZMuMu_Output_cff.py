@@ -14,3 +14,4 @@ OutALCARECOHcalCalZMuMu_noDrop = cms.PSet(
 import copy
 OutALCARECOHcalCalZMuMu=copy.deepcopy(OutALCARECOHcalCalZMuMu_noDrop)
 OutALCARECOHcalCalZMuMu.outputCommands.insert(0, "drop *")
+# dummy dummy

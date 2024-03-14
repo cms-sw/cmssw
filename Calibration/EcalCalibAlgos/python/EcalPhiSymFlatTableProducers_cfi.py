@@ -72,3 +72,4 @@ ecalPhiSymInfoRunTable = cms.EDProducer("EcalPhiSymInfoFlatTableProducerRun",
 
 ecalPhiSymInfoRunTable.variables = ecalPhiSymInfoLumiTable.variables
 
+# dummy dummy

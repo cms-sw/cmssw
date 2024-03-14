@@ -43,3 +43,4 @@ process.WriteInDB = cms.EDAnalyzer("WriteEcalMiscalibConstantsMC",
 process.p = cms.Path(process.WriteInDB)
 
 
+# dummy dummy

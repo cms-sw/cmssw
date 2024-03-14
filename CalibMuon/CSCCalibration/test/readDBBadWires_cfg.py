@@ -41,3 +41,4 @@ process.output = cms.OutputModule("AsciiOutputModule")
 process.p = cms.Path(process.analyze)
 process.ep = cms.EndPath(process.output)
 
+# dummy dummy

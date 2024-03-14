@@ -116,3 +116,4 @@ def use_single_infinite_iov_entry(ppsAssociationCutsESSource, iov):
     ppsAssociationCutsESSource.configuration = cms.VPSet()
     iov.validityRange = cms.EventRange("0:min - 999999:max")
     ppsAssociationCutsESSource.configuration.append(iov)
+# dummy dummy

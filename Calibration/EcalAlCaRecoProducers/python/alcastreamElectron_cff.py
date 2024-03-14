@@ -21,3 +21,4 @@ electronFilter = cms.EDFilter("EtaPtMinGsfElectronFullCloneSelector",
 
 seqAlcastreamElectron = cms.Sequence(electronFilter*alCaIsolatedElectrons)
 
+# dummy dummy

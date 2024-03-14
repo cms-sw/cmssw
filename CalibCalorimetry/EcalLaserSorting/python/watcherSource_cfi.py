@@ -15,3 +15,4 @@ source = cms.Source("WatcherSource",
 #were processed and input directory got exhausted.
                     timeOutInSec  = cms.int32(4*60)
 )
+# dummy dummy

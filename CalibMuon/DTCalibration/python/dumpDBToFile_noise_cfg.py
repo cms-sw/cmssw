@@ -37,3 +37,4 @@ process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
 )
 
 process.p = cms.Path(process.dumpToFile)
+# dummy dummy

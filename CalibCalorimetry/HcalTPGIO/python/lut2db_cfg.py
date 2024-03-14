@@ -30,3 +30,4 @@ process.sw2hw = cms.EDAnalyzer("HcalLuttoDB",
 process.p = cms.Path(process.sw2hw)
 process.MessageLogger.cerr.INFO.limit = 1000000
 
+# dummy dummy

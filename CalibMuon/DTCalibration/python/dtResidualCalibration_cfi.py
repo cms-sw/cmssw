@@ -12,3 +12,4 @@ dtResidualCalibration = cms.EDAnalyzer("DTResidualCalibration",
     detailedAnalysis = cms.untracked.bool(False)
     #detailedAnalysis = cms.untracked.bool(True)
 )
+# dummy dummy

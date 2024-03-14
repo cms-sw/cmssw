@@ -22,3 +22,4 @@ ALCAHARVESTPPSAlignment = cms.Task(
     DQMInfoPPSAlignment,
     ppsAlignmentHarvester
 )
+# dummy dummy
