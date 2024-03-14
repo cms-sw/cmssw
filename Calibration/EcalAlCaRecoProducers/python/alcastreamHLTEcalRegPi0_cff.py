@@ -9,3 +9,4 @@ seqAlcastreamEcalPi0 = cms.Sequence(alCaPi0RegRecHits)
 
 # dummy dummy
 # dummy dummy
+# dummy dummy

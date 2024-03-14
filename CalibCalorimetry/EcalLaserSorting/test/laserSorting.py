@@ -22,3 +22,4 @@ process.load("CalibCalorimetry.EcalLaserSorting.laserSorter_cfi")
 process.p = cms.Path(process.laserSorter)
 # dummy dummy
 # dummy dummy
+# dummy dummy

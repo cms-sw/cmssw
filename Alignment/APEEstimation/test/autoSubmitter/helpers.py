@@ -201,3 +201,4 @@ def loadConditions(dictionary):
     return conditions, goodConditions
 # dummy dummy
 # dummy dummy
+# dummy dummy

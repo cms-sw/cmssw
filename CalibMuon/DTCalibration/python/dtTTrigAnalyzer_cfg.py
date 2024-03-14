@@ -22,3 +22,4 @@ process.dtTTrigAnalyzer = cms.EDAnalyzer("DTTTrigAnalyzer",
 process.p = cms.Path(process.dtTTrigAnalyzer)
 # dummy dummy
 # dummy dummy
+# dummy dummy

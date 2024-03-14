@@ -22,3 +22,4 @@ ecalEtaCorrected =  RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi.ecalRec
 seqALCARECOEcalCalEtaCalib = cms.Sequence(ecaletaCalibHLT*ecalEtaCorrected)
 # dummy dummy
 # dummy dummy
+# dummy dummy

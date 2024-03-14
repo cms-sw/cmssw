@@ -15,3 +15,4 @@ seqALCARECOHcalCalHBHEMuonFilter = cms.Sequence(ALCARECOHcalCalHBHEMuonFilterHLT
                                                 AlcaHBHEMuonFilter)
 # dummy dummy
 # dummy dummy
+# dummy dummy

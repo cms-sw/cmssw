@@ -8,3 +8,4 @@ class AllInOneError(Exception):
         return self._msg
 # dummy dummy
 # dummy dummy
+# dummy dummy

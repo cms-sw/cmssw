@@ -35,3 +35,4 @@ ALCARECOMuAlGlobalCosmicsInCollisions = Alignment.CommonAlignmentProducer.Alignm
 seqALCARECOMuAlGlobalCosmicsInCollisions = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsHLT + ALCARECOMuAlGlobalCosmicsInCollisionsDCSFilter + ALCARECOMuAlGlobalCosmicsInCollisions)
 # dummy dummy
 # dummy dummy
+# dummy dummy

@@ -229,3 +229,4 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
       if stream == None: return "".join(output)
 # dummy dummy
 # dummy dummy
+# dummy dummy

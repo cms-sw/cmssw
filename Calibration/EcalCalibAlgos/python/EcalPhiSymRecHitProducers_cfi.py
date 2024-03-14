@@ -44,3 +44,4 @@ for par, value in phisym_params.items():
     setattr(EcalPhiSymRecHitProducerRun, par, value)
 # dummy dummy
 # dummy dummy
+# dummy dummy

@@ -17,3 +17,4 @@ DQMInfoEcalPedestals = DQMEDHarvester('DQMHarvestingMetadata',
 ALCAHARVESTEcalPedestals = cms.Sequence(EDMtoMEConvertEcalPedestals + DQMInfoEcalPedestals + ECALpedestalPCLHarvester)
 # dummy dummy
 # dummy dummy
+# dummy dummy

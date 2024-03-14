@@ -19,3 +19,4 @@ ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibCosmics'
 seqALCARECODtCalibCosmics = cms.Sequence(ALCARECODtCalibCosmicsHLTFilter)
 # dummy dummy
 # dummy dummy
+# dummy dummy

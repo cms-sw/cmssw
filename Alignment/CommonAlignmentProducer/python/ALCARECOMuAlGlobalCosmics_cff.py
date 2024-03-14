@@ -64,3 +64,4 @@ seqALCARECOMuAlGlobalCosmicsCosmicTF        = cms.Sequence(ALCARECOMuAlGlobalCos
 seqALCARECOMuAlGlobalCosmicsRegionalTF      = cms.Sequence(ALCARECOMuAlGlobalCosmicsRegionalTF)
 # dummy dummy
 # dummy dummy
+# dummy dummy

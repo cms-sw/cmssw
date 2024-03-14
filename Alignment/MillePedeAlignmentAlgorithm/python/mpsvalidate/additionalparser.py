@@ -50,3 +50,4 @@ class AdditionalData:
         self.pede_steerer_command = pede_steerer.pedeCommand.value()
 # dummy dummy
 # dummy dummy
+# dummy dummy

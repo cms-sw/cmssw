@@ -142,3 +142,4 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(process.PixelBaryCentreAnalyzer*process.PixelBaryCentreAnalyzerWithPixelQuality)
 # dummy dummy
 # dummy dummy
+# dummy dummy

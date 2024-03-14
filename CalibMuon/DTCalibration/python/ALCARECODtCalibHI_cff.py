@@ -23,3 +23,4 @@ dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConf
 seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * dt4DSegmentsNoWire) 
 # dummy dummy
 # dummy dummy
+# dummy dummy

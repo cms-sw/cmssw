@@ -26,3 +26,4 @@ def setCondition(process,
     process.GlobalTag.toGet.append(cms.PSet(**args))
 # dummy dummy
 # dummy dummy
+# dummy dummy
