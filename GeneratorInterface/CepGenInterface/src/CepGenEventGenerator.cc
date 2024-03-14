@@ -22,7 +22,7 @@
 
 using namespace gen;
 
-CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
+CepGenEventGenerator::CepGenEventGenerator(const edm::ParameterSet& iConfig)
     : BaseHadronizer(iConfig),
       proc_params_(cepgen::fromParameterSet(iConfig.getParameter<edm::ParameterSet>("process"))) {
   // specify the overall module verbosity

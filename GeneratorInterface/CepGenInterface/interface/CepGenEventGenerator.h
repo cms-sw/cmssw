@@ -4,7 +4,6 @@
 #ifndef GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
 #define GeneratorInterface_CepGenInterface_CepGenEventGenerator_h
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
@@ -13,7 +12,7 @@
 namespace gen {
   class CepGenEventGenerator : public BaseHadronizer {
   public:
-    explicit CepGenEventGenerator(const edm::ParameterSet&, edm::ConsumesCollector&&);
+    explicit CepGenEventGenerator(const edm::ParameterSet&);
     virtual ~CepGenEventGenerator();
 
     bool readSettings(int) { return true; }
