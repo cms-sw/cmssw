@@ -13,7 +13,7 @@ l1tHGCalEnergySplitTowerProducer = l1tHGCalTowerProducer.clone( InputTowerMaps =
 L1THGCalEnergySplitTowersTask = cms.Task(l1tHGCalEnergySplitTowerMapProducer, l1tHGCalEnergySplitTowerProducer)
 
 # Use energy split towers in calo jet/tau emulator
-l1tPhase2CaloJetEmulator.hgcalTowers.hgcalTowers = ("l1tHGCalEnergySplitTowerProducer","HGCalTowerProcessor")
+l1tPhase2CaloJetEmulator.hgcalTowers = ("l1tHGCalEnergySplitTowerProducer","HGCalTowerProcessor")
 
 L1TCaloJetsTausTask = cms.Task(
     L1THGCalEnergySplitTowersTask,
