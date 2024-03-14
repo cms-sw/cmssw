@@ -32,3 +32,4 @@ seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + ALCARECOMuAlBea
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

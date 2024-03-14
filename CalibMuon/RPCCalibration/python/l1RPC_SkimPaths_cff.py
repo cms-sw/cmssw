@@ -6,3 +6,4 @@ l1RPCHLTPath = cms.Path(l1RPCHLTFilter)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

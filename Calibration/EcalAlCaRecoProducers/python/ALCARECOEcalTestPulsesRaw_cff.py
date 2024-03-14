@@ -13,3 +13,4 @@ seqALCARECOEcalTestPulsesRaw = cms.Sequence(ALCARECOEcalTestPulsesRawHLT)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

@@ -13,3 +13,4 @@ siStripProcessedRawDigis = cms.EDProducer("SiStripProcessedRawDigiProducer",
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

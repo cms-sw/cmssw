@@ -11,3 +11,4 @@ seqALCARECOEcalTrg = cms.Sequence(ecalTrgHLT)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

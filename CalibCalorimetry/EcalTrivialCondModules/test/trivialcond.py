@@ -16,3 +16,4 @@ process.p = cms.Path( process.testTrivial )
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

@@ -36,3 +36,4 @@ seqALCARECOMuAlGlobalCosmicsInCollisions = cms.Sequence(ALCARECOMuAlGlobalCosmic
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

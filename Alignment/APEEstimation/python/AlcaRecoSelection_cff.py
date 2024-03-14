@@ -63,3 +63,4 @@ seqVertexSelection = cms.Sequence(goodPVs*oneGoodPVSelection)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

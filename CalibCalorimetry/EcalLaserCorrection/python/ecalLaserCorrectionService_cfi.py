@@ -10,3 +10,4 @@ EcalLaserCorrectionService = cms.ESProducer("EcalLaserCorrectionService",
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

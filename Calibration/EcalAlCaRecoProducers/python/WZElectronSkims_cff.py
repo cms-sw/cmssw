@@ -278,3 +278,4 @@ checkMCWSeq = cms.Sequence(genEleFromW * genNuFromW * combW * WFilterMC) #sequen
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

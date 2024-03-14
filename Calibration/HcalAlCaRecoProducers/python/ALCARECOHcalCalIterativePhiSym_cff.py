@@ -19,3 +19,4 @@ seqALCARECOHcalCalIterativePhiSym = cms.Sequence(hcalphisymHLT*IterativePhiSymPr
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

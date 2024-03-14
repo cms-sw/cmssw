@@ -21,3 +21,4 @@ alCaPi0BCRecHits = cms.EDProducer("AlCaPi0BasicClusterRecHitsProducer",
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy
