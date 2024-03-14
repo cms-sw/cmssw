@@ -183,8 +183,7 @@ steps['lepTimeLifeNANO_data13.0']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAOD
 
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
-                                               ## dataset below to be replaced with a 13.2 relval sample when available
-                                               dataSet='/RelValTTbar_14TeV/CMSSW_13_0_0-PU_130X_mcRun3_2022_realistic_v2_HS-v4/MINIAODSIM')}
+                                               dataSet='/RelValTTbar_14TeV/CMSSW_13_2_0-PU_131X_mcRun3_2023_realistic_v9-v1/MINIAODSIM')}
 
 steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
@@ -201,27 +200,20 @@ steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQ
                                         steps['NANO_mc13.2']])
 
 ##13.X INPUT
-steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
+steps['ScoutingPFRun32022DRAW13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 
-steps['NANO_dataRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff',
-                         '--conditions':'auto:run3_data',
-                         '-n':'10',
-                         '--era' : 'Run3',
-                         '--geometry' : 'DB:Extended',
-                         '--datatier':'NANOAOD',
-                         '--eventcontent':'NANOAOD'}])
+steps['NANO_dataRun3ScoutingPF13.X']=merge([{'-s':'NANO:@Scout'},
+                                            steps['NANO_data13.0']])
 
-steps['NANO_mcRun3ScoutingPF13.X']=merge([{'-s':'NANO:PhysicsTools/NanoAOD/custom_run3scouting_cff.nanoSequenceMC',
-                         '--conditions':'auto:phase1_2022_realistic',
-                         '-n':'10',
-                         '--mc':'',
-                         '--era' : 'Run3',
-                         '--geometry' : 'DB:Extended',
-                         '--datatier':'NANOAOD',
-                         '--eventcontent':'NANOAOD',
-                         '--filein':'/store/mc/Run3Summer22MiniAODv3/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/MINIAODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/f9cdd76c-faac-4f24-bf0c-2496c8fffe54.root',
-                         '--secondfilein':'/store/mc/Run3Summer22DRPremix/BulkGravitonToHH_MX1120_MH121_TuneCP5_13p6TeV_madgraph-pythia8/AODSIM/124X_mcRun3_2022_realistic_v12-v3/2810000/ab09fc5d-859c-407f-b7ce-74b0bae9bb96.root',
-                         '--customise':'IOPool/Input/fixReading_12_4_X_Files.fixReading_12_4_X_Files'}])
+steps['TTBarMINIAOD13.3'] = {'INPUT':InputInfo(location='STD',
+                                               dataSet='/RelValTTbar_14TeV/CMSSW_13_3_0-PU_133X_mcRun3_2023_realistic_v3-v1/MINIAODSIM')}
+
+steps['NANO_mc13.3']=merge([{'--era':'Run3',
+                             '--conditions':'133X_mcRun3_2023_realistic_v3'},
+                            _NANO_mc])
+
+steps['NANO_mcScouting13.X']=merge([{'-s':'NANO:@Scout'},
+                                    steps['NANO_mc13.3']])
 
 _wfn=WFN(2500)
 ################
@@ -272,8 +264,8 @@ workflows[_wfn()] = ['lepTimeLifeNANO_mc13.2', ['TTBarMINIAOD13.2', 'lepTimeLife
 _wfn.next()
 ################
 #13.X workflows
-workflows[_wfn()] = ['ScoutingNanodata13X',['RunScoutingPFRun32022D13.X', 'NANO_dataRun3ScoutingPF13.X']]
+workflows[_wfn()] = ['ScoutingNanodata13X',['ScoutingPFRun32022DRAW13.X', 'NANO_dataRun3ScoutingPF13.X']]
 _wfn.subnext()
-workflows[_wfn()] = ['ScoutingNanomc13X',['NANO_mcRun3ScoutingPF13.X']]
+workflows[_wfn()] = ['ScoutingNanomc13X',['TTBarMINIAOD13.3','NANO_mcScouting13.X']]
 
 ################
