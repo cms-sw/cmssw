@@ -4,3 +4,4 @@ lsNumberFilter = cms.EDFilter("LSNumberFilter",
                               minLS = cms.untracked.uint32(21)
                               )
 # dummy dummy
+# dummy dummy

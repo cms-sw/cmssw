@@ -98,3 +98,4 @@ class OutputData:
         self.parameter = parameter
         self.filename = filename
 # dummy dummy
+# dummy dummy

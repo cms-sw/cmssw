@@ -209,3 +209,4 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
                                      parameter=mode, filename="subModules_{0}_{1}".format(mode, struct.get_name()))
     config.outputList.append(output)
 # dummy dummy
+# dummy dummy

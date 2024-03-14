@@ -67,3 +67,4 @@ process.writeTotemDAQMapping = cms.EDAnalyzer("WriteTotemDAQMapping",
 process.path = cms.Path(
   process.writeTotemDAQMapping
 )# dummy dummy
+# dummy dummy

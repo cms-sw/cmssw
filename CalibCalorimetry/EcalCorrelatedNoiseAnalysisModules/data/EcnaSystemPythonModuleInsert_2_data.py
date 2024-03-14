@@ -26,3 +26,4 @@ process.myCnaPackage = cms.EDAnalyzer("EcnaAnalyzer",
 #-------------- EcnaSystemPythoModuleInsert_2 _data/ end
 
 # dummy dummy
+# dummy dummy

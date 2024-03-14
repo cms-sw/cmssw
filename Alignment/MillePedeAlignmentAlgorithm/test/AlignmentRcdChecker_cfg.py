@@ -46,3 +46,4 @@ process.AlignmentRcdScan.compareStrict = cms.bool(True)
 
 process.p = cms.Path(process.AlignmentRcdScan)
 # dummy dummy
+# dummy dummy

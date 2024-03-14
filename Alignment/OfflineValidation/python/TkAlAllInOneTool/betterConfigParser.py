@@ -255,3 +255,4 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         r'(?P<value>.*))$'                    #   everything up to eol
         )
 # dummy dummy
+# dummy dummy

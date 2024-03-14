@@ -666,3 +666,4 @@ class TaskStats:
         self.nFinished    = 0
         self.nComplete    = 0
 # dummy dummy
+# dummy dummy

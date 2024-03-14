@@ -18,3 +18,4 @@ def fitResidual(histo,nSigmas=2,verbose=False):
 
     return (histo,fitFunc)
 # dummy dummy
+# dummy dummy

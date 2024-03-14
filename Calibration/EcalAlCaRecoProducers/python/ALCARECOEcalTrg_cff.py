@@ -9,3 +9,4 @@ ecalTrgHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 
 seqALCARECOEcalTrg = cms.Sequence(ecalTrgHLT)
 # dummy dummy
+# dummy dummy

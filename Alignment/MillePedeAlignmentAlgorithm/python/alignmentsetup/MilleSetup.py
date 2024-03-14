@@ -72,3 +72,4 @@ def setup(process, input_files, collection,
                          process.AlignmentProducer)
     if hasattr(process, "mps_filters"): process.p.insert(0, process.mps_filters)
 # dummy dummy
+# dummy dummy

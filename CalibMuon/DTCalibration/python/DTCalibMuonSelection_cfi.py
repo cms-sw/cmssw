@@ -8,3 +8,4 @@ DTCalibMuonSelection = cms.EDFilter("DTCalibMuonSelection",
     ptMin = cms.double(3.)
 )
 # dummy dummy
+# dummy dummy

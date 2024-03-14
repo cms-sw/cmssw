@@ -11,3 +11,4 @@ ALCARECOEcalTestPulsesRawHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
 
 seqALCARECOEcalTestPulsesRaw = cms.Sequence(ALCARECOEcalTestPulsesRawHLT)
 # dummy dummy
+# dummy dummy

@@ -62,3 +62,4 @@ ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
                                      SiPixelAliDQMModule*
                                      dqmEnvSiPixelAli)
 # dummy dummy
+# dummy dummy

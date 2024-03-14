@@ -67,3 +67,4 @@ process.dtValidSequence = cms.Sequence(process.resolutionTest*process.qTester)
 process.validation_step = cms.Path(process.dtValidSequence)
 #process.DQM.collectorHost = ''
 # dummy dummy
+# dummy dummy

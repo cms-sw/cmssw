@@ -8,3 +8,4 @@ OutALCARECOEcalCalElectron.outputCommands.extend(MCInfo.outputCommands)
 OutALCARECOEcalCalElectron.outputCommands.extend(HLTInfo.outputCommands)
 
 # dummy dummy
+# dummy dummy

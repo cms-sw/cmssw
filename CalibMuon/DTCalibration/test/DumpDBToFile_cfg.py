@@ -255,3 +255,4 @@ elif TYPE=='ChannelsDB' :  process.p2 = cms.Path(process.dumpChannelsToFile)
 
 
 # dummy dummy
+# dummy dummy

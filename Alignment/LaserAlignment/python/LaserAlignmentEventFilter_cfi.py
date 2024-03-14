@@ -37,3 +37,4 @@ LaserAlignmentEventFilter.SINGLE_CHANNEL_THRESH = cms.uint32(11);
 LaserAlignmentEventFilter.CHANNEL_COUNT_THRESH = cms.uint32(8);
 
 # dummy dummy
+# dummy dummy

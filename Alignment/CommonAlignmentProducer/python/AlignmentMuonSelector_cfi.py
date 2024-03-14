@@ -45,3 +45,4 @@ AlignmentMuonSelector = cms.EDFilter("AlignmentMuonSelectorModule",
     maxMassPair = cms.double(90.0)
 )
 # dummy dummy
+# dummy dummy

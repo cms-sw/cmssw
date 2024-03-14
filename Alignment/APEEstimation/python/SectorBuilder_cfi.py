@@ -33,3 +33,4 @@ EmptySector = cms.PSet(
     posZ         = cms.vdouble()       #(-280.,280.) must contain Intervals
 )
 # dummy dummy
+# dummy dummy

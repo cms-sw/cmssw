@@ -12,3 +12,4 @@ ALCARECORpcCalHLTFilter.throw = False## dont throw except on unknown path name
 #CondDB defined trigger bits
 ALCARECORpcCalHLTFilter.eventSetupPathsKey='RpcCalHLT'
 # dummy dummy
+# dummy dummy

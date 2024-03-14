@@ -6,3 +6,4 @@ TrackerTreeGenerator = cms.EDAnalyzer('TrackerTreeGenerator',
     createEntryForDoubleSidedModule = cms.bool(False)
 )
 # dummy dummy
+# dummy dummy

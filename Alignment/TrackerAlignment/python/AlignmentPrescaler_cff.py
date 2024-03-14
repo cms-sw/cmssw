@@ -7,3 +7,4 @@ AlignmentPrescaler = cms.EDProducer("AlignmentPrescaler",
                                     PrescTreeName=cms.string('AlignmentHitMap')#if you change this be sure to be consistent with the rest of your code
                                     )
 # dummy dummy
+# dummy dummy

@@ -39,3 +39,4 @@ seqALCARECOPromptCalibProdEcalPedestals = cms.Sequence(ALCALRECOEcalTCDSDigis   
                                                        ALCARECOEcalPedestals *
                                                        MEtoEDMConvertEcalPedestals)
 # dummy dummy
+# dummy dummy

@@ -102,3 +102,4 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
         process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = primaryWidth
 
 # dummy dummy
+# dummy dummy

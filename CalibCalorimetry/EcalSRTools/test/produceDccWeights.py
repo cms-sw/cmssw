@@ -58,3 +58,4 @@ process.dccWeightBuilder = cms.EDAnalyzer("EcalDccWeightBuilder",
 
 process.path = cms.Path(process.dccWeightBuilder)
 # dummy dummy
+# dummy dummy

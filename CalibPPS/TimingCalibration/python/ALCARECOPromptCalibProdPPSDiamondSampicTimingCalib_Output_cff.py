@@ -12,3 +12,4 @@ OutALCARECOPromptCalibProdPPSDiamondSampic_noDrop = cms.PSet(
 OutALCARECOPromptCalibProdPPSDiamondSampic = OutALCARECOPromptCalibProdPPSDiamondSampic_noDrop.clone()
 OutALCARECOPromptCalibProdPPSDiamondSampic.outputCommands.insert(0, 'drop *')
 # dummy dummy
+# dummy dummy

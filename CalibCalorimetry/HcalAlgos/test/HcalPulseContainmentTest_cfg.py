@@ -15,3 +15,4 @@ process.hcalPulseContainmentTest = cms.EDAnalyzer("HcalPulseContainmentTest")
 
 process.p1 = cms.Path(process.hcalPulseContainmentTest)
 # dummy dummy
+# dummy dummy

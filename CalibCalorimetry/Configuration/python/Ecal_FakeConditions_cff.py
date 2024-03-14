@@ -7,3 +7,4 @@ from CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi import
 from CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import *
 
 # dummy dummy
+# dummy dummy

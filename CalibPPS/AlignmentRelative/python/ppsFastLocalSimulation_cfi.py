@@ -51,3 +51,4 @@ ppsFastLocalSimulation = cms.EDProducer("PPSFastLocalSimulation",
     insensitiveMarginStrips = cms.double(34E-3), #mm, save value as RPActiveEdgePosition in SimTotem/RPDigiProducer/python/RPSiDetConf_cfi.py
 )
 # dummy dummy
+# dummy dummy

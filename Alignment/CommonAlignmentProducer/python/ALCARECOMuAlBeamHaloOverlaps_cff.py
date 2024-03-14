@@ -36,3 +36,4 @@ ALCARECOMuAlBeamHaloOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
 
 seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + ALCARECOMuAlBeamHaloOverlapsDCSFilter + ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
 # dummy dummy
+# dummy dummy

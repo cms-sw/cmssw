@@ -80,3 +80,4 @@ parser = make_parser()
 parser.setContentHandler(ContentHandler())
 parser.parse(stdin)
 # dummy dummy
+# dummy dummy
