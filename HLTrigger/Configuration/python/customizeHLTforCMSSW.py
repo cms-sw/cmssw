@@ -238,6 +238,15 @@ def customizeHLTfor43885(process):
         if hasattr(producer, 'isIeta'):
             delattr(producer, 'isIeta')
     return process
+
+def customizeHLTfor44054(process):
+    """
+    Customisation for running HLT with the updated L1 UTM and AXOL1TL condition parsing from the PR 44054
+    """
+    for producer in producers_by_type(process, "L1TGlobalProducer"):
+        if hasattr(producer, 'AXOL1TLModelVersion'):
+            delattr(producer, 'AXOL1TLModelVersion')
+    return process
     
 def checkHLTfor43774(process):
     filt_types = ["HLTEgammaGenericFilter","HLTEgammaGenericQuadraticEtaFilter","HLTEgammaGenericQuadraticFilter","HLTElectronGenericFilter"]
@@ -266,5 +275,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor43885(process)
     process = checkHLTfor43774(process)
+
+    # customizes AXOL1TL condition in the L1 menu 
+    process = customizeHLTfor44054(process)
 
     return process
