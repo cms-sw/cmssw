@@ -24,3 +24,4 @@ seqALCARECOEcalCalEtaCalib = cms.Sequence(ecaletaCalibHLT*ecalEtaCorrected)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

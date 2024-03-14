@@ -33,3 +33,4 @@ seqALCARECOHcalCalNoise = cms.Sequence(noiseHLT*HcalNoiseProd)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

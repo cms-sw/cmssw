@@ -26,3 +26,4 @@ seqALCARECOHcalCalHO = cms.Sequence(ALCARECOHcalCalHOHLT*hoCalibProducer)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

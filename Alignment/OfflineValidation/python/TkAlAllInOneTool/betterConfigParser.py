@@ -258,3 +258,4 @@ class BetterConfigParser(ConfigParser.ConfigParser):
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy

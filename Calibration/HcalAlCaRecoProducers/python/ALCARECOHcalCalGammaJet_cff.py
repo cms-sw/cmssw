@@ -11,3 +11,4 @@ seqALCARECOHcalCalGammaJet = cms.Sequence(gammajetHLT*GammaJetProd)
 # dummy dummy
 # dummy dummy
 # dummy dummy
+# dummy dummy
