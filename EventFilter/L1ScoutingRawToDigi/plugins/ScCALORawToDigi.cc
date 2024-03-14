@@ -48,7 +48,7 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::string dataSourceMode = dataSourceConfig_.getParameter<std::string>("dataSourceMode");
   if (dataSourceMode == "DMA") {
     // Packet from DMA contains all the objects
-    int sourceId = dataSourceConfig_.getParameter<int>("sourceId");
+    int sourceId = dataSourceConfig_.getParameter<int>("dmaSourceId");
     if (sourceId != SDSNumbering::CaloSDSID)
       edm::LogWarning("ScCaloRawToDIgi::produce") << "Provided an unexpected source ID: " << sourceId << "/"
                                                   << SDSNumbering::CaloSDSID << " [provided/expected]";
@@ -430,6 +430,7 @@ void ScCaloRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descripti
     dataSource.add<std::vector<int>>("eGammaSourceIdList", std::vector<int>({23}));
     dataSource.add<std::vector<int>>("tauSourceIdList", std::vector<int>({25}));
     dataSource.add<std::vector<int>>("etSumSourceIdList", std::vector<int>({24}));
+    dataSource.add<int>("dmaSourceId", 2);
     desc.add("dataSource", dataSource);
   }
   desc.add<bool>("enableAllSums", true);
