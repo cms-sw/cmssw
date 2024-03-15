@@ -29,7 +29,8 @@ autoNANO = {
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
-    'MUPOG' : {'customize' : 'PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
+    'MUPOG' : {'sequence': '@PHYS',
+               'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
     # MUDPG flavours: use their own sequence
     'MUDPG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
