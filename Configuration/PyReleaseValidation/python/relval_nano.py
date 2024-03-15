@@ -152,13 +152,12 @@ steps['NANO_data13.0']=merge([{'--era':'Run3',
 steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
                                      steps['NANO_data13.0']])
 
-
 steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
                                    '--conditions':'auto:run3_data',
                                    '-n' : '100',
                                    '--era' : 'Run3',
                                    '--datatier':'NANOAOD',
-                                   '--eventcontent':'NANOAOD'}])
+                                '--eventcontent':'NANOAOD'}])
 
 steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--conditions':'auto:run3_data',
@@ -168,7 +167,14 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--eventcontent':'NANOAOD'}])
 
 steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
-                                    steps['NANO_data13.0']])
+                                   steps['NANO_data13.0']])
+
+steps['l1DPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@L1DPG',
+                                    '--conditions':'auto:run3_data',
+                                    '-n' : '100',
+                                    '--era' : 'Run3',
+                                    '--datatier':'NANOAOD',
+                                    '--eventcontent':'NANOAOD'}])
 
 steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_data13.0']])
@@ -257,6 +263,7 @@ workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.
 workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
 workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
 workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
+workflows[_wfn()] = ['l1DPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'l1DPGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
 workflows[_wfn()] = ['lepTimeLifeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'lepTimeLifeNANO_data13.0']]

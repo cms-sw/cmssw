@@ -11,6 +11,8 @@ l1tnanoMetadata = cms.EDProducer("UniqueStringProducer",
 
 l1tNanoTask = cms.Task(nanoMetadata,l1TablesTask)
 
+l1tNanoSequence = cms.Sequence(l1tNanoTask)
+
 def addEmulObjects(process):
     
     process.l1tNanoTask.add(l1EmulObjTablesTask)
