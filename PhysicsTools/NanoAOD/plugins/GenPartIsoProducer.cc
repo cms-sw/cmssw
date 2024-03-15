@@ -112,7 +112,7 @@ float GenPartIsoProducer::computeIso(TLorentzVector thisPart, edm::Handle<edm::V
   for(size_t k=0; k<packedgenParticles->size();k++){
     if((*packedgenParticles)[k].status() != 1) continue;
     if (abs((*packedgenParticles)[k].pdgId())==12 || abs((*packedgenParticles)[k].pdgId())==14 || abs((*packedgenParticles)[k].pdgId())==16) continue;
-    if (abs((*packedgenParticles)[k].pt() - thisPart.Pt())<0.1 && abs((*packedgenParticles)[k].eta() - thisPart.Eta())<0.1 && abs((*packedgenParticles)[k].phi() - thisPart.Phi())<0.1) continue;
+    if ( reco::deltaR(thisPart.Eta(), thisPart.Phi(), (*packedgenParticles)[k].eta(), (*packedgenParticles)[k].phi())<0.001 ) continue;
     if (skip_leptons == true) {
       if ((abs((*packedgenParticles)[k].pdgId())==11 || abs((*packedgenParticles)[k].pdgId())==13)) continue;
       if (gen_fsrset.find(k)!=gen_fsrset.end()) continue;
