@@ -190,7 +190,7 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
-steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM ', '-n' : '1000'},
+steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
 steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
