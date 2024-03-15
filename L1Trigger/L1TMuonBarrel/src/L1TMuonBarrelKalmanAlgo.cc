@@ -99,7 +99,19 @@ l1t::RegionalMuonCand L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack&
   int processor = track.sector();
   int HF = track.hasFineEta();
 
-  int quality = 12 | (rank(track) >> 6);
+
+  
+  int quality;
+  int r = rank(track);
+  if (r<192)
+    quality=12;
+  else if (r<204)
+    quality=13;
+  else if (r<220)
+    quality=14;
+  else 
+    quality=15;
+
 
   int dxy = abs(track.dxy()) >> 8;
   if (dxy > 3)
