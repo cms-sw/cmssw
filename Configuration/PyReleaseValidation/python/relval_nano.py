@@ -178,6 +178,10 @@ steps['EGMNano_mc13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000
 steps['jmeNano_data13.0'] = merge([{'-s':'NANO:@JME', '-n' : '1000'},
                                   steps['NANO_data13.0']])
 
+steps['lepTimeLifeNANO_data13.0']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
+                                          '-n' : '1000'},
+                                         steps['NANO_data13.0']])
+
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
                                                dataSet='/RelValTTbar_14TeV/CMSSW_13_2_0-PU_131X_mcRun3_2023_realistic_v9-v1/MINIAODSIM')}
@@ -194,6 +198,10 @@ steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000
 
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                      steps['NANO_mc13.2']])
+
+steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
+                                        '-n' : '1000'},
+                                       steps['NANO_mc13.2']])
 
 ##13.X INPUT
 steps['ScoutingPFRun32022DRAW13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
