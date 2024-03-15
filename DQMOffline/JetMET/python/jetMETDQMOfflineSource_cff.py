@@ -92,7 +92,7 @@ dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
     dqmAk4PFCHSL1FastL2L3Corrector
 )
 
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFPuppiL1FastL2L3ResidualCorrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFPuppiL1FastL2L3ResidualCorrectorChain,ak4PFPuppiL1FastL2L3ResidualCorrector,ak4PFPuppiL1FastL2L3Corrector,ak4PFPuppiResidualCorrector,ak4PFPuppiL3AbsoluteCorrector,ak4PFPuppiL2RelativeCorrector,ak4PFPuppiL1FastjetCorrector
 
 dqmAk4PFPuppiL1FastL2L3ResidualCorrector = ak4PFPuppiL1FastL2L3ResidualCorrector.clone()
 dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain = cms.Sequence(
@@ -112,7 +112,10 @@ jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
                          ak4PFCHSL2RelativeCorrector,
                          ak4PFCHSL3AbsoluteCorrector,
                          ak4PFCHSResidualCorrector,
-                         ak4PFPuppiL1FastL2L3ResidualCorrector,
+                         ak4PFPuppiL1FastjetCorrector,
+                         ak4PFPuppiL2RelativeCorrector,
+                         ak4PFPuppiL3AbsoluteCorrector,
+                         ak4PFPuppiResidualCorrector,
 )
 jetPreDQMSeq=cms.Sequence(jetPreDQMTask)
 
