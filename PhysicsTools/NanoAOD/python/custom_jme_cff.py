@@ -1232,8 +1232,11 @@ def RemoveAllJetPtCuts(proc):
 # CUSTOMIZATION function
 #
 #===========================================================================
-def PrepJMECustomNanoAOD(process,runOnMC):
-
+def PrepJMECustomNanoAOD(process):
+  ## TODO : find a better way to handle data or MC by modifying the proper Tasks
+  runOnMC=True
+  if hasattr(process,"NANOEDMAODoutput") or hasattr(process,"NANOAODoutput"):
+    runOnMC = False
   ############################################################################
   # Remove all default jet pt cuts from jets_cff.py
   ############################################################################
@@ -1342,13 +1345,4 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   if runOnMC:
     process.genWeightsTable.keepAllPSWeights = True
 
-  return process
-
-def PrepJMECustomNanoAOD_MC(process):
-  process = PrepJMECustomNanoAOD(process,runOnMC=True)
-
-  return process
-
-def PrepJMECustomNanoAOD_Data(process):
-  process = PrepJMECustomNanoAOD(process,runOnMC=False)
   return process
