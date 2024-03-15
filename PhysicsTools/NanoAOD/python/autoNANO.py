@@ -32,6 +32,9 @@ autoNANO = {
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
     'JME' : { 'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
+    # L1 DPG (standalone with full calo TP info, L1T reemulation customization)
+    'L1DPG' : {'sequence': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoSequence',
+               'customize': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.addCaloFull,L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAWsimHcalTP'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : {'sequence': '@PHYS',
                'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
