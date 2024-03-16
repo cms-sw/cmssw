@@ -336,19 +336,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::fillDescriptions(edm::ConfigurationDescripti
   descriptions.addDefault(desc);
 }
 
-// Initial version, X.0.0, input/output typing
-typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummary_CICADA_v1p0p0;
-typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummary_CICADA_v2p0p0;
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_v1p0p0);
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_v2p0p0);
-// X.1.0 version input.output typing
-typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummary_CICADA_v1p1p0;
-typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummary_CICADA_v2p1p0;
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_v1p1p0);
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_v2p1p0);
-// X.1.1 version input/output typing
-typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8, AP_RND, AP_SAT, AP_SAT>> L1TCaloSummary_CICADA_vXp1p1;
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_vXp1p1);
-// X.1.2 version input/output typing
-typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8, AP_RND_CONV, AP_SAT>> L1TCaloSummary_CICADA_vXp1p2;
-DEFINE_FWK_MODULE(L1TCaloSummary_CICADA_vXp1p2);
+typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummaryCICADAv1;
+typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummaryCICADAv2;
+//define type version plugins
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv1);
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv2);
