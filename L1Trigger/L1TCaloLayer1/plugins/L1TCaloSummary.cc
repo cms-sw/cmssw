@@ -109,11 +109,9 @@ private:
 
   UCTLayer1* layer1;
 
-  hls4mlEmulator::ModelLoader loader;
-  std::shared_ptr<hls4mlEmulator::Model> model;
-
   bool overwriteWithTestPatterns;
   std::vector<edm::ParameterSet> testPatterns;
+  std::string modelName;
 };
 
 //
@@ -141,9 +139,9 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
       regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
-      loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
       overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
-      testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {
+      testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")),
+      modelName(iConfig.getParameter<string>("CICADAModelVersion")) {
   std::vector<double> pumLUTData;
   char pumLUTString[10];
   for (uint32_t pumBin = 0; pumBin < nPumBins; pumBin++) {
@@ -162,10 +160,8 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
                                         << "; Will use what is provided :(" << std::endl;
     }
   }
-  produces<L1JetParticleCollection>("Boosted");
 
-  //anomaly trigger loading
-  model = loader.load_model();
+  produces<L1JetParticleCollection>("Boosted");
   produces<float>("CICADAScore");
 }
 
@@ -183,6 +179,11 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   std::unique_ptr<float> CICADAScore = std::make_unique<float>();
 
   UCTGeometry g;
+
+  hls4mlEmulator::ModelLoader loader(modelName);
+  std::shared_ptr<hls4mlEmulator::Model> model;
+  //anomaly trigger loading
+  model = loader.load_model();
 
   // Here we read region data from the region collection created by L1TCaloLayer1 instead of
   // independently creating regions from TPGs for processing by the summary card. This results
