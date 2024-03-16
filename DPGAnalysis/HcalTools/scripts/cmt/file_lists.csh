@@ -27,12 +27,27 @@ echo ${i}
 #dasgoclient --query="file site=T2_CH_CERN dataset= /ZeroBias/Run2022E-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 #dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2022E-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 #dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2022F-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
-dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2022G-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2022G-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 #dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2022H-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2023C-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2023D-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2023E-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HcalNZS/Run2023F-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HIHcalNZS/HIRun2023A-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HIPhysicsRawPrime0/HIRun2023A-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
+
+#dasgoclient --query="file site=T2_CH_CERN dataset= /HIHLTPhysics/HIRun2023A-v1/RAW run=${i}" --limit=0 | sed "s/\/store/\'\/store/g" | sed "s/root/root\',/g"> TXT_${1}/run_${i}
 
 
 #
 ##
+#
 
 end
 

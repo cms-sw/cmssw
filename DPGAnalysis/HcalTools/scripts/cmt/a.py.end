@@ -2,9 +2,9 @@
     secondaryFileNames = cms.untracked.vstring()
 )
 
-process.options = cms.untracked.PSet(
-        SkipEvent = cms.untracked.vstring('ProductNotFound')
-)
+#process.options = cms.untracked.PSet(
+#        SkipEvent = cms.untracked.vstring('ProductNotFound')
+#)
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -91,7 +91,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   # -53 for  BAD HBHEHF channels from study on shape Ratio
                                   #Verbosity = cms.untracked.int32(-53),
                                   ratioHBMin = cms.double(0.10),
-                                  ratioHBMax = cms.double(0.95),
+                                  ratioHBMax = cms.double(0.99),
                                   ratioHEMin = cms.double(0.10),
                                   ratioHEMax = cms.double(0.98),
                                   ratioHFMin = cms.double(0.30),
@@ -100,7 +100,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   ratioHOMax = cms.double(0.96),
                                   # -54 for  BAD HBHEHF channels from study on RMS of shapes
                                   #Verbosity = cms.untracked.int32(-54),
-                                  rmsHBMin = cms.double(1.0),
+                                  rmsHBMin = cms.double(0.6),
                                   rmsHBMax = cms.double(3.9),
                                   rmsHEMin = cms.double(1.0),
                                   rmsHEMax = cms.double(3.9),
@@ -110,7 +110,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   rmsHOMax = cms.double(4.4),
                                   # -55 for  BAD HBHEHF channels from study on TSmean of shapes
                                   #Verbosity = cms.untracked.int32(-55),
-                                  TSmeanHBMin = cms.double(1.8),
+                                  TSmeanHBMin = cms.double(0.8),
                                   TSmeanHBMax = cms.double(8.0),
                                   TSmeanHEMin = cms.double(1.8),
                                   TSmeanHEMax = cms.double(8.0),
@@ -130,14 +130,14 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   TSpeakHOMax = cms.double(6.5),
                                   # -56 for  BAD HBHEHOHF channels from study on ADC Amplitude
                                   #Verbosity = cms.untracked.int32(-56),
-                                  ADCAmplHBMin = cms.double(10000.),
+                                  ADCAmplHBMin = cms.double(100.),
                                   ADCAmplHBMax = cms.double(300000.),
-                                  ADCAmplHEMin = cms.double(20000.),  
+                                  ADCAmplHEMin = cms.double(10.),  
                                   ADCAmplHEMax = cms.double(300000.),
-                                  ADCAmplHFMin = cms.double(50.),
-                                  ADCAmplHFMax = cms.double(9000.),
-                                  ADCAmplHOMin = cms.double(50.),
-                                  ADCAmplHOMax = cms.double(9000.),
+                                  ADCAmplHFMin = cms.double(100.),
+                                  ADCAmplHFMax = cms.double(100000.),
+                                  ADCAmplHOMin = cms.double(10.),
+                                  ADCAmplHOMax = cms.double(5000.),
                                   #
                                   # to see channels w/ PedestalSigma < cut
                                   #Verbosity = cms.untracked.int32(-57),
@@ -245,23 +245,23 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   # cuts on Nbadchannels to see LS dependences:
                                   # Verbosity = cms.untracked.int32(-77),
                                   # to select abnormal events,for which Nbcs > this limits
-                                  lsdep_cut1_peak_HBdepth1 = cms.int32(20),
-                                  lsdep_cut1_peak_HBdepth2 = cms.int32(7),
-                                  lsdep_cut1_peak_HEdepth1 = cms.int32(16),
-                                  lsdep_cut1_peak_HEdepth2 = cms.int32(13),
-                                  lsdep_cut1_peak_HEdepth3 = cms.int32(4),
-                                  lsdep_cut1_peak_HFdepth1 = cms.int32(10),
-                                  lsdep_cut1_peak_HFdepth2 = cms.int32(5),
-                                  lsdep_cut1_peak_HOdepth4 = cms.int32(45),
+                                  lsdep_cut1_peak_HBdepth1 = cms.int32(0),
+                                  lsdep_cut1_peak_HBdepth2 = cms.int32(0),
+                                  lsdep_cut1_peak_HEdepth1 = cms.int32(0),
+                                  lsdep_cut1_peak_HEdepth2 = cms.int32(0),
+                                  lsdep_cut1_peak_HEdepth3 = cms.int32(0),
+                                  lsdep_cut1_peak_HFdepth1 = cms.int32(0),
+                                  lsdep_cut1_peak_HFdepth2 = cms.int32(0),
+                                  lsdep_cut1_peak_HOdepth4 = cms.int32(0),
                                   # to select events with Nbcs > this limits
-                                  lsdep_cut3_max_HBdepth1 = cms.int32(19),
-                                  lsdep_cut3_max_HBdepth2 = cms.int32(6),
-                                  lsdep_cut3_max_HEdepth1 = cms.int32(15),
-                                  lsdep_cut3_max_HEdepth2 = cms.int32(12),
-                                  lsdep_cut3_max_HEdepth3 = cms.int32(3),
-                                  lsdep_cut3_max_HFdepth1 = cms.int32(9),
-                                  lsdep_cut3_max_HFdepth2 = cms.int32(4),
-                                  lsdep_cut3_max_HOdepth4 = cms.int32(40),
+                                  lsdep_cut3_max_HBdepth1 = cms.int32(0),
+                                  lsdep_cut3_max_HBdepth2 = cms.int32(0),
+                                  lsdep_cut3_max_HEdepth1 = cms.int32(0),
+                                  lsdep_cut3_max_HEdepth2 = cms.int32(0),
+                                  lsdep_cut3_max_HEdepth3 = cms.int32(0),
+                                  lsdep_cut3_max_HFdepth1 = cms.int32(0),
+                                  lsdep_cut3_max_HFdepth2 = cms.int32(0),
+                                  lsdep_cut3_max_HOdepth4 = cms.int32(0),
                                   #
                                   #
                                   #old was for runs:
@@ -270,23 +270,23 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #                                  nbadchannels3 = cms.int32(50),
                                   #
                                   #Verbosity = cms.untracked.int32(-79),
-                                  # cuts on Estimator1 to see LS dependences: default for normal pp - 2500 everywhere;
-                                  lsdep_estimator1_HBdepth1 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth2 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth3 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth4 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth1 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth2 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth3 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth4 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth5 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth6 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth7 = cms.double(1500.),
-                                  lsdep_estimator1_HFdepth1 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth2 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth3 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth4 = cms.double(140.),
-                                  lsdep_estimator1_HOdepth4 = cms.double(180.),
+                                  # cuts on Estimator1 to see LS dependences
+                                  lsdep_estimator1_HBdepth1 = cms.double(1700.),
+                                  lsdep_estimator1_HBdepth2 = cms.double(2000.),
+                                  lsdep_estimator1_HBdepth3 = cms.double(2000.),
+                                  lsdep_estimator1_HBdepth4 = cms.double(1800.),
+                                  lsdep_estimator1_HEdepth1 = cms.double(10000.),
+                                  lsdep_estimator1_HEdepth2 = cms.double(4500.),
+                                  lsdep_estimator1_HEdepth3 = cms.double(3000.),
+                                  lsdep_estimator1_HEdepth4 = cms.double(3000.),
+                                  lsdep_estimator1_HEdepth5 = cms.double(3000.),
+                                  lsdep_estimator1_HEdepth6 = cms.double(3000.),
+                                  lsdep_estimator1_HEdepth7 = cms.double(6500.),
+                                  lsdep_estimator1_HFdepth1 = cms.double(300.),
+                                  lsdep_estimator1_HFdepth2 = cms.double(300.),
+                                  lsdep_estimator1_HFdepth3 = cms.double(300.),
+                                  lsdep_estimator1_HFdepth4 = cms.double(300.),
+                                  lsdep_estimator1_HOdepth4 = cms.double(150.),
                                   # cuts on Estimator2 to see LS dependences: default 7.
                                   lsdep_estimator2_HBdepth1 = cms.double(7.),
                                   lsdep_estimator2_HBdepth2 = cms.double(7.),
