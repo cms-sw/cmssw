@@ -79,7 +79,6 @@ def getFilesForRun(blob):
     """
     returns the list of list files associated with a given dataset for a certain run
     """
-
     cmd2 = ' dasgoclient -limit=0 -query \'file run='+blob[0]+' dataset='+blob[1]+'\''
     q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
     out, err = q.communicate()
@@ -237,7 +236,7 @@ def mkdir_eos(out_path):
             p.wait()
 
     # now check that the directory exists
-    command2="/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+out_path
+    command2="eos ls "+out_path
     p = subprocess.Popen(command2,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     p.wait()
@@ -350,14 +349,20 @@ def main():
 
     pool = multiprocessing.Pool(processes=20)  # start 20 worker processes
     count = pool.map(getFilesForRun,mytuple)
-    file_info = dict(zip(runs, count))
 
     if(opts.verbose):
-        print(file_info)
+        print("printing count")
+        pprint.pprint(count)
+
+    # limit the runs in the dictionary to the filtered ones
+    file_info = dict(zip([run for run, _ in mytuple], count))
+
+    if(opts.verbose):
+        print("printing file_info")
+        pprint.pprint(file_info)
 
     count=0
     for run in runs:
-        count=count+1
         #if(count>10): 
         #    continue
         #run = run.strip("[").strip("]")
@@ -370,6 +375,7 @@ def main():
             print("=====> excluding run:",run)
             continue
 
+        count=count+1
         files = file_info[run]
         if(opts.verbose):
             print(run, files)
@@ -417,9 +423,9 @@ def main():
             key = key.split(":", 1)[1]
 
         job_submit_file = write_HTCondor_submit_file(bashdir,"batchHarvester_"+key,count,None)
+        os.system("chmod u+x "+bashdir+"/*.sh")
 
         if opts.submit:
-            os.system("chmod u+x "+bashdir+"/*.sh")
             submissionCommand = "condor_submit "+job_submit_file
             print(submissionCommand)
             os.system(submissionCommand)
