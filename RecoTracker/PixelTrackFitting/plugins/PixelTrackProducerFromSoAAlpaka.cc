@@ -1,12 +1,20 @@
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <numeric>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
-#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
@@ -22,12 +30,10 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 
 #include "storeTracks.h"
 
@@ -40,13 +46,12 @@
 
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
-  using TkSoAHost = TracksHost<TrackerTraits>;
-  using tracksHelpers = TracksUtilities<TrackerTraits>;
+  using TrackSoAHost = TracksHost<TrackerTraits>;
+  using TracksHelpers = TracksUtilities<TrackerTraits>;
   using HMSstorage = std::vector<uint32_t>;
-
-public:
   using IndToEdm = std::vector<uint32_t>;
 
+public:
   explicit PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig);
   ~PixelTrackProducerFromSoAAlpaka() override = default;
 
@@ -57,7 +62,7 @@ private:
 
   // Event Data tokens
   const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
-  const edm::EDGetTokenT<TkSoAHost> tokenTrack_;
+  const edm::EDGetTokenT<TrackSoAHost> tokenTrack_;
   const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
   const edm::EDGetTokenT<HMSstorage> hmsToken_;
   // Event Setup tokens
@@ -180,7 +185,7 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
   indToEdm.resize(sortIdxs.size(), -1);
   for (const auto &it : sortIdxs) {
-    auto nHits = tracksHelpers::nHits(tsoa.view(), it);
+    auto nHits = TracksHelpers::nHits(tsoa.view(), it);
     assert(nHits >= 3);
     auto q = quality[it];
 
@@ -197,13 +202,12 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
       hits[iHit] = hitmap[*(b + iHit)];
 
     // mind: this values are respect the beamspot!
-
     float chi2 = tsoa.view()[it].chi2();
     float phi = reco::phi(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
-    tracksHelpers::template copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
+    TracksHelpers::template copyToDense<riemannFit::Vector5d, riemannFit::Matrix5d>(tsoa.view(), ipar, icov, it);
     riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
@@ -249,6 +253,7 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
 #ifdef GPU_DEBUG
   std::cout << "processed " << nt << " good tuples " << tracks.size() << " out of " << indToEdm.size() << std::endl;
 #endif
+
   // store tracks
   storeTracks(iEvent, tracks, httopo);
   iEvent.put(std::move(indToEdmP));
