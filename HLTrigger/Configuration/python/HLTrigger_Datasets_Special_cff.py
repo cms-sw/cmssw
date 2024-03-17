@@ -10,8 +10,8 @@ streamPhysicsCommissioning_datasetCommissioning_selector.hltResults = cms.InputT
 streamPhysicsCommissioning_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetCommissioning_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring(
-    'HLT_IsoTrackHB_v10',
-    'HLT_IsoTrackHE_v10',
+    'HLT_IsoTrackHB_v11',
+    'HLT_IsoTrackHE_v11',
     'HLT_L1BptxXOR_v1',
     'HLT_L1SingleMuCosmics_EMTF_v1'
 )
@@ -24,7 +24,7 @@ streamPhysicsCommissioning_datasetCosmics_selector.triggerConditions = cms.vstri
     'HLT_L1SingleMu3_v2',
     'HLT_L1SingleMu5_v2',
     'HLT_L1SingleMu7_v2',
-    'HLT_L1SingleMuCosmics_v4',
+    'HLT_L1SingleMuCosmics_v5',
     'HLT_L1SingleMuOpen_DT_v3',
     'HLT_L1SingleMuOpen_v3'
 )
@@ -33,15 +33,15 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v10')
+streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v11')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHcalNZS_selector
 streamPhysicsCommissioning_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring(
-    'HLT_HcalNZS_v17',
-    'HLT_HcalPhiSym_v19'
+    'HLT_HcalNZS_v18',
+    'HLT_HcalPhiSym_v20'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMinimumBias_selector
@@ -85,10 +85,7 @@ streamPhysicsCommissioning_datasetMinimumBias_selector.triggerConditions = cms.v
     'HLT_L1SingleJet35_v2',
     'HLT_L1SingleJet60_v1',
     'HLT_L1SingleJet8erHE_v2',
-    'HLT_L1SingleJet90_v1',
-    'HLT_Physics_v10',
-    'HLT_Random_v3',
-    'HLT_ZeroBias_v9'
+    'HLT_L1SingleJet90_v1'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMuonShower_selector
@@ -102,10 +99,12 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.hltResults = cms.InputTag('Tri
 streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
-    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v10',
-    'HLT_L2Mu10_NoVertex_NoBPTX_v11',
-    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v10',
-    'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v9'
+    'HLT_CDC_L2cosmic_10_er1p0_v7',
+    'HLT_CDC_L2cosmic_5p5_er1p0_v7',
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v11',
+    'HLT_L2Mu10_NoVertex_NoBPTX_v12',
+    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v11',
+    'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v10'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetZeroBias_selector
@@ -114,13 +113,13 @@ streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag(''
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring(
     'HLT_Random_v3',
-    'HLT_ZeroBias_Alignment_v4',
-    'HLT_ZeroBias_FirstBXAfterTrain_v6',
-    'HLT_ZeroBias_FirstCollisionAfterAbortGap_v8',
-    'HLT_ZeroBias_FirstCollisionInTrain_v7',
-    'HLT_ZeroBias_IsolatedBunches_v8',
-    'HLT_ZeroBias_LastCollisionInTrain_v6',
-    'HLT_ZeroBias_v9'
+    'HLT_ZeroBias_Alignment_v5',
+    'HLT_ZeroBias_FirstBXAfterTrain_v7',
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_v9',
+    'HLT_ZeroBias_FirstCollisionInTrain_v8',
+    'HLT_ZeroBias_IsolatedBunches_v9',
+    'HLT_ZeroBias_LastCollisionInTrain_v7',
+    'HLT_ZeroBias_v10'
 )
 
 
