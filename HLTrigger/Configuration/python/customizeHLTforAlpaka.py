@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from HeterogeneousCore.AlpakaCore.functions import *
-
-from HLTrigger.Configuration.common import producers_by_type
+from HLTrigger.Configuration.common import *
 
 ## PF HLT in Alpaka
 def customizeHLTforAlpakaParticleFlowClustering(process):
@@ -270,6 +269,7 @@ def customizeHLTforAlpakaParticleFlowClustering(process):
 
     return process
 
+
 ## Pixel HLT in Alpaka
 def customizeHLTforDQMGPUvsCPUPixel(process):
     '''Ad-hoc changes to test HLT config containing only DQM_PixelReconstruction_v and DQMGPUvsCPU stream
@@ -386,6 +386,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
             process.__delattr__(delMod)
 
     return process
+
 
 def customizeHLTforAlpakaPixelRecoLocal(process):
     '''Customisation to introduce the Local Pixel Reconstruction in Alpaka
@@ -629,6 +630,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
 
     return process
 
+
 def customizeHLTforAlpakaPixelRecoTracking(process):
     '''Customisation to introduce the Pixel-Track Reconstruction in Alpaka
     '''
@@ -745,6 +747,7 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
 
     return process
 
+
 def customizeHLTforAlpakaPixelRecoVertexing(process):
     '''Customisation to introduce the Pixel-Vertex Reconstruction in Alpaka
     '''
@@ -833,6 +836,7 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
 
     return process
 
+
 def customizeHLTforAlpakaPixelReco(process):
     '''Customisation to introduce the Pixel Local+Track+Vertex Reconstruction in Alpaka
     '''
@@ -842,6 +846,7 @@ def customizeHLTforAlpakaPixelReco(process):
     process = customizeHLTforDQMGPUvsCPUPixel(process)
 
     return process
+
 
 ## ECAL HLT in Alpaka
 def customizeHLTforAlpakaEcalLocalReco(process):
@@ -1051,10 +1056,35 @@ def customizeHLTforAlpakaEcalLocalReco(process):
 
     return process
 
-def customizeHLTforAlpaka(process):
 
+def customizeHLTforAlpakaStatus(process):
+
+    if not hasattr(process, 'statusOnGPU'):
+        return process
+
+    process.hltBackend = cms.EDProducer('AlpakaBackendProducer@alpaka')
+
+    insert_modules_before(process, process.statusOnGPU, process.hltBackend)
+
+    del process.statusOnGPU
+
+    process.hltStatusOnGPUFilter = cms.EDFilter('AlpakaBackendFilter',
+        producer = cms.InputTag('hltBackend', 'backend'),
+        backends = cms.vstring('CudaAsync', 'ROCmAsync')
+    )
+
+    insert_modules_before(process, process.statusOnGPUFilter, process.hltStatusOnGPUFilter)
+    insert_modules_before(process, ~process.statusOnGPUFilter, ~process.hltStatusOnGPUFilter)
+
+    del process.statusOnGPUFilter
+
+    return process
+
+
+def customizeHLTforAlpaka(process):
     process.load('Configuration.StandardSequences.Accelerators_cff')
 
+    process = customizeHLTforAlpakaStatus(process)
     process = customizeHLTforAlpakaPixelReco(process)
     process = customizeHLTforAlpakaEcalLocalReco(process)
     process = customizeHLTforAlpakaParticleFlowClustering(process)
