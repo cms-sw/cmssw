@@ -1013,9 +1013,10 @@ namespace p2eg {
     bool is_iso;
     bool is_looseTkiso;
 
-    unsigned int hoe;     // not defined
-    unsigned int fb;      // not defined
-    unsigned int timing;  // not defined
+    unsigned int hoe;       // not defined
+    unsigned int hoe_flag;  // not defined
+    unsigned int fb;        // not defined
+    unsigned int timing;    // not defined
     ap_uint<2>
         brems;  // 0 if no brems applied, 1 or 2 if brems applied (one for + direction, one for - direction: check firmware)
 
@@ -1065,6 +1066,7 @@ namespace p2eg {
       is_iso = false;         // initialize: no info from RCT, so set it to false
       is_looseTkiso = false;  // initialize: no info from RCT, so set it to false
       hoe = 0;                // initialize: no info from RCT, so set it to null
+      hoe_flag = 0;           // initialize: no info from RCT, so set it to null
       fb = 0;                 // initialize: no info from RCT, so set it to null
       timing = 0;             // initialize: no info from RCT, so set it to null
       brems = rctCluster.brems;
@@ -1245,15 +1247,16 @@ namespace p2eg {
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
       return l1tp2::DigitizedClusterCorrelator(
           etFloat(),  // technically we are just multiplying and then dividing again by the LSB
-          towEta,
-          towPhi - corrTowPhiOffset,
-          crEta,
-          crPhi,
+          globalClusteriEta(),
+          ((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) +
+              crPhi,  // cannot use globalClusteriPhi() helper function because correlator offset is different than GCT offset
           hoe,
-          is_iso,
+          hoe_flag,
+          iso,
+          (is_iso) | (is_looseTkiso << 1),  // 2 bits: e.g. 0b10 means is_looseTkiso was true, and is_iso was false
           fb,
           timing,
-          is_ss,
+          (is_ss) | (is_looseTkss << 1),  // 2 bits (same as iso flags) is_ss in lowest bit, is_looseTkss in higher bit
           brems,
           nGCTCard);
     }
