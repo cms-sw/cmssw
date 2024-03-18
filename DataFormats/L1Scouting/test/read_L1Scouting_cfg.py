@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("READRAW")
+process = cms.Process("READ")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
