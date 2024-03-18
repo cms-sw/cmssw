@@ -163,7 +163,6 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                        '-n' : '100',},
                                       steps['NANO_data13.0']])
 
-
 steps['hcalDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,RECO,NANO:@HCAL',
                                       '-n' : '100',
                                       '--processName': 'NANO',},
@@ -179,11 +178,9 @@ steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' :
 
 steps['l1DPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@L1DPG',
                                     '--conditions':'auto:run3_data',
-                                    '-n' : '100',
-                                    '--era' : 'Run3',
-                                    '--datatier':'NANOAOD',
-                                    '--eventcontent':'NANOAOD'}])
-
+                                    '-n' : '100'},
+                                   steps['NANO_data13.0']])
+ 
 steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_data13.0']])
 
