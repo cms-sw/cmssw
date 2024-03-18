@@ -137,11 +137,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void SiPixelRawToCluster<TrackerTraits>::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
-    [[maybe_unused]] auto const& hMap = iSetup.getData(mapToken_);
+    auto const& hMap = iSetup.getData(mapToken_);
     auto const& dGains = iSetup.getData(gainsToken_);
-    auto modulesToUnpackRegional =
-        cms::alpakatools::make_device_buffer<unsigned char[]>(iEvent.queue(), ::pixelgpudetails::MAX_SIZE);
-    const unsigned char* modulesToUnpack;
+
     // initialize cabling map or update if necessary
     if (recordWatcher_.check(iSetup)) {
       // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
@@ -150,6 +148,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cabling_ = cablingMap_->cablingTree();
       LogDebug("map version:") << cablingMap_->version();
     }
+
+    // if used, the buffer is guaranteed to stay alive until the after the execution of makePhase1ClustersAsync completes
+    std::optional<cms::alpakatools::device_buffer<Device, unsigned char[]>> modulesToUnpackRegional;
+    const unsigned char* modulesToUnpack;
     if (regions_) {
       regions_->run(iEvent, iSetup);
       LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
@@ -158,7 +160,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       modulesToUnpackRegional = SiPixelMappingUtilities::getModToUnpRegionalAsync(
           *(regions_->modulesToUnpack()), cabling_.get(), fedIds_, iEvent.queue());
-      modulesToUnpack = modulesToUnpackRegional.data();
+      modulesToUnpack = modulesToUnpackRegional->data();
     } else {
       modulesToUnpack = hMap->modToUnpDefault();
     }
