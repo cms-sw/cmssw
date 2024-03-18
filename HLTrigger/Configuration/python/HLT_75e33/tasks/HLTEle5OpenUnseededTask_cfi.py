@@ -10,6 +10,8 @@ from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHoverEUnseeded_cfi import *
+from ..modules.hltEgammaR9Unseeded_cfi import *
+from ..modules.hltEgammaHollowTrackIsoUnseeded_cfi import *
 
 HLTEle5OpenUnseededTask = cms.Task(
     hltEgammaCandidatesUnseeded,
@@ -21,5 +23,7 @@ HLTEle5OpenUnseededTask = cms.Task(
     hltEgammaHGCALIDVarsUnseeded,
     hltEgammaHGCalLayerClusterIsoUnseeded,
     hltEgammaHcalPFClusterIsoUnseeded,
-    hltEgammaHoverEUnseeded
+    hltEgammaHoverEUnseeded,
+    hltEgammaR9Unseeded,
+    hltEgammaHollowTrackIsoUnseeded
 )
