@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include <strstream>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
