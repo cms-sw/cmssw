@@ -7,7 +7,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="alpaka/*.cc" name="HeterogeneousCoreAlpakaTestPluginsPortable">
+<library file="alpaka/*.cc" name="HeterogeneousCoreAlpakaCorePluginsPortable">
   <use name="alpaka"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
