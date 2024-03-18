@@ -248,10 +248,10 @@ CaloTPTableProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventS
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CaloTPTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  
+
   desc.add<std::string>("name", "l1calotowerflattableproducer");
   desc.addUntracked<double>("ecalLSB", 0.5);
-  desc.add<edm::InputTag>("ecalTPsSrc", edm::InputTag{"ecalDigis","EcalTriggerPrimitives"});
+  desc.add<edm::InputTag>("ecalTPsSrc", edm::InputTag{"ecalDigis", "EcalTriggerPrimitives"});
   desc.add<string>("ecalTPsName", "EcalUnpackedTPs");
   desc.add<edm::InputTag>("hcalTPsSrc", edm::InputTag{"hcalDigis"});
   desc.add<string>("hcalTPsName", "HcalUnpackedTPs");
