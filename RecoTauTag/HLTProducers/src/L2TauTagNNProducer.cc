@@ -732,7 +732,10 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
 
 std::vector<float> L2TauNNProducer::getTauScore(const tensorflow::Tensor& cellGridMatrix) {
   std::vector<tensorflow::Tensor> pred_tensor;
-  tensorflow::run(L2cacheData_->session, {{inputTensorName_, cellGridMatrix}}, {outputTensorName_}, &pred_tensor);
+  // Check for empty input
+  if (cellGridMatrix.NumElements() != 0) {
+    tensorflow::run(L2cacheData_->session, {{inputTensorName_, cellGridMatrix}}, {outputTensorName_}, &pred_tensor);
+  }
   const int nTau = cellGridMatrix.shape().dim_size(0);
   std::vector<float> pred_vector(nTau);
   for (int tau_idx = 0; tau_idx < nTau; ++tau_idx) {
