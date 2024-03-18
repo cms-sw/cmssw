@@ -530,6 +530,7 @@ private:
                       {"outer_all_dropout_4/Identity"},
                       &pred_vector);
     }
+
     return pred_vector.at(0);
   }
 
@@ -547,8 +548,10 @@ private:
                           bool is_inner) {
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::createConvFeatures (is_inner = " << is_inner << ")>:" << std::endl;
+      std::cout << "number of valid cells = " << grid.num_valid_cells() << std::endl;
     }
     tensorflow::Tensor& convTensor = *convTensor_.at(is_inner);
+
     eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
@@ -605,8 +608,17 @@ private:
         }
       }
     }
+    tensorflow::Tensor predTensor;
+    //check if at least one input is there to
+    //avoid calling TF with empty grid #TODO understand why the grid is empty
+    if (idx != 0) {
+      predTensor = getPartialPredictions(is_inner);
+    } else {
+      if (debug_level >= 2) {
+        std::cout << " no valid cells found, skipped TF evaluation" << std::endl;
+      }
+    }
 
-    const auto predTensor = getPartialPredictions(is_inner);
     idx = 0;
     for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
       for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
