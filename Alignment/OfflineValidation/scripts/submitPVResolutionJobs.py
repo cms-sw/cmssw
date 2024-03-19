@@ -186,11 +186,11 @@ def as_dict(config):
     return dictionary
 
 #######################################################
-def batchScriptCERN(theCMSSW_BASE,runindex, eosdir,lumiToRun,key,config):
+def batchScriptCERN(theCMSSW_BASE, cfgdir, runindex, eosdir, lumiToRun, key, config, tkCollection, isUnitTest=False):
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
     script = """#!/bin/bash
-source /afs/cern.ch/cms/caf/setup.sh
+#source /afs/cern.ch/cms/caf/setup.sh
 CMSSW_DIR={CMSSW_BASE_DIR}/src/Alignment/OfflineValidation/test
 echo "the mother directory is $CMSSW_DIR"
 export X509_USER_PROXY=$CMSSW_DIR/.user_proxy
@@ -201,22 +201,26 @@ LXBATCH_DIR=`pwd`
 cd $CMSSW_DIR
 eval `scram runtime -sh`
 cd $LXBATCH_DIR 
-cp -pr $CMSSW_DIR/cfg/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
-cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
+cp -pr {CFGDIR}/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
+cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py TrackCollection={TRKS} GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
 ls -lh . 
-#for payloadOutput in $(ls *root ); do cp $payloadOutput $OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done 
-for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
-tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out  
-for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done 
 """.format(CMSSW_BASE_DIR=theCMSSW_BASE,
+           CFGDIR=cfgdir,
            runindex=runindex,
            MYDIR=eosdir,
            KEY=key,
            LUMITORUN=lumiToRun,
+           TRKS=tkCollection,
            GT=config['globaltag'],
            EXT="external="+config['external'] if 'external' in config.keys() else "",
            REC="records="+config['records'] if 'records' in config.keys() else "")
-   
+
+    if not isUnitTest:
+        script += """for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
+tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out
+for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done
+""".format(KEY=key, runindex=runindex)
+
     return script
 
 #######################################################
@@ -306,6 +310,7 @@ def main():
 
     cwd = os.getcwd()
     bashdir = os.path.join(cwd,"BASH")
+    cfgdir = os.path.join(cwd,"cfg")
 
     runs.sort()
 
@@ -329,6 +334,9 @@ def main():
 
     lumimask = inputDict["Input"]["lumimask"]
     print("\n\n Using JSON file:",lumimask)
+
+    tkCollection = inputDict["Input"]["trackcollection"]
+    print("\n\n Using trackCollection:", tkCollection)
 
     mytuple=[]
     print("\n\n First run:",opts.start,"last run:",opts.end)
@@ -411,7 +419,7 @@ def main():
 
             scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count-1)+".sh")
             scriptFile = open(scriptFileName,'w')
-            scriptFile.write(batchScriptCERN(input_CMSSW_BASE,run,eosdir,theLumi,key,value))
+            scriptFile.write(batchScriptCERN(input_CMSSW_BASE,cfgdir,run,eosdir,theLumi,key,value,tkCollection,opts.isUnitTest))
             scriptFile.close()
             #os.system('chmod +x %s' % scriptFileName)
 
