@@ -672,9 +672,9 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
   if (st->isBarrel()) {
     stub_r = settings_.rmean(stubLayer - 1);
 
-    // The expanded version of this expression is more stable for extremely
-    // high-pT (high-rho) tracks. But we also explicitly restrict sin_val to
-    // the domain of asin.
+    // The expanded version of this expression is more stable for very low-pT
+    // (high-rho) tracks. But we also explicitly restrict sin_val to the domain
+    // of asin.
     double sin_val =
         0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
     sin_val = std::max(std::min(sin_val, 1.0), -1.0);
@@ -682,9 +682,9 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
     stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
     stub_phi = reco::reduceRange(stub_phi);
 
-    // The expanded version of this expression is more stable for extremely
-    // high-pT (high-rho) tracks. But we also explicitly restrict cos_val to
-    // the domain of acos.
+    // The expanded version of this expression is more stable for very low-pT
+    // (high-rho) tracks. But we also explicitly restrict cos_val to the domain
+    // of acos.
     double cos_val =
         0.5 * (rho / rho_minus_d0) + 0.5 * (rho_minus_d0 / rho) - 0.5 * ((stub_r * stub_r) / (rho * rho_minus_d0));
     cos_val = std::max(std::min(cos_val, 1.0), -1.0);
@@ -697,9 +697,9 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
     double r_square = -2 * rho * rho_minus_d0 * std::cos(beta) + rho * rho + rho_minus_d0 * rho_minus_d0;
     stub_r = sqrt(r_square);
 
-    // The expanded version of this expression is more stable for extremely
-    // high-pT (high-rho) tracks. But we also explicitly restrict sin_val to
-    // the domain of asin.
+    // The expanded version of this expression is more stable for very low-pT
+    // (high-rho) tracks. But we also explicitly restrict sin_val to the domain
+    // of asin.
     double sin_val =
         0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
     sin_val = std::max(std::min(sin_val, 1.0), -1.0);
