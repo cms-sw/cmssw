@@ -145,9 +145,9 @@ namespace l1t {
     // These functions return the packed bits in integer format for each quantity
     // Signed quantities have the sign enconded in the left-most bit.
     unsigned int validBits() const { return validWord().to_uint(); }
-    unsigned int z0Bits() const { return z0Word().to_uint(); }
+    unsigned int z0Bits() const { return z0Word().range().to_uint(); }
     unsigned int multiplicityBits() const { return multiplicityWord().to_uint(); }
-    unsigned int ptBits() const { return ptWord().to_uint(); }
+    unsigned int ptBits() const { return ptWord().range().to_uint(); }
     unsigned int qualityBits() const { return qualityWord().to_uint(); }
     unsigned int inverseMultiplicityBits() const { return inverseMultiplicityWord().to_uint(); }
     unsigned int unassignedBits() const { return unassignedWord().to_uint(); }

@@ -8,7 +8,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/BJetId.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/JetId.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
@@ -28,7 +28,7 @@ public:
   static void globalEndJob(const BJetTFCache*);
 
 private:
-  std::unique_ptr<BJetId> fBJetId_;
+  std::unique_ptr<JetId> fBJetId_;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
@@ -48,7 +48,7 @@ L1BJetProducer::L1BJetProducer(const edm::ParameterSet& cfg, const BJetTFCache* 
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))) {
-  fBJetId_ = std::make_unique<BJetId>(
+  fBJetId_ = std::make_unique<JetId>(
       cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), cache, fNParticles_);
   produces<edm::ValueMap<float>>("L1PFBJets");
 }

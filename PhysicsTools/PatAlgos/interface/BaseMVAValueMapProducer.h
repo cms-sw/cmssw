@@ -86,36 +86,32 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<edm::GlobalCache<
 public:
   explicit BaseMVAValueMapProducer(const edm::ParameterSet& iConfig, const BaseMVACache* cache)
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
-        variablesOrder_(iConfig.getParameter<std::vector<std::string>>("variablesOrder")),
         name_(iConfig.getParameter<std::string>("name")),
         backend_(iConfig.getParameter<std::string>("backend")),
         weightfilename_(iConfig.getParameter<edm::FileInPath>("weightFile").fullPath()),
-        isClassifier_(iConfig.getParameter<bool>("isClassifier")),
         tmva_(backend_ == "TMVA"),
         tf_(backend_ == "TF"),
         onnx_(backend_ == "ONNX"),
         batch_eval_(iConfig.getParameter<bool>("batch_eval")) {
-    if (!(tmva_ || tf_ || onnx_)) {
-      throw cms::Exception("ConfigError") << "Only 'TF', 'ONNX' and 'TMVA' backends are supported\n";
-    }
-
-    if (tmva_)
+    if (tmva_) {
       reader_ = new TMVA::Reader();
-    edm::ParameterSet const& varsPSet = iConfig.getParameter<edm::ParameterSet>("variables");
-    for (const std::string& vname : varsPSet.getParameterNamesForType<std::string>()) {
-      funcs_.emplace_back(
-          std::pair<std::string, StringObjectFunction<T, true>>(vname, varsPSet.getParameter<std::string>(vname)));
+      isClassifier_ = iConfig.getParameter<bool>("isClassifier");
     }
 
-    values_.resize(variablesOrder_.size());
+    std::vector<edm::ParameterSet> const& varsPSet = iConfig.getParameter<std::vector<edm::ParameterSet>>("variables");
+    values_.resize(varsPSet.size());
     size_t i = 0;
-    for (const auto& v : variablesOrder_) {
-      positions_[v] = i;
+    for (const edm::ParameterSet& var_pset : varsPSet) {
+      const std::string& vname = var_pset.getParameter<std::string>("name");
+      if (var_pset.existsAs<std::string>("expr"))
+        funcs_.emplace_back(
+            std::pair<std::string, StringObjectFunction<T, true>>(vname, var_pset.getParameter<std::string>("expr")));
+      positions_[vname] = i;
       if (tmva_)
-        reader_->AddVariable(v, (&values_.front()) + i);
+        reader_->AddVariable(vname, (&values_.front()) + i);
       i++;
     }
-    //      reader_.BookMVA(name_,iConfig.getParameter<edm::FileInPath>("weightFile").fullPath() );
+
     if (tmva_) {
       reco::details::loadTMVAWeights(reader_, name_, weightfilename_);
     }
@@ -161,7 +157,6 @@ private:
   edm::EDGetTokenT<edm::View<T>> src_;
   std::map<std::string, size_t> positions_;
   std::vector<std::pair<std::string, StringObjectFunction<T, true>>> funcs_;
-  std::vector<std::string> variablesOrder_;
   std::vector<float> values_;
   TMVA::Reader* reader_;
 
@@ -276,9 +271,12 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 
 template <typename T>
 std::unique_ptr<BaseMVACache> BaseMVAValueMapProducer<T>::initializeGlobalCache(const edm::ParameterSet& cfg) {
-  return std::make_unique<BaseMVACache>(cfg.getParameter<edm::FileInPath>("weightFile").fullPath(),
-                                        cfg.getParameter<std::string>("backend"),
-                                        cfg.getParameter<bool>("disableONNXGraphOpt"));
+  std::string backend = cfg.getParameter<std::string>("backend");
+  bool disableONNXGraphOpt = false;
+  if (backend == "ONNX")
+    disableONNXGraphOpt = cfg.getParameter<bool>("disableONNXGraphOpt");
+  return std::make_unique<BaseMVACache>(
+      cfg.getParameter<edm::FileInPath>("weightFile").fullPath(), backend, disableONNXGraphOpt);
 }
 
 template <typename T>
@@ -288,22 +286,40 @@ template <typename T>
 edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
-  desc.add<std::vector<std::string>>("variablesOrder")->setComment("ordered list of MVA input variable names");
+
   desc.add<std::string>("name")->setComment("output score variable name");
-  desc.add<bool>("isClassifier")->setComment("is a classifier discriminator");
-  edm::ParameterSetDescription variables;
-  variables.setAllowAnything();
-  desc.add<edm::ParameterSetDescription>("variables", variables)->setComment("list of input variable definitions");
-  desc.add<edm::FileInPath>("weightFile")->setComment("xml weight file");
-  desc.add<std::string>("backend", "TMVA")->setComment("TMVA, TF or ONNX");
-  desc.add<std::string>("inputTensorName", "")->setComment("Name of tensorflow input tensor in the model");
-  desc.add<std::string>("outputTensorName", "")->setComment("Name of tensorflow output tensor in the model");
-  desc.add<std::vector<std::string>>("outputNames", std::vector<std::string>())
-      ->setComment("Names of the output values to be used in the output valuemap");
-  desc.add<std::vector<std::string>>("outputFormulas", std::vector<std::string>())
-      ->setComment("Formulas to be used to post process the output");
+  desc.add<edm::FileInPath>("weightFile")->setComment("xml weight file, or TF/ONNX model file");
   desc.add<bool>("batch_eval", false)->setComment("Run inference in batch instead of per-object");
-  desc.add<bool>("disableONNXGraphOpt", false)->setComment("Disable ONNX runtime graph optimization");
+
+  edm::ParameterSetDescription variable;
+  variable.add<std::string>("name")->setComment("name of the variable, either created by expr, or internally by code");
+  variable.addOptional<std::string>("expr")->setComment(
+      "a function to define the content of the model input, absence of it means the leaf is computed internally");
+  variable.setComment("a PSet to define an entry to the ML model");
+  desc.addVPSet("variables", variable);
+
+  auto itn = edm::ParameterDescription<std::string>(
+      "inputTensorName", "", true, edm::Comment("Name of tensorflow input tensor in the model"));
+  auto otn = edm::ParameterDescription<std::string>(
+      "outputTensorName", "", true, edm::Comment("Name of tensorflow output tensor in the model"));
+  auto on = edm::ParameterDescription<std::vector<std::string>>(
+      "outputNames",
+      std::vector<std::string>(),
+      true,
+      edm::Comment("Names of the output values to be used in the output valuemap"));
+  auto of = edm::ParameterDescription<std::vector<std::string>>(
+      "outputFormulas",
+      std::vector<std::string>(),
+      true,
+      edm::Comment("Formulas to be used to post process the output"));
+  auto dog = edm::ParameterDescription<bool>(
+      "disableONNXGraphOpt", false, true, edm::Comment("Disable ONNX runtime graph optimization"));
+
+  desc.ifValue(edm::ParameterDescription<std::string>(
+                   "backend", "TMVA", true, edm::Comment("the backend to evaluate the model:tmva, tf or onnx")),
+               "TMVA" >> edm::ParameterDescription<bool>(
+                             "isClassifier", true, true, edm::Comment("a classification or regression")) or
+                   "TF" >> (itn and otn and on and of) or "ONNX" >> (itn and otn and on and of and dog));
 
   return desc;
 }

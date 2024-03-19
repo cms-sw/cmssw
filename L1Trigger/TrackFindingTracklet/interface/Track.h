@@ -59,7 +59,7 @@ namespace trklet {
     double phi0(Settings const& settings) const;
 
     //The following return the floating point track parameters by undigitizing the digitized parameters
-    double eta(Settings const& settings) const { return (asinh(ipars_.t() + 0.5) * settings.ktpars()); }
+    double eta(Settings const& settings) const { return (asinh((ipars_.t() + 0.5) * settings.ktpars())); }
     double tanL(Settings const& settings) const { return (ipars_.t() + 0.5) * settings.ktpars(); }
     double z0(Settings const& settings) const { return (ipars_.z0() + 0.5) * settings.kz0pars(); }
     double rinv(Settings const& settings) const { return (ipars_.rinv() + 0.5) * settings.krinvpars(); }

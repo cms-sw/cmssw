@@ -19,6 +19,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -228,11 +229,11 @@ void TrackerGeometryCompare::endJob() {
   int iname(0);
   for (std::vector<TrackerMap>::iterator it = m_vtkmap_.begin(); it != m_vtkmap_.end(); ++it) {
     std::stringstream mapname;
-    mapname << surfdir_ << "/TkMap_SurfDeform" << iname << ".png";
+    mapname << surfdir_ << "/TkMap_SurfDeform_0" << iname << ".png";
     it->save(true, 0, 0, mapname.str());
     mapname.str(std::string());
     mapname.clear();
-    mapname << surfdir_ << "/TkMap_SurfDeform" << iname << ".pdf";
+    mapname << surfdir_ << "/TkMap_SurfDeform_1" << iname << ".pdf";
     it->save(true, 0, 0, mapname.str());
     ++iname;
   }
@@ -403,6 +404,15 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   referenceTracker = new AlignableTracker(&(*theRefTracker), tTopo);
   //referenceTracker->setSurfaceDeformation(surfDef1, true) ;
 
+  //set tracker pixel Phase, assume current tracker is the same Phase
+  if (theRefTracker->isThere(GeomDetEnumerators::P2PXB) || theRefTracker->isThere(GeomDetEnumerators::P2PXEC)) {
+    phase_ = SiPixelPI::phase::two;
+  } else if (theRefTracker->isThere(GeomDetEnumerators::P1PXB) || theRefTracker->isThere(GeomDetEnumerators::P1PXEC)) {
+    phase_ = SiPixelPI::phase::one;
+  } else {
+    phase_ = SiPixelPI::phase::zero;
+  }
+
   int inputRawid1;
   int inputRawid2;
   int inputDtype1, inputDtype2;
@@ -526,7 +536,16 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
             if (TMath::Abs(surfDeform_[npar]) > (m_rangeHigh_ - m_rangeLow_) / (10. * m_nBins_))
               m_h1_[histname2.str()]->Fill(surfDeform_[npar]);
           }
-          (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+          if (phase_ < SiPixelPI::phase::two) {
+            if (phase_ == SiPixelPI::phase::zero) {
+              (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+            } else {
+              // old-style tracker map does not support Phase1 Pixel
+              if (!(inputSubdetid1 == 1 && inputSubdetid2 == 1) && !(inputSubdetid1 == 2 && inputSubdetid2 == 2)) {
+                (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+              }
+            }
+          }
         }
       }
     }
@@ -545,7 +564,6 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
     curTree->SetBranchAddress("dpar", &p_inputDpar2);
 
     unsigned int nEntries12 = curTree->GetEntries();
-
     for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
       curTree->GetEntry(iEntry);
       for (int ii = 0; ii < 12; ++ii) {
@@ -569,7 +587,16 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
           if (TMath::Abs(surfDeform_[npar]) > (m_rangeHigh_ - m_rangeLow_) / (10. * m_nBins_))
             m_h1_[histname2.str()]->Fill(surfDeform_[npar]);
         }
-        (m_vtkmap_.at(npar)).fill_current_val(inputRawid2, surfDeform_[npar]);
+        if (phase_ < SiPixelPI::phase::two) {
+          if (phase_ == SiPixelPI::phase::zero) {
+            (m_vtkmap_.at(npar)).fill_current_val(inputRawid2, surfDeform_[npar]);
+          } else {
+            // old-style tracker map does not support Phase1 Pixel
+            if (inputSubdetid2 != 1 && inputSubdetid2 != 2) {
+              (m_vtkmap_.at(npar)).fill_current_val(inputRawid2, surfDeform_[npar]);
+            }
+          }
+        }
       }
     }
 
@@ -585,7 +612,6 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
     refTree->SetBranchAddress("subdetid", &inputSubdetid1);
     refTree->SetBranchAddress("dtype", &inputDtype1);
     refTree->SetBranchAddress("dpar", &p_inputDpar1);
-
     unsigned int nEntries11 = refTree->GetEntries();
 
     for (unsigned int iEntry = 0; iEntry < nEntries11; ++iEntry) {
@@ -611,14 +637,22 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
           if (TMath::Abs(surfDeform_[npar]) > (m_rangeHigh_ - m_rangeLow_) / (10. * m_nBins_))
             m_h1_[histname2.str()]->Fill(surfDeform_[npar]);
         }
-        (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+        if (phase_ < SiPixelPI::phase::two) {
+          if (phase_ == SiPixelPI::phase::zero) {
+            (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+          } else {
+            // old-style tracker map does not support Phase1 Pixel
+            if (inputSubdetid1 != 1 && inputSubdetid1 != 2) {
+              (m_vtkmap_.at(npar)).fill_current_val(inputRawid1, surfDeform_[npar]);
+            }
+          }
+        }
       }
     }
 
   } else if (inputFilename1_ == "IDEAL" && inputFilename2_ == "IDEAL") {
     edm::LogInfo("TrackerGeometryCompare") << ">>>> Comparing IDEAL with IDEAL: nothing to do! <<<<\n";
   }
-
   return;
 }
 
@@ -709,7 +743,6 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli,
           << ", rawId: " << refAli->geomDetId().rawId() << ", subdetId: " << detid.subdetId() << "): " << diff << check;
       throw cms::Exception("Tolerance in TrackerGeometryCompare exceeded");
     }
-
     AlgebraicVector TRtot(12);
     // global
     TRtot(1) = Rtotal.x();
@@ -774,14 +807,12 @@ void TrackerGeometryCompare::setCommonTrackerSystem() {
   TrackerCommonTR(6) = TrackerCommonR_.z();
 
   edm::LogInfo("TrackerGeometryCompare") << "and after the transformation: " << TrackerCommonTR;
-
   align::moveAlignable(currentTracker, TrackerCommonTR);
 }
 
 void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli) {
   const auto& refComp = refAli->components();
   const auto& curComp = curAli->components();
-
   unsigned int nComp = refComp.size();
   //only perform for designate levels
   bool useLevel = false;
@@ -888,7 +919,6 @@ void TrackerGeometryCompare::fillTree(Alignable* refAli,
   daVal_ = diff[9];
   dbVal_ = diff[10];
   dgVal_ = diff[11];
-
   //detIdFlag
   if (refAli->alignableObjectId() == align::AlignableDetUnit) {
     if (detIdFlag_) {

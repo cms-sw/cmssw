@@ -5,7 +5,8 @@
 
 MASTER="/dev/CMSSW_14_0_0/HLT"           # no version, take the latest one
 TARGET="/dev/CMSSW_14_0_0/TABLE"         # directory where to store the sub-tables
+PREFIX=""
 TABLES="GRun HIon PIon PRef Special"     # which sub-tables to create
 
 source subtables.sh
-createSubtables "v3/run3" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v3/run3" "$MASTER" "$TARGET" "$PREFIX" "$TABLES"

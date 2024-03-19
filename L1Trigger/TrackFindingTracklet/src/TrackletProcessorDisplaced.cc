@@ -230,6 +230,8 @@ void TrackletProcessorDisplaced::addInput(MemoryBase* memory, string input) {
 }
 
 void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, double phimax) {
+  unsigned int countall = 0;
+  unsigned int countsel = 0;
   // unsigned int nThirdStubs = 0;
   // unsigned int nOuterStubs = 0;
   count_ = 0;
@@ -385,6 +387,8 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub\n";
                       }
 
+                      countall++;
+
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
 
                       const Stub* innerFPGAStub = firstallstub;
@@ -408,8 +412,15 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
 
-                      if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
-                          outerFPGAStub->layerdisk() >= N_LAYER) {
+                      if (innerFPGAStub->layerdisk() < N_LAYER && middleFPGAStub->layerdisk() < N_LAYER &&
+                          outerFPGAStub->layerdisk() < N_LAYER) {
+                        bool accept =
+                            LLLSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
+
+                        if (accept)
+                          countsel++;
+                      } else if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
+                                 outerFPGAStub->layerdisk() >= N_LAYER) {
                         throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
                       }
 
@@ -495,6 +506,8 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub";
                       }
 
+                      countall++;
+
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
 
                       const Stub* innerFPGAStub = firstallstub;
@@ -517,6 +530,12 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet")
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
+
+                      bool accept =
+                          LLDSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
+
+                      if (accept)
+                        countsel++;
 
                       if (settings_.debugTracklet()) {
                         edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute done";
@@ -601,6 +620,8 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub";
                       }
 
+                      countall++;
+
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
 
                       const Stub* innerFPGAStub = firstallstub;
@@ -624,6 +645,12 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
 
+                      bool accept =
+                          DDLSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
+
+                      if (accept)
+                        countsel++;
+
                       if (settings_.debugTracklet()) {
                         edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute done";
                       }
@@ -636,5 +663,9 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
         }
       }
     }
+  }
+
+  if (settings_.writeMonitorData("TPD")) {
+    globals_->ofstream("trackletprocessordisplaced.txt") << getName() << " " << countall << " " << countsel << endl;
   }
 }

@@ -49,6 +49,7 @@ allTags["SimLA"] = {
     'T21' : ( ','.join( [ 'SiPixelSimLorentzAngle_phase2_T15_v5_mc' ,SiPixelSimLARecord,connectionString, "", "2020-05-05 20:00:00.000"] ), ), #uH = 0.053/T (TBPX), uH=0.0/T (TEPX+TFPX)
     'T25' : ( ','.join( [ 'SiPixelSimLorentzAngle_phase2_T25_v0_mc' ,SiPixelSimLARecord,connectionString, "", "2021-03-16 20:00:00.000"] ), ), #uH = 0.053/T (TBPX L2,L3,L4), uH=0.0/T (TBPX L1 TEPX+TFPX)
     'T30' : ( ','.join( [ 'SiPixelSimLorentzAngle_phase2_IT_v6.4.0_25x100_v1_mc' ,SiPixelSimLARecord,connectionString, "", "2021-12-03 16:00:00.000"] ), ), #uH = 0.053/T (TBPX), uH=0.0/T (TEPX+TFPX)
+    'T33' : ( ','.join( [ 'SiPixelSimLorentzAngle_phase2_IT_v7.1.1_25x100_v1_mc' ,SiPixelSimLARecord,connectionString, "", "2024-03-07 21:00:00.000"] ), ),#uH = 0.053/T (TBPX L2,L3,L4), uH=0.0/T (TBPX L1 TEPX+TFPX)
 }
 
 allTags["GenError"] = {

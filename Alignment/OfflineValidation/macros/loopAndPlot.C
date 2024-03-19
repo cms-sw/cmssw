@@ -4,6 +4,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TGaxis.h"
+#include "TGraph.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TKey.h"

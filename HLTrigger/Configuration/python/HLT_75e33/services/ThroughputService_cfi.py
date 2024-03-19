@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-ThroughputService = cms.Service('ThroughputService',
-  eventRange = cms.untracked.uint32(10000),
-  eventResolution = cms.untracked.uint32(1),
-  printEventSummary = cms.untracked.bool(False),
-  enableDQM = cms.untracked.bool(True),
+ThroughputService = cms.Service("ThroughputService",
+    enableDQM = cms.untracked.bool(False),
+    eventRange = cms.untracked.uint32(1000),
+    eventResolution = cms.untracked.uint32(50),
+    printEventSummary = cms.untracked.bool(True)
 )
-

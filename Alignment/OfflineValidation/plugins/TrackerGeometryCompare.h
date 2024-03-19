@@ -118,6 +118,7 @@ private:
   bool weightById_;
   std::string weightByIdFile_;
   std::vector<unsigned int> weightByIdVector_;
+  SiPixelPI::phase phase_;
 
   std::vector<uint32_t> detIdFlagVector_;
   align::StructureType commonTrackerLevel_;

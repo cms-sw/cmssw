@@ -7,6 +7,8 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 _rootBranchType2PythonArray = {
     'b': 'B',
     'B': 'b',
+    's': 'H',
+    'S': 'h',
     'i': 'I',
     'I': 'i',
     'F': 'f',

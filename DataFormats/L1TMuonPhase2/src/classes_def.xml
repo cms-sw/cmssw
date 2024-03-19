@@ -1,27 +1,42 @@
 <lcgdict>
- <selection>
+  <selection>
+    <class name="l1t::MuonStub" ClassVersion="3">
+      <version ClassVersion="3" checksum="1164456369"/>
+    </class>
+    <class name="std::vector<l1t::MuonStub>"/>
+    <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
+    <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
 
- <class name="l1t::MuonStub" ClassVersion="3">
-   <version ClassVersion="3" checksum="1164456369"/>
- </class>
- <class name="std::vector<l1t::MuonStub>"/>
- <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
- <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
+    <class name="l1t::TrackerMuon" ClassVersion="4">
+      <version ClassVersion="4" checksum="3437073036"/>
+      <version ClassVersion="3" checksum="2397458791"/>
+    </class>
+    <class name="std::vector<l1t::TrackerMuon>"/>
+    <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
+    <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
+    <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
 
- <class name="l1t::TrackerMuon" ClassVersion="4">
-   <version ClassVersion="4" checksum="3437073036"/>
-   <version ClassVersion="3" checksum="2397458791"/>
- </class>
- <class name="std::vector<l1t::TrackerMuon>"/>
- <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
- <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
- <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
- 
- <class name="l1t::SAMuon" ClassVersion="3">
-   <version ClassVersion="3" checksum="3294978731"/>
- </class>
- <class name="std::vector<l1t::SAMuon>"/>
- <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
- <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
- </selection>
+    <class name="l1t::SAMuon" ClassVersion="3">
+      <version ClassVersion="3" checksum="3294978731"/>
+    </class>
+    <class name="std::vector<l1t::SAMuon>"/>
+    <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
+    <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
+
+    <class name="l1t::phase2::EMTFHit" ClassVersion="3">
+      <version ClassVersion="3" checksum="227304470"/>
+    </class>
+    <class name="l1t::phase2::EMTFHitCollection"/>
+    <class name="edm::Wrapper<l1t::phase2::EMTFHitCollection>"/>
+    <class name="l1t::phase2::EMTFTrack" ClassVersion="3">
+      <version ClassVersion="3" checksum="972508279"/>
+    </class>
+    <class name="l1t::phase2::EMTFTrackCollection"/>
+    <class name="edm::Wrapper<l1t::phase2::EMTFTrackCollection>"/>
+    <class name="l1t::phase2::EMTFInput" ClassVersion="3">
+      <version ClassVersion="3" checksum="975545934"/>
+    </class>
+    <class name="l1t::phase2::EMTFInputCollection"/>
+    <class name="edm::Wrapper<l1t::phase2::EMTFInputCollection>"/>
+  </selection>
 </lcgdict>

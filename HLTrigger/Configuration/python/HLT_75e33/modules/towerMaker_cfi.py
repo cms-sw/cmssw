@@ -70,9 +70,9 @@ towerMaker = cms.EDProducer("CaloTowersCreator",
     UseRejectedRecoveredHcalHits = cms.bool(True),
     UseSymEBTreshold = cms.bool(True),
     UseSymEETreshold = cms.bool(True),
-    ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
+    ecalInputs = cms.VInputTag(cms.InputTag("hltEcalRecHit","EcalRecHitsEB"), cms.InputTag("hltEcalRecHit","EcalRecHitsEE")),
     hbheInput = cms.InputTag("hltHbhereco"),
-    hfInput = cms.InputTag("hfreco"),
-    hoInput = cms.InputTag("horeco"),
+    hfInput = cms.InputTag("hltHfreco"),
+    hoInput = cms.InputTag("hltHoreco"),
     missingHcalRescaleFactorForEcal = cms.double(0)
 )

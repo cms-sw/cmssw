@@ -40,6 +40,7 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
   electronCollection = cms.InputTag("gedGsfElectrons"),
   electronCollectionEndcaps = cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
+  electronCoreCollectionEndcaps = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
@@ -67,7 +68,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcFakeValidator,
     electronCollectionEndcaps = 'ecalDrivenGsfElectronsHGC',
-    electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
+    electronCoreCollectionEndcaps = 'ecalDrivenGsfElectronCoresHGC',
     MaxAbsEta = 3.0,
     histosCfg = dict( 
         Nbineta = 60 ,

@@ -80,7 +80,6 @@ namespace edm {
 
       protected:
         void usesResource(std::string const& iName);
-        void usesResource();
 
       private:
         SharedResourcesAcquirer createAcquirer() override;

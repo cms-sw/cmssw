@@ -18,7 +18,6 @@
 //         Created:  Sun, 06 Oct 2013 15:48:44 GMT
 //
 
-// system include files
 #include <vector>
 #include <string>
 #include <map>
@@ -28,9 +27,6 @@
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-// user include files
-
-// forward declarations
 class testSharedResourcesRegistry;
 
 namespace edm {
@@ -44,18 +40,12 @@ namespace edm {
     SharedResourcesRegistry(const SharedResourcesRegistry&) = delete;                   // stop default
     const SharedResourcesRegistry& operator=(const SharedResourcesRegistry&) = delete;  // stop default
 
-    // ---------- const member functions ---------------------
     SharedResourcesAcquirer createAcquirer(std::vector<std::string> const&) const;
 
     std::pair<SharedResourcesAcquirer, std::shared_ptr<std::recursive_mutex>> createAcquirerForSourceDelayedReader();
 
-    // ---------- static member functions --------------------
     static SharedResourcesRegistry* instance();
 
-    ///All legacy modules share this resource
-    static const std::string kLegacyModuleResourceName;
-
-    // ---------- member functions ---------------------------
     ///A resource name must be registered before it can be used in the createAcquirer call
     void registerSharedResource(const std::string&);
 
@@ -76,8 +66,6 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<std::recursive_mutex>> resourceForDelayedReader_;
 
     edm::propagate_const<std::shared_ptr<SerialTaskQueue>> queueForDelayedReader_;
-
-    unsigned int nLegacy_;
   };
 }  // namespace edm
 

@@ -216,7 +216,7 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     ResourceOutputModule(edm::ParameterSet const& iPSet)
         : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::one::SharedResources>(iPSet) {
-      usesResource();
+      usesResource("foo");
     }
     unsigned int m_count = 0;
 

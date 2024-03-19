@@ -1,7 +1,3 @@
-<!-- Copied from L1Trigger/L1TCalorimeter/plugins BuildFile.xml 2023.08.02 -->
-<!-- Modified for ZDC by Chris McGinn -->
-<!-- Email christopher.mc.ginn@cern.ch or cfmcginn on github for issues -->
-
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
@@ -13,7 +9,6 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/L1TCalorimeter"/>
-<use name="L1Trigger/L1TZDC"/>
 <library file="*.cc" name="L1TriggerL1TZDCPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

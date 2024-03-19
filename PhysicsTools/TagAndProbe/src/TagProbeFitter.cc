@@ -558,7 +558,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
     const RooArgSet* dataObs = data->get(0);
     // remove everything which is not a dependency of the pdf
     std::unique_ptr<RooArgSet> obs{w->pdf("simPdf")->getObservables(dataObs)};
-    w->import(RooDataHist{"data_binned", "data_binned", *obs, *data});
+    RooDataHist bdata{"data_binned", "data_binned", *obs, *data};
+    w->import(bdata);
     data = w->data("data_binned");
   }
 

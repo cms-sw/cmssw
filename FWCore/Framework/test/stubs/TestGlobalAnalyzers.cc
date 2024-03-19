@@ -49,7 +49,8 @@ namespace edmtest {
 
     class StreamIntAnalyzer : public edm::global::EDAnalyzer<edm::StreamCache<UnsafeCache>> {
     public:
-      explicit StreamIntAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
+      explicit StreamIntAnalyzer(edm::ParameterSet const& p)
+          : trans_(p.getParameter<int>("transitions")), nLumis_(p.getUntrackedParameter<unsigned int>("nLumis", 1)) {
         bool verbose = p.getUntrackedParameter<bool>("verbose", true);
         callWhenNewProductsRegistered([verbose](edm::BranchDescription const& desc) {
           if (verbose) {
@@ -58,10 +59,15 @@ namespace edmtest {
         });
       }
       const unsigned int trans_;
+      const unsigned int nLumis_;
       mutable std::atomic<unsigned int> m_count{0};
+      mutable std::atomic<unsigned int> m_countStreams{0};
+      mutable std::atomic<unsigned int> m_countStreamBeginLumiTransitions{0};
+      mutable std::atomic<unsigned int> m_countStreamEndLumiTransitions{0};
 
       std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
         ++m_count;
+        ++m_countStreams;
         auto pCache = std::make_unique<UnsafeCache>();
         pCache->value = iID.value();
         return pCache;
@@ -78,7 +84,7 @@ namespace edmtest {
       void streamBeginLuminosityBlock(edm::StreamID iID,
                                       edm::LuminosityBlock const&,
                                       edm::EventSetup const&) const override {
-        ++m_count;
+        ++m_countStreamBeginLumiTransitions;
         if ((streamCache(iID))->value != iID.value()) {
           throw cms::Exception("cache value")
               << "StreamIntAnalyzer cache value " << (streamCache(iID))->value << " but it was supposed to be " << iID;
@@ -96,7 +102,7 @@ namespace edmtest {
       void streamEndLuminosityBlock(edm::StreamID iID,
                                     edm::LuminosityBlock const&,
                                     edm::EventSetup const&) const override {
-        ++m_count;
+        ++m_countStreamEndLumiTransitions;
         if ((streamCache(iID))->value != iID.value()) {
           throw cms::Exception("cache value")
               << "StreamIntAnalyzer cache value " << (streamCache(iID))->value << " but it was supposed to be " << iID;
@@ -123,6 +129,19 @@ namespace edmtest {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "StreamIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+        unsigned int nStreamBeginLumiTransitions = m_countStreamBeginLumiTransitions.load();
+        unsigned int nStreamEndLumiTransitions = m_countStreamEndLumiTransitions.load();
+        unsigned int nStreams = m_countStreams.load();
+        if (nStreamBeginLumiTransitions < nLumis_ || nStreamBeginLumiTransitions > (nLumis_ * nStreams)) {
+          throw cms::Exception("transitions")
+              << "StreamIntAnalyzer stream begin lumi transitions " << nStreamBeginLumiTransitions
+              << " but it was supposed to be between " << nLumis_ << " and " << nLumis_ * nStreams;
+        }
+        if (nStreamEndLumiTransitions != nStreamBeginLumiTransitions) {
+          throw cms::Exception("transitions")
+              << "StreamIntAnalyzer stream end lumi transitions " << nStreamEndLumiTransitions
+              << " does not equal stream begin lumi transitions " << nStreamBeginLumiTransitions;
         }
       }
     };
@@ -260,15 +279,20 @@ namespace edmtest {
       const unsigned int trans_;
       const unsigned int cvalue_;
       mutable std::atomic<unsigned int> m_count{0};
+      mutable std::atomic<unsigned int> m_countLumis{0};
+      mutable std::atomic<unsigned int> m_countStreams{0};
+      mutable std::atomic<unsigned int> m_countStreamLumiTransitions{0};
 
       std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
         ++m_count;
+        ++m_countStreams;
         return std::make_unique<UnsafeCache>();
       }
 
       std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& iLB,
                                                                      edm::EventSetup const&) const override {
         ++m_count;
+        ++m_countLumis;
         auto gCache = std::make_shared<UnsafeCache>();
         gCache->lumi = iLB.luminosityBlockAuxiliary().luminosityBlock();
         return gCache;
@@ -283,7 +307,7 @@ namespace edmtest {
                                            edm::LuminosityBlock const& iLB,
                                            edm::EventSetup const&,
                                            UnsafeCache* gCache) const override {
-        ++m_count;
+        ++m_countStreamLumiTransitions;
         if (gCache->lumi != iLB.luminosityBlockAuxiliary().luminosityBlock()) {
           throw cms::Exception("UnexpectedValue")
               << "streamEndLuminosityBlockSummary unexpected lumi number in Stream " << iID.value();
@@ -309,6 +333,14 @@ namespace edmtest {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "LumiSummaryIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+        unsigned int nStreamLumiTransitions = m_countStreamLumiTransitions.load();
+        unsigned int nLumis = m_countLumis.load();
+        unsigned int nStreams = m_countStreams.load();
+        if (nStreamLumiTransitions < nLumis || nStreamLumiTransitions > (nLumis * nStreams)) {
+          throw cms::Exception("transitions")
+              << "LumiSummaryIntAnalyzer stream lumi transitions " << nStreamLumiTransitions
+              << " but it was supposed to be between " << nLumis << " and " << nLumis * nStreams;
         }
       }
     };

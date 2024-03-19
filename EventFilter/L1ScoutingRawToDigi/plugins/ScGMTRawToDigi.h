@@ -39,6 +39,7 @@ private:
   int nMuonsOrbit_;
 
   bool debug_ = false;
+  bool skipInterm_ = true;
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;
 };

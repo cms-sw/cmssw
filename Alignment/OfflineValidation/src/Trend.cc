@@ -54,6 +54,7 @@ float Run2Lumi::operator()() const { return operator()(firstRun, lastRun); }
 template <typename T>
 void CopyStyle(T* objIn, T* objOut) {
   objOut->SetLineColor(objIn->GetLineColor());
+  objOut->SetLineColor(objIn->GetMarkerColor());
   objOut->SetMarkerColor(objIn->GetMarkerColor());
   objOut->SetFillColorAlpha(objIn->GetFillColor(), 0.2);  // TODO??
 
@@ -292,4 +293,5 @@ Trend::~Trend() {
 
   c.RedrawAxis();
   c.SaveAs(Form("%s/%s.pdf", outputDir, c.GetName()), Form("Title:%s", c.GetTitle()));
+  c.SaveAs(Form("%s/%s.png", outputDir, c.GetName()), Form("Title:%s", c.GetTitle()));
 }

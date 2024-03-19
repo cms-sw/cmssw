@@ -134,10 +134,10 @@ namespace l1t {
 
     // These functions return the packed bits in integer format for each quantity
     // Signed quantities have the sign enconded in the left-most bit.
-    unsigned int ptBits() const { return ptWord().to_uint(); }
+    unsigned int ptBits() const { return ptWord().range().to_uint(); }
     unsigned int glbEtaBits() const { return glbEtaWord().to_uint(); }
     unsigned int glbPhiBits() const { return glbPhiWord().to_uint(); }
-    unsigned int z0Bits() const { return z0Word().to_uint(); }
+    unsigned int z0Bits() const { return z0Word().range().to_uint(); }
     unsigned int ntBits() const { return ntWord().to_uint(); }
     unsigned int xtBits() const { return xtWord().to_uint(); }
     unsigned int dispFlagBits() const { return dispFlagWord().to_uint(); }

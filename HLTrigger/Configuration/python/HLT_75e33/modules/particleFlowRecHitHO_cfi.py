@@ -19,6 +19,6 @@ particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
                 name = cms.string('PFRecHitQTestHCALChannel')
             )
         ),
-        src = cms.InputTag("horeco")
+        src = cms.InputTag("hltHoreco")
     ))
 )

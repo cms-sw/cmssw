@@ -11,7 +11,12 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
 using ROOT::Experimental::RCollectionNTupleWriter;
+#else
+#include <ROOT/RNTupleCollectionWriter.hxx>
+using ROOT::Experimental::RNTupleCollectionWriter;
+#endif
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriter;
 
@@ -110,7 +115,11 @@ public:
 
 private:
   std::string m_collectionName;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
   std::shared_ptr<RCollectionNTupleWriter> m_collection;
+#else
+  std::shared_ptr<RNTupleCollectionWriter> m_collection;
+#endif
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
 };
