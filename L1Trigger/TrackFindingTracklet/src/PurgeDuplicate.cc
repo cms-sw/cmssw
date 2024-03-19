@@ -672,12 +672,13 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
   if (st->isBarrel()) {
     stub_r = settings_.rmean(stubLayer - 1);
 
-    double sin_val = (stub_r * stub_r + rho_minus_d0 * rho_minus_d0 - rho * rho) / (2 * stub_r * rho_minus_d0);
+    double sin_val = 0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
     stub_phi = tracklet->phi0() - std::asin(sin_val);
     stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
     stub_phi = reco::reduceRange(stub_phi);
 
-    double beta = std::acos((rho * rho + rho_minus_d0 * rho_minus_d0 - stub_r * stub_r) / (2 * rho * rho_minus_d0));
+    double cos_val = 0.5 * (rho / rho_minus_d0) + 0.5 * (rho_minus_d0 / rho) - 0.5 * ((stub_r * stub_r) / (rho * rho_minus_d0));
+    double beta = std::acos(cos_val);
     stub_z = tracklet->z0() + tracklet->t() * std::abs(rho * beta);
   } else {
     stub_z = settings_.zmean(stubDisk - 1) * tracklet->disk() / abs(tracklet->disk());
@@ -686,7 +687,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
     double r_square = -2 * rho * rho_minus_d0 * std::cos(beta) + rho * rho + rho_minus_d0 * rho_minus_d0;
     stub_r = sqrt(r_square);
 
-    double sin_val = (stub_r * stub_r + rho_minus_d0 * rho_minus_d0 - rho * rho) / (2 * stub_r * rho_minus_d0);
+    double sin_val = 0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
     stub_phi = tracklet->phi0() - std::asin(sin_val);
     stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
     stub_phi = reco::reduceRange(stub_phi);
