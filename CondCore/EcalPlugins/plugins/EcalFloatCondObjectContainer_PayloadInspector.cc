@@ -85,8 +85,8 @@ namespace {
       EBrms = sqrt(EBrms);
       if (EBrms == 0.)
         EBrms = 0.001;
-      double pEBmin = EBmean - kRMS * EBrms;
-      double pEBmax = EBmean + kRMS * EBrms;
+      double pEBmin = EBmean - static_cast<int>(kRMS) * EBrms;
+      double pEBmax = EBmean + static_cast<int>(kRMS) * EBrms;
       //      std::cout << " mean " << EBmean << " rms " << EBrms << " entries " << EBtot << " min " << pEBmin << " max " << pEBmax << std::endl;
       vt = (double)EEtot;
       EEmean = EEmean / vt;
@@ -94,8 +94,8 @@ namespace {
       EErms = sqrt(EErms);
       if (EErms == 0.)
         EErms = 0.001;
-      double pEEmin = EEmean - kRMS * EErms;
-      double pEEmax = EEmean + kRMS * EErms;
+      double pEEmin = EEmean - static_cast<int>(kRMS) * EErms;
+      double pEEmax = EEmean + static_cast<int>(kRMS) * EErms;
       //      std::cout << " mean " << EEmean << " rms " << EErms << " entries " << EEtot << " min " << pEEmin << " max " << pEEmax << std::endl;
 
       gStyle->SetPalette(1);
@@ -232,8 +232,8 @@ namespace {
       EBrms = sqrt(EBrms);
       if (EBrms == 0.)
         EBrms = 0.001;
-      double pEBmin = EBmean - kRMS * EBrms;
-      double pEBmax = EBmean + kRMS * EBrms;
+      double pEBmin = EBmean - static_cast<int>(kRMS) * EBrms;
+      double pEBmax = EBmean + static_cast<int>(kRMS) * EBrms;
       //      std::cout << " mean " << EBmean << " rms " << EBrms << " entries " << EBtot << " min " << pEBmin << " max " << pEBmax << std::endl;
       vt = (double)EEtot;
       EEmean = EEmean / vt;
@@ -241,8 +241,8 @@ namespace {
       EErms = sqrt(EErms);
       if (EErms == 0.)
         EErms = 0.001;
-      double pEEmin = EEmean - kRMS * EErms;
-      double pEEmax = EEmean + kRMS * EErms;
+      double pEEmin = EEmean - static_cast<int>(kRMS) * EErms;
+      double pEEmax = EEmean + static_cast<int>(kRMS) * EErms;
       //      std::cout << " mean " << EEmean << " rms " << EErms << " entries " << EEtot << " min " << pEEmin << " max " << pEEmax << std::endl;
 
       gStyle->SetPalette(1);

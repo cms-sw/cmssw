@@ -647,7 +647,7 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
     int ring = 1;  // Default to ME1/b
     if (lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
       ring = 4;  // Change to ME1/a if the HalfStrip Number exceeds the range of ME1/b
-      fractional_strip -= CSCConstants::NUM_STRIPS_ME1B;
+      fractional_strip -= static_cast<float>(CSCConstants::NUM_STRIPS_ME1B);
     }
     CSCDetId cscId_(cscId.endcap(), cscId.station(), ring, cscId.chamber(), cscId.layer());
     cscId = cscId_;

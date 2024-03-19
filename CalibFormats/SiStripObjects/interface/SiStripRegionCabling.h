@@ -146,7 +146,8 @@ inline const uint32_t SiStripRegionCabling::region(const PositionIndex index) co
 inline const uint32_t SiStripRegionCabling::elementIndex(const uint32_t region,
                                                          const SubDet subdet,
                                                          const uint32_t layer) {
-  return region * ALLSUBDETS * ALLLAYERS + subdet * ALLLAYERS + layer;
+  return region * static_cast<int>(ALLSUBDETS) * static_cast<int>(ALLLAYERS) + subdet * static_cast<int>(ALLLAYERS) +
+         layer;
 }
 
 inline const uint32_t SiStripRegionCabling::elementIndex(const PositionIndex index,
@@ -167,6 +168,8 @@ inline const SiStripRegionCabling::SubDet SiStripRegionCabling::subdet(const uin
   return static_cast<SiStripRegionCabling::SubDet>((index / ALLLAYERS) % ALLSUBDETS);
 }
 
-inline const uint32_t SiStripRegionCabling::region(const uint32_t index) { return index / (ALLSUBDETS * ALLLAYERS); }
+inline const uint32_t SiStripRegionCabling::region(const uint32_t index) {
+  return index / (static_cast<int>(ALLSUBDETS) * static_cast<int>(ALLLAYERS));
+}
 
 #endif

@@ -48,7 +48,8 @@ void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSu
   if (geom->cornersMgr() == nullptr)
     geom->allocateCorners(HcalCastorDetId::kSizeForDenseIndexing);
   if (geom->parMgr() == nullptr)
-    geom->allocatePar(CastorGeometry::k_NumberOfShapes * CastorGeometry::k_NumberOfParametersPerShape,
+    geom->allocatePar(static_cast<int>(CastorGeometry::k_NumberOfShapes) *
+                          static_cast<int>(CastorGeometry::k_NumberOfParametersPerShape),
                       CastorGeometry::k_NumberOfParametersPerShape);
 
   // start by making the new HcalDetIds
@@ -118,7 +119,7 @@ void CastorHardcodeGeometryLoader::makeCell(const HcalCastorDetId& detId, CaloSu
   const double leg(dR + dy);
   const double len(sqrt(leg * leg + dx * dx));
 
-  static const double dphi(2. * M_PI / (1.0 * HcalCastorDetId::kNumberSectorsPerEnd));
+  static const double dphi(2. * M_PI / (1.0 * static_cast<double>(HcalCastorDetId::kNumberSectorsPerEnd)));
 
   const double fphi(atan(dx / (dR + dy)));
 

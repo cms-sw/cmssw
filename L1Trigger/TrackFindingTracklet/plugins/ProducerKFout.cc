@@ -327,7 +327,8 @@ namespace trklet {
       for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
         int buffered_tracks[] = {0, 0};
         for (int iTrack = 0;
-             iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize);
+             iTrack < setup_->numFramesIO() *
+                          ((double)TTBV::S_ / static_cast<double>(TTTrack_TrackWord::TrackBitWidths::kTrackWordSize));
              iTrack++) {
           for (int iWorker = 0; iWorker < setup_->kfNumWorker(); iWorker++) {
             for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
@@ -377,7 +378,8 @@ namespace trklet {
               trackRef = it.first;
           }
           if ((int)iTrack / 3 <=
-              setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize))
+              setup_->numFramesIO() *
+                  ((double)TTBV::S_ / static_cast<double>(TTTrack_TrackWord::TrackBitWidths::kTrackWordSize)))
             accepted[iLink].emplace_back(
                 std::make_pair(trackRef,
                                (sortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +

@@ -110,8 +110,9 @@ namespace ecaldqm {
     kEBTCCLow = 36,
     kEBTCCHigh = 71,
 
-    nChannels = EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing,
-    nTowers = EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing
+    nChannels = static_cast<int>(EBDetId::kSizeForDenseIndexing) + static_cast<int>(EEDetId::kSizeForDenseIndexing),
+    nTowers =
+        static_cast<int>(EcalTrigTowerDetId::kEBTotalTowers) + static_cast<int>(EcalScDetId::kSizeForDenseIndexing)
   };
 
   extern std::vector<unsigned> const memDCC;

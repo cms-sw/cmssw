@@ -32,11 +32,11 @@ void TauNNId::setNNVectorVar() {
         NNvectorVar_.push_back(0);
       continue;
     }
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Photon);         // Photon
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Electron);       // Electron
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Muon);           // Muon
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::NeutralHadron);  // Neutral Had
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron);  // Charged Had
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<float>(l1t::PFCandidate::Photon));         // Photon
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<float>(l1t::PFCandidate::Electron));       // Electron
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<float>(l1t::PFCandidate::Muon));           // Muon
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<float>(l1t::PFCandidate::NeutralHadron));  // Neutral Had
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<float>(l1t::PFCandidate::ChargedHadron));  // Charged Had
   }
 }
 float TauNNId::EvaluateNN() {

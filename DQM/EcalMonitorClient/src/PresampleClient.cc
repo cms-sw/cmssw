@@ -111,7 +111,7 @@ namespace ecaldqm {
       float chStatus(sChStatus.getBinContent(getEcalDQMSetupObjects(), id));
       if (entriesLS < minChannelEntries_)
         continue;
-      if (chStatus != EcalChannelStatusCode::kOk)
+      if (chStatus != static_cast<float>(EcalChannelStatusCode::kOk))
         continue;  // exclude problematic channels
 
       // Get max/min

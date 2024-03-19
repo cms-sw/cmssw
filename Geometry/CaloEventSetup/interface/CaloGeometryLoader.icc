@@ -64,7 +64,8 @@ void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
   fillNamedParams(fv0, geom);
 
   geom->allocateCorners(T::k_NumberOfCellsForCorners);
-  geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
+  geom->allocatePar(static_cast<int>(T::k_NumberOfParametersPerShape) * static_cast<int>(T::k_NumberOfShapes),
+                    T::k_NumberOfParametersPerShape);
 
   DDFilteredView fv(*cpv, filter);
 
@@ -123,7 +124,8 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
   fillNamedParams(fv, geom);
 
   geom->allocateCorners(T::k_NumberOfCellsForCorners);
-  geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
+  geom->allocatePar(static_cast<int>(T::k_NumberOfParametersPerShape) * static_cast<int>(T::k_NumberOfShapes),
+                    T::k_NumberOfParametersPerShape);
 
   std::string attribute = "ReadOutName";
   cms::DDSpecParRefs ref;

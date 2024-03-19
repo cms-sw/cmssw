@@ -378,27 +378,27 @@ void TotemT2DQMSource::fillFlags(const TotemT2Digi& digi, const TotemT2DetId& de
   const TotemT2DetId secId(detid.armId());
   const TotemT2DetId planeId(detid.planeId());
   if (digi.hasTE()) {
-    sectorPlots_[secId].eventFlags->Fill(t2TE + 0.0);
-    planePlots_[planeId].eventFlagsPl->Fill(t2TE + 0.0);
-    channelPlots_[detid].eventFlagsCh->Fill(t2TE + 0.0);
+    sectorPlots_[secId].eventFlags->Fill(static_cast<double>(t2TE));
+    planePlots_[planeId].eventFlagsPl->Fill(static_cast<double>(t2TE));
+    channelPlots_[detid].eventFlagsCh->Fill(static_cast<double>(t2TE));
   }
 
   if (digi.hasLE()) {
-    sectorPlots_[secId].eventFlags->Fill(t2LE + 0.0);
-    planePlots_[planeId].eventFlagsPl->Fill(t2LE + 0.0);
-    channelPlots_[detid].eventFlagsCh->Fill(t2LE + 0.0);
+    sectorPlots_[secId].eventFlags->Fill(static_cast<double>(t2LE));
+    planePlots_[planeId].eventFlagsPl->Fill(static_cast<double>(t2LE));
+    channelPlots_[detid].eventFlagsCh->Fill(static_cast<double>(t2LE));
   }
 
   if (digi.hasManyTE()) {
-    sectorPlots_[secId].eventFlags->Fill(t2MT + 0.0);
-    planePlots_[planeId].eventFlagsPl->Fill(t2MT + 0.0);
-    channelPlots_[detid].eventFlagsCh->Fill(t2MT + 0.0);
+    sectorPlots_[secId].eventFlags->Fill(static_cast<double>(t2MT));
+    planePlots_[planeId].eventFlagsPl->Fill(static_cast<double>(t2MT));
+    channelPlots_[detid].eventFlagsCh->Fill(static_cast<double>(t2MT));
   }
 
   if (digi.hasManyLE()) {
-    sectorPlots_[secId].eventFlags->Fill(t2ML + 0.0);
-    planePlots_[planeId].eventFlagsPl->Fill(t2ML + 0.0);
-    channelPlots_[detid].eventFlagsCh->Fill(t2ML + 0.0);
+    sectorPlots_[secId].eventFlags->Fill(static_cast<double>(t2ML));
+    planePlots_[planeId].eventFlagsPl->Fill(static_cast<double>(t2ML));
+    channelPlots_[detid].eventFlagsCh->Fill(static_cast<double>(t2ML));
   }
 }
 

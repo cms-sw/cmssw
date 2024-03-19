@@ -31,7 +31,7 @@ namespace ecaldqm {
       meanValue += certValue * nCrystals(iDCC + 1);
     }
 
-    meCertification.fill(getEcalDQMSetupObjects(), meanValue / nChannels);
+    meCertification.fill(getEcalDQMSetupObjects(), meanValue / static_cast<double>(nChannels));
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);

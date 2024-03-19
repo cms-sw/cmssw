@@ -118,8 +118,8 @@ namespace {
           EBrms[s] = sqrt(EBrms[s]);
         else
           EBrms[s] = 1.e-06;
-        pEBmin[s] = EBmean[s] - kRMS * EBrms[s];
-        pEBmax[s] = EBmean[s] + kRMS * EBrms[s];
+        pEBmin[s] = EBmean[s] - static_cast<int>(kRMS) * EBrms[s];
+        pEBmax[s] = EBmean[s] + static_cast<int>(kRMS) * EBrms[s];
         std::cout << "EB sample " << s << " mean " << EBmean[s] << " rms " << EBrms[s] << " entries " << EBtot[s]
                   << " min " << pEBmin[s] << " max " << pEBmax[s] << std::endl;
         //	if(pEBmin[s] <= 0.) pEBmin[s] = 1.e-06;
@@ -130,8 +130,8 @@ namespace {
           EErms[s] = sqrt(EErms[s]);
         else
           EErms[s] = 1.e-06;
-        pEEmin[s] = EEmean[s] - kRMS * EErms[s];
-        pEEmax[s] = EEmean[s] + kRMS * EErms[s];
+        pEEmin[s] = EEmean[s] - static_cast<int>(kRMS) * EErms[s];
+        pEEmax[s] = EEmean[s] + static_cast<int>(kRMS) * EErms[s];
         std::cout << "EE sample " << s << " mean " << EEmean[s] << " rms " << EErms[s] << " entries " << EEtot[s]
                   << " min " << pEEmin[s] << " max " << pEEmax[s] << std::endl;
         //	if(pEEmin[s] <= 0.) pEEmin[s] = 1.e-06;

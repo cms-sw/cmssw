@@ -156,8 +156,8 @@ public:
     ical = &eventSetup->getData(m_interCalibConstantsMCToken);
     // adc to GeV
     agc = &eventSetup->getData(m_adcToGeVConstantToken);
-    m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
-    m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
+    m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * static_cast<double>(MAXADC) * m_EBs25notCont;
+    m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * static_cast<double>(MAXADC) * m_EEs25notCont;
 
     if (m_timeDependent) {
       //----

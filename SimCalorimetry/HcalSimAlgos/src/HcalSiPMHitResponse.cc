@@ -24,7 +24,8 @@ HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap* parameterMa
       theSiPM(),
       PreMixDigis(PreMix1),
       HighFidelityPreMix(HighFidelity),
-      nbins((PreMixDigis and HighFidelityPreMix) ? 1 : BUNCHSPACE * HcalPulseShapes::invDeltaTSiPM_),
+      nbins((PreMixDigis and HighFidelityPreMix) ? 1
+                                                 : static_cast<float>(BUNCHSPACE) * HcalPulseShapes::invDeltaTSiPM_),
       dt(HcalPulseShapes::deltaTSiPM_),
       invdt(HcalPulseShapes::invDeltaTSiPM_) {
   //fill shape map
@@ -43,7 +44,7 @@ int HcalSiPMHitResponse::getReadoutFrameSize(const DetId& id) const {
   int readoutFrameSize = parameters.readoutFrameSize();
   if (PreMixDigis and HighFidelityPreMix) {
     //preserve fidelity of time info
-    readoutFrameSize *= BUNCHSPACE * HcalPulseShapes::invDeltaTSiPM_;
+    readoutFrameSize *= static_cast<float>(BUNCHSPACE) * HcalPulseShapes::invDeltaTSiPM_;
   }
   return readoutFrameSize;
 }
@@ -127,7 +128,8 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
     LogDebug("HcalSiPMHitResponse") << " energy: " << hit.energy() << " photons: " << photons << " time: " << time;
     LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase() << " tof: " << tof
                                     << " binOfMaximum: " << pars.binOfMaximum() << " phaseShift: " << thePhaseShift_;
-    double tzero(0.0 + pars.timePhase() - (time - tof) - BUNCHSPACE * (pars.binOfMaximum() - thePhaseShift_));
+    double tzero(0.0 + pars.timePhase() - (time - tof) -
+                 static_cast<double>(BUNCHSPACE) * (pars.binOfMaximum() - thePhaseShift_));
     LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
     double tzero_bin(-tzero * invdt);
     LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero_bin << '\n';
