@@ -112,7 +112,7 @@ void l1t::GlobalBoard::setBxFirst(int bx) { m_bxFirst_ = bx; }
 
 void l1t::GlobalBoard::setBxLast(int bx) { m_bxLast_ = bx; }
 
-// for getting axol1tl version from menu->GlobalProducer->GlobalBoard->condition class
+// temporary class for getting axol1tl version from config to condition class until it can be got from the utm menu
 void l1t::GlobalBoard::setAXOL1TLModelVersion(std::string axol1tlModelVersion) {
   m_axol1tlModelVersion = axol1tlModelVersion;
 }

@@ -52,12 +52,8 @@ public:
 public:
   inline const std::vector<ObjectParameter>* objectParameter() const { return &m_objectParameter; }
 
-  inline const std::string& modelVersion() const { return m_modelVersion; }
-
   /// set functions
   void setConditionParameter(const std::vector<ObjectParameter>& objParameter);
-
-  void setModelVersion(const std::string& modelversion);
 
   /// print the condition
   void print(std::ostream& myCout) const override;
@@ -71,9 +67,6 @@ private:
 
   /// variables containing the parameters
   std::vector<ObjectParameter> m_objectParameter;
-
-  /// model version
-  std::string m_modelVersion;
 };
 
 #endif

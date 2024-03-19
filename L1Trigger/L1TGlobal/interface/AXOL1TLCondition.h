@@ -75,7 +75,7 @@ namespace l1t {
     const GlobalBoard* m_gtGTB;
 
     //to set modelversion from globalboard<-globalproducer<-config
-    std::string m_AXOL1TLmodelversion = "";
+    std::string m_AXOL1TLmodelversion = "NONE";
   };
 
 }  // namespace l1t
