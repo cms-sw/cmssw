@@ -30,8 +30,9 @@ process.source = cms.Source("EmptySource",
 
 process.StreamIntProd = cms.EDProducer("edmtest::limited::StreamIntProducer",
     concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2*int(nEvt/nEvtLumi)+2))
+    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntProd = cms.EDProducer("edmtest::limited::RunIntProducer",
@@ -54,7 +55,7 @@ process.RunSumIntProd = cms.EDProducer("edmtest::limited::RunSummaryIntProducer"
 
 process.LumiSumIntProd = cms.EDProducer("edmtest::limited::LumiSummaryIntProducer",
                                         concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nStreams*int(nEvt/nEvtLumi)+2*int(nEvt/nEvtLumi))
+    transitions = cms.int32(nStreams+nEvt+2*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
@@ -111,8 +112,9 @@ process.TestEndLumiBlockProd = cms.EDProducer("edmtest::limited::TestEndLumiBloc
 
 process.StreamIntAn = cms.EDAnalyzer("edmtest::limited::StreamIntAnalyzer",
                                      concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2*int(nEvt/nEvtLumi)+2))
+    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntAn= cms.EDAnalyzer("edmtest::limited::RunIntAnalyzer",
@@ -137,7 +139,7 @@ process.RunSumIntAn = cms.EDAnalyzer("edmtest::limited::RunSummaryIntAnalyzer",
 
 process.LumiSumIntAn = cms.EDAnalyzer("edmtest::limited::LumiSummaryIntAnalyzer",
                                       concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nEvt+nStreams*(int(nEvt/nEvtLumi)+1)+2*int(nEvt/nEvtLumi))
+    transitions = cms.int32(nEvt+nStreams+2*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 
@@ -150,8 +152,9 @@ process.ProcessBlockIntAn = cms.EDAnalyzer("edmtest::limited::ProcessBlockIntAna
 
 process.StreamIntFil = cms.EDFilter("edmtest::limited::StreamIntFilter",
                                     concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2*int(nEvt/nEvtLumi)+2))
+    transitions = cms.int32(nEvt+nStreams*(2*int(nEvt/nEvtRun)+2))
     ,cachevalue = cms.int32(1)
+    ,nLumis = cms.untracked.uint32(int(nEvt/nEvtLumi))
 )
 
 process.RunIntFil = cms.EDFilter("edmtest::limited::RunIntFilter",
@@ -174,7 +177,7 @@ process.RunSumIntFil = cms.EDFilter("edmtest::limited::RunSummaryIntFilter",
 
 process.LumiSumIntFil = cms.EDFilter("edmtest::limited::LumiSummaryIntFilter",
                                      concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nEvt+nStreams*(int(nEvt/nEvtLumi)+1)+2*int(nEvt/nEvtLumi))
+    transitions = cms.int32(nEvt+nStreams+2*int(nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvtLumi)
 )
 

@@ -185,6 +185,30 @@ approxSiStripClusters.toModify(RAWEventContent,
                               ])
 
 #
+# HLTSCOUT Data Tier definition
+#
+#
+HLTSCOUTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+HLTSCOUTEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+#
+# L1SCOUT Data Tier definition
+#
+#
+L1SCOUTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+L1SCOUTEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+
+#
 #
 # HLTONLY Data Tier definition
 #
@@ -945,3 +969,4 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
+

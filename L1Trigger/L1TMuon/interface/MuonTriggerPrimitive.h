@@ -222,6 +222,8 @@ namespace L1TMuon {
 
     // Constructor from ME0 data
     TriggerPrimitive(const ME0DetId& detid, const ME0TriggerDigi& digi);
+    // Constructor from GE0 data
+    TriggerPrimitive(const GEMDetId& detid, const ME0TriggerDigi& digi);
 
     // Copy constructor
     TriggerPrimitive(const TriggerPrimitive& tp);

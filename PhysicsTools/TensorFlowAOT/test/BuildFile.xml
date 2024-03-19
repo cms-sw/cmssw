@@ -1,0 +1,18 @@
+<test name="testAOTTools" command="python3 ${LOCALTOP}/src/PhysicsTools/TensorFlowAOT/test/testAOTTools.py"/>
+
+<!--
+interface tests are disabled as they require dynamically compiled targets at build time, which is
+going to be integrated in a second step directly through cmsdist for the correct architecture based
+on models provided through cms-externals, treated like a normal software dependency
+
+<bin name="testTFAOTInterface" file="testRunner.cpp,testInterface.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlowAOT"/>
+
+  <flags LDFLAGS="${CMSSW_BASE}/src/PhysicsTools/TensorFlowAOT/test/test_models/simplemodel/lib/simplemodel_bs1.o"/>
+  <flags LDFLAGS="${CMSSW_BASE}/src/PhysicsTools/TensorFlowAOT/test/test_models/simplemodel/lib/simplemodel_bs2.o"/>
+  <flags LDFLAGS="${CMSSW_BASE}/src/PhysicsTools/TensorFlowAOT/test/test_models/multimodel/lib/multimodel_bs1.o"/>
+  <flags LDFLAGS="${CMSSW_BASE}/src/PhysicsTools/TensorFlowAOT/test/test_models/multimodel/lib/multimodel_bs2.o"/>
+</bin>
+-->

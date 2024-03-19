@@ -30,6 +30,9 @@
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
 
+#include "DataFormats/L1TCorrelator/interface/TkTriplet.h"
+#include "DataFormats/L1TCorrelator/interface/TkTripletFwd.h"
+
 #include "DataFormats/L1TCorrelator/interface/TkHTMiss.h"
 #include "DataFormats/L1TCorrelator/interface/TkHTMissFwd.h"
 

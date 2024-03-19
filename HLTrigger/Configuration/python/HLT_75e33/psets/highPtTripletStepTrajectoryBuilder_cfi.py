@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 highPtTripletStepTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    # MeasurementTrackerName = cms.string(''),
     TTRHBuilder = cms.string('WithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(False),
     bestHitOnly = cms.bool(True),

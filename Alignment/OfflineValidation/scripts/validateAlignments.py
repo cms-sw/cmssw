@@ -336,6 +336,9 @@ def main():
             ## Customize the condor submit file for this specific job
             condorSubmitCustomization = {"overwrite": [], "addBefore": []}
 
+            ## Hack to solve condor dagman issue with passing environmental variables
+            condorSubmitCustomization["addBefore"].append('+JobFlavour|+environment = "CMSSW_BASE={}"'.format(fnc.digest_path("$CMSSW_BASE")))
+
             # Take given flavour for the job, except if overwritten in job config
             condorSubmitCustomization["overwrite"].append('+JobFlavour = "{}"'.format(args.job_flavour if not 'flavour' in job else job['flavour']))
             

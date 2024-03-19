@@ -4,7 +4,7 @@ executable = run.sh
 output = condor/condor.out
 error  = condor/condor.err
 log    = condor/condor.log
-requirements = (OpSysAndVer =?= "CentOS7")
+requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour = "espresso"
 +AccountingGroup = "group_u_CMS.CAF.ALCA"
 queue

@@ -35,7 +35,7 @@ function cleanup() {
 
   # clean up
   for TABLE in $TABLES; do
-    rm -f "${TABLE}_expanded.txt"
+    rm -f "${PREFIX}${TABLE}_expanded.txt"
   done
 
   if $private; then
@@ -204,6 +204,7 @@ function createSubtables() {
   local DATABASE="$1"; shift
   local MASTER="$1";   shift
   local TARGET="$1";   shift
+  local PREFIX="$1";   shift
   local TABLES="$@"
 
   # extract the schema version from the database name
@@ -223,7 +224,7 @@ function createSubtables() {
   local LIST=$(getPathList $MASTER)
   local FAIL=0
   for TABLE in $TABLES; do
-    expandSubtable "$TABLE" "$LIST" || FAIL=1
+    expandSubtable "${PREFIX}${TABLE}" "$LIST" || FAIL=1
   done
   if (( $FAIL )); then
     echo "Error: one or more patterns do not match any paths, exiting." 1>&2
@@ -238,10 +239,10 @@ function createSubtables() {
 
   # extract each subtable
   for TABLE in $TABLES; do
-    runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "${TABLE}_expanded.txt" $(echo "$TARGET" | sed -e"s|TABLE|$TABLE|")
+    runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "${PREFIX}${TABLE}_expanded.txt" $(echo "$TARGET" | sed -e"s|TABLE|$TABLE|")
   done
 
   # remove clean up hook, and call explicit cleanup
   trap - INT TERM EXIT
-  cleanup $TABLES
+  cleanup ${TABLES}
 }

@@ -49,7 +49,7 @@ process.globalLumiIntProd = cms.EDProducer("edmtest::global::LumiIntProducer",
 )
 
 process.globalLumiSumIntProd = cms.EDProducer("edmtest::global::LumiSummaryIntProducer",
-    transitions = cms.int32(2*nLumis+nStreams*nLumis)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 
@@ -69,7 +69,7 @@ process.globalLumiIntFilt = cms.EDFilter("edmtest::global::LumiIntFilter",
 )
 
 process.globalLumiSumIntFilt = cms.EDFilter("edmtest::global::LumiSummaryIntFilter",
-    transitions = cms.int32(nStreams+nStreams*nLumis+2*nLumis+nEvents)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 
@@ -90,7 +90,7 @@ process.globalLumiIntAna = cms.EDAnalyzer("edmtest::global::LumiIntAnalyzer",
 )
 
 process.globalLumiSumIntAna = cms.EDAnalyzer("edmtest::global::LumiSummaryIntAnalyzer",
-    transitions = cms.int32(nStreams+nStreams*nLumis+2*nLumis+nEvents)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 
@@ -114,7 +114,7 @@ process.limitedLumiIntProd = cms.EDProducer("edmtest::limited::LumiIntProducer",
 
 process.limitedLumiSumIntProd = cms.EDProducer("edmtest::limited::LumiSummaryIntProducer",
     concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nStreams*nLumis+2*nLumis)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 
@@ -138,7 +138,7 @@ process.limitedLumiIntFilt = cms.EDFilter("edmtest::limited::LumiIntFilter",
 
 process.limitedLumiSumIntFilt = cms.EDFilter("edmtest::limited::LumiSummaryIntFilter",
     concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nStreams+nStreams*nLumis+2*nLumis+nEvents)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 
@@ -163,7 +163,7 @@ process.limitedLumiIntAna = cms.EDAnalyzer("edmtest::limited::LumiIntAnalyzer",
 
 process.limitedLumiSumIntAna = cms.EDAnalyzer("edmtest::limited::LumiSummaryIntAnalyzer",
     concurrencyLimit = cms.untracked.uint32(1),
-    transitions = cms.int32(nStreams+nStreams*nLumis+2*nLumis+nEvents)
+    transitions = cms.int32(nStreams+2*nLumis+nEvents)
     ,cachevalue = cms.int32(nEventsPerLumi)
 )
 

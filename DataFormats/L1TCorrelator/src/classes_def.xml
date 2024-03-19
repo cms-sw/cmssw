@@ -74,8 +74,16 @@
   <class name="std::vector<l1t::TkJet>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkJet> >"/>
   <class name="edm::Ref<std::vector<l1t::TkJet>,l1t::TkJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkJet>,l1t::TkJet> >"/>
-
   <class name="edm::RefProd< std::vector<l1t::TkJet> >"/>
+
+  <class name="l1t::TkTriplet" ClassVersion="3">
+    <version ClassVersion="3" checksum="3181606259"/>
+  </class>
+  <class name="std::vector<l1t::TkTriplet>"/>
+  <class name="edm::Wrapper<std::vector<l1t::TkTriplet> >"/>
+  <class name="edm::Ref<std::vector<l1t::TkTriplet>,l1t::TkTriplet,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkTriplet>,l1t::TkTriplet> >"/>
+  <class name="edm::RefProd< std::vector<l1t::TkTriplet> >"/>
+
 
   <class name="l1t::TkHTMiss" ClassVersion="4">
     <version ClassVersion="4" checksum="4116208712"/>

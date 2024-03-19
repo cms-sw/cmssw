@@ -440,15 +440,15 @@ namespace trklet {
     //have the factor if 2
     double krprojshiftdisk() const { return 2 * kr(); }
 
-    double benddecode(int ibend, int layerdisk, bool isPSmodule) const {
+    double benddecode(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
-        layerdisk += (N_LAYER - 1);
+        layerdisk += N_DISK;
       double bend = benddecode_[layerdisk][ibend];
       assert(bend < 99.0);
       return bend;
     }
 
-    double bendcut(int ibend, int layerdisk, bool isPSmodule) const {
+    double bendcut(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
         layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
@@ -893,7 +893,9 @@ namespace trklet {
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
-    // If set to true this will generate debub printout in text files
+    // If set to true this creates txt files, which the ROOT macros in
+    // https://github.com/cms-L1TK/TrackPerf/tree/master/PatternReco
+    // can then use to study truncation of individual algo steps within tracklet chain.
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
                                                             {"TE", false},
                                                             {"CT", false},

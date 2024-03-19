@@ -27,7 +27,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                 )
             ),
             srFlags = cms.InputTag(""),
-            src = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+            src = cms.InputTag("hltEcalRecHit","EcalRecHitsEB")
         ),
         cms.PSet(
             name = cms.string('PFEERecHitCreator'),
@@ -45,7 +45,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                 )
             ),
             srFlags = cms.InputTag(""),
-            src = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+            src = cms.InputTag("hltEcalRecHit","EcalRecHitsEE")
         )
     )
 )

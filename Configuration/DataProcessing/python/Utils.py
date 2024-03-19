@@ -132,6 +132,20 @@ def dqmSeq(args,default):
     else:
         return default
 
+def nanoFlavours(flavours):
+    """
+    _nanoFlavours_
+
+    Creates and returns the configuration string for the NANO flavours
+    from the list of flavors to be run.
+
+    """
+
+    step = ''
+    if len(flavours) >0 :
+        step = ':'+('+'.join(flavours))
+    return step
+
 def gtNameAndConnect(globalTag, args):
     if 'globalTagConnect' in args and args['globalTagConnect'] != '':
         return globalTag + ','+args['globalTagConnect']        

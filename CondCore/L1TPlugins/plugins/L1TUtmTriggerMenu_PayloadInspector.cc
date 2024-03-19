@@ -116,7 +116,7 @@ namespace {
     }  // fill
   };
 
-  template <IOVMultiplicity nIOVs, int ntags>
+  template <typename T, IOVMultiplicity nIOVs, int ntags>
   class L1TUtmTriggerMenu_CompareAlgosBase : public PlotImage<L1TUtmTriggerMenu, nIOVs, ntags> {
   public:
     L1TUtmTriggerMenu_CompareAlgosBase()
@@ -152,7 +152,8 @@ namespace {
       if (tmpTagName.empty())
         tmpTagName = f_tagname;
 
-      L1TUtmTriggerMenuInspectorHelper::L1TUtmTriggerMenuDisplay thePlot(last_payload.get(), tmpTagName, lastIOVsince);
+      L1TUtmTriggerMenuInspectorHelper::L1TUtmTriggerMenuDisplay<T> thePlot(
+          last_payload.get(), tmpTagName, lastIOVsince);
       thePlot.setImageFileName(this->m_imageFileName);
       thePlot.plotDiffWithOtherMenu(first_payload.get(), f_tagname, firstIOVsince);
 
@@ -160,8 +161,11 @@ namespace {
     }
   };
 
-  using L1TUtmTriggerMenu_CompareAlgos = L1TUtmTriggerMenu_CompareAlgosBase<MULTI_IOV, 1>;
-  using L1TUtmTriggerMenu_CompareAlgosTwoTags = L1TUtmTriggerMenu_CompareAlgosBase<SINGLE_IOV, 2>;
+  using L1TUtmTriggerMenu_CompareAlgos = L1TUtmTriggerMenu_CompareAlgosBase<L1TUtmAlgorithm, MULTI_IOV, 1>;
+  using L1TUtmTriggerMenu_CompareAlgosTwoTags = L1TUtmTriggerMenu_CompareAlgosBase<L1TUtmAlgorithm, SINGLE_IOV, 2>;
+
+  using L1TUtmTriggerMenu_CompareConditions = L1TUtmTriggerMenu_CompareAlgosBase<L1TUtmCondition, MULTI_IOV, 1>;
+  using L1TUtmTriggerMenu_CompareConditionsTwoTags = L1TUtmTriggerMenu_CompareAlgosBase<L1TUtmCondition, SINGLE_IOV, 2>;
 
 }  // namespace
 
@@ -169,4 +173,6 @@ PAYLOAD_INSPECTOR_MODULE(L1TUtmTriggerMenu) {
   PAYLOAD_INSPECTOR_CLASS(L1TUtmTriggerMenuDisplayAlgos);
   PAYLOAD_INSPECTOR_CLASS(L1TUtmTriggerMenu_CompareAlgos);
   PAYLOAD_INSPECTOR_CLASS(L1TUtmTriggerMenu_CompareAlgosTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(L1TUtmTriggerMenu_CompareConditions);
+  PAYLOAD_INSPECTOR_CLASS(L1TUtmTriggerMenu_CompareConditionsTwoTags);
 }

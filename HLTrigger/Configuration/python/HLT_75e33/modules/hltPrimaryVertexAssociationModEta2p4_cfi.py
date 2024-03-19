@@ -4,6 +4,9 @@ hltPrimaryVertexAssociationModEta2p4 = cms.EDProducer("PFCandidatePrimaryVertexS
     assignment = cms.PSet(
         DzCutForChargedFromPUVtxs = cms.double(0.2),
         EtaMinUseDz = cms.double(-1),
+        NumOfPUVtxsForCharged = cms.uint32(0),
+        OnlyUseFirstDz = cms.bool(False),
+        PtMaxCharged = cms.double(-1),
         maxDistanceToJetAxis = cms.double(0.07),
         maxDtSigForPrimaryAssignment = cms.double(3.0),
         maxDxyForJetAxisAssigment = cms.double(0.1),
@@ -15,10 +18,7 @@ hltPrimaryVertexAssociationModEta2p4 = cms.EDProducer("PFCandidatePrimaryVertexS
         maxDzSigForPrimaryAssignment = cms.double(5.0),
         maxJetDeltaR = cms.double(0.5),
         minJetPt = cms.double(25),
-        NumOfPUVtxsForCharged = cms.uint32(0),
-        OnlyUseFirstDz = cms.bool(False),
         preferHighRanked = cms.bool(False),
-        PtMaxCharged = cms.double(-1),
         useTiming = cms.bool(False),
         useVertexFit = cms.bool(True)
     ),
@@ -33,5 +33,5 @@ hltPrimaryVertexAssociationModEta2p4 = cms.EDProducer("PFCandidatePrimaryVertexS
 
     ),
     usePVMET = cms.bool(True),
-    vertices = cms.InputTag("offlinePrimaryVertices"),
+    vertices = cms.InputTag("offlinePrimaryVertices")
 )

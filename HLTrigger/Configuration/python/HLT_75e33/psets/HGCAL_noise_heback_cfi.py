@@ -1,4 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_noise_heback as _HGCAL_noise_heback
-HGCAL_noise_heback = _HGCAL_noise_heback.clone()
+HGCAL_noise_heback = cms.PSet(
+    doseMap = cms.string(''),
+    noise_MIP = cms.double(0.01),
+    referenceIdark = cms.double(-1),
+    referenceXtalk = cms.double(-1),
+    scaleByDose = cms.bool(False),
+    scaleByDoseAlgo = cms.uint32(0),
+    scaleByDoseFactor = cms.double(1),
+    sipmMap = cms.string('')
+)
