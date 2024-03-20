@@ -1796,8 +1796,11 @@ class ConfigBuilder(object):
     def prepare_NANO(self, stepSpec = '' ):
         print(f"in prepare_nano {stepSpec}")
         ''' Enrich the schedule with NANO '''
-        _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
-        
+        if not '@' in stepSpec:
+            _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
+        else:
+            _nanoSeq = stepSpec
+
         # create full specified sequence using autoNANO 
         from PhysicsTools.NanoAOD.autoNANO import autoNANO, expandNanoMapping
         # if not a autoNANO mapping, load an empty customization, which later will be converted into the default.
@@ -1818,9 +1821,11 @@ class ConfigBuilder(object):
         for _subSeq in _nanoSeq:
             if '.' in _subSeq:
                 _cff,_seq = _subSeq.split('.')
+                print("NANO: scheduling:",_seq,"from",_cff)
                 self.loadAndRemember(_cff)
                 _seqToSchedule.append(_seq)
             else:
+                print("NANO: scheduling:",_subSeq)
                 _seqToSchedule.append(_subSeq)
         self.scheduleSequence('+'.join(_seqToSchedule), 'nanoAOD_step')
         
