@@ -371,7 +371,7 @@ namespace l1t {
       gtObj.hwSeed_z0_ = gtTau.seed_z0.V.to_int();
       gtObj.hwCharge_ = gtTau.charge.V.to_int();
       gtObj.hwType_ = gtTau.type.V.to_int();
-      gtObj.hwIso_ = gtTau.isolation.V.to_int();
+      gtObj.hwQual_ = gtTau.quality.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Taus;
 
       outputCollection->push_back(gtObj);
