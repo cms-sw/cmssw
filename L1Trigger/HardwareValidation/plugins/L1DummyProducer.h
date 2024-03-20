@@ -507,11 +507,11 @@ inline void L1DummyProducer::SimpleDigi(int,
   enum eMinNum { MIN_ENDCAP = 1, MIN_STATION = 1, MIN_RING = 1, MIN_CHAMBER = 1, MIN_LAYER = 1 };
   enum eMaxNum { MAX_ENDCAP = 2, MAX_STATION = 4, MAX_RING = 4, MAX_CHAMBER = 36, MAX_LAYER = 6 };
   float rnd = engine->flat();
-  int ec = (int)(MIN_ENDCAP + (static_cast<int>(MAX_ENDCAP) - MIN_ENDCAP) * rnd + 1);
-  int st = (int)(MIN_STATION + (static_cast<int>(MAX_STATION) - MIN_STATION) * rnd + 1);
-  int rg = (int)(MIN_RING + (static_cast<int>(MAX_RING) - MIN_RING) * rnd + 1);
-  int ch = (int)(MIN_CHAMBER + (static_cast<int>(MAX_CHAMBER) - MIN_CHAMBER) * rnd + 1);
-  int lr = (int)(MIN_LAYER + (static_cast<int>(MAX_LAYER) - MIN_LAYER) * rnd + 1);
+  int ec = (int)(static_cast<int>(MIN_ENDCAP) + (static_cast<int>(MAX_ENDCAP) - MIN_ENDCAP) * rnd + 1);
+  int st = (int)(static_cast<int>(MIN_STATION) + (static_cast<int>(MAX_STATION) - MIN_STATION) * rnd + 1);
+  int rg = (int)(static_cast<int>(MIN_RING) + (static_cast<int>(MAX_RING) - MIN_RING) * rnd + 1);
+  int ch = (int)(static_cast<int>(MIN_CHAMBER) + (static_cast<int>(MAX_CHAMBER) - MIN_CHAMBER) * rnd + 1);
+  int lr = (int)(static_cast<int>(MIN_LAYER) + (static_cast<int>(MAX_LAYER) - MIN_LAYER) * rnd + 1);
   CSCDetId did = CSCDetId(ec, st, rg, ch, lr);
   //CSCDetId did = CSCDetId();   //DetId(DetId::Muon, MuonSubdetId::CSC)
   //MuonDigiCollection::insertDigi(const IndexType& index, const DigiType& digi)
