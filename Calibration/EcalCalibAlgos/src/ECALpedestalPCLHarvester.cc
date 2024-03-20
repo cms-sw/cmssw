@@ -206,8 +206,8 @@ bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedesta
       nAnomaliesEE++;
   }
 
-  if (nAnomaliesEB > thresholdAnomalies_ * EBDetId::kSizeForDenseIndexing ||
-      nAnomaliesEE > thresholdAnomalies_ * EEDetId::kSizeForDenseIndexing)
+  if (nAnomaliesEB > thresholdAnomalies_ * static_cast<int>(EBDetId::kSizeForDenseIndexing) ||
+      nAnomaliesEE > thresholdAnomalies_ * static_cast<int>(EEDetId::kSizeForDenseIndexing))
     return true;
 
   return false;

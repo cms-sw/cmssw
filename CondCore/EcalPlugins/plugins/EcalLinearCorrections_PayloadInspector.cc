@@ -170,8 +170,8 @@ namespace {
         EBrms[valId] = sqrt(EBrms[valId]);
         if (EBrms[valId] == 0.)
           EBrms[valId] = 0.001;
-        pEBmin[valId] = EBmean[valId] - kRMS * EBrms[valId];
-        pEBmax[valId] = EBmean[valId] + kRMS * EBrms[valId];
+        pEBmin[valId] = EBmean[valId] - static_cast<int>(kRMS) * EBrms[valId];
+        pEBmax[valId] = EBmean[valId] + static_cast<int>(kRMS) * EBrms[valId];
         //	std::cout << " mean " << EBmean[valId] << " rms " << EBrms[valId] << " entries " << EBtot[valId] << " min " << pEBmin[valId]
         //		  << " max " << pEBmax[valId] << std::endl;
         vt = (double)EEtot[valId];
@@ -180,8 +180,8 @@ namespace {
         EErms[valId] = sqrt(EErms[valId]);
         if (EErms[valId] == 0.)
           EErms[valId] = 0.001;
-        pEEmin[valId] = EEmean[valId] - kRMS * EErms[valId];
-        pEEmax[valId] = EEmean[valId] + kRMS * EErms[valId];
+        pEEmin[valId] = EEmean[valId] - static_cast<int>(kRMS) * EErms[valId];
+        pEEmax[valId] = EEmean[valId] + static_cast<int>(kRMS) * EErms[valId];
         //	std::cout << " mean " << EEmean[valId] << " rms " << EErms[valId] << " entries " << EEtot[valId] << " min " << pEEmin[valId]
         //		  << " max " << pEEmax[valId] << std::endl;
       }
@@ -424,8 +424,8 @@ namespace {
         EBrms[valId] = sqrt(EBrms[valId]);
         if (EBrms[valId] == 0.)
           EBrms[valId] = 0.001;
-        pEBmin[valId] = EBmean[valId] - kRMS * EBrms[valId];
-        pEBmax[valId] = EBmean[valId] + kRMS * EBrms[valId];
+        pEBmin[valId] = EBmean[valId] - static_cast<int>(kRMS) * EBrms[valId];
+        pEBmax[valId] = EBmean[valId] + static_cast<int>(kRMS) * EBrms[valId];
         //	std::cout << " mean " << EBmean[valId] << " rms " << EBrms[valId] << " entries " << EBtot[valId] << " min " << pEBmin[valId]
         //		  << " max " << pEBmax[valId] << std::endl;
         vt = (double)EEtot[valId];
@@ -434,8 +434,8 @@ namespace {
         EErms[valId] = sqrt(EErms[valId]);
         if (EErms[valId] == 0.)
           EErms[valId] = 0.001;
-        pEEmin[valId] = EEmean[valId] - kRMS * EErms[valId];
-        pEEmax[valId] = EEmean[valId] + kRMS * EErms[valId];
+        pEEmin[valId] = EEmean[valId] - static_cast<int>(kRMS) * EErms[valId];
+        pEEmax[valId] = EEmean[valId] + static_cast<int>(kRMS) * EErms[valId];
         //	std::cout << " mean " << EEmean[valId] << " rms " << EErms[valId] << " entries " << EEtot[valId] << " min " << pEEmin[valId]
         //		  << " max " << pEEmax[valId] << std::endl;
       }

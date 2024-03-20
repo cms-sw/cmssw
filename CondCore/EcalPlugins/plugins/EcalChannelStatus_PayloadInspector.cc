@@ -117,7 +117,7 @@ namespace {
       t1.DrawLatex(0.5, 0.96, Form("EB Channel Status Masks, IOV %i", run));
 
       char txt[80];
-      Double_t prop = (Double_t)ebcount / kEBChannels * 100.;
+      Double_t prop = (Double_t)ebcount / static_cast<int>(kEBChannels) * 100.;
       sprintf(txt, "%d/61200 (%4.3f%%)", ebcount, prop);
       t1.SetTextColor(2);
       t1.SetTextSize(0.045);
@@ -252,7 +252,7 @@ namespace {
       t1.DrawLatex(0.5, 0.96, Form("EE Channel Status Masks, IOV %i", run));
 
       char txt[80];
-      Double_t prop = (Double_t)eecount / kEEChannels * 100.;
+      Double_t prop = (Double_t)eecount / static_cast<int>(kEEChannels) * 100.;
       sprintf(txt, "%d/14648 (%4.3f%%)", eecount, prop);
       t1.SetTextColor(2);
       t1.SetTextSize(0.045);

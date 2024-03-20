@@ -106,12 +106,13 @@ const bool AlignPCLThresholdsHG::hasFloatMap(const std::string &AlignableId) con
 
 //****************************************************************************//
 const int AlignPCLThresholdsHG::payloadVersion() const {
-  switch (FSIZE + ISIZE + SSIZE) {
+  switch (static_cast<int>(FSIZE) + static_cast<int>(ISIZE) + static_cast<int>(SSIZE)) {
     case 6:
       return 1;
     default:
       throw cms::Exception("AlignPCLThresholdsHG")
-          << "Payload version with parameter size equal to " << FSIZE + ISIZE + SSIZE << " is not defined.\n";
+          << "Payload version with parameter size equal to "
+          << static_cast<int>(FSIZE) + static_cast<int>(ISIZE) + static_cast<int>(SSIZE) << " is not defined.\n";
   }
 }
 

@@ -345,8 +345,8 @@ namespace {
         EBrms[gId] = sqrt(EBrms[gId]);
         if (EBrms[gId] == 0.)
           EBrms[gId] = 0.001;
-        pEBmin[gId] = EBmean[gId] - kRMS * EBrms[gId];
-        pEBmax[gId] = EBmean[gId] + kRMS * EBrms[gId];
+        pEBmin[gId] = EBmean[gId] - static_cast<int>(kRMS) * EBrms[gId];
+        pEBmax[gId] = EBmean[gId] + static_cast<int>(kRMS) * EBrms[gId];
         //	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId]
         //		  << " max " << pEBmax[gId] << std::endl;
         if (pEBmin[gId] < 0.)
@@ -357,8 +357,8 @@ namespace {
         EErms[gId] = sqrt(EErms[gId]);
         if (EErms[gId] == 0.)
           EErms[gId] = 0.001;
-        pEEmin[gId] = EEmean[gId] - kRMS * EErms[gId];
-        pEEmax[gId] = EEmean[gId] + kRMS * EErms[gId];
+        pEEmin[gId] = EEmean[gId] - static_cast<int>(kRMS) * EErms[gId];
+        pEEmax[gId] = EEmean[gId] + static_cast<int>(kRMS) * EErms[gId];
         //	std::cout << " mean " << EEmean[gId] << " rms " << EErms[gId] << " entries " << EEtot[gId] << " min " << pEEmin[gId]
         //		  << " max " << pEEmax[gId] << std::endl;
         if (pEEmin[gId] < 0.)
@@ -789,8 +789,8 @@ namespace {
         EBrms[gId] = sqrt(EBrms[gId]);
         if (EBrms[gId] == 0.)
           EBrms[gId] = 0.001;
-        pEBmin[gId] = EBmean[gId] - kRMS * EBrms[gId];
-        pEBmax[gId] = EBmean[gId] + kRMS * EBrms[gId];
+        pEBmin[gId] = EBmean[gId] - static_cast<int>(kRMS) * EBrms[gId];
+        pEBmax[gId] = EBmean[gId] + static_cast<int>(kRMS) * EBrms[gId];
         //	std::cout << " mean " << EBmean[gId] << " rms " << EBrms[gId] << " entries " << EBtot[gId] << " min " << pEBmin[gId]
         //		  << " max " << pEBmax[gId] << std::endl;
         vt = (double)EEtot[gId];
@@ -799,8 +799,8 @@ namespace {
         EErms[gId] = sqrt(EErms[gId]);
         if (EErms[gId] == 0.)
           EErms[gId] = 0.001;
-        pEEmin[gId] = EEmean[gId] - kRMS * EErms[gId];
-        pEEmax[gId] = EEmean[gId] + kRMS * EErms[gId];
+        pEEmin[gId] = EEmean[gId] - static_cast<int>(kRMS) * EErms[gId];
+        pEEmax[gId] = EEmean[gId] + static_cast<int>(kRMS) * EErms[gId];
         //	std::cout << " mean " << EEmean[gId] << " rms " << EErms[gId] << " entries " << EEtot[gId] << " min " << pEEmin[gId]
         //		  << " max " << pEEmax[gId] << std::endl;
       }
@@ -1041,9 +1041,9 @@ namespace {
     EcalPedestalsEEMean6Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap pedestal gain6 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<int>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<int>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,
@@ -1092,9 +1092,9 @@ namespace {
     EcalPedestalsEEMean1Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap pedestal gain1 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<int>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<int>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,
@@ -1289,9 +1289,9 @@ namespace {
     EcalPedestalsEERMS12Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap noise gain12 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<int>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<int>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,
@@ -1341,9 +1341,9 @@ namespace {
     EcalPedestalsEERMS6Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap noise gain6 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<int>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<int>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,
@@ -1391,9 +1391,9 @@ namespace {
     EcalPedestalsEERMS1Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap noise gain1 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<int>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<int>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,

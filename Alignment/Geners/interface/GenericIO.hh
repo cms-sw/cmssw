@@ -351,14 +351,19 @@ namespace gs {
       // Note that the pointee itself can not be a pointer.
       typedef typename IOPointeeType<Ptr>::type Pointee;
       typedef IOTraits<Pointee> M;
-      static_assert((M::Signature & (M::ISPOINTER | M::ISSHAREDPTR)) == 0, "can not read pointers to pointers");
+      static_assert(
+          (static_cast<int>(M::Signature) & (static_cast<int>(M::ISPOINTER) | static_cast<int>(M::ISSHAREDPTR))) == 0,
+          "can not read pointers to pointers");
 
       return GenericReader<
           Stream,
           State,
           Pointee,
-          Int2Type<M::Signature &(M::ISPOD | M::ISSTDCONTAINER | M::ISHEAPREADABLE | M::ISPLACEREADABLE | M::ISPAIR |
-                                  M::ISTUPLE | M::ISEXTERNAL | M::ISSTRING)>>::readIntoPtr(ptr, str, s, processClassId);
+          Int2Type<static_cast<int>(M::Signature) &
+                   (static_cast<int>(M::ISPOD) | static_cast<int>(M::ISSTDCONTAINER) |
+                    static_cast<int>(M::ISHEAPREADABLE) | static_cast<int>(M::ISPLACEREADABLE) |
+                    static_cast<int>(M::ISPAIR) | static_cast<int>(M::ISTUPLE) | static_cast<int>(M::ISEXTERNAL) |
+                    static_cast<int>(M::ISSTRING))>>::readIntoPtr(ptr, str, s, processClassId);
     }
   };
 
@@ -370,14 +375,19 @@ namespace gs {
       // Note that the pointee itself can not be a pointer.
       typedef typename IOPointeeType<Ptr>::type Pointee;
       typedef IOTraits<Pointee> M;
-      static_assert((M::Signature & (M::ISNULLPOINTER | M::ISSHAREDPTR)) == 0, "can not read pointers to pointers");
+      static_assert((static_cast<int>(M::Signature) &
+                     (static_cast<int>(M::ISNULLPOINTER) | static_cast<int>(M::ISSHAREDPTR))) == 0,
+                    "can not read pointers to pointers");
 
       return GenericReader<
           Stream,
           State,
           Pointee,
-          Int2Type<M::Signature &(M::ISPOD | M::ISSTDCONTAINER | M::ISPUREHEAPREADABLE | M::ISPLACEREADABLE | M::ISPAIR |
-                                  M::ISTUPLE | M::ISEXTERNAL | M::ISSTRING)>>::readIntoPtr(ptr, str, s, processClassId);
+          Int2Type<static_cast<int>(M::Signature) &
+                   (static_cast<int>(M::ISPOD) | static_cast<int>(M::ISSTDCONTAINER) |
+                    static_cast<int>(M::ISPUREHEAPREADABLE) | static_cast<int>(M::ISPLACEREADABLE) |
+                    static_cast<int>(M::ISPAIR) | static_cast<int>(M::ISTUPLE) | static_cast<int>(M::ISEXTERNAL) |
+                    static_cast<int>(M::ISSTRING))>>::readIntoPtr(ptr, str, s, processClassId);
     }
   };
 

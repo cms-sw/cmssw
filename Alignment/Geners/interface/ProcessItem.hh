@@ -118,8 +118,11 @@ namespace gs {
         T,
         Arg1,
         Arg2,
-        M::Signature &(M::ISPOD | M::ISSTDCONTAINER | M::ISWRITABLE | M::ISPOINTER | M::ISSHAREDPTR | M::ISIOPTR |
-                       M::ISPAIR | M::ISSTRING | M::ISTUPLE | M::ISEXTERNAL)>::process(obj, a1, p2, processClassId);
+        static_cast<int>(M::Signature) &
+            (static_cast<int>(M::ISPOD) | static_cast<int>(M::ISSTDCONTAINER) | static_cast<int>(M::ISWRITABLE) |
+             static_cast<int>(M::ISPOINTER) | static_cast<int>(M::ISSHAREDPTR) | static_cast<int>(M::ISIOPTR) |
+             static_cast<int>(M::ISPAIR) | static_cast<int>(M::ISSTRING) | static_cast<int>(M::ISTUPLE) |
+             static_cast<int>(M::ISEXTERNAL))>::process(obj, a1, p2, processClassId);
   }
 }  // namespace gs
 
