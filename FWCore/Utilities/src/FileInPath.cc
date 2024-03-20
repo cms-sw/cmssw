@@ -162,7 +162,11 @@ namespace edm {
 
   void FileInPath::write(std::ostream& os) const {
     if (location_ == Unknown) {
-      os << version << ' ' << relativePath_ << ' ' << location_;
+      if (relativePath_.empty()) {
+        os << version << " @ " << location_;
+      } else {
+        os << version << ' ' << relativePath_ << ' ' << location_;
+      }
     } else if (location_ == Local) {
       // Guarantee a site independent value by stripping $LOCALTOP.
       if (localTop_.empty()) {
@@ -221,8 +225,11 @@ namespace edm {
       int loc;
       is >> relname >> loc;
       location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown)
+      if (location_ != Unknown) {
         is >> canFilename;
+      } else if (relname == "@") {
+        relname = "";
+      }
     }
 #else
     is >> vsn >> relname >> loc >> canFilename;
@@ -289,8 +296,11 @@ namespace edm {
       int loc;
       is >> relname >> loc;
       location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown)
+      if (location_ != Unknown) {
         is >> canFilename;
+      } else if (relname == "@") {
+        relname = "";
+      }
     }
     if (!is)
       return;

@@ -864,7 +864,7 @@ class ESInputTag(_ParameterTypeBase):
         parameterSet.addESInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 class FileInPath(_SimpleParameterTypeBase):
-    def __init__(self,value):
+    def __init__(self,value=""):
         super(FileInPath,self).__init__(value)
     @staticmethod
     def _isValid(value):
@@ -2148,6 +2148,9 @@ if __name__ == "__main__":
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
             self.assertEqual(f.configValue(), "'FWCore/ParameterSet/python/Types.py'")
+            f = FileInPath()
+            self.assertEqual(f.configValue(), "''")
+
         def testSecSource(self):
             s1 = SecSource("EmbeddedRootSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "EmbeddedRootSource")
