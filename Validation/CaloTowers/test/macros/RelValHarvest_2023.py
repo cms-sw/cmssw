@@ -48,8 +48,6 @@ def getDataSets( dsFlags = {'RelValMinBias_14TeV__':'MinBias'},
                 if str in line:
                     # extract dataset path
                     path = line.split('\'')[1].strip()
-                    #print("Getting DQM output from dataset: %s"%path)
-                 #   if (path.find("Ideal") > 0 or path.find("design") > 0  or path.find("DQM") < 0 or path.find("Pixel") > 0 or path.find("2021") > 0 or path.find("FastSim") > 0 or path.find("asymptotic") > 0):  #skip for unnecessary samples
                     if (path.find("2023") < 0):
                         continue    
                         print(path.split("/")[-1]) #path
@@ -58,27 +56,8 @@ def getDataSets( dsFlags = {'RelValMinBias_14TeV__':'MinBias'},
 
                     # construct file name
                     fname = path.split("/")[-1]
-                    #print "smDebug2: ",fname
                     # create file name for use with hcal scripts
                     info = fname.split("__")[2].replace(label, "").strip("-")
-                    #print "smDebug3: ",info
-                    #The Data sample have an additional piece put in. We strip it out so that the MC and DATA code can be common
-
-                    # if camType == "DATA":
-                    #     iparts = info.split("_")
-		    #     info = ""
-		    #     skip = False
-		    #     for fragment in iparts:
-                    #         if skip:
-                    #             info = info.strip("_")
-                    #             skip = False
-                    #             continue
-                    #         if fragment == "RelVal":
-                    #             skip = True
-                    #             continue
-                    #         info += fragment
-                    #         info += "_"
-                    #     info = info.strip("_")
 
                     ofn = ofnBlank%{"sample":dsFlags[str],"label":slabel,"info":info}
                     if camType == "DATA":
@@ -107,15 +86,6 @@ def getDataSets( dsFlags = {'RelValMinBias_14TeV__':'MinBias'},
 
     if printDS:
         return
-
-    # Copy the single pion scan part from Salavat's directory
-    #    spFileName = "pi50scan%s_fullGeom_ECALHCAL_CaloTowers.root"%slabel #->original line
-    #spFileName = "pi50scan%s_ECALHCAL_CaloTowers.root"%slabel 
-    #cpCommand = "cp /afs/cern.ch/user/a/abdullin/public/pi50_scan/%s ."%spFileName
-    #if not os.path.isfile(spFileName):
-    #    print cpCommand
-    #    os.system(cpCommand)
-    #    print ""
 
 ##End Functions
 
