@@ -41,7 +41,6 @@ public:
   explicit HGCalElectronicsId(
       uint16_t fedid, uint8_t captureblock, uint8_t econdidx, uint8_t econderx, uint8_t halfrocch);
   explicit HGCalElectronicsId(uint32_t value) : value_(value) {}
-  HGCalElectronicsId(const HGCalElectronicsId& o) : value_(o.value_) {}
 
   /**
      @short getters
