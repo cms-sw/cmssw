@@ -1801,10 +1801,10 @@ class ConfigBuilder(object):
         else:
             _nanoSeq = stepSpec
 
-        # create full specified sequence using autoNANO 
+        # create full specified sequence using autoNANO
         from PhysicsTools.NanoAOD.autoNANO import autoNANO, expandNanoMapping
         # if not a autoNANO mapping, load an empty customization, which later will be converted into the default.
-        _nanoCustoms = _nanoSeq.split('+') if '@' in stepSpec else [''] 
+        _nanoCustoms = _nanoSeq.split('+') if '@' in stepSpec else ['']
         _nanoSeq = _nanoSeq.split('+')
         expandNanoMapping(_nanoSeq, autoNANO, 'sequence')
         expandNanoMapping(_nanoCustoms, autoNANO, 'customize')
@@ -1812,8 +1812,8 @@ class ConfigBuilder(object):
         _nanoSeq = list(sorted(set(_nanoSeq), key=_nanoSeq.index))
         _nanoCustoms = list(sorted(set(_nanoCustoms), key=_nanoCustoms.index))
         # replace empty sequence with default
-        _nanoSeq = [seq if seq!='' else self.NANODefaultSeq for seq in _nanoSeq]    
-        _nanoCustoms = [cust if cust!='' else self.NANODefaultCustom for cust in _nanoCustoms]   
+        _nanoSeq = [seq if seq!='' else f"{self.NANODefaultCFF}.{self.NANODefaultSeq}" for seq in _nanoSeq]
+        _nanoCustoms = [cust if cust!='' else self.NANODefaultCustom for cust in _nanoCustoms]
         # build and inject the sequence
         if len(_nanoSeq) < 1 and '@' in stepSpec:
             raise Exception(f'The specified mapping: {stepSpec} generates an empty NANO sequence. Please provide a valid mapping')
@@ -1828,10 +1828,10 @@ class ConfigBuilder(object):
                 print("NANO: scheduling:",_subSeq)
                 _seqToSchedule.append(_subSeq)
         self.scheduleSequence('+'.join(_seqToSchedule), 'nanoAOD_step')
-        
+
         # add the customisations
         for custom in _nanoCustoms:
-            custom_path = custom if '.' in custom else '.'.join([_nanoCff,custom]) 
+            custom_path = custom if '.' in custom else '.'.join([self.NANODefaultCFF,custom])
             # customization order can be important for NANO, here later specified customise take precedence
             self._options.customisation_file.append(custom_path)
         if self._options.hltProcess:
