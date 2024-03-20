@@ -44,16 +44,16 @@ mkdir TTbar/RecHits
 mkdir TTbar/RBX
 mkdir TTbar/HcalDigis
 
-cp ../html_indices/RelVal_HcalDigis2018.html TTbar/HcalDigis/index.html
-cat ../html_indices/RelVal_RecHits2018.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
-cp ../html_indices/RelVal_CaloTowers2018.html TTbar/CaloTowers/index.html
+cp ../html_indices/RelVal_HcalDigisPhase2.html TTbar/HcalDigis/index.html
+cat ../html_indices/RelVal_RecHitsPhase2.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
+cp ../html_indices/RelVal_CaloTowersPhase2.html TTbar/CaloTowers/index.html
 cp ../html_indices/RBX.html               TTbar/RBX/index.html
 
 #cp -r TTbar TTbarStartup
 #mv    TTbar TTbarMC
 
 mkdir -p TTbar/SimHits
-cp ../html_indices/RelVal_Simhits2018.html TTbar/SimHits/index.html
+cp ../html_indices/RelVal_SimhitsPhase2.html TTbar/SimHits/index.html
 
 #QCD
 mkdir QCD
@@ -88,20 +88,20 @@ cp ../html_indices/RBX.html               HighPtQCD/RBX/index.html
 mkdir -p HighPtQCD/SimHits
 cp ../html_indices/RelVal_Simhits2018.html HighPtQCD/SimHits/index.html
 
-#MinBias
-mkdir MinBias
-mkdir MinBias/CaloTowers
-mkdir MinBias/RecHits
-mkdir MinBias/RBX
-mkdir MinBias/HcalDigis
+#ZTT
+mkdir ZTT
+mkdir ZTT/CaloTowers
+mkdir ZTT/RecHits
+mkdir ZTT/RBX
+mkdir ZTT/HcalDigis
 
-cp ../html_indices/RelVal_HcalDigis2018.html MinBias/HcalDigis/index.html
-cat ../html_indices/RelVal_RecHits2018.html | sed -e s/DATA_SAMPLE/MinBias/ > MinBias/RecHits/index.html
-cp ../html_indices/RelVal_CaloTowers2018.html MinBias/CaloTowers/index.html
-cp ../html_indices/RBX.html               MinBias/RBX/index.html
+cp ../html_indices/RelVal_HcalDigisPhase2.html ZTT/HcalDigis/index.html
+cat ../html_indices/RelVal_RecHitsPhase2.html | sed -e s/DATA_SAMPLE/ZTT/ > ZTT/RecHits/index.html
+cp ../html_indices/RelVal_CaloTowersPhase2.html ZTT/CaloTowers/index.html
+cp ../html_indices/RBX.html               ZTT/RBX/index.html
 
-mkdir -p MinBias/SimHits
-cp ../html_indices/RelVal_Simhits2018.html MinBias/SimHits/index.html
+mkdir -p ZTT/SimHits
+cp ../html_indices/RelVal_SimhitsPhase2.html ZTT/SimHits/index.html
 
 
 #Single Pions
@@ -115,7 +115,8 @@ cd ../
 
 #Process Startup TTbar
 #root -b -l -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root'","InputRelVal_Medium.txt")'
-./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root rangeHigh
+cp InputRelVal.json-phase2-01Dec2021 InputRelVal.json
+./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root rangeTTBar
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CaloTowers/
@@ -129,7 +130,8 @@ mv *.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/SimHits
 
 #Process Startup QCD
 #root -b -l -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_QCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_${NEW_VERS}.root'","InputRelVal_Medium.txt")'
-./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_QCD_${OLD_VERS}.root HcalRecHitValidationRelVal_QCD_${NEW_VERS}.root rangeHigh
+
+./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_QCD_${OLD_VERS}.root HcalRecHitValidationRelVal_QCD_${NEW_VERS}.root rangeQCD
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CaloTowers/
@@ -143,7 +145,7 @@ mv *.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/SimHits
 
 #Process Startup HighPtQCD
 #root -b -l -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root'","InputRelVal_High.txt")'
-./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root rangeHigh
+./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root rangeHighPtQCD
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/CaloTowers/
@@ -153,17 +155,16 @@ mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/RecHits/
 ./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root rangeSim
 #root -b -q 'RelValMacro_SimHitsValidationHcal.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root'","InputRelVal_SimHits_Low_Free_y.txt",'${harvest}')'
 #root -b -q 'RelValMacro_HcalSimHitsTask.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_HighPtQCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_HighPtQCD_${NEW_VERS}.root'","InputRelVal_SimHits.txt",'${harvest}')'
-
 mv *.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/SimHits
 
-#Process Startup MinBias
-#root -b -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_MinBias_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_${NEW_VERS}.root'","InputRelVal_Low.txt")'
-./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_MinBias_${OLD_VERS}.root HcalRecHitValidationRelVal_MinBias_${NEW_VERS}.root rangeHigh
+#Process Startup ZTT
+#root -b -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_ZTT_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_ZTT_${NEW_VERS}.root'","InputRelVal_Low.txt")'
+./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_ZTT_${OLD_VERS}.root HcalRecHitValidationRelVal_ZTT_${NEW_VERS}.root rangeLow
 
-mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/HcalDigis/
-mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/CaloTowers/
-mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RBX/
-mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RecHits/
+mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/ZTT/HcalDigis/
+mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/ZTT/CaloTowers/
+mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/ZTT/RBX/
+mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/ZTT/RecHits/
 
 #Process single pions
 
@@ -172,10 +173,10 @@ mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RecHits/
 #./singlePi.exe ${OLV} ${NWV}
 #mv *gif  ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
 
-./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_MinBias_${OLD_VERS}.root HcalRecHitValidationRelVal_MinBias_${NEW_VERS}.root rangeSim
-#root -b -q 'RelValMacro_SimHitsValidationHcal.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_MinBias_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_${NEW_VERS}.root'","InputRelVal_SimHits_Low.txt",'${harvest}')'
-#root -b -q 'RelValMacro_HcalSimHitsTask.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_MinBias_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_${NEW_VERS}.root'","InputRelVal_SimHits.txt",'${harvest}')'
+./RelValMacro.py ${OLD_VERS} ${NEW_VERS} HcalRecHitValidationRelVal_ZTT_${OLD_VERS}.root HcalRecHitValidationRelVal_ZTT_${NEW_VERS}.root rangeSim
+#root -b -q 'RelValMacro_SimHitsValidationHcal.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_ZTT_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_ZTT_${NEW_VERS}.root'","InputRelVal_SimHits_Low.txt",'${harvest}')'
+#root -b -q 'RelValMacro_HcalSimHitsTask.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_ZTT_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_ZTT_${NEW_VERS}.root'","InputRelVal_SimHits.txt",'${harvest}')'
 
-mv *.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/SimHits
+mv *.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/ZTT/SimHits
 
 exit
