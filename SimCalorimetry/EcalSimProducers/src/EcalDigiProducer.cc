@@ -554,13 +554,13 @@ void EcalDigiProducer::checkCalibrations(const edm::Event &event, const edm::Eve
 
   delete defaultRatios;
 
-  const double EBscale((agc->getEBValue()) * theGains[1] * (m_Coder->MAXADC) * m_EBs25notCont);
+  const double EBscale((agc->getEBValue()) * theGains[1] * static_cast<double>(m_Coder->MAXADC) * m_EBs25notCont);
 
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n"
                        << " notCont = " << m_EBs25notCont << "\n"
                        << " saturation for EB = " << EBscale << ", " << m_EBs25notCont;
 
-  const double EEscale((agc->getEEValue()) * theGains[1] * (m_Coder->MAXADC) * m_EEs25notCont);
+  const double EEscale((agc->getEEValue()) * theGains[1] * static_cast<double>(m_Coder->MAXADC) * m_EEs25notCont);
 
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n"
                        << " notCont = " << m_EEs25notCont << "\n"

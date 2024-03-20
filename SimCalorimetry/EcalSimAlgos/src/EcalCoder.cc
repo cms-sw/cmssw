@@ -106,7 +106,7 @@ void EcalCoder::encode(const EcalSamples& ecalSamples, EcalDataFrame& df, CLHEP:
 
     LSB[igain] = 0.;
     if (igain > 0)
-      LSB[igain] = Emax / (MAXADC * gains[igain]);
+      LSB[igain] = Emax / (static_cast<double>(MAXADC) * gains[igain]);
     maxADC[igain] = ADCGAINSWITCH;  // saturation at 4080 for middle and high gains x6 & x12
     if (igain == NGAINS)
       maxADC[igain] = MAXADC;  // saturation at 4095 for low gain x1

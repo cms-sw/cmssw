@@ -34,7 +34,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   for (unsigned int igain(0); igain <= NGAINS; ++igain) {
     LSB[igain] = 0.;
     if (igain > 0)
-      LSB[igain] = Emax / (MAXADC * gainRatios[igain]);
+      LSB[igain] = Emax / (static_cast<double>(MAXADC) * gainRatios[igain]);
   }
 
   //    std::cout << " intercal, LSBs, egains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gainRatios[0] << " " << gainRatios[1] << " " << Emax << std::endl;
@@ -141,7 +141,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   for (unsigned int igain(0); igain <= NGAINS; ++igain) {
     LSB[igain] = 0.;
     if (igain > 0)
-      LSB[igain] = Emax / (MAXADC * gainRatios[igain]);
+      LSB[igain] = Emax / (static_cast<double>(MAXADC) * gainRatios[igain]);
   }
 
   //    std::cout << " intercal, LSBs, egains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gainRatios[0] << " " << gainRatios[1] << " " << Emax << std::endl;
