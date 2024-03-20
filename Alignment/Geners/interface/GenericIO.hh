@@ -312,7 +312,11 @@ namespace gs {
     inline static bool process(T &s, Stream &is, State *st, const bool processClassId) {
       typedef IOTraits<T> M;
       T *ps = &s;
-      return GenericReader<Stream, State, T, Int2Type<M::Signature &(M::ISPLACEREADABLE | M::ISHEAPREADABLE)>>::
+      return GenericReader<Stream,
+                           State,
+                           T,
+                           Int2Type<static_cast<int>(M::Signature) &
+                                    (static_cast<int>(M::ISPLACEREADABLE) | static_cast<int>(M::ISHEAPREADABLE))>>::
           readIntoPtr(ps, is, st, processClassId);
     }
   };
@@ -334,7 +338,9 @@ namespace gs {
       // decision which simplifies things considerably.
       typedef typename IOPointeeType<Ptr>::type Pointee;
       typedef IOTraits<Pointee> M;
-      static_assert((M::Signature & (M::ISPOINTER | M::ISSHAREDPTR)) == 0, "can not write pointers to pointers");
+      static_assert(
+          (static_cast<int>(M::Signature) & (static_cast<int>(M::ISPOINTER) | static_cast<int>(M::ISSHAREDPTR))) == 0,
+          "can not write pointers to pointers");
 
       // Can't have NULL pointers either. But this
       // can be checked at run time only.

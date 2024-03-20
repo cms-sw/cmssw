@@ -988,9 +988,9 @@ namespace {
     EcalPedestalsEEMean12Map()
         : cond::payloadInspector::Histogram2D<EcalPedestals>("ECAL Endcap pedestal gain12 - map",
                                                              "ix",
-                                                             2.2 * IX_MAX,
+                                                             2.2 * static_cast<double>(IX_MAX),
                                                              IX_MIN,
-                                                             2.2 * IX_MAX + 1,
+                                                             2.2 * static_cast<double>(IX_MAX) + 1,
                                                              "iy",
                                                              IY_MAX,
                                                              IY_MIN,

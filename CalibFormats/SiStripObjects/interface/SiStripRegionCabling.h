@@ -162,10 +162,11 @@ inline const uint32_t SiStripRegionCabling::elementIndex(const Position position
   return elementIndex(region(position), subdet, layer);
 }
 
-inline const uint32_t SiStripRegionCabling::layer(const uint32_t index) { return index % ALLLAYERS; }
+inline const uint32_t SiStripRegionCabling::layer(const uint32_t index) { return index % static_cast<int>(ALLLAYERS); }
 
 inline const SiStripRegionCabling::SubDet SiStripRegionCabling::subdet(const uint32_t index) {
-  return static_cast<SiStripRegionCabling::SubDet>((index / ALLLAYERS) % ALLSUBDETS);
+  return static_cast<SiStripRegionCabling::SubDet>((index / static_cast<int>(ALLLAYERS)) %
+                                                   static_cast<int>(ALLSUBDETS));
 }
 
 inline const uint32_t SiStripRegionCabling::region(const uint32_t index) {
