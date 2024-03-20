@@ -58,8 +58,9 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, ReturnType g
   if (geom->cornersMgr() == nullptr)
     geom->allocateCorners(HcalZDCDetId::kSizeForDenseIndexing);
   if (geom->parMgr() == nullptr)
-    geom->allocatePar(ZdcGeometry::k_NumberOfParametersPerShape * ZdcGeometry::k_NumberOfShapes,
-                      ZdcGeometry::k_NumberOfParametersPerShape);
+    geom->allocatePar(
+        static_cast<int>(ZdcGeometry::k_NumberOfParametersPerShape) * static_cast<int>(ZdcGeometry::k_NumberOfShapes),
+        ZdcGeometry::k_NumberOfParametersPerShape);
 
   edm::LogVerbatim("ZdcGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
 

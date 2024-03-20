@@ -1269,7 +1269,7 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
   } else {
     index = kHTSizePreLS1;
     if (zside == -1)
-      index += ((kHTSizePhase1 - kHTSizePreLS1) / 2);
+      index += ((static_cast<double>(kHTSizePhase1) - static_cast<double>(kHTSizePreLS1)) / 2);
     index += (36 * (ietaAbs - 30) + ((iphi - 1) / 2));
   }
 

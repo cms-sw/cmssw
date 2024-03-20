@@ -44,7 +44,8 @@ void CaloGeometryLoaderTest<T>::makeGeometry(const DDCompactView* cpv,
                                              const Alignments* alignments,
                                              const Alignments* globals) {
   geom->allocateCorners(T::k_NumberOfCellsForCorners);
-  geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
+  geom->allocatePar(static_cast<int>(T::k_NumberOfParametersPerShape) * static_cast<int>(T::k_NumberOfShapes),
+                    T::k_NumberOfParametersPerShape);
 
   DDFilteredView fv(*cpv, m_filter);
 

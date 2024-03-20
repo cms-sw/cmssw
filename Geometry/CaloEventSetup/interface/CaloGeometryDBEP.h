@@ -138,7 +138,7 @@ public:
 
     const unsigned int nTrParm(tvec.size() / T::k_NumberOfCellsForCorners);
 
-    assert(dvec.size() == T::k_NumberOfShapes * T::k_NumberOfParametersPerShape);
+    assert(dvec.size() == static_cast<int>(T::k_NumberOfShapes) * static_cast<int>(T::k_NumberOfParametersPerShape));
 
     PtrType ptr = std::make_unique<T>();
 
