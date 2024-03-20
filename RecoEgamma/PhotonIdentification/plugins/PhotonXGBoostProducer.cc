@@ -69,12 +69,12 @@ void PhotonXGBoostProducer::fillDescriptions(edm::ConfigurationDescriptions& des
                           edm::InputTag("hltEgammaClusterShapeUnseeded", "sigmaIEtaIEta5x5NoiseCleaned"));
   desc.add<edm::InputTag>("inputTagE2x2", edm::InputTag("hltEgammaClusterShapeUnseeded", "e2x2"));
   desc.add<edm::InputTag>("inputTagIso", edm::InputTag("hltEgammaEcalPFClusterIsoUnseeded"));
-  desc.add<edm::FileInPath>("mvaFileXgbB",
-                            edm::FileInPath("RecoEgamma/PhotonIdentification/data/xgb_photonmva_barrel_v1.bin"));
-  desc.add<edm::FileInPath>("mvaFileXgbE",
-                            edm::FileInPath("RecoEgamma/PhotonIdentification/data/xgb_photonmva_endcap_v1.bin"));
-  desc.add<unsigned int>("mvaNTreeLimitB", 55);
-  desc.add<unsigned int>("mvaNTreeLimitE", 48);
+  desc.add<edm::FileInPath>(
+      "mvaFileXgbB", edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_168_Barrel_v1.bin"));
+  desc.add<edm::FileInPath>(
+      "mvaFileXgbE", edm::FileInPath("RecoEgamma/PhotonIdentification/data/XGBoost/Photon_NTL_158_Endcap_v1.bin"));
+  desc.add<unsigned int>("mvaNTreeLimitB", 168);
+  desc.add<unsigned int>("mvaNTreeLimitE", 158);
   desc.add<double>("mvaThresholdEt", 0);
   descriptions.addWithDefaultLabel(desc);
 }
