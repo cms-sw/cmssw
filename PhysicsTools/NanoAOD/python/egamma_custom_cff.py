@@ -52,7 +52,6 @@ customElectronFilterBits = cms.PSet(
     )
 )
 
-
 customPhotonFilterBits = cms.PSet(
     id = cms.int32(22),
     sel = cms.string("type(92) && pt > 15 && coll('hltEgammaCandidates')"),
