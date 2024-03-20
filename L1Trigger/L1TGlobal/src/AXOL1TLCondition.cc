@@ -90,25 +90,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
 
   //HLS4ML stuff
-  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //loading from menu
-
-  //if model version is empty, throw exception. Should not ever happen
-  if (AXOL1TLmodelversion == "" || AXOL1TLmodelversion == "GTADModel_") {
-    throw cms::Exception("ModelError") << " Error: AXOL1TL model version not set!";
-  }
-
-  //otherwise load model (if possible) and run inference
+  std::string AXOL1TLmodelversion = m_AXOL1TLmodelversion;  //config loading method
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
-
-  try {
-    model = loader.load_model();
-  } catch (std::runtime_error& e) {
-    // for stopping with exception if model version cannot be loaded
-    throw cms::Exception("ModelError")
-        << " ERROR: failed to load AXOL1TL model version " << AXOL1TLmodelversion
-        << " that was specified in menu. Model version not found in cms-hls4ml externals. " << std::endl;
-  }
+  model = loader.load_model();
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -264,9 +249,9 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   return condResult;
 }
 
-//in order to set model version from menu->triggermenuparser->globalproducer->globalboard->here
+//in order to set model version from config
 void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
-  m_AXOL1TLmodelversion = "GTADModel_" + modelversionname;
+  m_AXOL1TLmodelversion = modelversionname;
 }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {
