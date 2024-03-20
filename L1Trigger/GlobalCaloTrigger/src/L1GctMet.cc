@@ -162,7 +162,8 @@ L1GctMet::etmiss_internal L1GctMet::useHtMissLutAlgo(const int ex, const int ey,
   static const int componentMask = maxComponent - 1;
   static const int maxPosComponent = componentMask >> 1;
 
-  static const int maxInput = 1 << (L1GctHtMissLut::kHxOrHyMissComponentNBits + kExOrEyMissComponentShift - 1);
+  static const int maxInput = 1 << (static_cast<int>(L1GctHtMissLut::kHxOrHyMissComponentNBits) +
+                                    static_cast<int>(kExOrEyMissComponentShift) - 1);
 
   static const unsigned resultMagMask = (1 << L1GctHtMissLut::kHtMissMagnitudeNBits) - 1;
   static const unsigned resultPhiMask = (1 << L1GctHtMissLut::kHtMissAngleNBits) - 1;
@@ -315,8 +316,9 @@ const bool L1GctMet::inputOverFlow() const {
   bool result = m_exComponent.overFlow() || m_eyComponent.overFlow();
 
   if (m_algoType == useHtMissLut) {
-    static const int maxComponentInput =
-        (1 << (L1GctHtMissLut::kHxOrHyMissComponentNBits + kExOrEyMissComponentShift - 1)) - 1;
+    static const int maxComponentInput = (1 << (static_cast<int>(L1GctHtMissLut::kHxOrHyMissComponentNBits) +
+                                                static_cast<int>(kExOrEyMissComponentShift) - 1)) -
+                                         1;
 
     // Emulate the (symmetric) overflow condition used in the firmware
     result |= (m_exComponent.value() > maxComponentInput) || (m_exComponent.value() < -maxComponentInput) ||

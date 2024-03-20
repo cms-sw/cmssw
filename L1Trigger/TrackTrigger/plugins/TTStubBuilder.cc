@@ -276,8 +276,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
           // We put it in the rejected container, flagged with offset to indicate reason.
 
           if (FEreject) {
-            tempTTStub.setRawBend(CBCFailOffset + 2. * tempTTStub.rawBend());
-            tempTTStub.setBendOffset(CBCFailOffset + 2. * tempTTStub.bendOffset());
+            tempTTStub.setRawBend(static_cast<double>(CBCFailOffset) + 2. * tempTTStub.rawBend());
+            tempTTStub.setBendOffset(static_cast<double>(CBCFailOffset) + 2. * tempTTStub.bendOffset());
             tempClusLowerRej.push_back(*(tempTTStub.clusterRef(0)));
             tempClusUpperRej.push_back(*(tempTTStub.clusterRef(1)));
             tempStubRej.push_back(tempTTStub);
@@ -324,8 +324,8 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
             if (CIC_reject)  // The stub added does not pass the cut
             {
-              tempTTStub.setRawBend(CICFailOffset + 2. * tempTTStub.rawBend());
-              tempTTStub.setBendOffset(CICFailOffset + 2. * tempTTStub.bendOffset());
+              tempTTStub.setRawBend(static_cast<double>(CICFailOffset) + 2. * tempTTStub.rawBend());
+              tempTTStub.setBendOffset(static_cast<double>(CICFailOffset) + 2. * tempTTStub.bendOffset());
               tempClusLowerRej.push_back(*(tempTTStub.clusterRef(0)));
               tempClusUpperRej.push_back(*(tempTTStub.clusterRef(1)));
               tempStubRej.push_back(tempTTStub);

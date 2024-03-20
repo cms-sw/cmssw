@@ -48,19 +48,25 @@ void JetId::setNNVectorVar() {
         NNvectorVar_.push_back(0);
       continue;
     }
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Electron && fCharge_.get()[i0] < 0);       // Electron
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Electron && fCharge_.get()[i0] > 0);       // Positron
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Muon && fCharge_.get()[i0] < 0);           // Muon
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Muon && fCharge_.get()[i0] > 0);           // Anti-Muon
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::Photon);                                   // Photon
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::NeutralHadron);                            // Neutral Had
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] < 0);  // Pion
-    NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] > 0);  // Anti-Pion
-    NNvectorVar_.push_back(fDZ_.get()[i0]);                                                               //dZ
-    NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));                                   //d0
-    NNvectorVar_.push_back(fPt_.get()[i0]);   //pT as a fraction of jet pT
-    NNvectorVar_.push_back(fEta_.get()[i0]);  //dEta from jet axis
-    NNvectorVar_.push_back(fPhi_.get()[i0]);  //dPhi from jet axis
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::Electron) &&
+                           fCharge_.get()[i0] < 0);  // Electron
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::Electron) &&
+                           fCharge_.get()[i0] > 0);  // Positron
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::Muon) &&
+                           fCharge_.get()[i0] < 0);  // Muon
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::Muon) &&
+                           fCharge_.get()[i0] > 0);                                                  // Anti-Muon
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::Photon));         // Photon
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::NeutralHadron));  // Neutral Had
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::ChargedHadron) &&
+                           fCharge_.get()[i0] < 0);  // Pion
+    NNvectorVar_.push_back(fId_.get()[i0] == static_cast<double>(l1t::PFCandidate::ChargedHadron) &&
+                           fCharge_.get()[i0] > 0);                      // Anti-Pion
+    NNvectorVar_.push_back(fDZ_.get()[i0]);                              //dZ
+    NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));  //d0
+    NNvectorVar_.push_back(fPt_.get()[i0]);                              //pT as a fraction of jet pT
+    NNvectorVar_.push_back(fEta_.get()[i0]);                             //dEta from jet axis
+    NNvectorVar_.push_back(fPhi_.get()[i0]);                             //dPhi from jet axis
   }
 }
 float JetId::EvaluateNN() {

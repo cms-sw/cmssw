@@ -841,7 +841,7 @@ namespace l1tVertexFinder {
       ap_int<TrackBitWidths::kZ0Size + 1> absz0_13 = z0_13 + (1 << (TrackBitWidths::kZ0Size - 1));
       // Shift the bits down to truncate the dynamic range to the most significant HistogramBitWidths::kBinFixedSize bits
       ap_int<TrackBitWidths::kZ0Size + 1> absz0_13_reduced =
-          absz0_13 >> (TrackBitWidths::kZ0Size - HistogramBitWidths::kBinFixedSize);
+          absz0_13 >> (static_cast<int>(TrackBitWidths::kZ0Size) - static_cast<int>(HistogramBitWidths::kBinFixedSize));
       // Put the relevant bits into the histbin_t container
       histbin_t bin = absz0_13_reduced.range(HistogramBitWidths::kBinFixedSize - 1, 0);
 

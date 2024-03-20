@@ -138,7 +138,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const {
   lclphidat data;
 
   constexpr int maxPhiL = 1 << CSCBitWidths::kLocalPhiDataBitWidth;
-  double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS_RUN1);
+  double binPhiL = static_cast<double>(maxPhiL) / (2. * static_cast<double>(CSCConstants::MAX_NUM_STRIPS_RUN1));
 
   double patternOffset;
 
@@ -257,7 +257,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const 
 
   // We will use these to convert the local phi into radians.
   constexpr unsigned int maxPhiL = 1 << CSCBitWidths::kLocalPhiDataBitWidth;
-  const double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS_RUN1);
+  const double binPhiL = static_cast<double>(maxPhiL) / (2. * static_cast<double>(CSCConstants::MAX_NUM_STRIPS_RUN1));
 
   if (cscid < CSCTriggerNumbering::minTriggerCscId()) {
     edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
@@ -656,7 +656,8 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const 
   double float_eta = getGlobalEtaValue(address.cscid, address.wire_group, address.phi_local);
   unsigned int_eta = 0;
   unsigned bend_global = 0;  // not filled yet... will change when it is.
-  const double etaPerBin = (CSCTFConstants::maxEta - CSCTFConstants::minEta) / CSCTFConstants::etaBins;
+  const double etaPerBin =
+      (CSCTFConstants::maxEta - CSCTFConstants::minEta) / static_cast<double>(CSCTFConstants::etaBins);
   const unsigned me12EtaCut = 56;
 
   if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta)) {

@@ -71,24 +71,24 @@ int RPCConst::towerNumFromEta(const double eta) {
 }
 
 double RPCConst::phiFromSegmentNum(const int iseg) {
-  double phi = OFFSET + 2. * m_pi * (iseg) / (double)RPCConst::NSEG;
+  double phi = static_cast<double>(OFFSET) + 2. * m_pi * (iseg) / (double)RPCConst::NSEG;
   return (phi < 2. * m_pi) ? phi : phi - 2. * m_pi;
 }
 
 double RPCConst::phiFromLogSegSec(const int logSegment, const int logSector) {
   int iseg = logSegment * 12 + logSector;
-  double phi = OFFSET + 2. * m_pi * (iseg) / (double)RPCConst::NSEG;
+  double phi = static_cast<double>(OFFSET) + 2. * m_pi * (iseg) / (double)RPCConst::NSEG;
   return (phi < 2. * m_pi) ? phi : phi - 2. * m_pi;
 }
 
 int RPCConst::segmentNumFromPhi(const double phi) {
   double iphi;
-  if (phi - OFFSET < 0) {
+  if (phi - static_cast<double>(OFFSET) < 0) {
     iphi = 2 * m_pi + phi;
   } else {
-    iphi = phi - OFFSET;
+    iphi = phi - static_cast<double>(OFFSET);
   }
-  int iseg = (int)(iphi * RPCConst::NSEG / (2. * m_pi));
+  int iseg = (int)(iphi * static_cast<double>(RPCConst::NSEG) / (2. * m_pi));
   return iseg;
 }
 

@@ -105,7 +105,7 @@ L1ExtraTestAnalyzer::L1ExtraTestAnalyzer(const edm::ParameterSet &iConfig)
             "Triggers",
             2 * l1extra::L1ParticleMap::kNumOfL1TriggerTypes + 1,
             -0.75,
-            l1extra::L1ParticleMap::kNumOfL1TriggerTypes + 0.5 - 0.75) {
+            static_cast<double>(l1extra::L1ParticleMap::kNumOfL1TriggerTypes) + 0.5 - 0.75) {
   // now do what ever initialization is needed
 }
 
