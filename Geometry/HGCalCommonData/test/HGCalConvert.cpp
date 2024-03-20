@@ -95,7 +95,8 @@ struct layerInfo {
 struct tile {
   double sipm;
   int type, nphi, hex[6];
-  tile(double s = 0, int t = 0, int n = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int h5 = 0, int h6 = 0) : sipm(s), type(t), nphi(n) {
+  tile(double s = 0, int t = 0, int n = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int h5 = 0, int h6 = 0)
+      : sipm(s), type(t), nphi(n) {
     hex[0] = h1;
     hex[1] = h2;
     hex[2] = h3;
@@ -192,13 +193,13 @@ public:
 
 private:
   void makeTitle(std::ofstream&,
-		 const char*,
+                 const char*,
                  const std::map<int, tile>& module,
                  const std::map<int, std::pair<double, double> >& ringR,
                  int lmin,
                  int lmax,
-		 int nphis,
-		 int mode,
+                 int nphis,
+                 int mode,
                  bool debug);
 
   const int layMin_, cassette_, layers_;
@@ -250,7 +251,7 @@ int main(int argc, char* argv[]) {
               << "  second output file name\n"
               << "  number of layers in the EE section: 28 or 26\n"
               << "  flag to utilize caseeette partition or not\n"
-	      << "  total number of layers with scintillators\n"
+              << "  total number of layers with scintillators\n"
               << "  debug flag\n"
               << "for HFNose 6 additional parameters after the first 3\n"
               << "  second output file name\n"
@@ -307,7 +308,8 @@ int main(int argc, char* argv[]) {
     int layers = (argc > 7) ? atoi(argv[7]) : 14;
     int debug = (argc > 8) ? atoi(argv[8]) : 0;
     std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
-              << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " Debug " << debug << std::endl;
+              << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " Debug " << debug
+              << std::endl;
     ConvertScintillatorV1 c1(laymin, cassette, layers);
     c1.convert(infile, outfile1, outfile2, debug);
   } else if (mode == 5) {
@@ -1320,7 +1322,8 @@ void ConvertScintillator::makeTitle(const char* outfile,
   }
 }
 
-ConvertScintillatorV1::ConvertScintillatorV1(int layMin, int cassette, int layers) : layMin_(layMin), cassette_(cassette), layers_(layers) {}
+ConvertScintillatorV1::ConvertScintillatorV1(int layMin, int cassette, int layers)
+    : layMin_(layMin), cassette_(cassette), layers_(layers) {}
 
 void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
   std::ifstream fInput(infile);
@@ -1344,56 +1347,69 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       } else {
         ++others;
         std::vector<std::string> items = splitString(std::string(buffer));
-	int layer = std::atoi(items[0].c_str());
-	if (others <= layers_) {
-	  int nphi = std::atoi(items[1].c_str());
-	  float shift = std::atof(items[2].c_str());
-	  layPhiS[layer] = std::pair<int, float>(nphi, shift);
-	  nPhiS[layer] = (nphi > 300) ? 6 : 4;
+        int layer = std::atoi(items[0].c_str());
+        if (others <= layers_) {
+          int nphi = std::atoi(items[1].c_str());
+          float shift = std::atof(items[2].c_str());
+          layPhiS[layer] = std::pair<int, float>(nphi, shift);
+          nPhiS[layer] = (nphi > 300) ? 6 : 4;
         } else if (items.size() != (6 + nPhiS[layer])) {
           ++bad;
         } else {
           ++good;
           int ring, hex1, hex2, hex3, hex4, hex5, hex6;
           float rstart, rend, sipm;
-	  if (nPhiS[layer] == 4) {
-	    sscanf(buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
-	    hex5 = hex6 = 0;
-	  } else {
-	    sscanf(buffer, "%d %d %f %f %f %X %X %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4, &hex5, &hex6);
-	  }
+          if (nPhiS[layer] == 4) {
+            sscanf(
+                buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
+            hex5 = hex6 = 0;
+          } else {
+            sscanf(buffer,
+                   "%d %d %f %f %f %X %X %X %X %X %X",
+                   &layer,
+                   &ring,
+                   &rstart,
+                   &rend,
+                   &sipm,
+                   &hex1,
+                   &hex2,
+                   &hex3,
+                   &hex4,
+                   &hex5,
+                   &hex6);
+          }
           int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
-	  int nphi = layPhiS[layer].first;
+          int nphi = layPhiS[layer].first;
           if (layer > layMin_) {
             tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
             int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
-	    if (nPhiS[layer] == 4) {
-	      lmin = std::min((layer - layMin_), lmin);
-	      lmax = std::max((layer - layMin_), lmax);
-	      module[index] = tl;
-	      ringR[ring] = std::pair<double, double>(rstart, rend);
-	      if (layerRing.find(layer) == layerRing.end()) {
-		layerRing[layer] = std::pair<int, int>(ring, ring);
-	      } else {
-		lmin6 = std::min((layer - layMin_), lmin);
-		lmax6 = std::max((layer - layMin_), lmax);
-		int rmin = std::min(ring, layerRing[layer].first);
-		int rmax = std::max(ring, layerRing[layer].second);
-		layerRing[layer] = std::pair<int, int>(rmin, rmax);
-	      }
+            if (nPhiS[layer] == 4) {
+              lmin = std::min((layer - layMin_), lmin);
+              lmax = std::max((layer - layMin_), lmax);
+              module[index] = tl;
+              ringR[ring] = std::pair<double, double>(rstart, rend);
+              if (layerRing.find(layer) == layerRing.end()) {
+                layerRing[layer] = std::pair<int, int>(ring, ring);
+              } else {
+                lmin6 = std::min((layer - layMin_), lmin);
+                lmax6 = std::max((layer - layMin_), lmax);
+                int rmin = std::min(ring, layerRing[layer].first);
+                int rmax = std::max(ring, layerRing[layer].second);
+                layerRing[layer] = std::pair<int, int>(rmin, rmax);
+              }
             } else {
-	      module6[index] = tl;
-	      ringR6[ring] = std::pair<double, double>(rstart, rend);
-	      if (layerRing6.find(layer) == layerRing6.end()) {
-		layerRing6[layer] = std::pair<int, int>(ring, ring);
-	      } else {
-		int rmin = std::min(ring, layerRing6[layer].first);
-		int rmax = std::max(ring, layerRing6[layer].second);
-		layerRing6[layer] = std::pair<int, int>(rmin, rmax);
-	      }
-	    }
+              module6[index] = tl;
+              ringR6[ring] = std::pair<double, double>(rstart, rend);
+              if (layerRing6.find(layer) == layerRing6.end()) {
+                layerRing6[layer] = std::pair<int, int>(ring, ring);
+              } else {
+                int rmin = std::min(ring, layerRing6[layer].first);
+                int rmax = std::max(ring, layerRing6[layer].second);
+                layerRing6[layer] = std::pair<int, int>(rmin, rmax);
+              }
+            }
           }
-	}
+        }
       }
     }
     fInput.close();
@@ -1426,7 +1442,7 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
       if (l2 % 6 == 0)
         fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
       else
-        fOut << std::setw(8) << std::setprecision(6) << (it0->second).second <<"*mm" << last;
+        fOut << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
       ++l2;
     }
     fOut << "\n  </Vector>\n";
@@ -1540,7 +1556,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
         std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
                   << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
                   << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
-                  << (itr->second).hex[3] << " " << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec << "\n";
+                  << (itr->second).hex[3] << " " << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec
+                  << "\n";
     }
     for (itr = module.begin(); itr != module.end(); ++itr) {
       std::string last = ((k1 + 1) == (module6.size() + module.size())) ? " " : ",";
@@ -1680,21 +1697,22 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
 
     //Now write for the second file
     std::ofstream fout(outfile2);
-    makeTitle(fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
+    makeTitle(
+        fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
     makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
     fout.close();
   }
 }
 
 void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
-				      const char* head,
-				      const std::map<int, tile>& module,
-				      const std::map<int, std::pair<double, double> >& ringR,
-				      int lmin,
-				      int lmax,
-				      int nphis,
-				      int mode,
-				      bool debug) {
+                                      const char* head,
+                                      const std::map<int, tile>& module,
+                                      const std::map<int, std::pair<double, double> >& ringR,
+                                      int lmin,
+                                      int lmax,
+                                      int nphis,
+                                      int mode,
+                                      bool debug) {
   const int zside = 1;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
@@ -1705,7 +1723,7 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
       for (std::map<int, tile>::const_iterator itr = module.begin(); itr != module.end(); ++itr) {
         if ((HGCalTileIndex::tileLayer(itr->first) == layer) &&
             (((mode == 0) && HGCalTileIndex::tileExist((itr->second).hex, zside, phi)) ||
-	     (((mode != 0) && HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi)))))  {
+             (((mode != 0) && HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi))))) {
           int ir = HGCalTileIndex::tileRing(itr->first);
           if (kk == 0) {
             irmin = irmax = ir;
@@ -1792,8 +1810,8 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     fout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
     if (debug)
-      std::cout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
-                << " nEntries=" << apost << nmax << apost << ">";
+      std::cout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric"
+                << apost << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
       int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
@@ -1840,8 +1858,8 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     fout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layerStart.size() << apost << ">";
     if (debug)
-      std::cout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric" << apost
-                << " nEntries=" << apost << layerStart.size() << apost << ">";
+      std::cout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric"
+                << apost << " nEntries=" << apost << layerStart.size() << apost << ">";
     for (unsigned int k = 0; k < layerStart.size(); ++k) {
       std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
       if (k % 10 == 0) {
