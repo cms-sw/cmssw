@@ -40,7 +40,7 @@ namespace ecaldqm {
     enum Constants {
       nFIRTaps = 6,
       bytesPerCrystal = 24,
-      nRU = EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing
+      nRU = static_cast<int>(EcalTrigTowerDetId::kEBTotalTowers) + static_cast<int>(EcalScDetId::kSizeForDenseIndexing)
     };
 
   private:

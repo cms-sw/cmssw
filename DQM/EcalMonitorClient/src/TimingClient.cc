@@ -146,7 +146,7 @@ namespace ecaldqm {
 
       if (entriesLS < minChannelEntries)
         continue;
-      if (chStatus != EcalChannelStatusCode::kOk)
+      if (chStatus != static_cast<float>(EcalChannelStatusCode::kOk))
         continue;  // exclude problematic channels
 
       // Keep running count of timing mean, rms, and N_hits

@@ -236,8 +236,10 @@ namespace ecaldqm {
     }
 
     if (isEB) {
-      meHighIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nHighInt[0] * bytesPerCrystal / 1024. / nEBDCC);
-      meLowIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nLowInt[0] * bytesPerCrystal / 1024. / nEBDCC);
+      meHighIntPayload.fill(
+          getEcalDQMSetupObjects(), EcalBarrel, nHighInt[0] * bytesPerCrystal / 1024. / static_cast<double>(nEBDCC));
+      meLowIntPayload.fill(
+          getEcalDQMSetupObjects(), EcalBarrel, nLowInt[0] * bytesPerCrystal / 1024. / static_cast<double>(nEBDCC));
     } else {
       meHighIntPayload.fill(
           getEcalDQMSetupObjects(), -EcalEndcap, nHighInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));

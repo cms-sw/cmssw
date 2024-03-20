@@ -281,7 +281,7 @@ void DiamondSampicCalibrationDQMSource::analyze(const edm::Event &event, const e
                                                        hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
         //All plots with Time
-        if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
+        if (rechit.time() != static_cast<float>(TotemTimingRecHit::NO_T_AVAILABLE)) {
           int db = (detIdToHw[detId] & 0xE0) >> 5;
           int sampic = (detIdToHw[detId] & 0x10) >> 4;
           int channel = (detIdToHw[detId] & 0x0F);

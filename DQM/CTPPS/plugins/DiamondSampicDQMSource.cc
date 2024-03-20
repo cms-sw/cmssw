@@ -603,7 +603,7 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
         }
 
         //All plots with Time
-        if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
+        if (rechit.time() != static_cast<float>(TotemTimingRecHit::NO_T_AVAILABLE)) {
           for (int i = 0; i < numOfBins; ++i)
             potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + UFSDShift,
                                                                  hitHistoTmpYAxis->GetBinCenter(startBin + i));

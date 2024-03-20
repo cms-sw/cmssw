@@ -169,7 +169,7 @@ namespace ecaldqm {
             break;
           case kProjEta:
             if (_zside == 0) {
-              specs.nbins = nEEEtaBins / (3. - etaBound) * 6.;
+              specs.nbins = static_cast<int>(nEEEtaBins) / (3. - etaBound) * 6.;
               specs.low = -3.;
               specs.high = 3.;
             } else {
@@ -351,11 +351,12 @@ namespace ecaldqm {
             specs.nbins = nEBEtaBins + 2 * nEEEtaBins;
             specs.edges = std::vector(specs.nbins + 1, 0.f);
             for (int i(0); i <= nEEEtaBins; i++)
-              specs.edges[i] = -3. + (3. - etaBound) / nEEEtaBins * i;
+              specs.edges[i] = -3. + (3. - etaBound) / static_cast<double>(nEEEtaBins) * i;
             for (int i(1); i <= nEBEtaBins; i++)
-              specs.edges[i + nEEEtaBins] = -etaBound + 2. * etaBound / nEBEtaBins * i;
+              specs.edges[i + nEEEtaBins] = -etaBound + 2. * etaBound / static_cast<double>(nEBEtaBins) * i;
             for (int i(1); i <= nEEEtaBins; i++)
-              specs.edges[i + nEEEtaBins + nEBEtaBins] = etaBound + (3. - etaBound) / nEEEtaBins * i;
+              specs.edges[i + nEEEtaBins + nEBEtaBins] =
+                  etaBound + (3. - etaBound) / static_cast<double>(nEEEtaBins) * i;
             specs.title = "eta";
             break;
           case kProjPhi:
