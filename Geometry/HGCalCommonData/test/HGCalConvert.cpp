@@ -20,6 +20,7 @@
 //                           of the outputs
 //
 //  HGCalConvert 3 infile outfile1 outfile2 laymin cassette debug
+//               4 infile outfile1 outfile2 laymin nlayers cassette debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -32,14 +33,15 @@
 //                           the ddAlgorithm part
 //  laymin   (int)           First layer number of the HE part
 //                           (28 for versions: V14, V15; 26 for V16, V17)
+//  nlayers  (int)           Number of scintillator layers (14 for v19)
 //  cassette (int)           Cassettes are used in geometry definition
 //                           (0 if none, 1 if 12 cassettes are used)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
-//  HGCalConvert 4 infile outfile1 outfile2 maxLayEE maxLayHE modeGlobal cassetes
+//  HGCalConvert 5 infile outfile1 outfile2 maxLayEE maxLayHE modeGlobal cassetes
 //                  debug
-//               4 for the V18 formats of HFNose
+//               5 for the V18 formats of HFNose or for making cassette towers
 //  infile   (const char*)   Input file from conatining layer #, size, depth,
 //                           x, y position, orientation, u, v, cassette
 //  outfile1 (const char*)   Output fle for the EE part
@@ -92,12 +94,14 @@ struct layerInfo {
 
 struct tile {
   double sipm;
-  int type, hex[4];
-  tile(double s = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int t = 0) : sipm(s), type(t) {
+  int type, nphi, hex[6];
+  tile(double s = 0, int t = 0, int n = 0, int h1 = 0, int h2 = 0, int h3 = 0, int h4 = 0, int h5 = 0, int h6 = 0) : sipm(s), type(t), nphi(n) {
     hex[0] = h1;
     hex[1] = h2;
     hex[2] = h3;
     hex[3] = h4;
+    hex[4] = h5;
+    hex[5] = h6;
   };
 };
 
@@ -181,6 +185,25 @@ private:
   const int cassette_;
 };
 
+class ConvertScintillatorV1 {
+public:
+  ConvertScintillatorV1(int layMin = 26, int cassette = 0, int layers = 14);
+  void convert(const char*, const char*, const char*, int debug = 0);
+
+private:
+  void makeTitle(std::ofstream&,
+		 const char*,
+                 const std::map<int, tile>& module,
+                 const std::map<int, std::pair<double, double> >& ringR,
+                 int lmin,
+                 int lmax,
+		 int nphis,
+		 int mode,
+                 bool debug);
+
+  const int layMin_, cassette_, layers_;
+};
+
 class ConvertNoseV0 {
 public:
   ConvertNoseV0(unsigned int layMax1 = 6, unsigned int layMax2 = 8);
@@ -215,7 +238,7 @@ private:
 int main(int argc, char* argv[]) {
   if (argc < 7) {
     std::cout << "Please give a minimum of 7 arguments \n"
-              << "mode (0, 1:silicon; 2:scintillator)\n"
+              << "mode (0, 1, 2:silicon; 3, 4:scintillator, 5:nose, cassette)\n"
               << "input file name\n"
               << "output file name\n"
               << "for silicon 4 additional parameters:\n"
@@ -223,12 +246,13 @@ int main(int argc, char* argv[]) {
               << "  third output file name\n"
               << "  output mode (0: gobal; 1: local)\n"
               << "  debug (three digis to set debug for each output)\n"
-              << "for scintillator 4 additional parameters after the first 3\n"
+              << "for scintillator 4|5 additional parameters after the first 3\n"
               << "  second output file name\n"
               << "  number of layers in the EE section: 28 or 26\n"
-              << "  flag to utilize cassette partition or not\n"
+              << "  flag to utilize caseeette partition or not\n"
+	      << "  total number of layers with scintillators\n"
               << "  debug flag\n"
-              << "for HFNose 4 additional parameters after the first 3\n"
+              << "for HFNose 6 additional parameters after the first 3\n"
               << "  second output file name\n"
               << "  maximum layer number of the EE section: 6\n"
               << "  maximum layer number of the HE section: 8\n"
@@ -276,6 +300,17 @@ int main(int argc, char* argv[]) {
     ConvertScintillator c1(laymin, cassette);
     c1.convert(infile, outfile1, outfile2, debug);
   } else if (mode == 4) {
+    const char* outfile1 = argv[3];
+    const char* outfile2 = argv[4];
+    int laymin = (argc > 5) ? atoi(argv[5]) : 26;
+    int cassette = (argc > 6) ? atoi(argv[6]) : 1;
+    int layers = (argc > 7) ? atoi(argv[7]) : 14;
+    int debug = (argc > 8) ? atoi(argv[8]) : 0;
+    std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
+              << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " Debug " << debug << std::endl;
+    ConvertScintillatorV1 c1(laymin, cassette, layers);
+    c1.convert(infile, outfile1, outfile2, debug);
+  } else if (mode == 5) {
     const char* outfile1 = argv[3];
     const char* outfile2 = argv[4];
     int maxLayEE = atoi(argv[5]);
@@ -923,7 +958,6 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   fOut << "\n" << blank << "</Vector>\n";
   fOut.close();
 }
-
 ConvertScintillator::ConvertScintillator(int layMin, int cassette) : layMin_(layMin), cassette_(cassette) {}
 
 void ConvertScintillator::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
@@ -956,7 +990,7 @@ void ConvertScintillator::convert(const char* infile, const char* outfile1, cons
               buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
           int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
           if (layer > layMin_) {
-            tile tl(sipm, hex1, hex2, hex3, hex4, type);
+            tile tl(sipm, type, HGCalProperty::kHGCalTilePhis, hex1, hex2, hex3, hex4, 0, 0);
             int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
             module[index] = tl;
             lmin = std::min((layer - layMin_), lmin);
@@ -1283,6 +1317,546 @@ void ConvertScintillator::makeTitle(const char* outfile,
     if (debug)
       std::cout << "\n  </Vector>\n";
     fout.close();
+  }
+}
+
+ConvertScintillatorV1::ConvertScintillatorV1(int layMin, int cassette, int layers) : layMin_(layMin), cassette_(cassette), layers_(layers) {}
+
+void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    //First read in all records
+    char buffer[1024];
+    std::string types[2] = {"c", "m"};
+    std::map<int, std::pair<int, double> > layPhiS;
+    std::map<int, unsigned int> nPhiS;
+    std::map<int, tile> module, module6;
+    std::map<int, std::pair<double, double> > ringR, ringR6;
+    std::map<int, std::pair<int, int> > layerRing, layerRing6;
+    unsigned int all(0), comments(0), bad(0), good(0);
+    int others(0), lmin(99), lmin6(99), lmax(0), lmax6(0);
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      if (buffer[0] == '#') {
+        ++comments;
+      } else {
+        ++others;
+        std::vector<std::string> items = splitString(std::string(buffer));
+	int layer = std::atoi(items[0].c_str());
+	if (others <= layers_) {
+	  int nphi = std::atoi(items[1].c_str());
+	  float shift = std::atof(items[2].c_str());
+	  layPhiS[layer] = std::pair<int, float>(nphi, shift);
+	  nPhiS[layer] = (nphi > 300) ? 6 : 4;
+        } else if (items.size() != (6 + nPhiS[layer])) {
+          ++bad;
+        } else {
+          ++good;
+          int ring, hex1, hex2, hex3, hex4, hex5, hex6;
+          float rstart, rend, sipm;
+	  if (nPhiS[layer] == 4) {
+	    sscanf(buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
+	    hex5 = hex6 = 0;
+	  } else {
+	    sscanf(buffer, "%d %d %f %f %f %X %X %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4, &hex5, &hex6);
+	  }
+          int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
+	  int nphi = layPhiS[layer].first;
+          if (layer > layMin_) {
+            tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
+            int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
+	    if (nPhiS[layer] == 4) {
+	      lmin = std::min((layer - layMin_), lmin);
+	      lmax = std::max((layer - layMin_), lmax);
+	      module[index] = tl;
+	      ringR[ring] = std::pair<double, double>(rstart, rend);
+	      if (layerRing.find(layer) == layerRing.end()) {
+		layerRing[layer] = std::pair<int, int>(ring, ring);
+	      } else {
+		lmin6 = std::min((layer - layMin_), lmin);
+		lmax6 = std::max((layer - layMin_), lmax);
+		int rmin = std::min(ring, layerRing[layer].first);
+		int rmax = std::max(ring, layerRing[layer].second);
+		layerRing[layer] = std::pair<int, int>(rmin, rmax);
+	      }
+            } else {
+	      module6[index] = tl;
+	      ringR6[ring] = std::pair<double, double>(rstart, rend);
+	      if (layerRing6.find(layer) == layerRing6.end()) {
+		layerRing6[layer] = std::pair<int, int>(ring, ring);
+	      } else {
+		int rmin = std::min(ring, layerRing6[layer].first);
+		int rmax = std::max(ring, layerRing6[layer].second);
+		layerRing6[layer] = std::pair<int, int>(rmin, rmax);
+	      }
+	    }
+          }
+	}
+      }
+    }
+    fInput.close();
+    std::cout << "Read " << all << " records with " << comments << " comments " << others
+              << " non-comment records out of which " << good << ":" << module.size() << ":" << ringR.size() << ":"
+              << layerRing.size() << " are good and " << bad << " are bad\n"
+              << std::endl;
+
+    //Now write the content in the first file
+    std::ofstream fOut(outfile1);
+    char apost('"');
+    unsigned int l1(0);
+    std::map<int, std::pair<int, double> >::const_iterator it0;
+    fOut << "  <Vector name=" << apost << "NPhiLayer" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l1 + 1) == layPhiS.size()) ? " " : ",";
+      if (l1 % 10 == 0)
+        fOut << "\n    " << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      else
+        fOut << std::setw(6) << std::setprecision(4) << (it0->second).first << last;
+      ++l1;
+    }
+    fOut << "\n  </Vector>\n";
+    unsigned int l2(0);
+    fOut << "  <Vector name=" << apost << "ScintRetract" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layPhiS.size() << apost << ">";
+    for (it0 = layPhiS.begin(); it0 != layPhiS.end(); ++it0) {
+      std::string last = ((l2 + 1) == layPhiS.size()) ? " " : ",";
+      if (l2 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it0->second).second << "*mm" << last;
+      else
+        fOut << std::setw(8) << std::setprecision(6) << (it0->second).second <<"*mm" << last;
+      ++l2;
+    }
+    fOut << "\n  </Vector>\n";
+
+    unsigned int l3(0), l4(0), l5(0), l6(0);
+    std::map<int, std::pair<double, double> >::const_iterator it1;
+    fOut << "  <Vector name=" << apost << "TileRMin6" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR6.size() << apost << ">";
+    for (it1 = ringR6.begin(); it1 != ringR6.end(); ++it1) {
+      std::string last = ((l3 + 1) == ringR6.size()) ? " " : ",";
+      if (l3 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      else
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      ++l3;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRMax6" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR6.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l4 + 1) == ringR6.size()) ? " " : ",";
+      if (l4 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      else
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      ++l4;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRMin" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l5 + 1) == ringR.size()) ? " " : ",";
+      if (l5 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      else
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      ++l5;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRMax" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l6 + 1) == ringR.size()) ? " " : ",";
+      if (l6 % 6 == 0)
+        fOut << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      else
+        fOut << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      ++l6;
+    }
+    fOut << "\n  </Vector>\n";
+
+    unsigned int l7(0), l8(0), l9(0), l10(0);
+    std::map<int, std::pair<int, int> >::const_iterator it2;
+    fOut << "  <Vector name=" << apost << "TileRingMin6" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerRing6.size() << apost << ">";
+    for (it2 = layerRing6.begin(); it2 != layerRing6.end(); ++it2) {
+      std::string last = ((l7 + 1) == layerRing6.size()) ? " " : ",";
+      if (l7 % 14 == 0)
+        fOut << "\n    " << std::setw(4) << (it2->second).first << last;
+      else
+        fOut << std::setw(4) << (it2->second).first << last;
+      ++l7;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRingMax6" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerRing6.size() << apost << ">";
+    for (it2 = layerRing6.begin(); it2 != layerRing6.end(); ++it2) {
+      std::string last = ((l8 + 1) == layerRing6.size()) ? " " : ",";
+      if (l8 % 14 == 0)
+        fOut << "\n    " << std::setw(4) << (it2->second).second << last;
+      else
+        fOut << std::setw(4) << (it2->second).second << last;
+      ++l8;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRingMin" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerRing.size() << apost << ">";
+    for (it2 = layerRing.begin(); it2 != layerRing.end(); ++it2) {
+      std::string last = ((l9 + 1) == layerRing.size()) ? " " : ",";
+      if (l9 % 14 == 0)
+        fOut << "\n    " << std::setw(4) << (it2->second).first << last;
+      else
+        fOut << std::setw(4) << (it2->second).first << last;
+      ++l9;
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileRingMax" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerRing.size() << apost << ">";
+    for (it2 = layerRing.begin(); it2 != layerRing.end(); ++it2) {
+      std::string last = ((l10 + 1) == layerRing.size()) ? " " : ",";
+      if (l10 % 14 == 0)
+        fOut << "\n    " << std::setw(4) << (it2->second).second << last;
+      else
+        fOut << std::setw(4) << (it2->second).second << last;
+      ++l10;
+    }
+    fOut << "\n  </Vector>\n";
+
+    unsigned int k1(0), k2(0), k3(0), k4(0), k5(0), k6(0), k7(0), k8(0);
+    std::map<int, tile>::const_iterator itr;
+    fOut << "  <Vector name=" << apost << "TileIndex" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">";
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      if (k1 % 7 == 0)
+        fOut << "\n    " << std::setw(8) << itr->first << last;
+      else
+        fOut << std::setw(8) << itr->first << last;
+      ++k1;
+      if ((debug % 10) > 0)
+        std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
+                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
+                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
+                  << (itr->second).hex[3] << " " << (itr->second).hex[4] << " " << (itr->second).hex[5] << std::dec << "\n";
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k1 + 1) == (module6.size() + module.size())) ? " " : ",";
+      if (k1 % 7 == 0)
+        fOut << "\n    " << std::setw(8) << itr->first << last;
+      else
+        fOut << std::setw(8) << itr->first << last;
+      ++k1;
+      if ((debug % 10) > 0)
+        std::cout << "Tile " << HGCalTileIndex::tileLayer(itr->first) << ":" << HGCalTileIndex::tileRing(itr->first)
+                  << " Type " << (itr->second).type << " Area " << (itr->second).sipm << std::hex << " HEX "
+                  << (itr->second).hex[0] << " " << (itr->second).hex[1] << " " << (itr->second).hex[2] << " "
+                  << (itr->second).hex[3] << std::dec << "\n";
+    }
+    fOut << "\n  </Vector>\n";
+    fOut << "  <Vector name=" << apost << "TileProperty" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">";
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      int property = HGCalTileIndex::tileProperty((itr->second).type, (itr->second).sipm);
+      if (k2 % 15 == 0)
+        fOut << "\n    " << std::setw(3) << property << last;
+      else
+        fOut << std::setw(3) << property << last;
+      ++k2;
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k2 + 1) == (module6.size() + module.size())) ? " " : ",";
+      int property = HGCalTileIndex::tileProperty((itr->second).type, (itr->second).sipm);
+      if (k2 % 15 == 0)
+        fOut << "\n    " << std::setw(3) << property << last;
+      else
+        fOut << std::setw(3) << property << last;
+      ++k2;
+    }
+    fOut << "\n  </Vector>\n";
+
+    fOut << "  <Vector name=" << apost << "TileHEX1" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      if (k3 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[0] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[0] << last;
+      ++k3;
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k3 + 1) == (module6.size() + module.size())) ? " " : ",";
+      if (k3 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[0] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[0] << last;
+      ++k3;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX2" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      if (k4 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[1] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[1] << last;
+      ++k4;
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k4 + 1) == (module6.size() + module.size())) ? " " : ",";
+      if (k4 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[1] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[1] << last;
+      ++k4;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX3" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      if (k5 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[2] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[2] << last;
+      ++k5;
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k5 + 1) == (module6.size() + module.size())) ? " " : ",";
+      if (k5 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[2] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[2] << last;
+      ++k5;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX4" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << (module6.size() + module.size()) << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ",";
+      if (k6 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[3] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[3] << last;
+      ++k6;
+    }
+    for (itr = module.begin(); itr != module.end(); ++itr) {
+      std::string last = ((k6 + 1) == (module6.size() + module.size())) ? " " : ",";
+      if (k6 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[3] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[3] << last;
+      ++k6;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX5" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << module6.size() << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ((k7 + 1) == module6.size()) ? " " : ",";
+      if (k7 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[4] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[4] << last;
+      ++k7;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut << "  <Vector name=" << apost << "TileHEX6" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << module6.size() << apost << ">" << std::hex;
+    for (itr = module6.begin(); itr != module6.end(); ++itr) {
+      std::string last = ((k8 + 1) == module6.size()) ? " " : ",";
+      if (k8 % 6 == 0)
+        fOut << "\n     0x" << (itr->second).hex[5] << last;
+      else
+        fOut << " 0x" << (itr->second).hex[5] << last;
+      ++k8;
+    }
+    fOut << "\n  </Vector>\n" << std::dec;
+    fOut.close();
+
+    //Now write for the second file
+    std::ofstream fout(outfile2);
+    makeTitle(fout, "Tile6", module6, ringR6, lmin6, lmax6, HGCalProperty::kHGCalFineTilePhis, 1, (((debug / 10) % 10) > 0));
+    makeTitle(fout, "Tile", module, ringR, lmin, lmax, HGCalProperty::kHGCalTilePhis, 0, (((debug / 10) % 10) > 0));
+    fout.close();
+  }
+}
+
+void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
+				      const char* head,
+				      const std::map<int, tile>& module,
+				      const std::map<int, std::pair<double, double> >& ringR,
+				      int lmin,
+				      int lmax,
+				      int nphis,
+				      int mode,
+				      bool debug) {
+  const int zside = 1;
+  std::vector<tileZone> zones;
+  for (int layer = lmin; layer <= lmax; ++layer) {
+    tileZone tile0;
+    int kk, irmin, irmax;
+    for (int phi = 1; phi <= nphis; ++phi) {
+      kk = irmin = irmax = 0;
+      for (std::map<int, tile>::const_iterator itr = module.begin(); itr != module.end(); ++itr) {
+        if ((HGCalTileIndex::tileLayer(itr->first) == layer) &&
+            (((mode == 0) && HGCalTileIndex::tileExist((itr->second).hex, zside, phi)) ||
+	     (((mode != 0) && HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi)))))  {
+          int ir = HGCalTileIndex::tileRing(itr->first);
+          if (kk == 0) {
+            irmin = irmax = ir;
+          } else {
+            irmax = ir;
+          }
+          ++kk;
+        }
+      }
+      if (debug)
+        std::cout << "Layer|Phi|Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
+      if (phi == 1) {
+        tile0.layer = layer;
+        tile0.rmin = irmin;
+        tile0.rmax = irmax;
+        tile0.phimin = phi;
+        tile0.phimax = phi;
+        tile0.cassette = (cassette_ == 0) ? 0 : 1;
+      } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
+        if (cassette_ != 0) {
+          if (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax) {
+            do {
+              int phimax = tile0.phimax;
+              tile0.phimax = tile0.cassette * HGCalProperty::kHGCalTilePhisWord;
+              zones.push_back(tile0);
+              tile0.phimin = tile0.phimax + 1;
+              tile0.phimax = phimax;
+              ++tile0.cassette;
+            } while (tile0.cassette * HGCalProperty::kHGCalTilePhisWord < tile0.phimax);
+          }
+        }
+        zones.push_back(tile0);
+        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / HGCalProperty::kHGCalTilePhisWord));
+        tile0.layer = layer;
+        tile0.rmin = irmin;
+        tile0.rmax = irmax;
+        tile0.phimin = phi;
+        tile0.phimax = phi;
+        tile0.cassette = cassette;
+        if (phi == HGCalProperty::kHGCalTilePhis)
+          zones.push_back(tile0);
+      } else {
+        tile0.phimax = phi;
+        if (phi == HGCalProperty::kHGCalTilePhis)
+          zones.push_back(tile0);
+      }
+    }
+  }
+
+  int nmax = zones.size();
+  if (debug) {
+    std::cout << "\nA total of " << nmax << " zones " << std::endl;
+    for (int k = 0; k < nmax; ++k)
+      std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax
+                << " phi " << zones[k].phimin << ":" << zones[k].phimax << " Cassette " << zones[k].cassette
+                << std::endl;
+  }
+  if (nmax > 0) {
+    char apost('"');
+    unsigned int l1(0), l2(0);
+    std::map<int, std::pair<double, double> >::const_iterator it1;
+    fout << "  <Vector name=" << apost << head << "RMin" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l1 + 1) == ringR.size()) ? " " : ",";
+      if (l1 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      ++l1;
+    }
+    fout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << head << "RMax" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l2 + 1) == ringR.size()) ? " " : ",";
+      if (l2 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      ++l2;
+    }
+    fout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
+    for (int k = 0; k < nmax; ++k) {
+      std::string last = ((k + 1) == nmax) ? " " : ",";
+      int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
+      if (k % 7 == 0) {
+        fout << "\n    " << std::setw(9) << lyr1r2 << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(9) << lyr1r2 << last;
+      } else {
+        fout << std::setw(9) << lyr1r2 << last;
+        if (debug)
+          std::cout << std::setw(9) << lyr1r2 << last;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    int layer = -1;
+    std::vector<int> layerStart;
+    fout << "  <Vector name=" << apost << head << "PhiRange" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << head << "PhiRange" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
+    for (int k = 0; k < nmax; ++k) {
+      std::string last = ((k + 1) == nmax) ? " " : ",";
+      int f1f2 = HGCalTileIndex::tilePack(zones[k].cassette, zones[k].phimin, zones[k].phimax);
+      if (k % 7 == 0) {
+        fout << "\n    " << std::setw(9) << f1f2 << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(9) << f1f2 << last;
+      } else {
+        fout << std::setw(9) << f1f2 << last;
+        if (debug)
+          std::cout << std::setw(9) << f1f2 << last;
+      }
+      if (zones[k].layer != layer) {
+        layerStart.emplace_back(k);
+        layer = zones[k].layer;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layerStart.size() << apost << ">";
+    if (debug)
+      std::cout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << layerStart.size() << apost << ">";
+    for (unsigned int k = 0; k < layerStart.size(); ++k) {
+      std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
+      if (k % 10 == 0) {
+        fout << "\n    " << std::setw(5) << layerStart[k] << last;
+        if (debug)
+          std::cout << "\n    " << std::setw(5) << layerStart[k] << last;
+      } else {
+        fout << std::setw(5) << layerStart[k] << last;
+        if (debug)
+          std::cout << std::setw(5) << layerStart[k] << last;
+      }
+    }
+    fout << "\n  </Vector>\n";
+    if (debug)
+      std::cout << "\n  </Vector>\n";
   }
 }
 
