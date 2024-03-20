@@ -14,15 +14,24 @@ import numpy as np
 from collections import defaultdict, Counter
 from pprint import pprint
 
-BITSABSCURV=14
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Constant for PT ~~~~~
+## Constant from L1 Track Trigger
+#https://github.com/cms-sw/cmssw/blob/master/L1Trigger/TrackTrigger/python/ProducerSetup_cfi.py#L98
+Bfield = 3.81120228767395  # in T
+SpeedOfLight = 2.99792458  # in e8 m/s
+# https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h#L87
+minRinv = 0.006
+BITSRinv = 15
+BITSABSRinv=14
 BITSPT=13
-maxCurv = 0.00855
-ptLSB=0.025
+ptLSB=0.03125
 ptLUT=[]
 pts = []
 ptshifts = []
+stepRinv = (2. * abs(minRinv)) / (1 << BITSRinv)
+drawPT = False
 
-
+## Constant for Eta
 BITSTTTANL=16-1
 BITSETA=13-1
 maxTanL=8.0
@@ -32,9 +41,11 @@ etas = []
 etashifts = []
 
 def GetPtLUT():
-    for i in range(1,(1<<BITSABSCURV)):
-        k = (maxCurv*i)/(1<<BITSABSCURV)
-        pOB=0.3*3.8*0.01/(k)
+    for i in range(1,(1<<BITSABSRinv)):
+        k = i * stepRinv
+        #Floating Pt
+        #https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1TrackTrigger/interface/TTTrack.h#L226
+        pOB=(SpeedOfLight / 10)*Bfield*0.01/(k)
         pts.append(pOB)
         pINT = int(round(pOB/ptLSB))
         if pINT<(1<<BITSPT):
@@ -211,16 +222,41 @@ def LookUp(inpt, shiftmap, LUT, bounderidx):
                 return (inpt >> i[2])+i[3], LUT[(inpt >> i[2])+i[3]]
 
 def ptChecks(shiftmap, LUT, bounderidx=False):
-    for i in range(1,(1<<BITSABSCURV)-1):
-        k = (maxCurv*i)/(1<<BITSABSCURV)
-        pOB=0.3*3.8*0.01/(k)
+    l_ptOBs = []
+    l_lkpts = []
+    l_ptINTs = []
+    for i in range(1,(1<<BITSABSRinv)-1):
+        k = i * stepRinv
+        pOB=(SpeedOfLight / 10)*Bfield*0.01/(k)
         idx, pINT = LookUp(i, shiftmap, LUT, bounderidx)
         ## We don't need to check beyond the boundary
-        if pOB > (1<<BITSPT)*0.025 or pOB < 2:
+        if pOB > (1<<BITSPT)*ptLSB or pOB < 2:
             continue
+        l_ptOBs.append(pOB)
+        l_ptINTs.append(int(round(pOB/ptLSB))*ptLSB)
+        l_lkpts.append(float(pINT)*ptLSB)
         # Allow +-1 1LSB
-        if (abs(pOB - float(pINT)*0.025) > 0.025 ):
-            print("pt : ", i, pOB, pts[i-1], ptLUT[i-1], idx, pINT, int(pINT)*0.025)
+        if (abs(pOB - float(pINT)*ptLSB) > ptLSB ):
+            print("pt : ", i, pOB, pts[i-1], ptLUT[i-1], idx, pINT, int(pINT) *ptLSB)
+
+    if drawPT is True:
+        import matplotlib.pyplot as plt
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout='constrained')
+        ax1.plot(l_ptOBs, l_ptINTs, 'bo', label="Round up")
+        ax1.plot(l_ptOBs, l_lkpts, 'r+', label="Look up")
+        ax1.set_xscale('log')
+        ax1.legend()
+        ax1.set_xlabel("input pt")
+        ax1.set_ylabel("convert pt")
+
+        diff = (np.array(l_ptINTs) - np.array(l_lkpts))/ptLSB
+        ax2.plot(l_ptOBs, diff, 'bo', label="Difference")
+        ax2.set_xscale('log')
+        ax2.legend()
+        ax2.set_xlabel("input pt")
+        ax2.set_ylabel("pt LSB")
+        ax2.set_ylim([-2.5, 2.5])
+        plt.savefig("pt_check.png")
 
 def etaChecks(shiftmap, LUT, bounderidx=False):
     for i in range(0,(1<<(BITSTTTANL))):
@@ -258,11 +294,17 @@ def PrintEtaLUT(k, etaLUT):
     print("int etaShifts[{nOps}][5]={{".format(nOps=len(k)) + ", ".join(shiftout) + "};")
     print("ap_uint<BITSETA> etaLUT[{address}]={{".format(address=len(etaLUT)) +', '.join(etaLUT)+'};')
 
+
+
+
 if __name__ == "__main__":
     bounderidx=True
     GetPtLUT()
-    k = GetLUTwrtLSB(pts, ptLSB, isPT=True, nbits=[ 1, 2, 3, 4, 5, 6, 7], lowerbound=2, upperbound=((1<<BITSPT)-1)*ptLSB)
+    k = GetLUTwrtLSB(pts, ptLSB, isPT=True, nbits=[1, 2, 3, 4, 5, 6, 7], lowerbound=1.9, upperbound=((1<<BITSPT)-1)*ptLSB)
     k, x, y = ProducedFinalLUT(ptLUT, k, isPT=True, bounderidx=bounderidx)
+    ## K is the shift map
+    ## X is the index to the LUT
+    ## Y is the LUT
     con = consecutive(x)
     if len(con) > 1:
         print("index is not continuous: ", con)
@@ -270,7 +312,7 @@ if __name__ == "__main__":
     # print("Total size of LUT is %d" % len(y))
     PrintPTLUT(k, y)
 
-    # # ### Eta
+    # ### Eta
     GetEtaLUT()
     k =  GetLUTwrtLSB(etas, etaLSB, isPT=False, nbits=[0, 1, 2, 3, 5], upperbound =2.45)
     k, x, y = ProducedFinalLUT(etaLUT, k, bounderidx=bounderidx)
