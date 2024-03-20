@@ -50,7 +50,6 @@
 class CaloTPTableProducer : public edm::stream::EDProducer<> {
 public:
   explicit CaloTPTableProducer(const edm::ParameterSet&);
-  ~CaloTPTableProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -58,11 +57,6 @@ private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-
-  //void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   const double ecalLSB_;
@@ -76,17 +70,6 @@ private:
   const edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CaloTPTableProducer::CaloTPTableProducer(const edm::ParameterSet& iConfig)
     : ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
       ecalTPsToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPsSrc"))),
@@ -98,13 +81,6 @@ CaloTPTableProducer::CaloTPTableProducer(const edm::ParameterSet& iConfig)
   produces<nanoaod::FlatTable>("HcalTP");
 
   //now do what ever other initialization is needed
-}
-
-CaloTPTableProducer::~CaloTPTableProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-  //
-  // please remove this method altogether if it would be left empty
 }
 
 //
@@ -212,38 +188,6 @@ void CaloTPTableProducer::beginStream(edm::StreamID) {
 void CaloTPTableProducer::endStream() {
   // please remove this method if not needed
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-CaloTPTableProducer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-CaloTPTableProducer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-CaloTPTableProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-CaloTPTableProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CaloTPTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
