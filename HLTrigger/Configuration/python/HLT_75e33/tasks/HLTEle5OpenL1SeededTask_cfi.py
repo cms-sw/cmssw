@@ -10,6 +10,8 @@ from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
+from ..modules.hltEgammaR9L1Seeded_cfi import *
+from ..modules.hltEgammaHollowTrackIsoL1Seeded_cfi import *
 
 HLTEle5OpenL1SeededTask = cms.Task(
     hltEgammaCandidatesL1Seeded,
@@ -21,5 +23,7 @@ HLTEle5OpenL1SeededTask = cms.Task(
     hltEgammaHGCALIDVarsL1Seeded,
     hltEgammaHGCalLayerClusterIsoL1Seeded,
     hltEgammaHcalPFClusterIsoL1Seeded,
-    hltEgammaHoverEL1Seeded
+    hltEgammaHoverEL1Seeded,
+    hltEgammaR9L1Seeded,
+    hltEgammaHollowTrackIsoL1Seeded
 )
