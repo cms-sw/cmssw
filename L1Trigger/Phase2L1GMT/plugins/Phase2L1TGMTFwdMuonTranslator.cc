@@ -119,7 +119,18 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   for (unsigned int track_id = 0; track_id < emtf_tracks->size(); ++track_id) {
     const auto& track = emtf_tracks->at(track_id);
 
-    if (track.valid() == 0) {
+    // Short-Circuit: Only keep valid tracks that are in BX=0
+    if ((track.valid() == 0) || (track.bx() != 0)) {
+      continue;
+    }
+
+    // Short-Circuit: Only keep tracks with quality above 3 to avoid single hit tracks
+    if (track.emtfQuality() <= 3) {
+      continue;
+    }
+
+    // Short-Circuit: Only keep tracks with the max relevance score (127)
+    if (track.emtfRels() != 127) {
       continue;
     }
 
@@ -243,9 +254,9 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTr
   math::PtEtaPhiMLorentzVector p4(track.emtfPt() * LSBpt, track_eta, track_phi, 0.0);
 
   // Quantize Values
-  ap_uint<BITSSAQUAL> qual = track.emtfModeV2();  // Not sure how this should be handled; using mode for now
-  int charge = track.emtfQ();                     // EMTF uses the same convention
-  ap_uint<BITSGTPT> pt = track.emtfPt();          // Quantized by EMTF in the same units
+  ap_uint<BITSSAQUAL> qual = track.emtfQuality();  // Quality provided by EMTF to GMT
+  int charge = track.emtfQ();                      // EMTF uses the same convention
+  ap_uint<BITSGTPT> pt = track.emtfPt();           // Quantized by EMTF in the same units
   ap_int<BITSGTPHI> phi = round(track_phi / LSBphi);
   ap_int<BITSGTETA> eta = round(track_eta / LSBeta);
   ap_int<BITSSAZ0> z0 = track.emtfZ0();  // Quantized by EMTF in the same units

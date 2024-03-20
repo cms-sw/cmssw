@@ -217,8 +217,8 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
     absK = ap_uint<BITSTTCURV - 1>(track.curvature());
 
   //bound the resolution propagation
-  if (absK > 4095)
-    absK = 4095;
+  if (absK > 6000)
+    absK = 6000;
 
   ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1> s1kFull = res1_coord1 * absK;
   ap_uint<BITSPROPSIGMACOORD_B + BITSTTCURV - 1 - 10> s1k = s1kFull / 1024;

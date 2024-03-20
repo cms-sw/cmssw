@@ -40,8 +40,9 @@
     </class>
     <class name="l1t::phase2::EMTFHitCollection"/>
     <class name="edm::Wrapper<l1t::phase2::EMTFHitCollection>"/>
-    <class name="l1t::phase2::EMTFTrack" ClassVersion="3">
+    <class name="l1t::phase2::EMTFTrack" ClassVersion="4">
       <version ClassVersion="3" checksum="972508279"/>
+      <version ClassVersion="4" checksum="3868553580"/>
     </class>
     <class name="l1t::phase2::EMTFTrackCollection"/>
     <class name="edm::Wrapper<l1t::phase2::EMTFTrackCollection>"/>
