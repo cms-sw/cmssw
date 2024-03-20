@@ -72,6 +72,8 @@ public:
 
   bool isItBigPixelInX(const int ixbin) const override { return specificTopology().isItBigPixelInX(ixbin); }
   bool isItBigPixelInY(const int iybin) const override { return specificTopology().isItBigPixelInY(iybin); }
+  float getPixelFractionInX(int ixbin) const override{return specificTopology().getPixelFractionInX(ixbin);}
+  float getPixelFractionInY(int iybin) const override{return specificTopology().getPixelFractionInY(iybin);}
   bool containsBigPixelInX(int ixmin, int ixmax) const override {
     return specificTopology().containsBigPixelInX(ixmin, ixmax);
   }

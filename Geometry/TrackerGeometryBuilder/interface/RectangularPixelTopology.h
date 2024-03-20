@@ -120,6 +120,25 @@ public:
     // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
     // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
   }
+  float getPixelFractionInX(const int ixbin) const override {
+     if((ixbin == 79) | (ixbin == 80)){
+	return 2.0f;
+     }else{
+	return 1.0f;
+     }	
+  }
+
+  float getPixelFractionInY(const int iybin) const override {
+    int iybin0 = iybin % 52;
+   
+     if((iybin0 == 0) | (iybin0 == 51)){
+	return 2.0f;
+     }else{
+	return 1.0f;
+     }
+  }	
+    // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
+    // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range

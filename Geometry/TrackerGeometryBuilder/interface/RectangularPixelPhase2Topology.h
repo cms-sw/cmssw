@@ -125,6 +125,35 @@ public:
     return !no_big_pixel;
   }
 
+  float getPixelFractionInX(const int ixbin) const override {
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
+     
+     if(no_big_pixel){ 
+	return 1.0f;
+     }else{
+	if(((m_nrows/2 - m_BIG_PIX_PER_ROC_X) <= ixbin ) && ( ixbin < (m_nrows/2 - m_BIG_PIX_PER_ROC_X + m_BIG_PIX_PER_ROC_X*m_nrows/m_ROWS_PER_ROC))){
+		return float(m_BIG_PIX_PITCH_X/m_pitchx) ;
+	}else{
+	
+		return 1.0f;
+	}
+     }	
+  }
+
+  float getPixelFractionInY(const int iybin) const override {
+    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
+     if (no_big_pixel){ 
+	return 1.0f;
+     }else{
+	if(((m_ncols/2 - m_BIG_PIX_PER_ROC_Y) <= iybin ) && ( iybin < (m_ncols/2 - m_BIG_PIX_PER_ROC_Y + m_BIG_PIX_PER_ROC_Y*m_ncols/m_COLS_PER_ROC))){
+		return float(m_BIG_PIX_PITCH_Y/m_pitchy);
+	}else{
+	
+		return 1.0f;
+	}
+     }
+  }
+       
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range (assuming they are always at the edge between two CROCs)
   //

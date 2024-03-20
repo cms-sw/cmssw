@@ -127,6 +127,8 @@ public:
 
   bool isItBigPixelInY(const int iybin) const override { return false; }
 
+  float getPixelFractionInX(int ixbin) const override{return 1.0f;}
+  float getPixelFractionInY(int iybin) const override{return 1.0f;}
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   bool containsBigPixelInX(int ixmin, int ixmax) const override { return false; }
