@@ -54,7 +54,7 @@ namespace l1t {
     const Phase2L1GMT::z0_gt_t apZ0() const { return Phase2L1GMT::z0_gt_t(hwZ0()); };
     const Phase2L1GMT::d0_gt_t apD0() const { return Phase2L1GMT::d0_gt_t(hwD0()); };
     const Phase2L1GMT::q_gt_t apCharge() const { return Phase2L1GMT::q_gt_t(hwCharge()); };
-    const Phase2L1GMT::qual_gt_t apQualFlag() const { return Phase2L1GMT::qual_gt_t(hwQual()); };
+    const Phase2L1GMT::qual_gt_t apQualFlags() const { return Phase2L1GMT::qual_gt_t(hwQual()); };
     const Phase2L1GMT::iso_gt_t apIso() const { return Phase2L1GMT::iso_gt_t(hwIsoSumAp()); };
     const Phase2L1GMT::beta_gt_t apBeta() const { return Phase2L1GMT::beta_gt_t(hwBeta()); };
 
