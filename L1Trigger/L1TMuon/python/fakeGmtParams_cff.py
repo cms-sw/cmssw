@@ -29,7 +29,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     # uGMT FW version to be set
     # Format: 0xMMmmvvpp for major.minor.very_minor.patch
     # E.g.: 2.1.0.patch1 translates to 0x02010001
-    fwVersion = cms.uint32(0x4010000),
+    fwVersion = cms.uint32(0x8010000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
