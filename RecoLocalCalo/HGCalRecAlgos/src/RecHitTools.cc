@@ -368,10 +368,10 @@ unsigned int RecHitTools::getLayer(const DetId& id) const {
   } else if (id.det() == DetId::Forward) {
     layer = HGCalDetId(id).layer();
   } else if (id.det() == DetId::Hcal && id.subdetId() != HcalEmpty) {
-      if (id.subdetId() == HcalBarrel)
-        layer = HcalDetId(id).depth();
-      else if (id.subdetId() == HcalOuter)
-        layer = HcalDetId(id).depth() + 1;
+    if (id.subdetId() == HcalBarrel)
+      layer = HcalDetId(id).depth();
+    else if (id.subdetId() == HcalOuter)
+      layer = HcalDetId(id).depth() + 1;
   } else if (id.det() == DetId::Ecal) {
     layer = 0;
   }

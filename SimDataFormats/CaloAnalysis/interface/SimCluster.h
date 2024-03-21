@@ -177,10 +177,12 @@ public:
   void addRecHitAndFraction(uint32_t hit, float fraction) {
     hits_.emplace_back(hit);
     fractions_.emplace_back(fraction);
-    if ((hit >= firstDetIdEB_ && hit < firstDetIdEE_) || (hit >= firstDetIdHB_ && hit < firstDetIdHE_) || (hit >= firstDetIdHO_ && hit < firstDetIdHcalForward_)) {
+    if ((hit >= firstDetIdEB_ && hit < firstDetIdEE_) || (hit >= firstDetIdHB_ && hit < firstDetIdHE_) ||
+        (hit >= firstDetIdHO_ && hit < firstDetIdHcalForward_)) {
       barrel_hits_.emplace_back(hit);
       barrel_fractions_.emplace_back(fraction);
-    } else if ((hit >= firstDetIdEE_ && hit < lastDetIdES_) || (hit >= firstDetIdHE_ && hit < firstDetIdHO_) || (hit >= firstDetIdHcalForward_ && hit < lastDetIdHcalForward_) || (hit >= firstDetIdHGCal_)) {
+    } else if ((hit >= firstDetIdEE_ && hit < lastDetIdES_) || (hit >= firstDetIdHE_ && hit < firstDetIdHO_) ||
+               (hit >= firstDetIdHcalForward_ && hit < lastDetIdHcalForward_) || (hit >= firstDetIdHGCal_)) {
       endcap_hits_.emplace_back(hit);
       endcap_fractions_.emplace_back(fraction);
     }
@@ -197,8 +199,8 @@ public:
     }
     return result;
   }
- 
-  /** @brief Returns list of rechit IDs and fractions in the barrel for this SimCluster */ 
+
+  /** @brief Returns list of rechit IDs and fractions in the barrel for this SimCluster */
   std::vector<std::pair<uint32_t, float>> barrel_hits_and_fractions() const {
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < barrel_hits_.size(); ++i) {
@@ -275,7 +277,6 @@ private:
   uint32_t firstDetIdHcalForward_ = (4 << 28) + (4 << 25);
   uint32_t lastDetIdHcalForward_ = (4 << 28) + (5 << 25);
   uint32_t firstDetIdHGCal_ = 5 << 28;
-
 };
 
 #endif  // SimDataFormats_SimCluster_H

@@ -6,11 +6,10 @@ LCToCPAssociatorByEnergyScoreProducer<HIT>::LCToCPAssociatorByEnergyScoreProduce
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
-
-  for (auto& label : hits_label_) {
+  for (auto &label : hits_label_) {
     if constexpr (std::is_same_v<HIT, HGCRecHit>)
       hgcal_hits_token_.push_back(consumes<HGCRecHitCollection>(label));
-    else 
+    else
       hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
 
@@ -32,13 +31,13 @@ void LCToCPAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 
   std::vector<HIT> hits;
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-    for (auto& token : hgcal_hits_token_) {
+    for (auto &token : hgcal_hits_token_) {
       edm::Handle<HGCRecHitCollection> hits_handle;
       iEvent.getByToken(token, hits_handle);
       hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
     }
   } else {
-    for (auto& token : hits_token_) {
+    for (auto &token : hits_token_) {
       edm::Handle<std::vector<HIT>> hits_handle;
       iEvent.getByToken(token, hits_handle);
       hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
@@ -58,15 +57,16 @@ void LCToCPAssociatorByEnergyScoreProducer<HIT>::fillDescriptions(edm::Configura
   desc.add<bool>("hardScatterOnly", true);
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits", {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                                  edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                                  edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
-  } else { 
+    desc.add<std::vector<edm::InputTag>>("hits",
+                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  } else {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits", {edm::InputTag("particleFlowRecHitECAL", ""),    
-                                                  edm::InputTag("particleFlowRecHitHBHE", ""),
-                                                  edm::InputTag("particleFlowRecHitHO", "")});
- 
+    desc.add<std::vector<edm::InputTag>>("hits",
+                                         {edm::InputTag("particleFlowRecHitECAL", ""),
+                                          edm::InputTag("particleFlowRecHitHBHE", ""),
+                                          edm::InputTag("particleFlowRecHitHO", "")});
   }
   cfg.addWithDefaultLabel(desc);
 }

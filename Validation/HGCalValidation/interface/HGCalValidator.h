@@ -56,7 +56,7 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
-                                std::unordered_map<DetId, const unsigned int> const&, 
+                                std::unordered_map<DetId, const unsigned int> const&,
                                 std::vector<HGCRecHit> const& hits) const;
 
 protected:
@@ -97,6 +97,7 @@ protected:
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
   std::vector<edm::InputTag> hits_label_;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
+
 private:
   CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;

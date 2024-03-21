@@ -70,9 +70,8 @@ public:
   explicit LCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                              bool,
                                              std::shared_ptr<hgcal::RecHitTools>,
-                                             const std::unordered_map<DetId, const unsigned int> *, 
-                                             std::vector<HIT>& hits);
-  
+                                             const std::unordered_map<DetId, const unsigned int> *,
+                                             std::vector<HIT> &hits);
 
   ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;

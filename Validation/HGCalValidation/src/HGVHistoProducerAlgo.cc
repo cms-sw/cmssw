@@ -1442,7 +1442,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     const CaloParticle& caloParticle,
                                                     std::vector<SimVertex> const& simVertices,
                                                     unsigned int layers,
-                                                    std::unordered_map<DetId, const unsigned int> const& hitMap, 
+                                                    std::unordered_map<DetId, const unsigned int> const& hitMap,
                                                     std::vector<HGCRecHit> const& hits) const {
   const auto eta = getEta(caloParticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
@@ -1704,7 +1704,7 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
     std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap, 
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
     std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -1725,7 +1725,7 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
                                hitMap,
                                layers,
                                scsInLayerClusterMap,
-                               lcsInSimClusterMap, 
+                               lcsInSimClusterMap,
                                hits);
 }
 
@@ -2007,7 +2007,7 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap, 
+    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
     std::vector<HGCRecHit> const& hits) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*
@@ -2188,7 +2188,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        unsigned int layers,
                                                        std::vector<int> thicknesses,
                                                        const ticl::RecoToSimCollection& cpsInLayerClusterMap,
-                                                       const ticl::SimToRecoCollection& cPOnLayerMap, 
+                                                       const ticl::SimToRecoCollection& cPOnLayerMap,
                                                        std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -2510,7 +2510,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& hitMap,
-    unsigned int layers, 
+    unsigned int layers,
     std::vector<HGCRecHit> const& hits) const {
   const auto nTracksters = tracksters.size();
   const auto nSimTracksters = simTSs.size();
@@ -2948,7 +2948,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       bool hitWithNoSTS = false;
       if (detIdSimTSId_Map.find(elemId) == detIdSimTSId_Map.end())
         hitWithNoSTS = true;
-      const HGCRecHit* hit = &(hits[hitMap.find(rh_detid)->second]); 
+      const HGCRecHit* hit = &(hits[hitMap.find(rh_detid)->second]);
       const auto hitEnergyWeight = pow(hit->energy(), 2);
 
       for (auto& stsPair : stsInTrackster[tstId]) {
@@ -3057,8 +3057,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       const auto lcId = getLCId(sts.vertices(), layerClusters, haf.first);
       const auto iLC = std::find(sts.vertices().begin(), sts.vertices().end(), lcId);
       const HGCRecHit* hit = &(hits[hitMap.at(haf.first)]);
-      SimEnergy_LC +=
-          hit->energy() / sts.vertex_multiplicity(std::distance(std::begin(sts.vertices()), iLC));
+      SimEnergy_LC += hit->energy() / sts.vertex_multiplicity(std::distance(std::begin(sts.vertices()), iLC));
     }
 
     auto iSim = sts.seedIndex();
@@ -3338,7 +3337,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& hitMap,
-    unsigned int layers, 
+    unsigned int layers,
     std::vector<HGCRecHit> const& hits) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
@@ -3520,7 +3519,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                               cPIndices,
                               cPSelectedIndices,
                               hitMap,
-                              layers, 
+                              layers,
                               hits);
 
   // Pattern recognition
@@ -3538,7 +3537,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                               cPIndices,
                               cPSelectedIndices,
                               hitMap,
-                              layers, 
+                              layers,
                               hits);
 }
 
@@ -3562,7 +3561,7 @@ void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> re
 }
 
 DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
-                                       std::unordered_map<DetId, const unsigned int> const& hitMap, 
+                                       std::unordered_map<DetId, const unsigned int> const& hitMap,
                                        std::vector<HGCRecHit> const& hits) const {
   const auto& hits_and_fractions = cluster.hitsAndFractions();
 

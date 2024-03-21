@@ -67,8 +67,8 @@ public:
   explicit LCToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                              bool,
                                              std::shared_ptr<hgcal::RecHitTools>,
-                                             const std::unordered_map<DetId, const unsigned int> *, 
-                                             std::vector<HIT>& hits);
+                                             const std::unordered_map<DetId, const unsigned int> *,
+                                             std::vector<HIT> &hits);
 
   ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCH,

@@ -20,7 +20,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-template<typename HIT>
+template <typename HIT>
 class LCToCPAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
 public:
   explicit LCToCPAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
@@ -35,7 +35,7 @@ private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
   std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_token_; 
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_token_;
   std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
 };
 

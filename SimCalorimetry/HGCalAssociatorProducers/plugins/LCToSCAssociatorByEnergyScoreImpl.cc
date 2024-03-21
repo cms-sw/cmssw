@@ -10,8 +10,11 @@ LCToSCAssociatorByEnergyScoreImpl<HIT>::LCToSCAssociatorByEnergyScoreImpl(
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
     std::vector<HIT>& hits)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter), hits_(hits) {
-  
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      productGetter_(&productGetter),
+      hits_(hits) {
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
@@ -318,9 +321,8 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       double tot_energy = 0.;
       for (auto const& haf : lcsInSimCluster[sc][sclay].hits_and_fractions) {
         const HIT* hit = &(hits_[itcheck->second]);
-        LogDebug("LCToSCAssociatorByEnergyScoreImpl")
-            << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
-            << haf.second * hit->energy() << std::endl;
+        LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/"
+                                                      << haf.second << "/" << haf.second * hit->energy() << std::endl;
         tot_energy += haf.second * hit->energy();
       }
       LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;

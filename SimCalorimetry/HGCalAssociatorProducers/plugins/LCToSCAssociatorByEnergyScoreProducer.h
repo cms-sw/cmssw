@@ -20,7 +20,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-template<typename HIT>
+template <typename HIT>
 class LCToSCAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
 public:
   explicit LCToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &);

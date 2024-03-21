@@ -30,7 +30,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_TSToCPLinking_(pset.getParameter<std::string>("label_TSToCPLinking")),
       label_TSToSTSPR_(pset.getParameter<std::string>("label_TSToSTSPR")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
-      cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")), 
+      cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
       hits_label_(pset.getParameter<std::vector<edm::InputTag>>("hits")) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
@@ -53,7 +53,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(edm::InputTag("ticlSimTracksters"));
 
-  hitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+  hitMap_ =
+      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
 
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
@@ -230,7 +231,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
                                               std::vector<SimVertex> const& simVertices,
                                               std::vector<size_t>& selected_cPeff,
                                               unsigned int layers,
-                                              std::unordered_map<DetId, const unsigned int> const& hitMap, 
+                                              std::unordered_map<DetId, const unsigned int> const& hitMap,
                                               std::vector<HGCRecHit> const& hits) const {
   selected_cPeff.reserve(cPeff.size());
 
@@ -319,7 +320,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // HGCRecHit are given to select the SimHits which are also reconstructed
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
-  cpParametersAndSelection(histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, *hitMap, hits);
+  cpParametersAndSelection(
+      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, *hitMap, hits);
 
   //get collections from the event
   //simClusters
@@ -376,7 +378,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             *hitMap,
                                                             totallayers_to_monitor_,
                                                             recSimColl,
-                                                            simRecColl, 
+                                                            simRecColl,
                                                             hits);
 
       //General Info on simClusters

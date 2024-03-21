@@ -44,7 +44,7 @@ RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps)
       hits_ho_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HOInput"))),
       hgcalOnly_(ps.getParameter<bool>("hgcalOnly")) {
   produces<DetIdRecHitMap>("hgcalRecHitMap");
-  if (!hgcalOnly_) 
+  if (!hgcalOnly_)
     produces<DetIdRecHitMap>("barrelRecHitMap");
 }
 
@@ -70,14 +70,14 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
     hitMapHGCal->emplace(ee_hits[i].detid(), i);
   }
   auto size = ee_hits.size();
-  
+
   for (unsigned int i = 0; i < fh_hits.size(); ++i) {
-    hitMapHGCal->emplace(fh_hits[i].detid(), i+size);
+    hitMapHGCal->emplace(fh_hits[i].detid(), i + size);
   }
   size += fh_hits.size();
 
   for (unsigned int i = 0; i < bh_hits.size(); ++i) {
-    hitMapHGCal->emplace(bh_hits[i].detid(), i+size);
+    hitMapHGCal->emplace(bh_hits[i].detid(), i + size);
   }
 
   evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
@@ -88,19 +88,19 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
     const auto& hb_hits = evt.get(hits_hb_token_);
     const auto& ho_hits = evt.get(hits_ho_token_);
     size = 0;
- 
+
     for (unsigned int i = 0; i < eb_hits.size(); ++i) {
       hitMapBarrel->emplace(eb_hits[i].detId(), i);
     }
     size += eb_hits.size();
 
     for (unsigned int i = 0; i < hb_hits.size(); ++i) {
-      hitMapBarrel->emplace(hb_hits[i].detId(), i+size);
+      hitMapBarrel->emplace(hb_hits[i].detId(), i + size);
     }
     size += hb_hits.size();
 
     for (unsigned int i = 0; i < ho_hits.size(); ++i) {
-      hitMapBarrel->emplace(ho_hits[i].detId(), i+size);
+      hitMapBarrel->emplace(ho_hits[i].detId(), i + size);
     }
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }

@@ -14,10 +14,13 @@ LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const unsigned int>* hitMap, 
+    const std::unordered_map<DetId, const unsigned int>* hitMap,
     std::vector<HIT>& hits)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter), hits_(hits) {
-
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      productGetter_(&productGetter),
+      hits_(hits) {
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
@@ -365,8 +368,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
       const HIT* hit = &(hits_[hitMap_->at(haf.first)]);
-      invLayerClusterEnergyWeight += (haf.second * hit->energy()) *
-                                     (haf.second * hit->energy());
+      invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
