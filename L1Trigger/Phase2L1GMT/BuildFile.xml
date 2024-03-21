@@ -4,6 +4,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="L1Trigger/L1TMuon"/>
 <use name="L1Trigger/L1TTwinMux"/>
+<use name="L1Trigger/L1TMuonEndCapPhase2"/>
 <use name="hls"/>
 <export>
   <lib name="1"/>

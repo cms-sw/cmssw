@@ -16,6 +16,8 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/EMTFTrack.h"
+#include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/TPUtils.h"
 
 //
 // class declaration
@@ -37,6 +39,8 @@ private:
   l1t::MuonStubRefVector selectLayerBX(const l1t::MuonStubRefVector& all, int bx, uint layer);
   void associateStubs(l1t::SAMuon&, const l1t::MuonStubRefVector&);
 
+  l1t::SAMuon ConvertEMTFTrack(const l1t::phase2::EMTFTrack& track, const int bx_);
+
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfTrackToken_;
@@ -54,26 +58,16 @@ private:
 // constructors and destructor
 //
 Phase2L1TGMTFwdMuonTranslator::Phase2L1TGMTFwdMuonTranslator(const edm::ParameterSet& iConfig)
-<<<<<<< HEAD
-    : muonToken_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-      stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))) {
-=======
     : stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))),
       omtfTrackToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("omtfTracks"))),
       emtfTrackToken_(consumes<l1t::phase2::EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("emtfTracks"))) {
->>>>>>> d34010dded1 (Add Phase-2 OMTF and EMTF to GMT SA)
   produces<std::vector<l1t::SAMuon> >("prompt").setBranchAlias("prompt");
+  produces<std::vector<l1t::SAMuon> >("displaced").setBranchAlias("displaced");
 }
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-<<<<<<< HEAD
-  edm::Handle<l1t::MuonBxCollection> muon;
-  iEvent.getByToken(muonToken_, muon);
-  edm::Handle<l1t::MuonStubCollection> stubHandle;
-  iEvent.getByToken(stubToken_, stubHandle);
-=======
 
   edm::Handle<l1t::MuonStubCollection> stubHandle;
   iEvent.getByToken(stubToken_, stubHandle);
@@ -85,28 +79,21 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(omtfTrackToken_, omtf_tracks);
 
   // Process Stubs
->>>>>>> d34010dded1 (Add Phase-2 OMTF and EMTF to GMT SA)
   l1t::MuonStubRefVector stubs;
+
   for (uint i = 0; i < stubHandle->size(); ++i) {
     l1t::MuonStubRef stub(stubHandle, i);
+
     if (stub->bxNum() == 0)
       stubs.push_back(stub);
   }
 
+  // Collect Muons
   std::vector<SAMuon> prompt;
 
   //  TODO: Will receive hybrid stubs from OMTF/EMTF
-  //  std::vector<l1t::MuonStub> hybridStubs;
-  //  edm::RefProd stubRefProd = iEvent.getRefBeforePut<std::vector<l1t::MuonStub> >("hybridStubs");
-  //  l1t::MuonStubRef::key_type idxStub =0;
+  std::vector<SAMuon> displaced;
 
-<<<<<<< HEAD
-  for (unsigned int i = 0; i < muon->size(0); ++i) {
-    const l1t::Muon& mu = muon->at(0, i);
-    l1t::SAMuon samuon = Convertl1tMuon(mu, 0);
-    if (samuon.tfType() == l1t::tftype::bmtf)
-      continue;
-=======
   // Convert OMTF Muons to SAMuons
   for (unsigned int i = 0; i < omtf_tracks->size(0); ++i) {
     const l1t::RegionalMuonCand& mu = omtf_tracks->at(0, i);
@@ -118,7 +105,6 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
     else if (mu.hwPtUnconstrained() > 0)  //Assume exculsive, need double check
       samuon = Convertl1tMuon(mu, 0, true);
 
->>>>>>> d34010dded1 (Add Phase-2 OMTF and EMTF to GMT SA)
     //now associate the stubs
     associateStubs(samuon, stubs);
 
@@ -128,8 +114,33 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
     else if (mu.hwPtUnconstrained() > 0)
       displaced.push_back(samuon);
   }
+
+  // Convert EMTF++ Tracks to SAMuons
+  for (unsigned int track_id = 0; track_id < emtf_tracks->size(); ++track_id) {
+    const auto& track = emtf_tracks->at(track_id);
+
+    if (track.valid() == 0) {
+      continue;
+    }
+
+    auto samuon = ConvertEMTFTrack(track, 0);
+
+    //now associate the stubs
+    associateStubs(samuon, stubs);
+
+    // Add To Collections
+    if (track.unconstrained()) {
+      displaced.push_back(samuon);
+    } else {
+      prompt.push_back(samuon);
+    }
+  }
+
+  // Output Prompt Muon Collection
   std::unique_ptr<std::vector<l1t::SAMuon> > prompt_ptr = std::make_unique<std::vector<l1t::SAMuon> >(prompt);
+  std::unique_ptr<std::vector<l1t::SAMuon> > displaced_ptr = std::make_unique<std::vector<l1t::SAMuon> >(displaced);
   iEvent.put(std::move(prompt_ptr), "prompt");
+  iEvent.put(std::move(displaced_ptr), "displaced");
 }
 
 // ===  FUNCTION  ============================================================
@@ -218,9 +229,9 @@ void Phase2L1TGMTFwdMuonTranslator::associateStubs(l1t::SAMuon& mu, const l1t::M
 
 SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTrack& track, const int bx_) {
   // Convert EMTF Phi and Theta to Global Phi and Eta
-  float track_phi = emtf::phase2::tp::calc_phi_glob_rad_from_loc(
-      track.sector(), emtf::phase2::tp::calc_phi_loc_deg_from_int(track.modelPhi()));
-  float track_theta = emtf::phase2::tp::calc_theta_rad_from_int(track.modelEta());
+  float track_phi = emtf::phase2::tp::calcPhiGlobRadFromLoc(track.sector(), 
+      emtf::phase2::tp::calcPhiLocDegFromInt(track.modelPhi()));
+  float track_theta = emtf::phase2::tp::calcThetaRadFromInt(track.modelEta());
   float track_eta = -1 * std::log(std::tan(track_theta / 2));
 
   track_theta *= track.endcap();
