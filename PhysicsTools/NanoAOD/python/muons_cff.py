@@ -136,7 +136,7 @@ muonMVALowPt = muonPROMPTMVA.clone(
 run2_muon_2016.toModify(
     muonPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
-    variables =	_legacy_muon_BDT_variable
+    variables =	_legacy_muon_BDT_variable.clone()
 )
 
 (run2_muon_2017 | run2_muon_2018).toModify(
