@@ -142,7 +142,7 @@ run2_muon_2016.toModify(
 (run2_muon_2017 | run2_muon_2018).toModify(
     muonPROMPTMVA,
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml"),
-    variables = _legacy_muon_BDT_variable
+    variables = _legacy_muon_BDT_variable.clone()
 )
 
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
