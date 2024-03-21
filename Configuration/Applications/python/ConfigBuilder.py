@@ -1800,7 +1800,9 @@ class ConfigBuilder(object):
             _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
         else:
             _nanoSeq = stepSpec
+            _nanoCff = self.NANODefaultCFF
 
+        print(_nanoSeq)
         # create full specified sequence using autoNANO
         from PhysicsTools.NanoAOD.autoNANO import autoNANO, expandNanoMapping
         # if not a autoNANO mapping, load an empty customization, which later will be converted into the default.
@@ -1831,7 +1833,7 @@ class ConfigBuilder(object):
 
         # add the customisations
         for custom in _nanoCustoms:
-            custom_path = custom if '.' in custom else '.'.join([self.NANODefaultCFF,custom])
+            custom_path = custom if '.' in custom else '.'.join([_nanoCff,custom])
             # customization order can be important for NANO, here later specified customise take precedence
             self._options.customisation_file.append(custom_path)
         if self._options.hltProcess:
