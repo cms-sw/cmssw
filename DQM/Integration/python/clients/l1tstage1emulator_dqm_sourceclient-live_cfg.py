@@ -87,8 +87,6 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
 
 process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
-process.caloStage1LegacyFormatDigis.bxMin = -2
-process.caloStage1LegacyFormatDigis.bxMax = 2
 
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
