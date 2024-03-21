@@ -130,7 +130,7 @@ _legacy_muon_BDT_variable = cms.VPSet(
 muonMVALowPt = muonPROMPTMVA.clone(
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml"),
     name = cms.string("muonMVALowPt"),
-    variables = _legacy_muon_BDT_variable
+    variables = _legacy_muon_BDT_variable.clone()
 )
 
 run2_muon_2016.toModify(
