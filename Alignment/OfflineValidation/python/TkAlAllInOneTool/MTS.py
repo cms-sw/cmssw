@@ -38,6 +38,7 @@ def MTS(config, validationDir):
                 local = {}
                 local["output"] = "{}/{}/MTS/{}/{}/{}/{}".format(config["LFS"], config["name"], mtsType, alignment, singleName, IOV)
                 local["alignment"] = copy.deepcopy(config["alignments"][alignment])
+                local["alignment"]["name"] = alignment
                 local["validation"] = copy.deepcopy(config["validations"]["MTS"][mtsType][singleName])
                 local["validation"].pop("alignments")
                 local["validation"]["IOV"] = IOV

@@ -1,6 +1,5 @@
 #include <cassert>
 #include <iostream>
-#include <strstream>
 #include <algorithm>
 #include <bitset>
 

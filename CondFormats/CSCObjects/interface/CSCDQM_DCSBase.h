@@ -88,15 +88,6 @@ namespace cscdqm {
     /** Get CSC Detector Id object from the address */
     CSCDetId getDetId() const { return CSCDetId(iendcap, istation, iring, ichamber); }
 
-    /** Assignment operator */
-    DCSAddressType& operator=(const DCSAddressType& a) {
-      iendcap = a.iendcap;
-      istation = a.istation;
-      iring = a.iring;
-      ichamber = a.ichamber;
-      return *this;
-    }
-
     /** Output stream operator */
     friend std::ostream& operator<<(std::ostream& out, const DCSAddressType& a) {
       std::ostringstream os;

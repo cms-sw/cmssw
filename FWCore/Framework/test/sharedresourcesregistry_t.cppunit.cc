@@ -18,7 +18,6 @@ class testSharedResourcesRegistry : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testSharedResourcesRegistry);
 
   CPPUNIT_TEST(oneTest);
-  CPPUNIT_TEST(legacyTest);
   CPPUNIT_TEST(multipleTest);
 
   CPPUNIT_TEST_SUITE_END();
@@ -28,7 +27,6 @@ public:
   void tearDown() {}
 
   void oneTest();
-  void legacyTest();
   void multipleTest();
 };
 
@@ -55,63 +53,6 @@ void testSharedResourcesRegistry::oneTest() {
     auto tester = reg.createAcquirer(res);
 
     CPPUNIT_ASSERT(1 == tester.numberOfResources());
-  }
-}
-
-void testSharedResourcesRegistry::legacyTest() {
-  std::vector<std::string> res{edm::SharedResourcesRegistry::kLegacyModuleResourceName};
-  {
-    edm::SharedResourcesRegistry reg;
-
-    reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
-    auto tester = reg.createAcquirer(res);
-
-    CPPUNIT_ASSERT(1 == tester.numberOfResources());
-  }
-  {
-    edm::SharedResourcesRegistry reg;
-
-    reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
-    reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
-
-    auto tester = reg.createAcquirer(res);
-
-    CPPUNIT_ASSERT(1 == tester.numberOfResources());
-  }
-  {
-    edm::SharedResourcesRegistry reg;
-
-    reg.registerSharedResource("foo");
-    reg.registerSharedResource("zoo");
-
-    auto const& resourceMap = reg.resourceMap();
-    CPPUNIT_ASSERT(resourceMap.at(std::string("foo")).first.get() == nullptr);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("zoo")).first.get() == nullptr);
-    CPPUNIT_ASSERT(resourceMap.size() == 2);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("foo")).second == 1);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("zoo")).second == 1);
-
-    reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("foo")).first.get() != nullptr);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("zoo")).first.get() != nullptr);
-    CPPUNIT_ASSERT(resourceMap.at(edm::SharedResourcesRegistry::kLegacyModuleResourceName).first.get() != nullptr);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("foo")).second == 2);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("zoo")).second == 2);
-    CPPUNIT_ASSERT(resourceMap.at(edm::SharedResourcesRegistry::kLegacyModuleResourceName).second == 1);
-    CPPUNIT_ASSERT(resourceMap.size() == 3);
-
-    reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
-    reg.registerSharedResource("bar");
-    reg.registerSharedResource("zoo");
-    CPPUNIT_ASSERT(resourceMap.at(std::string("bar")).first.get() != nullptr);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("bar")).second == 3);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("foo")).second == 3);
-    CPPUNIT_ASSERT(resourceMap.at(std::string("zoo")).second == 4);
-    CPPUNIT_ASSERT(resourceMap.at(edm::SharedResourcesRegistry::kLegacyModuleResourceName).second == 2);
-
-    auto tester = reg.createAcquirer(res);
-
-    CPPUNIT_ASSERT(3 == tester.numberOfResources());
   }
 }
 

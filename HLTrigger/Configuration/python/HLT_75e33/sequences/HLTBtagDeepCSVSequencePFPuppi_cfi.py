@@ -9,13 +9,4 @@ from ..modules.hltDeepInclusiveVertexFinderPF_cfi import *
 from ..modules.hltDeepSecondaryVertexTagInfosPFPuppi_cfi import *
 from ..modules.hltDeepTrackVertexArbitratorPF_cfi import *
 
-HLTBtagDeepCSVSequencePFPuppi = cms.Sequence(
-    hltDeepBLifetimeTagInfosPFPuppi +
-    hltDeepInclusiveVertexFinderPF +
-    hltDeepInclusiveSecondaryVerticesPF +
-    hltDeepTrackVertexArbitratorPF +
-    hltDeepInclusiveMergedVerticesPF +
-    hltDeepSecondaryVertexTagInfosPFPuppi +
-    hltDeepCombinedSecondaryVertexBJetTagsInfosPuppi +
-    hltDeepCombinedSecondaryVertexBJetTagsPFPuppi
-)
+HLTBtagDeepCSVSequencePFPuppi = cms.Sequence(hltDeepBLifetimeTagInfosPFPuppi+hltDeepInclusiveVertexFinderPF+hltDeepInclusiveSecondaryVerticesPF+hltDeepTrackVertexArbitratorPF+hltDeepInclusiveMergedVerticesPF+hltDeepSecondaryVertexTagInfosPFPuppi+hltDeepCombinedSecondaryVertexBJetTagsInfosPuppi+hltDeepCombinedSecondaryVertexBJetTagsPFPuppi)

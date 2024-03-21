@@ -21,47 +21,15 @@ from ..modules.hltEle32WPTightHgcalIsoUnseededFilter_cfi import *
 from ..modules.hltEle32WPTightPixelMatchUnseededFilter_cfi import *
 from ..modules.hltEle32WPTightPMS2UnseededFilter_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
-from ..sequences.HLTDoLocalHcalSequence_cfi import *
+from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
+from ..sequences.HLTEle32WPTightUnseededInnerSequence_cfi import *
 from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
-from ..sequences.HLTFastJetForEgamma_cfi import *
+from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
-from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseeded_cfi import *
+from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
-from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
-from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
+from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
+from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
-from ..tasks.HLTEle32WPTightUnseededTask_cfi import *
 
-HLTEle32WPTightUnseededSequence = cms.Sequence(
-    HLTL1Sequence +
-    hltEGL1SeedsForSingleEleIsolatedFilter +
-    HLTDoFullUnpackingEgammaEcalSequence +
-    HLTPFClusteringForEgammaUnseeded +
-    HLTHgcalTiclPFClusteringForEgammaUnseeded +
-    hltEgammaCandidatesWrapperUnseeded +
-    hltEG32EtUnseededFilter +
-    hltEle32WPTightClusterShapeUnseededFilter +
-    hltEle32WPTightClusterShapeSigmavvUnseededFilter +
-    hltEle32WPTightClusterShapeSigmawwUnseededFilter +
-    hltEle32WPTightHgcalHEUnseededFilter +
-    HLTDoLocalHcalSequence +
-    HLTFastJetForEgamma +
-    hltEle32WPTightHEUnseededFilter +
-    hltEle32WPTightEcalIsoUnseededFilter +
-    hltEle32WPTightHgcalIsoUnseededFilter +
-    HLTPFHcalClusteringForEgamma +
-    hltEle32WPTightHcalIsoUnseededFilter +
-    HLTElePixelMatchUnseededSequence +
-    hltEle32WPTightPixelMatchUnseededFilter +
-    hltEle32WPTightPMS2UnseededFilter +
-    HLTGsfElectronUnseededSequence +
-    hltEle32WPTightGsfOneOEMinusOneOPUnseededFilter +
-    hltEle32WPTightGsfDetaUnseededFilter +
-    hltEle32WPTightGsfDphiUnseededFilter +
-    hltEle32WPTightBestGsfNLayerITUnseededFilter +
-    hltEle32WPTightBestGsfChi2UnseededFilter +
-    hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter +
-    HLTTrackingV61Sequence +
-    hltEle32WPTightGsfTrackIsoUnseededFilter,
-    HLTEle32WPTightUnseededTask
-)
+HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSingleEleIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaUnseededSequence+HLTHgcalTiclPFClusteringForEgammaUnseededSequence+HLTFastJetForEgammaSequence+HLTPFHcalClusteringForEgammaSequence+HLTElePixelMatchUnseededSequence+HLTTrackingV61Sequence+HLTGsfElectronUnseededSequence+HLTEle32WPTightUnseededInnerSequence+hltEgammaCandidatesWrapperUnseeded+hltEG32EtUnseededFilter+hltEle32WPTightClusterShapeUnseededFilter+hltEle32WPTightClusterShapeSigmavvUnseededFilter+hltEle32WPTightClusterShapeSigmawwUnseededFilter+hltEle32WPTightHgcalHEUnseededFilter+hltEle32WPTightHEUnseededFilter+hltEle32WPTightEcalIsoUnseededFilter+hltEle32WPTightHgcalIsoUnseededFilter+hltEle32WPTightHcalIsoUnseededFilter+hltEle32WPTightPixelMatchUnseededFilter+hltEle32WPTightPMS2UnseededFilter+hltEle32WPTightGsfOneOEMinusOneOPUnseededFilter+hltEle32WPTightGsfDetaUnseededFilter+hltEle32WPTightGsfDphiUnseededFilter+hltEle32WPTightBestGsfNLayerITUnseededFilter+hltEle32WPTightBestGsfChi2UnseededFilter+hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter+hltEle32WPTightGsfTrackIsoUnseededFilter)

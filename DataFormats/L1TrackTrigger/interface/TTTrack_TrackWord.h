@@ -103,6 +103,8 @@ public:
       {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 10.0, 20.0, 50.0}};
   static constexpr std::array<double, 1 << TrackBitWidths::kBendChi2Size> bendChi2Bins = {
       {0.0, 0.75, 1.0, 1.5, 2.25, 3.5, 5.0, 20.0}};
+  static constexpr std::array<double, 1 << TrackBitWidths::kMVAQualitySize> mvaQualityBins = {
+      {0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.750, 0.875}};
 
   // Sector constants
   static constexpr unsigned int nSectors = 9;
@@ -141,7 +143,7 @@ public:
                     double chi2RZ,
                     double bendChi2,
                     unsigned int hitPattern,
-                    unsigned int mvaQuality,
+                    double mvaQuality,
                     unsigned int mvaOther,
                     unsigned int sector);
   TTTrack_TrackWord(unsigned int valid,
@@ -224,7 +226,7 @@ public:
   double getBendChi2() const { return bendChi2Bins[getBendChi2Bits()]; }
   unsigned int getHitPattern() const { return getHitPatternBits(); }
   unsigned int getNStubs() const { return countSetBits(getHitPatternBits()); }
-  unsigned int getMVAQuality() const { return getMVAQualityBits(); }
+  double getMVAQuality() const { return mvaQualityBins[getMVAQualityBits()]; }
   unsigned int getMVAOther() const { return getMVAOtherBits(); }
 
   // ----------member functions (setters) ------------
@@ -236,7 +238,7 @@ public:
                     double chi2RZ,
                     double bendChi2,
                     unsigned int hitPattern,
-                    unsigned int mvaQuality,
+                    double mvaQuality,
                     unsigned int mvaOther,
                     unsigned int sector);
 
