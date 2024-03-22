@@ -224,18 +224,9 @@ private:
   SegmentationMap depthSegmentation_;
   SegmentationMap depthSegmentationOne_;
 
-  static constexpr int
-    kHBhalf = 1296,
-    kHEhalf = 1296,
-    kHOhalf = 1080,
-    kHFhalf = 864,
-    kHThalf = 2088,
-    kZDChalf = 11,
-    kCASTORhalf = 224,
-    kCALIBhalf = 693,
-    kHThalfPhase1 = 2520,
-    kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf
-  ;
+  static constexpr int kHBhalf = 1296, kHEhalf = 1296, kHOhalf = 1080, kHFhalf = 864, kHThalf = 2088, kZDChalf = 11,
+                       kCASTORhalf = 224, kCALIBhalf = 693, kHThalfPhase1 = 2520,
+                       kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf;
   static constexpr int kSizeForDenseIndexingPreLS1 = 2 * kHcalhalf;
   static constexpr int kHBSizePreLS1 = 2 * kHBhalf;
   static constexpr int kHESizePreLS1 = 2 * kHEhalf;

@@ -64,12 +64,9 @@ public:
   // get the individual cell id
   //  int channel() const;
 
-  static constexpr int
-    kNumberModulesPerEnd = 14,
-    kNumberSectorsPerEnd = 16,
-    kNumberCellsPerEnd = kNumberModulesPerEnd * kNumberSectorsPerEnd,
-    kSizeForDenseIndexing = kNumberCellsPerEnd
-  ;
+  static constexpr int kNumberModulesPerEnd = 14, kNumberSectorsPerEnd = 16,
+                       kNumberCellsPerEnd = kNumberModulesPerEnd * kNumberSectorsPerEnd,
+                       kSizeForDenseIndexing = kNumberCellsPerEnd;
 
   uint32_t denseIndex() const;
 
