@@ -71,9 +71,9 @@ namespace {
   };
   std::unique_ptr<std::atomic<bool>, release> make_guard(std::atomic<bool> &b) noexcept {
     bool expected = false;
-    while (not b.compare_exchange_strong(expected, true))
-      ;
-
+    while (not b.compare_exchange_strong(expected, true)) {
+      expected = false;
+    }
     return std::unique_ptr<std::atomic<bool>, release>(&b, release());
   }
 
