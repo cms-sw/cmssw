@@ -69,8 +69,22 @@ bool HGCalTileIndex::tileExist(const int32_t* hex, int32_t zside, int32_t iphi) 
       phi -= HGCalProperty::kHGCalTilePhis;
   }
   int32_t jj = phi % HGCalProperty::kHGCalTilePhisBy3;
-  int32_t iw = jj / HGCalProperty::kHGCalTilePhisBy12;
-  int32_t ibit = HGCalProperty::kHGCalTilePhisBy12 - (jj % HGCalProperty::kHGCalTilePhisBy12) - 1;
+  int32_t iw = jj / HGCalProperty::kHGCalTilePhisWord;
+  int32_t ibit = HGCalProperty::kHGCalTilePhisWord - (jj % HGCalProperty::kHGCalTilePhisWord) - 1;
+  bool ok = (hex[iw] & (1 << ibit));
+  return ok;
+}
+
+bool HGCalTileIndex::tileFineExist(const int32_t* hex, int32_t zside, int32_t iphi) {
+  int32_t phi(iphi - 1);
+  if (zside > 0) {
+    phi += HGCalProperty::kHGCalFineTilePhisBy2;
+    if (phi >= HGCalProperty::kHGCalFineTilePhis)
+      phi -= HGCalProperty::kHGCalFineTilePhis;
+  }
+  int32_t jj = phi % HGCalProperty::kHGCalFineTilePhisBy3;
+  int32_t iw = jj / HGCalProperty::kHGCalTilePhisWord;
+  int32_t ibit = HGCalProperty::kHGCalTilePhisWord - (jj % HGCalProperty::kHGCalTilePhisWord) - 1;
   bool ok = (hex[iw] & (1 << ibit));
   return ok;
 }
