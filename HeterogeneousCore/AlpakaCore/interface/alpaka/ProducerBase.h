@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
