@@ -2,9 +2,6 @@
     secondaryFileNames = cms.untracked.vstring()
 )
 
-#process.options = cms.untracked.PSet(
-#        SkipEvent = cms.untracked.vstring('ProductNotFound')
-#)
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -472,8 +469,6 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 #    #InputLabel = cms.InputTag("rawDataCollector"),
 #)
 ###########################################################################
-#process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff")
-###########################################################################
 # Schedule definition
 # pure CMT:
 process.p = cms.Path(process.hcalDigis*process.Analyzer)
@@ -481,22 +476,16 @@ process.p = cms.Path(process.hcalDigis*process.Analyzer)
 #process.p = cms.Path(process.hcalDigis*process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
 # see   /afs/cern.ch/work/z/zhokin/public/CMSSW_10_4_0_patch1/src/Calibration/HcalAlCaRecoProducers/python/ALCARECOHcalCalMinBias_cff.py
 ############################################################################
-# customisation of the process.
-# Automatic addition of the customisation function from HLTrigger.Configuration.CustomConfigs
-#from HLTrigger.Configuration.CustomConfigs import L1THLT 
-#call to customisation function L1THLT imported from HLTrigger.Configuration.CustomConfigs
-#process = L1THLT(process)
-# End of customisation functions
-############################################################################
-############################################################################
-############################################################################
-process.MessageLogger = cms.Service("MessageLogger",
-     categories   = cms.untracked.vstring(''),
-     destinations = cms.untracked.vstring('cout'),
-     debugModules = cms.untracked.vstring('*'),
-     cout = cms.untracked.PSet(
-         threshold = cms.untracked.string('WARNING'),
-	 WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0))
-     )
- )
+MessageLogger.debugModules = cms.untracked.vstring('')
+MessageLogger.cerr =  cms.untracked.PSet(
+     FwkReport = cms.untracked.PSet(
+         limit = cms.untracked.int32(10000000),
+         reportEvery = cms.untracked.int32(10000)
+     ),
+    threshold = cms.untracked.string('DEBUG'),
+    noLineBreaks = cms.untracked.bool(False),
+    DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    Calibration = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+)
 ############################################################################

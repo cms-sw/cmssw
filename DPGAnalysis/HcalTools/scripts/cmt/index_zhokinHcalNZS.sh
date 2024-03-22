@@ -128,17 +128,9 @@ if [ ${got} -eq 0 ] ; then
 #dasgoclient  --query="file dataset=/HcalNZS/Run2018D-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 #dasgoclient  --query="file dataset=/Cosmics/Commissioning2021-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 #dasgoclient  --query="file dataset=/HcalNZS/Commissioning2021-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2023C-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
+
 dasgoclient  --query="file dataset=/HcalNZS/Run2023D-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024A-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024B-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024C-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024D-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024E-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024F-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024G-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-#dasgoclient  --query="file dataset=/HcalNZS/Run2024H-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 
 
 #echo "${runnumber}"
@@ -158,17 +150,6 @@ neventstmp=`cat tmp | head -n 1  | awk '{print $2}'`
 #commentariy='CRUZET2021'
 #commentariy='CRAFT2021'
 #commentariy='Commissioning2021'
-#commentariy='Run3 2023C - v1 -----'
-#commentariy='Run3 2023D - v1 -----'
-
-#commentariy='Run3 2024A - v1 -----'
-#commentariy='Run3 2024B - v1 -----'
-#commentariy='Run3 2024C - v1 -----'
-#commentariy='Run3 2024D - v1 -----'
-#commentariy='Run3 2024E - v1 -----'
-#commentariy='Run3 2024F - v1 -----'
-#commentariy='Run3 2024G - v1 -----'
-#commentariy='Run3 2024H - v1 -----'
 
 commentariy='Tests with Run3 2023Druns for 2024- v1 -----'
 
