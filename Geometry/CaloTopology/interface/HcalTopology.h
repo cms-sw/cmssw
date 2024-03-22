@@ -224,7 +224,7 @@ private:
   SegmentationMap depthSegmentation_;
   SegmentationMap depthSegmentationOne_;
 
-  enum {
+  static constexpr int
     kHBhalf = 1296,
     kHEhalf = 1296,
     kHOhalf = 1080,
@@ -235,15 +235,15 @@ private:
     kCALIBhalf = 693,
     kHThalfPhase1 = 2520,
     kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf
-  };
-  enum { kSizeForDenseIndexingPreLS1 = 2 * kHcalhalf };
-  enum { kHBSizePreLS1 = 2 * kHBhalf };
-  enum { kHESizePreLS1 = 2 * kHEhalf };
-  enum { kHOSizePreLS1 = 2 * kHOhalf };
-  enum { kHFSizePreLS1 = 2 * kHFhalf };
-  enum { kHTSizePreLS1 = 2 * kHThalf };
-  enum { kHTSizePhase1 = 2 * kHThalfPhase1 };
-  enum { kCALIBSizePreLS1 = 2 * kCALIBhalf };
+  ;
+  static constexpr int kSizeForDenseIndexingPreLS1 = 2 * kHcalhalf;
+  static constexpr int kHBSizePreLS1 = 2 * kHBhalf;
+  static constexpr int kHESizePreLS1 = 2 * kHEhalf;
+  static constexpr int kHOSizePreLS1 = 2 * kHOhalf;
+  static constexpr int kHFSizePreLS1 = 2 * kHFhalf;
+  static constexpr int kHTSizePreLS1 = 2 * kHThalf;
+  static constexpr int kHTSizePhase1 = 2 * kHThalfPhase1;
+  static constexpr int kCALIBSizePreLS1 = 2 * kCALIBhalf;
   static constexpr int minMaxDepth_ = 4;
   static constexpr unsigned int minPhi_ = 1, maxPhi_ = 72;
   static constexpr unsigned int kOffCalibHB_ = 0;
