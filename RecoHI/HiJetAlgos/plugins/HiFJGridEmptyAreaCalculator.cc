@@ -39,7 +39,7 @@ HiFJGridEmptyAreaCalculator::HiFJGridEmptyAreaCalculator(const edm::ParameterSet
   ntotalJet_ = 0;
   nyJet_ = 0;
 
-  pfCandsToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSource"));
+  pfCandsToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("pfCandSource"));
   mapEtaToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("mapEtaEdges"));
   mapRhoToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("mapToRho"));
   mapRhoMToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("mapToRhoM"));
@@ -171,11 +171,11 @@ void HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSe
 void HiFJGridEmptyAreaCalculator::calculateGridRho(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   vector<vector<double>> scalarPt(ny_, vector<double>(nphi_, 0.0));
 
-  edm::Handle<reco::PFCandidateCollection> pfCands;
+  edm::Handle<reco::CandidateView> pfCands;
   iEvent.getByToken(pfCandsToken_, pfCands);
-  const reco::PFCandidateCollection* pfCandidateColl = pfCands.product();
+  const auto& pfCandidateColl = pfCands.product();
   for (unsigned icand = 0; icand < pfCandidateColl->size(); icand++) {
-    const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
+    const auto& pfCandidate = pfCandidateColl->at(icand);
     //use ony the particles within the eta range
     if (pfCandidate.eta() < ymin_ || pfCandidate.eta() > ymax_)
       continue;
@@ -323,7 +323,7 @@ void HiFJGridEmptyAreaCalculator::setupGrid(double etamin, double etamax) {
 
 //----------------------------------------------------------------------
 // retrieve the grid tile index for a given PseudoJet
-int HiFJGridEmptyAreaCalculator::tileIndexPhi(const reco::PFCandidate* pfCand) {
+int HiFJGridEmptyAreaCalculator::tileIndexPhi(const reco::Candidate* pfCand) {
   // directly taking int does not work for values between -1 and 0
   // so use floor instead
   // double iy_double = (p.rap() - _ymin) / _dy;
@@ -345,7 +345,7 @@ int HiFJGridEmptyAreaCalculator::tileIndexPhi(const reco::PFCandidate* pfCand) {
 
 //----------------------------------------------------------------------
 // retrieve the grid tile index for a given PseudoJet
-int HiFJGridEmptyAreaCalculator::tileIndexEta(const reco::PFCandidate* pfCand) {
+int HiFJGridEmptyAreaCalculator::tileIndexEta(const reco::Candidate* pfCand) {
   // directly taking int does not work for values between -1 and 0
   // so use floor instead
   // double iy_double = (p.rap() - _ymin) / _dy;
@@ -393,7 +393,7 @@ void HiFJGridEmptyAreaCalculator::setupGridJet(const reco::Jet* jet) {
 
 //----------------------------------------------------------------------
 // retrieve the grid tile index for a given PseudoJet
-int HiFJGridEmptyAreaCalculator::tileIndexEtaJet(const reco::PFCandidate* pfCand) {
+int HiFJGridEmptyAreaCalculator::tileIndexEtaJet(const reco::Candidate* pfCand) {
   // directly taking int does not work for values between -1 and 0
   // so use floor instead
   // double iy_double = (p.rap() - _ymin) / _dy;
