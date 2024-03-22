@@ -116,7 +116,7 @@ private:
   size_t maxSavedEventsPerLumi_;
   bool verbose_, veryVerbose_;
   bool taggedMode_, forcedValue_;
-  mutable std::atomic<bool> statsGuard_;
+  mutable std::atomic<bool> statsGuard_{false};
 
   template <typename Collection>
   static void increment(ErrorSet &scoreboard, Collection &list);

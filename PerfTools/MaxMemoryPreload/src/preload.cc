@@ -62,10 +62,10 @@ namespace {
       auto allocs = nAllocations_.load(std::memory_order_acquire);
       auto deallocs = nDeallocations_.load(std::memory_order_acquire);
 
-      std::cerr << "Memory Report"
-                << "\n  total memory requested: " << finalRequested << "\n  max memory used: " << maxActual
-                << "\n  presently used: " << present << "\n  # allocations calls:   " << allocs
-                << "\n  # deallocations calls: " << deallocs << "\n";
+      std::cerr << "Memory Report: total memory requested: " << finalRequested
+                << "\nMemory Report:  max memory used: " << maxActual << "\nMemory Report:  presently used: " << present
+                << "\nMemory Report:  # allocations calls:   " << allocs
+                << "\nMemory Report:  # deallocations calls: " << deallocs << "\n";
     }
 
   private:

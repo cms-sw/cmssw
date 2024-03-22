@@ -5,7 +5,7 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+<iftool name="tf_cuda_support">
   <bin name="testTFHelloWorldCUDA" file="testRunner.cpp,testHelloWorldCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -29,7 +29,7 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+<iftool name="tf_cuda_support">
   <bin name="testTFMetaGraphLoadingCUDA" file="testRunner.cpp,testMetaGraphLoadingCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -52,7 +52,7 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+<iftool name="tf_cuda_support">
   <bin name="testTFGraphLoadingCUDA" file="testRunner.cpp,testGraphLoadingCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -75,7 +75,8 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+
+<iftool name="tf_cuda_support">
   <bin name="testTFConstSessionCUDA" file="testRunner.cpp,testConstSessionCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -98,7 +99,7 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+<iftool name="tf_cuda_support">
   <bin name="testTFSessionCacheCUDA" file="testRunner.cpp,testSessionCacheCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -121,7 +122,8 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
-<iftool name="cuda">
+
+<iftool name="tf_cuda_support">
   <bin name="testTFThreadPoolsCUDA" file="testRunner.cpp,testThreadPoolsCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>
@@ -145,7 +147,7 @@
 </bin>
 
 
-<iftool name="cuda">
+<iftool name="tf_cuda_support">
   <bin name="testTFVisibleDevicesCUDA" file="testRunner.cpp,testVisibleDevicesCUDA.cc">
     <use name="boost_filesystem"/>
     <use name="catch2"/>

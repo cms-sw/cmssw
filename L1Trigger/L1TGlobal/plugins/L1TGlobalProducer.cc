@@ -68,6 +68,9 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("AlgorithmTriggersUnmasked", false)
       ->setComment("not required, but recommend to specify explicitly in config");
 
+  //AXOl1TL model version:
+  desc.add<std::string>("AXOL1TLModelVersion", "");
+
   // switch for muon showers in Run-3
   desc.add<bool>("useMuonShowers", false);
 
@@ -130,6 +133,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")),
       m_resetPSCountersEachLumiSec(parSet.getParameter<bool>("resetPSCountersEachLumiSec")),
       m_semiRandomInitialPSCounters(parSet.getParameter<bool>("semiRandomInitialPSCounters")),
+      m_AXOL1TLModelVersion(parSet.getParameter<std::string>("AXOL1TLModelVersion")),
       m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
@@ -219,8 +223,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   //
   m_l1GtParCacheID = 0ULL;
   m_l1GtMenuCacheID = 0ULL;
-
-  m_AXOL1TLModelVersion = "";
 
   m_numberPhysTriggers = 0;
   m_numberDaqPartitions = 0;
@@ -401,17 +403,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
       m_l1GtMenu->print(std::cout, printV);
 
     m_l1GtMenuCacheID = l1GtMenuCacheID;
-
-    //get model version to condition class via GlobalBoard.runGTL, comes from menu rather than config
-    //for throwing exception when using L1Menu_Collisions2024_v1_0_0
-    if ((gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v1_0_0") ||
-        (gtParser.gtTriggerMenuName() == "L1Menu_Collisions2024_v0_0_0")) {
-      throw cms::Exception("ConditionsError")
-          << " Error L1T menu version " << gtParser.gtTriggerMenuName()
-          << " is unsupported due to incompatible utm grammar, please use L1Menu_Collisions2024_v1_0_1 or later";
-    } else {
-      m_AXOL1TLModelVersion = gtParser.AXOL1TLModelVersion();
-    }
   }
 
   // get / update the board maps from the EventSetup
@@ -634,7 +625,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu);
 
-  //set axo model version in global board from version in menu
+  //for getting model version to the condition class, later will come from the menu
+  //used in runGTL
   m_uGtBrd->setAXOL1TLModelVersion(m_AXOL1TLModelVersion);
 
   if (m_useMuonShowers)

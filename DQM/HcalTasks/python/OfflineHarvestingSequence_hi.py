@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from DQM.HcalTasks.HcalOfflineHarvesting import *
+from DQM.HcalTasks.HcalOfflineHarvesting_cfi import *
 
 # apply some customization
 # -	ptype = 1 Offlien processing
