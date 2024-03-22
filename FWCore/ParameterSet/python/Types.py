@@ -1264,6 +1264,8 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return PSet.dumpPython(item,options)
     def copy(self):
         return copy.copy(self)
+    def clone(self):
+        return copy.deepcopy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
     def insertInto(self, parameterSet, myname):
