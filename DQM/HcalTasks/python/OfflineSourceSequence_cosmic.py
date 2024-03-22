@@ -6,10 +6,10 @@ import FWCore.ParameterSet.Config as cms
 #-----------------
 
 #	import the tasks
-from DQM.HcalTasks.DigiTask import digiTask
-from DQM.HcalTasks.RawTask import rawTask
-from DQM.HcalTasks.TPTask import tpTask
-from DQM.HcalTasks.RecHitTask import recHitTask
+from DQM.HcalTasks.DigiTask_cfi import digiTask
+from DQM.HcalTasks.RawTask_cfi import rawTask
+from DQM.HcalTasks.TPTask_cfi import tpTask
+from DQM.HcalTasks.RecHitTask_cfi import recHitTask
 
 #	set processing type to Offine
 digiTask.ptype = 1

@@ -79,7 +79,6 @@ def getFilesForRun(blob):
     """
     returns the list of list files associated with a given dataset for a certain run
     """
-
     cmd2 = ' dasgoclient -limit=0 -query \'file run='+blob[0]+' dataset='+blob[1]+'\''
     q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
     out, err = q.communicate()
@@ -187,11 +186,11 @@ def as_dict(config):
     return dictionary
 
 #######################################################
-def batchScriptCERN(theCMSSW_BASE,runindex, eosdir,lumiToRun,key,config):
+def batchScriptCERN(theCMSSW_BASE, cfgdir, runindex, eosdir, lumiToRun, key, config, tkCollection, isUnitTest=False):
 #######################################################
     '''prepare the batch script, to run on HTCondor'''
     script = """#!/bin/bash
-source /afs/cern.ch/cms/caf/setup.sh
+#source /afs/cern.ch/cms/caf/setup.sh
 CMSSW_DIR={CMSSW_BASE_DIR}/src/Alignment/OfflineValidation/test
 echo "the mother directory is $CMSSW_DIR"
 export X509_USER_PROXY=$CMSSW_DIR/.user_proxy
@@ -202,22 +201,26 @@ LXBATCH_DIR=`pwd`
 cd $CMSSW_DIR
 eval `scram runtime -sh`
 cd $LXBATCH_DIR 
-cp -pr $CMSSW_DIR/cfg/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
-cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
+cp -pr {CFGDIR}/PrimaryVertexResolution_{KEY}_{runindex}_cfg.py .
+cmsRun PrimaryVertexResolution_{KEY}_{runindex}_cfg.py TrackCollection={TRKS} GlobalTag={GT} lumi={LUMITORUN} {REC} {EXT} >& log_{KEY}_run{runindex}.out
 ls -lh . 
-#for payloadOutput in $(ls *root ); do cp $payloadOutput $OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done 
-for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
-tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out  
-for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done 
 """.format(CMSSW_BASE_DIR=theCMSSW_BASE,
+           CFGDIR=cfgdir,
            runindex=runindex,
            MYDIR=eosdir,
            KEY=key,
            LUMITORUN=lumiToRun,
+           TRKS=tkCollection,
            GT=config['globaltag'],
            EXT="external="+config['external'] if 'external' in config.keys() else "",
            REC="records="+config['records'] if 'records' in config.keys() else "")
-   
+
+    if not isUnitTest:
+        script += """for payloadOutput in $(ls *root ); do xrdcp -f $payloadOutput root://eoscms/$OUT_DIR/pvresolution_{KEY}_{runindex}.root ; done
+tar czf log_{KEY}_run{runindex}.tgz log_{KEY}_run{runindex}.out
+for logOutput in $(ls *tgz ); do cp $logOutput $LOG_DIR/ ; done
+""".format(KEY=key, runindex=runindex)
+
     return script
 
 #######################################################
@@ -237,7 +240,7 @@ def mkdir_eos(out_path):
             p.wait()
 
     # now check that the directory exists
-    command2="/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+out_path
+    command2="eos ls "+out_path
     p = subprocess.Popen(command2,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     p.wait()
@@ -307,6 +310,7 @@ def main():
 
     cwd = os.getcwd()
     bashdir = os.path.join(cwd,"BASH")
+    cfgdir = os.path.join(cwd,"cfg")
 
     runs.sort()
 
@@ -331,6 +335,9 @@ def main():
     lumimask = inputDict["Input"]["lumimask"]
     print("\n\n Using JSON file:",lumimask)
 
+    tkCollection = inputDict["Input"]["trackcollection"]
+    print("\n\n Using trackCollection:", tkCollection)
+
     mytuple=[]
     print("\n\n First run:",opts.start,"last run:",opts.end)
 
@@ -350,14 +357,20 @@ def main():
 
     pool = multiprocessing.Pool(processes=20)  # start 20 worker processes
     count = pool.map(getFilesForRun,mytuple)
-    file_info = dict(zip(runs, count))
 
     if(opts.verbose):
-        print(file_info)
+        print("printing count")
+        pprint.pprint(count)
+
+    # limit the runs in the dictionary to the filtered ones
+    file_info = dict(zip([run for run, _ in mytuple], count))
+
+    if(opts.verbose):
+        print("printing file_info")
+        pprint.pprint(file_info)
 
     count=0
     for run in runs:
-        count=count+1
         #if(count>10): 
         #    continue
         #run = run.strip("[").strip("]")
@@ -370,6 +383,7 @@ def main():
             print("=====> excluding run:",run)
             continue
 
+        count=count+1
         files = file_info[run]
         if(opts.verbose):
             print(run, files)
@@ -405,7 +419,7 @@ def main():
 
             scriptFileName = os.path.join(bashdir,"batchHarvester_"+key+"_"+str(count-1)+".sh")
             scriptFile = open(scriptFileName,'w')
-            scriptFile.write(batchScriptCERN(input_CMSSW_BASE,run,eosdir,theLumi,key,value))
+            scriptFile.write(batchScriptCERN(input_CMSSW_BASE,cfgdir,run,eosdir,theLumi,key,value,tkCollection,opts.isUnitTest))
             scriptFile.close()
             #os.system('chmod +x %s' % scriptFileName)
 
@@ -417,9 +431,9 @@ def main():
             key = key.split(":", 1)[1]
 
         job_submit_file = write_HTCondor_submit_file(bashdir,"batchHarvester_"+key,count,None)
+        os.system("chmod u+x "+bashdir+"/*.sh")
 
         if opts.submit:
-            os.system("chmod u+x "+bashdir+"/*.sh")
             submissionCommand = "condor_submit "+job_submit_file
             print(submissionCommand)
             os.system(submissionCommand)

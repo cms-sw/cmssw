@@ -34,12 +34,15 @@ int main() {
     {
       uint32_t nHits = 2000;
       int32_t offset = 100;
-      uint32_t moduleStart[pixelTopology::Phase1::numberOfModules + 1];
-
+      auto moduleStartH =
+          cms::alpakatools::make_host_buffer<uint32_t[]>(queue, pixelTopology::Phase1::numberOfModules + 1);
       for (size_t i = 0; i < pixelTopology::Phase1::numberOfModules + 1; ++i) {
-        moduleStart[i] = i * 2;
+        moduleStartH[i] = i * 2;
       }
-      TrackingRecHitsSoACollection<pixelTopology::Phase1> tkhit(queue, nHits, offset, moduleStart);
+      auto moduleStartD =
+          cms::alpakatools::make_device_buffer<uint32_t[]>(queue, pixelTopology::Phase1::numberOfModules + 1);
+      alpaka::memcpy(queue, moduleStartD, moduleStartH);
+      TrackingRecHitsSoACollection<pixelTopology::Phase1> tkhit(queue, nHits, offset, moduleStartD.data());
 
       testTrackingRecHitSoA::runKernels<pixelTopology::Phase1>(tkhit.view(), queue);
       tkhit.updateFromDevice(queue);

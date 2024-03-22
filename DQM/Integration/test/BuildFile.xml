@@ -34,3 +34,11 @@
 <!-- <test name="TestDQMOnlineClient-hcalcalib_dqm_sourceclient" command="runtest.sh hcalcalib_dqm_sourceclient-live_cfg.py" /> -->
 <test name="TestDQMOnlineClient-visualization" command="runtest.sh visualization-live_cfg.py" />
 <test name="TestDQMOnlineClient-visualization_secondInstance" command="runtest.sh visualization-live-secondInstance_cfg.py" />
+<!--tests that the configuration is compilable for the full matrix of combinations -->
+<test name="TestDQMOnlineClients-compilation_pp_run" command="runCompilationTest.sh pp_run"/>
+<test name="TestDQMOnlineClients-compilation_pp_run_stage1" command="runCompilationTest.sh pp_run_stage1"/>
+<test name="TestDQMOnlineClients-compilation_cosmic_run" command="runCompilationTest.sh cosmic_run"/>
+<test name="TestDQMOnlineClients-compilation_cosmic_run_stage1" command="runCompilationTest.sh cosmic_run_stage1"/>
+<test name="TestDQMOnlineClients-compilation_hi_run" command="runCompilationTest.sh hi_run"/>
+<test name="TestDQMOnlineClients-compilation_hpu_run" command="runCompilationTest.sh hpu_run"/>
+<test name="TestDQMOnlineClients-compilation_commissioning_run" command="runCompilationTest.sh commissioning_run"/>

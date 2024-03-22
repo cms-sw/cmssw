@@ -122,12 +122,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     class WordFedAppender {
     public:
-      WordFedAppender();
-      ~WordFedAppender() = default;
-
-      WordFedAppender(uint32_t words)
-          : word_{cms::alpakatools::make_host_buffer<unsigned int[], Platform>(words)},
-            fedId_{cms::alpakatools::make_host_buffer<unsigned char[], Platform>(words)} {};
+      WordFedAppender(Queue& queue, uint32_t words)
+          : word_{cms::alpakatools::make_host_buffer<unsigned int[]>(queue, words)},
+            fedId_{cms::alpakatools::make_host_buffer<unsigned char[]>(queue, words)} {};
 
       void initializeWordFed(int fedId, unsigned int wordCounterGPU, const uint32_t* src, unsigned int length) {
         std::memcpy(word_.data() + wordCounterGPU, src, sizeof(uint32_t) * length);

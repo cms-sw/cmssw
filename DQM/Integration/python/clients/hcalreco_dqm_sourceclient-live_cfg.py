@@ -116,8 +116,8 @@ process.hcalDigis.InputLabel = rawTag
 #	Hcal DQM Tasks and Clients import
 #	New Style
 #-------------------------------------
-process.load('DQM.HcalTasks.RecHitTask')
-process.load('DQM.HcalTasks.HcalOnlineHarvesting')
+process.load('DQM.HcalTasks.RecHitTask_cfi')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting_cfi')
 
 #-------------------------------------
 #	To force using uTCA
