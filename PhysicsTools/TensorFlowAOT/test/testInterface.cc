@@ -16,8 +16,8 @@ class testInterface : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {};
-  void tearDown() {};
+  void setUp(){};
+  void tearDown(){};
   void test();
   void test_simple();
   void test_multi();
