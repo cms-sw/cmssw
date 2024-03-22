@@ -32,7 +32,7 @@ def zeroFill(tree, brName, brObj, allowNonBool=False):
 fileHandles = []
 goFast = True
 for fn in files:
-    print("Adding file" + str(fn))
+    print("Adding file", str(fn))
     fileHandles.append(ROOT.TFile.Open(fn))
     if fileHandles[-1].GetCompressionSettings() != fileHandles[0].GetCompressionSettings():
         goFast = False
@@ -44,7 +44,7 @@ of.cd()
 
 for e in fileHandles[0].GetListOfKeys():
     name = e.GetName()
-    print("Merging" + str(name))
+    print("Merging", str(name))
     obj = e.ReadObj()
     cl = ROOT.TClass.GetClass(e.GetClassName())
     inputs = ROOT.TList()
@@ -53,7 +53,18 @@ for e in fileHandles[0].GetListOfKeys():
         obj = obj.CloneTree(-1, "fast" if goFast else "")
         branchNames = set([x.GetName() for x in obj.GetListOfBranches()])
     for fh in fileHandles[1:]:
+        if isTree and obj.GetName() == 'Events' and obj.GetEntries() == 0 :
+            # Zero-events first file. Skip to avoid messing up branches.
+            print(" 'Events' tree contsins no events; skipping")
+            obj = fh.GetListOfKeys().FindObject(name).ReadObj()
+            obj = obj.CloneTree(-1, "fast" if goFast else "")
+            branchNames = set([x.GetName() for x in obj.GetListOfBranches()])
+            continue
         otherObj = fh.GetListOfKeys().FindObject(name).ReadObj()
+        if isTree and obj.GetName() == 'Events' and otherObj.GetEntries() == 0 :
+            # Zero-events file; skip
+            print(" 'Events' tree contains no events; skipping")
+            continue
         inputs.Add(otherObj)
         if isTree and obj.GetName() == 'Events':
             otherObj.SetAutoFlush(0)
@@ -61,7 +72,7 @@ for e in fileHandles[0].GetListOfKeys():
                                  for x in otherObj.GetListOfBranches()])
             missingBranches = list(branchNames - otherBranches)
             additionalBranches = list(otherBranches - branchNames)
-            print("missing: " + str(missingBranches) + "\n Additional:" + str(additionalBranches))
+            print("missing: " + str(missingBranches) + "\n Additional: " + str(additionalBranches))
             for br in missingBranches:
                 # fill "Other"
                 zeroFill(otherObj, br, obj.GetListOfBranches().FindObject(br))
@@ -76,7 +87,7 @@ for e in fileHandles[0].GetListOfKeys():
                                  for x in otherObj.GetListOfBranches()])
             missingBranches = list(branchNames - otherBranches)
             additionalBranches = list(otherBranches - branchNames)
-            print("missing: " + str(missingBranches) + "\n Additional:" + str(additionalBranches))
+            print("missing: " + str(missingBranches) + "\n Additional: " + str(additionalBranches))
             for br in missingBranches:
                 # fill "Other"
                 zeroFill(otherObj, br, obj.GetListOfBranches(
