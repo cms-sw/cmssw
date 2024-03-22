@@ -39,7 +39,7 @@ namespace edm {
 
   class LuminosityBlockProcessingStatus {
   public:
-    LuminosityBlockProcessingStatus(unsigned int iNStreams) : nStreamsStillProcessingLumi_(iNStreams) {}
+    LuminosityBlockProcessingStatus() = default;
 
     LuminosityBlockProcessingStatus(LuminosityBlockProcessingStatus const&) = delete;
     LuminosityBlockProcessingStatus const& operator=(LuminosityBlockProcessingStatus const&) = delete;
@@ -70,6 +70,8 @@ namespace edm {
     void setGlobalEndRunHolder(WaitingTaskHolder);
     void globalEndRunHolderDoneWaiting() { globalEndRunHolder_.doneWaiting(std::exception_ptr{}); }
 
+    bool shouldStreamStartLumi();
+    void noMoreEventsInLumi();
     bool streamFinishedLumi() { return 0 == (--nStreamsStillProcessingLumi_); }
 
     //These should only be called while in the InputSource's task queue
@@ -103,10 +105,13 @@ namespace edm {
     std::vector<std::shared_ptr<const EventSetupImpl>> eventSetupImpls_;
     WaitingTaskList endIOVWaitingTasks_;
     edm::WaitingTaskHolder globalEndRunHolder_;
-    std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};  //read/write as streams finish lumi so must be atomic
     edm::Timestamp endTime_{};
-    std::atomic<char> endTimeSetStatus_{0};
+    CMS_THREAD_GUARD(state_) unsigned int nStreamsProcessingLumi_{0};
+    std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};
+    enum class State { kRunning, kUpdating, kNoMoreEvents };
+    std::atomic<State> state_{State::kRunning};
     EventProcessingState eventProcessingState_{EventProcessingState::kProcessing};
+    std::atomic<char> endTimeSetStatus_{0};
     std::atomic<bool> startedNextLumiOrEndedRun_{false};
     bool globalBeginSucceeded_{false};
     bool cleaningUpAfterException_{false};

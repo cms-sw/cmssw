@@ -1,4 +1,3 @@
-#define EDM_ML_DEBUG
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

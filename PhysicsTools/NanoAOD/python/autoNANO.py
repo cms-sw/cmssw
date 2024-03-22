@@ -30,6 +30,8 @@ autoNANO = {
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
     #scouting nano
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
+    'JME' : { 'sequence': '@PHYS',
+              'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : {'customize' : 'PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
     # MUDPG flavours: use their own sequence
