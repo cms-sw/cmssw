@@ -1,5 +1,8 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
+
+//#define EDM_ML_DEBUG
 
 int32_t HGCalTileIndex::tileIndex(int32_t layer, int32_t ring, int32_t phi) {
   int32_t id(0);
@@ -72,6 +75,9 @@ bool HGCalTileIndex::tileExist(const int32_t* hex, int32_t zside, int32_t iphi) 
   int32_t iw = jj / HGCalProperty::kHGCalTilePhisWord;
   int32_t ibit = HGCalProperty::kHGCalTilePhisWord - (jj % HGCalProperty::kHGCalTilePhisWord) - 1;
   bool ok = (hex[iw] & (1 << ibit));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "tileExist::Phi " << iphi << " " << phi << " zside " << zside << " jj|iw|ibit " << jj << "|" << iw << "|" << ibit << " hex " << std::hex << hex[iw] << std::dec << " OK " << ok; 
+#endif
   return ok;
 }
 
@@ -86,5 +92,8 @@ bool HGCalTileIndex::tileFineExist(const int32_t* hex, int32_t zside, int32_t ip
   int32_t iw = jj / HGCalProperty::kHGCalTilePhisWord;
   int32_t ibit = HGCalProperty::kHGCalTilePhisWord - (jj % HGCalProperty::kHGCalTilePhisWord) - 1;
   bool ok = (hex[iw] & (1 << ibit));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "tileFineexist::Phi " << iphi << " " << phi << " zside " << zside << " jj|iw|ibit " << jj << "|" << iw << "|" << ibit << " hex " << std::hex << hex[iw] << std::dec << " OK " << ok; 
+#endif
   return ok;
 }
