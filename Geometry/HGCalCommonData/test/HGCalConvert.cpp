@@ -1359,12 +1359,12 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
           ++good;
           int ring, hex1, hex2, hex3, hex4, hex5, hex6;
           float rstart, rend, sipm;
-	  std::string typest;
+          std::string typest;
           if (nPhiS[layer] == 4) {
             sscanf(
                 buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
             hex5 = hex6 = 0;
-	    typest = items[9];
+            typest = items[9];
           } else {
             sscanf(buffer,
                    "%d %d %f %f %f %X %X %X %X %X %X",
@@ -1379,12 +1379,14 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
                    &hex4,
                    &hex5,
                    &hex6);
-	    typest = items[11];
+            typest = items[11];
           }
           int type = static_cast<int>(std::find(types, types + 1, typest) - types);
           int nphi = layPhiS[layer].first;
-	  if (((debug / 100) % 10) > 0)
-	    std::cout << "Input Layer " << layer << " Ring " << ring << " R " << rstart << ":" << rend << " sipm " << sipm << " type " << typest << ":" << type << " HEX " << std::hex << hex1 << " " << hex2 << " " << hex3 << " " << hex4  << " " << hex5  << " " << hex6 << std::dec << std::endl;
+          if (((debug / 100) % 10) > 0)
+            std::cout << "Input Layer " << layer << " Ring " << ring << " R " << rstart << ":" << rend << " sipm "
+                      << sipm << " type " << typest << ":" << type << " HEX " << std::hex << hex1 << " " << hex2 << " "
+                      << hex3 << " " << hex4 << " " << hex5 << " " << hex6 << std::dec << std::endl;
           if (layer > layMin_) {
             tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
             int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
@@ -1723,21 +1725,23 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
   const int zside = 1;
   std::vector<tileZone> zones;
   if ((debug % 10) > 0)
-    std::cout << "makeTile called with Layer:" << lmin << ":" << lmax << " nphi " << nphis << " mode " << mode << " nmodules " << module.size() <<std::endl;
+    std::cout << "makeTile called with Layer:" << lmin << ":" << lmax << " nphi " << nphis << " mode " << mode
+              << " nmodules " << module.size() << std::endl;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
     int kk, irmin, irmax;
     for (int phi = 1; phi <= nphis; ++phi) {
       kk = irmin = irmax = 0;
       for (std::map<int, tile>::const_iterator itr = module.begin(); itr != module.end(); ++itr) {
-	bool ok(false);
-	if (((debug / 100) % 10) > 0)
-	  std::cout << " Layer " << HGCalTileIndex::tileLayer(itr->first) << " Ring " << HGCalTileIndex::tileRing(itr->first) << std::endl;
-	if (mode == 0)
-	  ok = HGCalTileIndex::tileExist((itr->second).hex, zside, phi);
-	else
-	  ok = HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi);
-	if ((HGCalTileIndex::tileLayer(itr->first) == layer) && ok) {
+        bool ok(false);
+        if (((debug / 100) % 10) > 0)
+          std::cout << " Layer " << HGCalTileIndex::tileLayer(itr->first) << " Ring "
+                    << HGCalTileIndex::tileRing(itr->first) << std::endl;
+        if (mode == 0)
+          ok = HGCalTileIndex::tileExist((itr->second).hex, zside, phi);
+        else
+          ok = HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi);
+        if ((HGCalTileIndex::tileLayer(itr->first) == layer) && ok) {
           int ir = HGCalTileIndex::tileRing(itr->first);
           if (kk == 0) {
             irmin = irmax = ir;
