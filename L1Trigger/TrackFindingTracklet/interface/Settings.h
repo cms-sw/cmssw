@@ -1028,11 +1028,12 @@ namespace trklet {
     bool reduced_{false};        // use reduced (Summer Chain) config
     bool inventStubs_{true};     // invent seeding stub coordinates based on tracklet traj
 
-    // Use combined TP (TE+TC) and MP (PR+ME+MC) configuration (with prompt tracking)
-    bool combined_{false};
-    // N.B. To use combined modules with extended tracking, edit
-    // Tracklet_cfi.py to refer to *_hourglassExtendedCombined.dat,
-    // but leave combined_=false.
+    // Use combined TP (TE+TC) & MP (PR+ME+MC) config (with prompt tracking)
+    bool combined_{true};
+    // N.B. For extended tracking, this combined_ is overridden by python cfg
+    // to false, but combined modules are nonetheless used by default.
+    // If you don't want them, edit l1tTTTracksFromTrackletEmulation_cfi.py
+    // to refer to *_hourglassExtended.dat .
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 
