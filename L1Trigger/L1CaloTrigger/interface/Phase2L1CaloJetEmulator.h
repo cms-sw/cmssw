@@ -447,8 +447,9 @@ namespace gctobj {
     int seed_phi = jet_tmp.phi;
     int seed_eta = jet_tmp.eta;
     float seed_energy = jet_tmp.seedEnergy;
+    float seed_tower_energy = jet_tmp.energyMax;
     jet = getJetValues(temp, seed_eta, seed_phi);
-    if (seed_energy > 10.) {  // suppress <= 10 GeV ST as seed
+    if (seed_energy > 10. && seed_tower_energy > 5.) {  // suppress <= 10 GeV ST as ST seed and <= 5 GeV as max TT in ST
       jet_tmp.energy = jet.energy;
       jet_tmp.tauEt = jet.tauEt;
     } else {
