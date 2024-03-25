@@ -1247,8 +1247,6 @@ namespace p2eg {
      * unique to each GCT card.
      */
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
-      std::cout << " Creating digitized cluster correlator with towEta, crEta: " << towEta << ", " << crEta
-                << ", with global crystal iEta " << (towEta * CRYSTALS_IN_TOWER_ETA) + crEta << std::endl;
       return l1tp2::DigitizedClusterCorrelator(
           etFloat(),  // technically we are just multiplying and then dividing again by the LSB
           globalClusteriEta(),
