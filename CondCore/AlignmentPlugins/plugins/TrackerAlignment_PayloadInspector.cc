@@ -107,6 +107,39 @@ namespace {
       std::vector<AlignTransform> ref_ali = first_payload->m_align;
       std::vector<AlignTransform> target_ali = last_payload->m_align;
 
+      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = nullptr;
+      if (ph2) {
+        if (AlignmentPI::isReorderedTFPXTEPX(ref_ali) && AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Both reference and target alignments are reordered. Using the trackerParameters for the Reordered "
+                 "TFPX,TEPX.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml";
+        } else if (!AlignmentPI::isReorderedTFPXTEPX(ref_ali) && !AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Neither reference nor target alignments are reordered. Using the standard trackerParameters.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+        } else {
+          if (cat == RegionCategory::ALL || cat == RegionCategory::INNER) {
+            // Emit warning and exit false if alignments are mismatched
+            edm::LogWarning("TrackerAlignment_PayloadInspector")
+                << "Mismatched alignments detected. One is reordered while the other is not. Unable to proceed.";
+            return false;
+          } else {
+            edm::LogWarning("TrackerAlignment_PayloadInspector")
+                << "Mismatched inner tracks alignments detected. One is reordered while the other is not. Ignoring as "
+                   "OT only comparison requested.";
+            path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+          }
+        }
+      } else {
+        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      }
+
       // Use remove_if along with a lambda expression to remove elements based on the condition (subid > 2)
       if (cat != RegionCategory::ALL) {
         ref_ali.erase(std::remove_if(ref_ali.begin(),
@@ -133,19 +166,7 @@ namespace {
             << "the size of the reference alignment (" << ref_ali.size()
             << ") is different from the one of the target (" << target_ali.size()
             << ")! You are probably trying to compare different underlying geometries. Exiting";
-        //return false;
-      }
-
-      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
-
-      // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = nullptr;
-      if (ph2) {
-        path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
-      } else {
-        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
-                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+        return false;
       }
 
       TrackerTopology tTopo =
@@ -364,7 +385,21 @@ namespace {
       // check that the geomtery is a tracker one
       const char *path_toTopologyXML = nullptr;
       if (ph2) {
-        path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+        if (AlignmentPI::isReorderedTFPXTEPX(ref_ali) && AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Both reference and target alignments are reordered. Using the trackerParameters for the Reordered "
+                 "TFPX,TEPX.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml";
+        } else if (!AlignmentPI::isReorderedTFPXTEPX(ref_ali) && !AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Neither reference nor target alignments are reordered. Using the standard trackerParameters.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+        } else {
+          // Emit warning and exit false if alignments are mismatched
+          edm::LogWarning("TrackerAlignment_PayloadInspector")
+              << "Mismatched alignments detected. One is reordered while the other is not. Unable to proceed.";
+          return false;
+        }
       } else {
         path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
                                  ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
