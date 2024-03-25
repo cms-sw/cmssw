@@ -33,11 +33,11 @@ private:
 
   edm::ESWatcher<LHCInfoPerLSRcd> infoPerLSWatcher_;
 
-  edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> tokenInfoPerLS_;
-  bool csvFormat_;
-  bool header_;
-  cond::Time_t iov_;
-  std::string separator_;
+  const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> tokenInfoPerLS_;
+  const bool csvFormat_;
+  const bool header_;
+  const cond::Time_t iov_;
+  const std::string separator_;
 };
 
 void LHCInfoPerLSAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
