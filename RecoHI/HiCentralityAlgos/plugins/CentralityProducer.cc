@@ -254,11 +254,11 @@ namespace reco {
       creco->etPFhfSumPlus_ = 0;
       creco->etPFhfSumMinus_ = 0;
       for (const auto& pf : iEvent.get(srcPF_)) {
-        const auto apdgId = std::abs(pf.pdgId());
-        bool isHF = apdgId == 1 || apdgId == 2;
-        if (isHF && pf.eta() > 0)
+        if (pf.pdgId() != 1 && pf.pdgId() != 2)
+          continue;
+        if (pf.eta() > 0)
           creco->etPFhfSumPlus_ += pf.pt();
-        else if (isHF && pf.eta() < 0)
+        else
           creco->etPFhfSumMinus_ += pf.pt();
       }
     } else if (reuseAny_) {
