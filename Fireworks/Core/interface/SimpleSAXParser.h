@@ -74,8 +74,6 @@ public:
 
     Attribute(const std::string &iKey, const std::string &iValue) : key(iKey), value(iValue) {}
 
-    Attribute(const Attribute &attr) : key(attr.key), value(attr.value) {}
-
     bool operator<(const Attribute &attribute) const { return this->key < attribute.key; }
   };
 
