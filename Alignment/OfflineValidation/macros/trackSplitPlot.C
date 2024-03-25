@@ -387,7 +387,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
     setAxisLabels(p[i], type, xvar, yvar, relative, pull);
   }
 
-  if (type == Histogram && !pull && any_of(begin(used), end(used), identity<bool>)) {
+  if (type == Histogram && !pull && any_of(begin(used), end(used), ::identity<bool>)) {
     if (legendOptions.Contains("mean")) {
       summaryfile << "   mu_Delta" << yvar;
       if (relative)
