@@ -167,8 +167,7 @@ steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--datatier':'NANOAOD',
                                    '--eventcontent':'NANOAOD'}])
 
-steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@PHYS+@MUPOG',
-                                    '-n' : '1000'},
+steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_data13.0']])
 
 steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
@@ -194,18 +193,19 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
-steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@MUPOG ', '-n' : '1000'},
+steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
 steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.2']])
 
+steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM', '-n' : '1000'},
+                                       steps['NANO_mc13.2']])
+
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
-steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
-                                        '-n' : '1000'},
-                                        steps['NANO_mc13.2']])
+                                        
 
 ##13.X INPUT
 steps['RunScoutingPFRun32022D13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
