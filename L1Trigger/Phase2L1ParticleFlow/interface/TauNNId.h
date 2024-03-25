@@ -26,6 +26,6 @@ private:
   unique_ptr<float[]> fPt_;
   unique_ptr<float[]> fEta_;
   unique_ptr<float[]> fPhi_;
-  unique_ptr<float[]> fId_;
+  unique_ptr<int[]> fId_;
 };
 #endif

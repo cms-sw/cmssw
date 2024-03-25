@@ -49,11 +49,11 @@ public:
     kPhiSize = 12,        // Width of phi
     kRinvSize = 15,       // Width of Rinv
     kValidSize = 1,       // Valid bit
-
-    kTrackWordSize = kValidSize + kRinvSize + kPhiSize + kChi2RPhiSize + kTanlSize + kZ0Size + kChi2RZSize + kD0Size +
-                     kBendChi2Size + kHitPatternSize + kMVAQualitySize +
-                     kMVAOtherSize,  // Width of the track word in bits
   };
+  static constexpr int kTrackWordSize = kValidSize + kRinvSize + kPhiSize + kChi2RPhiSize + kTanlSize + kZ0Size +
+                                        kChi2RZSize + kD0Size + kBendChi2Size + kHitPatternSize + kMVAQualitySize +
+                                        kMVAOtherSize  // Width of the track word in bits
+      ;
 
   enum TrackBitLocations {
     // The location of the least significant bit (LSB) and most significant bit (MSB) in the track word for different fields
@@ -129,8 +129,8 @@ public:
   typedef ap_uint<TrackBitWidths::kMVAOtherSize> otherMVA_t;      // Specialized MVA selection
 
   // Track word types
-  typedef std::bitset<TrackBitWidths::kTrackWordSize> tkword_bs_t;  // Entire track word;
-  typedef ap_uint<TrackBitWidths::kTrackWordSize> tkword_t;         // Entire track word;
+  typedef std::bitset<kTrackWordSize> tkword_bs_t;  // Entire track word;
+  typedef ap_uint<kTrackWordSize> tkword_t;         // Entire track word;
 
 public:
   // ----------Constructors --------------------------
