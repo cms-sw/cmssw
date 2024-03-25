@@ -1,4 +1,4 @@
-<flags CXXFLAGS="-g -Wall  -O3 -Wall -std=c++17 -lASImage -lMultiProc" />
+<flags CXXFLAGS="-Wall -O3 -Wall -lASImage -lMultiProc" />
 <use name="Alignment/OfflineValidation"/>
 <use name="boost" />
 <use name="boost_filesystem"/>
