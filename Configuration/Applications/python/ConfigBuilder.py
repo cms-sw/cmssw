@@ -1820,6 +1820,9 @@ class ConfigBuilder(object):
                 _cff,_seq = _subSeq.split('.')
                 self.loadAndRemember(_cff)
                 _seqToSchedule.append(_seq)
+            elif '/' in _subSeq:
+                self.loadAndRemember(_subSeq)
+                _seqToSchedule.append(self.NANODefaultSeq)
             else:
                 _seqToSchedule.append(_subSeq)
         self.scheduleSequence('+'.join(_seqToSchedule), 'nanoAOD_step')
