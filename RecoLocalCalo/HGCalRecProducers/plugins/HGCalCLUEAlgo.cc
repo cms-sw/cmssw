@@ -200,8 +200,9 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
         }
       } else {
         for (auto cellIdx : cl) {
-          x += cellsOnLayer.dim1[cellIdx] * cellsOnLayer.weight[cellIdx];
-          y += cellsOnLayer.dim2[cellIdx] * cellsOnLayer.weight[cellIdx];
+          auto position = rhtools_.getPosition(cellsOnLayer.detid[cellIdx]);
+          x += position.x() * cellsOnLayer.weight[cellIdx];
+          y += position.y() * cellsOnLayer.weight[cellIdx];
         }
       }
 
