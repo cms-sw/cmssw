@@ -33,7 +33,7 @@ void LHCInfoPerFillAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
   const LHCInfoPerFill& lhcInfoPerFill = iSetup.getData(tokenInfoPerFill_);
 
-  edm::LogInfo("LHCInfoPerFillAnalyzer") << "LHCInfoPerFill retrieved:\n" << lhcInfoPerFill;
+  std::cout << "LHCInfoPerFill retrieved:\n" << lhcInfoPerFill;
 }
 
 DEFINE_FWK_MODULE(LHCInfoPerFillAnalyzer);

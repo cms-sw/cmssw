@@ -31,7 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     cout = cms.untracked.PSet(
         enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('ERROR')
     )
 )
 
