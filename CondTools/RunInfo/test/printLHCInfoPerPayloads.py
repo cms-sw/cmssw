@@ -13,6 +13,7 @@ TEST_DIR = os.environ['CMSSW_BASE'] + "/src/CondTools/RunInfo/test"
 
 options = VarParsing.VarParsing()
 supported_records = {"LHCInfoPerLS", "LHCInfoPerFill"}
+supported_timetypes = {"timestamp", "lumiid"}
 options.register( 'record'
                 , None #default value is None because this argument is required
                 , VarParsing.VarParsing.multiplicity.singleton
@@ -30,6 +31,12 @@ options.register( 'tag'
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
                 , "Tag to read from in source"
+                  )
+options.register( 'timetype'
+                , 'timestamp' #default
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , f"timetype of the provided IOVs, accepted values: {supported_timetypes}"
                   )
 options.register( 'csv'
                 , False
@@ -62,11 +69,15 @@ if options.tag is None:
   print(f"Please specify the tag by adding to the command: tag=<tag to be printed>", file=sys.stderr)
   exit(1)
 
+if options.timetype not in supported_timetypes:
+  print(f"Provided timetype '{options.timetype}' is not supported (accepted values: {supported_timetypes})", file=sys.stderr)
+  exit(1)
+
 for line in map(str.rstrip, sys.stdin):
     for iov in line.split():
         if options.record == "LHCInfoPerLS":
-            os.system(f"cmsRun {TEST_DIR}/LHCInfoPerLSAnalyzer_cfg.py tag={options.tag} \
-            db={options.db} csv={options.csv} header={options.header} separator={options.separator} timestamp={iov}")
+            os.system(f"cmsRun {TEST_DIR}/LHCInfoPerLSAnalyzer_cfg.py db={options.db} tag={options.tag} timetype={options.timetype} \
+            csv={options.csv} header={options.header} separator={options.separator} iov={iov}")
         elif options.record == "LHCInfoPerFill":
             os.system(f"cmsRun {TEST_DIR}/LHCInfoPerFillAnalyzer_cfg.py tag={options.tag} db={options.db} timestamp={iov}")
 
