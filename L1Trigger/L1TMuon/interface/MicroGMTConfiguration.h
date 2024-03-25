@@ -44,7 +44,7 @@ namespace l1t {
 
     static int calcGlobalPhi(int locPhi, tftype t, int proc);
 
-    static int setOutputMuonQuality(int muQual, tftype type, int haloBit);
+    static int setOutputMuonQuality(int muQual, tftype type, int haloBit, unsigned fwVersion);
 
     static int calcMuonHwEtaExtra(const l1t::Muon& mu);
     static int calcMuonHwPhiExtra(const l1t::Muon& mu);
