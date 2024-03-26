@@ -12,4 +12,13 @@ from ..sequences.itLocalRecoSequence_cfi import *
 from ..sequences.muonlocalrecoSequence_cfi import *
 from ..sequences.otLocalRecoSequence_cfi import *
 
-HLT_Mu50_FromL1TkMuon = cms.Path(HLTBeginSequence+muonlocalrecoSequence+itLocalRecoSequence+otLocalRecoSequence+hltPhase2PixelFitterByHelixProjections+hltPhase2PixelTrackFilterByKinematics+HLTTrackingV61Sequence+HLTMuonsSequence+hltPhase2L3MuonCandidates+hltL3fL1TkSingleMu22L3Filtered50Q+HLTEndSequence)
+HLT_Mu50_FromL1TkMuon = cms.Path(HLTBeginSequence
+    +muonlocalrecoSequence
+    +itLocalRecoSequence
+    +otLocalRecoSequence
+    +hltPhase2PixelFitterByHelixProjections
+    +hltPhase2PixelTrackFilterByKinematics
+    +HLTMuonsSequence
+    +hltPhase2L3MuonCandidates
+    +hltL3fL1TkSingleMu22L3Filtered50Q
+    +HLTEndSequence)
