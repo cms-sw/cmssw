@@ -78,7 +78,7 @@ public:
   }
 
   // get number of objects stored in a BX
-  int getBxSize(unsigned bx) const {
+  unsigned getBxSize(unsigned bx) const {
     if (bx >= orbitBufferSize_) {
       cms::Exception("OrbitCollection") << "Called getBxSize() of a bx out of the orbit range."
                                         << " BX = " << bx;
