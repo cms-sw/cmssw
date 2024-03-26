@@ -1359,10 +1359,12 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
           ++good;
           int ring, hex1, hex2, hex3, hex4, hex5, hex6;
           float rstart, rend, sipm;
+          std::string typest;
           if (nPhiS[layer] == 4) {
             sscanf(
                 buffer, "%d %d %f %f %f %X %X %X %X", &layer, &ring, &rstart, &rend, &sipm, &hex1, &hex2, &hex3, &hex4);
             hex5 = hex6 = 0;
+            typest = items[9];
           } else {
             sscanf(buffer,
                    "%d %d %f %f %f %X %X %X %X %X %X",
@@ -1377,9 +1379,14 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
                    &hex4,
                    &hex5,
                    &hex6);
+            typest = items[11];
           }
-          int type = static_cast<int>(std::find(types, types + 1, items[9]) - types);
+          int type = static_cast<int>(std::find(types, types + 1, typest) - types);
           int nphi = layPhiS[layer].first;
+          if (((debug / 100) % 10) > 0)
+            std::cout << "Input Layer " << layer << " Ring " << ring << " R " << rstart << ":" << rend << " sipm "
+                      << sipm << " type " << typest << ":" << type << " HEX " << std::hex << hex1 << " " << hex2 << " "
+                      << hex3 << " " << hex4 << " " << hex5 << " " << hex6 << std::dec << std::endl;
           if (layer > layMin_) {
             tile tl(sipm, type, nphi, hex1, hex2, hex3, hex4, hex5, hex6);
             int index = HGCalTileIndex::tileIndex(layer - layMin_, ring + 1, 0);
@@ -1391,8 +1398,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
               if (layerRing.find(layer) == layerRing.end()) {
                 layerRing[layer] = std::pair<int, int>(ring, ring);
               } else {
-                lmin6 = std::min((layer - layMin_), lmin);
-                lmax6 = std::max((layer - layMin_), lmax);
+                lmin = std::min((layer - layMin_), lmin);
+                lmax = std::max((layer - layMin_), lmax);
                 int rmin = std::min(ring, layerRing[layer].first);
                 int rmax = std::max(ring, layerRing[layer].second);
                 layerRing[layer] = std::pair<int, int>(rmin, rmax);
@@ -1403,6 +1410,8 @@ void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, co
               if (layerRing6.find(layer) == layerRing6.end()) {
                 layerRing6[layer] = std::pair<int, int>(ring, ring);
               } else {
+                lmin6 = std::min((layer - layMin_), lmin6);
+                lmax6 = std::max((layer - layMin_), lmax6);
                 int rmin = std::min(ring, layerRing6[layer].first);
                 int rmax = std::max(ring, layerRing6[layer].second);
                 layerRing6[layer] = std::pair<int, int>(rmin, rmax);
@@ -1715,15 +1724,24 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
                                       bool debug) {
   const int zside = 1;
   std::vector<tileZone> zones;
+  if ((debug % 10) > 0)
+    std::cout << "makeTile called with Layer:" << lmin << ":" << lmax << " nphi " << nphis << " mode " << mode
+              << " nmodules " << module.size() << std::endl;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
     int kk, irmin, irmax;
     for (int phi = 1; phi <= nphis; ++phi) {
       kk = irmin = irmax = 0;
       for (std::map<int, tile>::const_iterator itr = module.begin(); itr != module.end(); ++itr) {
-        if ((HGCalTileIndex::tileLayer(itr->first) == layer) &&
-            (((mode == 0) && HGCalTileIndex::tileExist((itr->second).hex, zside, phi)) ||
-             (((mode != 0) && HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi))))) {
+        bool ok(false);
+        if (((debug / 100) % 10) > 0)
+          std::cout << " Layer " << HGCalTileIndex::tileLayer(itr->first) << " Ring "
+                    << HGCalTileIndex::tileRing(itr->first) << std::endl;
+        if (mode == 0)
+          ok = HGCalTileIndex::tileExist((itr->second).hex, zside, phi);
+        else
+          ok = HGCalTileIndex::tileFineExist((itr->second).hex, zside, phi);
+        if ((HGCalTileIndex::tileLayer(itr->first) == layer) && ok) {
           int ir = HGCalTileIndex::tileRing(itr->first);
           if (kk == 0) {
             irmin = irmax = ir;
@@ -1733,7 +1751,7 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
           ++kk;
         }
       }
-      if (debug)
+      if (((debug / 100) % 10) > 0)
         std::cout << "Layer|Phi|Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
       if (phi == 1) {
         tile0.layer = layer;
@@ -1774,7 +1792,7 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
   }
 
   int nmax = zones.size();
-  if (debug) {
+  if ((debug % 10) > 0) {
     std::cout << "\nA total of " << nmax << " zones " << std::endl;
     for (int k = 0; k < nmax; ++k)
       std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax
@@ -1809,7 +1827,7 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     fout << "\n  </Vector>\n";
     fout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
-    if (debug)
+    if ((debug % 10) > 0)
       std::cout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric"
                 << apost << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
@@ -1817,22 +1835,22 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
       int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
       if (k % 7 == 0) {
         fout << "\n    " << std::setw(9) << lyr1r2 << last;
-        if (debug)
+        if ((debug % 10) > 0)
           std::cout << "\n    " << std::setw(9) << lyr1r2 << last;
       } else {
         fout << std::setw(9) << lyr1r2 << last;
-        if (debug)
+        if ((debug % 10) > 0)
           std::cout << std::setw(9) << lyr1r2 << last;
       }
     }
     fout << "\n  </Vector>\n";
-    if (debug)
+    if ((debug % 10) > 0)
       std::cout << "\n  </Vector>\n";
     int layer = -1;
     std::vector<int> layerStart;
     fout << "  <Vector name=" << apost << head << "PhiRange" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
-    if (debug)
+    if ((debug % 10) > 0)
       std::cout << "  <Vector name=" << apost << head << "PhiRange" << apost << " type=" << apost << "numeric" << apost
                 << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
@@ -1840,11 +1858,11 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
       int f1f2 = HGCalTileIndex::tilePack(zones[k].cassette, zones[k].phimin, zones[k].phimax);
       if (k % 7 == 0) {
         fout << "\n    " << std::setw(9) << f1f2 << last;
-        if (debug)
+        if ((debug % 10) > 0)
           std::cout << "\n    " << std::setw(9) << f1f2 << last;
       } else {
         fout << std::setw(9) << f1f2 << last;
-        if (debug)
+        if ((debug % 10) > 0)
           std::cout << std::setw(9) << f1f2 << last;
       }
       if (zones[k].layer != layer) {
@@ -1853,27 +1871,27 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
       }
     }
     fout << "\n  </Vector>\n";
-    if (debug)
+    if ((debug % 10) > 0)
       std::cout << "\n  </Vector>\n";
     fout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layerStart.size() << apost << ">";
-    if (debug)
+    if ((debug % 10) > 0)
       std::cout << "  <Vector name=" << apost << head << "LayerStart" << apost << " type=" << apost << "numeric"
                 << apost << " nEntries=" << apost << layerStart.size() << apost << ">";
     for (unsigned int k = 0; k < layerStart.size(); ++k) {
       std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
       if (k % 10 == 0) {
         fout << "\n    " << std::setw(5) << layerStart[k] << last;
-        if (debug)
+        if ((debug & 10) > 0)
           std::cout << "\n    " << std::setw(5) << layerStart[k] << last;
       } else {
         fout << std::setw(5) << layerStart[k] << last;
-        if (debug)
+        if ((debug % 10) > 0)
           std::cout << std::setw(5) << layerStart[k] << last;
       }
     }
     fout << "\n  </Vector>\n";
-    if (debug)
+    if ((debug & 10) > 0)
       std::cout << "\n  </Vector>\n";
   }
 }
