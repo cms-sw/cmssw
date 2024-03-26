@@ -30,9 +30,9 @@ private:
                   int BIG_PIX_PER_ROC_X,
                   int BIG_PIX_PER_ROC_Y);
   void buildPixelPhase2(std::vector<const GeometricDet*> const&,
-                  const PTrackerAdditionalParametersPerDet* const&,
-                  TrackerGeometry*,
-		  GeomDetType::SubDetector det);
+                        const PTrackerAdditionalParametersPerDet* const&,
+                        TrackerGeometry*,
+                        GeomDetType::SubDetector det);
   void buildSilicon(std::vector<const GeometricDet*> const&,
                     TrackerGeometry*,
                     GeomDetType::SubDetector det,

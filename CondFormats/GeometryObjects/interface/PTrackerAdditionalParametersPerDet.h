@@ -21,10 +21,10 @@ public:
 
   int getGeographicalId(int theIndex) const;
   int getBigPixelsX(int theIndex) const;
-  int getBigPixelsY(int theIndex) const ;
+  int getBigPixelsY(int theIndex) const;
   float getBigPixelsPitchX(int theIndex) const;
   float getBigPixelsPitchY(int theIndex) const;
-  
+
   std::vector<int> getAllGeographicalIds() const;
   std::vector<int> getAllBigPixelsXs() const;
   std::vector<int> getAllBigPixelsYs() const;

@@ -441,10 +441,10 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
     int minPixelRow = theClusterParam.theCluster->minPixelRow();
 
     //--- Are we near either of the edges?
-    bool edgex = (theDetParam.theTopol->isItEdgePixelInX(minPixelRow) ||
-                  theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
-    bool edgey = (theDetParam.theTopol->isItEdgePixelInY(minPixelCol) ||
-                  theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
+    bool edgex =
+        (theDetParam.theTopol->isItEdgePixelInX(minPixelRow) || theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
+    bool edgey =
+        (theDetParam.theTopol->isItEdgePixelInY(minPixelCol) || theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
 
     if (theClusterParam.ierr != 0) {
       // If reconstruction fails the hit position is calculated from cluster center of gravity

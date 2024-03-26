@@ -138,7 +138,7 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     bigPixelsPitchx_ = fv->get<double>("BigPixels_Pitch_X");
     bigPixelsPitchy_ = fv->get<double>("BigPixels_Pitch_Y");
 
-    // Phase 2 IT 3D sensors only 
+    // Phase 2 IT 3D sensors only
     isFirstSensor_ = (fv->get<std::string_view>("TrackerFirstDetectors") == strue);
     isSecondSensor_ = (fv->get<std::string_view>("TrackerSecondDetectors") == strue);
 

@@ -59,7 +59,7 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
 
   iybin0 = (iybin % 54);  // 0-53
   numROC = iybin / 54;    // 0-7
-  
+
   if (iybin0 == 53) {  // inside big pixel
     iybin0 = 51;
     fractionY = (fractionY + 1.) / 2.;
@@ -75,9 +75,8 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
     iybin0 = 0;
     fractionY = fractionY / 2.;
   }
-  
-  mpY = float(numROC * 52. + iybin0) + fractionY;
 
+  mpY = float(numROC * 52. + iybin0) + fractionY;
 
 #ifdef EDM_ML_DEBUG
 
@@ -103,7 +102,6 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
   }
 #endif  // EDM_ML_DEBUG
 
-
   if (ixbin > 82) {  // inside normal pixel, ROC 1
     ixbin = ixbin - 2;
   } else if (ixbin == 82) {  // inside bin pixel
@@ -119,7 +117,6 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
     ixbin = 79;
     fractionX = fractionX / 2.;
   }
-  
 
   float mpX = float(ixbin) + fractionX;
 
@@ -195,12 +192,12 @@ float RectangularPixelTopology::localX(const float mpx) const {
   // else if (binoffx>=0) {       // ROC 0
   //  binoffx=binoffx+0;
   // }
-  
+
 #ifdef EDM_ML_DEBUG
   if (binoffx < 0)  // too small
-    LogDebug("RectangularPixelTopology")
-      << " very bad, binx " << binoffx << "\n"
-      << mpx << " " << binoffx << " " << fractionX << " " << local_pitchx << " " << m_xoffset;
+    LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
+                                         << mpx << " " << binoffx << " " << fractionX << " " << local_pitchx << " "
+                                         << m_xoffset;
 #endif
 
   // The final position in local coordinates
@@ -230,8 +227,7 @@ float RectangularPixelTopology::localY(const float mpy) const {
   if (*j == binoffy)
     local_pitchy *= 2;
   binoffy += (j - bigYIndeces);
-  
-  
+
   // The final position in local coordinates
   float lpY = float(binoffy * m_pitchy) + fractionY * local_pitchy + m_yoffset;
 
@@ -274,11 +270,11 @@ MeasurementError RectangularPixelTopology::measurementError(const LocalPoint& lp
   //quasi bins 0,1,52,53 fall into larger pixels
   if ((iybin0 <= 1) | (iybin0 >= 52))
     pitchy = 2.f * m_pitchy;
-  
+
   int ixbin = int((lp.x() - m_xoffset) / m_pitchx);  //get bin for equal pitch
   //quasi bins 79,80,81,82 fall into the 2 larger pixels
   if ((ixbin >= 79) & (ixbin <= 82))
     pitchx = 2.f * m_pitchx;
-  
+
   return MeasurementError(le.xx() / float(pitchx * pitchx), 0, le.yy() / float(pitchy * pitchy));
 }

@@ -106,13 +106,17 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* g
   // now building the Pixel-like subdetectors
   for (unsigned int i = 0; i < 6; ++i) {
     if (gdsubdetmap[i] == GeometricDet::PixelBarrel)
-      buildPixel(dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::PixelBarrel, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
+      buildPixel(
+          dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::PixelBarrel, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
     if (gdsubdetmap[i] == GeometricDet::PixelPhase1Barrel)
-      buildPixel(dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::P1PXB, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
+      buildPixel(
+          dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::P1PXB, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
     if (gdsubdetmap[i] == GeometricDet::PixelEndCap)
-      buildPixel(dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::PixelEndcap, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
+      buildPixel(
+          dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::PixelEndcap, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
     if (gdsubdetmap[i] == GeometricDet::PixelPhase1EndCap)
-      buildPixel(dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::P1PXEC, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
+      buildPixel(
+          dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::P1PXEC, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y);
     // Phase2 case
     if (gdsubdetmap[i] == GeometricDet::PixelPhase2Barrel)
       buildPixelPhase2(dets[i], ptitpx, tracker, GeomDetEnumerators::SubDetector::P2PXB);
@@ -151,13 +155,12 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const GeometricDet* g
   return tracker;
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildPixel(
-    std::vector<const GeometricDet*> const& gdv,
-    const PTrackerAdditionalParametersPerDet* const& ptitp,
-    TrackerGeometry* tracker,
-    GeomDetType::SubDetector det,
-    int BIG_PIX_PER_ROC_X,  // in x direction, rows. 
-    int BIG_PIX_PER_ROC_Y)  // in y direction, cols. 
+void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*> const& gdv,
+                                                    const PTrackerAdditionalParametersPerDet* const& ptitp,
+                                                    TrackerGeometry* tracker,
+                                                    GeomDetType::SubDetector det,
+                                                    int BIG_PIX_PER_ROC_X,  // in x direction, rows.
+                                                    int BIG_PIX_PER_ROC_Y)  // in y direction, cols.
 {
   LogDebug("BuildingGeomDetUnits") << " Pixel type. Size of vector: " << gdv.size()
                                    << " GeomDetType subdetector: " << det
@@ -191,12 +194,10 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(
   tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildPixelPhase2(
-    std::vector<const GeometricDet*> const& gdv,
-    const PTrackerAdditionalParametersPerDet* const& ptitp,
-    TrackerGeometry* tracker,
-    GeomDetType::SubDetector det)
-{
+void TrackerGeomBuilderFromGeometricDet::buildPixelPhase2(std::vector<const GeometricDet*> const& gdv,
+                                                          const PTrackerAdditionalParametersPerDet* const& ptitp,
+                                                          TrackerGeometry* tracker,
+                                                          GeomDetType::SubDetector det) {
   LogDebug("BuildingGeomDetUnits") << " Phase2 Pixel type. Size of vector: " << gdv.size()
                                    << " GeomDetType subdetector: " << det
                                    << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det];
@@ -207,19 +208,19 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelPhase2(
     std::string const& detName = i->name();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
-      int BIG_PIX_PER_ROC_X = i->bigPixelsx(); // in x direction, rows
-      int BIG_PIX_PER_ROC_Y = i->bigPixelsy(); // in y direction, cols
-      float BIG_PIX_PITCH_X = i->bigPixelsPitchx(); // in x direction, rows
-      float BIG_PIX_PITCH_Y = i->bigPixelsPitchy(); // in y direction, cols    
+      int BIG_PIX_PER_ROC_X = i->bigPixelsx();       // in x direction, rows
+      int BIG_PIX_PER_ROC_Y = i->bigPixelsy();       // in y direction, cols
+      float BIG_PIX_PITCH_X = i->bigPixelsPitchx();  // in x direction, rows
+      float BIG_PIX_PITCH_Y = i->bigPixelsPitchy();  // in y direction, cols
       PixelTopology* t = PixelPhase2TopologyBuilder().build(bounds.get(),
-                                                      (int)i->pixROCRows(),
-                                                      (int)i->pixROCCols(),
-                                                      BIG_PIX_PER_ROC_X,
-                                                      BIG_PIX_PER_ROC_Y,
-                                                      BIG_PIX_PITCH_X,
-                                                      BIG_PIX_PITCH_Y,
-                                                      (int)i->pixROCx(),
-                                                      (int)i->pixROCy());
+                                                            (int)i->pixROCRows(),
+                                                            (int)i->pixROCCols(),
+                                                            BIG_PIX_PER_ROC_X,
+                                                            BIG_PIX_PER_ROC_Y,
+                                                            BIG_PIX_PITCH_X,
+                                                            BIG_PIX_PITCH_Y,
+                                                            (int)i->pixROCx(),
+                                                            (int)i->pixROCy());
 
       thePixelDetTypeMap[detName] = new PixelGeomDetType(t, detName, det);
       tracker->addType(thePixelDetTypeMap[detName]);

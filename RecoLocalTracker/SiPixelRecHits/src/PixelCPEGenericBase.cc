@@ -108,10 +108,10 @@ void PixelCPEGenericBase::initializeLocalErrorVariables(
   minPixelCol = theClusterParam.theCluster->minPixelCol();
   minPixelRow = theClusterParam.theCluster->minPixelRow();
 
-  edgex = (theDetParam.theTopol->isItEdgePixelInX(minPixelRow)) ||
-          (theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
-  edgey = (theDetParam.theTopol->isItEdgePixelInY(minPixelCol)) ||
-          (theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
+  edgex =
+      (theDetParam.theTopol->isItEdgePixelInX(minPixelRow)) || (theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
+  edgey =
+      (theDetParam.theTopol->isItEdgePixelInY(minPixelCol)) || (theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
 
   sizex = theClusterParam.theCluster->sizeX();
   sizey = theClusterParam.theCluster->sizeY();

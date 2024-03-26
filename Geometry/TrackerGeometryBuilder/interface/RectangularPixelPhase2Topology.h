@@ -27,49 +27,46 @@ class RectangularPixelPhase2Topology final : public PixelTopology {
 public:
   // Constructor, initilize
   RectangularPixelPhase2Topology(int nrows,
-                           int ncols,
-                           float pitchx,
-                           float pitchy,
-                           int ROWS_PER_ROC,       // Num of Rows per ROC
-                           int COLS_PER_ROC,       // Num of Cols per ROC
-                           int BIG_PIX_PER_ROC_X,  // in x direction, rows
-                           int BIG_PIX_PER_ROC_Y,  // in y direction, cols
-                           float BIG_PIX_PITCH_X,
-                           float BIG_PIX_PITCH_Y,
-                           int ROCS_X,
-                           int ROCS_Y)
+                                 int ncols,
+                                 float pitchx,
+                                 float pitchy,
+                                 int ROWS_PER_ROC,       // Num of Rows per ROC
+                                 int COLS_PER_ROC,       // Num of Cols per ROC
+                                 int BIG_PIX_PER_ROC_X,  // in x direction, rows
+                                 int BIG_PIX_PER_ROC_Y,  // in y direction, cols
+                                 float BIG_PIX_PITCH_X,
+                                 float BIG_PIX_PITCH_Y,
+                                 int ROCS_X,
+                                 int ROCS_Y)
       : m_pitchx(pitchx),
         m_pitchy(pitchy),
         m_nrows(nrows),
         m_ncols(ncols),
-        m_ROWS_PER_ROC(ROWS_PER_ROC),  // Num of Rows per ROC
-        m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
+        m_ROWS_PER_ROC(ROWS_PER_ROC),            // Num of Rows per ROC
+        m_COLS_PER_ROC(COLS_PER_ROC),            // Num of Cols per ROC
         m_BIG_PIX_PER_ROC_X(BIG_PIX_PER_ROC_X),  //
-        m_BIG_PIX_PER_ROC_Y(BIG_PIX_PER_ROC_Y),  // 
-	m_BIG_PIX_PITCH_X(BIG_PIX_PITCH_X),
+        m_BIG_PIX_PER_ROC_Y(BIG_PIX_PER_ROC_Y),  //
+        m_BIG_PIX_PITCH_X(BIG_PIX_PITCH_X),
         m_BIG_PIX_PITCH_Y(BIG_PIX_PITCH_Y),
-        m_ROCS_X(ROCS_X),              // 
-        m_ROCS_Y(ROCS_Y)               // 
-        {
+        m_ROCS_X(ROCS_X),  //
+        m_ROCS_Y(ROCS_Y)   //
+  {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
     // Take into account large pixels
-    //m_xoffset = -((m_nrows/2 - 2)*m_pitchx + 2*m_BIG_PIX_PITCH_X); //gbardell proto implementation fixing the number of big pix to the Phase 2 Geom, below a less harcoded attempt
-    //m_yoffset = -((m_ncols/2 - 1)*m_pitchy + m_BIG_PIX_PITCH_Y);
-    m_xoffset = -((m_nrows/2 - m_BIG_PIX_PER_ROC_X)*m_pitchx + m_BIG_PIX_PER_ROC_X*m_BIG_PIX_PITCH_X);  //gbardell: assuming the big pixel pitch is well computed it gets always in the middle regardless the number of big pixel.  Quad is 670*0.025 + 2*0.0875; double is 336* 0.025; 3D is 336*0.025; old geom is 672*faxe x pitch
-    m_yoffset = -((m_ncols/2 - m_BIG_PIX_PER_ROC_Y)*m_pitchy + m_BIG_PIX_PER_ROC_Y*m_BIG_PIX_PITCH_Y);
+    m_xoffset = -(
+        (m_nrows / 2 - m_BIG_PIX_PER_ROC_X) * m_pitchx +
+        m_BIG_PIX_PER_ROC_X *
+            m_BIG_PIX_PITCH_X);  // assuming the big pixel pitch is well computed it gets always in the middle regardless the number of big pixel.  Quad is 670*0.025 + 2*0.0875; double is 336* 0.025; 3D is 336*0.025; old geom is 672*faxe x pitch
+    m_yoffset = -((m_ncols / 2 - m_BIG_PIX_PER_ROC_Y) * m_pitchy + m_BIG_PIX_PER_ROC_Y * m_BIG_PIX_PITCH_Y);
 
-    std::cout << "RectangularPixelPhase2Topology"
-      //   LogDebug("RectangularPixelPhase2Topology")
-	      << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx " << m_pitchx
-                                         << ", pitchy " << m_pitchy << ", xoffset " << m_xoffset << ", yoffset "
-                                         << m_yoffset << ", BIG_PIX_PER_ROC_X " << BIG_PIX_PER_ROC_X
-                                         << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", BIG_PIX_PITCH_X "
-                                         << BIG_PIX_PITCH_X << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_Y << ", ROWS_PER_ROC "
-                                         << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X
-                                         << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
-                                         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y
-	      << std::endl;
+    LogDebug("RectangularPixelPhase2Topology")
+        << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx " << m_pitchx << ", pitchy " << m_pitchy
+        << ", xoffset " << m_xoffset << ", yoffset " << m_yoffset << ", BIG_PIX_PER_ROC_X " << BIG_PIX_PER_ROC_X
+        << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", BIG_PIX_PITCH_X " << BIG_PIX_PITCH_X
+        << ", BIG_PIX_PITCH_Y " << BIG_PIX_PITCH_Y << ", ROWS_PER_ROC " << ROWS_PER_ROC << ", COLS_PER_ROC "
+        << COLS_PER_ROC << ", ROCS_X " << ROCS_X << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
+        << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
   }
 
   // Topology interface, go from Masurement to Local corrdinates
@@ -111,72 +108,60 @@ public:
   //
   bool isItBigPixelInX(const int ixbin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
-    if ( !no_big_pixel )
-      no_big_pixel = abs((ixbin-m_nrows/2) + 0.5) > m_BIG_PIX_PER_ROC_X;
-  
+    if (!no_big_pixel)
+      no_big_pixel = abs((ixbin - m_nrows / 2) + 0.5) > m_BIG_PIX_PER_ROC_X;
+
     return !no_big_pixel;
   }
 
   bool isItBigPixelInY(const int iybin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
-    if ( !no_big_pixel )
-      no_big_pixel = abs((iybin-m_ncols/2) + 0.5) > m_BIG_PIX_PER_ROC_Y;
-  
+    if (!no_big_pixel)
+      no_big_pixel = abs((iybin - m_ncols / 2) + 0.5) > m_BIG_PIX_PER_ROC_Y;
+
     return !no_big_pixel;
   }
 
   float getPixelFractionInX(const int ixbin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
-     
-     if(no_big_pixel){ 
-	return 1.0f;
-     }else{
-	if(((m_nrows/2 - m_BIG_PIX_PER_ROC_X) <= ixbin ) && ( ixbin < (m_nrows/2 - m_BIG_PIX_PER_ROC_X + m_BIG_PIX_PER_ROC_X*m_nrows/m_ROWS_PER_ROC))){
-		return float(m_BIG_PIX_PITCH_X/m_pitchx) ;
-	}else{
-	
-		return 1.0f;
-	}
-     }	
+
+    if (no_big_pixel) {
+      return 1.0f;
+    } else {
+      if (((m_nrows / 2 - m_BIG_PIX_PER_ROC_X) <= ixbin) &&
+          (ixbin < (m_nrows / 2 - m_BIG_PIX_PER_ROC_X + m_BIG_PIX_PER_ROC_X * m_nrows / m_ROWS_PER_ROC))) {
+        return float(m_BIG_PIX_PITCH_X / m_pitchx);
+      } else {
+        return 1.0f;
+      }
+    }
   }
 
   float getPixelFractionInY(const int iybin) const override {
     bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
-     if (no_big_pixel){ 
-	return 1.0f;
-     }else{
-	if(((m_ncols/2 - m_BIG_PIX_PER_ROC_Y) <= iybin ) && ( iybin < (m_ncols/2 - m_BIG_PIX_PER_ROC_Y + m_BIG_PIX_PER_ROC_Y*m_ncols/m_COLS_PER_ROC))){
-		return float(m_BIG_PIX_PITCH_Y/m_pitchy);
-	}else{
-	
-		return 1.0f;
-	}
-     }
+    if (no_big_pixel) {
+      return 1.0f;
+    } else {
+      if (((m_ncols / 2 - m_BIG_PIX_PER_ROC_Y) <= iybin) &&
+          (iybin < (m_ncols / 2 - m_BIG_PIX_PER_ROC_Y + m_BIG_PIX_PER_ROC_Y * m_ncols / m_COLS_PER_ROC))) {
+        return float(m_BIG_PIX_PITCH_Y / m_pitchy);
+      } else {
+        return 1.0f;
+      }
+    }
   }
-       
+
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range (assuming they are always at the edge between two CROCs)
   //
   bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_X == 0);
-    if ( !no_big_pixel )      
-      no_big_pixel = (ixmin < std::clamp(ixmin, m_nrows/2-m_BIG_PIX_PER_ROC_X, m_nrows/2+m_BIG_PIX_PER_ROC_X-1)) | (ixmax > std::clamp(ixmax, m_nrows/2-m_BIG_PIX_PER_ROC_X, m_nrows/2+m_BIG_PIX_PER_ROC_X-1)); 
-	
-     return !no_big_pixel;
-  }
-  
-  bool containsBigPixelInY(int iymin, int iymax) const override {
-    bool no_big_pixel = (m_BIG_PIX_PER_ROC_Y == 0);
-    if ( !no_big_pixel )      
-      no_big_pixel = (iymin < std::clamp(iymin, m_ncols/2-m_BIG_PIX_PER_ROC_Y, m_ncols/2+m_BIG_PIX_PER_ROC_Y-1)) | (iymax > std::clamp(iymax, m_ncols/2-m_BIG_PIX_PER_ROC_Y, m_ncols/2+m_BIG_PIX_PER_ROC_Y-1)); 
-	
-    return !no_big_pixel;
+    return containsBigPixel(ixmin, ixmax, m_nrows, m_BIG_PIX_PER_ROC_X);
   }
 
-  // @EM this is a dummy implementation ... 
-  // big pixels in X e Y vengono letti dalla topologia
-  // bisogna trovare dove viene fatto il parsing del file XML e costruita la topologia per passare i valori di questi bool
-  // fare anche per MTD ???
+  bool containsBigPixelInY(int iymin, int iymax) const override {
+    return containsBigPixel(iymin, iymax, m_ncols, m_BIG_PIX_PER_ROC_Y);
+  }
+
   bool bigpixelsX() const override { return false; }
   bool bigpixelsY() const override { return false; }
 
@@ -211,7 +196,6 @@ public:
   float pitchbigpixelX() const { return m_BIG_PIX_PITCH_X; }
   float pitchbigpixelY() const { return m_BIG_PIX_PITCH_Y; }
 
-
 private:
   float m_pitchx;
   float m_pitchy;
@@ -227,6 +211,20 @@ private:
   float m_BIG_PIX_PITCH_Y;
   int m_ROCS_X;
   int m_ROCS_Y;
+
+  bool containsBigPixel(int iMin, int iMax, int nPxTot, int nPxBigPerROC) const {
+    // nPxTot/2 should lie in the upper half of the dimension
+    auto firstBigPixel = nPxTot / 2 - nPxBigPerROC;
+    auto lastBigPixel = nPxTot / 2 - 1 + nPxBigPerROC;
+
+    // the interval contains no big pixel when either of the following is met:
+    // - there are no big pixels
+    // - the whole interval lies to the right of the big pixel chunk
+    // - the whole interval lies to the left of the big pixel chunk
+    bool noBigPixel = (nPxBigPerROC == 0) || (iMin > lastBigPixel) || (iMax < firstBigPixel);
+
+    return !noBigPixel;
+  }
 };
 
 #endif

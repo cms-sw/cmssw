@@ -57,7 +57,7 @@ public:
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
         m_ROCS_X(ROCS_X),              // 2 for SLHC
         m_ROCS_Y(ROCS_Y)               // 8 for SLHC
-        {
+  {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
     // Take into account large pixels
@@ -110,9 +110,7 @@ public:
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
   //
-  bool isItBigPixelInX(const int ixbin) const override {
-    return ((ixbin == 79) | (ixbin == 80));
-  }
+  bool isItBigPixelInX(const int ixbin) const override { return ((ixbin == 79) | (ixbin == 80)); }
 
   bool isItBigPixelInY(const int iybin) const override {
     int iybin0 = iybin % 52;
@@ -121,42 +119,35 @@ public:
     // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
   }
   float getPixelFractionInX(const int ixbin) const override {
-     if((ixbin == 79) | (ixbin == 80)){
-	return 2.0f;
-     }else{
-	return 1.0f;
-     }	
+    if ((ixbin == 79) | (ixbin == 80)) {
+      return 2.0f;
+    } else {
+      return 1.0f;
+    }
   }
 
   float getPixelFractionInY(const int iybin) const override {
     int iybin0 = iybin % 52;
-   
-     if((iybin0 == 0) | (iybin0 == 51)){
-	return 2.0f;
-     }else{
-	return 1.0f;
-     }
-  }	
-    // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-    // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
+
+    if ((iybin0 == 0) | (iybin0 == 51)) {
+      return 2.0f;
+    } else {
+      return 1.0f;
+    }
+  }
+  // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
+  // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   //
-  bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    return ((ixmin <= 80) & (ixmax >= 79));
-  }
+  bool containsBigPixelInX(int ixmin, int ixmax) const override { return ((ixmin <= 80) & (ixmax >= 79)); }
   bool containsBigPixelInY(int iymin, int iymax) const override {
     return (isItBigPixelInY(iymin) || isItBigPixelInY(iymax) || (iymin / 52) != (iymax / 52));
   }
 
-  // @EM this is a dummy implementation ... 
-  // big pixels in X e Y vengono letti dalla topologia
-  // bisogna trovare dove viene fatto il parsing del file XML e costruita la topologia per passare i valori di questi bool
-  // fare anche per MTD ???
   bool bigpixelsX() const override { return false; }
   bool bigpixelsY() const override { return false; }
-
 
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module

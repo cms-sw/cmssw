@@ -22,11 +22,11 @@ namespace siPixelUtils {
                                  float theThickness,          //detector thickness
                                  float cot_angle,             //!< cot of alpha_ or beta_
                                  float pitch,                 //!< thePitchX or thePitchY
-				 float pitchfraction_first,
-				 float pitchfraction_last,
-                                 float eff_charge_cut_low,    //!< Use edge if > w_eff  &&&
-                                 float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
-                                 float size_cut               //!< Use edge when size == cuts
+                                 float pitchfraction_first,
+                                 float pitchfraction_last,
+                                 float eff_charge_cut_low,   //!< Use edge if > w_eff  &&&
+                                 float eff_charge_cut_high,  //!< Use edge if < w_eff  &&&
+                                 float size_cut              //!< Use edge when size == cuts
   ) {
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 

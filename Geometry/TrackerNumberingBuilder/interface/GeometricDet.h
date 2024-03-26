@@ -135,10 +135,10 @@ public:
   double pixROCCols() const { return pixROCCols_; }
   double pixROCx() const { return pixROCx_; }
   double pixROCy() const { return pixROCy_; }
-  int bigPixelsx() const { return bigPixelsx_ ;}
-  int bigPixelsy() const { return bigPixelsy_ ;}
-  float bigPixelsPitchx() const { return bigPixelsPitchx_ ;}
-  float bigPixelsPitchy() const { return bigPixelsPitchy_ ;}
+  int bigPixelsx() const { return bigPixelsx_; }
+  int bigPixelsy() const { return bigPixelsy_; }
+  float bigPixelsPitchx() const { return bigPixelsPitchx_; }
+  float bigPixelsPitchy() const { return bigPixelsPitchy_; }
   bool isFirstSensor() const { return isFirstSensor_; }
   bool isSecondSensor() const { return isSecondSensor_; }
   // Only return meaningful results for Outer Trackers.

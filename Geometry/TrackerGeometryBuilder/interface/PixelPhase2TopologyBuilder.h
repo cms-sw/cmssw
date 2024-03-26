@@ -18,8 +18,8 @@ public:
                        int COLS_PER_ROC,       // Num of Cols per ROC
                        int BIG_PIX_PER_ROC_X,  // in x direction, rows
                        int BIG_PIX_PER_ROC_Y,  // in y direction, cols
-		       float BIG_PIX_PITCH_X,
-		       float BIG_PIX_PITCH_Y,
+                       float BIG_PIX_PITCH_X,
+                       float BIG_PIX_PITCH_Y,
                        int ROCS_X,
                        int ROCS_Y);
 };
