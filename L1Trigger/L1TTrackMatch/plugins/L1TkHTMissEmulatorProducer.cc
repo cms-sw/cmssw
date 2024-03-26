@@ -206,9 +206,9 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
       continue;
     if (tmp_jet_nt < minNtracksHighPt_ && tmp_jet_pt > 400)
       continue;
-    if (displaced_ && !IsDisplaced) 
-      continue; 
-    
+    if (displaced_ && !IsDisplaced)
+      continue;
+
     if (debug_) {
       sumPx_ += tmp_jet_px_;
       sumPy_ += tmp_jet_py_;
