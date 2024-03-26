@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <regex> // regular expression
 
 /**
    @short plugin parses the module/cell locator files to produce the indexer records
@@ -115,30 +116,43 @@ void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
   auto nerx = defaultNerx;
   auto defaultTypeNWords = cellIndexer_.getNWordsExpectedFor(defaultTypeCodeIdx);
   auto nwords = defaultTypeNWords;
+  //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
+  const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*"); // MM-T
 
   // load module mapping parameters and find ranges
   std::ifstream file(module_filename_.fullPath());
-  std::string line, typecode;
+  std::string line;
   size_t iline(0);
-  int plane, u, v, zside;
-  uint16_t fedid, slinkidx, captureblock, econdidx, captureblockidx;
   while (std::getline(file, line)) {
     iline++;
     if (iline == 1)
       continue;
+    if (line.length()>=1 and line[0]=='#')
+      continue; // ignore line
 
+    std::string typecode, wtypecode; // module and wafer type code
+    int plane, u, v, zside;
+    uint16_t fedid, slinkidx, captureblock, econdidx, captureblockidx;
     std::istringstream stream(line);
     stream >> plane >> u >> v >> typecode >> econdidx >> captureblock >> captureblockidx >> slinkidx >> fedid >> zside;
 
-    if (typecode.find('M') == 0 && typecode.size() > 4)
-      typecode = typecode.substr(0, 4);
+    // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
+    std::smatch typecode_match; // match object for string objects
+    bool matched = std::regex_match(typecode,typecode_match,typecode_regex);
+    if (matched){
+      wtypecode = typecode_match[1].str(); // wafer type following MM-T pattern, e.g. "MH-F"
+    }else{
+      // https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
+      edm::LogWarning("HGCalMappingIndexESSource") << "Could not match module type code to expected pattern: " << typecode;
+    }
 
     try {
-      typecodeidx = cellIndexer_.getEnumFromTypecode(typecode);
-      nwords = cellIndexer_.getNWordsExpectedFor(typecode);
-      nerx = cellIndexer_.getNErxExpectedFor(typecode);
+      typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+      nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
+      nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
     } catch (cms::Exception& e) {
       edm::LogWarning("HGCalMappingIndexESSource") << "Exception caught decoding index for typecode=" << typecode
+                                                   << " (wtypecode=" << wtypecode << ")"
                                                    << " @ plane=" << plane << " u=" << u << " v=" << v << "\n"
                                                    << e.what() << "\n"
                                                    << "===> will assign default (MH-F) which may be inefficient";
@@ -147,7 +161,7 @@ void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
       nerx = defaultNerx;
     }
 
-    modIndexer_.processNewModule(fedid, captureblockidx, econdidx, typecodeidx, nerx, nwords);
+    modIndexer_.processNewModule(fedid, captureblockidx, econdidx, typecodeidx, nerx, nwords, typecode);
   }
 
   modIndexer_.finalize();

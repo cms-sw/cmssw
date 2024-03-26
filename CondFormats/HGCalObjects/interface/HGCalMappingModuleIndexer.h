@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <vector>
+#include <map>
+#include <utility> // for std::pair, std::make_pair
 #include <algorithm>
 
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
@@ -10,6 +12,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /**
    @short this structure holds the indices and types in the readout sequence
@@ -48,7 +51,8 @@ public:
                         uint16_t econdIdx,
                         uint32_t typecodeIdx,
                         uint32_t nerx,
-                        uint32_t nwords) {
+                        uint32_t nwords,
+                        std::string typecode="") {
     //add fed if needed
     if (fedid >= fedReadoutSequences_.size()) {
       fedReadoutSequences_.resize(fedid + 1);
@@ -73,6 +77,17 @@ public:
     globalTypesCounter_[typecodeIdx]++;
     globalTypesNErx_[typecodeIdx] = nerx;
     globalTypesNWords_[typecodeIdx] = nwords;
+
+    //add typecode string to map to retrieve fedId & modId later
+    if (typecode!=""){
+      if (typecodeMap_.find(typecode) != typecodeMap_.end()){ // found key
+        std::pair<uint32_t,uint32_t> idpair = typecodeMap_.at(typecode); // (fedId,modId)
+        edm::LogWarning("HGCalMappingModuleIndexer") << "Found typecode " << typecode << " already in map (fedid,modid)=("
+                                                     << idpair.first << "," << idpair.second << ")! Overwriting with ("
+                                                     << fedid << "," << idx << ")...";
+      }
+      typecodeMap_[typecode] = std::make_pair(fedid,idx);
+    }
   }
 
   /**
@@ -173,6 +188,12 @@ public:
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModule(fedid, nmod);
   };
+  uint32_t getIndexForModule(std::string typecode) const {
+    if (typecodeMap_.find(typecode) == typecodeMap_.end()) // did not find key
+      edm::LogWarning("HGCalMappingModuleIndexer") << "Could not find typecode " << typecode << " in map!";
+    const std::pair<uint32_t,uint32_t> idpair = typecodeMap_.at(typecode); // (fedId,modId)
+    return getIndexForModule(idpair.first,idpair.second);
+  };
   uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t nmod, uint32_t erxidx) const {
     return fedReadoutSequences_[fedid].erxOffsets_[nmod] + erxidx;
   };
@@ -189,7 +210,7 @@ public:
     return getIndexForModuleData(fedid, nmod, erxidx, chidx);
   };
   uint32_t getDenseIndex(HGCalElectronicsId id) const {
-    return getIndexForModuleErx(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx()) ? id.isCM() :
+    return id.isCM() ? getIndexForModuleErx(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx()) : 
            getIndexForModuleData(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx(),id.halfrocChannel());
   };
   int getMaxDataSize() const { return maxDataIdx_; } // useful for setting calib SoA size
@@ -211,6 +232,8 @@ public:
   std::vector<uint32_t> moduleOffsets_, erxOffsets_, dataOffsets_;
   ///< global counters (sizes of vectors)
   uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_;
+  ///< map from module type code string to (fedIdx,modIdx) pair (implemented to retrieve dense index offset)
+  std::map<std::string,std::pair<uint32_t,uint32_t>> typecodeMap_;
 
   ///< max number of main buffers/capture blocks per FED
   constexpr static uint32_t maxCBperFED_ = 10;
