@@ -227,7 +227,7 @@ namespace {
   };
 
   enum class TofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
-  enum class SigmaTofCalc { kCost = 1, kSegm = 2, kMixd = 3};
+  enum class SigmaTofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
 
   const TrackTofPidInfo computeTrackTofPidInfo(float magp2,
                                                float length,
@@ -283,7 +283,7 @@ namespace {
           float res1 = tofpid.pathlength * c_inv * trs.segmentSigmaMom_[trs.nSegment_ - 1] /
                        (magp2 * sqrt(magp2 + 1 / mass_inv2) * mass_inv2);
           float res2 = trs.computeSigmaTof(mass_inv2);
-          res = sqrt(res1*res1 + res2*res2 + 2*res1*res2);
+          res = sqrt(res1 * res1 + res2 * res2 + 2 * res1 * res2);
       }
 
       return res;
