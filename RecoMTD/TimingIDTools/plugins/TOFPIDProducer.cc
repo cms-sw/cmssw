@@ -215,9 +215,9 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
 
     if (sigmat0 > 0. && (!MVASel_ || (MVASel_ && trackMVAQual >= minTrackTimeQuality_))) {
       double rsigmazsq = 1. / track.dzError() / track.dzError();
-      std::array<double> rsigmat = {1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofpi * sigmatofpi),
-                                    1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofk * sigmatofk),
-                                    1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofp * sigmatofp)};
+      std::array<double, 3> rsigmat = {{1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofpi * sigmatofpi),
+                                        1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofk * sigmatofk),
+                                        1. / std::sqrt(sigmatmtd * sigmatmtd + sigmatofp * sigmatofp)}};
 
       //find associated vertex
       int vtxidx = -1;
