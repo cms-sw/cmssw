@@ -174,8 +174,7 @@ void HiFJGridEmptyAreaCalculator::calculateGridRho(const edm::Event& iEvent, con
   edm::Handle<reco::CandidateView> pfCands;
   iEvent.getByToken(pfCandsToken_, pfCands);
   const auto& pfCandidateColl = pfCands.product();
-  for (unsigned icand = 0; icand < pfCandidateColl->size(); icand++) {
-    const auto& pfCandidate = pfCandidateColl->at(icand);
+  for (const auto& pfCandidate : *pfCandidateColl) {
     //use ony the particles within the eta range
     if (pfCandidate.eta() < ymin_ || pfCandidate.eta() > ymax_)
       continue;
@@ -231,17 +230,17 @@ void HiFJGridEmptyAreaCalculator::calculateAreaFractionOfJets(const edm::Event& 
   //calculate jet kt area fraction inside boundary by grid
   totalInboundArea_ = 0;
 
-  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
-    if (jet->eta() < etaminJet_ || jet->eta() > etamaxJet_)
+  for (const auto& jet : *jets) {
+    if (jet.eta() < etaminJet_ || jet.eta() > etamaxJet_)
       continue;
 
-    double areaKt = jet->jetArea();
-    setupGridJet(&*jet);
+    double areaKt = jet.jetArea();
+    setupGridJet(&jet);
     std::vector<std::pair<int, int>> pfIndicesJet;
     std::vector<std::pair<int, int>> pfIndicesJetInbound;
     int nConstitJet = 0;
     int nConstitJetInbound = 0;
-    for (auto daughter : jet->getJetConstituentsQuick()) {
+    for (const auto& daughter : jet.getJetConstituentsQuick()) {
       auto pfCandidate = static_cast<const reco::PFCandidate*>(daughter);
 
       int jeta = tileIndexEtaJet(&*pfCandidate);
@@ -422,9 +421,9 @@ int HiFJGridEmptyAreaCalculator::numJetGridCells(std::vector<std::pair<int, int>
   int highestJEta = lowestJEta;
 
   //for each fixed phi value calculate the number of grids in eta
-  for (unsigned int iconst = 1; iconst < indices.size(); iconst++) {
-    int jphi = indices[iconst].first;
-    int jeta = indices[iconst].second;
+  for (const auto& index : indices) {
+    int jphi = index.first;
+    int jeta = index.second;
     if (jphi == lowestJPhi) {
       if (jeta < lowestJEta)
         lowestJEta = jeta;
