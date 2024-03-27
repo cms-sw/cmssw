@@ -4,8 +4,9 @@
 
 int main() {
   testSerialization<BeamSpotObjects>();
-  testSerialization<SimBeamSpotObjects>();
   testSerialization<BeamSpotOnlineObjects>();
+  testSerialization<SimBeamSpotObjects>();
+  testSerialization<SimBeamSpotHLLHCObjects>();
 
   return 0;
 }

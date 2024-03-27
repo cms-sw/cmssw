@@ -9,6 +9,7 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotHLLHCObjects.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
