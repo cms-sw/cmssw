@@ -1375,7 +1375,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
           if (debug_)
             std::cout << "**MultiRP proton matched to the tag track!**" << std::endl;
           multiRPmatchFound++;
-          h2InterPotEfficiencyMapMultiRP_[pixelDetId]->Fill(expectedTrackX0_Probe, expectedTrackY0_Probe * weight);
+          h2InterPotEfficiencyMapMultiRP_[pixelDetId]->Fill(expectedTrackX0_Probe, expectedTrackY0_Probe, weight);
         }
       }
     }
