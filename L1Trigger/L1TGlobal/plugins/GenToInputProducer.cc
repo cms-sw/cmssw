@@ -33,6 +33,7 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -91,6 +92,7 @@ namespace l1t {
     int bxLast_;
 
     int maxNumMuCands_;
+    int maxNumMuShowerCands_;
     int maxNumJetCands_;
     int maxNumEGCands_;
     int maxNumTauCands_;
@@ -114,6 +116,11 @@ namespace l1t {
     std::vector<l1t::Muon> muonVec_bxm1;
     std::vector<l1t::Muon> muonVec_bx0;
     std::vector<l1t::Muon> muonVec_bxp1;
+
+    std::vector<l1t::MuonShower> muonShowerVec_bxm2;
+    std::vector<l1t::MuonShower> muonShowerVec_bxm1;
+    std::vector<l1t::MuonShower> muonShowerVec_bx0;
+    std::vector<l1t::MuonShower> muonShowerVec_bxp1;
 
     std::vector<l1t::EGamma> egammaVec_bxm2;
     std::vector<l1t::EGamma> egammaVec_bxm1;
@@ -148,6 +155,7 @@ namespace l1t {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
     produces<BXVector<l1t::Muon>>();
+    produces<BXVector<l1t::MuonShower>>();
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
@@ -158,6 +166,7 @@ namespace l1t {
     bxLast_ = iConfig.getParameter<int>("bxLast");
 
     maxNumMuCands_ = iConfig.getParameter<int>("maxMuCand");
+    maxNumMuShowerCands_ = iConfig.getParameter<int>("maxMuShowerCand");
     maxNumJetCands_ = iConfig.getParameter<int>("maxJetCand");
     maxNumEGCands_ = iConfig.getParameter<int>("maxEGCand");
     maxNumTauCands_ = iConfig.getParameter<int>("maxTauCand");
@@ -193,6 +202,7 @@ namespace l1t {
 
     // Setup vectors
     std::vector<l1t::Muon> muonVec;
+    std::vector<l1t::MuonShower> muonShowerVec;
     std::vector<l1t::EGamma> egammaVec;
     std::vector<l1t::Tau> tauVec;
     std::vector<l1t::Jet> jetVec;
@@ -224,6 +234,7 @@ namespace l1t {
     //outputs
     std::unique_ptr<l1t::EGammaBxCollection> egammas(new l1t::EGammaBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::MuonBxCollection> muons(new l1t::MuonBxCollection(0, bxFirst, bxLast));
+    std::unique_ptr<l1t::MuonShowerBxCollection> muonShowers(new l1t::MuonShowerBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::TauBxCollection> taus(new l1t::TauBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::JetBxCollection> jets(new l1t::JetBxCollection(0, bxFirst, bxLast));
     std::unique_ptr<l1t::EtSumBxCollection> etsums(new l1t::EtSumBxCollection(0, bxFirst, bxLast));
@@ -258,6 +269,22 @@ namespace l1t {
     } else {
       LogTrace("GtGenToInputProducer") << ">>> GenParticles collection not found!" << std::endl;
     }
+
+    // Muon Shower Collection
+
+    bool mus0 = (bool)gRandom->Integer(2);  // should be [0,1] = 1 bit;
+    bool mus1 = (bool)gRandom->Integer(2);
+    bool mus2 = (bool)gRandom->Integer(2);
+    bool mus2Loose = (bool)gRandom->Integer(2);
+    bool musoot0 = (bool)gRandom->Integer(2);
+    bool musoot1 = (bool)gRandom->Integer(2);
+    bool musoot2Loose = (bool)gRandom->Integer(2);
+    //fill a vector of MuonShower objs with only one obj per BX, not one obj per muon obj
+    cout << "GenToInputProducer MuonShower = (MUS0,MUS1,MUS2,MUSOOT0,MUSOOT1) = (" << mus0 << "," << mus1 << "," << mus2
+         << "," << musoot0 << "," << musoot1 << musoot2Loose << ","
+         << ")" << endl;
+    l1t::MuonShower muShower(mus0, musoot0, mus2Loose, musoot2Loose, mus1, musoot1, mus2);
+    muonShowerVec.push_back(muShower);
 
     // Muon Collection
     int numMuCands = int(mu_cands_index.size());
@@ -635,6 +662,28 @@ namespace l1t {
       muonVec.clear();
     }
 
+    // Fill MuonShowers
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm2.size()); iMuShower++) {
+      muonShowers->push_back(-2, muonShowerVec_bxm2[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxm1.size()); iMuShower++) {
+      muonShowers->push_back(-1, muonShowerVec_bxm1[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bx0.size()); iMuShower++) {
+      muonShowers->push_back(0, muonShowerVec_bx0[iMuShower]);
+    }
+    for (int iMuShower = 0; iMuShower < int(muonShowerVec_bxp1.size()); iMuShower++) {
+      muonShowers->push_back(1, muonShowerVec_bxp1[iMuShower]);
+    }
+    if (emptyBxTrailer_ <= (emptyBxEvt_ - eventCnt_)) {
+      for (int iMuShower = 0; iMuShower < int(muonShowerVec.size()); iMuShower++) {
+        muonShowers->push_back(2, muonShowerVec[iMuShower]);
+      }
+    } else {
+      // this event is part of empty trailer...clear out data
+      muonShowerVec.clear();
+    }
+
     // Fill Egammas
     for (int iEG = 0; iEG < int(egammaVec_bxm2.size()); iEG++) {
       egammas->push_back(-2, egammaVec_bxm2[iEG]);
@@ -737,6 +786,7 @@ namespace l1t {
 
     iEvent.put(std::move(egammas));
     iEvent.put(std::move(muons));
+    iEvent.put(std::move(muonShowers));
     iEvent.put(std::move(taus));
     iEvent.put(std::move(jets));
     iEvent.put(std::move(etsums));
@@ -744,6 +794,7 @@ namespace l1t {
 
     // Now shift the bx data by one to prepare for next event.
     muonVec_bxm2 = muonVec_bxm1;
+    muonShowerVec_bxm2 = muonShowerVec_bxm1;
     egammaVec_bxm2 = egammaVec_bxm1;
     tauVec_bxm2 = tauVec_bxm1;
     jetVec_bxm2 = jetVec_bxm1;
@@ -751,6 +802,7 @@ namespace l1t {
     extCond_bxm2 = extCond_bxm1;
 
     muonVec_bxm1 = muonVec_bx0;
+    muonShowerVec_bxm1 = muonShowerVec_bx0;
     egammaVec_bxm1 = egammaVec_bx0;
     tauVec_bxm1 = tauVec_bx0;
     jetVec_bxm1 = jetVec_bx0;
@@ -758,6 +810,7 @@ namespace l1t {
     extCond_bxm1 = extCond_bx0;
 
     muonVec_bx0 = muonVec_bxp1;
+    muonShowerVec_bx0 = muonShowerVec_bxp1;
     egammaVec_bx0 = egammaVec_bxp1;
     tauVec_bx0 = tauVec_bxp1;
     jetVec_bx0 = jetVec_bxp1;
@@ -765,6 +818,7 @@ namespace l1t {
     extCond_bx0 = extCond_bxp1;
 
     muonVec_bxp1 = muonVec;
+    muonShowerVec_bxp1 = muonShowerVec;
     egammaVec_bxp1 = egammaVec;
     tauVec_bxp1 = tauVec;
     jetVec_bxp1 = jetVec;
