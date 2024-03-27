@@ -1,0 +1,28 @@
+<lcgdict>
+
+  <class name="HGCalDenseIndexerBase" class_version="0">
+    <field name="vmax_" mapping="blob"/>
+  </class> 
+  
+  <class name="HGCalMappingCellIndexer" class_version="0">
+    <field name="typeCodeIndexer_" mapping="blob"/>
+    <field name="maxErx_" mapping="blob"/>
+    <field name="offsets_" mapping="blob"/>
+    <field name="di_" mapping="blob"/>
+  </class> 
+
+  <class name="HGCalFEDReadoutSequence_t" class_version="0">
+    <field name="readoutTypes_" mapping="blob"/>
+    <field name="modOffsets_" mapping="blob"/>
+    <field name="erxOffsets_" mapping="blob"/>
+    <field name="chDataOffsets_" mapping="blob"/>
+  </class> 
+  
+  <class name="HGCalMappingModuleIndexer" class_version="0">
+    <field name="fedReadoutSequences_" mapping="blob"/>
+    <field name="globalTypesCounter_" mapping="blob"/>
+    <field name="globalTypesNWords_" mapping="blob"/>
+    <field name="globalTypesOffsets_" mapping="blob"/>
+  </class>
+
+</lcgdict>
