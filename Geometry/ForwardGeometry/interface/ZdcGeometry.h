@@ -23,11 +23,11 @@ public:
   typedef PZdcRcd PGeometryRecord;
   typedef HcalZDCDetId DetIdType;
 
-  enum { k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing };
+  static constexpr int k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing;
 
-  enum { k_NumberOfShapes = 3 };
+  static constexpr int k_NumberOfShapes = 3;
 
-  enum { k_NumberOfParametersPerShape = 4 };
+  static constexpr int k_NumberOfParametersPerShape = 4;
 
   static std::string dbString() { return "PZdcRcd"; }
 

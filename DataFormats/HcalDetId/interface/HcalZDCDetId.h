@@ -200,7 +200,7 @@ private:
 public:
   constexpr static int32_t kSizeForDenseIndexingRun1 = 2 * kDepRun1;
   constexpr static int32_t kSizeForDenseIndexingRun3 = 2 * kDepRun3;
-  enum { kSizeForDenseIndexing = kSizeForDenseIndexingRun1 };
+  constexpr static int32_t kSizeForDenseIndexing = kSizeForDenseIndexingRun1;
 };
 
 std::ostream& operator<<(std::ostream&, const HcalZDCDetId& id);

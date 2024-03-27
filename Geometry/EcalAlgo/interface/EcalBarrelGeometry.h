@@ -37,11 +37,11 @@ public:
 
   typedef EBDetId DetIdType;
 
-  enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing };
+  static constexpr int k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing;
 
-  enum { k_NumberOfShapes = 17 };
+  static constexpr int k_NumberOfShapes = 17;
 
-  enum { k_NumberOfParametersPerShape = 11 };
+  static constexpr int k_NumberOfParametersPerShape = 11;
 
   static std::string dbString() { return "PEcalBarrelRcd"; }
 
