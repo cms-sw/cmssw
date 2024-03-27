@@ -123,10 +123,12 @@ namespace edm {
     return psetDesc_.operator->();
   }
 
-  void ParameterDescription<ParameterSetDescription>::writeCfi_(std::ostream& os, int indentation) const {
+  void ParameterDescription<ParameterSetDescription>::writeCfi_(std::ostream& os,
+                                                                int indentation,
+                                                                CfiOptions& options) const {
     bool startWithComma = false;
     indentation += 2;
-    psetDesc_->writeCfi(os, startWithComma, indentation);
+    psetDesc_->writeCfi(os, startWithComma, indentation, options);
   }
 
   void ParameterDescription<ParameterSetDescription>::writeDoc_(std::ostream&, int /*indentation*/) const {}
@@ -338,34 +340,42 @@ namespace edm {
     return pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
   }
 
-  void ParameterDescription<std::vector<ParameterSet> >::writeOneElementToCfi(ParameterSet const& pset,
-                                                                              std::ostream& os,
-                                                                              int indentation,
-                                                                              bool& nextOneStartsWithAComma) {
+  void ParameterDescription<std::vector<ParameterSet> >::writeOneElementToCfi(
+      ParameterSet const& pset, std::ostream& os, int indentation, CfiOptions& options, bool& nextOneStartsWithAComma) {
     if (nextOneStartsWithAComma)
       os << ",";
     nextOneStartsWithAComma = true;
     os << "\n";
     printSpaces(os, indentation + 2);
 
+    //if (not writeOnlyLabelValue(options)) {
     os << "cms.PSet(";
+    //} else {
+    //  os << "dict(";
+    //}
 
     bool startWithComma = false;
     int indent = indentation + 4;
 
     ParameterSetDescription psetDesc;
     fillDescriptionFromPSet(pset, psetDesc);
-    psetDesc.writeCfi(os, startWithComma, indent);
+    CfiOptions ops = cfi::Full{};
+    psetDesc.writeCfi(os, startWithComma, indent, ops);
 
     os << ")";
   }
 
-  void ParameterDescription<std::vector<ParameterSet> >::writeCfi_(std::ostream& os, int indentation) const {
+  void ParameterDescription<std::vector<ParameterSet> >::writeCfi_(std::ostream& os,
+                                                                   int indentation,
+                                                                   CfiOptions& options) const {
     bool nextOneStartsWithAComma = false;
-    for_all(
-        vPset_,
-        std::bind(
-            &writeOneElementToCfi, std::placeholders::_1, std::ref(os), indentation, std::ref(nextOneStartsWithAComma)));
+    for_all(vPset_,
+            std::bind(&writeOneElementToCfi,
+                      std::placeholders::_1,
+                      std::ref(os),
+                      indentation,
+                      options,
+                      std::ref(nextOneStartsWithAComma)));
     os << "\n";
     printSpaces(os, indentation);
   }

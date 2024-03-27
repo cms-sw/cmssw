@@ -76,7 +76,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override;
 
   private:
-    void writeTemplate(std::ostream& os, int indentation) const override;
+    void writeTemplate(std::ostream& os, int indentation, CfiOptions&) const override;
     void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
     bool hasNestedContent_() const override;

@@ -14,6 +14,11 @@
 #include <set>
 #include <iosfwd>
 #include <memory>
+#include <variant>
+#include <optional>
+#include <unordered_map>
+#include <vector>
+#include <cassert>
 
 namespace edm {
 
@@ -65,6 +70,119 @@ namespace edm {
 
   std::string parameterTypeEnumToString(ParameterTypes iType);
 
+  namespace cfi {
+    struct Paths {
+      std::optional<std::unordered_map<std::string, Paths>> nodes_;
+    };
+    struct Full {};
+    struct Default {
+      void pathMustBeFull() {
+        Paths* p = &fullPaths_;
+        for (auto n : presentPath_) {
+          if (not p->nodes_) {
+            p->nodes_ = std::unordered_map<std::string, Paths>();
+          }
+          p = &(p->nodes_.value().emplace(n, Paths{})).first->second;
+        }
+      }
+      void pushNode(std::string_view iNode) { presentPath_.push_back(iNode); }
+      void popNode() {
+        assert(not presentPath_.empty());
+        presentPath_.pop_back();
+      }
+
+      Paths releasePaths() { return std::move(fullPaths_); }
+
+    private:
+      std::vector<std::string_view> presentPath_;
+      Paths fullPaths_;
+    };
+    struct LabelValue {
+      LabelValue(Paths iPaths) : paths_(iPaths) {}
+      bool needToSwitchToFull(std::string_view iNode) {
+        presentPath_.push_back(iNode);
+        if (not paths_.nodes_.has_value()) {
+          return false;
+        }
+        const Paths* p = &paths_;
+        for (auto const& n : presentPath_) {
+          if (not paths_.nodes_.has_value()) {
+            return false;
+          }
+          auto f = paths_.nodes_->find(std::string(n));
+          if (f == paths_.nodes_->end()) {
+            return false;
+          }
+          p = &f->second;
+        }
+        return not p->nodes_.has_value();
+      }
+      void popNode() {
+        assert(not presentPath_.empty());
+        presentPath_.pop_back();
+      }
+
+    private:
+      std::vector<std::string_view> presentPath_;
+      Paths paths_;
+    };
+
+    using CfiOptions = std::variant<cfi::Full, cfi::Default, cfi::LabelValue>;
+
+    inline void pathMustBeFull(CfiOptions& iOps) noexcept {
+      if (std::holds_alternative<cfi::Default>(iOps)) {
+        std::get<cfi::Default>(iOps).pathMustBeFull();
+      }
+    }
+    inline void pathMustBeFull(CfiOptions& iOps, std::string_view iNode) noexcept {
+      if (std::holds_alternative<cfi::Default>(iOps)) {
+        auto& d = std::get<cfi::Default>(iOps);
+        d.pushNode(iNode);
+        d.pathMustBeFull();
+        d.popNode();
+      }
+    }
+    [[nodiscard]] inline bool writeOnlyLabelValue(CfiOptions const& iOps) noexcept {
+      return std::holds_alternative<cfi::LabelValue>(iOps);
+    }
+
+    struct NodeGuard {
+      NodeGuard(CfiOptions& iOp) : options_(&iOp) {}
+      NodeGuard() = delete;
+      NodeGuard(NodeGuard const&) = delete;
+      NodeGuard& operator=(NodeGuard const&) = delete;
+      NodeGuard(NodeGuard&& iOther) : options_{iOther.options_} { iOther.options_ = nullptr; }
+      NodeGuard& operator=(NodeGuard&& iOther) {
+        NodeGuard temp{std::move(iOther)};
+        options_ = temp.options_;
+        temp.options_ = nullptr;
+        return *this;
+      }
+      ~NodeGuard() {
+        if (nullptr == options_) {
+          return;
+        }
+        if (std::holds_alternative<Default>(*options_)) {
+          std::get<Default>(*options_).popNode();
+        } else if (std::holds_alternative<LabelValue>(*options_)) {
+          std::get<LabelValue>(*options_).popNode();
+        }
+      }
+      CfiOptions* options_;
+    };
+
+    [[nodiscard]] inline std::pair<bool, NodeGuard> needToSwitchToFull(std::string_view iNode,
+                                                                       CfiOptions& iOpt) noexcept {
+      if (std::holds_alternative<LabelValue>(iOpt)) {
+        return std::pair(std::get<LabelValue>(iOpt).needToSwitchToFull(iNode), NodeGuard(iOpt));
+      } else if (std::holds_alternative<Default>(iOpt)) {
+        std::get<Default>(iOpt).pushNode(iNode);
+      }
+      return std::pair(false, NodeGuard(iOpt));
+    }
+  }  // namespace cfi
+  using CfiOptions = cfi::CfiOptions;
+
   struct ParameterTypeToEnum {
     template <class T>
     static ParameterTypes toEnum();
@@ -115,8 +233,13 @@ namespace edm {
     // ParameterSetDescription where the algorithm fails to write
     // a valid cfi, in some cases the description can be so pathological
     // that it is impossible to write a cfi that will pass validation.
-    void writeCfi(std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
-      writeCfi_(os, optional, startWithComma, indentation, wroteSomething);
+    void writeCfi(std::ostream& os,
+                  bool optional,
+                  bool& startWithComma,
+                  int indentation,
+                  CfiOptions& options,
+                  bool& wroteSomething) const {
+      writeCfi_(os, optional, startWithComma, indentation, options, wroteSomething);
     }
 
     // Print out the description in human readable format
@@ -222,8 +345,12 @@ namespace edm {
 
     virtual void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const = 0;
 
-    virtual void writeCfi_(
-        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const = 0;
+    virtual void writeCfi_(std::ostream& os,
+                           bool optional,
+                           bool& startWithComma,
+                           int indentation,
+                           CfiOptions&,
+                           bool& wroteSomething) const = 0;
 
     virtual void print_(std::ostream&, bool /*optional*/, bool /*writeToCfi*/, DocFormatHelper&) const {}
 
@@ -248,27 +375,27 @@ namespace edm {
 
   // operator>> ---------------------------------------------
 
-  std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue, ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<bool>> operator>>(bool caseValue, ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int caseValue, ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<int>> operator>>(int caseValue, ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(std::string const& caseValue,
-                                                                      ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(std::string const& caseValue,
+                                                                     ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(char const* caseValue,
-                                                                      ParameterDescriptionNode const& node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(char const* caseValue,
+                                                                     ParameterDescriptionNode const& node);
 
-  std::unique_ptr<ParameterDescriptionCases<bool> > operator>>(bool caseValue,
-                                                               std::unique_ptr<ParameterDescriptionNode> node);
-
-  std::unique_ptr<ParameterDescriptionCases<int> > operator>>(int caseValue,
+  std::unique_ptr<ParameterDescriptionCases<bool>> operator>>(bool caseValue,
                                                               std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(std::string const& caseValue,
-                                                                      std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<int>> operator>>(int caseValue,
+                                                             std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::unique_ptr<ParameterDescriptionCases<std::string> > operator>>(char const* caseValue,
-                                                                      std::unique_ptr<ParameterDescriptionNode> node);
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(std::string const& caseValue,
+                                                                     std::unique_ptr<ParameterDescriptionNode> node);
+
+  std::unique_ptr<ParameterDescriptionCases<std::string>> operator>>(char const* caseValue,
+                                                                     std::unique_ptr<ParameterDescriptionNode> node);
 
   // operator&& ---------------------------------------------
 

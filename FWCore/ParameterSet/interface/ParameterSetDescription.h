@@ -302,7 +302,7 @@ namespace edm {
 
     void validate(ParameterSet& pset) const;
 
-    void writeCfi(std::ostream& os, bool startWithComma, int indentation) const;
+    void writeCfi(std::ostream& os, bool startWithComma, int indentation, CfiOptions&) const;
 
     void print(std::ostream& os, DocFormatHelper& dfh) const;
 
@@ -360,6 +360,7 @@ namespace edm {
                           std::ostream& os,
                           bool& startWithComma,
                           int indentation,
+                          CfiOptions&,
                           bool& wroteSomething);
 
     static void printNode(SetDescriptionEntry const& entry, std::ostream& os, DocFormatHelper& dfh);
