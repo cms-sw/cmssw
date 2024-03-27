@@ -1,0 +1,31 @@
+<export>
+  <lib name="1"/>  
+  <use name="DataFormats/L1TMuon"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/RPCGeometry"/>  
+  <use name="root"/> 
+  <use name="xerces-c"/>
+</export>
+
+<use name="xerces-c"/>
+<use name="root"/>
+<use name="roofit"/>
+
+<!-- <use lib=boost_timer />  -->
+<lib name="boost_timer" />
+
+<use name="DataFormats/L1TMuon"/>
+
+<use name="Geometry/Records"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/RPCGeometry"/>  
+
+<use name="L1Trigger/DTUtilities"/>
+<use name="L1Trigger/L1TMuonOverlapPhase1"/>
+
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
