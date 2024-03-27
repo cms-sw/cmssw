@@ -101,7 +101,7 @@ namespace pixelCPEforDevice {
 
     Frame frame;
     // estimated bias for generic CPE in cm
-    float deltax[CPEFastParametrisation::kGenErrorQBins], deltay[CPEFastParametrisation::kGenErrorQBins];
+    float deltax[kGenErrorQBins], deltay[kGenErrorQBins];
     // estimated bias for generic CPE in micron for dimension-1 clusters (single or double-width pixels) in cm
     // they do not depend on charge, so no splitting per qBins
     float dx1, dx2, dy1, dy2;
@@ -363,7 +363,7 @@ namespace pixelCPEforDevice {
     // whereas in CondFormats/SiPixelTransient/src/SiPixelGenError.cc it is the opposite
     // so we reverse the bin here -> kGenErrorQBins - 1 - bin
     int bin = 0;
-    bin = CPEFastParametrisation::kGenErrorQBins - 1 - cp.status[ic].qBin;
+    bin = kGenErrorQBins - 1 - cp.status[ic].qBin;
 
     if (cp.status[ic].isOneX) {  // size=1
       //for size = 1, the Lorentz shift is already accounted by the irradiation correction
