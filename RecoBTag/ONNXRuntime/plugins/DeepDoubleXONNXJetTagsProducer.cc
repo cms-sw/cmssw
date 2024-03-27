@@ -14,7 +14,7 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
+#include "PhysicsTools/ONNXRuntime/interface/ONNXSessionOptions.h"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -121,6 +121,8 @@ void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
            "CvB" >> (PDPSD("flav_names", std::vector<std::string>{"probHbb", "probHcc"}, true) and
                      PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.onnx"), true));
   };
+  desc.add<std::string>("onnx_backend", "default");
+
   auto descBvL(desc);
   descBvL.ifValue(edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
   descriptions.add("pfDeepDoubleBvLJetTags", descBvL);
@@ -135,7 +137,9 @@ void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
 }
 
 std::unique_ptr<ONNXRuntime> DeepDoubleXONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
+  auto session_options = cms::Ort::getSessionOptions(iConfig.getParameter<std::string>("onnx_backend"));
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),
+                                       &session_options);
 }
 
 void DeepDoubleXONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
