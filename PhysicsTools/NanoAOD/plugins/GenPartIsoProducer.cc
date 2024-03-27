@@ -101,13 +101,16 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       thisLep.SetPtEtaPhiM(lep_dressed.Pt(), lep_dressed.Eta(), lep_dressed.Phi(), lep_dressed.M());
       this_GENiso = computeIso(thisLep, packedgenParticles, gen_fsrset, true);
       Lepts_RelIso.push_back(this_GENiso);
-    } else {
-      float this_GENiso_nolep = 0.0;
+    } else if (abs(genPart->pdgId()) == 22) {
+      float this_GENiso_gamma = 0.0;
       std::set<int> gen_fsrset_nolep;
       TLorentzVector thisPart;
       thisPart.SetPtEtaPhiE(genPart->pt(), genPart->eta(), genPart->phi(), genPart->energy());
-      this_GENiso_nolep = computeIso(thisPart, packedgenParticles, gen_fsrset_nolep, false);
-      Lepts_RelIso.push_back(this_GENiso_nolep);
+      this_GENiso_gamma = computeIso(thisPart, packedgenParticles, gen_fsrset_nolep, false);
+      Lepts_RelIso.push_back(this_GENiso_gamma);
+    } else {
+      float this_GENiso_other = 0.0;
+      Lepts_RelIso.push_back(this_GENiso_other);
     }
   }
 
