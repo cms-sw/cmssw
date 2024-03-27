@@ -1,0 +1,4 @@
+<bin file="test_catch2_*.cc" name="testDataFormatsDTRecHitCatch2">
+  <use name="DataFormats/DTRecHit"/>
+  <use name="catch2"/>
+</bin>
