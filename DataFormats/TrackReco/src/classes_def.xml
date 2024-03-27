@@ -1,5 +1,39 @@
 <lcgdict>
 
+  <class name="reco::storage::TrackMomentumValues" ClassVersion="3">
+    <version ClassVersion="3" checksum="3766989023"/>
+  </class>
+  <class name="reco::storage::TrackMomentumStorage" ClassVersion="3">
+      <version ClassVersion="3" checksum="4153617590"/>
+  </class>
+  <ioread
+   sourceClass="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>"
+    targetClass="reco::storage::TrackMomentumStorage"
+    version="[1-]"
+></ioread>
+<ioread
+   sourceClass="ROOT::Math::Cartesian3D<Double32_t>"
+    targetClass="reco::storage::TrackMomentumValues"
+    version="[1-]"
+></ioread>
+
+  <class name="reco::storage::TrackPositionValues" ClassVersion="3">
+    <version ClassVersion="3" checksum="2475690070"/>
+  </class>
+  <class name="reco::storage::TrackPositionStorage" ClassVersion="3">
+      <version ClassVersion="3" checksum="1497277170"/>
+  </class>
+  <ioread
+   sourceClass="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>"
+    targetClass="reco::storage::TrackPositionStorage"
+    version="[1-]"
+></ioread>
+<ioread
+   sourceClass="ROOT::Math::Cartesian3D<Double32_t>"
+    targetClass="reco::storage::TrackPositionValues"
+    version="[1-]"
+></ioread>
+
   <class name="reco::TrackBase::AlgoMask"/>
   <class name="reco::HitPattern" ClassVersion="13">
       <version ClassVersion="13" checksum="2211596316"/>
@@ -10,7 +44,8 @@
    <version ClassVersion="11" checksum="639174599"/>
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="20">
+  <class name="reco::TrackBase" ClassVersion="21">
+   <version ClassVersion="21" checksum="3137401909"/>
    <version ClassVersion="20" checksum="1589774059"/>
    <version ClassVersion="19" checksum="4090229239"/>
    <version ClassVersion="18" checksum="1935215297"/>
@@ -20,12 +55,10 @@
    <version ClassVersion="14" checksum="3929365050"/>
    <version ClassVersion="13" checksum="1244921154"/>
    <version ClassVersion="12" checksum="2704717983"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
-    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="vertex_" iotype="reco::storage::TrackPositionStorage" /> 
+    <field name="momentum_" iotype="reco::storage::TrackMomentumStorage" /> 
 
    <version ClassVersion="10" checksum="3019978065"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
-    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
  <ioread
     sourceClass="reco::HitPattern"
@@ -336,7 +369,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="20">
+  <class name="reco::Track" ClassVersion="21">
+   <version ClassVersion="21" checksum="2061134770"/>
    <version ClassVersion="20" checksum="2864582648"/>
    <version ClassVersion="19" checksum="362503460"/>
    <version ClassVersion="18" checksum="3235158110"/>

@@ -30,5 +30,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
+#include "DataFormats/TrackReco/src/TrackMomentumStorage.h"
+#include "DataFormats/TrackReco/src/TrackPositionStorage.h"
 
 #include <vector>
