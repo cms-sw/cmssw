@@ -12,7 +12,7 @@ class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
         self._inProcess = False
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         self._inProcess = True
         proc._placeService(self.type_(),self)
     def insertInto(self, processDesc):
@@ -20,11 +20,11 @@ class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
         newpset.addString(True, "@service_type", self.type_())
         self.insertContentsInto(newpset)
         processDesc.addService(newpset)
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         return "process." + self.type_()
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return True
-    def isLeaf(self):
+    def isLeaf(self) -> bool:
         return True
     def __str__(self):
         return str(self.type_())
@@ -33,41 +33,41 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
     def __init__(self,type_,*arg,**kargs):
         super(ESSource,self).__init__(type_,*arg,**kargs)
         saveOrigin(self, 1)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         if name == '':
             name=self.type_()
         proc._placeESSource(name,self)
-    def moduleLabel_(self,myname):
+    def moduleLabel_(self,myname:str) -> str:
        result = myname
        if self.type_() == myname:
            result = ""
        return result
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str) -> str:
        result = self.type_() + "@" + self.moduleLabel_(myname)
        return result
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return True
-    def isLeaf(self):
+    def isLeaf(self) -> bool:
         return True
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     def __init__(self,type_,*arg,**kargs):
         super(ESProducer,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
-    def moduleLabel_(self,myname):
+    def moduleLabel_(self,myname:str) -> str:
        result = myname
        if self.type_() == myname:
            result = ''
        return result
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str) -> str:
        result = self.type_() + "@" + self.moduleLabel_(myname)
        return result
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return True
-    def isLeaf(self):
+    def isLeaf(self) -> bool:
         return True
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -87,7 +87,7 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer" 
         ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("Orange/ExtraPulp"))
     """
-    def __init__(self,type_,targetLabel='',*arg,**kargs):
+    def __init__(self,type_,targetLabel:str='',*arg,**kargs):
         super(ESPrefer,self).__init__(type_,*arg,**kargs)
         self._targetLabel = targetLabel
         if targetLabel is None:
@@ -96,20 +96,20 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
             for k,v in kargs.items():
                 if not isinstance(v,vstring):
                     raise RuntimeError('ESPrefer only allows vstring attributes. "'+k+'" is a '+str(type(v)))
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeESPrefer(name,self)
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str) -> str:
         # the C++ parser can give it a name like "label@prefer".  Get rid of that.
         return "esprefer_" + self.type_() + "@" + self._targetLabel
     def copy(self):
         returnValue = ESPrefer.__new__(type(self))
         returnValue.__init__(self.type_(), self._targetLabel)
         return returnValue
-    def moduleLabel_(self, myname):
+    def moduleLabel_(self, myname:str) -> str:
         return self._targetLabel
-    def targetLabel_(self):
+    def targetLabel_(self) -> str:
         return self._targetLabel
-    def dumpPythonAs(self, label, options=PrintOptions()):
+    def dumpPythonAs(self, label, options:PrintOptions=PrintOptions()) -> str:
        result = options.indentation()
        basename = self._targetLabel
        if basename == '':
@@ -151,7 +151,7 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
     def setPrerequisites(self, *libs):
         self.__dict__["libraries_"] = libs
 
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname:str):
         if "libraries_" in self.__dict__:
             from ctypes import LibraryLoader, CDLL
             import platform
@@ -163,7 +163,7 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
 class EDProducer(_Module):
     def __init__(self,type_,*arg,**kargs):
         super(EDProducer,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeProducer(name,self)
     def _isTaskComponent(self):
         return True
@@ -171,7 +171,7 @@ class EDProducer(_Module):
 class EDFilter(_Module):
     def __init__(self,type_,*arg,**kargs):
         super(EDFilter,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeFilter(name,self)
     def _isTaskComponent(self):
         return True
@@ -179,36 +179,36 @@ class EDFilter(_Module):
 class EDAnalyzer(_Module):
     def __init__(self,type_,*arg,**kargs):
         super(EDAnalyzer,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeAnalyzer(name,self)
 
 
 class OutputModule(_Module):
     def __init__(self,type_,*arg,**kargs):
         super(OutputModule,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeOutputModule(name,self)
 
 
 class Source(_ConfigureComponent,_TypedParameterizable):
     def __init__(self,type_,*arg,**kargs):
         super(Source,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeSource(name,self)
-    def moduleLabel_(self,myname):
+    def moduleLabel_(self,myname:str):
         return "@main_input"
-    def nameInProcessDesc_(self,myname):
+    def nameInProcessDesc_(self,myname:str):
         return "@main_input"
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
     def __init__(self,type_,*arg,**kargs):
         super(Looper,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeLooper(name,self)
-    def moduleLabel_(self,myname):
+    def moduleLabel_(self,myname:str):
         return "@main_looper"
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str):
         return "@main_looper"
 
 
@@ -252,7 +252,7 @@ class SwitchProducer(EDProducer):
         self.__setParameters(kargs)
         self._isModified = False
 
-    def setLabel(self, label):
+    def setLabel(self, label:str):
         super().setLabel(label)
         # SwitchProducer owns the contained modules, and therefore
         # need to set / unset the label for them explicitly here
@@ -282,10 +282,10 @@ class SwitchProducer(EDProducer):
         return self.__dict__[self._chooseCase(accelerators)]
 
     @staticmethod
-    def __typeIsValid(typ):
+    def __typeIsValid(typ) -> bool:
         return (isinstance(typ, EDProducer) and not isinstance(typ, SwitchProducer)) or isinstance(typ, EDAlias)
 
-    def __addParameter(self, name, value):
+    def __addParameter(self, name:str, value):
         if not self.__typeIsValid(value):
             raise TypeError(name+" does not already exist, so it can only be set to a cms.EDProducer or cms.EDAlias")
         if name not in self._caseFunctionDict:
@@ -305,7 +305,7 @@ class SwitchProducer(EDProducer):
         for name, value in parameters.items():
             self.__addParameter(name, value)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name:str, value):
         # Following snippet copied and customized from
         # _Parameterizable in order to support Modifier.toModify
         #
@@ -355,7 +355,7 @@ class SwitchProducer(EDProducer):
         saveOrigin(returnValue, 1)
         return returnValue
 
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         # Note that if anyone uses the generic SwitchProducer instead
         # of a derived-one, the information on the functions for the
         # producer decision is lost
@@ -374,11 +374,11 @@ class SwitchProducer(EDProducer):
         # XXX FIXME handle SwitchProducer dependencies
         return []
 
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str):
         return myname
-    def moduleLabel_(self, myname):
+    def moduleLabel_(self, myname:str):
         return myname
-    def caseLabel_(self, name, case):
+    def caseLabel_(self, name:str, case:str):
         return name+"@"+case
     def modulesForConditionalTask_(self):
         # Need the contained modules (not EDAliases) for ConditionalTask
@@ -388,7 +388,7 @@ class SwitchProducer(EDProducer):
             if not isinstance(caseobj, EDAlias):
                 ret.append(caseobj)
         return ret
-    def appendToProcessDescLists_(self, modules, aliases, myname):
+    def appendToProcessDescLists_(self, modules, aliases, myname:str):
         # This way we can insert the chosen EDProducer to @all_modules
         # so that we get easily a worker for it
         modules.append(myname)
@@ -398,7 +398,7 @@ class SwitchProducer(EDProducer):
             else:
                 modules.append(self.caseLabel_(myname, case))
 
-    def insertInto(self, parameterSet, myname, accelerators):
+    def insertInto(self, parameterSet, myname:str, accelerators):
         for case in self.parameterNames_():
             producer = self.__dict__[case]
             producer.insertInto(parameterSet, self.caseLabel_(myname, case))
@@ -410,7 +410,7 @@ class SwitchProducer(EDProducer):
         newpset.addString(False, "@chosen_case", self.caseLabel_(myname, self._chooseCase(accelerators)))
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeSwitchProducer(name,self)
 #        for case in self.parameterNames_():
 #            caseLabel = self.caseLabel_(name, case)
