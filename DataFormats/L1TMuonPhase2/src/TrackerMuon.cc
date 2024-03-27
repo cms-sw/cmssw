@@ -1,4 +1,3 @@
-
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 using namespace l1t;

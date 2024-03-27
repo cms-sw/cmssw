@@ -67,6 +67,10 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         VxMinNStub = cms.uint32(4),
         # Minimum number of stubs in PS modules associated to a track
         VxMinNStubPS = cms.uint32(3),
+        # Track weight NN graph 
+        TrackWeightGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_WeightModelGraph.pb"),
+        # Pattern recognition NN graph
+        PatternRecGraph = cms.FileInPath("L1Trigger/VertexFinder/data/NNVtx_PatternModelGraph.pb"),
     ),
   # Debug printout
   debug  = cms.uint32(0)

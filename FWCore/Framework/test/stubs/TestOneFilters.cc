@@ -34,7 +34,7 @@ namespace edmtest {
     public:
       explicit SharedResourcesFilter(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
         produces<int>();
-        usesResource();
+        usesResource("foo");
       }
       const unsigned int trans_;
       mutable std::atomic<unsigned int> m_count{0};

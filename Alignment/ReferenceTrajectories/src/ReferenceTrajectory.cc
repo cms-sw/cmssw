@@ -1024,7 +1024,7 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
       }
     } else {
       // GBL add scatterer to point
-      aGblPoint.addScatterer(scatterer, scatPrecision.inverse());
+      aGblPoint.addScatterer(scatterer, Eigen::Matrix2d(scatPrecision.inverse()));
     }
     // add point to list
     GblPointList.push_back(aGblPoint);
@@ -1129,7 +1129,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     }
 
     // GBL add scatterer to point
-    aGblPoint.addScatterer(scatterer, scatPrecDiag);
+    aGblPoint.addScatterer(scatterer, Eigen::Vector2d(scatPrecDiag));
 
     // add point to list
     GblPointList.push_back(aGblPoint);

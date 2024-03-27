@@ -90,15 +90,17 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2023 detector for Heavy Ion
     'phase1_2023_realistic_hi'     :    '140X_mcRun3_2023_realistic_HI_v3',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2024
-    'phase1_2024_design'           :    '140X_mcRun3_2024_design_v3',
+    'phase1_2024_design'           :    '140X_mcRun3_2024_design_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        :    '140X_mcRun3_2024_realistic_v4',
+    'phase1_2024_realistic'        :    '140X_mcRun3_2024_realistic_v7',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
-    'phase1_2024_cosmics'          :    '140X_mcRun3_2024cosmics_realistic_deco_v4',
+    'phase1_2024_cosmics'          :    '140X_mcRun3_2024cosmics_realistic_deco_v7',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
-    'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v2',
+    'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v5',
+    # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for Heavy Ion
+    'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '140X_mcRun4_realistic_v2'
+    'phase2_realistic'             :    '140X_mcRun4_realistic_v3'
 }
 
 aliases = {

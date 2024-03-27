@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..tasks.HLTDoFullUnpackingEgammaEcalTask_cfi import *
+from ..modules.bunchSpacingProducer_cfi import *
+from ..modules.ecalDetailedTimeRecHit_cfi import *
+from ..modules.ecalMultiFitUncalibRecHit_cfi import *
+from ..modules.hltEcalDetIdToBeRecovered_cfi import *
+from ..modules.hltEcalDigis_cfi import *
+from ..modules.hltEcalRecHit_cfi import *
 
-HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-    HLTDoFullUnpackingEgammaEcalTask
-)
+HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(hltEcalDigis+bunchSpacingProducer+hltEcalDetIdToBeRecovered+ecalMultiFitUncalibRecHit+hltEcalRecHit+ecalDetailedTimeRecHit)

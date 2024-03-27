@@ -196,8 +196,7 @@ elif runTypeName == 'hi_run':
     process.ecalDigisCPU.InputLabel = 'rawDataRepacker'
 elif runTypeName == 'hpu_run':
     if not unitTest:
-        process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
-
+        process.source.SelectEvents = cms.untracked.vstring("*")
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

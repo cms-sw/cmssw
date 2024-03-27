@@ -178,7 +178,7 @@ namespace ecaldqm {
         DetId id(GetElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
         meFEStatus.fill(getEcalDQMSetupObjects(), id, status);
         // Fill FE Status Error Map with error states only
-        if (status != Enabled && status != Suppressed && status != FIFOFull && status != FIFOFullL1ADesync &&
+        if (status != Enabled && status != Suppressed && status != ForcedFullSupp && status != FIFOFull &&
             status != ForcedZS)
           meFEStatusErrMapByLumi.fill(getEcalDQMSetupObjects(), id, status);
 

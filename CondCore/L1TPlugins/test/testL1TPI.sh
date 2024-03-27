@@ -27,7 +27,7 @@ getPayloadData.py \
 mv *.png $W_DIR/results/L1TUtmTriggerMenuPlot.png
 
 ####################
-# Test L1UtmTriggerMenu comparison (two IOVs, same tag)
+# Test L1UtmTriggerMenu algo comparison (two IOVs, same tag)
 ####################
 getPayloadData.py \
     --plugin pluginL1TUtmTriggerMenu_PayloadInspector \
@@ -38,10 +38,10 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png $W_DIR/results/L1TUtmTriggerMenu_Compare.png
+mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareAlgos.png
 
 ####################
-# Test L1UtmTriggerMenu comparison (two tags)
+# Test L1UtmTriggerMenu algo comparison (two tags)
 ####################
 getPayloadData.py \
     --plugin pluginL1TUtmTriggerMenu_PayloadInspector \
@@ -54,4 +54,35 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareTwoTags.png
+mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareAlgosTwoTags.png
+
+####################
+# Test L1UtmTriggerMenu conditions comparison (two IOVs, same tag)
+####################
+getPayloadData.py \
+    --plugin pluginL1TUtmTriggerMenu_PayloadInspector \
+    --plot plot_L1TUtmTriggerMenu_CompareConditions \
+    --tag L1TUtmTriggerMenu_Stage2v0_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "375649", "end_iov": "375650"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareConditions.png
+
+####################
+# Test L1UtmTriggerMenu conditions comparison (two tags)
+####################
+getPayloadData.py \
+    --plugin pluginL1TUtmTriggerMenu_PayloadInspector \
+    --plot plot_L1TUtmTriggerMenu_CompareConditionsTwoTags \
+    --tag L1Menu_CollisionsHeavyIons2023_v1_1_4_xml \
+    --tagtwo L1Menu_CollisionsHeavyIons2023_v1_1_5_xml \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareConditionsTwoTags.png
+

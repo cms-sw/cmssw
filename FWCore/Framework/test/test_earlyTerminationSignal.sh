@@ -22,7 +22,7 @@ echo "running cmsRun test_dependentRunDataAndException_cfg.py"
 (cmsRun ${LOCAL_TEST_DIR}/test_dependentRunDataAndException_cfg.py 2>&1 | grep -q "Intentional 'NotFound' exception for testing purposes") || die "dependent Run data and Exceptions failed" $?
 
 echo "running cmsRun test_exceptionAtGlobalBeginRun_cfg.py"
-(cmsRun ${LOCAL_TEST_DIR}/test_exceptionAtGlobalBeginRun_cfg.py 2>&1 | grep -q -v "An exception of category 'transitions' occurred") || die "exception at globalBeginRun failed" $?
+(cmsRun ${LOCAL_TEST_DIR}/test_exceptionAtGlobalBeginRun_cfg.py 2>&1 | grep "Another exception was caught while endJob was running") && die "test_exceptionAtGlobalBeginRun failed, should not be any endJob exceptions" 1
 
 echo "running cmsRun  test_exceptionInShortLumi_cfg.py"
 cmsRun ${LOCAL_TEST_DIR}/test_exceptionInShortLumi_cfg.py; test_failure "test_exceptionInShortLumi_cfg.py failed" $?

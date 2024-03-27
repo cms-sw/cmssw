@@ -1,5 +1,4 @@
 #include <iostream>
-#include <strstream>
 #include <vector>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
