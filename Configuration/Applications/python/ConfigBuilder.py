@@ -1813,13 +1813,16 @@ class ConfigBuilder(object):
         _nanoCustoms = [cust if cust!='' else self.NANODefaultCustom for cust in _nanoCustoms]   
         # build and inject the sequence
         if len(_nanoSeq) < 1 and '@' in stepSpec:
-            raise Exception(f'The specified mapping: {stepSpec} generates an empty NANO sequence. Please provide a valid mappign')
+            raise Exception(f'The specified mapping: {stepSpec} generates an empty NANO sequence. Please provide a valid mapping')
         _seqToSchedule = []
         for _subSeq in _nanoSeq:
             if '.' in _subSeq:
                 _cff,_seq = _subSeq.split('.')
                 self.loadAndRemember(_cff)
                 _seqToSchedule.append(_seq)
+            elif '/' in _subSeq:
+                self.loadAndRemember(_subSeq)
+                _seqToSchedule.append(self.NANODefaultSeq)
             else:
                 _seqToSchedule.append(_subSeq)
         self.scheduleSequence('+'.join(_seqToSchedule), 'nanoAOD_step')

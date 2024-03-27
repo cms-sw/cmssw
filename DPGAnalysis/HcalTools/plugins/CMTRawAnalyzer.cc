@@ -1030,6 +1030,7 @@ private:
   TH2F* h_mapDepth4AmplE34_HO;
   TH2F* h_mapDepth4_HO;
   /////////////////////////////////////////////
+  //-----------------------------------
   TH1F* h_nbadchannels_depth1_HB;
   TH1F* h_runnbadchannels_depth1_HB;
   TH1F* h_runnbadchannelsC_depth1_HB;
@@ -1042,6 +1043,19 @@ private:
   TH1F* h_runbadrate_depth2_HB;
   TH1F* h_runbadrateC_depth2_HB;
   TH1F* h_runbadrate0_depth2_HB;
+  TH1F* h_nbadchannels_depth3_HB;
+  TH1F* h_runnbadchannels_depth3_HB;
+  TH1F* h_runnbadchannelsC_depth3_HB;
+  TH1F* h_runbadrate_depth3_HB;
+  TH1F* h_runbadrateC_depth3_HB;
+  TH1F* h_runbadrate0_depth3_HB;
+  TH1F* h_nbadchannels_depth4_HB;
+  TH1F* h_runnbadchannels_depth4_HB;
+  TH1F* h_runnbadchannelsC_depth4_HB;
+  TH1F* h_runbadrate_depth4_HB;
+  TH1F* h_runbadrateC_depth4_HB;
+  TH1F* h_runbadrate0_depth4_HB;
+  //-----------------------------------
   TH1F* h_nbadchannels_depth1_HE;
   TH1F* h_runnbadchannels_depth1_HE;
   TH1F* h_runnbadchannelsC_depth1_HE;
@@ -1060,12 +1074,38 @@ private:
   TH1F* h_runbadrate_depth3_HE;
   TH1F* h_runbadrateC_depth3_HE;
   TH1F* h_runbadrate0_depth3_HE;
+  TH1F* h_nbadchannels_depth4_HE;
+  TH1F* h_runnbadchannels_depth4_HE;
+  TH1F* h_runnbadchannelsC_depth4_HE;
+  TH1F* h_runbadrate_depth4_HE;
+  TH1F* h_runbadrateC_depth4_HE;
+  TH1F* h_runbadrate0_depth4_HE;
+  TH1F* h_nbadchannels_depth5_HE;
+  TH1F* h_runnbadchannels_depth5_HE;
+  TH1F* h_runnbadchannelsC_depth5_HE;
+  TH1F* h_runbadrate_depth5_HE;
+  TH1F* h_runbadrateC_depth5_HE;
+  TH1F* h_runbadrate0_depth5_HE;
+  TH1F* h_nbadchannels_depth6_HE;
+  TH1F* h_runnbadchannels_depth6_HE;
+  TH1F* h_runnbadchannelsC_depth6_HE;
+  TH1F* h_runbadrate_depth6_HE;
+  TH1F* h_runbadrateC_depth6_HE;
+  TH1F* h_runbadrate0_depth6_HE;
+  TH1F* h_nbadchannels_depth7_HE;
+  TH1F* h_runnbadchannels_depth7_HE;
+  TH1F* h_runnbadchannelsC_depth7_HE;
+  TH1F* h_runbadrate_depth7_HE;
+  TH1F* h_runbadrateC_depth7_HE;
+  TH1F* h_runbadrate0_depth7_HE;
+  //-----------------------------------
   TH1F* h_nbadchannels_depth4_HO;
   TH1F* h_runnbadchannels_depth4_HO;
   TH1F* h_runnbadchannelsC_depth4_HO;
   TH1F* h_runbadrate_depth4_HO;
   TH1F* h_runbadrateC_depth4_HO;
   TH1F* h_runbadrate0_depth4_HO;
+  //-----------------------------------
   TH1F* h_nbadchannels_depth1_HF;
   TH1F* h_runnbadchannels_depth1_HF;
   TH1F* h_runnbadchannelsC_depth1_HF;
@@ -1078,6 +1118,19 @@ private:
   TH1F* h_runbadrate_depth2_HF;
   TH1F* h_runbadrateC_depth2_HF;
   TH1F* h_runbadrate0_depth2_HF;
+  TH1F* h_nbadchannels_depth3_HF;
+  TH1F* h_runnbadchannels_depth3_HF;
+  TH1F* h_runnbadchannelsC_depth3_HF;
+  TH1F* h_runbadrate_depth3_HF;
+  TH1F* h_runbadrateC_depth3_HF;
+  TH1F* h_runbadrate0_depth3_HF;
+  TH1F* h_nbadchannels_depth4_HF;
+  TH1F* h_runnbadchannels_depth4_HF;
+  TH1F* h_runnbadchannelsC_depth4_HF;
+  TH1F* h_runbadrate_depth4_HF;
+  TH1F* h_runbadrateC_depth4_HF;
+  TH1F* h_runbadrate0_depth4_HF;
+  //-----------------------------------
   TH1F* h_bcnnbadchannels_depth1_HB;
   TH1F* h_bcnnbadchannels_depth2_HB;
   TH1F* h_bcnnbadchannels_depth1_HE;
@@ -1086,6 +1139,7 @@ private:
   TH1F* h_bcnnbadchannels_depth4_HO;
   TH1F* h_bcnnbadchannels_depth1_HF;
   TH1F* h_bcnnbadchannels_depth2_HF;
+  //-----------------------------------
   TH1F* h_bcnbadrate0_depth1_HB;
   TH1F* h_bcnbadrate0_depth2_HB;
   TH1F* h_bcnbadrate0_depth1_HE;
@@ -1094,6 +1148,7 @@ private:
   TH1F* h_bcnbadrate0_depth4_HO;
   TH1F* h_bcnbadrate0_depth1_HF;
   TH1F* h_bcnbadrate0_depth2_HF;
+  //-----------------------------------
   TH1F* h_Amplitude_forCapIdErrors_HB1;
   TH1F* h_Amplitude_forCapIdErrors_HB2;
   TH1F* h_Amplitude_forCapIdErrors_HE1;
@@ -1110,6 +1165,7 @@ private:
   TH1F* h_Amplitude_notCapIdErrors_HF1;
   TH1F* h_Amplitude_notCapIdErrors_HF2;
   TH1F* h_Amplitude_notCapIdErrors_HO4;
+  //-----------------------------------
   /////////////////////////////////////////////
   TH1F* h_corrforxaMAIN_HE;
   TH1F* h_corrforxaMAIN0_HE;
@@ -5548,6 +5604,28 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               h_runbadrate0_depth2_HB->Fill(float(eeeeee), 1.);
               h_bcnbadrate0_depth2_HB->Fill(float(bcn), 1.);
             }
+            if (k1 == 2) {
+              h_nbadchannels_depth3_HB->Fill(float(nbadchannels));
+              h_runnbadchannels_depth3_HB->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth3_HB->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth3_HB->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth3_HB->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth3_HB->Fill(float(eeeeee), 1.);
+            }
+            if (k1 == 3) {
+              h_nbadchannels_depth4_HB->Fill(float(nbadchannels));
+              h_runnbadchannels_depth4_HB->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth4_HB->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth4_HB->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth4_HB->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth4_HB->Fill(float(eeeeee), 1.);
+            }
           }  ////if(k0 == 0)
           //HE
           if (k0 == 1) {
@@ -5589,6 +5667,50 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               h_bcnnbadchannels_depth3_HE->Fill(float(bcn), float(nbadchannels));
               h_runbadrate0_depth3_HE->Fill(float(eeeeee), 1.);
               h_bcnbadrate0_depth3_HE->Fill(float(bcn), 1.);
+            }
+            if (k1 == 3) {
+              h_nbadchannels_depth4_HE->Fill(float(nbadchannels));
+              h_runnbadchannels_depth4_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth4_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth4_HE->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth4_HE->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth4_HE->Fill(float(eeeeee), 1.);
+            }
+            if (k1 == 4) {
+              h_nbadchannels_depth5_HE->Fill(float(nbadchannels));
+              h_runnbadchannels_depth5_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth5_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth5_HE->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth5_HE->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth5_HE->Fill(float(eeeeee), 1.);
+            }
+            if (k1 == 5) {
+              h_nbadchannels_depth6_HE->Fill(float(nbadchannels));
+              h_runnbadchannels_depth6_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth6_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth6_HE->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth6_HE->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth6_HE->Fill(float(eeeeee), 1.);
+            }
+            if (k1 == 6) {
+              h_nbadchannels_depth7_HE->Fill(float(nbadchannels));
+              h_runnbadchannels_depth7_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth7_HE->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth7_HE->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth7_HE->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth7_HE->Fill(float(eeeeee), 1.);
             }
           }  ////if(k0 == 1)
           //HO
@@ -5634,6 +5756,28 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               h_bcnnbadchannels_depth2_HF->Fill(float(bcn), float(nbadchannels));
               h_runbadrate0_depth2_HF->Fill(float(eeeeee), 1.);
               h_bcnbadrate0_depth2_HF->Fill(float(bcn), 1.);
+            }
+            if (k1 == 2) {
+              h_nbadchannels_depth3_HF->Fill(float(nbadchannels));
+              h_runnbadchannels_depth3_HF->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth3_HF->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth3_HF->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth3_HF->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth3_HF->Fill(float(eeeeee), 1.);
+            }
+            if (k1 == 3) {
+              h_nbadchannels_depth4_HF->Fill(float(nbadchannels));
+              h_runnbadchannels_depth4_HF->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels > 0.)
+                h_runnbadchannelsC_depth4_HF->Fill(float(eeeeee), float(nbadchannels));
+              if (nbadchannels != 0)
+                h_runbadrate_depth4_HF->Fill(float(eeeeee), 1.);
+              if (nbadchannels > 0.)
+                h_runbadrateC_depth4_HF->Fill(float(eeeeee), 1.);
+              h_runbadrate0_depth4_HF->Fill(float(eeeeee), 1.);
             }
           }  ////if(k0 == 3)
 
@@ -6895,56 +7039,112 @@ void CMTRawAnalyzer::beginJob() {
     float bac2 = bac + 1.;
     // bac,         1.,     bac2  );
 
-    h_nbadchannels_depth1_HB = fs_->make<TH1F>("h_nbadchannels_depth1_HB", " ", 100, 1., 3001.);
+    h_nbadchannels_depth1_HB = fs_->make<TH1F>("h_nbadchannels_depth1_HB", " ", 30, 1., 31.);
     h_runnbadchannels_depth1_HB = fs_->make<TH1F>("h_runnbadchannels_depth1_HB", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth1_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HB", " ", bac, 1., bac2);
     h_runbadrate_depth1_HB = fs_->make<TH1F>("h_runbadrate_depth1_HB", " ", bac, 1., bac2);
     h_runbadrateC_depth1_HB = fs_->make<TH1F>("h_runbadrateC_depth1_HB", " ", bac, 1., bac2);
     h_runbadrate0_depth1_HB = fs_->make<TH1F>("h_runbadrate0_depth1_HB", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HB = fs_->make<TH1F>("h_nbadchannels_depth2_HB", " ", 100, 1., 501.);
+    h_nbadchannels_depth2_HB = fs_->make<TH1F>("h_nbadchannels_depth2_HB", " ", 30, 1., 31.);
     h_runnbadchannels_depth2_HB = fs_->make<TH1F>("h_runnbadchannels_depth2_HB", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth2_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HB", " ", bac, 1., bac2);
     h_runbadrate_depth2_HB = fs_->make<TH1F>("h_runbadrate_depth2_HB", " ", bac, 1., bac2);
     h_runbadrateC_depth2_HB = fs_->make<TH1F>("h_runbadrateC_depth2_HB", " ", bac, 1., bac2);
     h_runbadrate0_depth2_HB = fs_->make<TH1F>("h_runbadrate0_depth2_HB", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth1_HE = fs_->make<TH1F>("h_nbadchannels_depth1_HE", " ", 100, 1., 3001.);
+    h_nbadchannels_depth3_HB = fs_->make<TH1F>("h_nbadchannels_depth3_HB", " ", 30, 1., 31.);
+    h_runnbadchannels_depth3_HB = fs_->make<TH1F>("h_runnbadchannels_depth3_HB", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth3_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth3_HB", " ", bac, 1., bac2);
+    h_runbadrate_depth3_HB = fs_->make<TH1F>("h_runbadrate_depth3_HB", " ", bac, 1., bac2);
+    h_runbadrateC_depth3_HB = fs_->make<TH1F>("h_runbadrateC_depth3_HB", " ", bac, 1., bac2);
+    h_runbadrate0_depth3_HB = fs_->make<TH1F>("h_runbadrate0_depth3_HB", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth4_HB = fs_->make<TH1F>("h_nbadchannels_depth4_HB", " ", 30, 1., 31.);
+    h_runnbadchannels_depth4_HB = fs_->make<TH1F>("h_runnbadchannels_depth4_HB", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth4_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth4_HB", " ", bac, 1., bac2);
+    h_runbadrate_depth4_HB = fs_->make<TH1F>("h_runbadrate_depth4_HB", " ", bac, 1., bac2);
+    h_runbadrateC_depth4_HB = fs_->make<TH1F>("h_runbadrateC_depth4_HB", " ", bac, 1., bac2);
+    h_runbadrate0_depth4_HB = fs_->make<TH1F>("h_runbadrate0_depth4_HB", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth1_HE = fs_->make<TH1F>("h_nbadchannels_depth1_HE", " ", 30, 1., 31.);
     h_runnbadchannels_depth1_HE = fs_->make<TH1F>("h_runnbadchannels_depth1_HE", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth1_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HE", " ", bac, 1., bac2);
     h_runbadrate_depth1_HE = fs_->make<TH1F>("h_runbadrate_depth1_HE", " ", bac, 1., bac2);
     h_runbadrateC_depth1_HE = fs_->make<TH1F>("h_runbadrateC_depth1_HE", " ", bac, 1., bac2);
     h_runbadrate0_depth1_HE = fs_->make<TH1F>("h_runbadrate0_depth1_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HE = fs_->make<TH1F>("h_nbadchannels_depth2_HE", " ", 100, 1., 3001.);
+    h_nbadchannels_depth2_HE = fs_->make<TH1F>("h_nbadchannels_depth2_HE", " ", 30, 1., 31.);
     h_runnbadchannels_depth2_HE = fs_->make<TH1F>("h_runnbadchannels_depth2_HE", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth2_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HE", " ", bac, 1., bac2);
     h_runbadrate_depth2_HE = fs_->make<TH1F>("h_runbadrate_depth2_HE", " ", bac, 1., bac2);
     h_runbadrateC_depth2_HE = fs_->make<TH1F>("h_runbadrateC_depth2_HE", " ", bac, 1., bac2);
     h_runbadrate0_depth2_HE = fs_->make<TH1F>("h_runbadrate0_depth2_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth3_HE = fs_->make<TH1F>("h_nbadchannels_depth3_HE", " ", 100, 1., 501.);
+    h_nbadchannels_depth3_HE = fs_->make<TH1F>("h_nbadchannels_depth3_HE", " ", 30, 1., 31.);
     h_runnbadchannels_depth3_HE = fs_->make<TH1F>("h_runnbadchannels_depth3_HE", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth3_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth3_HE", " ", bac, 1., bac2);
     h_runbadrate_depth3_HE = fs_->make<TH1F>("h_runbadrate_depth3_HE", " ", bac, 1., bac2);
     h_runbadrateC_depth3_HE = fs_->make<TH1F>("h_runbadrateC_depth3_HE", " ", bac, 1., bac2);
     h_runbadrate0_depth3_HE = fs_->make<TH1F>("h_runbadrate0_depth3_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth1_HF = fs_->make<TH1F>("h_nbadchannels_depth1_HF", " ", 100, 1., 3001.);
+    h_nbadchannels_depth4_HE = fs_->make<TH1F>("h_nbadchannels_depth4_HE", " ", 30, 1., 31.);
+    h_runnbadchannels_depth4_HE = fs_->make<TH1F>("h_runnbadchannels_depth4_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth4_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth4_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth4_HE = fs_->make<TH1F>("h_runbadrate_depth4_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth4_HE = fs_->make<TH1F>("h_runbadrateC_depth4_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth4_HE = fs_->make<TH1F>("h_runbadrate0_depth4_HE", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth5_HE = fs_->make<TH1F>("h_nbadchannels_depth5_HE", " ", 30, 1., 31.);
+    h_runnbadchannels_depth5_HE = fs_->make<TH1F>("h_runnbadchannels_depth5_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth5_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth5_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth5_HE = fs_->make<TH1F>("h_runbadrate_depth5_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth5_HE = fs_->make<TH1F>("h_runbadrateC_depth5_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth5_HE = fs_->make<TH1F>("h_runbadrate0_depth5_HE", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth6_HE = fs_->make<TH1F>("h_nbadchannels_depth6_HE", " ", 30, 1., 31.);
+    h_runnbadchannels_depth6_HE = fs_->make<TH1F>("h_runnbadchannels_depth6_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth6_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth6_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth6_HE = fs_->make<TH1F>("h_runbadrate_depth6_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth6_HE = fs_->make<TH1F>("h_runbadrateC_depth6_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth6_HE = fs_->make<TH1F>("h_runbadrate0_depth6_HE", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth7_HE = fs_->make<TH1F>("h_nbadchannels_depth7_HE", " ", 30, 1., 31.);
+    h_runnbadchannels_depth7_HE = fs_->make<TH1F>("h_runnbadchannels_depth7_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth7_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth7_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth7_HE = fs_->make<TH1F>("h_runbadrate_depth7_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth7_HE = fs_->make<TH1F>("h_runbadrateC_depth7_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth7_HE = fs_->make<TH1F>("h_runbadrate0_depth7_HE", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth1_HF = fs_->make<TH1F>("h_nbadchannels_depth1_HF", " ", 30, 1., 31.);
     h_runnbadchannels_depth1_HF = fs_->make<TH1F>("h_runnbadchannels_depth1_HF", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth1_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HF", " ", bac, 1., bac2);
     h_runbadrate_depth1_HF = fs_->make<TH1F>("h_runbadrate_depth1_HF", " ", bac, 1., bac2);
     h_runbadrateC_depth1_HF = fs_->make<TH1F>("h_runbadrateC_depth1_HF", " ", bac, 1., bac2);
     h_runbadrate0_depth1_HF = fs_->make<TH1F>("h_runbadrate0_depth1_HF", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HF = fs_->make<TH1F>("h_nbadchannels_depth2_HF", " ", 100, 1., 501.);
+    h_nbadchannels_depth2_HF = fs_->make<TH1F>("h_nbadchannels_depth2_HF", " ", 30, 1., 31.);
     h_runnbadchannels_depth2_HF = fs_->make<TH1F>("h_runnbadchannels_depth2_HF", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth2_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HF", " ", bac, 1., bac2);
     h_runbadrate_depth2_HF = fs_->make<TH1F>("h_runbadrate_depth2_HF", " ", bac, 1., bac2);
     h_runbadrateC_depth2_HF = fs_->make<TH1F>("h_runbadrateC_depth2_HF", " ", bac, 1., bac2);
     h_runbadrate0_depth2_HF = fs_->make<TH1F>("h_runbadrate0_depth2_HF", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth4_HO = fs_->make<TH1F>("h_nbadchannels_depth4_HO", " ", 100, 1., 3001.);
+    h_nbadchannels_depth3_HF = fs_->make<TH1F>("h_nbadchannels_depth3_HF", " ", 30, 1., 31.);
+    h_runnbadchannels_depth3_HF = fs_->make<TH1F>("h_runnbadchannels_depth3_HF", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth3_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth3_HF", " ", bac, 1., bac2);
+    h_runbadrate_depth3_HF = fs_->make<TH1F>("h_runbadrate_depth3_HF", " ", bac, 1., bac2);
+    h_runbadrateC_depth3_HF = fs_->make<TH1F>("h_runbadrateC_depth3_HF", " ", bac, 1., bac2);
+    h_runbadrate0_depth3_HF = fs_->make<TH1F>("h_runbadrate0_depth3_HF", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth4_HF = fs_->make<TH1F>("h_nbadchannels_depth4_HF", " ", 30, 1., 31.);
+    h_runnbadchannels_depth4_HF = fs_->make<TH1F>("h_runnbadchannels_depth4_HF", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth4_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth4_HF", " ", bac, 1., bac2);
+    h_runbadrate_depth4_HF = fs_->make<TH1F>("h_runbadrate_depth4_HF", " ", bac, 1., bac2);
+    h_runbadrateC_depth4_HF = fs_->make<TH1F>("h_runbadrateC_depth4_HF", " ", bac, 1., bac2);
+    h_runbadrate0_depth4_HF = fs_->make<TH1F>("h_runbadrate0_depth4_HF", " ", bac, 1., bac2);
+
+    h_nbadchannels_depth4_HO = fs_->make<TH1F>("h_nbadchannels_depth4_HO", " ", 30, 1., 31.);
     h_runnbadchannels_depth4_HO = fs_->make<TH1F>("h_runnbadchannels_depth4_HO", " ", bac, 1., bac2);
     h_runnbadchannelsC_depth4_HO = fs_->make<TH1F>("h_runnbadchannelsC_depth4_HO", " ", bac, 1., bac2);
     h_runbadrate_depth4_HO = fs_->make<TH1F>("h_runbadrate_depth4_HO", " ", bac, 1., bac2);
@@ -7577,15 +7777,15 @@ void CMTRawAnalyzer::beginJob() {
     h_averNOSIGNALsumamplitude_HO = fs_->make<TH1F>("h_averNOSIGNALsumamplitude_HO", " ", bac, 1., bac2);
 
     // for channel SUM over depthes Amplitudes for each sub-detector
-    h_sumamplitudechannel_HB = fs_->make<TH1F>("h_sumamplitudechannel_HB", " ", 100, 0., 2000.);
-    h_sumamplitudechannel_HE = fs_->make<TH1F>("h_sumamplitudechannel_HE", " ", 100, 0., 3000.);
-    h_sumamplitudechannel_HF = fs_->make<TH1F>("h_sumamplitudechannel_HF", " ", 100, 0., 7000.);
+    h_sumamplitudechannel_HB = fs_->make<TH1F>("h_sumamplitudechannel_HB", " ", 100, 0., 10000.);
+    h_sumamplitudechannel_HE = fs_->make<TH1F>("h_sumamplitudechannel_HE", " ", 100, 0., 10000.);
+    h_sumamplitudechannel_HF = fs_->make<TH1F>("h_sumamplitudechannel_HF", " ", 100, 0., 10000.);
     h_sumamplitudechannel_HO = fs_->make<TH1F>("h_sumamplitudechannel_HO", " ", 100, 0., 10000.);
 
     // for event Amplitudes for each sub-detector
-    h_eventamplitude_HB = fs_->make<TH1F>("h_eventamplitude_HB", " ", 100, 0., 80000.);
-    h_eventamplitude_HE = fs_->make<TH1F>("h_eventamplitude_HE", " ", 100, 0., 100000.);
-    h_eventamplitude_HF = fs_->make<TH1F>("h_eventamplitude_HF", " ", 100, 0., 150000.);
+    h_eventamplitude_HB = fs_->make<TH1F>("h_eventamplitude_HB", " ", 100, 0., 300000.);
+    h_eventamplitude_HE = fs_->make<TH1F>("h_eventamplitude_HE", " ", 100, 0., 300000.);
+    h_eventamplitude_HF = fs_->make<TH1F>("h_eventamplitude_HF", " ", 100, 0., 300000.);
     h_eventamplitude_HO = fs_->make<TH1F>("h_eventamplitude_HO", " ", 100, 0., 250000.);
 
     // for event Occupancy for each sub-detector

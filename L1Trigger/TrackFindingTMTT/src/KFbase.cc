@@ -551,7 +551,7 @@ namespace tmtt {
       matRinv = TMatrixD(TMatrixD::kInverted, matR);
     } else {
       // Protection against rare maths instability.
-      const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(nHelixPar_, nHelixPar_));
+      const TMatrixD unitMatrix(TMatrixD::kUnit, TMatrixD(2, 2));
       const double big = 9.9e9;
       matRinv = big * unitMatrix;
     }

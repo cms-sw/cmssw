@@ -261,10 +261,44 @@ void CheckTransitions::postEndJob() {
    std::cout <<i.first.m_run<<" "<<i.first.m_lumi<<" "<<i.first.m_event<<" "<<i.second<<std::endl;
    } */
 
+  unsigned int nSkippedStreamLumiTransitions = 0;
+
+  // Use the next two vectors to test that skipped stream lumi transitions
+  // come in matched begin and end pairs.
+  std::vector<std::tuple<Phase, edm::EventID, int>> expectedSkippedStreamEndLumi;
+  std::vector<std::tuple<Phase, edm::EventID, int>> seenSkippedStreamEndLumi;
+
+  // Use the next two sets to test that for every global begin lumi there
+  // is at least one stream begin lumi, even when some stream begin lumi
+  // transitions are skipped.
+  std::set<std::tuple<Phase, edm::EventID, int>> seenGlobalBeginLumi;
+  std::set<std::tuple<Phase, edm::EventID, int>> seenStreamBeginLumi;
+
   auto itOS = orderedSeen.begin();
   for (auto itOE = orderedExpected.begin(); itOE != orderedExpected.end(); ++itOE) {
     if (itOS == orderedSeen.end()) {
       break;
+    }
+
+    if (std::get<0>(*itOS) == Phase::kBeginLumi && std::get<2>(*itOS) == -1) {
+      seenGlobalBeginLumi.emplace(*itOS);
+    }
+    if (std::get<0>(*itOS) == Phase::kBeginLumi && (std::get<2>(*itOS) > -1 && std::get<2>(*itOS) < 1000)) {
+      // Note that the third field is falsely filled with the value for a global begin lumi to
+      // make a comparison with seenGlobalBeginLumi easier.
+      seenStreamBeginLumi.emplace(std::get<0>(*itOS), std::get<1>(*itOS), -1);
+    }
+
+    while (*itOE != *itOS && (std::get<0>(*itOE) == Phase::kBeginLumi || std::get<0>(*itOE) == Phase::kEndLumi) &&
+           (std::get<2>(*itOE) > -1 && std::get<2>(*itOE) < 1000)) {
+      ++nSkippedStreamLumiTransitions;
+      if (std::get<0>(*itOE) == Phase::kBeginLumi) {
+        expectedSkippedStreamEndLumi.emplace_back(Phase::kEndLumi, std::get<1>(*itOE), std::get<2>(*itOE));
+      } else {
+        seenSkippedStreamEndLumi.emplace_back(*itOE);
+      }
+
+      ++itOE;
     }
     if (*itOE != *itOS) {
       auto syncOE = std::get<1>(*itOE);
@@ -276,7 +310,17 @@ void CheckTransitions::postEndJob() {
     ++itOS;
   }
 
-  if (orderedSeen.size() != orderedExpected.size()) {
+  if (seenGlobalBeginLumi != seenStreamBeginLumi) {
+    std::cout << "We didn't see at least one stream begin lumi for every global begin lumi" << std::endl;
+    m_failed = true;
+  }
+
+  if (expectedSkippedStreamEndLumi != seenSkippedStreamEndLumi) {
+    std::cout << "Skipped stream begin and end lumi transitions do not match" << std::endl;
+    m_failed = true;
+  }
+
+  if (orderedSeen.size() + nSkippedStreamLumiTransitions != orderedExpected.size()) {
     std::cout << "Wrong number of transition " << orderedSeen.size() << " " << orderedExpected.size() << std::endl;
     m_failed = true;
     return;

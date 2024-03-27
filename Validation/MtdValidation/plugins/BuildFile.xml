@@ -28,4 +28,5 @@
 <use name="RecoVertex/PrimaryVertexProducer"/>
 <use name="root"/>
 <use name="gsl"/>
+<use name="fastjet"/>
 <flags EDM_PLUGIN="1"/>

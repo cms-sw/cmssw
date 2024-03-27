@@ -23,10 +23,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void EDMetadata::enqueueCallback(edm::WaitingTaskWithArenaHolder holder) {
-    alpaka::enqueue(*queue_, alpaka::HostOnlyTask([holder = std::move(holder)]() {
+    alpaka::enqueue(*queue_, alpaka::HostOnlyTask([holder = std::move(holder)](std::exception_ptr eptr) {
       // The functor is required to be const, but the original waitingTaskHolder_
       // needs to be notified...
-      const_cast<edm::WaitingTaskWithArenaHolder&>(holder).doneWaiting(nullptr);
+      const_cast<edm::WaitingTaskWithArenaHolder&>(holder).doneWaiting(eptr);
     }));
   }
 

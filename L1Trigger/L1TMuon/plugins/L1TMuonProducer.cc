@@ -329,7 +329,8 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         math::PtEtaPhiMLorentzVector vec{
             (mu->hwPt() - 1) * 0.5, mu->hwEta() * 0.010875, mu->hwGlobalPhi() * 0.010908, 0.0};
         int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
-        int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
+        int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(
+            mu->hwQual(), mu->trackFinderType(), mu->hwHF(), microGMTParamsHelper->fwVersion());
         Muon outMu{vec,
                    mu->hwPt(),
                    mu->hwEta(),
@@ -434,7 +435,8 @@ void L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList
   for (auto& mu : coll) {
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt() - 1) * 0.5, mu->hwEta() * 0.010875, mu->hwGlobalPhi() * 0.010908, 0.0};
-    int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
+    int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(
+        mu->hwQual(), mu->trackFinderType(), mu->hwHF(), microGMTParamsHelper->fwVersion());
     // set tfMuonIndex and iso to 0 like in the FW
     Muon outMu{vec,
                mu->hwPt(),

@@ -6,6 +6,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,6 +32,16 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
+// Fastjet
+#include <fastjet/internal/base.hh>
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/ClusterSequence.hh"
+#include "fastjet/Selector.hh"
+
+// HepPDTRecord
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 // pile-up
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -51,7 +62,7 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-//class declaration
+// class declaration
 class Primary4DVertexValidation : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
 
@@ -62,6 +73,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
           y(y1),
           z(z1),
           t(t1),
+          pt(0),
           ptsq(0),
           closest_vertex_distance_z(-1.),
           nGenTrk(0),
@@ -77,6 +89,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     double x, y, z, r, t;
     HepMC::FourVector ptot;
     LorentzVector p4;
+    double pt;
     double ptsq;
     double closest_vertex_distance_z;
     int nGenTrk;
@@ -94,7 +107,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     std::map<unsigned int, double> wos;  // sum of wos in recvtx (by index) // oops -> this was int before 04-22
     double sumwos = 0;                   // sum of wos in any recvtx
     double sumwnt = 0;                   // sum of weighted tracks
-    unsigned int rec = NOT_MATCHED;      // best match  (NO_MATCH if not matched)
+    unsigned int rec = NOT_MATCHED;      // best match (NO_MATCH if not matched)
     unsigned int matchQuality = 0;       // quality flag
 
     void addTrack(unsigned int irecv, double twos, double twt) {
@@ -147,9 +160,9 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     double sumwos = 0;                   // total sum of wos of all truth matched tracks
     double sumwnt = 0;                   // total weighted number of truth matchted tracks
     double maxwos = 0;                   // largest wos sum from one sim event (wosmatch)
-    double maxwnt = 0;                   // largest weighted  number of tracks from one sim event (ntmatch)
+    double maxwnt = 0;                   // largest weighted number of tracks from one sim event (ntmatch)
     int maxwosnt = 0;                    // number of tracks from the simevt with highest wos
-    unsigned int sim = NOT_MATCHED;      // best match  (NO_MATCH if not matched)
+    unsigned int sim = NOT_MATCHED;      // best match (NO_MATCH if not matched)
     unsigned int matchQuality = 0;       // quality flag
 
     bool is_real() { return (matchQuality > 0) && (matchQuality < 99); }
@@ -199,12 +212,43 @@ private:
                      const edm::ValueMap<float>&,
                      const edm::Handle<reco::BeamSpot>&);
   bool matchRecoTrack2SimSignal(const reco::TrackBaseRef&);
-  const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&, const TrackingVertexRef&);
+  std::pair<const edm::Ref<std::vector<TrackingParticle>>*, int> getMatchedTP(const reco::TrackBaseRef&,
+                                                                              const TrackingVertexRef&);
   double timeFromTrueMass(double, double, double, double);
   bool select(const reco::Vertex&, int level = 0);
+  void observablesFromJets(const std::vector<reco::Track>&,
+                           const std::vector<double>&,
+                           const std::vector<int>&,
+                           const std::string&,
+                           unsigned int&,
+                           double&,
+                           double&,
+                           double&,
+                           double&);
+  void isParticle(const reco::TrackBaseRef&,
+                  const edm::ValueMap<float>&,
+                  const edm::ValueMap<float>&,
+                  const edm::ValueMap<float>&,
+                  unsigned int&,
+                  bool&,
+                  bool&,
+                  bool&,
+                  bool&);
+  void getWosWnt(const reco::Vertex&,
+                 const reco::TrackBaseRef&,
+                 const edm::ValueMap<float>&,
+                 const edm::Handle<reco::BeamSpot>&,
+                 double&,
+                 double&);
   std::vector<Primary4DVertexValidation::simPrimaryVertex> getSimPVs(const edm::Handle<TrackingVertexCollection>&);
   std::vector<Primary4DVertexValidation::recoPrimaryVertex> getRecoPVs(const edm::Handle<edm::View<reco::Vertex>>&);
 
+  void printMatchedRecoTrackInfo(const reco::Vertex&,
+                                 const reco::TrackBaseRef&,
+                                 const TrackingParticleRef&,
+                                 const unsigned int&);
+  void printSimVtxRecoVtxInfo(const struct Primary4DVertexValidation::simPrimaryVertex&,
+                              const struct Primary4DVertexValidation::recoPrimaryVertex&);
   const bool mvaTPSel(const TrackingParticle&);
   const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
 
@@ -212,9 +256,9 @@ private:
 
   const std::string folder_;
   static constexpr unsigned int NOT_MATCHED = 66666;
-  static constexpr double simUnit_ = 1e9;     //sim time in s while reco time in ns
-  static constexpr double c_ = 2.99792458e1;  //c in cm/ns
-  static constexpr double mvaL_ = 0.5;        //MVA cuts for MVA categories
+  static constexpr double simUnit_ = 1e9;     // sim time in s while reco time in ns
+  static constexpr double c_ = 2.99792458e1;  // c in cm/ns
+  static constexpr double mvaL_ = 0.5;        // MVA cuts for MVA categories
   static constexpr double mvaH_ = 0.8;
   static constexpr double selNdof_ = 4.;
   static constexpr double maxRank_ = 8.;
@@ -227,13 +271,20 @@ private:
   static constexpr double trackMaxBtlEta_ = 1.5;
   static constexpr double trackMinEtlEta_ = 1.6;
   static constexpr double trackMaxEtlEta_ = 3.;
-  static constexpr double tol_ = 1.e-4;  // tolerance on reconstructed track time, [ns]
+  static constexpr double tol_ = 1.e-4;          // tolerance on reconstructed track time, [ns]
+  static constexpr double minThrSumWnt_ = 0.01;  // min threshold for filling histograms with logarithmic scale
+  static constexpr double minThrSumWos_ = 0.1;
+  static constexpr double minThrSumPt_ = 0.01;
+  static constexpr double minThrSumPt2_ = 1.e-3;
+  static constexpr double minThrMetPt_ = 1.e-3;
+  static constexpr double minThrSumPz_ = 1.e-4;
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
   bool use_only_charged_tracks_;
   bool debug_;
   bool optionalPlots_;
+  bool use3dNoTime_;
 
   const double minProbHeavy_;
   const double trackweightTh_;
@@ -270,8 +321,9 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> probPiToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> probKToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> probPToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
-  //histogram declaration
+  // histogram declaration
   MonitorElement* meMVATrackEffPtTot_;
   MonitorElement* meMVATrackMatchedEffPtTot_;
   MonitorElement* meMVATrackMatchedEffPtMtd_;
@@ -315,7 +367,95 @@ private:
   MonitorElement* meRecPVT_;
   MonitorElement* meSimPVZ_;
 
-  //some tests
+  MonitorElement* mePUTrackMult_;
+  MonitorElement* mePUTrackRelMult_;
+  MonitorElement* meFakeTrackRelMult_;
+  MonitorElement* mePUTrackSumWnt_;
+  MonitorElement* mePUTrackRelSumWnt_;
+  MonitorElement* mePUTrackSumWos_;
+  MonitorElement* mePUTrackRelSumWos_;
+  MonitorElement* meSecTrackSumWos_;
+  MonitorElement* meSecTrackRelSumWos_;
+  MonitorElement* meFakeTrackRelSumWos_;
+  MonitorElement* mePUTrackWnt_;
+  MonitorElement* mePUTrackSumPt_;
+  MonitorElement* mePUTrackRelSumPt_;
+  MonitorElement* mePUTrackSumPt2_;
+  MonitorElement* mePUTrackRelSumPt2_;
+
+  MonitorElement* mePUTrackRelMultvsMult_;
+  MonitorElement* meFakeTrackRelMultvsMult_;
+  MonitorElement* mePUTrackRelSumWntvsSumWnt_;
+  MonitorElement* mePUTrackRelSumWosvsSumWos_;
+  MonitorElement* meFakeTrackRelSumWosvsSumWos_;
+  MonitorElement* meSecTrackRelSumWosvsSumWos_;
+  MonitorElement* mePUTrackRelSumPtvsSumPt_;
+  MonitorElement* mePUTrackRelSumPt2vsSumPt2_;
+
+  MonitorElement* mePUTrackRecLVMult_;
+  MonitorElement* mePUTrackRecLVRelMult_;
+  MonitorElement* meFakeTrackRecLVRelMult_;
+  MonitorElement* mePUTrackRecLVSumWnt_;
+  MonitorElement* mePUTrackRecLVRelSumWnt_;
+  MonitorElement* mePUTrackRecLVSumWos_;
+  MonitorElement* mePUTrackRecLVRelSumWos_;
+  MonitorElement* meSecTrackRecLVSumWos_;
+  MonitorElement* meSecTrackRecLVRelSumWos_;
+  MonitorElement* meFakeTrackRecLVRelSumWos_;
+  MonitorElement* mePUTrackRecLVWnt_;
+  MonitorElement* mePUTrackRecLVSumPt_;
+  MonitorElement* mePUTrackRecLVRelSumPt_;
+  MonitorElement* mePUTrackRecLVSumPt2_;
+  MonitorElement* mePUTrackRecLVRelSumPt2_;
+
+  MonitorElement* mePUTrackRecLVRelMultvsMult_;
+  MonitorElement* meFakeTrackRecLVRelMultvsMult_;
+  MonitorElement* mePUTrackRecLVRelSumWntvsSumWnt_;
+  MonitorElement* mePUTrackRecLVRelSumWosvsSumWos_;
+  MonitorElement* meSecTrackRecLVRelSumWosvsSumWos_;
+  MonitorElement* meFakeTrackRecLVRelSumWosvsSumWos_;
+  MonitorElement* mePUTrackRecLVRelSumPtvsSumPt_;
+  MonitorElement* mePUTrackRecLVRelSumPt2vsSumPt2_;
+
+  MonitorElement* meJetsPUMult_;
+  MonitorElement* meJetsPUHt_;
+  MonitorElement* meJetsPUSumPt2_;
+  MonitorElement* meJetsPUMetPt_;
+  MonitorElement* meJetsPUSumPz_;
+  MonitorElement* meJetsPURelMult_;
+  MonitorElement* meJetsPURelHt_;
+  MonitorElement* meJetsPURelSumPt2_;
+  MonitorElement* meJetsFakeRelSumPt2_;
+  MonitorElement* meJetsPURelMetPt_;
+  MonitorElement* meJetsPURelSumPz_;
+
+  MonitorElement* meJetsPURelMultvsMult_;
+  MonitorElement* meJetsPURelHtvsHt_;
+  MonitorElement* meJetsPURelSumPt2vsSumPt2_;
+  MonitorElement* meJetsFakeRelSumPt2vsSumPt2_;
+  MonitorElement* meJetsPURelMetPtvsMetPt_;
+  MonitorElement* meJetsPURelSumPzvsSumPz_;
+
+  MonitorElement* meJetsRecLVPUMult_;
+  MonitorElement* meJetsRecLVPUHt_;
+  MonitorElement* meJetsRecLVPUSumPt2_;
+  MonitorElement* meJetsRecLVPUMetPt_;
+  MonitorElement* meJetsRecLVPUSumPz_;
+  MonitorElement* meJetsRecLVPURelMult_;
+  MonitorElement* meJetsRecLVPURelHt_;
+  MonitorElement* meJetsRecLVPURelSumPt2_;
+  MonitorElement* meJetsRecLVFakeRelSumPt2_;
+  MonitorElement* meJetsRecLVPURelMetPt_;
+  MonitorElement* meJetsRecLVPURelSumPz_;
+
+  MonitorElement* meJetsRecLVPURelMultvsMult_;
+  MonitorElement* meJetsRecLVPURelHtvsHt_;
+  MonitorElement* meJetsRecLVPURelSumPt2vsSumPt2_;
+  MonitorElement* meJetsRecLVFakeRelSumPt2vsSumPt2_;
+  MonitorElement* meJetsRecLVPURelMetPtvsMetPt_;
+  MonitorElement* meJetsRecLVPURelSumPzvsSumPz_;
+
+  // some tests
   MonitorElement* meTrackResLowPTot_;
   MonitorElement* meTrackResHighPTot_;
   MonitorElement* meTrackPullLowPTot_;
@@ -372,10 +512,12 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       debug_(iConfig.getUntrackedParameter<bool>("debug")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
+      use3dNoTime_(iConfig.getParameter<bool>("use3dNoTime")),
       minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
       trackweightTh_(iConfig.getParameter<double>("trackweightTh")),
       mvaTh_(iConfig.getParameter<double>("mvaTh")),
-      lineDensityPar_(iConfig.getParameter<std::vector<double>>("lineDensityPar")) {
+      lineDensityPar_(iConfig.getParameter<std::vector<double>>("lineDensityPar")),
+      pdtToken_(esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>()) {
   vecPileupSummaryInfoToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag(std::string("addPileupInfo")));
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
@@ -415,15 +557,15 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
   meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
-  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffPtTot_ =
       ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
   meMVATrackMatchedEffPtMtd_ = ibook.book1D(
       "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to TP with time; track pt [GeV] ", 110, 0., 11.);
   meMVATrackMatchedEffEtaTot_ =
-      ibook.book1D("MVAMatchedEffEtaTot", "Pt of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
+      ibook.book1D("MVAMatchedEffEtaTot", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
-      "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
+      "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
   meMVATrackResTot_ = ibook.book1D(
       "MVATrackRes", "t_{rec} - t_{sim} for tracks from LV MVA sel.; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
@@ -524,13 +666,13 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("SimPosInSimOrigCollection", "Sim signal index in OrigCollection; Sim index", 200, 0, 200);
   }
   meRecoPVPosSignal_ =
-      ibook.book1D("RecoPVPosSignal", "Position in reco collection of PV associated to sim signal", 200, 0, 200);
+      ibook.book1D("RecoPVPosSignal", "Position in reco collection of PV associated to sim signal", 20, 0, 20);
   meRecoPVPosSignalNotHighestPt_ =
       ibook.book1D("RecoPVPosSignalNotHighestPt",
                    "Position in reco collection of PV associated to sim signal not highest Pt",
-                   200,
+                   20,
                    0,
-                   200);
+                   20);
   meRecoVtxVsLineDensity_ =
       ibook.book1D("RecoVtxVsLineDensity", "#Reco vertices/mm/event; line density [#vtx/mm/event]", 160, 0., 4.);
   meRecVerNumber_ = ibook.book1D("RecVerNumber", "RECO Vertex Number: Number of vertices", 50, 0, 250);
@@ -538,7 +680,473 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/10 ps", 200, -1., 1.);
   meSimPVZ_ = ibook.book1D("simPVZ", "Weighted #Sim vertices/mm", 400, -20., 20.);
 
-  //some tests
+  mePUTrackRelMult_ = ibook.book1D(
+      "PUTrackRelMult", "Relative multiplicity of PU tracks for matched vertices; #PUTrks/#Trks", 50, 0., 1.);
+  meFakeTrackRelMult_ = ibook.book1D(
+      "FakeTrackRelMult", "Relative multiplicity of fake tracks for matched vertices; #fakeTrks/#Trks", 50, 0., 1.);
+  mePUTrackRelSumWnt_ =
+      ibook.book1D("PUTrackRelSumWnt",
+                   "Relative Sum of wnt of PU tracks for matched vertices; PUSumW*min(Pt, 1.)/SumW*min(Pt, 1.)",
+                   50,
+                   0.,
+                   1.);
+  mePUTrackRelSumWos_ = ibook.book1D(
+      "PUTrackRelSumWos", "Relative Sum of wos of PU tracks for matched vertices; PUSumWos/SumWos", 50, 0., 1.);
+  meSecTrackRelSumWos_ =
+      ibook.book1D("SecTrackRelSumWos",
+                   "Relative Sum of wos of tracks from secondary vtx for matched vertices; SecSumWos/SumWos",
+                   50,
+                   0.,
+                   1.);
+  meFakeTrackRelSumWos_ = ibook.book1D(
+      "FakeTrackRelSumWos", "Relative Sum of wos of fake tracks for matched vertices; FakeSumWos/SumWos", 50, 0., 1.);
+  mePUTrackRelSumPt_ = ibook.book1D(
+      "PUTrackRelSumPt", "Relative Sum of Pt of PU tracks for matched vertices; PUSumPt/SumPt", 50, 0., 1.);
+  mePUTrackRelSumPt2_ = ibook.book1D(
+      "PUTrackRelSumPt2", "Relative Sum of Pt2 for PU tracks for matched vertices; PUSumPt2/SumPt2", 50, 0., 1.);
+
+  mePUTrackRecLVRelMult_ = ibook.book1D(
+      "PUTrackRecLVRelMult", "Relative multiplicity of PU tracks for matched LV; #PUTrks/#Trks", 50, 0., 1.);
+  meFakeTrackRecLVRelMult_ = ibook.book1D(
+      "FakeTrackRecLVRelMult", "Relative multiplicity of fake tracks for matched LV; #FakeTrks/#Trks", 50, 0., 1.);
+  mePUTrackRecLVRelSumWnt_ =
+      ibook.book1D("PUTrackRecLVRelSumWnt",
+                   "Relative Sum of Wnt of PU tracks for matched LV; PUSumW*min(Pt, 1.)/SumW*min(Pt, 1.)",
+                   50,
+                   0.,
+                   1.);
+  mePUTrackRecLVRelSumWos_ = ibook.book1D(
+      "PUTrackRecLVRelSumWos", "Relative Sum of Wos of PU tracks for matched LV; PUSumWos/SumWos", 50, 0., 1.);
+  meSecTrackRecLVRelSumWos_ =
+      ibook.book1D("SecTrackRecLVRelSumWos",
+                   "Relative Sum of wos of tracks from secondary vtx for matched LV; SecSumWos/SumWos",
+                   50,
+                   0.,
+                   1.);
+  meFakeTrackRecLVRelSumWos_ = ibook.book1D(
+      "FakeTrackRecLVRelSumWos", "Relative Sum of wos of fake tracks for matched LV; FakeSumWos/SumWos", 50, 0., 1.);
+  mePUTrackRecLVRelSumPt_ =
+      ibook.book1D("PUTrackRecLVRelSumPt", "Relative Sum of Pt of PU tracks for matched LV; PUSumPt/SumPt", 50, 0., 1.);
+  mePUTrackRecLVRelSumPt2_ = ibook.book1D(
+      "PUTrackRecLVRelSumPt2", "Relative Sum of Pt2 of PU tracks for matched LV; PUSumPt2/SumPt2", 50, 0., 1.);
+
+  if (optionalPlots_) {
+    mePUTrackMult_ = ibook.book1D("PUTrackMult", "Number of PU tracks for matched vertices; #PUTrks", 50, 0., 100.);
+    mePUTrackWnt_ = ibook.book1D("PUTrackWnt", "Wnt of PU tracks for matched vertices; PUTrkW*min(Pt, 1.)", 50, 0., 1.);
+    mePUTrackSumWnt_ = ibook.book1D(
+        "PUTrackSumWnt", "Sum of wnt of PU tracks for matched vertices; log10(PUSumW*min(Pt, 1.))", 50, -2., 3.);
+    mePUTrackSumWos_ =
+        ibook.book1D("PUTrackSumWos", "Sum of wos of PU tracks for matched vertices; log10(PUSumWos)", 50, -1., 7.);
+    meSecTrackSumWos_ = ibook.book1D(
+        "SecTrackSumWos", "Sum of wos of tracks from secondary vtx for matched vertices; log10(SecSumWos)", 50, -1., 7.);
+    mePUTrackSumPt_ =
+        ibook.book1D("PUTrackSumPt", "Sum of Pt of PU tracks for matched vertices; log10(PUSumPt)", 50, -2., 3.);
+    mePUTrackSumPt2_ =
+        ibook.book1D("PUTrackSumPt2", "Sum of Pt2 of PU tracks for matched vertices; log10(PUSumPt2)", 50, -3., 3.);
+
+    mePUTrackRelMultvsMult_ =
+        ibook.bookProfile("PUTrackRelMultvsMult",
+                          "Relative PU multiplicity vs Number of tracks for matched vertices; #Trks; #PUTrks/#Trks",
+                          50,
+                          0.,
+                          200.,
+                          0.,
+                          1.,
+                          "s");
+    meFakeTrackRelMultvsMult_ = ibook.bookProfile(
+        "FakeTrackRelMultvsMult",
+        "Relative multiplicity of fake tracks vs Number of tracks for matched vertices; #Trks; #FakeTrks/#Trks",
+        50,
+        0.,
+        200.,
+        0.,
+        1.,
+        "s");
+    mePUTrackRelSumWntvsSumWnt_ =
+        ibook.bookProfile("PUTrackRelSumWntvsSumWnt",
+                          "Relative PU Sum of Wnt vs Sum of Wnt of tracks for matched vertices; log10(SumW*min(Pt, "
+                          "1.)); PUSumW*min(Pt, 1.)/SumW*min(Pt, 1.)",
+                          50,
+                          0.,
+                          2.5,
+                          0.,
+                          1.,
+                          "s");
+    mePUTrackRelSumWosvsSumWos_ = ibook.bookProfile(
+        "PUTrackRelSumWosvsSumWos",
+        "Relative PU Sum of Wos vs Sum of Wos of tracks for matched vertices; log10(SumWos); PUSumWos/SumWos",
+        50,
+        2.5,
+        7.,
+        0.,
+        1.,
+        "s");
+    meSecTrackRelSumWosvsSumWos_ = ibook.bookProfile("SecTrackRelSumWosvsSumWos",
+                                                     "Relative Sum of Wos of tracks from secondary vtx vs Sum of Wos "
+                                                     "of tracks for matched vertices; log10(SumWos); SecSumWos/SumWos",
+                                                     50,
+                                                     2.,
+                                                     7.,
+                                                     0.,
+                                                     1.,
+                                                     "s");
+    meFakeTrackRelSumWosvsSumWos_ = ibook.bookProfile("FakeTrackRelSumWosvsSumWos",
+                                                      "Relative Sum of Wos of fake tracks vs Sum of Wos of tracks for "
+                                                      "matched vertices; log10(SumWos); FakeSumWos/SumWos",
+                                                      50,
+                                                      2.5,
+                                                      7.5,
+                                                      0.,
+                                                      1.,
+                                                      "s");
+    mePUTrackRelSumPtvsSumPt_ = ibook.bookProfile(
+        "PUTrackRelSumPtvsSumPt",
+        "Relative PU Sum of Pt vs Sum of Pt of tracks for matched vertices; log10(SumPt); PUSumPt/SumPt",
+        50,
+        0.,
+        3.,
+        0.,
+        1.,
+        "s");
+    mePUTrackRelSumPt2vsSumPt2_ = ibook.bookProfile(
+        "PUTrackRelSumPt2vsSumPt2",
+        "Relative PU Sum of Pt2 vs Sum of Pt2 of tracks for matched vertices; log10(SumPt2); PUSumPt2/SumPt2",
+        50,
+        0.,
+        4.,
+        0.,
+        1.,
+        "s");
+
+    mePUTrackRecLVMult_ = ibook.book1D("PUTrackRecLVMult", "Number of PU tracks for matched LV; #PUTrks", 50, 0., 100.);
+    mePUTrackRecLVWnt_ =
+        ibook.book1D("PUTrackRecLVWnt", "Wnt of PU tracks for matched LV; PUTrkW*min(Pt, 1.)", 50, 0., 1.);
+    mePUTrackRecLVSumWnt_ = ibook.book1D(
+        "PUTrackRecLVSumWnt", "Sum of wnt of PU tracks for matched LV; log10(PUSumW*min(Pt, 1.))", 50, -2., 3.);
+    mePUTrackRecLVSumWos_ =
+        ibook.book1D("PUTrackRecLVSumWos", "Sum of wos of PU tracks for matched LV; log10(PUSumWos)", 50, -1., 7.);
+    meSecTrackRecLVSumWos_ = ibook.book1D(
+        "SecTrackRecLVSumWos", "Sum of wos of tracks from secondary vtx for matched LV; log10(SecSumWos)", 50, -1., 7.);
+    mePUTrackRecLVSumPt_ =
+        ibook.book1D("PUTrackRecLVSumPt", "Sum of Pt of PU tracks for matched LV; log10(PUSumPt)", 50, -2., 3.);
+    mePUTrackRecLVSumPt2_ =
+        ibook.book1D("PUTrackRecLVSumPt2", "Sum of Pt2 of PU tracks for matched LV; log10(PUSumPt2)", 50, -3., 3.);
+
+    mePUTrackRecLVRelMultvsMult_ =
+        ibook.bookProfile("PUTrackRecLVRelMultvsMult",
+                          "Relative PU multiplicity vs Number of tracks for matched LV; #Trks; #PUTrks/#Trks",
+                          50,
+                          0.,
+                          200.,
+                          0.,
+                          1.,
+                          "s");
+    meFakeTrackRecLVRelMultvsMult_ = ibook.bookProfile(
+        "FakeTrackRecLVRelMultvsMult",
+        "Relative multiplicity of fake tracks  vs Number of tracks for matched LV; #Trks; #FakeTrks/#Trks",
+        50,
+        0.,
+        200.,
+        0.,
+        1.,
+        "s");
+    mePUTrackRecLVRelSumWntvsSumWnt_ =
+        ibook.bookProfile("PUTrackRecLVRelSumWntvsSumWnt",
+                          "Relative PU Sum of Wnt vs Sum of Wnt of tracks for matched LV; log10(SumW*min(Pt, 1.)); "
+                          "PUSumW*min(Pt, 1.)/SumW*min(Pt, 1.)",
+                          50,
+                          1.,
+                          2.3,
+                          0.,
+                          1.,
+                          "s");
+    mePUTrackRecLVRelSumWosvsSumWos_ = ibook.bookProfile(
+        "PUTrackRecLVRelSumWosvsSumWos",
+        "Relative PU Sum of Wos vs Sum of Wos of tracks for matched vertices; log10(SumWos); PUSumWos/SumWos",
+        50,
+        5.5,
+        7.,
+        0.,
+        1.,
+        "s");
+    meSecTrackRecLVRelSumWosvsSumWos_ =
+        ibook.bookProfile("SecTrackRecLVRelSumWosvsSumWos",
+                          "Relative Sum of Wos of tracks from secondary vtx vs Sum of Wos of tracks for matched "
+                          "vertices; log10(SumWos); SecSumWos/SumWos",
+                          50,
+                          5.5,
+                          7.,
+                          0.,
+                          1.,
+                          "s");
+    meFakeTrackRecLVRelSumWosvsSumWos_ = ibook.bookProfile("FakeTrackRecLVRelSumWosvsSumWos",
+                                                           "Relative Sum of Wos of fake tracks vs Sum of Wos of tracks "
+                                                           "for matched vertices; log10(SumWos); FakeSumWos/SumWos",
+                                                           50,
+                                                           5.5,
+                                                           7.,
+                                                           0.,
+                                                           1.,
+                                                           "s");
+    mePUTrackRecLVRelSumPtvsSumPt_ =
+        ibook.bookProfile("PUTrackRecLVRelSumPtvsSumPt",
+                          "Relative PU Sum of Pt vs Sum of Pt of tracks for matched LV; log10(SumPt); PUSumPt/SumPt",
+                          50,
+                          1.4,
+                          3.,
+                          0.,
+                          1.,
+                          "s");
+    mePUTrackRecLVRelSumPt2vsSumPt2_ =
+        ibook.bookProfile("PUTrackRecLVRelSumPt2vsSumPt2",
+                          "Relative PU Sum of Pt2 vs Sum of tracks for matched LV; log10(SumPt2); PUSumPt2/SumPt2",
+                          50,
+                          2.,
+                          4.,
+                          0.,
+                          1.,
+                          "s");
+  }
+
+  meJetsPURelMult_ =
+      ibook.book1D("JetsPURelMult",
+                   "Relative contribution of PU to jet multiplicity for matched vertices; (#Jets-#JetsNoPU)/#Jets",
+                   50,
+                   0.,
+                   1.);
+  meJetsPURelHt_ =
+      ibook.book1D("JetsPURelHt",
+                   "Relative contribution of PU to scalar sum of Et of jets for matched vertices; (Ht-HtNoPU)/HT",
+                   50,
+                   0.,
+                   1.);
+  meJetsPURelSumPt2_ =
+      ibook.book1D("JetsPURelSumPt2",
+                   "Relative contribution of PU to sum of Pt2 of jets for matched vertices; (SumPt2-SumPt2NoPU)/SumPt2",
+                   50,
+                   0.,
+                   1.);
+  meJetsFakeRelSumPt2_ = ibook.book1D(
+      "JetsFakeRelSumPt2",
+      "Relative contribution of fake tracks to sum of Pt2 of jets for matched vertices; (SumPt2-SumPt2NoFake)/SumPt2",
+      50,
+      0.,
+      1.);
+  meJetsPURelMetPt_ =
+      ibook.book1D("JetsPURelMetPt",
+                   "Relative contribution of PU to Missing Transverse Energy for matched vertices; (Met-MetNoPU)/Met",
+                   50,
+                   -1.,
+                   1.);
+  meJetsPURelSumPz_ =
+      ibook.book1D("JetsPURelSumPz",
+                   "Relative contribution of PU to sum of Pz of jets for matched vertices; (SumPz-SumPzNoPU)/SumPz",
+                   50,
+                   -1.,
+                   1.);
+
+  meJetsRecLVPURelMult_ =
+      ibook.book1D("JetsRecLVPURelMult",
+                   "Relative contribution of PU to jet multiplicity for matched LV; (#Jets-#JetsNoPU)/#Jets",
+                   50,
+                   0.,
+                   1.);
+  meJetsRecLVPURelHt_ =
+      ibook.book1D("JetsRecLVPURelHt",
+                   "Relative contribution of PU to scalar sum of Et of jets for matched LV; (Ht-HtNoPU)/HT",
+                   50,
+                   0.,
+                   1.);
+  meJetsRecLVPURelSumPt2_ =
+      ibook.book1D("JetsRecLVPURelSumPt2",
+                   "Relative contribution of PU to sum of Pt2 of jets for matched LV; (SumPt2-SumPt2NoPU)/SumPt2",
+                   50,
+                   0.,
+                   1.);
+  meJetsRecLVFakeRelSumPt2_ = ibook.book1D(
+      "JetsRecLVFakeRelSumPt2",
+      "Relative contribution of fake tracks to sum of Pt2 of jets for matched LV; (SumPt2-SumPt2NoFake)/SumPt2",
+      50,
+      0.,
+      1.);
+  meJetsRecLVPURelMetPt_ =
+      ibook.book1D("JetsRecLVPURelMetPt",
+                   "Relative contribution of PU to Missing Transverse Energy for matched LV; (Met-MetNoPU)/Met",
+                   50,
+                   -1.,
+                   1.);
+  meJetsRecLVPURelSumPz_ =
+      ibook.book1D("JetsRecLVPURelSumPz",
+                   "Relative contribution of PU to sum of Pz of jets for matched LV; (SumPz-SumPzNoPU)/SumPz",
+                   50,
+                   -1.,
+                   1.);
+
+  if (optionalPlots_) {
+    meJetsPUMult_ = ibook.book1D(
+        "JetsPUMult", "Contribution of PU to jet multiplicity for matched vertices; #Jets-#JetsNoPU", 50, 0., 100.);
+    meJetsPUHt_ = ibook.book1D("JetsPUHt",
+                               "Contribution of PU to scalar sum of Et of jets for matched vertices; log10(Ht-HtNoPU)",
+                               50,
+                               -2.,
+                               3.);
+    meJetsPUSumPt2_ =
+        ibook.book1D("JetsPUSumPt2",
+                     "Contribution of PU to sum of Pt2 of jets for matched vertices; log10(sumPt2-SumPt2NoPU)",
+                     50,
+                     -3.,
+                     3.);
+    meJetsPUMetPt_ =
+        ibook.book1D("JetsPUMetPt",
+                     "Contribution of PU to Missing Transverse Energy for matched vertices; log10(Met-MetNoPU)",
+                     50,
+                     -3.,
+                     2.);
+    meJetsPUSumPz_ =
+        ibook.book1D("JetsPUSumPz",
+                     "Contribution of PU to sum of Pz of jets for matched vertices; log10(abs(SumPz-SumPzNoPU))",
+                     50,
+                     -4.,
+                     3.);
+
+    meJetsPURelMultvsMult_ = ibook.bookProfile("JetsPURelMultvsMult",
+                                               "Relative contribution of PU to jet multiplicity vs number of jets for "
+                                               "matched vertices; #Jets; (#Jets-#JetsNoPU)/#Jets",
+                                               50,
+                                               0.,
+                                               120.,
+                                               0.,
+                                               1.,
+                                               "s");
+    meJetsPURelHtvsHt_ = ibook.bookProfile("JetsPURelHtvsHt",
+                                           "Relative contribution of PU to scalar sum of Et of jets vs scalar sum of "
+                                           "Et for matched vertices; log10(Ht); (Ht-HtNoPU)/HT",
+                                           50,
+                                           0.,
+                                           3.,
+                                           0.,
+                                           1.,
+                                           "s");
+    meJetsPURelSumPt2vsSumPt2_ = ibook.bookProfile("JetsPURelSumPt2vsSumPt2",
+                                                   "Relative contribution of PU to sum of Pt2 of jets vs sum of Pt2 "
+                                                   "for matched vertices; log10(SumPt2); (SumPt2-SumPt2NoPU)/SumPt2",
+                                                   50,
+                                                   -1.,
+                                                   4.,
+                                                   0.,
+                                                   1.,
+                                                   "s");
+    meJetsFakeRelSumPt2vsSumPt2_ =
+        ibook.bookProfile("JetsFakeRelSumPt2vsSumPt2",
+                          "Relative contribution of fake tracks to sum of Pt2 of jets vs sum of Pt2 for matched "
+                          "vertices; log10(SumPt2); (SumPt2-SumPt2NoFake)/SumPt2",
+                          50,
+                          -1.,
+                          4.,
+                          0.,
+                          1.,
+                          "s");
+    meJetsPURelMetPtvsMetPt_ = ibook.bookProfile("JetsPURelMetPtvsMetPt",
+                                                 "Relative contribution of PU to Missing Transverse Energy vs MET for "
+                                                 "matched vertices; log10(Met); (Met-MetNoPU)/Met",
+                                                 50,
+                                                 -1.,
+                                                 2.,
+                                                 -1.,
+                                                 1.,
+                                                 "s");
+    meJetsPURelSumPzvsSumPz_ = ibook.bookProfile("JetsPURelSumPzvsSumPz",
+                                                 "Relative contribution of PU to sum of Pz of jets vs Sum of Pz for "
+                                                 "matched vertices; log10(abs SumPz); (SumPz-SumPzNoPU)/SumPz",
+                                                 50,
+                                                 -2.,
+                                                 3.,
+                                                 -1.,
+                                                 1.,
+                                                 "s");
+
+    meJetsRecLVPUMult_ = ibook.book1D(
+        "JetsRecLVPUMult", "Contribution of PU to jet multiplicity for matched LV; #Jets-#JetsNoPU", 50, 0., 100.);
+    meJetsRecLVPUHt_ = ibook.book1D(
+        "JetsRecLVPUHt", "Contribution of PU to scalar sum of Et of jets for matched LV; log10(Ht-HtNoPU)", 50, -2., 3.);
+    meJetsRecLVPUSumPt2_ =
+        ibook.book1D("JetsRecLVPUSumPt2",
+                     "Contribution of PU to sum of Pt2 of jets for matched LV; log10(sumPt2-SumPt2NoPU)",
+                     50,
+                     -3.,
+                     3.);
+    meJetsRecLVPUMetPt_ =
+        ibook.book1D("JetsRecLVPUMetPt",
+                     "Contribution of PU to Missing Transverse Energy for matched LV; log10(Met-MetNoPU)",
+                     50,
+                     -3.,
+                     2.);
+    meJetsRecLVPUSumPz_ =
+        ibook.book1D("JetsRecLVPUSumPz",
+                     "Contribution of PU to sum of Pz of jets for matched LV; log10(abs(SumPz-SumPzNoPU))",
+                     50,
+                     -4.,
+                     3.);
+
+    meJetsRecLVPURelMultvsMult_ = ibook.bookProfile("JetsRecLVPURelMultvsMult",
+                                                    "Relative contribution of PU to jet multiplicity vs number of jets "
+                                                    "for matched vertices; #Jets; (#Jets-#JetsNoPU)/#Jets",
+                                                    50,
+                                                    0.,
+                                                    120.,
+                                                    0.,
+                                                    1.,
+                                                    "s");
+    meJetsRecLVPURelHtvsHt_ = ibook.bookProfile("JetsRecLVPURelHtvsHt",
+                                                "Relative contribution of PU to scalar sum of Et of jets vs scalar sum "
+                                                "of Et for matched vertices; log10(Ht); (Ht-HtNoPU)/HT",
+                                                50,
+                                                1.5,
+                                                3.,
+                                                0.,
+                                                1.,
+                                                "s");
+    meJetsRecLVPURelSumPt2vsSumPt2_ =
+        ibook.bookProfile("JetsRecLVPURelSumPt2vsSumPt2",
+                          "Relative contribution of PU to sum of Pt2 of jets vs sum of Pt2 for matched vertices; "
+                          "log10(SumPt2); (SumPt2-SumPt2NoPU)/SumPt2",
+                          50,
+                          2.,
+                          5.,
+                          0.,
+                          1.,
+                          "s");
+    meJetsRecLVFakeRelSumPt2vsSumPt2_ =
+        ibook.bookProfile("JetsRecLVFakeRelSumPt2vsSumPt2",
+                          "Relative contribution of fake tracks to sum of Pt2 of jets vs sum of Pt2 for matched "
+                          "vertices; log10(SumPt2); (SumPt2-SumPt2NoFake)/SumPt2",
+                          50,
+                          2.,
+                          5.,
+                          0.,
+                          1.,
+                          "s");
+    meJetsRecLVPURelMetPtvsMetPt_ = ibook.bookProfile("JetsRecLVPURelMetPtvsMetPt",
+                                                      "Relative contribution of PU to Missing Transverse Energy vs MET "
+                                                      "for matched vertices; log10(Met); (Met-MetNoPU)/Met",
+                                                      50,
+                                                      0.,
+                                                      2.5,
+                                                      -1.,
+                                                      1.,
+                                                      "s");
+    meJetsRecLVPURelSumPzvsSumPz_ = ibook.bookProfile("JetsRecLVPURelSumPzvsSumPz",
+                                                      "Relative contribution of PU to sum of Pz of jets vs Sum of Pz "
+                                                      "for matched vertices; log10(abs SumPz); (SumPz-SumPzNoPU)/SumPz",
+                                                      50,
+                                                      0.5,
+                                                      3.5,
+                                                      -1.,
+                                                      1.,
+                                                      "s");
+  }
+
+  // some tests
   meTrackResLowPTot_ = ibook.book1D(
       "TrackResLowP", "t_{rec} - t_{sim} for tracks with p < 2 GeV; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackResLowP_[0] =
@@ -694,9 +1302,6 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
   meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
 
-  meBarrelNoPIDtype_ = ibook.book1D("BarrelNoPIDtype", "Barrel PID failure category", 4, 0., 4.);
-  meEndcapNoPIDtype_ = ibook.book1D("EndcapNoPIDtype", "Endcap PID failure category", 4, 0., 4.);
-
   meBarrelTruePiNoPID_ =
       ibook.book1D("BarrelTruePiNoPID", "True pi NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
   meBarrelTrueKNoPID_ =
@@ -704,7 +1309,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meBarrelTruePNoPID_ =
       ibook.book1D("BarrelTruePNoPID", "True p NoPID momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
   meEndcapTruePiNoPID_ =
-      ibook.book1D("EndcapTruePiNoPID", "True NoPIDpi momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
+      ibook.book1D("EndcapTruePiNoPID", "True pi NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
   meEndcapTrueKNoPID_ =
       ibook.book1D("EndcapTrueKNoPID", "True k NoPID momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
   meEndcapTruePNoPID_ =
@@ -759,24 +1364,33 @@ bool Primary4DVertexValidation::matchRecoTrack2SimSignal(const reco::TrackBaseRe
   return false;
 }
 
-const edm::Ref<std::vector<TrackingParticle>>* Primary4DVertexValidation::getMatchedTP(
+std::pair<const edm::Ref<std::vector<TrackingParticle>>*, int> Primary4DVertexValidation::getMatchedTP(
     const reco::TrackBaseRef& recoTrack, const TrackingVertexRef& vsim) {
   auto found = r2s_->find(recoTrack);
 
-  // reco track not matched to any TP
+  // reco track not matched to any TP (fake tracks)
   if (found == r2s_->end())
-    return nullptr;
+    return std::make_pair(nullptr, -1);
 
-  //matched TP equal to any TP of sim vertex
+  // matched TP equal to any TP of a given sim vertex
   for (const auto& tp : found->val) {
     if (std::find_if(vsim->daughterTracks_begin(), vsim->daughterTracks_end(), [&](const TrackingParticleRef& vtp) {
           return tp.first == vtp;
         }) != vsim->daughterTracks_end())
-      return &tp.first;
+      return std::make_pair(&tp.first, 0);
+    // matched TP not associated to any daughter track of a given sim vertex but having the same eventID (track from secondary vtx)
+    else if (tp.first->eventId().bunchCrossing() == vsim->eventId().bunchCrossing() &&
+             tp.first->eventId().event() == vsim->eventId().event()) {
+      return std::make_pair(&tp.first, 1);
+    }
+    // matched TP not associated to any sim vertex of a given simulated event (PU track)
+    else {
+      return std::make_pair(&tp.first, 2);
+    }
   }
 
   // reco track not matched to any TP from vertex
-  return nullptr;
+  return std::make_pair(nullptr, -1);
 }
 
 double Primary4DVertexValidation::timeFromTrueMass(double mass, double pathlength, double momentum, double time) {
@@ -794,7 +1408,7 @@ double Primary4DVertexValidation::timeFromTrueMass(double mass, double pathlengt
 bool Primary4DVertexValidation::select(const reco::Vertex& v, int level) {
   /* level
    0  !isFake  && ndof>4  (default)
-   1  !isFake  && ndof>4 && prob > 0.01 
+   1  !isFake  && ndof>4 && prob > 0.01
    2  !isFake  && ndof>4 && prob > 0.01 && ptmax2 > 0.4
    */
   if (v.isFake())
@@ -810,6 +1424,126 @@ bool Primary4DVertexValidation::select(const reco::Vertex& v, int level) {
   return false;
 }
 
+void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Track>& reco_Tracks,
+                                                    const std::vector<double>& mass_Tracks,
+                                                    const std::vector<int>& category_Tracks,
+                                                    const std::string& skip_Tracks,
+                                                    unsigned int& n_Jets,
+                                                    double& sum_EtJets,
+                                                    double& sum_Pt2Jets,
+                                                    double& met_Pt,
+                                                    double& sum_PzJets) {
+  double sum_PtJets = 0;
+  n_Jets = 0;
+  sum_EtJets = 0;
+  sum_Pt2Jets = 0;
+  met_Pt = 0;
+  sum_PzJets = 0;
+  auto met = LorentzVector(0, 0, 0, 0);
+  std::vector<fastjet::PseudoJet> fjInputs_;
+  fjInputs_.clear();
+  size_t countScale0 = 0;
+  for (size_t i = 0; i < reco_Tracks.size(); i++) {
+    const auto recotr = reco_Tracks[i];
+    const auto mass = mass_Tracks[i];
+    float scale = 1.;
+    if (recotr.charge() == 0) {
+      continue;
+    }
+    // skip PU tracks in jet definition if skip_PU is required
+    if (skip_Tracks == "skip_PU" && category_Tracks[i] == 2) {
+      continue;
+    }
+    // skip fake tracks in jet definition if skip_Fake is required
+    if (skip_Tracks == "skip_Fake" && category_Tracks[i] == -1) {
+      continue;
+    }
+    if (recotr.pt() != 0) {
+      scale = (recotr.pt() - recotr.ptError()) / recotr.pt();
+    }
+    if (edm::isNotFinite(scale)) {
+      edm::LogWarning("Primary4DVertexValidation") << "Scaling is NAN ignoring this recotrack" << std::endl;
+      scale = 0;
+    }
+    if (scale < 0) {
+      scale = 0;
+      countScale0++;
+    }
+    if (scale != 0) {
+      fjInputs_.push_back(fastjet::PseudoJet(recotr.px() * scale,
+                                             recotr.py() * scale,
+                                             recotr.pz() * scale,
+                                             std::sqrt(recotr.p() * recotr.p() + mass * mass) * scale));
+    }
+  }
+  fastjet::ClusterSequence sequence(fjInputs_, fastjet::JetDefinition(fastjet::antikt_algorithm, 0.4));
+  auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
+  for (const auto& pj : jets) {
+    auto p4 = LorentzVector(pj.px(), pj.py(), pj.pz(), pj.e());
+    sum_EtJets += std::sqrt(p4.e() * p4.e() - p4.P() * p4.P() + p4.pt() * p4.pt());
+    sum_PtJets += p4.pt();
+    sum_Pt2Jets += (p4.pt() * p4.pt() * 0.8 * 0.8);
+    met += p4;
+    sum_PzJets += p4.pz();
+    n_Jets++;
+  }
+  met_Pt = met.pt();
+  double metAbove = met_Pt - 2 * std::sqrt(sum_PtJets);
+  if (metAbove > 0) {
+    sum_Pt2Jets += (metAbove * metAbove);
+  }
+  if (countScale0 == reco_Tracks.size()) {
+    sum_Pt2Jets = countScale0 * 0.01;  //leave some epsilon value to sort vertices with unknown pt
+  }
+}
+
+void Primary4DVertexValidation::isParticle(const reco::TrackBaseRef& recoTrack,
+                                           const edm::ValueMap<float>& probPi,
+                                           const edm::ValueMap<float>& probK,
+                                           const edm::ValueMap<float>& probP,
+                                           unsigned int& no_PIDtype,
+                                           bool& no_PID,
+                                           bool& is_Pi,
+                                           bool& is_K,
+                                           bool& is_P) {
+  no_PIDtype = 0;
+  no_PID = false;
+  is_Pi = false;
+  is_K = false;
+  is_P = false;
+  if (probPi[recoTrack] == -1) {
+    no_PIDtype = 1;
+  } else if (edm::isNotFinite(probPi[recoTrack])) {
+    no_PIDtype = 2;
+  } else if (probPi[recoTrack] == 1 && probK[recoTrack] == 0 && probP[recoTrack] == 0) {
+    no_PIDtype = 3;
+  }
+  no_PID = no_PIDtype > 0;
+  is_Pi = !no_PID && 1. - probPi[recoTrack] < minProbHeavy_;
+  is_K = !no_PID && !is_Pi && probK[recoTrack] > probP[recoTrack];
+  is_P = !no_PID && !is_Pi && !is_K;
+}
+
+void Primary4DVertexValidation::getWosWnt(const reco::Vertex& recoVtx,
+                                          const reco::TrackBaseRef& recoTrk,
+                                          const edm::ValueMap<float>& sigmat0,
+                                          const edm::Handle<reco::BeamSpot>& BS,
+                                          double& wos,
+                                          double& wnt) {
+  double dz2_beam = pow((*BS).BeamWidthX() * cos(recoTrk->phi()) / tan(recoTrk->theta()), 2) +
+                    pow((*BS).BeamWidthY() * sin(recoTrk->phi()) / tan(recoTrk->theta()), 2);
+  double dz2 =
+      pow(recoTrk->dzError(), 2) + dz2_beam + pow(0.0020, 2);  // added 20 um, some tracks have crazy small resolutions
+  wos = recoVtx.trackWeight(recoTrk) / dz2;
+  wnt = recoVtx.trackWeight(recoTrk) * std::min(recoTrk->pt(), 1.0);
+
+  if (sigmat0[recoTrk] > 0) {
+    double sigmaZ = (*BS).sigmaZ();
+    double sigmaT = sigmaZ / c_;  // c in cm/ns
+    wos = wos / erf(sigmat0[recoTrk] / sigmaT);
+  }
+}
+
 /* Extract information form TrackingParticles/TrackingVertex and fill
  * the helper class simPrimaryVertex with proper generation-level
  * information */
@@ -819,7 +1553,7 @@ std::vector<Primary4DVertexValidation::simPrimaryVertex> Primary4DVertexValidati
   int current_event = -1;
   int s = -1;
   for (TrackingVertexCollection::const_iterator v = tVC->begin(); v != tVC->end(); ++v) {
-    //We keep only the first vertex from all the events at BX=0.
+    // We keep only the first vertex from all the events at BX=0.
     if (v->eventId().bunchCrossing() != 0)
       continue;
     if (v->eventId().event() != current_event) {
@@ -871,7 +1605,9 @@ std::vector<Primary4DVertexValidation::simPrimaryVertex> Primary4DVertexValidati
       vp->ptot.setPy(vp->ptot.y() + momentum.y());
       vp->ptot.setPz(vp->ptot.z() + momentum.z());
       vp->ptot.setE(vp->ptot.e() + (**iTP).energy());
+      vp->pt += (**iTP).pt();
       vp->ptsq += ((**iTP).pt() * (**iTP).pt());
+      vp->nGenTrk++;
 
       if (matched_best_reco_track) {
         vp->num_matched_reco_tracks++;
@@ -1003,34 +1739,23 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
       double evnt = 0;
 
       for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
-        double pt = (*iTrack)->pt();
-
         if (vertex->trackWeight(*iTrack) < trackweightTh_)
           continue;
         if (MVA[(*iTrack)] < mvaTh_)
           continue;
 
-        auto tp_info = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex);
-        if (tp_info != nullptr) {
-          double dz2_beam = pow((*BS).BeamWidthX() * cos((*iTrack)->phi()) / tan((*iTrack)->theta()), 2) +
-                            pow((*BS).BeamWidthY() * sin((*iTrack)->phi()) / tan((*iTrack)->theta()), 2);
-          double dz2 = pow((*iTrack)->dzError(), 2) + dz2_beam +
-                       pow(0.0020, 2);  // added 20 um, some tracks have crazy small resolutions
-          wos = vertex->trackWeight(*iTrack) / dz2;
-          wnt = vertex->trackWeight(*iTrack) * std::min(pt, 1.0);
-
-          if (sigmat0[(*iTrack)] > 0) {
-            double sigmaZ = (*BS).sigmaZ();
-            double sigmaT = sigmaZ / c_;  // c in cm/ns
-            wos = wos / erf(sigmat0[(*iTrack)] / sigmaT);
-          }
+        auto tp_info = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).first;
+        int matchCategory = getMatchedTP(*iTrack, simpv.at(iev).sim_vertex).second;
+        // matched TP equal to any TP of a given sim vertex
+        if (tp_info != nullptr && matchCategory == 0) {
+          getWosWnt(*vertex, *iTrack, sigmat0, BS, wos, wnt);
           simpv.at(iev).addTrack(iv, wos, wnt);
           recopv.at(iv).addTrack(iev, wos, wnt);
           evwos += wos;
           evwnt += wnt;
           evnt++;
         }
-      }  //RecoTracks loop
+      }  // RecoTracks loop
 
       // require 2 tracks for a wos-match
       if ((evwos > 0) && (evwos > recopv.at(iv).maxwos) && (evnt > 1)) {
@@ -1047,11 +1772,11 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         recopv.at(iv).wntmatch = iev;
         recopv.at(iv).maxwnt = evwnt;
       }
-    }  //TrackingVertex loop
+    }  // TrackingVertex loop
 
-  }  //RecoPrimaryVertex
+  }  // RecoPrimaryVertex
 
-  //after filling infos, goes for the sim-reco match
+  // after filling infos, goes for the sim-reco match
   for (auto& vrec : recopv) {
     vrec.sim = NOT_MATCHED;
     vrec.matchQuality = 0;
@@ -1073,7 +1798,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
     vv.matchQuality = 0;
     iev++;
   }
-  //this tries a one-to-one match, taking simPV with highest wos if there are > 1 simPV candidates
+  // this tries a one-to-one match, taking simPV with highest wos if there are > 1 simPV candidates
   for (unsigned int rank = 1; rank < maxRank_; rank++) {
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {  //loop on SimPV
       if (simpv.at(iev).rec != NOT_MATCHED)
@@ -1095,7 +1820,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         }
       }
       if (iv !=
-          NOT_MATCHED) {  //if the rec vertex has already been associated is possible that iv remains NOT_MATCHED at this point
+          NOT_MATCHED) {  // if the rec vertex has already been associated is possible that iv remains NOT_MATCHED at this point
         recopv.at(iv).sim = iev;
         simpv.at(iev).rec = iv;
         recopv.at(iv).matchQuality = rank;
@@ -1120,7 +1845,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         }
       }
 
-      if (rec == NOT_MATCHED) {  //try with wnt match
+      if (rec == NOT_MATCHED) {  // try with wnt match
         for (auto rv : simpv.at(iev).wnt) {
           if ((rec == NOT_MATCHED) || (rv.second > simpv.at(iev).wnt.at(rec))) {
             rec = rv.first;
@@ -1150,7 +1875,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         simpv.at(iev).matchQuality = maxRank_;
         nmatch++;
       }
-    }  //sim loop
+    }  // sim loop
     if (nmatch == 0) {
       break;
     }
@@ -1209,7 +1934,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary MC vertices
   simpv = getSimPVs(TVCollectionH);
-  //this bool check if first vertex in that with highest pT
+  // this bool check if first vertex in that with highest pT
   bool signal_is_highest_pt =
       std::max_element(simpv.begin(), simpv.end(), [](const simPrimaryVertex& lhs, const simPrimaryVertex& rhs) {
         return lhs.ptsq < rhs.ptsq;
@@ -1237,11 +1962,12 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   const auto& probPi = iEvent.get(probPiToken_);
   const auto& probK = iEvent.get(probKToken_);
   const auto& probP = iEvent.get(probPToken_);
+  const auto& fPDGTable = iSetup.getHandle(pdtToken_);
 
-  //I have simPV and recoPV collections
+  // I have simPV and recoPV collections
   matchReco2Sim(recopv, simpv, sigmat0Safe, mtdQualMVA, BeamSpotH);
 
-  //Loop on tracks
+  // Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
     if (recopv.at(iv).ndof > selNdof_) {
       const reco::Vertex* vertex = recopv.at(iv).recVtx;
@@ -1249,17 +1975,33 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       for (unsigned int iev = 0; iev < simpv.size(); iev++) {
         auto vsim = simpv.at(iev).sim_vertex;
 
-        bool selectedVtxMatching = recopv.at(iv).sim == iev && simpv.at(iev).rec == iv &&
-                                   simpv.at(iev).eventId.bunchCrossing() == 0 && simpv.at(iev).eventId.event() == 0 &&
-                                   recopv.at(iv).OriginalIndex == 0;
-        if (selectedVtxMatching && !recopv.at(iv).is_signal()) {
+        bool selectedVtxMatching = recopv.at(iv).sim == iev && simpv.at(iev).rec == iv;
+        bool selectedLV = simpv.at(iev).eventId.bunchCrossing() == 0 && simpv.at(iev).eventId.event() == 0 &&
+                          recopv.at(iv).OriginalIndex == 0;
+        bool selectedLVMatching = selectedVtxMatching && selectedLV;  // bool for reco vtx leading match
+        if (selectedLVMatching && !recopv.at(iv).is_signal()) {
           edm::LogWarning("Primary4DVertexValidation")
               << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
               << simpv.at(iev).eventId.event();
         }
+        if (selectedLVMatching && debug_) {
+          printSimVtxRecoVtxInfo(simpv.at(iev), recopv.at(iv));
+        }
         double vzsim = simpv.at(iev).z;
         double vtsim = simpv.at(iev).t * simUnit_;
 
+        double wnt = 0, wos = 0;
+        double PUsumWnt = 0, PUsumWos = 0, SecsumWos = 0, FakesumWos = 0, PUsumPt = 0, PUsumPt2 = 0;
+        double sumWnt = 0, sumWos = 0, sumPt = 0, sumPt2 = 0;
+        unsigned int nt = 0, PUnt = 0, Fakent = 0;
+
+        std::vector<double> massVector;
+        std::vector<reco::Track> recotracks;
+        std::vector<int> categoryVector;
+        double sumEtJets = 0, sumPt2Jets = 0, metPt = 0, sumPzJets = 0;
+        double sumEtJetsnoPU = 0, sumPt2JetsnoPU = 0, metPtnoPU = 0, sumPzJetsnoPU = 0;
+        double sumEtJetsnoFake = 0, sumPt2JetsnoFake = 0, metPtnoFake = 0, sumPzJetsnoFake = 0;
+        unsigned int nJets = 0, nJetsnoPU = 0, nJetsnoFake = 0;
         for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
           if (trackAssoc[*iTrack] == -1) {
             LogTrace("mtdTracks") << "Extended track not associated";
@@ -1268,19 +2010,81 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
           if (vertex->trackWeight(*iTrack) < trackweightTh_)
             continue;
-
           bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
 
           bool selectRecoTrk = mvaRecSel(**iTrack, *vertex, t0Safe[*iTrack], sigmat0Safe[*iTrack]);
-          if (selectedVtxMatching && selectRecoTrk) {
+          if (selectedLVMatching && selectRecoTrk) {
             if (noCrack) {
               meMVATrackEffPtTot_->Fill((*iTrack)->pt());
             }
             meMVATrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
           }
 
-          auto tp_info = getMatchedTP(*iTrack, vsim);
-          if (tp_info != nullptr) {
+          auto tp_info = getMatchedTP(*iTrack, vsim).first;
+          int matchCategory = getMatchedTP(*iTrack, vsim).second;
+
+          // PU, fake and secondary tracks
+          if (selectedVtxMatching) {
+            unsigned int no_PIDtype = 0;
+            bool no_PID, is_Pi, is_K, is_P;
+            int PartID = 211;  // pion
+            isParticle(*iTrack, probPi, probK, probP, no_PIDtype, no_PID, is_Pi, is_K, is_P);
+            if (!use3dNoTime_) {
+              if (no_PID || is_Pi) {
+                PartID = 211;
+              } else if (is_K) {
+                PartID = 321;
+              } else if (is_P) {
+                PartID = 2212;
+              }
+            }
+            const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+            double mass = PData->mass().value();
+            massVector.push_back(mass);
+            recotracks.push_back(**iTrack);
+            getWosWnt(*vertex, *iTrack, sigmat0Safe, BeamSpotH, wos, wnt);
+            // reco track matched to any TP
+            if (tp_info != nullptr) {
+              if (debug_ && selectedLV) {
+                printMatchedRecoTrackInfo(*vertex, *iTrack, *tp_info, matchCategory);
+              }
+              // matched TP not associated to any daughter track of a given sim vertex but having the same eventID (track from secondary vtx)
+              if (matchCategory == 1) {
+                categoryVector.push_back(matchCategory);
+                SecsumWos += wos;
+              }
+              // matched TP not associated to any sim vertex of a given simulated event (PU track)
+              if (matchCategory == 2) {
+                if (optionalPlots_) {
+                  mePUTrackWnt_->Fill(wnt);
+                  if (selectedLV) {
+                    mePUTrackRecLVWnt_->Fill(wnt);
+                  }
+                }
+                PUsumWnt += wnt;
+                PUsumWos += wos;
+                PUsumPt += (*iTrack)->pt();
+                PUsumPt2 += ((*iTrack)->pt() * (*iTrack)->pt());
+                PUnt++;
+                categoryVector.push_back(2);
+              }
+            }
+            // reco track not matched to any TP (fake tracks)
+            else {
+              categoryVector.push_back(matchCategory);
+              FakesumWos += wos;
+              Fakent++;
+            }
+            nt++;
+            sumWnt += wnt;
+            sumWos += wos;
+            sumPt += (*iTrack)->pt();
+            sumPt2 += ((*iTrack)->pt() * (*iTrack)->pt());
+          }
+
+          // matched TP equal to any TP of a given sim vertex
+          if (tp_info != nullptr && matchCategory == 0) {
+            categoryVector.push_back(matchCategory);
             double mass = (*tp_info)->mass();
             double tsim = (*tp_info)->parentVertex()->position().t() * simUnit_;
             double tEst = timeFromTrueMass(mass, pathLength[*iTrack], momentum[*iTrack], time[*iTrack]);
@@ -1302,7 +2106,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
             bool selectTP = mvaTPSel(**tp_info);
 
-            if (selectedVtxMatching && selectRecoTrk && selectTP) {
+            if (selectedLVMatching && selectRecoTrk && selectTP) {
               meMVATrackZposResTot_->Fill((*iTrack)->vz() - vzsim);
               if (noCrack) {
                 meMVATrackMatchedEffPtTot_->Fill((*iTrack)->pt());
@@ -1313,7 +2117,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             if (sigmat0Safe[*iTrack] == -1)
               continue;
 
-            if (selectedVtxMatching && selectRecoTrk && selectTP) {
+            if (selectedLVMatching && selectRecoTrk && selectTP) {
               meMVATrackResTot_->Fill(t0Safe[*iTrack] - vtsim);
               meMVATrackPullTot_->Fill((t0Safe[*iTrack] - vtsim) / sigmat0Safe[*iTrack]);
               if (noCrack) {
@@ -1322,17 +2126,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
 
               unsigned int noPIDtype = 0;
-              if (probPi[*iTrack] == -1) {
-                noPIDtype = 1;
-              } else if (edm::isNotFinite(probPi[*iTrack])) {
-                noPIDtype = 2;
-              } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
-                noPIDtype = 3;
-              }
-              bool noPID = noPIDtype > 0;
-              bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
-              bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
-              bool isP = !noPID && !isPi && !isK;
+              bool noPID = false, isPi = false, isK = false, isP = false;
+              isParticle(*iTrack, probPi, probK, probP, noPIDtype, noPID, isPi, isK, isP);
 
               if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
                   (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
@@ -1543,11 +2338,152 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                 }
               }
             }
-          }  //if tp_info != nullptr
+          }  // if tp_info != nullptr && MatchCategory == 0
+        }    // loop on reco tracks
+        if (selectedVtxMatching) {
+          mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
+          meFakeTrackRelMult_->Fill(static_cast<double>(Fakent) / nt);
+          mePUTrackRelSumWnt_->Fill(PUsumWnt / sumWnt);
+          mePUTrackRelSumWos_->Fill(PUsumWos / sumWos);
+          meSecTrackRelSumWos_->Fill(SecsumWos / sumWos);
+          meFakeTrackRelSumWos_->Fill(FakesumWos / sumWos);
+          mePUTrackRelSumPt_->Fill(PUsumPt / sumPt);
+          mePUTrackRelSumPt2_->Fill(PUsumPt2 / sumPt2);
+
+          observablesFromJets(
+              recotracks, massVector, categoryVector, "use_allTracks", nJets, sumEtJets, sumPt2Jets, metPt, sumPzJets);
+          observablesFromJets(recotracks,
+                              massVector,
+                              categoryVector,
+                              "skip_Fake",
+                              nJetsnoFake,
+                              sumEtJetsnoFake,
+                              sumPt2JetsnoFake,
+                              metPtnoFake,
+                              sumPzJetsnoFake);
+          observablesFromJets(recotracks,
+                              massVector,
+                              categoryVector,
+                              "skip_PU",
+                              nJetsnoPU,
+                              sumEtJetsnoPU,
+                              sumPt2JetsnoPU,
+                              metPtnoPU,
+                              sumPzJetsnoPU);
+
+          meJetsPURelMult_->Fill(static_cast<double>(nJets - nJetsnoPU) / nJets);
+          meJetsPURelHt_->Fill((sumEtJets - sumEtJetsnoPU) / sumEtJets);
+          meJetsPURelSumPt2_->Fill((sumPt2Jets - sumPt2JetsnoPU) / sumPt2Jets);
+          meJetsFakeRelSumPt2_->Fill((sumPt2Jets - sumPt2JetsnoFake) / sumPt2Jets);
+          meJetsPURelMetPt_->Fill((metPt - metPtnoPU) / metPt);
+          meJetsPURelSumPz_->Fill((sumPzJets - sumPzJetsnoPU) / sumPzJets);
+
+          if (optionalPlots_) {
+            mePUTrackMult_->Fill(PUnt);
+            mePUTrackSumWnt_->Fill(log10(std::max(minThrSumWnt_, PUsumWnt)));
+            mePUTrackSumWos_->Fill(log10(std::max(minThrSumWos_, PUsumWos)));
+            meSecTrackSumWos_->Fill(log10(std::max(minThrSumWos_, SecsumWos)));
+            mePUTrackSumPt_->Fill(log10(std::max(minThrSumPt_, PUsumPt)));
+            mePUTrackSumPt2_->Fill(log10(std::max(minThrSumPt2_, PUsumPt2)));
+
+            mePUTrackRelMultvsMult_->Fill(nt, static_cast<double>(PUnt) / nt);
+            meFakeTrackRelMultvsMult_->Fill(nt, static_cast<double>(Fakent) / nt);
+            mePUTrackRelSumWntvsSumWnt_->Fill(log10(std::max(minThrSumWnt_, sumWnt)), PUsumWnt / sumWnt);
+            mePUTrackRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), PUsumWos / sumWos);
+            meSecTrackRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), SecsumWos / sumWos);
+            meFakeTrackRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), FakesumWos / sumWos);
+            mePUTrackRelSumPtvsSumPt_->Fill(log10(std::max(minThrSumPt_, sumPt)), PUsumPt / sumPt);
+            mePUTrackRelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2)), PUsumPt2 / sumPt2);
+
+            meJetsPUMult_->Fill(nJets - nJetsnoPU);
+            meJetsPUHt_->Fill(log10(std::max(minThrSumPt_, sumEtJets - sumEtJetsnoPU)));
+            meJetsPUSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets - sumPt2JetsnoPU)));
+            meJetsPUMetPt_->Fill(log10(std::max(minThrMetPt_, metPt - metPtnoPU)));
+            meJetsPUSumPz_->Fill(log10(std::max(minThrSumPz_, std::abs(sumPzJets - sumPzJetsnoPU))));
+
+            meJetsPURelMultvsMult_->Fill(nJets, static_cast<double>(nJets - nJetsnoPU) / nJets);
+            meJetsPURelHtvsHt_->Fill(log10(std::max(minThrSumPt_, sumEtJets)), (sumEtJets - sumEtJetsnoPU) / sumEtJets);
+            meJetsPURelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets)),
+                                             (sumPt2Jets - sumPt2JetsnoPU) / sumPt2Jets);
+            meJetsFakeRelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets)),
+                                               (sumPt2Jets - sumPt2JetsnoFake) / sumPt2Jets);
+            meJetsPURelMetPtvsMetPt_->Fill(log10(std::max(minThrMetPt_, metPt)), (metPt - metPtnoPU) / metPt);
+            meJetsPURelSumPzvsSumPz_->Fill(log10(std::max(minThrSumPz_, std::abs(sumPzJets))),
+                                           (sumPzJets - sumPzJetsnoPU) / sumPzJets);
+          }
+          if (selectedLV) {
+            mePUTrackRecLVRelMult_->Fill(static_cast<double>(PUnt) / nt);
+            meFakeTrackRecLVRelMult_->Fill(static_cast<double>(Fakent) / nt);
+            mePUTrackRecLVRelSumWnt_->Fill(PUsumWnt / sumWnt);
+            mePUTrackRecLVRelSumWos_->Fill(PUsumWos / sumWos);
+            meSecTrackRecLVRelSumWos_->Fill(SecsumWos / sumWos);
+            meFakeTrackRecLVRelSumWos_->Fill(FakesumWos / sumWos);
+            mePUTrackRecLVRelSumPt_->Fill(PUsumPt / sumPt);
+            mePUTrackRecLVRelSumPt2_->Fill(PUsumPt2 / sumPt2);
+
+            meJetsRecLVPURelMult_->Fill(static_cast<double>(nJets - nJetsnoPU) / nJets);
+            meJetsRecLVPURelHt_->Fill((sumEtJets - sumEtJetsnoPU) / sumEtJets);
+            meJetsRecLVPURelSumPt2_->Fill((sumPt2Jets - sumPt2JetsnoPU) / sumPt2Jets);
+            meJetsRecLVFakeRelSumPt2_->Fill((sumPt2Jets - sumPt2JetsnoFake) / sumPt2Jets);
+            meJetsRecLVPURelMetPt_->Fill((metPt - metPtnoPU) / metPt);
+            meJetsRecLVPURelSumPz_->Fill((sumPzJets - sumPzJetsnoPU) / sumPzJets);
+
+            if (debug_) {
+              edm::LogPrint("Primary4DVertexValidation")
+                  << "#PUTrks = " << PUnt << " #Trks = " << nt << " PURelMult = " << std::setprecision(3)
+                  << static_cast<double>(PUnt) / nt;
+              edm::LogPrint("Primary4DVertexValidation")
+                  << "PUsumWnt = " << std::setprecision(3) << PUsumWnt << " sumWnt = " << std::setprecision(3) << sumWnt
+                  << " PURelsumWnt = " << std::setprecision(3) << PUsumWnt / sumWnt;
+              edm::LogPrint("Primary4DVertexValidation")
+                  << "PUsumWos = " << std::setprecision(3) << PUsumWos << " sumWos = " << std::setprecision(3) << sumWos
+                  << " PURelsumWos = " << std::setprecision(3) << PUsumWos / sumWos;
+              edm::LogPrint("Primary4DVertexValidation")
+                  << "PuSumPt = " << std::setprecision(3) << PUsumPt << " SumPt = " << std::setprecision(4) << sumPt
+                  << " PURelSumPt = " << std::setprecision(3) << PUsumPt / sumPt;
+              edm::LogPrint("Primary4DVertexValidation")
+                  << "PuSumPt2 = " << std::setprecision(3) << PUsumPt2 << " SumPt2 = " << std::setprecision(4) << sumPt2
+                  << " PURelSumPt2 = " << std::setprecision(3) << PUsumPt2 / sumPt2;
+            }
+            if (optionalPlots_) {
+              mePUTrackRecLVMult_->Fill(PUnt);
+              mePUTrackRecLVSumWnt_->Fill(log10(std::max(minThrSumWnt_, PUsumWnt)));
+              mePUTrackRecLVSumWos_->Fill(log10(std::max(minThrSumWos_, PUsumWos)));
+              meSecTrackRecLVSumWos_->Fill(log10(std::max(minThrSumWos_, PUsumWos)));
+              mePUTrackRecLVSumPt_->Fill(log10(std::max(minThrSumPt_, PUsumPt)));
+              mePUTrackRecLVSumPt2_->Fill(log10(std::max(minThrSumPt2_, PUsumPt2)));
+
+              mePUTrackRecLVRelMultvsMult_->Fill(nt, static_cast<double>(PUnt) / nt);
+              meFakeTrackRecLVRelMultvsMult_->Fill(nt, static_cast<double>(Fakent) / nt);
+              mePUTrackRecLVRelSumWntvsSumWnt_->Fill(log10(std::max(minThrSumWnt_, sumWnt)), PUsumWnt / sumWnt);
+              mePUTrackRecLVRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), PUsumWos / sumWos);
+              meSecTrackRecLVRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), SecsumWos / sumWos);
+              meFakeTrackRecLVRelSumWosvsSumWos_->Fill(log10(std::max(minThrSumWos_, sumWos)), FakesumWos / sumWos);
+              mePUTrackRecLVRelSumPtvsSumPt_->Fill(log10(std::max(minThrSumPt_, sumPt)), PUsumPt / sumPt);
+              mePUTrackRecLVRelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2)), PUsumPt2 / sumPt2);
+
+              meJetsRecLVPUMult_->Fill(nJets - nJetsnoPU);
+              meJetsRecLVPUHt_->Fill(log10(std::max(minThrSumPt_, sumEtJets - sumEtJetsnoPU)));
+              meJetsRecLVPUSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets - sumPt2JetsnoPU)));
+              meJetsRecLVPUMetPt_->Fill(log10(std::max(minThrMetPt_, metPt - metPtnoPU)));
+              meJetsRecLVPUSumPz_->Fill(log10(std::max(minThrSumPz_, std::abs(sumPzJets - sumPzJetsnoPU))));
+
+              meJetsRecLVPURelMultvsMult_->Fill(nJets, static_cast<double>(nJets - nJetsnoPU) / nJets);
+              meJetsRecLVPURelHtvsHt_->Fill(log10(std::max(minThrSumPt_, sumEtJets)),
+                                            (sumEtJets - sumEtJetsnoPU) / sumEtJets);
+              meJetsRecLVPURelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets)),
+                                                    (sumPt2Jets - sumPt2JetsnoPU) / sumPt2Jets);
+              meJetsRecLVFakeRelSumPt2vsSumPt2_->Fill(log10(std::max(minThrSumPt2_, sumPt2Jets)),
+                                                      (sumPt2Jets - sumPt2JetsnoFake) / sumPt2Jets);
+              meJetsRecLVPURelMetPtvsMetPt_->Fill(log10(std::max(minThrMetPt_, metPt)), (metPt - metPtnoPU) / metPt);
+              meJetsRecLVPURelSumPzvsSumPz_->Fill(log10(std::max(minThrSumPz_, std::abs(sumPzJets))),
+                                                  (sumPzJets - sumPzJetsnoPU) / sumPzJets);
+            }
+          }
         }
-      }
-    }  // ndof
-  }
+      }  // loop on simpv
+    }    // ndof
+  }      // loop on recopv
 
   int real = 0;
   int fake = 0;
@@ -1600,7 +2536,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);
   mePUvsSplitV_->Fill(simpv.size(), split);
 
-  //fill vertices histograms here in a new loop
+  // fill vertices histograms here in a new loop
   for (unsigned int is = 0; is < simpv.size(); is++) {
     // protect against particle guns with very displaced vertices
     if (edm::isNotFinite(1. / puLineDensity(simpv.at(is).z))) {
@@ -1624,7 +2560,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           meTimeRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
           meTimePull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) / recopv.at(ir).recVtx->tError());
           meMatchQual_->Fill(recopv.at(ir).matchQuality - 0.5);
-          if (ir == 0) {  //signal vertex plots
+          if (ir == 0) {  // signal vertex plots
             meTimeSignalRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
             meTimeSignalPull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) /
                                     recopv.at(ir).recVtx->tError());
@@ -1646,7 +2582,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                   recopv.at(ir).OriginalIndex);  // position in reco vtx correction associated to sim signal
             }
           }
-
           if (debug_) {
             edm::LogPrint("Primary4DVertexValidation") << "*** Matching RECO: " << ir << "with SIM: " << is << " ***";
             edm::LogPrint("Primary4DVertexValidation") << "Match Quality is " << recopv.at(ir).matchQuality;
@@ -1657,7 +2592,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     }
   }
 
-  //dz histos
+  // dz histos
   for (unsigned int iv = 0; iv < recVtxs->size() - 1; iv++) {
     if (recVtxs->at(iv).ndof() > selNdof_) {
       double mindistance_realreal = 1e10;
@@ -1710,7 +2645,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }
         }
       }
-    }  //ndof
+    }  // ndof
   }
 
 }  // end of analyze
@@ -1744,6 +2679,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("useOnlyChargedTracks", true);
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("optionalPlots", false);
+  desc.add<bool>("use3dNoTime", false);
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.01);
   desc.add<double>("minProbHeavy", 0.75);
@@ -1756,6 +2692,58 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   lDP.push_back(42.5);
   desc.add<std::vector<double>>("lineDensityPar", lDP);
   descriptions.add("vertices4DValid", desc);
+}
+
+void Primary4DVertexValidation::printMatchedRecoTrackInfo(const reco::Vertex& vtx,
+                                                          const reco::TrackBaseRef& trk,
+                                                          const TrackingParticleRef& tp,
+                                                          const unsigned int& categ) {
+  std::string strTrk;
+  switch (categ) {
+    case 0:
+      strTrk = "Reco_Track:";
+      break;
+    case 1:
+      strTrk = "SecRecoTrk:";
+      break;
+    case 2:
+      strTrk = "PU_RecoTrk:";
+      break;
+  }
+  edm::LogPrint("Primary4DVertexValidation")
+      << strTrk << " w =" << std::setw(6) << std::setprecision(2) << vtx.trackWeight(trk) << " pt =" << std::setw(6)
+      << std::setprecision(2) << trk->pt() << " eta =" << std::setw(6) << std::setprecision(2) << trk->eta()
+      << "  MatchedTP: Pt =" << std::setw(6) << std::setprecision(2) << tp->pt() << " eta =" << std::setw(6)
+      << std::setprecision(2) << tp->eta() << "  Parent vtx: z =" << std::setw(8) << std::setprecision(4)
+      << tp->parentVertex()->position().z() << " t =" << std::setw(8) << std::setprecision(4)
+      << tp->parentVertex()->position().t() * simUnit_ << " BX =" << tp->parentVertex()->eventId().bunchCrossing()
+      << " ev =" << tp->parentVertex()->eventId().event() << std::endl;
+}
+
+void Primary4DVertexValidation::printSimVtxRecoVtxInfo(
+    const struct Primary4DVertexValidation::simPrimaryVertex& simpVtx,
+    const struct Primary4DVertexValidation::recoPrimaryVertex& recopVtx) {
+  edm::LogPrint("Primary4DVertexValidation")
+      << "Sim vtx (x,y,z,t) = (" << std::setprecision(4) << simpVtx.x << "," << std::setprecision(4) << simpVtx.y << ","
+      << std::setprecision(4) << simpVtx.z << "," << std::setprecision(4) << simpVtx.t * simUnit_ << ")";
+  edm::LogPrint("Primary4DVertexValidation")
+      << "Sim vtx: pt = " << std::setprecision(4) << simpVtx.pt << " ptsq = " << std::setprecision(6) << simpVtx.ptsq
+      << " nGenTrk = " << simpVtx.nGenTrk << " nmatch recotrks = " << simpVtx.num_matched_reco_tracks;
+  edm::LogPrint("Primary4DVertexValidation")
+      << "Reco vtx (x,y,z) = (" << std::setprecision(4) << recopVtx.x << "," << std::setprecision(4) << recopVtx.y
+      << "," << std::setprecision(4) << recopVtx.z << ")";
+  edm::LogPrint("Primary4DVertexValidation")
+      << "Reco vtx: pt = " << std::setprecision(4) << recopVtx.pt << " ptsq = " << std::setprecision(6) << recopVtx.ptsq
+      << " nrecotrks = " << recopVtx.nRecoTrk << " nmatch simtrks = " << recopVtx.num_matched_sim_tracks;
+  edm::LogPrint("Primary4DVertexValidation") << "wnt " << recopVtx.sumwnt << " wos = " << recopVtx.sumwos;
+  for (auto iTP = simpVtx.sim_vertex->daughterTracks_begin(); iTP != simpVtx.sim_vertex->daughterTracks_end(); ++iTP) {
+    if (use_only_charged_tracks_ && (**iTP).charge() == 0) {
+      continue;
+    }
+    edm::LogPrint("Primary4DVertexValidation")
+        << "Daughter track of sim vertex: pt =" << std::setw(6) << std::setprecision(2) << (*iTP)->pt()
+        << "  eta =" << std::setw(6) << std::setprecision(2) << (*iTP)->eta();
+  }
 }
 
 const bool Primary4DVertexValidation::mvaTPSel(const TrackingParticle& tp) {

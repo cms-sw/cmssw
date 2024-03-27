@@ -133,7 +133,7 @@ namespace edm {
 
   void Path::threadsafe_setFailedModuleInfo(int nwrwue, bool iExcept) {
     bool expected = false;
-    while (stateLock_.compare_exchange_strong(expected, true)) {
+    while (not stateLock_.compare_exchange_strong(expected, true)) {
       expected = false;
     }
     if (iExcept) {
