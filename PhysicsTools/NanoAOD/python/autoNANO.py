@@ -47,5 +47,6 @@ autoNANO = {
     'LepTimeLife' : {'sequence': '@PHYS',
                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
     # Custom BTV Nano for SF measurements or tagger training
-    'BTV' : {'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
+    'BTV' : {'sequence': '@PHYS',
+             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }

@@ -207,6 +207,9 @@ steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@BTV',
                                     '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
+steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM', '-n' : '1000'},
+                                       steps['NANO_mc13.2']])
+
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
