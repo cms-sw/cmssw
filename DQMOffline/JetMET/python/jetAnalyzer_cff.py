@@ -6,7 +6,7 @@ from DQMOffline.JetMET.jetAnalyzer_cfi import *
 
 jetDQMAnalyzerSequence = cms.Sequence(jetDQMAnalyzerAk4CaloCleaned
                                       *jetDQMAnalyzerAk4PFUncleaned*jetDQMAnalyzerAk4PFCleaned
-                                      *jetDQMAnalyzerAk4PFCHSCleaned
+                                      *jetDQMAnalyzerAk4PFCHSCleaned*jetDQMAnalizerAk4PUPPICleaned
                                    )
 
 jetDQMAnalyzerSequenceCosmics = cms.Sequence(jetDQMAnalyzerAk4CaloUncleaned)

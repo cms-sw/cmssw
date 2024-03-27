@@ -144,6 +144,16 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     fillCHShistos = True
 )
 
+jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
+    JetType = cms.string('puppi'),
+    jetsrc = "ak4PFJetsPuppi",
+    METCollectionLabel = "pfMetPuppi",
+    JetCorrections = "ak4PFPuppiL1FastL2L3ResidualCorrector",
+    JetIDVersion = "RUN2ULPUPPI",
+    JetIDQuality = cms.string("TIGHT"),
+    fillCHShistos = True,
+)
+
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
     filljetHighLevel = True,
     CleaningParameters = cleaningParameters.clone(
