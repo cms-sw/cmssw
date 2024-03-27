@@ -97,6 +97,36 @@
 	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
+
+
+
+        <!-- HepMC3 externals -->
+        <class name="HepMC3::GenEvent"/>
+        <class name="HepMC3::GenVertex"/>
+        <class name="HepMC3::GenParticle"/>
+
+        <!-- HepMC3Product -->
+
+        <class name="edm::Wrapper&lt;edm::HepMC3Product&gt;"/>
+        <class name="std::vector&lt;const edm::HepMC3Product*&gt;"/>
+	<!--
+        <class name="edm::Ref&lt;edm::HepMC3Product,HepMC3::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenVertex&gt;::Find&gt;"/>
+        <class name="edm::Ref&lt;edm::HepMC3Product,HepMC3::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenParticle&gt;::Find&gt;"/>
+        <class name="edm::RefVector&lt;edm::HepMC3Product,HepMC3::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenVertex&gt;::Find&gt;"/>
+        <class name="edm::RefVector&lt;edm::HepMC3Product,HepMC3::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenParticle&gt;::Find&gt;"/>
+	-->
+        <class name="std::map&lt;int,HepMC3::GenVertex*&gt;"/>
+        <class name="std::pair&lt;const int,HepMC3::GenVertex*&gt;"/>
+        <class name="std::pair&lt;int,HepMC3::GenVertex*&gt;"/>
+        <class name="std::map&lt;int,HepMC3::GenParticle*&gt;"/>
+        <class name="std::pair&lt;const int,HepMC3::GenParticle*&gt;"/>
+        <class name="std::pair&lt;int,HepMC3::GenParticle*&gt;"/>
+        <class name="std::map&lt;int,HepMC3::GenVertex*,std::greater&lt;int&gt; &gt;"/>
+
+
+
+
+
 	<!-- Classes shared between different kinds of products -->
 
         <class name="gen::PdfInfo" ClassVersion="10">
@@ -184,6 +214,17 @@
     <![CDATA[nMEPartonsFiltered_ = -1;]]>
  </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
+
+
+
+
+        <!-- GenEventInfoProduct3 -->
+        <class name="GenEventInfoProduct3"/>
+        <class name="edm::Wrapper<GenEventInfoProduct3>"/>
+
+
+
+
 
 	<!-- LHE products -->
 
