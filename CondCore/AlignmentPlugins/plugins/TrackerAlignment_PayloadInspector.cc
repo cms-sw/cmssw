@@ -69,7 +69,9 @@ namespace {
   // one at a time
   //******************************************//
 
-  template <int ntags, IOVMultiplicity nIOVs, bool doOnlyPixel>
+  enum RegionCategory { ALL = 0, INNER = 1, OUTER = 2 };
+
+  template <int ntags, IOVMultiplicity nIOVs, RegionCategory cat>
   class TrackerAlignmentCompareAll : public PlotImage<Alignments, nIOVs, ntags> {
   public:
     TrackerAlignmentCompareAll()
@@ -105,13 +107,46 @@ namespace {
       std::vector<AlignTransform> ref_ali = first_payload->m_align;
       std::vector<AlignTransform> target_ali = last_payload->m_align;
 
+      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+
+      // check that the geomtery is a tracker one
+      const char *path_toTopologyXML = nullptr;
+      if (ph2) {
+        if (AlignmentPI::isReorderedTFPXTEPX(ref_ali) && AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Both reference and target alignments are reordered. Using the trackerParameters for the Reordered "
+                 "TFPX,TEPX.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml";
+        } else if (!AlignmentPI::isReorderedTFPXTEPX(ref_ali) && !AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Neither reference nor target alignments are reordered. Using the standard trackerParameters.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+        } else {
+          if (cat == RegionCategory::ALL || cat == RegionCategory::INNER) {
+            // Emit warning and exit false if alignments are mismatched
+            edm::LogWarning("TrackerAlignment_PayloadInspector")
+                << "Mismatched alignments detected. One is reordered while the other is not. Unable to proceed.";
+            return false;
+          } else {
+            edm::LogWarning("TrackerAlignment_PayloadInspector")
+                << "Mismatched inner tracks alignments detected. One is reordered while the other is not. Ignoring as "
+                   "OT only comparison requested.";
+            path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+          }
+        }
+      } else {
+        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      }
+
       // Use remove_if along with a lambda expression to remove elements based on the condition (subid > 2)
-      if (doOnlyPixel) {
+      if (cat != RegionCategory::ALL) {
         ref_ali.erase(std::remove_if(ref_ali.begin(),
                                      ref_ali.end(),
                                      [](const AlignTransform &transform) {
                                        int subid = DetId(transform.rawId()).subdetId();
-                                       return subid > 2;
+                                       return (cat == RegionCategory::INNER) ? (subid > 2) : (subid <= 2);
                                      }),
                       ref_ali.end());
 
@@ -119,7 +154,7 @@ namespace {
                                         target_ali.end(),
                                         [](const AlignTransform &transform) {
                                           int subid = DetId(transform.rawId()).subdetId();
-                                          return subid > 2;
+                                          return (cat == RegionCategory::INNER) ? (subid > 2) : (subid <= 2);
                                         }),
                          target_ali.end());
       }
@@ -132,18 +167,6 @@ namespace {
             << ") is different from the one of the target (" << target_ali.size()
             << ")! You are probably trying to compare different underlying geometries. Exiting";
         return false;
-      }
-
-      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
-
-      // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = nullptr;
-      if (ph2) {
-        path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
-      } else {
-        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
-                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       }
 
       TrackerTopology tTopo =
@@ -184,7 +207,9 @@ namespace {
 
       // fill all the histograms together
       std::map<int, AlignmentPI::partitions> boundaries;
-      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
+      if (cat < RegionCategory::OUTER) {
+        boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
+      }
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs);
 
       unsigned int subpad{1};
@@ -231,6 +256,8 @@ namespace {
       canvas.Update();
       canvas.cd();
       canvas.Modified();
+
+      bool doOnlyPixel = (cat == RegionCategory::INNER);
 
       TLine l[6][boundaries.size()];
       TLatex tSubdet[6];
@@ -292,11 +319,14 @@ namespace {
     }
   };
 
-  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, false> TrackerAlignmentComparatorSingleTag;
-  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, false> TrackerAlignmentComparatorTwoTags;
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, RegionCategory::ALL> TrackerAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, RegionCategory::ALL> TrackerAlignmentComparatorTwoTags;
 
-  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, true> PixelAlignmentComparatorSingleTag;
-  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, true> PixelAlignmentComparatorTwoTags;
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, RegionCategory::INNER> PixelAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, RegionCategory::INNER> PixelAlignmentComparatorTwoTags;
+
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, RegionCategory::OUTER> OTAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, RegionCategory::OUTER> OTAlignmentComparatorTwoTags;
 
   //*******************************************//
   // Size of the movement over all partitions,
@@ -350,10 +380,32 @@ namespace {
         return false;
       }
 
+      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+
       // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = nullptr;
+      if (ph2) {
+        if (AlignmentPI::isReorderedTFPXTEPX(ref_ali) && AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Both reference and target alignments are reordered. Using the trackerParameters for the Reordered "
+                 "TFPX,TEPX.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml";
+        } else if (!AlignmentPI::isReorderedTFPXTEPX(ref_ali) && !AlignmentPI::isReorderedTFPXTEPX(target_ali)) {
+          edm::LogPrint("TrackerAlignment_PayloadInspector")
+              << "Neither reference nor target alignments are reordered. Using the standard trackerParameters.";
+          path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+        } else {
+          // Emit warning and exit false if alignments are mismatched
+          edm::LogWarning("TrackerAlignment_PayloadInspector")
+              << "Mismatched alignments detected. One is reordered while the other is not. Unable to proceed.";
+          return false;
+        }
+      } else {
+        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      }
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -1422,6 +1474,8 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorSingleTag);
   PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(OTAlignmentComparatorSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(OTAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorSingleTag);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareX);
