@@ -26,6 +26,7 @@ nanogenSequence = cms.Sequence(
     genJetAK8FlavourTable+
     cms.Sequence(genTauTask)+
     genTable+
+    genIso+
     genFilterTable+
     cms.Sequence(genParticleTablesTask)+
     cms.Sequence(genVertexTablesTask)+

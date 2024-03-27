@@ -8,7 +8,7 @@ from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCand
 finalGenParticles = cms.EDProducer("GenParticlePruner",
     src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
-	"drop *",
+        "drop *",
         "keep++ abs(pdgId) == 15 & (pt > 15 ||  isPromptDecayed() )",#  keep full tau decay chain for some taus
 	#"drop status==1 & pt < 1", #drop soft stable particle in tau decay
         "keep+ abs(pdgId) == 15 ",  #  keep first gen decay product for all tau
@@ -23,7 +23,7 @@ finalGenParticles = cms.EDProducer("GenParticlePruner",
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 37 ",   # keep VIP(articles)s
         #"keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
         "keep (1000001 <= abs(pdgId) <= 1000039 ) || ( 2000001 <= abs(pdgId) <= 2000015)", #keep SUSY fiction particles
-   )
+    )
 )
 
 
@@ -33,6 +33,9 @@ genParticleTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("finalGenParticles"),
     name= cms.string("GenPart"),
     doc = cms.string("interesting gen particles "),
+    externalVariables = cms.PSet(
+        iso = ExtVar(cms.InputTag("genIso"), float, precision=8, doc="Isolation for leptons"),
+    ),
     variables = cms.PSet(
          pt  = Var("pt",  float, precision=8),
          phi = Var("phi", float,precision=8),
@@ -77,6 +80,9 @@ genParticleTable = simpleCandidateFlatTableProducer.clone(
     )
 )
 
-genParticleTask = cms.Task(finalGenParticles)
-genParticleTablesTask = cms.Task(genParticleTable)
+genIso = cms.EDProducer("GenPartIsoProducer",
+                       src=cms.InputTag("finalGenParticles"),
+        )
 
+genParticleTask = cms.Task(finalGenParticles, genIso)
+genParticleTablesTask = cms.Task(genParticleTable)
