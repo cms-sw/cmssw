@@ -13,7 +13,7 @@ class RawParticle;
 namespace gen {
   class P8RndmEngine;
   typedef std::shared_ptr<P8RndmEngine> P8RndmEnginePtr;
-}
+}  // namespace gen
 
 namespace CLHEP {
   class HepRandomEngine;

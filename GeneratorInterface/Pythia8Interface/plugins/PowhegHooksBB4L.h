@@ -184,9 +184,9 @@ namespace Pythia8 {
           iRes = e[iRes].mother1();
         }
         if (iRes == 0) {
-          loggerPtr->errorMsg(
-              "PowhegHooksBB4L::doVetoFSREmission", "Emission in resonance not from the top quark or from the "
-              "W boson, not vetoing");
+          loggerPtr->errorMsg("PowhegHooksBB4L::doVetoFSREmission",
+                              "Emission in resonance not from the top quark or from the "
+                              "W boson, not vetoing");
           return doVetoFSR(false, 0);
         }
         int iResId = e[iRes].id();
