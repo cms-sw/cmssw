@@ -563,6 +563,13 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
     }      //end if (processEmulatedTracks_)
   }        //end loop over input converted tracks
 
+  if (processSimulatedTracks_ && processEmulatedTracks_ && debug_ >= 2) {
+    printDebugInfo(l1SelectedTracksHandle,
+                   l1SelectedTracksEmulationHandle,
+                   vTTTrackAssociatedOutput,
+                   vTTTrackAssociatedEmulationOutput);
+  }
+
   if (processSimulatedTracks_) {
     iEvent.put(std::move(vTTTrackAssociatedOutput), outputCollectionName_);
   }
@@ -573,12 +580,6 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
       linkLimitSelEmu.log();
   }
 
-  if (processSimulatedTracks_ && processEmulatedTracks_ && debug_ >= 2) {
-    printDebugInfo(l1SelectedTracksHandle,
-                   l1SelectedTracksEmulationHandle,
-                   vTTTrackAssociatedOutput,
-                   vTTTrackAssociatedEmulationOutput);
-  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
