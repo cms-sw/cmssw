@@ -16,6 +16,14 @@ namespace edm {
   class ParameterSet;
 }
 
+namespace parabolicparametrizedmagneticfield {
+  // Default parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
+  constexpr float c1 = 3.8114;
+  constexpr float b0 = -3.94991e-06;
+  constexpr float b1 = 7.53701e-06;
+  constexpr float a = 2.43878e-11;
+}  // namespace parabolicparametrizedmagneticfield
+
 class ParabolicParametrizedMagneticField final : public MagneticField {
 public:
   /// Default constructor, use default values for 3.8T map
