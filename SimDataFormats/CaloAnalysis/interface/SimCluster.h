@@ -261,7 +261,6 @@ protected:
   /// references to G4 and reco::GenParticle tracks
   std::vector<SimTrack> g4Tracks_;
   reco::GenParticleRefVector genParticles_;
-
 };
 
 #endif  // SimDataFormats_SimCluster_H
