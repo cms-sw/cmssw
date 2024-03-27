@@ -21,7 +21,7 @@ namespace {
     sigmaIEtaIEta = 2,  // 2
     etaWidth = 3,       // 3
     phiWidth = 4,       // 4
-    e2x2 = 5,           // 5
+    s4 = 5,             // 5
     eta = 6,            // 6
     hOvrE = 7,          // 7
     ecalPFIso = 8,      // 8
@@ -33,7 +33,7 @@ float PhotonXGBoostEstimator::computeMva(float rawEnergyIn,
                                          float sigmaIEtaIEtaIn,
                                          float etaWidthIn,
                                          float phiWidthIn,
-                                         float e2x2In,
+                                         float s4In,
                                          float etaIn,
                                          float hOvrEIn,
                                          float ecalPFIsoIn) const {
@@ -43,7 +43,7 @@ float PhotonXGBoostEstimator::computeMva(float rawEnergyIn,
   var[sigmaIEtaIEta] = sigmaIEtaIEtaIn;
   var[etaWidth] = etaWidthIn;
   var[phiWidth] = phiWidthIn;
-  var[e2x2] = e2x2In;
+  var[s4] = s4In;
   var[eta] = etaIn;
   var[hOvrE] = hOvrEIn;
   var[ecalPFIso] = ecalPFIsoIn;

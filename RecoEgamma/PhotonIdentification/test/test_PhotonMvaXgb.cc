@@ -37,7 +37,7 @@ TEST_CASE("RecoEgamma/PhotonIdentification testXGBPhoton", "[TestPhotonMvaXgb]")
       float xgbScore;
       const float *v = vars_in[i];
       float etaSC = v[6];
-      if (abs(etaSC) < 1.5)
+      if (std::abs(etaSC) < 1.5)
         xgbScore = mvaEstimatorB->computeMva(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
       else
         xgbScore = mvaEstimatorE->computeMva(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
