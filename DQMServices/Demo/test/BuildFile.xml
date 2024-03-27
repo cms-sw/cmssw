@@ -6,3 +6,4 @@
 </library>
 
 <test name="TestDQMServicesDemo" command="runtests.sh"/>
+<test name="SCRAM_DQMDemo" command="echo DQM demo"/>
