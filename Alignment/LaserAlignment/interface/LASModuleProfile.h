@@ -20,7 +20,6 @@ public:
   void SetValue(unsigned int theStripNumber, const double& theValue) { data.at(theStripNumber) = theValue; }
   void SetAllValuesTo(const double&);
   void DumpToArray(double[512]);
-  LASModuleProfile& operator=(const LASModuleProfile&);
   LASModuleProfile operator+(const LASModuleProfile&);
   LASModuleProfile operator-(const LASModuleProfile&);
   LASModuleProfile operator+(const double[512]);

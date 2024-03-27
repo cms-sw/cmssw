@@ -1,25 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltEG26EtL1SeededFilter_cfi import *
-from ..modules.hltEgammaCandidatesWrapperL1Seeded_cfi import *
-from ..modules.hltEGL1SeedsForSingleEleIsolatedFilter_cfi import *
-from ..modules.hltEle26WP70BestGsfChi2L1SeededFilter_cfi import *
-from ..modules.hltEle26WP70BestGsfNLayerITL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70ClusterShapeL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70ClusterShapeSigmavvL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70ClusterShapeSigmawwL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70EcalIsoL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70GsfDetaL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70GsfDphiL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70GsfOneOEMinusOneOPL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70GsfTrackIsoFromL1TracksL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70GsfTrackIsoL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70HcalIsoL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70HEL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70HgcalHEL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70HgcalIsoL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70PixelMatchL1SeededFilter_cfi import *
-from ..modules.hltEle26WP70PMS2L1SeededFilter_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalL1SeededSequence_cfi import *
 from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTEle26WP70L1SeededInnerSequence_cfi import *
@@ -30,6 +10,16 @@ from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
 
-HLTEle26WP70L1SeededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSingleEleIsolatedFilter+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaL1SeededSequence+HLTHgcalTiclPFClusteringForEgammaL1SeededSequence+HLTFastJetForEgammaSequence+HLTPFHcalClusteringForEgammaSequence+HLTElePixelMatchL1SeededSequence+HLTTrackingV61Sequence+HLTGsfElectronL1SeededSequence+HLTEle26WP70L1SeededInnerSequence+hltEgammaCandidatesWrapperL1Seeded+hltEG26EtL1SeededFilter+hltEle26WP70ClusterShapeL1SeededFilter+hltEle26WP70ClusterShapeSigmavvL1SeededFilter+hltEle26WP70ClusterShapeSigmawwL1SeededFilter+hltEle26WP70HgcalHEL1SeededFilter+hltEle26WP70HEL1SeededFilter+hltEle26WP70EcalIsoL1SeededFilter+hltEle26WP70HgcalIsoL1SeededFilter+hltEle26WP70HcalIsoL1SeededFilter+hltEle26WP70PixelMatchL1SeededFilter+hltEle26WP70PMS2L1SeededFilter+hltEle26WP70GsfOneOEMinusOneOPL1SeededFilter+hltEle26WP70GsfDetaL1SeededFilter+hltEle26WP70GsfDphiL1SeededFilter+hltEle26WP70BestGsfNLayerITL1SeededFilter+hltEle26WP70BestGsfChi2L1SeededFilter+hltEle26WP70GsfTrackIsoFromL1TracksL1SeededFilter+hltEle26WP70GsfTrackIsoL1SeededFilter)
+HLTEle26WP70L1SeededSequence = cms.Sequence(HLTL1Sequence
+    +hltEGL1SeedsForSingleEleIsolatedFilter
+    +HLTDoFullUnpackingEgammaEcalL1SeededSequence
+    +HLTEGammaDoLocalHcalSequence
+    +HLTPFClusteringForEgammaL1SeededSequence
+    +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
+    +HLTFastJetForEgammaSequence
+    +HLTPFHcalClusteringForEgammaSequence
+    +HLTElePixelMatchL1SeededSequence
+    +HLTGsfElectronL1SeededSequence
+    +HLTEle26WP70L1SeededInnerSequence
+)

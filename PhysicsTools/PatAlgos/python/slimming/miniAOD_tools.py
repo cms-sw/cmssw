@@ -126,6 +126,8 @@ def miniAOD_customizeCommon(process):
     pp_on_AA.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
     from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
     run3_upc.toModify(process.selectedPatMuons, cut = "")
+    from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+    ppRef_2024.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || isTrackerMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon))")
 
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
