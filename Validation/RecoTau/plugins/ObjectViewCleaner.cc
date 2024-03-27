@@ -30,6 +30,10 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"       // new
+#include "DataFormats/PatCandidates/interface/Electron.h"  // new
+#include "DataFormats/PatCandidates/interface/Muon.h"      // new
+
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -83,7 +87,9 @@ namespace {
                           ? iConfig.getParameter<std::string>("srcObjectsToRemoveSelection")
                           : "",
                       true} {
-    produces<edm::RefToBaseVector<T>>();
+    // produces<edm::RefToBaseVector<T>>();
+    // need to write a class_def.xml??
+    produces<std::vector<T>>();
   }
 
   //______________________________________________________________________________
@@ -93,11 +99,13 @@ namespace {
     iEvent.getByToken(srcCands_, candidates);
     globalCache()->nObjectsTot += candidates->size();
 
-    auto cleanObjects = std::make_unique<edm::RefToBaseVector<T>>();
+    //auto cleanObjects = std::make_unique<edm::RefToBaseVector<T>>();
+    auto cleanObjects = std::make_unique<std::vector<T>>();
     for (unsigned int iCand{}; iCand < candidates->size(); ++iCand) {
       auto const& candidate = candidates->at(iCand);
       if (objKeepCut_(candidate) && isIsolated(iEvent, candidate)) {
-        cleanObjects->push_back(candidates->refAt(iCand));
+        //cleanObjects->push_back(candidates->refAt(iCand));
+        cleanObjects->push_back(candidate);
       }
     }
     globalCache()->nObjectsClean += cleanObjects->size();
@@ -152,7 +160,7 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 // plugin definitions
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 typedef ObjectViewCleaner<reco::Candidate> TauValCandViewCleaner;
 typedef ObjectViewCleaner<reco::Jet> TauValJetViewCleaner;
 typedef ObjectViewCleaner<reco::Muon> TauValMuonViewCleaner;
@@ -168,3 +176,8 @@ DEFINE_FWK_MODULE(TauValGsfElectronViewCleaner);
 DEFINE_FWK_MODULE(TauValElectronViewCleaner);
 DEFINE_FWK_MODULE(TauValPhotonViewCleaner);
 DEFINE_FWK_MODULE(TauValTrackViewCleaner);
+*/
+
+// -- new -- //
+typedef ObjectViewCleaner<pat::Jet> TauValPatJetViewCleaner;
+DEFINE_FWK_MODULE(TauValPatJetViewCleaner);
