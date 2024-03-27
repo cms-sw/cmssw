@@ -40,3 +40,4 @@ HGCAL_reco_constants = cms.PSet(
     ),
 
 )
+
