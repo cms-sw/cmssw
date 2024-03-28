@@ -80,6 +80,7 @@ private:
   const edm::EDGetTokenT<edm::View<l1t::VertexWord>> verticesToken_;
   const edm::EDGetTokenT<edm::View<l1t::TkJetWord>> jetsToken_;
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissToken_;
+  const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissDispToken_;
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> etMissToken_;
 
   l1t::demo::BoardDataWriter fileWriterInputTracks_;
@@ -107,6 +108,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
       verticesToken_(consumes<edm::View<l1t::VertexWord>>(iConfig.getUntrackedParameter<edm::InputTag>("vertices"))),
       jetsToken_(consumes<edm::View<l1t::TkJetWord>>(iConfig.getUntrackedParameter<edm::InputTag>("jets"))),
       htMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("htmiss"))),
+      htMissDispToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("htmissdisp"))),
       etMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("etmiss"))),
       fileWriterInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("inputFilename"),
@@ -168,6 +170,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const auto& verticesCollection = iEvent.get(verticesToken_);
   const auto& jetsCollection = iEvent.get(jetsToken_);
   const auto& htMissCollection = iEvent.get(htMissToken_);
+  const auto& htMissDispCollection = iEvent.get(htMissDispToken_);
   const auto& etMissCollection = iEvent.get(etMissToken_);
 
   edm::Handle<TrackCollection_t> convertedTracksHandle;
@@ -185,6 +188,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const auto vertexData(encodeVertices(verticesCollection));
   const auto jetsData(encodeTkJets(jetsCollection));
   const auto htMissData(encodeHtSums(htMissCollection));
+  const auto htMissDispData(encodeHtSums(htMissDispCollection));
   const auto etMissData(encodeEtSums(etMissCollection));
 
   // 2) Pack 'object' information into 'event data' object
@@ -207,7 +211,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), jetsData.at(0).begin(), jetsData.at(0).end());
   sumsData.insert(sumsData.end(), 24, 0);
   sumsData.insert(sumsData.end(), htMissData.at(0).begin(), htMissData.at(0).end());
-  sumsData.insert(sumsData.end(), 1, 0);
+  sumsData.insert(sumsData.end(), htMissDispData.at(0).begin(), htMissDispData.at(0).end());
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
 
   std::vector<ap_uint<64>> tracksVerticesData;
@@ -255,6 +259,7 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("l1tVertexProducer", "L1VerticesEmulation"));
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
+  desc.addUntracked<edm::InputTag>("htmissdisp", edm::InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"));
   desc.addUntracked<edm::InputTag>("etmiss", edm::InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss"));
   desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");
   desc.addUntracked<std::string>("inputConvertedFilename", "L1GTTInputConvertedFile");
