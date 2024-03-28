@@ -109,8 +109,8 @@ namespace gen {
     fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:pTpythiaVeto", false);
     fMasterGen->settings.addParm("POWHEG:bb4l:pTminVeto", 10.0, true, true, 0.0, 10.);
 
-    fMasterGen->setRndmEnginePtr(&p8RndmEngine_);
-    fDecayer->setRndmEnginePtr(&p8RndmEngine_);
+    fMasterGen->setRndmEnginePtr(p8RndmEngine_);
+    fDecayer->setRndmEnginePtr(p8RndmEngine_);
 
     fMasterGen->readString("Next:numberShowEvent = 0");
     fDecayer->readString("Next:numberShowEvent = 0");

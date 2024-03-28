@@ -37,8 +37,8 @@ namespace gen {
     virtual void statistics();
     virtual const char* classname() const = 0;
 
-    void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_.setRandomEngine(v); }
-    P8RndmEngine& randomEngine() { return p8RndmEngine_; }
+    void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_->setRandomEngine(v); }
+    P8RndmEngine& randomEngine() { return *p8RndmEngine_; }
 
   protected:
     std::unique_ptr<Pythia8::Pythia> fMasterGen;
@@ -62,7 +62,7 @@ namespace gen {
     std::string slhafile_;
 
   private:
-    P8RndmEngine p8RndmEngine_;
+    P8RndmEnginePtr p8RndmEngine_;
   };
 }  // namespace gen
 #endif

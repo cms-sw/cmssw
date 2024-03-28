@@ -14,7 +14,8 @@
 
 namespace gen {
   class P8RndmEngine;
-}
+  typedef std::shared_ptr<P8RndmEngine> P8RndmEnginePtr;
+}  // namespace gen
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -50,8 +51,8 @@ namespace fastsim {
                CLHEP::HepRandomEngine& engine) const;
 
   private:
-    std::unique_ptr<Pythia8::Pythia> pythia_;                //!< Instance of pythia
-    std::unique_ptr<gen::P8RndmEngine> pythiaRandomEngine_;  //!< Instance of pythia Random Engine
+    std::unique_ptr<Pythia8::Pythia> pythia_;  //!< Instance of pythia
+    gen::P8RndmEnginePtr pythiaRandomEngine_;  //!< Instance of pythia Random Engine
   };
 }  // namespace fastsim
 #endif
