@@ -551,15 +551,13 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves.
 
-  edm::LogVerbatim("SimG4CoreApplication")
-    << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event();
-  
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event();
+
   assert(m_tls != nullptr and m_tls->threadInitialized);
   // Initialize run
   if (inpevt.id().run() != m_tls->currentRunNumber) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: RunID= " << inpevt.id().run()
-	<< "  TLS RunID= " << m_tls->currentRunNumber;
+        << "RunManagerMTWorker::produce: RunID= " << inpevt.id().run() << "  TLS RunID= " << m_tls->currentRunNumber;
     if (m_tls->currentRunNumber != 0 && !m_tls->runTerminated) {
       // If previous run in this thread was not terminated via endRun() call,
       // then terminate it now
@@ -569,15 +567,12 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
     m_tls->currentRunNumber = inpevt.id().run();
   }
 
-    edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: Generate event ";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: Generate event ";
   m_tls->currentEvent.reset(generateEvent(inpevt));
 
-    edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: clean TmpSimEvent ";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: clean TmpSimEvent ";
   m_simEvent.clear();
-    edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: setEvent ";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: setEvent ";
   m_simEvent.setHepEvent(m_generator.genEvent());
   m_simEvent.setWeight(m_generator.eventWeight());
   if (m_generator.genVertex() != nullptr) {
@@ -594,16 +589,14 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
 
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event()
-        << " StreamID=" << inpevt.streamID()
+        << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
         << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent.weight();
 
     m_tls->trackManager.get()->initialisePrimaries(m_tls->currentEvent.get());
 
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: Geant4 primary: "
-        << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices and "
-        << m_simEvent.nTracks() << " particles";
+        << "RunManagerMTWorker::produce: Geant4 primary: " << m_tls->currentEvent->GetNumberOfPrimaryVertex()
+        << " vertices and " << m_simEvent.nTracks() << " particles";
     // process event
     if (m_UseG4EventManager) {
       m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
@@ -617,7 +610,7 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
   for (auto& sd : m_tls->sensCaloDets) {
     sd->reset();
   }
-  
+
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: ended Event " << inpevt.id().event();
   return &m_simEvent;
 }

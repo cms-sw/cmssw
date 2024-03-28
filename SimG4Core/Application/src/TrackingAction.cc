@@ -24,8 +24,7 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
       ekinMin_(p.getParameter<double>("PersistencyEmin") * CLHEP::GeV),
-      ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin"))
-{
+      ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin")) {
   double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
@@ -72,22 +71,20 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   // Tracks in history may be upgraded to stored secondary tracks,
-  // which cross the boundary between Tracker and Calo 
+  // which cross the boundary between Tracker and Calo
   int id = aTrack->GetTrackID();
   bool ok = trkInfo_->storeTrack();
   if (trkInfo_->crossedBoundary()) {
-    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(),
-					    trkInfo_->getMomentumAtBoundary());
+    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
     ok = (ok || saveCaloBoundaryInformation_);
   }
 
   trackManager_->addTrack(ok);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("TrackingAction")
-      << "TrackingAction end track=" << id << "  "
-      << aTrack->GetDefinition()->GetParticleName() 
-      << " proposed to be saved= " << ok << " end point " << aTrack->GetPosition();
+  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
+                                     << aTrack->GetDefinition()->GetParticleName() << " proposed to be saved= " << ok
+                                     << " end point " << aTrack->GetPosition();
 #endif
 
   EndOfTrack et(aTrack);

@@ -35,7 +35,7 @@ public:
   void addVertex(TmpSimVertex* v) { g4vertices_.push_back(v); }
   std::vector<TrackWithHistory*>* getHistories() { return &g4tracks_; }
   std::vector<TmpSimVertex*>* getVertices() { return &g4vertices_; }
-  
+
   void clear();
 
 private:

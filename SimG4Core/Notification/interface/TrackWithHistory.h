@@ -17,8 +17,8 @@ public:
   /** The constructor is called at time, 
      *  when some of the information may not available yet.
      */
-  TrackWithHistory(const G4Track*, const int mcTruthID);
-  TrackWithHistory(const G4PrimaryParticle*, const int trackID, const math::XYZVectorD &pos, const double time);
+  TrackWithHistory(const G4Track *, const int mcTruthID);
+  TrackWithHistory(const G4PrimaryParticle *, const int trackID, const math::XYZVectorD &pos, const double time);
   ~TrackWithHistory() = default;
 
   inline void *operator new(std::size_t);

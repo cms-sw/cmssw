@@ -23,10 +23,9 @@ void TmpSimEvent::clear() {
 }
 
 void TmpSimEvent::load(edm::SimTrackContainer& cont) const {
-  edm::LogVerbatim("SimG4CoreNotification") 
-      << "TmpSimEvent::load Ntracks=" << g4tracks_.size();
+  edm::LogVerbatim("SimG4CoreNotification") << "TmpSimEvent::load Ntracks=" << g4tracks_.size();
   const double invgev = 1.0 / CLHEP::GeV;
-  for (auto const & trk : g4tracks_) {
+  for (auto const& trk : g4tracks_) {
     int ip = trk->particleID();
     const math::XYZVectorD& mom = trk->momentum();
     math::XYZTLorentzVectorD p(mom.x() * invgev, mom.y() * invgev, mom.z() * invgev, trk->totalEnergy() * invgev);
@@ -48,8 +47,7 @@ void TmpSimEvent::load(edm::SimTrackContainer& cont) const {
 }
 
 void TmpSimEvent::load(edm::SimVertexContainer& cont) const {
-  edm::LogVerbatim("SimG4CoreNotification") 
-      << "TmpSimEvent::load Nvertices=" << g4vertices_.size();
+  edm::LogVerbatim("SimG4CoreNotification") << "TmpSimEvent::load Nvertices=" << g4vertices_.size();
 
   // index of the vertex is needed to make SimVertex object
   for (unsigned int i = 0; i < g4vertices_.size(); ++i) {

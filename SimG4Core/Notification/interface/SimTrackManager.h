@@ -29,13 +29,10 @@ class G4Track;
 
 class SimTrackManager {
 public:
-
   explicit SimTrackManager(TmpSimEvent*, int verbose);
   ~SimTrackManager();
 
-  const std::vector<TrackWithHistory*>* trackContainer() const {
-    return m_trackContainer;
-  }
+  const std::vector<TrackWithHistory*>* trackContainer() const { return m_trackContainer; }
 
   void storeTracks();
 
@@ -43,37 +40,26 @@ public:
 
   void addTrack(bool inHistory);
   //  void addTrack(bool inHistory, bool withAncestor);
-  
-  int giveMotherNeeded(int) const {
-    return m_currTrackInfo->mcTruthID();
-  }
-  
-  bool trackExists(unsigned int) const {
-    return true;
-  }
 
-  TrackWithHistory* getTrackByID(unsigned int, bool) const {
-    return m_currHistory;
-  }
+  int giveMotherNeeded(int) const { return m_currTrackInfo->mcTruthID(); }
 
-  void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) {
-    theLHCTlink = thisLHCTlink;
-  }
+  bool trackExists(unsigned int) const { return true; }
+
+  TrackWithHistory* getTrackByID(unsigned int, bool) const { return m_currHistory; }
+
+  void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) { theLHCTlink = thisLHCTlink; }
 
   void initialisePrimaries(const G4Event*);
 
   TrackWithHistory* getTrackWithHistory(const G4Track*);
 
-  const G4Track* getCurrentTrack() const {
-    return m_currTrack;
-  } 
+  const G4Track* getCurrentTrack() const { return m_currTrack; }
 
   // stop default
   SimTrackManager(const SimTrackManager&) = delete;
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
 private:
-
   //  void saveTrackAndItsBranch(TrackWithHistory*);
   int findOrAddVertex(math::XYZVectorD& pos, double& time, int i1, int i2);
 
