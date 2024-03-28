@@ -177,7 +177,6 @@ steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' :
                                    steps['NANO_data13.0']])
 
 steps['l1DPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@L1DPG',
-                                    '--conditions':'auto:run3_data',
                                     '-n' : '100'},
                                    steps['NANO_data13.0']])
  
