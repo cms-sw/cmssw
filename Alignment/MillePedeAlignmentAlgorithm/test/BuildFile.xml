@@ -11,6 +11,9 @@
   <use name="millepede"/>
 </test>
 <test name="testPedeCampaign" command="test_pede.sh"/>
+<test name="testPedeConversion" command="test_pedeConversion.sh">
+  <flags PRE_TEST="testPedeCampaign"/>
+</test>
 <test name="testPayloadSanity" command="test_payload_sanity.sh">
   <flags PRE_TEST="testPedeCampaign"/>
 </test>
