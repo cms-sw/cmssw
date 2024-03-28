@@ -71,7 +71,7 @@ class Reco(Scenario):
                     miniAODStep = ',PAT'
                 if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
                     if "nanoFlavours" in args:
-                        nanoAODStep += ',NANO'+nanoFlavours(args['nanoFlavours'])
+                        nanoAODStep = ',NANO'+nanoFlavours(args['nanoFlavours'])
                     else:
                         nanoAODStep = ',NANO:@PHYS+@L1'
                         
