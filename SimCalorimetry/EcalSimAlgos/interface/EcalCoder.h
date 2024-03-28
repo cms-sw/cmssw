@@ -30,12 +30,11 @@ public:
 
   typedef CorrelatedNoisifier<EcalCorrMatrix> Noisifier;
 
-  enum {
-    NBITS = 12,            // number of available bits
-    MAXADC = 4095,         // 2^12 -1,  adc max range
-    ADCGAINSWITCH = 4079,  // adc gain switch
-    NGAINS = 3             // number of electronic gains
-  };
+  static constexpr int NBITS = 12,  // number of available bits
+      MAXADC = 4095,                // 2^12 -1,  adc max range
+      ADCGAINSWITCH = 4079,         // adc gain switch
+      NGAINS = 3                    // number of electronic gains
+      ;
 
   /// ctor
   EcalCoder(bool addNoise,

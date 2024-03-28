@@ -34,7 +34,7 @@ class CaloHitResponse {
 public:
   typedef std::map<DetId, CaloSamples> AnalogSignalMap;
   // get this from somewhere external
-  enum { BUNCHSPACE = 25 };
+  static constexpr int BUNCHSPACE = 25;
   static constexpr double dt = 0.5;
   static constexpr int invdt = 2;
 

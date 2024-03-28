@@ -10,7 +10,7 @@
 
 class CaloShapeIntegrator : public CaloVShape {
 public:
-  enum { BUNCHSPACE = 25 };
+  static constexpr int BUNCHSPACE = 25;
 
   CaloShapeIntegrator(const CaloVShape *aShape);
 
