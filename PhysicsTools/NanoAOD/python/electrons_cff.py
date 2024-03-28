@@ -263,34 +263,33 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 )
 #################################################finalElectrons#####################
 
-################################################electronMVATTH#####################
-electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
+################################################electronPROMPTMVA#####################
+electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
-    name = cms.string("electronMVATTH"),
+    name = cms.string("electronPROMPTMVA"),
+    backend = cms.string("TMVA"),
     isClassifier = cms.bool(True),
-    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_mvaFall17V2noIso"]),
-    variables = cms.PSet(
-        LepGood_pt = cms.string("pt"),
-        LepGood_eta = cms.string("eta"),
-        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
-        # NB: only using Fall17V2 iso here
-        LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg_Fall17V2')/pt"),
-        LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll_Fall17V2')-userFloat('miniIsoChg_Fall17V2'))/pt"),
-        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
-        LepGood_jetDF = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0"),
-        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04_Fall17V2')/pt)"),
-        LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
-        LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
-        LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
-        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso_Fall17V2')"),
+    variables = cms.VPSet(
+        cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
+        cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
+        cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoCharged"), expr = cms.string("userFloat('miniIsoChg_Fall17V2')/pt")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoNeutral"), expr = cms.string("(userFloat('miniIsoAll_Fall17V2')-userFloat('miniIsoChg_Fall17V2'))/pt")),
+        cms.PSet( name = cms.string("LepGood_jetPtRelv2"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0")),
+        cms.PSet( name = cms.string("LepGood_jetDF"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0")),
+        cms.PSet( name = cms.string("LepGood_jetPtRatio"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04_Fall17V2')/pt)")),
+        cms.PSet( name = cms.string("LepGood_dxy"), expr = cms.string("log(abs(dB('PV2D')))")),
+        cms.PSet( name = cms.string("LepGood_sip3d"), expr = cms.string("abs(dB('PV3D')/edB('PV3D'))")),
+        cms.PSet( name = cms.string("LepGood_dz"), expr = cms.string("log(abs(dB('PVDZ')))")),
+        cms.PSet( name = cms.string("LepGood_mvaFall17V2noIso"), expr = cms.string("userFloat('mvaNoIso_Fall17V2')")),
     )
 )
 run2_egamma_2016.toModify(
-    electronMVATTH,
+    electronPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2016.weights.xml",
 )
-################################################electronMVATTH end#####################
+################################################electronPROMPTMVA end#####################
 
 ################################################electronTable defn #####################
 electronTable = simpleCandidateFlatTableProducer.clone(
@@ -359,7 +358,7 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
     ),
     externalVariables = cms.PSet(
-        mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        promptMVA = ExtVar(cms.InputTag("electronPROMPTMVA"),float, doc="Prompt MVA lepton ID score. Corresponds to the previous mvaTTH",precision=14),
         fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"), "int16", doc="Index of the lowest-dR/ET2 among associated FSR photons"),
     ),
 )
@@ -505,7 +504,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
-electronTablesTask = cms.Task(electronMVATTH, electronTable)
+electronTablesTask = cms.Task(electronPROMPTMVA, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
 _electronTask_Run2 = electronTask.copy()
