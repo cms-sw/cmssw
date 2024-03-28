@@ -11,6 +11,7 @@ def validation_only(process):
                                                   *process.trackingParticles
                                                   *process.tracksValidation
                                                   *process.recoMuonValidation
+                                                  *process.recoDisplacedMuonValidation
                                                   *process.HLTMuonVal
                                                   )
     process.validation_step.replace(process.validation,process.only_validation_and_TP)
