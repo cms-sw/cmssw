@@ -1051,19 +1051,14 @@ namespace trklet {
     // The DR binning below disabled, as doesn't match latest FW.
 
     //Following values are used for duplicate removal
-    //Rinv bins were optimised to ensure a similar number of tracks in each bin prior to DR
-    //Rinv bin edges for 6 bins.
-    //std::vector<double> rinvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Only one bin currently used.
     std::vector<double> rinvBins_{-rinvcut(), rinvcut()};
-    //Phi bin edges for 2 bins.
-    //std::vector<double> phiBins_{0, dphisectorHG() / 2, dphisectorHG()};
     std::vector<double> phiBins_{0, dphisectorHG()};
     //Overlap size for the overlap rinv bins in DR
     double rinvOverlapSize_{0.0004};
     //Overlap size for the overlap phi bins in DR
     double phiOverlapSize_{M_PI / 360};
     //The maximum number of tracks that are compared to all the other tracks per rinv bin
-    //int numTracksComparedPerBin_{32};
     int numTracksComparedPerBin_{9999};
 
     double sensorSpacing_2S_{0.18};
