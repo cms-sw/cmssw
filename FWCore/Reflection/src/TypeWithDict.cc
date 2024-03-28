@@ -159,7 +159,14 @@ namespace edm {
     }
 
     // Handle classes
-    TClass* theClass = TClass::GetClass(name.c_str());
+    TClass* theClass = nullptr;
+    try {
+      theClass = TClass::GetClass(name.c_str());
+    } catch (cms::Exception& e) {
+      e.addContext("Calling edm::TypeWithDict::byName()");
+      e.addAdditionalInfo("Getting TClass for " + name);
+      throw;
+    }
     if (theClass != nullptr) {
       return TypeWithDict(theClass, property);
     }
