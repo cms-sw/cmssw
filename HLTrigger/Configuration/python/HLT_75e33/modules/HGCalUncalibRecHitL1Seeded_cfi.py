@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 HGCalUncalibRecHitL1Seeded = cms.EDProducer("HGCalUncalibRecHitProducer",
     HGCEEConfig = cms.PSet(
         adcNbits = cms.uint32(10),
         adcSaturation = cms.double(100),
-        fCPerMIP = cms.vdouble(2.06, 3.43, 5.15),
+        fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[0:3]),
         isSiFE = cms.bool(True),
         tdcNbits = cms.uint32(12),
         tdcOnset = cms.double(60),
@@ -30,7 +31,7 @@ HGCalUncalibRecHitL1Seeded = cms.EDProducer("HGCalUncalibRecHitProducer",
     HGCHEFConfig = cms.PSet(
         adcNbits = cms.uint32(10),
         adcSaturation = cms.double(100),
-        fCPerMIP = cms.vdouble(2.06, 3.43, 5.15),
+        fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[3:6]),
         isSiFE = cms.bool(True),
         tdcNbits = cms.uint32(12),
         tdcOnset = cms.double(60),
