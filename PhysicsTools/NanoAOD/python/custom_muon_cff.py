@@ -26,7 +26,8 @@ def Custom_Muon_Task(process):
     process.nanoTableTaskFS.remove(process.metMCTable)
     process.nanoTableTaskFS.remove(process.ttbarCatMCProducersTask)
     process.nanoTableTaskFS.remove(process.ttbarCategoryTableTask)
-    
+    process.nanoTableTaskFS.remove(process.rivetMetTable)
+
     return process
 
 def AddPFTracks(proc):
