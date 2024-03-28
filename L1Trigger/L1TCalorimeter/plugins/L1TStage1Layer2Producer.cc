@@ -381,7 +381,7 @@ void L1TStage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descri
   desc.add<InputTag>("CaloEmCands");
   desc.add<std::string>("conditionsLabel");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

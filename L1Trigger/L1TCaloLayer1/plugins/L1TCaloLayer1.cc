@@ -362,7 +362,7 @@ void L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("unpackEcalMask", false);
   desc.add<bool>("unpackHcalMask", false);
   desc.add<int>("firmwareVersion", 1);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

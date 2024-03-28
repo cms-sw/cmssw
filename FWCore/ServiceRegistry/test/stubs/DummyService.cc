@@ -31,7 +31,7 @@ void DummyService::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
   desc.add<int>("value");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //

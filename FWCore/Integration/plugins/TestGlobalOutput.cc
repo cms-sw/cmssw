@@ -144,7 +144,7 @@ namespace edm {
     desc.addUntracked<std::vector<std::string>>("expectedProcessesWithProcessBlockProducts",
                                                 std::vector<std::string>());
     desc.addUntracked<int>("expectedWriteProcessBlockTransitions", -1);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edm
 

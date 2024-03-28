@@ -102,7 +102,7 @@ void TestGsfElectronConversionFinder::analyze(const edm::Event& event, const edm
 void TestGsfElectronConversionFinder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gsfElectrons", {"gedGsfElectrons"});
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

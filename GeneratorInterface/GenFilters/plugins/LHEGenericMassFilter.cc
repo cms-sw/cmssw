@@ -97,7 +97,7 @@ void LHEGenericMassFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("MinMass", 0.0);
   desc.add<double>("MaxMass", 1.0);
   desc.add<bool>("RequiredOutgoingStatus", true);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -130,7 +130,7 @@ namespace edmtest {
     desc.add<int>("thinnedSlimmedCount", 0);
     desc.add<int>("refSlimmedCount", 0);
     desc.add<int>("slimmedValueFactor", 10);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void ThinningTestAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {

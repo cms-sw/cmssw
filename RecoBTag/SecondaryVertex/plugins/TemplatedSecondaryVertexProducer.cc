@@ -1308,7 +1308,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
   desc.addOptional<edm::InputTag>("fatJets");
   desc.addOptional<edm::InputTag>("groomedFatJets");
   desc.add<edm::InputTag>("weights", edm::InputTag(""));
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

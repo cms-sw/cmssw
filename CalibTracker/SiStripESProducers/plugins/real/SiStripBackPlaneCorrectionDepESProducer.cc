@@ -119,7 +119,7 @@ void SiStripBackPlaneCorrectionDepESProducer::fillDescriptions(edm::Configuratio
     desc.add<edm::ParameterSetDescription>("BackPlaneCorrectionDeconvMode", deconv);
   }
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripBackPlaneCorrectionDepESProducer);

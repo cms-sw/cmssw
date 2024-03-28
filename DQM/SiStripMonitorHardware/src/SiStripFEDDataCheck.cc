@@ -459,7 +459,7 @@ void SiStripFEDCheckPlugin::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("LSMin", 0.5);
   desc.add<double>("LSMax", 5000.5);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //

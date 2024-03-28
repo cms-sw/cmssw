@@ -172,7 +172,7 @@ namespace edmtest {
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamBeginLumi", invalidEventID);
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndRun", invalidEventID);
     desc.addUntracked<edm::EventID>("eventIDThrowOnStreamEndLumi", invalidEventID);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 }  // namespace edmtest

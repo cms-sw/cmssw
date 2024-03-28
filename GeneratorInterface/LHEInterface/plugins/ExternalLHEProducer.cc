@@ -563,7 +563,7 @@ void ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   nPartonMappingDesc.add<unsigned>("np");
   desc.addVPSetOptional("nPartonMapping", nPartonMappingDesc);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<LHERunInfoProduct> ExternalLHEProducer::generateRunInfo(std::vector<std::string> const& iFiles) const {

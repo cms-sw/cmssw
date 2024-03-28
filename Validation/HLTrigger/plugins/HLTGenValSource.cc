@@ -355,7 +355,7 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
   desc.addVPSet("binnings", binningConfig, binningConfigDefaults);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // this method handles the different object types and collections that can be used for efficiency calculation

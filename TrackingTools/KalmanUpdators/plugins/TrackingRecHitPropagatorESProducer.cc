@@ -38,6 +38,6 @@ void TrackingRecHitPropagatorESProducer::fillDescriptions(edm::ConfigurationDesc
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName");
   desc.add<std::string>("SimpleMagneticField", "");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_EVENTSETUP_MODULE(TrackingRecHitPropagatorESProducer);

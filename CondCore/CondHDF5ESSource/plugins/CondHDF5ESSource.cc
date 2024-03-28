@@ -184,7 +184,7 @@ void CondHDF5ESSource::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::vector<std::string>>("excludeRecords", std::vector<std::string>())
       ->setComment("List of Records that should not be read from the file");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void CondHDF5ESSource::setIntervalFor(EventSetupRecordKey const& iRecordKey,

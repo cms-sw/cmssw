@@ -185,7 +185,7 @@ namespace edmtest {
 
   void RunLumiESAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 using namespace edmtest;

@@ -38,7 +38,7 @@ namespace {
     desc.add<double>("MaxChi2");
     desc.add<double>("nSigma");
     desc.add<std::string>("ComponentName");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace
 

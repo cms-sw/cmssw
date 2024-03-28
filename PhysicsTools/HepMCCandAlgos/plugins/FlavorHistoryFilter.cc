@@ -197,7 +197,7 @@ void FlavorHistoryFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("dr");
   desc.add<bool>("verbose");
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 bool FlavorHistoryFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

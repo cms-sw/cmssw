@@ -148,7 +148,7 @@ namespace edmtest {
     desc.add<bool>("checkIOVInitialization", false);
     desc.add<unsigned int>("expectedNumberOfConcurrentIOVs", 0);
     desc.add<std::vector<unsigned int>>("firstValidLumis", emptyVector);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestESConcurrentSource::setIntervalFor(EventSetupRecordKey const&,

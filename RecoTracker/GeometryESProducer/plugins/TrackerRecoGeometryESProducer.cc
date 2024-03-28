@@ -61,7 +61,7 @@ void TrackerRecoGeometryESProducer::fillDescriptions(edm::ConfigurationDescripti
 
   desc.add<bool>("usePhase2Stacks", false);
   desc.addUntracked<std::string>("trackerGeometryLabel", "");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(TrackerRecoGeometryESProducer);

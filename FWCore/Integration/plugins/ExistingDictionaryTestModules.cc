@@ -27,7 +27,7 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void produce(edm::StreamID id, edm::Event& iEvent, edm::EventSetup const&) const override {
@@ -60,7 +60,7 @@ namespace edmtest {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("src", edm::InputTag{"prod"});
       desc.add<bool>("testVecUniqInt", true);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void analyze(edm::StreamID id, edm::Event const& iEvent, edm::EventSetup const&) const override {

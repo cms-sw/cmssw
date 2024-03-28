@@ -57,7 +57,7 @@ DDSpecParRegistryESProducer::~DDSpecParRegistryESProducer() {}
 
 void DDSpecParRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DDSpecParRegistryESProducer::ReturnType DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord) {

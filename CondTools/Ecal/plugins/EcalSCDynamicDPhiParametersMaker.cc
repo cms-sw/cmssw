@@ -62,7 +62,7 @@ void EcalSCDynamicDPhiParametersMaker::analyze(const edm::Event& iEvent, const e
 
 void EcalSCDynamicDPhiParametersMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(EcalSCDynamicDPhiParametersMaker);

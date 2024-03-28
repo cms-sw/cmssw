@@ -143,7 +143,7 @@ namespace edmtest {
     desc.add<unsigned int>("elementsPerVector");
     desc.add<std::vector<int>>("filterIds");
     desc.add<std::vector<unsigned int>>("filterKeys");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

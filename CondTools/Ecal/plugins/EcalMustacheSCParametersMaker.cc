@@ -62,7 +62,7 @@ void EcalMustacheSCParametersMaker::analyze(const edm::Event& iEvent, const edm:
 
 void EcalMustacheSCParametersMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(EcalMustacheSCParametersMaker);

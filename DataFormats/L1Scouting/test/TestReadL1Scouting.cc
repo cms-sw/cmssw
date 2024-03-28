@@ -316,7 +316,7 @@ namespace edmtest {
     desc.add<edm::InputTag>("tausTag");
     desc.add<std::vector<int>>("expectedBxSumsValues");
     desc.add<edm::InputTag>("bxSumsTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestReadL1Scouting::throwWithMessageFromConstructor(const char* msg) const {

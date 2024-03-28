@@ -22,5 +22,5 @@ ValueExample::~ValueExample() {}
 void ValueExample::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("value");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

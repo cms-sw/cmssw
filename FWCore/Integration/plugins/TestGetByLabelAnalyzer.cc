@@ -24,7 +24,7 @@ namespace edmtest {
       desc.addUntracked<std::string>("getExceptionCategory", "");
       desc.addUntracked<std::string>("accessExceptionCategory", "");
       desc.addUntracked<bool>("consumes", false);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override {

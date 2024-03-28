@@ -217,7 +217,7 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
     desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void TestReadRun3Scouting::analyzeCaloJets(edm::Event const& iEvent) const {

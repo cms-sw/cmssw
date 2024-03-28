@@ -68,7 +68,7 @@ namespace edmtest {
   void TestWriteVectorDetId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<unsigned int>("testValue");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

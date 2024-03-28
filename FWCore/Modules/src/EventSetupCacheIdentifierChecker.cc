@@ -182,7 +182,7 @@ void EventSetupCacheIdentifierChecker::fillDescriptions(edm::ConfigurationDescri
   desc.addWildcardUntracked<std::vector<unsigned int> >("*")->setComment(
       "The label is the name of an EventSetup Record while the vector contains the expected cacheIdentifier values for "
       "each beginRun, beginLuminosityBlock and event transition");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

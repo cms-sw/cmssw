@@ -230,7 +230,7 @@ void AJJGenJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("maxPhotonEta", 5);
   desc.add<double>("minPhotonPt", 50);
   desc.add<double>("maxPhotonPt", 10000);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(AJJGenJetFilter);

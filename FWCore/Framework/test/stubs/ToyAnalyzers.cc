@@ -58,7 +58,7 @@ namespace edmtest {
       desc.addUntracked<int>("valueMustMatch");
       desc.addUntracked<edm::InputTag>("moduleLabel");
       desc.addUntracked<bool>("valueMustBeMissing", false);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
@@ -108,7 +108,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<std::vector<edm::InputTag>>("getFromModules");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -129,7 +129,7 @@ namespace edmtest {
       desc.addUntracked<int>("valueMustMatch");
       desc.addUntracked<edm::InputTag>("moduleLabel");
       desc.addUntracked<bool>("valueMustBeMissing", false);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
@@ -221,7 +221,7 @@ namespace edmtest {
       desc.addUntracked<std::vector<edm::InputTag>>("srcEndProcess", std::vector<edm::InputTag>{});
       desc.addUntracked<bool>("inputShouldExist", false);
       desc.addUntracked<bool>("inputShouldBeMissing", false);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:
@@ -251,7 +251,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
   };
   //--------------------------------------------------------------------
@@ -267,7 +267,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
   };
   //--------------------------------------------------------------------
@@ -365,7 +365,7 @@ namespace edmtest {
       desc.addUntracked<bool>("checkSize", true);
       desc.addUntracked<unsigned int>("sizeMustMatch");
       desc.addUntracked<edm::InputTag>("label");
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {

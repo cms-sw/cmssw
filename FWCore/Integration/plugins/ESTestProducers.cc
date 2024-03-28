@@ -329,7 +329,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     std::vector<unsigned int> emptyDefaultVector;
     desc.addUntracked<std::vector<unsigned int>>("expectedCacheIds", emptyDefaultVector);
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   edm::eventsetup::ESProductResolverProvider::KeyedResolversVector ESTestESProductResolverProviderJ::registerResolvers(

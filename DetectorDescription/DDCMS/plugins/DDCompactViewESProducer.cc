@@ -55,7 +55,7 @@ DDCompactViewESProducer::~DDCompactViewESProducer() {}
 
 void DDCompactViewESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DDCompactViewESProducer::ReturnType DDCompactViewESProducer::produce(const IdealGeometryRecord& iRecord) {

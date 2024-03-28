@@ -69,7 +69,7 @@ namespace edmtest {
   void SchemaEvolutionTestWrite::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<int>>("testIntegralValues");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   void SchemaEvolutionTestWrite::produceVectorVector(edm::Event& iEvent) const {

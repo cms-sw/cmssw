@@ -389,7 +389,7 @@ namespace edmtest {
       desc.add<edm::InputTag>("label");
       desc.add<int>("threshold", 0);
       desc.add<bool>("shouldProduce", false);
-      descriptions.addDefault(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:

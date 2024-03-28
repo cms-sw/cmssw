@@ -79,7 +79,7 @@ namespace edmtest {
     desc.add<std::vector<std::string>>("names");
     desc.add<std::vector<unsigned int>>("hltStates");
     desc.add<std::vector<unsigned int>>("moduleIndexes");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 

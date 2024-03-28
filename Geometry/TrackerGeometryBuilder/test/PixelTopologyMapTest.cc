@@ -88,7 +88,7 @@ void PixelTopologyMapTest::analyze(edm::StreamID, edm::Event const& iEvent, edm:
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void PixelTopologyMapTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

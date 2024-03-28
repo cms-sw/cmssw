@@ -293,7 +293,7 @@ void HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& des
   add_param_set(S8S1stat);
   add_param_set(PETstat);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

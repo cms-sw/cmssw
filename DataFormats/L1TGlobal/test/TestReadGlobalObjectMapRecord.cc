@@ -182,7 +182,7 @@ namespace edmtest {
     desc.add<int>("expectedElementDelta");
     desc.add<int>("expectedFinalValue");
     desc.add<edm::InputTag>("globalObjectMapRecordTag");
-    descriptions.addDefault(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // namespace edmtest
 
