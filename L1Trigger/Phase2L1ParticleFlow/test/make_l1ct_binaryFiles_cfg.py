@@ -57,8 +57,19 @@ process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
 process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would need stubs, and are not used anyway
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
-from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
-process.l1tSAMuonsGmt = l1tStandaloneMuons.clone()
+from L1Trigger.Configuration.SimL1Emulator_cff import l1tSAMuonsGmt
+process.l1tSAMuonsGmt = l1tSAMuonsGmt.clone()
+from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import l1tPhase2L1CaloEGammaEmulator
+process.l1tPhase2L1CaloEGammaEmulator = l1tPhase2L1CaloEGammaEmulator.clone()
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import l1tPhase2CaloPFClusterEmulator
+process.l1tPhase2CaloPFClusterEmulator = l1tPhase2CaloPFClusterEmulator.clone()
+
+process.L1TInputTask = cms.Task(
+    process.l1tSAMuonsGmt,
+    process.l1tPhase2L1CaloEGammaEmulator,
+    process.l1tPhase2CaloPFClusterEmulator
+)
+
 
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
 l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
@@ -119,7 +130,9 @@ if not args.patternFilesOFF:
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
 process.runPF = cms.Path( 
-        process.l1tSAMuonsGmt +
+        # process.l1tSAMuonsGmt + 
+        # process.l1tPhase2L1CaloEGammaEmulator + 
+        # process.l1tPhase2CaloPFClusterEmulator +
         process.l1tGTTInputProducer +
         process.l1tTrackSelectionProducer +
         process.l1tVertexFinderEmulator +
@@ -138,8 +151,8 @@ process.runPF = cms.Path(
         # process.l1tLayer2SeedConeJetWriter +
         process.l1tLayer2EG
     )
+process.runPF.associate(process.L1TInputTask)
 process.runPF.associate(process.L1TLayer1TaskInputsTask)
-
 
 #####################################################################################################################
 ## Layer 2 e/gamma 
@@ -187,12 +200,17 @@ if args.tm18:
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCal)+1, process.l1tLayer1HGCalTM18)
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCalNoTK)+1, process.l1tLayer1HGCalNoTKTM18)
     process.runPF.insert(process.runPF.index(process.l1tLayer1BarrelSerenity)+1, process.l1tLayer1BarrelSerenityTM18)
+    # FIXME: we need to schedule a new deregionizer for TM18
+    process.runPF.insert(process.runPF.index(process.l1tLayer2EG)+1, process.l1tLayer2EGTM18)
     if not args.patternFilesOFF:
         process.l1tLayer1HGCalTM18.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
         process.l1tLayer1HGCalNoTKTM18.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
         process.l1tLayer1BarrelSerenityTM18.patternWriters = cms.untracked.VPSet()
+        process.l1tLayer2EGTM18.writeInPattern = True
+        process.l1tLayer2EGTM18.writeOutPattern = True
+
     if not args.dumpFilesOFF:
         for det in "HGCalTM18", "HGCalNoTKTM18", "BarrelSerenityTM18":
                 getattr(process, 'l1tLayer1'+det).dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
-process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/12_5_X/NewInputs125X/150223/TTbar_PU200/inputs125X_1.root' ]
+process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]
