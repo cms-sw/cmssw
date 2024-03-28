@@ -43,7 +43,7 @@ private:
   unique_ptr<float[]> fPt_;
   unique_ptr<float[]> fEta_;
   unique_ptr<float[]> fPhi_;
-  unique_ptr<float[]> fId_;
+  unique_ptr<int[]> fId_;
   unique_ptr<int[]> fCharge_;
   unique_ptr<float[]> fDZ_;
   unique_ptr<float[]> fDX_;

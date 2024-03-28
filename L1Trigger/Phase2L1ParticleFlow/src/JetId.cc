@@ -13,7 +13,7 @@ JetId::JetId(const std::string &iInput,
   fPt_ = std::make_unique<float[]>(fNParticles_);
   fEta_ = std::make_unique<float[]>(fNParticles_);
   fPhi_ = std::make_unique<float[]>(fNParticles_);
-  fId_ = std::make_unique<float[]>(fNParticles_);
+  fId_ = std::make_unique<int[]>(fNParticles_);
   fCharge_ = std::make_unique<int[]>(fNParticles_);
   fDZ_ = std::make_unique<float[]>(fNParticles_);
   fDX_ = std::make_unique<float[]>(fNParticles_);
@@ -31,7 +31,7 @@ JetId::JetId(const std::string &iInput, const std::string &iOutput, const BJetTF
   fPt_ = std::make_unique<float[]>(fNParticles_);
   fEta_ = std::make_unique<float[]>(fNParticles_);
   fPhi_ = std::make_unique<float[]>(fNParticles_);
-  fId_ = std::make_unique<float[]>(fNParticles_);
+  fId_ = std::make_unique<int[]>(fNParticles_);
   fCharge_ = std::make_unique<int[]>(fNParticles_);
   fDZ_ = std::make_unique<float[]>(fNParticles_);
   fDX_ = std::make_unique<float[]>(fNParticles_);

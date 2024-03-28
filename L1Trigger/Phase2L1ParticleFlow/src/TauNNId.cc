@@ -17,7 +17,7 @@ TauNNId::TauNNId(const std::string &iInput,
   fPt_ = std::make_unique<float[]>(fNParticles_);
   fEta_ = std::make_unique<float[]>(fNParticles_);
   fPhi_ = std::make_unique<float[]>(fNParticles_);
-  fId_ = std::make_unique<float[]>(fNParticles_);
+  fId_ = std::make_unique<int[]>(fNParticles_);
   fInput_ = iInput;
 }
 

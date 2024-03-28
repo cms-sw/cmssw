@@ -31,7 +31,7 @@ public:
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
 
-  enum eta_info { etaBins = 1 << CSCBitWidths::kGlobalEtaBitWidth };
+  static constexpr int etaBins = 1 << CSCBitWidths::kGlobalEtaBitWidth;
 
   enum MPC_stubs { maxStubs = 3 };
 

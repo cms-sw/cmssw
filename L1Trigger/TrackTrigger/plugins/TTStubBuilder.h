@@ -51,7 +51,7 @@ public:
   ~TTStubBuilder() override;
 
   // TTStub bendOffset has this added to it, if stub truncated by FE, to indicate reason.
-  enum FEreject { CBCFailOffset = 500, CICFailOffset = 1000 };
+  static constexpr int CBCFailOffset = 500, CICFailOffset = 1000;
 
 private:
   /// Data members
