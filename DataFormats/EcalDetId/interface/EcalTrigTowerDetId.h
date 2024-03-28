@@ -107,17 +107,11 @@ public:
   static const int SUBDETIJMODE = 0;
   static const int SUBDETDCCTTMODE = 1;
 
-  enum {
-    kEETowersInPhiPerEndcap = 4 * kEETowersInPhiPerQuadrant,
-    kEEOuterEta = 18,
-    kEEInnerEta = 28,
-    kEETowersInEta = (kEEInnerEta - kEEOuterEta + 1),
-    kEBHalfTowers = kEBTowersPerSM * 18,
-    kEBTotalTowers = kEBHalfTowers * 2,
-    kEETowersPerEndcap = kEETowersInEta * kEETowersInPhiPerEndcap - 72,
-    kEETotalTowers = kEETowersPerEndcap * 2,
-    kSizeForDenseIndexing = kEBTotalTowers + kEETotalTowers
-  };
+  static constexpr int kEETowersInPhiPerEndcap = 4 * kEETowersInPhiPerQuadrant, kEEOuterEta = 18, kEEInnerEta = 28,
+                       kEETowersInEta = (kEEInnerEta - kEEOuterEta + 1), kEBHalfTowers = kEBTowersPerSM * 18,
+                       kEBTotalTowers = kEBHalfTowers * 2,
+                       kEETowersPerEndcap = kEETowersInEta * kEETowersInPhiPerEndcap - 72,
+                       kEETotalTowers = kEETowersPerEndcap * 2, kSizeForDenseIndexing = kEBTotalTowers + kEETotalTowers;
 };
 
 std::ostream& operator<<(std::ostream&, const EcalTrigTowerDetId& id);

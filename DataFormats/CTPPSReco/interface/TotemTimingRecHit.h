@@ -17,7 +17,7 @@
 class TotemTimingRecHit : public CTPPSTimingRecHit {
 public:
   enum TimingAlgorithm { NOT_SET, CFD, SMART, SIMPLE };
-  enum { NO_T_AVAILABLE = -100 };
+  static constexpr int NO_T_AVAILABLE = -100;
 
   TotemTimingRecHit()
       : CTPPSTimingRecHit(), sampicThresholdTime_(0), tPrecision_(0), amplitude_(0), baselineRMS_(0), mode_(NOT_SET) {}

@@ -54,21 +54,13 @@ namespace ecaldqm {
       nBinType
     };
 
-    enum Constants {
-      nPresetBinnings = kRCT + 1,
-
-      nEBSMEta = 85,
-      nEBSMPhi = 20,
-      nEESMX = 40,
-      nEESMXRed = 30,  // for EE+-01&05&09
-      nEESMXExt = 45,  // for EE+-02&08
-      nEESMY = 40,
-      nEESMYRed = 35,  // for EE+-03&07
-
-      nEBEtaBins = 34,
-      nEEEtaBins = 20,
-      nPhiBins = 36
-    };
+    typedef int Constants;
+    static constexpr int nPresetBinnings = kRCT + 1, nEBSMEta = 85, nEBSMPhi = 20, nEESMX = 40,
+                         nEESMXRed = 30,  // for EE+-01&05&09
+        nEESMXExt = 45,                   //for EE+-02&08
+        nEESMY = 40,
+                         nEESMYRed = 35,  // for EE+-03&07
+        nEBEtaBins = 34, nEEEtaBins = 20, nPhiBins = 36;
 
     struct AxisSpecs {
       int nbins;
