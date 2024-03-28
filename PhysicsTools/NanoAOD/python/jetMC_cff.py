@@ -88,8 +88,6 @@ fatJetMCTable = simpleCandidateFlatTableProducer.clone(
     name = _fatJetTable.name,
     extension = cms.bool(True),
     variables = cms.PSet(
-        nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
-        nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
         hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
         # cut should follow genJetAK8Table.cut
         genJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 100.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen AK8 jet"),
