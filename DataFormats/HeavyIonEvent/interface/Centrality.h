@@ -55,6 +55,9 @@ namespace reco {
     double zdcSumPlus() const { return zdcSumPlus_; }
     double zdcSumMinus() const { return zdcSumMinus_; }
     double EtMidRapiditySum() const { return etMidRapiditySum_; }
+    double EtPFhfSum() const { return etPFhfSumPlus_ + etPFhfSumMinus_; }
+    double EtPFhfSumPlus() const { return etPFhfSumPlus_; }
+    double EtPFhfSumMinus() const { return etPFhfSumMinus_; }
 
   protected:
     double value_;
@@ -84,6 +87,8 @@ namespace reco {
     double zdcSumPlus_;
     double zdcSumMinus_;
     double etMidRapiditySum_;
+    double etPFhfSumPlus_;
+    double etPFhfSumMinus_;
     double ntracksPtCut_;
     double ntracksEtaCut_;
     double ntracksEtaPtCut_;
