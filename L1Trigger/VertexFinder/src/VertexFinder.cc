@@ -761,71 +761,55 @@ namespace l1tVertexFinder {
 
   void VertexFinder::fastHistoEmulation() {
     // Relevant constants for the track word
-    enum TrackBitWidths {
-      kZ0Size = 12,             // Width of z-position (40cm / 0.1)
-      kZ0MagSize = 5,           // Width of z-position magnitude (signed)
-      kPtSize = 14,             // Width of pt
-      kPtMagSize = 9,           // Width of pt magnitude (unsigned)
-      kReducedPrecisionPt = 7,  // Width of the reduced precision, integer only, pt
-    };
+    static constexpr int kZ0Size = 12,  // Width of z-position (40cm / 0.1)
+        kZ0MagSize = 5,                 // Width of z-position magnitude (signed)
+        kPtSize = 14,                   // Width of pt
+        kPtMagSize = 9,                 // Width of pt magnitude (unsigned)
+        kReducedPrecisionPt = 7         // Width of the reduced precision, integer only, pt
+        ;
 
-    enum HistogramBitWidths {
-      kBinSize = 8,                     // Width of a single bin in z
-      kBinFixedSize = 8,                // Width of a single z0 bin in fixed point representation
-      kBinFixedMagSize = 5,             // Width (magnitude) of a single z0 bin in fixed point representation
-      kSlidingSumSize = 11,             // Width of the sum of a window of bins
-      kInverseSize = 14,                // Width of the inverse sum
-      kInverseMagSize = 1,              // Width of the inverse sum magnitude (unsigned)
-      kWeightedSlidingSumSize = 20,     // Width of the pT weighted sliding sum
-      kWeightedSlidingSumMagSize = 10,  // Width of the pT weighted sliding sum magnitude (signed)
-      kWindowSize = 3,                  // Number of bins in the window used to sum histogram bins
-      kSumPtLinkSize = 9,  // Number of bits used to represent the sum of track pts in a single bin from a single link
+    static constexpr int
+        kBinSize = 8,                     // Width of a single bin in z
+        kBinFixedSize = 8,                // Width of a single z0 bin in fixed point representation
+        kBinFixedMagSize = 5,             // Width (magnitude) of a single z0 bin in fixed point representation
+        kSlidingSumSize = 11,             // Width of the sum of a window of bins
+        kInverseSize = 14,                // Width of the inverse sum
+        kInverseMagSize = 1,              // Width of the inverse sum magnitude (unsigned)
+        kWeightedSlidingSumSize = 20,     // Width of the pT weighted sliding sum
+        kWeightedSlidingSumMagSize = 10,  // Width of the pT weighted sliding sum magnitude (signed)
+        kWindowSize = 3,                  // Number of bins in the window used to sum histogram bins
+        kSumPtLinkSize = 9,  // Number of bits used to represent the sum of track pts in a single bin from a single link
 
-      kSumPtWindowBits = BitsToRepresent(HistogramBitWidths::kWindowSize * (1 << HistogramBitWidths::kSumPtLinkSize)),
-      // Number of bits to represent the untruncated sum of track pts in a single bin from a single link
-      kSumPtUntruncatedLinkSize = TrackBitWidths::kPtSize + 2,
-      kSumPtUntruncatedLinkMagSize = TrackBitWidths::kPtMagSize + 2,
-    };
+        kSumPtWindowBits = BitsToRepresent(kWindowSize * (1 << kSumPtLinkSize)),
+        // Number of bits to represent the untruncated sum of track pts in a single bin from a single link
+        kSumPtUntruncatedLinkSize = kPtSize + 2, kSumPtUntruncatedLinkMagSize = kPtMagSize + 2;
 
-    static constexpr unsigned int kTableSize =
-        ((1 << HistogramBitWidths::kSumPtLinkSize) - 1) * HistogramBitWidths::kWindowSize;
+    static constexpr unsigned int kTableSize = ((1 << kSumPtLinkSize) - 1) * kWindowSize;
 
-    typedef ap_ufixed<TrackBitWidths::kPtSize, TrackBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT> pt_t;
+    typedef ap_ufixed<kPtSize, kPtMagSize, AP_RND_CONV, AP_SAT> pt_t;
     // Same size as TTTrack_TrackWord::z0_t, but now taking into account the sign bit (i.e. 2's complement)
-    typedef ap_int<TrackBitWidths::kZ0Size> z0_t;
+    typedef ap_int<kZ0Size> z0_t;
     // 7 bits chosen to represent values between [0,127]
     // This is the next highest power of 2 value to our chosen track pt saturation value (100)
-    typedef ap_ufixed<TrackBitWidths::kReducedPrecisionPt, TrackBitWidths::kReducedPrecisionPt, AP_RND_INF, AP_SAT>
-        track_pt_fixed_t;
+    typedef ap_ufixed<kReducedPrecisionPt, kReducedPrecisionPt, AP_RND_INF, AP_SAT> track_pt_fixed_t;
     // Histogram bin index
-    typedef ap_uint<HistogramBitWidths::kBinSize> histbin_t;
+    typedef ap_uint<kBinSize> histbin_t;
     // Histogram bin in fixed point representation, before truncation
-    typedef ap_ufixed<HistogramBitWidths::kBinFixedSize, HistogramBitWidths::kBinFixedMagSize, AP_RND_INF, AP_SAT>
-        histbin_fixed_t;
+    typedef ap_ufixed<kBinFixedSize, kBinFixedMagSize, AP_RND_INF, AP_SAT> histbin_fixed_t;
     // This type is slightly arbitrary, but 2 bits larger than untruncated track pt to store sums in histogram bins
     // with truncation just before vertex-finding
-    typedef ap_ufixed<HistogramBitWidths::kSumPtUntruncatedLinkSize,
-                      HistogramBitWidths::kSumPtUntruncatedLinkMagSize,
-                      AP_RND_INF,
-                      AP_SAT>
+    typedef ap_ufixed<kSumPtUntruncatedLinkSize, kSumPtUntruncatedLinkMagSize, AP_RND_INF, AP_SAT>
         histbin_pt_sum_fixed_t;
     // This value is slightly arbitrary, but small enough that the windows sums aren't too big.
-    typedef ap_ufixed<HistogramBitWidths::kSumPtLinkSize, HistogramBitWidths::kSumPtLinkSize, AP_RND_INF, AP_SAT>
-        link_pt_sum_fixed_t;
-    // Enough bits to store HistogramBitWidths::kWindowSize * (2**HistogramBitWidths::kSumPtLinkSize)
-    typedef ap_ufixed<HistogramBitWidths::kSumPtWindowBits, HistogramBitWidths::kSumPtWindowBits, AP_RND_INF, AP_SAT>
-        window_pt_sum_fixed_t;
+    typedef ap_ufixed<kSumPtLinkSize, kSumPtLinkSize, AP_RND_INF, AP_SAT> link_pt_sum_fixed_t;
+    // Enough bits to store kWindowSize * (2**kSumPtLinkSize)
+    typedef ap_ufixed<kSumPtWindowBits, kSumPtWindowBits, AP_RND_INF, AP_SAT> window_pt_sum_fixed_t;
     // pt weighted sum of bins in window
-    typedef ap_fixed<HistogramBitWidths::kWeightedSlidingSumSize,
-                     HistogramBitWidths::kWeightedSlidingSumMagSize,
-                     AP_RND_INF,
-                     AP_SAT>
-        zsliding_t;
+    typedef ap_fixed<kWeightedSlidingSumSize, kWeightedSlidingSumMagSize, AP_RND_INF, AP_SAT> zsliding_t;
     // Sum of histogram bins in window
-    typedef ap_uint<HistogramBitWidths::kSlidingSumSize> slidingsum_t;
+    typedef ap_uint<kSlidingSumSize> slidingsum_t;
     // Inverse of sum of bins in a given window
-    typedef ap_ufixed<HistogramBitWidths::kInverseSize, HistogramBitWidths::kInverseMagSize, AP_RND_INF, AP_SAT>
-        inverse_t;
+    typedef ap_ufixed<kInverseSize, kInverseMagSize, AP_RND_INF, AP_SAT> inverse_t;
 
     auto track_quality_check = [&](const track_pt_fixed_t& pt) -> bool {
       // Track quality cuts
@@ -836,14 +820,13 @@ namespace l1tVertexFinder {
 
     auto fetch_bin = [&](const z0_t& z0, int nbins) -> std::pair<histbin_t, bool> {
       // Increase the the number of bits in the word to allow for additional dynamic range
-      ap_int<TrackBitWidths::kZ0Size + 1> z0_13 = z0;
+      ap_int<kZ0Size + 1> z0_13 = z0;
       // Add a number equal to half of the range in z0, meaning that the range is now [0, 2*z0_max]
-      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13 = z0_13 + (1 << (TrackBitWidths::kZ0Size - 1));
-      // Shift the bits down to truncate the dynamic range to the most significant HistogramBitWidths::kBinFixedSize bits
-      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13_reduced =
-          absz0_13 >> (TrackBitWidths::kZ0Size - HistogramBitWidths::kBinFixedSize);
+      ap_int<kZ0Size + 1> absz0_13 = z0_13 + (1 << (kZ0Size - 1));
+      // Shift the bits down to truncate the dynamic range to the most significant kBinFixedSize bits
+      ap_int<kZ0Size + 1> absz0_13_reduced = absz0_13 >> (kZ0Size - kBinFixedSize);
       // Put the relevant bits into the histbin_t container
-      histbin_t bin = absz0_13_reduced.range(HistogramBitWidths::kBinFixedSize - 1, 0);
+      histbin_t bin = absz0_13_reduced.range(kBinFixedSize - 1, 0);
 
       if (settings_->debug() > 2) {
         edm::LogInfo("VertexProducer")
@@ -919,11 +902,11 @@ namespace l1tVertexFinder {
       }
 
       // Find the weighted position within the window in index space (width = 1)
-      for (ap_uint<BitsToRepresent(HistogramBitWidths::kWindowSize)> w = 0; w < HistogramBitWidths::kWindowSize; ++w) {
+      for (ap_uint<BitsToRepresent(kWindowSize)> w = 0; w < kWindowSize; ++w) {
         zvtx_sliding_sum += (binpt.at(w) * w);
         if (settings_->debug() >= 1) {
           *log << "(" << w << " * " << binpt.at(w) << ")";
-          if (w < HistogramBitWidths::kWindowSize - 1) {
+          if (w < kWindowSize - 1) {
             *log << " + ";
           }
         }
@@ -1025,8 +1008,7 @@ namespace l1tVertexFinder {
     // Now, truncation should happen after histograms are filled but prior to the vertex-finding part of the algo
     for (unsigned int hb = 0; hb < hist.size(); ++hb) {
       link_pt_sum_fixed_t bin_trunc = hist_untruncated.at(hb).range(
-          HistogramBitWidths::kSumPtUntruncatedLinkSize - 1,
-          HistogramBitWidths::kSumPtUntruncatedLinkSize - HistogramBitWidths::kSumPtUntruncatedLinkMagSize);
+          kSumPtUntruncatedLinkSize - 1, kSumPtUntruncatedLinkSize - kSumPtUntruncatedLinkMagSize);
       hist.at(hb) = bin_trunc;
       if (settings_->debug() > 2) {
         edm::LogInfo("VertexProducer") << "fastHistoEmulation::truncating histogram bin pt once filling is complete \n"
@@ -1042,7 +1024,7 @@ namespace l1tVertexFinder {
     // and compute the sums using sliding windows ... sum_i_i+(w-1) where i in (0,nbins-w) and w is the window size
     std::vector<window_pt_sum_fixed_t> hist_window_sums(nsums, 0);
     for (unsigned int b = 0; b < nsums; ++b) {
-      for (unsigned int w = 0; w < HistogramBitWidths::kWindowSize; ++w) {
+      for (unsigned int w = 0; w < kWindowSize; ++w) {
         unsigned int index = b + w;
         hist_window_sums.at(b) += hist.at(index);
       }
@@ -1055,7 +1037,7 @@ namespace l1tVertexFinder {
       histbin_t b_max = 0;
       window_pt_sum_fixed_t max_pt = 0;
       zsliding_t zvtx_sliding = -999;
-      std::vector<link_pt_sum_fixed_t> binpt_max(HistogramBitWidths::kWindowSize, 0);
+      std::vector<link_pt_sum_fixed_t> binpt_max(kWindowSize, 0);
 
       // Find the maxima of the sums
       for (unsigned int i = 0; i < hist_window_sums.size(); i++) {
@@ -1065,9 +1047,7 @@ namespace l1tVertexFinder {
         if (hist_window_sums.at(i) > max_pt) {
           b_max = i;
           max_pt = hist_window_sums.at(b_max);
-          std::copy(std::begin(hist) + b_max,
-                    std::begin(hist) + b_max + HistogramBitWidths::kWindowSize,
-                    std::begin(binpt_max));
+          std::copy(std::begin(hist) + b_max, std::begin(hist) + b_max + kWindowSize, std::begin(binpt_max));
 
           // Find the weighted position only for the highest sum pt window
           zvtx_sliding = weighted_position(b_max, binpt_max, max_pt, nbins);
