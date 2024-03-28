@@ -70,11 +70,11 @@ class Reco(Scenario):
                 if a['dataTier'] == 'MINIAOD':
                     miniAODStep = ',PAT'
                 if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
-
-                    nanoAODStep = ',NANO:@PHYS+@L1'
                     if "nanoFlavours" in args:
-                        nanoAODStep += "+"+nanoFlavours(args['nanoFlavours'])
-
+                        nanoAODStep += ',NANO'+nanoFlavours(args['nanoFlavours'])
+                    else:
+                        nanoAODStep = ',NANO:@PHYS+@L1'
+                        
         self._checkRepackedFlag(options, **args)
 
         if 'customs' in args:
