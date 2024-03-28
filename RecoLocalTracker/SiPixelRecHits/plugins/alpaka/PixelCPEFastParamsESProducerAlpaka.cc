@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                    genErrorDBObjectProduct,
                                                                    lorentzAngleWidthProduct,
                                                                    irradiationBiasCorrection_);
-}
+  }
 
   template <typename TrackerTraits>
   void PixelCPEFastParamsESProducerAlpaka<TrackerTraits>::fillDescriptions(

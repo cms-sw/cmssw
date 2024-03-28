@@ -175,10 +175,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.sy1 = std::max(21, toMicron(cp.sy1));  // for some angles sy1 is very small
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
-    g.dx1 = cp.dx1; 
-    g.dx2 = cp.dx2; 
-    g.dy1 = cp.dy1; 
-    g.dy2 = cp.dy2; 
+    g.dx1 = cp.dx1;
+    g.dx2 = cp.dx2;
+    g.dy1 = cp.dy1;
+    g.dy2 = cp.dy2;
 
     //sample xerr as function of position
     // moduleOffsetX is the definition of TrackerTraits::xOffset,
@@ -228,7 +228,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     int qbin = pixelCPEforDevice::kGenErrorQBins;  // low charge
     int k = 0;
     int qClusIncrement = 100;
-    for (int qclus = 1000; k < pixelCPEforDevice::kGenErrorQBins; qclus += qClusIncrement) {//increase charge until we cover all qBin categories
+    for (int qclus = 1000; k < pixelCPEforDevice::kGenErrorQBins;
+         qclus += qClusIncrement) {  //increase charge until we cover all qBin categories
       errorFromTemplates(p, cp, qclus);
       if (cp.qBin_ == qbin)
         continue;
@@ -237,8 +238,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       //We increment charge until qBin gets switched from 5 and then we start writing detParams as we are not interested in cases with qBin=5
       //The problem is that with a too large qClusIncrement, we may go directly from 5 to 3, breaking the logic of the for loop
       //Therefore, we start with lower increment (100) until we get to qBin=4
-      if(qbin<pixelCPEforDevice::kGenErrorQBins){
-        qClusIncrement=1000;
+      if (qbin < pixelCPEforDevice::kGenErrorQBins) {
+        qClusIncrement = 1000;
       }
       g.xfact[k] = cp.sigmax;
       g.yfact[k] = cp.sigmay;
@@ -250,9 +251,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       g.minCh[k++] = qclus;
 
 #ifdef EDM_ML_DEBUG
-      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_ << ' '
-                               << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' ' << m * cp.sx2 << ' '
-                               << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_
+                                         << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' '
+                                         << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2
+                                         << std::endl;
 #endif  // EDM_ML_DEBUG
     }
 
@@ -413,14 +415,14 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.sigmay = theClusterParam.sigmay * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy1 = theClusterParam.sy1 * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy2 = theClusterParam.sy2 * pixelCPEforDevice::micronsToCm;
-  
+
   theClusterParam.deltax = theClusterParam.deltax * pixelCPEforDevice::micronsToCm;
   theClusterParam.dx1 = theClusterParam.dx1 * pixelCPEforDevice::micronsToCm;
   theClusterParam.dx2 = theClusterParam.dx2 * pixelCPEforDevice::micronsToCm;
 
   theClusterParam.deltay = theClusterParam.deltay * pixelCPEforDevice::micronsToCm;
   theClusterParam.dy1 = theClusterParam.dy1 * pixelCPEforDevice::micronsToCm;
-  theClusterParam.dy2 = theClusterParam.dy2 * pixelCPEforDevice::micronsToCm; 
+  theClusterParam.dy2 = theClusterParam.dy2 * pixelCPEforDevice::micronsToCm;
 }
 
 template <>

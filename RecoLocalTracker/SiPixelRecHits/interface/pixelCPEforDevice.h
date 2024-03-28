@@ -346,18 +346,16 @@ namespace pixelCPEforDevice {
   }
 
   template <typename TrackerTraits>
-  constexpr inline void irradiationBiasCorrection(
-                                    CommonParams const& __restrict__ comParams,
-                                    DetParams const& __restrict__ detParams,
-                                    ClusParams& cp,
-                                    uint32_t ic)
-  {
-    if(!comParams.IrradiationBiasCorrection_){
+  constexpr inline void irradiationBiasCorrection(CommonParams const& __restrict__ comParams,
+                                                  DetParams const& __restrict__ detParams,
+                                                  ClusParams& cp,
+                                                  uint32_t ic) {
+    if (!comParams.IrradiationBiasCorrection_) {
       return;
     }
 
-    float ibc_x=0;
-    float ibc_y=0;
+    float ibc_x = 0;
+    float ibc_y = 0;
 
     // in detParams qBins are reversed bin0 -> smallest charge, bin4-> largest charge
     // whereas in CondFormats/SiPixelTransient/src/SiPixelGenError.cc it is the opposite
@@ -368,14 +366,12 @@ namespace pixelCPEforDevice {
     if (cp.status[ic].isOneX) {  // size=1
       //for size = 1, the Lorentz shift is already accounted by the irradiation correction
       ibc_x = ibc_x - detParams.shiftX;
-      if (cp.status[ic].isBigX){
+      if (cp.status[ic].isBigX) {
         ibc_x -= detParams.dx2;
-      }
-      else{
+      } else {
         ibc_x -= detParams.dx1;
       }
-    }
-    else {  // size>1
+    } else {  // size>1
       ibc_x -= detParams.deltax[bin];
     }
 
@@ -386,13 +382,12 @@ namespace pixelCPEforDevice {
         ibc_y -= detParams.dy2;
       else
         ibc_y -= detParams.dy1;
-    }
-    else {  // size>1
+    } else {  // size>1
       ibc_y -= detParams.deltay[bin];
     }
 
-  cp.xpos[ic] += ibc_x;
-  cp.ypos[ic] += ibc_y;
+    cp.xpos[ic] += ibc_x;
+    cp.ypos[ic] += ibc_y;
   }
 
   template <typename TrackerTraits>
