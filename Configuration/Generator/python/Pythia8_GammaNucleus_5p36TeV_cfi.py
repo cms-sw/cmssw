@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Generator.Pythia8PhotonFluxSettings_cfi import PhotonFlux_PbPb
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(1),
@@ -6,7 +7,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(5360.),
-    doProtonPhotonFlux = cms.untracked.bool(True),
+    PhotonFlux = PhotonFlux_PbPb,
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring('pythia8_example02'),
         pythia8_example02 = cms.vstring(
