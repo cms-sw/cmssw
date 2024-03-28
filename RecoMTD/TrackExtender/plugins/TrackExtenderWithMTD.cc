@@ -227,7 +227,7 @@ namespace {
   };
 
   enum class TofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
-  enum class SigmaTofCalc { kCost = 1, kSegm = 2 };
+  enum class SigmaTofCalc { kCost = 1, kSegm = 2, kMixd = 3 };
 
   const TrackTofPidInfo computeTrackTofPidInfo(float magp2,
                                                float length,
@@ -279,6 +279,11 @@ namespace {
         case SigmaTofCalc::kSegm:
           res = trs.computeSigmaTof(mass_inv2);
           break;
+        case SigmaTofCalc::kMixd:
+          float res1 = tofpid.pathlength * c_inv * trs.segmentSigmaMom_[trs.nSegment_ - 1] /
+                       (magp2 * sqrt(magp2 + 1 / mass_inv2) * mass_inv2);
+          float res2 = trs.computeSigmaTof(mass_inv2);
+          res = sqrt(res1 * res1 + res2 * res2 + 2 * res1 * res2);
       }
 
       return res;
@@ -306,6 +311,9 @@ namespace {
       tofpid.dterror =
           sqrt(tofpid.dterror * tofpid.dterror + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi));
       tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
+    } else {
+      // only add sigma(TOF) if not considering mass hp. uncertainty
+      tofpid.dterror = sqrt(tofpid.dterror * tofpid.dterror + tofpid.sigma_dt_pi * tofpid.sigma_dt_pi);
     }
 
     tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / (tofpid.dterror * tofpid.dterror);
@@ -321,10 +329,12 @@ namespace {
     if (!addPIDError) {
       //*TODO* deal with heavier nucleons and/or BSM case here?
       float chi2_pi = tofpid.dtchi2;
-      float chi2_k =
-          (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) / (tofpid.dterror * tofpid.dterror);
-      float chi2_p =
-          (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) / (tofpid.dterror * tofpid.dterror);
+      float chi2_k = (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) /
+                     (tofpid.dterror * tofpid.dterror - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi +
+                      tofpid.sigma_dt_k * tofpid.sigma_dt_k);
+      float chi2_p = (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) /
+                     (tofpid.dterror * tofpid.dterror - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi +
+                      tofpid.sigma_dt_p * tofpid.sigma_dt_p);
 
       float rawprob_pi = exp(-0.5f * chi2_pi);
       float rawprob_k = exp(-0.5f * chi2_k);
@@ -1107,7 +1117,8 @@ namespace {
                                                            t_vtx,
                                                            t_vtx_err,  //put vtx error by hand for the moment
                                                            false,
-                                                           TofCalc::kMixd);
+                                                           TofCalc::kMixd,
+                                                           SigmaTofCalc::kMixd);
               MTDHitMatchingInfo mi;
               mi.hit = &hit;
               mi.estChi2 = est.second;
