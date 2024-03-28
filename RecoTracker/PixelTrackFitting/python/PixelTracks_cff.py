@@ -243,3 +243,19 @@ alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
+
+from Configuration.ProcessModifiers.alpakaCUDAValidationPixel_cff import alpakaCUDAValidationPixel
+
+alpakaCUDAValidationPixel.toModify(pixelTracksSoA,
+    # transfer the pixel tracks in SoA format to the host
+    cuda = _pixelTracksSoA.clone()
+)
+alpakaCUDAValidationPixel.toModify(pixelTracksSoA.cpu, pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA@cpu")
+
+alpakaCUDAValidationPixel.toReplaceWith(pixelTracksTask, cms.Task(
+                        # Reconstruct and convert the pixel tracks with alpaka on host and device
+                        pixelTracksTask.copy(),
+                        # build the pixel ntuplets and pixel tracks in SoA format on the GPU
+                        pixelTracksCUDA,
+                        # this is an alias for the SoA on GPU or CPU to be used for DQM
+                        pixelTracksSoA))

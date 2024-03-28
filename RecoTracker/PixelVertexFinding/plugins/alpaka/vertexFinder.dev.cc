@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     float ptMin,
                                     float ptMax) const {
         auto const* quality = tracks_view.quality();
-        using helper = TracksUtilities<TrackerTraits>;
+        using helper = reco::TracksUtilities<TrackerTraits>;
 
         for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
           [[maybe_unused]] auto nHits = helper::nHits(tracks_view, idx);
@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           if (reco::isTriplet(tracks_view, idx))
             continue;  // no triplets
-          if (quality[idx] < ::pixelTrack::Quality::highPurity)
+          if (quality[idx] < ::reco::pixelTrack::Quality::highPurity)
             continue;
 
           auto pt = tracks_view[idx].pt();

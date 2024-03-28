@@ -28,7 +28,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CAHitNtupletAlpaka : public stream::EDProducer<> {
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsConstView = reco::TrackingRecHitSoAConstView<TrackerTraits>;
     using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
     using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
 

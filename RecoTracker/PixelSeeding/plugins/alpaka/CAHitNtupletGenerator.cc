@@ -93,25 +93,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                          (float)cfg.getParameter<double>("dcaCutOuterTriplet")}};
       };
 
-      static constexpr ::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
+      static constexpr ::reco::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
         auto coeff = pset.getParameter<std::array<double, 2>>("chi2Coeff");
         auto ptMax = pset.getParameter<double>("chi2MaxPt");
 
         coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
-        return ::pixelTrack::QualityCutsT<TrackerTraits>{// polynomial coefficients for the pT-dependent chi2 cut
-                                                         {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
-                                                         // max pT used to determine the chi2 cut
-                                                         (float)ptMax,
-                                                         // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
-                                                         (float)pset.getParameter<double>("chi2Scale"),
-                                                         // regional cuts for triplets
-                                                         {(float)pset.getParameter<double>("tripletMaxTip"),
-                                                          (float)pset.getParameter<double>("tripletMinPt"),
-                                                          (float)pset.getParameter<double>("tripletMaxZip")},
-                                                         // regional cuts for quadruplets
-                                                         {(float)pset.getParameter<double>("quadrupletMaxTip"),
-                                                          (float)pset.getParameter<double>("quadrupletMinPt"),
-                                                          (float)pset.getParameter<double>("quadrupletMaxZip")}};
+        return ::reco::pixelTrack::QualityCutsT<TrackerTraits>{
+            // polynomial coefficients for the pT-dependent chi2 cut
+            {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
+            // max pT used to determine the chi2 cut
+            (float)ptMax,
+            // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
+            (float)pset.getParameter<double>("chi2Scale"),
+            // regional cuts for triplets
+            {(float)pset.getParameter<double>("tripletMaxTip"),
+             (float)pset.getParameter<double>("tripletMinPt"),
+             (float)pset.getParameter<double>("tripletMaxZip")},
+            // regional cuts for quadruplets
+            {(float)pset.getParameter<double>("quadrupletMaxTip"),
+             (float)pset.getParameter<double>("quadrupletMinPt"),
+             (float)pset.getParameter<double>("quadrupletMaxZip")}};
       }
     };
 
@@ -129,8 +130,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         {(bool)cfg.getParameter<bool>("includeFarForwards")}};
       }
 
-      static constexpr ::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
-        return ::pixelTrack::QualityCutsT<TrackerTraits>{
+      static constexpr ::reco::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
+        return ::reco::pixelTrack::QualityCutsT<TrackerTraits>{
             static_cast<float>(pset.getParameter<double>("maxChi2")),
             static_cast<float>(pset.getParameter<double>("minPt")),
             static_cast<float>(pset.getParameter<double>("maxTip")),

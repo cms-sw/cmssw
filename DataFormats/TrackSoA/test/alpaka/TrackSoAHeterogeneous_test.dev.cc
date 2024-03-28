@@ -13,7 +13,7 @@
 
 using namespace reco;
 
-using Quality = pixelTrack::Quality;
+using Quality = reco::pixelTrack::Quality;
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
   namespace testTrackSoA {

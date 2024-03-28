@@ -16,3 +16,9 @@ _offlineBeamSpotTask_alpaka = offlineBeamSpotTask.copy()
 offlineBeamSpotDevice = _beamSpotDeviceProducer.clone(src = cms.InputTag('offlineBeamSpot'))
 _offlineBeamSpotTask_alpaka.add(offlineBeamSpotDevice)
 alpaka.toReplaceWith(offlineBeamSpotTask, _offlineBeamSpotTask_alpaka)
+
+from Configuration.ProcessModifiers.alpakaCUDAValidationPixel_cff import alpakaCUDAValidationPixel
+_offlineBeamSpotTask_alpakaCUDA = offlineBeamSpotTask.copy()
+_offlineBeamSpotTask_alpakaCUDA.add(offlineBeamSpotToCUDA)
+_offlineBeamSpotTask_alpakaCUDA.add(offlineBeamSpotDevice)
+alpakaCUDAValidationPixel.toReplaceWith(offlineBeamSpotTask, _offlineBeamSpotTask_alpakaCUDA)
