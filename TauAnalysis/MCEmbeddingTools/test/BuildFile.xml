@@ -1,1 +1,5 @@
-<test name="testTauEmbeddingProducers" command="runtests.sh"/>
+<test name="testTauEmbeddingWorkflow2016postVFP" command="run_2016preVFPUL_workflow_tests.sh"/>
+<test name="testTauEmbeddingWorkflow2016preVFP" command="run_2016postVFPUL_workflow_tests.sh"/>
+<test name="testTauEmbeddingWorkflow2017" command="run_2017UL_workflow_tests.sh"/>
+<test name="testTauEmbeddingWorkflow2018" command="run_2018UL_workflow_tests.sh"/>
+
