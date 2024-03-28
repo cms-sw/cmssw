@@ -67,7 +67,9 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
   }
 
   auto const& vsoa = *vsoaHandle;
-  int nVertices = vsoa.view().nvFinal();
+  auto vtx_view = vsoa.view<reco::ZVertexSoA>();
+  auto trk_view = vsoa.view<reco::ZVertexTracksSoA>();
+  int nVertices = vtx_view.nvFinal();
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
   if (!bsHandle.isValid()) {
@@ -82,8 +84,8 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
   }
 
   for (int iv = 0; iv < nVertices; iv++) {
-    auto si = vsoa.view()[iv].sortInd();
-    auto z = vsoa.view()[si].zv();
+    auto si = vtx_view[iv].sortInd();
+    auto z = vtx_view[si].zv();
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
 
@@ -91,10 +93,10 @@ void SiPixelMonitorVertexSoAAlpaka::analyze(const edm::Event& iEvent, const edm:
     hx->Fill(x);
     hy->Fill(y);
     hz->Fill(z);
-    auto ndof = vsoa.view()[si].ndof();
-    hchi2->Fill(vsoa.view()[si].chi2());
-    hchi2oNdof->Fill(vsoa.view()[si].chi2() / ndof);
-    hptv2->Fill(vsoa.view()[si].ptv2());
+    auto ndof = trk_view[si].ndof();
+    hchi2->Fill(vtx_view[si].chi2());
+    hchi2oNdof->Fill(vtx_view[si].chi2() / ndof);
+    hptv2->Fill(vtx_view[si].ptv2());
     hntrks->Fill(ndof + 1);
   }
   hnVertex->Fill(nVertices);

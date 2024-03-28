@@ -9,18 +9,18 @@
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 
-template <int32_t S, typename TDev>
-class ZVertexDeviceSoA : public PortableDeviceCollection<reco::ZVertexLayout<>, TDev> {
+template <int32_t NVTX, int32_t NTRK, typename TDev>
+class ZVertexDeviceSoA : public PortableDeviceMultiCollection<TDev, reco::ZVertexSoA, reco::ZVertexTracksSoA> {
 public:
   ZVertexDeviceSoA() = default;  // necessary for ROOT dictionaries
 
-  // Constructor which specifies the SoA size
+  // Constructor which specifies the queue
   template <typename TQueue>
-  explicit ZVertexDeviceSoA(TQueue queue) : PortableDeviceCollection<reco::ZVertexLayout<>, TDev>(S, queue) {}
+  explicit ZVertexDeviceSoA(TQueue queue)
+      : PortableDeviceMultiCollection<TDev, reco::ZVertexSoA, reco::ZVertexTracksSoA>({{NVTX, NTRK}}, queue) {}
 };
 
-using namespace ::zVertex;
 template <typename TDev>
-using ZVertexDevice = ZVertexDeviceSoA<MAXTRACKS, TDev>;
+using ZVertexDevice = ZVertexDeviceSoA<zVertex::MAXVTX, zVertex::MAXTRACKS, TDev>;
 
 #endif  // DataFormats_VertexSoA_interface_ZVertexDevice_h
