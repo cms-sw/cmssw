@@ -156,12 +156,16 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
               // Best Guess:          L1L2 > L1D1 > L2L3 > L2D1 > D1D2 > L3L4 > L5L6 > D3D4
               // Best Rank:           L1L2 > L3L4 > D3D4 > D1D2 > L2L3 > L2D1 > L5L6 > L1D1
               // Rank-Informed Guess: L1L2 > L3L4 > L1D1 > L2L3 > L2D1 > D1D2 > L5L6 > D3D4
-              unsigned int curSeed = aTrack->seedIndex();
-              std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
-              if (settings_.extended())
-                seedRank.push_back(9);
-              else
+              const unsigned int curSeed = aTrack->seedIndex();
+              static const std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
+              if (curSeed < ranks.size()) {
                 seedRank.push_back(ranks[curSeed]);
+              } else if (settings_.extended()) {
+                seedRank.push_back(9);
+              } else {
+                throw cms::Exception("LogError") << __FILE__ << " " << __LINE__ << " Seed type " << curSeed
+                                                 << " not found in list, and settings->extended() not set.";
+              }
 
               if (stublist.size() != stubidslist.size())
                 throw cms::Exception("LogicError")
