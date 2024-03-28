@@ -30,7 +30,7 @@ private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-
+  l1t::MuonStub convertToHybrid(const l1t::MuonStub& stub);
   edm::EDGetTokenT<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>> srcCSC_;
   edm::EDGetTokenT<L1Phase2MuDTPhContainer> srcDT_;
   edm::EDGetTokenT<L1MuDTChambThContainer> srcDTTheta_;
@@ -51,7 +51,8 @@ Phase2L1TGMTStubProducer::Phase2L1TGMTStubProducer(const edm::ParameterSet& iCon
       procEndcap_(new L1TPhase2GMTEndcapStubProcessor(iConfig.getParameter<edm::ParameterSet>("Endcap"))),
       procBarrel_(new L1TPhase2GMTBarrelStubProcessor(iConfig.getParameter<edm::ParameterSet>("Barrel"))),
       verbose_(iConfig.getParameter<int>("verbose")) {
-  produces<l1t::MuonStubCollection>();
+  produces<l1t::MuonStubCollection>("kmtf");
+  produces<l1t::MuonStubCollection>("tps");
   edm::ConsumesCollector consumesColl(consumesCollector());
   translator_ = new L1TMuon::GeometryTranslator(consumesColl);
 }
@@ -70,6 +71,24 @@ Phase2L1TGMTStubProducer::~Phase2L1TGMTStubProducer() {
 //
 // member functions
 //
+
+l1t::MuonStub Phase2L1TGMTStubProducer::convertToHybrid(const l1t::MuonStub& stub) {
+  l1t::MuonStub hybrid(stub.etaRegion(),
+                       stub.phiRegion(),
+                       stub.depthRegion(),
+                       stub.tfLayer(),
+                       stub.coord1() / 256,  //for track matching was 1024
+                       stub.coord2() / 256,  //for track matching was 1024
+                       stub.id(),
+                       stub.bxNum(),
+                       0x3,  //for track matching
+                       stub.eta1(),
+                       stub.eta2(),
+                       stub.etaQuality(),
+                       stub.type());
+  hybrid.setOfflineQuantities(stub.offline_coord1(), stub.offline_coord2(), stub.offline_eta1(), stub.offline_eta2());
+  return hybrid;
+}
 
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -90,6 +109,7 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   //Generate a unique stub ID
   l1t::MuonStubCollection stubs;
+  l1t::MuonStubCollection stubsKMTF;
 
   uint count0 = 0;
   uint count1 = 0;
@@ -99,46 +119,17 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   l1t::MuonStubCollection stubsEndcap = procEndcap_->makeStubs(*cscDigis, *rpcDigis, translator_, iSetup);
   for (auto& stub : stubsEndcap) {
-    if (stub.tfLayer() == 0) {
-      stub.setID(count0);
-      count0++;
-    } else if (stub.tfLayer() == 1) {
-      stub.setID(count1);
-      count1++;
-    } else if (stub.tfLayer() == 2) {
-      stub.setID(count2);
-      count2++;
-    } else if (stub.tfLayer() == 3) {
-      stub.setID(count3);
-      count3++;
-    } else {
-      stub.setID(count4);
-      count4++;
-    }
     stubs.push_back(stub);
   }
   l1t::MuonStubCollection stubsBarrel = procBarrel_->makeStubs(dtDigis.product(), dtThetaDigis.product());
   for (auto& stub : stubsBarrel) {
-    if (stub.tfLayer() == 0) {
-      stub.setID(count0);
-      count0++;
-    } else if (stub.tfLayer() == 1) {
-      stub.setID(count1);
-      count1++;
-    } else if (stub.tfLayer() == 2) {
-      stub.setID(count2);
-      count2++;
-    } else if (stub.tfLayer() == 3) {
-      stub.setID(count3);
-      count3++;
-    } else {
-      stub.setID(count4);
-      count4++;
-    }
-    stubs.push_back(stub);
+    //convert to Hybrid
+    stubs.push_back(convertToHybrid(stub));
+    stubsKMTF.push_back(stub);
   }
 
-  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubs));
+  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubs), "tps");
+  iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubsKMTF), "kmtf");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
