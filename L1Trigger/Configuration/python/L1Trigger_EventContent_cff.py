@@ -175,6 +175,8 @@ def _appendPhase2Digis(obj):
         'keep *_l1tHGCalBackEndLayer2Producer_*_*',
         'keep *_l1tHGCalTowerMapProducer_*_*',
         'keep *_l1tHGCalTowerProducer_*_*',
+        'keep *_l1tHGCalEnergySplitTowerMapProducer_*_*',
+        'keep *_l1tHGCalEnergySplitTowerProducer_*_*',
         'keep *_l1tEGammaClusterEmuProducer_*_*',
         'keep *_l1tVertexFinder_*_*',
         'keep *_l1tVertexFinderEmulator_*_*',
