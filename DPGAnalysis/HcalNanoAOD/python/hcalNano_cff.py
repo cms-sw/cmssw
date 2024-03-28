@@ -72,7 +72,7 @@ def customiseHcalCalib(process):
     process.raw2digi_step = cms.Path(process.hcalCalibDigiSequence, process.RawToDigiTask)
 
     # Insert the HLT filter at start of user path and nanoaod endpath
-    process.user_step.insert(0, process.hcalCalibHLTFilter)
+    process.nanoAOD_step.insert(0, process.hcalCalibHLTFilter)
     process.NANOAODoutput_step.insert(0, process.hcalCalibHLTFilter)
 
     return process

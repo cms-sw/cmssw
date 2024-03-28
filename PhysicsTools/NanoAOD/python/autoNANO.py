@@ -40,6 +40,10 @@ autoNANO = {
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                   'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
+    # HCAL favlours:
+    'HCAL' : {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
+    'HCALCalib' : { 'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                    'customize': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.customiseHcalCalib'},
     #EGM flavours: add variables through customize
     'EGM' : {'sequence': '@PHYS',
              'customize' : '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},
