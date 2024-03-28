@@ -36,7 +36,7 @@ TSToSCAssociatorByEnergyScoreProducer::TSToSCAssociatorByEnergyScoreProducer(con
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
-  produces<hgcal::TracksterToSimClusterAssociator>();
+  produces<ticl::TracksterToSimClusterAssociator>();
 }
 
 TSToSCAssociatorByEnergyScoreProducer::~TSToSCAssociatorByEnergyScoreProducer() {}
@@ -51,7 +51,7 @@ void TSToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
   auto impl =
       std::make_unique<TSToSCAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  auto toPut = std::make_unique<hgcal::TracksterToSimClusterAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::TracksterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 

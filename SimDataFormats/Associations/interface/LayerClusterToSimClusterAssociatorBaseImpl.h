@@ -16,7 +16,7 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
-namespace hgcal {
+namespace ticl {
 
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<SimClusterCollection, reco::CaloClusterCollection, std::pair<float, float>>>
@@ -32,13 +32,13 @@ namespace hgcal {
     virtual ~LayerClusterToSimClusterAssociatorBaseImpl();
 
     /// Associate a LayerCluster to SimClusters
-    virtual hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
+    virtual ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
         const edm::Handle<reco::CaloClusterCollection> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const;
 
     /// Associate a SimCluster to LayerClusters
-    virtual hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(
+    virtual ticl::SimToRecoCollectionWithSimClusters associateSimToReco(
         const edm::Handle<reco::CaloClusterCollection> &cCH, const edm::Handle<SimClusterCollection> &sCCH) const;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

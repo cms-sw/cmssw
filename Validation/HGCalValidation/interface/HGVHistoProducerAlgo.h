@@ -269,10 +269,11 @@ public:
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
-                                      std::unordered_map<DetId, const HGCRecHit*> const&,
+                                      std::unordered_map<DetId, const unsigned int> const&,
                                       unsigned int layers,
-                                      const hgcal::RecoToSimCollection& recSimColl,
-                                      const hgcal::SimToRecoCollection& simRecColl) const;
+                                      const ticl::RecoToSimCollection& recSimColl,
+                                      const ticl::SimToRecoCollection& simRecColl,
+                                      std::vector<HGCRecHit> const& hits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -281,10 +282,11 @@ public:
                                     std::vector<SimCluster> const& simClusters,
                                     std::vector<size_t> const& sCIndices,
                                     const std::vector<float>& mask,
-                                    std::unordered_map<DetId, const HGCRecHit*> const&,
+                                    std::unordered_map<DetId, const unsigned int> const&,
                                     unsigned int layers,
-                                    const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
-                                    const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
+                                    const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
+                                    const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                    std::vector<HGCRecHit> const& hits) const;
   void tracksters_to_SimTracksters(const Histograms& histograms,
                                    const int count,
                                    const ticl::TracksterCollection& Tracksters,
@@ -298,15 +300,17 @@ public:
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
-                                   std::unordered_map<DetId, const HGCRecHit*> const&,
-                                   unsigned int layers) const;
+                                   std::unordered_map<DetId, const unsigned int> const&,
+                                   unsigned int layers,
+                                   std::vector<HGCRecHit> const& hits) const;
   void fill_info_histos(const Histograms& histograms, unsigned int layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
                                 const CaloParticle& caloparticle,
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
-                                std::unordered_map<DetId, const HGCRecHit*> const&) const;
+                                std::unordered_map<DetId, const unsigned int> const&,
+                                std::vector<HGCRecHit> const& hits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -315,12 +319,13 @@ public:
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
-                                   std::unordered_map<DetId, const HGCRecHit*> const&,
+                                   std::unordered_map<DetId, const unsigned int> const&,
                                    std::map<double, double> cummatbudg,
                                    unsigned int layers,
                                    std::vector<int> thicknesses,
-                                   const hgcal::RecoToSimCollection& recSimColl,
-                                   const hgcal::SimToRecoCollection& simRecColl) const;
+                                   const ticl::RecoToSimCollection& recSimColl,
+                                   const ticl::SimToRecoCollection& simRecColl,
+                                   std::vector<HGCRecHit> const& hits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
@@ -333,10 +338,11 @@ public:
                                          std::vector<SimCluster> const& simClusters,
                                          std::vector<size_t> const& sCIndices,
                                          const std::vector<float>& mask,
-                                         std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+                                         std::unordered_map<DetId, const unsigned int> const& hitMap,
                                          unsigned int layers,
-                                         const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
-                                         const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
+                                         const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
+                                         const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                         std::vector<HGCRecHit> const& hits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
                              const int count,
@@ -350,14 +356,17 @@ public:
                              std::vector<CaloParticle> const& cP,
                              std::vector<size_t> const& cPIndices,
                              std::vector<size_t> const& cPSelectedIndices,
-                             std::unordered_map<DetId, const HGCRecHit*> const&,
-                             unsigned int layers) const;
+                             std::unordered_map<DetId, const unsigned int> const&,
+                             unsigned int layers,
+                             std::vector<HGCRecHit> const& hits) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
   void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools);
 
-  DetId findmaxhit(const reco::CaloCluster& cluster, std::unordered_map<DetId, const HGCRecHit*> const&) const;
+  DetId findmaxhit(const reco::CaloCluster& cluster,
+                   std::unordered_map<DetId, const unsigned int> const&,
+                   std::vector<HGCRecHit> const& hits) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };

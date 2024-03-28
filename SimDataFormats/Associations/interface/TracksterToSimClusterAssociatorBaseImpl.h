@@ -17,7 +17,7 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
-namespace hgcal {
+namespace ticl {
 
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<SimClusterCollection, ticl::TracksterCollection, std::pair<float, float>>>
@@ -33,17 +33,15 @@ namespace hgcal {
     virtual ~TracksterToSimClusterAssociatorBaseImpl();
 
     /// Associate a Trackster to SimClusters
-    virtual hgcal::RecoToSimCollectionTracksters associateRecoToSim(
-        const edm::Handle<ticl::TracksterCollection> &tCH,
-        const edm::Handle<reco::CaloClusterCollection> &lCCH,
-        const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual ticl::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                                   const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                                   const edm::Handle<SimClusterCollection> &sCCH) const;
 
     /// Associate a SimCluster to Tracksters
-    virtual hgcal::SimToRecoCollectionTracksters associateSimToReco(
-        const edm::Handle<ticl::TracksterCollection> &tCH,
-        const edm::Handle<reco::CaloClusterCollection> &lCCH,
-        const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual ticl::SimToRecoCollectionTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                                   const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                                   const edm::Handle<SimClusterCollection> &sCCH) const;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

@@ -36,7 +36,7 @@ TSToSimTSHitLCAssociatorByEnergyScoreProducer::TSToSimTSHitLCAssociatorByEnergyS
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
-  produces<hgcal::TracksterToSimTracksterHitLCAssociator>();
+  produces<ticl::TracksterToSimTracksterHitLCAssociator>();
 }
 
 TSToSimTSHitLCAssociatorByEnergyScoreProducer::~TSToSimTSHitLCAssociatorByEnergyScoreProducer() {}
@@ -51,7 +51,7 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
   auto impl = std::make_unique<TSToSimTSHitLCAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  auto toPut = std::make_unique<hgcal::TracksterToSimTracksterHitLCAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::TracksterToSimTracksterHitLCAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 

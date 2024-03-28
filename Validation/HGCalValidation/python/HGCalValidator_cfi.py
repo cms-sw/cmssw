@@ -21,6 +21,7 @@ hgcalValidator = DQMEDAnalyzer(
     # selection of CP for evaluation of efficiency #
     CaloParticleSelectionForEfficiency,
 
+    hits = cms.VInputTag([cms.InputTag("HGCalRecHit", "HGCEERecHits"), cms.InputTag("HGCalRecHit", "HGCHEFRecHits"), cms.InputTag("HGCalRecHit", "HGCHEBRecHits")]),
     ### reco input configuration ###
     #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,

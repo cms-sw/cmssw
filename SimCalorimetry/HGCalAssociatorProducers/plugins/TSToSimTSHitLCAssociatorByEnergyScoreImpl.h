@@ -14,7 +14,7 @@ namespace edm {
   class EDProductGetter;
 }
 
-namespace hgcal {
+namespace ticl {
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
@@ -40,29 +40,29 @@ namespace hgcal {
   // the SimTracksters (via their ids (stIds)) that share at least one LayerCluster. In that pair
   // it stores the score (tsId->(stId,score)). Keep in mind that the association is not unique, since there could be
   // several instances of the same SimTrackster from several related SimClusters that each contributed to the same Trackster.
-}  // namespace hgcal
+}  // namespace ticl
 
-class TSToSimTSHitLCAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimTracksterHitLCAssociatorBaseImpl {
+class TSToSimTSHitLCAssociatorByEnergyScoreImpl : public ticl::TracksterToSimTracksterHitLCAssociatorBaseImpl {
 public:
   explicit TSToSimTSHitLCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                      bool,
                                                      std::shared_ptr<hgcal::RecHitTools>,
                                                      const std::unordered_map<DetId, const HGCRecHit *> *);
 
-  hgcal::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                       const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                       const edm::Handle<SimClusterCollection> &sCCH,
-                                       const edm::Handle<CaloParticleCollection> &cPCH,
-                                       const edm::Handle<ticl::TracksterCollection> &sTCH) const;
+  ticl::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                      const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                      const edm::Handle<SimClusterCollection> &sCCH,
+                                      const edm::Handle<CaloParticleCollection> &cPCH,
+                                      const edm::Handle<ticl::TracksterCollection> &sTCH) const;
 
-  hgcal::RecoToSimCollectionSimTracksters associateRecoToSim(
+  ticl::RecoToSimCollectionSimTracksters associateRecoToSim(
       const edm::Handle<ticl::TracksterCollection> &tCH,
       const edm::Handle<reco::CaloClusterCollection> &lCCH,
       const edm::Handle<SimClusterCollection> &sCCH,
       const edm::Handle<CaloParticleCollection> &cPCH,
       const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
 
-  hgcal::SimToRecoCollectionSimTracksters associateSimToReco(
+  ticl::SimToRecoCollectionSimTracksters associateSimToReco(
       const edm::Handle<ticl::TracksterCollection> &tCH,
       const edm::Handle<reco::CaloClusterCollection> &lCCH,
       const edm::Handle<SimClusterCollection> &sCCH,

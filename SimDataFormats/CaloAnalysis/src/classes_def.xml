@@ -17,7 +17,10 @@
   <class name="MtdCaloParticleRefProd"/>
   <class name="MtdCaloParticleContainer"/>
 
-  <class name="SimCluster"  ClassVersion="4">
+  <class name="SimCluster"  ClassVersion="7">
+   <version ClassVersion="7" checksum="3868743425"/>
+   <version ClassVersion="6" checksum="1198608638"/>
+   <version ClassVersion="5" checksum="3963576369"/>
    <version ClassVersion="4" checksum="3868743425"/>
    <version ClassVersion="3" checksum="1773780587"/>
   </class>
@@ -28,7 +31,9 @@
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
 
-  <class name="MtdSimCluster" ClassVersion="4">
+  <class name="MtdSimCluster" ClassVersion="6">
+    <version ClassVersion="6" checksum="3803328692"/>
+    <version ClassVersion="5" checksum="3108339619"/>
     <version ClassVersion="4" checksum="3803328692"/>
     <version ClassVersion="3" checksum="1001786642"/>
   </class>

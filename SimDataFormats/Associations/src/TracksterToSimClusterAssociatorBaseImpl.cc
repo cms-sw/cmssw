@@ -2,22 +2,22 @@
 
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociatorBaseImpl.h"
 
-namespace hgcal {
+namespace ticl {
   TracksterToSimClusterAssociatorBaseImpl::TracksterToSimClusterAssociatorBaseImpl(){};
   TracksterToSimClusterAssociatorBaseImpl::~TracksterToSimClusterAssociatorBaseImpl(){};
 
-  hgcal::RecoToSimCollectionTracksters TracksterToSimClusterAssociatorBaseImpl::associateRecoToSim(
+  ticl::RecoToSimCollectionTracksters TracksterToSimClusterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<ticl::TracksterCollection> &tCH,
       const edm::Handle<reco::CaloClusterCollection> &lCCH,
       const edm::Handle<SimClusterCollection> &sCCH) const {
-    return hgcal::RecoToSimCollectionTracksters();
+    return ticl::RecoToSimCollectionTracksters();
   }
 
-  hgcal::SimToRecoCollectionTracksters TracksterToSimClusterAssociatorBaseImpl::associateSimToReco(
+  ticl::SimToRecoCollectionTracksters TracksterToSimClusterAssociatorBaseImpl::associateSimToReco(
       const edm::Handle<ticl::TracksterCollection> &tCH,
       const edm::Handle<reco::CaloClusterCollection> &lCCH,
       const edm::Handle<SimClusterCollection> &sCCH) const {
-    return hgcal::SimToRecoCollectionTracksters();
+    return ticl::SimToRecoCollectionTracksters();
   }
 
-}  // namespace hgcal
+}  // namespace ticl

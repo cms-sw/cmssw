@@ -2,18 +2,18 @@
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
 
-namespace hgcal {
+namespace ticl {
   LayerClusterToSimClusterAssociatorBaseImpl::LayerClusterToSimClusterAssociatorBaseImpl(){};
   LayerClusterToSimClusterAssociatorBaseImpl::~LayerClusterToSimClusterAssociatorBaseImpl(){};
 
-  hgcal::RecoToSimCollectionWithSimClusters LayerClusterToSimClusterAssociatorBaseImpl::associateRecoToSim(
+  ticl::RecoToSimCollectionWithSimClusters LayerClusterToSimClusterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
-    return hgcal::RecoToSimCollectionWithSimClusters();
+    return ticl::RecoToSimCollectionWithSimClusters();
   }
 
-  hgcal::SimToRecoCollectionWithSimClusters LayerClusterToSimClusterAssociatorBaseImpl::associateSimToReco(
+  ticl::SimToRecoCollectionWithSimClusters LayerClusterToSimClusterAssociatorBaseImpl::associateSimToReco(
       const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
-    return hgcal::SimToRecoCollectionWithSimClusters();
+    return ticl::SimToRecoCollectionWithSimClusters();
   }
 
-}  // namespace hgcal
+}  // namespace ticl
