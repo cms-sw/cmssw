@@ -99,7 +99,7 @@ private:
   static const unsigned short hy2[kXYMAX];
 
 public:
-  enum { kSizeForDenseIndexing = kLa };
+  static constexpr int kSizeForDenseIndexing = kLa;
 };
 
 std::ostream& operator<<(std::ostream&, const ESDetId& id);
