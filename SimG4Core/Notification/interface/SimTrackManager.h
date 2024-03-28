@@ -18,109 +18,81 @@
 
 // user include files
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 // forward declarations
 
 class TmpSimEvent;
+class TmpSimVertex;
 class G4Track;
 
 class SimTrackManager {
 public:
-  class StrictWeakOrdering {
-  public:
-    bool operator()(TrackWithHistory*& p, const int& i) const { return p->trackID() < i; }
-  };
 
-  typedef std::pair<int, math::XYZVectorD> VertexPosition;
-  typedef std::vector<std::pair<int, math::XYZVectorD> > VertexPositionVector;
-  typedef std::map<int, VertexPositionVector> VertexMap;
-
-  explicit SimTrackManager(TmpSimEvent*);
+  explicit SimTrackManager(TmpSimEvent*, int verbose);
   ~SimTrackManager();
 
-  const std::vector<TrackWithHistory*>* trackContainer() const { return &m_trackContainer; }
+  const std::vector<TrackWithHistory*>* trackContainer() const {
+    return m_trackContainer;
+  }
 
   void storeTracks();
+
   void reset();
-  void deleteTracks();
-  void cleanTracksWithHistory();
 
-  void addTrack(TrackWithHistory* iTrack, const G4Track* track, bool inHistory, bool withAncestor);
-
-  int giveMotherNeeded(int i) const {
-    int theResult = 0;
-    for (auto const& p : idsave) {
-      if (p.first == i) {
-        theResult = p.second;
-        break;
-      }
-    }
-    return theResult;
+  void addTrack(bool inHistory);
+  //  void addTrack(bool inHistory, bool withAncestor);
+  
+  int giveMotherNeeded(int) const {
+    return m_currTrackInfo->mcTruthID();
+  }
+  
+  bool trackExists(unsigned int) const {
+    return true;
   }
 
-  bool trackExists(int i) const {
-    bool flag = false;
-    for (auto const& ptr : m_trackContainer) {
-      if (ptr->trackID() == i) {
-        flag = true;
-        break;
-      }
-    }
-    return flag;
+  TrackWithHistory* getTrackByID(unsigned int, bool) const {
+    return m_currHistory;
   }
 
-  TrackWithHistory* getTrackByID(int trackID, bool strict = false) const {
-    TrackWithHistory* track = nullptr;
-    for (auto const& ptr : m_trackContainer) {
-      if (ptr->trackID() == trackID) {
-        track = ptr;
-        break;
-      }
-    }
-    if (nullptr == track && strict) {
-      ReportException(trackID);
-    }
-    return track;
+  void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) {
+    theLHCTlink = thisLHCTlink;
   }
 
-  void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) { theLHCTlink = thisLHCTlink; }
+  void initialisePrimaries(const G4Event*);
+
+  TrackWithHistory* getTrackWithHistory(const G4Track*);
+
+  const G4Track* getCurrentTrack() const {
+    return m_currTrack;
+  } 
 
   // stop default
   SimTrackManager(const SimTrackManager&) = delete;
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
 private:
-  void saveTrackAndItsBranch(TrackWithHistory*);
-  int getOrCreateVertex(TrackWithHistory*, int);
-  void cleanVertexMap();
-  void reallyStoreTracks();
-  void fillMotherList();
-  int idSavedTrack(int) const;
-  void ReportException(unsigned int id) const;
 
-  // to restore the pre-LHC Transport GenParticle id link to a SimTrack
-  void resetGenID();
+  //  void saveTrackAndItsBranch(TrackWithHistory*);
+  int findOrAddVertex(math::XYZVectorD& pos, double& time, int i1, int i2);
 
   // ---------- member data --------------------------------
 
+  int m_nPrimary{0};
+  int m_nTracks{0};
   int m_nVertices{0};
-  unsigned int lastTrack{0};
-  unsigned int lastHist{0};
+  int m_nPrimVertices{0};
+  int m_Verbose;
 
-  TmpSimEvent* m_simEvent;
+  TmpSimEvent* m_simEvent{nullptr};
+  TmpSimVertex* m_simVertex{nullptr};
+  const G4Track* m_currTrack{nullptr};
+  TrackWithHistory* m_currHistory{nullptr};
+  TrackInformation* m_currTrackInfo{nullptr};
   const edm::LHCTransportLinkContainer* theLHCTlink{nullptr};
-
-  VertexMap m_vertexMap;
-  std::vector<std::pair<int, int> > idsave;
-  std::vector<std::pair<int, int> > ancestorList;
-  std::vector<std::pair<int, math::XYZVectorD> > m_endPoints;
-  std::vector<TrackWithHistory*> m_trackContainer;
-};
-
-class trkIDLess {
-public:
-  bool operator()(TrackWithHistory* trk1, TrackWithHistory* trk2) const { return (trk1->trackID() < trk2->trackID()); }
+  std::vector<TrackWithHistory*>* m_trackContainer;
+  std::vector<TmpSimVertex*>* m_g4vertices;
 };
 
 #endif

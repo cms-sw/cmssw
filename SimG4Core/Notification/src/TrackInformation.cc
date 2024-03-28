@@ -27,7 +27,6 @@ void TrackInformation::Print() const {
                                << "                    isPrimary = " << isPrimary_ << "\n"
                                << "                    isGeneratedSecondary = " << isGeneratedSecondary_ << "\n"
                                << "                    mcTruthID = " << mcTruthID_ << "\n"
-                               << "                    isInHistory = " << isInHistory_ << "\n"
                                << "                    idOnCaloSurface = " << getIDonCaloSurface() << "\n"
                                << "                    caloIDChecked = " << caloIDChecked() << "\n"
                                << "                    idCaloVolume = " << idCaloVolume_ << "\n"

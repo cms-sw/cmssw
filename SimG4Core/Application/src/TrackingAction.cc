@@ -23,30 +23,29 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
-      eMinFine_(p.getParameter<double>("EminFineTrack") * CLHEP::MeV) {
-  if (!doFineCalo_) {
-    eMinFine_ = DBL_MAX;
+      ekinMin_(p.getParameter<double>("PersistencyEmin") * CLHEP::GeV),
+      ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin"))
+{
+  double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
+  if (doFineCalo_ && eth < ekinMin_) {
+    ekinMin_ = eth;
   }
   edm::LogVerbatim("SimG4CoreApplication") << "TrackingAction: boundary: " << saveCaloBoundaryInformation_
-                                           << "; DoFineCalo: " << doFineCalo_ << "; EminFineTrack(MeV)=" << eMinFine_;
+                                           << "; DoFineCalo: " << doFineCalo_ << "; ekinMin(MeV)=" << ekinMin_;
+  if (!ekinMinRegion_.empty()) {
+    ptrRegion_.resize(ekinMinRegion_.size(), nullptr);
+  }
 }
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   g4Track_ = aTrack;
-  currentTrack_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
+  currentTrack_ = trackManager_->getTrackWithHistory(aTrack);
 
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);
 
   trkInfo_ = static_cast<TrackInformation*>(aTrack->GetUserInformation());
 
-  // Always save primaries
-  // Decays from primaries are marked as primaries, but are not saved by
-  // default. The primary is the earliest ancestor, and it must be saved.
-  if (trkInfo_->isPrimary()) {
-    trackManager_->cleanTracksWithHistory();
-    currentTrack_->setToBeSaved();
-  }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->trackStarted(aTrack, false);
     if (aTrack->GetTrackID() == endPrintTrackID_) {
@@ -64,41 +63,32 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
                                  << aTrack->GetVertexPosition().z() / CLHEP::cm << ")"
                                  << " parentid=" << aTrack->GetParentID();
 #endif
-  if (ekin > eMinFine_) {
-    // It is impossible to tell whether daughter tracks if this track may need to be saved at
-    // this point; Therefore, every track above the threshold is put in history,
-    // so that it can potentially be saved later.
-    trkInfo_->putInHistory();
+  if (ekin > ekinMin_) {
+    // Each track with energy above the threshold should be saved
+    trkInfo_->setStoreTrack();
+    currentTrack_->setToBeSaved();
   }
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
-  // Add the post-step position for every track in history to the TrackManager.
-  // Tracks in history may be upgraded to stored tracks, at which point
-  // the post-step position is needed again.
+  // Tracks in history may be upgraded to stored secondary tracks,
+  // which cross the boundary between Tracker and Calo 
   int id = aTrack->GetTrackID();
-  bool ok = (trkInfo_->storeTrack() || currentTrack_->saved());
+  bool ok = trkInfo_->storeTrack();
   if (trkInfo_->crossedBoundary()) {
-    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
-    ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
-  }
-  if (ok) {
-    currentTrack_->setToBeSaved();
+    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(),
+					    trkInfo_->getMomentumAtBoundary());
+    ok = (ok || saveCaloBoundaryInformation_);
   }
 
-  bool withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
-  bool isInHistory = trkInfo_->isInHistory();
-
-  trackManager_->addTrack(currentTrack_, aTrack, isInHistory, withAncestor);
+  trackManager_->addTrack(ok);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
-                                     << aTrack->GetDefinition()->GetParticleName() << " ansestor= " << withAncestor
-                                     << " saved= " << currentTrack_->saved() << " end point " << aTrack->GetPosition();
+  edm::LogVerbatim("TrackingAction")
+      << "TrackingAction end track=" << id << "  "
+      << aTrack->GetDefinition()->GetParticleName() 
+      << " proposed to be saved= " << ok << " end point " << aTrack->GetPosition();
 #endif
-  if (!isInHistory) {
-    delete currentTrack_;
-  }
 
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);

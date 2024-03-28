@@ -11,15 +11,12 @@ class TrackInformation : public G4VUserTrackInformation {
 public:
   TrackInformation(){};
   ~TrackInformation() override = default;
-  inline void *operator new(size_t);
+  inline void *operator new(std::size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
   /// can only be set to true, cannot be reset to false!
-  void setStoreTrack() {
-    storeTrack_ = true;
-    isInHistory_ = true;
-  }
+  void setStoreTrack() { storeTrack_ = true; }
 
   bool isPrimary() const { return isPrimary_; }
   void setPrimary(bool v) { isPrimary_ = v; }
@@ -30,11 +27,8 @@ public:
   bool isGeneratedSecondary() const { return isGeneratedSecondary_; }
   void setGeneratedSecondary(bool v) { isGeneratedSecondary_ = v; }
 
-  bool isInHistory() const { return isInHistory_; }
-  void putInHistory() { isInHistory_ = true; }
-
   bool isAncestor() const { return flagAncestor_; }
-  void setAncestor() { flagAncestor_ = true; }
+  void putInHistory() { flagAncestor_ = true; }
 
   int mcTruthID() const { return mcTruthID_; }
   void setMCTruthID(int id) { mcTruthID_ = id; }
@@ -100,11 +94,10 @@ public:
   void Print() const override;
 
 private:
-  bool storeTrack_{false};
   bool isPrimary_{false};
   bool hasHits_{false};
   bool isGeneratedSecondary_{false};
-  bool isInHistory_{false};
+  bool storeTrack_{false};
   bool flagAncestor_{false};
   bool caloIDChecked_{false};
   bool crossedBoundary_{false};
@@ -127,7 +120,7 @@ private:
 
 extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;
 
-inline void *TrackInformation::operator new(size_t) {
+inline void *TrackInformation::operator new(std::size_t) {
   if (!fpTrackInformationAllocator)
     fpTrackInformationAllocator = new G4Allocator<TrackInformation>;
   return (void *)fpTrackInformationAllocator->MallocSingle();

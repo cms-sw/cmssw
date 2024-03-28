@@ -17,8 +17,8 @@ public:
   /** The constructor is called at time, 
      *  when some of the information may not available yet.
      */
-  TrackWithHistory(const G4Track *g4track, int pID);
-  TrackWithHistory(const G4PrimaryParticle *, int trackID, const math::XYZVectorD &pos, const double time);
+  TrackWithHistory(const G4Track*, const int mcTruthID);
+  TrackWithHistory(const G4PrimaryParticle*, const int trackID, const math::XYZVectorD &pos, const double time);
   ~TrackWithHistory() = default;
 
   inline void *operator new(std::size_t);
@@ -27,7 +27,7 @@ public:
   int trackID() const { return trackID_; }
   int particleID() const { return pdgID_; }
   int parentID() const { return parentID_; }
-  int genParticleID() const { return genParticleID_; }
+  int mcTruthID() const { return mcTruthID_; }
   int vertexID() const { return vertexID_; }
   int processType() const { return procType_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
@@ -35,14 +35,13 @@ public:
   void setTrackID(int i) { trackID_ = i; }
   void setParentID(int i) { parentID_ = i; }
   void setVertexID(int i) { vertexID_ = i; }
-  void setGenParticleID(int i) { genParticleID_ = i; }
+  void setMCTruthID(int i) { mcTruthID_ = i; }
 
   double totalEnergy() const { return totalEnergy_; }
   double time() const { return time_; }
   double weight() const { return weight_; }
-  void setToBeSaved() { saved_ = true; }
+  void setToBeSaved() { storeTrack_ = true; }
   bool storeTrack() const { return storeTrack_; }
-  bool saved() const { return saved_; }
   bool crossedBoundary() const { return crossedBoundary_; }
 
   const math::XYZVectorD &momentum() const { return momentum_; }
@@ -72,7 +71,7 @@ private:
   int trackID_;
   int pdgID_;
   int parentID_;
-  int genParticleID_{-1};
+  int mcTruthID_{-1};
   int vertexID_{-1};
   int idAtBoundary_{-1};
   int procType_{0};
@@ -86,13 +85,12 @@ private:
   math::XYZVectorD tkSurfacePosition_{math::XYZVectorD(0., 0., 0.)};
   math::XYZTLorentzVectorD tkSurfaceMomentum_{math::XYZTLorentzVectorD(0., 0., 0., 0.)};
   bool storeTrack_{false};
-  bool saved_{false};
   bool crossedBoundary_{false};
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;
 
-inline void *TrackWithHistory::operator new(size_t) {
+inline void *TrackWithHistory::operator new(std::size_t) {
   if (!fpTrackWithHistoryAllocator)
     fpTrackWithHistoryAllocator = new G4Allocator<TrackWithHistory>;
   return (void *)fpTrackWithHistoryAllocator->MallocSingle();

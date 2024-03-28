@@ -31,7 +31,7 @@ public:
 
   inline const TrackContainer* trackContainer() const { return m_trackManager->trackContainer(); }
 
-  TrackWithHistory* getTrackByID(unsigned int id) const { return m_trackManager->getTrackByID(id); }
+  //TrackWithHistory* getTrackByID(unsigned int id) const { return m_trackManager->getTrackByID(id); }
 
   SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
   SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;

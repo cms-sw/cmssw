@@ -52,14 +52,14 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     return;
   }
 
-  m_trackManager->storeTracks();
+  //m_trackManager->storeTracks();
 
   // dispatch now end of event
   EndOfEvent e(anEvent);
   m_endOfEventSignal(&e);
 
   // delete transient objects
-  m_trackManager->reset();
+  // m_trackManager->reset();
 }
 
 void EventAction::abortEvent() { m_runInterface->abortEvent(); }
