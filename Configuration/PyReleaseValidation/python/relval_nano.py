@@ -176,7 +176,7 @@ steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '10
 steps['EGMNano_mc13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.0']])
 
-steps['BTVNANO_data13.0']=merge([{'-s' : 'NANO:@PHYS+@BTV',
+steps['BTVNANO_data13.0']=merge([{'-s' : 'NANO:@BTV',
                                     '-n' : '1000'},
                                     steps['NANO_data13.0']])
 
@@ -202,7 +202,7 @@ steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000
                                  steps['NANO_mc13.2']])
 
 
-steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@PHYS+@BTV',
+steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@BTV',
                                     '-n' : '1000'},
                                     steps['NANO_mc13.2']])
 
