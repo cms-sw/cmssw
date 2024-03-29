@@ -59,6 +59,9 @@ namespace p2eg {
   static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     // passes_ss
   static constexpr float d0 = 0.96, d1 = 0.0003;                                         // passes_photon
   static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  // passes_looseTkss
+  static constexpr float loose_ss_offset = 0.89;  // loosen ss requirement in two eta bins
+  static constexpr float eta0_loose_ss = 0.4, eta1_loose_ss = 0.5, eta2_loose_ss = 0.75, eta3_loose_ss = 0.85;
+  static constexpr float high_pt_threshold = 130.;  // apply iso and ss requirements below this threshold
   static constexpr float cut_500_MeV = 0.5;
 
   static constexpr float ECAL_LSB = 0.5;  // to convert from int to float (GeV) multiply by LSB
@@ -90,14 +93,6 @@ namespace p2eg {
   static constexpr int GCTCARD_2_TOWER_IPHI_OFFSET = 68;
 
   static constexpr int N_GCTTOWERS_CLUSTER_ISO_ONESIDE = 5;  // window size of isolation sum (5x5 in towers)
-
-  /*
-    * Convert HCAL ET to ECAL ET convention 
-    */
-  inline ap_uint<12> convertHcalETtoEcalET(ap_uint<12> HCAL) {
-    float hcalEtAsFloat = HCAL * HCAL_LSB;
-    return (ap_uint<12>(hcalEtAsFloat / ECAL_LSB));
-  }
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -773,7 +768,8 @@ namespace p2eg {
             int clusterRegionIdx = 0) {
       data = (clusterEnergy) | (((ap_uint<32>)towerEta) << 12) | (((ap_uint<32>)towerPhi) << 17) |
              (((ap_uint<32>)clusterEta) << 19) | (((ap_uint<32>)clusterPhi) << 22) | (((ap_uint<32>)satur) << 25);
-      regionIdx = clusterRegionIdx, et5x5 = clusterEt5x5;
+      regionIdx = clusterRegionIdx;
+      et5x5 = clusterEt5x5;
       et2x5 = clusterEt2x5;
       brems = clusterBrems;
       calib = clusterCalib;
@@ -907,7 +903,7 @@ namespace p2eg {
   /*******************************************************************/
   inline bool passes_iso(float pt, float iso) {
     bool is_iso = true;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_iso = true;
     else if (pt < slideIsoPtThreshold) {
       if (!((a0_80 - a1_80 * pt) > iso))
@@ -921,26 +917,32 @@ namespace p2eg {
 
   inline bool passes_looseTkiso(float pt, float iso) {
     bool is_iso;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_iso = true;
     else
       is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
     return is_iso;
   }
 
-  inline bool passes_ss(float pt, float ss) {
+  inline bool passes_ss(float pt, float eta, float ss) {
     bool is_ss;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_ss = true;
+    else if ((abs(eta) > eta0_loose_ss && abs(eta) < eta1_loose_ss) ||
+             (abs(eta) > eta2_loose_ss && abs(eta) < eta3_loose_ss))  // temporary adjustment
+      is_ss = ((loose_ss_offset + c1_ss * std::exp(-c2_ss * pt)) <= ss);
     else
       is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
     return is_ss;
   }
 
-  inline bool passes_looseTkss(float pt, float ss) {
+  inline bool passes_looseTkss(float pt, float eta, float ss) {
     bool is_ss;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_ss = true;
+    else if ((abs(eta) > eta0_loose_ss && abs(eta) < eta1_loose_ss) ||
+             (abs(eta) > eta2_loose_ss && abs(eta) < eta3_loose_ss))  // temporary adjustment
+      is_ss = ((loose_ss_offset - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
     else
       is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
     return is_ss;
@@ -1013,9 +1015,10 @@ namespace p2eg {
     bool is_iso;
     bool is_looseTkiso;
 
-    unsigned int hoe;     // not defined
-    unsigned int fb;      // not defined
-    unsigned int timing;  // not defined
+    unsigned int hoe;       // not defined
+    unsigned int hoe_flag;  // not defined
+    unsigned int fb;        // not defined
+    unsigned int timing;    // not defined
     ap_uint<2>
         brems;  // 0 if no brems applied, 1 or 2 if brems applied (one for + direction, one for - direction: check firmware)
 
@@ -1065,6 +1068,7 @@ namespace p2eg {
       is_iso = false;         // initialize: no info from RCT, so set it to false
       is_looseTkiso = false;  // initialize: no info from RCT, so set it to false
       hoe = 0;                // initialize: no info from RCT, so set it to null
+      hoe_flag = 0;           // initialize: no info from RCT, so set it to null
       fb = 0;                 // initialize: no info from RCT, so set it to null
       timing = 0;             // initialize: no info from RCT, so set it to null
       brems = rctCluster.brems;
@@ -1245,15 +1249,16 @@ namespace p2eg {
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
       return l1tp2::DigitizedClusterCorrelator(
           etFloat(),  // technically we are just multiplying and then dividing again by the LSB
-          towEta,
-          towPhi - corrTowPhiOffset,
-          crEta,
-          crPhi,
+          globalClusteriEta(),
+          ((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) +
+              crPhi,  // cannot use globalClusteriPhi() helper function because correlator offset is different than GCT offset
           hoe,
-          is_iso,
+          hoe_flag,
+          iso,
+          (is_iso) | (is_looseTkiso << 1),  // 2 bits: e.g. 0b10 means is_looseTkiso was true, and is_iso was false
           fb,
           timing,
-          is_ss,
+          (is_ss) | (is_looseTkss << 1),  // 2 bits (same as iso flags) is_ss in lowest bit, is_looseTkss in higher bit
           brems,
           nGCTCard);
     }

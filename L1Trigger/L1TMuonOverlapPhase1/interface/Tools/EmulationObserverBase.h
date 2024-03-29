@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class EmulationObserverBase : public IOMTFEmulationObserver {
 public:
@@ -36,6 +37,8 @@ public:
   //void endJob() override;
 
   const SimTrack* findSimMuon(const edm::Event& event, const SimTrack* previous = nullptr);
+
+  const std::vector<const reco::GenParticle*> findGenMuon(const edm::Event& event);
 
 protected:
   edm::ParameterSet edmCfg;

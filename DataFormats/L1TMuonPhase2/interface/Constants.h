@@ -28,9 +28,9 @@ namespace Phase2L1GMT {
   const int BITSD0 = 12;
 
   //Muon ROI
-  const int BITSSTUBCOORD = 8;
+  const int BITSSTUBCOORD = 10;
   const int BITSSTUBETA = 8;
-  const int BITSSTUBID = 9;
+  const int BITSSTUBID = 12;
   const int BITSSTUBPHIQUALITY = 4;
   const int BITSSTUBETAQUALITY = 4;
   const int BITSSTUBTIME = 8;
@@ -45,8 +45,8 @@ namespace Phase2L1GMT {
   const int BITSSIGMAETA = 4;
   const int BITSSIGMACOORD = 4;
   const int BITSPROPCOORD = 9;
-  const int BITSPROPSIGMACOORD_A = 5;
-  const int BITSPROPSIGMACOORD_B = 5;
+  const int BITSPROPSIGMACOORD_A = 6;
+  const int BITSPROPSIGMACOORD_B = 6;
   const int BITSPROPSIGMAETA_A = 5;
   const int BITSPROPSIGMAETA_B = 5;
 
@@ -62,8 +62,9 @@ namespace Phase2L1GMT {
   const int BITSGTETA = 14;
   const int BITSGTZ0 = 10;
   const int BITSGTD0 = 10;
-  const int BITSGTQUAL = 8;
-  const int BITSGTISO = 4;
+  const int BITSGTQUAL = 6;
+  const int BITSGTQUALSC = 7;
+  const int BITSGTISO = 6;
   const int BITSGTBETA = 4;
 
   // Bitwidth for Tau->3mu object
@@ -91,22 +92,24 @@ namespace Phase2L1GMT {
   const float LSBpt = 0.03125;
   const float LSBphi = 2. * M_PI / pow(2, BITSPHI);
   const float LSBeta = 2. * M_PI / pow(2, BITSETA);
-  const float LSBGTz0 = 0.05;  // 0.5mm, in sync with GTT and Correlator
-  const float LSBGTd0 = 0.03;  // from GT interface doc
-  const float LSBSAz0 = 1.6;   // 0.05 * 32 cm, with range +- 25.6
-  const float LSBSAd0 = 3.84;  // 0.03 * 128 cm, with range +- 245.76
+  const float LSBGTiso = 0.25;  // 0.25GeV, LSBphi * 8
+  const float LSBGTz0 = 0.05;   // 0.5mm, in sync with GTT and Correlator
+  const float LSBGTd0 = 0.03;   // from GT interface doc
+  const float LSBSAz0 = 1.6;    // 0.05 * 32 cm, with range +- 25.6
+  const float LSBSAd0 = 3.84;   // 0.03 * 128 cm, with range +- 245.76
 
   typedef ap_uint<64> wordtype;
-  typedef ap_uint<1> valid_gt_t;          //valid
-  typedef ap_uint<1> q_gt_t;              //charge
-  typedef ap_uint<BITSGTPT> pt_gt_t;      //pt        of tracker muon
-  typedef ap_int<BITSGTPHI> phi_gt_t;     //phi       of tracker muon
-  typedef ap_int<BITSGTETA> eta_gt_t;     //eta       of tracker muon
-  typedef ap_int<BITSGTZ0> z0_gt_t;       //z0        of tracker muon
-  typedef ap_int<BITSGTD0> d0_gt_t;       //d0        of tracker muon
-  typedef ap_uint<BITSGTISO> iso_gt_t;    //isolation of tracker muon
-  typedef ap_uint<BITSGTBETA> beta_gt_t;  //beta      of tracker muon
-  typedef ap_uint<BITSGTQUAL> qual_gt_t;  //quality   of tracker muon
+  typedef ap_uint<1> valid_gt_t;             //valid
+  typedef ap_uint<1> q_gt_t;                 //charge
+  typedef ap_uint<BITSGTPT> pt_gt_t;         //pt        of tracker muon
+  typedef ap_int<BITSGTPHI> phi_gt_t;        //phi       of tracker muon
+  typedef ap_int<BITSGTETA> eta_gt_t;        //eta       of tracker muon
+  typedef ap_int<BITSGTZ0> z0_gt_t;          //z0        of tracker muon
+  typedef ap_int<BITSGTD0> d0_gt_t;          //d0        of tracker muon
+  typedef ap_uint<BITSGTISO> iso_gt_t;       //isolation of tracker muon
+  typedef ap_uint<BITSGTBETA> beta_gt_t;     //beta      of tracker muon
+  typedef ap_uint<BITSGTQUAL> qual_gt_t;     //quality   of tracker muon
+  typedef ap_int<BITSGTQUALSC> qualsc_gt_t;  //quality score of tracker muon (qual/q)
 
   //Standalone muon datatype
   typedef ap_uint<1> valid_sa_t;          //valid
