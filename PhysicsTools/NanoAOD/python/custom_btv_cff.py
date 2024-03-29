@@ -6,7 +6,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import addToProcessAndTask, getPatAlgosToolsTask
 from PhysicsTools.NanoAOD.common_cff import Var, CandVars
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
-from PhysicsTools.NanoAOD.btvMC_cff import * 
+from PhysicsTools.NanoAOD.btvMC_cff import allPFPFCandsMCSequence,ak4ak8PFCandsMCSequence,ak8onlyPFCandsMCSequence,ak4onlyPFCandsMCSequence
 ## Move PFNano (https://github.com/cms-jet/PFNano/) to NanoAOD
 
 ## From: https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addBTV.py
@@ -663,18 +663,16 @@ btvNano_switch = cms.PSet(
 def BTVCustomNanoAOD(process):
     addPFCands(process,btvNano_switch.btvNano_addallPF_switch,btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch)
     add_BTV(process, btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch,btvNano_switch.TaggerInput)
+    process.load("PhysicsTools.NanoAOD.btvMC_cff")
     ### for MC
     if btvNano_switch.btvNano_addallPF_switch:
-        #process.allPFPFCandsMCSequence = allPFPFCandsMCSequence
         process.nanoSequenceMC+=allPFPFCandsMCSequence
     else:
         if btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch :
-            #process.ak4ak8PFCandsMCSequence = ak4ak8PFCandsMCSequence
             process.nanoSequenceMC+=ak4ak8PFCandsMCSequence
         elif btvNano_switch.btvNano_addAK4_switch and not btvNano_switch.btvNano_addAK8_switch :
-            #process.ak4onlyPFCandsMCSequence = ak4onlyPFCandsMCSequence
             process.nanoSequenceMC+=ak4onlyPFCandsMCSequence
         elif not btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch:
-            #process.ak8onlyPFCandsMCSequence= ak8onlyPFCandsMCSequence
             process.nanoSequenceMC+=ak8onlyPFCandsMCSequence
+    
     return process

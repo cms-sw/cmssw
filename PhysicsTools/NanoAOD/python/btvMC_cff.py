@@ -122,7 +122,7 @@ ak4ak8genJetsParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                                                       )
                                                  )
 ak8onlygenAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("genJetsConstituents"),
+                                                     candidates = cms.InputTag("ak8onlygenJetsConstituents"),
                                                      jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
                                                      name = cms.string("GenFatJetCands"),
                                                      nameSV = cms.string("GenFatJetSVs"),
@@ -130,7 +130,7 @@ ak8onlygenAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer"
                                                      idx_nameSV = cms.string("sVIdx"),
                                                      readBtag = cms.bool(False))
 ak4onlygenAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("genJetsConstituents"),
+                                                     candidates = cms.InputTag("ak4onlygenJetsConstituents"),
                                                      jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
                                                      name = cms.string("GenJetCands"),
                                                      nameSV = cms.string("GenJetSVs"),
@@ -138,7 +138,7 @@ ak4onlygenAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer"
                                                      idx_nameSV = cms.string("sVIdx"),
                                                      readBtag = cms.bool(False))
 ak4ak8genAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("genJetsConstituents"),
+                                                     candidates = cms.InputTag("ak4ak8genJetsConstituents"),
                                                      jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
                                                      name = cms.string("GenJetCands"),
                                                      nameSV = cms.string("GenJetSVs"),
@@ -147,7 +147,7 @@ ak4ak8genAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
                                                      readBtag = cms.bool(False))
 
 ak4ak8genAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("genJetsConstituents"),
+                                                     candidates = cms.InputTag("ak4ak8genJetsConstituents"),
                                                      jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
                                                      name = cms.string("GenFatJetCands"),
                                                      nameSV = cms.string("GenFatJetSVs"),
