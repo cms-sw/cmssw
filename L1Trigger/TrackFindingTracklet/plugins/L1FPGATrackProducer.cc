@@ -282,6 +282,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings_.setExtended(extended_);
   settings_.setReduced(reduced_);
   settings_.setNHelixPar(nHelixPar_);
+  // combined_ must be false for extended tracking, regardless of whether
+  // combined modules are used or not.
+  if (extended_)
+    settings_.setCombined(false);
 
 #ifndef USEHYBRID
   fitPatternFile = iConfig.getParameter<edm::FileInPath>("fitPatternFile");
