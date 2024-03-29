@@ -292,23 +292,23 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
         outCmds_new = [foo for foo in process.hltOutputDQMGPUvsCPU.outputCommands if 'Pixel' not in foo]
         outCmds_new += [
             'keep *Cluster*_hltSiPixelClusters_*_*',
-            'keep *Cluster*_hltSiPixelClustersLegacyFormatCPUSerial_*_*',
+            'keep *Cluster*_hltSiPixelClustersSerialSync_*_*',
             'keep *_hltSiPixelDigiErrors_*_*',
-            'keep *_hltSiPixelDigiErrorsLegacyFormatCPUSerial_*_*',
+            'keep *_hltSiPixelDigiErrorsSerialSync_*_*',
             'keep *RecHit*_hltSiPixelRecHits_*_*',
-            'keep *RecHit*_hltSiPixelRecHitsLegacyFormatCPUSerial_*_*',
+            'keep *RecHit*_hltSiPixelRecHitsSerialSync_*_*',
             'keep *_hltPixelTracks_*_*',
-            'keep *_hltPixelTracksLegacyFormatCPUSerial_*_*',
+            'keep *_hltPixelTracksSerialSync_*_*',
             'keep *_hltPixelVertices_*_*',
-            'keep *_hltPixelVerticesLegacyFormatCPUSerial_*_*',
+            'keep *_hltPixelVerticesSerialSync_*_*',
         ]
         process.hltOutputDQMGPUvsCPU.outputCommands = outCmds_new[:]
     except:
         pass
 
-    # PixelRecHits: monitor of CPUSerial product (Alpaka backend: 'serial_sync')
+    # PixelRecHits: monitor of SerialSync product (Alpaka backend: 'serial_sync')
     process.hltPixelRecHitsSoAMonitorCPU = cms.EDProducer('SiPixelPhase1MonitorRecHitsSoAAlpaka',
-        pixelHitsSrc = cms.InputTag('hltSiPixelRecHitsSoACPUSerial'),
+        pixelHitsSrc = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
         TopFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCPU')
     )
 
@@ -320,7 +320,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 
     # PixelRecHits: 'GPUvsCPU' comparisons
     process.hltPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer('SiPixelPhase1CompareRecHitsSoAAlpaka',
-        pixelHitsSrcHost = cms.InputTag('hltSiPixelRecHitsSoACPUSerial'),
+        pixelHitsSrcHost = cms.InputTag('hltSiPixelRecHitsSoASerialSync'),
         pixelHitsSrcDevice = cms.InputTag('hltSiPixelRecHitsSoA'),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU'),
         minD2cut = cms.double(1.0e-4)
@@ -328,7 +328,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 
     process.hltPixelTracksSoAMonitorCPU = cms.EDProducer("SiPixelPhase1MonitorTrackSoAAlpaka",
         minQuality = cms.string('loose'),
-        pixelTrackSrc = cms.InputTag('hltPixelTracksSoACPUSerial'),
+        pixelTrackSrc = cms.InputTag('hltPixelTracksSoASerialSync'),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCPU'),
         useQualityCut = cms.bool(True)
     )
@@ -343,7 +343,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
     process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer("SiPixelPhase1CompareTrackSoAAlpaka",
         deltaR2cut = cms.double(0.04),
         minQuality = cms.string('loose'),
-        pixelTrackSrcHost = cms.InputTag("hltPixelTracksSoACPUSerial"),
+        pixelTrackSrcHost = cms.InputTag("hltPixelTracksSoASerialSync"),
         pixelTrackSrcDevice = cms.InputTag("hltPixelTracksSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU'),
         useQualityCut = cms.bool(True)
@@ -351,7 +351,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
 
     process.hltPixelVertexSoAMonitorCPU = cms.EDProducer("SiPixelMonitorVertexSoAAlpaka",
         beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
-        pixelVertexSrc = cms.InputTag("hltPixelVerticesSoACPUSerial"),
+        pixelVertexSrc = cms.InputTag("hltPixelVerticesSoASerialSync"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCPU')
     )
 
@@ -364,7 +364,7 @@ def customizeHLTforDQMGPUvsCPUPixel(process):
     process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer("SiPixelCompareVertexSoAAlpaka",
         beamSpotSrc = cms.InputTag("hltOnlineBeamSpot"),
         dzCut = cms.double(1),
-        pixelVertexSrcHost = cms.InputTag("hltPixelVerticesSoACPUSerial"),
+        pixelVertexSrcHost = cms.InputTag("hltPixelVerticesSoASerialSync"),
         pixelVertexSrcDevice = cms.InputTag("hltPixelVerticesSoA"),
         topFolderName = cms.string('SiPixelHeterogeneous/PixelVertexCompareGPUvsCPU')
     )
@@ -437,7 +437,11 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     )
 
     if hasattr(process, 'hltOnlineBeamSpotToGPU'):
-        del process.hltOnlineBeamSpotToGPU
+        # hltOnlineBeamSpotToGPU is currently still used in HIon menu,
+        # remove it only if the relevant ConditionalTask of the HIon menu is not present
+        # (this check mainly applies to the HLT combined table)
+        if not (hasattr(process, 'HLTDoLocalPixelPPOnAATask') and process.HLTDoLocalPixelPPOnAATask.contains(process.hltOnlineBeamSpotToGPU)):
+            del process.hltOnlineBeamSpotToGPU
 
     # alpaka EDProducer
     # consumes
@@ -541,81 +545,107 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         process.hltOnlineBeamSpotDevice +
         process.hltSiPixelClustersSoA +
         process.hltSiPixelClusters +
-        process.hltSiPixelClustersCache + # used only in the PPRef menu for the legacy pixel track reconstruction
         process.hltSiPixelDigiErrors +    # renamed from hltSiPixelDigis
         process.hltSiPixelRecHitsSoA +
         process.hltSiPixelRecHits
     )
 
+    # The module hltSiPixelClustersCache is only used in the PRef menu.
+    # Previously, it being included in the GRun menu had no effect
+    # because it was included in a ConditionalTask, which meant that
+    # it was not executed in the GRun menu, since no other modules
+    # in any Path of that menu were consuming it.
+    # Since this customisation effectively replaces ConditionalTasks in the HLT menus with Sequences,
+    # leaving hltSiPixelClustersCache in a Sequence of the GRun menu would lead to it being unnecessarily executed.
+    # On the other hand, hltSiPixelClustersCache must be kept in the PRef menu,
+    # as the latter does have reconstruction modules which consume it.
+    # The solution implemented here is
+    # (a) not to include hltSiPixelClustersCache in the Sequence HLTDoLocalPixelSequence used in the GRun menu, and
+    # (b) include hltSiPixelClustersCache in a separate Sequence to be used only as part of the PRef menu.
+    if hasattr(process, 'HLTPixelClusterSplittingForPFPPRefForDmeson') \
+        and not hasattr(process, 'HLTDoLocalPixelSequenceForPFPPRefForDmeson') \
+        and process.HLTPixelClusterSplittingForPFPPRefForDmeson.contains(process.HLTDoLocalPixelSequence):
+
+        process.HLTDoLocalPixelSequenceForPFPPRefForDmeson = cms.Sequence(
+            process.HLTDoLocalPixelSequence +
+            process.hltSiPixelClustersCache
+        )
+
+        process.HLTPixelClusterSplittingForPFPPRefForDmeson.insert(
+            process.HLTPixelClusterSplittingForPFPPRefForDmeson.index(process.HLTDoLocalPixelSequence),
+            process.HLTDoLocalPixelSequenceForPFPPRefForDmeson
+        )
+
+    # remove HLTDoLocalPixelTask (not needed anymore)
     if hasattr(process, 'HLTDoLocalPixelTask'):
         del process.HLTDoLocalPixelTask
 
     ###
-    ### CPUSerial version of Pixel Local Reconstruction
+    ### SerialSync version of Pixel Local Reconstruction
     ###
-    process.hltOnlineBeamSpotDeviceCPUSerial = makeSerialClone(process.hltOnlineBeamSpotDevice)
+    process.hltOnlineBeamSpotDeviceSerialSync = makeSerialClone(process.hltOnlineBeamSpotDevice)
 
-    process.hltSiPixelClustersSoACPUSerial = makeSerialClone(process.hltSiPixelClustersSoA)
+    process.hltSiPixelClustersSoASerialSync = makeSerialClone(process.hltSiPixelClustersSoA)
 
-    process.hltSiPixelClustersLegacyFormatCPUSerial = process.hltSiPixelClusters.clone(
-        src = 'hltSiPixelClustersSoACPUSerial'
+    process.hltSiPixelClustersSerialSync = process.hltSiPixelClusters.clone(
+        src = 'hltSiPixelClustersSoASerialSync'
     )
 
-    process.hltSiPixelDigiErrorsLegacyFormatCPUSerial = process.hltSiPixelDigiErrors.clone(
-        digiErrorSoASrc = 'hltSiPixelClustersSoACPUSerial',
-        fmtErrorsSoASrc = 'hltSiPixelClustersSoACPUSerial',
+    process.hltSiPixelDigiErrorsSerialSync = process.hltSiPixelDigiErrors.clone(
+        digiErrorSoASrc = 'hltSiPixelClustersSoASerialSync',
+        fmtErrorsSoASrc = 'hltSiPixelClustersSoASerialSync',
     )
 
-    process.hltSiPixelRecHitsSoACPUSerial = makeSerialClone(process.hltSiPixelRecHitsSoA,
-        beamSpot = 'hltOnlineBeamSpotDeviceCPUSerial',
-        src = 'hltSiPixelClustersSoACPUSerial',
+    process.hltSiPixelRecHitsSoASerialSync = makeSerialClone(process.hltSiPixelRecHitsSoA,
+        beamSpot = 'hltOnlineBeamSpotDeviceSerialSync',
+        src = 'hltSiPixelClustersSoASerialSync',
     )
 
-    process.hltSiPixelRecHitsLegacyFormatCPUSerial = process.hltSiPixelRecHits.clone(
-        pixelRecHitSrc = 'hltSiPixelRecHitsSoACPUSerial',
-        src = 'hltSiPixelClustersLegacyFormatCPUSerial',
+    process.hltSiPixelRecHitsSerialSync = process.hltSiPixelRecHits.clone(
+        pixelRecHitSrc = 'hltSiPixelRecHitsSoASerialSync',
+        src = 'hltSiPixelClustersSerialSync',
     )
 
     process.HLTDoLocalPixelCPUOnlySequence = cms.Sequence(
-        process.hltOnlineBeamSpotDeviceCPUSerial +
-        process.hltSiPixelClustersSoACPUSerial +
-        process.hltSiPixelClustersLegacyFormatCPUSerial +
-        process.hltSiPixelDigiErrorsLegacyFormatCPUSerial +
-        process.hltSiPixelRecHitsSoACPUSerial +
-        process.hltSiPixelRecHitsLegacyFormatCPUSerial
+        process.hltOnlineBeamSpotDeviceSerialSync +
+        process.hltSiPixelClustersSoASerialSync +
+        process.hltSiPixelClustersSerialSync +
+        process.hltSiPixelDigiErrorsSerialSync +
+        process.hltSiPixelRecHitsSoASerialSync +
+        process.hltSiPixelRecHitsSerialSync
     )
 
     if hasattr(process, 'HLTDoLocalPixelCPUOnlyTask'):
         del process.HLTDoLocalPixelCPUOnlyTask
 
     if hasattr(process, 'hltMeasurementTrackerEventCPUOnly'):
-        process.hltMeasurementTrackerEventCPUOnly.pixelClusterProducer = "hltSiPixelClustersLegacyFormatCPUSerial"
-        process.hltMeasurementTrackerEventCPUOnly.inactivePixelDetectorLabels = ["hltSiPixelDigiErrorsLegacyFormatCPUSerial"]
-        process.hltMeasurementTrackerEventCPUOnly.badPixelFEDChannelCollectionLabels = ["hltSiPixelDigiErrorsLegacyFormatCPUSerial"]
+        process.hltMeasurementTrackerEventCPUOnly.pixelClusterProducer = "hltSiPixelClustersSerialSync"
+        process.hltMeasurementTrackerEventCPUOnly.inactivePixelDetectorLabels = ["hltSiPixelDigiErrorsSerialSync"]
+        process.hltMeasurementTrackerEventCPUOnly.badPixelFEDChannelCollectionLabels = ["hltSiPixelDigiErrorsSerialSync"]
 
     if hasattr(process, 'hltDoubletRecoveryClustersRefRemovalCPUOnly'):
-        process.hltDoubletRecoveryClustersRefRemovalCPUOnly.pixelClusters = "hltSiPixelClustersLegacyFormatCPUSerial"
+        process.hltDoubletRecoveryClustersRefRemovalCPUOnly.pixelClusters = "hltSiPixelClustersSerialSync"
 
     if hasattr(process, 'hltDoubletRecoveryPFlowPixelClusterCheckCPUOnly'):
-        process.hltDoubletRecoveryPFlowPixelClusterCheckCPUOnly.PixelClusterCollectionLabel = "hltSiPixelClustersLegacyFormatCPUSerial"
+        process.hltDoubletRecoveryPFlowPixelClusterCheckCPUOnly.PixelClusterCollectionLabel = "hltSiPixelClustersSerialSync"
 
     if hasattr(process, 'hltDoubletRecoveryPixelLayersAndRegionsCPUOnly'):
-        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.inactivePixelDetectorLabels = ['hltSiPixelDigiErrorsLegacyFormatCPUSerial']
-        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.badPixelFEDChannelCollectionLabels = ['hltSiPixelDigiErrorsLegacyFormatCPUSerial']
-        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.BPix.HitProducer = "hltSiPixelRecHitsLegacyFormatCPUSerial"
-        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.FPix.HitProducer = "hltSiPixelRecHitsLegacyFormatCPUSerial"
+        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.inactivePixelDetectorLabels = ['hltSiPixelDigiErrorsSerialSync']
+        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.badPixelFEDChannelCollectionLabels = ['hltSiPixelDigiErrorsSerialSync']
+        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.BPix.HitProducer = "hltSiPixelRecHitsSerialSync"
+        process.hltDoubletRecoveryPixelLayersAndRegionsCPUOnly.FPix.HitProducer = "hltSiPixelRecHitsSerialSync"
 
     if hasattr(process, 'hltIter3IterL3FromL1MuonClustersRefRemovalCPUOnly'):
-        process.hltIter3IterL3FromL1MuonClustersRefRemovalCPUOnly.pixelClusters = "hltSiPixelClustersLegacyFormatCPUSerial"
+        process.hltIter3IterL3FromL1MuonClustersRefRemovalCPUOnly.pixelClusters = "hltSiPixelClustersSerialSync"
 
     if hasattr(process, 'hltIter3IterL3FromL1MuonPixelClusterCheckCPUOnly'):
-        process.hltIter3IterL3FromL1MuonPixelClusterCheckCPUOnly.PixelClusterCollectionLabel = "hltSiPixelClustersLegacyFormatCPUSerial"
+        process.hltIter3IterL3FromL1MuonPixelClusterCheckCPUOnly.PixelClusterCollectionLabel = "hltSiPixelClustersSerialSync"
 
     if hasattr(process, 'hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly'):
-        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.inactivePixelDetectorLabels = ['hltSiPixelDigiErrorsLegacyFormatCPUSerial']
-        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.badPixelFEDChannelCollectionLabels = ['hltSiPixelDigiErrorsLegacyFormatCPUSerial']
-        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.BPix.HitProducer = "hltSiPixelRecHitsLegacyFormatCPUSerial"
-        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.FPix.HitProducer = "hltSiPixelRecHitsLegacyFormatCPUSerial"
+        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.inactivePixelDetectorLabels = ['hltSiPixelDigiErrorsSerialSync']
+        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.badPixelFEDChannelCollectionLabels = ['hltSiPixelDigiErrorsSerialSync']
+        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.BPix.HitProducer = "hltSiPixelRecHitsSerialSync"
+        process.hltIter3IterL3FromL1MuonPixelLayersAndRegionsCPUOnly.FPix.HitProducer = "hltSiPixelRecHitsSerialSync"
 
     for modLabel in [
         'hltDoubletRecoveryPixelLayersAndRegions',
@@ -697,8 +727,8 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
     if hasattr(process, 'hltL2TauTagNNProducer'):
         process.hltL2TauTagNNProducer = cms.EDProducer("L2TauNNProducerAlpaka", **process.hltL2TauTagNNProducer.parameters_())
 
-    process.hltPixelTracksSoACPUSerial = makeSerialClone(process.hltPixelTracksSoA,
-        pixelRecHitSrc = 'hltSiPixelRecHitsSoACPUSerial'
+    process.hltPixelTracksSoASerialSync = makeSerialClone(process.hltPixelTracksSoA,
+        pixelRecHitSrc = 'hltSiPixelRecHitsSoASerialSync'
     )
 
     process.hltPixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase1",
@@ -718,9 +748,9 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
     if hasattr(process, 'hltPixelTracksGPU'):
         del process.hltPixelTracksGPU
 
-    process.hltPixelTracksLegacyFormatCPUSerial = process.hltPixelTracks.clone(
-        pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHitsLegacyFormatCPUSerial"),
-        trackSrc = cms.InputTag("hltPixelTracksSoACPUSerial")
+    process.hltPixelTracksSerialSync = process.hltPixelTracks.clone(
+        pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHitsSerialSync"),
+        trackSrc = cms.InputTag("hltPixelTracksSoASerialSync")
     )
 
     process.HLTRecoPixelTracksSequence = cms.Sequence(
@@ -731,19 +761,19 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
     if hasattr(process, 'HLTRecoPixelTracksTask'):
         del process.HLTRecoPixelTracksTask
 
-    process.HLTRecoPixelTracksCPUSerialSequence = cms.Sequence(
-        process.hltPixelTracksSoACPUSerial +
-        process.hltPixelTracksLegacyFormatCPUSerial
+    process.HLTRecoPixelTracksSerialSyncSequence = cms.Sequence(
+        process.hltPixelTracksSoASerialSync +
+        process.hltPixelTracksSerialSync
     )
 
     if hasattr(process, 'HLTRecoPixelTracksCPUOnlyTask'):
         del process.HLTRecoPixelTracksCPUOnlyTask
 
-    process.hltPixelTracksInRegionL2CPUOnly.tracks = "hltPixelTracksLegacyFormatCPUSerial"
+    process.hltPixelTracksInRegionL2CPUOnly.tracks = "hltPixelTracksSerialSync"
 
-    process.hltPixelTracksInRegionL1CPUOnly.tracks = "hltPixelTracksLegacyFormatCPUSerial"
+    process.hltPixelTracksInRegionL1CPUOnly.tracks = "hltPixelTracksSerialSync"
 
-    process.hltIter0PFLowPixelSeedsFromPixelTracksCPUOnly.InputCollection = "hltPixelTracksLegacyFormatCPUSerial"
+    process.hltIter0PFLowPixelSeedsFromPixelTracksCPUOnly.InputCollection = "hltPixelTracksSerialSync"
 
     return process
 
@@ -782,8 +812,8 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         )
     )
 
-    process.hltPixelVerticesSoACPUSerial = makeSerialClone(process.hltPixelVerticesSoA,
-        pixelTrackSrc = 'hltPixelTracksSoACPUSerial'
+    process.hltPixelVerticesSoASerialSync = makeSerialClone(process.hltPixelVerticesSoA,
+        pixelTrackSrc = 'hltPixelTracksSoASerialSync'
     )
 
     process.hltPixelVertices = cms.EDProducer("PixelVertexProducerFromSoAAlpaka",
@@ -792,9 +822,9 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         src = cms.InputTag("hltPixelVerticesSoA")
     )
 
-    process.hltPixelVerticesLegacyFormatCPUSerial = process.hltPixelVertices.clone(
-        TrackCollection = cms.InputTag("hltPixelTracksLegacyFormatCPUSerial"),
-        src = cms.InputTag("hltPixelVerticesSoACPUSerial")
+    process.hltPixelVerticesSerialSync = process.hltPixelVertices.clone(
+        TrackCollection = cms.InputTag("hltPixelTracksSerialSync"),
+        src = cms.InputTag("hltPixelVerticesSoASerialSync")
     )
 
     if hasattr(process, 'hltPixelVerticesCPU'):
@@ -821,18 +851,18 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         del process.HLTRecopixelvertexingTask
 
     process.HLTRecopixelvertexingCPUOnlySequence = cms.Sequence(
-        process.HLTRecoPixelTracksCPUSerialSequence +
-        process.hltPixelVerticesSoACPUSerial +
-        process.hltPixelVerticesLegacyFormatCPUSerial +
+        process.HLTRecoPixelTracksSerialSyncSequence +
+        process.hltPixelVerticesSoASerialSync +
+        process.hltPixelVerticesSerialSync +
         process.hltTrimmedPixelVerticesCPUOnly
     )
 
     if hasattr(process, 'HLTRecopixelvertexingCPUOnlyTask'):
         del process.HLTRecopixelvertexingCPUOnlyTask
 
-    process.hltTrimmedPixelVerticesCPUOnly.src = 'hltPixelVerticesLegacyFormatCPUSerial'
-    process.hltParticleFlowCPUOnly.vertexCollection = 'hltPixelVerticesLegacyFormatCPUSerial'
-    process.hltAK4PFJetsCPUOnly.srcPVs = 'hltPixelVerticesLegacyFormatCPUSerial'
+    process.hltTrimmedPixelVerticesCPUOnly.src = 'hltPixelVerticesSerialSync'
+    process.hltParticleFlowCPUOnly.vertexCollection = 'hltPixelVerticesSerialSync'
+    process.hltAK4PFJetsCPUOnly.srcPVs = 'hltPixelVerticesSerialSync'
 
     return process
 
