@@ -131,6 +131,7 @@ public:
         m_connectionString(pset.getUntrackedParameter<std::string>("connectionString", "")),
         m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
         m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
+        m_debugLogic(pset.getUntrackedParameter<bool>("debugLogic", false)),
         m_fillPayload(),
         m_prevPayload(),
         m_tmpBuffer() {
@@ -143,6 +144,9 @@ public:
       m_endTime = boost::posix_time::time_from_string(pset.getUntrackedParameter<std::string>("endTime"));
       if (m_endTime > now)
         m_endTime = now;
+    }
+    if (m_debugLogic && m_endFillMode) {
+      throw std::invalid_argument("m_debugLogic == true not supported for m_endFillMode == true");
     }
   }
 
@@ -251,6 +255,9 @@ public:
       oms.connect(m_omsBaseUrl);
       auto query = oms.query("fills");
 
+      if (m_debugLogic)
+        m_prevEndFillTime = 0ULL;
+
       if (!m_endFillMode and m_prevPayload->fillNumber() and m_prevEndFillTime == 0ULL) {
         // continue processing unfinished fill with some payloads already in the tag
         edm::LogInfo(m_name) << "Searching started fill #" << m_prevPayload->fillNumber();
@@ -262,7 +269,6 @@ public:
           edm::LogError(m_name) << "Could not find fill #" << m_prevPayload->fillNumber();
           break;
         }
-        startSampleTime = cond::time::to_boost(lastSince);
       } else {
         edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
         query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
@@ -282,8 +288,8 @@ public:
           edm::LogInfo(m_name) << "No fill found - END of job.";
           break;
         }
-        startSampleTime = cond::time::to_boost(m_startFillTime);
       }
+      startSampleTime = cond::time::to_boost(m_startFillTime);
 
       unsigned short lhcFill = m_fillPayload->fillNumber();
       bool ongoingFill = m_endFillTime == 0ULL;
@@ -365,8 +371,12 @@ private:
       auto currentFill = row.get<unsigned short>("fill_number");
       m_startFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_time"));
       std::string endTimeStr = row.get<std::string>("end_time");
-      m_endFillTime =
-          (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      if (m_debugLogic) {
+        m_endFillTime = 0;
+      } else {
+        m_endFillTime =
+            (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      }
       m_startStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_stable_beam"));
       m_endStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_stable_beam"));
       targetPayload = std::make_unique<LHCInfoPerLS>();
@@ -398,19 +408,6 @@ private:
     return queryResult.size();
   }
 
-  size_t bufferFirstStableBeamLS(const cond::OMSServiceResult& queryResult) {
-    for (auto r : queryResult) {
-      if (r.get<std::string>("beams_stable") == "true") {
-        addPayloadToBuffer(r);
-        edm::LogInfo(m_name) << "Buffered first lumisection of stable beam: LS: "
-                             << r.get<std::string>("lumisection_number")
-                             << " run: " << r.get<std::string>("run_number");
-        return 1;
-      }
-    }
-    return 0;
-  }
-
   size_t getLumiData(const cond::OMSService& oms,
                      unsigned short fillId,
                      const boost::posix_time::ptime& beginFillTime,
@@ -427,7 +424,7 @@ private:
         nlumi = bufferAllLS(queryResult);
       } else if (!queryResult.empty()) {
         auto newestPayload = queryResult.back();
-        if (newestPayload.get<std::string>("beams_stable") == "true") {
+        if (newestPayload.get<std::string>("beams_stable") == "true" || m_debugLogic) {
           addPayloadToBuffer(newestPayload);
           nlumi = 1;
           edm::LogInfo(m_name) << "Buffered most recent lumisection:"
@@ -573,6 +570,10 @@ private:
   std::string m_connectionString;
   std::string m_authpath;
   std::string m_omsBaseUrl;
+  //makes duringFill interpret finished fills as ongoing fills and writing their last LS
+  // (disabling the check if the last LS is in stable beams, although still only fills with stable beams are being processed)
+  // also, it doesn't write empty payload at the end of a finished fill (because it's interpreted as ongoing)
+  const bool m_debugLogic;
   std::unique_ptr<LHCInfoPerLS> m_fillPayload;
   std::shared_ptr<LHCInfoPerLS> m_prevPayload;
   cond::Time_t m_startFillTime;
