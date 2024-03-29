@@ -261,6 +261,12 @@ def checkHLTfor43774(process):
 
     return process
     
+def customizeHLTFor44576(process):
+    """Ensure TrackerAdditionalParametersPerDetRcd ESProducer is run when needed"""
+    for esprod in esproducers_by_type(process, 'TrackerGeometricDetESModule'):
+        process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
+        break
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -271,5 +277,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = checkHLTfor43774(process)
+    process = customizeHLTfor44576(process)
 
     return process
