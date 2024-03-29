@@ -22,9 +22,9 @@ namespace emtf::phase2 {
         EMTFTrackCollection&,
         EMTFInputCollection&);
 
-    void on_job_begin();
+    void onJobBegin();
 
-    void on_job_end();
+    void onJobEnd();
 
   private:
     EMTFContext context_;

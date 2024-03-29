@@ -229,9 +229,9 @@ void Phase2L1TGMTFwdMuonTranslator::associateStubs(l1t::SAMuon& mu, const l1t::M
 
 SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTrack& track, const int bx_) {
   // Convert EMTF Phi and Theta to Global Phi and Eta
-  float track_phi = emtf::phase2::tp::calc_phi_glob_rad_from_loc(
-      track.sector(), emtf::phase2::tp::calc_phi_loc_deg_from_int(track.modelPhi()));
-  float track_theta = emtf::phase2::tp::calc_theta_rad_from_int(track.modelEta());
+  float track_phi = emtf::phase2::tp::calcPhiGlobRadFromLoc(
+      track.sector(), emtf::phase2::tp::calcPhiLocDegFromInt(track.modelPhi()));
+  float track_theta = emtf::phase2::tp::calcThetaRadFromInt(track.modelEta());
   float track_eta = -1 * std::log(std::tan(track_theta / 2));
 
   track_theta *= track.endcap();

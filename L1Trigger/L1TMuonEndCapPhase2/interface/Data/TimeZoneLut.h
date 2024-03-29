@@ -22,7 +22,7 @@ namespace emtf::phase2::data {
 
     void update(const edm::Event&, const edm::EventSetup&);
 
-    int get_timezones(const int&, const int&) const;
+    int getTimezones(const int&, const int&) const;
 
   private:
     // Key: Host

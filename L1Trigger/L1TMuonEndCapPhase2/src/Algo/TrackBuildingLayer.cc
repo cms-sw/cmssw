@@ -32,7 +32,7 @@ seg_theta_t TrackBuildingLayer::calc_theta_median(std::vector<seg_theta_t> theta
     return thetas[0];
   } else {
     // Calculate the median if all thetas are valid
-    return data::median_of_sorted(&thetas[0], thetas.size());
+    return data::getMedianOfSorted(&thetas[0], thetas.size());
   }
 }
 
@@ -54,13 +54,13 @@ void TrackBuildingLayer::apply(const segment_collection_t& segments,
     track.theta = 0;
     track.valid = 0;
 
-    for (int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
+    for (unsigned int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
       track.site_segs[site_id] = 0;
       track.site_mask[site_id] = 0;
       track.site_rm_mask[site_id] = 0;
     }
 
-    for (int i_feature = 0; i_feature < v3::kNumTrackFeatures; ++i_feature) {
+    for (unsigned int i_feature = 0; i_feature < v3::kNumTrackFeatures; ++i_feature) {
       track.features[i_feature] = 0;
     }
 
@@ -86,7 +86,7 @@ void TrackBuildingLayer::apply(const segment_collection_t& segments,
     }
 
     // Attach segments
-    attach_segments(segments, road, displaced_en, track);
+    attachSegments(segments, road, displaced_en, track);
 
     // Debug Info
     if (this->context_.config_.verbosity_ > 1) {
@@ -103,10 +103,10 @@ void TrackBuildingLayer::apply(const segment_collection_t& segments,
   }
 }
 
-void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
-                                         const road_t& road,
-                                         const bool& displaced_en,
-                                         track_t& track) const {
+void TrackBuildingLayer::attachSegments(const segment_collection_t& segments,
+                                        const road_t& road,
+                                        const bool& displaced_en,
+                                        track_t& track) const {
   // ===========================================================================
   // Constants
   // ---------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
   std::array<seg_phi_t, v3::kNumTrackSites> trk_seg_phi_diff;
   std::array<seg_theta_t, v3::kNumTrackSites> trk_seg_theta;
 
-  for (int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
+  for (unsigned int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
     trk_seg_phi_diff[site_id] = 0;
     trk_seg_theta[site_id] = 0;
   }
@@ -174,7 +174,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
   std::array<trk_col_t, v3::kHitmapNRows> trk_pat_end;
   std::array<seg_phi_t, v3::kHitmapNRows> trk_pat_phi;
 
-  for (int i_row = 0; i_row < v3::kHitmapNRows; ++i_row) {
+  for (unsigned int i_row = 0; i_row < v3::kHitmapNRows; ++i_row) {
     // Get the model pattern
     const auto& model_pat_row = (*model_pat)[i_row];
 
@@ -204,7 +204,6 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
   // ===========================================================================
   // Select segments using phi only
   // ---------------------------------------------------------------------------
-  int n_rows = model_hm.size();
 
   // clang-format off
     std::vector<std::vector<unsigned int>> site_chambers = {
@@ -233,7 +232,9 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
     };
   // clang-format on
 
-  for (int i_row = 0; i_row < n_rows; ++i_row) {  // Begin loop rows
+  auto n_rows = model_hm.size();
+
+  for (unsigned int i_row = 0; i_row < n_rows; ++i_row) {  // Begin loop rows
 
     const auto& model_hm_row = model_hm[i_row];
 
@@ -266,7 +267,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
 
         int chamber_id = s_chambers[chamber_idx];
 
-        for (int i_ch_seg = 0; i_ch_seg < v3::kChamberSegments; ++i_ch_seg) {  // Begin loop segments
+        for (unsigned int i_ch_seg = 0; i_ch_seg < v3::kChamberSegments; ++i_ch_seg) {  // Begin loop segments
 
           const int seg_id = chamber_id * v3::kChamberSegments + i_ch_seg;
           const auto& seg = segments[seg_id];
@@ -440,7 +441,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
     // clang-format on
   }
 
-  for (int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
+  for (unsigned int site_id = 0; site_id < v3::kNumTrackSites; ++site_id) {
     auto& site_bit = track.site_mask[site_id];
     auto& site_rm_bit = track.site_rm_mask[site_id];
 
@@ -558,7 +559,7 @@ void TrackBuildingLayer::attach_segments(const segment_collection_t& segments,
                               << " rel_phi " << trk_rel_phi << " abs_theta " << track.theta << " features "
                               << std::endl;
 
-    for (int i = 0; i < v3::kNumTrackFeatures; ++i) {
+    for (unsigned int i = 0; i < v3::kNumTrackFeatures; ++i) {
       if (i > 0) {
         edm::LogInfo("L1TEMTFpp") << " ";
       }
