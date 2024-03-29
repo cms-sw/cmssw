@@ -68,37 +68,37 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
         # Basic variables
         CandVars,
         # Overlaps with PF electron and photon
-        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of the overlapping PF electron (-1 if none)"),
-        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", "int16", doc="index of the first associated photon (-1 if none)"),
+        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of the overlapping PF electron (-1 if none)", lazyEval=True),
+        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", "int16", doc="index of the first associated photon (-1 if none)", lazyEval=True),
         # BDT scores and WPs
-        ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-        unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
-        ptbiased = Var("electronID('ptbiased')",float,doc="ElectronSeed, pT- and dxy- dependent BDT (raw) score"),
+        ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score", lazyEval=True),
+        unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score", lazyEval=True),
+        ptbiased = Var("electronID('ptbiased')",float,doc="ElectronSeed, pT- and dxy- dependent BDT (raw) score", lazyEval=True),
         # Isolation
         miniPFRelIso_chg = Var("userFloat('miniIsoChg')",float,
-                               doc="mini PF relative isolation, charged component"),
+                               doc="mini PF relative isolation, charged component", lazyEval=True),
         miniPFRelIso_all = Var("userFloat('miniIsoAll')",float,
-                               doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
+                               doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)", lazyEval=True),
         # Conversions
-        convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
+        convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto", lazyEval=True),
         convWP = Var("userInt('convOpen')*1 + userInt('convLoose')*2 + userInt('convTight')*4",
-                     "uint8", doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight"),
-        convVtxRadius = Var("userFloat('convVtxRadius')",float,doc="conversion vertex radius (cm)",precision=7),
+                     "uint8", doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight", lazyEval=True),
+        convVtxRadius = Var("userFloat('convVtxRadius')",float,doc="conversion vertex radius (cm)",precision=7, lazyEval=True),
         # Tracking
-        lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
+        lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits", lazyEval=True),
         # Cluster-related
-        energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
-        deltaEtaSC = Var("superCluster().eta()-eta()",float,doc="delta eta (SC,ele) with sign",precision=10),
-        r9 = Var("full5x5_r9()",float,doc="R9 of the SC, calculated with full 5x5 region",precision=10),
-        sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the SC, calculated with full 5x5 region",precision=10),
-        eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10),
-        scEtOverPt = Var("(superCluster().energy()/(pt*cosh(superCluster().eta())))-1",float,doc="(SC energy)/pt-1",precision=8),
-        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
+        energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6, lazyEval=True),
+        deltaEtaSC = Var("superCluster().eta()-eta()",float,doc="delta eta (SC,ele) with sign",precision=10, lazyEval=True),
+        r9 = Var("full5x5_r9()",float,doc="R9 of the SC, calculated with full 5x5 region",precision=10, lazyEval=True),
+        sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the SC, calculated with full 5x5 region",precision=10, lazyEval=True),
+        eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10, lazyEval=True),
+        scEtOverPt = Var("(superCluster().energy()/(pt*cosh(superCluster().eta())))-1",float,doc="(SC energy)/pt-1",precision=8, lazyEval=True),
+        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8, lazyEval=True),
         # Displacement
-        dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
-        dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
-        dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
-        dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
+        dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10, lazyEval=True),
+        dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6, lazyEval=True),
+        dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10, lazyEval=True),
+        dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6, lazyEval=True),
     ),
 )
 
@@ -192,8 +192,8 @@ run2_nanoAOD_106Xv2.toModify(
     cut = "pt > 1. && userFloat('ID') > -0.25"
 ).toModify(
     lowPtElectronTable.variables,
-    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
+    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score", lazyEval=True),
+    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score", lazyEval=True)
 )
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID

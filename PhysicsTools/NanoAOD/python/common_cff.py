@@ -11,9 +11,9 @@ def OVar(valtype, doc=None, precision=-1):
     return cms.PSet(
                 type = cms.string(valtype),
                 doc = cms.string(doc if doc else expr),
-	        precision=cms.optional.allowed(cms.string, cms.int32, default = (cms.string(precision) if type(precision)==str else cms.int32(precision)
-           )))
-def Var(expr, valtype, doc=None, precision=-1):
+	        precision=cms.optional.allowed(cms.string, cms.int32, default = (cms.string(precision) if type(precision)==str else cms.int32(precision)))
+           )
+def Var(expr, valtype, doc=None, precision=-1, lazyEval=False):
     """Create a PSet for a variable computed with the string parser
 
        expr is the expression to evaluate to compute the variable
@@ -22,7 +22,7 @@ def Var(expr, valtype, doc=None, precision=-1):
        see OVar above for all the other arguments
     """
     return OVar(valtype, doc=(doc if doc else expr), precision=precision).clone(
-                expr = cms.string(expr))
+                expr = cms.string(expr), lazyEval=cms.untracked.bool(lazyEval))
 
 def ExtVar(tag, valtype, doc=None, precision=-1):
     """Create a PSet for a variable read from the event
@@ -31,7 +31,7 @@ def ExtVar(tag, valtype, doc=None, precision=-1):
 
        see OVar in common_cff for all the other arguments
     """
-    return OVar(valtype, precision=precision, doc=(doc if doc else tag.encode())).clone(
+    return OVar(valtype, precision=precision,  doc=(doc if doc else tag.encode())).clone(
                 src = tag if isinstance(tag, cms.InputTag) else cms.InputTag(tag),
           )
 

@@ -15,10 +15,10 @@ fsrTable = simpleCandidateFlatTableProducer.clone(
     name = cms.string("FsrPhoton"),
     doc  = cms.string("Final state radiation photons emitted by muons or electrons"),
     variables = cms.PSet(P3Vars,
-        relIso03 = Var("userFloat('relIso03')",float,doc="relative isolation in a 0.3 cone without CHS"),
-        dROverEt2 = Var("userFloat('dROverEt2')",float,doc="deltaR to associated muon divided by photon et2"),
-        muonIdx = Var("?hasUserCand('associatedMuon')?userCand('associatedMuon').key():-1", "int16", doc="index of associated muon"),
-        electronIdx = Var("?hasUserCand('associatedElectron')?userCand('associatedElectron').key():-1", "int16", doc="index of associated electron")
+        relIso03 = Var("userFloat('relIso03')",float,doc="relative isolation in a 0.3 cone without CHS", lazyEval=True),
+        dROverEt2 = Var("userFloat('dROverEt2')",float,doc="deltaR to associated muon divided by photon et2", lazyEval=True),
+        muonIdx = Var("?hasUserCand('associatedMuon')?userCand('associatedMuon').key():-1", "int16", doc="index of associated muon", lazyEval=True),
+        electronIdx = Var("?hasUserCand('associatedElectron')?userCand('associatedElectron').key():-1", "int16", doc="index of associated electron", lazyEval=True)
         )
     )
 

@@ -42,7 +42,7 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
         var_definition = ("?isTauIDAvailable('%s')?(" % (pattern % choices[0])) + var_definition + "):0"
 
     doc = doc + ": "+", ".join(["%d = %s" % (i,c) for (i,c) in enumerate(choices, start=1)])
-    return Var(var_definition, "uint8", doc=doc)
+    return Var(var_definition, "uint8", doc=doc, lazyEval=True)
 
 
 tauTable = simpleCandidateFlatTableProducer.clone(
@@ -53,39 +53,39 @@ tauTable = simpleCandidateFlatTableProducer.clone(
 
 _tauVarsBase = cms.PSet(P4Vars,
        charge = Var("charge", "int16", doc="electric charge"),
-       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
-       eleIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of first matching electron"),
-       muIdx = Var("?overlaps('muons').size()>0?overlaps('muons')[0].key():-1", "int16", doc="index of first matching muon"),
-       svIdx1 = Var("?overlaps('vertices').size()>0?overlaps('vertices')[0].key():-1", "int16", doc="index of first matching secondary vertex"),
-       svIdx2 = Var("?overlaps('vertices').size()>1?overlaps('vertices')[1].key():-1", "int16", doc="index of second matching secondary vertex"),
-       nSVs = Var("?hasOverlaps('vertices')?overlaps('vertices').size():0", "uint8", doc="number of secondary vertices in the tau"),
-       decayMode = Var("decayMode()", "uint8"),
-       idDecayModeOldDMs = Var("(?isTauIDAvailable('decayModeFinding')?tauID('decayModeFinding'):-1) > 0", bool),
-       idDecayModeNewDMs = Var("(?isTauIDAvailable('decayModeFindingNewDMs')?tauID('decayModeFindingNewDMs'):-1) > 0", bool),
-       leadTkPtOverTauPt = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand.pt/pt:1",float, doc="pt of the leading track divided by tau pt",precision=10),
-       leadTkDeltaEta = Var("?leadChargedHadrCand.isNonnull()?(leadChargedHadrCand.eta - eta):0",float, doc="eta of the leading track, minus tau eta",precision=8),
-       leadTkDeltaPhi = Var("?leadChargedHadrCand.isNonnull()?deltaPhi(leadChargedHadrCand.phi, phi):0",float, doc="phi of the leading track, minus tau phi",precision=8),
+       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)", lazyEval=True),
+       eleIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of first matching electron", lazyEval=True),
+       muIdx = Var("?overlaps('muons').size()>0?overlaps('muons')[0].key():-1", "int16", doc="index of first matching muon", lazyEval=True),
+       svIdx1 = Var("?overlaps('vertices').size()>0?overlaps('vertices')[0].key():-1", "int16", doc="index of first matching secondary vertex", lazyEval=True),
+       svIdx2 = Var("?overlaps('vertices').size()>1?overlaps('vertices')[1].key():-1", "int16", doc="index of second matching secondary vertex", lazyEval=True),
+       nSVs = Var("?hasOverlaps('vertices')?overlaps('vertices').size():0", "uint8", doc="number of secondary vertices in the tau", lazyEval=True),
+       decayMode = Var("decayMode()", "uint8", lazyEval=True),
+       idDecayModeOldDMs = Var("(?isTauIDAvailable('decayModeFinding')?tauID('decayModeFinding'):-1) > 0", bool, lazyEval=True),
+       idDecayModeNewDMs = Var("(?isTauIDAvailable('decayModeFindingNewDMs')?tauID('decayModeFindingNewDMs'):-1) > 0", bool, lazyEval=True),
+       leadTkPtOverTauPt = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand.pt/pt:1",float, doc="pt of the leading track divided by tau pt",precision=10, lazyEval=True),
+       leadTkDeltaEta = Var("?leadChargedHadrCand.isNonnull()?(leadChargedHadrCand.eta - eta):0",float, doc="eta of the leading track, minus tau eta",precision=8, lazyEval=True),
+       leadTkDeltaPhi = Var("?leadChargedHadrCand.isNonnull()?deltaPhi(leadChargedHadrCand.phi, phi):0",float, doc="phi of the leading track, minus tau phi",precision=8, lazyEval=True),
 
-       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10),
-       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14),
+       dxy = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dxy():0",float, doc="d_{xy} of lead track with respect to PV, in cm (with sign)",precision=10, lazyEval=True),
+       dz = Var("?leadChargedHadrCand.isNonnull()?leadChargedHadrCand().dz():0",float, doc="d_{z} of lead track with respect to PV, in cm (with sign)",precision=14, lazyEval=True),
 
        # these are too many, we may have to suppress some
-       rawIso = Var("?isTauIDAvailable('byCombinedIsolationDeltaBetaCorrRaw3Hits')?tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits'):-1", float, doc = "combined isolation (deltaBeta corrections)", precision=10),
-       rawIsodR03 = Var("?isTauIDAvailable('chargedIsoPtSumdR03')?(tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))):-1", float, doc = "combined isolation (deltaBeta corrections, dR=0.3)", precision=10),
-       chargedIso = Var("?isTauIDAvailable('chargedIsoPtSum')?tauID('chargedIsoPtSum'):-1", float, doc = "charged isolation", precision=10),
-       neutralIso = Var("?isTauIDAvailable('neutralIsoPtSum')?tauID('neutralIsoPtSum'):-1", float, doc = "neutral (photon) isolation", precision=10),
-       puCorr = Var("?isTauIDAvailable('puCorrPtSum')?tauID('puCorrPtSum'):-1", float, doc = "pileup correction", precision=10),
-       photonsOutsideSignalCone = Var("?isTauIDAvailable('photonPtSumOutsideSignalCone')?tauID('photonPtSumOutsideSignalCone'):-1", float, doc = "sum of photons outside signal cone", precision=10),
+       rawIso = Var("?isTauIDAvailable('byCombinedIsolationDeltaBetaCorrRaw3Hits')?tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits'):-1", float, doc = "combined isolation (deltaBeta corrections)", precision=10, lazyEval=True),
+       rawIsodR03 = Var("?isTauIDAvailable('chargedIsoPtSumdR03')?(tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))):-1", float, doc = "combined isolation (deltaBeta corrections, dR=0.3)", precision=10, lazyEval=True),
+       chargedIso = Var("?isTauIDAvailable('chargedIsoPtSum')?tauID('chargedIsoPtSum'):-1", float, doc = "charged isolation", precision=10, lazyEval=True),
+       neutralIso = Var("?isTauIDAvailable('neutralIsoPtSum')?tauID('neutralIsoPtSum'):-1", float, doc = "neutral (photon) isolation", precision=10, lazyEval=True),
+       puCorr = Var("?isTauIDAvailable('puCorrPtSum')?tauID('puCorrPtSum'):-1", float, doc = "pileup correction", precision=10, lazyEval=True),
+       photonsOutsideSignalCone = Var("?isTauIDAvailable('photonPtSumOutsideSignalCone')?tauID('photonPtSumOutsideSignalCone'):-1", float, doc = "sum of photons outside signal cone", precision=10, lazyEval=True),
 
        idAntiMu = _tauIdWPMask("againstMuon%s3", choices=("Loose","Tight"), doc= "Anti-muon discriminator V3: "),
-       idAntiEleDeadECal = Var("(?isTauIDAvailable('againstElectronDeadECAL')?tauID('againstElectronDeadECAL'):-1) > 0", bool, doc = "Anti-electron dead-ECal discriminator"),
+       idAntiEleDeadECal = Var("(?isTauIDAvailable('againstElectronDeadECAL')?tauID('againstElectronDeadECAL'):-1) > 0", bool, doc = "Anti-electron dead-ECal discriminator", lazyEval=True),
 
 )
 
 _deepTauVars2017v2p1 = cms.PSet(
-    rawDeepTau2017v2p1VSe = Var("?isTauIDAvailable('byDeepTau2017v2p1VSeraw')?tauID('byDeepTau2017v2p1VSeraw'):-1", float, doc="byDeepTau2017v2p1VSe raw output discriminator (deepTau2017v2p1)", precision=10),
-    rawDeepTau2017v2p1VSmu = Var("?isTauIDAvailable('byDeepTau2017v2p1VSmuraw')?tauID('byDeepTau2017v2p1VSmuraw'):-1", float, doc="byDeepTau2017v2p1VSmu raw output discriminator (deepTau2017v2p1)", precision=10),
-    rawDeepTau2017v2p1VSjet = Var("?isTauIDAvailable('byDeepTau2017v2p1VSjetraw')?tauID('byDeepTau2017v2p1VSjetraw'):-1", float, doc="byDeepTau2017v2p1VSjet raw output discriminator (deepTau2017v2p1)", precision=10),
+    rawDeepTau2017v2p1VSe = Var("?isTauIDAvailable('byDeepTau2017v2p1VSeraw')?tauID('byDeepTau2017v2p1VSeraw'):-1", float, doc="byDeepTau2017v2p1VSe raw output discriminator (deepTau2017v2p1)", precision=10, lazyEval=True),
+    rawDeepTau2017v2p1VSmu = Var("?isTauIDAvailable('byDeepTau2017v2p1VSmuraw')?tauID('byDeepTau2017v2p1VSmuraw'):-1", float, doc="byDeepTau2017v2p1VSmu raw output discriminator (deepTau2017v2p1)", precision=10, lazyEval=True),
+    rawDeepTau2017v2p1VSjet = Var("?isTauIDAvailable('byDeepTau2017v2p1VSjetraw')?tauID('byDeepTau2017v2p1VSjetraw'):-1", float, doc="byDeepTau2017v2p1VSjet raw output discriminator (deepTau2017v2p1)", precision=10, lazyEval=True),
     idDeepTau2017v2p1VSe = _tauIdWPMask("by%sDeepTau2017v2p1VSe",
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
                                             doc="byDeepTau2017v2p1VSe ID working points (deepTau2017v2p1)"),
@@ -97,9 +97,9 @@ _deepTauVars2017v2p1 = cms.PSet(
                                             doc="byDeepTau2017v2p1VSjet ID working points (deepTau2017v2p1)"),
 )
 _deepTauVars2018v2p5 = cms.PSet(
-    rawDeepTau2018v2p5VSe = Var("?isTauIDAvailable('byDeepTau2018v2p5VSeraw')?tauID('byDeepTau2018v2p5VSeraw'):-1", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
-    rawDeepTau2018v2p5VSmu = Var("?isTauIDAvailable('byDeepTau2018v2p5VSmuraw')?tauID('byDeepTau2018v2p5VSmuraw'):-1", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
-    rawDeepTau2018v2p5VSjet = Var("?isTauIDAvailable('byDeepTau2018v2p5VSjetraw')?tauID('byDeepTau2018v2p5VSjetraw'):-1", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10),
+    rawDeepTau2018v2p5VSe = Var("?isTauIDAvailable('byDeepTau2018v2p5VSeraw')?tauID('byDeepTau2018v2p5VSeraw'):-1", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10, lazyEval=True),
+    rawDeepTau2018v2p5VSmu = Var("?isTauIDAvailable('byDeepTau2018v2p5VSmuraw')?tauID('byDeepTau2018v2p5VSmuraw'):-1", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10, lazyEval=True),
+    rawDeepTau2018v2p5VSjet = Var("?isTauIDAvailable('byDeepTau2018v2p5VSjetraw')?tauID('byDeepTau2018v2p5VSjetraw'):-1", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10, lazyEval=True),
     idDeepTau2018v2p5VSe = _tauIdWPMask("by%sDeepTau2018v2p5VSe",
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),
                                             doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)"),
@@ -112,17 +112,17 @@ _deepTauVars2018v2p5 = cms.PSet(
 )
 
 _pnet2023 = cms.PSet(
-    decayModePNet = Var("?isTauIDAvailable('byPNetDecayMode')?tauID('byPNetDecayMode'):-1", "int16",doc="decay mode of the highest tau score of ParticleNet"),
-    rawPNetVSe = Var("?isTauIDAvailable('byPNetVSeraw')?tauID('byPNetVSeraw'):-1", float, doc="raw output of ParticleNetVsE discriminator (PNet 2023)", precision=10),
-    rawPNetVSmu = Var("?isTauIDAvailable('byPNetVSmuraw')?tauID('byPNetVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023)", precision=10),
-    rawPNetVSjet = Var("?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023)", precision=10),
-    ptCorrPNet = Var("?isTauIDAvailable('byPNetPtCorr')?tauID('byPNetPtCorr'):1", float, doc="pt correction (PNet 2023)", precision=10),
-    qConfPNet = Var("?isTauIDAvailable('byPNetQConf')?tauID('byPNetQConf'):0", float, doc="signed charge confidence (PNet 2023)", precision=10),
-    probDM0PNet = Var("?isTauIDAvailable('byPNetProb1h0pi0')?tauID('byPNetProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023)", precision=10),
-    probDM1PNet = Var("?isTauIDAvailable('byPNetProb1h1pi0')?tauID('byPNetProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023)", precision=10),
-    probDM2PNet = Var("?isTauIDAvailable('byPNetProb1h2pi0')?tauID('byPNetProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023)", precision=10),
-    probDM10PNet = Var("?isTauIDAvailable('byPNetProb3h0pi0')?tauID('byPNetProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023)", precision=10),
-    probDM11PNet = Var("?isTauIDAvailable('byPNetProb3h1pi0')?tauID('byPNetProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023)", precision=10),
+    decayModePNet = Var("?isTauIDAvailable('byPNetDecayMode')?tauID('byPNetDecayMode'):-1", "int16",doc="decay mode of the highest tau score of ParticleNet", lazyEval=True),
+    rawPNetVSe = Var("?isTauIDAvailable('byPNetVSeraw')?tauID('byPNetVSeraw'):-1", float, doc="raw output of ParticleNetVsE discriminator (PNet 2023)", precision=10, lazyEval=True),
+    rawPNetVSmu = Var("?isTauIDAvailable('byPNetVSmuraw')?tauID('byPNetVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023)", precision=10, lazyEval=True),
+    rawPNetVSjet = Var("?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023)", precision=10, lazyEval=True),
+    ptCorrPNet = Var("?isTauIDAvailable('byPNetPtCorr')?tauID('byPNetPtCorr'):1", float, doc="pt correction (PNet 2023)", precision=10, lazyEval=True),
+    qConfPNet = Var("?isTauIDAvailable('byPNetQConf')?tauID('byPNetQConf'):0", float, doc="signed charge confidence (PNet 2023)", precision=10, lazyEval=True),
+    probDM0PNet = Var("?isTauIDAvailable('byPNetProb1h0pi0')?tauID('byPNetProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023)", precision=10, lazyEval=True),
+    probDM1PNet = Var("?isTauIDAvailable('byPNetProb1h1pi0')?tauID('byPNetProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023)", precision=10, lazyEval=True),
+    probDM2PNet = Var("?isTauIDAvailable('byPNetProb1h2pi0')?tauID('byPNetProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023)", precision=10, lazyEval=True),
+    probDM10PNet = Var("?isTauIDAvailable('byPNetProb3h0pi0')?tauID('byPNetProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023)", precision=10, lazyEval=True),
+    probDM11PNet = Var("?isTauIDAvailable('byPNetProb3h1pi0')?tauID('byPNetProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023)", precision=10, lazyEval=True),
 )
 
 _variablesMiniV2 = cms.PSet(
@@ -194,7 +194,7 @@ genVisTauTable = simpleCandidateFlatTableProducer.clone(
          mass = Var("mass", float,precision=8),
 	 charge = Var("charge", "int16"),
 	 status = Var("status", "uint8", doc="Hadronic tau decay mode. 0=OneProng0PiZero, 1=OneProng1PiZero, 2=OneProng2PiZero, 10=ThreeProng0PiZero, 11=ThreeProng1PiZero, 15=Other"),
-	 genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", "int16", doc="index of the mother particle"),
+	 genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", "int16", doc="index of the mother particle", lazyEval=True),
     )
 )
 

@@ -10,10 +10,10 @@ jetMCTable = simpleCandidateFlatTableProducer.clone(
     name = cms.string("Jet"),
     extension = cms.bool(True), # this is an extension  table for the jets
     variables = cms.PSet(
-        partonFlavour = Var("partonFlavour()", "int16", doc="flavour from parton matching"),
-        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
+        partonFlavour = Var("partonFlavour()", "int16", doc="flavour from parton matching", lazyEval=True),
+        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering", lazyEval=True),
         # cut should follow genJetTable.cut
-        genJetIdx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 10.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen jet"),
+        genJetIdx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 10.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen jet", lazyEval=True),
     )
 )
 genJetTable = simpleCandidateFlatTableProducer.clone(
@@ -88,9 +88,9 @@ fatJetMCTable = simpleCandidateFlatTableProducer.clone(
     name = _fatJetTable.name,
     extension = cms.bool(True),
     variables = cms.PSet(
-        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
+        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering", lazyEval=True),
         # cut should follow genJetAK8Table.cut
-        genJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 100.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen AK8 jet"),
+        genJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 100.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen AK8 jet", lazyEval=True),
     )
 )
 
@@ -108,9 +108,9 @@ subjetMCTable = simpleCandidateFlatTableProducer.clone(
     name = _subJetTable.name,
     extension = cms.bool(True),
     variables = cms.PSet(
-        nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
-        nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
-        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
+        nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons", lazyEval=True),
+        nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons", lazyEval=True),
+        hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering", lazyEval=True),
     )
 )
 

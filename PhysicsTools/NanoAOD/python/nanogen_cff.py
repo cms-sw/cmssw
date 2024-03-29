@@ -62,8 +62,8 @@ def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.mergedGenParticles)
 
     process.metMCTable.src = "slimmedMETs"
-    process.metMCTable.variables.pt = Var("genMET.pt", float, doc="pt")
-    process.metMCTable.variables.phi = Var("genMET.phi", float, doc="phi")
+    process.metMCTable.variables.pt = Var("genMET.pt", float, doc="pt", lazyEval=True)
+    process.metMCTable.variables.phi = Var("genMET.phi", float, doc="phi", lazyEval=True)
     process.metMCTable.variables.phi.precision = CandVars.phi.precision
 
     process.rivetProducerHTXS.HepMCCollection = "genParticles2HepMCHiggsVtx:unsmeared"
