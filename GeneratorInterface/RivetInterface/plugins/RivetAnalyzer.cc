@@ -27,7 +27,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
       _xsection(-1.) {
   usesResource("Rivet");
 
-  _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
+  _hepmcCollection = consumes<HepMC3Product>(pset.getParameter<edm::InputTag>("HepMCCollection"));
   _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
   _useLHEweights = pset.getParameter<bool>("useLHEweights");
@@ -122,21 +122,24 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     for (const std::string& wn : _weightNames) {
       _cleanedWeightNames.push_back(std::regex_replace(wn, std::regex("[^A-Za-z\\d\\._=]"), "_"));
     }
+    runinfo = make_shared<HepMC3::GenRunInfo>();
+    runinfo->set_weight_names(_cleanedWeightNames);
   }
 
   //get the hepmc product from the event
-  edm::Handle<HepMCProduct> evt;
+  edm::Handle<HepMC3Product> evt;
   iEvent.getByToken(_hepmcCollection, evt);
 
   // get HepMC GenEvent
-  const HepMC::GenEvent* myGenEvent = evt->GetEvent();
-  std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
+  const HepMC3::GenEvent* myGenEvent = evt->GetEvent();
+  std::unique_ptr<HepMC3::GenEvent> tmpGenEvtPtr;
   //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight
-  tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
+  tmpGenEvtPtr = std::make_unique<HepMC3::GenEvent>(*(evt->GetEvent()));
+  tmpGenEvtPtr->set_run_info(runinfo);
 
   if (_xsection > 0) {
-    HepMC::GenCrossSection xsec;
-    xsec.set_cross_section(_xsection);
+    HepMC3::GenCrossSectionPtr xsec = make_shared<HepMC3::GenCrossSection>();
+    xsec->set_cross_section(_xsection, 0.);
     tmpGenEvtPtr->set_cross_section(xsec);
   }
 
@@ -156,7 +159,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   tmpGenEvtPtr->weights().clear();
   for (unsigned int i = 0; i < _cleanedWeightNames.size(); i++) {
-    tmpGenEvtPtr->weights()[_cleanedWeightNames[i]] = mergedWeights[i];
+    tmpGenEvtPtr->weights()[i] = mergedWeights[i];
   }
   myGenEvent = tmpGenEvtPtr.get();
 
@@ -166,10 +169,10 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     _analysisHandler->addAnalyses(_analysisNames);
 
     /// Set analysis handler weight options
-    _analysisHandler->setIgnoreBeams(_setIgnoreBeams);
+    _analysisHandler->setCheckBeams(!_setIgnoreBeams);
     _analysisHandler->skipMultiWeights(_skipMultiWeights);
-    _analysisHandler->selectMultiWeights(_selectMultiWeights);
-    _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
+    _analysisHandler->matchWeightNames(_selectMultiWeights);
+    _analysisHandler->unmatchWeightNames(_deselectMultiWeights);
     _analysisHandler->setNominalWeightName(_setNominalWeightName);
     _analysisHandler->setWeightCap(_weightCap);
     _analysisHandler->setNLOSmearing(_NLOSmearing);
@@ -180,7 +183,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   //run the analysis
-  _analysisHandler->analyze(*myGenEvent);
+  _analysisHandler->analyze(const_cast<GenEvent&>(*myGenEvent));
 }
 
 void RivetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
