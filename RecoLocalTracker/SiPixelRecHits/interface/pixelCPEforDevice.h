@@ -67,7 +67,7 @@ namespace pixelCPEforDevice {
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
 
-    bool IrradiationBiasCorrection_;
+    bool irradiationBiasCorrection_;
   };
 
   struct DetParams {
@@ -350,7 +350,7 @@ namespace pixelCPEforDevice {
                                                   DetParams const& __restrict__ detParams,
                                                   ClusParams& cp,
                                                   uint32_t ic) {
-    if (!comParams.IrradiationBiasCorrection_) {
+    if (!comParams.irradiationBiasCorrection_) {
       return;
     }
 

@@ -62,7 +62,7 @@ private:
   void fillParamsForDevice();
 
   Buffer buffer_;
-  bool IrradiationBiasCorrection_;
+  bool irradiationBiasCorrection_;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_interface_PixelCPEFastParamsHost_h
