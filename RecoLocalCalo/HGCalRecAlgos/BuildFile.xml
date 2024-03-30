@@ -1,14 +1,19 @@
 <use name="clhep"/>
-<use name="DataFormats/HGCRecHit"/>
 <use name="root"/>
 <use name="rootminuit"/>
+<use name="DataFormats/HGCRecHit"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/Records"/>
-<use name="DataFormats/ParticleFlowReco"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
