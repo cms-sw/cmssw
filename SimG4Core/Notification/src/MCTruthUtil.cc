@@ -21,7 +21,9 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   // Cascade decays of primary or gamma convertion inside the tracker
   // Transfer mcTruth ID from mother (to be checked in SimTrackManager)
   int mc = motherInfo->mcTruthID();
-  if (mc <= 0) { mc = aTrack->GetTrackID(); }
+  if (mc <= 0) {
+    mc = aTrack->GetTrackID();
+  }
   trkInfo->setMCTruthID(mc);
 
   if (flag >= 1) {
