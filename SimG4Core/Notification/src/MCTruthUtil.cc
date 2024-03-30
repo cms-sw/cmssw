@@ -20,11 +20,14 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
 
   // Cascade decays of primary or gamma convertion inside the tracker
   // Transfer mcTruth ID from mother (to be checked in SimTrackManager)
+  int mc = motherInfo->mcTruthID();
+  if (mc <= 0) { mc = aTrack->GetTrackID(); }
+  trkInfo->setMCTruthID(mc);
+
   if (flag >= 1) {
     trkInfo->setStoreTrack();
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
-    trkInfo->setMCTruthID(motherInfo->mcTruthID());
     trkInfo->setIDonCaloSurface(aTrack->GetTrackID(),
                                 motherInfo->getIDCaloVolume(),
                                 motherInfo->getIDLastVolume(),
@@ -34,7 +37,6 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     // secondary
     trkInfo->setGenParticlePID(motherInfo->genParticlePID());
     trkInfo->setGenParticleP(motherInfo->genParticleP());
-    trkInfo->setMCTruthID(motherInfo->mcTruthID());
     trkInfo->setIDonCaloSurface(motherInfo->getIDonCaloSurface(),
                                 motherInfo->getIDCaloVolume(),
                                 motherInfo->getIDLastVolume(),
