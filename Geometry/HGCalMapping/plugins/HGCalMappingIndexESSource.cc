@@ -108,8 +108,8 @@ void HGCalMappingIndexESSource::buildCellMapperIndexer() {
 
 //
 void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
-  //default values to assign in case module type has not yet been mapped
-  //a high density module (max possible) will be assigned so that the mapping doesn't block
+  // default values to assign in case module type has not yet been mapped
+  // a high density module (max possible) will be assigned so that the mapping doesn't block
   auto defaultTypeCodeIdx = cellIndexer_.getEnumFromTypecode("MH-F");
   auto typecodeidx = defaultTypeCodeIdx;
   auto defaultNerx = cellIndexer_.getNErxExpectedFor(defaultTypeCodeIdx);

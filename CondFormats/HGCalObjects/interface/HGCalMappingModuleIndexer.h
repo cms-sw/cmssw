@@ -81,11 +81,13 @@ public:
     //add typecode string to map to retrieve fedId & modId later
     if (typecode!=""){
       if (typecodeMap_.find(typecode) != typecodeMap_.end()){ // found key
-        std::pair<uint32_t,uint32_t> idpair = typecodeMap_.at(typecode); // (fedId,modId)
+        const auto& [fedid_,modid_] = typecodeMap_.at(typecode); // (fedId,modId)
         edm::LogWarning("HGCalMappingModuleIndexer") << "Found typecode " << typecode << " already in map (fedid,modid)=("
-                                                     << idpair.first << "," << idpair.second << ")! Overwriting with ("
+                                                     << fedid_ << "," << modid_ << ")! Overwriting with ("
                                                      << fedid << "," << idx << ")...";
       }
+      std::cout << "HGCalMappingModuleIndexer: Adding typecode=\"" << typecode
+                << "\" with fedid=" << fedid << ", idx=" << idx << "..." << std::endl;
       typecodeMap_[typecode] = std::make_pair(fedid,idx);
     }
   }
@@ -188,11 +190,12 @@ public:
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModule(fedid, nmod);
   };
+  //uint32_t getIndexForModule(HGCalElectronicsId id) const {
+  //  return getIndexForModule(id.localFEDId(),id.captureBlock(),id.econdIdx());
+  //};
   uint32_t getIndexForModule(std::string typecode) const {
-    if (typecodeMap_.find(typecode) == typecodeMap_.end()) // did not find key
-      edm::LogWarning("HGCalMappingModuleIndexer") << "Could not find typecode " << typecode << " in map!";
-    const std::pair<uint32_t,uint32_t> idpair = typecodeMap_.at(typecode); // (fedId,modId)
-    return getIndexForModule(idpair.first,idpair.second);
+    const auto& [fedId,modId] = getFedAndModuleIndex(typecode); // (fedId,modId)
+    return getIndexForModule(fedId, modId);
   };
   uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t nmod, uint32_t erxidx) const {
     return fedReadoutSequences_[fedid].erxOffsets_[nmod] + erxidx;
@@ -209,9 +212,13 @@ public:
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getIndexForModuleData(fedid, nmod, erxidx, chidx);
   };
-  uint32_t getDenseIndex(HGCalElectronicsId id) const {
+  uint32_t getIndexForModuleData(HGCalElectronicsId id) const {
     return id.isCM() ? getIndexForModuleErx(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx()) : 
            getIndexForModuleData(id.localFEDId(),id.captureBlock(),id.econdIdx(),id.econdeRx(),id.halfrocChannel());
+  };
+  uint32_t getIndexForModuleData(std::string typecode) const {
+    const  auto& [fedid,modid] = getFedAndModuleIndex(typecode);
+    return getIndexForModuleData(fedid, modid, 0, 0);
   };
   int getMaxDataSize() const { return maxDataIdx_; } // useful for setting calib SoA size
   int getMaxERxSize() const { return maxErxIdx_; }   // useful for setting config SoA size
@@ -221,6 +228,21 @@ public:
     uint32_t nmod = denseIndexingFor(fedid, captureblockIdx, econdIdx);
     return getTypeForModule(fedid, nmod);
   }
+
+  std::pair<uint32_t,uint32_t> getFedAndModuleIndex(std::string typecode) const {
+    if (typecodeMap_.find(typecode) == typecodeMap_.end()) { // did not find key
+      edm::LogWarning("HGCalMappingModuleIndexer") << "Could not find typecode " << typecode << " in map (size="
+                                                   << typecodeMap_.size() << ")! Found following modules:";
+      int i = 1;
+      for (auto it = typecodeMap_.begin(); it != typecodeMap_.end(); it++) {
+        std::cout << it->first << (it != typecodeMap_.end() ? ", " : "") << std::endl;
+        if (i<=100) { std::cout << " ..." << std::endl; break; } // stop sooner to avoid gigantic printout
+        i++;
+      }
+      //return {0,0};
+    }
+    return typecodeMap_.at(typecode); // (fedid,modid)
+  };
 
   ///< internal indexer
   HGCalDenseIndexerBase modFedIndexer_;
