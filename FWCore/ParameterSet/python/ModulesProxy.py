@@ -13,7 +13,7 @@ class _ModuleProxy (object):
         return self._caller(**kwargs)
 
 
-def _setupProxies(fullName):
+def _setupProxies(fullName:str):
     _cmssw_package_name='.'.join(fullName.split(sep)[-3:-1])
     basename = fullName.split(sep)[-1]
     pathname = fullName[:-1*len(basename)]

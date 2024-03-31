@@ -2,7 +2,7 @@ import sys
 import types
 from importlib.machinery import SourceFileLoader
 
-def processFromFile(filename, args=None):
+def processFromFile(filename:str, args=None):
     old_sys_argv = None
     if args is not None:
         old_sys_argv = sys.argv[:]
