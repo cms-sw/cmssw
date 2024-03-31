@@ -5,20 +5,20 @@
 #include <stdexcept>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "testBase.h"
-
 #include "PhysicsTools/TensorFlowAOT/interface/Model.h"
 
-#include "test_models/simplemodel/include/simplemodel.h"
-#include "test_models/multimodel/include/multimodel.h"
+#include "tfaot-model-test-simple/model.h"
+#include "tfaot-model-test-multi/model.h"
 
-class testInterface : public testBase {
+class testInterface : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testInterface);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void test() override;
+  void setUp(){};
+  void tearDown(){};
+  void test();
   void test_simple();
   void test_multi();
 };
@@ -32,10 +32,10 @@ void testInterface::test() {
 
 void testInterface::test_simple() {
   std::cout << std::endl;
-  std::cout << "tesing simplemodel" << std::endl;
+  std::cout << "tesing simple model" << std::endl;
 
   // initialize the model
-  auto model = tfaot::Model<PhysicsTools_TensorFlowAOT::simplemodel>();
+  auto model = tfaot::Model<tfaot_model::test_simple>();
 
   // register (optional) batch rules
   model.setBatchRule(1, {1});
@@ -57,7 +57,6 @@ void testInterface::test_simple() {
   std::tie(output_bs1) = model.run<tfaot::FloatArrays>(1, input_bs1);
   CPPUNIT_ASSERT(output_bs1.size() == 1);
   CPPUNIT_ASSERT(output_bs1[0].size() == 2);
-  std::cout << std::endl;
   std::cout << "output_bs1[0]: " << output_bs1[0][0] << ", " << output_bs1[0][1] << std::endl;
 
   // evaluate batch size 2
@@ -91,10 +90,10 @@ void testInterface::test_simple() {
 
 void testInterface::test_multi() {
   std::cout << std::endl;
-  std::cout << "tesing multimodel" << std::endl;
+  std::cout << "tesing multi model" << std::endl;
 
   // initialize the model
-  auto model = tfaot::Model<PhysicsTools_TensorFlowAOT::multimodel>();
+  auto model = tfaot::Model<tfaot_model::test_multi>();
 
   // there should be no batch rule for size 2 yet
   CPPUNIT_ASSERT(!model.getBatchStrategy().hasRule(2));
