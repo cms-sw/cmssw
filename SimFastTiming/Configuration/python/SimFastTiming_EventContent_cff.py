@@ -21,7 +21,7 @@ SimFastTimingPREMIX = cms.PSet(
 )
 
 _phase2_timing_extraCommands = cms.PSet( # using PSet in order to customize with Modifier
-    value = cms.vstring( 'keep *_mix_FTLBarrel_*','keep *_mix_FTLEndcap_*','keep *_mix_InitialVertices_*' )
+    value = cms.vstring( 'keep *_mix_FTLBarrel_*','keep *_mix_FTLEndcap_*','keep *_mix_InitialVertices_*', 'keep *_mtdRecoClusterToSimLayerClusterAssociation_*_*', 'keep *_mtdSimLayerClusterToTPAssociation_*_*')
 )
 # For premixing switch the sim digi collections to the ones including pileup
 # Unsure what to do with InitialVertices, they don't seem to be consumed downstream?
