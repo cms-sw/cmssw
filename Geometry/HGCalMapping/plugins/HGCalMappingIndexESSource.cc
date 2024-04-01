@@ -116,8 +116,6 @@ void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
   auto nerx = defaultNerx;
   auto defaultTypeNWords = cellIndexer_.getNWordsExpectedFor(defaultTypeCodeIdx);
   auto nwords = defaultTypeNWords;
-  //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
-  const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*"); // MM-T
 
   // load module mapping parameters and find ranges
   std::ifstream file(module_filename_.fullPath());
@@ -136,13 +134,15 @@ void HGCalMappingIndexESSource::buildModuleMapperIndexer() {
     std::istringstream stream(line);
     stream >> plane >> u >> v >> typecode >> econdidx >> captureblock >> captureblockidx >> slinkidx >> fedid >> zside;
 
-    // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
+  // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
+  // see https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
+  //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
+  const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*"); // MM-T*
     std::smatch typecode_match; // match object for string objects
     bool matched = std::regex_match(typecode,typecode_match,typecode_regex);
-    if (matched){
+    if (matched) {
       wtypecode = typecode_match[1].str(); // wafer type following MM-T pattern, e.g. "MH-F"
-    }else{
-      // https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
+    } else {
       edm::LogWarning("HGCalMappingIndexESSource") << "Could not match module type code to expected pattern: " << typecode;
     }
 
