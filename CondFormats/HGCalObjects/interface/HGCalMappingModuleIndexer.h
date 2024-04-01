@@ -86,8 +86,8 @@ public:
                                                      << fedid_ << "," << modid_ << ")! Overwriting with ("
                                                      << fedid << "," << idx << ")...";
       }
-      std::cout << "HGCalMappingModuleIndexer: Adding typecode=\"" << typecode
-                << "\" with fedid=" << fedid << ", idx=" << idx << "..." << std::endl;
+      //std::cout << "HGCalMappingModuleIndexer::processNewModule: Adding typecode=\"" << typecode
+      //          << "\" with fedid=" << fedid << ", idx=" << idx << "..." << std::endl;
       typecodeMap_[typecode] = std::make_pair(fedid,idx);
     }
   }
@@ -220,8 +220,9 @@ public:
     const  auto& [fedid,modid] = getFedAndModuleIndex(typecode);
     return getIndexForModuleData(fedid, modid, 0, 0);
   };
-  int getMaxDataSize() const { return maxDataIdx_; } // useful for setting calib SoA size
-  int getMaxERxSize() const { return maxErxIdx_; }   // useful for setting config SoA size
+  uint32_t getMaxModuleSize() const { return maxModulesIdx_; }
+  uint32_t getMaxERxSize() const { return maxErxIdx_; }   // useful for setting config SoA size
+  uint32_t getMaxDataSize() const { return maxDataIdx_; } // useful for setting calib SoA size
 
   int getTypeForModule(uint32_t fedid, uint32_t nmod) const { return fedReadoutSequences_[fedid].readoutTypes_[nmod]; }
   int getTypeForModule(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
