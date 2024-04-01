@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -17,16 +16,9 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
-#include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
-//#include "CondFormats/DataRecord/interface/HGCalCondSerializableModuleInfoRcd.h"
-//#include "CondFormats/HGCalObjects/interface/HGCalCondSerializableModuleInfo.h"
+//#include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
-
-//#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
-
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalCalibrationParameterHostCollection.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCalibrationParameterDeviceCollection.h"
 
@@ -37,7 +29,6 @@
 #include <sstream>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -57,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
         desc.add<std::string>("filename", "/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/calibration_parameters_v2.json");
-        desc.add<edm::ESInputTag>("moduleIndexerSource",edm::ESInputTag(""))->setComment("Label for module info to calculate size");
+        desc.add<edm::ESInputTag>("moduleIndexerSource",edm::ESInputTag(""))->setComment("Label for module info to set SoA size");
         descriptions.addWithDefaultLabel(desc);
       }
 
@@ -66,7 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // fill SoA column with data from JSON list for any type
         const std::vector<T> values = col_json.get<std::vector<T>>();
         const int nrows = values.size();
-        if(nrows_exp>=0 and nrows_exp!=nrows) { // sanity check
+        if (nrows_exp>=0 and nrows_exp!=nrows) { // sanity check
           edm::LogWarning("HGCalCalibrationESProducer") << " Found two columns with different number or rows: "
                                                         << nrows_exp << " vs. " << nrows << "!";
         }
@@ -81,26 +72,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const uint32_t size = moduleMap.getMaxDataSize(); // channel-level size
         hgcalrechit::HGCalCalibParamHostCollection product(size, cms::alpakatools::host());
         product.view().map() = moduleMap; // set dense indexing in SoA
-        std::cout << "HGCalCalibrationESProducer: moduleMap.getMaxDataSize()=" << size
+        std::cout << "HGCalCalibrationESProducer::produce: moduleMap.getMaxDataSize()=" << size
                   << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
 
         // load calib parameters from JSON
-        std::cout << "HGCalCalibrationESProducer: filename_=" << filename_ << std::endl;
+        std::cout << "HGCalCalibrationESProducer::produce: filename_=" << filename_ << std::endl;
         //std::ifstream infile("/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/level0_calib_params.json");
         std::ifstream infile(filename_);
         json calib_data = json::parse(infile);
-        for(const auto& it: calib_data.items()){
+        for (const auto& it: calib_data.items()) {
           std::string module = it.key(); // module typecode, e.g. "ML-F3PT-TX-0003"
           uint32_t offset = moduleMap.getIndexForModuleData(module); // convert electronics ID to dense index for this module
           int nrows = calib_data[module]["Channel"].size();
-          std::cout << "HGCalCalibrationESProducer: calib_data[\"" << module << "\"][\"Channel\"].size() = "
+          std::cout << "HGCalCalibrationESProducer::produce: calib_data[\"" << module << "\"][\"Channel\"].size() = "
                     << nrows  << ", offset=" << offset << std::endl;
           fill_SoA_column<float>(product.view().ADC_ped(),   calib_data[module]["ADC_ped"],   offset,nrows);
           fill_SoA_column<float>(product.view().CM_slope(),  calib_data[module]["CM_slope"],  offset,nrows);
           fill_SoA_column<float>(product.view().CM_ped(),    calib_data[module]["CM_ped"],    offset,nrows);
-          fill_SoA_column<float>(product.view().ADCtofC(),   calib_data[module]["ADCtofC"],   offset,nrows);
+          fill_SoA_column<float>(product.view().ADCtofC(),   calib_data[module]["ADCtofC"],   offset,nrows); // should switch depending on gain from config
           fill_SoA_column<float>(product.view().BXm1_slope(),calib_data[module]["BXm1_slope"],offset,nrows);
-          fill_SoA_column<float>(product.view().TOTtofC(),   calib_data[module]["TOTtofC"],   offset,nrows);
+          fill_SoA_column<float>(product.view().TOTtofC(),   calib_data[module]["TOTtofC"],   offset,nrows); // should switch depending on gain from config
           fill_SoA_column<float>(product.view().TOT_ped(),   calib_data[module]["TOT_ped"],   offset,nrows);
           fill_SoA_column<float>(product.view().TOT_lin(),   calib_data[module]["TOT_lin"],   offset,nrows);
           fill_SoA_column<float>(product.view().TOT_P0(),    calib_data[module]["TOT_P0"],    offset,nrows);
@@ -108,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().TOT_P2(),    calib_data[module]["TOT_P2"],    offset,nrows);
           fill_SoA_column<float>(product.view().TOAtops(),   calib_data[module]["TOAtops"],   offset,nrows);
           fill_SoA_column<mybool>(product.view().valid(),    calib_data[module]["Valid"],     offset,nrows); // mybool (=std::byte) defined in HGCalCalibrationParameterSoA.h
-          std::cout << "HGCalCalibrationESProducer: memcpied all columns !" << std::endl;
+          std::cout << "HGCalCalibrationESProducer::produce: memcpied all columns !" << std::endl;
         }
 
         //// OLD: load calib parameters from txt
@@ -120,8 +111,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //std::string line;
         //uint32_t id;
         //float ped, noise, cm_slope, cm_offset, bxm1_slope, bxm1_offset;
-        //while(std::getline(file, line)) {
-        //  if(line.find("Channel")!=std::string::npos || line.find("#")!=std::string::npos) continue;
+        //while (std::getline(file, line)) {
+        //  if (line.find("Channel")!=std::string::npos || line.find("#")!=std::string::npos) continue;
         //
         //  std::istringstream stream(line);
         //  //stream >> std::hex >> id >> std::dec >> ped >> noise >> cm_slope >> cm_offset >> bxm1_slope >> bxm1_offset;

@@ -38,8 +38,8 @@ namespace hgcalrechit {
 
   // Generate structure of ROC-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalConfigParamSoALayout,
-                      SOA_SCALAR(HGCalMappingModuleIndexer, map),
-                      SOA_COLUMN(uint8_t, gain)
+                      SOA_SCALAR(HGCalMappingModuleIndexer, map), // map elecId <-> dense idx
+                      SOA_COLUMN(uint8_t, gain) // for ADC to charge (fC) conversion (80, 160, 320 fC)
   )
   using HGCalConfigParamSoA = HGCalConfigParamSoALayout<>;
 

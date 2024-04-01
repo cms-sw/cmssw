@@ -47,7 +47,7 @@ print(f">>> Calib params: {options.params!r}")
 
 # PROCESS
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9 as Era_Phase2
-process = cms.Process('TestHGCalRecHitESProducer',Era_Phase2)
+process = cms.Process('TestHGCalRecHitESProducers',Era_Phase2)
 
 # INPUT
 process.source = cms.Source(
@@ -79,21 +79,27 @@ process.hgCalMappingIndexESSource.si = cms.FileInPath(options.sicells)
 process.hgCalMappingIndexESSource.sipm = cms.FileInPath(options.sipmcells)
 
 # Alpaka ESProducers
-# ESProducer to load calibration parameters from txt file, like pedestal
 process.load('Configuration.StandardSequences.Accelerators_cff')
 process.load('HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi')
 #process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
-process.hgcalCalibESProducer = cms.ESProducer(
+process.hgcalConfigESProducer = cms.ESProducer( # ESProducer to load configurations parameters from YAML file, like gain
+    'hgcalrechit::HGCalConfigurationESProducer@alpaka',
+    gain=cms.int32(1), # to switch between 80, 160, 320 fC calibration
+    charMode=cms.int32(1),
+    moduleIndexerSource=cms.ESInputTag('')
+)
+process.hgcalCalibESProducer = cms.ESProducer( # ESProducer to load calibration parameters from JSON file, like pedestal
     'hgcalrechit::HGCalCalibrationESProducer@alpaka',
     filename=cms.string(options.params), # to be set up in configTBConditions
     moduleIndexerSource=cms.ESInputTag('')
 )
 
 # MAIN MODULE
-process.testHGCalRecHitESProducer = cms.EDProducer('TestHGCalRecHitESProducer@alpaka',
-  calibSource = cms.ESInputTag(''), #cms.ESInputTag('',''),
+process.testHGCalRecHitESProducers = cms.EDProducer('TestHGCalRecHitESProducers@alpaka',
+  calibSource = cms.ESInputTag(''),
+  configSource = cms.ESInputTag(''),
 )
-process.t = cms.Task(process.testHGCalRecHitESProducer)
+process.t = cms.Task(process.testHGCalRecHitESProducers)
 process.p = cms.Path(process.t)
 
 # OUTPUT
