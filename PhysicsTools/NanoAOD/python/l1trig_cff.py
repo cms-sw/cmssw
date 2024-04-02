@@ -168,12 +168,23 @@ def setL1NanoToReduced(process):
     process.l1JetTable.variables = cms.PSet(l1JetReducedVars)
     process.l1TauTable.variables = cms.PSet(l1TauReducedVars)
     process.l1EtSumTable.variables = cms.PSet(l1EtSumReducedVars)
-   
+
     #apply cuts
     process.l1EGTable.cut="pt>=10"
     process.l1TauTable.cut="pt>=24"
     process.l1JetTable.cut="pt>=30"
     process.l1MuTable.cut="pt>=3 && hwQual>=8"
     process.l1EtSumTable.cut="(getType==8 || getType==1 || getType==2 || getType==3)"
-    
+
+    return process
+
+def nanoL1TrigObjCustomize(process):
+    process.load("PhysicsTools.NanoAOD.l1trig_cff")
+    process.nanoTableTaskCommon.add(process.l1TablesTask)
+    process = setL1NanoToReduced(process)
+    return process
+
+def nanoL1TrigObjCustomizeFull(process):
+    process.load("PhysicsTools.NanoAOD.l1trig_cff")
+    process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
