@@ -6,6 +6,8 @@
 
 // Original Author:  Hardik Routray
 //         Created:  Mon, 11 Oct 2021
+// Update: George Karathanasis, CU Boulder
+//         2/4/2024
 
 // system include files
 #include <memory>
@@ -138,7 +140,7 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
     //float tmp_jet_et_ = jetIter->pt();  // FIXME Get Et from the emulated jets
     float tmp_jet_pt_ = jetIter->pt();
 
-    int IsDisplaced = jetIter->dispflag();
+    int tmp_jet_isDisplaced_ = jetIter->dispflag();
 
     l1tmhtemu::pt_t tmp_jet_pt =
         l1tmhtemu::digitizeSignedValue<l1tmhtemu::pt_t>(jetIter->pt(), l1tmhtemu::kInternalPtWidth, l1tmhtemu::kStepPt);
@@ -206,7 +208,7 @@ void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSet
       continue;
     if (tmp_jet_nt < minNtracksHighPt_ && tmp_jet_pt > 400)
       continue;
-    if (displaced_ && !IsDisplaced)
+    if (displaced_ && !tmp_jet_isDisplaced_)
       continue;
 
     if (debug_) {
