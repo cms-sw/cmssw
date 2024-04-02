@@ -579,7 +579,6 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
     if (debug_ >= 2)
       linkLimitSelEmu.log();
   }
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
