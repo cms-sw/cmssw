@@ -754,6 +754,12 @@ private:
   TH1F* h_amplError;
   TH1F* h_amplFine;
   TH1F* h_errorGeneral_HB;
+  TH1F* h_nadccounts8_HB;
+  TH1F* h_nadccounts6_HB;
+  TH1F* h_nadccounts4_HB;
+  TH1F* h_nadccounts3_HB;
+  TH1F* h_nadccounts2_HB;
+  TH1F* h_nadccounts0_HB;
   TH1F* h_error1_HB;
   TH1F* h_error2_HB;
   TH1F* h_error3_HB;
@@ -772,6 +778,12 @@ private:
   TH1F* h_fiber2_HB;
   TH1F* h_repetedcapid_HB;
   TH1F* h_errorGeneral_HE;
+  TH1F* h_nadccounts8_HE;
+  TH1F* h_nadccounts6_HE;
+  TH1F* h_nadccounts4_HE;
+  TH1F* h_nadccounts3_HE;
+  TH1F* h_nadccounts2_HE;
+  TH1F* h_nadccounts0_HE;
   TH1F* h_error1_HE;
   TH1F* h_error2_HE;
   TH1F* h_error3_HE;
@@ -6252,6 +6264,12 @@ void CMTRawAnalyzer::beginJob() {
     h_amplFine = fs_->make<TH1F>("h_amplFine", " ", 100, -2., 98.);
 
     h_errorGeneral_HB = fs_->make<TH1F>("h_errorGeneral_HB", " ", 5, 0., 5.);
+    h_nadccounts8_HB = fs_->make<TH1F>("h_nadccounts8_HB", " ", 257, 0., 256.);
+    h_nadccounts6_HB = fs_->make<TH1F>("h_nadccounts6_HB", " ", 257, 0., 256.);
+    h_nadccounts4_HB = fs_->make<TH1F>("h_nadccounts4_HB", " ", 257, 0., 256.);
+    h_nadccounts3_HB = fs_->make<TH1F>("h_nadccounts3_HB", " ", 257, 0., 256.);
+    h_nadccounts2_HB = fs_->make<TH1F>("h_nadccounts2_HB", " ", 257, 0., 256.);
+    h_nadccounts0_HB = fs_->make<TH1F>("h_nadccounts0_HB", " ", 257, 0., 256.);
     h_error1_HB = fs_->make<TH1F>("h_error1_HB", " ", 5, 0., 5.);
     h_error2_HB = fs_->make<TH1F>("h_error2_HB", " ", 5, 0., 5.);
     h_error3_HB = fs_->make<TH1F>("h_error3_HB", " ", 5, 0., 5.);
@@ -6271,6 +6289,12 @@ void CMTRawAnalyzer::beginJob() {
     h_repetedcapid_HB = fs_->make<TH1F>("h_repetedcapid_HB", " ", 5, 0., 5.);
 
     h_errorGeneral_HE = fs_->make<TH1F>("h_errorGeneral_HE", " ", 5, 0., 5.);
+    h_nadccounts8_HE = fs_->make<TH1F>("h_nadccounts8_HE", " ", 257, 0., 256.);
+    h_nadccounts6_HE = fs_->make<TH1F>("h_nadccounts6_HE", " ", 257, 0., 256.);
+    h_nadccounts4_HE = fs_->make<TH1F>("h_nadccounts4_HE", " ", 257, 0., 256.);
+    h_nadccounts3_HE = fs_->make<TH1F>("h_nadccounts3_HE", " ", 257, 0., 256.);
+    h_nadccounts2_HE = fs_->make<TH1F>("h_nadccounts2_HE", " ", 257, 0., 256.);
+    h_nadccounts0_HE = fs_->make<TH1F>("h_nadccounts0_HE", " ", 257, 0., 256.);
     h_error1_HE = fs_->make<TH1F>("h_error1_HE", " ", 5, 0., 5.);
     h_error2_HE = fs_->make<TH1F>("h_error2_HE", " ", 5, 0., 5.);
     h_error3_HE = fs_->make<TH1F>("h_error3_HE", " ", 5, 0., 5.);
@@ -8371,21 +8395,42 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
   int iphi = hcaldetid.iphi() - 1;
   int mdepth = hcaldetid.depth();
   int sub = hcaldetid.subdet();  // 1-HB, 2-HE (HFDigiCollection: 4-HF)
-  // !!!!!!
+  nTS = qie11df.samples();
+  int ampts[10];
+  int icapid[10];
+  for (int ii = 0; ii < 10; ii++) {
+    ampts[ii] = 0.;
+    icapid[ii] = 0.;
+  }
+  bool sticking = false;
   int error1 = 0;
   // !!!!!!
   bool anycapid = true;
-  //    bool anyer      =  false;
-  //    bool anydv      =  true;
+  bool anyer = false;
+  bool anydv = true;
+  int error2 = 0, error3 = 0;
   // for help:
   int firstcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
-  // loop over the samples in the digi
-  nTS = qie11df.samples();
+  /////////////////////////////////////////////////////////////////
+  if (mdepth == 0 || sub > 4)
+    return;
+  if (mdepth > 3 && flagupgradeqie1011_ == 3)
+    return;
+  if (mdepth > 3 && flagupgradeqie1011_ == 7)
+    return;
+  if (mdepth > 3 && flagupgradeqie1011_ == 8)
+    return;
+  if (mdepth > 3 && flagupgradeqie1011_ == 9)
+    return;
   ///////////////////////////////////////
   for (int ii = 0; ii < nTS; ii++) {
     capid = qie11df[ii].capid();  // capId (0-3, sequential)
+    bool er = false;
+    bool dv = true;
+    icapid[ii] = capid;
+    // valid data
     if (ii != 0 && ((lastcapid + 1) % 4) != capid) {
       anycapid = false;
       if (capid != lastcapid) {
@@ -8394,30 +8439,217 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
       }
     }
     lastcapid = capid;
+    if (er)
+      anyer = true;
+    if (!dv)
+      anydv = false;
     if (ii == 0)
       firstcapid = capid;
   }  // for
-  ///////////////////////////////////////
   if (!anycapid)
     error1 = 1;
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if (anyer)
+    error2 = 1;
+  if (!anydv)
+    error3 = 1;
   double ampl = 0.;
   for (int ii = 0; ii < nTS; ii++) {
     int adc = qie11df[ii].adc();
-
+    ampts[ii] = adc;
+    if (sub == 1) {
+      h_nadccounts0_HB->Fill(float(ampts[ii]), 1.);
+    }
+    if (sub == 2) {
+      h_nadccounts0_HE->Fill(float(ampts[ii]), 1.);
+    }
     double ampldefault = adc2fC_QIE11_shunt6[adc];
     if (flaguseshunt_ == 1)
       ampldefault = adc2fC_QIE11_shunt1[adc];
-
     ampl += ampldefault;  //
+  }
+  if (sub == 1 || sub == 2) {
+    if (verbosity == 111111 && (ampts[0] == ampts[1]) && (ampts[1] == ampts[2]) && (ampts[2] == ampts[3]) &&
+        (ampts[3] == ampts[4]) && (ampts[4] == ampts[5]) && (ampts[5] == ampts[6]) && (ampts[6] == ampts[7])) {
+      std::cout << " HBHE DIGI A,fC =  " << ampl << " sub = " << sub << " mdepth = " << mdepth << " nTS = " << nTS
+                << std::endl;
+      std::cout << " Ai,adc counts:  " << std::endl;
+      std::cout << " A1 =  " << ampts[0] << " A2 =  " << ampts[1] << " A3 =  " << ampts[2] << " A4 =  " << ampts[3]
+                << std::endl;
+      std::cout << " A5 =  " << ampts[4] << " A6 =  " << ampts[5] << " A7 =  " << ampts[6] << " A8 =  " << ampts[7]
+                << std::endl;
+      std::cout << " icapid:  " << std::endl;
+      std::cout << " icapid1 =  " << icapid[0] << " icapid2 =  " << icapid[1] << " icapid3 =  " << icapid[2]
+                << " icapid4 =  " << icapid[3] << std::endl;
+      std::cout << " icapid5 =  " << icapid[4] << " icapid6 =  " << icapid[5] << " icapid7 =  " << icapid[6]
+                << " icapid8 =  " << icapid[7] << std::endl;
+    }
+    if (verbosity == 222222 && (ampts[3] > 95 && (ampts[3] == ampts[4]) && (ampts[4] == ampts[5]))) {
+      std::cout << " HBHE DIGI A,fC =  " << ampl << " sub = " << sub << " mdepth = " << mdepth << " nTS = " << nTS
+                << std::endl;
+      std::cout << " Ai,adc counts:  " << std::endl;
+      std::cout << " A1 =  " << ampts[0] << " A2 =  " << ampts[1] << " A3 =  " << ampts[2] << " A4 =  " << ampts[3]
+                << std::endl;
+      std::cout << " A5 =  " << ampts[4] << " A6 =  " << ampts[5] << " A7 =  " << ampts[6] << " A8 =  " << ampts[7]
+                << std::endl;
+      std::cout << " icapid:  " << std::endl;
+      std::cout << " icapid1 =  " << icapid[0] << " icapid2 =  " << icapid[1] << " icapid3 =  " << icapid[2]
+                << " icapid4 =  " << icapid[3] << std::endl;
+      std::cout << " icapid5 =  " << icapid[4] << " icapid6 =  " << icapid[5] << " icapid7 =  " << icapid[6]
+                << " icapid8 =  " << icapid[7] << std::endl;
+    }
+    if (verbosity == 333333 && (ampts[0] > 14 && ampts[0] == ampts[1]) && (ampts[1] == ampts[2]) &&
+        (ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) && (ampts[4] == ampts[5]) && (ampts[5] == ampts[6]) &&
+        (ampts[6] == ampts[7])) {
+      std::cout << " HBHE DIGI A,fC =  " << ampl << " sub = " << sub << " mdepth = " << mdepth << " nTS = " << nTS
+                << std::endl;
+      std::cout << " Ai,adc counts:  " << std::endl;
+      std::cout << " A1 =  " << ampts[0] << " A2 =  " << ampts[1] << " A3 =  " << ampts[2] << " A4 =  " << ampts[3]
+                << std::endl;
+      std::cout << " A5 =  " << ampts[4] << " A6 =  " << ampts[5] << " A7 =  " << ampts[6] << " A8 =  " << ampts[7]
+                << std::endl;
+      std::cout << " icapid:  " << std::endl;
+      std::cout << " icapid1 =  " << icapid[0] << " icapid2 =  " << icapid[1] << " icapid3 =  " << icapid[2]
+                << " icapid4 =  " << icapid[3] << std::endl;
+      std::cout << " icapid5 =  " << icapid[4] << " icapid6 =  " << icapid[5] << " icapid7 =  " << icapid[6]
+                << " icapid8 =  " << icapid[7] << std::endl;
+    }
+    if ((ampts[0] == ampts[1]) && (ampts[1] == ampts[2]) && (ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) &&
+        (ampts[4] == ampts[5]) && (ampts[5] == ampts[6]) && (ampts[6] == ampts[7])) {
+      if (sub == 1) {
+        h_nadccounts8_HB->Fill(float(ampts[0]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts8_HE->Fill(float(ampts[0]), 1.);
+      }
+      if (ampts[4] > 139)
+        sticking = true;
+    }  // nadccounts8
+    if (((ampts[0] == ampts[1]) && (ampts[1] == ampts[2]) && (ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) &&
+         (ampts[4] == ampts[5])) ||
+        ((ampts[1] == ampts[2]) && (ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) && (ampts[4] == ampts[5]) &&
+         (ampts[5] == ampts[6])) ||
+        ((ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) && (ampts[4] == ampts[5]) && (ampts[5] == ampts[6]) &&
+         (ampts[6] == ampts[7]))) {
+      if (sub == 1) {
+        h_nadccounts6_HB->Fill(float(ampts[3]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts6_HE->Fill(float(ampts[3]), 1.);
+      }
+    }  // nadccounts6
+    if (((ampts[0] == ampts[1]) && (ampts[1] == ampts[2]) && (ampts[2] == ampts[3])) ||
+        ((ampts[1] == ampts[2]) && (ampts[2] == ampts[3]) && (ampts[3] == ampts[4])) ||
+        ((ampts[2] == ampts[3]) && (ampts[3] == ampts[4]) && (ampts[4] == ampts[5])) ||
+        ((ampts[3] == ampts[4]) && (ampts[4] == ampts[5]) && (ampts[5] == ampts[6]))) {
+      if (sub == 1) {
+        h_nadccounts4_HB->Fill(float(ampts[3]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts4_HE->Fill(float(ampts[3]), 1.);
+      }
+    }  // nadccounts4
+    if (((ampts[4] == ampts[5]) && (ampts[5] == ampts[6]) && (ampts[6] == ampts[7]))) {
+      if (sub == 1) {
+        h_nadccounts4_HB->Fill(float(ampts[4]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts4_HE->Fill(float(ampts[4]), 1.);
+      }
+    }  // nadccounts4
+    if (((ampts[0] == ampts[1]) && (ampts[1] == ampts[2])) || ((ampts[1] == ampts[2]) && (ampts[2] == ampts[3])) ||
+        ((ampts[2] == ampts[3]) && (ampts[3] == ampts[4]))) {
+      if (sub == 1) {
+        h_nadccounts3_HB->Fill(float(ampts[2]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts3_HE->Fill(float(ampts[2]), 1.);
+      }
+    }  // nadccounts3
+    if (((ampts[3] == ampts[4]) && (ampts[4] == ampts[5])) || ((ampts[4] == ampts[5]) && (ampts[5] == ampts[6])) ||
+        ((ampts[5] == ampts[6]) && (ampts[6] == ampts[7]))) {
+      if (sub == 1) {
+        h_nadccounts3_HB->Fill(float(ampts[5]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts3_HE->Fill(float(ampts[5]), 1.);
+      }
+    }  // nadccounts3
+    if ((ampts[0] == ampts[1])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[1]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[1]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[1] == ampts[2])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[2]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[2]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[2] == ampts[3])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[3]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[3]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[3] == ampts[4])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[4]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[4]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[4] == ampts[5])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[5]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[5]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[5] == ampts[6])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[6]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[6]), 1.);
+      }
+    }  // nadccounts2
+    if ((ampts[6] == ampts[7])) {
+      if (sub == 1) {
+        h_nadccounts2_HB->Fill(float(ampts[7]), 1.);
+      }
+      if (sub == 2) {
+        h_nadccounts2_HE->Fill(float(ampts[7]), 1.);
+      }
+    }  // nadccounts2
+  }    // sub
+  if (sticking) {
+    error1 = 1;
+    if (verbosity == 444444) {
+      std::cout << " A>139, sticking =  " << sticking << " sub =  " << sub << " ampts0 =  " << ampts[0]
+                << " ampts1 =  " << ampts[1] << " ampts2 =  " << ampts[2] << " ampts3 =  " << ampts[3]
+                << " ampts4 =  " << ampts[4] << " ampts5 =  " << ampts[5] << " ampts6 =  " << ampts[6]
+                << " ampts7 =  " << ampts[7] << std::endl;
+      std::cout << " icapid0 =  " << icapid[0] << " icapid1 =  " << icapid[1] << " icapid2 =  " << icapid[2]
+                << " icapid3 =  " << icapid[3] << " icapid4 =  " << icapid[4] << " icapid5 =  " << icapid[5]
+                << " icapid6 =  " << icapid[6] << " icapid7 =  " << icapid[7] << std::endl;
+    }
   }
   ///////////////////////////////////////Digis
   // Digis:HBHE
   if (sub == 1) {
     h_error1_HB->Fill(double(error1), 1.);
     h_repetedcapid_HB->Fill(double(repetedcapid), 1.);
-    if (error1 != 0) {
-      //      if(error1 !=0 || error2 !=0 || error3 !=0 ) {
+    //  if (error1 != 0) {
+    if (error1 != 0 || error2 != 0 || error3 != 0) {
       if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 0)
         ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
       h_amplError_HB->Fill(ampl, 1.);
@@ -8437,8 +8669,8 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
   if (sub == 2) {
     h_error1_HE->Fill(double(error1), 1.);
     h_repetedcapid_HE->Fill(double(repetedcapid), 1.);
-    if (error1 != 0) {
-      //      if(error1 !=0 || error2 !=0 || error3 !=0 ) {
+    //     if (error1 != 0) {
+    if (error1 != 0 || error2 != 0 || error3 != 0) {
       if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 0)
         ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
       h_amplError_HE->Fill(ampl, 1.);

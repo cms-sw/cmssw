@@ -12,8 +12,8 @@ process.configurationMetadata = cms.untracked.PSet(
 ###########################################################################################################3
 process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
-                                  Verbosity = cms.untracked.int32(0),
-                                  #Verbosity = cms.untracked.int32(-9504),
+                                  #Verbosity = cms.untracked.int32(0),
+                                  Verbosity = cms.untracked.int32(444444),
                                   #Verbosity = cms.untracked.int32(-91),
                                   #Verbosity = cms.untracked.int32(-92),
                                   #

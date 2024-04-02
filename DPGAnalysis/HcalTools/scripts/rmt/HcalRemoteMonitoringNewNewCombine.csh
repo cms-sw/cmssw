@@ -18,6 +18,8 @@ set SCRAM_ARCH=${8}
 set SCRIPT=${9}
 set rundate=${10}
 set runtime=${11}
+set compiler ${12}
+
 
 set fullSrc0='/eos/cms/store/group/dpg_hcal/comm_hcal/USC'
 set fullSrc='NO'
@@ -59,7 +61,7 @@ echo "Batch submission" ${fullSrc} " " ${runnumber} >> ${WD}/LOG/batchlog
 mkdir ${runnumber}
 setenv WORK `pwd`/${runnumber}
 source /cvmfs/cms.cern.ch/cmsset_default.csh
-setenv SCRAM_ARCH slc7_amd64_gcc10
+setenv SCRAM_ARCH ${compiler}
 cd ${WORK}
 cmsrel ${RELEASE} 
 cd ${RELEASE}/src
@@ -79,7 +81,7 @@ set HistoDirTMP="./"
 pwd > ${WD}/LOG/log_${CALIB}_${runnumber}
 echo ${CALIB} >> ${WD}/LOG/log_${CALIB}_${runnumber}
 echo ${CALIB1} >> ${WD}/LOG/log_${CALIB}_${runnumber}
-
+echo ${compiler} >> ${WD}/LOG/log_${CALIB}_${runnumber}
 cp ${SCRIPT}/remoteMonitoring_${CALIB}_${ERA}_cfg.py ${WORK}
 cp ${WD}/${CALIB}_LIST/runlist.tmp.${2} ${WORK}/runlist.tmp
 ls  >> ${WD}/LOG/log_${CALIB}_${runnumber}
