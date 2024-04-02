@@ -208,12 +208,14 @@ def nanoAOD_customizeCommon(process):
     run2_nanoAOD_106Xv2.toModify(
         nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
         nanoAOD_addRobustParTAK4Tag_switch=True,
+        nanoAOD_addUnifiedParTAK4Tag_switch=True,
     )
 
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
         addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
-        addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch
+        addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch,
+        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addUnifiedParTAK4Tag_switch
     )
 
     # This function is defined in jetsAK4_CHS_cff.py
@@ -221,7 +223,8 @@ def nanoAOD_customizeCommon(process):
         addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
         addDeepFlavour=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch,
         addParticleNet=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addParticleNet_switch,
-        addRobustParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addRobustParTAK4Tag_switch
+        addRobustParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addRobustParTAK4Tag_switch,
+        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addUnifiedParTAK4Tag_switch
     )
 
     # This function is defined in jetsAK8_cff.py

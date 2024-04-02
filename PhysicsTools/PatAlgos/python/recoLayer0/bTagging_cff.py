@@ -43,6 +43,8 @@ supportedBtagInfos = [
   , 'pfNegativeDeepFlavourTagInfos'
     # ParticleTransformerAK4 tag infos
   , 'pfParticleTransformerAK4TagInfos'
+    # UnifiedParticleTransformerAK4 tag infos
+  , 'pfUnifiedParticleTransformerAK4TagInfos'
     # DeepDoubleB/C tag infos
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
@@ -206,6 +208,14 @@ supportedBtagDiscr = {
   , 'pfParticleTransformerAK4JetTags:probc'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfParticleTransformerAK4JetTags:probuds'    : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfParticleTransformerAK4JetTags:probg'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probb'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probbb'     : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:problepb'   : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probc'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probs'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probu'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probd'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+  , 'pfUnifiedParticleTransformerAK4JetTags:probg'      : [["pfUnifiedParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]   
   , 'pfDeepVertexJetTags:probb'                             : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepCombinedJetTags:probb'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepCombinedJetTags:probc'                           : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
@@ -337,4 +347,15 @@ for disc in _pfParticleTransformerAK4JetTagsProbs + _pfParticleTransformerAK4Jet
 # update supportedMetaDiscr
 for disc in _pfParticleTransformerAK4JetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfParticleTransformerAK4JetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
+# setup UnifiedParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsProbs, _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfUnifiedParticleTransformerAK4JetTagsProbs + _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfUnifiedParticleTransformerAK4TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfUnifiedParticleTransformerAK4JetTagsProbs
 # -----------------------------------
