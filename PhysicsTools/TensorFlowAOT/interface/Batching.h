@@ -21,6 +21,10 @@ namespace tfaot {
     // constructor
     explicit BatchRule(size_t batchSize, const std::vector<size_t>& sizes, size_t lastPadding = 0);
 
+    // constructor taking a string in the format "batchSize:size1,...,sizeN" with lastPadding being
+    // inferred from the sum of sizes
+    BatchRule(const std::string& ruleString);
+
     // destructor
     ~BatchRule() = default;
 
@@ -43,6 +47,9 @@ namespace tfaot {
     size_t batchSize_;
     std::vector<size_t> sizes_;
     size_t lastPadding_;
+
+    // validation helper
+    void validate() const;
   };
 
   // stream operator
@@ -59,6 +66,9 @@ namespace tfaot {
 
     // registers a new rule for a batch size
     void setRule(const BatchRule& rule) { rules_.insert_or_assign(rule.getBatchSize(), rule); }
+
+    // registers a new rule for a batch size, given a rule string (see BatchRule constructor)
+    void setRule(const std::string& ruleString) { this->setRule(BatchRule(ruleString)); }
 
     // returns whether a rule was already registered for a certain batch size
     bool hasRule(size_t batchSize) const { return rules_.find(batchSize) != rules_.end(); }

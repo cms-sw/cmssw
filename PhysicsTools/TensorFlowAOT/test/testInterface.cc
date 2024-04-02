@@ -40,6 +40,7 @@ void testInterface::test_simple() {
   // register (optional) batch rules
   model.setBatchRule(1, {1});
   model.setBatchRule(3, {2, 2}, 1);
+  model.setBatchRule("5:2,2,2");
 
   // test batching strategies
   CPPUNIT_ASSERT(model.getBatchStrategy().hasRule(1));
@@ -50,6 +51,9 @@ void testInterface::test_simple() {
   CPPUNIT_ASSERT(model.getBatchStrategy().getRule(3).nSizes() == 2);
   CPPUNIT_ASSERT(model.getBatchStrategy().getRule(3).getLastPadding() == 1);
   CPPUNIT_ASSERT(!model.getBatchStrategy().hasRule(4));
+  CPPUNIT_ASSERT(model.getBatchStrategy().hasRule(5));
+  CPPUNIT_ASSERT(model.getBatchStrategy().getRule(5).nSizes() == 3);
+  CPPUNIT_ASSERT(model.getBatchStrategy().getRule(5).getLastPadding() == 1);
 
   // evaluate batch size 1
   tfaot::FloatArrays input_bs1 = {{0, 1, 2, 3}};
