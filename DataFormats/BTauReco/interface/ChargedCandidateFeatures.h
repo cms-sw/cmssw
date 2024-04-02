@@ -22,7 +22,6 @@ namespace btagbtvdeep {
     float btagPf_trackSip3dSig;
     float btagPf_trackSip2dVal;
     float btagPf_trackSip2dSig;
-
     float btagPf_trackJetDistVal;
 
     float drsubjet1;
@@ -38,6 +37,15 @@ namespace btagbtvdeep {
 
     float drminsv;
     float distminsv;
+
+    float charge;
+    float btagPf_trackDecayLen;
+    float HadFrac;
+    float CaloFrac;
+    float pdgID;
+    float lostInnerHits;
+    float numberOfPixelHits;
+    float numberOfStripHits;
 
     float pt;
     float px;

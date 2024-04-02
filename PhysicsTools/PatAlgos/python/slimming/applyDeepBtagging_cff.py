@@ -13,6 +13,7 @@ def applyDeepBtagging(process, postfix=""):
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
@@ -56,6 +57,7 @@ def applyDeepBtagging(process, postfix=""):
             + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
             + pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
             + pfParticleTransformerAK4JetTagsAll
+            + pfUnifiedParticleTransformerAK4JetTagsAll
     )
   
     updateJetCollection(
