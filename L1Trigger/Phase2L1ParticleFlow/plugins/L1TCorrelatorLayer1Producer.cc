@@ -346,7 +346,7 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   // Inputs and cuts
   desc.add<edm::InputTag>("tracks", edm::InputTag(""));
-  desc.add<edm::InputTag>("muons", edm::InputTag("l1tSAMuonsGmt", "promptSAMuons"));
+  desc.add<edm::InputTag>("muons", edm::InputTag("l1tSAMuonsGmt", "prompt"));
   desc.add<std::vector<edm::InputTag>>("emClusters", std::vector<edm::InputTag>());
   desc.add<std::vector<edm::InputTag>>("hadClusters", std::vector<edm::InputTag>());
   desc.add<edm::InputTag>("vtxCollection", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
