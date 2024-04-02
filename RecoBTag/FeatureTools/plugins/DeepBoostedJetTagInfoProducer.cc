@@ -301,7 +301,7 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
     trkPhi_value_map_token_ = consumes<edm::ValueMap<float>>(trkPhi_value_map_tag);
   }
 
-  const auto &unsubjet_map_tag = iConfig.getUntrackedParameter<edm::InputTag>("unsubjet_map", {});
+  const auto &unsubjet_map_tag = iConfig.getParameter<edm::InputTag>("unsubjet_map");
   if (!unsubjet_map_tag.label().empty()) {
     unsubjet_map_token_ = consumes<JetMatchMap>(unsubjet_map_tag);
     use_unsubjet_map_ = true;
@@ -331,7 +331,7 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("particleFlow"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
-  desc.addUntracked<edm::InputTag>("unsubjet_map", {});
+  desc.add<edm::InputTag>("unsubjet_map", {});
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
   desc.add<bool>("use_scouting_features", false);
