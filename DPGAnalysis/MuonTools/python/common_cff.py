@@ -10,7 +10,7 @@ class DEFAULT_VAL(NamedTuple):
 
 defaults = DEFAULT_VAL()
 
-def DetIdVar(expr, type, doc=None):
+def DetIdVar(expr, type, doc=None, lazyEval=False):
     """ Create a PSet for a DetId variable in the tree:
         - expr is the expression to evaluate to compute the variable,
         - type of the value (int, bool, or a string that the table producer understands),
@@ -22,10 +22,11 @@ def DetIdVar(expr, type, doc=None):
     return cms.PSet(
                 type = cms.string(type),
                 expr = cms.string(expr),
-                doc = cms.string(doc if doc else expr)
+                doc = cms.string(doc if doc else expr),
+                lazyEval = cms.untracked.bool(lazyEval)
            )
 
-def GlobGeomVar(expr, doc=None, precision=-1):
+def GlobGeomVar(expr, doc=None, precision=-1, lazyEval=False):
     """ Create a PSet for a Global position/direction variable in the tree ,
         - expr is the expression to evaluate to compute the variable,
         - doc is a docstring, that will be passed to the table producer,
@@ -34,7 +35,8 @@ def GlobGeomVar(expr, doc=None, precision=-1):
     return cms.PSet(
                 expr = cms.string(expr),
                 doc = cms.string(doc if doc else expr),
-	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision)
+	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision),
+                lazyEval=cms.untracked.bool(lazyEval)
            )
 
 
