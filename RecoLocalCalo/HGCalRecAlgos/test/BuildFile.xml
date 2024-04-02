@@ -12,3 +12,10 @@
 <flags EDM_PLUGIN="1"/>
 <library name="RecoLocalCaloHGCalRecAlgosTestPlugin" file="*.cc">
 </library>
+<library name="RecoLocalCaloHGCalRecAlgosTestPluginAlpaka" file="alpaka/*.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

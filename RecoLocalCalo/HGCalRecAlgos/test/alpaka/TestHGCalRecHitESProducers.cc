@@ -1,6 +1,5 @@
 // Author: Izaak Neutelings (March 2024)
 // Based on: https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3_linearity/RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducer.cc
-// CMSSW includes
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,8 +21,8 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalCalibrationParameterHostCollection.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCalibrationParameterDeviceCollection.h" // also for HGCalConfigParamDeviceCollection
+#include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h" // also for HGCalConfigParamDevice
 
 //template<class T> double duration(T t0,T t1) {
 //  auto elapsed_secs = t1-t0;
@@ -51,14 +50,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     edm::ESWatcher<HGCalMappingModuleIndexerRcd> calibWatcher_;
-    device::ESGetToken<hgcalrechit::HGCalConfigParamDeviceCollection, HGCalModuleConfigurationRcd> configToken_;
-    device::ESGetToken<hgcalrechit::HGCalCalibParamDeviceCollection, HGCalMappingModuleIndexerRcd> calibToken_;
+    edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexerToken_;
+    device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configToken_;
+    device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalMappingModuleIndexerRcd> calibToken_;
   };
 
   TestHGCalRecHitESProducers::TestHGCalRecHitESProducers(const edm::ParameterSet& iConfig) {
     std::cout << "TestHGCalRecHitESProducers::TestHGCalRecHitESProducers" << std::endl;
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
     calibToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
+    moduleIndexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"));
   }
 
   void TestHGCalRecHitESProducers::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
@@ -68,40 +69,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void TestHGCalRecHitESProducers::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     std::cout << "TestHGCalRecHitESProducers::produce" << std::endl;
     auto queue = iEvent.queue();
-    auto const& deviceConfigParamProvider = iSetup.getData(configToken_);
-    //printf("TestHGCalRecHitESProducers::produce: time to load deviceConfigParamProvider from config ESProducers: %f seconds\n", duration(start,now()));
-    auto const& deviceCalibParamProvider = iSetup.getData(calibToken_);
-    //printf("TestHGCalRecHitESProducers::produce: time to load deviceCalibParamProvider from calib ESProducers: %f seconds\n", duration(start,now()));
+    auto const& moduleMap = iSetup.getData(moduleIndexerToken_);
+    auto const& configParamDevice = iSetup.getData(configToken_);
+    //printf("TestHGCalRecHitESProducers::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
+    auto const& calibParamDevice = iSetup.getData(calibToken_);
+    //printf("TestHGCalRecHitESProducers::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them
     if (configWatcher_.check(iSetup)){
-      int size = deviceConfigParamProvider.view().metadata().size();
-      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << deviceConfigParamProvider.view().map().getMaxDataSize()
-                << ", moduleMap.getMaxERxSize()=" << deviceConfigParamProvider.view().map().getMaxERxSize() << std::endl;
+      int size = configParamDevice.view().metadata().size();
+      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
+                << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
       std::cout << "  imod  gain" << std::endl;
       for(int imod=0; imod<size; imod++) {
         if(imod>=250) break;
         std::cout << std::setw(6) << imod
-          << std::setw(6) << uint32_t(deviceConfigParamProvider.view()[imod].gain()) << std::endl;
+          << std::setw(6) << uint32_t(configParamDevice.view()[imod].gain()) << std::endl;
       }
     }
 
     // Check if there are new conditions and read them
     if(calibWatcher_.check(iSetup)){
-      int size = deviceCalibParamProvider.view().metadata().size();
-      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << deviceCalibParamProvider.view().map().getMaxDataSize()
-                << ", moduleMap.getMaxERxSize()=" << deviceCalibParamProvider.view().map().getMaxERxSize() << std::endl;
+      int size = calibParamDevice.view().metadata().size();
+      std::cout << "TestHGCalRecHitESProducers::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
+                << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
       std::cout << "TestHGCalRecHitESProducers::produce: device size=" << size << std::endl;
       std::cout << "  idx  hex  ADC_ped  CM_slope  CM_ped  BXm1_slope" << std::endl;
       for(int idx=0; idx<size; idx++) {
         if(idx>=250) break;
         std::cout << std::setw(5) << idx << std::hex << std::setw(5) << idx << std::dec
-          << std::setw(9)  << deviceCalibParamProvider.view()[idx].ADC_ped()
-          << std::setw(10) << deviceCalibParamProvider.view()[idx].CM_slope()
-          << std::setw(8)  << deviceCalibParamProvider.view()[idx].CM_ped()
-          << std::setw(12) << deviceCalibParamProvider.view()[idx].BXm1_slope()
-          // << std::setw(6) << deviceCalibParamProvider.view()[idx].BXm1_offset() // redundant
+          << std::setw(9)  << calibParamDevice.view()[idx].ADC_ped()
+          << std::setw(10) << calibParamDevice.view()[idx].CM_slope()
+          << std::setw(8)  << calibParamDevice.view()[idx].CM_ped()
+          << std::setw(12) << calibParamDevice.view()[idx].BXm1_slope()
+          // << std::setw(6) << calibParamDevice.view()[idx].BXm1_offset() // redundant
           << std::endl;
       }
     }

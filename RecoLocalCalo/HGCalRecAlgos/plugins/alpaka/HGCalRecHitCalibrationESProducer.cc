@@ -19,8 +19,8 @@
 //#include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalCalibrationParameterHostCollection.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCalibrationParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 
 #include <string>
 #include <iostream>
@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
         edm::ParameterSetDescription desc;
-        desc.add<std::string>("filename", "/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/calibration_parameters_v2.json");
+        desc.add<std::string>("filename","HGCalCommissioning/LocalCalibration/data/calibration_parameters_v2.json");
         desc.add<edm::ESInputTag>("moduleIndexerSource",edm::ESInputTag(""))->setComment("Label for module info to set SoA size");
         descriptions.addWithDefaultLabel(desc);
       }
@@ -65,13 +65,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return values;
       }
 
-      std::optional<hgcalrechit::HGCalCalibParamHostCollection> produce(const HGCalMappingModuleIndexerRcd& iRecord) {
+      std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalMappingModuleIndexerRcd& iRecord) {
         auto const& moduleMap = iRecord.get(moduleIndexerToken_);
 
         // load dense indexing
         const uint32_t size = moduleMap.getMaxDataSize(); // channel-level size
-        hgcalrechit::HGCalCalibParamHostCollection product(size, cms::alpakatools::host());
-        product.view().map() = moduleMap; // set dense indexing in SoA
+        hgcalrechit::HGCalCalibParamHost product(size, cms::alpakatools::host());
+        //product.view().map() = moduleMap; // set dense indexing in SoA (now redundant & NOT thread safe !?)
         std::cout << "HGCalCalibrationESProducer::produce: moduleMap.getMaxDataSize()=" << size
                   << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
 
@@ -98,6 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().TOT_P1(),    calib_data[module]["TOT_P1"],    offset,nrows);
           fill_SoA_column<float>(product.view().TOT_P2(),    calib_data[module]["TOT_P2"],    offset,nrows);
           fill_SoA_column<float>(product.view().TOAtops(),   calib_data[module]["TOAtops"],   offset,nrows);
+          //fill_SoA_column<float>(product.view().MIPS_scale(),calib_data[module]["MIPS_scale"],offset,nrows);
           fill_SoA_column<mybool>(product.view().valid(),    calib_data[module]["Valid"],     offset,nrows); // mybool (=std::byte) defined in HGCalCalibrationParameterSoA.h
           std::cout << "HGCalCalibrationESProducer::produce: memcpied all columns !" << std::endl;
         }

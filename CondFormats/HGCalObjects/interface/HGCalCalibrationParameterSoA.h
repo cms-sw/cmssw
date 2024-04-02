@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HGCalRecAlgos_interface_HGCalCalibrationParameterSoA_h
-#define RecoLocalCalo_HGCalRecAlgos_interface_HGCalCalibrationParameterSoA_h
+#ifndef CondFormats_HGCalObjects_interface_HGCalCalibrationParameterSoA_h
+#define CondFormats_HGCalObjects_interface_HGCalCalibrationParameterSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -18,7 +18,7 @@ namespace hgcalrechit {
 
   // Generate structure of channel-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalCalibParamSoALayout,
-                      SOA_SCALAR(HGCalMappingModuleIndexer, map), // map elecId <-> dense idx
+                      //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
                       SOA_COLUMN(float, ADC_ped),     // ADC pedestals, O(91)
                       SOA_COLUMN(float, CM_slope),    // common mode slope, O(0.25)
                       SOA_COLUMN(float, CM_ped),      // common mode pedestal (offset), O(92)
@@ -32,17 +32,18 @@ namespace hgcalrechit {
                       SOA_COLUMN(float, TOT_P1),      // coefficient pol2 in nonlinear region, O(1.0)
                       SOA_COLUMN(float, TOT_P2),      // coefficient pol2 in nonlinear region, O(0.004)
                       SOA_COLUMN(float, TOAtops),     // TOA conversion to time (ps)
+                      SOA_COLUMN(float, MIPS_scale),  // MIPS scale
                       SOA_COLUMN(mybool,valid)        // if false: mask dead channel
   )
   using HGCalCalibParamSoA = HGCalCalibParamSoALayout<>;
 
   // Generate structure of ROC-level arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalConfigParamSoALayout,
-                      SOA_SCALAR(HGCalMappingModuleIndexer, map), // map elecId <-> dense idx
+                      //SOA_SCALAR(HGCalMappingModuleIndexer, map), // dense idx map: now redundant & NOT thread safe !?
                       SOA_COLUMN(uint8_t, gain) // for ADC to charge (fC) conversion (80, 160, 320 fC)
   )
   using HGCalConfigParamSoA = HGCalConfigParamSoALayout<>;
 
 }  // namespace hgcalrechit
 
-#endif  // RecoLocalCalo_HGCalRecAlgos_interface_HGCalCalibrationParameterSoA_h
+#endif  // CondFormats_HGCalObjects_interface_HGCalCalibrationParameterSoA_h

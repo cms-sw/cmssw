@@ -11,6 +11,7 @@
 # Sources:
 #   https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3/DPGAnalysis/HGCalTools/python/tb2023_cfi.py
 #   https://github.com/CMS-HGCAL/cmssw/blob/dev/hackathon_base_CMSSW_14_1_0_pre0/SimCalorimetry/HGCalSimProducers/test/hgcalRealistiDigis_cfg.py
+import os
 import FWCore.ParameterSet.Config as cms
 
 # USER OPTIONS
@@ -27,8 +28,9 @@ options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmo
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.parseArguments()
 if not options.params:
-  #options.params = "/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/calibration_parameters_v2.json"
-  options.params = "/home/hgcdaq00/DPG/test/hackathon_2024Mar/ineuteli/level0_calib_params.json"
+  outdir = os.path.join(os.environ.get('CMSSW_BASE',''),"src/HGCalCommissioning/LocalCalibration/data")
+  #options.params = f"{outdir}/calibration_parameters_v2.json"
+  options.params = f"{outdir}/level0_calib_params.json"
 if not options.modules:
   #options.modules = "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt" # test beam
   options.modules = "Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test_2mods.txt" # only first two modules

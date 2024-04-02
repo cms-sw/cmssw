@@ -15,12 +15,11 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
-//#include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalCalibrationParameterHostCollection.h" // for HGCalConfigParamHostCollection
-#include "RecoLocalCalo/HGCalRecAlgos/interface/alpaka/HGCalCalibrationParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h" // for HGCalConfigParamHost
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 
 #include <string>
 #include <iostream> // for std::cout
@@ -52,15 +51,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         descriptions.addWithDefaultLabel(desc);
       }
 
-      std::optional<hgcalrechit::HGCalConfigParamHostCollection> produce(const HGCalModuleConfigurationRcd& iRecord) {
+      std::optional<hgcalrechit::HGCalConfigParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
         //std::cout << "HGCalConfigurationESProducer::produce" << std::endl;
         //const auto& config = iRecord.get(configToken_);
         auto const& moduleMap = iRecord.get(moduleIndexerToken_);
 
         // load dense indexing
         const uint32_t nmod = moduleMap.getMaxERxSize(); // ROC-level size
-        hgcalrechit::HGCalConfigParamHostCollection product(nmod, cms::alpakatools::host());
-        product.view().map() = moduleMap; // set dense indexing in SoA (causes segfault !?)
+        hgcalrechit::HGCalConfigParamHost product(nmod, cms::alpakatools::host());
+        //product.view().map() = moduleMap; // set dense indexing in SoA (now redundant & NOT thread safe !?) 
         std::cout << "HGCalConfigurationESProducer::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                   << ", moduleMap.getMaxERxSize()=" << nmod
                   << ", moduleMap.getMaxModuleSize()=" << moduleMap.getMaxModuleSize() << std::endl;
