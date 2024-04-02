@@ -97,6 +97,9 @@
 	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
+	<class name="edm::Wrapper&lt;edm::HepMC3Product&gt;"/>
+	<class name="edm::HepMC3Product"/>
+
 	<!-- Classes shared between different kinds of products -->
 
         <class name="gen::PdfInfo" ClassVersion="10">
@@ -184,6 +187,9 @@
     <![CDATA[nMEPartonsFiltered_ = -1;]]>
  </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
+
+	<class name="GenEventInfoProduct3"/>
+	<class name="edm::Wrapper&lt;GenEventInfoProduct3&gt;"/>
 
 	<!-- LHE products -->
 
