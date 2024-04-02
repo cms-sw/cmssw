@@ -589,8 +589,8 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
         << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent.weight()
-        << " Nprimary: " << m_tls->currentEvent->GetNumberOfPrimaryVertex()
-        << " vertices and " << m_simEvent.nTracks() << " particles";
+        << " Nprimary: " << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices and " << m_simEvent.nTracks()
+        << " particles";
     // process event
     if (m_UseG4EventManager) {
       m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());

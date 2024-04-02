@@ -50,7 +50,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
     trackManager_->cleanTracksWithHistory();
     currentTrack_->setToBeSaved();
   }
-  
+
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->trackStarted(aTrack, false);
     if (aTrack->GetTrackID() == endPrintTrackID_) {
@@ -101,7 +101,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   if (!isInHistory) {
     delete currentTrack_;
   }
-  
+
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
 }
