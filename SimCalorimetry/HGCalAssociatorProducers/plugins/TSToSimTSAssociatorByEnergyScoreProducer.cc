@@ -14,6 +14,8 @@
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterAssociator.h"
 #include "TSToSimTSAssociatorByEnergyScoreImpl.h"
 
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+
 class TSToSimTSAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
 public:
   explicit TSToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
@@ -23,17 +25,24 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit *>> hitMap_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
+  std::vector<edm::InputTag> hits_label_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
 };
 
 TSToSimTSAssociatorByEnergyScoreProducer::TSToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-    : hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
+    : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
+      hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
+      hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
   rhtools_.reset(new hgcal::RecHitTools());
+
+  for (auto &label : hits_label_) {
+    hits_token_.push_back(consumes<HGCRecHitCollection>(label));
+  }
 
   // Register the product
   produces<ticl::TracksterToSimTracksterAssociator>();
@@ -47,17 +56,28 @@ void TSToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
+  std::vector<HGCRecHit> hits;
+  for (auto &token : hits_token_) {
+    edm::Handle<HGCRecHitCollection> hits_handle;
+    iEvent.getByToken(token, hits_handle);
+    hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
+  }
+
   const auto hitMap = &iEvent.get(hitMap_);
 
   auto impl = std::make_unique<TSToSimTSAssociatorByEnergyScoreImpl>(
-      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
+      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
   auto toPut = std::make_unique<ticl::TracksterToSimTracksterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
 void TSToSimTSAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+  desc.add<std::vector<edm::InputTag>>("hits",
+                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   desc.add<bool>("hardScatterOnly", true);
 
   cfg.add("simTracksterAssociatorByEnergyScore", desc);

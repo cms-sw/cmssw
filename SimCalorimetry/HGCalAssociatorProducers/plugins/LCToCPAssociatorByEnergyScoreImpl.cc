@@ -226,7 +226,6 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     std::unordered_map<unsigned, unsigned> occurrencesCPinLC;
     unsigned int numberOfNoiseHitsInLC = 0;
     std::unordered_map<unsigned, float> CPEnergyInLC;
-
     for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
       const auto rh_detid = hits_and_fractions[hitId].first;
       const auto rhFraction = hits_and_fractions[hitId].second;
@@ -245,8 +244,7 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
         hitsToCaloParticleId[hitId] -= 1;
       } else {
-        const auto itcheck = hitMap_->find(rh_detid);
-        const HIT* hit = &(hits_[itcheck->first]);
+        const HIT* hit = &(hits_[hitMap_->at(rh_detid)]);
         auto maxCPEnergyInLC = 0.f;
         auto maxCPId = -1;
         for (auto& h : hit_find_in_CP->second) {
@@ -261,7 +259,6 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
         hitsToCaloParticleId[hitId] = maxCPId;
       }
     }  // End loop over hits on a LayerCluster
-
     for (const auto& c : hitsToCaloParticleId) {
       if (c < 0) {
         numberOfNoiseHitsInLC++;

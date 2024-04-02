@@ -24,9 +24,23 @@ EGammaPCAHelper::EGammaPCAHelper()
   debug_ = false;
 }
 
-void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
+//void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const HGCRecHit*>* hitMap) {
+void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const unsigned int>* hitMap) {
   hitMap_ = hitMap;
   pcaIteration_ = 0;
+}
+
+void EGammaPCAHelper::setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE,
+                                 edm::Handle<HGCRecHitCollection> recHitHandleFH,
+                                 edm::Handle<HGCRecHitCollection> recHitHandleBH) {
+  auto sizeEE = (*recHitHandleEE).size();
+  auto sizeFH = (*recHitHandleFH).size();
+  auto sizeBH = (*recHitHandleBH).size();
+  hits_.reserve(sizeEE + sizeFH + sizeBH);
+
+  hits_.insert(hits_.end(), (*recHitHandleEE).begin(), (*recHitHandleEE).end());
+  hits_.insert(hits_.end(), (*recHitHandleFH).begin(), (*recHitHandleFH).end());
+  hits_.insert(hits_.end(), (*recHitHandleBH).begin(), (*recHitHandleBH).end());
 }
 
 void EGammaPCAHelper::setRecHitTools(const hgcal::RecHitTools* recHitTools) {
@@ -71,15 +85,17 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
     unsigned int layer = recHitTools_->getLayerWithOffset(hf[j].first);
 
     const DetId rh_detid = hf[j].first;
-    std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
+    //std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
+    std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap_->find(rh_detid);
     if (itcheck == hitMap_->end()) {
       edm::LogWarning("EgammaPCAHelper") << " Big problem, unable to find a hit " << rh_detid.rawId() << " "
                                          << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
       continue;
     }
     if (debug_) {
-      std::cout << "DetId " << rh_detid.rawId() << " " << layer << " " << itcheck->second->energy() << std::endl;
-      std::cout << " Hit " << itcheck->second << " " << itcheck->second->energy() << std::endl;
+      const HGCRecHit* hit = &(hits_[itcheck->second]);
+      std::cout << "DetId " << rh_detid.rawId() << " " << layer << " " << hit->energy() << std::endl;
+      std::cout << " Hit " << hit << " " << hit->energy() << std::endl;
     }
     float fraction = hf[j].second;
 
@@ -94,7 +110,8 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
     if (pcavars[2] == 0.)
       edm::LogWarning("EgammaPCAHelper") << " Problem, hit with z =0 ";
     else {
-      Spot mySpot(rh_detid, itcheck->second->energy(), pcavars, layer, fraction, mip);
+      const HGCRecHit* hit = &(hits_[itcheck->second]);
+      Spot mySpot(rh_detid, hit->energy(), pcavars, layer, fraction, mip);
       theSpots_.push_back(mySpot);
     }
   }

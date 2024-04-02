@@ -6,8 +6,13 @@ TSToSimTSAssociatorByEnergyScoreImpl::TSToSimTSAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
+    const std::unordered_map<DetId, const unsigned int>* hitMap,
+    std::vector<HGCRecHit>& hits)
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      hits_(hits),
+      productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }
 
@@ -310,7 +315,8 @@ ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-        invTracksterEnergyWeight += std::pow(lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy(), 2);
+        const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+        invTracksterEnergyWeight += std::pow(lcFractionInTs * haf.second * hit->energy(), 2);
       }
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;

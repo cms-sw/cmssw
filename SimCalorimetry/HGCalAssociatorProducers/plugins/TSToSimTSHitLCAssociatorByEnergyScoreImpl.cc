@@ -8,8 +8,13 @@ TSToSimTSHitLCAssociatorByEnergyScoreImpl::TSToSimTSHitLCAssociatorByEnergyScore
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::unordered_map<DetId, const HGCRecHit*>* hitMap)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
+    const std::unordered_map<DetId, const unsigned int>* hitMap,
+    std::vector<HGCRecHit>& hits)
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      hits_(hits),
+      productGetter_(&productGetter) {
   layers_ = recHitTools_->lastLayerBH();
 }
 
@@ -132,7 +137,8 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
           }
         }
 
-        float hitEnergy = hitMap_->find(hitId)->second->energy();
+        const HGCRecHit* hit = &(hits_[hitMap_->find(hitId)->second]);
+        float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float simFractionSquared = simFraction * simFraction;
         denominator_simToReco[i] += simFractionSquared * hitEnergySquared;
@@ -171,7 +177,8 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
         if (found != detIdToRecoTSId_Map[hitId].end())
           recoFraction = found->second;
 
-        float hitEnergy = hitMap_->find(hitId)->second->energy();
+        const HGCRecHit* hit = &(hits_[hitMap_->find(hitId)->second]);
+        float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float recoFractionSquared = recoFraction * recoFraction;
         denominator_recoToSim[i] += recoFractionSquared * hitEnergySquared;

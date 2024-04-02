@@ -126,7 +126,7 @@ process.ticl_seq = cms.Sequence(
 
 process.ticl_step = cms.Path(process.ticl_seq)
 process.ticl_prevalidation_step = cms.Path(process.globalPrevalidationHGCal)
-process.ticl_validation = cms.Sequence(process.hgcalLayerClusters+process.hgcalRecHitMapProducer+process.hgcalValidatorSequence)
+process.ticl_validation = cms.Sequence(process.hgcalLayerClusters+process.recHitMapProducer+process.hgcalValidatorSequence)
 process.ticl_validation_step = cms.EndPath(process.ticl_validation)
 process.ticl_FEVToutput_step = cms.EndPath(process.ticl_FEVToutput)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
