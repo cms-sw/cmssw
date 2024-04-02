@@ -35,7 +35,7 @@ namespace {
   const double r_limit2 = 1.e-6;  // 10 micron in CMS units
 }  // namespace
 
-SimTrackManager::SimTrackManager(TmpSimEvent* ptr) : m_simEvent(ptr) {
+SimTrackManager::SimTrackManager(TmpSimEvent* ptr, int) : m_simEvent(ptr) {
   idsave.reserve(1000);
   ancestorList.reserve(1000);
   m_trackContainer.reserve(1000);
@@ -170,7 +170,7 @@ void SimTrackManager::reallyStoreTracks() {
     TmpSimTrack* g4simtrack =
         new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
-    m_simEvent->add(g4simtrack);
+    m_simEvent->addTrack(g4simtrack);
   }
 }
 
@@ -194,7 +194,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
     }
   }
 
-  m_simEvent->add(new TmpSimVertex(trkH->vertexPosition(), trkH->time(), parent, trkH->processType()));
+  m_simEvent->addVertex(new TmpSimVertex(trkH->vertexPosition(), trkH->time(), parent, trkH->processType()));
   m_vertexMap[parent].push_back(VertexPosition(m_nVertices, trkH->vertexPosition()));
   ++m_nVertices;
   return (m_nVertices - 1);
