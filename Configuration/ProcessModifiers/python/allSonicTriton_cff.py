@@ -7,4 +7,5 @@ from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTr
 from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
 
 # collect all SonicTriton-related process modifiers here
-allSonicTriton = cms.ModifierChain(enableSonicTriton,deepMETSonicTriton,particleNetSonicTriton,deepTauSonicTriton)
+allSonicTriton = cms.ModifierChain(enableSonicTriton,deepMETSonicTriton,particleNetSonicTriton,particleNetPTSonicTriton,deepTauSonicTriton,particleTransformerAK4SonicTriton)
+
