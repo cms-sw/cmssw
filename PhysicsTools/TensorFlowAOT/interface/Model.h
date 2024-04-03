@@ -38,6 +38,9 @@ namespace tfaot {
       batchStrategy_.setRule(BatchRule(batchSize, sizes, lastPadding));
     }
 
+    // adds a new batch rule to the strategy, given a rule string (see BatchRule constructor)
+    void setBatchRule(const std::string& batchRule) { batchStrategy_.setRule(BatchRule(batchRule)); }
+
     // evaluates the model for multiple inputs and outputs of different types
     template <typename... Outputs, typename... Inputs>
     std::tuple<Outputs...> run(size_t batchSize, Inputs&&... inputs);
