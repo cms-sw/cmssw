@@ -154,7 +154,7 @@ namespace Rivet {
           if (cl.momentum() == pl.momentum()) {
             for (auto& p : pl.ancestors()) {
               if (p.abspid() == 15) {
-                p.setMomentum(p.momentum() * 10e-20);
+                p.setMomentum(p.momentum() * 1e-20);
                 lepton.addConstituent(p, false);
               }
             }
