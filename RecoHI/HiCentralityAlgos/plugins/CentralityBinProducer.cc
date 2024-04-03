@@ -59,7 +59,10 @@ class CentralityBinProducer : public edm::stream::EDProducer<> {
     EE = 11,
     ZDChitsPlus = 12,
     ZDChitsMinus = 13,
-    Missing = 14
+    PFhf = 14,
+    PFhfPlus = 15,
+    PFhfMinus = 16,
+    Missing = 17
   };
 
 public:
@@ -131,12 +134,18 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig) :
     varType_ = ZDChitsPlus;
   if (centralityVariable_ == "ZDChitsMinus")
     varType_ = ZDChitsMinus;
+  if (centralityVariable_ == "PFhf")
+    varType_ = PFhf;
+  if (centralityVariable_ == "PFhfPlus")
+    varType_ = PFhfPlus;
+  if (centralityVariable_ == "PFhfMinus")
+    varType_ = PFhfMinus;
   if (varType_ == Missing) {
-    std::string errorMessage = "Requested Centrality variable does not exist : " + centralityVariable_ + "\n" +
-                               "Supported variables are: \n" +
-                               "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc "
-                               "HFhits PixelHits PixelTracks Tracks EB EE" +
-                               "\n";
+    std::string errorMessage =
+        "Requested Centrality variable does not exist : " + centralityVariable_ + "\n" + "Supported variables are: \n" +
+        "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc "
+        "HFhits PixelHits PixelTracks Tracks EB EE ZDChitsPlus ZDChitsMinus PFhf PFhfPlus PFhfMinus" +
+        "\n";
     throw cms::Exception("Configuration", errorMessage);
   }
 
@@ -207,6 +216,15 @@ void CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     case ZDChitsMinus:
       value = chandle_->zdcSumMinus();
       break;
+    case PFhf:
+      value = chandle_->EtPFhfSum();
+      break;
+    case PFhfPlus:
+      value = chandle_->EtPFhfSumPlus();
+      break;
+    case PFhfMinus:
+      value = chandle_->EtPFhfSumMinus();
+      break;
     default:
       throw cms::Exception("CentralityBinProducer", "Centrality variable not recognized.");
   }
@@ -236,6 +254,10 @@ void CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup
       varType_ = ZDChitsMinus;
     if (centralityVariable_ == "ZDChitsMinus")
       varType_ = ZDChitsPlus;
+    if (centralityVariable_ == "PFhfPlus")
+      varType_ = PFhfMinus;
+    if (centralityVariable_ == "PFhfMinus")
+      varType_ = PFhfPlus;
   }
   prevRun_ = iRun.run();
 
