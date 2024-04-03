@@ -2,16 +2,35 @@
 # eoscms ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/USC/
 # choose run in /store/group/dpg_hcal/comm_hcal/USC/
 #
-# for Run2:
-# with GT: 104X_dataRun2_v1
-# how to run: cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 320117 /store/group/dpg_hcal/comm_hcal/USC/ /your_working_dir 
-#             cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 320117 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/public/ &
 #
-# with GT: 106X_dataRun3_HLT_v3
-#how to run: cmsRun remoteMonitoring_LED_eraTEST2019_cfg.py 331370 /store/group/dpg_hcal/comm_hcal/USC/ /your_working_dir
+# NEW:
 #
-# for Run3:
-# for next py-file use Calibration dir. once we use RecoCollections:
-#  cmsRun remoteMonitoring_LED_eraTEST2021_cfg.py 339246 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/public/ &
+# in dir DPGAnalysis/HcalTools/test
+# edit file remoteMonitoring_LED_eraTEST2021_cfg.py , namely, change
+#                            everywhere the number of run you need and cuts you want to apply:
+# for Ratio:
+                                  ratioHBMin = cms.double(0.75),
+                                  ratioHBMax = cms.double(1.04),
+# and for Width(RMS)
+                                  rmsHBMin = cms.double(0.5),
+                                  rmsHBMax = cms.double(2.0),
+#
+#  do running:
+#  cmsRun remoteMonitoring_LED_eraTEST2021_cfg.py &
+#
+# then, mv LED_run378456.root ../macros/rmt/LED_378456.root
+#
+#   go to dir ../macros/rmt and use macro zstickingDepthes.cc :
+# edit file zstickingDepthes.cc (change number of run you need, and type the correct cuts you've used in .py file)
+# ./compile.csh zstickingDepthes.cc
+# ./zstickingDepthes.cc.exe
+#
+# to see the plots:
+# evince zstickingDepthes.ps
+#
+# or use command ps2pdf zstickingDepthes.ps
+# then use evince zstickingDepthes.pdf
+#
+#
 
 
