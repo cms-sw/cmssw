@@ -39,20 +39,20 @@ set outfile=${WD}/${1}_LIST/runlist.tmp.${2}
 echo ${LAST} ${OUTLAST} ${outfile}
 
 if($1 == "MIXED_PEDESTAL" || ${1} == "MIXED_LED" || ${1} == "MIXED_LASER") then
-python ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep led-ped-Gsel-bv-sequence |  awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
+python3 ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep led-ped |  awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
 set runref=${runorigled}
 endif
 if( ${1} == "LED") then
-python ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep LED |  awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
+python3 ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep LED |  awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
 set runref=${runorigled}
 endif
 if( ${1} == "LASER" ) then
-python ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep Laser | awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
+python3 ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep Laser | awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
 set runref=${runoriglas}
 endif
 if( ${1} == "PEDESTAL" ) then
 set runref=${runorigped}
-python ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep Pedestal | awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
+python3 ${CMSSW_BASE}/src/DPGAnalysis/HcalTools/python/getInfo.py --runmin=${LAST} | grep Pedestal | awk '{print $1"_"$3"_"$4"_"$7"_"$11}' > tmp.list.${1}
 endif
 
 touch ${outfile}
