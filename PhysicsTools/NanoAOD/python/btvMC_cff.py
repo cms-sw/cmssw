@@ -25,7 +25,7 @@ btvGenTable =  cms.EDProducer(
         vx = Var("vx", "float", doc="x coordinate of vertex position"),
         vy = Var("vy", "float", doc="y coordinate of vertex position"),
         vz = Var("vz", "float", doc="z coordinate of vertex position"),
-        genPartIdxMother2 = Var("?numberOfMothers>1?motherRef(1).key():-1", "int", doc="index of the second mother particle, if valid")
+        genPartIdxMother2 = Var("?numberOfMothers>1?motherRef(1).key():-1", "int", doc="index of the second mother particle, if valid", lazyEval=True)
         ))
 genParticleTablesTask.replace(genParticleTable,btvGenTable)
 btvMCTable = cms.EDProducer("BTVMCFlavourTableProducer",name=jetPuppiTable.name,src=cms.InputTag("linkedObjects","jets"),genparticles=cms.InputTag("prunedGenParticles"))
@@ -41,10 +41,13 @@ btvAK4JetExtTable = cms.EDProducer(
         variables=cms.PSet(
         nBHadrons=Var("jetFlavourInfo().getbHadrons().size()",
                       int,
-                      doc="number of b-hadrons"),
+                      doc="number of b-hadrons",
+                      lazyEval=True),
         nCHadrons=Var("jetFlavourInfo().getcHadrons().size()",
                       int,
-                      doc="number of c-hadrons"),
+                      doc="number of c-hadrons",
+                      lazyEval=True
+        ),
         ))
 
 btvSubJetMCExtTable = cms.EDProducer(
@@ -58,7 +61,8 @@ btvSubJetMCExtTable = cms.EDProducer(
         variables = cms.PSet(
         subGenJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1",
         int,
-        doc="index of matched gen Sub jet"),
+        doc="index of matched gen Sub jet",
+        lazyEval=True),
        )
     )
 genJetsAK8Constituents = cms.EDProducer("GenJetPackedConstituentPtrSelector",

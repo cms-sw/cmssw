@@ -52,7 +52,7 @@ svVars = cms.PSet(
     refitSVx = Var("?hasSV()?sv().x():0", float, doc="x coordinate of SV", precision=10, lazyEval=True),
     refitSVy = Var("?hasSV()?sv().y():0", float, doc="y coordinate of SV", precision=10, lazyEval=True),
     refitSVz = Var("?hasSV()?sv().z():0", float, doc="z coordinate of SV", precision=10, lazyEval=True),
-    refitSVchi2 = Var("?hasSV()?sv().chi2():0", float, doc="chi2 of SV fit", precision=8, lazyEval=True),
+    refitSVchi2 = Var("?hasSV()?sv().normalizedChi2():0", float, doc="reduced chi2, i.e. chi2/ndof, of SV fit", precision=8, lazyEval=True),
     #refitSVndof = Var("?hasSV()?sv().ndof():0", float, doc="ndof of SV fit", precision=8, lazyEval=True),
     # flight-length
     #refitFlightLength = Var("?hasSV()?flightLength().value():0", float, doc="flight-length,i.e. the PV to SV distance", precision=10),

@@ -365,7 +365,7 @@ electronTable = simpleCandidateFlatTableProducer.clone(
 
 # extra variables for e/gamma custom nano
 _eleVarsExtra = cms.PSet(
-    r9Frac = Var("r9()",float,doc="Fractional R9 of the supercluster",precision=10),
+    r9Frac = Var("r9()",float,doc="Fractional R9 of the supercluster",precision=10, lazyEval=True),
     DeltaEtaInSC = Var("deltaEtaSuperClusterTrackAtVtx",float,doc="dEta(Inner track, supercluster)",precision=10, lazyEval=True),
     DeltaEtaInSeed = Var("deltaEtaSeedClusterTrackAtCalo",float,doc="dEta(Inner track, seedcluster)",precision=10, lazyEval=True),
     DeltaPhiInSC = Var("deltaPhiSuperClusterTrackAtVtx",float,doc="dPhi(Inner track, supercluster)",precision=10, lazyEval=True),
