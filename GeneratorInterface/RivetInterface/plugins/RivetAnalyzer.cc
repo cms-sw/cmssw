@@ -135,13 +135,6 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   std::unique_ptr<HepMC3::GenEvent> tmpGenEvtPtr;
   //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight
   tmpGenEvtPtr = std::make_unique<HepMC3::GenEvent>(*(evt->GetEvent()));
-  tmpGenEvtPtr->set_run_info(runinfo);
-
-  if (_xsection > 0) {
-    HepMC3::GenCrossSectionPtr xsec = make_shared<HepMC3::GenCrossSection>();
-    xsec->set_cross_section(_xsection, 0.);
-    tmpGenEvtPtr->set_cross_section(xsec);
-  }
 
   std::vector<double> mergedWeights;
   for (unsigned int i = 0; i < tmpGenEvtPtr->weights().size(); i++) {
@@ -157,10 +150,14 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  tmpGenEvtPtr->weights().clear();
-  for (unsigned int i = 0; i < _cleanedWeightNames.size(); i++) {
-    tmpGenEvtPtr->weights()[i] = mergedWeights[i];
-  }
+  double xsection = _xsection > 0 ? _xsection : tmpGenEvtPtr->cross_section()->xsecs()[0];
+  HepMC3::GenCrossSectionPtr xsec = make_shared<HepMC3::GenCrossSection>();
+  xsec->set_cross_section(std::vector<double>(mergedWeights.size(), xsection),
+                          std::vector<double>(mergedWeights.size(), 0.));
+  tmpGenEvtPtr->set_cross_section(xsec);
+  tmpGenEvtPtr->set_run_info(runinfo);
+  tmpGenEvtPtr->weights() = mergedWeights;
+
   myGenEvent = tmpGenEvtPtr.get();
 
   //apply the beams initialization on the first event

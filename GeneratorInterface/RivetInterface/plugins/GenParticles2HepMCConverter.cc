@@ -99,6 +99,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   hepmc_event->weights() = genEventInfoHandle->weights();
 
+  // resize cross section to number of weights
+  xsec_->set_cross_section(std::vector<double>(hepmc_event->weights().size(), xsec_->xsec(0)),
+                           std::vector<double>(hepmc_event->weights().size(), xsec_->xsec_err(0)));
   hepmc_event->set_cross_section(xsec_);
 
   // Set PDF
