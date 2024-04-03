@@ -153,7 +153,7 @@ namespace Rivet {
 
       ConstGenVertexPtr HSvtx = nullptr;
       int Nhiggs = 0;
-      for (const ConstGenParticlePtr& ptcl : HepMCUtils::particles(event.genEvent())) {
+      for (const ConstGenParticlePtr &ptcl : HepMCUtils::particles(event.genEvent())) {
         // a) Reject all non-Higgs particles
         if (!PID::isHiggs(ptcl->pdg_id()))
           continue;
@@ -1073,21 +1073,22 @@ namespace Rivet {
       printClassificationSummary();
       double sf = m_sumw > 0 ? 1.0 / m_sumw : 1.0;
       scale({hist_stage0,
-                               hist_stage1_pTjet25,
-                               hist_stage1_pTjet30,
-                               hist_stage1_2_pTjet25,
-                               hist_stage1_2_pTjet30,
-                               hist_stage1_2_fine_pTjet25,
-                               hist_stage1_2_fine_pTjet30,
-                               hist_Njets25,
-                               hist_Njets30,
-                               hist_pT_Higgs,
-                               hist_y_Higgs,
-                               hist_pT_V,
-                               hist_pT_jet1,
-                               hist_deltay_jj,
-                               hist_dijet_mass,
-                               hist_pT_Hjj}, sf);
+             hist_stage1_pTjet25,
+             hist_stage1_pTjet30,
+             hist_stage1_2_pTjet25,
+             hist_stage1_2_pTjet30,
+             hist_stage1_2_fine_pTjet25,
+             hist_stage1_2_fine_pTjet30,
+             hist_Njets25,
+             hist_Njets30,
+             hist_pT_Higgs,
+             hist_y_Higgs,
+             hist_pT_V,
+             hist_pT_jet1,
+             hist_deltay_jj,
+             hist_dijet_mass,
+             hist_pT_Hjj},
+            sf);
     }
 
     /*

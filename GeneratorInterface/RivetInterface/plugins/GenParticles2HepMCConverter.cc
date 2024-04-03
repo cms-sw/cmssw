@@ -74,8 +74,7 @@ void GenParticles2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup
   xsec_ = make_shared<HepMC3::GenCrossSection>();
   if (genRunInfoHandle.isValid()) {
     xsec_->set_cross_section(genRunInfoHandle->internalXSec().value(), genRunInfoHandle->internalXSec().error());
-  }
-  else {
+  } else {
     // dummy cross section
     xsec_->set_cross_section(1., 0.);
   }
@@ -92,7 +91,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   HepMC3::GenEvent* hepmc_event = new HepMC3::GenEvent();
   hepmc_event->set_event_number(event.id().event());
-  hepmc_event->add_attribute("signal_process_id", std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
+  hepmc_event->add_attribute("signal_process_id",
+                             std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
   hepmc_event->add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->qScale()));
   hepmc_event->add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQCD()));
   hepmc_event->add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQED()));
@@ -123,7 +123,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   const reco::Candidate *parton1 = nullptr, *parton2 = nullptr;
   for (unsigned int i = 0, n = genParticlesHandle->size(); i < n; ++i) {
     const reco::Candidate* p = &genParticlesHandle->at(i);
-    HepMC3::GenParticlePtr hepmc_particle = std::make_shared<HepMC3::GenParticle>(FourVector(p->p4()), p->pdgId(), p->status());
+    HepMC3::GenParticlePtr hepmc_particle =
+        std::make_shared<HepMC3::GenParticle>(FourVector(p->p4()), p->pdgId(), p->status());
 
     // Assign particle's generated mass from the standard particle data table
     double particleMass;

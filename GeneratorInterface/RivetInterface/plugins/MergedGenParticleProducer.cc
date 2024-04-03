@@ -109,12 +109,13 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
       for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
         dummy_mother.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
         unsigned int midx = pruned_idx_map.at(old_cand.mother(m));
-        if (midx < idx) { // update existing mother to point to dummy
+        if (midx < idx) {  // update existing mother to point to dummy
           reco::GenParticle& mother = cands->at(midx);
           mother.addDaughter(reco::GenParticleRef(ref, idx));
-        }
-        else {
-          edm::LogWarning("MergedGenParticleProducer") << "Cannot assign to dummy photon with index " << idx << " as daughter to unprocessed particle with index " << idx << "\n";
+        } else {
+          edm::LogWarning("MergedGenParticleProducer")
+              << "Cannot assign to dummy photon with index " << idx
+              << " as daughter to unprocessed particle with index " << idx << "\n";
         }
       }
     } else {

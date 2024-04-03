@@ -98,8 +98,7 @@ namespace Rivet {
       prompt_photons.acceptMuonDecays(true);
       prompt_photons.acceptTauDecays(true);
 
-      LeptonFinder prompt_dressed_leptons(
-          prompt_leptons, prompt_photons, _lepConeSize, lepton_cut);
+      LeptonFinder prompt_dressed_leptons(prompt_leptons, prompt_photons, _lepConeSize, lepton_cut);
       LeptonFinder dressed_leptons(charged_leptons, photons, _lepConeSize, lepton_cut);
       declare(_usePromptFinalStates ? prompt_dressed_leptons : dressed_leptons, "DressedLeptons");
 
