@@ -25,7 +25,7 @@
     <field name="transientMap_" transient="true"/>
   </class>
 
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >" persistent="false" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
 

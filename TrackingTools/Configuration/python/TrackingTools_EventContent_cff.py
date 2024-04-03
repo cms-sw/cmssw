@@ -9,6 +9,12 @@ TrackingToolsAOD = cms.PSet(
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 
+TICLrereco = cms.PSet(
+    outputCommands = cms.untracked.vstring('keep *Association*_generalTracks_*_*')
+)
+
+phase2_hgcal.toModify(TrackingToolsAOD, outputCommands = TrackingToolsAOD.outputCommands + TICLrereco.outputCommands)
+
 #RECO content
 TrackingToolsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_CkfElectronCandidates_*_*', 
