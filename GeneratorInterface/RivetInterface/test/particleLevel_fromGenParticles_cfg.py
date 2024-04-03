@@ -28,7 +28,7 @@ process.genParticles = cms.EDProducer("GenParticleProducer",
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 ## configure process options
 process.options = cms.untracked.PSet(

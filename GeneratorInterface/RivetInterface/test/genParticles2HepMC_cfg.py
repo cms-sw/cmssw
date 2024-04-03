@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 ## configure process options
 process.options = cms.untracked.PSet(
@@ -28,11 +28,3 @@ process.genParticles2HepMC.genParticles = cms.InputTag("mergedGenParticles")
 
 process.path = cms.Path(process.mergedGenParticles*process.genParticles2HepMC)
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("genParticles2HepMC.root"),
-    outputCommands = cms.untracked.vstring(
-        "drop *",
-        # HepMC3 output not implemented yet
-    ),
-)
-process.outPath = cms.EndPath(process.out)
