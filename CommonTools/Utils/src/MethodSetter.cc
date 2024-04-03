@@ -9,6 +9,9 @@
 
 #include <string>
 
+//DEBUG THREADING PROBLEM
+#include <cstdlib>
+
 using namespace reco::parser;
 using namespace std;
 
@@ -121,6 +124,8 @@ bool MethodSetter::push(const string& name, const vector<AnyMethodArgument>& arg
     // Not a data member either, fatal error, throw.
     switch (error) {
       case reco::parser::kNameDoesNotExist: {
+        //DEBUG THREADING ISSUE
+        std::abort();
         Exception ex(begin);
         ex << "no method or data member named \"" << name << "\" found for type \"" << type.name() << "\"\n";
         // The following information is for temporary debugging only, intended to be removed later
