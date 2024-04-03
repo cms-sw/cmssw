@@ -330,23 +330,6 @@ namespace cms::alpakatools {
     return uniform_elements_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
   }
 
-  /* elements_with_stride
-   *
-   * `elements_with_stride(acc [, first], extent)` returns a one-dimensional iteratable range that spans the element
-   * indices from `first` (inclusive) to `extent` (exlusive).
-   * If `first` is not specified, it defaults to 0.
-   * If `extent` is not specified, it defaults to the kernel grid size.
-   *
-   * `elements_with_stride(acc, ...)` is a legacy name for `uniform_elements(acc, ...)`.
-   */
-
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  ALPAKA_FN_ACC inline auto elements_with_stride(TAcc const& acc, TArgs... args) {
-    return uniform_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
-  }
-
   /* uniform_elements_nd
    *
    * `uniform_elements_nd(acc, extent)` returns an N-dimensional iteratable range that spans the element indices
@@ -553,24 +536,6 @@ namespace cms::alpakatools {
     const Vec extent_;
   };
 
-  /* elements_with_stride_nd
-   *
-   * `elements_with_stride_nd(acc, extent)` returns an N-dimensional iteratable range that spans the element indices
-   * required to cover the given problem size, indicated by `extent`.
-   *
-   * `elements_with_stride_nd(acc, ...)` is a legacy name for `uniform_elements_nd(acc, ...)`.
-   */
-
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
-  ALPAKA_FN_ACC inline auto elements_with_stride_nd(TAcc const& acc) {
-    return uniform_elements_nd<TAcc>(acc);
-  }
-
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
-  ALPAKA_FN_ACC inline auto elements_with_stride_nd(TAcc const& acc, alpaka::Vec<alpaka::Dim<TAcc>, Idx> extent) {
-    return uniform_elements_nd<TAcc>(acc, extent);
-  }
-
   /* uniform_groups_along
    *
    * `uniform_groups_along<Dim>(acc, elements)` returns a one-dimensional iteratable range than spans the group indices
@@ -767,22 +732,6 @@ namespace cms::alpakatools {
             typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
   ALPAKA_FN_ACC inline auto uniform_groups_z(TAcc const& acc, TArgs... args) {
     return uniform_groups_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
-  }
-
-  /* blocks_with_stride
-   *
-   * `blocks_with_stride(acc, elements)` returns a one-dimensional iteratable range than spans the group indices
-   * required to cover the given problem size, in units of the block size. `elements` indicates the total number of
-   * elements, across all groups; if not specified, it defaults to the kernel grid size.
-   *
-   * `blocks_with_stride(acc, ...)` is a legacy name for `uniform_groups(acc, ...)`.
-   */
-
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  ALPAKA_FN_ACC inline auto blocks_with_stride(TAcc const& acc, TArgs... args) {
-    return uniform_groups_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
 
   /* uniform_group_elements_along
@@ -982,22 +931,6 @@ namespace cms::alpakatools {
             typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 2)>>
   ALPAKA_FN_ACC inline auto uniform_group_elements_z(TAcc const& acc, TArgs... args) {
     return uniform_group_elements_along<TAcc, alpaka::Dim<TAcc>::value - 3>(acc, static_cast<Idx>(args)...);
-  }
-
-  /* elements_in_block
-   *
-   * `elements_in_block(acc, group, elements)` returns a one-dimensional iteratable range that spans all the elements
-   * within the given `group`, as obtained from `uniform_groups`, up to `elements` (exclusive). `elements` indicates the
-   * total number of elements across all groups; if not specified, it defaults to the kernel grid size.
-   *
-   * `elements_in_block(acc, ...)` is a legacy for `uniform_group_elements(acc, ...)`.
-   */
-
-  template <typename TAcc,
-            typename... TArgs,
-            typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
-  ALPAKA_FN_ACC inline auto elements_in_block(TAcc const& acc, TArgs... args) {
-    return uniform_group_elements_along<TAcc, 0>(acc, static_cast<Idx>(args)...);
   }
 
   /* independent_groups_along
