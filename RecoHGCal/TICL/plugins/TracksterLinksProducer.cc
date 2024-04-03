@@ -99,7 +99,6 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
 
   // New trackster collection after linking
   produces<std::vector<Trackster>>();
-  produces<std::vector<Trackster>>("CLUE3D");
 
   // Links
   produces<std::vector<std::vector<unsigned int>>>();

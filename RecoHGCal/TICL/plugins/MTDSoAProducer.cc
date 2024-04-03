@@ -11,7 +11,6 @@
 #include "DataFormats/HGCalReco/interface/MtdHostCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 using namespace edm;
 

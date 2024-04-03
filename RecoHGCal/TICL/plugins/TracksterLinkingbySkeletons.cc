@@ -13,7 +13,7 @@
 namespace {
   bool isRoundTrackster(std::array<ticl::Vector, 3> skeleton) { return (skeleton[0].Z() == skeleton[2].Z()); }
 
-  bool isGoodTrackster(const ticl::Trackster& trackster,
+  bool isGoodTrackster(const ticl::Trackster &trackster,
                        const std::array<ticl::Vector, 3> &skeleton,
                        const unsigned int min_num_lcs,
                        const float min_trackster_energy,

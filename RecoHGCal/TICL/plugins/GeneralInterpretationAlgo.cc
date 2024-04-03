@@ -207,7 +207,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                std::vector<Trackster> &resultTracksters,
                                                std::vector<int> &resultCandidate) {
   bool useMTDTiming = inputTiming_h.isValid();
-  std::cout << "GeneralInterpretationAlgo " << std::endl;
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
   const auto &tracks = *tkH;
