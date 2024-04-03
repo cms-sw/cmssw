@@ -152,7 +152,6 @@ steps['NANO_data13.0']=merge([{'--era':'Run3',
 steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
                                      steps['NANO_data13.0']])
 
-
 steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
                                    '--conditions':'auto:run3_data',
                                    '-n' : '100',
@@ -187,10 +186,6 @@ steps['lepTimeLifeNANO_data13.0']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAOD
                                           '-n' : '1000'},
                                          steps['NANO_data13.0']])
 
-steps['BTVNANO_data13.0']=merge([{'-s' : 'NANO:@PHYS+@BTV',
-                                    '-n' : '1000'},
-                                    steps['NANO_data13.0']])
-
 ###current release cycle workflows : 13.2
 steps['TTBarMINIAOD13.2'] = {'INPUT':InputInfo(location='STD',
                                                dataSet='/RelValTTbar_14TeV/CMSSW_13_2_0-PU_131X_mcRun3_2023_realistic_v9-v1/MINIAODSIM')}
@@ -199,13 +194,15 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
-
 steps['muPOGNANO_mc13.2']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
+                                    steps['NANO_mc13.2']])
 
 steps['EGMNano_mc13.2'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                  steps['NANO_mc13.2']])
 
-
+steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@BTV',
+                                    '-n' : '1000'},
+                                    steps['NANO_mc13.2']])
 
 steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
                                      steps['NANO_mc13.2']])
@@ -213,20 +210,6 @@ steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
 steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
                                         '-n' : '1000'},
                                        steps['NANO_mc13.2']])
-
-steps['BTVNANO_mc13.2']=merge([{'-s' : 'NANO:@BTV',
-                                    '-n' : '1000'},
-                                    steps['NANO_mc13.2']])
-
-steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM', '-n' : '1000'},
-                                       steps['NANO_mc13.2']])
-
-steps['jmeNANO_mc13.2']=merge([{'-s' : 'NANO:@JME ', '-n' : '1000'},
-                                    steps['NANO_mc13.2']])
-
-steps['lepTimeLifeNANO_mc13.2']=merge([{'-s' : 'NANO:@LepTimeLife,DQM:@nanoAODDQM',
-                                        '-n' : '1000'},
-                                        steps['NANO_mc13.2']])
 
 ##13.X INPUT
 steps['ScoutingPFRun32022DRAW13.X']={'INPUT':InputInfo(dataSet='/ScoutingPFRun3/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
@@ -278,15 +261,11 @@ workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
 workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
 workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
-
-
 workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
 workflows[_wfn()] = ['lepTimeLifeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'lepTimeLifeNANO_data13.0']]
-workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
-
-workflows[_wfn()] = ['BTVNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'BTVNANO_data13.0']]
+workflows[_wfn()] = ['BTVNANO_data130Xrun3', ['MuonEG2023MINIAOD13.0', 'BTVNANO_data13.0']]
 
 _wfn.next()
 ################
@@ -296,8 +275,7 @@ workflows[_wfn()] = ['muPOGNANOmc132X', ['TTBarMINIAOD13.2', 'muPOGNANO_mc13.2']
 workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
 workflows[_wfn()] = ['jmeNANOmc132X', ['TTBarMINIAOD13.2', 'jmeNANO_mc13.2']]
 workflows[_wfn()] = ['lepTimeLifeNANOmc132X', ['TTBarMINIAOD13.2', 'lepTimeLifeNANO_mc13.2']]
-workflows[_wfn()] = ['EGMNANOmc132X', ['TTBarMINIAOD13.2', 'EGMNano_mc13.2']]
-workflows[_wfn()] = ['BTVNANO_mc13.2', ['TTBarMINIAOD13.2', 'BTVNANO_mc13.2']]
+workflows[_wfn()] = ['BTVNANO_mc132X', ['TTBarMINIAOD13.2', 'BTVNANO_mc13.2']]
 
 _wfn.next()
 ################
