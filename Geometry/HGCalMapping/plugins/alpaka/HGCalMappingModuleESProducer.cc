@@ -10,8 +10,8 @@
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -44,13 +44,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalMappingModuleParamHostCollection> produce(const HGCalMappingModuleRcd& iRecord) {
+      std::optional<HGCalMappingModuleParamHost> produce(const HGCalMappingModuleRcd& iRecord) {
         //get cell and module indexer
         auto modIndexer = iRecord.get(moduleIndexTkn_);
 
         // load dense indexing
         const uint32_t size = modIndexer.maxModulesIdx_;
-        HGCalMappingModuleParamHostCollection moduleParams(size, cms::alpakatools::host());
+        HGCalMappingModuleParamHost moduleParams(size, cms::alpakatools::host());
         for (size_t i = 0; i < size; i++)
           moduleParams.view()[i].valid() = false;
 

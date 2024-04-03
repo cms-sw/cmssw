@@ -19,7 +19,7 @@
 #include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
 namespace {
@@ -42,8 +42,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     explicit HGCalMappingESSourceTester(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
-    std::map<uint32_t, uint32_t> mapGeoToElectronics(const hgcal::HGCalMappingModuleParamDeviceCollection& modules,
-                                                     const hgcal::HGCalMappingCellParamDeviceCollection& cells,
+    std::map<uint32_t, uint32_t> mapGeoToElectronics(const hgcal::HGCalMappingModuleParamDevice& modules,
+                                                     const hgcal::HGCalMappingCellParamDevice& cells,
                                                      bool geo2ele,
                                                      bool sipm);
 
@@ -52,9 +52,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
     edm::ESGetToken<HGCalMappingCellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
-    device::ESGetToken<hgcal::HGCalMappingCellParamDeviceCollection, HGCalMappingCellRcd> cellTkn_;
+    device::ESGetToken<hgcal::HGCalMappingCellParamDevice, HGCalMappingCellRcd> cellTkn_;
     edm::ESGetToken<HGCalMappingModuleIndexer, HGCalMappingModuleIndexerRcd> moduleIndexTkn_;
-    device::ESGetToken<hgcal::HGCalMappingModuleParamDeviceCollection, HGCalMappingModuleRcd> moduleTkn_;
+    device::ESGetToken<hgcal::HGCalMappingModuleParamDevice, HGCalMappingModuleRcd> moduleTkn_;
   };
 
   //
@@ -330,8 +330,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   //
   std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
-      const hgcal::HGCalMappingModuleParamDeviceCollection& modules,
-      const hgcal::HGCalMappingCellParamDeviceCollection& cells,
+      const hgcal::HGCalMappingModuleParamDevice& modules,
+      const hgcal::HGCalMappingCellParamDevice& cells,
       bool geo2ele,
       bool sipm) {
     //loop over different modules

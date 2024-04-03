@@ -1,4 +1,4 @@
 #include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
-#include "DataFormats/HGCalDigi/interface/HGCalDigiHostCollection.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(hgcaldigi::HGCalDigiHostCollection);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(hgcaldigi::HGCalDigiHost);

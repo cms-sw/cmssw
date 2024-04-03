@@ -15,15 +15,15 @@
 
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/HGCalDigi/interface/HGCalDigiHostCollection.h"
-#include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDeviceCollection.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/alpaka/HGCalDigiDevice.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingCellIndexerRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingModuleRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalMappingCellRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
 
@@ -39,9 +39,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
 
     using CellIndexer = HGCalMappingCellIndexer;
-    using CellInfo = hgcal::HGCalMappingCellParamDeviceCollection;
+    using CellInfo = hgcal::HGCalMappingCellParamDevice;
     using ModuleIndexer = HGCalMappingModuleIndexer;
-    using ModuleInfo = hgcal::HGCalMappingModuleParamDeviceCollection;
+    using ModuleInfo = hgcal::HGCalMappingModuleParamDevice;
 
     /**
       @  short constructor
@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private: 
 
     edm::EDGetTokenT<edm::SortedCollection<HGCalDataFrame> > digisCEET_,digisCEHSiT_,digisCEHSiPMT_;
-    device::EDPutToken<hgcaldigi::HGCalDigiDeviceCollection> digiProdT_;
+    device::EDPutToken<hgcaldigi::HGCalDigiDevice> digiProdT_;
 
     edm::ESWatcher<HGCalMappingModuleIndexerRcd> cfgWatcher_;
     edm::ESGetToken<CellIndexer, HGCalMappingCellIndexerRcd> cellIndexTkn_;
@@ -113,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //fill the SoA collection in the host
     uint32_t finaldigi_size = modidx.maxDataIdx_;
     std::cout << "Allocating SOA with " << finaldigi_size << " entries" << std::endl;
-    hgcaldigi::HGCalDigiHostCollection host_buffer(finaldigi_size,cms::alpakatools::host());
+    hgcaldigi::HGCalDigiHost host_buffer(finaldigi_size,cms::alpakatools::host());
     int nmatch(0),nfail(0);
     for(auto d : digisCEE) {
 
@@ -177,7 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     
     //allocate device colleciton, copy from host and put in event
     auto& queue = iEvent.queue();
-    hgcaldigi::HGCalDigiDeviceCollection device_buffer(host_buffer.view().metadata().size(),queue);
+    hgcaldigi::HGCalDigiDevice device_buffer(host_buffer.view().metadata().size(),queue);
     alpaka::memcpy(queue, host_buffer.buffer(), device_buffer.const_buffer());
     iEvent.emplace(digiProdT_, std::move(device_buffer));
   }

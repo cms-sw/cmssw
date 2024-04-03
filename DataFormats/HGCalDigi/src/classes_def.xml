@@ -40,8 +40,8 @@
 
   <class name="hgcaldigi::HGCalDigiSoA"/>
   <class name="hgcaldigi::HGCalDigiSoA::View"/>
-  <class name="hgcaldigi::HGCalDigiHostCollection"/>
-  <!-- <class name="edm::Wrapper<hgcaldigi::HGCalDigiHostCollection" splitLevel="0"/> -->
+  <class name="hgcaldigi::HGCalDigiHost"/>
+  <!-- <class name="edm::Wrapper<hgcaldigi::HGCalDigiHost" splitLevel="0"/> -->
 
   <class name="hgcaldigi::HGCalDigiSoALayout<128,false>"/>
   <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiSoALayout<128,false> > >" splitLevel="0"/>
