@@ -369,7 +369,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.pixmx = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
 
   theClusterParam.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
-  theClusterParam.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
   theClusterParam.deltay = -999.9;  // CPE Generic y-bias for multi-pixel cluster
   theClusterParam.sigmax = -999.9;  // CPE Generic x-error for multi-pixel cluster
   theClusterParam.deltax = -999.9;  // CPE Generic x-bias for multi-pixel cluster

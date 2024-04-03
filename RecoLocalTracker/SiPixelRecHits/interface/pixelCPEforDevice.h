@@ -360,30 +360,28 @@ namespace pixelCPEforDevice {
     // in detParams qBins are reversed bin0 -> smallest charge, bin4-> largest charge
     // whereas in CondFormats/SiPixelTransient/src/SiPixelGenError.cc it is the opposite
     // so we reverse the bin here -> kGenErrorQBins - 1 - bin
-    int bin = 0;
-    bin = kGenErrorQBins - 1 - cp.status[ic].qBin;
+    int bin = kGenErrorQBins - 1 - cp.status[ic].qBin;
 
     if (cp.status[ic].isOneX) {  // size=1
       //for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      ibc_x = ibc_x - detParams.shiftX;
-      if (cp.status[ic].isBigX) {
+      ibc_x = -detParams.shiftX;
+      if (cp.status[ic].isBigX)
         ibc_x -= detParams.dx2;
-      } else {
+      else
         ibc_x -= detParams.dx1;
-      }
     } else {  // size>1
-      ibc_x -= detParams.deltax[bin];
+      ibc_x = -detParams.deltax[bin];
     }
 
     if (cp.status[ic].isOneY) {  // size=1
       //for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      ibc_y = ibc_y - detParams.shiftX;
+      ibc_y = -detParams.shiftY;
       if (cp.status[ic].isBigY)
         ibc_y -= detParams.dy2;
       else
         ibc_y -= detParams.dy1;
     } else {  // size>1
-      ibc_y -= detParams.deltay[bin];
+      ibc_y = -detParams.deltay[bin];
     }
 
     cp.xpos[ic] += ibc_x;
