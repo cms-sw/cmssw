@@ -623,24 +623,33 @@ void Phase2L1CaloJetEmulator::produce(edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
-    // Write up to 6 jets from each eta half of barrel, endcap, forward regions
+    // Write 6 leading jets from each eta half
+
+    vector<l1tp2::Phase2L1CaloJet> halfAllJets;
+    halfAllJets.clear();
 
     std::sort(halfBarrelJets.begin(), halfBarrelJets.end(), gctobj::compareByEt);
     for (size_t i = 0; i < halfBarrelJets.size(); i++) {
       if (halfBarrelJets.at(i).jetEt() > 0. && i < 6)
-        allJets.push_back(halfBarrelJets.at(i));
+        halfAllJets.push_back(halfBarrelJets.at(i));
     }
 
     std::sort(halfHgcalJets.begin(), halfHgcalJets.end(), gctobj::compareByEt);
     for (size_t i = 0; i < halfHgcalJets.size(); i++) {
       if (halfHgcalJets.at(i).jetEt() > 0. && i < 6)
-        allJets.push_back(halfHgcalJets.at(i));
+        halfAllJets.push_back(halfHgcalJets.at(i));
     }
 
     std::sort(halfHfJets.begin(), halfHfJets.end(), gctobj::compareByEt);
     for (size_t i = 0; i < halfHfJets.size(); i++) {
       if (halfHfJets.at(i).jetEt() > 0. && i < 6)
-        allJets.push_back(halfHfJets.at(i));
+        halfAllJets.push_back(halfHfJets.at(i));
+    }
+
+    std::sort(halfAllJets.begin(), halfAllJets.end(), gctobj::compareByEt);
+    for (size_t i = 0; i < halfAllJets.size(); i++) {
+      if (halfAllJets.at(i).jetEt() > 0. && i < 6)
+        allJets.push_back(halfAllJets.at(i));
     }
   }
 
@@ -758,8 +767,6 @@ float Phase2L1CaloJetEmulator::get_tau_pt_calibration(const float& tau_pt, const
     }
     calib = tauPtCalibrationsHGCal[eta_index][pt_index];
   }  // end HGCal
-  else
-    return calib;
 
   return tau_pt * calib;
 }
