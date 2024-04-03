@@ -66,8 +66,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto* shr_hasSwitchToGain0_tmp = shr_isSaturated + elemsPerBlock;
       auto* shr_counts = reinterpret_cast<char*>(shr_hasSwitchToGain0_tmp) + elemsPerBlock;
 
-      for (auto block : cms::alpakatools::blocks_with_stride(acc, totalElements)) {
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+      for (auto block : cms::alpakatools::uniform_groups(acc, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           // set the output collection size scalars
           if (idx.global == 0) {
             uncalibRecHitsEB.size() = nchannelsEB;
@@ -91,7 +91,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         alpaka::syncBlockThreads(acc);
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const sample = idx.local % nsamples;
 
           // non-divergent branch (except for the last 4 threads)
@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         alpaka::syncBlockThreads(acc);
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const sample = idx.local % nsamples;
 
           if (sample < 2) {
@@ -141,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         alpaka::syncBlockThreads(acc);
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const ch = idx.global / nsamples;
           auto const sample = idx.local % nsamples;
 
@@ -164,7 +164,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         // check if we can remove it
         alpaka::syncBlockThreads(acc);
 
-        for (auto idx : cms::alpakatools::elements_in_block(acc, block, totalElements)) {
+        for (auto idx : cms::alpakatools::uniform_group_elements(acc, block, totalElements)) {
           auto const ch = idx.global / nsamples;
           auto const sample = idx.local % nsamples;
 
@@ -355,7 +355,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       auto const elemsPerBlockY = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
       Vec2D const size_2d = {elemsPerBlockY, blockDimX * elemsPerBlockX};  // {y, x} coordinates
 
-      for (auto ndindex : cms::alpakatools::elements_with_stride_nd(acc, size_2d)) {
+      for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size_2d)) {
         auto const ch = ndindex[1] / nsamples;
         auto const tx = ndindex[1] % nsamples;
         auto const ty = ndindex[0];

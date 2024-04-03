@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t* __restrict__ denseId2pfRecHit,
                                   uint32_t* __restrict__ num_pfRecHits) const {
       // Strided loop over CaloRecHits
-      for (int32_t i : cms::alpakatools::elements_with_stride(acc, recHits.metadata().size())) {
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, recHits.metadata().size())) {
         // Check energy thresholds/quality cuts (specialised for HCAL/ECAL)
         if (!applyCuts(recHits[i], params, topology))
           continue;
@@ -142,7 +142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pfRecHits.size() = *num_pfRecHits;
 
       // Assign position information and associate neighbours
-      for (int32_t i : cms::alpakatools::elements_with_stride(acc, *num_pfRecHits)) {
+      for (int32_t i : cms::alpakatools::uniform_elements(acc, *num_pfRecHits)) {
         const uint32_t denseId = CAL::detId2denseId(pfRecHits.detId(i));
 
         pfRecHits.x(i) = topology.positionX(denseId);

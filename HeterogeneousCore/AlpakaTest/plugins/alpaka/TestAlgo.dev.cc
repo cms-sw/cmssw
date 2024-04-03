@@ -30,7 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, view.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
         view[i] = {xvalue, 0., 0., i, flags, matrix * i};
       }
     }
@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, view.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
         view[i] = {xvalue, 0., 0., i, matrix * i};
       }
     }
@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, view.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, view.metadata().size())) {
         view[i] = {xvalue, 0., 0., i, matrix * i};
       }
     }
@@ -174,7 +174,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, output.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
         double x = input[i].x();
         if (i < esData.size()) {
           x += esData.val(i) + esData.val2(i);
@@ -200,14 +200,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, output.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
         double x = input[i].x();
         if (i < esData.size()) {
           x += esData.val(i) + esData.val2(i);
         }
         output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
       }
-      for (int32_t i : elements_with_stride(acc, output2.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output2.metadata().size())) {
         double x2 = input2[i].x2();
         if (i < esData.size()) {
           x2 += esData.val(i) + esData.val2(i);
@@ -236,7 +236,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : elements_with_stride(acc, output.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
         double x = input[i].x();
         if (i < esData.size()) {
           x += esData.val(i) + esData.val2(i);
@@ -245,14 +245,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
       }
-      for (int32_t i : elements_with_stride(acc, output2.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output2.metadata().size())) {
         double x2 = input2[i].x2();
         if (i < esData.size()) {
           x2 += esData.val(i) + esData.val2(i);
         }
         output2[i] = {x2, input2[i].y2(), input2[i].z2(), input2[i].id2(), input2[i].m2()};
       }
-      for (int32_t i : elements_with_stride(acc, output3.metadata().size())) {
+      for (int32_t i : uniform_elements(acc, output3.metadata().size())) {
         double x3 = input3[i].x3();
         if (i < esData.size()) {
           x3 += esData.val(i) + esData.val2(i);

@@ -85,7 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();
-      for (int v : cms::alpakatools::elements_with_stride(acc, nRH)) {
+      for (int v : cms::alpakatools::uniform_elements(acc, nRH)) {
         const int beg = pfClusteringEdgeVars[v].pfrh_edgeIdx();
         const int end = pfClusteringEdgeVars[v + 1].pfrh_edgeIdx();
         int m = v;
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();
 
-      for (int v : cms::alpakatools::elements_with_stride(acc, nRH)) {
+      for (int v : cms::alpakatools::uniform_elements(acc, nRH)) {
         const int vstat = pfClusteringVars[v].pfrh_topoId();
         if (v != vstat) {
           const int beg = pfClusteringEdgeVars[v].pfrh_edgeIdx();
@@ -155,7 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();
 
-      for (int v : cms::alpakatools::elements_with_stride(acc, nRH)) {
+      for (int v : cms::alpakatools::uniform_elements(acc, nRH)) {
         int next, vstat = pfClusteringVars[v].pfrh_topoId();
         const int old = vstat;
         while (vstat > (next = pfClusteringVars[vstat].pfrh_topoId())) {
