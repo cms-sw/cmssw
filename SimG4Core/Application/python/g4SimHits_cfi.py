@@ -55,8 +55,11 @@ common_UseLuminosity = cms.PSet(
 common_MCtruth = cms.PSet(
     DoFineCalo = cms.bool(False),
     SaveCaloBoundaryInformation = cms.bool(False),
+    PersistencyEmin = cms.double(50.0), # in GeV
+    RegionEmin = cms.vdouble(), # in GeV
+    RegionEminName = cms.vstring(), # name of regions for reduced 
     # currently unused; left in place for future studies
-    EminFineTrack = cms.double(10000.0),
+    EminFineTrack = cms.double(10000.0), #in MeV
     FineCaloNames = cms.vstring('ECAL', 'HCal', 'HGCal', 'HFNoseVol', 'VCAL'),
     FineCaloLevels = cms.vint32(4, 4, 8, 3, 3),
     UseFineCalo = cms.vint32(2, 3),
@@ -73,7 +76,7 @@ fineCalo.toModify(common_MCtruth,
 ## enable CaloBoundary information for all Phase2 workflows
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(common_MCtruth,
-        SaveCaloBoundaryInformation = True
+    SaveCaloBoundaryInformation = True
 )
 
 g4SimHits = cms.EDProducer("OscarMTProducer",
