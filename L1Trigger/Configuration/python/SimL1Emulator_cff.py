@@ -126,7 +126,7 @@ from L1Trigger.L1CaloTrigger.l1tPhase2CaloJetEmulator_cff import *
 _phase2_siml1emulator.add(l1tTowerCalibration)
 _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
-_phase2_siml1emulator.add(L1TCaloJetsTausTask)
+_phase2_siml1emulator.add(l1tCaloJetsTausTask)
 
 
 # ########################################################################

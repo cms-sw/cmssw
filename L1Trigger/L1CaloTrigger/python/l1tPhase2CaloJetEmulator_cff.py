@@ -10,12 +10,12 @@ parameters_towers_2d = L1TTriggerTowerConfig_energySplit.clone()
 l1tHGCalEnergySplitTowerMapProducer = l1tHGCalTowerMapProducer.clone()
 l1tHGCalEnergySplitTowerMapProducer.ProcessorParameters.towermap_parameters.L1TTriggerTowerConfig = parameters_towers_2d
 l1tHGCalEnergySplitTowerProducer = l1tHGCalTowerProducer.clone( InputTowerMaps = ("l1tHGCalEnergySplitTowerMapProducer","HGCalTowerMapProcessor") )
-L1THGCalEnergySplitTowersTask = cms.Task(l1tHGCalEnergySplitTowerMapProducer, l1tHGCalEnergySplitTowerProducer)
+l1tHGCalEnergySplitTowersTask = cms.Task(l1tHGCalEnergySplitTowerMapProducer, l1tHGCalEnergySplitTowerProducer)
 
 # Use energy split towers in calo jet/tau emulator
 l1tPhase2CaloJetEmulator.hgcalTowers = ("l1tHGCalEnergySplitTowerProducer","HGCalTowerProcessor")
 
-L1TCaloJetsTausTask = cms.Task(
-    L1THGCalEnergySplitTowersTask,
+l1tCaloJetsTausTask = cms.Task(
+    l1tHGCalEnergySplitTowersTask,
     l1tPhase2CaloJetEmulator
 )
