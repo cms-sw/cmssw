@@ -46,7 +46,7 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
   // Book histograms
   iBooker.setCurrentFolder(triggerTag());
 
-  hCounter_ = iWrapper.book1D(iBooker,"EventCounter","Accepted events;;entries",3,0,3,kEverything);
+  hCounter_ = iWrapper.book1D(iBooker, "EventCounter", "Accepted events;;entries", 3, 0, 3, kEverything);
   hAcceptedEvents_ = iWrapper.book1D(iBooker,
                                      "EventsPerFilter",
                                      "Accepted Events per filter;;entries",
@@ -54,9 +54,9 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
                                      0,
                                      hltPath_.filtersSize(),
                                      kEverything);
-  hCounter_->setBinLabel(1,"all events");
-  hCounter_->setBinLabel(2,"ref tau found");
-  hCounter_->setBinLabel(3,"passed trg");
+  hCounter_->setBinLabel(1, "all events");
+  hCounter_->setBinLabel(2, "ref tau found");
+  hCounter_->setBinLabel(3, "passed trg");
   for (size_t i = 0; i < hltPath_.filtersSize(); ++i) {
     if (hAcceptedEvents_)
       hAcceptedEvents_->setBinLabel(i + 1, hltPath_.getFilterName(i));
@@ -115,13 +115,8 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
     }
 
     if (hltPath_.hasL3Taus()) {
-      hL3TrigTauEtEffNum_ = iWrapper.book1D(iBooker,
-                                            "L3TrigTauEtEffNum",
-                                            "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries",
-                                            ptbins_,
-                                            0,
-                                            ptmax_,
-                                            kVital);
+      hL3TrigTauEtEffNum_ = iWrapper.book1D(
+          iBooker, "L3TrigTauEtEffNum", "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_, kVital);
       hL3TrigTauEtEffDenom_ = iWrapper.book1D(iBooker,
                                               "L3TrigTauEtEffDenom",
                                               "L3 #tau p_{T} denominator;Ref #tau p_{T};Efficiency",
@@ -456,9 +451,10 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
   int lastMatchedTauFilter = -1;
   int firstMatchedMETFilter = -1;
   hCounter_->Fill(0.5);
-  if(refCollection.taus.size() > 0){
+  if (refCollection.taus.size() > 0) {
     hCounter_->Fill(1.5);
-    if(hltPath_.fired(triggerResults)) hCounter_->Fill(2.5);
+    if (hltPath_.fired(triggerResults))
+      hCounter_->Fill(2.5);
   }
 
   if (doRefAnalysis_) {
@@ -489,8 +485,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
           hltPath_.getFilterName(i).find("hltHpsPFTau") < hltPath_.getFilterName(i).length() ||
           hltPath_.getFilterName(i).find("hltDoublePFTau") < hltPath_.getFilterName(i).length() ||
           hltPath_.getFilterName(i).find("hltHpsDoublePFTau") < hltPath_.getFilterName(i).length() ||
-          hltPath_.getFilterName(i).find("PNetTauhTag") < hltPath_.getFilterName(i).length()
-	  )
+          hltPath_.getFilterName(i).find("PNetTauhTag") < hltPath_.getFilterName(i).length())
         lastMatchedTauFilter = i;
       if (firstMatchedMETFilter < 0 && hltPath_.getFilterName(i).find("hltMET") < hltPath_.getFilterName(i).length())
         firstMatchedMETFilter = i;

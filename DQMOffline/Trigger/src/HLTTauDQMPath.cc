@@ -56,8 +56,8 @@ namespace {
           continue;
         if (iLabel->find('-') == 0)  // ignore
           continue;
-	if (type == "L2TauTagFilter") // gives L1taus as output
-	  continue;
+        if (type == "L2TauTagFilter")  // gives L1taus as output
+          continue;
         if (type == "HLT2PhotonPFTau" || type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" ||
             type == "HLT2PhotonTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);
@@ -100,7 +100,8 @@ namespace {
 
     bool isL3TauProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
       const std::string type = HLTCP.moduleType(producerLabel);
-      if (type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder" || type == "BTagProbabilityToDiscriminator") {
+      if (type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder" ||
+          type == "BTagProbabilityToDiscriminator") {
         LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " with label " << producerLabel
                                      << " from path " << name_;
         return true;
@@ -137,7 +138,7 @@ namespace {
       if (pset.exists("inputTag2"))
         return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag2").label());
       if (pset.exists("taus"))
-	return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("taus").label());
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("taus").label());
       return false;
     }
 
@@ -413,7 +414,7 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
-    if(n.level > 0){
+    if (n.level > 0) {
       filterTauN_.push_back(n.tau);
       filterElectronN_.push_back(n.electron);
       filterMuonN_.push_back(n.muon);
