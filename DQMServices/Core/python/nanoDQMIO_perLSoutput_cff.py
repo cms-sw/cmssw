@@ -57,6 +57,15 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "PixelPhase1/Tracks/PXForward/size_PXDisk_-2",
     "PixelPhase1/Tracks/PXForward/size_PXDisk_-3",
 
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalm1",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalm2",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalm3",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalm4",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalp1",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalp2",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalp3",
+    "CSC/CSCOfflineMonitor/recHits/hRHGlobalp4",
+
     "HLT/Vertexing/hltPixelVertices/hltPixelVertices/goodvtxNbr",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_eta",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_hits",
