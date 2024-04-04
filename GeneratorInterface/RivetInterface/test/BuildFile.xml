@@ -1,6 +1,6 @@
 <test name="test-rivet-list" command="test-rivet-list.sh"/>
 <test name="test-rivet-run" command="test-rivet-run.sh"/>
-<test name="test-rivet-plot" command="rivet-mkhtml ${LOCALTOP}/src/out.yoda">
+<test name="test-rivet-plot" command="rivet-mkhtml out.yoda">
   <flags PRE_TEST="test-rivet-run"/>
 </test>
 <test name="test-yoda-merge" command="test-yoda-merge.sh">
