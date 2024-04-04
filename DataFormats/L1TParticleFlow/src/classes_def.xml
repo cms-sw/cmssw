@@ -1,6 +1,7 @@
 <lcgdict>
                       
-  <class name="l1t::PFCluster" ClassVersion="4">
+  <class name="l1t::PFCluster" ClassVersion="5">
+   <version ClassVersion="5" checksum="439598246"/>
    <version ClassVersion="4" checksum="3917005656"/>
         <version ClassVersion="3" checksum="1668592434"/>
   </class> 

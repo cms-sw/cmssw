@@ -10,6 +10,8 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/HGC3DClusterEgID.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/HGC3DClusterID.h"
+
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -28,6 +30,7 @@ namespace l1tpf {
     double etCut_;
     StringCutObjectSelector<l1t::HGCalMulticluster> preEmId_;
     l1tpf::HGC3DClusterEgID emVsPionID_, emVsPUID_;
+    l1tpf::HGC3DClusterID multiClassPID_;
     bool hasEmId_;
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;
@@ -45,6 +48,7 @@ l1tpf::PFClusterProducerFromHGC3DClusters::PFClusterProducerFromHGC3DClusters(co
       preEmId_(iConfig.getParameter<std::string>("preEmId")),
       emVsPionID_(iConfig.getParameter<edm::ParameterSet>("emVsPionID")),
       emVsPUID_(iConfig.getParameter<edm::ParameterSet>("emVsPUID")),
+      multiClassPID_(iConfig.getParameter<edm::ParameterSet>("multiClassPID")),
       hasEmId_((iConfig.existsAs<std::string>("preEmId") && !iConfig.getParameter<std::string>("preEmId").empty()) ||
                !emVsPionID_.method().empty()),
       corrector_(iConfig.getParameter<std::string>("corrector"),
@@ -107,6 +111,7 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     if (pt <= etCut_)
       continue;
 
+
     // this block below is to support the older EG emulators, and is not used in newer ones
     if (it->hwQual()) {  // this is the EG ID shipped with the HGC TPs
       // we use the EM interpretation of the cluster energy
@@ -118,6 +123,7 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     }
 
     l1t::PFCluster cluster(pt, it->eta(), it->phi(), hoe);
+
     if (scenario_ == UseEmInterp::EmOnly) {  // for emID objs, use EM interp as pT and set H = 0
       if (isEM) {
         float pt_new = it->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
@@ -143,15 +149,15 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
       //        3, pt, it->eta(), em_old, em_new, hoe, cluster.pt(), cluster.emEt(), cluster.hOverE());
     }
 
-    if (!emVsPUID_.method().empty()) {
-      if (!emVsPUID_.passID(*it, cluster)) {
-        continue;
-      }
+    float maxScore = multiClassPID_.evaluate(*it, cluster);
+    if (multiClassPID_.passPuID(cluster, maxScore)) {
+      continue;
     }
-    if (!emOnly_ && !emVsPionID_.method().empty()) {
-      isEM = emVsPionID_.passID(*it, cluster);
+
+    if (!emOnly_) {
+      isEM = multiClassPID_.passPFEmID(cluster, maxScore);
     }
-    cluster.setHwQual((isEM ? 1 : 0) + (it->hwQual() << 1));
+    cluster.setHwQual((isEM ? 1 : 0) + (multiClassPID_.passEgEmID(cluster, maxScore) << 1));
 
     if (corrector_.valid())
       corrector_.correctPt(cluster);

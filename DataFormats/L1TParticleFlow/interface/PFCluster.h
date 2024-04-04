@@ -29,7 +29,10 @@ namespace l1t {
           hOverE_(hOverE),
           ptError_(ptError),
           absZBarycenter_(absZBarycenter),
-          sigmaRR_(sigmaRR) {
+          sigmaRR_(sigmaRR),
+          puIdScore_(0), 
+          emIdScore_(0), 
+          piIdScore_(0) {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
@@ -76,10 +79,23 @@ namespace l1t {
     float egVsPUMVAOut() const { return egVsPUMVAOut_; }
     void setEgVsPUMVAOut(float egVsPUMVAOut) { egVsPUMVAOut_ = egVsPUMVAOut; }
 
+    void setPuIDScore(float score) { puIdScore_ = score; }
+    float puIDScore() const { return puIdScore_; }
+
+    void setEmIDScore(float score) { emIdScore_ = score; }
+    float emIDScore() const { return emIdScore_; }
+
+    void setPiIDScore(float score) { piIdScore_ = score; }
+    float piIDScore() const { return piIdScore_; }
+
+
+
+
   private:
     float hOverE_, ptError_, egVsPionMVAOut_, egVsPUMVAOut_;
     // HGC dedicated quantities (0ed by default)
     float absZBarycenter_, sigmaRR_;
+    float puIdScore_, emIdScore_, piIdScore_;
 
     ConstituentsAndFractions constituents_;
   };
