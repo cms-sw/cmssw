@@ -119,11 +119,15 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   for (unsigned int track_id = 0; track_id < emtf_tracks->size(); ++track_id) {
     const auto& track = emtf_tracks->at(track_id);
 
-    if (track.valid() == 0) {
+    if ((track.valid() == 0) || (track.bx() != 0)) {
       continue;
     }
 
     auto samuon = ConvertEMTFTrack(track, 0);
+
+    // Skip qual == 0 EMTF tracks
+    if (samuon.hwQual() == 0)
+      continue;
 
     //now associate the stubs
     associateStubs(samuon, stubs);
@@ -171,13 +175,14 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon(const l1t::RegionalMuonCand
   int bstart = 0;
   wordtype word(0);
   bstart = wordconcat<wordtype>(word, bstart, 1, 1);
-  bstart = wordconcat<wordtype>(word, bstart, pt, BITSGTPT);
-  bstart = wordconcat<wordtype>(word, bstart, phi, BITSGTPHI);
-  bstart = wordconcat<wordtype>(word, bstart, eta, BITSGTETA);
-  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0);
-  bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
   bstart = wordconcat<wordtype>(word, bstart, charge, 1);
-  bstart = wordconcat<wordtype>(word, bstart, qual, BITSSAQUAL);
+  bstart = wordconcat<wordtype>(word, bstart, pt, BITSPT);
+  bstart = wordconcat<wordtype>(word, bstart, phi, BITSPHI);
+  bstart = wordconcat<wordtype>(word, bstart, eta, BITSETA);
+  //  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0); NOT YET SUPPORTED BY GMT
+  bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
+  bstart = wordconcat<wordtype>(
+      word, bstart, qual, 8);  //FOR NOW 8 bits to be efficienct with Ghost busting. THIS IS ***NOT*** THE FINAL QUALITY
 
   // Calculate Lorentz Vector
   math::PtEtaPhiMLorentzVector p4(pt * LSBpt, eta * LSBeta, phi * LSBphi, 0.0);
@@ -254,13 +259,14 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack(const l1t::phase2::EMTFTr
   int bstart = 0;
   wordtype word(0);
   bstart = wordconcat<wordtype>(word, bstart, 1, 1);
+  bstart = wordconcat<wordtype>(word, bstart, charge, 1);
   bstart = wordconcat<wordtype>(word, bstart, pt, BITSPT);
   bstart = wordconcat<wordtype>(word, bstart, phi, BITSPHI);
   bstart = wordconcat<wordtype>(word, bstart, eta, BITSETA);
-  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0);
+  //  bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0); NOT YET SUPPORTED BY GMT
   bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
-  bstart = wordconcat<wordtype>(word, bstart, charge, 1);
-  bstart = wordconcat<wordtype>(word, bstart, qual, BITSSAQUAL);
+  bstart = wordconcat<wordtype>(
+      word, bstart, qual, 8);  //FOR NOW 8 bits to be efficienct with Ghost busting. THIS IS ***NOT*** THE FINAL QUALITY
 
   SAMuon samuon(p4, charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());
 
