@@ -77,19 +77,19 @@ void CSCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
 
   // Get Global Coordinates
   const GlobalPoint& gp_w1 = this->context_.geometry_translator_.getGlobalPoint(tp);
-  const float glob_phi_w1 = tp::rad_to_deg(gp_w1.phi().value());
-  const float glob_theta_w1 = tp::rad_to_deg(gp_w1.theta().value());
+  const float glob_phi_w1 = tp::radToDeg(gp_w1.phi().value());
+  const float glob_theta_w1 = tp::radToDeg(gp_w1.theta().value());
   const double glob_rho_w1 = gp_w1.perp();
   const double glob_z_w1 = gp_w1.z();
 
   // Calculate EMTF Values
-  const int emtf_phi_w1 = tp::calc_phi_int(sector_, glob_phi_w1);
+  const int emtf_phi_w1 = tp::calcPhiInt(sector_, glob_phi_w1);
   const int emtf_bend_w1 = std::clamp(tp_bend * 4, -16, 15);  // 5-bit, signed
-  const int emtf_theta_w1 = tp::calc_theta_int(tp_endcap_pm, glob_theta_w1);
+  const int emtf_theta_w1 = tp::calcThetaInt(tp_endcap_pm, glob_theta_w1);
   const int emtf_qual_w1 = std::clamp(tp_quality, 0, 15);  // 4-bit, unsigned
   const int emtf_site_w1 = context_.site_lut_.lookup({tp_subsystem, tp_station, tp_ring});
   const int emtf_host_w1 = context_.host_lut_.lookup({tp_subsystem, tp_station, tp_ring});
-  const int emtf_zones_w1 = context_.zone_lut_.get_zones(emtf_host_w1, emtf_theta_w1);
+  const int emtf_zones_w1 = context_.zone_lut_.getZones(emtf_host_w1, emtf_theta_w1);
 
   // Calculated Ambiguous Info
   int emtf_theta_w2 = 0;
@@ -101,9 +101,9 @@ void CSCTPConverter::convert(const TriggerPrimitive& tp, const TPInfo& tp_info, 
     tp_w2.accessCSCData().keywire = tp_wire2;
 
     const GlobalPoint& gp_w2 = this->context_.geometry_translator_.getGlobalPoint(tp_w2);
-    const double glob_theta_w2 = tp::rad_to_deg(gp_w2.theta().value());
+    const double glob_theta_w2 = tp::radToDeg(gp_w2.theta().value());
 
-    emtf_theta_w2 = tp::calc_theta_int(tp_endcap_pm, glob_theta_w2);
+    emtf_theta_w2 = tp::calcThetaInt(tp_endcap_pm, glob_theta_w2);
   }
 
   emtf_assert((0 <= emtf_phi_w1) and (emtf_phi_w1 < 5040));

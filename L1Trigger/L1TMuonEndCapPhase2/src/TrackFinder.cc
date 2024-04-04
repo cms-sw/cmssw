@@ -53,8 +53,8 @@ TrackFinder::TrackFinder(const edm::ParameterSet& i_config, edm::ConsumesCollect
   }
 
   // Register Sector Processor
-  for (int endcap = kMinEndcap; endcap <= kMaxEndcap; ++endcap) {
-    for (int sector = kMinTrigSector; sector <= kMaxTrigSector; ++sector) {
+  for (unsigned int endcap = kMinEndcap; endcap <= kMaxEndcap; ++endcap) {
+    for (unsigned int sector = kMinTrigSector; sector <= kMaxTrigSector; ++sector) {
       sector_processors_.push_back(std::make_unique<SectorProcessor>(context_, endcap, sector));
     }
   }
@@ -168,7 +168,7 @@ void TrackFinder::process(
 
   // Before event
   for (auto& sector_processor : sector_processors_) {
-    sector_processor->configure_event(i_event);
+    sector_processor->configureEvent(i_event);
   }
 
   // Orderly loop BX
@@ -186,7 +186,7 @@ void TrackFinder::process(
     // Loop over all sector processors
     for (auto& sector_processor : sector_processors_) {
       // Before BX
-      sector_processor->configure_bx(bx);
+      sector_processor->configureBx(bx);
 
       // Select trigger primitives in BX
       if (bx_tpc_ptr != nullptr) {
@@ -212,10 +212,10 @@ void TrackFinder::process(
   bx_tpc_map.clear();
 }
 
-void TrackFinder::on_job_begin() {
+void TrackFinder::onJobBegin() {
   // Do Nothing
 }
 
-void TrackFinder::on_job_end() {
+void TrackFinder::onJobEnd() {
   // Do Nothing
 }

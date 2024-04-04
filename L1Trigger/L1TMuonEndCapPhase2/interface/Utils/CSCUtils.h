@@ -9,31 +9,31 @@ namespace emtf::phase2::csc {
   enum Facing { kFront, kRear, kNone };
 
   // Chambers
-  int next_10deg_chamber(int chamber);
+  int getNext10DegChamber(int chamber);
 
-  int prev_10deg_chamber(int chamber);
+  int getPrev10DegChamber(int chamber);
 
-  int next_20deg_chamber(int chamber);
+  int getNext20DegChamber(int chamber);
 
-  int prev_20deg_chamber(int chamber);
+  int getPrev20DegChamber(int chamber);
 
   // Functions
-  bool is_in_sector(int match_endcap, int match_sector, int tp_endcap, int tp_sector);
+  bool isTPInSector(int match_endcap, int match_sector, int tp_endcap, int tp_sector);
 
-  bool is_in_neighbor_sector(
+  bool isTPInNeighborSector(
       int match_endcap, int match_sector, int tp_endcap, int tp_sector, int tp_subsector, int tp_station, int tp_id);
 
-  int get_id(int ring, int station, int chamber);
+  int getId(int ring, int station, int chamber);
 
-  int get_trigger_sector(int ring, int station, int chamber);
+  int getTriggerSector(int ring, int station, int chamber);
 
-  int get_trigger_subsector(int station, int chamber);
+  int getTriggerSubsector(int station, int chamber);
 
-  Facing get_face_direction(int station, int ring, int chamber);
+  Facing getFaceDirection(int station, int ring, int chamber);
 
-  std::pair<int, int> get_max_strip_and_wire(int station, int ring);
+  std::pair<int, int> getMaxStripAndWire(int station, int ring);
 
-  std::pair<int, int> get_max_pattern_and_quality(int station, int ring);
+  std::pair<int, int> getMaxPatternAndQuality(int station, int ring);
 
 }  // namespace emtf::phase2::csc
 

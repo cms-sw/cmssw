@@ -5,20 +5,20 @@
 namespace emtf::phase2::csc {
 
   // Chambers
-  int next_10deg_chamber(int chamber) { return (chamber == 36) ? 1 : (chamber + 1); }
+  int getNext10DegChamber(int chamber) { return (chamber == 36) ? 1 : (chamber + 1); }
 
-  int prev_10deg_chamber(int chamber) { return (chamber == 1) ? 36 : (chamber - 1); }
+  int getPrev10DegChamber(int chamber) { return (chamber == 1) ? 36 : (chamber - 1); }
 
-  int next_20deg_chamber(int chamber) { return (chamber == 18) ? 1 : (chamber + 1); }
+  int getNext20DegChamber(int chamber) { return (chamber == 18) ? 1 : (chamber + 1); }
 
-  int prev_20deg_chamber(int chamber) { return (chamber == 1) ? 18 : (chamber - 1); }
+  int getPrev20DegChamber(int chamber) { return (chamber == 1) ? 18 : (chamber - 1); }
 
   // Sectors
-  bool is_in_sector(int sp_endcap, int sp_sector, int tp_endcap, int tp_sector) {
+  bool isTPInSector(int sp_endcap, int sp_sector, int tp_endcap, int tp_sector) {
     return sp_endcap == tp_endcap && sp_sector == tp_sector;
   }
 
-  bool is_in_neighbor_sector(
+  bool isTPInNeighborSector(
       int sp_endcap, int sp_sector, int tp_endcap, int tp_sector, int tp_subsector, int tp_station, int tp_id) {
     // Match endcap and neighbor sector
     int neighbor_sector = ((sp_sector == 1) ? 6 : sp_sector - 1);
@@ -36,7 +36,7 @@ namespace emtf::phase2::csc {
 
   // Use CSC trigger "CSC ID" definitions
   // Copied from DataFormats/MuonDetId/src/CSCDetId.cc
-  int get_id(int station, int ring, int chamber) {
+  int getId(int station, int ring, int chamber) {
     int result = 0;
 
     if (station == 1) {
@@ -67,7 +67,7 @@ namespace emtf::phase2::csc {
 
   // Use CSC trigger sector definitions
   // Copied from DataFormats/MuonDetId/src/CSCDetId.cc
-  int get_trigger_sector(int station, int ring, int chamber) {
+  int getTriggerSector(int station, int ring, int chamber) {
     int result = 0;
 
     if (station > 1 && ring > 1) {
@@ -82,7 +82,7 @@ namespace emtf::phase2::csc {
                          : 6;  // max sector is 6, some calculations give a value greater than six but this is expected.
   }
 
-  int get_trigger_subsector(int station, int chamber) {
+  int getTriggerSubsector(int station, int chamber) {
     // station 2,3,4 --> subsector 0
     if (station != 1) {
       return 0;
@@ -97,7 +97,7 @@ namespace emtf::phase2::csc {
   }
 
   // Copied from RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.cc
-  Facing get_face_direction(int station, int ring, int chamber) {
+  Facing getFaceDirection(int station, int ring, int chamber) {
     bool is_not_overlapping = (station == 1 && ring == 3);
 
     // Not overlapping means it's facing backwards
@@ -128,7 +128,7 @@ namespace emtf::phase2::csc {
   // | ME2/2, ME3/2, ME4/2        | 160        | 64         |
   // +----------------------------+------------+------------+
 
-  std::pair<int, int> get_max_strip_and_wire(int station, int ring) {
+  std::pair<int, int> getMaxStripAndWire(int station, int ring) {
     int max_strip = 0;  // halfstrip
     int max_wire = 0;   // wiregroup
 
@@ -158,7 +158,7 @@ namespace emtf::phase2::csc {
     return std::make_pair(max_strip, max_wire);
   }
 
-  std::pair<int, int> get_max_pattern_and_quality(int station, int ring) {
+  std::pair<int, int> getMaxPatternAndQuality(int station, int ring) {
     int max_pattern = 11;
     int max_quality = 16;
 

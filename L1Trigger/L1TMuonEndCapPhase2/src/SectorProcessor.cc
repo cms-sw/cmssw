@@ -62,7 +62,7 @@ SectorProcessor::~SectorProcessor() {
   // Do Nothing
 }
 
-void SectorProcessor::configure_event(const edm::Event& event) {
+void SectorProcessor::configureEvent(const edm::Event& event) {
   // Event
   event_ = &event;
   bx_ = nullptr;
@@ -72,7 +72,7 @@ void SectorProcessor::configure_event(const edm::Event& event) {
   bx_ilink_tpc_maps_.clear();
 }
 
-void SectorProcessor::configure_bx(const int& bx) {
+void SectorProcessor::configureBx(const int& bx) {
   // BX
   bx_ = &bx;
 
@@ -118,7 +118,7 @@ void SectorProcessor::process(EMTFHitCollection& out_hits,
   ILinkTPCMap bx_ilink_tpc_map;
 
   for (auto& [subsystem, ilink_tpc_map] : bx_ilink_tpc_maps_) {
-    copy_tp(ilink_tpc_map, bx_ilink_tpc_map);
+    copyTP(ilink_tpc_map, bx_ilink_tpc_map);
   }
 
   // Free memory
@@ -131,7 +131,7 @@ void SectorProcessor::process(EMTFHitCollection& out_hits,
   // Convert tp into hits
   EMTFHitCollection bx_hits;
 
-  convert_tp(out_hits.size(), bx_ilink_tpc_map, bx_hits);
+  convertTP(out_hits.size(), bx_ilink_tpc_map, bx_hits);
 
   // Append to bx window hits
   bx_window_hits_.push_back(bx_hits);
@@ -160,11 +160,11 @@ void SectorProcessor::process(EMTFHitCollection& out_hits,
   // Convert bx window hits into segments
   segment_collection_t segments;
 
-  populate_segments(bx_window_hits_, seg_to_hit, segments);
+  populateSegments(bx_window_hits_, seg_to_hit, segments);
 
   // Build Tracks
-  build_tracks(seg_to_hit, segments, false, out_tracks);  // With prompt setup
-  build_tracks(seg_to_hit, segments, true, out_tracks);   // With displaced setup
+  buildTracks(seg_to_hit, segments, false, out_tracks);  // With prompt setup
+  buildTracks(seg_to_hit, segments, true, out_tracks);   // With displaced setup
 
   // ===========================================================================
   // Record segments/hits used in track building
@@ -192,7 +192,7 @@ void SectorProcessor::process(EMTFHitCollection& out_hits,
   }
 }
 
-void SectorProcessor::copy_tp(const ILinkTPCMap& source, ILinkTPCMap& target) const {
+void SectorProcessor::copyTP(const ILinkTPCMap& source, ILinkTPCMap& target) const {
   typedef typename ILinkTPCMap::iterator Iterator_t;
   typedef typename ILinkTPCMap::mapped_type Collection_t;
 
@@ -212,7 +212,7 @@ void SectorProcessor::copy_tp(const ILinkTPCMap& source, ILinkTPCMap& target) co
   }
 }
 
-void SectorProcessor::convert_tp(const int& initial_hit_id, const ILinkTPCMap& ilink_tpc_map, EMTFHitCollection& hits) {
+void SectorProcessor::convertTP(const int& initial_hit_id, const ILinkTPCMap& ilink_tpc_map, EMTFHitCollection& hits) {
   EMTFHitCollection substitutes;
 
   for (const auto& [ilink, ilink_tpc] : ilink_tpc_map) {  // loop input link trigger primitive collections
@@ -266,11 +266,11 @@ void SectorProcessor::convert_tp(const int& initial_hit_id, const ILinkTPCMap& i
   }
 }
 
-void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx_window_hits,
-                                        std::map<int, int>& seg_to_hit,
-                                        segment_collection_t& segments) {
+void SectorProcessor::populateSegments(const std::vector<EMTFHitCollection>& bx_window_hits,
+                                       std::map<int, int>& seg_to_hit,
+                                       segment_collection_t& segments) {
   // Initialize
-  for (int seg_id = 0; seg_id < v3::kNumSegments; ++seg_id) {
+  for (unsigned int seg_id = 0; seg_id < v3::kNumSegments; ++seg_id) {
     segments[seg_id].phi = 0;
     segments[seg_id].bend = 0;
     segments[seg_id].theta1 = 0;
@@ -328,7 +328,7 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
       }
 
       // Calculate Timezone
-      const auto hit_timezones = context_.timezone_lut_.get_timezones(hit_host, hit_rel_bx);
+      const auto hit_timezones = context_.timezone_lut_.getTimezones(hit_host, hit_rel_bx);
 
       // Calculate algo seg
       const unsigned int seg_id = hit_chamber * v3::kChamberSegments + ch_seg;
@@ -381,10 +381,10 @@ void SectorProcessor::populate_segments(const std::vector<EMTFHitCollection>& bx
   }  // End loop from latest BX Collection to oldest BX Hit Collection
 }
 
-void SectorProcessor::build_tracks(const std::map<int, int>& seg_to_hit,
-                                   const segment_collection_t& segments,
-                                   const bool& displaced_en,
-                                   EMTFTrackCollection& out_tracks) {
+void SectorProcessor::buildTracks(const std::map<int, int>& seg_to_hit,
+                                  const segment_collection_t& segments,
+                                  const bool& displaced_en,
+                                  EMTFTrackCollection& out_tracks) {
   // Apply Hitmap Building Layer: Convert segments into hitmaps
   std::vector<hitmap_t> zone_hitmaps;
 

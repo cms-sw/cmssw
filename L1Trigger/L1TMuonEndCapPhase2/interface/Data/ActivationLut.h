@@ -19,10 +19,10 @@ namespace emtf::phase2::data {
 
     void update(const edm::Event&, const edm::EventSetup&);
 
-    const trk_pt_t& lookup_prompt_pt(const trk_nn_address_t&) const;
-    const trk_pt_t& lookup_disp_pt(const trk_nn_address_t&) const;
-    const trk_rels_t& lookup_rels(const trk_nn_address_t&) const;
-    const trk_dxy_t& lookup_dxy(const trk_nn_address_t&) const;
+    const trk_pt_t& lookupPromptPt(const trk_nn_address_t&) const;
+    const trk_pt_t& lookupDispPt(const trk_nn_address_t&) const;
+    const trk_rels_t& lookupRels(const trk_nn_address_t&) const;
+    const trk_dxy_t& lookupDxy(const trk_nn_address_t&) const;
 
   private:
     std::vector<trk_pt_t> prompt_pt_lut_;

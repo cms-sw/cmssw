@@ -86,7 +86,7 @@ void DuplicateRemovalLayer::apply(std::vector<track_t>& tracks) const {
           continue;
 
         // Compare reduced track sites
-        for (int k_rsite = 0; k_rsite < v3::kNumTrackSitesRM; ++k_rsite) {  // Begin loop reduced sites k
+        for (unsigned int k_rsite = 0; k_rsite < v3::kNumTrackSitesRM; ++k_rsite) {  // Begin loop reduced sites k
           const auto& rtrk_site_mask_ik = rtrk_i.site_mask[k_rsite];
           const auto& rtrk_site_mask_jk = rtrk_j.site_mask[k_rsite];
 

@@ -106,12 +106,12 @@ void CSCTPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
     }
 
     // Calculate detector info
-    const int tp_subsector = csc::get_trigger_subsector(tp_station, tp_chamber);
-    const auto tp_face_dir = csc::get_face_direction(tp_station, tp_ring, tp_chamber);
+    const int tp_subsector = csc::getTriggerSubsector(tp_station, tp_chamber);
+    const auto tp_face_dir = csc::getFaceDirection(tp_station, tp_ring, tp_chamber);
 
     // Assertion checks
-    const auto& [max_strip, max_wire] = csc::get_max_strip_and_wire(tp_station, tp_ring);
-    const auto& [max_pattern, max_quality] = csc::get_max_pattern_and_quality(tp_station, tp_ring);
+    const auto& [max_strip, max_wire] = csc::getMaxStripAndWire(tp_station, tp_ring);
+    const auto& [max_pattern, max_quality] = csc::getMaxPatternAndQuality(tp_station, tp_ring);
 
     emtf_assert(kMinEndcap <= tp_endcap && tp_endcap <= kMaxEndcap);
     emtf_assert(kMinTrigSector <= tp_sector && tp_sector <= kMaxTrigSector);

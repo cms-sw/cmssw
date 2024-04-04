@@ -26,7 +26,7 @@ namespace emtf::phase2::algo {
   private:
     const EMTFContext& context_;
 
-    void attach_segments(const segment_collection_t&, const road_t&, const bool&, track_t&) const;
+    void attachSegments(const segment_collection_t&, const road_t&, const bool&, track_t&) const;
   };
 
 }  // namespace emtf::phase2::algo

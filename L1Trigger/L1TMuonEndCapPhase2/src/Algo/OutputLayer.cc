@@ -29,7 +29,7 @@ void OutputLayer::apply(const int& endcap,
     EMTFTrack::site_mask_t site_mask;
     EMTFTrack::site_mask_t site_rm_mask;
 
-    for (int i = 0; i < v3::kNumTrackSites; i++) {
+    for (unsigned int i = 0; i < v3::kNumTrackSites; i++) {
       // Get attached segments
       const auto& site_seg_id = track.site_segs[i];
       const auto& site_bit = track.site_mask[i];
@@ -62,13 +62,13 @@ void OutputLayer::apply(const int& endcap,
     // Fill Feature Vector
     EMTFTrack::features_t model_features;
 
-    for (int i = 0; i < v3::kNumTrackFeatures; i++) {
+    for (unsigned int i = 0; i < v3::kNumTrackFeatures; i++) {
       model_features.push_back(track.features[i]);
     }
 
     // Find EMTF/GMT variables
-    const int emtf_mode_v1 = find_emtf_mode_v1(track.site_mask);
-    const int emtf_mode_v2 = find_emtf_mode_v2(track.site_mask);
+    const int emtf_mode_v1 = findEMTFModeV1(track.site_mask);
+    const int emtf_mode_v2 = findEMTFModeV2(track.site_mask);
 
     // Init Parameters
     auto& out_trk = out_tracks.emplace_back();
@@ -104,7 +104,7 @@ void OutputLayer::apply(const int& endcap,
   }  // End loop tracks
 }
 
-int OutputLayer::find_emtf_mode_v1(const track_t::site_mask_t& x) const {
+int OutputLayer::findEMTFModeV1(const track_t::site_mask_t& x) const {
   int mode = 0;
 
   if (x[0] or x[9] or x[1] or x[5] or x[11]) {  // ME1/1, GE1/1, ME1/2, RE1/2, ME0
@@ -161,7 +161,7 @@ int OutputLayer::find_emtf_mode_v1(const track_t::site_mask_t& x) const {
 // - at least one station
 //
 // Note that SingleMu, DoubleMu, TripleMu, SingleHit are mutually-exclusive categories.
-int OutputLayer::find_emtf_mode_v2(const track_t::site_mask_t& x) const {
+int OutputLayer::findEMTFModeV2(const track_t::site_mask_t& x) const {
   int mode = 0;
   int cnt_ye11 = x[0] + x[9];                                          // ME1/1, GE1/1
   int cnt_ye12 = x[1] + x[5];                                          // ME1/2, RE1/2

@@ -52,7 +52,7 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
     // Prepare input tensor
     float* input_data = input.flat<float>().data();
 
-    for (int i_feature = 0; i_feature < v3::kNumTrackFeatures; ++i_feature) {
+    for (unsigned int i_feature = 0; i_feature < v3::kNumTrackFeatures; ++i_feature) {
       const auto& feature = features[i_feature];
       const auto& feature_site = feature_sites[i_feature];
 
@@ -119,9 +119,9 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
       track.dxy_address = std::clamp<float>(dxy_address, -512, 511);
 
       track.q = (track.pt_address < 0);
-      track.pt = context_.activation_lut_.lookup_disp_pt(track.pt_address);
-      track.rels = context_.activation_lut_.lookup_rels(track.rels_address);
-      track.dxy = context_.activation_lut_.lookup_dxy(track.dxy_address);
+      track.pt = context_.activation_lut_.lookupDispPt(track.pt_address);
+      track.rels = context_.activation_lut_.lookupRels(track.rels_address);
+      track.dxy = context_.activation_lut_.lookupDxy(track.dxy_address);
     } else {
       // Read prompt pb outputs
       auto pt_address = outputs[0].matrix<float>()(0, 0);
@@ -132,8 +132,8 @@ void ParameterAssignmentLayer::apply(const bool& displaced_en, std::vector<track
       track.dxy_address = 0;
 
       track.q = (track.pt_address < 0);
-      track.pt = context_.activation_lut_.lookup_prompt_pt(track.pt_address);
-      track.rels = context_.activation_lut_.lookup_rels(track.rels_address);
+      track.pt = context_.activation_lut_.lookupPromptPt(track.pt_address);
+      track.rels = context_.activation_lut_.lookupRels(track.rels_address);
       track.dxy = 0;
     }
 

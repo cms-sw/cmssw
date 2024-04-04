@@ -33,7 +33,7 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
     // Initialize roads
     auto& roads = zone_roads.emplace_back();
 
-    for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+    for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
       roads[i_col].pattern = 0;
       roads[i_col].quality = 0;
     }
@@ -45,12 +45,12 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
       // Initialize activations
       pattern_activation_collection_t pac;
 
-      for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+      for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
         pac[i_col] = 0;
       }
 
       // Build activations
-      for (int i_row = 0; i_row < v3::kHitmapNRows; ++i_row) {  // Loop Rows
+      for (unsigned int i_row = 0; i_row < v3::kHitmapNRows; ++i_row) {  // Loop Rows
         // Pad the row with zeros to cover cases where
         // pattern range is out of range
         const auto& hitmap_row = hitmap[i_row];
@@ -67,15 +67,15 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
         // Convert the model pattern row to a padded row
         padded_row_t padded_pat_row = 0;
 
-        int offset = model_pat_row.begin;
+        unsigned int offset = model_pat_row.begin;
 
-        int bw = model_pat_row.end - model_pat_row.begin + 1;  // Add 1 since it's an inclusive range
+        unsigned int bw = model_pat_row.end - model_pat_row.begin + 1;  // Add 1 since it's an inclusive range
 
-        for (int i_bit = 0; i_bit < bw; ++i_bit)
+        for (unsigned int i_bit = 0; i_bit < bw; ++i_bit)
           padded_pat_row |= (padded_one << (offset + i_bit));
 
         // Slide the pattern row across the hitmap and check for 'activations'
-        for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+        for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
           // "AND" both rows together if the result is greater than 0
           // there is an activation
           padded_row_t result = padded_pat_row & padded_hm_row;
@@ -94,7 +94,7 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
       // Note: Since this is in a loop going from smallest pattern number
       // to the largest, cases where the quality is the same,
       // but the pattern number is larger the smaller one will be preferred
-      for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+      for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
         auto& activation = pac[i_col];
         auto quality = (*model_ql)[activation];
 
@@ -109,7 +109,7 @@ void PatternMatchingLayer::apply(const std::vector<hitmap_t>& zone_hitmaps,
 
     // Debug Info
     if (this->context_.config_.verbosity_ > 1) {
-      for (int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
+      for (unsigned int i_col = 0; i_col < v3::kHitmapNCols; ++i_col) {
         if (roads[i_col].quality == 0) {
           continue;
         }

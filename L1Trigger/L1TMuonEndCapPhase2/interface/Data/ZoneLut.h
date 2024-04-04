@@ -21,9 +21,9 @@ namespace emtf::phase2::data {
 
     void update(const edm::Event&, const edm::EventSetup&);
 
-    int get_zones(const int&, const int&) const;
+    int getZones(const int&, const int&) const;
 
-    int get_zones(const int&, const int&, const int&) const;
+    int getZones(const int&, const int&, const int&) const;
 
   private:
     std::vector<Zone> zones_;

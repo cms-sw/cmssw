@@ -79,28 +79,28 @@ void GE0TPCollector::collect(const edm::Event& i_event, BXTPCMap& bx_tpc_map) co
       // positive endcap
       // phiposition increases counter-clockwise
       if (tp_phiposition < phiposition_q1) {
-        tp_chamber = csc::next_10deg_chamber(tp_chamber);
+        tp_chamber = csc::getNext10DegChamber(tp_chamber);
       } else if (tp_phiposition < phiposition_q3) {
         // Do nothing
       } else {
-        tp_chamber = csc::prev_10deg_chamber(tp_chamber);
+        tp_chamber = csc::getPrev10DegChamber(tp_chamber);
       }
     } else {
       // negative endcap
       // phiposition increases clockwise
       if (tp_phiposition < phiposition_q1) {
-        tp_chamber = csc::prev_10deg_chamber(tp_chamber);
+        tp_chamber = csc::getPrev10DegChamber(tp_chamber);
       } else if (tp_phiposition < phiposition_q3) {
         // Do nothing
       } else {
-        tp_chamber = csc::next_10deg_chamber(tp_chamber);
+        tp_chamber = csc::getNext10DegChamber(tp_chamber);
       }
     }
 
-    const int tp_sector = csc::get_trigger_sector(tp_station, tp_ring, tp_chamber);
-    const int tp_subsector = csc::get_trigger_subsector(tp_station, tp_chamber);
-    const int tp_csc_id = csc::get_id(tp_station, tp_ring, tp_chamber);
-    const auto tp_csc_facing = csc::get_face_direction(tp_station, tp_ring, tp_chamber);
+    const int tp_sector = csc::getTriggerSector(tp_station, tp_ring, tp_chamber);
+    const int tp_subsector = csc::getTriggerSubsector(tp_station, tp_chamber);
+    const int tp_csc_id = csc::getId(tp_station, tp_ring, tp_chamber);
+    const auto tp_csc_facing = csc::getFaceDirection(tp_station, tp_ring, tp_chamber);
 
     // Assertion checks
     emtf_assert(kMinEndcap <= tp_endcap && tp_endcap <= kMaxEndcap);

@@ -31,17 +31,9 @@ namespace emtf::phase2::algo {
     std::array<float, 60> disp_pt_calibration_lut_;
     std::array<float, 60> disp_dxy_calibration_lut_;
 
-    int find_prompt_emtf_pt(const int&) const;
+    int findEMTFModeV1(const track_t::site_mask_t&) const;
 
-    int find_disp_emtf_pt(const int&) const;
-
-    int find_emtf_dxy(const int&) const;
-
-    int find_emtf_pt_no_calib(const int&) const;
-
-    int find_emtf_mode_v1(const track_t::site_mask_t&) const;
-
-    int find_emtf_mode_v2(const track_t::site_mask_t&) const;
+    int findEMTFModeV2(const track_t::site_mask_t&) const;
   };
 
 }  // namespace emtf::phase2::algo

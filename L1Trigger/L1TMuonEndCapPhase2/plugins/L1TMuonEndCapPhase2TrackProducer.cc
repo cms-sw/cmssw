@@ -71,9 +71,9 @@ void L1TMuonEndCapPhase2TrackProducer::produce(edm::Event& event, const edm::Eve
   event.emplace(in_token_, std::move(out_inputs));
 }
 
-void L1TMuonEndCapPhase2TrackProducer::beginStream(edm::StreamID stream_id) { track_finder_->on_job_begin(); }
+void L1TMuonEndCapPhase2TrackProducer::beginStream(edm::StreamID stream_id) { track_finder_->onJobBegin(); }
 
-void L1TMuonEndCapPhase2TrackProducer::endStream() { track_finder_->on_job_end(); }
+void L1TMuonEndCapPhase2TrackProducer::endStream() { track_finder_->onJobEnd(); }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TMuonEndCapPhase2TrackProducer);

@@ -19,7 +19,7 @@ void ME0TPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCM
   emtf_assert(tp.subsystem() == L1TMuon::kME0);
 
   // Map ME0 trigger primitives to input links
-  int ilink = get_input_link(tp, tp_info);  // Returns ME0 "link" index
+  int ilink = getInputLink(tp, tp_info);  // Returns ME0 "link" index
 
   // Short-Circuit: Link not found (ilink = -1)
   if (ilink < 0) {
@@ -32,7 +32,7 @@ void ME0TPSelector::select(const TriggerPrimitive& tp, TPInfo tp_info, ILinkTPCM
 // ===========================================================================
 // Utils
 // ===========================================================================
-int ME0TPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) const {
+int ME0TPSelector::getInputLink(const TriggerPrimitive& tp, TPInfo& tp_info) const {
   int ilink = -1;
 
   // Unpack detector info
@@ -45,17 +45,17 @@ int ME0TPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) c
   // Find selection type
   auto tp_selection = TPSelection::kNone;
 
-  if (csc::is_in_sector(endcap_, sector_, tp_endcap, tp_sector)) {
+  if (csc::isTPInSector(endcap_, sector_, tp_endcap, tp_sector)) {
     tp_selection = TPSelection::kNative;
   } else if (this->context_.config_.include_neighbor_en_ &&
-             csc::is_in_neighbor_sector(endcap_, sector_, tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_id)) {
+             csc::isTPInNeighborSector(endcap_, sector_, tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_id)) {
     tp_selection = TPSelection::kNeighbor;
   } else {  // Short-Circuit: tp_selection = TPSelection::kNone
     return ilink;
   }
 
   // Get chamber input link for this sector processor
-  ilink = calculate_input_link(tp_subsector, tp_csc_id, tp_selection);
+  ilink = calcInputLink(tp_subsector, tp_csc_id, tp_selection);
 
   // Add selection info
   tp_info.ilink = ilink;
@@ -64,9 +64,7 @@ int ME0TPSelector::get_input_link(const TriggerPrimitive& tp, TPInfo& tp_info) c
   return ilink;
 }
 
-int ME0TPSelector::calculate_input_link(const int& tp_subsector,
-                                        const int& tp_csc_id,
-                                        const TPSelection& tp_selection) const {
+int ME0TPSelector::calcInputLink(const int& tp_subsector, const int& tp_csc_id, const TPSelection& tp_selection) const {
   int ilink = -1;
 
   // Links
