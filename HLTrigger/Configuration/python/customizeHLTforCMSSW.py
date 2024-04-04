@@ -253,6 +253,15 @@ def customizeHLTfor44511(process):
             delattr(producer, 'AXOL1TLModelVersion')
     return process
 
+def customizeHLTfor44597(process):
+    """
+    Customisation for running HLT with the updated btag info producers from the PR 44597
+    """
+    for type in ["DeepFlavourTagInfoProducer", "ParticleTransformerAK4TagInfoProducer", "DeepBoostedJetTagInfoProducer"]:
+        for producer in producers_by_type(process, type):
+            if hasattr(producer, 'unsubjet_map'):
+                delattr(producer, 'unsubjet_map')
+    return process
     
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -272,5 +281,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # customizes AXOL1TL condition in the L1 menu
     process = customizeHLTfor44511(process)
+
+    process = customizeHLTfor44597(process)
 
     return process
