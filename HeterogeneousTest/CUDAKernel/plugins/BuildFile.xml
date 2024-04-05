@@ -1,4 +1,6 @@
 <iftool name="cuda-gcc-support">
+
+  
   <library file="*.cc *.cu" name="HeterogeneousTestCUDAKernelPlugins">
     <use name="cuda"/>
     <use name="FWCore/Framework"/>
