@@ -981,7 +981,6 @@ namespace l1t {
     //      std::cout << "----------------------" << std::endl;
     //    }
 
-    cout << " ======= muShowerBit = " << muShowerBit << " ; packed word = " << packedVal << endl;
 
     return packedVal;
   }
@@ -1002,37 +1001,6 @@ namespace l1t {
     packedVal |= ((cms_uint64_t)(0 & 0x1) << 34);            // & 0x1)   <<29);
     packedVal |= ((cms_uint64_t)(0 & 0xf) << 19);            // & 0xf)   <<30);
     packedVal |= ((cms_uint64_t)(0 & 0x3) << 32);            // & 0x3)   <<34);
-
-    if (false) {  // for debugging purposes
-      std::cout << "---- Non-existant Muon ------------------" << std::endl;
-      std::cout << "<<  0; mu->hwPhiAtVtx()        = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x3ff) << 0) << std::endl;
-      std::cout << "<< 10; mu->hwPt()              = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x1ff) << 10) << std::endl;
-      std::cout << "<< 19; mu->hwQual()            = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0xf) << 19) << std::endl;
-      std::cout << "<< 23; mu->hwEtaAtVtx()        = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x1ff) << 23) << std::endl;
-      std::cout << "<< 32; mu->hwIso()             = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x3) << 32) << std::endl;
-      std::cout << "<< 34; mu->hwCharge()          = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x1) << 34) << std::endl;
-      std::cout << "<< 35; mu->hwChargeValid()     = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x1) << 35) << std::endl;
-      std::cout << "<< 43; mu->hwPhi()             = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x3ff) << 43) << std::endl;
-      std::cout << "<< 53; mu->hwPtUnconstrained() = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0xff) << 53) << std::endl;
-      std::cout << "<< 61: muShowerBit             = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(muShowerBit & 0x1) << 61) << std::endl;
-      std::cout << "<< 62; mu->hwDXY()             = " << std::hex << std::setw(16) << std::setfill('0')
-                << ((cms_uint64_t)(0 & 0x3) << 62) << std::endl;
-      std::cout << "packedWord                     = " << std::hex << std::setw(16) << std::setfill('0') << packedVal
-                << std::endl;
-      std::cout << "----------------------" << std::endl;
-    }
-
-    cout << " ======= muShowerBit = " << muShowerBit << " ; packed word = " << packedVal << endl;
 
     return packedVal;
   }

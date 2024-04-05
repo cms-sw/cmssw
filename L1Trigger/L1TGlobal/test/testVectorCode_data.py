@@ -10,6 +10,7 @@ The latter can be used to change parameters in crab.
 
 job = 0 #job number
 njob = 1 #number of jobs
+#nevents = -1 #number of events
 nevents = 3564 #number of events
 rootout = False #whether to produce root file
 dump = False #dump python
@@ -18,6 +19,8 @@ newXML = False #whether running with the new Grammar
 # ----------------
 # Argument parsing
 # ----------------
+if len(sys.argv) > 1 and sys.argv[1].endswith('.py'):
+    sys.argv.pop(0)
 if len(sys.argv) == 2 and ':' in sys.argv[1]:
     argv = sys.argv[1].split(':')
 else:
@@ -77,8 +80,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        "/store/data/Run2022G/EphemeralHLTPhysics0/RAW/v1/000/362/720/00000/36f350d4-8e8a-4e38-b399-77ad9bf351dc.root"
-	),
+        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/8daa24c0-6005-41a8-a4f1-bd75b5bdf7a2.root",
+        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/cbe27e9e-1471-4eda-b011-5b56739f88bd.root",
+        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/03978c75-76b5-4334-aa88-9fb938f2540e.root",
+        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/e822a72d-988a-4cb0-9e40-f7b90fdeb6fc.root",
+    ),
     skipEvents = cms.untracked.uint32(skip)
     )
 
@@ -108,7 +114,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '124X_dataRun3_Prompt_v4', '')
 # ----------------
 process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-xmlMenu="L1Menu_Collisions2022_v1_4_0.xml"
+xmlMenu="L1Menu_Collisions2024_v1_0_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
@@ -139,8 +145,8 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 # Fill External conditions
 # ------------------------
 process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
-process.simGtExtFakeProd.bxFirst = cms.int32(-2)
-process.simGtExtFakeProd.bxLast = cms.int32(2)
+process.simGtExtFakeProd.bxFirst      = cms.int32(-2)
+process.simGtExtFakeProd.bxLast       = cms.int32(2)
 process.simGtExtFakeProd.setBptxAND   = cms.bool(True)
 process.simGtExtFakeProd.setBptxPlus  = cms.bool(True)
 process.simGtExtFakeProd.setBptxMinus = cms.bool(True)
@@ -150,15 +156,15 @@ process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 # Run the Stage 2 uGT emulator
 # ----------------------------
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
-process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
-process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
-process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtStage2Digis", "Muon")
+process.simGtStage2Digis.PrescaleSet        = cms.uint32(1)
+process.simGtStage2Digis.ExtInputTag        = cms.InputTag("simGtExtFakeProd")
+process.simGtStage2Digis.MuonInputTag       = cms.InputTag("gtStage2Digis", "Muon")
 process.simGtStage2Digis.MuonShowerInputTag = cms.InputTag("gtStage2Digis", "MuonShower")
-process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtStage2Digis", "EGamma")
-process.simGtStage2Digis.TauInputTag = cms.InputTag("gtStage2Digis", "Tau")
-process.simGtStage2Digis.JetInputTag = cms.InputTag("gtStage2Digis", "Jet")
-process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtStage2Digis", "ETSum")
-process.simGtStage2Digis.EmulateBxInEvent = cms.int32(1)
+process.simGtStage2Digis.EGammaInputTag     = cms.InputTag("gtStage2Digis", "EGamma")
+process.simGtStage2Digis.TauInputTag        = cms.InputTag("gtStage2Digis", "Tau")
+process.simGtStage2Digis.JetInputTag        = cms.InputTag("gtStage2Digis", "Jet")
+process.simGtStage2Digis.EtSumInputTag      = cms.InputTag("gtStage2Digis", "ETSum")
+process.simGtStage2Digis.EmulateBxInEvent   = cms.int32(1)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                                       egInputTag       = cms.InputTag("gtStage2Digis", "EGamma"),
@@ -199,18 +205,18 @@ process.MessageLogger.categories.append("MuConditon")
 # Setup Digi to Raw to Digi
 # -------------------------
 process.load('EventFilter.L1TRawToDigi.gtStage2Raw_cfi')
-process.gtStage2Raw.GtInputTag = cms.InputTag("simGtStage2Digis")
-process.gtStage2Raw.ExtInputTag = cms.InputTag("simGtExtFakeProd")
-process.gtStage2Raw.EGammaInputTag = cms.InputTag("gtInput")
-process.gtStage2Raw.TauInputTag = cms.InputTag("gtInput")
-process.gtStage2Raw.JetInputTag = cms.InputTag("gtInput")
-process.gtStage2Raw.EtSumInputTag = cms.InputTag("gtInput")
-process.gtStage2Raw.MuonInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.GtInputTag         = cms.InputTag("simGtStage2Digis")
+process.gtStage2Raw.ExtInputTag        = cms.InputTag("simGtExtFakeProd")
+process.gtStage2Raw.EGammaInputTag     = cms.InputTag("gtInput")
+process.gtStage2Raw.TauInputTag        = cms.InputTag("gtInput")
+process.gtStage2Raw.JetInputTag        = cms.InputTag("gtInput")
+process.gtStage2Raw.EtSumInputTag      = cms.InputTag("gtInput")
+process.gtStage2Raw.MuonInputTag       = cms.InputTag("gtInput")
 process.gtStage2Raw.MuonShowerInputTag = cms.InputTag("gtInput")
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
-process.newGtStage2Digis = process.gtStage2Digis.clone()
-process.newGtStage2Digis.InputLabel = cms.InputTag('gtStage2Raw')
+process.newGtStage2Digis               = process.gtStage2Digis.clone()
+process.newGtStage2Digis.InputLabel    = cms.InputTag('gtStage2Raw')
 # DEBUG 
 #process.newGtStage2Digis.debug = cms.untracked.bool(True) 
 
@@ -222,47 +228,47 @@ process.dumpRaw = cms.EDAnalyzer(
 )
 
 process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
-                egInputTag    = cms.InputTag("newGtStage2Digis","EGamma"),
-		muInputTag    = cms.InputTag("newGtStage2Digis","Muon"),
-		muShowerInputTag    = cms.InputTag("newGtStage2Digis","MuonShower"),
-		tauInputTag   = cms.InputTag("newGtStage2Digis","Tau"),
-		jetInputTag   = cms.InputTag("newGtStage2Digis","Jet"),
-		etsumInputTag = cms.InputTag("newGtStage2Digis","EtSum"),
-		uGtAlgInputTag = cms.InputTag("newGtStage2Digis"),
-		uGtExtInputTag = cms.InputTag("newGtStage2Digis"),
+                egInputTag       = cms.InputTag("newGtStage2Digis","EGamma"),
+		muInputTag       = cms.InputTag("newGtStage2Digis","Muon"),
+		muShowerInputTag = cms.InputTag("newGtStage2Digis","MuonShower"),
+		tauInputTag      = cms.InputTag("newGtStage2Digis","Tau"),
+		jetInputTag      = cms.InputTag("newGtStage2Digis","Jet"),
+		etsumInputTag    = cms.InputTag("newGtStage2Digis","EtSum"),
+		uGtAlgInputTag   = cms.InputTag("newGtStage2Digis"),
+		uGtExtInputTag   = cms.InputTag("newGtStage2Digis"),
 		uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),
-		bxOffset       = cms.int32(skip),
-		minBx          = cms.int32(0),
-		maxBx          = cms.int32(0),
-		minBxVec       = cms.int32(0),
-		maxBxVec       = cms.int32(0),
-		dumpGTRecord   = cms.bool(True),
-		dumpGTObjectMap= cms.bool(True),
-                dumpTrigResults= cms.bool(False),
-		dumpVectors    = cms.bool(False),
-		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+		bxOffset        = cms.int32(skip),
+		minBx           = cms.int32(0),
+		maxBx           = cms.int32(0),
+		minBxVec        = cms.int32(0),
+		maxBxVec        = cms.int32(0),
+		dumpGTRecord    = cms.bool(True),
+		dumpGTObjectMap = cms.bool(True),
+                dumpTrigResults = cms.bool(False),
+		dumpVectors     = cms.bool(False),
+		tvFileName      = cms.string( ("TestVector_%03d.txt") % job ),
                 ReadPrescalesFromFile = cms.bool(False),
-                psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
-                psColumn       = cms.int32(1)
+                psFileName      = cms.string( "prescale_L1TGlobal.csv" ),
+                psColumn        = cms.int32(1)
 		 )
 
 # -----------
 # GT analyzer
 # -----------
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
-                                           doText = cms.untracked.bool(False),
-                                           gmuToken = cms.InputTag("None"),
-                                           dmxEGToken = cms.InputTag("None"),
-                                           dmxTauToken = cms.InputTag("None"),
-                                           dmxJetToken = cms.InputTag("None"),
-                                           dmxEtSumToken = cms.InputTag("None"),
-                                           muToken = cms.InputTag("gtStage2Digis", "Muon"),
-                                           muShowerToken = cms.InputTag("gtStage2Digis", "MuonShower"),
-                                           egToken = cms.InputTag("gtStage2Digis", "EGamma"),
-                                           tauToken = cms.InputTag("gtStage2Digis", "Tau"),
-                                           jetToken = cms.InputTag("gtStage2Digis", "Jet"),
-                                           etSumToken = cms.InputTag("gtStage2Digis", "EtSum"),
-                                           gtAlgToken = cms.InputTag("simGtStage2Digis"),
+                                           doText         = cms.untracked.bool(False),
+                                           gmuToken       = cms.InputTag("None"),
+                                           dmxEGToken     = cms.InputTag("None"),
+                                           dmxTauToken    = cms.InputTag("None"),
+                                           dmxJetToken    = cms.InputTag("None"),
+                                           dmxEtSumToken  = cms.InputTag("None"),
+                                           muToken        = cms.InputTag("gtStage2Digis", "Muon"),
+                                           muShowerToken  = cms.InputTag("gtStage2Digis", "MuonShower"),
+                                           egToken        = cms.InputTag("gtStage2Digis", "EGamma"),
+                                           tauToken       = cms.InputTag("gtStage2Digis", "Tau"),
+                                           jetToken       = cms.InputTag("gtStage2Digis", "Jet"),
+                                           etSumToken     = cms.InputTag("gtStage2Digis", "EtSum"),
+                                           gtAlgToken     = cms.InputTag("simGtStage2Digis"),
                                            emulDxAlgToken = cms.InputTag("None"),
                                            emulGtAlgToken = cms.InputTag("simGtStage2Digis")
 )
