@@ -1,7 +1,5 @@
-#alpaka with no switch producer
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Accelerators_cff import *
-from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi import ProcessAcceleratorAlpaka
 
 from RecoLocalCalo.EcalRecProducers.ecalPhase2DigiToPortableProducer_cfi import ecalPhase2DigiToPortableProducer as _ecalPhase2DigiToPortableProducer
 ecalPhase2DigiToPortableProducer = _ecalPhase2DigiToPortableProducer.clone()
@@ -9,15 +7,15 @@ ecalPhase2DigiToPortableProducer = _ecalPhase2DigiToPortableProducer.clone()
 # portable weights
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2Portable_cfi import ecalUncalibRecHitPhase2Portable as _ecalUncalibRecHitPhase2Portable
 ecalUncalibRecHitPhase2Portable = _ecalUncalibRecHitPhase2Portable.clone(
-  digisLabelEB = ('ecalPhase2DigiToPortableProducer', 'ebDigis')
+        digisLabelEB = 'ecalPhase2DigiToPortableProducer:ebDigis'
 )
 
-from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertPortable2CPUFormat_cfi import ecalUncalibRecHitConvertPortable2CPUFormat as _ecalUncalibRecHitConvertPortable2CPUFormat
-ecalUncalibRecHitPhase2 = _ecalUncalibRecHitConvertPortable2CPUFormat.clone(
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitSoAToLegacy_cfi import ecalUncalibRecHitSoAToLegacy as _ecalUncalibRecHitSoAToLegacy
+ecalUncalibRecHitPhase2 = _ecalUncalibRecHitSoAToLegacy.clone(
     isPhase2 = True,
-    uncalibratedRecHitsLabelPortableEB = ('ecalUncalibRecHitPhase2Portable', 'EcalUncalibRecHitsEB'),
-    uncalibratedRecHitsLabelPortableEE = None,
-    uncalibratedRecHitsLabelCPUEE = None
+    uncalibRecHitsPortableEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB',
+    uncalibRecHitsPortableEE = None,
+    recHitsLabelCPUEE = None
 )
 
 
