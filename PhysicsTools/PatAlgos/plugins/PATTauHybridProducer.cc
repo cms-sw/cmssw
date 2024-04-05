@@ -28,6 +28,7 @@ private:
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetMatchToken_;
   const float dR2Max_, jetPtMin_, jetEtaMax_;
   const std::string pnetLabel_;
+  const std::string tagPrefix_;
   std::vector<std::string> pnetTauScoreNames_;
   std::vector<std::string> pnetJetScoreNames_;
   std::vector<std::string> pnetLepScoreNames_;
@@ -49,6 +50,7 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       jetPtMin_(cfg.getParameter<double>("jetPtMin")),
       jetEtaMax_(cfg.getParameter<double>("jetEtaMax")),
       pnetLabel_(cfg.getParameter<std::string>("pnetLabel")),
+      tagPrefix_(cfg.getParameter<std::string>("tagPrefix")), // (LUCAS) prefix
       pnetPtCorrName_(cfg.getParameter<std::string>("pnetPtCorrName")),
       tauScoreMin_(cfg.getParameter<double>("tauScoreMin")),
       vsJetMin_(cfg.getParameter<double>("vsJetMin")),
@@ -105,20 +107,20 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Minimal HPS-like tauID list
   std::vector<pat::Tau::IdPair> tauIds_minimal((size_t)tauId_min_idx::last);
   tauIds_minimal[(size_t)tauId_min_idx::hpsnew] = std::make_pair("decayModeFindingNewDMs", -1);
-
-  // PNet tauID list
+ 
+  // Unified Tagger tauID list
   std::vector<pat::Tau::IdPair> tauIds_pnet((size_t)tauId_pnet_idx::last);
-  tauIds_pnet[(size_t)tauId_pnet_idx::dm] = std::make_pair("byPNetDecayMode", reco::PFTau::kNull);
-  tauIds_pnet[(size_t)tauId_pnet_idx::vsjet] = std::make_pair("byPNetVSjetraw", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::vse] = std::make_pair("byPNetVSeraw", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::vsmu] = std::make_pair("byPNetVSmuraw", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::ptcorr] = std::make_pair("byPNetPtCorr", 1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::qconf] = std::make_pair("byPNetQConf", 0);
-  tauIds_pnet[(size_t)tauId_pnet_idx::pdm0] = std::make_pair("byPNetProb1h0pi0", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::pdm1] = std::make_pair("byPNetProb1h1pi0", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::pdm2] = std::make_pair("byPNetProb1h2pi0", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::pdm10] = std::make_pair("byPNetProb3h0pi0", -1);
-  tauIds_pnet[(size_t)tauId_pnet_idx::pdm11] = std::make_pair("byPNetProb3h1pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::dm] = std::make_pair(tagPrefix_ + "DecayMode", reco::PFTau::kNull);
+  tauIds_pnet[(size_t)tauId_pnet_idx::vsjet] = std::make_pair(tagPrefix_ + "VSjetraw", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::vse] = std::make_pair(tagPrefix_ + "VSeraw", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::vsmu] = std::make_pair(tagPrefix_ + "VSmuraw", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::ptcorr] = std::make_pair(tagPrefix_ + "PtCorr", 1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::qconf] = std::make_pair(tagPrefix_ + "QConf", 0);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm0] = std::make_pair(tagPrefix_ + "Prob1h0pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm1] = std::make_pair(tagPrefix_ + "Prob1h1pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm2] = std::make_pair(tagPrefix_ + "Prob1h2pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm10] = std::make_pair(tagPrefix_ + "Prob3h0pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm11] = std::make_pair(tagPrefix_ + "Prob3h1pi0", -1);
 
   std::set<unsigned int> matched_taus;
   size_t jet_idx = 0;
@@ -417,6 +419,7 @@ void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("jetPtMin", 20.0);
   desc.add<double>("jetEtaMax", 2.5);
   desc.add<std::string>("pnetLabel", "pfParticleNetAK4JetTags");
+  desc.add<std::string>("tagPrefix", "prefix for CHS or PUPPI Tagger");
   desc.add<std::vector<std::string>>(
       "pnetScoreNames",
       {"probmu",       "probele",      "probtaup1h0p", "probtaup1h1p", "probtaup1h2p", "probtaup3h0p", "probtaup3h1p",
