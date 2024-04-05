@@ -76,7 +76,7 @@ hltBTVmonitoring = topMonitoring.clone(
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
     muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !     
     
-    btagAlgos = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb","pfDeepFlavourJetTags:problepb"],
+    btagAlgos = ["pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll"],
     workingpoint = -1., #no cut applied
     
     HTdefinition = 'pt>30 & abs(eta)<2.5',
