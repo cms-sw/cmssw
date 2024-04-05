@@ -981,7 +981,6 @@ namespace l1t {
     //      std::cout << "----------------------" << std::endl;
     //    }
 
-
     return packedVal;
   }
 
