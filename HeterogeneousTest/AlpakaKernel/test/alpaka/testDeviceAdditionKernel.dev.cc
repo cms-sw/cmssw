@@ -68,7 +68,7 @@ TEST_CASE("HeterogeneousTest/AlpakaKernel test", "[alpakaTestDeviceAdditionKerne
         // launch the 1-dimensional kernel for vector addition
         alpaka::exec<Acc1D>(queue,
                             cms::alpakatools::make_workdiv<Acc1D>(32, 32),
-                            cms::alpakatest::KernelAddVectorsF{},
+                            test::KernelAddVectorsF{},
                             in1_d.data(),
                             in2_d.data(),
                             out_d.data(),

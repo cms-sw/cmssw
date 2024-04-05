@@ -12,19 +12,18 @@ Alpaka-based libraries, and using them from multiple plugins.
 The package `HeterogeneousTest/AlpakaKernel` implements a library that defines and exports Alpaka
 kernels that call the device functions defined in the `HeterogeneousTest/AlpakaDevice` library:
 ```c++
-namespace cms::alpakatest {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
 
   struct KernelAddVectorsF {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, ...) const;
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ...) const;
   };
 
   struct KernelAddVectorsD {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, ...) const;
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ...) const;
   };
 
-}  // namespace cms::alpakatest
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::test
 ```
 
 The `plugins` directory implements the `AlpakaTestKernelAdditionModule` `EDAnalyzer` that launches

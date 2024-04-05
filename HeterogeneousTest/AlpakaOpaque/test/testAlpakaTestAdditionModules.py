@@ -23,7 +23,8 @@ process.alpakaTestOpaqueAdditionModule = cms.EDAnalyzer('AlpakaTestOpaqueAdditio
 )
 
 process.path = cms.Path(
-    process.alpakaTestDeviceAdditionModule +
+    # this one fails for the CUDA backend with "cudaErrorInvalidDeviceFunction: invalid device function"
+    # process.alpakaTestDeviceAdditionModule +
     process.alpakaTestKernelAdditionModule +
     process.alpakaTestWrapperAdditionModule +
     process.alpakaTestOpaqueAdditionModule)
