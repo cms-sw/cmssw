@@ -16,13 +16,12 @@
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 struct KernelAddVectorsF {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(TAcc const& acc,
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 const float* __restrict__ in1,
                                 const float* __restrict__ in2,
                                 float* __restrict__ out,
                                 uint32_t size) const {
-    cms::alpakatest::add_vectors_f(acc, in1, in2, out, size);
+    test::add_vectors_f(acc, in1, in2, out, size);
   }
 };
 
