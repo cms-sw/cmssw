@@ -13,7 +13,7 @@ namespace hgcaldigi {
   // Generate structure of arrays (SoA) layout with Digi dataformat
   GENERATE_SOA_LAYOUT(HGCalDigiSoALayout,
                       // columns: one value per element
-                      SOA_COLUMN(uint32_t, electronicsId),
+                      //SOA_COLUMN(uint32_t, electronicsId), // redundant since common dense indexing
                       SOA_COLUMN(uint8_t, tctp),
                       SOA_COLUMN(uint16_t, adcm1),
                       SOA_COLUMN(uint16_t, adc),

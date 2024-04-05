@@ -163,7 +163,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       
       //fill SOA
       auto idigi = host_buffer.view()[i];
-      idigi.electronicsId() = eleid.raw();
+      //idigi.electronicsId() = eleid.raw();
       idigi.tctp() = tctp;
       idigi.adcm1() = adcm1;
       idigi.adc() = adc;

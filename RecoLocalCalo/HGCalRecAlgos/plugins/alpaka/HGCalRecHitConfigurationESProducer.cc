@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // NEW: fill SoA with default placeholders
         for (uint32_t imod = 0; imod < nmod; imod++) {
-          uint32_t charMode = charMode_;
+          //uint32_t charMode = charMode_;
           uint8_t gain = gain_; // allow manual override
           //std::cout << "Module imod=" << std::setw(3) << imod
           //          << ", charMode=" << charMode << ", gain=" << uint32_t(gain) << std::endl;

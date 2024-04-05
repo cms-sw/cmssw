@@ -13,7 +13,7 @@ namespace hgcalrechit {
   // Generate structure of arrays (SoA) layout with RecHit dataformat
   GENERATE_SOA_LAYOUT(HGCalRecHitSoALayout,
                       // columns: one value per element
-                      SOA_COLUMN(uint32_t, detid),
+                      //SOA_COLUMN(uint32_t, detid), // redundant since common dense indexing
                       SOA_COLUMN(double  , energy),
                       SOA_COLUMN(double  , time),
                       SOA_COLUMN(uint16_t, flags)
