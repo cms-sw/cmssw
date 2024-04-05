@@ -24,6 +24,12 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
 
+<bin name="alpakaTestBuffer" file="alpaka/testBuffer.dev.cc">
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
 <bin name="alpakaTestAtomicPairCounter" file="alpaka/testAtomicPairCounter.dev.cc">
   <use name="alpaka"/>
   <use name="catch2"/>
