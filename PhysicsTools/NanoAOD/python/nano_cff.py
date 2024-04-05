@@ -265,6 +265,10 @@ def nanoAOD_customizeCommon(process):
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
     )
 
+    # Add lepton time-life info
+    from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
+    process = addTimeLifeInfoBase(process)
+
     return process
 
 ###increasing the precision of selected GenParticles.
