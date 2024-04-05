@@ -139,13 +139,24 @@ def nanoAOD_addBoostedTauIds(process, idsToRun=[]):
 
     return process
 
-def nanoAOD_addPNetToTaus(process, addPNetInfo=False, runPNetCHSAK4=False):
-    if addPNetInfo:
+def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runPNetCHSAK4=False,
+                          usePUPPIjets=False, useCHSjets=False):
+    if addUTagInfo:
         originalTauName = process.finalTaus.src.value()
         updatedTauName = originalTauName+'WithPNet'
-        jetCollection = "updatedJets"
+        
+        # (LUCAS) option to choose either PUPPI or CHS
+        if usePUPPIjets:
+            jetCollection = "updatedJetsPuppi"
+            pnetTagName = "pfParticleNetFromMiniAODAK4PuppiCentralJetTag"
+            tag_prefix = "byUTagPUPPI"
+        elif useCHSjets:
+            jetCollection = "updatedJets"
+            pnetTagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
+            tag_prefix = "byUTagCHS"
+              
+        # TODO: (LUCAS) Will this need to change for Unified tagger?
         process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
-        pnetTagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
         pnetDiscriminators = [];
         for tag in getattr(process,pnetTagName+"s").flav_names.value():
             pnetDiscriminators.append(pnetTagName+"s:"+tag)
@@ -160,6 +171,7 @@ def nanoAOD_addPNetToTaus(process, addPNetInfo=False, runPNetCHSAK4=False):
             jetEtaMax = 2.5,
             pnetLabel = pnetTagName+"s",
             pnetScoreNames = pnetDiscriminators,
+            tagPrefix = tag_prefix,
             tauScoreMin = -1,
             vsJetMin = 0.05,
             checkTauScoreIsBest = False,
@@ -169,7 +181,7 @@ def nanoAOD_addPNetToTaus(process, addPNetInfo=False, runPNetCHSAK4=False):
         ))
         process.finalTaus.src = updatedTauName
 
-        # run PNet for CHS AK4 jets if requested
+        # TODO: (LUCAS) Rerun CHS or PUPPI Tagger depending on era 
         if runPNetCHSAK4:
             from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import nanoAOD_addDeepInfoAK4CHS
             process = nanoAOD_addDeepInfoAK4CHS(process,
@@ -252,10 +264,23 @@ def nanoAOD_customizeCommon(process):
     (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
         nanoAOD_tau_switch, runPNetAK4 = True
     )
-    nanoAOD_addPNetToTaus(process,
-                          addPNetInfo = nanoAOD_tau_switch.addPNet.value(),
-                          runPNetCHSAK4 = nanoAOD_tau_switch.runPNetAK4.value()
+    # TODO: (LUCAS) rerun for necessary versions
+    
+    # Add Unified Tagger For CHS Jets 
+    nanoAOD_addUTagToTaus(process,
+                          addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
+                          runPNetCHSAK4 = nanoAOD_tau_switch.runPNetAK4.value(),
+                          usePUPPIjets = False,
+                          useCHSjets = True
     )
+    # Add Unified Tagger For PUPPI Jets
+    nanoAOD_addUTagToTaus(process,
+                          addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
+                          runPNetCHSAK4 = nanoAOD_tau_switch.runPNetAK4.value(),
+                          usePUPPIjets = True,
+                          useCHSjets = False
+    )
+    
     nanoAOD_boostedTau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
