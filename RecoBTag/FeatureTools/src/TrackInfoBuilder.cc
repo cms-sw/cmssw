@@ -28,7 +28,7 @@ namespace btagbtvdeep {
         trackSip3dSig_(0),
         trackJetDistVal_(0),
         trackJetDistSig_(0),
-	trackJetDecayLen_(0) {}
+        trackJetDecayLen_(0) {}
 
   void TrackInfoBuilder::buildTrackInfo(const reco::Candidate *candidate,
                                         const math::XYZVector &jetDir,
@@ -64,7 +64,7 @@ namespace btagbtvdeep {
       trackSip3dSig_ = 0.;
       trackJetDistVal_ = 0.;
       trackJetDistSig_ = 0.;
-      trackJetDecayLen_=0.;
+      trackJetDecayLen_ = 0.;
       return;
     }
 
@@ -94,7 +94,7 @@ namespace btagbtvdeep {
     trackJetDistVal_ = static_cast<float>(jetdist.value());
     trackJetDistSig_ = static_cast<float>(jetdist.significance());
 
-    trackJetDecayLen_= static_cast<float>(decayl.value());
+    trackJetDecayLen_ = static_cast<float>(decayl.value());
   }
 
 }  // namespace btagbtvdeep

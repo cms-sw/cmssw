@@ -71,8 +71,8 @@ private:
   FloatArrays data_;
 };
 
-UnifiedParticleTransformerAK4ONNXJetTagsProducer::UnifiedParticleTransformerAK4ONNXJetTagsProducer(const edm::ParameterSet& iConfig,
-                                                                                     const ONNXRuntime* cache)
+UnifiedParticleTransformerAK4ONNXJetTagsProducer::UnifiedParticleTransformerAK4ONNXJetTagsProducer(
+    const edm::ParameterSet& iConfig, const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
@@ -87,14 +87,18 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Con
   // pfUnifiedParticleTransformerAK4JetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfUnifiedParticleTransformerAK4TagInfos"));
-  desc.add<std::vector<std::string>>("input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
-  desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("model/UParTAK4.onnx"));
+  desc.add<std::vector<std::string>>(
+      "input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/UParTAK4/PUPPI/V00/UParTAK4.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
-      "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probs", "probu", "probd", "probg", "probele", "probmu",
-      "probtaup1h0p", "probtaup1h1p", "probtaup1h2p", "probtaup3h0p", "probtaup3h1p", "probtaum1h0p", "probtaum1h1p", "probtaum1h2p", "probtaum3h0p", "probtaum3h1p",
-      "ptcorr", "ptreshigh", "ptreslow", "ptnu", "probemudata", "probemumc", "probdimudata", "probdimumc", "probmutaudata", "probmutaumc"});
+      "flav_names",
+      std::vector<std::string>{"probb",        "probbb",       "problepb",     "probc",         "probs",
+                               "probu",        "probd",        "probg",        "probele",       "probmu",
+                               "probtaup1h0p", "probtaup1h1p", "probtaup1h2p", "probtaup3h0p",  "probtaup3h1p",
+                               "probtaum1h0p", "probtaum1h1p", "probtaum1h2p", "probtaum3h0p",  "probtaum3h1p",
+                               "ptcorr",       "ptreshigh",    "ptreslow",     "ptnu",          "probemudata",
+                               "probemumc",    "probdimudata", "probdimumc",   "probmutaudata", "probmutaumc"});
 
   descriptions.add("pfUnifiedParticleTransformerAK4JetTags", desc);
 }
@@ -194,7 +198,8 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
   make_inputs(features);
 }
 
-void UnifiedParticleTransformerAK4ONNXJetTagsProducer::make_inputs(btagbtvdeep::UnifiedParticleTransformerAK4Features features) {
+void UnifiedParticleTransformerAK4ONNXJetTagsProducer::make_inputs(
+    btagbtvdeep::UnifiedParticleTransformerAK4Features features) {
   float* ptr = nullptr;
   const float* start = nullptr;
   unsigned offset = 0;
@@ -202,7 +207,7 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::make_inputs(btagbtvdeep::
   // c_pf candidates
   auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
   for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
-    const auto& c_pf_features = features.c_pf_features.at(c_pf_n);  
+    const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
     ptr = &data_[kChargedCandidates][offset + c_pf_n * n_features_cpf_];
     start = ptr;
     *ptr = c_pf_features.btagPf_trackEtaRel;
@@ -261,7 +266,7 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::make_inputs(btagbtvdeep::
     assert(start + n_features_lt_ - 1 == ptr);
   }
 
-    // n_pf candidates
+  // n_pf candidates
   auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
   for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
     const auto& n_pf_features = features.n_pf_features.at(n_pf_n);

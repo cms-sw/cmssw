@@ -18,9 +18,9 @@ namespace btagbtvdeep {
     lt_features.puppiw = puppiw;
     lt_features.charge = c_pf->charge();
 
-    lt_features.lostInnerHits = catch_infs(c_pf->lostInnerHits(),2);
-    lt_features.numberOfPixelHits = catch_infs(c_pf->numberOfPixelHits(),-1);
-    lt_features.numberOfStripHits = catch_infs(c_pf->stripLayersWithMeasurement(),-1);
+    lt_features.lostInnerHits = catch_infs(c_pf->lostInnerHits(), 2);
+    lt_features.numberOfPixelHits = catch_infs(c_pf->numberOfPixelHits(), -1);
+    lt_features.numberOfStripHits = catch_infs(c_pf->stripLayersWithMeasurement(), -1);
 
     // if PackedCandidate does not have TrackDetails this gives an Exception
     // because unpackCovariance might be called for pseudoTrack/bestTrack
@@ -34,7 +34,6 @@ namespace btagbtvdeep {
       lt_features.chi2 = catch_infs_and_bound(-1, 300, -1, 300);
       lt_features.quality = (1 << reco::TrackBase::loose);
     }
-
   }
   void recoCandidateToFeatures(const reco::PFCandidate* c_pf,
                                const reco::Jet& jet,
@@ -56,7 +55,6 @@ namespace btagbtvdeep {
     const auto& pseudo_track = (c_pf->bestTrack()) ? *c_pf->bestTrack() : reco::Track();
     lt_features.chi2 = catch_infs_and_bound(std::floor(pseudo_track.normalizedChi2()), 300, -1, 300);
     lt_features.quality = quality_from_pfcand(*c_pf);
-
   }
 
 }  // namespace btagbtvdeep

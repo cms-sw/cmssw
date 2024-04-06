@@ -73,8 +73,6 @@ namespace btagbtvdeep {
     c_pf_features.px = c_pf->px();
     c_pf_features.py = c_pf->py();
     c_pf_features.pz = c_pf->pz();
-
-    
   }
 
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,

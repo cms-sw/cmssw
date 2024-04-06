@@ -22,10 +22,10 @@ namespace btagbtvdeep {
 
     c_pf_features.CaloFrac = c_pf->caloFraction();
     c_pf_features.HadFrac = c_pf->hcalFraction();
-    c_pf_features.lostInnerHits = catch_infs(c_pf->lostInnerHits(),2);
-    c_pf_features.numberOfPixelHits = catch_infs(c_pf->numberOfPixelHits(),-1);
-    c_pf_features.numberOfStripHits = catch_infs(c_pf->stripLayersWithMeasurement(),-1);
-    
+    c_pf_features.lostInnerHits = catch_infs(c_pf->lostInnerHits(), 2);
+    c_pf_features.numberOfPixelHits = catch_infs(c_pf->numberOfPixelHits(), -1);
+    c_pf_features.numberOfStripHits = catch_infs(c_pf->stripLayersWithMeasurement(), -1);
+
     // if PackedCandidate does not have TrackDetails this gives an Exception
     // because unpackCovariance might be called for pseudoTrack/bestTrack
     if (c_pf->hasTrackDetails()) {
@@ -45,28 +45,22 @@ namespace btagbtvdeep {
     c_pf_features.dzsig = c_pf->bestTrack() ? catch_infs(c_pf->dz() / c_pf->dzError()) : 0;
 
     float pdgid_;
-    if (abs(c_pf->pdgId()) == 11 and c_pf->charge() != 0){
+    if (abs(c_pf->pdgId()) == 11 and c_pf->charge() != 0) {
       pdgid_ = 0.0;
-    }
-    else if (abs(c_pf->pdgId()) == 13 and c_pf->charge() != 0){
+    } else if (abs(c_pf->pdgId()) == 13 and c_pf->charge() != 0) {
       pdgid_ = 1.0;
-    }
-    else if (abs(c_pf->pdgId()) == 22 and c_pf->charge() == 0){
+    } else if (abs(c_pf->pdgId()) == 22 and c_pf->charge() == 0) {
       pdgid_ = 2.0;
-    }
-    else if (abs(c_pf->pdgId()) != 22 and c_pf->charge() == 0 and abs(c_pf->pdgId()) != 1 and abs(c_pf->pdgId()) != 2){
+    } else if (abs(c_pf->pdgId()) != 22 and c_pf->charge() == 0 and abs(c_pf->pdgId()) != 1 and
+               abs(c_pf->pdgId()) != 2) {
       pdgid_ = 3.0;
-    }
-    else if (abs(c_pf->pdgId()) != 11 and abs(c_pf->pdgId()) != 13 and c_pf->charge() != 0){
+    } else if (abs(c_pf->pdgId()) != 11 and abs(c_pf->pdgId()) != 13 and c_pf->charge() != 0) {
       pdgid_ = 4.0;
-    }
-    else if (c_pf->charge() == 0 and abs(c_pf->pdgId()) == 1){
+    } else if (c_pf->charge() == 0 and abs(c_pf->pdgId()) == 1) {
       pdgid_ = 5.0;
-    }
-    else if (c_pf->charge() == 0 and abs(c_pf->pdgId()) == 2){
+    } else if (c_pf->charge() == 0 and abs(c_pf->pdgId()) == 2) {
       pdgid_ = 6.0;
-    }
-    else{
+    } else {
       pdgid_ = 7.0;
     }
     c_pf_features.pdgID = pdgid_;

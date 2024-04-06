@@ -5,7 +5,6 @@ namespace btagbtvdeep {
 
   class LostTracksFeatures {
   public:
-
     float btagPf_trackEtaRel;
     float btagPf_trackPtRel;
     float btagPf_trackPPar;
@@ -28,7 +27,6 @@ namespace btagbtvdeep {
     float eta;
     float phi;
     float e;
-
   };
 
 }  // namespace btagbtvdeep
