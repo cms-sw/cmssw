@@ -1,5 +1,5 @@
-#ifndef CalibTracker_SiStripCommon_TKHistoMap_h
-#define CalibTracker_SiStripCommon_TKHistoMap_h
+#ifndef CalibTracker_SiStripCommon_TkDetMap_h
+#define CalibTracker_SiStripCommon_TkDetMap_h
 
 #include <vector>
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"

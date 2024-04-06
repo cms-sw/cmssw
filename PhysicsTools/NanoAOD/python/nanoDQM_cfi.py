@@ -13,14 +13,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 200, 3000, 'scalar sum of Et'),
             )
         ),
-        ChsMET = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'raw chs PF MET phi'),
-                Plot1D('pt', 'pt', 20, 0, 400, 'raw chs PF MET pt'),
-                Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'raw chs PF scalar sum of Et'),
-            )
-        ),
         CorrT1METJet = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -109,7 +101,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('mvaNoIso_Fall17V2_WPL', 'mvaNoIso_Fall17V2_WPL', 2, -0.5, 1.5, 'MVA noIso ID loose WP, Fall17V2'),
                 Plot1D('mvaHZZIso', 'mvaHZZIso', 20, -1, 1, 'HZZ MVA Iso ID score'),
                 Plot1D('mvaIso_WPHZZ', 'mvaIso_WPHZZ', 2, -0.5, 1.5, 'MVA Iso ID WPHZZ, Winter22V1'),
-                Plot1D('mvaTTH', 'mvaTTH', 20, -1, 1, 'TTH MVA lepton ID score'),
+                Plot1D('promptMVA', 'promptMVA', 20, -1, 1, 'prompt MVA lepton ID score'),
                 Plot1D('pdgId', 'pdgId', 27, -13.5, 13.5, 'PDG code assigned by the event reconstruction (not by MC truth)'),
                 Plot1D('miniPFRelIso_all', 'miniPFRelIso_all', 20, 0, 1, 'mini PF relative isolation, total (with scaled rho*EA PU corrections)'),
                 Plot1D('miniPFRelIso_chg', 'miniPFRelIso_chg', 20, 0, 1, 'mini PF relative isolation, charged component'),
@@ -223,8 +215,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('muEF', 'muEF', 20, 0, 1, 'muon Energy Fraction'),
                 Plot1D('neEmEF', 'neEmEF', 20, 0, 1, 'charged Electromagnetic EnergyFraction'),
                 Plot1D('neHEF', 'neHEF', 20, 0, 1, 'neutral Hadron Energy Fraction'),
-                Plot1D('nBHadrons', 'nBHadrons', 4, -0.5, 3.5, 'number of b-hadrons'),
-                Plot1D('nCHadrons', 'nCHadrons', 4, -0.5, 3.5, 'number of c-hadrons'),
                 Plot1D('particleNetMD_QCD', 'particleNetMD_QCD', 20, 0, 1, 'Mass-decorrelated ParticleNet tagger raw QCD score'),
                 Plot1D('particleNetMD_Xbb', 'particleNetMD_Xbb', 20, 0, 1, 'Mass-decorrelated ParticleNet tagger raw X->bb score. For X->bb vs QCD tagging, use Xbb/(Xbb+QCD)'),
                 Plot1D('particleNetMD_Xcc', 'particleNetMD_Xcc', 20, 0, 1, 'Mass-decorrelated ParticleNet tagger raw X->cc score. For X->cc vs QCD tagging, use Xcc/(Xcc+QCD)'),
@@ -323,6 +313,8 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
                 Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
                 Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('nBHadrons', 'nBHadrons', 4, -0.5, 3.5, 'number of b-hadrons'),
+                Plot1D('nCHadrons', 'nCHadrons', 4, -0.5, 3.5, 'number of c-hadrons'),
                 Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
@@ -335,6 +327,8 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
                 Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
                 Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('nBHadrons', 'nBHadrons', 4, -0.5, 3.5, 'number of b-hadrons'),
+                Plot1D('nCHadrons', 'nCHadrons', 4, -0.5, 3.5, 'number of c-hadrons'),
                 Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
@@ -493,24 +487,34 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('', '', 100, 0, 2, 'all weights'),
             )
         ),
-
-        MET = cms.PSet(
+        PFMET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
-                Plot1D('MetUnclustEnUpDeltaX', 'MetUnclustEnUpDeltaX', 20, -20, 20, 'Delta (METx_mod-METx) Unclustered Energy Up'),
-                Plot1D('MetUnclustEnUpDeltaY', 'MetUnclustEnUpDeltaY', 20, -10, 10, 'Delta (METy_mod-METy) Unclustered Energy Up'),
                 Plot1D('covXX', 'covXX', 20, 0, 40000, 'xx element of met covariance matrix'),
                 Plot1D('covXY', 'covXY', 20, -8000, 8000, 'xy element of met covariance matrix'),
                 Plot1D('covYY', 'covYY', 20, 0, 50000, 'yy element of met covariance matrix'),
-                Plot1D('fiducialGenPhi', 'fiducialGenPhi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('fiducialGenPt', 'fiducialGenPt', 20, 0, 400, 'pt'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
                 Plot1D('significance', 'significance', 20, 0, 200, 'MET significance'),
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
                 Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for MET significance'),
+
+                Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'pt Unclustered Up'),
+                Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'pt Unclustered Down'),
+                Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'phi Unclustered Up'),
+                Plot1D('phiUnclusteredDown', 'phiUnclusteredDown', 20, -3.14159, 3.14159, 'phi Unclustered Down'),
+
             )
         ),
+       
+        FiducialMET = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
+                )
+        ),
+
         Muon = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && mediumId && miniPFRelIso_all < 0.4')
@@ -550,7 +554,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('miniPFRelIso_chg', 'miniPFRelIso_chg', 20, 0, 1, 'mini PF relative isolation, charged component'),
                 Plot1D('multiIsoId', 'multiIsoId', 3, -0.5, 2.5, 'MultiIsoId from miniAOD selector (1=MultiIsoLoose, 2=MultiIsoMedium)'),
                 Plot1D('mvaLowPt', 'mvaLowPt', 20, -1, 1, 'Low pt muon ID score'),
-                Plot1D('mvaTTH', 'mvaTTH', 20, -1, 1, 'TTH MVA lepton ID score'),
+                Plot1D('promptMVA', 'promptMVA', 20, -1, 1, 'prompt MVA lepton ID score'),
                 Plot1D('mvaMuID', 'mvaMuID', 20, 0, 1, 'Score of MVA-based muon ID'),
                 Plot1D('mvaMuID_WP', 'mvaMuID_WP',  3, -0.5, 2.5, 'MVA-based ID selector WPs (1=MVAIDwpMedium,2=MVAIDwpTight)'),
                 Plot1D('nStations', 'nStations', 5, -0.5, 4.5, 'number of matched stations with default arbitration (segment & track)'),
@@ -615,6 +619,8 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('npvsGood', 'npvsGood', 20, 0, 60, 'total number of Good primary vertices'),
                 Plot1D('score', 'score', 20, 0, 300000, 'main primary vertex score, i.e. sum pt2 of clustered objects'),
                 Plot1D('sumpt2', 'sumpt2', 100, 0, 300000, 'main primary vertex sum pt2 of the charged pf candidates'),
+                Plot1D('sumpx', 'sumpx', 20, -100, 100, 'main primary vertex sum px of the charged pf candidates'),
+                Plot1D('sumpy', 'sumpy', 20, -100, 100, 'main primary vertex sum py of the charged pf candidates'),
                 Plot1D('x', 'x', 20, -0.3, 0.3, 'main primary vertex position x coordinate'),
                 Plot1D('y', 'y', 20, -0.3, 0.3, 'main primary vertex position y coordinate'),
                 Plot1D('z', 'z', 20, -20, 20, 'main primary vertex position z coordinate'),
@@ -720,24 +726,23 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         PuppiMET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
+
+                Plot1D('covXX', 'covXX', 20, 0, 40000, 'xx element of met covariance matrix'),
+                Plot1D('covXY', 'covXY', 20, -8000, 8000, 'xy element of met covariance matrix'),
+                Plot1D('covYY', 'covYY', 20, 0, 50000, 'yy element of met covariance matrix'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
-                Plot1D('phiJERUp', 'phiJERUp', 20, -3.14159, 3.14159, 'JER up phi'),
-                Plot1D('phiJERDown', 'phiJERDown', 20, -3.14159, 3.14159, 'JER down phi'),
-                Plot1D('phiJESUp', 'phiJESUp', 20, -3.14159, 3.14159, 'JES up phi'),
-                Plot1D('phiJESDown', 'phiJESDown', 20, -3.14159, 3.14159, 'JES down phi'),
-                Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'Unclustered up phi'),
-                Plot1D('phiUnclusteredDown', 'phiUnclusteredDown', 20, -3.14159, 3.14159, 'Unclustered down phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
-                Plot1D('ptJERUp', 'ptJERUp', 20, 0, 400, 'JER up pt'),
-                Plot1D('ptJERDown', 'ptJERDown', 20, 0, 400, 'JER down pt'),
-                Plot1D('ptJESUp', 'ptJESUp', 20, 0, 400, 'JES up pt'),
-                Plot1D('ptJESDown', 'ptJESDown', 20, 0, 400, 'JES down pt'),
-                Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'Unclustered up pt'),
-                Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'Unclustered down pt'),
-                Plot1D('sumEt', 'sumEt', 20, 200, 3000, 'scalar sum of Et'),
+                Plot1D('significance', 'significance', 20, 0, 200, 'PuppiMET significance'),
+                Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'scalar sum of Et'),
+                Plot1D('sumPtUnclustered', 'sumPtUnclustered', 20, 0, 3000, 'sumPt used for PuppiMET significance'),
+                
+                Plot1D('ptUnclusteredUp', 'ptUnclusteredUp', 20, 0, 400, 'pt Unclustered Up'),
+                Plot1D('ptUnclusteredDown', 'ptUnclusteredDown', 20, 0, 400, 'pt Unclustered Down'),
+                Plot1D('phiUnclusteredUp', 'phiUnclusteredUp', 20, -3.14159, 3.14159, 'phi Unclustered Up'),
+                Plot1D('phiUnclusteredDown', 'phiUnclusteredDown', 20, -3.14159, 3.14159, 'phi Unclustered Down'),
             )
         ),
-        RawMET = cms.PSet(
+        RawPFMET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
@@ -871,7 +876,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 NoPlot('status'),
             )
         ),        
-        TkMET = cms.PSet(
+        TrkMET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
@@ -964,3 +969,4 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
         ),
     )
 )
+

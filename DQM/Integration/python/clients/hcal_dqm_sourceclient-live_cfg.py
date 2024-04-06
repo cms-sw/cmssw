@@ -142,15 +142,15 @@ if isHeavyIon:
 #	Hcal DQM Tasks and Harvesters import
 #	New Style
 #-------------------------------------
-process.load("DQM.HcalTasks.DigiTask")
-process.load('DQM.HcalTasks.TPTask')
-process.load('DQM.HcalTasks.RawTask')
-process.load('DQM.HcalTasks.NoCQTask')
-process.load('DQM.HcalTasks.FCDTask')
-process.load('DQM.HcalTasks.ZDCTask')
+process.load("DQM.HcalTasks.DigiTask_cfi")
+process.load('DQM.HcalTasks.TPTask_cfi')
+process.load('DQM.HcalTasks.RawTask_cfi')
+process.load('DQM.HcalTasks.NoCQTask_cfi')
+process.load('DQM.HcalTasks.FCDTask_cfi')
+process.load('DQM.HcalTasks.ZDCTask_cff')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
-process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load('DQM.HcalTasks.HcalQualityTests')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting_cfi')
+process.load('DQM.HcalTasks.HcalQualityTests_cfi')
 process.load('DQM.HcalTasks.hcalMLTask_cfi')
 
 #-------------------------------------

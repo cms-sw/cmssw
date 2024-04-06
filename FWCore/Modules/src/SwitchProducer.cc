@@ -1,3 +1,7 @@
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wc++20-extensions"
+#endif
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -24,7 +28,7 @@ namespace edm {
     auto const& moduleLabel = iConfig.getParameter<std::string>("@module_label");
     auto const& chosenLabel = iConfig.getUntrackedParameter<std::string>("@chosen_case");
     auto const& processName = iConfig.getUntrackedParameter<std::string>("@process_name");
-    callWhenNewProductsRegistered([=](edm::BranchDescription const& iBranch) {
+    callWhenNewProductsRegistered([=, this](edm::BranchDescription const& iBranch) {
       if (iBranch.moduleLabel() == chosenLabel and iBranch.processName() == processName) {
         if (iBranch.branchType() != InEvent) {
           throw Exception(errors::UnimplementedFeature)

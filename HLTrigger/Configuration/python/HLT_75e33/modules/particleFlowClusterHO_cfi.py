@@ -58,7 +58,6 @@ particleFlowClusterHO = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("particleFlowRecHitHO"),
-    usePFThresholdsFromDB = cms.bool(False), # this needs to be True only for HBHE
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string('LocalMaximumSeedFinder'),
@@ -75,5 +74,6 @@ particleFlowClusterHO = cms.EDProducer("PFClusterProducer",
                 seedingThresholdPt = cms.double(0.0)
             )
         )
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(False)
 )

@@ -35,7 +35,7 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int valid,
                                      double chi2RZ,
                                      double bendChi2,
                                      unsigned int hitPattern,
-                                     unsigned int mvaQuality,
+                                     double mvaQuality,
                                      unsigned int mvaOther,
                                      unsigned int sector) {
   setTrackWord(valid, momentum, POCA, rInv, chi2RPhi, chi2RZ, bendChi2, hitPattern, mvaQuality, mvaOther, sector);
@@ -65,7 +65,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int valid,
                                      double chi2RZ,
                                      double bendChi2,
                                      unsigned int hitPattern,
-                                     unsigned int mvaQuality,
+                                     double mvaQuality,
                                      unsigned int mvaOther,
                                      unsigned int sector) {
   // first, derive quantities to be packed
@@ -85,7 +85,7 @@ void TTTrack_TrackWord::setTrackWord(unsigned int valid,
   chi2rz_t chi2RZ_ = getBin(chi2RZ, chi2RZBins);
   bendChi2_t bendChi2_ = getBin(bendChi2, bendChi2Bins);
   hit_t hitPattern_ = hitPattern;
-  qualityMVA_t mvaQuality_ = mvaQuality;
+  qualityMVA_t mvaQuality_ = getBin(mvaQuality, mvaQualityBins);
   otherMVA_t mvaOther_ = mvaOther;
 
   // pack the track word

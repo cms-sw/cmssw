@@ -106,14 +106,14 @@ process.hbhereco = process.hbheprereco.clone()
 #-------------------------------------
 #	Hcal DQM Tasks and Clients import
 #-------------------------------------
-process.load("DQM.HcalTasks.PedestalTask")
-process.load('DQM.HcalTasks.RawTask')
-process.load("DQM.HcalTasks.LaserTask")
-process.load("DQM.HcalTasks.LEDTask")
-process.load("DQM.HcalTasks.UMNioTask")
-process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load("DQM.HcalTasks.HFRaddamTask")
-process.load('DQM.HcalTasks.QIE11Task')
+process.load("DQM.HcalTasks.PedestalTask_cfi")
+process.load('DQM.HcalTasks.RawTask_cfi')
+process.load("DQM.HcalTasks.LaserTask_cfi")
+process.load("DQM.HcalTasks.LEDTask_cfi")
+process.load("DQM.HcalTasks.UMNioTask_cfi")
+process.load('DQM.HcalTasks.HcalOnlineHarvesting_cfi')
+process.load("DQM.HcalTasks.HFRaddamTask_cfi")
+process.load('DQM.HcalTasks.QIE11Task_cfi')
 
 #-------------------------------------
 #	To force using uTCA
@@ -239,12 +239,12 @@ process.p = cms.Path(
 #-------------------------------------
 print("Final Source settings:", process.source)
 process.options = cms.untracked.PSet(
-		Rethrow = cms.untracked.vstring(
-			"ProductNotFound",
-			"TooManyProducts",
-			"TooFewProducts"
-		)
-#		SkipEvent = cms.untracked.vstring(
-#			'ProductNotFound'
-#		)
+	Rethrow = cms.untracked.vstring(
+                #			"ProductNotFound",
+                "TooManyProducts",
+		"TooFewProducts"
+	),
+        TryToContinue = cms.untracked.vstring(
+                'ProductNotFound'                        
+        )
 )

@@ -53,51 +53,50 @@ public:
   };
 
   // distrips, strips, half-strips
-  enum Strip_Info {
-    // Each CFEB reads out 8 distrips...
-    NUM_DISTRIPS_PER_CFEB = 8,
-    //...16 strips...
-    NUM_STRIPS_PER_CFEB = 2 * NUM_DISTRIPS_PER_CFEB,
-    //...32 half-strips.
-    NUM_HALF_STRIPS_PER_CFEB = 2 * NUM_STRIPS_PER_CFEB,
-    // There are exactly 80 or 112 strips...
-    MAX_NUM_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_STRIPS_PER_CFEB,  // 80
-    MAX_NUM_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_STRIPS_PER_CFEB,  // 112
-    //...and 160 or 224 half-strips for 5 or 7 CFEBs...
-    MAX_NUM_HALF_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    MAX_NUM_HALF_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_HALF_STRIPS_PER_CFEB,  // 224
-    // ...but depending on the chamber, there may or may not be strip staggering.
-    /* CMS-MUO-16-001: "[..] alternate layers in a CSC are staggered by half a strip width, except
+  static constexpr int
+      // Each CFEB reads out 8 distrips...
+      NUM_DISTRIPS_PER_CFEB = 8,
+      //...16 strips...
+      NUM_STRIPS_PER_CFEB = 2 * NUM_DISTRIPS_PER_CFEB,
+      //...32 half-strips.
+      NUM_HALF_STRIPS_PER_CFEB = 2 * NUM_STRIPS_PER_CFEB,
+      // There are exactly 80 or 112 strips...
+      MAX_NUM_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_STRIPS_PER_CFEB,  // 80
+      MAX_NUM_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_STRIPS_PER_CFEB,  // 112
+      //...and 160 or 224 half-strips for 5 or 7 CFEBs...
+      MAX_NUM_HALF_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      MAX_NUM_HALF_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_HALF_STRIPS_PER_CFEB,  // 224
+      // ...but depending on the chamber, there may or may not be strip staggering.
+      /* CMS-MUO-16-001: "[..] alternate layers in a CSC are staggered by half a strip width, except
        in the ME1/1 chambers where the strips are narrower and the effect is small" */
-    // _TRIGGER is added at the end, because these constants are only used in the trigger
-    MAX_NUM_HALF_STRIPS_RUN1_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN1,  // 161
-    MAX_NUM_HALF_STRIPS_RUN2_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN2,  // 225
-    // Number of strips in ME11 (special case)
-    NUM_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_STRIPS_PER_CFEB,      // 16
-    NUM_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_STRIPS_PER_CFEB,  // 48
-    NUM_STRIPS_ME1B = NUM_CFEBS_ME1B * NUM_STRIPS_PER_CFEB,                    // 64
-    // Number of half-strips in ME11 (special case)
-    NUM_HALF_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 32
-    NUM_HALF_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 96
-    NUM_HALF_STRIPS_ME1B = NUM_CFEBS_ME1B * NUM_HALF_STRIPS_PER_CFEB,                    // 128
-    NUM_HALF_STRIPS_ME11_GANGED = NUM_CFEBS_ME11_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 160
-    NUM_HALF_STRIPS_ME11_UNGANGED = NUM_CFEBS_ME11_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 224
-    // max halfstrip number in ME1/1 chambers
-    MAX_HALF_STRIP_ME1A_GANGED = NUM_HALF_STRIPS_ME1A_GANGED - 1,      // 31
-    MAX_HALF_STRIP_ME1A_UNGANGED = NUM_HALF_STRIPS_ME1A_UNGANGED - 1,  // 95
-    MAX_HALF_STRIP_ME1B = NUM_HALF_STRIPS_ME1B - 1,                    // 127
-    // half-strips for the rest of the system
-    NUM_HALF_STRIPS_ME12 = NUM_CFEBS_ME12 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME13 = NUM_CFEBS_ME13 * NUM_HALF_STRIPS_PER_CFEB,  // 128
-    NUM_HALF_STRIPS_ME21 = NUM_CFEBS_ME21 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME22 = NUM_CFEBS_ME22 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME31 = NUM_CFEBS_ME31 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME32 = NUM_CFEBS_ME32 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME41 = NUM_CFEBS_ME41 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_ME42 = NUM_CFEBS_ME42 * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    // useful for the comparator code algorithm
-    INVALID_HALF_STRIP = 65535
-  };
+      // _TRIGGER is added at the end, because these constants are only used in the trigger
+      MAX_NUM_HALF_STRIPS_RUN1_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN1,  // 161
+      MAX_NUM_HALF_STRIPS_RUN2_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN2,  // 225
+      // Number of strips in ME11 (special case)
+      NUM_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_STRIPS_PER_CFEB,      // 16
+      NUM_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_STRIPS_PER_CFEB,  // 48
+      NUM_STRIPS_ME1B = NUM_CFEBS_ME1B * NUM_STRIPS_PER_CFEB,                    // 64
+      // Number of half-strips in ME11 (special case)
+      NUM_HALF_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 32
+      NUM_HALF_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 96
+      NUM_HALF_STRIPS_ME1B = NUM_CFEBS_ME1B * NUM_HALF_STRIPS_PER_CFEB,                    // 128
+      NUM_HALF_STRIPS_ME11_GANGED = NUM_CFEBS_ME11_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 160
+      NUM_HALF_STRIPS_ME11_UNGANGED = NUM_CFEBS_ME11_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 224
+      // max halfstrip number in ME1/1 chambers
+      MAX_HALF_STRIP_ME1A_GANGED = NUM_HALF_STRIPS_ME1A_GANGED - 1,      // 31
+      MAX_HALF_STRIP_ME1A_UNGANGED = NUM_HALF_STRIPS_ME1A_UNGANGED - 1,  // 95
+      MAX_HALF_STRIP_ME1B = NUM_HALF_STRIPS_ME1B - 1,                    // 127
+      // half-strips for the rest of the system
+      NUM_HALF_STRIPS_ME12 = NUM_CFEBS_ME12 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME13 = NUM_CFEBS_ME13 * NUM_HALF_STRIPS_PER_CFEB,  // 128
+      NUM_HALF_STRIPS_ME21 = NUM_CFEBS_ME21 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME22 = NUM_CFEBS_ME22 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME31 = NUM_CFEBS_ME31 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME32 = NUM_CFEBS_ME32 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME41 = NUM_CFEBS_ME41 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      NUM_HALF_STRIPS_ME42 = NUM_CFEBS_ME42 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+      // useful for the comparator code algorithm
+      INVALID_HALF_STRIP = 65535;
 
   // CSCs have 6 layers. The key (reference) layer is the third layer
   enum Layer_Info { NUM_LAYERS = 6, KEY_CLCT_LAYER = 3, KEY_ALCT_LAYER = 3 };

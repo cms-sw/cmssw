@@ -51,7 +51,6 @@ mixData = cms.EDProducer("PreMixingModule",
                 # To preserve the behaviour of copy-pasted version of premix worker
                 # All these are done in stage1 (for both signal and pileup)
                 AddNoise = False,
-                killModules = False,
                 MissCalibrate = False,
             ),
             workerType = cms.string("PreMixingSiPixelWorker"),

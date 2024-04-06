@@ -26,15 +26,24 @@ autoNANO = {
     'PHYS': {'sequence': '',
              'customize': ''},
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
-    'L1' : {'customize': 'nanoL1TrigObjCustomize'},
-    'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
+    'L1' : {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomize'},
+    'L1FULL' : {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull'},
+    #scouting nano
+    'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
+    'JME' : { 'sequence': '@PHYS',
+              'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
-    'MUPOG' : {'customize' : 'PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
+    'MUPOG' : {'sequence': '@PHYS',
+               'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
     # MUDPG flavours: use their own sequence
     'MUDPG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                   'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
+    # HCAL favlours:
+    'HCAL' : {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
+    'HCALCalib' : { 'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                    'customize': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.customiseHcalCalib'},
     #EGM flavours: add variables through customize
     'EGM' : {'sequence': '@PHYS',
              'customize' : '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},

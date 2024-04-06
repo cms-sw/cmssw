@@ -29,7 +29,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     # uGMT FW version to be set
     # Format: 0xMMmmvvpp for major.minor.very_minor.patch
     # E.g.: 2.1.0.patch1 translates to 0x02010001
-    fwVersion = cms.uint32(0x4010000),
+    fwVersion = cms.uint32(0x8010000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
@@ -98,15 +98,15 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     BONegMatchQualLUTfEtaCoarse   = cms.double(1),
     BONegMatchQualLUTfPhi         = cms.double(6),
 
-    FOPosMatchQualLUTMaxDR        = cms.double(0.075),
+    FOPosMatchQualLUTMaxDR        = cms.double(0.2),
     FOPosMatchQualLUTfEta         = cms.double(1),
     FOPosMatchQualLUTfEtaCoarse   = cms.double(1),
-    FOPosMatchQualLUTfPhi         = cms.double(3),
+    FOPosMatchQualLUTfPhi         = cms.double(2),
 
-    FONegMatchQualLUTMaxDR        = cms.double(0.075),
+    FONegMatchQualLUTMaxDR        = cms.double(0.2),
     FONegMatchQualLUTfEta         = cms.double(1),
     FONegMatchQualLUTfEtaCoarse   = cms.double(1),
-    FONegMatchQualLUTfPhi         = cms.double(3),
+    FONegMatchQualLUTfPhi         = cms.double(2),
 
     # parameters for SortRank LUT if no path to an external LUT is defined
     # If a path to an external LUT is defined these parameters have no effect

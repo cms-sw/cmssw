@@ -246,12 +246,10 @@ private:
 
   // much of this stolen from EcalSimAlgos/EcalCoder
 
-  enum {
-    NBITS = 12,            // number of available bits
-    MAXADC = 4095,         // 2^12 -1,  adc max range
-    ADCGAINSWITCH = 4079,  // adc gain switch
-    NGAINS = 3
-  };  // number of electronic gains
+  static constexpr int NBITS = 12,  // number of available bits
+      MAXADC = 4095,                // 2^12 -1,  adc max range
+      ADCGAINSWITCH = 4079,         // adc gain switch
+      NGAINS = 3;                   // number of electronic gains
 
   CaloSamples samplesInPE(const DIGI& digi);  // have to define this separately for ES
 

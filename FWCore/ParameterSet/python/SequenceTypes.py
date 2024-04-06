@@ -30,7 +30,7 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         return self
     def isOperation(self):
         """Returns True if the object is an operator (e.g. *,+ or !) type"""
@@ -101,7 +101,7 @@ class _BooleanLogicExpression(_BooleanLogicSequenceable):
     def _visitSubNodes(self,visitor):
         for i in self._items:
             i.visitNode(visitor)
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()):
         returnValue = ''
         join = ''
         operatorJoin =self.operatorString()
@@ -162,7 +162,7 @@ class _SequenceCollection(_Sequenceable):
     def _appendToCollection(self,collection):
         collection.extend(self._collection)
 
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         returnValue = ''
         separator = ''
         for item in self._collection:
@@ -172,27 +172,27 @@ class _SequenceCollection(_Sequenceable):
                 separator = '+'
         return returnValue
 
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         returnValue = self._collection[0].dumpSequenceConfig()
         for m in self._collection[1:]:
             returnValue += '&'+m.dumpSequenceConfig()
         return returnValue
 
-    def directDependencies(self,sortByType=True):
+    def directDependencies(self,sortByType:bool=True):
         return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def visitNode(self,visitor):
         for m in self._collection:
             m.visitNode(visitor)
 
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         self._collection = [x.resolve(processDict,keepIfCannotResolve) for x in self._collection]
         return self
 
     def index(self,item):
         return self._collection.index(item)
 
-    def insert(self,index,item):
+    def insert(self,index:int,item):
         self._collection.insert(index,item)
     def _replaceIfHeldDirectly(self,original,replacement):
         didReplace = False
@@ -211,7 +211,7 @@ class _SequenceCollection(_Sequenceable):
         return didReplace
 
 
-def findDirectDependencies(element, collection,sortByType=True):
+def findDirectDependencies(element, collection,sortByType:bool=True):
     dependencies = []
     for item in collection:
         # skip null items
@@ -296,11 +296,11 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             if not isinstance(task, _TaskBase):
                 raise TypeError("associate only works with objects of type Task")
             self._tasks.add(task)
-    def isFrozen(self):
+    def isFrozen(self) -> bool:
         return self._isFrozen
     def setIsFrozen(self):
         self._isFrozen = True
-    def _place(self,name,proc):
+    def _place(self,name:str,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
         _checkIfSequenceable(self, rhs)
@@ -319,18 +319,18 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self.visit(v)
         return v.resultString()
 
-    def dumpConfig(self, options):
+    def dumpConfig(self, options:PrintOptions) -> str:
         s = ''
         if self._seq is not None:
             s = self._seq.dumpSequenceConfig()
         return '{'+s+'}\n'
 
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         """Returns a string which is the python representation of the object"""
         s = self.dumpPythonNoNewline(options)
         return s + "\n"
 
-    def dumpPythonNoNewline(self, options=PrintOptions()):
+    def dumpPythonNoNewline(self, options:PrintOptions=PrintOptions()) -> str:
         s=''
         if self._seq is not None:
             s =self._seq.dumpSequencePython(options)
@@ -348,7 +348,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             return 'cms.'+type(self).__name__+'(*['+s+'])'
         return 'cms.'+type(self).__name__+'('+s+')'
 
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         """Returns a string which contains the python representation of just the internal sequence"""
         # only dump the label, if possible
         if self.hasLabel_():
@@ -362,7 +362,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             return ''
         return self.dumpPythonNoNewline(options)
 
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         """Returns a string which contains the old config language representation of just the internal sequence"""
         # only dump the label, if possible
         if self.hasLabel_():
@@ -379,7 +379,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
            s = str(self._seq)
         return "cms."+type(self).__name__+'('+s+')\n'
 
-    def directDependencies(self,sortByType=True):
+    def directDependencies(self,sortByType:bool=True):
         """Returns the list of modules and other entities that are directly used"""
         result = []
         if self._seq:
@@ -508,13 +508,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
               self._tasks.clear()
               self.associate(*v.result(self)[1])
         return v.didRemove()
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         if self._seq is not None:
             self._seq = self._seq.resolve(processDict,keepIfCannotResolve)
         for task in self._tasks:
             task.resolve(processDict,keepIfCannotResolve)
         return self
-    def __setattr__(self,name,value):
+    def __setattr__(self,name:str,value):
         if not name.startswith("_"):
             raise AttributeError("You cannot set parameters for sequence like objects.")
         else:
@@ -530,9 +530,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     #def __contains__(self,item):
     #"""returns whether or not 'item' is in the sequence"""
     #def modules_(self):
-    def nameInProcessDesc_(self, myname):
+    def nameInProcessDesc_(self, myname:str):
         return myname
-    def insertInto(self, parameterSet, myname, decoratedList):
+    def insertInto(self, parameterSet, myname:str, decoratedList):
         parameterSet.addVString(True, myname, decoratedList)
     def visit(self,visitor):
         """Passes to visitor's 'enter' and 'leave' method each item describing the module sequence.
@@ -554,10 +554,10 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
            raise RuntimeError("This operator cannot accept a sequence")
        if not isinstance(operand, _Sequenceable):
            raise RuntimeError("This operator cannot accept a non sequenceable type")
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         # allows replace(~a, b)
         return type(self) is type(other) and self._operand==other._operand
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
     def __hash__(self):
         # this definition implies that self._operand MUST NOT be changed after the construction
@@ -566,73 +566,73 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
         self._operand._findDependencies(knownDeps, presentDeps)
     def _clonesequence(self, lookuptable):
         return type(self)(self._operand._clonesequence(lookuptable))
-    def _has(self, op):
+    def _has(self, op) -> bool:
         return self._operand == op
     def resolve(self, processDict,keepIfCannotResolve=False):
         return type(self)(self._operand.resolve(processDict,keepIfCannotResolve))
-    def isOperation(self):
+    def isOperation(self) -> bool:
         return True
     def _visitSubNodes(self,visitor):
         self._operand.visitNode(visitor)
-    def decoration(self):
+    def decoration(self) -> str:
         self._operand.decoration()
-    def directDependencies(self,sortByType=True):
+    def directDependencies(self,sortByType:bool=True):
         return self._operand.directDependencies(sortByType=sortByType)
-    def label_(self):
+    def label_(self) -> str:
         return self._operand.label_()
 
 class _SequenceNegation(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
     def __init__(self, operand):
         super(_SequenceNegation,self).__init__(operand)
-    def __str__(self):
+    def __str__(self) -> str:
         return '~%s' %self._operand
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         return '!%s' %self._operand.dumpSequenceConfig()
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         if self._operand.isOperation():
             return '~(%s)' %self._operand.dumpSequencePython(options)
         return '~%s' %self._operand.dumpSequencePython(options)
-    def decoration(self):
+    def decoration(self) -> str:
         return '!'
 
 class _SequenceIgnore(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '-' operator"""
     def __init__(self, operand):
         super(_SequenceIgnore,self).__init__(operand)
-    def __str__(self):
+    def __str__(self) -> str:
         return 'ignore(%s)' %self._operand
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) ->str:
         return '-%s' %self._operand.dumpSequenceConfig()
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         return 'cms.ignore(%s)' %self._operand.dumpSequencePython(options)
-    def decoration(self):
+    def decoration(self) -> str:
         return '-'
 
 class _SequenceWait(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '|' operator"""
     def __init__(self, operand):
         super(_SequenceWait,self).__init__(operand)
-    def __str__(self):
+    def __str__(self) -> str:
         return 'wait(%s)' %self._operand
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         return '|%s' %self._operand.dumpSequenceConfig()
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         return 'cms.wait(%s)' %self._operand.dumpSequencePython(options)
-    def decoration(self):
+    def decoration(self) -> str:
         return '|'
 
 class _SequenceWaitAndIgnore(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '+' operator"""
     def __init__(self, operand):
         super(_SequenceWaitAndIgnore,self).__init__(operand)
-    def __str__(self):
+    def __str__(self) -> str:
         return 'wait(ignore(%s))' %self._operand
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         return '+%s' %self._operand.dumpSequenceConfig()
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         return 'cms.wait(cms.ignore(%s))' %self._operand.dumpSequencePython(options)
-    def decoration(self):
+    def decoration(self) -> str:
         return '+'
 
 def ignore(seq):
@@ -652,19 +652,19 @@ def wait(seq):
 class Path(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
         super(Path,self).__init__(*arg,**argv)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placePath(name,self)
 
 class EndPath(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
         super(EndPath,self).__init__(*arg,**argv)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeEndPath(name,self)
 
 class FinalPath(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
         super(FinalPath,self).__init__(*arg,**argv)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeFinalPath(name,self)
     def associate(self,task):
       raise TypeError("FinalPath does not allow associations with Tasks")
@@ -672,7 +672,7 @@ class FinalPath(_ModuleSequenceType):
 class Sequence(_ModuleSequenceType,_Sequenceable):
     def __init__(self,*arg,**argv):
         super(Sequence,self).__init__(*arg,**argv)
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         proc._placeSequence(name,self)
     def _clonesequence(self, lookuptable):
         if id(self) not in lookuptable:
@@ -688,16 +688,16 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
     def _visitSubNodes(self,visitor):
         self.visit(visitor)
 class SequencePlaceholder(_Sequenceable):
-    def __init__(self, name):
+    def __init__(self, name:str):
         self._name = name
-    def _placeImpl(self,name,proc):
+    def _placeImpl(self,name:str,proc):
         pass
     def __str__(self):
         return self._name
-    def insertInto(self, parameterSet, myname):
+    def insertInto(self, parameterSet, myname:str):
         raise RuntimeError("The SequencePlaceholder "+self._name
                            +" was never overridden")
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         if not self._name in processDict:
             #print str(processDict.keys())
             if keepIfCannotResolve:
@@ -720,11 +720,11 @@ class SequencePlaceholder(_Sequenceable):
         returnValue =SequencePlaceholder.__new__(type(self))
         returnValue.__init__(self._name)
         return returnValue
-    def dumpSequenceConfig(self):
+    def dumpSequenceConfig(self) -> str:
         return 'cms.SequencePlaceholder("%s")' %self._name
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options=PrintOptions()) -> str:
         return 'cms.SequencePlaceholder("%s")'%self._name
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         result = 'cms.SequencePlaceholder(\"'
         if options.isCfg:
            result += 'process.'
@@ -763,16 +763,16 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
                 raise TypeError("The associate function in the class Schedule only works with arguments of type Task")
             self._tasks.add(task)
     @staticmethod
-    def _itemIsValid(item):
+    def _itemIsValid(item) -> bool:
         return isinstance(item,Path) or isinstance(item,EndPath) or isinstance(item,FinalPath)
     def copy(self):
         import copy
         aCopy = copy.copy(self)
         aCopy._tasks = OrderedSet(self._tasks)
         return aCopy
-    def _place(self,label,process):
+    def _place(self,label:str,process):
         process.setPartialSchedule_(self,label)
-    def _replaceIfHeldDirectly(self,original,replacement):
+    def _replaceIfHeldDirectly(self,original,replacement) -> bool:
         """Only replaces an 'original' with 'replacement' if 'original' is directly held.
         If a contained Path or Task holds 'original' it will not be replaced."""
         didReplace = False
@@ -800,7 +800,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         for t in self._tasks:
             t.visit(visitor)
         return result
-    def contains(self, mod):
+    def contains(self, mod) -> bool:
         visitor = ContainsModuleVisitor(mod)
         for seq in self:
             seq.visit(visitor)
@@ -814,7 +814,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def tasks(self):
         """Returns the list of Tasks (that may contain other Tasks) that are associated directly to the Schedule."""
         return self._tasks
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         pathNames = ['process.'+p.label_() for p in self]
         if pathNames:
             s=', '.join(pathNames)
@@ -838,7 +838,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         else:
             return 'cms.Schedule()\n'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.dumpPython()
 
 # Fills a list of all Sequences visited
@@ -1451,7 +1451,7 @@ class _MutatingSequenceVisitor(object):
                     tasks.extend(c[2])
         return [seq, tasks]
 
-    def _didApply(self):
+    def _didApply(self) -> bool:
         return self.__didApply
 
 # This visitor can also be used on Tasks.
@@ -1468,7 +1468,7 @@ class _CopyAndRemoveFirstSequenceVisitor(_MutatingSequenceVisitor):
                     return None
                 return test
         super(type(self),self).__init__(_RemoveFirstOperator(moduleToRemove))
-    def didRemove(self):
+    def didRemove(self) -> bool:
         return self._didApply()
 
 # This visitor can also be used on Tasks.
@@ -1483,7 +1483,7 @@ class _CopyAndExcludeSequenceVisitor(_MutatingSequenceVisitor):
                     return None
                 return test
         super(type(self),self).__init__(_ExcludeOperator(modulesToRemove))
-    def didExclude(self):
+    def didExclude(self) -> bool:
         return self._didApply()
 
 # This visitor can also be used on Tasks.
@@ -1499,7 +1499,7 @@ class _CopyAndReplaceSequenceVisitor(_MutatingSequenceVisitor):
                     return self.__replace
                 return test
         super(type(self),self).__init__(_ReplaceOperator(target,replace))
-    def didReplace(self):
+    def didReplace(self) -> bool:
         return self._didApply()
 
 class _TaskBase(_ConfigureComponent, _Labelable) :
@@ -1507,7 +1507,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
         self._collection = OrderedSet()
         self.add(*items)
 
-    def __setattr__(self,name,value):
+    def __setattr__(self,name:str,value):
         if not name.startswith("_"):
             raise AttributeError("You cannot set parameters for {} objects.".format(self._taskType()))
         else:
@@ -1520,7 +1520,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
                                    "It is illegal to add this type to a {1}.".format(type(item).__name__, self._taskType()))
             self._collection.add(item)
 
-    def fillContents(self, taskContents, options=PrintOptions()):
+    def fillContents(self, taskContents, options:PrintOptions=PrintOptions()):
         # only dump the label, if possible
         if self.hasLabel_():
             taskContents.add(_Labelable.dumpSequencePython(self, options))
@@ -1531,11 +1531,11 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
                 else:
                     taskContents.add(i.dumpSequencePython(options))
 
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         s = self.dumpPythonNoNewline(options)
         return s + "\n"
 
-    def dumpPythonNoNewline(self, options=PrintOptions()):
+    def dumpPythonNoNewline(self, options:PrintOptions=PrintOptions()) -> str:
         """Returns a string which is the python representation of the object"""
         taskContents = set()
         for i in self._collection:
@@ -1554,13 +1554,13 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
             s = "*[" + s + "]"
         return "cms.{}({})".format(self._taskType(),s)
 
-    def directDependencies(self,sortByType=True):
+    def directDependencies(self,sortByType:bool=True):
         return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return False
 
-    def isLeaf(self):
+    def isLeaf(self) -> bool:
         return False
 
     def visit(self,visitor):
@@ -1570,14 +1570,14 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
                 i.visit(visitor)
             visitor.leave(i)
 
-    def _errorstr(self):
+    def _errorstr(self) -> str:
         return "{}(...)".format(self.taskType_())
 
     def __iter__(self):
         for key in self._collection:
             yield key
 
-    def __str__(self):
+    def __str__(self) -> str:
         l = []
         v = ModuleNodeVisitor(l)
         self.visit(v)
@@ -1588,7 +1588,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
             s += str (i)
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = str(self)
         return "cms."+type(self).__name__+'('+s+')\n'
 
@@ -1675,7 +1675,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
             self.add(*v.result(self))
         return v.didRemove()
 
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         temp = OrderedSet()
         for i in self._collection:
             if self._mustResolve(i):
@@ -1686,19 +1686,19 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
         return self
         
 class _TaskBasePlaceholder(object):
-    def __init__(self, name):
+    def __init__(self, name:str):
         self._name = name
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return False
-    def isLeaf(self):
+    def isLeaf(self) -> bool:
         return False
     def visit(self,visitor):
         pass
-    def __str__(self):
+    def __str__(self) -> str:
         return self._name
     def insertInto(self, parameterSet, myname):
         raise RuntimeError("The {} {} was never overridden".format(self._typeName(), self._name))
-    def resolve(self, processDict,keepIfCannotResolve=False):
+    def resolve(self, processDict,keepIfCannotResolve:bool=False):
         if not self._name in processDict:
             if keepIfCannotResolve:
                 return self
@@ -1711,9 +1711,9 @@ class _TaskBasePlaceholder(object):
         return o
     def copy(self):
         return self._makeInstance(self._name)
-    def dumpSequencePython(self, options=PrintOptions()):
+    def dumpSequencePython(self, options:PrintOptions=PrintOptions()) -> str:
         return 'cms.{}("{}")'.format(self._typeName(), self._name)
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
         result = 'cms.{}(\"'.format(self._typeName())
         if options.isCfg:
            result += 'process.'
@@ -1732,33 +1732,33 @@ class Task(_TaskBase) :
     to the process.
     """
     @staticmethod
-    def _taskType():
+    def _taskType() -> str:
       return "Task"
-    def _place(self, name, proc):
+    def _place(self, name:str, proc):
         proc._placeTask(name,self)
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return True
     @staticmethod
     def _makeInstance(*items):
       return Task(*items)
     @staticmethod
-    def _allowedInTask(item ):
+    def _allowedInTask(item ) -> bool:
       return (isinstance(item, _ConfigureComponent) and item._isTaskComponent()) or isinstance(item, TaskPlaceholder)
     @staticmethod
-    def _mustResolve(item):
+    def _mustResolve(item) -> bool:
         return isinstance(item, Task) or isinstance(item, TaskPlaceholder)
       
 class TaskPlaceholder(_TaskBasePlaceholder):
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return True
     @staticmethod
-    def _typeName():
+    def _typeName() -> str:
       return "TaskPlaceholder"
     @staticmethod
     def _makeInstance(name):
       return TaskPlaceholder(name)
     @staticmethod
-    def _allowedInTask(obj):
+    def _allowedInTask(obj) -> bool:
       return Task._allowedInTask(obj)
     @staticmethod
     def _taskClass():
@@ -1776,32 +1776,32 @@ class ConditionalTask(_TaskBase) :
     @staticmethod
     def _taskType():
       return "ConditionalTask"
-    def _place(self, name, proc):
+    def _place(self, name:str, proc):
         proc._placeConditionalTask(name,self)
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return False
     @staticmethod
     def _makeInstance(*items):
       return ConditionalTask(*items)
     @staticmethod
-    def _allowedInTask(item):
+    def _allowedInTask(item) -> bool:
       return isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder) or Task._allowedInTask(item)
     @staticmethod
-    def _mustResolve(item):
+    def _mustResolve(item) -> bool:
         return Task._mustResolve(item) or isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder)
 
 
 class ConditionalTaskPlaceholder(_TaskBasePlaceholder):
-    def _isTaskComponent(self):
+    def _isTaskComponent(self) -> bool:
         return False
     @staticmethod
-    def _typeName():
+    def _typeName() -> str:
       return "ConditionalTaskPlaceholder"
     @staticmethod
     def _makeInstance(name):
       return ConditionalTaskPlaceholder(name)
     @staticmethod
-    def _allowedInTask(obj):
+    def _allowedInTask(obj) -> bool:
       return Task._allowedInTask(obj) or ConditionalTask._allowedInTask(obj)
     @staticmethod
     def _taskClass():

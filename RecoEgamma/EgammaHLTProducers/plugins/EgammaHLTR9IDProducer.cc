@@ -82,7 +82,11 @@ void EgammaHLTR9IDProducer::produce(edm::StreamID sid, edm::Event& iEvent, const
   reco::RecoEcalCandidateIsolationMap r95x5Map(recoecalcandHandle);
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);  //-recoecalcandHandle->begin());
-
+    if (recoecalcandref->superCluster()->seed()->seed().det() != DetId::Ecal) {     //HGCAL, skip for now
+      r9Map.insert(recoecalcandref, 1.0);
+      r95x5Map.insert(recoecalcandref, 1.0);
+      continue;
+    }
     float r9 = -1;
     float r95x5 = -1;
 

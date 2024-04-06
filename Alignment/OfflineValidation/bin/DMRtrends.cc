@@ -136,17 +136,17 @@ int trends(int argc, char *argv[]) {
 
   for (auto const &Variable : validation.get_child("Variables")) {
     vector<tuple<TString, TString, float, float>> DMRs{{"mu", "#mu [#mum]", -6, 6},
-                                                       {"sigma", "#sigma_{#mu} [#mum]", -15, 15},
+                                                       {"sigma", "#sigma_{#mu} [#mum]", -5, 5},
                                                        {"muplus", "#mu outward [#mum]", -6, 6},
-                                                       {"sigmaplus", "#sigma_{#mu outward} [#mum]", -15, 15},
+                                                       {"sigmaplus", "#sigma_{#mu outward} [#mum]", -5, 5},
                                                        {"muminus", "#mu inward [#mum]", -6, 6},
-                                                       {"sigmaminus", "#sigma_{#mu inward} [#mum]", -15, 15},
-                                                       {"deltamu", "#Delta#mu [#mum]", -15, 15},
-                                                       {"sigmadeltamu", "#sigma_{#Delta#mu} [#mum]", -15, 15},
-                                                       {"musigma", "#mu [#mum]", -6, 6},
-                                                       {"muplussigmaplus", "#mu outward [#mum]", -15, 15},
-                                                       {"muminussigmaminus", "#mu inward [#mum]", -15, 15},
-                                                       {"deltamusigmadeltamu", "#Delta#mu [#mum]", -15, 15}};
+                                                       {"sigmaminus", "#sigma_{#mu inward} [#mum]", -5, 5},
+                                                       {"deltamu", "#Delta#mu [#mum]", -5, 5},
+                                                       {"sigmadeltamu", "#sigma_{#Delta#mu} [#mum]", -5, 5},
+                                                       {"musigma", "#mu [#mum]", -2, 4},
+                                                       {"muplussigmaplus", "#mu outward [#mum]", -5, 5},
+                                                       {"muminussigmaminus", "#mu inward [#mum]", -5, 5},
+                                                       {"deltamusigmadeltamu", "#Delta#mu [#mum]", -5, 10}};
 
     if (Variable.second.get_value<string>() == "DrmsNR") {
       DMRs = {{"mu", "RMS(x'_{pred}-x'_{hit} /#sigma)", -1.2, 1.2},

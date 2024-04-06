@@ -37,10 +37,12 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
     from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
     from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
+    from Configuration.Eras.Modifier_run3_muon_cff import run3_muon
     run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
-    
+    run3_muon.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
+
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -126,6 +128,8 @@ def miniAOD_customizeCommon(process):
     pp_on_AA.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
     from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
     run3_upc.toModify(process.selectedPatMuons, cut = "")
+    from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+    ppRef_2024.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || isTrackerMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon))")
 
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
@@ -182,20 +186,6 @@ def miniAOD_customizeCommon(process):
     task.add(process.slimmedMETs)
     (~pp_on_AA).toModify(process.slimmedMETs, addDeepMETs = True)
 
-    def _add_slimmedMETsNoHF(process):
-        addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
-        process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
-        process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
-        process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
-        process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
-        process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
-        process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
-        del process.slimmedMETsNoHF.caloMET
-    (~pp_on_AA).toModify(process, _add_slimmedMETsNoHF)
     # ================== NoHF pfMET
 
     #  ==================  CHSMET 

@@ -22,7 +22,7 @@ class ScheduleTaskValidator(object):
 class PathValidator(object):
     def __init__(self):
         self.__label = ''
-    def setLabel(self,label):
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
@@ -44,7 +44,7 @@ class EndPathValidator(object):
         self.filtersOnEndpaths = []
         self.__label = ''
         self._levelInTasks = 0
-    def setLabel(self,label):
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if visitee.isLeaf():
@@ -73,7 +73,7 @@ class FinalPathValidator(object):
         self.__label = ''
         self._levelInTasks = 0
         self.invalidModulesOnFinalpaths = []
-    def setLabel(self,label):
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if visitee.isLeaf():

@@ -22,7 +22,6 @@ MicroEventContent = cms.PSet(
         'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
         'keep *_slimmedJetsPuppi_*_*',
         'keep *_slimmedMETs_*_*',
-        'keep *_slimmedMETsNoHF_*_*',
         'keep *_slimmedMETsPuppi_*_*',
         'keep *_slimmedSecondaryVertices_*_*',
         'keep *_slimmedLambdaVertices_*_*',
@@ -171,6 +170,14 @@ _upc_extraCommands = [
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _upc_extraCommands)
+
+_ppRef_extraCommands = [
+    'keep floatedmValueMap_*TrackChi2_*_*',
+    'keep recoClusterCompatibility_hiClusterCompatibility_*_*',
+]
+
+from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+ppRef_2024.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _ppRef_extraCommands)
 
 _zdc_extraCommands = ['keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*']
 from Configuration.ProcessModifiers.storeZDCDigis_cff import storeZDCDigis

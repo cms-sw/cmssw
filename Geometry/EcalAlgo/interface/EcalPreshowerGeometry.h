@@ -30,11 +30,11 @@ public:
   typedef CaloSubdetectorGeometry::ParVecVec ParVecVec;
   typedef ESDetId DetIdType;
 
-  enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing };
+  static constexpr int k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing;
 
-  enum { k_NumberOfShapes = 4 };
+  static constexpr int k_NumberOfShapes = 4;
 
-  enum { k_NumberOfParametersPerShape = 4 };
+  static constexpr int k_NumberOfParametersPerShape = 4;
 
   static std::string dbString() { return "PEcalPreshowerRcd"; }
 

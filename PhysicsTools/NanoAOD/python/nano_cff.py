@@ -27,7 +27,6 @@ from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.fsrPhotons_cff import *
 from PhysicsTools.NanoAOD.softActivity_cff import *
-from PhysicsTools.NanoAOD.l1trig_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -230,7 +229,6 @@ def nanoAOD_customizeCommon(process):
         addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
         addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
         addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
-        addParticleNetMassLegacy=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMassLegacy_switch,
         addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
         jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
     )
@@ -279,11 +277,3 @@ def nanoWmassGenCustomize(process):
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
     return process
 
-def nanoL1TrigObjCustomize(process):
-    process.nanoTableTaskCommon.add(process.l1TablesTask)
-    process = setL1NanoToReduced(process)
-    return process
-
-def nanoL1TrigObjCustomizeFull(process):
-    process.nanoTableTaskCommon.add(process.l1TablesTask)
-    return process

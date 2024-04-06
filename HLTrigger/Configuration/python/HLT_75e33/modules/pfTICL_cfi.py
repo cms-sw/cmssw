@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 pfTICL = cms.EDProducer("PFTICLProducer",
     mightGet = cms.optional.untracked.vstring,
-    #muonSrc = cms.InputTag("muons1stStep"),
     muonSrc = cms.InputTag("hltPhase2L3Muons"),
     pfMuonAlgoParameters = cms.PSet(
         cosmicRejectionDistance = cms.double(1),

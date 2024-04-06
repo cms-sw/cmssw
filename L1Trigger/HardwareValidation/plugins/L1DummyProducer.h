@@ -504,8 +504,9 @@ inline void L1DummyProducer::SimpleDigi(int,
   //tbd: set non-trivial random values
   dg.clear();  // set contents to zero
   //CSCDetId( int iendcap, int istation, int iring, int ichamber, int ilayer = 0 );
-  enum eMinNum { MIN_ENDCAP = 1, MIN_STATION = 1, MIN_RING = 1, MIN_CHAMBER = 1, MIN_LAYER = 1 };
-  enum eMaxNum { MAX_ENDCAP = 2, MAX_STATION = 4, MAX_RING = 4, MAX_CHAMBER = 36, MAX_LAYER = 6 };
+  static constexpr int MIN_ENDCAP = 1, MIN_STATION = 1, MIN_RING = 1, MIN_CHAMBER = 1, MIN_LAYER = 1;
+  static constexpr int MAX_ENDCAP = 2, MAX_STATION = 4, MAX_RING = 4, MAX_CHAMBER = 36, MAX_LAYER = 6;
+
   float rnd = engine->flat();
   int ec = (int)(MIN_ENDCAP + (MAX_ENDCAP - MIN_ENDCAP) * rnd + 1);
   int st = (int)(MIN_STATION + (MAX_STATION - MIN_STATION) * rnd + 1);

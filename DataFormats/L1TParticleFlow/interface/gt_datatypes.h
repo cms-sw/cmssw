@@ -257,10 +257,10 @@ namespace l1gt {
   struct Electron {
     valid_t valid;
     ThreeVector v3;
-    egquality_t quality;
+    egquality_t qualityFlags;
     ap_uint<1> charge;
     z0_t z0;
-    iso_t isolation;
+    iso_t isolationPT;
 
     static const int BITWIDTH = 96;
     inline ap_uint<BITWIDTH> pack() const {
@@ -268,8 +268,8 @@ namespace l1gt {
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
-      pack_into_bits(ret, start, quality);
-      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, qualityFlags);
+      pack_into_bits(ret, start, isolationPT);
       pack_into_bits(ret, start, charge);
       pack_into_bits(ret, start, z0);
       return ret;
@@ -281,8 +281,8 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.pt);
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
-      unpack_from_bits(src, start, quality);
-      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, qualityFlags);
+      unpack_from_bits(src, start, isolationPT);
       unpack_from_bits(src, start, charge);
       unpack_from_bits(src, start, z0);
     }
@@ -309,8 +309,8 @@ namespace l1gt {
   struct Photon {
     valid_t valid;
     ThreeVector v3;
-    egquality_t quality;
-    iso_t isolation;
+    egquality_t qualityFlags;
+    iso_t isolationPT;
 
     static const int BITWIDTH = 96;
     inline ap_uint<BITWIDTH> pack() const {
@@ -318,8 +318,8 @@ namespace l1gt {
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
-      pack_into_bits(ret, start, quality);
-      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, qualityFlags);
+      pack_into_bits(ret, start, isolationPT);
       return ret;
     }
 
@@ -329,8 +329,8 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.pt);
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
-      unpack_from_bits(src, start, quality);
-      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, qualityFlags);
+      unpack_from_bits(src, start, isolationPT);
     }
 
     inline static Photon unpack_ap(const ap_uint<BITWIDTH> &src) {

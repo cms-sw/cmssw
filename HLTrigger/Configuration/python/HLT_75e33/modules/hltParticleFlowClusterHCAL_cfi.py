@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
     clustersSource = cms.InputTag("hltParticleFlowClusterHBHE"),
-    usePFThresholdsFromDB = cms.bool(True), 
     energyCorrector = cms.PSet(
 
     ),
@@ -14,7 +13,6 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
                 cms.PSet(
                     depths = cms.vint32(1, 2, 3, 4),
                     detector = cms.string('HCAL_BARREL1'),
-                    #Run3 thresholds. Will be overwritten with valid aging customisation
                     logWeightDenominator = cms.vdouble(0.1, 0.2, 0.3, 0.3)
                 ),
                 cms.PSet(
@@ -39,5 +37,6 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
     ),
     positionReCalc = cms.PSet(
 
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(True)
 )

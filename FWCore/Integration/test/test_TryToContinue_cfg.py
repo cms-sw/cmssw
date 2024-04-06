@@ -25,9 +25,9 @@ elif args.inLumi:
 else:
     process.fail = cms.EDProducer("FailingProducer")
 
-process.shouldRun1 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(6+3), verbose = cms.untracked.bool(False))
-process.shouldRun2 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(6+3), verbose = cms.untracked.bool(False))
-process.shouldNotRun = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(6), verbose = cms.untracked.bool(False))
+process.shouldRun1 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(4+3), nLumis = cms.untracked.uint32(1), verbose = cms.untracked.bool(False))
+process.shouldRun2 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(4+3), nLumis = cms.untracked.uint32(1), verbose = cms.untracked.bool(False))
+process.shouldNotRun = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(4), nLumis = cms.untracked.uint32(1), verbose = cms.untracked.bool(False))
 process.dependentFilter = cms.EDFilter("IntProductFilter",
    label = cms.InputTag("fail"),
    threshold = cms.int32(0),
@@ -52,12 +52,18 @@ if args.inRun:
     process.shouldRun1.transitions=2
     process.shouldRun2.transitions=2
     process.shouldNotRun.transitions=2
+    process.shouldRun1.nLumis=0
+    process.shouldRun2.nLumis=0
+    process.shouldNotRun.nLumis=0
 
 if args.inLumi:
     process.independentAnalyzer.expectedSum = 0
     process.shouldRun1.transitions=4
     process.shouldRun2.transitions=4
     process.shouldNotRun.transitions=4
+    process.shouldRun1.nLumis=0
+    process.shouldRun2.nLumis=0
+    process.shouldNotRun.nLumis=0
 
 process.seq = cms.Sequence()
 process.t = cms.Task(process.intProd,process.addInts)
@@ -71,5 +77,3 @@ process.goodPath = cms.Path(process.shouldRun2)
 
 process.errorEndPath = cms.EndPath(process.dependentAnalyzer)
 process.goodEndPath = cms.EndPath(process.independentAnalyzer)
-
-

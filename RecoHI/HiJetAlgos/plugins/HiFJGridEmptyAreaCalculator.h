@@ -46,10 +46,10 @@ private:
   void setupGridJet(const reco::Jet* jet);
 
   /// retrieve the grid cell index for a given PseudoJet
-  int tileIndexJet(const reco::PFCandidate* pfCand);
-  int tileIndexEta(const reco::PFCandidate* pfCand);
-  int tileIndexEtaJet(const reco::PFCandidate* pfCand);
-  int tileIndexPhi(const reco::PFCandidate* pfCand);
+  int tileIndexJet(const reco::Candidate* pfCand);
+  int tileIndexEta(const reco::Candidate* pfCand);
+  int tileIndexEtaJet(const reco::Candidate* pfCand);
+  int tileIndexPhi(const reco::Candidate* pfCand);
 
   ///number of grid cells that overlap with jet constituents filling in the in between area
   int numJetGridCells(std::vector<std::pair<int, int>>& indices);
@@ -106,7 +106,7 @@ private:
 
   /// input tokens
   edm::EDGetTokenT<edm::View<reco::Jet>> jetsToken_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandsToken_;
+  edm::EDGetTokenT<reco::CandidateView> pfCandsToken_;
   edm::EDGetTokenT<std::vector<double>> mapEtaToken_;
   edm::EDGetTokenT<std::vector<double>> mapRhoToken_;
   edm::EDGetTokenT<std::vector<double>> mapRhoMToken_;

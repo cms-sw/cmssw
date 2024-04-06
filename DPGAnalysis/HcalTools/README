@@ -1,7 +1,6 @@
 use 
-##setenv SCRAM_ARCH slc7_amd64_gcc900
 
-setenv SCRAM_ARCH ec8_amd64_gcc11
+setenv SCRAM_ARCH ec8_amd64_gcc12
 cmsenv
 voms-proxy-init -voms cms -rfc
 
