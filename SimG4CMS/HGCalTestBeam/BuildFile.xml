@@ -1,3 +1,4 @@
+<flags CXXFLAGS="-Wno-error=array-bounds" />
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
