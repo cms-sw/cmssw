@@ -20,3 +20,4 @@
 <export>
   <lib name="1"/>
 </export>
+<flags CXXFLAGS="-Wno-error=array-bounds" />
