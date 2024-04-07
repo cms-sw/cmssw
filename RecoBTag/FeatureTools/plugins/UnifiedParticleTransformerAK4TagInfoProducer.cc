@@ -82,7 +82,7 @@ private:
 
   const edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
   const edm::EDGetTokenT<VertexCollection> vtx_token_;
-  const edm::EDGetTokenT<pat::PackedCandidateCollection> lt_token_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> lt_token_;
   const edm::EDGetTokenT<SVCollection> sv_token_;
   edm::EDGetTokenT<JetMatchMap> unsubjet_map_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
@@ -110,7 +110,7 @@ UnifiedParticleTransformerAK4TagInfoProducer::UnifiedParticleTransformerAK4TagIn
       flip_(iConfig.getParameter<bool>("flip")),
       jet_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-      lt_token_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("losttracks"))),
+      lt_token_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("losttracks"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
       candidateToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("candidates"))),
       track_builder_token_(
@@ -159,7 +159,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.addUntracked<edm::InputTag>("unsubjet_map", {});
+  desc.add<edm::InputTag>("unsubjet_map", {});
   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
   desc.add<bool>("fallback_puppi_weight", false);
@@ -187,7 +187,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
     return;  // exit event
   }
 
-  edm::Handle<pat::PackedCandidateCollection> LTs;
+  edm::Handle<edm::View<reco::Candidate>> LTs;
   iEvent.getByToken(lt_token_, LTs);
 
   // reference to primary vertex
@@ -261,12 +261,14 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
       std::map<unsigned int, btagbtvdeep::TrackInfoBuilder> lt_trackinfos;
       // unsorted reference to sv
       const auto& svs_unsorted = *svs;
+      std::vector<reco::CandidatePtr> ltPtrs;
+      static constexpr size_t max_lt_ = 5;
 
       //Adding the lost tracks associated with the jets
       for (size_t i = 0; i < LTs->size(); ++i) {
-        auto cand = LTs->at(i);
-        if ((reco::deltaR(cand, jet) < 0.2)) {
-          const auto* PackedCandidate_ = dynamic_cast<const pat::PackedCandidate*>(&(cand));
+        auto cand = LTs->ptrAt(i);
+        if ((reco::deltaR(*cand, jet) < 0.2)) {
+          const auto* PackedCandidate_ = dynamic_cast<const pat::PackedCandidate*>(&(*cand));
           if (PackedCandidate_) {
             if (PackedCandidate_->pt() < 1.0)
               continue;
@@ -277,12 +279,16 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
                                    trackinfo.getTrackSip2dSig(),
                                    -btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_),
                                    PackedCandidate_->pt() / jet.pt());
+
+            ltPtrs.push_back(cand);
           }
         }
       }
 
       // sort lt collection
       std::sort(lt_sorted.begin(), lt_sorted.end(), btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
+      int n_ltcand_ = std::min(lt_sorted.size(), max_lt_);
+
       std::vector<size_t> lt_sortedindices;
       lt_sortedindices = btagbtvdeep::invertSortingVector(lt_sorted);
 
@@ -290,24 +296,26 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
       features.lt_features.clear();
       features.lt_features.resize(lt_sorted.size());
 
-      for (size_t i = 0; i < LTs->size(); ++i) {
-        auto cand = LTs->at(i);
-        if ((reco::deltaR(cand, jet) < 0.2)) {
-          const auto* PackedCandidate_ = dynamic_cast<const pat::PackedCandidate*>(&(cand));
-          if (!PackedCandidate_)
-            continue;
-          if (PackedCandidate_->pt() < 1.0)
-            continue;
+      for (unsigned int i = 0; i < (unsigned int)n_ltcand_; i++) {
+        //auto cand = LTs->ptrAt(i);
+        //const auto *PackedCandidate_ = dynamic_cast<const pat::PackedCandidate*>(&(*cand));
+        const auto* PackedCandidate_ = dynamic_cast<const pat::PackedCandidate*>(&(*ltPtrs.at(i)));
+        if (!PackedCandidate_)
+          continue;
+        if (PackedCandidate_->pt() < min_candidate_pt_)
+          continue;
 
+        if (PackedCandidate_->charge() != 0) {
           //auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
           float puppiw = PackedCandidate_->puppiWeight();
 
           float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, PackedCandidate_);
           float distminpfcandsv = 0;
 
-          auto entry = lt_sortedindices.at(i);
+          size_t entry = lt_sortedindices.at(i);
           // get cached track info
-          auto& trackinfo = lt_trackinfos.at(i);
+          auto& trackinfo = lt_trackinfos.emplace(i, track_builder).first->second;
+          trackinfo.buildTrackInfo(PackedCandidate_, jet_dir, jet_ref_track_dir, pv);
           // get_ref to vector element
           auto& lt_features = features.lt_features.at(entry);
 
