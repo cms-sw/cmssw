@@ -141,7 +141,7 @@ UnifiedParticleTransformerAK4TagInfoProducer::UnifiedParticleTransformerAK4TagIn
     use_pvasq_value_map_ = true;
   }
 
-  const auto& unsubjet_map_tag = iConfig.getUntrackedParameter<edm::InputTag>("unsubjet_map", {});
+  const auto& unsubjet_map_tag = iConfig.getParameter<edm::InputTag>("unsubjet_map");
   if (!unsubjet_map_tag.label().empty()) {
     unsubjet_map_token_ = consumes<JetMatchMap>(unsubjet_map_tag);
     use_unsubjet_map_ = true;
