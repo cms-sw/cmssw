@@ -175,10 +175,11 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
   n_npf_ = std::max((unsigned int)1, n_npf);
   n_sv_ = std::max((unsigned int)1, n_vtx);
 
-  n_cpf_ = std::min((unsigned int)29, n_cpf_);
-  n_lt_ = std::min((unsigned int)5, n_lt_);
-  n_npf_ = std::min((unsigned int)25, n_npf_);
-  n_sv_ = std::min((unsigned int)5, n_sv_);
+  n_cpf_ = (unsigned int)29;
+  n_lt_ = (unsigned int)5;
+  n_npf_ = (unsigned int)25;
+  n_sv_ = (unsigned int)5;
+
   input_sizes_ = {
       n_cpf_ * n_features_cpf_,
       n_lt_ * n_features_lt_,
