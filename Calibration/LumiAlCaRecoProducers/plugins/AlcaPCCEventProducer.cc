@@ -78,7 +78,6 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       continue;
     }
     DetId detId = mod.id();
-    DetId rocId = mod.id();
 
     //--The following will be used when we make a theshold for the clusters.
     //--Keeping this for features that may be implemented later.
@@ -90,6 +89,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     //}
     int nCluster = mod.size();
     thePCCob->increment(detId(), nCluster);
+    thePCCob->incrementRoc(detId(), nCluster); // modify to include real ROCs
     thePCCob->setbxID(bx);
   }
 
