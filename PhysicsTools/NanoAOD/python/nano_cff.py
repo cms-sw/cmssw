@@ -119,7 +119,7 @@ def nanoAOD_addTauIds(process, idsToRun=[]):
         process.finalTaus.src = updatedTauName
         #remember to adjust the selection and tables with added IDs
 
-        process.tauTask.add( process.rerunMvaIsolationTaskForNano , process.patTauMVAIDsTask )
+        process.tauTask.add( process.rerunMvaIsolationTaskForNano, getattr(process, updatedTauName) )
 
     return process
 
