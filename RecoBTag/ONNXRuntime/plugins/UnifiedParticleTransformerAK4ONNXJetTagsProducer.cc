@@ -164,17 +164,7 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
     const reco::FeaturesTagInfo<btagbtvdeep::UnifiedParticleTransformerAK4Features> taginfo) {
   const auto& features = taginfo.features();
 
-  unsigned int n_cpf = features.c_pf_features.size();
-  unsigned int n_lt = features.lt_features.size();
-  unsigned int n_npf = features.n_pf_features.size();
-  unsigned int n_vtx = features.sv_features.size();
-
-  /// We require a single 0 padded constituent if we have no object in that category for avoiding NaN effect in the scaled-dot-product attention mechanism ///
-  n_cpf_ = std::max((unsigned int)1, n_cpf);
-  n_lt_ = std::max((unsigned int)1, n_lt);
-  n_npf_ = std::max((unsigned int)1, n_npf);
-  n_sv_ = std::max((unsigned int)1, n_vtx);
-
+  /// We require a fixed size due to an ONNX conversion issue (to be improved in the future ?) ///
   n_cpf_ = (unsigned int)29;
   n_lt_ = (unsigned int)5;
   n_npf_ = (unsigned int)25;
