@@ -8,7 +8,7 @@ namespace gs {
   // at compile time if T belongs to one of the known POD types.
   template <typename T>
   struct IOIsPOD {
-    enum { value = CPP11_is_pod<T>::value };
+    enum { value = std::is_standard_layout<T>::value && std::is_trivial<T>::value };
   };
 }  // namespace gs
 
