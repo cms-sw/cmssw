@@ -25,7 +25,7 @@ namespace cms::alpakatools {
       uint32_t second;  // in a "One to Many" association is the total number of associations
     };
 
-    ALPAKA_FN_ACC constexpr Counters get() const { return counter_.as_counters; }
+    ALPAKA_FN_HOST_ACC constexpr Counters get() const { return counter_.as_counters; }
 
     // atomically add as_counters, and return the previous value
     template <typename TAcc>
