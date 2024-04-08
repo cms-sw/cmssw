@@ -8,7 +8,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusterParamsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringEdgeVarsDeviceCollection.h"
-#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitTopologyDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
