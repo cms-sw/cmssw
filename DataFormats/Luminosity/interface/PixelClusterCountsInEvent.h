@@ -28,15 +28,17 @@ namespace reco {
     void incrementRoc(int rD, int count) {
       size_t rocIndex = std::distance(m_RocID.begin(), std::find(m_RocID.begin(), m_RocID.end(), rD));
       if (rocIndex == m_RocID.size()) {
-        m_RocID.push_back(mD);
-        m_counts.push_back(0);
+        m_RocID.push_back(rD);
+        m_countsRoc.push_back(0);
       }
-      m_counts[rocIndex] += count;
+      m_countsRoc[rocIndex] += count;
     }
 
     void setbxID(unsigned int inputbxID) { m_bxID = inputbxID; }
 
     std::vector<int> const& counts() const { return (m_counts); }
+
+    std::vector<int> const& counts() const { return (m_countsRoc); }
 
     std::vector<int> const& modID() const { return (m_ModID); }
 
@@ -46,6 +48,7 @@ namespace reco {
 
   private:
     std::vector<int> m_counts;
+    std::vector<int> m_countsRoc;
     std::vector<int> m_ModID;
     std::vector<int> m_RocID;
     unsigned int m_bxID;
