@@ -44,7 +44,7 @@ namespace reco {
 
     void add(reco::PixelClusterCountsInEvent const& pccInEvent) {
       std::vector<int> const& countsInEvent = pccInEvent.counts();
-      std::vector<int> const& rocCountsInEvent = pccInEvent.rocCounts();
+      std::vector<int> const& rocCountsInEvent = pccInEvent.countsRoc();
       std::vector<int> const& modIDInEvent = pccInEvent.modID();
       std::vector<int> const& rocIDInEvent = pccInEvent.rocID();
       int bxIDInEvent = pccInEvent.bxID();

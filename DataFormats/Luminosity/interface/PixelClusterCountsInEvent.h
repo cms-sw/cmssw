@@ -38,7 +38,7 @@ namespace reco {
 
     std::vector<int> const& counts() const { return (m_counts); }
 
-    std::vector<int> const& counts() const { return (m_countsRoc); }
+    std::vector<int> const& countsRoc() const { return (m_countsRoc); }
 
     std::vector<int> const& modID() const { return (m_ModID); }
 
