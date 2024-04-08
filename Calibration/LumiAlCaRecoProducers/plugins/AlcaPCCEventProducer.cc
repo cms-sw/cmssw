@@ -89,7 +89,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     //}
     int nCluster = mod.size();
     thePCCob->increment(detId(), nCluster);
-    thePCCob->incrementRoc(detId(), nCluster); // modify to include real ROCs
+    thePCCob->incrementRoc(0, 1); // modify to include real ROCs
     thePCCob->setbxID(bx);
   }
 
