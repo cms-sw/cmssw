@@ -50,7 +50,7 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       jetPtMin_(cfg.getParameter<double>("jetPtMin")),
       jetEtaMax_(cfg.getParameter<double>("jetEtaMax")),
       pnetLabel_(cfg.getParameter<std::string>("pnetLabel")),
-      tagPrefix_(cfg.getParameter<std::string>("tagPrefix")), // (LUCAS) prefix
+      tagPrefix_(cfg.getParameter<std::string>("tagPrefix")),
       pnetPtCorrName_(cfg.getParameter<std::string>("pnetPtCorrName")),
       tauScoreMin_(cfg.getParameter<double>("tauScoreMin")),
       vsJetMin_(cfg.getParameter<double>("vsJetMin")),
