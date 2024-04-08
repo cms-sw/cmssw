@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 HGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
     HGCEE_cce = cms.PSet(
         refToPSet_ = cms.string('HGCAL_chargeCollectionEfficiencies')
     ),
-    HGCEE_fCPerMIP = cms.vdouble(2.06, 3.43, 5.15),
+    HGCEE_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[0:3]),
     HGCEE_isSiFE = cms.bool(True),
     HGCEE_keV2DIGI = cms.double(0.044259),
     HGCEE_noise_fC = cms.PSet(
@@ -22,7 +23,7 @@ HGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
     HGCHEF_cce = cms.PSet(
         refToPSet_ = cms.string('HGCAL_chargeCollectionEfficiencies')
     ),
-    HGCHEF_fCPerMIP = cms.vdouble(2.06, 3.43, 5.15),
+    HGCHEF_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[3:6]),
     HGCHEF_isSiFE = cms.bool(True),
     HGCHEF_keV2DIGI = cms.double(0.044259),
     HGCHEF_noise_fC = cms.PSet(
@@ -48,28 +49,13 @@ HGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
         0.0, 39.500245, 39.756638, 39.756638, 39.756638,
         39.756638, 66.020266, 92.283895, 92.283895
     ),
-    layerWeights = cms.vdouble(
-        0.0, 8.894541, 10.937907, 10.937907, 10.937907,
-        10.937907, 10.937907, 10.937907, 10.937907, 10.937907,
-        10.932882, 10.932882, 10.937907, 10.937907, 10.938169,
-        10.938169, 10.938169, 10.938169, 10.938169, 10.938169,
-        10.938169, 10.938169, 10.938169, 10.938169, 10.938169,
-        10.938169, 10.938169, 10.938169, 32.332097, 51.574301,
-        51.444192, 51.444192, 51.444192, 51.444192, 51.444192,
-        51.444192, 51.444192, 51.444192, 51.444192, 51.444192,
-        69.513118, 87.582044, 87.582044, 87.582044, 87.582044,
-        87.582044, 87.214571, 86.888309, 86.92952, 86.92952,
-        86.92952
-    ),
+    layerWeights = HGCAL_reco_constants.dEdXweights,
     maxValSiPar = cms.double(10000.0),
     minValSiPar = cms.double(10.0),
     noiseSiPar = cms.double(5.5),
     rangeMask = cms.uint32(4294442496),
     rangeMatch = cms.uint32(1161838592),
-    sciThicknessCorrection = cms.double(0.9),
-    thicknessCorrection = cms.vdouble(
-        0.77, 0.77, 0.77, 0.84, 0.84,
-        0.84
-    ),
+    sciThicknessCorrection = HGCAL_reco_constants.sciThicknessCorrection,
+    thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
     thicknessNoseCorrection = cms.vdouble(1.132, 1.092, 1.084)
 )
