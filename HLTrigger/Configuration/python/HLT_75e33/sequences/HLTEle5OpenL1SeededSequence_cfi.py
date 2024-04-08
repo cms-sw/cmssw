@@ -43,4 +43,45 @@ from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 
-HLTEle5OpenL1SeededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTEGammaDoLocalHcalSequence+HLTPFClusteringForEgammaL1SeededSequence+HLTHgcalTiclPFClusteringForEgammaL1SeededSequence+HLTFastJetForEgammaSequence+HLTPFHcalClusteringForEgammaSequence+HLTElePixelMatchL1SeededSequence+HLTTrackingV61Sequence+HLTGsfElectronL1SeededSequence+(hltEgammaCandidatesL1Seeded+hltEgammaClusterShapeL1Seeded+hltEgammaR9L1Seeded+hltEgammaHGCALIDVarsL1Seeded+hltEgammaHoverEL1Seeded+hltEgammaEcalPFClusterIsoL1Seeded+hltEgammaHGCalLayerClusterIsoL1Seeded+hltEgammaHcalPFClusterIsoL1Seeded+hltEgammaEleL1TrkIsoL1Seeded+hltEgammaEleGsfTrackIsoL1Seeded+hltEgammaEleGsfTrackIsoV6L1Seeded+hltEgammaHollowTrackIsoL1Seeded)+hltEgammaCandidatesWrapperL1Seeded+hltEG5EtL1SeededFilter+hltEle5DphiL1SeededFilter+cms.ignore(hltEle5WPTightClusterShapeL1SeededFilter)+cms.ignore(hltEle5WPTightClusterShapeSigmavvL1SeededFilter)+cms.ignore(hltEle5WPTightClusterShapeSigmawwL1SeededFilter)+cms.ignore(hltEle5WPTightHgcalHEL1SeededFilter)+cms.ignore(hltEle5WPTightHEL1SeededFilter)+cms.ignore(hltEle5WPTightEcalIsoL1SeededFilter)+cms.ignore(hltEle5WPTightHgcalIsoL1SeededFilter)+cms.ignore(hltEle5WPTightHcalIsoL1SeededFilter)+cms.ignore(hltEle5WPTightPixelMatchL1SeededFilter)+cms.ignore(hltEle5WPTightPMS2L1SeededFilter)+cms.ignore(hltEle5WPTightGsfOneOEMinusOneOPL1SeededFilter)+cms.ignore(hltEle5WPTightGsfDetaL1SeededFilter)+cms.ignore(hltEle5WPTightGsfDphiL1SeededFilter)+cms.ignore(hltEle5WPTightBestGsfNLayerITL1SeededFilter)+cms.ignore(hltEle5WPTightBestGsfChi2L1SeededFilter)+cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter)+cms.ignore(hltEle5WPTightGsfTrackIsoL1SeededFilter))
+HLTEle5OpenL1SeededSequence = cms.Sequence(HLTL1Sequence
+        +HLTDoFullUnpackingEgammaEcalL1SeededSequence
+        +HLTPFClusteringForEgammaL1SeededSequence
+        +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
+        +hltEgammaCandidatesL1Seeded
+        +hltEgammaCandidatesWrapperL1Seeded
+        +hltEG5EtL1SeededFilter
+        +hltEgammaClusterShapeL1Seeded
+        +cms.ignore(hltEle5WPTightClusterShapeL1SeededFilter)
+        +hltEgammaR9L1Seeded
+        +hltEgammaHGCALIDVarsL1Seeded
+        +cms.ignore(hltEle5WPTightClusterShapeSigmavvL1SeededFilter)
+        +cms.ignore(hltEle5WPTightClusterShapeSigmawwL1SeededFilter)
+        +cms.ignore(hltEle5WPTightHgcalHEL1SeededFilter)
+        +HLTEGammaDoLocalHcalSequence
+        +HLTFastJetForEgammaSequence
+        +hltEgammaHoverEL1Seeded
+        +cms.ignore(hltEle5WPTightHEL1SeededFilter)
+        +hltEgammaEcalPFClusterIsoL1Seeded
+        +cms.ignore(hltEle5WPTightEcalIsoL1SeededFilter)
+        +hltEgammaHGCalLayerClusterIsoL1Seeded
+        +cms.ignore(hltEle5WPTightHgcalIsoL1SeededFilter)
+        +HLTPFHcalClusteringForEgammaSequence
+        +hltEgammaHcalPFClusterIsoL1Seeded
+        +cms.ignore(hltEle5WPTightHcalIsoL1SeededFilter)
+        +HLTElePixelMatchL1SeededSequence
+        +cms.ignore(hltEle5WPTightPixelMatchL1SeededFilter)
+        +cms.ignore(hltEle5WPTightPMS2L1SeededFilter)
+        +HLTGsfElectronL1SeededSequence
+        +cms.ignore(hltEle5WPTightGsfOneOEMinusOneOPL1SeededFilter)
+        +cms.ignore(hltEle5WPTightGsfDetaL1SeededFilter)
+        +cms.ignore(hltEle5WPTightGsfDphiL1SeededFilter)
+        +cms.ignore(hltEle5WPTightBestGsfNLayerITL1SeededFilter)
+        +cms.ignore(hltEle5WPTightBestGsfChi2L1SeededFilter)
+        +hltEle5DphiL1SeededFilter
+        +hltEgammaEleL1TrkIsoL1Seeded
+        +cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter)
+        +HLTTrackingV61Sequence
+        +hltEgammaEleGsfTrackIsoL1Seeded
+        +hltEgammaEleGsfTrackIsoV6L1Seeded
+        +hltEgammaHollowTrackIsoL1Seeded
+        +cms.ignore(hltEle5WPTightGsfTrackIsoL1SeededFilter))

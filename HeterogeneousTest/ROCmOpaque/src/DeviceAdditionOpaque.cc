@@ -8,7 +8,7 @@
 
 namespace cms::rocmtest {
 
-  void opqaue_add_vectors_f(const float* in1_h, const float* in2_h, float* out_h, size_t size) {
+  void opaque_add_vectors_f(const float* in1_h, const float* in2_h, float* out_h, size_t size) {
     // allocate input and output buffers on the device
     float* in1_d;
     float* in2_d;
@@ -39,7 +39,7 @@ namespace cms::rocmtest {
     hipCheck(hipFree(out_d));
   }
 
-  void opqaue_add_vectors_d(const double* in1_h, const double* in2_h, double* out_h, size_t size) {
+  void opaque_add_vectors_d(const double* in1_h, const double* in2_h, double* out_h, size_t size) {
     // allocate input and output buffers on the device
     double* in1_d;
     double* in2_d;

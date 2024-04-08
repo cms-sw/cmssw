@@ -26,12 +26,15 @@ autoNANO = {
     'PHYS': {'sequence': '',
              'customize': ''},
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
-    'L1' : {'customize': 'nanoL1TrigObjCustomize'},
-    'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
+    'L1' : {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomize'},
+    'L1FULL' : {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull'},
     #scouting nano
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
     'JME' : { 'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
+    # L1 DPG (standalone with full calo TP info, L1T reemulation customization)
+    'L1DPG' : {'sequence': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoSequence',
+               'customize': 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomizeFull,DPGAnalysis/L1TNanoAOD/l1tNano_cff.addCaloFull,L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW'},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG' : {'sequence': '@PHYS',
                'customize' : '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
@@ -53,4 +56,7 @@ autoNANO = {
     # Add lepton time-life info tables through customize combined with PHYS
     'LepTimeLife' : {'sequence': '@PHYS',
                      'customize': '@PHYS+PhysicsTools/NanoAOD/leptonTimeLifeInfo_common_cff.addTimeLifeInfo'},
+    # Custom BTV Nano for SF measurements or tagger training
+    'BTV' : {'sequence': '@PHYS',
+             'customize':'@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'}
 }

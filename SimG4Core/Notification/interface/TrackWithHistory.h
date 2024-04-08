@@ -92,7 +92,7 @@ private:
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;
 
-inline void *TrackWithHistory::operator new(size_t) {
+inline void *TrackWithHistory::operator new(std::size_t) {
   if (!fpTrackWithHistoryAllocator)
     fpTrackWithHistoryAllocator = new G4Allocator<TrackWithHistory>;
   return (void *)fpTrackWithHistoryAllocator->MallocSingle();

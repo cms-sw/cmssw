@@ -32,11 +32,11 @@
 class CaloG4Hit : public G4VHit {
 public:
   CaloG4Hit();
-  ~CaloG4Hit() override;
+  ~CaloG4Hit() override = default;
   CaloG4Hit(const CaloG4Hit& right);
   const CaloG4Hit& operator=(const CaloG4Hit& right);
   bool operator==(const CaloG4Hit&) { return false; }
-  inline void* operator new(size_t);
+  inline void* operator new(std::size_t);
   inline void operator delete(void* CaloG4Hit);
 
   void Draw() override {}
@@ -115,7 +115,7 @@ public:
 
 extern G4ThreadLocal G4Allocator<CaloG4Hit>* fpCaloG4HitAllocator;
 
-inline void* CaloG4Hit::operator new(size_t) {
+inline void* CaloG4Hit::operator new(std::size_t) {
   if (!fpCaloG4HitAllocator)
     fpCaloG4HitAllocator = new G4Allocator<CaloG4Hit>;
   return (void*)fpCaloG4HitAllocator->MallocSingle();

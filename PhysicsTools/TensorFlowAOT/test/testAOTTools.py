@@ -59,7 +59,6 @@ class TFAOTTests(unittest.TestCase):
         self.assertTrue(exists("include", "tfaot-model-test"))
         self.assertTrue(exists("include", "tfaot-model-test", "test_simple_bs1.h"))
         self.assertTrue(exists("include", "tfaot-model-test", "test_simple_bs2.h"))
-        self.assertTrue(exists("include", "tfaot-model-test", "test_simple.h"))
         self.assertTrue(exists("include", "tfaot-model-test", "model.h"))
         self.assertTrue(exists("lib", "test_simple_bs1.o"))
         self.assertTrue(exists("lib", "test_simple_bs2.o"))

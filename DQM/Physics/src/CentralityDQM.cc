@@ -84,6 +84,9 @@ void CentralityDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm:
   h_hiZDC = bei.book1D("h_hiZDC", "h_hiZDC", 600, 0, 6000);
   h_hiZDCplus = bei.book1D("h_hiZDCplus", "h_hiZDCplus", 600, 0, 6000);
   h_hiZDCminus = bei.book1D("h_hiZDCminus", "h_hiZDCminus", 600, 0, 6000);
+  h_hiPF = bei.book1D("h_hiPF", "h_hiPF", 900, 0, 9000);
+  h_hiPFplus = bei.book1D("h_hiPFplus", "h_hiPFplus", 900, 0, 9000);
+  h_hiPFminus = bei.book1D("h_hiPFminus", "h_hiPFminus", 900, 0, 9000);
 
   h_vertex_x = bei.book1D("h_vertex_x", "h_vertex_x", 400, -4, 4);
   h_vertex_y = bei.book1D("h_vertex_y", "h_vertex_y", 400, -4, 4);
@@ -154,6 +157,10 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     h_hiEE->Fill(cent->EtEESum());
     h_hiEB->Fill(cent->EtEBSum());
     h_hiET->Fill(cent->EtMidRapiditySum());
+
+    h_hiPF->Fill(cent->EtPFhfSum());
+    h_hiPFplus->Fill(cent->EtPFhfSumPlus());
+    h_hiPFminus->Fill(cent->EtPFhfSumMinus());
 
     edm::Handle<std::vector<reco::Vertex> > vertex;
     iEvent.getByToken(vertexToken, vertex);

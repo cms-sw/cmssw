@@ -78,6 +78,7 @@ private:
   const double jet_radius_;
   const double min_candidate_pt_;
   const bool flip_;
+  const double max_sip3dsig_for_flip_;
 
   const edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
   const edm::EDGetTokenT<VertexCollection> vtx_token_;
@@ -105,6 +106,7 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
     : jet_radius_(iConfig.getParameter<double>("jet_radius")),
       min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt")),
       flip_(iConfig.getParameter<bool>("flip")),
+      max_sip3dsig_for_flip_(iConfig.getParameter<double>("max_sip3dsig_for_flip")),
       jet_token_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
@@ -137,7 +139,7 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
     use_pvasq_value_map_ = true;
   }
 
-  const auto& unsubjet_map_tag = iConfig.getUntrackedParameter<edm::InputTag>("unsubjet_map", {});
+  const auto& unsubjet_map_tag = iConfig.getParameter<edm::InputTag>("unsubjet_map");
   if (!unsubjet_map_tag.label().empty()) {
     unsubjet_map_token_ = consumes<JetMatchMap>(unsubjet_map_tag);
     use_unsubjet_map_ = true;
@@ -150,11 +152,12 @@ void ParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::ConfigurationD
   desc.add<double>("jet_radius", 0.4);
   desc.add<double>("min_candidate_pt", 0.95);
   desc.add<bool>("flip", false);
+  desc.add<double>("max_sip3dsig_for_flip", 99999);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.addUntracked<edm::InputTag>("unsubjet_map", {});
+  desc.add<edm::InputTag>("unsubjet_map", {});
   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
   desc.add<bool>("fallback_puppi_weight", false);
@@ -350,7 +353,9 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
 
           // get cached track info
           auto& trackinfo = trackinfos.at(i);
-
+          if (flip_ && (trackinfo.getTrackSip3dSig() > max_sip3dsig_for_flip_)) {
+            continue;
+          }
           // get_ref to vector element
           auto& c_pf_features = features.c_pf_features.at(entry);
           // fill feature structure
