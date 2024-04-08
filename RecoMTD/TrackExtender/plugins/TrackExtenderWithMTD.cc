@@ -200,6 +200,7 @@ namespace {
 
     float dt;
     float dterror;
+    float dterror2;
     float dtchi2;
 
     float dt_best;
@@ -305,18 +306,19 @@ namespace {
     tofpid.sigma_dt_p = sigmadeltat(m_p_inv2);
 
     tofpid.dt = tofpid.tmtd - tofpid.dt_pi - t_vtx;  //assume by default the pi hypothesis
-    tofpid.dterror = sqrt(tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err);
+    tofpid.dterror2 = tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err;
     tofpid.betaerror = 0.f;
     if (addPIDError) {
-      tofpid.dterror =
-          sqrt(tofpid.dterror * tofpid.dterror + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi));
+      tofpid.dterror2 = tofpid.dterror2 + (tofpid.dt_p - tofpid.dt_pi) *
+                                          (tofpid.dt_p - tofpid.dt_pi);
       tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
     } else {
       // only add sigma(TOF) if not considering mass hp. uncertainty
-      tofpid.dterror = sqrt(tofpid.dterror * tofpid.dterror + tofpid.sigma_dt_pi * tofpid.sigma_dt_pi);
+      tofpid.dterror2 = tofpid.dterror2 + tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
     }
+    tofpid.dterror = sqrt(tofpid.dterror2);
 
-    tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / (tofpid.dterror * tofpid.dterror);
+    tofpid.dtchi2 = (tofpid.dt * tofpid.dt) / tofpid.dterror2;
 
     tofpid.dt_best = tofpid.dt;
     tofpid.dterror_best = tofpid.dterror;
@@ -328,13 +330,17 @@ namespace {
 
     if (!addPIDError) {
       //*TODO* deal with heavier nucleons and/or BSM case here?
+      const float dterror2_wo_sigmatof =
+          tofpid.dterror2 - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
       float chi2_pi = tofpid.dtchi2;
-      float chi2_k = (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) /
-                     (tofpid.dterror * tofpid.dterror - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi +
-                      tofpid.sigma_dt_k * tofpid.sigma_dt_k);
-      float chi2_p = (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) /
-                     (tofpid.dterror * tofpid.dterror - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi +
-                      tofpid.sigma_dt_p * tofpid.sigma_dt_p);
+      float chi2_k =
+          (tofpid.tmtd - tofpid.dt_k - t_vtx) *
+          (tofpid.tmtd - tofpid.dt_k - t_vtx) /
+          (dterror2_wo_sigmatof + tofpid.sigma_dt_k * tofpid.sigma_dt_k);
+      float chi2_p =
+          (tofpid.tmtd - tofpid.dt_p - t_vtx) *
+          (tofpid.tmtd - tofpid.dt_p - t_vtx) /
+          (dterror2_wo_sigmatof + tofpid.sigma_dt_p * tofpid.sigma_dt_p);
 
       float rawprob_pi = exp(-0.5f * chi2_pi);
       float rawprob_k = exp(-0.5f * chi2_k);
@@ -1394,7 +1400,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         //
         // Protect against incompatible times
         //
-        float err1 = tofInfo.dterror * tofInfo.dterror;
+        float err1 = tofInfo.dterror2;
         float err2 = mtdhit2->timeError() * mtdhit2->timeError();
         if (cms_rounding::roundIfNear0(err1) == 0.f || cms_rounding::roundIfNear0(err2) == 0.f) {
           edm::LogError("TrackExtenderWithMTD")
@@ -1444,7 +1450,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       tmtdOut = thit;
       sigmatmtdOut = thiterror;
       t0 = tofInfo.dt;
-      covt0t0 = tofInfo.dterror * tofInfo.dterror;
+      covt0t0 = tofInfo.dterror2;
       betaOut = tofInfo.beta_pi;
       covbetabeta = tofInfo.betaerror * tofInfo.betaerror;
       tofpi = tofInfo.dt_pi;
