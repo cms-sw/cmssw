@@ -54,9 +54,11 @@ void HLTTauDQMPathPlotter::bookHistograms(HistoWrapper& iWrapper, DQMStore::IBoo
                                      0,
                                      hltPath_.filtersSize(),
                                      kEverything);
-  hCounter_->setBinLabel(1, "all events");
-  hCounter_->setBinLabel(2, "ref tau found");
-  hCounter_->setBinLabel(3, "passed trg");
+  if (hCounter_) {
+    hCounter_->setBinLabel(1, "all events");
+    hCounter_->setBinLabel(2, "ref tau found");
+    hCounter_->setBinLabel(3, "passed trg");
+  }
   for (size_t i = 0; i < hltPath_.filtersSize(); ++i) {
     if (hAcceptedEvents_)
       hAcceptedEvents_->setBinLabel(i + 1, hltPath_.getFilterName(i));
@@ -450,11 +452,13 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
   int lastMatchedMuonFilter = -1;
   int lastMatchedTauFilter = -1;
   int firstMatchedMETFilter = -1;
-  hCounter_->Fill(0.5);
-  if (refCollection.taus.size() > 0) {
-    hCounter_->Fill(1.5);
-    if (hltPath_.fired(triggerResults))
-      hCounter_->Fill(2.5);
+  if (hCounter_) {
+    hCounter_->Fill(0.5);
+    if (refCollection.taus.size() > 0) {
+      hCounter_->Fill(1.5);
+      if (hltPath_.fired(triggerResults))
+        hCounter_->Fill(2.5);
+    }
   }
 
   if (doRefAnalysis_) {
