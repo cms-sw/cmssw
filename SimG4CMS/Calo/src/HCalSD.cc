@@ -71,11 +71,6 @@ HCalSD::HCalSD(const std::string& name,
   m_HFDarkening.reset(nullptr);
   m_HcalTestNS.reset(nullptr);
 
-  //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
-  //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
-  //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
-  // Values from NIM 80 (1970) 239-244: as implemented in Geant3
-
   dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk = m_HC.getParameter<bool>("UseBirkLaw");
