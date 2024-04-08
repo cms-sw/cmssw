@@ -78,6 +78,7 @@ void AlcaPCCEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       continue;
     }
     DetId detId = mod.id();
+    DetId rocId = mod.id();
 
     //--The following will be used when we make a theshold for the clusters.
     //--Keeping this for features that may be implemented later.
