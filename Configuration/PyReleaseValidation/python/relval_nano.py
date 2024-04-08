@@ -157,16 +157,13 @@ steps['NANO_data13.0_prompt']=merge([{'-n' : '1000'},
                                      steps['NANO_data13.0']])
 steps['NANO_data13.0_prompt']['-s']=steps['NANO_data13.0_prompt']['-s'].replace('NANO','NANO:@PHYS+@L1')
 
-
 steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
                                     '-n' : '100',},
                                    steps['NANO_data13.0']])
 
-
 steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                        '-n' : '100',},
                                       steps['NANO_data13.0']])
-
 
 steps['hcalDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,RECO,NANO:@HCAL',
                                       '-n' : '100',
@@ -179,8 +176,12 @@ steps['hcalDPGCalibNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,RECO,NANO:@HCALCalib
                                           steps['NANO_data13.0']])
 
 steps['muPOGNANO_data13.0']=merge([{'-s' : 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n' : '1000'},
-                                    steps['NANO_data13.0']])
+                                   steps['NANO_data13.0']])
 
+steps['l1DPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@L1DPG',
+                                    '-n' : '100'},
+                                   steps['NANO_data13.0']])
+ 
 steps['EGMNano_data13.0'] = merge([{'-s':'NANO:@EGM,DQM:@nanoAODDQM', '-n' : '1000'},
                                     steps['NANO_data13.0']])
 
@@ -278,6 +279,7 @@ _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
 workflows[_wfn()] = ['muPOGNANO130Xrun3', ['MuonEG2023MINIAOD13.0', 'muPOGNANO_data13.0']]
+workflows[_wfn()] = ['l1DPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'l1DPGNANO_data13.0']]
 workflows[_wfn()] = ['EGMNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'EGMNano_data13.0']]
 workflows[_wfn()] = ['BTVNANO_data13.0', ['MuonEG2023MINIAOD13.0', 'BTVNANO_data13.0']]
 workflows[_wfn()] = ['jmeNANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'jmeNano_data13.0']]
