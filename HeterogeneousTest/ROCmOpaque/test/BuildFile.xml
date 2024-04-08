@@ -7,5 +7,5 @@
 
   <test name="testROCmTestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmOpaque/test/testROCmTestOpaqueAdditionModule.py"/>
 
-  <test name="testROCmTestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmOpaque/test/testROCmTestAdditionModules.py"/>
+  <test name="testROCmTestAdditionModules" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmOpaque/test/testROCmTestAdditionModules.py"/>
 </iftool>
