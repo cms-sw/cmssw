@@ -131,17 +131,17 @@ _UTagCHS = cms.PSet(
 
 # TODO: Modify descriptions once UParT available
 _UTagPUPPI = cms.PSet(
-    decayModeUParT= Var("?isTauIDAvailable('byUTagPUPPIDecayMode')?tauID('byUTagPUPPIDecayMode'):-1", "int16",doc="decay mode of the highest tau score of ParticleNet (PUPPI Jets)"),
-    rawUParTVSe = Var("?isTauIDAvailable('byUTagPUPPIVSeraw')?tauID('byUTagPUPPIVSeraw'):-1", float, doc="raw output of ParticleNetVsE discriminator (PNet 2023 - PUPPI Jets)", precision=10),
-    rawUParTVSmu = Var("?isTauIDAvailable('byUTagPUPPIVSmuraw')?tauID('byUTagPUPPIVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023 - PUPPI Jets)", precision=10),
-    rawUParTVSjet = Var("?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023 - PUPPI Jets)", precision=10),
-    ptCorrUParT= Var("?isTauIDAvailable('byUTagPUPPIPtCorr')?tauID('byUTagPUPPIPtCorr'):1", float, doc="pt correction (PNet 2023 - PUPPI Jets)", precision=10),
-    qConfUParT= Var("?isTauIDAvailable('byUTagPUPPIQConf')?tauID('byUTagPUPPIQConf'):0", float, doc="signed charge confidence (PNet 2023 - PUPPI Jets)", precision=10),
-    probDM0UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h0pi0')?tauID('byUTagPUPPIProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023 - PUPPI Jets)", precision=10),
-    probDM1UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h1pi0')?tauID('byUTagPUPPIProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023 - PUPPI Jets)", precision=10),
-    probDM2UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h2pi0')?tauID('byUTagPUPPIProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023 - PUPPI Jets)", precision=10),
-    probDM10UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h0pi0')?tauID('byUTagPUPPIProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023 - PUPPI Jets)", precision=10),
-    probDM11UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h1pi0')?tauID('byUTagPUPPIProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023 - PUPPI Jets)", precision=10),
+    decayModeUParT= Var("?isTauIDAvailable('byUTagPUPPIDecayMode')?tauID('byUTagPUPPIDecayMode'):-1", "int16",doc="decay mode of the highest tau score of Unified ParT 2024 (PUPPI Jets)"),
+    rawUParTVSe = Var("?isTauIDAvailable('byUTagPUPPIVSeraw')?tauID('byUTagPUPPIVSeraw'):-1", float, doc="raw output of UParTVsE discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    rawUParTVSmu = Var("?isTauIDAvailable('byUTagPUPPIVSmuraw')?tauID('byUTagPUPPIVSmuraw'):-1", float, doc="raw output of UParTVsMu discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    rawUParTVSjet = Var("?isTauIDAvailable('byUTagPUPPIVSjetraw')?tauID('byUTagPUPPIVSjetraw'):-1", float, doc="raw output of UParTVsJet discriminator (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    ptCorrUParT= Var("?isTauIDAvailable('byUTagPUPPIPtCorr')?tauID('byUTagPUPPIPtCorr'):1", float, doc="pt correction (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    qConfUParT= Var("?isTauIDAvailable('byUTagPUPPIQConf')?tauID('byUTagPUPPIQConf'):0", float, doc="signed charge confidence (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM0UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h0pi0')?tauID('byUTagPUPPIProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM1UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h1pi0')?tauID('byUTagPUPPIProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM2UParT= Var("?isTauIDAvailable('byUTagPUPPIProb1h2pi0')?tauID('byUTagPUPPIProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM10UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h0pi0')?tauID('byUTagPUPPIProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
+    probDM11UParT= Var("?isTauIDAvailable('byUTagPUPPIProb3h1pi0')?tauID('byUTagPUPPIProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (Unified ParT 2024 - PUPPI Jets)", precision=10),
 )
 
 _variablesMiniV2 = cms.PSet(
