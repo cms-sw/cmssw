@@ -222,9 +222,13 @@ hgcalWriterVU9PTM18WriterConfig = _hgcalWriterTM18.clone(
    inputFileName = cms.string("l1HGCalTM18-inputs-vu9p"),
    gttLatency = cms.uint32(167), # shorter, to fit 6 events in 1024 lines
    maxLinesPerInputFile = cms.uint32(1024+167), # anything beyond 986 will be nulls
+   gmtLink = 4*27+0,
+   gttLink = 4*27+3,
 )
 hgcalWriterVU13PTM18WriterConfig = hgcalWriterVU9PTM18WriterConfig.clone(
    inputFileName = cms.string("l1HGCalTM18-inputs-vu13p"),
+   gmtLink = 4*28+0,
+   gttLink = 4*28+3,
 )
 for ie in range(2):
     for iphi in range(9):
@@ -234,7 +238,10 @@ for ie in range(2):
     for iphi in range(3):
         isec, ilink = 3*ie+iphi, 2*iphi+ie
         hgcalWriterVU9PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(12+ilink),4*(12+ilink)+4)
-        hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(13+ilink),4*(13+ilink)+4)
+        if ilink < 3:
+            hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(12+ilink),4*(12+ilink)+4)
+        else:
+            hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(14+ilink),4*(14+ilink)+4)
 
 hgcalTM18WriterConfigs = [
     hgcalWriterOutputTM18WriterConfig,
