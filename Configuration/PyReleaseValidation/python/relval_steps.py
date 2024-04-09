@@ -3460,7 +3460,6 @@ steps['ALCAHARVDEXPRUN3']={'-s':'ALCAHARVEST:SiStripQuality+SiStripHitEff+SiStri
                            '--data':'',
                            '--filein':'file:PromptCalibProd.root'}
 
-steps['RECOHISt4']=steps['RECOHI2015']
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
