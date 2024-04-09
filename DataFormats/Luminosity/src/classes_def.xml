@@ -47,11 +47,11 @@
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
   <class name="reco::PixelClusterCounts" ClassVersion="3">
-   <version ClassVersion="3" checksum="1474294271"/>
+   <version ClassVersion="4" checksum="63275688"/>
   </class>
   <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
   <class name="reco::PixelClusterCountsInEvent" ClassVersion="3">
-   <version ClassVersion="3" checksum="3776858548"/>
+   <version ClassVersion="4" checksum="3986679997"/>
   </class>
   <class name="edm::Wrapper<reco::PixelClusterCountsInEvent>"/>
 </lcgdict>
