@@ -309,8 +309,7 @@ namespace {
     tofpid.dterror2 = tofpid.tmtderror * tofpid.tmtderror + t_vtx_err * t_vtx_err;
     tofpid.betaerror = 0.f;
     if (addPIDError) {
-      tofpid.dterror2 = tofpid.dterror2 + (tofpid.dt_p - tofpid.dt_pi) *
-                                          (tofpid.dt_p - tofpid.dt_pi);
+      tofpid.dterror2 = tofpid.dterror2 + (tofpid.dt_p - tofpid.dt_pi) * (tofpid.dt_p - tofpid.dt_pi);
       tofpid.betaerror = tofpid.beta_p - tofpid.beta_pi;
     } else {
       // only add sigma(TOF) if not considering mass hp. uncertainty
@@ -330,17 +329,12 @@ namespace {
 
     if (!addPIDError) {
       //*TODO* deal with heavier nucleons and/or BSM case here?
-      const float dterror2_wo_sigmatof =
-          tofpid.dterror2 - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
+      const float dterror2_wo_sigmatof = tofpid.dterror2 - tofpid.sigma_dt_pi * tofpid.sigma_dt_pi;
       float chi2_pi = tofpid.dtchi2;
-      float chi2_k =
-          (tofpid.tmtd - tofpid.dt_k - t_vtx) *
-          (tofpid.tmtd - tofpid.dt_k - t_vtx) /
-          (dterror2_wo_sigmatof + tofpid.sigma_dt_k * tofpid.sigma_dt_k);
-      float chi2_p =
-          (tofpid.tmtd - tofpid.dt_p - t_vtx) *
-          (tofpid.tmtd - tofpid.dt_p - t_vtx) /
-          (dterror2_wo_sigmatof + tofpid.sigma_dt_p * tofpid.sigma_dt_p);
+      float chi2_k = (tofpid.tmtd - tofpid.dt_k - t_vtx) * (tofpid.tmtd - tofpid.dt_k - t_vtx) /
+                     (dterror2_wo_sigmatof + tofpid.sigma_dt_k * tofpid.sigma_dt_k);
+      float chi2_p = (tofpid.tmtd - tofpid.dt_p - t_vtx) * (tofpid.tmtd - tofpid.dt_p - t_vtx) /
+                     (dterror2_wo_sigmatof + tofpid.sigma_dt_p * tofpid.sigma_dt_p);
 
       float rawprob_pi = exp(-0.5f * chi2_pi);
       float rawprob_k = exp(-0.5f * chi2_k);
