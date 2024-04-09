@@ -146,20 +146,23 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
         
         if usePUPPIjets: # option to use PUPPI jets
             jetCollection = "updatedJetsPuppi"
-            pnetTagName = "pfParticleNetFromMiniAODAK4PuppiCentralJetTag"
+            TagName = "pfParticleNetFromMiniAODAK4PuppiCentralJetTag"
             tag_prefix = "byUTagPUPPI"
             updatedTauName = originalTauName+'WithUTagPUPPI'
+            # TODO: Below is for PNet - add UParT when available
+            process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
         else: # use CHS jets by default
             jetCollection = "updatedJets"
-            pnetTagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
+            TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
             tag_prefix = "byUTagCHS"
             updatedTauName = originalTauName+'WithUTagCHS'
+            # PNet tagger used for CHS jets
+            process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
               
-        # TODO: Below is for PNet - add UParT when available
-        process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
-        pnetDiscriminators = [];
-        for tag in getattr(process,pnetTagName+"s").flav_names.value():
-            pnetDiscriminators.append(pnetTagName+"s:"+tag)
+        Discriminators = [];
+        for tag in getattr(process,TagName+"s").flav_names.value():
+            Discriminators.append(TagName+"s:"+tag)
+        print(Discriminators)
 
         # Define "hybridTau" producer
         from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
@@ -169,8 +172,8 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
             dRMax = 0.4,
             jetPtMin = 15,
             jetEtaMax = 2.5,
-            pnetLabel = pnetTagName+"s",
-            pnetScoreNames = pnetDiscriminators,
+            UTagLabel = TagName+"s",
+            UTagScoreNames = Discriminators,
             tagPrefix = tag_prefix,
             tauScoreMin = -1,
             vsJetMin = 0.05,

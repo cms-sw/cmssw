@@ -27,7 +27,7 @@ private:
   bool addGenJetMatch_;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetMatchToken_;
   const float dR2Max_, jetPtMin_, jetEtaMax_;
-  const std::string pnetLabel_;
+  const std::string UTagLabel_;
   const std::string tagPrefix_;
   std::vector<std::string> pnetTauScoreNames_;
   std::vector<std::string> pnetJetScoreNames_;
@@ -49,7 +49,7 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       dR2Max_(std::pow(cfg.getParameter<double>("dRMax"), 2)),
       jetPtMin_(cfg.getParameter<double>("jetPtMin")),
       jetEtaMax_(cfg.getParameter<double>("jetEtaMax")),
-      pnetLabel_(cfg.getParameter<std::string>("pnetLabel")),
+      UTagLabel_(cfg.getParameter<std::string>("UTagLabel")),
       tagPrefix_(cfg.getParameter<std::string>("tagPrefix")),
       pnetPtCorrName_(cfg.getParameter<std::string>("pnetPtCorrName")),
       tauScoreMin_(cfg.getParameter<double>("tauScoreMin")),
@@ -59,8 +59,8 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       usePFLeptonsAsChargedHadrons_(cfg.getParameter<bool>("usePFLeptonsAsChargedHadrons")),
       tagToDM_({{"1h0p", 0}, {"1h1or2p", 1}, {"1h1p", 1}, {"1h2p", 2}, {"3h0p", 10}, {"3h1p", 11}}) {
   // Read the different PNet score names
-  std::vector<std::string> pnetScoreNames = cfg.getParameter<std::vector<std::string>>("pnetScoreNames");
-  for (const auto& scoreName : pnetScoreNames) {
+  std::vector<std::string> UTagScoreNames = cfg.getParameter<std::vector<std::string>>("UTagScoreNames");
+  for (const auto& scoreName : UTagScoreNames) {
     size_t labelLenght = scoreName.find(':') == std::string::npos ? 0 : scoreName.find(':') + 1;
     std::string name = scoreName.substr(labelLenght);
     if (name.find("prob") == std::string::npos)
@@ -139,7 +139,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     std::vector<float> tauPerDMScores(5);
     float plusChargeProb = 0;
     for (const auto& scoreName : pnetTauScoreNames_) {
-      float score = jet.bDiscriminator(pnetLabel_ + ":" + scoreName);
+      float score = jet.bDiscriminator(UTagLabel_ + ":" + scoreName);
       sumOfPnetTauScores += score;
       if (scoreName.find("taup") != std::string::npos)
         plusChargeProb += score;
@@ -166,7 +166,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     float sumOfPnetEleScores = 0, sumOfPnetMuScores = 0;
     bool isTauScoreBest = (sumOfPnetTauScores > 0);
     for (const auto& scoreName : pnetLepScoreNames_) {
-      float score = jet.bDiscriminator(pnetLabel_ + ":" + scoreName);
+      float score = jet.bDiscriminator(UTagLabel_ + ":" + scoreName);
       if (scoreName.find("ele") != std::string::npos)
         sumOfPnetEleScores += score;
       else if (scoreName.find("mu") != std::string::npos)
@@ -176,7 +176,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
     if (checkTauScoreIsBest_ && isTauScoreBest) {  //if needed iterate over jet scores
       for (const auto& scoreName : pnetJetScoreNames_)
-        if (jet.bDiscriminator(pnetLabel_ + ":" + scoreName) > bestPnetTauScore.second)
+        if (jet.bDiscriminator(UTagLabel_ + ":" + scoreName) > bestPnetTauScore.second)
           isTauScoreBest = false;
     }
 
@@ -208,7 +208,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       tauIds_pnet[(size_t)tauId_pnet_idx::dm].second = pNetDM->second;
 
     // PNet Pt correction
-    float ptcorr = jet.bDiscriminator(pnetLabel_ + ":" + pnetPtCorrName_);
+    float ptcorr = jet.bDiscriminator(UTagLabel_ + ":" + pnetPtCorrName_);
     if (ptcorr > -1000.)  // -1000. is default for not found discriminantor
       tauIds_pnet[(size_t)tauId_pnet_idx::ptcorr].second = ptcorr;
 
@@ -418,10 +418,11 @@ void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("dRMax", 0.4);
   desc.add<double>("jetPtMin", 20.0);
   desc.add<double>("jetEtaMax", 2.5);
-  desc.add<std::string>("pnetLabel", "pfParticleNetAK4JetTags");
+  desc.add<std::string>("UTagLabel", "pfParticleNetAK4JetTags");
   desc.add<std::string>("tagPrefix", "prefix for CHS or PUPPI Tagger");
+  // TODO: These PNetdescriptions won't match UParT
   desc.add<std::vector<std::string>>(
-      "pnetScoreNames",
+      "UTagScoreNames",
       {"probmu",       "probele",      "probtaup1h0p", "probtaup1h1p", "probtaup1h2p", "probtaup3h0p", "probtaup3h1p",
        "probtaum1h0p", "probtaum1h1p", "probtaum1h2p", "probtaum3h0p", "probtaum3h1p", "probb",        "probc",
        "probuds",      "probg",        "ptcorr",       "ptreshigh",    "ptreslow",     "ptnu"});
