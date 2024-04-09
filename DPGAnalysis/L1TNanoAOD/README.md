@@ -19,7 +19,7 @@ On can add all L1 objects on top of central NANO with the following command:
 ### Save unpacked objects only (data) 
 If one wants to only keep L1 objects, and not offline information, use instead: 
 
-    cmsDriver.py customL1toNANO --conditions auto:run3_data_prompt -s USER:DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoTask --datatier NANOAOD --eventcontent NANOAOD --data --process customl1nano --scenario pp --era Run3 --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run3,PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomizeFull -n 100 --filein /store/data/Run2023D/Muon1/MINIAOD/22Sep2023_v2-v1/50000/daeae294-4d7c-4f36-8d50-33ef562cbf07.root --fileout file:out.root --python_filename=customl1nano.py  --fileout file:out.root --python_filename=customl1nano.py 
+    cmsDriver.py customL1toNANO --conditions auto:run3_data_prompt -s USER:DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoTask --datatier NANOAOD --eventcontent NANOAOD --data --process customl1nano --scenario pp --era Run3 --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run3,PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull -n 100 --filein /store/data/Run2023D/Muon1/MINIAOD/22Sep2023_v2-v1/50000/daeae294-4d7c-4f36-8d50-33ef562cbf07.root --fileout file:out.root --python_filename=customl1nano.py  --fileout file:out.root --python_filename=customl1nano.py 
 
 
 ## L1T NANO standalone
