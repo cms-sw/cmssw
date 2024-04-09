@@ -29,6 +29,9 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeomUtil.h"
+
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
@@ -101,14 +104,20 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   using namespace edm;
   using namespace geant_units::operators;
 
+  using namespace mtd;
+  using namespace std;
+
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
+
+  MTDGeomUtil geomUtil;
+  geomUtil.setGeometry(geom);
 
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
-  std::unordered_map<uint32_t, MTDHit> m_etlHits[4];
-  std::unordered_map<uint32_t, std::set<int> > m_etlTrkPerCell[4];
+  std::unordered_map<mtd_digitizer::MTDCellId, MTDHit> m_etlHits[4];
+  std::unordered_map<mtd_digitizer::MTDCellId, std::set<int>> m_etlTrkPerCell[4];
 
   // --- Loop over the ETL SIM hits
 
@@ -139,9 +148,14 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       continue;
     }
 
-    m_etlTrkPerCell[idet][id.rawId()].insert(simHit.trackId());
+    const auto &position = simHit.localPosition();
 
-    auto simHitIt = m_etlHits[idet].emplace(id.rawId(), MTDHit()).first;
+    LocalPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
+    std::pair<uint8_t, uint8_t> pixel = geomUtil.pixelInModule(id, simscaled);
+
+    mtd_digitizer::MTDCellId pixelId(id.rawId(), pixel.first, pixel.second);
+    m_etlTrkPerCell[idet][pixelId].insert(simHit.trackId());
+    auto simHitIt = m_etlHits[idet].emplace(pixelId, MTDHit()).first;
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
     (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
@@ -176,7 +190,8 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       if ((hit.second).energy < hitMinEnergy2Dis_)
         continue;
       // --- Get the SIM hit global position
-      ETLDetId detId(hit.first);
+      ETLDetId detId;
+      detId = hit.first.detid_;
       DetId geoId = detId.geographicalId();
       const MTDGeomDet* thedet = geom->idToDet(geoId);
       if (thedet == nullptr)

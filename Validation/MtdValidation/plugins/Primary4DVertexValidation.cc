@@ -2104,6 +2104,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               d3D = -d3D;
             }
 
+            // select TPs associated to the signal event
             bool selectTP = mvaTPSel(**tp_info);
 
             if (selectedLVMatching && selectRecoTrk && selectTP) {
