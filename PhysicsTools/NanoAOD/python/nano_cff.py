@@ -260,7 +260,7 @@ def nanoAOD_customizeCommon(process):
         idsToAdd = cms.vstring()
     )
     run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_boostedTau_switch, idsToAdd = ["2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018"]
+        nanoAOD_boostedTau_switch, idsToAdd = ["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle"]
     ).toModify(
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
     )
