@@ -34,11 +34,11 @@ namespace l1t {
 
     ~TkTriplet() override{};
 
-    int getTripletCharge() const;
-    double getPairMassMax() const;
-    double getPairMassMin() const;
-    double getPairDzMax() const;
-    double getPairDzMin() const;
+    int getTripletCharge() const { return charge_; }
+    double getPairMassMax() const { return pair_mass_max_; }
+    double getPairMassMin() const { return pair_mass_min_; }
+    double getPairDzMax() const { return pair_dz_max_; }
+    double getPairDzMin() const { return pair_dz_min_; }
     const edm::Ptr<L1TTTrackType>& trkPtr(size_t i) const { return trkPtrList_.at(i); }
     int bx() const;
 
