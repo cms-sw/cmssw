@@ -24,7 +24,7 @@ from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tra
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationPRbyCLUE3D  as _tracksterSimTracksterAssociationPRbyCLUE3D
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibRecHit
-from RecoHGCal.TICL.SimTracksters_cff import ticlSimTracksters
+from RecoHGCal.TICL.SimTracksters_cff import ticlSimTracksters, ticlSimTrackstersTask
 
 from RecoHGCal.TICL.FastJetStep_cff import ticlTrackstersFastJet
 from RecoHGCal.TICL.EMStep_cff import ticlTrackstersEM, ticlTrackstersHFNoseEM
@@ -172,10 +172,7 @@ def customiseForTICLv5(process, enableDumper = False):
 def customiseTICLv5FromReco(process, enableDumper = False):
     # TensorFlow ESSource
 
-    #process.generalTracks = _generalTracks.clone()
-    #process.trackExtenderWithMTD = _trackExtenderWithMTD.clone()
-
-    process.TFESSource = cms.Task(process.trackdnn_source) #, process.trackExtenderWithMTD)
+    process.TFESSource = cms.Task(process.trackdnn_source)
 
     process.hgcalLayerClustersTask = cms.Task(process.hgcalLayerClustersEE,
                                               process.hgcalLayerClustersHSi,
@@ -184,29 +181,10 @@ def customiseTICLv5FromReco(process, enableDumper = False):
 
     # Reconstruction
 
-    process.HGCalUncalibRecHit.computeLocalTime = cms.bool(True)
     process.ticlSimTracksters.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersFastJet.pluginPatternRecognitionByFastJet.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersHFNoseEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersTrk.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersHFNoseTrk.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersMIP.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersHFNoseMIP.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersHAD.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersHFNoseHAD.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
 
     process.ticlTrackstersCLUE3DHAD.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
     process.ticlTrackstersCLUE3DEM.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
-
-    process.ticlTrackstersTrkEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
-    process.ticlTrackstersHFNoseTrkEM.pluginPatternRecognitionByCA.computeLocalTime = cms.bool(True)
 
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
@@ -297,7 +275,7 @@ def customiseTICLv5FromReco(process, enableDumper = False):
 
     process.FEVTDEBUGHLToutput_step = cms.EndPath(process.ticlDumper)
 
-    process.TICL_Validation = cms.Path(process.hgcalAssociators)
+    process.TICL_Validation = cms.Path(process.ticlSimTrackstersTask, process.hgcalAssociators)
 
 # Schedule definition
     process.schedule = cms.Schedule(process.iterTICLTask,
