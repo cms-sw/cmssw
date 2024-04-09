@@ -38,9 +38,8 @@ def update_jets_AK4(process):
         'pfNegativeDeepFlavourJetTags:probc',
         'pfNegativeDeepFlavourJetTags:probuds',
         'pfNegativeDeepFlavourJetTags:probg',
-    ] + pfParticleTransformerAK4JetTagsAll + pfNegativeParticleTransformerAK4JetTagsProbs \
-        + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll + pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
-    
+    ]        + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll + pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
+    # \ #+ pfParticleTransformerAK4JetTagsAll + pfNegativeParticleTransformerAK4JetTagsProbs \
     updateJetCollection(
         process,
         jetSource=cms.InputTag('slimmedJetsPuppi'),
@@ -495,7 +494,7 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
                 get_DeepCSV_vars(),
                 get_DeepJet_outputs(),  # outputs are added in any case, inputs only if requested
                 get_ParticleNetAK4_outputs(),
-                get_ParticleTransformerAK4_outputs(),
+                #get_ParticleTransformerAK4_outputs(),# removed in 2024
             ))
 
         # disable the ParT branches in default jetPuppi table

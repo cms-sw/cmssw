@@ -206,7 +206,7 @@ def nanoAOD_customizeCommon(process):
 
     run2_nanoAOD_106Xv2.toModify(
         nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
-        nanoAOD_addRobustParTAK4Tag_switch=True,
+        nanoAOD_addRobustParTAK4Tag_switch=False,
         nanoAOD_addUnifiedParTAK4Tag_switch=True,
     )
 

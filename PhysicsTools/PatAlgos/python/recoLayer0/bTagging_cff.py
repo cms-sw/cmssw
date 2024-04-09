@@ -204,8 +204,8 @@ supportedBtagDiscr = {
   , 'pfDeepFlavourJetTags:probc'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probuds'                          : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepFlavourJetTags:probg'                            : [["pfDeepFlavourTagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
-  , 'pfParticleTransformerAK4JetTags:probb'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
-  , 'pfParticleTransformerAK4JetTags:probbb'     : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+, 'pfParticleTransformerAK4JetTags:probb'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
+, 'pfParticleTransformerAK4JetTags:probbb'     : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfParticleTransformerAK4JetTags:problepb'   : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfParticleTransformerAK4JetTags:probc'      : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfParticleTransformerAK4JetTags:probuds'    : [["pfParticleTransformerAK4TagInfos"], ['pfDeepCSVTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
@@ -380,4 +380,5 @@ from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticl
 # update supportedBtagDiscr
 for disc in _pfNegativeParticleTransformerAK4JetTagsProbs:
     supportedBtagDiscr[disc] = [["pfNegativeParticleTransformerAK4TagInfos"]]
+
 
