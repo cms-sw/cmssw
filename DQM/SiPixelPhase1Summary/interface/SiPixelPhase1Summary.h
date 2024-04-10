@@ -81,7 +81,7 @@ private:
   //Book trend plots
   void bookTrendPlots(DQMStore::IBooker& iBooker);
 
-  void fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
+  void fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, int lumiSeg = 0);
 
   void fillTrendPlots(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, int lumiSeg = 0);
 };

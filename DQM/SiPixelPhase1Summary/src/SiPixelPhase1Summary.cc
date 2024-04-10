@@ -84,7 +84,7 @@ void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
   if (runOnEndLumi_) {
     int lumiSec = lumiSeg.id().luminosityBlock();
     fillTrendPlots(iBooker, iGetter, lumiSec);
-    fillSummaries(iBooker, iGetter);
+    fillSummaries(iBooker, iGetter, lumiSec);
   }
 
   //  iBooker.cd();
@@ -139,7 +139,8 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
     summaryMap_[name] = iBooker.book2D("pixel" + name + "Summary", "Pixel " + name + " Summary", 12, 0, 12, 4, 0, 4);
   }
   //Make the new 6 bin ROC summary
-  deadROCSummary = iBooker.book2D("deadROCSummary", "Percentage of dead ROCs per layer/ring", 2, 0, 2, 4, 0, 4);
+  deadROCSummary =
+      iBooker.book2D("deadROCSummary", "Percentage of filled ROCs (with digis) per layer/ring", 2, 0, 2, 4, 0, 4);
   std::vector<std::string> xAxisLabelsReduced_ = {"Barrel", "Forward"};
   deadROCSummary->setAxisTitle("Subdetector", 1);
   for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++) {
@@ -227,7 +228,7 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker& iBooker) {
 //------------------------------------------------------------------
 // Fill the summary histograms
 //------------------------------------------------------------------
-void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
+void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, int lumiSec) {
   //Firstly, we will fill the regular summary maps.
   for (const auto& mapInfo : summaryPlotName_) {
     auto name = mapInfo.first;
@@ -274,15 +275,54 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
   for (unsigned int i = 0; i < trendOrder.size(); i++) {
     int xBin = i < 4 ? 1 : 2;
     int yBin = i % 4 + 1;
-    float nROCs = 0.;
+    float numDeadROCs = 0.;
+    float numFilledROCs = 0.;
+    float fracFilledROCs = 1.;
+    unsigned int lastTrendBin = 0;
+    int numEmptyBins = 0;
+    float sumOf5Bins = 0.;
+    std::vector<float> last5TrendBinsValue = {0., 0., 0., 0., 0.};
     if (runOnEndLumi_) {  //Online case
       TH1* tempProfile = deadROCTrends_[trendOrder[i]]->getTH1();
-      nROCs = tempProfile->GetBinContent(tempProfile->FindLastBinAbove());
+
+      // Old strategy: simply pick the last bin value (deadROCTrend: 1 bin every 10 LS)
+      //nROCs = tempProfile->GetBinContent(tempProfile->FindLastBinAbove());
+
+      // New strategy, check last 5 bins and decide
+      lastTrendBin = lumiSec / 10;
+      if (lastTrendBin >= 5) {
+        // Fill vector with value of last 5 bins of deadROCTrend
+        for (unsigned int n = 0; n < 5; n++)
+          last5TrendBinsValue[n] = tempProfile->GetBinContent(lastTrendBin - 5 + n + 1);
+      } else {
+        // Fill vector with bins from 1 to last available bin
+        for (unsigned int n = 0; n < lastTrendBin; n++)
+          last5TrendBinsValue[n] = tempProfile->GetBinContent(n + 1);
+      }
+
+      for (unsigned int n = 0; n < 5; n++)
+        if (last5TrendBinsValue[n] == 0)
+          numEmptyBins++;
+      if (numEmptyBins == 0) {
+        // If the last 5 bins are filled: take the median value (to suppress effect of peaks)
+        std::sort(last5TrendBinsValue.begin(), last5TrendBinsValue.end());
+        numDeadROCs = last5TrendBinsValue[2];
+      } else if (numEmptyBins != 5) {
+        //If there are some empty bins: take the average of the non-empty bins
+        for (unsigned int n = 0; n < 5; n++)
+          sumOf5Bins += last5TrendBinsValue[n];
+        numDeadROCs = sumOf5Bins / (5 - numEmptyBins);
+      }
+
     } else {  //Offline case
       TH1* tempProfile = deadROCTrends_[offline]->getTH1();
-      nROCs = tempProfile->GetBinContent(i + 1);
+      numDeadROCs = tempProfile->GetBinContent(i + 1);
     }
-    deadROCSummary->setBinContent(xBin, yBin, nROCs / nRocsPerTrend[i]);
+    // Filled ROCs = Total number - dead ROCs
+    numFilledROCs = nRocsPerTrend[i] - numDeadROCs;
+    //Fill with fraction of filled ROCs (with digis)
+    fracFilledROCs = numFilledROCs / nRocsPerTrend[i];
+    deadROCSummary->setBinContent(xBin, yBin, fracFilledROCs);
     deadROCSummary->setBinContent(2, 3, -1);
     deadROCSummary->setBinContent(2, 4, -1);
   }
@@ -331,20 +371,14 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
         if (i == 1 && j > 1) {
           summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
         } else {
-          if (deadROCSummary->getBinContent(i + 1, j + 1) < deadRocWarnThresholds_[i * 4 + j])
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 1);
-
-          else if (deadROCSummary->getBinContent(i + 1, j + 1) > deadRocWarnThresholds_[i * 4 + j] &&
-                   deadROCSummary->getBinContent(i + 1, j + 1) < deadRocThresholds_[i * 4 + j])
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0.8);
-
-          else
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0);
+          //Copy dead ROC Summary into Online Pixel Summary
+          summaryMap_["Grand"]->setBinContent(i + 1, j + 1, deadROCSummary->getBinContent(i + 1, j + 1));
 
           sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
         }
       }
     }
+    reportSummary->Fill(sumOfNonNegBins / 6.);  // The average of the 6 useful bins in the summary map.
   }
 }
 //------------------------------------------------------------------
