@@ -28,4 +28,23 @@ namespace deepvertex {
 
 }  // namespace deepvertex
 
+namespace parT {
+
+  enum InputIndexes {
+    kChargedCandidates = 0,
+    kNeutralCandidates = 1,
+    kVertices = 2,
+    kChargedCandidates4Vec = 3,
+    kNeutralCandidates4Vec = 4,
+    kVertices4Vec = 5
+  };
+
+  constexpr unsigned n_features_cpf = 16;
+  constexpr unsigned n_pairwise_features_cpf = 4;
+  constexpr unsigned n_features_npf = 8;
+  constexpr unsigned n_pairwise_features_npf = 4;
+  constexpr unsigned n_features_sv = 14;
+  constexpr unsigned n_pairwise_features_sv = 4;
+} // namespace parT
+
 #endif

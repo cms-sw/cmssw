@@ -14,8 +14,10 @@
 #include "DataFormats/BTauReco/interface/ParticleTransformerAK4Features.h"
 
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
-
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
+
+#include "RecoBTag/ONNXRuntime/interface/tensor_fillers.h"
+#include "RecoBTag/ONNXRuntime/interface/tensor_configs.h"
 
 class ParticleTransformerAK4SonicJetTagsProducer : public TritonEDProducer<> {
 public:
@@ -36,21 +38,6 @@ private:
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
 
-  enum InputIndexes {
-    kChargedCandidates = 0,
-    kNeutralCandidates = 1,
-    kVertices = 2,
-    kChargedCandidates4Vec = 3,
-    kNeutralCandidates4Vec = 4,
-    kVertices4Vec = 5
-  };
-  
-  constexpr static unsigned n_features_cpf_ = 16;
-  constexpr static unsigned n_pairwise_features_cpf_ = 4;
-  constexpr static unsigned n_features_npf_ = 8;
-  constexpr static unsigned n_pairwise_features_npf_ = 4;
-  constexpr static unsigned n_features_sv_ = 14;
-  constexpr static unsigned n_pairwise_features_sv_ = 4;
   bool skippedInference_ = false;
   bool padding_ = true;
 };
@@ -88,40 +75,40 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
   client_->setBatchSize(tag_infos->size());
   skippedInference_ = false;
   if (tag_infos->empty()) return;
-  unsigned int max_n_cpf = 0; 
-  unsigned int max_n_npf = 0; 
-  unsigned int max_n_vtx = 0; 
+  unsigned int max_n_cpf_counter = 0; 
+  unsigned int max_n_npf_counter = 0; 
+  unsigned int max_n_vtx_counter = 0; 
 
   // Find the max n_cpf, n_npf and n_vtx among all the jets in an event. 
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    max_n_cpf = std::max(max_n_cpf,
+    max_n_cpf_counter = std::max(max_n_cpf_counter,
                          static_cast<unsigned int>(((*tag_infos)[jet_n]).features().c_pf_features.size()));
-    max_n_npf = std::max(max_n_npf,
+    max_n_npf_counter = std::max(max_n_npf_counter,
                          static_cast<unsigned int>(((*tag_infos)[jet_n]).features().n_pf_features.size()));
-    max_n_vtx = std::max(max_n_vtx,
+    max_n_vtx_counter = std::max(max_n_vtx_counter,
                          static_cast<unsigned int>(((*tag_infos)[jet_n]).features().sv_features.size()));
   }
   
   // If an event has no jet, or all jets has zero n_cpf, n_npf and n_vtx, the inference is skipped.
-  if (max_n_cpf == 0 && max_n_npf == 0 && max_n_vtx == 0) {
+  if (max_n_cpf_counter == 0 && max_n_npf_counter == 0 && max_n_vtx_counter == 0) {
     client_->setBatchSize(0);
     skippedInference_ = true;
     return;
   }
     
   // all the jets in the same event will fill up the same amount of n_cpf, n_npf, n_vtx and send to server
-  max_n_cpf = std::clamp(max_n_cpf, (unsigned int)0, (unsigned int)25);
-  max_n_npf = std::clamp(max_n_npf, (unsigned int)0, (unsigned int)25);
-  max_n_vtx = std::clamp(max_n_vtx, (unsigned int)0, (unsigned int)5);
+  const unsigned int max_n_cpf = std::clamp(max_n_cpf_counter, (unsigned int)0, (unsigned int)25);
+  const unsigned int max_n_npf = std::clamp(max_n_npf_counter, (unsigned int)0, (unsigned int)25);
+  const unsigned int max_n_vtx = std::clamp(max_n_vtx_counter, (unsigned int)0, (unsigned int)5);
 
   for (unsigned igroup = 0; igroup < input_names_.size(); ++igroup) {
     const auto &group_name = input_names_[igroup];
     auto &input = iInput.at(group_name);
     unsigned target = 0;
     
-    if (igroup == kChargedCandidates || igroup == kChargedCandidates4Vec) target = std::max((unsigned int)1, max_n_cpf);
-    else if (igroup == kNeutralCandidates || igroup == kNeutralCandidates4Vec) target = std::max((unsigned int)1, max_n_npf);
-    else if (igroup == kVertices || igroup == kVertices4Vec) target = std::max((unsigned int)1, max_n_vtx);
+    if (igroup == parT::kChargedCandidates || igroup == parT::kChargedCandidates4Vec) target = std::max((unsigned int)1, max_n_cpf);
+    else if (igroup == parT::kNeutralCandidates || igroup == parT::kNeutralCandidates4Vec) target = std::max((unsigned int)1, max_n_npf);
+    else if (igroup == parT::kVertices || igroup == parT::kVertices4Vec) target = std::max((unsigned int)1, max_n_vtx);
     
     input.setShape(0, target);
     auto tdata = input.allocate<float>(true);
@@ -130,121 +117,71 @@ void ParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const &iEven
       const auto &features = taginfo.features();
       auto &vdata = (*tdata)[jet_n];
       // Loop through the n cpf, and in the case that n_cpf is smaller than max_n_cpf, add padding values to all features
-      if (igroup == kChargedCandidates) {
+      if (igroup == parT::kChargedCandidates) {
         unsigned int n_cpf = features.c_pf_features.size();
         n_cpf = std::clamp(n_cpf, (unsigned int)0,  (unsigned int)25);
         for (unsigned int count = 0; count < n_cpf; count++) {
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackEtaRel);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackPtRel);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackPPar);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackDeltaR);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackPParRatio);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackSip2dVal);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackSip2dSig);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackSip3dVal);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackSip3dSig);
-          vdata.push_back(features.c_pf_features.at(count).btagPf_trackJetDistVal);
-          vdata.push_back(features.c_pf_features.at(count).ptrel);
-          vdata.push_back(features.c_pf_features.at(count).drminsv);
-          vdata.push_back(features.c_pf_features.at(count).vtx_ass);
-          vdata.push_back(features.c_pf_features.at(count).puppiw);
-          vdata.push_back(features.c_pf_features.at(count).chi2);
-          vdata.push_back(features.c_pf_features.at(count).quality);
+          parT_tensor_filler(vdata, parT::kChargedCandidates, features.c_pf_features.at(count));
         }
         if (padding_ && n_cpf < max_n_cpf)
-          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * n_features_cpf_, 0); // Add 0 to unfilled part as padding value
+          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * parT::n_features_cpf, 0); // Add 0 to unfilled part as padding value
         if (max_n_cpf == 0) 
-          vdata.insert(vdata.end(), n_features_cpf_, 0); // Add at least 1 row of 0, otherwise the model has trouble getting output
+          vdata.insert(vdata.end(), parT::n_features_cpf, 0); // Add at least 1 row of 0 for a jet that has 0 cpf/npf/sv.
       }
-      else if (igroup == kNeutralCandidates) {
+      else if (igroup == parT::kNeutralCandidates) {
         unsigned int n_npf = features.n_pf_features.size();
         n_npf = std::clamp(n_npf, (unsigned int)0, (unsigned int)25);
-
         for (unsigned int count = 0; count < n_npf; count++) {
-          vdata.push_back(features.n_pf_features.at(count).ptrel);
-          vdata.push_back(features.n_pf_features.at(count).etarel);
-          vdata.push_back(features.n_pf_features.at(count).phirel);
-          vdata.push_back(features.n_pf_features.at(count).deltaR);
-          vdata.push_back(features.n_pf_features.at(count).isGamma);
-          vdata.push_back(features.n_pf_features.at(count).hadFrac);
-          vdata.push_back(features.n_pf_features.at(count).drminsv);
-          vdata.push_back(features.n_pf_features.at(count).puppiw);
+          parT_tensor_filler(vdata, parT::kNeutralCandidates, features.n_pf_features.at(count));
         }
         if (padding_ && n_npf < max_n_npf)
-          vdata.insert(vdata.end(), (max_n_npf - n_npf) * n_features_npf_, 0);
+          vdata.insert(vdata.end(), (max_n_npf - n_npf) * parT::n_features_npf, 0); // Add 0 to unfilled part as padding value
         if (max_n_npf == 0)
-          vdata.insert(vdata.end(), n_features_npf_, 0);
+          vdata.insert(vdata.end(), parT::n_features_npf, 0);
       }
-      else if (igroup == kVertices) {
+      else if (igroup == parT::kVertices) {
         unsigned int n_vtx= features.sv_features.size();
         n_vtx = std::clamp(n_vtx, (unsigned int)0, (unsigned int)5);
-
         for (unsigned int count = 0; count < n_vtx; count++) {
-          vdata.push_back(features.sv_features.at(count).pt);
-          vdata.push_back(features.sv_features.at(count).deltaR);
-          vdata.push_back(features.sv_features.at(count).mass);
-          vdata.push_back(features.sv_features.at(count).etarel);
-          vdata.push_back(features.sv_features.at(count).phirel);
-          vdata.push_back(features.sv_features.at(count).ntracks);
-          vdata.push_back(features.sv_features.at(count).chi2);
-          vdata.push_back(features.sv_features.at(count).normchi2);
-          vdata.push_back(features.sv_features.at(count).dxy);
-          vdata.push_back(features.sv_features.at(count).dxysig);
-          vdata.push_back(features.sv_features.at(count).d3d);
-          vdata.push_back(features.sv_features.at(count).d3dsig);
-          vdata.push_back(features.sv_features.at(count).costhetasvpv);
-          vdata.push_back(features.sv_features.at(count).enratio);
+          parT_tensor_filler(vdata, parT::kVertices, features.sv_features.at(count));
         }
         if (padding_ && n_vtx < max_n_vtx)
-          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * n_features_sv_, 0);
+          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * parT::n_features_sv, 0); 
         if (max_n_vtx == 0)
-          vdata.insert(vdata.end(), n_features_sv_, 0);
+          vdata.insert(vdata.end(), parT::n_features_sv, 0);
       }
-      else if (igroup == kChargedCandidates4Vec) {
+      else if (igroup == parT::kChargedCandidates4Vec) {
         unsigned int n_cpf = features.c_pf_features.size();
         n_cpf = std::clamp(n_cpf,  (unsigned int)0,  (unsigned int)25);
-
         for (unsigned int count = 0; count < n_cpf; count++) {
-          const auto& cpf_pairwise_features = features.c_pf_features.at(count);
-          vdata.push_back(cpf_pairwise_features.px);
-          vdata.push_back(cpf_pairwise_features.py);
-          vdata.push_back(cpf_pairwise_features.pz);
-          vdata.push_back(cpf_pairwise_features.e);
+          parT_tensor_filler(vdata, parT::kChargedCandidates4Vec, features.c_pf_features.at(count));
         }
         if (padding_ && n_cpf < max_n_cpf) 
-          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * n_pairwise_features_cpf_, 0);
+          vdata.insert(vdata.end(), (max_n_cpf - n_cpf) * parT::n_pairwise_features_cpf, 0); 
         if (max_n_cpf == 0)
-          vdata.insert(vdata.end(), n_pairwise_features_cpf_, 0);
+          vdata.insert(vdata.end(), parT::n_pairwise_features_cpf, 0);
       }
-      else if (igroup == kNeutralCandidates4Vec) {
+      else if (igroup == parT::kNeutralCandidates4Vec) {
         unsigned int n_npf = features.n_pf_features.size();
         n_npf = std::clamp(n_npf, (unsigned int)0, (unsigned int)25);
         for (unsigned int count = 0; count < n_npf; count++) {
-          const auto& npf_pairwise_features = features.n_pf_features.at(count);
-          vdata.push_back(npf_pairwise_features.px);
-          vdata.push_back(npf_pairwise_features.py);
-          vdata.push_back(npf_pairwise_features.pz);
-          vdata.push_back(npf_pairwise_features.e);
+          parT_tensor_filler(vdata, parT::kNeutralCandidates4Vec, features.n_pf_features.at(count));
         }
         if (padding_ && n_npf < max_n_npf)
-          vdata.insert(vdata.end(), (max_n_npf - n_npf) * n_pairwise_features_npf_, 0); 
+          vdata.insert(vdata.end(), (max_n_npf - n_npf) * parT::n_pairwise_features_npf, 0);
         if (max_n_npf == 0)
-          vdata.insert(vdata.end(), n_pairwise_features_npf_, 0);
+          vdata.insert(vdata.end(), parT::n_pairwise_features_npf, 0);
       }
-      else if (igroup == kVertices4Vec ) {
+      else if (igroup == parT::kVertices4Vec) {
         unsigned int n_vtx = features.sv_features.size();
         n_vtx = std::clamp(n_vtx, (unsigned int)0, (unsigned int)5);
         for (unsigned int count = 0; count < n_vtx; count++) {
-          const auto& sv_pairwise_features = features.sv_features.at(count);
-          vdata.push_back(sv_pairwise_features.px);
-          vdata.push_back(sv_pairwise_features.py);
-          vdata.push_back(sv_pairwise_features.pz);
-          vdata.push_back(sv_pairwise_features.e);
+          parT_tensor_filler(vdata, parT::kVertices4Vec, features.sv_features.at(count));
         }
         if (padding_ && n_vtx < max_n_vtx)
-          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * n_pairwise_features_sv_, 0); 
+          vdata.insert(vdata.end(), (max_n_vtx - n_vtx) * parT::n_pairwise_features_sv, 0);
         if (max_n_vtx == 0)
-          vdata.insert(vdata.end(), n_pairwise_features_sv_, 0);
+          vdata.insert(vdata.end(), parT::n_pairwise_features_sv, 0);
       }
     }
     input.toServer(tdata);
