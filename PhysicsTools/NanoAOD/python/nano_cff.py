@@ -144,20 +144,14 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
     if addUTagInfo:
         originalTauName = process.finalTaus.src.value()
         
-        if usePUPPIjets: # option to use PUPPI jets (Unified ParT Tagger)
-            
+        if usePUPPIjets: # option to use PUPPI jets   
             jetCollection = "updatedJetsPuppi"
-            TagName = "pfUnifiedParticleTransformerAK4DiscriminatorsJetTag"
+            TagName = "pfUnifiedParticleTransformerAK4JetTag"
             tag_prefix = "byUTagPUPPI"
             updatedTauName = originalTauName+'WithUTagPUPPI'
-            process.load('RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff')
-            
+            # Unified ParT Tagger used for PUPPI jets
             from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
-            Discriminators = [];
-            for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value():
-                Discriminators.append(TagName + "s:" + tag)
-
-            
+            process.pfUnifiedParticleTransformerAK4JetTags = pfUnifiedParticleTransformerAK4JetTags.clone()
         else: # use CHS jets by default
             jetCollection = "updatedJets"
             TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
@@ -166,9 +160,9 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
             # PNet tagger used for CHS jets
             process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
               
-            Discriminators = [];
-            for tag in getattr(process,TagName+"s").flav_names.value():
-                Discriminators.append(TagName+"s:"+tag)
+        Discriminators = [];
+        for tag in getattr(process,TagName+"s").flav_names.value():
+            Discriminators.append(TagName+"s:"+tag)
 
         # Define "hybridTau" producer
         from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
@@ -197,15 +191,10 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
                                                 addDeepFlavour = False,
                                                 addParticleNet = True
             )
-        # elif runUTagAK4 and usePUPPIjets: 
-        #     # TODO: Below is for PNet - add UParT when available
-        #     from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import nanoAOD_addDeepInfoAK4
-        #     process = nanoAOD_addDeepInfoAK4(process,
-        #                                      addParticleNet = True,
-        #                                      addRobustParTAK4=False
-        #     )
             
         elif usePUPPIjets:
+            # Add Unified ParT tagger information
+            # TODO: Check if can be removed if scores added to miniAOD 
             from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import nanoAOD_addDeepInfoAK4
             process = nanoAOD_addDeepInfoAK4(process,
                                              addParticleNet = False,
@@ -288,7 +277,7 @@ def nanoAOD_customizeCommon(process):
     (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
         nanoAOD_tau_switch, runUTagCHSAK4 = True
     )
-    # enable rerun of tagger for PUPPI jets for early run 3
+    # TODO: Check when this will be needed
     (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
         nanoAOD_tau_switch, runUTagPUPPIAK4 = True
     )
@@ -299,7 +288,7 @@ def nanoAOD_customizeCommon(process):
                           runUTagAK4 = nanoAOD_tau_switch.runUTagCHSAK4.value(),
                           usePUPPIjets = False
     )
-    # Add Unified Tagger For PUPPI Jets (TODO: Replace PNet 23 by UParT when available)
+    # Add Unified Tagger For PUPPI Jets (UParT 2024)
     nanoAOD_addUTagToTaus(process,
                           addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
                           runUTagAK4 = nanoAOD_tau_switch.runUTagPUPPIAK4.value(),
