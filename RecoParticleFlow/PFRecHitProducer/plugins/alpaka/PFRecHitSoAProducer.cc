@@ -8,8 +8,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
-#include "CalorimeterDefinitions.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitParamsRecord.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/PFRecHitTopologyRecord.h"
 
+#include "CalorimeterDefinitions.h"
 #include "PFRecHitProducerKernel.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
