@@ -38,11 +38,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         num_recHits += event.get(token.first)->metadata().size();
 
       reco::PFRecHitDeviceCollection pfRecHits{(int)num_recHits, event.queue()};
-    
+
       if (pfRecHits->metadata().size() != 0) {
         PFRecHitProducerKernel<CAL> kernel{event.queue(), num_recHits};
         for (const auto& token : recHitsToken_)
-            kernel.processRecHits(event.queue(), event.get(token.first), setup.getData(token.second), topology, pfRecHits);
+          kernel.processRecHits(
+              event.queue(), event.get(token.first), setup.getData(token.second), topology, pfRecHits);
         kernel.associateTopologyInfo(event.queue(), topology, pfRecHits);
       }
 
