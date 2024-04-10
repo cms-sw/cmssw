@@ -100,9 +100,10 @@ def L1TReEmulFromRAW2015(process):
     (~stage2L1Trigger).toModify(process.simRpcTriggerDigis, label = 'muonRPCDigis')
     (~stage2L1Trigger).toModify(process.simRpcTechTrigDigis, RPCDigiLabel  = 'muonRPCDigis')
 
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
-    process.schedule.append(process.L1TReEmulPath)
-
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+        process.schedule.append(process.L1TReEmulPath)
+    
     print("# L1TReEmul sequence:  ")
     print("# {0}".format(process.L1TReEmul))
     print("# {0}".format(process.schedule))
@@ -180,8 +181,10 @@ def L1TReEmulFromRAW2016(process):
     )
     (~stage2L1Trigger).toModify(process.simRpcTriggerDigis, label = 'muonRPCDigis')
 
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
-    process.schedule.append(process.L1TReEmulPath)
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+        process.schedule.append(process.L1TReEmulPath)
+
     return process 
 
 def L1TReEmulFromRAW(process):
@@ -246,9 +249,10 @@ def L1TReEmulFromNANO(process):
         TauInputTag = "hltGtStage2Digis:Tau",
         JetInputTag = "hltGtStage2Digis:Jet"
     )
-        
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
-    process.schedule.append(process.L1TReEmulPath)
+    
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+        process.schedule.append(process.L1TReEmulPath)
 
     print ("# L1TReEmul sequence:  ")
     print ("# {0}".format(process.L1TReEmul))
@@ -260,8 +264,10 @@ def L1TReEmulFromRAWCalo(process):
     process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
     process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
     process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
-    process.schedule.append(process.L1TReEmulPath)
+    
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+        process.schedule.append(process.L1TReEmulPath)
 
     print ("# L1TReEmul sequence:  ")
     print ("# {0}".format(process.L1TReEmul))
@@ -271,8 +277,9 @@ def L1TReEmulFromRAWCalo(process):
 def L1TReEmulFromRAWCaloSimTP(process):
     process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
     process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
-    process.schedule.append(process.L1TReEmulPath)
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+        process.schedule.append(process.L1TReEmulPath)
 
     print ("# L1TReEmul sequence:  ")
     print ("# {0}".format(process.L1TReEmul))
@@ -496,8 +503,9 @@ def L1TReEmulFromRAWLegacyMuon(process):
 
     process.L1TReEmul = cms.Sequence( process.L1TReEmul + process.SimL1TechnicalTriggers + process.SimL1TGlobal )
 
-    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
-    process.schedule.append(process.L1TReEmulPath)
+    if not hasattr(process, 'L1TReEmulPath'):
+        process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+        process.schedule.append(process.L1TReEmulPath)
     print("# L1TReEmul sequence:  ")
     print("# {0}".format(process.L1TReEmul))
     print("# {0}".format(process.schedule))

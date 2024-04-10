@@ -50,7 +50,6 @@ public:
         timeArray_.emplace_back(data);
       }
     }
-    SimHitCollection(const SimHitCollection& simhitcollection) = default;
     unsigned int nhits() const { return nhits_; }
     unsigned int sampleIndex() const { return (chargeArray_[0] >> sampleOffset) & sampleMask; }
     const std::vector<unsigned short>& chargeArray() const { return chargeArray_; }

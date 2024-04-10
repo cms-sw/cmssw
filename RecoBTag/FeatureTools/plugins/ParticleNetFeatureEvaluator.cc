@@ -63,6 +63,8 @@ private:
   const double min_pt_for_taus_;
   const double max_eta_for_taus_;
   const bool include_neutrals_;
+  const bool flip_ip_sign_;
+  const double max_sip3dsig_for_flip_;
 
   edm::EDGetTokenT<pat::MuonCollection> muon_token_;
   edm::EDGetTokenT<pat::ElectronCollection> electron_token_;
@@ -261,6 +263,8 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       min_pt_for_taus_(iConfig.getParameter<double>("min_pt_for_taus")),
       max_eta_for_taus_(iConfig.getParameter<double>("max_eta_for_taus")),
       include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
+      flip_ip_sign_(iConfig.getParameter<bool>("flip_ip_sign")),
+      max_sip3dsig_for_flip_(iConfig.getParameter<double>("max_sip3dsig_for_flip")),
       muon_token_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       electron_token_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
       photon_token_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
@@ -292,6 +296,8 @@ void ParticleNetFeatureEvaluator::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("min_pt_for_taus", 20.);
   desc.add<double>("max_eta_for_taus", 2.5);
   desc.add<bool>("include_neutrals", true);
+  desc.add<bool>("flip_ip_sign", false);
+  desc.add<double>("max_sip3dsig_for_flip", 99999);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("packedPFCandidates"));
@@ -451,6 +457,16 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
 
     TVector3 cand_direction(candP3.x(), candP3.y(), candP3.z());
 
+    // only when computing the nagative tagger: remove charged candidates with high sip3d
+    if (flip_ip_sign_ && track) {
+      reco::TransientTrack transientTrack = track_builder_->build(*track);
+      Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, jet_ref_track_dir, *pv_).second;
+      if (!std::isnan(meas_ip3d.significance()) && meas_ip3d.significance() > max_sip3dsig_for_flip_) {
+        continue;
+      }
+    }
+    float ip_sign = flip_ip_sign_ ? -1.f : 1.f;
+
     fts.fill("jet_pfcand_pt_log", std::isnan(std::log(candP4.pt())) ? 0 : std::log(candP4.pt()));
     fts.fill("jet_pfcand_energy_log", std::isnan(std::log(candP4.energy())) ? 0 : std::log(candP4.energy()));
     fts.fill("jet_pfcand_eta", candP4.eta());
@@ -468,8 +484,8 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
                  ? 0
                  : jet_direction.Dot(cand_direction) / cand_direction.Mag());
     fts.fill("jet_pfcand_frompv", cand->fromPV());
-    fts.fill("jet_pfcand_dz", std::isnan(cand->dz(pv_ass_pos)) ? 0 : cand->dz(pv_ass_pos));
-    fts.fill("jet_pfcand_dxy", std::isnan(cand->dxy(pv_ass_pos)) ? 0 : cand->dxy(pv_ass_pos));
+    fts.fill("jet_pfcand_dz", ip_sign * (std::isnan(cand->dz(pv_ass_pos)) ? 0 : cand->dz(pv_ass_pos)));
+    fts.fill("jet_pfcand_dxy", ip_sign * (std::isnan(cand->dxy(pv_ass_pos)) ? 0 : cand->dxy(pv_ass_pos)));
     fts.fill("jet_pfcand_puppiw", cand->puppiWeight());
     fts.fill("jet_pfcand_nlostinnerhits", cand->lostInnerHits());
     fts.fill("jet_pfcand_nhits", cand->numberOfHits());
@@ -515,7 +531,7 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
       Measurement1D meas_jetdist = IPTools::jetTrackDistance(transientTrack, jet_ref_track_dir, *pv_).second;
       Measurement1D meas_decayl = IPTools::signedDecayLength3D(transientTrack, jet_ref_track_dir, *pv_).second;
 
-      fts.fill("jet_pfcand_trackjet_d3d", std::isnan(meas_ip3d.value()) ? 0 : meas_ip3d.value());
+      fts.fill("jet_pfcand_trackjet_d3d", ip_sign * (std::isnan(meas_ip3d.value()) ? 0 : meas_ip3d.value()));
       fts.fill("jet_pfcand_trackjet_d3dsig",
                std::isnan(fabs(meas_ip3d.significance())) ? 0 : fabs(meas_ip3d.significance()));
       fts.fill("jet_pfcand_trackjet_dist", std::isnan(-meas_jetdist.value()) ? 0 : -meas_jetdist.value());
@@ -684,6 +700,8 @@ void ParticleNetFeatureEvaluator::fillSVFeatures(DeepBoostedJetFeatures &fts, co
 
   GlobalVector jet_global_vec(jet.px(), jet.py(), jet.pz());
 
+  float ip_sign = flip_ip_sign_ ? -1.f : 1.f;
+
   for (const auto *sv : jetSVs) {
     fts.fill("sv_mask", 1);
     fts.fill("jet_sv_pt_log", std::isnan(std::log(sv->pt())) ? 0 : std::log(sv->pt()));
@@ -700,12 +718,12 @@ void ParticleNetFeatureEvaluator::fillSVFeatures(DeepBoostedJetFeatures &fts, co
 
     VertexDistanceXY dxy;
     auto valxy = dxy.signedDistance(svtx, *pv_, jet_global_vec);
-    fts.fill("jet_sv_dxy", std::isnan(valxy.value()) ? 0 : valxy.value());
+    fts.fill("jet_sv_dxy", ip_sign * (std::isnan(valxy.value()) ? 0 : valxy.value()));
     fts.fill("jet_sv_dxysig", std::isnan(fabs(valxy.significance())) ? 0 : fabs(valxy.significance()));
 
     VertexDistance3D d3d;
     auto val3d = d3d.signedDistance(svtx, *pv_, jet_global_vec);
-    fts.fill("jet_sv_d3d", std::isnan(val3d.value()) ? 0 : val3d.value());
+    fts.fill("jet_sv_d3d", ip_sign * (std::isnan(val3d.value()) ? 0 : val3d.value()));
     fts.fill("jet_sv_d3dsig", std::isnan(fabs(val3d.significance())) ? 0 : fabs(val3d.significance()));
   }
 }
@@ -734,12 +752,24 @@ void ParticleNetFeatureEvaluator::fillLostTrackFeatures(DeepBoostedJetFeatures &
   math::XYZPoint pv_ass_pos = pv_ass->position();
 
   for (auto const &ltrack : jet_lost_tracks) {
+    const reco::Track *track = ltrack.bestTrack();
+
+    // only when computing the nagative tagger: remove charged candidates with high sip3d
+    if (flip_ip_sign_) {
+      reco::TransientTrack transientTrack = track_builder_->build(*track);
+      Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, jet_ref_track_dir, *pv_).second;
+      if (!std::isnan(meas_ip3d.significance()) && meas_ip3d.significance() > max_sip3dsig_for_flip_) {
+        continue;
+      }
+    }
+    float ip_sign = flip_ip_sign_ ? -1.f : 1.f;
+
     fts.fill("jet_losttrack_pt_log", std::isnan(std::log(ltrack.pt())) ? 0 : std::log(ltrack.pt()));
     fts.fill("jet_losttrack_eta", ltrack.eta());
     fts.fill("jet_losttrack_charge", ltrack.charge());
     fts.fill("jet_losttrack_frompv", ltrack.fromPV());
-    fts.fill("jet_losttrack_dz", std::isnan(ltrack.dz(pv_ass_pos)) ? 0 : ltrack.dz(pv_ass_pos));
-    fts.fill("jet_losttrack_dxy", std::isnan(ltrack.dxy(pv_ass_pos)) ? 0 : ltrack.dxy(pv_ass_pos));
+    fts.fill("jet_losttrack_dz", ip_sign * (std::isnan(ltrack.dz(pv_ass_pos)) ? 0 : ltrack.dz(pv_ass_pos)));
+    fts.fill("jet_losttrack_dxy", ip_sign * (std::isnan(ltrack.dxy(pv_ass_pos)) ? 0 : ltrack.dxy(pv_ass_pos)));
     fts.fill("jet_losttrack_npixhits", ltrack.numberOfPixelHits());
     fts.fill("jet_losttrack_nstriphits", ltrack.stripLayersWithMeasurement());
 
@@ -751,7 +781,6 @@ void ParticleNetFeatureEvaluator::fillLostTrackFeatures(DeepBoostedJetFeatures &
                  ? 0
                  : reco::btau::etaRel(jet_dir, ltrack.momentum()));
 
-    const reco::Track *track = ltrack.bestTrack();
     if (track) {
       fts.fill("jet_losttrack_track_chi2", track->normalizedChi2());
       fts.fill("jet_losttrack_track_qual", track->qualityMask());
@@ -769,7 +798,7 @@ void ParticleNetFeatureEvaluator::fillLostTrackFeatures(DeepBoostedJetFeatures &
       Measurement1D meas_jetdist = IPTools::jetTrackDistance(transientTrack, jet_ref_track_dir, *pv_).second;
       Measurement1D meas_decayl = IPTools::signedDecayLength3D(transientTrack, jet_ref_track_dir, *pv_).second;
 
-      fts.fill("jet_losttrack_trackjet_d3d", std::isnan(meas_ip3d.value()) ? 0 : meas_ip3d.value());
+      fts.fill("jet_losttrack_trackjet_d3d", ip_sign * (std::isnan(meas_ip3d.value()) ? 0 : meas_ip3d.value()));
       fts.fill("jet_losttrack_trackjet_d3dsig",
                std::isnan(fabs(meas_ip3d.significance())) ? 0 : fabs(meas_ip3d.significance()));
       fts.fill("jet_losttrack_trackjet_dist", std::isnan(-meas_jetdist.value()) ? 0 : -meas_jetdist.value());
