@@ -55,27 +55,27 @@ void LegacyPFRecHitProducer::produce(edm::Event& event, const edm::EventSetup& s
 
   reco::PFRecHitCollection out;
   int reserveSize = 0;
-  if (alpakaPfRecHits.metadata().size() != 0) 
-      reserveSize = alpakaPfRecHits.size();
+  if (alpakaPfRecHits.metadata().size() != 0)
+    reserveSize = alpakaPfRecHits.size();
   out.reserve(reserveSize);
 
   if (alpakaPfRecHits.metadata().size() != 0) {
-      for (size_t i = 0; i < alpakaPfRecHits.size(); i++) {
-        reco::PFRecHit& pfrh =
-            out.emplace_back(caloGeo_.at(alpakaPfRecHits[i].layer())->getGeometry(alpakaPfRecHits[i].detId()),
-                             alpakaPfRecHits[i].detId(),
-                             alpakaPfRecHits[i].layer(),
-                             alpakaPfRecHits[i].energy());
-        pfrh.setTime(alpakaPfRecHits[i].time());
-        pfrh.setDepth(alpakaPfRecHits[i].depth());
+    for (size_t i = 0; i < alpakaPfRecHits.size(); i++) {
+      reco::PFRecHit& pfrh =
+          out.emplace_back(caloGeo_.at(alpakaPfRecHits[i].layer())->getGeometry(alpakaPfRecHits[i].detId()),
+                           alpakaPfRecHits[i].detId(),
+                           alpakaPfRecHits[i].layer(),
+                           alpakaPfRecHits[i].energy());
+      pfrh.setTime(alpakaPfRecHits[i].time());
+      pfrh.setDepth(alpakaPfRecHits[i].depth());
 
-        // order in Alpaka:   N, S, E, W,NE,SW,SE,NW
-        const short eta[8] = {0, 0, 1, -1, 1, -1, 1, -1};
-        const short phi[8] = {1, -1, 0, 0, 1, -1, -1, 1};
-        for (size_t k = 0; k < 8; k++)
-          if (alpakaPfRecHits[i].neighbours()(k) != -1)
-            pfrh.addNeighbour(eta[k], phi[k], 0, alpakaPfRecHits[i].neighbours()(k));
-      }
+      // order in Alpaka:   N, S, E, W,NE,SW,SE,NW
+      const short eta[8] = {0, 0, 1, -1, 1, -1, 1, -1};
+      const short phi[8] = {1, -1, 0, 0, 1, -1, -1, 1};
+      for (size_t k = 0; k < 8; k++)
+        if (alpakaPfRecHits[i].neighbours()(k) != -1)
+          pfrh.addNeighbour(eta[k], phi[k], 0, alpakaPfRecHits[i].neighbours()(k));
+    }
   }
 
   event.emplace(legacyPfRecHitsToken_, out);

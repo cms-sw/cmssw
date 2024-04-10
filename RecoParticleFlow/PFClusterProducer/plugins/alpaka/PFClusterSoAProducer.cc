@@ -40,8 +40,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       if (nRH != 0) {
         PFClusterProducerKernel kernel(event.queue(), pfRecHits);
-        kernel.execute(
-            event.queue(), params, topology, pfClusteringVars, pfClusteringEdgeVars, pfRecHits, pfClusters, pfrhFractions);
+        kernel.execute(event.queue(),
+                       params,
+                       topology,
+                       pfClusteringVars,
+                       pfClusteringEdgeVars,
+                       pfRecHits,
+                       pfClusters,
+                       pfrhFractions);
       }
 
       if (synchronise_)
