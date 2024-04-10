@@ -66,7 +66,7 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       continue;
     if (name.find("probtau") != std::string::npos)
       utagTauScoreNames_.push_back(name);
-    else if (name == "probele" ||  name == "probmu")
+    else if (name == "probele" || name == "probmu")
       utagLepScoreNames_.push_back(name);
     else if (name.find("data") == std::string::npos && name.find("mc") == std::string::npos)
       utagJetScoreNames_.push_back(name);
@@ -106,7 +106,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Minimal HPS-like tauID list
   std::vector<pat::Tau::IdPair> tauIds_minimal((size_t)tauId_min_idx::last);
   tauIds_minimal[(size_t)tauId_min_idx::hpsnew] = std::make_pair("decayModeFindingNewDMs", -1);
- 
+
   // Unified Tagger tauID list
   std::vector<pat::Tau::IdPair> tauIds_utag((size_t)tauId_utag_idx::last);
   tauIds_utag[(size_t)tauId_utag_idx::dm] = std::make_pair(tagPrefix_ + "DecayMode", reco::PFTau::kNull);
@@ -420,7 +420,7 @@ void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::string>("UTagLabel", "pfParticleNetAK4JetTags");
   desc.add<std::string>("tagPrefix", "byUTag")->setComment("Prefix to be set for PUPPI or CHS tagger");
   desc.add<std::vector<std::string>>("UTagScoreNames", {})
-      ->setComment("Output nodes for Unified Tagger (different for Utag vs UParT)");
+      ->setComment("Output nodes for Unified Tagger (different for PNet vs UParT)");
   desc.add<std::string>("UtagPtCorrName", "ptcorr");
   desc.add<double>("tauScoreMin", -1)->setComment("Minimal value of the best tau score to built recovery tau");
   desc.add<double>("vsJetMin", -1)->setComment("Minimal value of UTag tau-vs-jet discriminant to built recovery tau");
