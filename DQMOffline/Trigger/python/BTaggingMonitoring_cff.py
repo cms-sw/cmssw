@@ -16,7 +16,7 @@ BTagMu_AK4DiJet20_Mu5 = hltBTVmonitoring.clone(
 )
 
 BTagMu_AK4DiJet20_Mu5_DeepJet = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet20_Mu5_DeepJet',
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet20_Mu5_DeepJet',
     nmuons = 1,
     nelectrons = 0,
     njets = 2,
@@ -41,7 +41,7 @@ BTagMu_AK4DiJet40_Mu5 = hltBTVmonitoring.clone(
 )
 
 BTagMu_AK4DiJet40_Mu5_DeepJet = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet40_Mu5_DeepJet',
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet40_Mu5_DeepJet',
     nmuons = 1,
     nelectrons = 0,
     njets = 2,
@@ -65,7 +65,7 @@ BTagMu_AK4DiJet70_Mu5 = hltBTVmonitoring.clone(
 )
 
 BTagMu_AK4DiJet70_Mu5_DeepJet = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet70_Mu5_DeepJet',
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet70_Mu5_DeepJet',
     nmuons = 1,
     nelectrons = 0,
     njets = 2,
@@ -88,7 +88,7 @@ BTagMu_AK4DiJet110_Mu5 = hltBTVmonitoring.clone(
 )
 
 BTagMu_AK4DiJet110_Mu5_DeepJet = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet110_Mu5_DeepJet',
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet110_Mu5_DeepJet',
     nmuons = 1,
     nelectrons = 0,
     njets = 2,
@@ -111,7 +111,7 @@ BTagMu_AK4DiJet170_Mu5 = hltBTVmonitoring.clone(
 )
 
 BTagMu_AK4DiJet170_Mu5_DeepJet = hltBTVmonitoring.clone(
-    FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet170_Mu5_DeepJet',
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet170_Mu5_DeepJet',
     nmuons = 1,
     nelectrons = 0,
     njets = 2,
