@@ -81,10 +81,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     # TTbar CMSSW_14X samples
     # -----------------------
-        "/store/relval/CMSSW_14_0_0_pre0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/133X_mcRun3_2023_realistic_v2-v1/2590000/0ae432dd-5468-4d1d-a650-5477941a341d.root",
-        "/store/relval/CMSSW_14_0_0_pre0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/133X_mcRun3_2023_realistic_v2-v1/2590000/47f848bc-0c81-46c2-a7e6-6ab34aef685c.root ",
-        "/store/relval/CMSSW_14_0_0_pre0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/133X_mcRun3_2023_realistic_v2-v1/2590000/8e9a579f-2e46-4c27-b002-b3d5d2ce4c65.root",
-        "/store/relval/CMSSW_14_0_0_pre0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/133X_mcRun3_2023_realistic_v2-v1/2590000/a2737549-2e3f-492d-8fcf-6ab8c81d4d72.root "
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/34ae12a4-2d90-4d5d-b243-e949af0952ae.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/5c08de0e-0571-4792-aa37-1b7d1915dbda.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/1aed742b-2f48-4cc3-8758-24153c38c79b.root",
+        "/store/relval/CMSSW_14_0_1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/140X_mcRun3_2024_realistic_v4_PU_AlpakaVal_AlpakaDeviceVSHost-v14/50000/096ba83b-620d-449d-a408-ebb209b54d76.root"
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -208,7 +208,7 @@ process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 
-xmlMenu="L1Menu_Collisions2024_v1_0_0.xml"
+xmlMenu="L1Menu_Collisions2024_v1_1_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
