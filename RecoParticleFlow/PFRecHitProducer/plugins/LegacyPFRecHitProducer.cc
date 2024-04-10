@@ -54,12 +54,9 @@ void LegacyPFRecHitProducer::produce(edm::Event& event, const edm::EventSetup& s
   const reco::PFRecHitHostCollection::ConstView& alpakaPfRecHits = pfRecHitsAlpakaSoA.const_view();
 
   reco::PFRecHitCollection out;
-  int reserveSize = 0;
-  if (alpakaPfRecHits.metadata().size() != 0)
-    reserveSize = alpakaPfRecHits.size();
-  out.reserve(reserveSize);
 
   if (alpakaPfRecHits.metadata().size() != 0) {
+    out.reserve(alpakaPfRecHits.size());
     for (size_t i = 0; i < alpakaPfRecHits.size(); i++) {
       reco::PFRecHit& pfrh =
           out.emplace_back(caloGeo_.at(alpakaPfRecHits[i].layer())->getGeometry(alpakaPfRecHits[i].detId()),

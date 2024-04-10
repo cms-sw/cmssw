@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       reco::PFRecHitDeviceCollection pfRecHits{(int)num_recHits, event.queue()};
 
-      if (pfRecHits->metadata().size() != 0) {
+      if (num_recHits != 0) {
         PFRecHitProducerKernel<CAL> kernel{event.queue(), num_recHits};
         for (const auto& token : recHitsToken_)
           kernel.processRecHits(
