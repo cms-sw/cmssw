@@ -190,11 +190,9 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
                                                 addDeepBTag = False,
                                                 addDeepFlavour = False,
                                                 addParticleNet = True
-            )
-            
-        elif usePUPPIjets:
-            # Add Unified ParT tagger information
-            # TODO: Check if can be removed if scores added to miniAOD 
+            )    
+        elif runUTagAK4 and usePUPPIjets:
+            # Add Unified ParT tagger information if not available in miniAOD
             from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import nanoAOD_addDeepInfoAK4
             process = nanoAOD_addDeepInfoAK4(process,
                                              addParticleNet = False,
@@ -276,10 +274,6 @@ def nanoAOD_customizeCommon(process):
     # run3 eras as it is present in miniAOD)
     (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
         nanoAOD_tau_switch, runUTagCHSAK4 = True
-    )
-    # TODO: Check when this will be needed
-    (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-        nanoAOD_tau_switch, runUTagPUPPIAK4 = True
     )
     
     # Add Unified Tagger For CHS Jets (PNet 2023)
