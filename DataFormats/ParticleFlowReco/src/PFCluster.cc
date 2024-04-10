@@ -60,16 +60,6 @@ PFLayer::Layer PFCluster::layer() const {
   return PFLayer::fromCaloID(caloID());
 }
 
-PFCluster& PFCluster::operator=(const PFCluster& other) {
-  CaloCluster::operator=(other);
-  rechits_ = other.rechits_;
-  energy_ = other.energy_;
-  position_ = other.position_;
-  posrep_ = other.posrep_;
-
-  return *this;
-}
-
 std::ostream& reco::operator<<(std::ostream& out, const PFCluster& cluster) {
   if (!out)
     return out;

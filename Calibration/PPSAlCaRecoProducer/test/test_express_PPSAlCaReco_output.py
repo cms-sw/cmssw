@@ -1,13 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
-# load era modifier to run on 2018 data
-from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+# load era modifier to run on 2022 data
+from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
 
-process = cms.Process( 'TEST',ctpps_2018)
+process = cms.Process( 'TEST',ctpps_2022)
+
+# command  line options
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing('analysis')
+options.register('runNo',
+                1,
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.int,
+                "Run number")
+options.parseArguments()
+
+run_no = options.runNo
 
 # LHCInfo plotter
-process.load("Validation.CTPPS.ctppsLHCInfoPlotter_cfi")
-process.ctppsLHCInfoPlotter.outputFile = "alcareco_lhc_info_express.root"
+process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cfi')
+process.ctppsLHCInfoPlotter.outputFile = f"alcareco_lhc_info_express_{run_no}.root"
 
 # Load geometry from DB
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
@@ -21,7 +33,7 @@ process.ctppsTrackDistributionPlotter = cms.EDAnalyzer("CTPPSTrackDistributionPl
   rpId_56_N = cms.uint32(103),
   rpId_56_F = cms.uint32(123),
 
-  outputFile = cms.string("alcareco_tracks_express.root")
+  outputFile = cms.string(f"alcareco_tracks_express_{run_no}.root")
 )
 
 # reconstruction plotter
@@ -35,7 +47,7 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
   rpId_56_N = cms.uint32(103),
   rpId_56_F = cms.uint32(123),
 
-  outputFile = cms.string("alcareco_protons_express.root")
+  outputFile = cms.string(f"alcareco_protons_express_{run_no}.root")
 )
 
 process.p = cms.Path(
@@ -55,7 +67,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data_express')
 
 process.source = cms.Source( 'PoolSource',
     fileNames = cms.untracked.vstring(
-        'file:outputALCAPPS_RECO_express.root',
+        options.inputFiles,
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'

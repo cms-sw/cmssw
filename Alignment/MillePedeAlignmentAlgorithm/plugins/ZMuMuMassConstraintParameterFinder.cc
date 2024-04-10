@@ -47,7 +47,7 @@
 class ZMuMuMassConstraintParameterFinder : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ZMuMuMassConstraintParameterFinder(const edm::ParameterSet&);
-  ~ZMuMuMassConstraintParameterFinder() override;
+  ~ZMuMuMassConstraintParameterFinder() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -117,8 +117,6 @@ ZMuMuMassConstraintParameterFinder ::ZMuMuMassConstraintParameterFinder(const ed
   muonInfoFromZ_.setupTree("di_muon_from_Z", fs);
 }
 
-ZMuMuMassConstraintParameterFinder ::~ZMuMuMassConstraintParameterFinder() {}
-
 //
 // member functions
 //
@@ -158,8 +156,8 @@ void ZMuMuMassConstraintParameterFinder ::fillDescriptions(edm::ConfigurationDes
   desc.add<double>("ptMin", 15.0);
   desc.add<double>("etaMin", -3.0);
   desc.add<double>("etaMax", 3.0);
-  desc.add<double>("phiMin", -3.1416);
-  desc.add<double>("phiMax", 3.1416);
+  desc.add<double>("phiMin", -M_PI);
+  desc.add<double>("phiMax", M_PI);
   desc.add<double>("minMassPair", 85.8);
   desc.add<double>("maxMassPair", 95.8);
   descriptions.add("zMuMuMassConstraintParameterFinder", desc);

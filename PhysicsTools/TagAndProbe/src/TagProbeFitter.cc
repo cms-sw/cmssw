@@ -222,10 +222,10 @@ string TagProbeFitter::calculateEfficiency(string dirName,
   if (not split_mode) {
     data = new RooDataSet("data",
                           "data",
-                          inputTree,
                           dataVars,
-                          /*selExpr=*/"",
-                          /*wgtVarName=*/(weightVar.empty() ? nullptr : weightVar.c_str()));
+                          Import(*inputTree),
+                          /*selExpr=*/Cut(""),
+                          /*wgtVarName=*/WeightVar(weightVar.empty() ? nullptr : weightVar.c_str()));
 
     // Now add all expressions that are computed dynamically
     for (vector<pair<pair<string, string>, pair<string, vector<string> > > >::const_iterator
@@ -329,9 +329,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
   } else {
     // disactive not needed branches
     inputTree->SetBranchStatus("*", false);
-    TIterator* iter = dataVars.createIterator();
-    TObject* obj(nullptr);
-    while ((obj = iter->Next()))
+    for (TObject* obj : dataVars)
       inputTree->SetBranchStatus(obj->GetName(), true);
   }
 
@@ -357,7 +355,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
       //create the dataset
       data_bin = (RooDataSet*)data->reduce(Cut(TString::Format("allCats==%d", iCat)));
     } else {
-      data_bin = new RooDataSet("data", "data", dataVars, (weightVar.empty() ? nullptr : weightVar.c_str()));
+      data_bin = new RooDataSet("data", "data", dataVars, WeightVar(weightVar.empty() ? nullptr : weightVar.c_str()));
 
       TDirectory* tmp = gDirectory;
       gROOT->cd();
@@ -480,8 +478,8 @@ string TagProbeFitter::calculateEfficiency(string dirName,
     if (data_bin->numEntries() > 0) {
       //set the values of binnedVariables to the mean value in this data bin
       RooArgSet meanOfVariables;
-      RooLinkedListIter vit = binnedVariables.iterator();
-      for (RooRealVar* v = (RooRealVar*)vit.Next(); v != nullptr; v = (RooRealVar*)vit.Next()) {
+      for (const RooAbsArg* vv : binnedVariables) {
+        const RooRealVar* v = dynamic_cast<const RooRealVar*>(vv);
         meanOfVariables.addClone(*v);
         double mean = w->data("data")->mean(*v);
         RooBinning binning((RooBinning&)v->getBinning());
@@ -555,22 +553,20 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   std::unique_ptr<RooFitResult> res;
 
   RooAbsData* data = w->data("data");
-  std::unique_ptr<RooDataHist> bdata;
   if (binnedFit) {
     // get variables from data, which contain also other binning or expression variables
     const RooArgSet* dataObs = data->get(0);
     // remove everything which is not a dependency of the pdf
-    RooArgSet* obs = w->pdf("simPdf")->getObservables(dataObs);
-    bdata = std::make_unique<RooDataHist>("data_binned", "data_binned", *obs, *data);
-    w->import(*bdata);
+    std::unique_ptr<RooArgSet> obs{w->pdf("simPdf")->getObservables(dataObs)};
+    RooDataHist bdata{"data_binned", "data_binned", *obs, *data};
+    w->import(bdata);
     data = w->data("data_binned");
-    delete obs;
   }
 
   double totPassing = data->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
   double totFailing = data->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
 
-  RooAbsReal* simNLL = w->pdf("simPdf")->createNLL(*data, Extended(true), NumCPU(numCPU));
+  std::unique_ptr<RooAbsReal> simNLL{w->pdf("simPdf")->createNLL(*data, Extended(true), NumCPU(numCPU))};
 
   RooMinimizer minimizer(*simNLL);  // we are going to use this for 'scan'
   minimizer.setStrategy(1);
@@ -703,8 +699,6 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       efficiency.setAsymError(-cerr, 0);
     }
   }
-
-  delete simNLL;
 }
 
 void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands) {
@@ -788,8 +782,7 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w) {
   RooAbsPdf& pdf = *w->pdf("simPdf");
   std::unique_ptr<RooArgSet> obs(pdf.getObservables(*dataAll));
   RooRealVar* mass = nullptr;
-  RooLinkedListIter it = obs->iterator();
-  for (RooAbsArg* v = (RooAbsArg*)it.Next(); v != nullptr; v = (RooAbsArg*)it.Next()) {
+  for (RooAbsArg* v : *obs) {
     if (!v->InheritsFrom("RooRealVar"))
       continue;
     mass = (RooRealVar*)v;
@@ -867,8 +860,7 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w) {
 
   const RooArgSet* vars = dataAll->get();
   vector<RooRealVar*> reals;
-  RooLinkedListIter it = vars->iterator();
-  for (RooAbsArg* v = (RooAbsArg*)it.Next(); v != nullptr; v = (RooAbsArg*)it.Next()) {
+  for (RooAbsArg* v : *vars) {
     if (!v->InheritsFrom("RooRealVar"))
       continue;
     reals.push_back((RooRealVar*)v);
@@ -909,15 +901,15 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff,
                                          const TString& effName,
                                          RooArgSet& binnedVariables,
                                          RooArgSet& mappedCategories) {
-  RooLinkedListIter v1it = binnedVariables.iterator();
   bool isOnePoint =
       (eff.numEntries() == 1);  // for datasets with > 1 entry, we don't make plots for variables with just one bin
-  for (RooRealVar* v1 = (RooRealVar*)v1it.Next(); v1 != nullptr; v1 = (RooRealVar*)v1it.Next()) {
+  for (auto it1 = binnedVariables.begin(); it1 != binnedVariables.end(); it1++) {
+    RooRealVar* v1 = dynamic_cast<RooRealVar*>(*it1);
     RooArgSet binCategories1D;
     if (v1->numBins() == 1 && !isOnePoint)
       continue;
-    RooLinkedListIter v2it = binnedVariables.iterator();
-    for (RooRealVar* v2 = (RooRealVar*)v2it.Next(); v2 != nullptr; v2 = (RooRealVar*)v2it.Next()) {
+    for (auto it2 = binnedVariables.begin(); it2 != binnedVariables.end(); it2++) {
+      RooRealVar* v2 = dynamic_cast<RooRealVar*>(*it2);
       if (v2 == v1)
         continue;
       if (v2->numBins() == 1 && !isOnePoint)
@@ -926,8 +918,8 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff,
           RooBinningCategory(TString(v2->GetName()) + "_bins", TString(v2->GetName()) + "_bins", *v2));
 
       RooArgSet binCategories2D;
-      RooLinkedListIter v3it = binnedVariables.iterator();
-      for (RooRealVar* v3 = (RooRealVar*)v3it.Next(); v3 != nullptr; v3 = (RooRealVar*)v3it.Next()) {
+      for (auto it3 = binnedVariables.begin(); it3 != binnedVariables.end(); it3++) {
+        RooRealVar* v3 = dynamic_cast<RooRealVar*>(*it3);
         if (v3 == v1 || v3 == v2)
           continue;
         binCategories2D.addClone(
@@ -1048,7 +1040,7 @@ void TagProbeFitter::makeEfficiencyPlot2D(RooDataSet& eff,
                               effName.Data()));
   h->SetOption("colztexte");
   h->GetZaxis()->SetRangeUser(-0.001, 1.001);
-  h->SetStats(kFALSE);
+  h->SetStats(false);
   for (int i = 0; i < eff.numEntries(); i++) {
     const RooArgSet* entry = eff.get(i);
     if (catName != nullptr && entry->getCatIndex(catName) != catIndex)

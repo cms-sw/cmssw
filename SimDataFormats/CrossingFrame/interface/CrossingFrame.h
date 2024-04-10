@@ -40,6 +40,7 @@ public:
 
   CrossingFrame() : firstCrossing_(0), lastCrossing_(0), bunchSpace_(75), subdet_(""), maxNbSources_(0) {}
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet, unsigned int maxNbSources);
+  CrossingFrame(const CrossingFrame& v) = default;
 
   ~CrossingFrame() { ; }
 

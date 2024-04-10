@@ -60,6 +60,11 @@ BeamProfile2DBWriter::BeamProfile2DBWriter(const edm::ParameterSet& iConfig)
   beamSpot_.setX(iConfig.getParameter<double>("X0"));
   beamSpot_.setY(iConfig.getParameter<double>("Y0"));
   beamSpot_.setZ(iConfig.getParameter<double>("Z0"));
+  beamSpot_.setMeanX(iConfig.getParameter<double>("MeanX"));
+  beamSpot_.setMeanY(iConfig.getParameter<double>("MeanY"));
+  beamSpot_.setMeanZ(iConfig.getParameter<double>("MeanZ"));
+  beamSpot_.setSigmaX(iConfig.getParameter<double>("SigmaX"));
+  beamSpot_.setSigmaY(iConfig.getParameter<double>("SigmaY"));
   beamSpot_.setSigmaZ(iConfig.getParameter<double>("SigmaZ"));
   beamSpot_.setAlpha(iConfig.getParameter<double>("Alpha"));
   beamSpot_.setPhi(iConfig.getParameter<double>("Phi"));
@@ -88,12 +93,17 @@ void BeamProfile2DBWriter::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<std::string>("recordName", "SimBeamSpotObjectsRcd")
       ->setComment("name of the record to use for the PoolDBOutputService");
-  desc.add<double>("X0")->setComment("in cm");
-  desc.add<double>("Y0")->setComment("in cm");
-  desc.add<double>("Z0")->setComment("in cm");
-  desc.add<double>("SigmaZ")->setComment("in cm");
-  desc.add<double>("BetaStar")->setComment("in cm");
-  desc.add<double>("Emittance")->setComment("in cm");
+  desc.add<double>("X0", 0.0)->setComment("in cm");
+  desc.add<double>("Y0", 0.0)->setComment("in cm");
+  desc.add<double>("Z0", 0.0)->setComment("in cm");
+  desc.add<double>("MeanX", 0.0)->setComment("in cm");
+  desc.add<double>("MeanY", 0.0)->setComment("in cm");
+  desc.add<double>("MeanZ", 0.0)->setComment("in cm");
+  desc.add<double>("SigmaX", -1.0)->setComment("in cm");
+  desc.add<double>("SigmaY", -1.0)->setComment("in cm");
+  desc.add<double>("SigmaZ", 0.0)->setComment("in cm");
+  desc.add<double>("BetaStar", 0.0)->setComment("in cm");
+  desc.add<double>("Emittance", 0.0)->setComment("in cm");
   desc.add<double>("Alpha", 0.0)->setComment("in radians");
   desc.add<double>("Phi", 0.0)->setComment("in radians");
   desc.add<double>("TimeOffset", 0.0)->setComment("in ns");

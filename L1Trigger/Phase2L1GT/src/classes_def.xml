@@ -1,5 +1,5 @@
 <lcgdict>
-  <class name="l1t::InvariantMassError"/>
-  <class name="l1t::InvariantMassErrorCollection"/>
-  <class name="edm::Wrapper<l1t::InvariantMassErrorCollection>"/>
+  <class name="l1t::InvariantMassError" persistent="false"/>
+  <class name="l1t::InvariantMassErrorCollection" persistent="false"/>
+  <class name="edm::Wrapper<l1t::InvariantMassErrorCollection>" persistent="false"/>
 </lcgdict>

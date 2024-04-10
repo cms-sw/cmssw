@@ -7,9 +7,6 @@
 #include <ostream>
 #include <memory>
 
-//#undef BOOST_DISABLE_ASSERTS  //TODO remove for production version
-#include "boost/multi_array.hpp"
-
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
@@ -101,10 +98,11 @@ public:
   unsigned int nPdfValBits() const { return rawParams.nPdfValBits(); };
   int pdfMaxValue() const { return pdfMaxVal; };
   unsigned int nPhiBins() const override { return rawParams.nPhiBins(); };
+  double omtfPhiUnit() const { return 2 * M_PI / nPhiBins(); }
   unsigned int nRefHits() const { return rawParams.nRefHits(); };
   unsigned int nTestRefHits() const { return rawParams.nTestRefHits(); };
   //processors number per detector side
-  unsigned int nProcessors() const { return rawParams.nProcessors(); };
+  unsigned int nProcessors() const override { return rawParams.nProcessors(); };
   //total number of processors in the system
   unsigned int processorCnt() const { return 2 * rawParams.nProcessors(); };
   unsigned int nLogicRegions() const { return rawParams.nLogicRegions(); };
@@ -142,14 +140,25 @@ public:
   ///uGMT pt scale conversion
   double hwPtToGev(int hwPt) const override { return (hwPt - 1.) * ptUnit; }
 
+  double uptUnit = 1;  // GeV/unit
+  double hwUPtToGev(int hwPt) const override { return (hwPt - 1.) * uptUnit; }
+
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }
+
+  int calcGlobalPhi(int locPhi, int proc) const;
 
   double etaUnit = 0.010875;  //=2.61/240 TODO value taken from the interface note, should be defined somewhere globally
   ///center of eta bin
   virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit); }
 
   int etaToHwEta(double eta) const override { return (eta / etaUnit); }
+
+  static unsigned int eta2Bits(unsigned int eta);
+
+  static unsigned int etaBits2HwEta(unsigned int eta);
+
+  static int etaBit2Code(unsigned int bit);
 
   double phiGmtUnit = 2. * M_PI / 576;  //TODO from the interface note, should be defined somewhere globally
   //phi in radians
@@ -253,7 +262,28 @@ public:
 
   void setGhostBusterType(const std::string& ghostBusterType = "") { this->ghostBusterType = ghostBusterType; }
 
+  bool usePhiBExtrapolationMB1() const { return this->usePhiBExtrapolationFromMB1_; }
+
+  bool usePhiBExtrapolationMB2() const { return this->usePhiBExtrapolationFromMB2_; }
+
+  int getDtRefHitMinQuality() const { return dtRefHitMinQuality; }
+
+  void setDtRefHitMinQuality(int dtRefHitMinQuality = 2) { this->dtRefHitMinQuality = dtRefHitMinQuality; }
+
+  bool getDumpResultToXML() const { return dumpResultToXML; }
+
   void printConfig() const;
+
+  bool useEndcapStubsRInExtr() const { return useEndcapStubsRInExtr_; }
+
+  bool useStubQualInExtr() const { return useStubQualInExtr_; }
+
+  //[cm]
+  int minCSCStubRME12() const { return minCSCStubRME12_; }
+  //[cm], othere CSC station than ME1/2
+  int minCscStubR() const { return minCSCStubR_; }
+
+  bool cleanStubs() const { return cleanStubs_; }
 
 private:
   L1TMuonOverlapParams rawParams;
@@ -309,11 +339,33 @@ private:
 
   int goldenPatternResultFinalizeFunction = 0;
 
+  //likelihood of "no hit" in the pdf
   bool noHitValueInPdf = false;
 
   int sorterType = 0;
 
   std::string ghostBusterType = "";
+
+  //if true, in the OMTFProcessor<GoldenPatternType>::processInput the phiB extrapolation is used for the refHit of the MB1, i.e. logicLayer 0 and 1
+  bool usePhiBExtrapolationFromMB1_ = false;
+
+  //if true, in the OMTFProcessor<GoldenPatternType>::processInput the phiB extrapolation is used for the refHit of the MB2, i.e. logicLayer 2 and 3
+  bool usePhiBExtrapolationFromMB2_ = false;
+
+  bool useStubQualInExtr_ = false;
+
+  bool useEndcapStubsRInExtr_ = false;
+
+  //min quality of the DT phi hit used as the reference hit
+  //Remember that it is on the top of the minDtPhiQuality
+  int dtRefHitMinQuality = 2;
+
+  int minCSCStubRME12_ = 0;
+  int minCSCStubR_ = 0;
+
+  bool dumpResultToXML = false;
+
+  bool cleanStubs_ = false;
 };
 
 #endif

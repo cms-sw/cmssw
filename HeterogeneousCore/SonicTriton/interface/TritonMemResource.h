@@ -19,6 +19,7 @@ public:
   uint8_t* addr() { return addr_; }
   size_t size() const { return size_; }
   virtual void close() {}
+  void closeSafe();
   //used for input
   virtual void copyInput(const void* values, size_t offset, unsigned entry) {}
   //used for output

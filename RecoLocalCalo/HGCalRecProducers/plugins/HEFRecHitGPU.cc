@@ -25,7 +25,6 @@ class HEFRecHitGPU : public edm::stream::EDProducer<> {
 public:
   explicit HEFRecHitGPU(const edm::ParameterSet &ps);
   ~HEFRecHitGPU() override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -107,8 +106,6 @@ void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
     edm::LogError("WrongSize") << this->assert_error_message_(
         "weights", HGChefUncalibRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
-
-void HEFRecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
 void HEFRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};

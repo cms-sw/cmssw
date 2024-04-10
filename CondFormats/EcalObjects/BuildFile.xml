@@ -3,6 +3,8 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="boost"/>
@@ -10,6 +12,8 @@
 <use name="rootmath"/>
 <use name="clhep"/>
 <use name="cuda"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>

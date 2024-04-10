@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 class config: pass
 config.dqmAtRunEnd = False
 if config.dqmAtRunEnd: config.fileMode = 'FULLMERGE'
 else: config.fileMode = 'NOMERGE'
 
-process = cms.Process("DQMClient")
+process = cms.Process("DQMClient",eras.Run3)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('')

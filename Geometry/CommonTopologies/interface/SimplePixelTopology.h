@@ -214,26 +214,26 @@ namespace phase2PixelTopology {
 
   HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairs] = {
 
-      0,  1,  0,  4,  0,  16,  //BPIX1 (3)
-      1,  2,  1,  4,  1,  16,  //BPIX2 (6)
-      2,  3,  2,  4,  2,  16,  //BPIX3 & Forward (9)
+      0,  1,  0,  4,  0,  16,  // BPIX1 (3)
+      1,  2,  1,  4,  1,  16,  // BPIX2 (6)
+      2,  3,  2,  4,  2,  16,  // BPIX3 & Forward (9)
 
-      4,  5,  5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10, 11,  //POS (16)
-      16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23,  //NEG (23)
+      4,  5,  5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10, 11,  // POS (16)
+      16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23,  // NEG (23)
 
       0,  2,  0,  5,  0,  17, 0,  6,  0,  18,  // BPIX1 Jump (28)
       1,  3,  1,  5,  1,  17, 1,  6,  1,  18,  // BPIX2 Jump (33)
 
-      11, 12, 12, 13, 13, 14, 14, 15,  //Late POS (37)
-      23, 24, 24, 25, 25, 26, 26, 27,  //Late NEG (41)
+      11, 12, 12, 13, 13, 14, 14, 15,  // Late POS (37)
+      23, 24, 24, 25, 25, 26, 26, 27,  // Late NEG (41)
 
-      4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  //POS Jump (48)
-      16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  //NEG Jump (55)
+      4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
+      16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
   HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
                                                                   108,
                                                                   324,
-                                                                  504,  //Barrel
+                                                                  504,  // Barrel
                                                                   756,
                                                                   864,
                                                                   972,
@@ -245,7 +245,7 @@ namespace phase2PixelTopology {
                                                                   1620,
                                                                   1796,
                                                                   1972,
-                                                                  2148,  //Fp
+                                                                  2148,  // Fp
                                                                   2324,
                                                                   2432,
                                                                   2540,
@@ -257,7 +257,7 @@ namespace phase2PixelTopology {
                                                                   3188,
                                                                   3364,
                                                                   3540,
-                                                                  3716,  //Np
+                                                                  3716,  // Np
                                                                   numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
@@ -332,7 +332,7 @@ namespace pixelTopology {
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 10;
     static constexpr uint32_t maxNumberOfTuples = 256 * 1024;
-    //this is well above thanks to maxNumberOfTuples
+    // this is well above thanks to maxNumberOfTuples
     static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
     static constexpr uint32_t maxNumberOfDoublets = 5 * 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
@@ -381,6 +381,7 @@ namespace pixelTopology {
 
     static constexpr uint16_t numberOfModules = 3892;
 
+    // 1024 bins, 10 bits
     static constexpr uint16_t clusterBinning = 1024;
     static constexpr uint16_t clusterBits = 10;
 
@@ -391,7 +392,7 @@ namespace pixelTopology {
     static constexpr uint16_t firstEndcapPos = 4;
     static constexpr uint16_t firstEndcapNeg = 16;
 
-    static constexpr int16_t xOffset = -1e4;  //not used actually, to suppress static analyzer warnings
+    static constexpr int16_t xOffset = -1e4;  // not used actually, to suppress static analyzer warnings
 
     static constexpr char const *nameModifier = "Phase2";
 
@@ -483,6 +484,7 @@ namespace pixelTopology {
     static constexpr uint16_t lastRowInModule = numRowsInModule - 1;
     static constexpr uint16_t lastColInModule = numColsInModule - 1;
 
+    // 418 bins < 512, 9 bits are enough
     static constexpr uint16_t clusterBinning = numColsInModule + 2;
     static constexpr uint16_t clusterBits = 9;
 
@@ -557,7 +559,7 @@ namespace pixelTopology {
     static constexpr uint32_t maxPixInModule = 10000;
 
     static constexpr uint32_t maxNumOfActiveDoublets =
-        maxNumberOfDoublets / 4;  //TODO need to think a better way to avoid this duplication
+        maxNumberOfDoublets / 4;  // TODO need to think a better way to avoid this duplication
     static constexpr uint32_t maxCellsPerHit = 256;
 
     static constexpr uint32_t maxNumClustersPerModules = phase1HIonPixelTopology::maxNumClustersPerModules;

@@ -27,25 +27,23 @@
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StdPairHasher.h"
-#include "oneapi/tbb/concurrent_unordered_map.h"
 
+#include "monitor_file_utilities.h"
+
+#include "oneapi/tbb/concurrent_unordered_map.h"
 #include <atomic>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
+using namespace edm::service::monitor_file_utilities;
+
 namespace {
 
   using duration_t = std::chrono::microseconds;
   using clock_t = std::chrono::steady_clock;
   auto now = clock_t::now;
-
-  inline auto stream_id(edm::StreamContext const& cs) { return cs.streamID().value(); }
-
-  inline auto module_id(edm::ModuleCallingContext const& mcc) { return mcc.moduleDescription()->id(); }
-
-  inline auto module_id(edm::ESModuleCallingContext const& mcc) { return mcc.componentDescription()->id_; }
 
   //===============================================================
   class StallStatistics {
@@ -82,19 +80,6 @@ namespace {
     std::atomic<rep_t> maxTime_{};
   };
 
-  //===============================================================
-  // Message-assembly utilities
-  template <typename T>
-  std::enable_if_t<std::is_integral<T>::value> concatenate(std::ostream& os, T const t) {
-    os << ' ' << t;
-  }
-
-  template <typename H, typename... T>
-  std::enable_if_t<std::is_integral<H>::value> concatenate(std::ostream& os, H const h, T const... t) {
-    os << ' ' << h;
-    concatenate(os, t...);
-  }
-
   enum class step : char {
     preSourceEvent = 'S',
     postSourceEvent = 's',
@@ -109,7 +94,9 @@ namespace {
     postEvent = 'e',
     postESModulePrefetching = 'q',
     preESModule = 'N',
-    postESModule = 'n'
+    postESModule = 'n',
+    preFrameworkTransition = 'F',
+    postFrameworkTransition = 'f'
   };
 
   enum class Phase : short {
@@ -260,7 +247,7 @@ using edm::service::StallMonitor;
 using namespace std::chrono;
 
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-    : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)},
+    : file_{iPS.getUntrackedParameter<std::string>("fileName")},
       validFile_{file_},
       stallThreshold_{
           std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold")))} {
@@ -334,6 +321,58 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.preallocateSignal_.connect(
         [this](service::SystemBounds const& iBounds) { numStreams_ = iBounds.maxNumberOfStreams(); });
 
+    bool recordFrameworkTransitions = iPS.getUntrackedParameter<bool>("recordFrameworkTransitions");
+    if (recordFrameworkTransitions) {
+      {
+        auto preGlobal = [this](GlobalContext const& gc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::preFrameworkTransition>(
+              numStreams_, gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), toTransition(gc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPreGlobalBeginRun(preGlobal);
+        iRegistry.watchPreGlobalBeginLumi(preGlobal);
+        iRegistry.watchPreGlobalEndLumi(preGlobal);
+        iRegistry.watchPreGlobalEndRun(preGlobal);
+      }
+      {
+        auto postGlobal = [this](GlobalContext const& gc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::postFrameworkTransition>(
+              numStreams_, gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), toTransition(gc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPostGlobalBeginRun(postGlobal);
+        iRegistry.watchPostGlobalBeginLumi(postGlobal);
+        iRegistry.watchPostGlobalEndLumi(postGlobal);
+        iRegistry.watchPostGlobalEndRun(postGlobal);
+      }
+      {
+        auto preStream = [this](StreamContext const& sc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::preFrameworkTransition>(
+              stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), toTransition(sc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPreStreamBeginRun(preStream);
+        iRegistry.watchPreStreamBeginLumi(preStream);
+        iRegistry.watchPreStreamEndLumi(preStream);
+        iRegistry.watchPreStreamEndRun(preStream);
+      }
+      {
+        auto postStream = [this](StreamContext const& sc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::postFrameworkTransition>(
+              stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), toTransition(sc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPostStreamBeginRun(postStream);
+        iRegistry.watchPostStreamBeginLumi(postStream);
+        iRegistry.watchPostStreamEndLumi(postStream);
+        iRegistry.watchPostStreamEndRun(postStream);
+      }
+    }
+
     std::ostringstream oss;
     oss << "# Transition       Symbol\n";
     oss << "#----------------- ------\n";
@@ -375,6 +414,12 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n"
         << "# postESModuleTransition        " << step::postESModule
         << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n";
+    if (recordFrameworkTransitions) {
+      oss << "# preFrameworkTransition        " << step::preFrameworkTransition
+          << " <Stream ID> <Run#> <LumiBlock#> <Transition type> <Time since beginJob (ms)>\n"
+          << "# postFrameworkTransition       " << step::postFrameworkTransition
+          << " <Stream ID> <Run#> <LumiBlock#> <Transition type> <Time since beginJob (ms)>\n";
+    }
     file_.write(oss.str());
   }
 }
@@ -391,6 +436,10 @@ void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ->setComment(
           "Threshold (in seconds) used to classify modules as stalled.\n"
           "Microsecond granularity allowed.");
+  desc.addUntracked<bool>("recordFrameworkTransitions", false)
+      ->setComment(
+          "When writing a file, include the framework state transitions:\n"
+          " stream and global, begin and end, Run and LuminosityBlock.");
   descriptions.add("StallMonitor", desc);
   descriptions.setComment(
       "This service keeps track of various times in event-processing to determine which modules are stalling.");
@@ -435,39 +484,13 @@ void StallMonitor::postBeginJob() {
 
   if (validFile_) {
     {
-      std::size_t const width{std::to_string(moduleLabels_.size()).size()};
-      OStreamColumn col0{"Module ID", width};
-      std::string const lastCol{"Module label"};
-
       std::ostringstream oss;
-      oss << "\n#  " << col0 << space << lastCol << '\n';
-      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
-
-      for (std::size_t i{}; i < moduleLabels_.size(); ++i) {
-        auto const& label = moduleLabels_[i];
-        if (label.empty())
-          continue;  // See comment in filling of moduleLabels_;
-        oss << "#M " << std::setw(width) << std::left << col0(i) << space << std::left << moduleLabels_[i] << '\n';
-      }
-      oss << '\n';
+      moduleIdToLabel(oss, moduleLabels_, 'M', "Module ID", "Module label");
       file_.write(oss.str());
     }
     {
-      std::size_t const width{std::to_string(esModuleLabels_.size()).size()};
-      OStreamColumn col0{"ESModule ID", width};
-      std::string const lastCol{"ESModule label"};
-
       std::ostringstream oss;
-      oss << "\n#  " << col0 << space << lastCol << '\n';
-      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
-
-      for (std::size_t i{}; i < esModuleLabels_.size(); ++i) {
-        auto const& label = esModuleLabels_[i];
-        if (label.empty())
-          continue;  // See comment in filling of moduleLabels_;
-        oss << "#N " << std::setw(width) << std::left << col0(i) << space << std::left << esModuleLabels_[i] << '\n';
-      }
-      oss << '\n';
+      moduleIdToLabel(oss, esModuleLabels_, 'N', "ESModule ID", "ESModule label");
       file_.write(oss.str());
     }
   }

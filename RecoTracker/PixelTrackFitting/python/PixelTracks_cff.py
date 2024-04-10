@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import *
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -203,3 +204,42 @@ from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationP
 (pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelTracksSoA.cpu,
     pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA@cpu"
     )
+
+######################################################################
+
+### Alpaka Pixel Track Reco
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
+# pixel tracks SoA producer on the device
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1_cfi import caHitNtupletAlpakaPhase1 as _pixelTracksAlpakaPhase1
+from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2_cfi import caHitNtupletAlpakaPhase2 as _pixelTracksAlpakaPhase2
+
+pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone()
+phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
+
+# pixel tracks SoA producer on the cpu, for validation
+pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
+)
+
+# legacy pixel tracks from SoA
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase1_cfi import pixelTrackProducerFromSoAAlpakaPhase1 as _pixelTrackProducerFromSoAAlpakaPhase1
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpakaPhase2_cfi import pixelTrackProducerFromSoAAlpakaPhase2 as _pixelTrackProducerFromSoAAlpakaPhase2
+
+(alpaka & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase1.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+(alpaka & phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpakaPhase2.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+alpaka.toReplaceWith(pixelTracksTask, cms.Task(
+    # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
+    pixelTracksAlpaka,
+    # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelTracksAlpakaSerial,
+    # Convert the pixel tracks from SoA to legacy format
+    pixelTracks)
+)

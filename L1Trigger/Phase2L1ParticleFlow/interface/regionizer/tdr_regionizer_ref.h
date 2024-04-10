@@ -6,7 +6,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class TDRRegionizerEmulator : public RegionizerEmulator {
@@ -23,6 +24,8 @@ namespace l1ct {
     TDRRegionizerEmulator(const edm::ParameterSet& iConfig);
 
     ~TDRRegionizerEmulator() override;
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void initSectorsAndRegions(const RegionizerDecodedInputs& in, const std::vector<PFInputRegion>& out) override;
 

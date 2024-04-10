@@ -8,6 +8,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <string>
 #include <iostream>
@@ -87,9 +89,10 @@ public:
   virtual void updateEvent(const edm::Event&) {}
 
   virtual void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
-                             const std::vector<bool>& mask,    // mask flags
-                             const std::vector<bool>& seeds,   // seed flags
-                             reco::PFClusterCollection&) = 0;  //output
+                             const std::vector<bool>& mask,   // mask flags
+                             const std::vector<bool>& seeds,  // seed flags
+                             reco::PFClusterCollection&,      //output
+                             const HcalPFCuts*) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
     o << "InitialClusteringStep with algo \"" << _algoName << "\" located " << _nSeeds << " seeds and built "

@@ -96,7 +96,7 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     desc.add<edm::ParameterSetDescription>("algoPSet", fdWorker->getAlgoDescription());
 
     std::string algoName = itInfos->name_.substr(itInfos->name_.find("Worker") + 6, itInfos->name_.length());
-    descriptions.add("ecal" + algoName + "UncalibRecHit", desc);
+    descriptions.add("ecal" + algoName + "UncalibRecHitProducer", desc);
   }
 }
 

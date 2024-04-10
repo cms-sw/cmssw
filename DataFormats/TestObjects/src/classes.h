@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/TestObjects/interface/SchemaEvolutionTestObjects.h"
 #include "DataFormats/TestObjects/interface/MissingDictionaryTestObject.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
@@ -27,6 +28,8 @@
 #include "DataFormats/TestObjects/interface/TableTest.h"
 
 #include "DataFormats/TestObjects/interface/DeleteEarly.h"
+
+#include "DataFormats/TestObjects/interface/VectorVectorTop.h"
 
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefProd.h"

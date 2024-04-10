@@ -2,28 +2,29 @@
 import os
 import sys
 import argparse
-import re
+import fnmatch
+
 import FWCore.ParameterSet.Config as cms
 import HLTrigger.Configuration.Tools.pipe as pipe
 import HLTrigger.Configuration.Tools.options as options
 from HLTrigger.Configuration.extend_argparse import *
 
-def getPathList(config):
+def getPathList(args):
 
-  if isinstance(config.menu, options.ConnectionHLTMenu):
+  if isinstance(args.menu, options.ConnectionHLTMenu):
     # cmd to download HLT configuration
     cmdline = 'hltConfigFromDB'
-    if config.menu.run:
-      cmdline += f' --runNumber {config.menu.run}'
+    if args.menu.run:
+      cmdline += f' --runNumber {args.menu.run}'
     else:
-      cmdline += f' --{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
+      cmdline += f' --{args.menu.database} --{args.menu.version} --configName {args.menu.name}'
     cmdline += ' --noedsources --noes --noservices'
-    if config.proxy:
-      cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
+    if args.proxy:
+      cmdline += f' --dbproxy --dbproxyhost {args.proxy_host} --dbproxyport {args.proxy_port}'
 
   else:
     # use edmConfigDump to ensure the config can be executed
-    cmdline = f'edmConfigDump {config.menu}'
+    cmdline = f'edmConfigDump {args.menu}'
 
   # load HLT configuration
   try:
@@ -39,24 +40,33 @@ def getPathList(config):
   usePaths, useEndPaths, useFinalPaths = False, False, False
 
   # Paths only
-  if config.selection == 'paths':
+  if args.selection == 'paths':
     usePaths = True
 
   # EndPaths only
-  elif config.selection == 'endpaths':
+  elif args.selection == 'endpaths':
     useEndPaths = True
 
   # FinalPaths only
-  elif config.selection == 'finalpaths':
+  elif args.selection == 'finalpaths':
     useFinalPaths = True
 
   # Paths, EndPaths, and FinalPaths ('all')
-  elif config.selection == 'all':
+  elif args.selection == 'all':
     usePaths, useEndPaths, useFinalPaths = True, True, True
 
   # invalid value
   else:
-    raise RuntimeError(f'ERROR: invalid value for option "--selection" (must be "paths", "endpaths", "finalpaths", or "all"): {config.selection}')
+    raise RuntimeError(f'ERROR: invalid value for option "--selection" (must be "paths", "endpaths", "finalpaths", or "all"): {args.selection}')
+
+  path_keep_rules = []
+  for path_keep_rule in args.path_keep_rules.split(','):
+    if not path_keep_rule:
+      continue
+    keep_rule = not path_keep_rule.startswith('-')
+    pattern_idx = 0 if keep_rule else 1
+    rule_pattern = path_keep_rule[pattern_idx:]
+    path_keep_rules += [(keep_rule, rule_pattern)]
 
   ret = []
   for pathDict in [
@@ -69,17 +79,16 @@ def getPathList(config):
 
     for pathName in pathDict:
 
-      # skip if name of the path matches any of
-      # the regular expressions listed in "--exclude"
-      skipPath = False
-      for excludeRegExpr in config.excludeRegExprs:
-        if bool(re.search(excludeRegExpr, pathName)):
-          skipPath = True
-          break
-      if skipPath:
+      # keep or drop the Path based on whether or not
+      # its name complies with the patterns in path_keep_rules (if any)
+      keepPath = not path_keep_rules
+      for (keep_rule, rule_pattern) in path_keep_rules:
+        if fnmatch.fnmatch(pathName, rule_pattern):
+          keepPath = keep_rule
+      if not keepPath:
         continue
 
-      if config.no_dependent_paths:
+      if args.no_dependent_paths:
         # do not include "dependent paths", i.e. paths that depend on the result of other paths in the same job
         # the current criterion to identify a path as "dependent" is that
         # (1) the path contains a "TriggerResultsFilter" module and
@@ -146,7 +155,7 @@ parser.add_argument('menu',
                     action  = 'store',
                     type    = hltMenu,
                     metavar = 'MENU',
-                    help    = 'HLT menu (can be a local cmsRun configuration file, or the name of a configuration in the ConfDB database). For ConfDB configurations, supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
+                    help    = 'HLT menu (can be a local cmsRun configuration file, or the name of a configuration in the ConfDB database).\nFor ConfDB configurations, supported formats are:\n- /path/to/configuration[/Vn]\n- [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n- run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are\n"run3" (default, used for offline development in Run 3),\n"run2" (used for accessing Run-2 offline development menus),\n"online" (used to extract online menus from inside Point 5) and\n"adg" (used to extract the online menus from outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote: other converters and databases exist, but they are only for expert/special use.' )
 
 # options
 parser.add_argument('--dbproxy',
@@ -196,11 +205,11 @@ parser.add_argument('--no-dependent-paths',
                     default = False,
                     help    = 'Do not list paths which depend on the result of other paths (default: false)' )
 
-parser.add_argument('--exclude',
-                    dest    = 'excludeRegExprs',
-                    nargs   = '+',
-                    default = [],
-                    help    = 'List of regular expressions to select names of paths to be ignored with re.search (default: empty)' )
+parser.add_argument('-s', '--select-paths',
+                    dest    = 'path_keep_rules',
+                    action  = 'store',
+                    default = '',
+                    help    = 'Comma-separated list of Path-name patterns (incl. wildcards) to select a subset of Paths using fnmatch.\nIf a Path-name pattern starts with the dash character (-), the Paths whose name matches that pattern are not selected.\nThe patterns are ordered: a given pattern can override previous ones (example: "*,-Foo,*" retains all Paths)\n(default: empty, meaning all Paths are kept)')
 
 # redefine "--help" to be the last option, and use a customized message 
 parser.add_argument('-h', '--help', 
@@ -208,8 +217,8 @@ parser.add_argument('-h', '--help',
                     help    = 'Show this help message and exit' )
 
 # parse command line arguments and options
-config = parser.parse_args()
+args = parser.parse_args()
 
-paths = getPathList(config)
+paths = getPathList(args)
 for path in paths:
   print(path)

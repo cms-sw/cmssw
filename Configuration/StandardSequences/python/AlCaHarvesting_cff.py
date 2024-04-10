@@ -6,10 +6,12 @@ from Calibration.TkAlCaRecoProducers.AlcaSiStripQualityHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripHitEfficiencyHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiStripLorentzAngleHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvesterMCS_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHG_cff import *
+from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHGCombined_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
 from CalibTracker.SiPixelQuality.SiPixelStatusHarvester_cfi import *
@@ -150,6 +152,14 @@ ALCAHARVESTSiStripGainsAAG_dbOutput = cms.PSet(record = cms.string('SiStripApvGa
                                                          tag = cms.string('SiStripApvGainAAG_pcl'),
                                                          timetype   = cms.untracked.string('runnumber')
                                                          )
+# --------------------------------------------------------------------------------------
+# SiStrip Lorentz Angle
+ALCAHARVESTSiStripLA_metadata = cms.PSet(record = cms.untracked.string('SiStripLorentzAngleRcd'))
+
+ALCAHARVESTSiStripLA_dbOutput = cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
+                                         tag = cms.string('SiStripLA_pcl'),
+                                         timetype   = cms.untracked.string('runnumber')
+                                         )
 
 # --------------------------------------------------------------------------------------
 # SiStrip Bad Components from Hit Efficiency analysis
@@ -177,6 +187,15 @@ ALCAHARVESTSiPixelAliHG_dbOutput = cms.PSet(record = cms.string('TrackerAlignmen
                                           tag = cms.string('SiPixelAliHG_pcl'),
                                           timetype   = cms.untracked.string('runnumber')
                                           )
+
+# --------------------------------------------------------------------------------------
+# SiPixel Alignment HG combined
+ALCAHARVESTSiPixelAliHGCombined_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentHGCombinedRcd'))
+
+ALCAHARVESTSiPixelAliHGCombined_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentHGCombinedRcd'),
+                                                    tag = cms.string('SiPixelAliHGCombined_pcl'),
+                                                    timetype   = cms.untracked.string('runnumber')
+                                                    )
 
 # --------------------------------------------------------------------------------------
 # SiPixel Lorentz Angle
@@ -284,8 +303,10 @@ SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 SiStripHitEff = cms.Path(ALCAHARVESTSiStripHitEfficiency)
+SiStripLA      = cms.Path(ALCAHARVESTSiStripLorentzAngle)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 SiPixelAliHG     = cms.Path(ALCAHARVESTSiPixelAliHG)
+SiPixelAliHGCombined = cms.Path(ALCAHARVESTSiPixelAliHGCombined)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
 SiPixelLAMCS      = cms.Path(ALCAHARVESTSiPixelLorentzAngleMCS)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)

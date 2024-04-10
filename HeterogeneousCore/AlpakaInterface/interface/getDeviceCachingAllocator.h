@@ -21,7 +21,7 @@ namespace cms::alpakatools {
               typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
     auto allocate_device_allocators() {
       using Allocator = CachingAllocator<TDev, TQueue>;
-      auto const& devices = cms::alpakatools::devices<alpaka::Pltf<TDev>>();
+      auto const& devices = cms::alpakatools::devices<alpaka::Platform<TDev>>();
       ssize_t const size = devices.size();
 
       // allocate the storage for the objects
@@ -80,7 +80,7 @@ namespace cms::alpakatools {
     CMS_THREAD_SAFE static auto allocators = detail::allocate_device_allocators<TDev, TQueue>();
 
     size_t const index = alpaka::getNativeHandle(device);
-    assert(index < cms::alpakatools::devices<alpaka::Pltf<TDev>>().size());
+    assert(index < cms::alpakatools::devices<alpaka::Platform<TDev>>().size());
 
     // the public interface is thread safe
     return allocators[index];

@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 pfTICL = cms.EDProducer("PFTICLProducer",
     mightGet = cms.optional.untracked.vstring,
-    #muonSrc = cms.InputTag("muons1stStep"),
     muonSrc = cms.InputTag("hltPhase2L3Muons"),
     pfMuonAlgoParameters = cms.PSet(
         cosmicRejectionDistance = cms.double(1),
@@ -30,6 +29,6 @@ pfTICL = cms.EDProducer("PFTICLProducer",
     trackTimeErrorMap = cms.InputTag("tofPID","sigmat0"),
     trackTimeQualityMap = cms.InputTag("mtdTrackQualityMVA","mtdQualMVA"),
     trackTimeValueMap = cms.InputTag("tofPID","t0"),
-    useMTDTiming = cms.bool(False),                    
+    useMTDTiming = cms.bool(False),
     useTimingAverage = cms.bool(False)
 )

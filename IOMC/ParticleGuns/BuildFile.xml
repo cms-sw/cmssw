@@ -1,5 +1,7 @@
 <use name="boost"/>
 <use name="FWCore/Framework"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="clhep"/>

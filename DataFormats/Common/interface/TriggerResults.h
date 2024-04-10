@@ -64,13 +64,6 @@ namespace edm {
       names_.swap(other.names_);
     }
 
-    /// Copy assignment using swap.
-    TriggerResults& operator=(TriggerResults const& rhs) {
-      TriggerResults temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
-
     // The next three functions are OBSOLETE and should only be used for backward
     // compatibility to older data.  The names_ vector is always empty in new data.
 

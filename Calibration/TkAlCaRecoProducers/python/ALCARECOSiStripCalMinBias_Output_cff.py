@@ -9,7 +9,7 @@ OutALCARECOSiStripCalMinBias_noDrop = cms.PSet(
         'keep *_ALCARECOSiStripCalMinBias_*_*', 
         'keep *_siStripClusters_*_*', 
         'keep *_siPixelClusters_*_*',
-        'keep DetIdedmEDCollection_siStripDigis_*_*',
+        'keep DetIds_siStripDigis_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep LumiScalerss_scalersRawToDigi_*_*',

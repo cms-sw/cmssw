@@ -1,6 +1,5 @@
 /*
 Track Quality Body file
-
 C.Brown & C.Savard 07/2020
 */
 
@@ -28,7 +27,8 @@ L1TrackQuality::L1TrackQuality(const edm::ParameterSet& qualityParams) : useHPH_
                  qualityParams.getParameter<edm::FileInPath>("ONNXmodel"),
                  qualityParams.getParameter<std::string>("ONNXInputName"),
                  qualityParams.getParameter<std::vector<std::string>>("featureNames"));
-    runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_.fullPath());
+    if ((AlgorithmString == "GBDT") || (AlgorithmString == "NN"))
+      runTime_ = std::make_unique<cms::Ort::ONNXRuntime>(this->ONNXmodel_.fullPath());
   }
 }
 
@@ -74,19 +74,23 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
 
   // get other variables directly from TTTrack
   float tmp_trk_z0 = aTrack.z0();
+  float tmp_trk_z0_scaled = tmp_trk_z0 / abs(aTrack.minZ0);
   float tmp_trk_phi = aTrack.phi();
   float tmp_trk_eta = aTrack.eta();
+  float tmp_trk_tanl = aTrack.tanL();
 
   // -------- fill the feature map ---------
 
   feature_map["nstub"] = float(tmp_trk_nstub);
   feature_map["z0"] = tmp_trk_z0;
+  feature_map["z0_scaled"] = tmp_trk_z0_scaled;
   feature_map["phi"] = tmp_trk_phi;
   feature_map["eta"] = tmp_trk_eta;
   feature_map["nlaymiss_interior"] = float(tmp_trk_nlaymiss_interior);
   feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
   feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
+  feature_map["tanl"] = tmp_trk_tanl;
 
   // fill tensor with track params
   transformedFeatures.reserve(featureNames.size());
@@ -117,7 +121,17 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
     aTrack.settrkMVA1(classification);
   }
 
-  if ((this->qualityAlgorithm_ == QualityAlgorithm::NN) || (this->qualityAlgorithm_ == QualityAlgorithm::GBDT)) {
+  else if (this->qualityAlgorithm_ == QualityAlgorithm::GBDT_cpp) {
+    // load in bdt
+    conifer::BDT<float, float> bdt(this->ONNXmodel_.fullPath());
+
+    // collect features and classify using bdt
+    std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
+    std::vector<float> output = bdt.decision_function(inputs);
+    aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));  // need logistic sigmoid fcn applied to xgb output
+  }
+
+  else if ((this->qualityAlgorithm_ == QualityAlgorithm::NN) || (this->qualityAlgorithm_ == QualityAlgorithm::GBDT)) {
     // Setup ONNX input and output names and arrays
     std::vector<std::string> ortinput_names;
     std::vector<std::string> ortoutput_names;
@@ -156,6 +170,16 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
   }
 }
 
+float L1TrackQuality::runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures) {
+  // load in bdt
+
+  conifer::BDT<ap_fixed<10, 5>, ap_fixed<10, 5>> bdt(this->ONNXmodel_.fullPath());
+
+  // collect features and classify using bdt
+  std::vector<ap_fixed<10, 5>> output = bdt.decision_function(inputFeatures);
+  return output.at(0).to_float();  // need logistic sigmoid fcn applied to xgb output
+}
+
 void L1TrackQuality::setCutParameters(std::string const& AlgorithmString,
                                       float maxZ0,
                                       float maxEta,
@@ -181,6 +205,8 @@ void L1TrackQuality::setONNXModel(std::string const& AlgorithmString,
     qualityAlgorithm_ = QualityAlgorithm::NN;
   } else if (AlgorithmString == "GBDT") {
     qualityAlgorithm_ = QualityAlgorithm::GBDT;
+  } else if (AlgorithmString == "GBDT_cpp") {
+    qualityAlgorithm_ = QualityAlgorithm::GBDT_cpp;
   } else {
     qualityAlgorithm_ = QualityAlgorithm::None;
   }

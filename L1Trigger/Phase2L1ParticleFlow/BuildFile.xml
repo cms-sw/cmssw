@@ -9,9 +9,13 @@
 <use name="CommonTools/MVAUtils"/>
 <use name="L1Trigger/DemonstratorTools"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="conifer"/>
 <use name="tensorflow"/>
 <use name="roottmva"/>
 <use name="hls"/>
+<use name="L1METML"/>
+<use name="hls4mLEmulatorExtras"/>
+<use name="TOoLLiP"/>
 <export>
   <lib name="1"/>
 </export>

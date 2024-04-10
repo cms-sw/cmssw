@@ -15,12 +15,14 @@ public:
   //! ctor
   TSinglePedEntry();
   //! copy ctor
-  TSinglePedEntry(const TSinglePedEntry &orig);
+  TSinglePedEntry(const TSinglePedEntry& orig);
+  //! assignment op
+  TSinglePedEntry& operator=(const TSinglePedEntry& orig) = default;
   //! dtor
   ~TSinglePedEntry();
 
   //! add a single value
-  void insert(const int &pedestal);
+  void insert(const int& pedestal);
   //! get the average of the inserted values
   double average() const;
   //! get the RMS of the inserted values

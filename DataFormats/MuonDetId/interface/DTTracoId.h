@@ -46,6 +46,9 @@ public:
   ///  Constructor
   DTTracoId(const DTTracoId& tracoId) : _statId(tracoId._statId), _traco(tracoId._traco) {}
 
+  // Assignment Operator
+  DTTracoId& operator=(const DTTracoId& tracoId) = default;
+
   /// Destructor
   virtual ~DTTracoId() {}
 

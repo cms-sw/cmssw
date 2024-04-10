@@ -8,7 +8,10 @@
 // system includes
 #include <string>
 #include <map>
+#include <ranges>
 #include <vector>
+#include <tuple>
+#include <iterator>
 
 // user includes
 #include "CondFormats/Alignment/interface/AlignTransform.h"
@@ -27,6 +30,20 @@
 // ROOT includes
 #include <TMath.h>
 
+namespace checker {
+  template <typename T1, typename T2>
+  auto zip(const std::vector<T1>& v1, const std::vector<T2>& v2) {
+    std::vector<std::tuple<T1, T2>> result;
+
+    auto minSize = std::min(v1.size(), v2.size());
+    for (size_t i = 0; i < minSize; ++i) {
+      result.emplace_back(v1[i], v2[i]);
+    }
+
+    return result;
+  }
+}  // namespace checker
+
 class AlignmentRcdChecker : public edm::one::EDAnalyzer<> {
 public:
   explicit AlignmentRcdChecker(const edm::ParameterSet& iConfig);
@@ -40,12 +57,14 @@ private:
                      const Alignments* refAlignments,
                      const Alignments* alignments);
 
-  bool verbose_;
-  bool compareStrict_;
-  std::string label_;
+  const bool verbose_;
+  const bool compareStrict_;
+  const std::string label_;
 
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> tkAliTokenRef_;
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> tkAliTokenNew_;
+
+  static constexpr double strictTolerance_ = 1e-4;  // if in cm (i.e. 1 micron)
 };
 
 AlignmentRcdChecker::AlignmentRcdChecker(const edm::ParameterSet& iConfig)
@@ -69,41 +88,35 @@ void AlignmentRcdChecker::inspectRecord(const std::string& rcdname,
   edm::LogPrint("inspectRecord") << " with " << alignments->m_align.size() << " entries";
 
   if (refAlignments && alignments) {
-    double meanX = 0;
-    double rmsX = 0;
-    double meanY = 0;
-    double rmsY = 0;
-    double meanZ = 0;
-    double rmsZ = 0;
-    double meanR = 0;
-    double rmsR = 0;
-    double dPhi;
-    double meanPhi = 0;
-    double rmsPhi = 0;
+    double meanX = 0, rmsX = 0;
+    double meanY = 0, rmsY = 0;
+    double meanZ = 0, rmsZ = 0;
+    double meanR = 0, rmsR = 0;
+    double dPhi, meanPhi = 0, rmsPhi = 0;
 
-    std::vector<AlignTransform>::const_iterator iref = refAlignments->m_align.begin();
-    for (std::vector<AlignTransform>::const_iterator i = alignments->m_align.begin(); i != alignments->m_align.end();
-         ++i, ++iref) {
-      meanX += i->translation().x() - iref->translation().x();
-      rmsX += pow(i->translation().x() - iref->translation().x(), 2);
+    for (const auto& [alignment, refAlignment] : checker::zip(alignments->m_align, refAlignments->m_align)) {
+      auto delta = alignment.translation() - refAlignment.translation();
 
-      meanY += i->translation().y() - iref->translation().y();
-      rmsY += pow(i->translation().y() - iref->translation().y(), 2);
+      meanX += delta.x();
+      rmsX += pow(delta.x(), 2);
 
-      meanZ += i->translation().z() - iref->translation().z();
-      rmsZ += pow(i->translation().z() - iref->translation().z(), 2);
+      meanY += delta.y();
+      rmsY += pow(delta.y(), 2);
 
-      meanR += i->translation().perp() - iref->translation().perp();
-      rmsR += pow(i->translation().perp() - iref->translation().perp(), 2);
+      meanZ += delta.z();
+      rmsZ += pow(delta.z(), 2);
 
-      dPhi = i->translation().phi() - iref->translation().phi();
+      meanR += delta.perp();
+      rmsR += pow(delta.perp(), 2);
+
+      dPhi = alignment.translation().phi() - refAlignment.translation().phi();
       if (dPhi > M_PI)
         dPhi -= 2.0 * M_PI;
       if (dPhi < -M_PI)
         dPhi += 2.0 * M_PI;
 
       meanPhi += dPhi;
-      rmsPhi += dPhi * dPhi;
+      rmsPhi += std::pow(dPhi, 2);
     }
 
     meanX /= alignments->m_align.size();
@@ -120,24 +133,25 @@ void AlignmentRcdChecker::inspectRecord(const std::string& rcdname,
     if (verbose_) {
       edm::LogPrint("inspectRecord") << "  Compared to previous record:";
       edm::LogPrint("inspectRecord") << "    mean X shift:   " << std::setw(12) << std::scientific
-                                     << std::setprecision(3) << meanX << " (RMS = " << sqrt(rmsX) << ")";
+                                     << std::setprecision(3) << meanX << "  [cm] (RMS = " << sqrt(rmsX) << " [cm])";
       edm::LogPrint("inspectRecord") << "    mean Y shift:   " << std::setw(12) << std::scientific
-                                     << std::setprecision(3) << meanY << " (RMS = " << sqrt(rmsY) << ")";
+                                     << std::setprecision(3) << meanY << "  [cm] (RMS = " << sqrt(rmsY) << " [cm])";
       edm::LogPrint("inspectRecord") << "    mean Z shift:   " << std::setw(12) << std::scientific
-                                     << std::setprecision(3) << meanZ << " (RMS = " << sqrt(rmsZ) << ")";
+                                     << std::setprecision(3) << meanZ << "  [cm] (RMS = " << sqrt(rmsZ) << " [cm])";
       edm::LogPrint("inspectRecord") << "    mean R shift:   " << std::setw(12) << std::scientific
-                                     << std::setprecision(3) << meanR << " (RMS = " << sqrt(rmsR) << ")";
+                                     << std::setprecision(3) << meanR << "  [cm] (RMS = " << sqrt(rmsR) << " [cm])";
       edm::LogPrint("inspectRecord") << "    mean Phi shift: " << std::setw(12) << std::scientific
-                                     << std::setprecision(3) << meanPhi << " (RMS = " << sqrt(rmsPhi) << ")";
+                                     << std::setprecision(3) << meanPhi << " [rad] (RMS = " << sqrt(rmsPhi)
+                                     << " [rad])";
     }  // verbose
 
     if (compareStrict_) {
       // do not let any of the coordinates to fluctuate less then 1um
-      assert(meanX < 1e-4);
-      assert(meanY < 1e-4);
-      assert(meanZ < 1e-4);
-      assert(meanR < 1e-4);
-      assert(meanPhi < 1e-4);
+      assert(meanX < strictTolerance_);    // 1 micron
+      assert(meanY < strictTolerance_);    // 1 micron
+      assert(meanZ < strictTolerance_);    // 1 micron
+      assert(meanR < strictTolerance_);    // 1 micron
+      assert(meanPhi < strictTolerance_);  // 10 micro-rad
     }
 
   } else {

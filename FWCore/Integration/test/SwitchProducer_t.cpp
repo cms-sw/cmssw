@@ -51,8 +51,9 @@ TEST_CASE("Configuration", s_tag) {
   const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2);
 
   SECTION("Configuration hash is not changed") {
-    auto pset = edm::readConfig(baseConfig);
-    auto psetTest2Disabled = edm::readConfig(baseConfigTest2Disabled);
+    std::unique_ptr<edm::ParameterSet> pset, psetTest2Disabled;
+    edm::makeParameterSets(baseConfig, pset);
+    edm::makeParameterSets(baseConfigTest2Disabled, psetTest2Disabled);
     pset->registerIt();
     psetTest2Disabled->registerIt();
     REQUIRE(pset->id() == psetTest2Disabled->id());
@@ -107,8 +108,9 @@ TEST_CASE("Configuration with EDAlias", s_tag) {
   const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2, otherprod, othername);
 
   SECTION("Configuration hash is not changed") {
-    auto pset = edm::readConfig(baseConfig);
-    auto psetTest2Disabled = edm::readConfig(baseConfigTest2Disabled);
+    std::unique_ptr<edm::ParameterSet> pset, psetTest2Disabled;
+    edm::makeParameterSets(baseConfig, pset);
+    edm::makeParameterSets(baseConfigTest2Disabled, psetTest2Disabled);
     pset->registerIt();
     psetTest2Disabled->registerIt();
     REQUIRE(pset->id() == psetTest2Disabled->id());

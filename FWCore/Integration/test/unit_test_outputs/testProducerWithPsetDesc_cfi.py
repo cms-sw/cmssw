@@ -240,7 +240,8 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     )
   ),
   wildcardPset = cms.PSet(
-    p_uint_opt = cms.uint32(0)
+    p_uint_opt = cms.uint32(0),
+    allowAnyLabel_ = cms.optional.int32
   ),
   switchPset = cms.PSet(
     iswitch = cms.int32(1),
@@ -352,6 +353,21 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     ),
     cms.PSet(
       type = cms.string('edmtestAnotherValueMaker'),
+      value = cms.int32(11)
+    )
+  ),
+  plugin4 = cms.PSet(
+    value = cms.int32(5),
+    pluginRecursive = cms.PSet(),
+    type = cms.string('edmtestAnotherMakerWithRecursivePlugin')
+  
+  ),
+  plugin5 = cms.VPSet(
+    cms.PSet(
+      type = cms.string('edmtestAnotherOneMaker')
+    ),
+    cms.PSet(
+      type = cms.string('edmtestAnotherMakerWithRecursivePlugin'),
       value = cms.int32(11)
     )
   ),

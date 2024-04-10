@@ -70,25 +70,26 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  const reco::Vertex* findClosestVertex(const TransientVertex aTransVtx, const reco::VertexCollection* vertices) const;
   void endJob() override;
 
   // ----------member data ---------------------------
   DiLeptonHelp::Counts myCounts;
 
-  bool useReco_;
+  const bool useReco_;
+  const bool useClosestVertex_;
   std::vector<double> pTthresholds_;
-  float maxSVdist_;
+  const float maxSVdist_;
 
   // plot configurations
-
-  edm::ParameterSet CosPhiConfiguration_;
-  edm::ParameterSet CosPhi3DConfiguration_;
-  edm::ParameterSet VtxProbConfiguration_;
-  edm::ParameterSet VtxDistConfiguration_;
-  edm::ParameterSet VtxDist3DConfiguration_;
-  edm::ParameterSet VtxDistSigConfiguration_;
-  edm::ParameterSet VtxDist3DSigConfiguration_;
-  edm::ParameterSet DiMuMassConfiguration_;
+  const edm::ParameterSet CosPhiConfiguration_;
+  const edm::ParameterSet CosPhi3DConfiguration_;
+  const edm::ParameterSet VtxProbConfiguration_;
+  const edm::ParameterSet VtxDistConfiguration_;
+  const edm::ParameterSet VtxDist3DConfiguration_;
+  const edm::ParameterSet VtxDistSigConfiguration_;
+  const edm::ParameterSet VtxDist3DSigConfiguration_;
+  const edm::ParameterSet DiMuMassConfiguration_;
 
   // control plots
 
@@ -119,15 +120,20 @@ private:
   DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
   DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
 
+  // plots vs region
+  DiLeptonHelp::PlotsVsDiLeptonRegion CosPhi3DInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  //used to select what vertices to read from configuration file
+  //used to select what tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  //used to select what vertices to read from configuration file
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   // either on or the other!
-  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;  //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::TrackCollection>
-      alcaRecoToken_;  //used to select what muon tracks to read from configuration file
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;      // used to select tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection> alcaRecoToken_;  //used to select muon tracks to read from configuration file
 };
 
 //
@@ -146,6 +152,7 @@ static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (
 //
 DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
     : useReco_(iConfig.getParameter<bool>("useReco")),
+      useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
       pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
       CosPhiConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhiConfig")),
@@ -157,12 +164,12 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
       VtxDist3DSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDist3DSigConfig")),
       DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")),
       ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
-      tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))) {
   if (useReco_) {
-    muonsToken_ = mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+    tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+    muonsToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
   } else {
-    alcaRecoToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
+    alcaRecoToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
   }
 
   usesResource(TFileService::kSharedResource);
@@ -269,6 +276,14 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     }
   }
 
+#ifdef EDM_ML_DEBUG
+  for (const auto& track : myTracks) {
+    edm::LogVerbatim("DiMuonVertexValidation") << __PRETTY_FUNCTION__ << " pT: " << track->pt() << " GeV"
+                                               << " , pT error: " << track->ptError() << " GeV"
+                                               << " , eta: " << track->eta() << " , phi: " << track->phi() << std::endl;
+  }
+#endif
+
   LogDebug("DiMuonVertexValidation") << "selected tracks: " << myTracks.size() << std::endl;
 
   const TransientTrackBuilder* theB = &iSetup.getData(ttbESToken_);
@@ -288,6 +303,17 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mumass2));
   TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mumass2));
 
+#ifdef EDM_ML_DEBUG
+  // Define a lambda function to convert TLorentzVector to a string
+  auto tLorentzVectorToString = [](const TLorentzVector& vector) {
+    return std::to_string(vector.Px()) + " " + std::to_string(vector.Py()) + " " + std::to_string(vector.Pz()) + " " +
+           std::to_string(vector.E());
+  };
+
+  edm::LogVerbatim("DiMuonVertexValidation") << "mu+" << tLorentzVectorToString(p4_tplus) << std::endl;
+  edm::LogVerbatim("DiMuonVertexValidation") << "mu-" << tLorentzVectorToString(p4_tminus) << std::endl;
+#endif
+
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
   hTrackInvMass_->Fill(track_invMass);
@@ -297,6 +323,7 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   // fill the z->mm mass plots
   ZMassPlots.fillPlots(track_invMass, tktk_p4);
+  InvMassInEtaBins.fillTH1Plots(track_invMass, tktk_p4);
 
   math::XYZPoint ZpT(ditrack.x(), ditrack.y(), 0);
   math::XYZPoint Zp(ditrack.x(), ditrack.y(), ditrack.z());
@@ -323,31 +350,47 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // fill the VtxProb plots
   VtxProbPlots.fillPlots(SVProb, tktk_p4);
 
+  math::XYZPoint mainVtxPos(0, 0, 0);
+  const reco::Vertex* theClosestVertex = nullptr;
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
-
-  math::XYZPoint MainVertex(0, 0, 0);
-  reco::Vertex TheMainVertex = vertexHandle.product()->front();
-
   if (vertexHandle.isValid()) {
     const reco::VertexCollection* vertices = vertexHandle.product();
-    if ((*vertices).at(0).isValid()) {
-      auto theMainVtx = (*vertices).at(0);
-      MainVertex.SetXYZ(theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
-    }
+    theClosestVertex = this->findClosestVertex(aTransientVertex, vertices);
+  } else {
+    edm::LogWarning("DiMuonVertexMonitor") << "invalid vertex collection encountered Skipping event!";
+    return;
   }
 
+  reco::Vertex theMainVertex;
+  if (!useClosestVertex_ || theClosestVertex == nullptr) {
+    // if the closest vertex is not available, or explicitly not chosen
+    theMainVertex = vertexHandle.product()->front();
+  } else {
+    theMainVertex = *theClosestVertex;
+  }
+
+  mainVtxPos.SetXYZ(theMainVertex.position().x(), theMainVertex.position().y(), theMainVertex.position().z());
   const math::XYZPoint myVertex(
       aTransientVertex.position().x(), aTransientVertex.position().y(), aTransientVertex.position().z());
   const math::XYZPoint deltaVtx(
-      MainVertex.x() - myVertex.x(), MainVertex.y() - myVertex.y(), MainVertex.z() - myVertex.z());
+      mainVtxPos.x() - myVertex.x(), mainVtxPos.y() - myVertex.y(), mainVtxPos.z() - myVertex.z());
 
-  if (TheMainVertex.isValid()) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DiMuonVertexValidation")
+      << "mm vertex position:" << aTransientVertex.position().x() << "," << aTransientVertex.position().y() << ","
+      << aTransientVertex.position().z();
+
+  edm::LogVerbatim("DiMuonVertexValidation") << "main vertex position:" << theMainVertex.position().x() << ","
+                                             << theMainVertex.position().y() << "," << theMainVertex.position().z();
+#endif
+
+  if (theMainVertex.isValid()) {
     // Z Vertex distance in the xy plane
 
     VertexDistanceXY vertTool;
-    double distance = vertTool.distance(aTransientVertex, TheMainVertex).value();
-    double dist_err = vertTool.distance(aTransientVertex, TheMainVertex).error();
+    double distance = vertTool.distance(aTransientVertex, theMainVertex).value();
+    double dist_err = vertTool.distance(aTransientVertex, theMainVertex).error();
 
     hSVDist_->Fill(distance * cmToum);
     hSVDistSig_->Fill(distance / dist_err);
@@ -361,8 +404,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     // Z Vertex distance in 3D
 
     VertexDistance3D vertTool3D;
-    double distance3D = vertTool3D.distance(aTransientVertex, TheMainVertex).value();
-    double dist3D_err = vertTool3D.distance(aTransientVertex, TheMainVertex).error();
+    double distance3D = vertTool3D.distance(aTransientVertex, theMainVertex).value();
+    double dist3D_err = vertTool3D.distance(aTransientVertex, theMainVertex).error();
 
     hSVDist3D_->Fill(distance3D * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
@@ -391,11 +434,19 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
       hCosPhi_->Fill(cosphi);
       hCosPhi3D_->Fill(cosphi3D);
 
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DiMuonVertexValidation")
+          << "distance " << distance * cmToum << " cosphi3D:" << cosphi3D << std::endl;
+#endif
+
       // fill the cosphi plots
       CosPhiPlots.fillPlots(cosphi, tktk_p4);
 
-      // fill the VtxDisSig plots
+      // fill the cosphi3D plots
       CosPhi3DPlots.fillPlots(cosphi3D, tktk_p4);
+
+      // fill the cosphi3D plots in eta bins
+      CosPhi3DInEtaBins.fillTH1Plots(cosphi3D, tktk_p4);
     }
   }
 }
@@ -406,16 +457,34 @@ void DiMuonVertexValidation::beginJob() {
 
   // clang-format off
   TH1F::SetDefaultSumw2(kTRUE);
-  hSVProb_ = fs->make<TH1F>("VtxProb", ";ZV vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
+  hSVProb_ = fs->make<TH1F>("VtxProb", ";#mu^{+}#mu^{-} vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
 
-  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-ZV xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-ZV xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  auto extractRangeValues = [](const edm::ParameterSet& PSetConfiguration_) -> std::pair<double, double> {
+    double min = PSetConfiguration_.getParameter<double>("ymin");
+    double max = PSetConfiguration_.getParameter<double>("ymax");
+    return {min, max};
+  };
 
-  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-ZV 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-ZV 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  // take the range from the 2D histograms
+  const auto& svDistRng = extractRangeValues(VtxDistConfiguration_);
+  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-#mu^{+}#mu^{-} vertex xy distance [#mum];N(#mu#mu pairs)", 100, svDistRng.first, svDistRng.second);
 
-  hInvMass_ = fs->make<TH1F>("InvMass", ";M(#mu#mu) [GeV];N(#mu#mu pairs)", 70., 50., 120.);
-  hTrackInvMass_ = fs->make<TH1F>("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., 50., 120.);
+  // take the range from the 2D histograms
+  const auto& svDistSigRng = extractRangeValues(VtxDistSigConfiguration_);
+  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, svDistSigRng.first, svDistSigRng.second);
+
+  // take the range from the 2D histograms
+  const auto& svDist3DRng = extractRangeValues(VtxDist3DConfiguration_);
+  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-#mu^{+}#mu^{-} vertex 3D distance [#mum];N(#mu#mu pairs)", 100, svDist3DRng.first, svDist3DRng.second);
+
+  // take the range from the 2D histograms
+  const auto& svDist3DSigRng = extractRangeValues(VtxDist3DSigConfiguration_);
+  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-#mu^{+}#mu^{-} vertex 3D distance signficance;N(#mu#mu pairs)", 100, svDist3DSigRng.first, svDist3DSigRng.second);
+
+  // take the range from the 2D histograms
+  const auto& massRng = extractRangeValues(DiMuMassConfiguration_);
+  hInvMass_ = fs->make<TH1F>("InvMass", ";M(#mu#mu) [GeV];N(#mu#mu pairs)", 70., massRng.first, massRng.second);
+  hTrackInvMass_ = fs->make<TH1F>("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., massRng.first, massRng.second);
 
   hCosPhi_ = fs->make<TH1F>("CosPhi", ";cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhi3D_ = fs->make<TH1F>("CosPhi3D", ";cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
@@ -449,6 +518,14 @@ void DiMuonVertexValidation::beginJob() {
 
   TFileDirectory dirInvariantMass = fs->mkdir("InvariantMassPlots");
   ZMassPlots.bookFromPSet(dirInvariantMass, DiMuMassConfiguration_);
+
+  // CosPhi3D in eta bins
+  TFileDirectory dirCosphi3DEta = fs->mkdir("CosPhi3DInEtaBins");
+  CosPhi3DInEtaBins.bookSet(dirCosphi3DEta, hCosPhi3D_);
+
+  // Z-> mm mass in eta bins
+  TFileDirectory dirResMassEta = fs->mkdir("TkTkMassInEtaBins");
+  InvMassInEtaBins.bookSet(dirResMassEta, hTrackInvMass_);
 
   // cut flow
 
@@ -489,6 +566,35 @@ void DiMuonVertexValidation::endJob() {
   }
 }
 
+// compute the closest vertex to di-lepton ------------------------------------
+const reco::Vertex* DiMuonVertexValidation::findClosestVertex(const TransientVertex aTransVtx,
+                                                              const reco::VertexCollection* vertices) const {
+  reco::Vertex* defaultVtx = nullptr;
+
+  if (!aTransVtx.isValid())
+    return defaultVtx;
+
+  // find the closest vertex to the secondary vertex in 3D
+  VertexDistance3D vertTool3D;
+  float minD = 9999.;
+  int closestVtxIndex = 0;
+  int counter = 0;
+  for (const auto& vtx : *vertices) {
+    double dist3D = vertTool3D.distance(aTransVtx, vtx).value();
+    if (dist3D < minD) {
+      minD = dist3D;
+      closestVtxIndex = counter;
+    }
+    counter++;
+  }
+
+  if ((*vertices).at(closestVtxIndex).isValid()) {
+    return &(vertices->at(closestVtxIndex));
+  } else {
+    return defaultVtx;
+  }
+}
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -503,6 +609,7 @@ void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
+  desc.add<bool>("useClosestVertex", true);
   desc.add<double>("maxSVdist", 50.);
 
   {

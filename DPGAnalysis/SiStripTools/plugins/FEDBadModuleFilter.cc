@@ -37,7 +37,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
@@ -60,7 +60,7 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<DetIdCollection> m_digibadmodulecollectionToken;
+  edm::EDGetTokenT<DetIdVector> m_digibadmodulecollectionToken;
   unsigned int m_modulethr;
   std::set<unsigned int> m_modules;
   DetIdSelector m_modsel;
@@ -85,7 +85,7 @@ private:
 // constructors and destructor
 //
 FEDBadModuleFilter::FEDBadModuleFilter(const edm::ParameterSet& iConfig)
-    : m_digibadmodulecollectionToken(consumes<DetIdCollection>(iConfig.getParameter<edm::InputTag>("collectionName"))),
+    : m_digibadmodulecollectionToken(consumes(iConfig.getParameter<edm::InputTag>("collectionName"))),
       m_modulethr(iConfig.getParameter<unsigned int>("badModThr")),
       m_modsel(),
       m_wantedhist(iConfig.getUntrackedParameter<bool>("wantedHisto", false)),
@@ -125,17 +125,16 @@ FEDBadModuleFilter::~FEDBadModuleFilter() {
 bool FEDBadModuleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<DetIdCollection> badmodules;
-  iEvent.getByToken(m_digibadmodulecollectionToken, badmodules);
+  auto badmodules = iEvent.getHandle(m_digibadmodulecollectionToken);
 
   unsigned int nbad = 0;
   if (m_printlist || !m_modules.empty() || m_modsel.isValid()) {
-    for (DetIdCollection::const_iterator mod = badmodules->begin(); mod != badmodules->end(); ++mod) {
-      if ((m_modules.empty() || m_modules.find(*mod) != m_modules.end()) &&
-          (!m_modsel.isValid() || m_modsel.isSelected(*mod))) {
+    for (auto const& mod : *badmodules) {
+      if ((m_modules.empty() || m_modules.find(mod) != m_modules.end()) &&
+          (!m_modsel.isValid() || m_modsel.isSelected(mod))) {
         ++nbad;
         if (m_printlist)
-          edm::LogInfo("FEDBadModule") << *mod;
+          edm::LogInfo("FEDBadModule") << mod;
       }
     }
   } else {

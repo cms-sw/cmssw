@@ -34,4 +34,6 @@
 
 <class name="L1Analysis::L1AnalysisL1Upgrade" persistent="false"/>
 
+<class name="L1Analysis::L1AnalysisCaloSummaryDataFormat"/>
+
 </lcgdict>

@@ -154,9 +154,15 @@ public:
         runInfoToken_(esConsumes<edm::Transition::BeginRun>()),
         magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
         topoToken_(esConsumes<edm::Transition::BeginRun>()),
-        latencyToken_(esConsumes<edm::Transition::BeginRun>()),
-        isCosmics_(pset.getParameter<bool>("isCosmics")) {
+        isCosmics_(pset.getParameter<bool>("isCosmics")),
+        doLatencyAnalysis_(pset.getParameter<bool>("doLatencyAnalysis")) {
     usesResource(TFileService::kSharedResource);
+
+    if (doLatencyAnalysis_) {
+      latencyToken_ = esConsumes<edm::Transition::BeginRun>();
+    } else {
+      latencyToken_ = edm::ESGetToken<SiStripLatency, SiStripLatencyRcd>();
+    }
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
     theTrackCollectionToken_ = consumes<reco::TrackCollection>(TkTag_);
@@ -231,7 +237,8 @@ private:
   const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  // not const
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
 
   const MagneticField *magneticField_;
   const TrackerGeometry *trackerGeometry_;
@@ -463,12 +470,12 @@ private:
   int ievt;
   int itrks;
   int mode;
-  bool firstEvent_;
 
   SiPixelPI::phase phase_;
   float etaMax_;
 
   const bool isCosmics_;
+  const bool doLatencyAnalysis_;
 
   edm::InputTag TkTag_;
   edm::InputTag TriggerResultsTag_;
@@ -505,19 +512,6 @@ private:
     ievt++;
 
     edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
-
-    if (firstEvent_) {
-      if (trackerGeometry_->isThere(GeomDetEnumerators::P2PXB) ||
-          trackerGeometry_->isThere(GeomDetEnumerators::P2PXEC)) {
-        phase_ = SiPixelPI::phase::two;
-      } else if (trackerGeometry_->isThere(GeomDetEnumerators::P1PXB) ||
-                 trackerGeometry_->isThere(GeomDetEnumerators::P1PXEC)) {
-        phase_ = SiPixelPI::phase::one;
-      } else {
-        phase_ = SiPixelPI::phase::zero;
-      }
-      firstEvent_ = false;
-    }
 
     GlobalPoint zeroPoint(0, 0, 0);
     if (DEBUG)
@@ -589,7 +583,8 @@ private:
           continue;  // is it a single physical module?
 
         if ((*iHit)->isValid() && (subid > PixelSubdetector::PixelEndcap)) {
-          tmap->fill(detid_db, 1);
+          if (phase_ != SiPixelPI::phase::two)
+            tmap->fill(detid_db, 1);
 
           //LocalPoint lp = (*iHit)->localPosition();
           //LocalError le = (*iHit)->localPositionError();
@@ -1105,20 +1100,38 @@ private:
     edm::LogVerbatim("DMRChecker") << "time difference: " << seconds << " s" << std::endl;
     timeMap_[run.run()] = seconds;
 
-    //SiStrip Latency
-    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
-    if (apvlat->singleReadOutMode() == 1) {
-      mode = 1;  // peak mode
-    } else if (apvlat->singleReadOutMode() == 0) {
-      mode = -1;  // deco mode
+    // set geometry and topology
+    trackerGeometry_ = &setup.getData(geomToken_);
+    if (trackerGeometry_->isThere(GeomDetEnumerators::P2PXB) || trackerGeometry_->isThere(GeomDetEnumerators::P2PXEC)) {
+      phase_ = SiPixelPI::phase::two;
+    } else if (trackerGeometry_->isThere(GeomDetEnumerators::P1PXB) ||
+               trackerGeometry_->isThere(GeomDetEnumerators::P1PXEC)) {
+      phase_ = SiPixelPI::phase::one;
+    } else {
+      phase_ = SiPixelPI::phase::zero;
+    }
+
+    trackerTopology_ = &setup.getData(topoToken_);
+
+    // if it's a phase-2 geometry there are no phase-1 conditions
+    if (phase_ == SiPixelPI::phase::two) {
+      mode = 0;
+    } else {
+      if (doLatencyAnalysis_) {
+        //SiStrip Latency
+        const SiStripLatency *apvlat = &setup.getData(latencyToken_);
+        if (apvlat->singleReadOutMode() == 1) {
+          mode = 1;  // peak mode
+        } else if (apvlat->singleReadOutMode() == 0) {
+          mode = -1;  // deco mode
+        }
+      } else {
+        mode = 0.;
+      }
     }
 
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
-
-    // set geometry and topology
-    trackerGeometry_ = &setup.getData(geomToken_);
-    trackerTopology_ = &setup.getData(topoToken_);
   }
 
   //*************************************************************
@@ -1378,10 +1391,7 @@ private:
     vTrack2DHistos_.push_back(book<TH2F>("h2_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI, 100, .0, .05));
     vTrack2DHistos_.push_back(book<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -etaMax_, etaMax_, 100, .0, .05));
     vTrack2DHistos_.push_back(book<TH2F>("h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
-
     // clang-format on
-
-    firstEvent_ = true;
 
     // create the full maps
     fullPixelmapXDMR->createTrackerBaseMap();
@@ -2102,6 +2112,7 @@ void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
+  desc.add<bool>("doLatencyAnalysis", true);
   descriptions.addWithDefaultLabel(desc);
 }
 

@@ -41,7 +41,6 @@ namespace trackerDTC {
     void produce(const Stubss& stubss, TTDTC& product);
     // pop_front function which additionally returns copy of deleted front
     Stub* pop_front(Stubs& stubs);
-
     // helper class to store configurations
     const tt::Setup* setup_;
     // enables emulation of truncation

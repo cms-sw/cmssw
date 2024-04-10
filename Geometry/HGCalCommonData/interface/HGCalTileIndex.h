@@ -28,6 +28,7 @@ namespace HGCalTileIndex {
   std::tuple<int32_t, int32_t, int32_t> tileUnpack(int32_t index);
   // Sees if the tile exists or not depending the HEX information in flat file
   bool tileExist(const int32_t* hex, int32_t zside, int32_t phi);
+  bool tileFineExist(const int32_t* hex, int32_t zside, int32_t phi);
 };  // namespace HGCalTileIndex
 
 #endif

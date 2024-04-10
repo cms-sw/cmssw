@@ -40,7 +40,9 @@ namespace L1Analysis {
     kAsymEt,
     kAsymHt,
     kAsymEtHF,
-    kAsymHtHF
+    kAsymHtHF,
+    kZDCP,
+    kZDCM
   };
 
   struct L1AnalysisL1UpgradeDataFormat {
@@ -140,6 +142,15 @@ namespace L1Analysis {
       sumIEt.clear();
       sumIPhi.clear();
       sumBx.clear();
+
+      //CM: Adding additional sum collections for the ZDC
+      nSumsZDC = 0;
+      sumZDCType.clear();
+      sumZDCEt.clear();
+      sumZDCPhi.clear();
+      sumZDCIEt.clear();
+      sumZDCIPhi.clear();
+      sumZDCBx.clear();
     }
 
     unsigned short int nEGs;
@@ -234,6 +245,14 @@ namespace L1Analysis {
     std::vector<short int> sumIEt;
     std::vector<short int> sumIPhi;
     std::vector<float> sumBx;
+
+    unsigned short int nSumsZDC;
+    std::vector<short int> sumZDCType;
+    std::vector<float> sumZDCEt;
+    std::vector<float> sumZDCPhi;
+    std::vector<short int> sumZDCIEt;
+    std::vector<short int> sumZDCIPhi;
+    std::vector<float> sumZDCBx;
   };
 }  // namespace L1Analysis
 #endif

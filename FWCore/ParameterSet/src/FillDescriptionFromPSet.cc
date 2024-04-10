@@ -15,6 +15,7 @@ namespace edm {
   class LuminosityBlockRange;
   class EventRange;
   class InputTag;
+  class ESInputTag;
   class FileInPath;
 }  // namespace edm
 
@@ -40,41 +41,34 @@ namespace {
   }
 
   void initMap() {
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('I')] = &fillDescriptionFromParameter<int>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('i')] = &fillDescriptionFromParameter<std::vector<int>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('U')] = &fillDescriptionFromParameter<unsigned>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('u')] =
-        &fillDescriptionFromParameter<std::vector<unsigned>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('L')] = &fillDescriptionFromParameter<long long>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('l')] =
-        &fillDescriptionFromParameter<std::vector<long long>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('X')] = &fillDescriptionFromParameter<unsigned long long>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('x')] =
-        &fillDescriptionFromParameter<std::vector<unsigned long long>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('D')] = &fillDescriptionFromParameter<double>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('d')] = &fillDescriptionFromParameter<std::vector<double>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('B')] = &fillDescriptionFromParameter<bool>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('S')] = &fillDescriptionFromParameter<std::string>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('s')] =
-        &fillDescriptionFromParameter<std::vector<std::string>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('E')] = &fillDescriptionFromParameter<edm::EventID>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('e')] =
-        &fillDescriptionFromParameter<std::vector<edm::EventID>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('M')] =
-        &fillDescriptionFromParameter<edm::LuminosityBlockID>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('m')] =
+    s_findTheRightFunction[edm::k_int32] = &fillDescriptionFromParameter<int>;
+    s_findTheRightFunction[edm::k_vint32] = &fillDescriptionFromParameter<std::vector<int>>;
+    s_findTheRightFunction[edm::k_uint32] = &fillDescriptionFromParameter<unsigned>;
+    s_findTheRightFunction[edm::k_vuint32] = &fillDescriptionFromParameter<std::vector<unsigned>>;
+    s_findTheRightFunction[edm::k_int64] = &fillDescriptionFromParameter<long long>;
+    s_findTheRightFunction[edm::k_vint64] = &fillDescriptionFromParameter<std::vector<long long>>;
+    s_findTheRightFunction[edm::k_uint64] = &fillDescriptionFromParameter<unsigned long long>;
+    s_findTheRightFunction[edm::k_vuint64] = &fillDescriptionFromParameter<std::vector<unsigned long long>>;
+    s_findTheRightFunction[edm::k_double] = &fillDescriptionFromParameter<double>;
+    s_findTheRightFunction[edm::k_vdouble] = &fillDescriptionFromParameter<std::vector<double>>;
+    s_findTheRightFunction[edm::k_bool] = &fillDescriptionFromParameter<bool>;
+    s_findTheRightFunction[edm::k_stringRaw] = &fillDescriptionFromParameter<std::string>;
+    s_findTheRightFunction[edm::k_vstringRaw] = &fillDescriptionFromParameter<std::vector<std::string>>;
+    s_findTheRightFunction[edm::k_EventID] = &fillDescriptionFromParameter<edm::EventID>;
+    s_findTheRightFunction[edm::k_VEventID] = &fillDescriptionFromParameter<std::vector<edm::EventID>>;
+    s_findTheRightFunction[edm::k_LuminosityBlockID] = &fillDescriptionFromParameter<edm::LuminosityBlockID>;
+    s_findTheRightFunction[edm::k_VLuminosityBlockID] =
         &fillDescriptionFromParameter<std::vector<edm::LuminosityBlockID>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('t')] = &fillDescriptionFromParameter<edm::InputTag>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('v')] =
-        &fillDescriptionFromParameter<std::vector<edm::InputTag>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('F')] = &fillDescriptionFromParameter<edm::FileInPath>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('A')] =
-        &fillDescriptionFromParameter<edm::LuminosityBlockRange>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('a')] =
+    s_findTheRightFunction[edm::k_InputTag] = &fillDescriptionFromParameter<edm::InputTag>;
+    s_findTheRightFunction[edm::k_VInputTag] = &fillDescriptionFromParameter<std::vector<edm::InputTag>>;
+    s_findTheRightFunction[edm::k_ESInputTag] = &fillDescriptionFromParameter<edm::ESInputTag>;
+    s_findTheRightFunction[edm::k_VESInputTag] = &fillDescriptionFromParameter<std::vector<edm::ESInputTag>>;
+    s_findTheRightFunction[edm::k_FileInPath] = &fillDescriptionFromParameter<edm::FileInPath>;
+    s_findTheRightFunction[edm::k_LuminosityBlockRange] = &fillDescriptionFromParameter<edm::LuminosityBlockRange>;
+    s_findTheRightFunction[edm::k_VLuminosityBlockRange] =
         &fillDescriptionFromParameter<std::vector<edm::LuminosityBlockRange>>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('R')] = &fillDescriptionFromParameter<edm::EventRange>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('r')] =
-        &fillDescriptionFromParameter<std::vector<edm::EventRange>>;
+    s_findTheRightFunction[edm::k_EventRange] = &fillDescriptionFromParameter<edm::EventRange>;
+    s_findTheRightFunction[edm::k_VEventRange] = &fillDescriptionFromParameter<std::vector<edm::EventRange>>;
   }
 
   std::map<edm::ParameterTypes, FillDescriptionFromParameter>& findTheRightFunction() {

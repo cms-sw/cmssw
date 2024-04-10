@@ -7,7 +7,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class TrackInputEmulator {
@@ -26,6 +27,8 @@ namespace l1ct {
                        Encoding encoding = Encoding::Stepping,
                        bool bitwise = true,
                        bool slim = true);
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     std::pair<l1ct::TkObjEmu, bool> decodeTrack(ap_uint<96> tkword, const l1ct::PFRegionEmu &sector) const {
       return decodeTrack(tkword, sector, bitwise_, slim_);

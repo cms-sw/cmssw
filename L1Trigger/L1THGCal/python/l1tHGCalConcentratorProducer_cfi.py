@@ -5,26 +5,13 @@ import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
 adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 
-EE_DR_GROUP = 7
-FH_DR_GROUP = 6
-BH_DR_GROUP = 12
+# MAX_LAYERS should be equal to kNHGCalLayersMax_ defined in interface/HGCalCoarseTriggerCellMapping.h
+# MAX_LAYERS can be larger than the actual number of layers
+# CTC / STC sizes vectors should have a length of 4*MAX_LAYERS, 4 = 3 different silicon thicknesses + scintillator portion
 MAX_LAYERS = 52
-
-STC_SIZE_CUSTOM_PERLAYER_100 = ([4] + # no layer 0
-                     [4]*EE_DR_GROUP + [4]*EE_DR_GROUP + [4]*EE_DR_GROUP + [4]*EE_DR_GROUP + # EM
-                     [4]*FH_DR_GROUP + [4]*FH_DR_GROUP + # FH
-                     [4]*BH_DR_GROUP) # BH
-STC_SIZE_CUSTOM_PERLAYER_200 = ([16] + # no layer 0
-                     [16]*EE_DR_GROUP + [16]*EE_DR_GROUP + [16]*EE_DR_GROUP + [16]*EE_DR_GROUP + # EM
-                     [16]*FH_DR_GROUP + [16]*FH_DR_GROUP + # FH
-                     [16]*BH_DR_GROUP) # BH
-STC_SIZE_CUSTOM_PERLAYER_300 = STC_SIZE_CUSTOM_PERLAYER_200
-STC_SIZE_CUSTOM_PERLAYER_SCIN = STC_SIZE_CUSTOM_PERLAYER_200
-
-
-CTC_SIZE =  ( [2]*(MAX_LAYERS+1)*4)
-STC_SIZE =  ( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*3 )
-
+CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*4 )
+STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*3 )
+STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3 )
 
 threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                                Method = cms.vstring(['thresholdSelect']*3),
@@ -33,7 +20,7 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                coarsenTriggerCells = cms.vuint32(0,0,0),
                                fixedDataSizePerHGCROC = cms.bool(False),
                                allTrigCellsInTrigSums = cms.bool(True),
-                               ctcSize = cms.vuint32(CTC_SIZE),
+                               ctcSize = CTC_2_SIZES,
                                )
 
 # Column is Nlinks, Row is NWafers
@@ -52,8 +39,10 @@ bestchoice_ndata_centralized = [
         ]
 
 
+# Values taken from ECON-T working document v9 (March 2022)
+# https://edms.cern.ch/file/2206779/1/ECON-T_specification_working_doc_v9_2mar2022.pdf
 bestchoice_ndata_decentralized = [
-        1, 3, 6, 9, 14, 18, 23, 27, 32, 37, 41, 46, 0, 0, 0, 0,
+        1, 4, 6, 9, 14, 18, 23, 28, 32, 37, 41, 46, 48, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
         0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
@@ -88,14 +77,14 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
                           superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                           superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
-                          ctcSize = cms.vuint32(CTC_SIZE),
+                          ctcSize = CTC_2_SIZES,
                           )
 
 supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.vstring(['superTriggerCellSelect']*3),
                              type_energy_division = cms.string('superTriggerCell'),# superTriggerCell,oneBitFraction,equalShare
-                             stcSize = cms.vuint32(STC_SIZE),
-                             ctcSize = cms.vuint32(CTC_SIZE),
+                             stcSize = STC_4_AND_16_SIZES,
+                             ctcSize = CTC_2_SIZES,
                              fixedDataSizePerHGCROC = cms.bool(False),
                              allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
@@ -116,8 +105,8 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           fixedDataSizePerHGCROC = cms.bool(False),
                           allTrigCellsInTrigSums = cms.bool(False),
                           type_energy_division = cms.string('superTriggerCell'),# superTriggerCell,oneBitFraction,equalShare
-                          stcSize = cms.vuint32(STC_SIZE),
-                          ctcSize = cms.vuint32(CTC_SIZE),
+                          stcSize = STC_4_AND_16_SIZES,
+                          ctcSize = CTC_2_SIZES,
                           superTCCompression = superTCCompression_proc.clone(),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
                           superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
@@ -130,8 +119,8 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
 coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.vstring(['superTriggerCellSelect']*3),
                              type_energy_division = cms.string('oneBitFraction'),
-                             stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
-                             ctcSize = cms.vuint32(CTC_SIZE),
+                             stcSize = STC_4_AND_8_SIZES,
+                             ctcSize = CTC_2_SIZES,
                              fixedDataSizePerHGCROC = cms.bool(True),
                              allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
@@ -150,8 +139,8 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
 coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.vstring(['superTriggerCellSelect']*3),
                              type_energy_division = cms.string('equalShare'),
-                             stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
-                             ctcSize = cms.vuint32(CTC_SIZE),
+                             stcSize = STC_4_AND_8_SIZES,
+                             ctcSize = CTC_2_SIZES,
                              fixedDataSizePerHGCROC = cms.bool(True),
                              allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),

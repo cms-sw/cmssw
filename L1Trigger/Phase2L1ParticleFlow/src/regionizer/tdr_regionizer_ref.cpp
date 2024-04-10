@@ -5,6 +5,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(const edm::ParameterSet& iConfig)
     : TDRRegionizerEmulator(iConfig.getParameter<uint32_t>("nTrack"),
@@ -14,7 +15,20 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(const edm::ParameterSet& iCon
                             iConfig.getParameter<uint32_t>("nClocks"),
                             iConfig.getParameter<std::vector<int32_t>>("bigRegionEdges"),
                             iConfig.getParameter<bool>("doSort")) {
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+  debug_ = iConfig.getUntrackedParameter<bool>("debug");
+}
+
+edm::ParameterSetDescription l1ct::TDRRegionizerEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<uint32_t>("nClocks", 162);
+  description.add<uint32_t>("nTrack", 22);
+  description.add<uint32_t>("nCalo", 15);
+  description.add<uint32_t>("nEmCalo", 12);
+  description.add<uint32_t>("nMu", 2);
+  description.add<bool>("doSort", false);
+  description.add<std::vector<int32_t>>("bigRegionEdges", {-560, -80, 400, -560});
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 #endif
 
@@ -61,9 +75,11 @@ void l1ct::TDRRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedI
         netaInBR_, nphiInBR_, nmu_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
   }
 
-  dbgCout() << "in.track.size() = " << in.track.size() << std::endl;
-  dbgCout() << "in.hadcalo.size() = " << in.hadcalo.size() << std::endl;
-  dbgCout() << "in.emcalo.size() = " << in.emcalo.size() << std::endl;
+  if (debug_) {
+    dbgCout() << "in.track.size() = " << in.track.size() << std::endl;
+    dbgCout() << "in.hadcalo.size() = " << in.hadcalo.size() << std::endl;
+    dbgCout() << "in.emcalo.size() = " << in.emcalo.size() << std::endl;
+  }
 
   if (ntk_) {
     for (unsigned int i = 0; i < nBigRegions_; i++) {

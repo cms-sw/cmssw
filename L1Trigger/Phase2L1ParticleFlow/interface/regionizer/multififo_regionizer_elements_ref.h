@@ -5,6 +5,7 @@
 
 #include <list>
 #include <vector>
+#include <deque>
 #include <cassert>
 
 namespace l1ct {
@@ -74,6 +75,60 @@ namespace l1ct {
       void queue_to_stage_(std::vector<T>& queue, std::vector<T>& staging_area);
       void stage_to_queue_(std::vector<T>& staging_area, std::vector<T>& queue);
       T pop_queue_(std::vector<T>& queue);
+    };
+
+    template <typename T>
+    inline bool local_eta_phi_window(const T& t,
+                                     const l1ct::glbeta_t& etaMin,
+                                     const l1ct::glbeta_t& etaMax,
+                                     const l1ct::glbphi_t& phiMin,
+                                     const l1ct::glbphi_t& phiMax);
+    template <>
+    inline bool local_eta_phi_window<l1ct::TkObjEmu>(const l1ct::TkObjEmu& t,
+                                                     const l1ct::glbeta_t& etaMin,
+                                                     const l1ct::glbeta_t& etaMax,
+                                                     const l1ct::glbphi_t& phiMin,
+                                                     const l1ct::glbphi_t& phiMax);
+
+    template <typename T>
+    class EtaPhiBuffer {
+    public:
+      EtaPhiBuffer() {}
+      EtaPhiBuffer(unsigned int maxitems,
+                   const l1ct::glbeta_t& etaMin = 0,
+                   const l1ct::glbeta_t& etaMax = 0,
+                   const l1ct::glbeta_t& etaShift = 0,
+                   const l1ct::glbphi_t& phiMin = 0,
+                   const l1ct::glbphi_t& phiMax = 0,
+                   const l1ct::glbphi_t& phiShift = 0)
+          : size_(maxitems),
+            iwrite_(0),
+            iread_(0),
+            etaMin_(etaMin),
+            etaMax_(etaMax),
+            etaShift_(etaShift),
+            phiMin_(phiMin),
+            phiMax_(phiMax),
+            phiShift_(phiShift) {}
+      void maybe_push(const T& t);
+      void writeNewEvent() {
+        iwrite_ = 1 - iwrite_;
+        items_[iwrite_].clear();
+      }
+      void readNewEvent() { iread_ = 1 - iread_; }
+      T pop();
+      unsigned int writeSize() const { return items_[iwrite_].size(); }
+      unsigned int readSize() const { return items_[iread_].size(); }
+      unsigned int maxSize() const { return size_; }
+      void reset();
+
+    private:
+      unsigned int size_, iwrite_, iread_;
+      l1ct::glbeta_t etaMin_, etaMax_;
+      l1ct::glbeta_t etaShift_;
+      l1ct::glbphi_t phiMin_, phiMax_;
+      l1ct::glbphi_t phiShift_;
+      std::deque<T> items_[2];
     };
 
     // forward decl for later
@@ -182,5 +237,58 @@ namespace l1ct {
 
   }  // namespace  multififo_regionizer
 }  // namespace l1ct
+
+template <typename T>
+inline bool l1ct::multififo_regionizer::local_eta_phi_window(const T& t,
+                                                             const l1ct::glbeta_t& etaMin,
+                                                             const l1ct::glbeta_t& etaMax,
+                                                             const l1ct::glbphi_t& phiMin,
+                                                             const l1ct::glbphi_t& phiMax) {
+  return (etaMin == etaMax) ||
+         (etaMin <= t.hwEta && t.hwEta <= etaMax && ((phiMin == phiMax) || (phiMin <= t.hwPhi && t.hwPhi <= phiMax)));
+}
+template <>
+inline bool l1ct::multififo_regionizer::local_eta_phi_window<l1ct::TkObjEmu>(const l1ct::TkObjEmu& t,
+                                                                             const l1ct::glbeta_t& etaMin,
+                                                                             const l1ct::glbeta_t& etaMax,
+                                                                             const l1ct::glbphi_t& phiMin,
+                                                                             const l1ct::glbphi_t& phiMax) {
+  return (etaMin == etaMax) ||
+         (etaMin <= t.hwEta && t.hwEta <= etaMax && ((phiMin == phiMax) || (phiMin <= t.hwPhi && t.hwPhi <= phiMax))) ||
+         (etaMin <= t.hwVtxEta() && t.hwVtxEta() <= etaMax &&
+          ((phiMin == phiMax) || (phiMin <= t.hwVtxPhi() && t.hwVtxPhi() <= phiMax)));
+}
+template <typename T>
+void l1ct::multififo_regionizer::EtaPhiBuffer<T>::maybe_push(const T& t) {
+  if ((t.hwPt != 0) && local_eta_phi_window(t, etaMin_, etaMax_, phiMin_, phiMax_)) {
+    if (items_[iwrite_].size() < size_) {
+      items_[iwrite_].push_back(t);
+      items_[iwrite_].back().hwEta += etaShift_;
+      items_[iwrite_].back().hwPhi += phiShift_;
+    } else {
+      // uncommenting the message below may be useful for debugging
+      //dbgCout() << "WARNING: sector buffer is full for " << typeid(T).name() << ", pt = " << t.intPt()
+      //          << ", eta = " << t.intEta() << ", phi = " << t.intPhi() << "\n";
+    }
+  }
+}
+
+template <typename T>
+T l1ct::multififo_regionizer::EtaPhiBuffer<T>::pop() {
+  T ret;
+  ret.clear();
+  if (!items_[iread_].empty()) {
+    ret = items_[iread_].front();
+    items_[iread_].pop_front();
+  }
+  return ret;
+}
+template <typename T>
+void l1ct::multififo_regionizer::EtaPhiBuffer<T>::reset() {
+  iread_ = 0;
+  iwrite_ = 0;
+  items_[0].clear();
+  items_[1].clear();
+}
 
 #endif

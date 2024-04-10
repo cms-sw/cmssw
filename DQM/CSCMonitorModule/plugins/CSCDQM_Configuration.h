@@ -21,6 +21,7 @@
 
 #include <string>
 #include <sstream>
+#include <ctime>
 #include <functional>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -44,8 +45,6 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/comparison/equal.hpp>
-
-#include <boost/timer.hpp>
 
 /** Headers for Global DQM Only */
 #ifdef DQMGLOBAL
@@ -245,6 +244,7 @@ namespace cscdqm {
     void init() {
       /** Assign default values to parameters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_DEFAULT_MACRO, _, CONFIG_PARAMETERS_SEQ)
+      globalTimer = eventTimer = fraTimer = effTimer = std::clock();
       reset();
     }
 
@@ -421,16 +421,16 @@ namespace cscdqm {
 
   private:
     /** Global Timer */
-    boost::timer globalTimer;
+    std::clock_t globalTimer;
 
     /** Event processing Timer */
-    boost::timer eventTimer;
+    std::clock_t eventTimer;
 
     /** Fractional MO update Timer */
-    boost::timer fraTimer;
+    std::clock_t fraTimer;
 
     /** Efficiency MO update Timer */
-    boost::timer effTimer;
+    std::clock_t effTimer;
 
     /** Event processing time cummulative */
     double eventTimeSum;
@@ -468,7 +468,7 @@ namespace cscdqm {
        * @return 
        */
     void printStats() {
-      double allTime = globalTimer.elapsed();
+      double allTime = double(std::clock() - globalTimer) / CLOCKS_PER_SEC;
       LogInfo logger;
       logger << std::endl;
 
@@ -523,9 +523,9 @@ namespace cscdqm {
        */
     void eventProcessTimer(const bool start) {
       if (start) {
-        eventTimer.restart();
+        eventTimer = std::clock();
       } else {
-        eventTimeSum += eventTimer.elapsed();
+        eventTimeSum += double(std::clock() - eventTimer) / CLOCKS_PER_SEC;
       }
     }
 
@@ -536,9 +536,9 @@ namespace cscdqm {
        */
     void updateFraTimer(const bool start) {
       if (start) {
-        fraTimer.restart();
+        fraTimer = std::clock();
       } else {
-        fraTimeSum += fraTimer.elapsed();
+        fraTimeSum += double(std::clock() - fraTimer) / CLOCKS_PER_SEC;
         fraCount++;
       }
     }
@@ -550,9 +550,9 @@ namespace cscdqm {
        */
     void updateEffTimer(const bool start) {
       if (start) {
-        effTimer.restart();
+        effTimer = std::clock();
       } else {
-        effTimeSum += effTimer.elapsed();
+        effTimeSum += double(std::clock() - effTimer) / CLOCKS_PER_SEC;
         effCount++;
       }
     }

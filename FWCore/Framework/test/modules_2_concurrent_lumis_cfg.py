@@ -15,45 +15,45 @@ process.prod = cms.EDProducer("BusyWaitIntProducer",
                               iterations = cms.uint32(50*1000*20) )
 
 process.LumiSumIntProd = cms.EDProducer("edmtest::global::LumiSummaryIntProducer",
-    transitions = cms.int32(60)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
 )
 
 process.LumiSumLumiProd = cms.EDProducer("edmtest::global::LumiSummaryLumiProducer",
-    transitions = cms.int32(70)
+    transitions = cms.int32(34)
     ,cachevalue = cms.int32(2)
 )
 
 process.LumiSumIntFilter = cms.EDFilter("edmtest::global::LumiSummaryIntFilter",
-    transitions = cms.int32(84)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
 )
 
 process.LumiSumIntAnalyzer = cms.EDAnalyzer("edmtest::global::LumiSummaryIntAnalyzer",
-    transitions = cms.int32(84)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
 )
 
 process.LimitedLumiSumIntProd = cms.EDProducer("edmtest::limited::LumiSummaryIntProducer",
-    transitions = cms.int32(60)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
     ,concurrencyLimit = cms.untracked.uint32(1)
 )
 
 process.LimitedLumiSumLumiProd = cms.EDProducer("edmtest::limited::LumiSummaryLumiProducer",
-    transitions = cms.int32(70)
+    transitions = cms.int32(34)
     ,cachevalue = cms.int32(2)
     ,concurrencyLimit = cms.untracked.uint32(1)
 )
 
 process.LimitedLumiSumIntFilter = cms.EDFilter("edmtest::limited::LumiSummaryIntFilter",
-    transitions = cms.int32(84)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
     ,concurrencyLimit = cms.untracked.uint32(1)
 )
 
 process.LimitedLumiSumIntAnalyzer = cms.EDAnalyzer("edmtest::limited::LumiSummaryIntAnalyzer",
-    transitions = cms.int32(84)
+    transitions = cms.int32(44)
     ,cachevalue = cms.int32(2)
     ,concurrencyLimit = cms.untracked.uint32(1)
 )

@@ -28,17 +28,35 @@ updatedJetsPuppi = updatedPatJets.clone(
 
 tightJetPuppiId = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
+        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
         quality = cms.string('TIGHT'),
     ),
     src = cms.InputTag("updatedJetsPuppi")
 )
 tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN3WINTER22PUPPI'),
+        version = cms.string('RUN3PUPPIruns2022FGruns2023CD'),
         quality = cms.string('TIGHTLEPVETO'),
     ),
     src = cms.InputTag("updatedJetsPuppi")
+)
+
+run2_jme_2016.toModify(
+    tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
+)
+
+(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    tightJetPuppiId.filterParams, version = "RUN2ULPUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2ULPUPPI"
+)
+
+run3_jme_Winter22runsBCDEprompt.toModify(
+    tightJetPuppiId.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN3PUPPIruns2022BCDEprompt"
 )
 
 #HF shower shape recomputation
@@ -87,9 +105,10 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
         btagDeepFlavCvB = Var("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
         btagDeepFlavQG = Var("?(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
         btagRobustParTAK4CvL = Var("?(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg')):-1",float,doc="RobustParTAK4 c vs uds+g discriminator",precision=10),
-        btagRobustParTAK4CvB = Var("?(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1",float,doc="RobustParTAK4 c vs b+bb+lepb discriminator",precision=10),
+        btagRobustParTAK4CvB = Var("?(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb')):-1",float,doc="RobustParTAK4 c vs b+bb+lepb discriminator",precision=10),
         btagRobustParTAK4QG = Var("?(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probg')/(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')):-1",float,doc="RobustParTAK4 g vs uds discriminator",precision=10),
         btagPNetB = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="ParticleNet b vs. udscg"),
+        btagPNetCvNotB = Var("?(bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probc')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probuds')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probg')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probmu')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probele')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h2p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup3h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup3h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum1h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum1h2p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum3h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum3h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probq')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probg'))>0?(bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probc'))/(bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probc')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probuds')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probg')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probmu')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probele')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup1h2p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup3h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaup3h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum1h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum1h2p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum3h0p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probtaum3h1p')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probq')+bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralJetTags:probg')):-1",float,precision=10,doc="ParticleNet C vs notB"),
         btagPNetCvL = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="ParticleNet c vs. udsg"),
         btagPNetCvB = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="ParticleNet c vs. b"),
         btagPNetQvG = Var("?abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:QvsG'):bDiscriminator('pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags:QvsG')",float,precision=10,doc="ParticleNet q (udsbc) vs. g"),
@@ -103,11 +122,15 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
         hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
         hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
+        chMultiplicity = Var("chargedMultiplicity()","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("neutralMultiplicity()","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
         neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
         chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
+        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
+        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
     )
 )
@@ -121,8 +144,8 @@ run2_nanoAOD_ANY.toModify(
 )
 
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     jetPuppiTable.variables,
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     btagPNetB = None,
     btagPNetCvL = None,
     btagPNetCvB = None,
@@ -130,7 +153,12 @@ run2_nanoAOD_ANY.toModify(
     btagPNetTauVJet = None,
     PNetRegPtRawCorr = None,
     PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None
+    PNetRegPtRawRes = None,
+    # Remove for V11 and earlier Run3 versions
+    chMultiplicity = None,
+    neMultiplicity = None,
+    hfHEF = None,
+    hfEmEF = None
 )
 
 #jets are not as precise as muons
@@ -160,11 +188,11 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False):
         jetSource = cms.InputTag('slimmedJetsPuppi'),
         jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = _btagDiscriminators,
-        postfix = 'WithDeepInfo',
+        postfix = 'PuppiWithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetPuppiCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
+    process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
+    process.updatedJetsPuppi.jetSource = "selectedUpdatedPatJetsPuppiWithDeepInfo"
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(
@@ -177,7 +205,7 @@ nanoAOD_addDeepInfoAK4_switch = cms.PSet(
 #################################################
 
 ################################################################################
-# JETS FOR MET type1 
+# JETS FOR MET type1
 ################################################################################
 basicJetsPuppiForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
     src = updatedJetsPuppiWithUserData.src,
@@ -205,6 +233,7 @@ corrT1METJetPuppiTable = simpleCandidateFlatTableProducer.clone(
         eta  = Var("eta",  float,precision=12),
         phi = Var("phi", float, precision=12),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
+        EmEF = Var("chargedEmEnergyFraction()+neutralEmEnergyFraction()", float, doc="charged+neutral Electromagnetic Energy Fraction", precision=6),
     )
 )
 

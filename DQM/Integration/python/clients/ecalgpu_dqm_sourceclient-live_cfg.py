@@ -4,15 +4,13 @@ import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("process", Run3)
 
-unitTest = False
-if 'unitTest=True' in sys.argv:
-    unitTest=True
+unitTest = 'unitTest=True' in sys.argv
 
 ### Load cfis ###
 
 if unitTest:
-    process.load("DQM.Integration.config.unittestinputsource_cfi")
-    from DQM.Integration.config.unittestinputsource_cfi import options
+    process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+    from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
     from DQM.Integration.config.inputsource_cfi import options
@@ -58,7 +56,11 @@ process.maxEvents = cms.untracked.PSet(
 process.preScaler.prescaleFactor = 1
 
 if not options.inputFiles:
-    process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
+    # stream label
+    if process.runType.getRunType() == process.runType.hi_run:
+        process.source.streamLabel = "streamHIDQMGPUvsCPU"
+    else:
+        process.source.streamLabel = "streamDQMGPUvsCPU"
 
 process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'EcalGPU'

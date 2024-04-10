@@ -4,18 +4,16 @@
  *  \author Monica Vazquez Acosta (CERN)
  *
  */
+#include <cmath>
 
 #include "HLTDisplacedEgammaFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
-//
-// constructors and destructor
-//
 HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   inputTag_ = iConfig.getParameter<edm::InputTag>("inputTag");
   ncandcut_ = iConfig.getParameter<int>("ncandcut");
@@ -23,7 +21,11 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
 
   inputTrk = iConfig.getParameter<edm::InputTag>("inputTrack");
   trkPtCut = iConfig.getParameter<double>("trackPtCut");
-  trkdRCut = iConfig.getParameter<double>("trackdRCut");
+
+  // track dR^2 threshold with sign
+  auto const trkDrCut = iConfig.getParameter<double>("trackdRCut");
+  trkDr2Cut = trkDrCut * std::abs(trkDrCut);
+
   maxTrkCut = iConfig.getParameter<int>("maxTrackCut");
 
   rechitsEB = iConfig.getParameter<edm::InputTag>("RecHitsEB");
@@ -41,12 +43,11 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
   rechitsEBToken_ = consumes<EcalRecHitCollection>(rechitsEB);
   rechitsEEToken_ = consumes<EcalRecHitCollection>(rechitsEE);
+
   if (useTrackVeto) {
     inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
   }
 }
-
-HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter() = default;
 
 void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -139,9 +140,8 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
       for (auto const& it : *tracks) {
         if (it.pt() < trkPtCut)
           continue;
-        LorentzVector trkP4(it.px(), it.py(), it.pz(), it.p());
-        double dR = ROOT::Math::VectorUtil::DeltaR(trkP4, ref->p4());
-        if (dR < trkdRCut)
+        auto const dR2 = reco::deltaR2(it.eta(), it.phi(), ref->eta(), ref->phi());
+        if (dR2 < trkDr2Cut)
           nTrk++;
         if (nTrk > maxTrkCut)
           break;
@@ -156,9 +156,7 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
   }
 
   // filter decision
-  bool accept(n >= ncandcut_);
-
-  return accept;
+  return (n >= ncandcut_);
 }
 
 // declare this class as a framework plugin

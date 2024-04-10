@@ -31,7 +31,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
 
   std::unordered_map<uint32_t, double> makeHitMap(edm::Event const&,
@@ -47,7 +46,6 @@ private:
   edm::EDGetTokenT<std::vector<PCaloHit>> simHitsTokenHEfront_;
   edm::EDGetTokenT<std::vector<PCaloHit>> simHitsTokenHEback_;
   edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeomHandle_;
 
   HGCalClusteringDummyImpl dummyClustering_;
   HGCalShowerShape showerShape_;
@@ -74,24 +72,19 @@ CaloTruthCellsProducer::CaloTruthCellsProducer(edm::ParameterSet const& config)
 
 CaloTruthCellsProducer::~CaloTruthCellsProducer() {}
 
-void CaloTruthCellsProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  triggerGeomHandle_ = es.getHandle(triggerGeomToken_);
-}
-
 void CaloTruthCellsProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
-  edm::Handle<CaloParticleCollection> caloParticlesHandle;
-  event.getByToken(caloParticlesToken_, caloParticlesHandle);
-  auto const& caloParticles(*caloParticlesHandle);
+  auto caloParticlesHandle = event.getHandle(caloParticlesToken_);
+  auto const& caloParticles = *caloParticlesHandle;
 
-  edm::Handle<l1t::HGCalTriggerCellBxCollection> triggerCellsHandle;
-  event.getByToken(triggerCellsToken_, triggerCellsHandle);
-  auto const& triggerCells(*triggerCellsHandle);
+  auto const& triggerCellsHandle = event.getHandle(triggerCellsToken_);
+  auto const& triggerCells = *triggerCellsHandle;
 
-  auto const& geometry(*triggerGeomHandle_);
+  auto const& geometry = setup.getData(triggerGeomToken_);
+  ;
 
-  dummyClustering_.setGeometry(triggerGeomHandle_.product());
-  showerShape_.setGeometry(triggerGeomHandle_.product());
-  triggerTools_.setGeometry(triggerGeomHandle_.product());
+  dummyClustering_.setGeometry(&geometry);
+  showerShape_.setGeometry(&geometry);
+  triggerTools_.setGeometry(&geometry);
 
   std::unordered_map<uint32_t, CaloParticleRef> tcToCalo;
 

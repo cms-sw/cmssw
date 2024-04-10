@@ -1,12 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 FastTimerService = cms.Service("FastTimerService",
-    enableDQM = cms.untracked.bool(True),
-    enableDQMTransitions = cms.untracked.bool(False),
-    enableDQMbyLumiSection = cms.untracked.bool(False),
-    enableDQMbyModule = cms.untracked.bool(True),
-    enableDQMbyPath = cms.untracked.bool(True),
-    enableDQMbyProcesses = cms.untracked.bool(False),
     dqmLumiSectionsRange = cms.untracked.uint32(2500),
     dqmMemoryRange = cms.untracked.double(1000000),
     dqmMemoryResolution = cms.untracked.double(5000),
@@ -21,10 +15,16 @@ FastTimerService = cms.Service("FastTimerService",
     dqmPathTimeResolution = cms.untracked.double(0.5),
     dqmTimeRange = cms.untracked.double(15000.0),
     dqmTimeResolution = cms.untracked.double(1.0),
+    enableDQM = cms.untracked.bool(False),
+    enableDQMTransitions = cms.untracked.bool(False),
+    enableDQMbyLumiSection = cms.untracked.bool(False),
+    enableDQMbyModule = cms.untracked.bool(False),
+    enableDQMbyPath = cms.untracked.bool(False),
+    enableDQMbyProcesses = cms.untracked.bool(False),
+    highlightModules = cms.untracked.VPSet(),
+    jsonFileName = cms.untracked.string('Phase2Timing_resources.json'),
     printEventSummary = cms.untracked.bool(False),
-    printRunSummary = cms.untracked.bool(False),
     printJobSummary = cms.untracked.bool(True),
-    writeJSONSummary = cms.untracked.bool(True),
-    jsonFileName = cms.untracked.string('resources.json'),
-    highlightModules = cms.untracked.VPSet()
+    printRunSummary = cms.untracked.bool(False),
+    writeJSONSummary = cms.untracked.bool(True)
 )

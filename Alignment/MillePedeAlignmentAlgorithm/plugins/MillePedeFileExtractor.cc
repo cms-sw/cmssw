@@ -17,14 +17,12 @@ MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
     : outputDir_(iConfig.getParameter<std::string>("fileDir")),
       outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")),
       maxNumberOfBinaries_(iConfig.getParameter<int>("maxNumberOfBinaries")) {
-  auto fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
-  fileBlobToken_ = consumes<FileBlobCollection, edm::BranchType::InLumi>(fileBlobInputTag);
+  fileBlobInputTag_ = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
+  fileBlobToken_ = consumes<FileBlobCollection, edm::BranchType::InLumi>(fileBlobInputTag_);
   if (hasBinaryNumberLimit()) {
     edm::LogInfo("MillePedeFileActions") << "Limiting the number of extracted binary files to " << maxNumberOfBinaries_;
   }
 }
-
-MillePedeFileExtractor::~MillePedeFileExtractor() {}
 
 void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
   if (enoughBinaries())
@@ -41,6 +39,12 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> fileBlobCollection;
   iLumi.getByToken(fileBlobToken_, fileBlobCollection);
+
+  if (fileBlobCollection.failedToGet()) {
+    edm::LogError("MillePedeFileActions") << "Failed to get collection from input tag: " << fileBlobInputTag_.encode();
+    return;
+  }
+
   if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
     edm::LogInfo("MillePedeFileActions") << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
@@ -65,7 +69,9 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
       ++nBinaries_;
     }
   } else {
-    edm::LogError("MillePedeFileActions") << "Error: The root file does not contain any vector of FileBlob.";
+    edm::LogError("MillePedeFileActions")
+        << "Error: The root file does not contain any vector of FileBlob under the label " << fileBlobInputTag_.encode()
+        << ".";
   }
 }
 

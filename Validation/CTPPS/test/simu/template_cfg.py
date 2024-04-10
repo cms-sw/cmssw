@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_$ERA_cff import *
+from $ERA_MOD_PATH.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -32,9 +32,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_Run3_v1_hlt")
-    ))
-)
+        tag = cms.string("CTPPSPixelAnalysisMask_Run3_v1_hlt"))
+        ))
 
 # random seeds
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

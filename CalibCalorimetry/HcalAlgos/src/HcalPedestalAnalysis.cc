@@ -4,6 +4,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TFile.h"
 #include <cmath>
 
@@ -35,15 +36,15 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   // user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
   if (!m_outputFileMean.empty()) {
-    cout << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
+    edm::LogInfo("HcalPedestalAnalysis") << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str();
   }
   m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
   if (!m_outputFileWidth.empty()) {
-    cout << "Hcal pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
+    edm::LogInfo("HcalPedestalAnalysis") << "Hcal pedestal widths will be saved to " << m_outputFileWidth.c_str();
   }
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
   if (!m_outputFileROOT.empty()) {
-    cout << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
+    edm::LogInfo("HcalPedestalAnalysis") << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str();
   }
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample", 0);
   // for compatibility with previous versions
@@ -55,9 +56,9 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   if (m_pedValflag < 0)
     m_pedValflag = 0;
   if (m_nevtsample > 0 && m_pedValflag > 0) {
-    cout << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample << ", pedValflag = " << m_pedValflag
-         << endl;
-    cout << "Setting pedValflag = 0" << endl;
+    edm::LogWarning("HcalPedestalAnalysis")
+        << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample << ", pedValflag = " << m_pedValflag;
+    edm::LogWarning("HcalPedestalAnalysis") << "Setting pedValflag = 0";
     m_pedValflag = 0;
   }
   if (m_pedValflag > 1)
@@ -144,93 +145,87 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 
   // Get data for every CAPID.
   // HBHE
-  try {
-    if (hbhe.empty())
-      throw (int)hbhe.size();
-    for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      m_coder = cond.getHcalCoder(digi.id());
-      m_shape = cond.getHcalShape(m_coder);
-      for (int k = 0; k < (int)state.size(); k++)
-        state[k] = true;
-      // here we loop over pairs of time slices, it is more convenient
-      // in order to extract the correlation matrix
-      for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
-        for (int flag = 0; flag < 4; flag++) {
-          if (i + flag < digi.size() && i + flag <= m_endTS) {
-            per2CapsHists(flag, 0, digi.id(), digi.sample(i), digi.sample(i + flag), hbHists.PEDTRENDS, cond);
-          }
+  if (hbhe.empty()) {
+    edm::LogError("HcalPedestalAnalysis") << "Event with " << (int)hbhe.size() << " HBHE Digis passed.";
+    return;
+  }
+  for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
+    const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+    m_coder = cond.getHcalCoder(digi.id());
+    m_shape = cond.getHcalShape(m_coder);
+    for (int k = 0; k < (int)state.size(); k++)
+      state[k] = true;
+    // here we loop over pairs of time slices, it is more convenient
+    // in order to extract the correlation matrix
+    for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
+      for (int flag = 0; flag < 4; flag++) {
+        if (i + flag < digi.size() && i + flag <= m_endTS) {
+          per2CapsHists(flag, 0, digi.id(), digi.sample(i), digi.sample(i + flag), hbHists.PEDTRENDS, cond);
         }
       }
-      if (m_startTS == 0 && m_endTS > 4) {
-        AllChanHists(digi.id(),
-                     digi.sample(0),
-                     digi.sample(1),
-                     digi.sample(2),
-                     digi.sample(3),
-                     digi.sample(4),
-                     digi.sample(5),
-                     hbHists.PEDTRENDS);
-      }
     }
-  } catch (int i) {
-    //    m_logFile<< "Event with " << i<<" HBHE Digis passed." << std::endl;
+    if (m_startTS == 0 && m_endTS > 4) {
+      AllChanHists(digi.id(),
+                   digi.sample(0),
+                   digi.sample(1),
+                   digi.sample(2),
+                   digi.sample(3),
+                   digi.sample(4),
+                   digi.sample(5),
+                   hbHists.PEDTRENDS);
+    }
   }
   // HO
-  try {
-    if (ho.empty())
-      throw (int)ho.size();
-    for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
-      const HODataFrame digi = (const HODataFrame)(*j);
-      m_coder = cond.getHcalCoder(digi.id());
-      for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
-        for (int flag = 0; flag < 4; flag++) {
-          if (i + flag < digi.size() && i + flag <= m_endTS) {
-            per2CapsHists(flag, 1, digi.id(), digi.sample(i), digi.sample(i + flag), hoHists.PEDTRENDS, cond);
-          }
+  if (ho.empty()) {
+    edm::LogError("HcalPedestalAnalysis") << "Event with " << (int)ho.size() << " HO Digis passed.";
+    return;
+  }
+  for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
+    const HODataFrame digi = (const HODataFrame)(*j);
+    m_coder = cond.getHcalCoder(digi.id());
+    for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
+      for (int flag = 0; flag < 4; flag++) {
+        if (i + flag < digi.size() && i + flag <= m_endTS) {
+          per2CapsHists(flag, 1, digi.id(), digi.sample(i), digi.sample(i + flag), hoHists.PEDTRENDS, cond);
         }
       }
-      if (m_startTS == 0 && m_endTS > 4) {
-        AllChanHists(digi.id(),
-                     digi.sample(0),
-                     digi.sample(1),
-                     digi.sample(2),
-                     digi.sample(3),
-                     digi.sample(4),
-                     digi.sample(5),
-                     hoHists.PEDTRENDS);
-      }
     }
-  } catch (int i) {
-    //    m_logFile << "Event with " << i<<" HO Digis passed." << std::endl;
+    if (m_startTS == 0 && m_endTS > 4) {
+      AllChanHists(digi.id(),
+                   digi.sample(0),
+                   digi.sample(1),
+                   digi.sample(2),
+                   digi.sample(3),
+                   digi.sample(4),
+                   digi.sample(5),
+                   hoHists.PEDTRENDS);
+    }
   }
   // HF
-  try {
-    if (hf.empty())
-      throw (int)hf.size();
-    for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
-      const HFDataFrame digi = (const HFDataFrame)(*j);
-      m_coder = cond.getHcalCoder(digi.id());
-      for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
-        for (int flag = 0; flag < 4; flag++) {
-          if (i + flag < digi.size() && i + flag <= m_endTS) {
-            per2CapsHists(flag, 2, digi.id(), digi.sample(i), digi.sample(i + flag), hfHists.PEDTRENDS, cond);
-          }
+  if (hf.empty()) {
+    edm::LogError("HcalPedestalAnalysis") << "Event with " << (int)hf.size() << " HF Digis passed.";
+    return;
+  }
+  for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
+    const HFDataFrame digi = (const HFDataFrame)(*j);
+    m_coder = cond.getHcalCoder(digi.id());
+    for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
+      for (int flag = 0; flag < 4; flag++) {
+        if (i + flag < digi.size() && i + flag <= m_endTS) {
+          per2CapsHists(flag, 2, digi.id(), digi.sample(i), digi.sample(i + flag), hfHists.PEDTRENDS, cond);
         }
       }
-      if (m_startTS == 0 && m_endTS > 4) {
-        AllChanHists(digi.id(),
-                     digi.sample(0),
-                     digi.sample(1),
-                     digi.sample(2),
-                     digi.sample(3),
-                     digi.sample(4),
-                     digi.sample(5),
-                     hfHists.PEDTRENDS);
-      }
     }
-  } catch (int i) {
-    //    m_logFile << "Event with " << i<<" HF Digis passed." << std::endl;
+    if (m_startTS == 0 && m_endTS > 4) {
+      AllChanHists(digi.id(),
+                   digi.sample(0),
+                   digi.sample(1),
+                   digi.sample(2),
+                   digi.sample(3),
+                   digi.sample(4),
+                   digi.sample(5),
+                   hfHists.PEDTRENDS);
+    }
   }
   // Call the function every m_nevtsample events
   if (m_nevtsample > 0) {
@@ -678,7 +673,7 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   hfHists.PEDMEAN->Write();
 
   m_file->Close();
-  cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
+  edm::LogInfo("HcalPedestalAnalysis") << "Hcal histograms written to " << m_outputFileROOT.c_str();
   return (int)m_AllPedsOK;
 }
 

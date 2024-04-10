@@ -1,4 +1,4 @@
-<ifrelease name="_UBSAN_">
+<ifrelease name="UBSAN">
   <flags REM_CXXFLAGS="-fno-omit-frame-pointer -fsanitize=undefined"/>
 </ifrelease>
 <use name="boost_serialization"/>

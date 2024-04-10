@@ -1,0 +1,53 @@
+HLTriggerFirstPath
+HLT_BptxOR_v*
+HLT_L1SingleEG8er2p5_v*
+HLT_L1SingleEG10er2p5_v*
+HLT_L1SingleEG15er2p5_v*
+HLT_L1SingleEG26er2p5_v*
+HLT_L1SingleEG28er2p5_v*
+HLT_L1SingleEG28er2p1_v*
+HLT_L1SingleEG28er1p5_v*
+HLT_L1SingleEG34er2p5_v*
+HLT_L1SingleEG36er2p5_v*
+HLT_L1SingleEG38er2p5_v*
+HLT_L1SingleEG40er2p5_v*
+HLT_L1SingleEG42er2p5_v*
+HLT_L1SingleEG45er2p5_v*
+HLT_L1SingleEG50_v*
+HLT_L1SingleJet35_v*
+HLT_L1SingleJet60_v*
+HLT_L1SingleJet90_v*
+HLT_L1SingleJet120_v*
+HLT_L1SingleJet180_v*
+HLT_L1SingleJet200_v*
+HLT_L1HTT120er_v*
+HLT_L1HTT160er_v*
+HLT_L1HTT200er_v*
+HLT_L1HTT255er_v*
+HLT_L1HTT280er_v*
+HLT_L1HTT320er_v*
+HLT_L1HTT360er_v*
+HLT_L1HTT400er_v*
+HLT_L1HTT450er_v*
+HLT_L1ETM120_v*
+HLT_L1ETM150_v*
+HLT_Physics_v*
+HLT_ZeroBias_v*
+HLT_Random_v*
+DST_Physics_v*
+
+HLTriggerFinalPath
+
+## EndPaths / FinalPaths ##
+
+DQMOutput
+DQMEventDisplayOutput
+ExpressOutput
+NanoDSTOutput
+PhysicsCommissioningOutput  # replaces PhysicsOutput, as per CMSHLT-2860
+
+######## Paths that are different between online and offline ########
+
+#HLTAnalyzerEndpath             # only in 'special', not in 'online'
+RatesMonitoring                # only in 'online', not in 'special'
+DQMHistograms                  # only in 'online', not in 'special'

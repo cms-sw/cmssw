@@ -51,7 +51,36 @@ namespace edm {
 
   class InputSource {
   public:
-    enum ItemType { IsInvalid, IsStop, IsFile, IsRun, IsLumi, IsEvent, IsRepeat, IsSynchronize };
+    enum class ItemType : char { IsInvalid, IsStop, IsFile, IsRun, IsLumi, IsEvent, IsRepeat, IsSynchronize };
+    enum class ItemPosition : char { Invalid, LastItemToBeMerged, NotLastItemToBeMerged };
+
+    class ItemTypeInfo {
+    public:
+      constexpr ItemTypeInfo(ItemType type = ItemType::IsInvalid, ItemPosition position = ItemPosition::Invalid)
+          : type_(type), position_(position) {}
+      ItemType itemType() const { return type_; }
+      ItemPosition itemPosition() const { return position_; }
+
+      // Note that conversion to ItemType is defined and often used to
+      // compare an ItemTypeInfo with an ItemType.
+      // operator== of two ItemTypeInfo's is intentionally NOT defined.
+      // The constructor also allows implicit conversion from ItemType and
+      // often assignment from ItemType to ItemTypeInfo occurs.
+      operator ItemType() const { return type_; }
+
+    private:
+      ItemType type_;
+
+      // position_ should always be Invalid if the itemType_ is not IsRun or IsLumi.
+      // Even for runs and lumis, it is OK to leave it Invalid because the
+      // Framework can figure this out based on the next item. Offline it is
+      // simplest to always leave it Invalid. For online sources, there are
+      // optimizations that the Framework can use when it knows that a run or
+      // lumi is the last to be merged before the following item is known. This
+      // is useful in cases where the function named getNextItemType
+      // might take a long time to return.
+      ItemPosition position_;
+    };
 
     enum ProcessingMode { Runs, RunsAndLumis, RunsLumisAndEvents };
 
@@ -70,7 +99,7 @@ namespace edm {
     static void prevalidate(ConfigurationDescriptions&);
 
     /// Advances the source to the next item
-    ItemType nextItemType();
+    ItemTypeInfo nextItemType();
 
     /// Read next event
     void readEvent(EventPrincipal& ep, StreamContext&);
@@ -329,7 +358,7 @@ namespace edm {
 
     ProductRegistry& productRegistryUpdate() { return *productRegistry_; }
     ProcessHistoryRegistry& processHistoryRegistryForUpdate() { return *processHistoryRegistry_; }
-    ItemType state() const { return state_; }
+    ItemTypeInfo state() const { return state_; }
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
       newRun_ = newLumi_ = true;
@@ -349,7 +378,7 @@ namespace edm {
     void reset() const {
       resetLuminosityBlockAuxiliary();
       resetRunAuxiliary();
-      state_ = IsInvalid;
+      state_ = ItemTypeInfo();
     }
     bool newRun() const { return newRun_; }
     void setNewRun() { newRun_ = true; }
@@ -386,8 +415,8 @@ namespace edm {
       return false;
     }
     bool limitReached() const { return eventLimitReached() || lumiLimitReached(); }
-    virtual ItemType getNextItemType() = 0;
-    ItemType nextItemType_();
+    virtual ItemTypeInfo getNextItemType() = 0;
+    ItemTypeInfo nextItemType_();
     virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
     virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
     virtual void fillProcessBlockHelper_();
@@ -431,7 +460,7 @@ namespace edm {
     mutable bool newRun_;
     mutable bool newLumi_;
     bool eventCached_;
-    mutable ItemType state_;
+    mutable ItemTypeInfo state_;
     mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary_;
     std::string statusFileName_;

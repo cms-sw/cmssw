@@ -15,7 +15,7 @@
 #ifndef GENERS_BINARYIO_HH_
 #define GENERS_BINARYIO_HH_
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 
@@ -143,9 +143,9 @@ namespace gs {
   }
 
   template <typename T>
-  inline CPP11_auto_ptr<T> read_obj(std::istream &in) {
+  inline std::unique_ptr<T> read_obj(std::istream &in) {
     const ClassId id(in, 1);
-    return CPP11_auto_ptr<T>(T::read(id, in));
+    return std::unique_ptr<T>(T::read(id, in));
   }
 
   template <typename T>
@@ -157,10 +157,10 @@ namespace gs {
 
   // The following function is templated upon the reader factory
   template <typename Reader>
-  inline CPP11_auto_ptr<typename Reader::value_type> read_base_obj(std::istream &in, const Reader &f) {
+  inline std::unique_ptr<typename Reader::value_type> read_base_obj(std::istream &in, const Reader &f) {
     typedef typename Reader::value_type T;
     const ClassId id(in, 1);
-    return CPP11_auto_ptr<T>(f.read(id, in));
+    return std::unique_ptr<T>(f.read(id, in));
   }
 
   // The following function assumes that the array contains actual
@@ -279,7 +279,7 @@ namespace gs {
       const ClassId id(in, 1);
       pv->reserve(vlen);
       for (unsigned long i = 0; i < vlen; ++i) {
-        CPP11_auto_ptr<T> obj(T::read(id, in));
+        std::unique_ptr<T> obj(T::read(id, in));
         pv->push_back(*obj);
       }
     }

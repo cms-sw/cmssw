@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="CondCore/CondDB"/>
+<use name="CondFormats/SerializationHelper"/>
 <export>
   <lib name="1"/>
 </export>

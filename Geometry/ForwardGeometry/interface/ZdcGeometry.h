@@ -23,11 +23,11 @@ public:
   typedef PZdcRcd PGeometryRecord;
   typedef HcalZDCDetId DetIdType;
 
-  enum { k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing };
+  static constexpr int k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing;
 
-  enum { k_NumberOfShapes = 3 };
+  static constexpr int k_NumberOfShapes = 3;
 
-  enum { k_NumberOfParametersPerShape = 4 };
+  static constexpr int k_NumberOfParametersPerShape = 4;
 
   static std::string dbString() { return "PZdcRcd"; }
 
@@ -57,7 +57,14 @@ public:
                const CCGFloat* parm,
                const DetId& detId) override;
 
+  void getSummary(CaloSubdetectorGeometry::TrVec& tVec,
+                  CaloSubdetectorGeometry::IVec& iVec,
+                  CaloSubdetectorGeometry::DimVec& dVec,
+                  CaloSubdetectorGeometry::IVec& dins) const override;
+
 protected:
+  unsigned int indexFor(const DetId& id) const override { return HcalZDCDetId(id).denseIndex(); }
+
   // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
 

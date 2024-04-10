@@ -19,6 +19,7 @@
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,7 +35,7 @@ namespace {
   const double r_limit2 = 1.e-6;  // 10 micron in CMS units
 }  // namespace
 
-SimTrackManager::SimTrackManager(TmpSimEvent* ptr) : m_simEvent(ptr) {
+SimTrackManager::SimTrackManager(TmpSimEvent* ptr, int) : m_simEvent(ptr) {
   idsave.reserve(1000);
   ancestorList.reserve(1000);
   m_trackContainer.reserve(1000);
@@ -162,10 +163,14 @@ void SimTrackManager::reallyStoreTracks() {
       }
     }
 
+    if (id >= static_cast<int>(PSimHit::k_tidOffset)) {
+      throw cms::Exception("SimTrackManager::reallyStoreTracks")
+          << " SimTrack ID " << id << " exceeds maximum allowed by PSimHit identifier" << PSimHit::k_tidOffset;
+    }
     TmpSimTrack* g4simtrack =
         new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
-    m_simEvent->add(g4simtrack);
+    m_simEvent->addTrack(g4simtrack);
   }
 }
 
@@ -189,7 +194,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
     }
   }
 
-  m_simEvent->add(new TmpSimVertex(trkH->vertexPosition(), trkH->time(), parent, trkH->processType()));
+  m_simEvent->addVertex(new TmpSimVertex(trkH->vertexPosition(), trkH->time(), parent, trkH->processType()));
   m_vertexMap[parent].push_back(VertexPosition(m_nVertices, trkH->vertexPosition()));
   ++m_nVertices;
   return (m_nVertices - 1);

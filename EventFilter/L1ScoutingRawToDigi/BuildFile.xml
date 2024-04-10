@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="EventFilter/Utilities"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1Scouting"/>
+<use name="DataFormats/L1ScoutingRawData"/>
+<use name="L1TriggerScouting/Utilities"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -46,7 +46,6 @@
 class HLTRechitsToDigis : public edm::stream::EDProducer<> {
 public:
   explicit HLTRechitsToDigis(const edm::ParameterSet&);
-  ~HLTRechitsToDigis() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   enum ecalRegion { invalidRegion = 0, barrel, endcap };
   static const HLTRechitsToDigis::ecalRegion stringToRegion(const std::string& region);
@@ -123,11 +122,6 @@ HLTRechitsToDigis::HLTRechitsToDigis(const edm::ParameterSet& iConfig)
   }
 
   recHitsToken_ = consumes<EcalRecHitCollection>(recHits_);
-}
-
-HLTRechitsToDigis::~HLTRechitsToDigis() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -261,38 +255,6 @@ void HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup
     }
   }  // end switch statement for the region (barrel, endcap, invalid)
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-HLTRechitsToDigis::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-HLTRechitsToDigis::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-HLTRechitsToDigis::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-HLTRechitsToDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HLTRechitsToDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -108,10 +108,9 @@ namespace edm {
                                            TProduceFunc&& produceFunc,
                                            const es::Label& iLabel = {}) {
       using AcquireTypes = eventsetup::impl::ReturnArgumentTypes<TAcquireFunc>;
+      using TRecord = typename AcquireTypes::argument_type;
       using TAcquireReturn = typename AcquireTypes::return_type;
-      using ProduceTypes = eventsetup::impl::ReturnArgumentTypes<TProduceFunc>;
-      using TProduceReturn = typename ProduceTypes::return_type;
-      using TRecord = typename ProduceTypes::argument_type;
+      using TProduceReturn = std::invoke_result_t<TProduceFunc, TRecord const&, TAcquireReturn>;
       using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
 
       return setWhatAcquiredProducedWithLambda<TAcquireReturn, TProduceReturn, TRecord>(

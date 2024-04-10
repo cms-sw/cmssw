@@ -2,8 +2,8 @@
 // Original Author: Felice Pantaleo, CERN
 //
 
-// #define GPU_DEBUG
-// #define DUMP_GPU_TK_TUPLES
+//#define GPU_DEBUG
+//#define DUMP_GPU_TK_TUPLES
 
 #include <array>
 #include <cassert>

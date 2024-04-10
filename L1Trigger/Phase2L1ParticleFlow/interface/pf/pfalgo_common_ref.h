@@ -9,7 +9,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -38,6 +39,7 @@ namespace l1ct {
     void loadPtErrBins(
         unsigned int nbins, const float absetas[], const float scales[], const float offs[], bool verbose = false);
     void loadPtErrBins(const edm::ParameterSet& iConfig);
+    static void addCaloResolutionParameterSetDescription(edm::ParameterSetDescription& to);
 
     void setDebug(bool debug = true) { debug_ = debug; }
 

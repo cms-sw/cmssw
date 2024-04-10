@@ -190,10 +190,12 @@ namespace {
   /************************************************
     TrackerMap of SiStripBadStrip (bad strips fraction)
   *************************************************/
-  class SiStripBadStripFractionTkMap : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
+  class SiStripBadStripFractionTH2PolyTkMap : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
   public:
-    SiStripBadStripFractionTkMap()
-        : PlotImage<SiStripBadStrip, SINGLE_IOV>("Tracker Map of SiStrip Bad Components fraction") {}
+    SiStripBadStripFractionTH2PolyTkMap()
+        : PlotImage<SiStripBadStrip, SINGLE_IOV>("Tracker Map of SiStrip Bad Components fraction") {
+      debug_ = false;
+    }
 
     bool fill() override {
       //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
@@ -210,7 +212,7 @@ namespace {
       auto theIOVsince = std::to_string(std::get<0>(iov));
 
       std::string titleMap =
-          "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
+          "Fraction of bad Strips per module, IOV: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
 
       SiStripTkMaps myMap("COLZA0 L");
       myMap.bookMap(titleMap, "Fraction of bad Strips per module");
@@ -225,18 +227,25 @@ namespace {
 
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload->getRange(d);
+
+        float nStripsInModule = (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
+
         for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
         }
-        float fraction =
-            badStripsPerDetId[d] / (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
+        float fraction = badStripsPerDetId[d] / nStripsInModule;
+
+        ss_ << d << " :" << badStripsPerDetId[d] << "/" << nStripsInModule << " = " << fraction << "\n";
+
         if (fraction > 0.) {
           myMap.fill(d, fraction);
         }
       }  // loop over detIds
 
-      //=========================
+      if (debug_)
+        edm::LogPrint("SiStripBadStripFractionTkMap") << ss_.str() << std::endl;
 
+      //=========================
       std::string fileName(m_imageFileName);
       TCanvas canvas("Bad Components fraction", "bad components fraction");
       myMap.drawMap(canvas, "");
@@ -245,6 +254,10 @@ namespace {
 
       return true;
     }
+
+  protected:
+    bool debug_;
+    std::stringstream ss_;
   };
 
   /************************************************
@@ -1367,7 +1380,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip) {
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadModuleTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTkMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTH2PolyTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIBFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTOBFractionByRun);

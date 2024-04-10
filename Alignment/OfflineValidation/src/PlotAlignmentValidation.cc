@@ -1898,7 +1898,7 @@ void PlotAlignmentValidation::setDMRHistStyleAndLegend(TH1F* h,
   legend.str("");
 
   // Legend: Statistics
-  double mean, meanerror, rms, rmserror;
+  double mean = 0.0, meanerror = 0.0, rms = 0.0, rmserror = 0.0;
   TString rmsname, units;
   bool showdeltamu =
       (plotinfo.h1 != nullptr && plotinfo.h2 != nullptr && plotinfo.plotSplits && plotinfo.plotPlain && direction == 0);

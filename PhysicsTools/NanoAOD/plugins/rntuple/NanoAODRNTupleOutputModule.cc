@@ -15,12 +15,19 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-#include <ROOT/RNTupleOptions.hxx>
 #include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
-using ROOT::Experimental::RNTupleWriteOptions;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
 using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
+#define MakeRNTupleWriter std::make_unique<RNTupleWriter>
+#include <ROOT/RNTupleOptions.hxx>
+#else
+using ROOT::Experimental::Internal::RPageSinkFile;
+#define MakeRNTupleWriter ROOT::Experimental::Internal::CreateRNTupleWriter
+#include <ROOT/RNTupleWriteOptions.hxx>
+#endif
+using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "TObjString.h"
 
@@ -74,20 +81,20 @@ private:
   class CommonEventFields {
   public:
     void createFields(RNTupleModel& model) {
-      model.AddField<UInt_t>("run", &m_run);
-      model.AddField<UInt_t>("luminosityBlock", &m_luminosityBlock);
-      model.AddField<std::uint64_t>("event", &m_event);
+      m_run = model.MakeField<UInt_t>("run");
+      m_luminosityBlock = model.MakeField<UInt_t>("luminosityBlock");
+      m_event = model.MakeField<std::uint64_t>("event");
     }
     void fill(const edm::EventID& id) {
-      m_run = id.run();
-      m_luminosityBlock = id.luminosityBlock();
-      m_event = id.event();
+      *m_run = id.run();
+      *m_luminosityBlock = id.luminosityBlock();
+      *m_event = id.event();
     }
 
   private:
-    UInt_t m_run;
-    UInt_t m_luminosityBlock;
-    std::uint64_t m_event;
+    std::shared_ptr<UInt_t> m_run;
+    std::shared_ptr<UInt_t> m_luminosityBlock;
+    std::shared_ptr<std::uint64_t> m_event;
   } m_commonFields;
 
   LumiNTuple m_lumi;
@@ -206,8 +213,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   // TODO use Append
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
-  m_ntuple =
-      std::make_unique<RNTupleWriter>(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
+  m_ntuple = MakeRNTupleWriter(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {

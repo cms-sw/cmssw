@@ -5,6 +5,8 @@
 #ifndef GENERS_GENERICIO_HH_
 #define GENERS_GENERICIO_HH_
 
+#include <memory>
+
 #include "Alignment/Geners/interface/IOPointeeType.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
 
@@ -51,13 +53,13 @@ namespace gs {
 // from std::exception.
 */
   template <class Item, class Stream>
-  inline CPP11_auto_ptr<Item> read_item(Stream &is, const bool readClassId = true) {
+  inline std::unique_ptr<Item> read_item(Stream &is, const bool readClassId = true) {
     typedef std::vector<ClassId> State;
     Item *item = nullptr;
     State state;
     const bool status = GenericReader<Stream, State, Item *, Int2Type<IOTraits<int>::ISNULLPOINTER>>::process(
         item, is, &state, readClassId);
-    CPP11_auto_ptr<Item> ptr(item);
+    std::unique_ptr<Item> ptr(item);
     if (is.fail())
       throw IOReadFailure("In gs::read_item: input stream failure");
     if (!status || item == nullptr)
@@ -150,9 +152,9 @@ namespace gs {
   template <class Stream, class State, class T>
   struct GenericReader<Stream, State, T, Int2Type<IOTraits<int>::ISPOD>> {
     inline static bool readIntoPtr(T *&ptr, Stream &str, State *, const bool processClassId) {
-      CPP11_auto_ptr<T> myptr;
+      std::unique_ptr<T> myptr;
       if (ptr == nullptr)
-        myptr = CPP11_auto_ptr<T>(new T());
+        myptr = std::unique_ptr<T>(new T());
       if (processClassId) {
         static const ClassId current(ClassId::makeId<T>());
         ClassId id(str, 1);
@@ -441,9 +443,9 @@ namespace gs {
   template <class Stream, class State, class T>
   struct GenericReader<Stream, State, T, Int2Type<IOTraits<int>::ISPAIR>> {
     inline static bool readIntoPtr(T *&ptr, Stream &str, State *s, const bool processClassId) {
-      CPP11_auto_ptr<T> myptr;
+      std::unique_ptr<T> myptr;
       if (ptr == 0) {
-        myptr = CPP11_auto_ptr<T>(new T());
+        myptr = std::unique_ptr<T>(new T());
         clearIfPointer(myptr.get()->first);
         clearIfPointer(myptr.get()->second);
       }
@@ -499,9 +501,9 @@ namespace gs {
   template <class Stream, class State>
   struct GenericReader<Stream, State, std::string, Int2Type<IOTraits<int>::ISSTRING>> {
     inline static bool readIntoPtr(std::string *&ptr, Stream &is, State *, const bool processClassId) {
-      CPP11_auto_ptr<std::string> myptr;
+      std::unique_ptr<std::string> myptr;
       if (ptr == nullptr)
-        myptr = CPP11_auto_ptr<std::string>(new std::string());
+        myptr = std::make_unique<std::string>();
       if (processClassId) {
         static const ClassId current(ClassId::makeId<std::string>());
         ClassId id(is, 1);
@@ -613,7 +615,7 @@ namespace gs {
       if (ptr)
         return process_item<GenericReader2>(*ptr, str, s, processClassId);
       else {
-        CPP11_auto_ptr<T> myptr(new T());
+        std::unique_ptr<T> myptr(new T());
         if (!process_item<GenericReader2>(*myptr, str, s, processClassId))
           return false;
         ptr = myptr.release();
@@ -673,9 +675,9 @@ namespace gs {
   template <class Stream, class State, class T>
   struct GenericReader<Stream, State, T, Int2Type<IOTraits<int>::ISPLACEREADABLE>> {
     inline static bool readIntoPtr(T *&ptr, Stream &str, State *s, const bool processClassId) {
-      CPP11_auto_ptr<T> myptr;
+      std::unique_ptr<T> myptr;
       if (ptr == 0)
-        myptr = CPP11_auto_ptr<T>(new T());
+        myptr = std::unique_ptr<T>(new T());
       if (processClassId) {
         ClassId id(str, 1);
         T::restore(id, str, ptr ? ptr : myptr.get());

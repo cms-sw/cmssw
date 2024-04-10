@@ -26,7 +26,6 @@
 #include <cstring>
 #include <cstdio>
 
-#include <oneapi/tbb/concurrent_hash_map.h>
 #include <boost/asio.hpp>
 
 class SystemBounds;
@@ -68,7 +67,6 @@ namespace evf {
     void initRun();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void preallocate(edm::service::SystemBounds const& bounds);
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
     void preBeginRun(edm::GlobalContext const& globalContext);
     void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
@@ -186,14 +184,15 @@ namespace evf {
       filesToDeletePtr_ = filesToDelete;
     }
 
-    void checkTransferSystemPSet(edm::ProcessContext const& pc);
-    void checkMergeTypePSet(edm::ProcessContext const& pc);
-    std::string getStreamDestinations(std::string const& stream) const;
-    std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
+    std::string getStreamDestinations(std::string const&) const { return std::string(""); }
+    std::string getStreamMergeType(std::string const&, MergeType defaultType) const {
+      return MergeTypeNames_[defaultType];
+    }
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
     bool inputThrottled();
     bool lumisectionDiscarded(unsigned int ls);
     std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
+    std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -216,6 +215,7 @@ namespace evf {
     std::string base_dir_;
     std::string bu_base_dir_;
     std::vector<std::string> bu_base_dirs_all_;
+    std::vector<int> bu_base_dirs_nSources_;
     unsigned int run_;
     bool useFileBroker_;
     bool fileBrokerHostFromCfg_;
@@ -225,9 +225,6 @@ namespace evf {
     bool fileBrokerUseLocalLock_;
     unsigned int fuLockPollInterval_;
     bool outputAdler32Recheck_;
-    bool requireTSPSet_;
-    std::string selectedTransferMode_;
-    std::string mergeTypePset_;
     bool directorBU_;
     std::string hltSourceDirectory_;
 
@@ -281,9 +278,6 @@ namespace evf {
     std::string stopFilePath_;
     std::string stopFilePathPid_;
     unsigned int stop_ls_override_ = 0;
-
-    std::shared_ptr<Json::Value> transferSystemJson_;
-    tbb::concurrent_hash_map<std::string, std::string> mergeTypeMap_;
 
     //values initialized in .cc file
     static const std::vector<std::string> MergeTypeNames_;

@@ -49,7 +49,6 @@ namespace l1t {
   class AMC13DumpToRaw : public edm::one::EDProducer<> {
   public:
     explicit AMC13DumpToRaw(const edm::ParameterSet&);
-    ~AMC13DumpToRaw() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -63,11 +62,6 @@ namespace l1t {
     //  void formatAMC(amc13::Packet& amc13, const std::vector<uint32_t>& load32);
 
     //  void formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data);
-
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
     std::ifstream file_;
@@ -104,11 +98,6 @@ namespace l1t {
         slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 8)),
         slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 8)) {
     produces<FEDRawDataCollection>();
-  }
-
-  AMC13DumpToRaw::~AMC13DumpToRaw() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
   }
 
   //
@@ -226,38 +215,6 @@ namespace l1t {
 
   // ------------ method called once each job just after ending the event loop  ------------
   void AMC13DumpToRaw::endJob() { file_.close(); }
-
-  // ------------ method called when starting to processes a run  ------------
-  /*
-void 
-AMC13DumpToRaw::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a run  ------------
-  /*
-void 
-AMC13DumpToRaw::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when starting to processes a luminosity block  ------------
-  /*
-vvoid 
-AMC13DumpToRaw::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a luminosity block  ------------
-  /*
-void 
-AMC13DumpToRaw::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void AMC13DumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

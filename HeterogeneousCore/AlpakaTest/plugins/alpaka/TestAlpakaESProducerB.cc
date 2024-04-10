@@ -11,11 +11,12 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
-   * This class demonstrates and ESProducer on the data model 2 that
-   * consumes a standard host ESProduct and converts the data into an
-   * Alpaka buffer that is then moved into an object of a class that
-   * is templated over the device type, and implicitly transfers the
-   * data product to device
+   * This class demonstrates an ESProducer that uses the
+   * template-over-device data model, and that consumes a standard
+   * host ESProduct and converts the data into an Alpaka buffer that
+   * is then moved into an object of a class that is templated over
+   * the device type, and implicitly transfers the data product to
+   * device
    *
    * This class also tests the explicit label for ESProducts works
    */

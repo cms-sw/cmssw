@@ -313,6 +313,9 @@ void CSCTFEfficiency::beginJob() {
   multHistList = new MultiplicityHistogramList();
   statFile = new StatisticsFile(statsFilename);
   rHistogram = new RHistogram("RHistograms");
+
+  // ParameterSet this points to is deleted after beginJob
+  configuration = nullptr;
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void CSCTFEfficiency::endJob() {

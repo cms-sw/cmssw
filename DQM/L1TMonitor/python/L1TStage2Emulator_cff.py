@@ -135,6 +135,7 @@ valGtStage2Digis = simGtStage2Digis.clone(
     TauInputTag = "gtStage2Digis:Tau",
     JetInputTag = "gtStage2Digis:Jet",
     EtSumInputTag = "gtStage2Digis:EtSum",
+    EtSumZdcInputTag = "gtStage2Digis:EtSumZDC",
     AlgorithmTriggersUnmasked = False,
     AlgorithmTriggersUnprescaled = False,
     EmulateBxInEvent = cms.int32(5),

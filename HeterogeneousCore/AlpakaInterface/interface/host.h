@@ -1,30 +1,17 @@
 #ifndef HeterogeneousCore_AlpakaInterface_interface_host_h
 #define HeterogeneousCore_AlpakaInterface_interface_host_h
 
-#include <cassert>
+#include <alpaka/alpaka.hpp>
+
+#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 
 namespace cms::alpakatools {
 
-  namespace detail {
-
-    inline alpaka::DevCpu enumerate_host() {
-      using Platform = alpaka::PltfCpu;
-      using Host = alpaka::DevCpu;
-
-      assert(alpaka::getDevCount<Platform>() == 1);
-      Host host = alpaka::getDevByIdx<Platform>(0);
-      assert(alpaka::getNativeHandle(host) == 0);
-
-      return host;
-    }
-
-  }  // namespace detail
+  // returns the alpaka host platform
+  inline alpaka::PlatformCpu const& host_platform() { return platform<alpaka::PlatformCpu>(); }
 
   // returns the alpaka host device
-  inline alpaka::DevCpu const& host() {
-    static const auto host = detail::enumerate_host();
-    return host;
-  }
+  inline alpaka::DevCpu const& host() { return devices<alpaka::PlatformCpu>()[0]; }
 
 }  // namespace cms::alpakatools
 

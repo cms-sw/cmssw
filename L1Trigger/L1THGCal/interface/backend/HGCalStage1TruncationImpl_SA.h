@@ -20,6 +20,10 @@ public:
                const l1thgcfirmware::Stage1TruncationConfig& theConf,
                l1thgcfirmware::HGCalTriggerCellSACollection& tcs_out) const;
 
+  int phiBin(unsigned roverzbin, double phi, const std::vector<double>& phiedges) const;
+  double rotatedphi(double x, double y, double z, int sector) const;
+  unsigned rozBin(double roverz, double rozmin, double rozmax, unsigned rozbins) const;
+
 private:
   static constexpr unsigned offset_roz_ = 1;
   static constexpr unsigned mask_roz_ = 0x3f;  // 6 bits, max 64 bins
@@ -34,8 +38,6 @@ private:
 
   uint32_t packBin(unsigned roverzbin, unsigned phibin) const;
   void unpackBin(unsigned packedbin, unsigned& roverzbin, unsigned& phibin) const;
-  int phiBin(unsigned roverzbin, double phi, const std::vector<double>& phiedges) const;
-  double rotatedphi(double x, double y, double z, int sector) const;
 };
 
 #endif

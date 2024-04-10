@@ -4,12 +4,11 @@
 // E. Garcia June 2008
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
-#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
@@ -25,12 +24,31 @@ ZdcShowerLibrary::ZdcShowerLibrary(const std::string& name, edm::ParameterSet co
   hits.reserve(npe);
 }
 
-ZdcShowerLibrary::~ZdcShowerLibrary() {}
+void ZdcShowerLibrary::initRun(G4ParticleTable* theParticleTable) {
+  G4String parName;
+  emPDG = theParticleTable->FindParticle(parName = "e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle(parName = "e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle(parName = "gamma")->GetPDGEncoding();
+  pi0PDG = theParticleTable->FindParticle(parName = "pi0")->GetPDGEncoding();
+  etaPDG = theParticleTable->FindParticle(parName = "eta")->GetPDGEncoding();
+  nuePDG = theParticleTable->FindParticle(parName = "nu_e")->GetPDGEncoding();
+  numuPDG = theParticleTable->FindParticle(parName = "nu_mu")->GetPDGEncoding();
+  nutauPDG = theParticleTable->FindParticle(parName = "nu_tau")->GetPDGEncoding();
+  anuePDG = theParticleTable->FindParticle(parName = "anti_nu_e")->GetPDGEncoding();
+  anumuPDG = theParticleTable->FindParticle(parName = "anti_nu_mu")->GetPDGEncoding();
+  anutauPDG = theParticleTable->FindParticle(parName = "anti_nu_tau")->GetPDGEncoding();
+  geantinoPDG = theParticleTable->FindParticle(parName = "geantino")->GetPDGEncoding();
+  edm::LogVerbatim("ZdcShower") << "ZdcShowerLibrary: Particle codes for e- = " << emPDG << ", e+ = " << epPDG
+                                << ", gamma = " << gammaPDG << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
+                                << ", geantino = " << geantinoPDG << "\n        nu_e = " << nuePDG
+                                << ", nu_mu = " << numuPDG << ", nu_tau = " << nutauPDG << ", anti_nu_e = " << anuePDG
+                                << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = " << anutauPDG;
+}
 
 std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aStep, bool& ok) {
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  const G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
-  const G4Track* track = aStep->GetTrack();
+  G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
+  G4Track* track = aStep->GetTrack();
 
   const G4DynamicParticle* aParticle = track->GetDynamicParticle();
   const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
@@ -42,9 +60,7 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
   hits.clear();
 
   ok = false;
-  bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
-  bool isHad = G4TrackToParticleID::isStableHadronIon(track);
-  if (!isEM && !isHad)
+  if (parCode == geantinoPDG)
     return hits;
   ok = true;
 
@@ -62,9 +78,9 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
   ZdcShowerLibrary::Hit oneHit;
   side = (hitPointOrig.z() > 0.) ? true : false;
 
-  float xWidthEM = std::abs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
-  float zWidthEM = std::abs(theZSectionBoundaries[0] - theZSectionBoundaries[1]);
-  float zWidthHAD = std::abs(theZHadChannelBoundaries[0] - theZHadChannelBoundaries[1]);
+  float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
+  float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1]);
+  float zWidthHAD = fabs(theZHadChannelBoundaries[0] - theZHadChannelBoundaries[1]);
 
   for (int i = 0; i < npe; i++) {
     if (i < 5) {
@@ -107,7 +123,8 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
 
     int dE = getEnergyFromLibrary(hitPoint, momDir, energy, parCode, section, side, channel);
 
-    if (isEM) {
+    int iparCode = encodePartID(parCode);
+    if (iparCode == 0) {
       oneHit.DeEM = dE;
       oneHit.DeHad = 0.;
     } else {
@@ -140,11 +157,20 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   energy = energy / GeV;
 
   edm::LogVerbatim("ZdcShower") << "\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
-                                << " phi: " << 59.2956 * momDir.phi() << " theta: " << 59.2956 * momDir.theta()
+                                << " phi: " << momDir.phi() / CLHEP::deg << " theta: " << momDir.theta() / CLHEP::deg
                                 << " xin : " << hitPoint.x() << " yin : " << hitPoint.y() << " zin : " << hitPoint.z()
                                 << " track en: " << energy << "(GeV)"
                                 << " section: " << section << " side: " << side << " channel: " << channel
                                 << " partID: " << parCode;
+
+  // these varables are not used for now
+  //float phi   = momDir.phi() / CLHEP::deg;
+  //float theta = momDir.theta() / CLHEP::deg;
+  //float zin = hitPoint.z();
+  //int isection = int(section);
+  //int iside = (side)? 1 : 2;
+
+  int iparCode = encodePartID(parCode);
 
   double eav = 0.;
   double esig = 0.;
@@ -154,9 +180,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   float yin = hitPoint.y();
   float fact = 0.;
 
-  bool isEM = G4TrackToParticleID::isGammaElectronPositron(parCode);
-
-  if (section == 1 && !isEM) {
+  if (section == 1 && iparCode != 0) {
     if (channel < 5)
       if (((theXChannelBoundaries[channel - 1]) < (xin + X0)) && ((xin + X0) <= theXChannelBoundaries[channel]))
         fact = 0.18;
@@ -165,7 +189,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
         fact = 0.18;
   }
 
-  if (section == 2 && !isEM) {
+  if (section == 2 && iparCode != 0) {
     if (channel == 1)
       fact = 0.34;
     if (channel == 2)
@@ -175,7 +199,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
     if (channel == 4)
       fact = 0.07;
   }
-  if (section == 1 && isEM) {
+  if (section == 1 && iparCode == 0) {
     if (channel < 5)
       if (((theXChannelBoundaries[channel - 1]) < (xin + X0)) && ((xin + X0) <= theXChannelBoundaries[channel]))
         fact = 1.;
@@ -188,7 +212,7 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   yin = yin / cm;
   xin = xin / cm;
 
-  if (isEM) {
+  if (iparCode == 0) {
     eav = ((((((-0.0002 * xin - 2.0e-13) * xin + 0.0022) * xin + 1.0e-11) * xin - 0.0217) * xin - 3.0e-10) * xin +
            1.0028) *
           (((0.0001 * yin + 0.0056) * yin + 0.0508) * yin + 1.0) * 300.0 * pow((energy / 300.0), 0.99);  // EM
@@ -204,29 +228,30 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
     edis = 3.0;
   }
 
-  if (eav < 0. || esig < 0.) {
-    edm::LogVerbatim("ZdcShower") << " Negative everage energy or esigma from parametrization \n"
+  if (eav < 0. || edis < 0.) {
+    edm::LogVerbatim("ZdcShower") << " Negative everage energy from parametrization \n"
                                   << " xin: " << xin << "(cm)"
                                   << " yin: " << yin << "(cm)"
                                   << " track en: " << energy << "(GeV)"
-                                  << " eaverage: " << eav << " (GeV)"
-                                  << " esigma: " << esig << "  (GeV)"
-                                  << " edist: " << edis << " (GeV)";
+                                  << " eaverage: " << eav / CLHEP::GeV << " (GeV)"
+                                  << " esigma: " << esig / CLHEP::GeV << "  (GeV)"
+                                  << " edist: " << edis << " (GeV)"
+                                  << " dE hit: " << nphotons / CLHEP::GeV << " (GeV)";
     return 0;
   }
 
   // Convert from GeV to MeV for the code
-  eav = eav * GeV;
-  esig = esig * GeV;
+  eav = eav * CLHEP::GeV;
+  esig = esig * CLHEP::GeV;
 
   while (nphotons == -1 || nphotons > int(eav + 5. * esig))
-    nphotons = (int)(fact * photonFluctuation(eav, esig, edis));
+    nphotons = static_cast<int>(fact * photonFluctuation(eav, esig, edis));
 
   edm::LogVerbatim("ZdcShower") << " track en: " << energy << "(GeV)"
-                                << " eaverage: " << eav / GeV << " (GeV)"
-                                << " esigma: " << esig / GeV << "  (GeV)"
+                                << " eaverage: " << eav / CLHEP::GeV << " (GeV)"
+                                << " esigma: " << esig / CLHEP::GeV << "  (GeV)"
                                 << " edist: " << edis << " (GeV)"
-                                << " dE hit: " << nphotons / GeV << " (GeV)";
+                                << " dE hit: " << nphotons / CLHEP::GeV << " (GeV)";
 
   return nphotons;
 }
@@ -242,4 +267,14 @@ int ZdcShowerLibrary::photonFluctuation(double eav, double esig, double edis) {
   if (nphot < 0)
     nphot = 0;
   return nphot;
+}
+
+int ZdcShowerLibrary::encodePartID(G4int parCode) {
+  G4int iparCode = 1;
+  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG) {
+    iparCode = 0;
+  } else {
+    return iparCode;
+  }
+  return iparCode;
 }

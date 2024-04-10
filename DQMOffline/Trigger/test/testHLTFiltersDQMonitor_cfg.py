@@ -31,10 +31,7 @@ parser.add_argument('--wantSummary', action = 'store_true', help = 'Value of pro
 parser.add_argument('-d', '--debugMode', action = 'store_true', help = 'Enable debug info (requires recompiling first with \'USER_CXXFLAGS="-DEDM_ML_DEBUG" scram b\')',
                     default = False)
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove('--')
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 ## Process
 process = cms.Process('TEST')

@@ -26,13 +26,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+
 // local includes
 #include "SiPixelRawToClusterGPUKernel.h"
+#include "gpuCalibPixel.h"
+#include "gpuClusterChargeCut.h"
+#include "gpuClustering.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace pixelgpudetails {
 
@@ -191,13 +192,11 @@ namespace pixelgpudetails {
       case (26): {
         if constexpr (debug)
           printf("Gap word found (errorType = 26)\n");
-        errorFound = true;
         break;
       }
       case (27): {
         if constexpr (debug)
           printf("Dummy word found (errorType = 27)\n");
-        errorFound = true;
         break;
       }
       case (28): {
@@ -209,9 +208,10 @@ namespace pixelgpudetails {
       case (29): {
         if constexpr (debug)
           printf("Timeout on a channel (errorType = 29)\n");
-        if ((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask) {
+        if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
           if constexpr (debug)
-            printf("...first errorType=29 error, this gets masked out\n");
+            printf("...2nd errorType=29 error, skip\n");
+          break;
         }
         errorFound = true;
         break;
@@ -226,6 +226,7 @@ namespace pixelgpudetails {
         if (stateMatch != 1 && stateMatch != 8) {
           if constexpr (debug)
             printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+          break;
         }
         if (stateMatch == 1)
           errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
@@ -253,45 +254,13 @@ namespace pixelgpudetails {
 
     switch (errorType) {
       case 25:
+      case 29:
       case 30:
       case 31:
       case 36:
       case 40: {
         uint32_t roc = 1;
         uint32_t link = sipixelconstants::getLink(errWord);
-        uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
-        if (rID_temp != gpuClustering::invalidModuleId)
-          rID = rID_temp;
-        break;
-      }
-      case 29: {
-        int chanNmbr = 0;
-        const int DB0_shift = 0;
-        const int DB1_shift = DB0_shift + 1;
-        const int DB2_shift = DB1_shift + 1;
-        const int DB3_shift = DB2_shift + 1;
-        const int DB4_shift = DB3_shift + 1;
-        const uint32_t DataBit_mask = ~(~uint32_t(0) << 1);
-
-        int CH1 = (errWord >> DB0_shift) & DataBit_mask;
-        int CH2 = (errWord >> DB1_shift) & DataBit_mask;
-        int CH3 = (errWord >> DB2_shift) & DataBit_mask;
-        int CH4 = (errWord >> DB3_shift) & DataBit_mask;
-        int CH5 = (errWord >> DB4_shift) & DataBit_mask;
-        int BLOCK_bits = 3;
-        int BLOCK_shift = 8;
-        uint32_t BLOCK_mask = ~(~uint32_t(0) << BLOCK_bits);
-        int BLOCK = (errWord >> BLOCK_shift) & BLOCK_mask;
-        int localCH = 1 * CH1 + 2 * CH2 + 3 * CH3 + 4 * CH4 + 5 * CH5;
-        if (BLOCK % 2 == 0)
-          chanNmbr = (BLOCK / 2) * 9 + localCH;
-        else
-          chanNmbr = ((BLOCK - 1) / 2) * 9 + 4 + localCH;
-        if ((chanNmbr < 1) || (chanNmbr > 36))
-          break;  // signifies unexpected result
-
-        uint32_t roc = 1;
-        uint32_t link = chanNmbr;
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
         if (rID_temp != gpuClustering::invalidModuleId)
           rID = rID_temp;
@@ -320,7 +289,7 @@ namespace pixelgpudetails {
                                    const uint32_t wordCounter,
                                    const uint32_t *word,
                                    const uint8_t *fedIds,
-                                   SiPixelDigisCUDASOAView digisView,
+                                   SiPixelDigisSoA::View digisView,
                                    cms::cuda::SimpleVector<SiPixelErrorCompact> *err,
                                    bool useQualityInfo,
                                    bool includeErrors) {
@@ -355,18 +324,20 @@ namespace pixelgpudetails {
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC) {
         uint32_t rID = getErrRawID<debug>(fedId, ww, errorType, cablingMap);
-        err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
+        if (rID != 0xffffffff)  // store errors only for valid DetIds
+          err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
         continue;
       }
 
       // check for spurious channels
       if (roc > MAX_ROC or link > MAX_LINK) {
+        uint32_t rawId = getRawId(cablingMap, fedId, link, 1).rawId;
         if constexpr (debug) {
-          printf("spurious roc %d found on link %d, detector %d (index %d)\n",
-                 roc,
-                 link,
-                 getRawId(cablingMap, fedId, link, 1).rawId,
-                 gIndex);
+          printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
+        }
+        if (roc > MAX_ROC and roc < 25) {
+          uint8_t error = conversionError<debug>(fedId, 2);
+          err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});
         }
         continue;
       }
@@ -636,8 +607,8 @@ namespace pixelgpudetails {
           digis_d->moduleId(), clusters_d->moduleStart(), digis_d->clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
-      threadsPerBlock = ((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) *
-                        128;  /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
+      // should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
+      threadsPerBlock = ((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) * 128;
       blocks = TrackerTraits::numberOfModules;
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
@@ -781,13 +752,13 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
     auto nModules_Clusters_d = cms::cuda::make_device_unique<uint32_t[]>(3, stream);
-    // MUST be ONE block
 
 #ifdef GPU_DEBUG
     cudaCheck(cudaStreamSynchronize(stream));
     std::cout << "CUDA fillHitsModuleStart kernel launch \n";
 #endif
 
+    // MUST be ONE block
     fillHitsModuleStart<TrackerTraits><<<1, 1024, 0, stream>>>(clusters_d->clusInModule(),
                                                                clusters_d->clusModuleStart(),
                                                                clusters_d->moduleStart(),

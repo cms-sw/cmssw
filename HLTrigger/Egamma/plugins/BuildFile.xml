@@ -12,6 +12,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>

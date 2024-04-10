@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltZEEHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZEEHI.HLTPaths = ["HLT_HIDoubleEle10Gsf_v*"]
+hltZEEHI.HLTPaths = ["HLT_HIEle*Gsf_v*"]
 hltZEEHI.throw = False
 hltZEEHI.andOr = True
 
@@ -18,14 +18,14 @@ primaryVertexFilterForZEE = cms.EDFilter("VertexSelector",
 # single lepton selector
 goodElectronsForZEE = cms.EDFilter("GsfElectronRefSelector",
                                    src = cms.InputTag("gedGsfElectrons"),
-                                   cut = cms.string("pt > 25 && abs(eta)<1.44")
+                                   cut = cms.string("pt > 25")
                                    )
 
 ## dilepton selectors
 diElectronsForZEE = cms.EDProducer("CandViewShallowCloneCombiner",
                                    decay       = cms.string("goodElectronsForZEE goodElectronsForZEE"),
                                    checkCharge = cms.bool(False),
-                                   cut         = cms.string("mass > 80 && mass < 110")
+                                   cut         = cms.string("mass > 60")
                                    )
 
 # dilepton counter

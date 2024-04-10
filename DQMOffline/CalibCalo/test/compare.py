@@ -107,7 +107,7 @@ if not execute:
 #try to use pyROOT directly from here, if environment variables were not set
 #this will run again the program with environment variables of the highest version of CMSSW specified in -v
 try:
-    from ROOT import *
+    from ROOT import gSystem, TFile, TLegend, TCanvas, gDirectory
 except ImportError:
     print "Warning: environment variables not set, proceeding anyway running this script with the environment variables of the higher version of CMSSW specified in -v"
     #storing cmsenv environment variables

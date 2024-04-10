@@ -7,7 +7,7 @@ status=0
   
 rm -f u8_overall_unnamed.log u8_overall_specific.log u8_supercede_specific.log u8_non_supercede_common.log u8_specific.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u8_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u8_cfg.py || exit $?
  
 for file in u8_overall_unnamed.log u8_overall_specific.log u8_supercede_specific.log u8_non_supercede_common.log u8_specific.log   
 do

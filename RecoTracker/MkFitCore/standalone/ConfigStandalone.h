@@ -81,13 +81,6 @@ namespace mkfit {
     constexpr float varZ = Config::hitposerrZ * Config::hitposerrZ;
     constexpr float varR = Config::hitposerrR * Config::hitposerrR;
 
-    // scattering simulation
-    constexpr float X0 =
-        9.370;  // cm, from http://pdg.lbl.gov/2014/AtomicNuclearProperties/HTML/silicon_Si.html // Pb = 0.5612 cm
-    constexpr float xr =
-        0.1;  //  -assumes radial impact. This is bigger than what we have in main --> shouldn't it be the parameter below??? if radial impact??
-    //const     float xr = std::sqrt(Config::beamspotX*Config::beamspotX + Config::beamspotY*Config::beamspotY);
-
     // Config for seeding
     constexpr int nlayers_per_seed_max = 4;  // Needed for allocation of arrays on stack.
     constexpr float chi2seedcut = 9.0;
@@ -115,7 +108,7 @@ namespace mkfit {
         0.0078;  // 0.0075; // errors used for MC only fit, straight from sim tracks, outward with simple geometry
     constexpr float phierr049 = 0.0017;    // 0.0017;
     constexpr float thetaerr049 = 0.0033;  // 0.0031;
-    // parameters for layers 0,1,2 // --> ENDTOEND with "real seeding", fit is outward by definition, with poly geo
+    // parameters for layers 0,1,2 --> with "real seeding", fit is outward by definition, with poly geo
     constexpr float ptinverr012 = 0.12007;  // 0.1789;  -->old values from only MC seeds
     constexpr float phierr012 = 1.0;        // found empirically 0.00646; // 0.0071
     constexpr float thetaerr012 = 0.2;      // also found empirically 0.01366; // 0.0130;

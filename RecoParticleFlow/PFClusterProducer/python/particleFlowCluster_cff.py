@@ -26,7 +26,7 @@ particleFlowClusterECALSequence = cms.Sequence(particleFlowClusterECALTask)
 pfClusteringECALTask = cms.Task(particleFlowRecHitECAL,
                                 particleFlowClusterECALUncorrected,
                                 particleFlowClusterECALTask)
-pfClusteringECAL = cms.Sequence(pfClusteringECALTask) 
+pfClusteringECAL = cms.Sequence(pfClusteringECALTask)
 
 pfClusteringPSTask = cms.Task(particleFlowRecHitPS,particleFlowClusterPS)
 pfClusteringPS = cms.Sequence(pfClusteringPSTask)
@@ -43,6 +43,9 @@ pfClusteringHBHEHFOnlyTask = cms.Task(particleFlowRecHitHBHEOnly,
                                       particleFlowClusterHBHEOnly,
                                       particleFlowClusterHF,
                                       particleFlowClusterHCALOnly)
+
+#--- Legacy HCAL Only Task
+pfClusteringHBHEHFOnlyLegacyTask = pfClusteringHBHEHFOnlyTask.copy()
 
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
@@ -85,3 +88,12 @@ phase2_timing.toReplaceWith(particleFlowClusterECALTask,
                                   _phase2_timing_particleFlowClusterECALTask)
 phase2_timing.toModify(particleFlowClusterECAL,
                             inputECAL = 'particleFlowTimeAssignerECAL')
+
+# Replace HBHE rechit and clustering with Alpaka modules
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+
+def _addProcessPFClusterAlpaka(process):
+    process.load("RecoParticleFlow.PFClusterProducer.pfClusterHBHEAlpaka_cff")
+
+modifyConfigurationPFClusterAlpaka_ = alpaka.makeProcessModifier(_addProcessPFClusterAlpaka)

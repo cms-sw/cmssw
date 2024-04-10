@@ -6,6 +6,7 @@
 <use name="FWCore/PrescaleService"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="CondCore/DBOutputService"/>

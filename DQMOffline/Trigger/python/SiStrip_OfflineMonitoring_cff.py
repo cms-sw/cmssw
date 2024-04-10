@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 #HLTsiStripClusters.SiStripRefGetter  = cms.InputTag("hltSiStripClusters")
 
 # SiStripCluster monitoring
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone(
     ClusterProducerStrip = "hltSiStripRawToClustersFacility",
@@ -15,6 +16,12 @@ HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.S
     ClusterHisto         = True,
     Mod_On               = False
 )
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorCluster,
+                         ClusterProducerStrip = "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression",
+                         ClusterProducerPix   = "hltSiPixelClustersAfterSplittingPPOnAA")
+
 HLTSiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon   = cms.bool(True)
 HLTSiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon      = cms.bool(False)
 HLTSiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = cms.bool(True)
@@ -143,6 +150,10 @@ hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone(
     #TTRHBuilder             = 'hltESPTTRHBuilderAngleAndTemplate',
     TTRHBuilder             = 'hltESPTTRHBWithTrackAngle'
 )
+
+pp_on_PbPb_run3.toModify(hltTrackRefitterForSiStripMonitorTrack,
+                         src = 'hltMergedTracksPPOnAA')
+
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
     TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack',
@@ -153,6 +164,10 @@ HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStrip
     TopFolderName     = 'HLT/SiStrip',
     Mod_On            = False
 )
+
+pp_on_PbPb_run3.toModify(HLTSiStripMonitorTrack,
+                         Cluster_src       = 'hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression')
+
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack

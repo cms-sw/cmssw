@@ -44,6 +44,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
 process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 
 if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
@@ -78,4 +79,4 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector']
+process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'HcalTB06BeamDetector']

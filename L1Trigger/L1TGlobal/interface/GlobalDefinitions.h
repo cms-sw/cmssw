@@ -79,6 +79,9 @@ namespace l1t {
     TypeAsymHt,
     TypeAsymEtHF,
     TypeAsymHtHF,
+    TypeZDCP,
+    TypeZDCM,
+    TypeAXOL1TL,
     GtConditionTypeInvalid = -1
   };
 
@@ -101,6 +104,8 @@ namespace l1t {
     CondCorrelationWithOverlapRemoval,
     CondCorrelationThreeBody,
     CondMuonShower,
+    CondEnergySumZdc,
+    CondAXOL1TL,
     GtConditionCategoryInvalid = -1
   };
 

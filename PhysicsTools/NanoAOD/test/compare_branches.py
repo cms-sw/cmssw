@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 from ROOT import TFile, TTree,TCut, gROOT,TH1F, TCanvas
 import glob, re
-from optparse import OptionParser
-parser = OptionParser(usage="%prog [options] job1 job2 ...")
-parser.add_option("--base", dest="base", default="step2.root", help="name of root file")
-parser.add_option("--ref", dest="ref", default="ref/", help="path to the reference files")
-parser.add_option("--png", dest="png", default="./", help="path to the plots")
-parser.add_option("--onlydiff", dest="diff", default=False, action="store_true", help="print only the histograms with differences")
-parser.add_option("--selection", dest="selection", default="", help="a selection of events to draw")
-parser.add_option("--branch", dest="branch", default=".*", help="a regexp for selecting branches")
-(options, args) = parser.parse_args()
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+parser.add_argument("--base", dest="base", default="step2.root", help="name of root file")
+parser.add_argument("--ref", dest="ref", default="ref/", help="path to the reference files")
+parser.add_argument("--png", dest="png", default="./", help="path to the plots")
+parser.add_argument("--onlydiff", dest="diff", default=False, action="store_true", help="print only the histograms with differences")
+parser.add_argument("--selection", dest="selection", default="", help="a selection of events to draw")
+parser.add_argument("--branch", dest="branch", default=".*", help="a regexp for selecting branches")
+parser.add_argument("job", type=str, nargs='+')
+options = parser.parse_args()
 
 def drawInOrder(t1,h1n, t2,h2n):
     N1 = t1.Draw(f'{vname} >> {h1n}', options.selection, '')
@@ -33,7 +34,7 @@ def binContents( h ):
 def emptyHist( h ):
     return all([ b==0 for b in binContents(h) ])
 
-for job in args:
+for job in options.job:
     fconn = glob.glob(f'{job}*/{options.base}')[0]
     fcon = TFile.Open(fconn)
     con = fcon.Get('Events')

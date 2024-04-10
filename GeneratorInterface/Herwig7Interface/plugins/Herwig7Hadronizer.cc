@@ -63,6 +63,7 @@ private:
   unsigned int eventsToPrint;
 
   ThePEG::EventPtr thepegEvent;
+  bool haveEvt = false;
 
   std::shared_ptr<lhef::LHEProxy> proxy_;
   const std::string handlerDirectory_;
@@ -101,9 +102,18 @@ bool Herwig7Hadronizer::initializeForInternalPartons() {
 }
 
 bool Herwig7Hadronizer::initializeForExternalPartons() {
-  edm::LogError("Herwig7 interface")
-      << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
-  return false;
+  if (currentLumiBlock == firstLumiBlock) {
+    std::ifstream runFile(runFileName + ".run");
+    if (runFile.fail())  //required for showering of LHE files
+    {
+      initRepository(paramSettings);
+    }
+    if (!initGenerator()) {
+      edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
+      exit(0);
+    }
+  }
+  return true;
 }
 
 bool Herwig7Hadronizer::declareStableParticles(const std::vector<int>& pdgIds) { return false; }
@@ -141,8 +151,41 @@ bool Herwig7Hadronizer::generatePartonsAndHadronize() {
 }
 
 bool Herwig7Hadronizer::hadronize() {
-  edm::LogError("Herwig7 interface")
-      << "Read in of LHE files is not supported in this way. You can read them manually if necessary.";
+  if (!haveEvt) {
+    try {
+      thepegEvent = eg_->shoot();
+      haveEvt = true;
+    } catch (std::exception& exc) {
+      edm::LogWarning("Generator|Herwig7Hadronizer")
+          << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
+      return false;
+    }
+  }
+  int evtnum = lheEvent()->evtnum();
+  if (evtnum == -1) {
+    edm::LogError("Generator|Herwig7Hadronizer")
+        << "Event number not set in lhe file, needed for correctly aligning Herwig and LHE events!";
+    return false;
+  }
+  if (thepegEvent->number() < evtnum) {
+    edm::LogError("Herwig7 interface") << "Herwig does not seem to be generating events in order, did you set "
+                                          "/Herwig/EventHandlers/FxFxLHReader:AllowedToReOpen Yes?";
+    return false;
+  } else if (thepegEvent->number() == evtnum) {
+    haveEvt = false;
+    if (!thepegEvent) {
+      edm::LogWarning("Generator|Herwig7Hadronizer") << "thepegEvent not initialized";
+      return false;
+    }
+
+    event() = convert(thepegEvent);
+    if (!event().get()) {
+      edm::LogWarning("Generator|Herwig7Hadronizer") << "genEvent not initialized";
+      return false;
+    }
+    return true;
+  }
+  edm::LogWarning("Generator|Herwig7Hadronizer") << "Event " << evtnum << " not generated (likely skipped in merging)";
   return false;
 }
 

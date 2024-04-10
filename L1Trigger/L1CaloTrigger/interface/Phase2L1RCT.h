@@ -1036,18 +1036,15 @@ inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg
     }
   }
 
-  towerEt[0] = towerEtN[0][0][0] + towerEtN[0][0][1] + towerEtN[0][0][2] + towerEtN[0][0][3] + towerEtN[0][0][4];
-  towerEt[1] = towerEtN[0][1][0] + towerEtN[0][1][1] + towerEtN[0][1][2] + towerEtN[0][1][3] + towerEtN[0][1][4];
-  towerEt[2] = towerEtN[0][2][0] + towerEtN[0][2][1] + towerEtN[0][2][2] + towerEtN[0][2][3] + towerEtN[0][2][4];
-  towerEt[3] = towerEtN[0][3][0] + towerEtN[0][3][1] + towerEtN[0][3][2] + towerEtN[0][3][3] + towerEtN[0][3][4];
-  towerEt[4] = towerEtN[1][0][0] + towerEtN[1][0][1] + towerEtN[1][0][2] + towerEtN[1][0][3] + towerEtN[1][0][4];
-  towerEt[5] = towerEtN[1][1][0] + towerEtN[1][1][1] + towerEtN[1][1][2] + towerEtN[1][1][3] + towerEtN[1][1][4];
-  towerEt[6] = towerEtN[1][2][0] + towerEtN[1][2][1] + towerEtN[1][2][2] + towerEtN[1][2][3] + towerEtN[1][2][4];
-  towerEt[7] = towerEtN[1][3][0] + towerEtN[1][3][1] + towerEtN[1][3][2] + towerEtN[1][3][3] + towerEtN[1][3][4];
-  towerEt[8] = towerEtN[2][0][0] + towerEtN[2][0][1] + towerEtN[2][0][2] + towerEtN[2][0][3] + towerEtN[2][0][4];
-  towerEt[9] = towerEtN[2][1][0] + towerEtN[2][1][1] + towerEtN[2][1][2] + towerEtN[2][1][3] + towerEtN[2][1][4];
-  towerEt[10] = towerEtN[2][2][0] + towerEtN[2][2][1] + towerEtN[2][2][2] + towerEtN[2][2][3] + towerEtN[2][2][4];
-  towerEt[11] = towerEtN[2][3][0] + towerEtN[2][3][1] + towerEtN[2][3][2] + towerEtN[2][3][3] + towerEtN[2][3][4];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      int index = j + 4 * i;
+      towerEt[index] = 0;
+      for (int k = 0; k < 5; k++) {
+        towerEt[index] += towerEtN[i][j][k];
+      }
+    }
+  }
 
   ap_uint<12> totalEt;
   for (int i = 0; i < 12; i++) {
@@ -1427,7 +1424,7 @@ inline p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYS
 
   cluster_tmp = p2eg::getClusterPosition(ecalRegion);
 
-  float seedEnergyFloat = cluster_tmp.seedEnergy / 8.0;
+  float seedEnergyFloat = cluster_tmp.seedEnergy * ECAL_LSB;
 
   // Do not make cluster if seed is less than 1.0 GeV
   if (seedEnergyFloat < 1.0) {
@@ -1506,7 +1503,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
           dPhi = (phi1 > phi2) ? (phi1 - phi2) : (phi2 - phi1);
 
           if (dPhi < 2) {
-            ap_uint<15> totalEnergy = c1.clusterEnergy() + c2.clusterEnergy();
+            ap_uint<12> totalEnergy = c1.clusterEnergy() + c2.clusterEnergy();
             ap_uint<15> totalEt2x5 = c1.uint_et2x5() + c2.uint_et2x5();
             ap_uint<15> totalEt5x5 = c1.uint_et5x5() + c2.uint_et5x5();
 
@@ -1524,6 +1521,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     totalEt5x5,
                                     totalEt2x5,
                                     c1.getBrems(),
+                                    c1.getCalib(),
                                     c1.getIsSS(),
                                     c1.getIsLooseTkss(),
                                     rct_is_iso,
@@ -1538,6 +1536,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     0,
                                     0,
                                     0,
+                                    1.0,
                                     false,
                                     false,
                                     rct_is_iso,
@@ -1556,6 +1555,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     0,
                                     0,
                                     0,
+                                    1.0,
                                     false,
                                     false,
                                     rct_is_iso,
@@ -1570,6 +1570,7 @@ inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_
                                     totalEt5x5,
                                     totalEt2x5,
                                     c2.getBrems(),
+                                    c2.getCalib(),
                                     c2.getIsSS(),
                                     c2.getIsLooseTkss(),
                                     rct_is_iso,

@@ -1457,7 +1457,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           bool extend,
                                           bool debug) const {
   // Expect x, y as in SIM step
-  waferU = waferV = 1 + hgpar_->waferUVMax_;
+  bool waferin = ((waferU == 0) && (waferV == 0));
+  if (waferin)
+    waferU = waferV = 1 + hgpar_->waferUVMax_;
   cellU = cellV = celltype = 0;
   if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
     return;
@@ -1476,29 +1478,91 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   }
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
-                                  << ":" << xx << " Y " << y << ":" << yy << " side " << zside << " extend " << extend;
+                                  << ":" << xx << " Y " << y << ":" << yy << " side " << zside << " extend " << extend
+                                  << " initial wafer index " << waferU << ":" << waferV;
+  ;
   double rmax = extend ? rmaxT_ : rmax_;
   double hexside = extend ? hexsideT_ : hexside_;
-  for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
-    double dx0(0), dy0(0);
-    waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
-    waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-    if (cassetteMode()) {
-      int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
-      auto ktr = hgpar_->waferInfoMap_.find(indx);
-      if (ktr != hgpar_->waferInfoMap_.end()) {
-        auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
-        if (debug)
-          edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":"
-                                        << cshift.second;
-        dx0 = -cshift.first;
-        dy0 = cshift.second;
+  if (waferin) {
+    double tolmin(100.0);
+    for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
+      double dx0(0), dy0(0);
+      waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
+      waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
+      if (cassetteMode()) {
+        int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+        auto ktr = hgpar_->waferInfoMap_.find(indx);
+        if (ktr != hgpar_->waferInfoMap_.end()) {
+          auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
+          if (debug)
+            edm::LogVerbatim("HGCalGeom")
+                << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
+          dx0 = -cshift.first;
+          dy0 = cshift.second;
+        }
+      }
+      double dx = std::abs(xx - dx0 - hgpar_->waferPosX_[k]);
+      double dy = std::abs(yy - dy0 - hgpar_->waferPosY_[k]);
+      constexpr double tolc = 0.01;
+      if (debug) {
+        edm::LogVerbatim("HGCalGeom") << "Wafer " << waferU << ":" << waferV << " position " << xx << ":" << yy
+                                      << " Distance " << dx << ":" << dy << " diff0 " << (dx - rmax) << ":"
+                                      << (dy - hexside) << " diff1 " << (dy - 0.5 * hexside) << ":"
+                                      << (dx * tan30deg_ - (hexside - dy));
+        if ((dx - rmax) <= tolc && (dy - hexside) <= tolc) {
+          tolmin = std::min(tolmin, (dy - 0.5 * hexside));
+          tolmin = std::min(tolmin, (dx * tan30deg_ - (hexside - dy)));
+        }
+      }
+      if ((dx - rmax) <= tolc && (dy - hexside) <= tolc) {
+        if (((dy - 0.5 * hexside) <= tolc) || ((dx * tan30deg_ - (hexside - dy)) <= tolc)) {
+          if (waferHexagon8File()) {
+            int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+            celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
+            if (debug)
+              edm::LogVerbatim("HGCalGeom")
+                  << "Position (" << x << ", " << y << ") Wafer type:partial:orient:cassette " << celltype << ":"
+                  << HGCalWaferType::getPartial(index, hgpar_->waferInfoMap_) << ":"
+                  << HGCalWaferType::getOrient(index, hgpar_->waferInfoMap_) << ":"
+                  << HGCalWaferType::getCassette(index, hgpar_->waferInfoMap_);
+          } else {
+            auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
+            celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
+                                                              : hgpar_->waferTypeL_[itr->second]);
+          }
+          if (debug)
+            edm::LogVerbatim("HGCalGeom")
+                << "WaferFromPosition:: Input " << layer << ":" << ll << ":" << hgpar_->firstLayer_ << ":" << rotx
+                << ":" << x << ":" << y << ":" << hgpar_->xLayerHex_[ll] << ":" << hgpar_->yLayerHex_[ll] << ":" << xx
+                << ":" << yy << " compared with " << hgpar_->waferPosX_[k] << ":" << hgpar_->waferPosY_[k]
+                << " difference " << dx << ":" << dy << ":" << dx * tan30deg_ << ":" << (hexside_ - dy)
+                << " comparator " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_ << " wafer "
+                << waferU << ":" << waferV << ":" << celltype;
+          xx -= (dx0 + hgpar_->waferPosX_[k]);
+          yy -= (dy0 + hgpar_->waferPosY_[k]);
+          break;
+        }
       }
     }
-    double dx = std::abs(xx - dx0 - hgpar_->waferPosX_[k]);
-    double dy = std::abs(yy - dy0 - hgpar_->waferPosY_[k]);
-    if (dx <= rmax && dy <= hexside) {
-      if ((dy <= 0.5 * hexside) || (dx * tan30deg_ <= (hexside - dy))) {
+    if (debug)
+      edm::LogVerbatim("HGCalGeom") << "Tolmin " << tolmin;
+  } else {
+    for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
+      double dx0(0), dy0(0);
+      if ((waferU == HGCalWaferIndex::waferU(hgpar_->waferCopy_[k])) &&
+          (waferV == HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]))) {
+        if (cassetteMode()) {
+          int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+          auto ktr = hgpar_->waferInfoMap_.find(indx);
+          if (ktr != hgpar_->waferInfoMap_.end()) {
+            auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
+            if (debug)
+              edm::LogVerbatim("HGCalGeom")
+                  << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
+            dx0 = -cshift.first;
+            dy0 = cshift.second;
+          }
+        }
         if (waferHexagon8File()) {
           int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
@@ -1512,15 +1576,6 @@ void HGCalDDDConstants::waferFromPosition(const double x,
           celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
                                                             : hgpar_->waferTypeL_[itr->second]);
         }
-        if (debug)
-          edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << layer << ":" << ll << ":"
-                                        << hgpar_->firstLayer_ << ":" << rotx << ":" << x << ":" << y << ":"
-                                        << hgpar_->xLayerHex_[ll] << ":" << hgpar_->yLayerHex_[ll] << ":" << xx << ":"
-                                        << yy << " compared with " << hgpar_->waferPosX_[k] << ":"
-                                        << hgpar_->waferPosY_[k] << " difference " << dx << ":" << dy << ":"
-                                        << dx * tan30deg_ << ":" << (hexside_ - dy) << " comparator " << rmax_ << ":"
-                                        << rmaxT_ << ":" << hexside_ << ":" << hexsideT_ << " wafer " << waferU << ":"
-                                        << waferV << ":" << celltype;
         xx -= (dx0 + hgpar_->waferPosX_[k]);
         yy -= (dy0 + hgpar_->waferPosY_[k]);
         break;

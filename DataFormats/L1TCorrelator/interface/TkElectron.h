@@ -7,7 +7,6 @@
 // Class  :     TkEm
 //
 
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -29,27 +28,34 @@ namespace l1t {
     TkElectron();
 
     TkElectron(const LorentzVector& p4,
-               const edm::Ref<EGammaBxCollection>& egRef,
+               const edm::Ptr<L1Candidate>& egCaloPtr,
                const edm::Ptr<L1TTTrackType>& trkPtr,
                float tkisol = -999.);
+
+    TkElectron(const LorentzVector& p4, float tkisol = -999.);
 
     // ---------- const member functions ---------------------
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
 
     float trkzVtx() const { return trkzVtx_; }
-    double trackCurvature() const { return trackCurvature_; }
     float idScore() const { return idScore_; }
     // ---------- member functions ---------------------------
 
+    void setTrkPtr(const edm::Ptr<L1TTTrackType>& tkPtr) { trkPtr_ = tkPtr; }
     void setTrkzVtx(float TrkzVtx) { trkzVtx_ = TrkzVtx; }
-    void setTrackCurvature(double trackCurvature) { trackCurvature_ = trackCurvature; }
     void setIdScore(float score) { idScore_ = score; }
+
+    l1gt::Electron hwObj() const {
+      if (encoding() != HWEncoding::GT) {
+        throw cms::Exception("RuntimeError") << "TkElectron::hwObj : encoding is not in GT format!" << std::endl;
+      }
+      return l1gt::Electron::unpack_ap(egBinaryWord<l1gt::Electron::BITWIDTH>());
+    }
 
   private:
     edm::Ptr<L1TTTrackType> trkPtr_;
     float trkzVtx_;
-    double trackCurvature_;
     float idScore_;
   };
 }  // namespace l1t

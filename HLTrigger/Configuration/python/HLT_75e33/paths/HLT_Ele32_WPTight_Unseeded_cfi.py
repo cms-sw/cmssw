@@ -7,7 +7,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Ele32_WPTight_Unseeded = cms.Path(
     HLTBeginSequence +
-    hltPreEle32WPTightUnseeded +
     HLTEle32WPTightUnseededSequence +
     HLTEndSequence
 )

@@ -5,6 +5,7 @@
 #define L1Trigger_L1CaloTrigger_Phase2L1CaloEGammaUtils
 
 #include <ap_int.h>
+#include <array>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
@@ -58,9 +59,12 @@ namespace p2eg {
   static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     // passes_ss
   static constexpr float d0 = 0.96, d1 = 0.0003;                                         // passes_photon
   static constexpr float e0_looseTkss = 0.944, e1_looseTkss = 0.65, e2_looseTkss = 0.4;  // passes_looseTkss
+  static constexpr float loose_ss_offset = 0.89;  // loosen ss requirement in two eta bins
+  static constexpr float eta0_loose_ss = 0.4, eta1_loose_ss = 0.5, eta2_loose_ss = 0.75, eta3_loose_ss = 0.85;
+  static constexpr float high_pt_threshold = 130.;  // apply iso and ss requirements below this threshold
   static constexpr float cut_500_MeV = 0.5;
 
-  static constexpr float ECAL_LSB = 0.125;  // to convert from int to float (GeV) multiply by LSB
+  static constexpr float ECAL_LSB = 0.5;  // to convert from int to float (GeV) multiply by LSB
   static constexpr float HCAL_LSB = 0.5;
 
   static constexpr int N_CLUSTERS_PER_REGION = 4;  // number of clusters per ECAL region
@@ -89,14 +93,6 @@ namespace p2eg {
   static constexpr int GCTCARD_2_TOWER_IPHI_OFFSET = 68;
 
   static constexpr int N_GCTTOWERS_CLUSTER_ISO_ONESIDE = 5;  // window size of isolation sum (5x5 in towers)
-
-  /*
-    * Convert HCAL ET to ECAL ET convention 
-    */
-  inline ap_uint<12> convertHcalETtoEcalET(ap_uint<12> HCAL) {
-    float hcalEtAsFloat = HCAL * HCAL_LSB;
-    return (ap_uint<12>(hcalEtAsFloat / ECAL_LSB));
-  }
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -389,27 +385,11 @@ namespace p2eg {
   class region3x4 {
   private:
     int idx_ = -1;
-    linkECAL linksECAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array<std::array<linkECAL, TOWER_IN_PHI>, TOWER_IN_ETA> linksECAL;  // 3x4 in towers
 
   public:
     // constructor
     region3x4() { idx_ = -1; }
-
-    // copy constructor
-    region3x4(const region3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          linksECAL[i][j] = other.linksECAL[i][j];
-        }
-      }
-    }
-
-    // overload operator= to use copy constructor
-    region3x4 operator=(const region3x4& other) {
-      const region3x4& newRegion(other);
-      return newRegion;
-    };
 
     // set members
     inline void zeroOut() {
@@ -444,12 +424,6 @@ namespace p2eg {
       fb = 0;
     };
 
-    // copy constructor
-    towerHCAL(const towerHCAL& other) {
-      et = other.et;
-      fb = other.fb;
-    };
-
     // set members
     inline void zeroOut() {
       et = 0;
@@ -470,21 +444,11 @@ namespace p2eg {
   class towers3x4 {
   private:
     int idx_ = -1;
-    towerHCAL towersHCAL[TOWER_IN_ETA][TOWER_IN_PHI];  // 3x4 in towers
+    std::array<std::array<towerHCAL, TOWER_IN_PHI>, TOWER_IN_ETA> towersHCAL;  // 3x4 in towers
 
   public:
     // constructor
     towers3x4() { idx_ = -1; };
-
-    // copy constructor
-    towers3x4(const towers3x4& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < TOWER_IN_ETA; i++) {
-        for (int j = 0; j < TOWER_IN_PHI; j++) {
-          towersHCAL[i][j] = other.towersHCAL[i][j];
-        }
-      };
-    };
 
     // set members
     inline void zeroOut() {
@@ -514,8 +478,8 @@ namespace p2eg {
   class card {
   private:
     int idx_ = -1;
-    region3x4 card3x4Regions[N_REGIONS_PER_CARD];
-    towers3x4 card3x4Towers[N_REGIONS_PER_CARD];
+    std::array<region3x4, N_REGIONS_PER_CARD> card3x4Regions;
+    std::array<towers3x4, N_REGIONS_PER_CARD> card3x4Towers;
 
   public:
     // constructor
@@ -527,21 +491,6 @@ namespace p2eg {
         card3x4Towers[i].setIdx(i);
         card3x4Towers[i].zeroOut();
       }
-    };
-
-    // copy constructor
-    card(const card& other) {
-      idx_ = other.idx_;
-      for (int i = 0; i < N_REGIONS_PER_CARD; i++) {
-        card3x4Regions[i] = other.card3x4Regions[i];
-        card3x4Towers[i] = other.card3x4Towers[i];
-      }
-    };
-
-    // overload operator= to use copy constructor
-    card operator=(const card& other) {
-      const card& newCard(other);
-      return newCard;
     };
 
     // set members
@@ -605,13 +554,6 @@ namespace p2eg {
       energy = 0;
       phiMax = 0;
       etaMax = 0;
-    }
-
-    crystalMax& operator=(const crystalMax& rhs) {
-      energy = rhs.energy;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      return *this;
     }
   };
 
@@ -689,10 +631,6 @@ namespace p2eg {
     ap_uint<16> data;
 
     tower_t() { data = 0; }
-    tower_t& operator=(const tower_t& rhs) {
-      data = rhs.data;
-      return *this;
-    }
 
     tower_t(ap_uint<12> et, ap_uint<4> hoe) { data = (et) | (((ap_uint<16>)hoe) << 12); }
 
@@ -709,7 +647,7 @@ namespace p2eg {
       float newEt = getEt() * factor;
 
       // Convert the new pT to an unsigned int (16 bits so we can take the logical OR with the bit mask later)
-      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt * 8.0);
+      ap_uint<16> newEt_uint = (ap_uint<16>)(int)(newEt / ECAL_LSB);
       // Make sure the first four bits are zero
       newEt_uint = (newEt_uint & 0x0FFF);
 
@@ -721,9 +659,7 @@ namespace p2eg {
     /*
      * For towers: Calculate H/E ratio given the ECAL and HCAL energies and modify the hoe() value.
      */
-    void getHoverE(ap_uint<12> ECAL, ap_uint<12> HCAL_inHcalConvention) {
-      // Convert HCAL ET to ECAL ET convention
-      ap_uint<12> HCAL = convertHcalETtoEcalET(HCAL_inHcalConvention);
+    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
       ap_uint<4> hoe = 0;
@@ -782,17 +718,6 @@ namespace p2eg {
       etaMax = 0;
       brems = 0;
     }
-
-    clusterInfo& operator=(const clusterInfo& rhs) {
-      seedEnergy = rhs.seedEnergy;
-      energy = rhs.energy;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      phiMax = rhs.phiMax;
-      etaMax = rhs.etaMax;
-      brems = rhs.brems;
-      return *this;
-    }
   };
 
   //--------------------------------------------------------//
@@ -843,7 +768,8 @@ namespace p2eg {
             int clusterRegionIdx = 0) {
       data = (clusterEnergy) | (((ap_uint<32>)towerEta) << 12) | (((ap_uint<32>)towerPhi) << 17) |
              (((ap_uint<32>)clusterEta) << 19) | (((ap_uint<32>)clusterPhi) << 22) | (((ap_uint<32>)satur) << 25);
-      regionIdx = clusterRegionIdx, et5x5 = clusterEt5x5;
+      regionIdx = clusterRegionIdx;
+      et5x5 = clusterEt5x5;
       et2x5 = clusterEt2x5;
       brems = clusterBrems;
       calib = clusterCalib;
@@ -851,20 +777,6 @@ namespace p2eg {
       is_looseTkss = cluster_is_looseTkss;
       is_iso = cluster_is_iso;
       is_looseTkiso = cluster_is_looseTkiso;
-    }
-
-    Cluster& operator=(const Cluster& rhs) {
-      data = rhs.data;
-      regionIdx = rhs.regionIdx;
-      calib = rhs.calib;
-      brems = rhs.brems;
-      et5x5 = rhs.et5x5;
-      et2x5 = rhs.et2x5;
-      is_ss = rhs.is_ss;
-      is_looseTkss = rhs.is_looseTkss;
-      is_iso = rhs.is_iso;
-      is_looseTkiso = rhs.is_looseTkiso;
-      return *this;
     }
 
     void setRegionIdx(int regIdx) { regionIdx = regIdx; }  // Newly added
@@ -991,7 +903,7 @@ namespace p2eg {
   /*******************************************************************/
   inline bool passes_iso(float pt, float iso) {
     bool is_iso = true;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_iso = true;
     else if (pt < slideIsoPtThreshold) {
       if (!((a0_80 - a1_80 * pt) > iso))
@@ -1005,26 +917,32 @@ namespace p2eg {
 
   inline bool passes_looseTkiso(float pt, float iso) {
     bool is_iso;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_iso = true;
     else
       is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
     return is_iso;
   }
 
-  inline bool passes_ss(float pt, float ss) {
+  inline bool passes_ss(float pt, float eta, float ss) {
     bool is_ss;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_ss = true;
+    else if ((abs(eta) > eta0_loose_ss && abs(eta) < eta1_loose_ss) ||
+             (abs(eta) > eta2_loose_ss && abs(eta) < eta3_loose_ss))  // temporary adjustment
+      is_ss = ((loose_ss_offset + c1_ss * std::exp(-c2_ss * pt)) <= ss);
     else
       is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
     return is_ss;
   }
 
-  inline bool passes_looseTkss(float pt, float ss) {
+  inline bool passes_looseTkss(float pt, float eta, float ss) {
     bool is_ss;
-    if (pt > 130)
+    if (pt > high_pt_threshold)
       is_ss = true;
+    else if ((abs(eta) > eta0_loose_ss && abs(eta) < eta1_loose_ss) ||
+             (abs(eta) > eta2_loose_ss && abs(eta) < eta3_loose_ss))  // temporary adjustment
+      is_ss = ((loose_ss_offset - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
     else
       is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
     return is_ss;
@@ -1097,9 +1015,10 @@ namespace p2eg {
     bool is_iso;
     bool is_looseTkiso;
 
-    unsigned int hoe;     // not defined
-    unsigned int fb;      // not defined
-    unsigned int timing;  // not defined
+    unsigned int hoe;       // not defined
+    unsigned int hoe_flag;  // not defined
+    unsigned int fb;        // not defined
+    unsigned int timing;    // not defined
     ap_uint<2>
         brems;  // 0 if no brems applied, 1 or 2 if brems applied (one for + direction, one for - direction: check firmware)
 
@@ -1149,6 +1068,7 @@ namespace p2eg {
       is_iso = false;         // initialize: no info from RCT, so set it to false
       is_looseTkiso = false;  // initialize: no info from RCT, so set it to false
       hoe = 0;                // initialize: no info from RCT, so set it to null
+      hoe_flag = 0;           // initialize: no info from RCT, so set it to null
       fb = 0;                 // initialize: no info from RCT, so set it to null
       timing = 0;             // initialize: no info from RCT, so set it to null
       brems = rctCluster.brems;
@@ -1329,15 +1249,16 @@ namespace p2eg {
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
       return l1tp2::DigitizedClusterCorrelator(
           etFloat(),  // technically we are just multiplying and then dividing again by the LSB
-          towEta,
-          towPhi - corrTowPhiOffset,
-          crEta,
-          crPhi,
+          globalClusteriEta(),
+          ((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) +
+              crPhi,  // cannot use globalClusteriPhi() helper function because correlator offset is different than GCT offset
           hoe,
-          is_iso,
+          hoe_flag,
+          iso,
+          (is_iso) | (is_looseTkiso << 1),  // 2 bits: e.g. 0b10 means is_looseTkiso was true, and is_iso was false
           fb,
           timing,
-          is_ss,
+          (is_ss) | (is_looseTkss << 1),  // 2 bits (same as iso flags) is_ss in lowest bit, is_looseTkss in higher bit
           brems,
           nGCTCard);
     }
@@ -1497,6 +1418,7 @@ namespace p2eg {
       l1tp2::CaloTower l1CaloTower;
       // Store total Et (HCAL+ECAL) in the ECAL Et member
       l1CaloTower.setEcalTowerEt(totalEtFloat());
+      l1CaloTower.setHcalTowerEt(ecalEtFloat());
       int global_tower_iEta = globalToweriEtaFromGCTcardiEta(gctCard_tower_iEta);
       int global_tower_iPhi = globalToweriPhiFromGCTcardiPhi(nGCTCard, gctCard_tower_iPhi);
       l1CaloTower.setTowerIEta(global_tower_iEta);

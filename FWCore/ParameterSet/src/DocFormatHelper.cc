@@ -1,6 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
+#include <algorithm>
 #include <ostream>
 #include <iomanip>
 
@@ -141,4 +142,20 @@ namespace edm {
     os << std::setfill(' ') << std::setw(startColumn2_) << "";
     os.fill(oldFill);
   }
+
+  void DocFormatHelper::addCategory(std::string const& pluginCategory, std::string const& section) {
+    pluginCategoriesAlreadyPrinted_.emplace_back(pluginCategory, section);
+  }
+
+  std::string DocFormatHelper::sectionOfCategoryAlreadyPrinted(std::string const& pluginCategory) const {
+    auto iter = std::find_if(
+        pluginCategoriesAlreadyPrinted_.begin(),
+        pluginCategoriesAlreadyPrinted_.end(),
+        [&pluginCategory](std::pair<std::string, std::string> const& elem) { return elem.first == pluginCategory; });
+    if (iter == pluginCategoriesAlreadyPrinted_.end()) {
+      return std::string();
+    }
+    return iter->second;
+  }
+
 }  // namespace edm

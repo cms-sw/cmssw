@@ -127,7 +127,17 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = 'ALCARECOTkAlMinBias'
 process.TrackRefitter.NavigationSchool = ''
 
+####################################################################
+# Refitting Sequence
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 ## PV refit
+####################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices 
@@ -184,11 +194,11 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.p = cms.Path(process.HLTFilter                               +
-                     process.offlineBeamSpot                         +
-                     process.TrackRefitter                           +
+                     #process.offlineBeamSpot                        +
+                     #process.TrackRefitter                          +
+                     process.seqTrackselRefit                        +
                      process.offlinePrimaryVerticesFromRefittedTrks  +
                      process.PrimaryVertexResolution                 +
-                     process.myanalysis
-                     )
+                     process.myanalysis)
 
 

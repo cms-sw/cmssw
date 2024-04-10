@@ -105,7 +105,8 @@ if (process.runType.getRunType() == process.runType.pp_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    pass
+    process.dtNoiseAnalysisMonitor.isCosmics = True
+
 
 
 #----------------------------
@@ -119,7 +120,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
     
     process.dtDigiMonitor.ResetCycle = 9999
-
 
 
 ### process customizations included here

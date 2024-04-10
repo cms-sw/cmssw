@@ -105,32 +105,31 @@ void CastorPedestalAnalysis::processEvent(const CastorDigiCollection& castor, co
 
   m_shape = cond.getCastorShape();
   // HF
-  try {
-    if (castor.empty())
-      throw (int)castor.size();
-    for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
-      const CastorDataFrame digi = (const CastorDataFrame)(*j);
-      m_coder = cond.getCastorCoder(digi.id());
-      for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
-        for (int flag = 0; flag < 4; flag++) {
-          if (i + flag < digi.size() && i + flag <= m_endTS) {
-            per2CapsHists(flag, 2, digi.id(), digi.sample(i), digi.sample(i + flag), castorHists.PEDTRENDS, cond);
-          }
+  if (castor.empty()) {
+    edm::LogError("CastorLedAnalysis") << "Event with " << (int)castor.size() << "Castor Digis passed." << std::endl;
+    return;
+  }
+
+  for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
+    const CastorDataFrame digi = (const CastorDataFrame)(*j);
+    m_coder = cond.getCastorCoder(digi.id());
+    for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
+      for (int flag = 0; flag < 4; flag++) {
+        if (i + flag < digi.size() && i + flag <= m_endTS) {
+          per2CapsHists(flag, 2, digi.id(), digi.sample(i), digi.sample(i + flag), castorHists.PEDTRENDS, cond);
         }
       }
-      if (m_startTS == 0 && m_endTS > 4) {
-        AllChanHists(digi.id(),
-                     digi.sample(0),
-                     digi.sample(1),
-                     digi.sample(2),
-                     digi.sample(3),
-                     digi.sample(4),
-                     digi.sample(5),
-                     castorHists.PEDTRENDS);
-      }
     }
-  } catch (int i) {
-    //    m_logFile << "Event with " << i<<" Castor Digis passed." << std::endl;
+    if (m_startTS == 0 && m_endTS > 4) {
+      AllChanHists(digi.id(),
+                   digi.sample(0),
+                   digi.sample(1),
+                   digi.sample(2),
+                   digi.sample(3),
+                   digi.sample(4),
+                   digi.sample(5),
+                   castorHists.PEDTRENDS);
+    }
   }
   // Call the function every m_nevtsample events
   if (m_nevtsample > 0) {

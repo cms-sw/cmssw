@@ -6,7 +6,7 @@ status=0
   
 rm -f warnings.log infos.log job_report.xml 
 
-cmsRun -j job_report.xml -p ${SCRAM_TEST_PATH}/u9_cfg.py || exit $?
+cmsRun -j job_report.xml ${SCRAM_TEST_PATH}/u9_cfg.py || exit $?
  
 for file in warnings.log infos.log job_report.xml   
 do

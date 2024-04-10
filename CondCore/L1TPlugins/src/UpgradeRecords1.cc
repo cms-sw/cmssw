@@ -7,6 +7,6 @@
 #include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
 using namespace l1t;
 REGISTER_PLUGIN(L1TCaloParamsO2ORcd, CaloParams);
-REGISTER_PLUGIN(L1TCaloParamsRcd, CaloParams);
-REGISTER_PLUGIN(L1TCaloStage2ParamsRcd, CaloParams);
+REGISTER_PLUGIN_NO_SERIAL(L1TCaloParamsRcd, CaloParams);
+REGISTER_PLUGIN_NO_SERIAL(L1TCaloStage2ParamsRcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);

@@ -4,11 +4,11 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
-MuonTruth::MuonTruth(const edm::Event &event,
-                     const edm::EventSetup &setup,
-                     const edm::ParameterSet &conf,
-                     edm::ConsumesCollector &iC)
-    : theDigiSimLinks(nullptr),
+MuonTruth::MuonTruth(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
+    : cscBadChambers(nullptr),
+      theTotalCharge(0.0),
+      theDetId(0),
+      theDigiSimLinks(nullptr),
       theWireDigiSimLinks(nullptr),
       linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
       wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
@@ -19,21 +19,8 @@ MuonTruth::MuonTruth(const edm::Event &event,
       geomToken_(iC.esConsumes<CSCGeometry, MuonGeometryRecord>()),
       badToken_(iC.esConsumes<CSCBadChambers, CSCBadChambersRcd>()),
       linksToken_(iC.consumes<DigiSimLinks>(linksTag)),
-      wireLinksToken_(iC.consumes<DigiSimLinks>(wireLinksTag)) {
-  initEvent(event, setup);
-}
-
-MuonTruth::MuonTruth(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
-    : theDigiSimLinks(nullptr),
-      theWireDigiSimLinks(nullptr),
-      linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
-      wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
-      // CrossingFrame used or not ?
-      crossingframe(conf.getParameter<bool>("crossingframe")),
-      CSCsimHitsTag(conf.getParameter<edm::InputTag>("CSCsimHitsTag")),
-      CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag")),
-      linksToken_(iC.consumes<DigiSimLinks>(linksTag)),
-      wireLinksToken_(iC.consumes<DigiSimLinks>(wireLinksTag)) {
+      wireLinksToken_(iC.consumes<DigiSimLinks>(wireLinksTag)),
+      cscgeom(nullptr) {
   if (crossingframe) {
     simHitsXFToken_ = iC.consumes<CrossingFrame<PSimHit>>(CSCsimHitsXFTag);
   } else if (!CSCsimHitsTag.label().empty()) {
@@ -42,6 +29,10 @@ MuonTruth::MuonTruth(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
 }
 
 void MuonTruth::initEvent(const edm::Event &event, const edm::EventSetup &setup) {
+  theChargeMap.clear();
+  theTotalCharge = 0.0;
+  theDetId = 0;
+
   LogTrace("MuonTruth") << "getting CSC Strip DigiSimLink collection - " << linksTag;
   const edm::Handle<DigiSimLinks> &digiSimLinks = event.getHandle(linksToken_);
   theDigiSimLinks = digiSimLinks.product();

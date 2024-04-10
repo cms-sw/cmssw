@@ -66,8 +66,6 @@ struct EdgeProperty {
 struct VertexProperty {
   VertexProperty() : simTrack(nullptr), cumulative_simHits(0) {}
   VertexProperty(const SimTrack *t, int c) : simTrack(t), cumulative_simHits(c) {}
-  VertexProperty(const VertexProperty &other)
-      : simTrack(other.simTrack), cumulative_simHits(other.cumulative_simHits) {}
   const SimTrack *simTrack;
   int cumulative_simHits;
 };

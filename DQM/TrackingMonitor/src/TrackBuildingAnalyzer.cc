@@ -104,7 +104,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker& ibooker, const edm::Par
 
   edm::InputTag seedProducer = iConfig.getParameter<edm::InputTag>("SeedProducer");
   edm::InputTag tcProducer = iConfig.getParameter<edm::InputTag>("TCProducer");
-  std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
+  std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string>>("MVAProducers");
   edm::InputTag regionProducer = iConfig.getParameter<edm::InputTag>("RegionProducer");
 
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
@@ -329,7 +329,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker& ibooker, const edm::Par
 
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-    size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName) / sizeof(std::string);
+    size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
 
     histname = "StoppingSource_" + seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(
@@ -715,11 +715,13 @@ void TrackBuildingAnalyzer::analyze(const reco::CandidateView& regionCandidates)
   }
 }
 
-void TrackBuildingAnalyzer::analyze(const edm::OwnVector<TrackingRegion>& regions) { analyzeRegions(regions); }
+void TrackBuildingAnalyzer::analyze(const std::vector<std::unique_ptr<TrackingRegion>>& regions) {
+  analyzeRegions(regions);
+}
 void TrackBuildingAnalyzer::analyze(const TrackingRegionsSeedingLayerSets& regions) { analyzeRegions(regions); }
 
 namespace {
-  const TrackingRegion* regionPtr(const TrackingRegion& region) { return &region; }
+  const TrackingRegion* regionPtr(const std::unique_ptr<TrackingRegion>& region) { return region.get(); }
   const TrackingRegion* regionPtr(const TrackingRegionsSeedingLayerSets::RegionLayers& regionLayers) {
     return &(regionLayers.region());
   }

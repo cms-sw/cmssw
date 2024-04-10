@@ -210,7 +210,7 @@ TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::TauDiscriminan
       else
         workingPoints = cfg.getParameter<VDouble>("workingPoints");
       for (auto const& wp : workingPoints) {
-        std::unique_ptr<DiscriminantCutEntry> cut{new DiscriminantCutEntry()};
+        auto cut = std::make_unique<DiscriminantCutEntry>();
         cut->cutValue_ = wp;
         cut->mode_ = DiscriminantCutEntry::kFixedCut;
         cutWPs.push_back(std::move(cut));
@@ -222,7 +222,7 @@ TauDiscriminantCutMultiplexerT<TauType, TauTypeRef, ParentClass>::TauDiscriminan
       else
         workingPoints = cfg.getParameter<VString>("workingPoints");
       for (auto const& wp : workingPoints) {
-        std::unique_ptr<DiscriminantCutEntry> cut{new DiscriminantCutEntry()};
+        auto cut = std::make_unique<DiscriminantCutEntry>();
         cut->cutName_ = categoryname + wp;
         if (loadMVAfromDB_) {
           cut->cutToken_ = this->esConsumes(edm::ESInputTag{"", cut->cutName_});

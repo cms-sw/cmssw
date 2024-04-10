@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 
 namespace {
   l1ct::TrackInputEmulator::Region parseRegion(const std::string &str) {
@@ -78,6 +80,52 @@ l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
                     iConfig.getParameter<uint32_t>("dPhiHGCalTanlLUTBits"),
                     iConfig.getParameter<double>("dPhiHGCalFloatOffs"));
   }
+}
+
+edm::ParameterSetDescription l1ct::TrackInputEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  // region-independent parameters and/or defaults
+  description.add<uint32_t>("ptLUTBits", 11u);
+  description.add<int32_t>("etaPreOffs", 0);
+  description.add<bool>("etaSigned", true);
+  description.add<uint32_t>("phiBits", 10u);
+  description.add<uint32_t>("z0Bits", 12u);
+  description.ifValue(edm::ParameterDescription<std::string>("trackWordEncoding", "biased", true),
+                      edm::allowedValues<std::string>("biased", "unbised", "stepping"));
+  description.add<bool>("bitwiseAccurate", true);
+  description.add<bool>("slimDataFormat", false);
+  description.addUntracked<bool>("debug", false);
+  // region-dependent parameters and/or defaults
+  auto barrelParamerers = edm::ParameterDescription<uint32_t>("etaLUTBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("etaShift", 15 - 10, true) and
+                          edm::ParameterDescription<int32_t>("etaPostOffs", 0, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelBits", 8, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelZ0PreShift", 2, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaBarrelZ0PostShift", 2, true) and
+                          edm::ParameterDescription<double>("dEtaBarrelFloatOffs", 0.0, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelBits", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelRInvPreShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiBarrelRInvPostShift", 4, true) and
+                          edm::ParameterDescription<double>("dPhiBarrelFloatOffs", 0.0, true);
+  auto endcapParameters = edm::ParameterDescription<uint32_t>("etaLUTBits", 11, true) and
+                          edm::ParameterDescription<uint32_t>("etaShift", 15 - 11, true) and
+                          edm::ParameterDescription<int32_t>("etaPostOffs", 150, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalZ0PreShift", 2, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalRInvPreShift", 6, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalLUTBits", 10, true) and
+                          edm::ParameterDescription<uint32_t>("dEtaHGCalLUTShift", 2, true) and
+                          edm::ParameterDescription<double>("dEtaHGCalFloatOffs", 0.0, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalBits", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalZ0PreShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalZ0PostShift", 6, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalRInvShift", 4, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalTanlInvShift", 22, true) and
+                          edm::ParameterDescription<uint32_t>("dPhiHGCalTanlLUTBits", 10, true) and
+                          edm::ParameterDescription<double>("dPhiHGCalFloatOffs", 0.0, true);
+  description.ifValue(edm::ParameterDescription<std::string>("region", "barrel", true),
+                      "barrel" >> std::move(barrelParamerers) or "endcap" >> std::move(endcapParameters));
+  return description;
 }
 
 #endif

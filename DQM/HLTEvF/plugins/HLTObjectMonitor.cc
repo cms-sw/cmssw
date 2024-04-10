@@ -84,17 +84,12 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
 
 public:
   explicit HLTObjectMonitor(const edm::ParameterSet&);
-  ~HLTObjectMonitor() override;
-
-  //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   vector<hltPlot*> plotList;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
   double get_wall_time(void);
   // ----------member data ---------------------------
@@ -344,11 +339,6 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   csvCaloJetsToken_ =
       consumes<vector<reco::CaloJet>>(edm::InputTag("hltSelector8CentralJetsL1FastJet", "", processName_));
   csvPfJetsToken_ = consumes<vector<reco::PFJet>>(edm::InputTag("hltPFJetForBtag", "", processName_));
-}
-
-HLTObjectMonitor::~HLTObjectMonitor() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //

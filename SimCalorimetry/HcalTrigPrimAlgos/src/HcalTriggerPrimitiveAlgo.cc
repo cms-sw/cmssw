@@ -32,6 +32,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    int numberOfFilterPresamplesHEQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
+                                                   int numberOfSamplesZDC,
+                                                   int numberOfPresamplesZDC,
                                                    bool useTDCInMinBiasBits,
                                                    uint32_t minSignalThreshold,
                                                    uint32_t PMT_NoiseThreshold)
@@ -50,6 +52,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       numberOfFilterPresamplesHEQIE11_(numberOfFilterPresamplesHEQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
+      numberOfSamplesZDC_(numberOfSamplesZDC),
+      numberOfPresamplesZDC_(numberOfPresamplesZDC),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
       minSignalThreshold_(minSignalThreshold),
       PMT_NoiseThreshold_(PMT_NoiseThreshold),
@@ -63,6 +67,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
     numberOfPresamples_ = 0;
     numberOfSamplesHF_ = 1;
     numberOfPresamplesHF_ = 0;
+    numberOfSamplesZDC_ = 1;
+    numberOfPresamplesZDC_ = 0;
   }
   // Switch to integer for comparisons - remove compiler warning
   ZS_threshold_I_ = ZS_threshold_;
@@ -207,41 +213,72 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame& frame) {
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame) {
-  HcalDetId detId = frame.detid();
-  // prevent QIE10 calibration channels from entering TP emulation
-  if (detId.subdet() != HcalForward)
-    return;
+  //HcalDetId detId = frame.detid();
+  DetId detId = DetId(frame.detid());
+  if (detId.det() == DetId::Hcal) {
+    HcalDetId detId = frame.detid();
+    // prevent QIE10 calibration channels from entering TP emulation
+    if (detId.subdet() != HcalForward)
+      return;
 
-  auto ids = theTrigTowerGeometry->towerIds(frame.id());
-  for (const auto& id : ids) {
-    if (id.version() == 0) {
-      edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
-      continue;
+    auto ids = theTrigTowerGeometry->towerIds(frame.id());
+    for (const auto& id : ids) {
+      if (id.version() == 0) {
+        edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
+        continue;
+      }
+      int nsamples = frame.samples();
+
+      IntegerCaloSamples samples(id, nsamples);
+      samples.setPresamples(frame.presamples());
+      incoder_->adc2Linear(frame, samples, false);
+
+      // Don't add to final collection yet
+      // HF PMT veto sum is calculated in analyzerHF()
+      IntegerCaloSamples zero_samples(id, nsamples);
+      zero_samples.setPresamples(frame.presamples());
+      addSignal(zero_samples);
+
+      auto fid = HcalDetId(frame.id());
+      auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
+      auto& detail = details[fid.depth() - 1];
+      detail.samples = samples;
+      detail.digi = frame;
+      detail.validity.resize(nsamples);
+      detail.passTDC.resize(nsamples);
+      incoder_->lookupMSB(frame, detail.fgbits);
+      for (int idx = 0; idx < nsamples; ++idx) {
+        detail.validity[idx] = validChannel(frame, idx);
+        detail.passTDC[idx] = passTDC(frame, idx);
+      }
+    }
+  } else if (detId.det() == DetId::Calo && detId.subdetId() == HcalZDCDetId::SubdetectorId) {
+    HcalZDCDetId detId = frame.detid();
+    if (detId.section() != HcalZDCDetId::EM && detId.section() != HcalZDCDetId::HAD) {
+      return;
     }
 
-    int nsamples = frame.samples();
+    auto ids = theTrigTowerGeometry->towerIds_ZDC(frame.id());
+    for (const auto& id : ids) {
+      int nsamples = frame.samples();
 
-    IntegerCaloSamples samples(id, nsamples);
-    samples.setPresamples(frame.presamples());
-    incoder_->adc2Linear(frame, samples);
+      IntegerCaloSamples samples(id, nsamples);
+      IntegerCaloSamples samples_PUsub(id, nsamples);
 
-    // Don't add to final collection yet
-    // HF PMT veto sum is calculated in analyzerHF()
-    IntegerCaloSamples zero_samples(id, nsamples);
-    zero_samples.setPresamples(frame.presamples());
-    addSignal(zero_samples);
+      samples.setPresamples(frame.presamples());
+      samples_PUsub.setPresamples(frame.presamples());
 
-    auto fid = HcalDetId(frame.id());
-    auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
-    auto& detail = details[fid.depth() - 1];
-    detail.samples = samples;
-    detail.digi = frame;
-    detail.validity.resize(nsamples);
-    detail.passTDC.resize(nsamples);
-    incoder_->lookupMSB(frame, detail.fgbits);
-    for (int idx = 0; idx < nsamples; ++idx) {
-      detail.validity[idx] = validChannel(frame, idx);
-      detail.passTDC[idx] = passTDC(frame, idx);
+      incoder_->adc2Linear(frame, samples, false);
+      incoder_->adc2Linear(frame, samples_PUsub, true);
+
+      for (int i = 1; i < samples.size(); ++i) {
+        if (samples_PUsub[i - 1] > samples[i])
+          samples[i] = 0;
+        else
+          samples[i] -= samples_PUsub[i - 1];
+      }
+
+      addSignal(samples);
     }
   }
 }
@@ -479,13 +516,12 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       int sampleTSminus1 = samples[ibin];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
-        check_sat = (sample_saturation[ibin + 1] || (sampleTS >= QIE11_MAX_LINEARIZATION_ET) ||
-                     sample_saturation[ibin] || (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+        check_sat |= sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET);
 
       if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
         sampleTS = QIE11_MAX_LINEARIZATION_ET;
 
-      if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET)
+      if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET || sample_saturation[ibin])
         sampleTSminus1 = QIE11_MAX_LINEARIZATION_ET;
 
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 2
@@ -516,6 +552,26 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   IntegerCaloSamples output(samples.id(), tpSamples);
   output.setPresamples(tpPresamples);
 
+  // Based on the |ieta| of the sample, retrieve the correct region "coded" veto threshold
+  // where two of the possible values have special meaning
+  unsigned int codedVetoThreshold = codedVetoThresholds_[theIeta];
+
+  // Anything in range (1, 2048) inclusive shall activate the veto
+  unsigned int actualVetoThreshold = codedVetoThreshold;
+  bool applyVetoThreshold = codedVetoThreshold > 0 && codedVetoThreshold <= 2048;
+
+  // Special value to disable vetoing in the PFA1' algo is 0
+  if (codedVetoThreshold > 0) {
+    if (codedVetoThreshold <= 2048) {
+      // Special value to run the veto in PFA1' with no threshold
+      if (codedVetoThreshold == 2048)
+        actualVetoThreshold = 0;
+    } else {
+      edm::LogWarning("HcalTPAlgo") << "Specified veto threshold value " << codedVetoThreshold
+                                    << " is not in range (1, 2048) ! Vetoing in PFA1' will not be enabled !";
+    }
+  }
+
   for (unsigned int ibin = 0; ibin < tpSamples; ++ibin) {
     // ibin - index for output TP
     // idx - index for samples + shift - filterPresamples
@@ -543,12 +599,22 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
         output[ibin] = 0;
       }
     } else {
-      output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-
-      if (fix_saturation_ && force_saturation[idx] && ids.size() == 2)
-        output[ibin] = QIE11_MAX_LINEARIZATION_ET / 2;
-      else if (fix_saturation_ && force_saturation[idx])
-        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+      // Only if the sum for the future time sample is above the veto
+      // threshold and the now sum is not a peak and the now sum is not
+      // saturated does the current sum get zeroed
+      if (applyVetoThreshold && sum[idx + 1] >= actualVetoThreshold &&
+          (sum[idx] < sum[idx + 1] || force_saturation[idx + 1]) && !force_saturation[idx])
+        output[ibin] = 0;
+      else {
+        // Here, either the "now" sum is a peak or the vetoing criteria are not satisfied
+        // so assign the appropriate sum to the output
+        output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
+        if (fix_saturation_ && force_saturation[idx]) {
+          output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+          if (ids.size() == 2)
+            output[ibin] /= 2;
+        }
+      }
     }
     // peak-finding is not applied for FG bits
     // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 1 prompt, 1 delayed 01, 1 delayed 10, 2 reserved)
@@ -560,6 +626,30 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
           << ") is not aligned with digi SOI (dgPresamples = " << dgPresamples << ")";
   }
   outcoder_->compress(output, finegrain, result);
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeZDC(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result) {
+  HcalTrigTowerDetId detId(samples.id());
+
+  unsigned int tpSamples;
+  unsigned int tpPresamples;
+
+  tpSamples = samples.size();
+  tpPresamples = samples.presamples();
+  result.setSize(tpSamples);
+  result.setPresamples(tpPresamples);
+
+  IntegerCaloSamples output(samples.id(), tpSamples);
+  output.setPresamples(tpPresamples);
+
+  for (int i = 0; i < samples.size(); i++) {
+    if (samples[i] > QIE10_ZDC_MAX_LINEARIZATION_ET)
+      output[i] = QIE10_ZDC_MAX_LINEARIZATION_ET;
+    else
+      output[i] = samples[i];
+    HcalTriggerPrimitiveSample zdcSample(output[i]);
+    result.setSample(i, zdcSample);
+  }
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples& samples,
@@ -1004,6 +1094,21 @@ void HcalTriggerPrimitiveAlgo::setWeightQIE11(int aieta, int weight) {
   // Simple map of |ieta| in HBHE to weight
   // Only one weight for SOI-1 TS
   weightsQIE11_[aieta] = {{weight, 255}};
+}
+
+void HcalTriggerPrimitiveAlgo::setCodedVetoThresholds(const edm::ParameterSet& codedVetoThresholds) {
+  // Names are just abs(ieta) for HBHE
+  std::vector<std::string> ietaStrs = codedVetoThresholds.getParameterNames();
+  for (auto& ietaStr : ietaStrs) {
+    // Strip off "ieta" part of key and just use integer value in map
+    auto const& v = codedVetoThresholds.getParameter<int>(ietaStr);
+    codedVetoThresholds_[std::stoi(ietaStr.substr(4))] = {v};
+  }
+}
+
+void HcalTriggerPrimitiveAlgo::setCodedVetoThreshold(int aieta, int codedVetoThreshold) {
+  // Simple map of |ieta| in HBHE to veto threshold
+  codedVetoThresholds_[aieta] = {codedVetoThreshold};
 }
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {

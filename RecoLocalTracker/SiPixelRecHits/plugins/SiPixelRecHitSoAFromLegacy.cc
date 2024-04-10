@@ -198,7 +198,7 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
       ndigi += clust.size();
     }
 
-    cms::cuda::PortableHostCollection<SiPixelDigisSoALayout<>> digis_h(ndigi);
+    cms::cuda::PortableHostCollection<SiPixelDigisSoA> digis_h(ndigi);
 
     clusterRef.clear();
     clusters_h.view()[0].moduleId() = gind;

@@ -2,12 +2,14 @@
 #define DIGIECAL_ECALDIGICOLLECTION_H
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalEBPhase2TriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTrigPrimCompactColl.h"
 #include "DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h"
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
@@ -46,10 +48,13 @@ public:
 class EcalDigiCollection : public edm::DataFrameContainer {
 public:
   typedef edm::DataFrameContainer::size_type size_type;
-  static const size_type MAXSAMPLES = 10;
+  static const size_type MAXSAMPLES = ecalPh1::sampleSize;
   explicit EcalDigiCollection(size_type istride = MAXSAMPLES, int isubdet = 0)
       : edm::DataFrameContainer(istride, isubdet) {}
   void swap(DataFrameContainer& other) { this->DataFrameContainer::swap(other); }
+  void swap(DataFrameContainer::IdContainer& otherIds, DataFrameContainer::DataContainer& otherData) {
+    this->DataFrameContainer::swap(otherIds, otherData);
+  }
 };
 
 // make edm (and ecal client) happy
@@ -61,6 +66,9 @@ public:
 
   EBDigiCollection(size_type istride = MAXSAMPLES) : EcalDigiCollection(istride, EcalBarrel) {}
   void swap(EBDigiCollection& other) { this->EcalDigiCollection::swap(other); }
+  void swap(EBDigiCollection::IdContainer& otherIds, EBDigiCollection::DataContainer& otherData) {
+    this->EcalDigiCollection::swap(otherIds, otherData);
+  }
   void push_back(const Digi& digi) { DataFrameContainer::push_back(digi.id(), digi.frame().begin()); }
   void push_back(id_type iid) { DataFrameContainer::push_back(iid); }
   void push_back(id_type iid, data_type const* idata) { DataFrameContainer::push_back(iid, idata); }
@@ -74,6 +82,9 @@ public:
 
   EEDigiCollection(size_type istride = MAXSAMPLES) : EcalDigiCollection(istride, EcalEndcap) {}
   void swap(EEDigiCollection& other) { this->EcalDigiCollection::swap(other); }
+  void swap(EEDigiCollection::IdContainer& otherIds, EEDigiCollection::DataContainer& otherData) {
+    this->EcalDigiCollection::swap(otherIds, otherData);
+  }
   void push_back(const Digi& digi) { edm::DataFrameContainer::push_back(digi.id(), digi.frame().begin()); }
   void push_back(id_type iid) { DataFrameContainer::push_back(iid); }
   void push_back(id_type iid, data_type const* idata) { DataFrameContainer::push_back(iid, idata); }
@@ -120,6 +131,7 @@ inline void swap(EBDigiCollectionPh2& lhs, EBDigiCollectionPh2& rhs) { lhs.swap(
 typedef edm::SortedCollection<EcalTimeDigi> EcalTimeDigiCollection;
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 typedef edm::SortedCollection<EcalEBTriggerPrimitiveDigi> EcalEBTrigPrimDigiCollection;
+typedef edm::SortedCollection<EcalEBPhase2TriggerPrimitiveDigi> EcalEBPhase2TrigPrimDigiCollection;
 
 typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;

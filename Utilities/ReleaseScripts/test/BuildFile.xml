@@ -1,8 +1,10 @@
 <test name="TestSCRAM" command="run.sh"/>
+<test name="SCRAM_TestPass" command="true"/>
+<test name="SCRAM_TestFail" command="! false"/>
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
   <use name="llvm"/>
 </test>
-<ifrelease name="!_ASAN_">
+<ifrelease name="!ASAN">
   <test name="TestValgrind" command="test-valgrind.sh">
     <flags PRE_TEST="test-valgrind-memleak"/>
     <use name="valgrind"/>

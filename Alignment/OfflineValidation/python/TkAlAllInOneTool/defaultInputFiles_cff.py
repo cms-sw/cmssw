@@ -10,6 +10,8 @@ filesDefaultMC_DoubleMuon = cms.untracked.vstring(
 
 filesDefaultMC_DoubleMuon_string = '/store/relval/CMSSW_12_5_0_pre5/RelValZMM_14/GEN-SIM-RECO/125X_mcRun3_2022_realistic_v3-v1/10000/068634c7-e8e2-4e46-a68e-97ebefed4868.root'
 
+filesDefaultMC_DoubleMuonAlCa_string = '/store/relval/CMSSW_14_0_0_pre3/RelValZMM_14/ALCARECO/TkAlZMuMu-140X_mcRun3_2024_realistic_v1_STD_2024_noPU-v1/2580000/b91cfb5d-090c-4410-8c9e-ce165f4a4ef4.root'
+
 filesDefaultMC_TTBarPU = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/PU_125X_mcRun3_2022_realistic_v3-v1/10000/0136c33f-3ff9-4602-8578-906ae6e0160b.root'
 )
@@ -17,6 +19,8 @@ filesDefaultMC_TTBarPU = cms.untracked.vstring(
 filesDefaultMC_MinBiasPUPhase2 = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/27b7ab93-1d2b-4f4a-a98e-68386c314b5e.root',
 )
+
+filesDefaultMC_DoubleMuonPUPhase_string = '/store/mc/Phase2Fall22DRMiniAOD/DYJetsToMuMu_M-50_TuneCP5_14TeV-madgraphMLM-pythia8/ALCARECO/TkAlZMuMu-PU200ALCA_TkAlPU200_125X_mcRun4_realistic_v5-v1/60000/9382696c-70fd-4b37-8a0f-24bd02aeda5f.root'
 
 filesDefaultMC_MinBiasPUPhase2RECO = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/22e22ae6-a353-4f2e-815e-cc5efee37af9.root',
@@ -56,3 +60,5 @@ filesDefaultData_Comissioning2022_Cosmics_string = '/store/data/Commissioning202
 filesDefaultData_MinBias2018B = cms.untracked.vstring(
     '/store/express/Run2018B/StreamExpress/ALCARECO/TkAlMinBias-Express-v1/000/317/212/00000/00F0EFA7-8D64-E811-A594-FA163EFC96CC.root'
 )
+
+filesDefaultData_Cosmics_string = "/store/data/Run2022G/Cosmics/ALCARECO/TkAlCosmics0T-PromptReco-v1/000/362/440/00000/47f31eaa-1c00-4f39-902b-a09fa19c27f2.root"

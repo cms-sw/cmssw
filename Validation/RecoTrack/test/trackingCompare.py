@@ -111,7 +111,7 @@ if plotterDrawArgs["separate"]:
     plotGroup.getPlot("GenAllV_Z").setProperties(xtitle="Simulated vertex z (cm)", legendDy=-0.1, legendDx=-0.45, ratioYmax=2.5, **common)
 
 
-val = SimpleValidation(samples, outputDir)
+val = SimpleValidation(samples, outputDir, nProc=2)
 report = val.createHtmlReport(validationName=description)
 val.doPlots([
     trackingPlots.plotter,     # standard tracking plots

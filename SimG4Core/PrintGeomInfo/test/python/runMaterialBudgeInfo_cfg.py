@@ -1,17 +1,48 @@
+#######################################################9########################
+# Way to use this:
+#   cmsRun runMaterialBudgetInfo_cfg.py type=DDD detector=Tracker
+#
+#   Options for type DDD, DD4hep
+#
+################################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
-process = cms.Process("PrintMaterialBudget",Run3_DDD)
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: DDD, DD4hep")
+options.register('detector',
+                 "Tracker",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string)
 
-#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-#process = cms.Process('PrintMaterialBudget',Run3_dd4hep)
-#process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('PrintMaterialBudget',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+print(options)
 
+#####p###############################################################
+# Use the options
+
+if (options.type == "DDD"):
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process("PrintMaterialBudget",Run3_DDD)
+    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
+else:
+    from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+    process = cms.Process("PrintMaterialBudget",Run3_dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff"
+
+print("Geometry file Name: ", geomFile)
+print("Detector          : ", options.detector)
+
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.MessageLogger.cerr.enable = False
@@ -67,6 +98,6 @@ process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DummyEMPhysics  = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.string('TIDF'),
+	Name           = cms.untracked.string(options.detector),
 	type           = cms.string('PrintMaterialBudgetInfo')
 ))

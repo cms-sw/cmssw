@@ -100,6 +100,7 @@ private:  //===================================================================
   const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 
+  const std::string outputFolder_;
   const edm::ParameterSet mpReaderConfig_;
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;

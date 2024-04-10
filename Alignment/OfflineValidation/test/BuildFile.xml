@@ -6,6 +6,9 @@
   <test name="PVall" command="testingScripts/test_unitPV.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
+  <test name="Zmumuall" command="testingScripts/test_unitZmumu.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
   <test name="SplitVall" command="testingScripts/test_unitSplitV.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
@@ -15,6 +18,12 @@
   <test name="GCPall" command="testingScripts/test_unitGCP.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
+  <test name="DiMuonVall" command="testingScripts/test_unitDiMuonV.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="MTSall" command="testingScripts/test_unitMTS.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>  
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>
@@ -27,7 +36,12 @@
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
   </bin>
+  <bin file="testTkAlStyle.C" name="testTkAlStyle">
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
+  </bin>
   <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/>
+  <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/>
   <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
   <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
   <test name="EoP" command="testingScripts/test_unitEoP.sh"/>

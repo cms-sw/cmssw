@@ -55,6 +55,12 @@ options.register ('external',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "record:fle.db picks the following record from this external file")
 
+options.register ('TrackCollection',
+                  'ALCARECOTkAlMinBias',
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "track collection to use")
+
 options.register ('GlobalTag',
                   '110X_dataRun3_Prompt_v3',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -63,13 +69,14 @@ options.register ('GlobalTag',
 
 options.parseArguments()
 
+print("TrackCollection   : ", options.TrackCollection)
 print("conditionGT       : ", options.GlobalTag)
 print("conditionOverwrite: ", options.records)
 print("external conditions:", options.external)
 print("outputFile        : ", options.outputRootFile)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
+process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(True)) #False to silence errors
 process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
         reportEvery = cms.untracked.int32(1000) # every 100th only
         #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
@@ -126,10 +133,20 @@ process.GlobalTag.toGet = cms.VPSet(*records)
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 # remove the following lines if you run on RECO files
-process.TrackRefitter.src = 'ALCARECOTkAlMinBias'
+process.TrackRefitter.src =  options.TrackCollection
 process.TrackRefitter.NavigationSchool = ''
 
+####################################################################
+# Refitting Sequence
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 ## PV refit
+####################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices 
@@ -164,8 +181,9 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
-process.p = cms.Path(process.offlineBeamSpot                        + 
-                     process.TrackRefitter                          + 
+process.p = cms.Path(process.seqTrackselRefit                       +
+                     #process.offlineBeamSpot                       +
+                     #process.TrackRefitter                         +
                      process.offlinePrimaryVerticesFromRefittedTrks +
                      process.PrimaryVertexResolution)
 

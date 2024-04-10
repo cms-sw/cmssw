@@ -8,7 +8,7 @@ TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi',           # beamspot
                      'BeamSpotObjectHP_ByLumi', 
                      'BeamSpotObjectHP_ByRun',
                      'SiPixelLA_pcl',                   # SiPixel
-                     'SiPixelLAMCS_pcl',                   # SiPixel
+                     'SiPixelLAMCS_pcl',
                      'SiPixelQualityFromDbRcd_other', 
                      'SiPixelQualityFromDbRcd_prompt', 
                      'SiPixelQualityFromDbRcd_stuckTBM',
@@ -16,8 +16,10 @@ TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi',           # beamspot
                      'SiStripApvGainAAG_pcl', 
                      'SiStripBadStrip_pcl', 
                      'SiStripBadStripRcdHitEff_pcl',
+                     'SiStripLA_pcl',
                      'SiPixelAli_pcl',                  # Alignment
-                     'SiPixelAliHG_pcl']                  
+                     'SiPixelAliHG_pcl',
+                     'SiPixelAliHGCombined_pcl']
 TARGET_DQM_FILES=1
 TARGET_DQM_FILENAME='./DQM_V0001_R000325022__Express__PCLTest__ALCAPROMPT.root'
 TARGET_DB_FILES=len(TARGET_LIST_OF_TAGS)

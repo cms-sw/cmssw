@@ -8,6 +8,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::PFAlgo2HGCEmulator::PFAlgo2HGCEmulator(const edm::ParameterSet& iConfig)
     : PFAlgoEmulatorBase(iConfig.getParameter<uint32_t>("nTrack"),
@@ -20,6 +21,21 @@ l1ct::PFAlgo2HGCEmulator::PFAlgo2HGCEmulator(const edm::ParameterSet& iConfig)
                          l1ct::Scales::makePtFromFloat(iConfig.getParameter<double>("tightTrackMaxInvisiblePt"))) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   loadPtErrBins(iConfig);
+}
+
+edm::ParameterSetDescription l1ct::PFAlgo2HGCEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("nTrack", 30);
+  description.add<unsigned int>("nCalo", 20);
+  description.add<unsigned int>("nMu", 4);
+  description.add<unsigned int>("nSelCalo", 20);
+  description.add<double>("trackMuDR", 0.2);
+  description.add<double>("trackCaloDR", 0.1);
+  description.add<double>("maxInvisiblePt", 10.0);
+  description.add<double>("tightTrackMaxInvisiblePt", 20);
+  addCaloResolutionParameterSetDescription(description);
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 
 #endif

@@ -12,7 +12,6 @@ namespace l1tmetemu {
       phi += stepPhi;
       //std::cout << LUT_idx << "," << (cos_lut_fixed_t)(cos(phi)) << std::endl;
     }
-    cosLUT[1023] = (cos_lut_fixed_t)(0);  //Match F/W for Integration Tests
     return cosLUT;
   }
 

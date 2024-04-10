@@ -9,7 +9,7 @@ namespace l1tp2 {
   class DigitizedClusterGT {
   private:
     // Data
-    ap_uint<64> clusterData;
+    unsigned long long int clusterData;
 
     // Constants
     static constexpr float LSB_PT = 0.03125;                 // 0.03125 GeV

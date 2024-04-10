@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
@@ -9,11 +10,18 @@
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
+#include "model_config.pb.h"
 
-#include <string>
+#include "google/protobuf/text_format.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
+
+#include <algorithm>
 #include <cmath>
 #include <exception>
+#include <experimental/iterator>
+#include <fcntl.h>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <tuple>
 
@@ -64,37 +72,91 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
+  isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
 
   //connect to the server
   TRITON_THROW_IF_ERROR(
       tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
-      "TritonClient(): unable to create inference context");
+      "TritonClient(): unable to create inference context",
+      isLocal_);
 
   //set options
   options_[0].model_version_ = params.getParameter<std::string>("modelVersion");
-  //convert seconds to microseconds
-  options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout") * 1e6;
+  options_[0].client_timeout_ = params.getUntrackedParameter<unsigned>("timeout");
+  //convert to microseconds
+  const auto& timeoutUnit = params.getUntrackedParameter<std::string>("timeoutUnit");
+  unsigned conversion = 1;
+  if (timeoutUnit == "seconds")
+    conversion = 1e6;
+  else if (timeoutUnit == "milliseconds")
+    conversion = 1e3;
+  else if (timeoutUnit == "microseconds")
+    conversion = 1;
+  else
+    throw cms::Exception("Configuration") << "Unknown timeout unit: " << timeoutUnit;
+  options_[0].client_timeout_ *= conversion;
 
-  //config needed for batch size
-  inference::ModelConfigResponse modelConfigResponse;
-  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
-                        "TritonClient(): unable to get model config");
-  inference::ModelConfig modelConfig(modelConfigResponse.config());
+  //get fixed parameters from local config
+  inference::ModelConfig localModelConfig;
+  {
+    const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
+    if (fileDescriptor < 0)
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to open local model config: " << localModelConfigPath;
+    google::protobuf::io::FileInputStream localModelConfigInput(fileDescriptor);
+    localModelConfigInput.SetCloseOnDelete(true);
+    if (!google::protobuf::TextFormat::Parse(&localModelConfigInput, &localModelConfig))
+      throw TritonException("LocalFailure")
+          << "TritonClient(): unable to parse local model config: " << localModelConfigPath;
+  }
 
   //check batch size limitations (after i/o setup)
   //triton uses max batch size = 0 to denote a model that does not support native batching (using the outer dimension)
   //but for models that do support batching (native or otherwise), a given event may set batch size 0 to indicate no valid input is present
   //so set the local max to 1 and keep track of "no outer dim" case
-  maxOuterDim_ = modelConfig.max_batch_size();
+  maxOuterDim_ = localModelConfig.max_batch_size();
   noOuterDim_ = maxOuterDim_ == 0;
   maxOuterDim_ = std::max(1u, maxOuterDim_);
   //propagate batch size
   setBatchSize(1);
 
+  //compare model checksums to remote config to enforce versioning
+  inference::ModelConfigResponse modelConfigResponse;
+  TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
+                        "TritonClient(): unable to get model config",
+                        isLocal_);
+  inference::ModelConfig remoteModelConfig(modelConfigResponse.config());
+
+  std::map<std::string, std::array<std::string, 2>> checksums;
+  size_t fileCounter = 0;
+  for (const auto& modelConfig : {localModelConfig, remoteModelConfig}) {
+    const auto& agents = modelConfig.model_repository_agents().agents();
+    auto agent = std::find_if(agents.begin(), agents.end(), [](auto const& a) { return a.name() == "checksum"; });
+    if (agent != agents.end()) {
+      const auto& params = agent->parameters();
+      for (const auto& [key, val] : params) {
+        // only check the requested version
+        if (key.compare(0, options_[0].model_version_.size() + 1, options_[0].model_version_ + "/") == 0)
+          checksums[key][fileCounter] = val;
+      }
+    }
+    ++fileCounter;
+  }
+  std::vector<std::string> incorrect;
+  for (const auto& [key, val] : checksums) {
+    if (checksums[key][0] != checksums[key][1])
+      incorrect.push_back(key);
+  }
+  if (!incorrect.empty())
+    throw TritonException("ModelVersioning") << "The following files have incorrect checksums on the remote server: "
+                                             << triton_utils::printColl(incorrect, ", ");
+
   //get model info
   inference::ModelMetadataResponse modelMetadata;
   TRITON_THROW_IF_ERROR(client_->ModelMetadata(&modelMetadata, options_[0].model_name_, options_[0].model_version_),
-                        "TritonClient(): unable to get model metadata");
+                        "TritonClient(): unable to get model metadata",
+                        isLocal_);
 
   //get input and output (which know their sizes)
   const auto& nicInputs = modelMetadata.inputs();
@@ -283,8 +345,8 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
       //set shape here before output becomes const
       if (output.variableDims()) {
         std::vector<int64_t> tmp_shape;
-        TRITON_THROW_IF_ERROR(result->Shape(oname, &tmp_shape),
-                              "getResults(): unable to get output shape for " + oname);
+        TRITON_THROW_IF_ERROR(
+            result->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for " + oname, false);
         if (!noOuterDim_)
           tmp_shape.erase(tmp_shape.begin());
         output.setShape(tmp_shape, i);
@@ -300,6 +362,12 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
 
 //default case for sync and pseudo async
 void TritonClient::evaluate() {
+  //undo previous signal from TritonException
+  if (tries_ > 0) {
+    edm::Service<TritonService> ts;
+    ts->notifyCallStatus(true);
+  }
+
   //in case there is nothing to process
   if (batchSize() == 0) {
     //call getResults on an empty vector
@@ -354,43 +422,45 @@ void TritonClient::evaluate() {
   if (mode_ == SonicMode::Async) {
     //non-blocking call
     success = handle_exception([&]() {
-      TRITON_THROW_IF_ERROR(
-          client_->AsyncInferMulti(
-              [start_status, this](std::vector<tc::InferResult*> resultsTmp) {
-                //immediately convert to shared_ptr
-                const auto& results = convertToShared(resultsTmp);
-                //check results
-                for (auto ptr : results) {
-                  auto success = handle_exception(
-                      [&]() { TRITON_THROW_IF_ERROR(ptr->RequestStatus(), "evaluate(): unable to get result(s)"); });
-                  if (!success)
-                    return;
-                }
+      TRITON_THROW_IF_ERROR(client_->AsyncInferMulti(
+                                [start_status, this](std::vector<tc::InferResult*> resultsTmp) {
+                                  //immediately convert to shared_ptr
+                                  const auto& results = convertToShared(resultsTmp);
+                                  //check results
+                                  for (auto ptr : results) {
+                                    auto success = handle_exception([&]() {
+                                      TRITON_THROW_IF_ERROR(
+                                          ptr->RequestStatus(), "evaluate(): unable to get result(s)", isLocal_);
+                                    });
+                                    if (!success)
+                                      return;
+                                  }
 
-                if (verbose()) {
-                  inference::ModelStatistics end_status;
-                  auto success = handle_exception([&]() { end_status = getServerSideStatus(); });
-                  if (!success)
-                    return;
+                                  if (verbose()) {
+                                    inference::ModelStatistics end_status;
+                                    auto success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                                    if (!success)
+                                      return;
 
-                  const auto& stats = summarizeServerStats(start_status, end_status);
-                  reportServerSideStats(stats);
-                }
+                                    const auto& stats = summarizeServerStats(start_status, end_status);
+                                    reportServerSideStats(stats);
+                                  }
 
-                //check result
-                auto success = handle_exception([&]() { getResults(results); });
-                if (!success)
-                  return;
+                                  //check result
+                                  auto success = handle_exception([&]() { getResults(results); });
+                                  if (!success)
+                                    return;
 
-                //finish
-                finish(true);
-              },
-              options_,
-              inputsTriton,
-              outputsTriton,
-              headers_,
-              compressionAlgo_),
-          "evaluate(): unable to launch async run");
+                                  //finish
+                                  finish(true);
+                                },
+                                options_,
+                                inputsTriton,
+                                outputsTriton,
+                                headers_,
+                                compressionAlgo_),
+                            "evaluate(): unable to launch async run",
+                            isLocal_);
     });
     if (!success)
       return;
@@ -400,7 +470,8 @@ void TritonClient::evaluate() {
     success = handle_exception([&]() {
       TRITON_THROW_IF_ERROR(
           client_->InferMulti(&resultsTmp, options_, inputsTriton, outputsTriton, headers_, compressionAlgo_),
-          "evaluate(): unable to run and/or get result");
+          "evaluate(): unable to run and/or get result",
+          isLocal_);
     });
     //immediately convert to shared_ptr
     const auto& results = convertToShared(resultsTmp);
@@ -487,7 +558,8 @@ inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
     TRITON_THROW_IF_ERROR(client_->ModelInferenceStatistics(&resp, options_[0].model_name_, options_[0].model_version_),
-                          "getServerSideStatus(): unable to get model statistics");
+                          "getServerSideStatus(): unable to get model statistics",
+                          isLocal_);
     return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
@@ -503,6 +575,8 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   //server parameters should not affect the physics results
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
+  descClient.ifValue(edm::ParameterDescription<std::string>("timeoutUnit", "seconds", false),
+                     edm::allowedValues<std::string>("seconds", "milliseconds", "microseconds"));
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});

@@ -30,7 +30,7 @@ options.register ('fffBaseDir',
                   "FFF base directory")
 
 options.register ('numThreads',
-                  2, # default value
+                  3, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW threads")
@@ -127,7 +127,7 @@ process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
 process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
 process.HLT_Muon = cms.Path(process.b*process.filter2)
 
-process.streamA = cms.OutputModule("EvFOutputModule",
+process.streamA = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))
 )
 

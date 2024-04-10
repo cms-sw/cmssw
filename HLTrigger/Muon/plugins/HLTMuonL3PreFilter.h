@@ -46,8 +46,9 @@ private:
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_;  // token identifying product contains muons
   const edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>
-      previousCandToken_;          // token identifying product contains muons passing the previous level
-  const edm::InputTag l1CandTag_;  // input tag identifying product contains muons passing the L1 level
+      previousCandToken_;                   // token identifying product contains muons passing the previous level
+  const bool requireL3MuonTrajectorySeed_;  // bool requiring that there is a L3Muon trajectory seed
+  const edm::InputTag l1CandTag_;           // input tag identifying product contains muons passing the L1 level
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>
       l1CandToken_;                // token identifying product contains muons passing the L1 level
   const edm::InputTag recoMuTag_;  // input tag identifying reco muons

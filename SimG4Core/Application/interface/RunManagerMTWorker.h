@@ -2,14 +2,15 @@
 #define SimG4Core_Application_RunManagerMTWorker_H
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
-#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 #include <memory>
 #include <unordered_map>
@@ -100,6 +101,7 @@ private:
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
   bool m_dumpMF{false};
+  bool m_dumpGDML{false};
   bool m_endOfRun{false};
   bool m_isPhase2{false};
 
@@ -111,7 +113,7 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
-  edm::ParameterSet m_pCustomUIsession;
+  std::vector<std::string> m_G4Commands;
   std::vector<std::string> m_G4CommandsEndRun;
   edm::ParameterSet m_p;
 

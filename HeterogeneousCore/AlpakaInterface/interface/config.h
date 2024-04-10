@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "FWCore/Utilities/interface/stringize.h"
 
 namespace alpaka_common {
@@ -34,7 +35,7 @@ namespace alpaka_common {
 
   // host types
   using DevHost = alpaka::DevCpu;
-  using PltfHost = alpaka::Pltf<DevHost>;
+  using PlatformHost = alpaka::Platform<DevHost>;
 
 }  // namespace alpaka_common
 
@@ -42,7 +43,7 @@ namespace alpaka_common {
 namespace alpaka_cuda_async {
   using namespace alpaka_common;
 
-  using Platform = alpaka::PltfCudaRt;
+  using Platform = alpaka::PlatformCudaRt;
   using Device = alpaka::DevCudaRt;
   using Queue = alpaka::QueueCudaRtNonBlocking;
   using Event = alpaka::EventCudaRt;
@@ -54,6 +55,25 @@ namespace alpaka_cuda_async {
   using Acc3D = Acc<Dim3D>;
 
 }  // namespace alpaka_cuda_async
+
+#ifdef ALPAKA_HOST_ONLY
+
+namespace alpaka {
+
+  template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
+  class TaskKernelGpuUniformCudaHipRt final {
+    static_assert(std::is_same_v<TApi, alpaka::ApiCudaRt> and BOOST_LANG_CUDA,
+                  "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
+
+  public:
+    template <typename TWorkDiv>
+    ALPAKA_FN_HOST TaskKernelGpuUniformCudaHipRt(TWorkDiv&& workDiv, TKernelFnObj const& kernelFnObj, TArgs&&... args) {
+    }
+  };
+
+}  // namespace alpaka
+
+#endif  // ALPAKA_HOST_ONLY
 
 #ifdef ALPAKA_ACCELERATOR_NAMESPACE
 #define ALPAKA_DUPLICATE_NAMESPACE
@@ -68,7 +88,7 @@ namespace alpaka_cuda_async {
 namespace alpaka_rocm_async {
   using namespace alpaka_common;
 
-  using Platform = alpaka::PltfHipRt;
+  using Platform = alpaka::PlatformHipRt;
   using Device = alpaka::DevHipRt;
   using Queue = alpaka::QueueHipRtNonBlocking;
   using Event = alpaka::EventHipRt;
@@ -80,6 +100,25 @@ namespace alpaka_rocm_async {
   using Acc3D = Acc<Dim3D>;
 
 }  // namespace alpaka_rocm_async
+
+#ifdef ALPAKA_HOST_ONLY
+
+namespace alpaka {
+
+  template <typename TApi, typename TAcc, typename TDim, typename TIdx, typename TKernelFnObj, typename... TArgs>
+  class TaskKernelGpuUniformCudaHipRt final {
+    static_assert(std::is_same_v<TApi, alpaka::ApiHipRt> and BOOST_LANG_HIP,
+                  "You should move this files to a .dev.cc file under the alpaka/ subdirectory.");
+
+  public:
+    template <typename TWorkDiv>
+    ALPAKA_FN_HOST TaskKernelGpuUniformCudaHipRt(TWorkDiv&& workDiv, TKernelFnObj const& kernelFnObj, TArgs&&... args) {
+    }
+  };
+
+}  // namespace alpaka
+
+#endif  // ALPAKA_HOST_ONLY
 
 #ifdef ALPAKA_ACCELERATOR_NAMESPACE
 #define ALPAKA_DUPLICATE_NAMESPACE
@@ -94,7 +133,7 @@ namespace alpaka_rocm_async {
 namespace alpaka_serial_sync {
   using namespace alpaka_common;
 
-  using Platform = alpaka::PltfCpu;
+  using Platform = alpaka::PlatformCpu;
   using Device = alpaka::DevCpu;
   using Queue = alpaka::QueueCpuBlocking;
   using Event = alpaka::EventCpu;
@@ -120,7 +159,7 @@ namespace alpaka_serial_sync {
 namespace alpaka_tbb_async {
   using namespace alpaka_common;
 
-  using Platform = alpaka::PltfCpu;
+  using Platform = alpaka::PlatformCpu;
   using Device = alpaka::DevCpu;
   using Queue = alpaka::QueueCpuNonBlocking;
   using Event = alpaka::EventCpu;
@@ -158,6 +197,11 @@ namespace alpaka_tbb_async {
 
 // define a null-terminated string containing the backend-specific identifier
 #define ALPAKA_TYPE_ALIAS_NAME(TYPE) EDM_STRINGIZE(ALPAKA_TYPE_ALIAS(TYPE))
+
+// Ensure the enumeration names are consistent with type suffix
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  inline constexpr const cms::alpakatools::Backend kBackend = cms::alpakatools::Backend::ALPAKA_TYPE_SUFFIX;
+}
 
 #endif  // ALPAKA_ACCELERATOR_NAMESPACE
 

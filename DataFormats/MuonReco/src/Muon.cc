@@ -68,9 +68,13 @@ int Muon::numberOfMatches(ArbitrationType type) const {
       continue;
     }
     if (type == GEMSegmentAndTrackArbitration) {
-      if (chamberMatch.gemMatches.empty())
-        continue;
-      matches += chamberMatch.gemMatches.size();
+      for (auto& segmentMatch : chamberMatch.gemMatches) {
+        if (segmentMatch.isMask(MuonSegmentMatch::BestInChamberByDR) &&
+            segmentMatch.isMask(MuonSegmentMatch::BelongsToTrackByDR)) {
+          matches++;
+          break;
+        }
+      }
       continue;
     }
 
@@ -81,13 +85,15 @@ int Muon::numberOfMatches(ArbitrationType type) const {
       continue;
     }
 
-    if (chamberMatch.segmentMatches.empty())
+    if (chamberMatch.gemMatches.empty() and chamberMatch.segmentMatches.empty())
       continue;
     if (type == NoArbitration) {
       matches++;
       continue;
     }
 
+    if (chamberMatch.segmentMatches.empty())
+      continue;
     for (auto& segmentMatch : chamberMatch.segmentMatches) {
       if (type == SegmentArbitration)
         if (segmentMatch.isMask(MuonSegmentMatch::BestInChamberByDR)) {

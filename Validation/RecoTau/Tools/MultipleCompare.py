@@ -9,7 +9,7 @@ import math
 import re
 import Validation.RecoTau.RecoTauValidation_cfi as validation
 from optparse import OptionParser
-from ROOT import *
+from ROOT import gStyle, TDirectory, TDirectoryFile, TLatex, TH1F, TLegend, TPaveText, TPad
 
 __author__  = "Mauro Verzetti (mauro.verzetti@cern.ch) and Lucia Perrini (lucia.perrini@cern.ch)"
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
@@ -47,8 +47,8 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--minYaxis',metavar='number',type=float, dest="minYaxis", default=0, help="Sets the minimum range on Y axis in the main pad")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
   parser.add_option('--branding','-b',metavar='branding', type=str,help='Define a branding to label the plots (in the top right corner)',dest='branding',default = None)
-  #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python3 to use all the strings before a new option, thus moving this from option to argument (but may be empty)  
-  
+  #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python3 to use all the strings before a new option, thus moving this from option to argument (but may be empty)
+
   (options,toPlot) = parser.parse_args()
   if options.help:
     parser.print_help()
@@ -105,7 +105,7 @@ def DetermineHistType(name):
   #assuming plots name like: tauType_plotType_xAxis or tauType_plotType_selection
   matches = re.match(r'.*/(.*)_(.*)_(.*)', name)
   if matches:
-    prefix = matches.group(1) 
+    prefix = matches.group(1)
     label = matches.group(3)
     knowntypes = (['pTRatio','SumPt','Size'])
     for knowntype in knowntypes:
@@ -242,7 +242,7 @@ def optimizeRangeMainPad(argv, pad, hists, maxLogX_, minX_, maxX_, maxLogY_, min
     minX, maxX = findRange(hists, -1, maxLogX)
   else:
     minX, maxX = findRange(hists, minX_, maxX_)
-    
+
   if pad.GetLogx():
     if minX == 0:
       minX = 0.001
@@ -282,7 +282,7 @@ def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, ma
   min, max = findRange(hists, min, max)
   if max > 2:
     max = 2 #maximal bound
-  hists[0].SetAxisRange(min, max, "Y")                                     
+  hists[0].SetAxisRange(min, max, "Y")
 
 def getMaximumIncludingErrors(hist):
 #find maximum considering also the errors
@@ -308,7 +308,7 @@ def getMinimumIncludingErrors(hist):
       min = hist.GetBinContent(i)
       pos = i
       if min < 0:
-        min = 0  
+        min = 0
   return min - distance*hist.GetBinError(pos)
 
 
@@ -395,7 +395,7 @@ def main(argv=None):
     statsBox.SetMargin(0.05)
     statsBox.SetBorderSize(1)
 
-    
+
   canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
   effPad = TPad('effPad','effPad',0.01,0.35,0.99,0.99)#0,0.25,1.,1.,0,0)
   effPad.SetBottomMargin(0.0)#0.1)
@@ -521,7 +521,7 @@ def main(argv=None):
   tmpHists.extend(testHs)
   tmpHists.extend(refHs)
   optimizeRangeMainPad(argv, effPad, tmpHists, maxlX, options.minXaxis, options.maxXaxis, maxlY, options.minYaxis, options.maxYaxis)
-  
+
   firstD = True
   if refFile != None:
     for histo,color in zip(divHistos,colors):
@@ -535,7 +535,7 @@ def main(argv=None):
       histo.GetXaxis().SetLabelSize(0.08)
       histo.GetXaxis().SetTitleSize(0.08)
       #histo.GetYaxis().CenterTitle()
-                                         
+
 
       if firstD:
         histo.Draw('ex0')
@@ -543,7 +543,7 @@ def main(argv=None):
       else:
         histo.Draw('same ex0')
         diffPad.Update()
-        
+
     if options.maxLogX > 0:
       maxlX=options.maxLogX
     optimizeRangeSubPad(argv, diffPad, divHistos, maxlX, options.minXaxis, options.maxXaxis, options.minYR, options.maxYR)
@@ -553,7 +553,7 @@ def main(argv=None):
 
   if drawStats:
     statsBox.Draw()
-  
+
   canvas.Print(options.out)
 
 

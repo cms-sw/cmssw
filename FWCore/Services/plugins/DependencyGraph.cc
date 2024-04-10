@@ -96,7 +96,7 @@ private:
   using GraphvizAttributes = std::map<std::string, std::string>;
 
   // directed graph, with `node` properties attached to each vertex
-  boost::subgraph<boost::adjacency_list<
+  using GraphType = boost::subgraph<boost::adjacency_list<
       // edge list
       boost::vecS,
       // vertex list
@@ -118,8 +118,8 @@ private:
                           GraphvizAttributes,  // Graphviz graph attributes
                           boost::property<boost::graph_vertex_attribute_t,
                                           GraphvizAttributes,
-                                          boost::property<boost::graph_edge_attribute_t, GraphvizAttributes>>>>>>
-      m_graph;
+                                          boost::property<boost::graph_edge_attribute_t, GraphvizAttributes>>>>>>;
+  GraphType m_graph;
 
   std::string m_filename;
   std::unordered_set<std::string> m_highlightModules;
@@ -266,7 +266,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
       edm::LogInfo("DependencyGraph") << "module " << consumer->moduleLabel() << " depends on module "
                                       << module->moduleLabel();
       auto edge_status = boost::add_edge(consumer->id(), module->id(), m_graph);
-      // highlight the arrow between highlighted nodes
+      // highlight the edge between highlighted nodes
       if (highlighted(module->moduleLabel()) and highlighted(consumer->moduleLabel())) {
         auto const &edge = edge_status.first;
         auto &attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
@@ -275,7 +275,49 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     }
   }
 
-  // marke the modules in the paths as scheduled, and add a soft dependency to reflect the order of modules along each path
+  // save each Path and EndPath as a Graphviz subgraph
+  for (unsigned int i = 0; i < paths.size(); ++i) {
+    // create a subgraph to match the Path
+    auto &graph = m_graph.create_subgraph();
+
+    // set the subgraph name property to the Path name
+    boost::get_property(graph, boost::graph_name) = paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "Path " + paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "bottom";
+
+    // add to the subgraph the node corresponding to the scheduled modules on the Path
+    for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnPath(i)) {
+      boost::add_vertex(module->id(), graph);
+    }
+  }
+  for (unsigned int i = 0; i < endps.size(); ++i) {
+    // create a subgraph to match the EndPath
+    auto &graph = m_graph.create_subgraph();
+
+    // set the subgraph name property to the EndPath name
+    boost::get_property(graph, boost::graph_name) = paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "EndPath " + paths[i];
+    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "bottom";
+
+    // add to the subgraph the node corresponding to the scheduled modules on the EndPath
+    for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnEndPath(i)) {
+      boost::add_vertex(module->id(), graph);
+    }
+  }
+
+  // optionally, add a dependency of the TriggerResults module on the PathStatusInserter modules
+  const int size = boost::num_vertices(m_graph);
+  int triggerResults = -1;
+  bool highlightTriggerResults = false;
+  for (int i = 0; i < size; ++i) {
+    if (m_graph.m_graph[i].label == "TriggerResults") {
+      triggerResults = i;
+      highlightTriggerResults = highlighted("TriggerResults");
+      break;
+    }
+  }
+
+  // mark the modules in the paths as scheduled, and add a soft dependency to reflect the order of modules along each path
   edm::ModuleDescription const *previous;
   for (unsigned int i = 0; i < paths.size(); ++i) {
     previous = nullptr;
@@ -285,7 +327,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
       attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "lightgreen" : "white";
       if (previous and m_showPathDependencies) {
         edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module "
-                                        << previous->moduleLabel() << " in Path " << i;
+                                        << previous->moduleLabel() << " in Path " << paths[i];
         auto edge_status = boost::lookup_edge(module->id(), previous->id(), m_graph);
         bool found = edge_status.second;
         if (not found) {
@@ -293,14 +335,46 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
           auto const &edge = edge_status.first;
           auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           edgeAttributes["style"] = "dashed";
-          // highlight the arrow between highlighted nodes
+          // highlight the edge between highlighted nodes
           if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
             edgeAttributes["color"] = "darkgreen";
         }
       }
       previous = module;
     }
+    // previous points to the last scheduled module on the path
+    if (previous and m_showPathDependencies) {
+      // look for the PathStatusInserter module corresponding to this path
+      for (int j = 0; j < size; ++j) {
+        if (m_graph.m_graph[j].label == paths[i]) {
+          edm::LogInfo("DependencyGraph") << "module " << paths[i] << " implicitly follows module "
+                                          << previous->moduleLabel() << " in Path " << paths[i];
+          // add an edge from the PathStatusInserter module to the last module scheduled on the path
+          auto edge_status = boost::add_edge(j, previous->id(), m_graph);
+          auto const &edge = edge_status.first;
+          auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+          edgeAttributes["style"] = "dashed";
+          // highlight the edge between highlighted nodes
+          bool highlightedPath = highlighted(paths[i]);
+          if (highlightedPath and highlighted(previous->moduleLabel()))
+            edgeAttributes["color"] = "darkgreen";
+          if (triggerResults > 0) {
+            // add an edge from the TriggerResults module to the PathStatusInserter module
+            auto edge_status = boost::add_edge(triggerResults, j, m_graph);
+            auto const &edge = edge_status.first;
+            auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+            edgeAttributes["style"] = "dashed";
+            // highlight the edge between highlighted nodes
+            if (highlightedPath and highlightTriggerResults)
+              edgeAttributes["color"] = "darkgreen";
+          }
+          break;
+        }
+      }
+    }
   }
+
+  // mark the modules in the endpaths as scheduled, and add a soft dependency to reflect the order of modules along each endpath
   for (unsigned int i = 0; i < endps.size(); ++i) {
     previous = nullptr;
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnEndPath(i)) {
@@ -317,7 +391,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
           auto const &edge = edge_status.first;
           auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           edgeAttributes["style"] = "dashed";
-          // highlight the arrow between highlighted nodes
+          // highlight the edge between highlighted nodes
           if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
             edgeAttributes["color"] = "darkgreen";
         }
@@ -330,6 +404,12 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
 void DependencyGraph::postBeginJob() {
   if (not m_initialized)
     return;
+
+  // remove the nodes corresponding to the modules that have been removed from the process
+  for (int i = boost::num_vertices(m_graph) - 1; i > 1; --i) {
+    if (m_graph.m_graph[i].label.empty())
+      boost::remove_vertex(i, m_graph.m_graph);
+  }
 
   // draw the dependency graph
   std::ofstream out(m_filename);

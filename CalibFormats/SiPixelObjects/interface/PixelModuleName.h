@@ -72,12 +72,10 @@ namespace pos {
     }
     int module() const {
       assert((id_ & 0x80000000) != 0);
-      return ((id_)&0x3) + 1;
+      return ((id_) & 0x3) + 1;
     }
 
     friend std::ostream& operator<<(std::ostream& s, const PixelModuleName& pixelroc);
-
-    const PixelModuleName& operator=(const PixelModuleName& aROC);
 
     const bool operator<(const PixelModuleName& aROC) const { return id_ < aROC.id_; }
 

@@ -6,7 +6,7 @@ import sys
 import re
 
 class config: pass
-config.runNumber = int(sys.argv[2])
+config.runNumber = int(sys.argv[1])
 print config.runNumber
 
 for arg in sys.argv: 
@@ -15,7 +15,7 @@ for arg in sys.argv:
 readFiles = cms.untracked.vstring()
 
 matchRootFile = re.compile("\S*\.root$")
-for argument in sys.argv[3:]:
+for argument in sys.argv[2:]:
    if matchRootFile.search(argument):
       fileToRead = "file:"+argument
       readFiles.append(fileToRead)

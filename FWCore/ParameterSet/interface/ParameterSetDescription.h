@@ -431,7 +431,7 @@ namespace edm {
   ParameterWildcardBase* ParameterSetDescription::addWildcard(U const& pattern, bool isTracked) {
     std::unique_ptr<ParameterDescriptionNode> node =
         std::make_unique<ParameterWildcard<T>>(pattern, RequireZeroOrMore, isTracked);
-    ParameterDescriptionNode* pnode = addNode(std::move(node), true, false);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), true, true);
     return static_cast<ParameterWildcardBase*>(pnode);
   }
 

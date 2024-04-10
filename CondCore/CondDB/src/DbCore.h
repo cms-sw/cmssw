@@ -404,8 +404,15 @@ namespace cond {
     class Query;
 
     template <typename... Types>
-    class QueryIterator : public std::iterator<std::input_iterator_tag, std::tuple<Types...> > {
+    class QueryIterator {
     public:
+      // C++17 compliant iterator definition
+      using iterator_category = std::input_iterator_tag;
+      using value_type = std::tuple<Types...>;
+      using difference_type = void;  // Not used
+      using pointer = void;          // Not used
+      using reference = void;        // Not used
+
       QueryIterator() {}
 
       QueryIterator(const QueryIterator& rhs) : m_query(rhs.m_query), m_currentRow(rhs.m_currentRow) {}

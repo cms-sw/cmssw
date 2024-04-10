@@ -1,8 +1,8 @@
 #ifndef RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationKernels_h
 #define RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationKernels_h
 
+#include "RecoLocalCalo/EcalRecProducers/interface/EigenMatrixTypes_gpu.h"
 #include "DeclsForKernels.h"
-#include "EigenMatrixTypes_gpu.h"
 
 class EcalPulseShape;
 class EcalPulseCovariance;

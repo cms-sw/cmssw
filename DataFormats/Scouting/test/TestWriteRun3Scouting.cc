@@ -118,11 +118,11 @@ namespace edmtest {
     if (caloJetsValues_.size() != 16) {
       throwWithMessage("caloJetsValues must have 16 elements and it does not");
     }
-    if (electronsFloatingPointValues_.size() != 25) {
-      throwWithMessage("electronsFloatingPointValues must have 25 elements and it does not");
+    if (electronsFloatingPointValues_.size() != 33) {
+      throwWithMessage("electronsFloatingPointValues must have 33 elements and it does not");
     }
-    if (electronsIntegralValues_.size() != 6) {
-      throwWithMessage("electronsIntegralValues must have 6 elements and it does not");
+    if (electronsIntegralValues_.size() != 8) {
+      throwWithMessage("electronsIntegralValues must have 8 elements and it does not");
     }
     if (muonsFloatingPointValues_.size() != 37) {
       throwWithMessage("muonsFloatingPointValues must have 37 elements and it does not");
@@ -142,11 +142,11 @@ namespace edmtest {
     if (pfJetsIntegralValues_.size() != 8) {
       throwWithMessage("pfJetsIntegralValues must have 8 elements and it does not");
     }
-    if (photonsFloatingPointValues_.size() != 14) {
-      throwWithMessage("photonsFloatingPointValues must have 14 elements and it does not");
+    if (photonsFloatingPointValues_.size() != 17) {
+      throwWithMessage("photonsFloatingPointValues must have 17 elements and it does not");
     }
-    if (photonsIntegralValues_.size() != 3) {
-      throwWithMessage("photonsIntegralValues must have 3 elements and it does not");
+    if (photonsIntegralValues_.size() != 5) {
+      throwWithMessage("photonsIntegralValues must have 5 elements and it does not");
     }
     if (tracksFloatingPointValues_.size() != 29) {
       throwWithMessage("tracksFloatingPointValues must have 29 elements and it does not");
@@ -154,8 +154,8 @@ namespace edmtest {
     if (tracksIntegralValues_.size() != 5) {
       throwWithMessage("tracksIntegralValues must have 5 elements and it does not");
     }
-    if (vertexesFloatingPointValues_.size() != 7) {
-      throwWithMessage("vertexesFloatingPointValues must have 7 elements and it does not");
+    if (vertexesFloatingPointValues_.size() != 10) {
+      throwWithMessage("vertexesFloatingPointValues must have 10 elements and it does not");
     }
     if (vertexesIntegralValues_.size() != 3) {
       throwWithMessage("vertexesIntegralValues must have 3 elements and it does not");
@@ -233,7 +233,7 @@ namespace edmtest {
       double offset = static_cast<double>(iEvent.id().event() + i);
       int iOffset = static_cast<int>(iEvent.id().event() + i);
 
-      // Note the first seven of these vectors use an out of sequence index
+      // Note the first eleven of these vectors use an out of sequence index
       // (starting at 19 or 5) because they are data members added in a format
       // change. In the CMSSW_12_4_0 version, they didn't exist.
       // Also the index values 4 and 5 in electronsFloatingPointValues_
@@ -244,6 +244,10 @@ namespace edmtest {
       std::vector<float> trkpt;
       std::vector<float> trketa;
       std::vector<float> trkphi;
+      std::vector<float> trkpMode;
+      std::vector<float> trketaMode;
+      std::vector<float> trkphiMode;
+      std::vector<float> trkqoverpModeError;
       std::vector<float> trkchi2overndf;
       std::vector<int> trkcharge;
       std::vector<float> energyMatrix;
@@ -254,6 +258,10 @@ namespace edmtest {
       trkpt.reserve(vectorSize);
       trketa.reserve(vectorSize);
       trkphi.reserve(vectorSize);
+      trkpMode.reserve(vectorSize);
+      trketaMode.reserve(vectorSize);
+      trkphiMode.reserve(vectorSize);
+      trkqoverpModeError.reserve(vectorSize);
       trkchi2overndf.reserve(vectorSize);
       trkcharge.reserve(vectorSize);
       energyMatrix.reserve(vectorSize);
@@ -265,6 +273,10 @@ namespace edmtest {
         trkpt.push_back(static_cast<float>(electronsFloatingPointValues_[21] + offset + j * 10));
         trketa.push_back(static_cast<float>(electronsFloatingPointValues_[22] + offset + j * 10));
         trkphi.push_back(static_cast<float>(electronsFloatingPointValues_[23] + offset + j * 10));
+        trkpMode.push_back(static_cast<float>(electronsFloatingPointValues_[28] + offset + j * 10));
+        trketaMode.push_back(static_cast<float>(electronsFloatingPointValues_[29] + offset + j * 10));
+        trkphiMode.push_back(static_cast<float>(electronsFloatingPointValues_[30] + offset + j * 10));
+        trkqoverpModeError.push_back(static_cast<float>(electronsFloatingPointValues_[31] + offset + j * 10));
         trkchi2overndf.push_back(static_cast<float>(electronsFloatingPointValues_[24] + offset + j * 10));
         trkcharge.push_back(static_cast<int>(electronsIntegralValues_[5] + offset + j * 10));
         energyMatrix.push_back(static_cast<float>(electronsFloatingPointValues_[17] + offset + j * 10));
@@ -275,11 +287,18 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[1] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[2] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[3] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[25] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[26] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[27] + offset),
                                           std::move(trkd0),
                                           std::move(trkdz),
                                           std::move(trkpt),
                                           std::move(trketa),
                                           std::move(trkphi),
+                                          std::move(trkpMode),
+                                          std::move(trketaMode),
+                                          std::move(trkphiMode),
+                                          std::move(trkqoverpModeError),
                                           std::move(trkchi2overndf),
                                           static_cast<float>(electronsFloatingPointValues_[6] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[7] + offset),
@@ -288,6 +307,7 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[10] + offset),
                                           electronsIntegralValues_[0] + iOffset,
                                           std::move(trkcharge),
+                                          static_cast<float>(electronsFloatingPointValues_[32] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[11] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[12] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[13] + offset),
@@ -295,6 +315,8 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[15] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[16] + offset),
                                           static_cast<uint32_t>(electronsIntegralValues_[2] + iOffset),
+                                          static_cast<uint32_t>(electronsIntegralValues_[6] + iOffset),
+                                          static_cast<uint32_t>(electronsIntegralValues_[7] + iOffset),
                                           std::move(energyMatrix),
                                           std::move(detIds),
                                           std::move(timingMatrix),
@@ -482,6 +504,9 @@ namespace edmtest {
                                         static_cast<float>(photonsFloatingPointValues_[1] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[2] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[3] + offset),
+                                        static_cast<float>(photonsFloatingPointValues_[14] + offset),
+                                        static_cast<float>(photonsFloatingPointValues_[15] + offset),
+                                        static_cast<float>(photonsFloatingPointValues_[16] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[4] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[5] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[6] + offset),
@@ -491,6 +516,8 @@ namespace edmtest {
                                         static_cast<float>(photonsFloatingPointValues_[10] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[11] + offset),
                                         static_cast<uint32_t>(photonsIntegralValues_[0] + iOffset),
+                                        static_cast<uint32_t>(photonsIntegralValues_[3] + iOffset),
+                                        static_cast<uint32_t>(photonsIntegralValues_[4] + iOffset),
                                         std::move(energyMatrix),
                                         std::move(detIds),
                                         std::move(timingMatrix),
@@ -564,7 +591,10 @@ namespace edmtest {
                                          vertexesIntegralValues_[0] + iOffset,
                                          static_cast<float>(vertexesFloatingPointValues_[6] + offset),
                                          vertexesIntegralValues_[1] + iOffset,
-                                         static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2));
+                                         static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2),
+                                         static_cast<float>(vertexesFloatingPointValues_[7] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[8] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[9] + offset));
     }
     iEvent.put(vertexesPutToken_, std::move(run3ScoutingVertexes));
   }

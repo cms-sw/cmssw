@@ -28,6 +28,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> hTTToken_;
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
   edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
+  edm::ESGetToken<std::vector<SiPixelTemplateStore>, SiPixelTemplateDBObjectESProducerRcd> templateStoreToken_;
 
   edm::ParameterSet pset_;
   bool doLorentzFromAlignment_;
@@ -48,6 +49,7 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
   templateDBobjectToken_ = c.consumes();
+  templateStoreToken_ = c.consumes();
   if (useLAFromDB_ || doLorentzFromAlignment_) {
     char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
     lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
@@ -69,6 +71,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPETemplateRecoESProducer::
                                                 iRecord.get(pDDToken_),
                                                 iRecord.get(hTTToken_),
                                                 lorentzAngleProduct,
+                                                &iRecord.get(templateStoreToken_),
                                                 &iRecord.get(templateDBobjectToken_));
 }
 

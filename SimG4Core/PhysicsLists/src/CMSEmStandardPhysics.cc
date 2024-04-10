@@ -4,13 +4,13 @@
 
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
+#include "G4LossTableManager.hh"
 #include "G4EmParameters.hh"
 #include "G4EmBuilder.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
-#include "G4LivermorePhotoElectricModel.hh"
 
 #include "G4MscStepLimitType.hh"
 
@@ -37,14 +37,12 @@
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
 #include "G4GammaGeneralProcess.hh"
-#include "G4LossTableManager.hh"
 
 #include "G4ProcessManager.hh"
 #include "G4TransportationWithMsc.hh"
 
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
-#include <string>
 
 CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emm") {
@@ -136,8 +134,6 @@ void CMSEmStandardPhysics::ConstructProcess() {
   // e-
   particle = G4Electron::Electron();
 
-  G4eIonisation* eioni = new G4eIonisation();
-
   G4UrbanMscModel* msc1 = new G4UrbanMscModel();
   G4WentzelVIModel* msc2 = new G4WentzelVIModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
@@ -203,13 +199,12 @@ void CMSEmStandardPhysics::ConstructProcess() {
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
 
-  ph->RegisterProcess(eioni, particle);
+  ph->RegisterProcess(new G4eIonisation(), particle);
   ph->RegisterProcess(new G4eBremsstrahlung(), particle);
   ph->RegisterProcess(ss, particle);
 
   // e+
   particle = G4Positron::Positron();
-  eioni = new G4eIonisation();
 
   msc1 = new G4UrbanMscModel();
   msc2 = new G4WentzelVIModel();
@@ -274,7 +269,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
 
-  ph->RegisterProcess(eioni, particle);
+  ph->RegisterProcess(new G4eIonisation(), particle);
   ph->RegisterProcess(new G4eBremsstrahlung(), particle);
   ph->RegisterProcess(new G4eplusAnnihilation(), particle);
   ph->RegisterProcess(ss, particle);

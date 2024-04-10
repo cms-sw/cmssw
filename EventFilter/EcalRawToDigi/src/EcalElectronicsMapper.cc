@@ -1,3 +1,4 @@
+#include <cassert>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h>
 #include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>

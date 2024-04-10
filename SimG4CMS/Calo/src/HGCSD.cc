@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -27,10 +27,9 @@
 #include <memory>
 
 //#define EDM_ML_DEBUG
-//#define plotDebug
 
 HGCSD::HGCSD(const std::string& name,
-             const HGCalDDDConstants* hgc,
+             const HGCalTBDDDConstants* hgc,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
@@ -42,8 +41,10 @@ HGCSD::HGCSD(const std::string& name,
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
       hgcons_(hgc),
       slopeMin_(0),
-      levelT_(99),
-      tree_(nullptr) {
+      levelT_(99) {
+#ifdef plotDebug
+  tree_ = nullptr;
+#endif
   numberingScheme_.reset(nullptr);
   mouseBite_.reset(nullptr);
 
@@ -56,6 +57,7 @@ HGCSD::HGCSD(const std::string& name,
   double waferSize = m_HGC.getUntrackedParameter<double>("WaferSize") * CLHEP::mm;
   double mouseBite = m_HGC.getUntrackedParameter<double>("MouseBite") * CLHEP::mm;
   mouseBiteCut_ = waferSize * tan(30.0 * CLHEP::deg) - mouseBite;
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -206,16 +208,18 @@ void HGCSD::update(const BeginOfJob* job) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT_ = hgcons_->levelTop();
+    if (dd4hep_)
+      ++levelT_;
     numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons_, nameX_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
-    edm::LogError("HGCSim") << "HGCSD : Cannot find HGCalDDDConstants for " << nameX_;
-    throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
+    edm::LogError("HGCSim") << "HGCSD : Cannot find HGCalTBDDDConstants for " << nameX_;
+    throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalTBDDDConstants for " << nameX_ << "\n";
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                             << " top Level " << levelT_;
+                             << " top Level " << levelT_ << " dd4hep " << dd4hep_;
 #endif
 }
 

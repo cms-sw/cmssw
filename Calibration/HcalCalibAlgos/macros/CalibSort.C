@@ -83,7 +83,7 @@
 //
 // .L CalibSort.C+g (for the o/p of isotrackRootTreeMaker.py)
 //  CalibFitPU c1(fname);
-//  c1.Loop(extractPUparams, fileName);
+//  c1.Loop(extractPUparams, fileName, dumpEntry);
 //
 //   fname        (const char*)= file name of the input ROOT tree which is
 //                               output of isotrackRootTreeMaker.py
@@ -93,6 +93,7 @@
 //                               will be names of files of parameters from
 //                               2D, profile, graphs; .root for storing all
 //                               histograms created)
+//   dumpEntry    (int)          Entries to be dumped.  Default (0)
 //
 // .L CalibSort.C+g (for merging information from PU and NoPU files)
 //  CalibMerge c1;
@@ -1509,7 +1510,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TTree *tree);
-  virtual void Loop(bool extract_PU_parameters, std::string fileName);
+  virtual void Loop(bool extract_PU_parameters, std::string fileName, int dumpmax = 0);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
 };
@@ -1603,7 +1604,7 @@ Int_t CalibFitPU::Cut(Long64_t) {
   return 1;
 }
 
-void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
+void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName, int dumpmax) {
   //   In a ROOT session, you can do:
   //      root> .L CalibFitPU.C
   //      root> CalibFitPU t
@@ -1670,6 +1671,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
     int points[7] = {0, 0, 0, 0, 0, 0, 0};
     //=======================================Starting of event Loop=======================================================
+    std::cout << "Get " << nentries << " events from file\n";
 
     for (Long64_t jentry = 0; jentry < nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -1680,7 +1682,9 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
       double deltaOvP = t_delta_PU / t_p_PU;
       double diffEpuEnopuOvP = t_eHcal_noPU / t_eHcal_PU;
-
+      if (jentry < dumpmax)
+        std::cout << "Entry " << jentry << " ieta " << t_ieta << " p " << t_delta_PU << ":" << t_p_PU << ":" << deltaOvP
+                  << " ehcal " << t_eHcal_noPU << ":" << t_eHcal_PU << ":" << diffEpuEnopuOvP << std::endl;
       for (int k = 0; k < n; k++) {
         if (std::abs(t_ieta) < ieta_grid[k]) {
           points[k]++;

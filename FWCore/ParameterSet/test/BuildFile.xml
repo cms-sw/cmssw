@@ -1,10 +1,5 @@
-<bin name="testParameterSet" file="ps_t.cppunit.cc">
-  <use name="cppunit"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-
-<bin name="TestFWCoreParameterSetDescription" file="parameterSetDescription_t.cc">
+<bin name="testParameterSetCatch2" file="test_catch*.cc">
+  <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/Provenance"/>
@@ -17,3 +12,6 @@
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
 </bin>
+
+<test name="testFWCoreParameterSetEdmConfigDump" command="run_edmConfigDump.sh"/>
+<test name="testFWCoreParameterSetEdmConfigSplit" command="run_edmConfigSplit.sh"/>

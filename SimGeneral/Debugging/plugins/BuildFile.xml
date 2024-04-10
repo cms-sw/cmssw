@@ -9,4 +9,6 @@
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
 <flags EDM_PLUGIN="1"/>

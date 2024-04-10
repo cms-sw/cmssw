@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
@@ -11,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
 #include <memory>
@@ -44,6 +46,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Base = BaseT<Args..., edm::Transformer>;
 
   public:
+    ProducerBase() : backendToken_(Base::produces("backend")) {}
+
     template <edm::Transition Tr = edm::Transition::Event>
     [[nodiscard]] auto produces() noexcept {
       return ProducerBaseAdaptor<ProducerBase, Tr>(*this);
@@ -59,7 +63,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cms::alpakatools::module_backend_config(descriptions);
     }
 
+  protected:
+    void putBackend(edm::Event& iEvent) const {
+      iEvent.emplace(this->backendToken_, static_cast<unsigned short>(kBackend));
+    }
+
   private:
+    edm::EDPutTokenT<unsigned short> const backendToken_;
+
     template <typename TProducer, edm::Transition Tr>
     friend class ProducerBaseAdaptor;
 

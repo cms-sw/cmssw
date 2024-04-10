@@ -39,9 +39,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   if (clusteringAlgorithm == "gap") {
     theTrackClusterizer = new GapClusterizerInZ(
         conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkGapClusParameters"));
-  } else if (clusteringAlgorithm == "DA") {
-    theTrackClusterizer = new DAClusterizerInZ(
-        conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
   }
   // provide the vectorized version of the clusterizer, if supported by the build
   else if (clusteringAlgorithm == "DA_vect") {

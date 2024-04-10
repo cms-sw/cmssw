@@ -294,6 +294,9 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   }
 
   auto runC = runCache(iRun.index());
+  if (nullptr == runC)
+    return;
+
   std::lock_guard l{mutex_};
 
   // compute cross section for this run first

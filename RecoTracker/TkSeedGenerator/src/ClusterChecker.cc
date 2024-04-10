@@ -19,7 +19,7 @@ ClusterChecker::ClusterChecker(const edm::ParameterSet& conf, edm::ConsumesColle
     pixelClusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("PixelClusterCollectionLabel");
     token_sc = iC.consumes<edmNew::DetSetVector<SiStripCluster> >(clusterCollectionInputTag_);
     token_pc = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterCollectionInputTag_);
-    maxNrOfCosmicClusters_ = conf.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
+    maxNrOfStripClusters_ = conf.getParameter<unsigned int>("MaxNumberOfStripClusters");
     maxNrOfPixelClusters_ = conf.getParameter<unsigned int>("MaxNumberOfPixelClusters");
     if (conf.existsAs<uint32_t>("DontCountDetsAboveNClusters")) {
       ignoreDetsAboveNClusters_ = conf.getParameter<uint32_t>("DontCountDetsAboveNClusters");
@@ -31,7 +31,7 @@ ClusterChecker::ClusterChecker(const edm::ParameterSet& conf, edm::ConsumesColle
 
 void ClusterChecker::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<bool>("doClusterCheck", true);
-  desc.add<unsigned>("MaxNumberOfCosmicClusters", 400000);
+  desc.add<unsigned>("MaxNumberOfStripClusters", 400000);
   desc.add<edm::InputTag>("ClusterCollectionLabel", edm::InputTag("siStripClusters"));
   desc.add<unsigned>("MaxNumberOfPixelClusters", 40000);
   desc.add<edm::InputTag>("PixelClusterCollectionLabel", edm::InputTag("siPixelClusters"));
@@ -69,7 +69,7 @@ size_t ClusterChecker::tooManyClusters(const edm::Event& e) const {
       }
     }
   }
-  if (totals.strip > int(maxNrOfCosmicClusters_))
+  if (totals.strip > int(maxNrOfStripClusters_))
     return totals.strip;
 
   // get special input for pixel cluster multiplicity filter

@@ -4,7 +4,6 @@
 #include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "classlib/utils/Error.h"
 #include <mutex>
 #include <iostream>
 #include <string>

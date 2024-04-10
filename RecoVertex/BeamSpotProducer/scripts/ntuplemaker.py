@@ -26,10 +26,10 @@
    -f, --final   = FINAL: Last IOV. Options: run number, or run:lumi
    -o, --output  = OUTPUT: filename of ROOT file with plots.
    -x, --xcrossing = XCROSSING : Bunch crossing number.
-   
+
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
-   
+
 """
 from __future__ import print_function
 
@@ -52,7 +52,7 @@ except:
         print(" setenv PYTHONPATH $ROOTSYS/lib\n")
         sys.exit()
 
-from ROOT import *
+from ROOT import gROOT, TFile, TTree
 from array import array
 
 def getFill( json, run ):
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     option,args = parse(__doc__)
     if not args and not option: exit()
 
-    if not option.data: 
+    if not option.data:
         print(" need to provide beam spot data file")
         exit()
 
@@ -237,7 +237,7 @@ if __name__ == '__main__':
                 passiov = True
             if iIOV.since >= int(tmprunlast) and iIOV.till >= 4294967295:
                 print(" IOV: " + str(iIOV.since) + " to " + str(iIOV.till))
-                passiov = True                
+                passiov = True
             if passiov:
                 acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
                 if IOVbase=="lumibase":
@@ -290,7 +290,7 @@ if __name__ == '__main__':
     sortAndCleanBeamList(listbeam,IOVbase)
 
 
-    ###################################    
+    ###################################
 
     for ii in range(0,len(listbeam)):
 

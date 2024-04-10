@@ -99,6 +99,8 @@ class CLIHelper(object):
             help="Number of lumi sections to process for RAW / Comsics grid jobs")
         submission_opts_group.add_argument("--preselection", dest="preselection",
             help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
+        submission_opts_group.add_argument("--raw-data-label", dest="raw_data_label", default="rawDataCollector",
+            help="RAW Data label as in the sample file.")
         submission_opts_group.add_argument("--output-site", default = "T2_DE_RWTH",
             help="Site used for stage out of results")
         submission_opts_group.add_argument("--ce-black-list", default = [], nargs="+",

@@ -8,10 +8,7 @@ parser.add_argument("--disableTest2", help="Disable test2 SwitchProducer case", 
 parser.add_argument("--input", help="Read input file from a previous step of this same configuration", action="store_true")
 parser.add_argument("--conditionalTask", help="Use ConditionalTask instead of Task", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 enableTest2 = not args.disableTest2
 class SwitchProducerTest(cms.SwitchProducer):

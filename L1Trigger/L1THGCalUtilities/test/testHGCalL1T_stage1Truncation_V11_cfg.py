@@ -32,16 +32,7 @@ process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1210000/F2E5E947-0CB4-D245-A943-17F2F05709D3.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
-           'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
-           'drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT',
-           'drop l1tEMTFHit2016s_simEmtfDigis__HLT',
-           'drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT',
-           'drop l1tEMTFTrack2016s_simEmtfDigis__HLT',
-           'drop FTLClusteredmNewDetSetVector_mtdClusters_FTLBarrel_RECO',
-           'drop FTLClusteredmNewDetSetVector_mtdClusters_FTLEndcap_RECO',
-           'drop MTDTrackingRecHitedmNewDetSetVector_mtdTrackingRecHits__RECO',
-           'drop BTLDetIdBTLSampleFTLDataFrameTsSorted_mix_FTLBarrel_HLT',
-           'drop ETLDetIdETLSampleFTLDataFrameTsSorted_mix_FTLEndcap_HLT',
+           'drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__RECO',
            )
        )
 

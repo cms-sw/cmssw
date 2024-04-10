@@ -30,5 +30,6 @@ particleFlowClusterHGCalFromTICLUnseeded = cms.EDProducer("PFClusterProducer",
         algoName = cms.string('PassThruSeedFinder'),
         nNeighbours = cms.int32(8),
         thresholdsByDetector = cms.VPSet()
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(False)
 )

@@ -316,7 +316,8 @@ namespace edm {
                      bool ignoreFilters,
                      PathWorkers& out,
                      std::vector<std::string> const& endPathNames,
-                     ConditionalTaskHelper const& conditionalTaskHelper);
+                     ConditionalTaskHelper const& conditionalTaskHelper,
+                     std::unordered_set<std::string>& allConditionalModules);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
@@ -325,7 +326,8 @@ namespace edm {
                       std::string const& name,
                       TrigResPtr,
                       std::vector<std::string> const& endPathNames,
-                      ConditionalTaskHelper const& conditionalTaskHelper);
+                      ConditionalTaskHelper const& conditionalTaskHelper,
+                      std::unordered_set<std::string>& allConditionalModules);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
@@ -333,7 +335,8 @@ namespace edm {
                      int bitpos,
                      std::string const& name,
                      std::vector<std::string> const& endPathNames,
-                     ConditionalTaskHelper const& conditionalTaskHelper);
+                     ConditionalTaskHelper const& conditionalTaskHelper,
+                     std::unordered_set<std::string>& allConditionalModules);
 
     void addToAllWorkers(Worker* w);
 
@@ -382,7 +385,6 @@ namespace edm {
 
     StreamID streamID_;
     StreamContext streamContext_;
-    std::atomic<bool> skippingEvent_;
   };
 
   void inline StreamSchedule::reportSkipped(EventPrincipal const& ep) const {

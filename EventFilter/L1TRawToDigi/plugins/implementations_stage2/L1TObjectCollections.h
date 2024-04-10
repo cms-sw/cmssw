@@ -23,6 +23,7 @@ namespace l1t {
       virtual MuonShowerBxCollection* getMuonShowers(const unsigned int copy) { return nullptr; }
       virtual EGammaBxCollection* getEGammas(const unsigned int copy) { return nullptr; }  //= 0;
       virtual EtSumBxCollection* getEtSums(const unsigned int copy) { return nullptr; }
+      virtual EtSumBxCollection* getZDCSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }
       virtual TauBxCollection* getTaus(const unsigned int copy) { return nullptr; }
 

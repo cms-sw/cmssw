@@ -1,6 +1,6 @@
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
-TString toTString(const PublicationStatus status) {
+TString TkAlStyle::toTString(const PublicationStatus status) {
   TString str = "";
   if (status == NO_STATUS)
     str = "Status not set yet!";
@@ -22,7 +22,7 @@ TString toTString(const PublicationStatus status) {
   return str;
 }
 
-static TString toTString(const Era era) {
+TString TkAlStyle::toTString(const Era era) {
   TString str = "";
   if (era == CRUZET15)
     str = "0T cosmic ray data 2015";
@@ -33,6 +33,41 @@ static TString toTString(const Era era) {
 
   return str;
 }
+
+TString TkAlStyle::toTString(const AlignObj obj) {
+  TString str = "";
+  if (obj == IDEALAlign)
+    str = "MC (no mis-alignment)";
+  else if (obj == RUN1Align)
+    str = "No Run-2 alignment (Run-1 geometry)";
+  else if (obj == CRUZETAlign)
+    str = "Aligned (0T cosmic rays)";
+  else if (obj == CRAFTAlign)
+    str = "Aligned (cosmic rays)";
+  else if (obj == Coll0TAlign)
+    str = "Aligned (0T collisions + cosmic rays)";
+
+  return str;
+}
+
+// Line and fill styles depending on alignment object
+int TkAlStyle::color(const AlignObj obj) {
+  int col = 1;
+  if (obj == IDEALAlign)
+    col = kGray + 1;
+  else if (obj == RUN1Align)
+    col = kBlack;
+  else if (obj == CRUZETAlign)
+    col = kGreen + 2;
+  else if (obj == CRAFTAlign)
+    col = kBlue;
+  else if (obj == Coll0TAlign)
+    col = kRed;
+
+  return col;
+}
+
+int TkAlStyle::style(const AlignObj obj) { return obj == RUN1Align ? kDashed : kSolid; }
 
 PublicationStatus TkAlStyle::publicationStatus_ = NO_STATUS;
 Era TkAlStyle::era_ = NONE;

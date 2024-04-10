@@ -39,12 +39,13 @@ namespace l1t::demo::codecs {
         break;
 
       math::XYZTLorentzVector v(0, 0, 0, 0);
-      l1t::EtSum s(v,
-                   l1t::EtSum::EtSumType::kMissingEt,
-                   l1tmetemu::METWord_t(x(1 + l1tmetemu::kMETSize, 1)),
-                   0,
-                   l1tmetemu::METWordphi_t(x(1 + l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize, 17)).to_int(),
-                   0);
+      l1t::EtSum s(
+          v,
+          l1t::EtSum::EtSumType::kMissingEt,
+          l1tmetemu::METWord_t(x(l1tmetemu::kMETSize, 1)),
+          0,
+          l1tmetemu::METWordphi_t(x(l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize, 1 + l1tmetemu::kMETSize)).to_int(),
+          0);
       etSums.push_back(s);
     }
 

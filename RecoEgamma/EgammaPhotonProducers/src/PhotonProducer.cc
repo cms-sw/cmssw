@@ -38,6 +38,9 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <vector>
 
@@ -53,6 +56,7 @@ private:
                             edm::EventSetup const& es,
                             const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
                             const CaloTopology* topology,
+                            const HcalPFCuts* hcalCuts,
                             const EcalRecHitCollection* ecalBarrelHits,
                             const EcalRecHitCollection* ecalEndcapHits,
                             ElectronHcalHelper const& hcalHelperCone,
@@ -110,6 +114,9 @@ private:
   std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
   bool hcalRun2EffDepth_;
+
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -137,6 +144,12 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
 
   edm::ParameterSet posCalcParameters = config.getParameter<edm::ParameterSet>("posCalcParameters");
   posCalculator_ = PositionCalc(posCalcParameters);
+
+  //Retrieve HCAL PF thresholds - from config or from DB
+  cutsFromDB_ = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
+  }
 
   //AA
   //Flags and Severities to be excluded from photon calculations
@@ -241,6 +254,10 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
 }
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
   using namespace edm;
   //  nEvt_++;
 
@@ -306,6 +323,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
                          theEventSetup,
                          photonCoreHandle,
                          topology,
+                         hcalCuts,
                          &barrelRecHits,
                          &endcapRecHits,
                          *hcalHelperCone_,
@@ -331,6 +349,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
                                           edm::EventSetup const& es,
                                           const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
                                           const CaloTopology* topology,
+                                          const HcalPFCuts* hcalCuts,
                                           const EcalRecHitCollection* ecalBarrelHits,
                                           const EcalRecHitCollection* ecalEndcapHits,
                                           ElectronHcalHelper const& hcalHelperCone,
@@ -435,7 +454,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;
     reco::Photon::IsolationVariables isolVarR03, isolVarR04;
-    photonIsolationCalculator_.calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03);
+    photonIsolationCalculator_.calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03, hcalCuts);
     newCandidate.setFiducialVolumeFlags(fiducialFlags);
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03);
 
@@ -449,8 +468,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
-      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / scRef->energy();
-      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / scRef->energy();
+      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy();
+      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy();
     }
     showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     showerShape.pre7DepthHcal = false;
@@ -466,8 +485,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaEtaEta = full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
     for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
-      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / full5x5_e5x5;
-      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5;
     }
     full5x5_showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     full5x5_showerShape.pre7DepthHcal = false;

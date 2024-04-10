@@ -20,7 +20,7 @@ namespace edm {
   ParameterSetEntry::ParameterSetEntry(ParameterSetID const& id, bool isTracked)
       : isTracked_(isTracked), thePSet_(), theID_(id) {}
 
-  ParameterSetEntry::ParameterSetEntry(std::string const& rep) : isTracked_(rep[0] == '+'), thePSet_(), theID_() {
+  ParameterSetEntry::ParameterSetEntry(std::string_view rep) : isTracked_(rep[0] == '+'), thePSet_(), theID_() {
     assert(rep[0] == '+' || rep[0] == '-');
     assert(rep[2] == '(');
     assert(rep[rep.size() - 1] == ')');

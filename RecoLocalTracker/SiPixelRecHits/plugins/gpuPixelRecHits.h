@@ -7,19 +7,20 @@
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 
-//#define GPU_DEBUG 1
+//#define GPU_DEBUG
+
 namespace gpuPixelRecHits {
 
   template <typename TrackerTraits>
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPUT<TrackerTraits> const* __restrict__ cpeParams,
                           BeamSpotPOD const* __restrict__ bs,
-                          SiPixelDigisCUDASOAConstView digis,
+                          SiPixelDigisSoA::ConstView digis,
                           int numElements,
                           SiPixelClustersCUDASOAConstView clusters,
                           TrackingRecHitSoAView<TrackerTraits> hits) {

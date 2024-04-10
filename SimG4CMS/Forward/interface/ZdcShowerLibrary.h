@@ -12,6 +12,7 @@
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 #include <string>
@@ -22,9 +23,8 @@ class ZdcShowerLibrary {
 public:
   //Constructor and Destructor
   ZdcShowerLibrary(const std::string& name, edm::ParameterSet const& p);
-  ~ZdcShowerLibrary();
+  ~ZdcShowerLibrary() = default;
 
-public:
   struct Hit {
     Hit() {}
     G4ThreeVector entryLocal;
@@ -36,6 +36,7 @@ public:
     double DeEM;
   };
 
+  void initRun(G4ParticleTable* theParticleTable);
   std::vector<Hit>& getHits(const G4Step* aStep, bool& ok);
   int getEnergyFromLibrary(const G4ThreeVector& posHit,
                            const G4ThreeVector& momDir,
@@ -45,10 +46,13 @@ public:
                            bool side,
                            int channel);
   int photonFluctuation(double eav, double esig, double edis);
+  int encodePartID(G4int parCode);
 
 private:
   bool verbose;
-
+  G4int emPDG, epPDG, gammaPDG;
+  G4int pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  G4int anuePDG, anumuPDG, anutauPDG, geantinoPDG;
   int npe;
   std::vector<ZdcShowerLibrary::Hit> hits;
 };

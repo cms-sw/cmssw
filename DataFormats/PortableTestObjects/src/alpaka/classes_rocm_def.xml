@@ -2,4 +2,16 @@
   <class name="alpaka_rocm_async::portabletest::TestDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::portabletest::TestDeviceObject" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceObject>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceObject>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::portabletest::TestDeviceMultiCollection2" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceMultiCollection2>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceMultiCollection2>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::portabletest::TestDeviceMultiCollection3" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceMultiCollection3>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceMultiCollection3>>" persistent="false"/>
 </lcgdict>

@@ -70,25 +70,43 @@ namespace callbacktest {
 
   struct UniquePtrProd : public Base {
     constexpr UniquePtrProd() : value_(0) {}
-    std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
+    std::unique_ptr<Data> method(const Record&) {
+      ++value_;
+      if (produce_)
+        return std::make_unique<Data>(value_);
+      else
+        return nullptr;
+    }
 
     int value_;
+    bool produce_ = true;
   };
 
   struct SharedPtrProd : public Base {
     SharedPtrProd() : ptr_(new Data()) {}
     std::shared_ptr<Data> method(const Record&) {
       ++ptr_->value_;
-      return ptr_;
+      if (produce_)
+        return ptr_;
+      else
+        return nullptr;
     }
     std::shared_ptr<Data> ptr_;
+    bool produce_ = true;
   };
 
   struct OptionalProd : public Base {
     constexpr OptionalProd() : value_(0) {}
-    std::optional<Data> method(const Record&) { return Data(++value_); }
+    std::optional<Data> method(const Record&) {
+      ++value_;
+      if (produce_)
+        return Data(value_);
+      else
+        return {};
+    }
 
     int value_;
+    bool produce_ = true;
   };
 
   struct PtrProductsProd : public Base {
@@ -119,7 +137,7 @@ namespace {
     edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
-    task.waitNoThrow();
+    task.wait();
   }
 }  // namespace
 
@@ -222,6 +240,33 @@ void testCallback::uniquePtrTest() {
   call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 5);
+
+  // null products
+  prod.produce_ = false;
+  callback.newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle.get() == nullptr);
+
+  callback2->newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2.get() == nullptr);
+  CPPUNIT_ASSERT(handle.get() == nullptr);
+
+  prod.produce_ = true;
+  callback.newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2.get() == nullptr);
+  CPPUNIT_ASSERT(handle->value_ == 8);
+
+  callback2->newRecordComing();
+  call(callback);
+  call(*callback2);
+  CPPUNIT_ASSERT(handle2->value_ == 9);
+  CPPUNIT_ASSERT(handle->value_ == 8);
 }
 
 template <typename P, typename F>
@@ -254,6 +299,20 @@ void testCallback::sharedPtrTest() {
   call(callback);
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
+
+  // null products
+  prod.produce_ = false;
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == nullptr);
+
+  call(callback);
+  CPPUNIT_ASSERT(handle.get() == nullptr);
+
+  prod.produce_ = true;
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle->value_ == 4);
 }
 
 template <typename P, typename F>
@@ -289,6 +348,20 @@ void testCallback::optionalTest() {
   CPPUNIT_ASSERT(handle.has_value());
   CPPUNIT_ASSERT(prod.value_ == 2);
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  // null products
+  prod.produce_ = false;
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(not handle.has_value());
+
+  call(callback);
+  CPPUNIT_ASSERT(not handle.has_value());
+
+  prod.produce_ = true;
+  callback.newRecordComing();
+  call(callback);
+  CPPUNIT_ASSERT(handle->value_ == 4);
 }
 
 template <typename P, typename F>

@@ -159,10 +159,8 @@ process.preScaler.prescaleFactor = 1
 
 process.source.streamLabel = "streamDQMCalibration"
 
-
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
-
 
 process.ecalLaserLedMonitorTask.verbosity = 0
 process.ecalLaserLedMonitorTask.collectionTags.EBLaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"
@@ -183,6 +181,8 @@ process.ecalTestPulseMonitorTask.commonParameters.onlineMode = True
 
 process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
 process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalRecHit.timeCalibTag = ':'
+process.ecalRecHit.timeOffsetTag = ':'
 
 process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True

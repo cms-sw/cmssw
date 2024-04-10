@@ -315,7 +315,11 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     VZBin = cms.int32(100),
     VZMax = cms.double(30.0),                        
     VZMin = cms.double(-30.0),
-    
+
+    # PCA z position (to PV)
+    VZ_PVMax = cms.double(30.0),
+    VZ_PVMin = cms.double(-30.0),
+
     # PCA z position for profile
     VZBinProf = cms.int32(100),
     VZMaxProf = cms.double(0.2),                        

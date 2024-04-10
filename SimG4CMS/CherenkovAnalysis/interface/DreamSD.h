@@ -11,8 +11,6 @@
 
 #include "G4PhysicsFreeVector.hh"
 
-#include <DD4hep/DD4hepUnits.h>
-
 #include <map>
 
 const int MAXPHOTONS = 500;  // Maximum number of photons we can store

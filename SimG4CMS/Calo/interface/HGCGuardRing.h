@@ -16,6 +16,7 @@ private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode modeUV_;
+  const bool v17OrLess_;
   const double waferSize_, sensorSizeOffset_, guardRingOffset_;
   double offset_, xmax_, ymax_;
 };

@@ -11,7 +11,7 @@
       "volume": "DummyVolume2",
       "protocols": [
          {  "protocol": "protocolThatDoesNotExist2",
-            "prefix": "abc"
+            "prefix": "def"
          }
       ]
    }

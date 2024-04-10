@@ -24,10 +24,13 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("SuperClusterImporter"),
                   source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
                   source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
-                  source_towers = cms.InputTag("towerMaker"),
                   maximumHoverE = cms.double(0.5),
                   minSuperClusterPt = cms.double(10.0),
                   minPTforBypass = cms.double(100.0),
+                  hbheRecHitsTag = cms.InputTag('hbhereco'),
+                  maxSeverityHB = cms.int32(9),
+                  maxSeverityHE = cms.int32(9),
+                  usePFThresholdsFromDB = cms.bool(False),
                   superClustersArePF = cms.bool(True) ),
         cms.PSet( importerName = cms.string("ConversionTrackImporter"),
                   source = cms.InputTag("pfConversions"),
@@ -246,3 +249,8 @@ phase2_timing_layer.toModify(
     particleFlowBlock,
     elementImporters = _addTimingLayer
 )
+
+#--- Use DB conditions for cuts&seeds for Run3 and phase2
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify( _scImporter,
+                           usePFThresholdsFromDB = True)

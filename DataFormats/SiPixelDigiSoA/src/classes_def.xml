@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="SiPixelDigisSoA"/>
+  <class name="SiPixelDigisSoA::View"/>
+  <class name="PortableHostCollection<SiPixelDigisSoA>"/>
+  <class name="SiPixelDigisHost" ClassVersion="3">
+    <version ClassVersion="3" checksum="3022474662"/>
+  </class>
+  <class name="edm::Wrapper<SiPixelDigisHost>" splitLevel="0"/>
+
+  <class name="SiPixelDigiErrorsSoA"/>
+  <class name="SiPixelDigiErrorsSoA::View"/>
+  <class name="PortableHostCollection<SiPixelDigiErrorsSoA>"/>
+  <class name="SiPixelDigiErrorsHost"  ClassVersion="3">
+    <version ClassVersion="3" checksum="958593711"/>
+  </class>
+  <class name="edm::Wrapper<SiPixelDigiErrorsHost>" splitLevel="0"/>
+</lcgdict>

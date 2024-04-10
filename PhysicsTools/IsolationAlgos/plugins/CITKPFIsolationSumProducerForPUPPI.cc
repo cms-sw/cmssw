@@ -27,8 +27,6 @@ namespace citk {
   public:
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
 
-    ~PFIsolationSumProducerForPUPPI() override {}
-
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
     void produce(edm::Event&, const edm::EventSetup&) final;

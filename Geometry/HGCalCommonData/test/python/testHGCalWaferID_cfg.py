@@ -22,18 +22,23 @@ options.register('type',
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-
-process = cms.Process("HGCalWaferIDTest",Phase2C17I13M9)
+if (options.type == "V18"):
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process("HGCalWaferIDTest",Phase2C22I13M9)
+else:
+        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+        process = cms.Process("HGCalWaferIDTest",Phase2C17I13M9)
 
 ####################################################################
 # Use the options
-if (options.type == "V17Shift"):
+if (options.type == "V18"):
+    geomFile = "Configuration.Geometry.GeometryExtended2026D104_cff"
+elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
 elif (options.type == "V16"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D88_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D98_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026D92_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026D99_cff"
 
 print("Geometry file: ", geomFile)
 

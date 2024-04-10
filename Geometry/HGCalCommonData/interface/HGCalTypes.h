@@ -56,6 +56,8 @@ public:
   static constexpr int32_t WaferOut = 99;
   static constexpr int32_t WaferPartLDOffset = 11;
   static constexpr int32_t WaferPartHDOffset = 21;
+  static constexpr int32_t WaferPartLDCount = 6;
+  static constexpr int32_t WaferPartHDCount = 5;
   static constexpr int32_t WaferTypeOffset[3] = {0, 5, 11};
 
   static constexpr int32_t WaferOrient0 = 0;
@@ -91,14 +93,24 @@ public:
   static constexpr int k_OffsetRotation = 10;
 
   static constexpr double c00 = 0.0;
-  static constexpr double c22 = 0.225;
+  static constexpr double c22O = 0.225;
+  static constexpr double c221 = 0.2083;
+  static constexpr double c22 = 0.1944;
   static constexpr double c25 = 0.25;
-  static constexpr double c27 = 0.275;
+  static constexpr double c27O = 0.275;
+  static constexpr double c271 = 0.2917;
+  static constexpr double c27 = 0.3056;
   static constexpr double c50 = 0.5;
-  static constexpr double c61 = 0.6125;
+  static constexpr double c61O = 0.6125;
+  static constexpr double c611 = 0.6042;
+  static constexpr double c61 = 0.59722;
   static constexpr double c75 = 0.75;
-  static constexpr double c77 = 0.775;
-  static constexpr double c88 = 0.8875;
+  static constexpr double c77O = 0.775;
+  static constexpr double c771 = 0.7917;
+  static constexpr double c77 = 0.8055;
+  static constexpr double c88O = 0.8875;
+  static constexpr double c881 = 0.8958;
+  static constexpr double c88 = 0.90277;
   static constexpr double c10 = 1.0;
 
   enum TileType { TileFine = 0, TileCoarseCast = 1, TileCoarseMould = 2 };
@@ -122,8 +134,11 @@ public:
   // Translate from flat file format to CMSSW format of Layer type
   static int32_t layerType(int type);
   // Get the front-back index from the layer orientation index
-  static int32_t layerFrontBack(int32_t layerOrient) { return ((layerOrient == WaferCenterB) ? 1 : -1); }
-  static int32_t waferFrontBack(int32_t index) { return ((index == 0) ? -1 : 1); }
+  static constexpr int32_t layerFrontBack(int32_t layerOrient) { return ((layerOrient == WaferCenterB) ? 1 : -1); }
+  static constexpr int32_t waferFrontBack(int32_t index) { return ((index == 0) ? -1 : 1); }
+  // LD vs HD and Fullvs Partial wafer
+  static constexpr bool waferHD(int32_t type) { return ((type == WaferFineThin) || (type == WaferFineThick)); }
+  static constexpr bool waferFull(int32_t type) { return (type == WaferFull); }
 
 private:
   static constexpr int32_t facu_ = 1;

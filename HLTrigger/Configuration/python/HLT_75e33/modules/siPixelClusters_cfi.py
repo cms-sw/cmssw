@@ -19,6 +19,6 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     VCaltoElectronOffset_L1 = cms.int32(0),
     maxNumberOfClusters = cms.int32(-1),
     mightGet = cms.optional.untracked.vstring,
-    payloadType = cms.string('Offline'),
+    payloadType = cms.string('None'),
     src = cms.InputTag("simSiPixelDigis","Pixel")
 )

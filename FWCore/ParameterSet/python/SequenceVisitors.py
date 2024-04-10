@@ -22,7 +22,7 @@ class ScheduleTaskValidator(object):
 class PathValidator(object):
     def __init__(self):
         self.__label = ''
-    def setLabel(self,label):
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
@@ -44,7 +44,7 @@ class EndPathValidator(object):
         self.filtersOnEndpaths = []
         self.__label = ''
         self._levelInTasks = 0
-    def setLabel(self,label):
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if visitee.isLeaf():
@@ -72,9 +72,8 @@ class FinalPathValidator(object):
     def __init__(self):
         self.__label = ''
         self._levelInTasks = 0
-        self.filtersOnFinalpaths = []
-        self.producersOnFinalpaths = []
-    def setLabel(self,label):
+        self.invalidModulesOnFinalpaths = []
+    def setLabel(self,label:str):
         self.__label = "'"+label+"' "
     def enter(self,visitee):
         if visitee.isLeaf():
@@ -88,10 +87,8 @@ class FinalPathValidator(object):
             self._levelInTasks += 1
         if self._levelInTasks > 0:
             return
-        if isinstance(visitee,EDFilter):
-            self.filtersOnFinalpaths.append(visitee.type_())
-        if isinstance(visitee,EDProducer):
-            self.producersOnFinalpaths.append(visitee.type_())
+        if isinstance(visitee,(EDAnalyzer,EDProducer,EDFilter)):
+            self.invalidModulesOnFinalpaths.append(visitee.type_())
     def leave(self,visitee):
         if self._levelInTasks > 0:
             if isinstance(visitee, Task):

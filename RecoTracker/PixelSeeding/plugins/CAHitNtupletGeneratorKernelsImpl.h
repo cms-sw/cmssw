@@ -2,8 +2,8 @@
 // Original Author: Felice Pantaleo, CERN
 //
 
-// #define NTUPLE_DEBUG
-// #define GPU_DEBUG
+//#define NTUPLE_DEBUG
+//#define GPU_DEBUG
 
 #include <cmath>
 #include <cstdint>
@@ -11,15 +11,14 @@
 
 #include <cuda_runtime.h>
 
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
-#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
-
-#include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"
+#include "CAStructures.h"
 #include "GPUCACell.h"
 #include "gpuFishbone.h"
 #include "gpuPixelDoublets.h"

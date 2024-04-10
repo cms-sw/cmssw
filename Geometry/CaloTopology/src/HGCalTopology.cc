@@ -1,3 +1,4 @@
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
@@ -25,7 +26,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, int det) : hdcons_
     subdet_ = (ForwardSubdetector)(det);
     kHGeomHalf_ = sectors_ * layers_;
     types_ = 2;
-  } else if (det == (int)(DetId::Forward)) {
+  } else if (det == static_cast<int>(DetId::Forward)) {
     det_ = DetId::Forward;
     subdet_ = HFNose;
     kHGeomHalf_ = sectors_ * layers_;
@@ -389,8 +390,8 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 DetId HGCalTopology::denseId2detId(uint32_t hi) const {
   HGCalTopology::DecodedDetId id;
   if (validHashIndex(hi)) {
-    id.zSide = ((int)(hi) < kHGhalfType_ ? -1 : 1);
-    int di = ((int)(hi) % kHGhalfType_);
+    id.zSide = (static_cast<int>(hi) < kHGhalfType_ ? -1 : 1);
+    int di = (static_cast<int>(hi) % kHGhalfType_);
     if (waferHexagon6()) {
       int type = (di % types_);
       id.iType = (type == 0 ? -1 : 1);
@@ -466,8 +467,8 @@ bool HGCalTopology::valid(const DetId& idin) const {
   HGCalTopology::DecodedDetId id = decode(idin);
   bool flag;
   if (waferHexagon6()) {
-    flag = (idin.det() == det_ && idin.subdetId() == (int)(subdet_) && id.iCell1 >= 0 && id.iCell1 < cells_ &&
-            id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
+    flag = (idin.det() == det_ && idin.subdetId() == static_cast<int>(subdet_) && id.iCell1 >= 0 &&
+            id.iCell1 < cells_ && id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
     if (flag)
       flag = hdcons_.isValidHex(id.iLay, id.iSec1, id.iCell1, true);
   } else if (tileTrapezoid()) {
@@ -503,7 +504,7 @@ bool HGCalTopology::validModule(const DetId& idin, int cornerMin) const {
 }
 
 DetId HGCalTopology::offsetBy(const DetId startId, int nrStepsX, int nrStepsY) const {
-  if (startId.det() == DetId::Forward && startId.subdetId() == (int)(subdet_)) {
+  if (startId.det() == DetId::Forward && startId.subdetId() == static_cast<int>(subdet_)) {
     DetId id = changeXY(startId, nrStepsX, nrStepsY);
     if (valid(id))
       return id;
@@ -524,8 +525,8 @@ DetId HGCalTopology::switchZSide(const DetId startId) const {
 HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi) const {
   HGCalTopology::DecodedDetId id;
   if (hi < totalGeomModules()) {
-    id.zSide = ((int)(hi) < kHGeomHalf_ ? -1 : 1);
-    int di = ((int)(hi) % kHGeomHalf_);
+    id.zSide = (static_cast<int>(hi) < kHGeomHalf_ ? -1 : 1);
+    int di = (static_cast<int>(hi) % kHGeomHalf_);
     if (waferHexagon6()) {
       id.iSec1 = (di % sectors_);
       di = (di - id.iSec1) / sectors_;
@@ -582,8 +583,13 @@ void HGCalTopology::addHGCSiliconId(
                                 << hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV, false);
 #endif
   if (hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV, false)) {
-    HGCSiliconDetId id((DetId::Detector)(det), zside, type, lay, waferU, waferV, cellU, cellV);
-    ids.emplace_back(DetId(id));
+    if (det == static_cast<int>(ForwardSubdetector::HFNose)) {
+      HFNoseDetId id(DetId::Forward, zside, type, lay, waferU, waferV, cellU, cellV);
+      ids.emplace_back(DetId(id));
+    } else {
+      HGCSiliconDetId id((DetId::Detector)(det), zside, type, lay, waferU, waferV, cellU, cellV);
+      ids.emplace_back(DetId(id));
+    }
   }
 }
 
@@ -608,7 +614,7 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iSec2 = 0;
     idx.iType = id.type();
     idx.zSide = id.zside();
-    idx.det = (int)(id.subdet());
+    idx.det = static_cast<int>(id.subdet());
   } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
     HFNoseDetId id(startId);
     idx.iCell1 = id.cellU();
@@ -618,7 +624,7 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iSec2 = id.waferV();
     idx.iType = id.type();
     idx.zSide = id.zside();
-    idx.det = (int)(id.subdet());
+    idx.det = static_cast<int>(id.subdet());
   } else {
     HGCSiliconDetId id(startId);
     idx.iCell1 = id.cellU();
@@ -628,7 +634,7 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iSec2 = id.waferV();
     idx.iType = id.type();
     idx.zSide = id.zside();
-    idx.det = (int)(id.subdet());
+    idx.det = static_cast<int>(id.subdet());
   }
   return idx;
 }

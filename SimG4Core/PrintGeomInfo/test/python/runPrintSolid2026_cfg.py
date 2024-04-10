@@ -4,11 +4,11 @@
 #
 #   Options for type DDD, DD4hep
 #   Options for geometry D86, D88, D91, D92, D93, D95, D96, D97, D98, D99,
-#                        D100, D101
+#                        D100, D101, D102, D103, D104,D105, D106
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -23,7 +23,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D95, D96, D97, D98, D99, D100, D101")
+                  "geometry of operations: D86, D88, D91, D92, D93, D95, D96, D97, D98, D99, D100, D101, D102, D103, D104,D105, D106")
 
 ### get and parse the command line arguments
 options.parseArguments()

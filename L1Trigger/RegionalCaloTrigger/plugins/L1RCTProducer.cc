@@ -4,6 +4,7 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <vector>
 using std::vector;
@@ -94,6 +95,13 @@ void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, co
   // LS, update the FED vector from OMDS can pass the flag as the bool??  but
   // only check LS number if flag is true anyhow
   if (getFedsFromOmds) {
+    throw cms::Exception("L1RCTProducer Configuration")
+        << "L1RCTProducer is being run with the configuration parameter getFedsFromOmds set true. "
+        << "Underlying Framework changes have broken the implementation of that option. "
+        << "It was not fixed because we believe this option is no longer used or needed. "
+        << "If you actually need this option, please report this failure to the Framework. "
+        << "For more details see GitHub Issue 43697.";
+    /*
     unsigned int nLumi = lumiSeg.luminosityBlock();  // doesn't even need the (unsigned int) cast
                                                      // because LuminosityBlockNumber_t is already
                                                      // an unsigned int
@@ -117,6 +125,7 @@ void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, co
     } else if (queryIntervalInLS <= 0) {
       // don't do interval checking... cout message??
     }
+    */
   }
 }
 

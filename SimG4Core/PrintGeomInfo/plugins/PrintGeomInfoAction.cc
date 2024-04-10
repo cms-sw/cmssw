@@ -1,3 +1,4 @@
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
@@ -605,10 +606,10 @@ void PrintGeomInfoAction::getTouch(G4VPhysicalVolume *pv,
 
   std::string mother = "World";
   if (pv->GetMotherLogical())
-    mother = static_cast<std::string>(dd4hep::dd::noNamespace(pv->GetMotherLogical()->GetName()));
+    mother = static_cast<std::string>(DD4hep2DDDName::noNameSpace(pv->GetMotherLogical()->GetName()));
 
   G4LogicalVolume *lv = pv->GetLogicalVolume();
-  std::string lvname = static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName()));
+  std::string lvname = static_cast<std::string>(DD4hep2DDDName::noNameSpace(lv->GetName()));
   unsigned int copy = static_cast<unsigned int>(pv->GetCopyNo());
 
   std::string name = lvname + ":" + std::to_string(copy) + "_" + mother + ":" + std::to_string(copym);

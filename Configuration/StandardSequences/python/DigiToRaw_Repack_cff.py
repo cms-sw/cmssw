@@ -58,7 +58,7 @@ DigiToVirginRawRepack = cms.Sequence( DigiToVirginRawRepackTask )
 DigiToSplitRawRepack = cms.Sequence( DigiToRawRepackTask, DigiToVirginRawRepackTask )
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis
-siStripDigisHLT = siStripDigis.clone(ProductLabel = "rawDataRepacker")
+hltSiStripRawToDigi = siStripDigis.clone(ProductLabel = "rawDataRepacker")
 
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import siStripZeroSuppressionHLT
 
@@ -66,7 +66,7 @@ from RecoLocalTracker.SiStripClusterizer.DefaultClusterizer_cff import *
 siStripClustersHLT = cms.EDProducer("SiStripClusterizer",
                                     Clusterizer = DefaultClusterizer,
                                     DigiProducersList = cms.VInputTag(
-                                        cms.InputTag('siStripDigisHLT','ZeroSuppressed'),
+                                        cms.InputTag('hltSiStripRawToDigi','ZeroSuppressed'),
                                         cms.InputTag('siStripZeroSuppressionHLT','VirginRaw'),
                                         cms.InputTag('siStripZeroSuppressionHLT','ProcessedRaw'),
                                         cms.InputTag('siStripZeroSuppressionHLT','ScopeMode')),
@@ -84,5 +84,10 @@ hltScalersRawToDigi =  cms.EDProducer( "ScalersRawToDigi",
    scalersInputTag = cms.InputTag( "rawDataRepacker" )
 )
 
-DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,hltScalersRawToDigi,hltBeamSpotProducer,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+    timeThreshold = 999999 # to allow using old runs in tests
+)
+
+DigiToApproxClusterRawTask = cms.Task(hltSiStripRawToDigi,siStripZeroSuppressionHLT,hltScalersRawToDigi,hltBeamSpotProducer,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)

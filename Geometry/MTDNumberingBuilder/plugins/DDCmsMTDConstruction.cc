@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -28,12 +26,13 @@ public:
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
+    std::string currentName(ev.logicalPart().name().fullname());
     for (const auto& test : veto_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return false;
     }
     for (const auto& test : allowed_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return true;
     }
     return false;
@@ -51,52 +50,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   filter.add("btl:");
   filter.add("etl:");
 
-  std::vector<std::string> volnames = {"service",
-                                       "support",
-                                       "FSide",
-                                       "BSide",
-                                       "LSide",
-                                       "RSide",
-                                       "Between",
-                                       "SupportPlate",
-                                       "Shield",
-                                       "ThermalScreen",
-                                       "Aluminium_Disc",
-                                       "MIC6_Aluminium_Disc",
-                                       "ThermalPad",
-                                       "AlN",
-                                       "LairdFilm",
-                                       "ETROC",
-                                       "SensorModule",
-                                       "SensorModule_Front_Left",
-                                       "SensorModule_Front_Right",
-                                       "SensorModule_Back_Left",
-                                       "SensorModule_Back_Right",
-                                       "DiscSector",
-                                       "LGAD_Substrate",
-                                       "ConcentratorCard",
-                                       "PowerControlCard",
-                                       "CoolingPlate",
-                                       "FrontEndCard",
-                                       "FrontModerator",
-                                       "Cables",
-                                       "Cables1",
-                                       "Cables2",
-                                       "Cables3",
-                                       "Cables4",
-                                       "Cables5",
-                                       "Cables6",
-                                       "Cables7",
-                                       "PatchPanel",
-                                       "Notich_cables",
-                                       "ServicesExtVolume1",
-                                       "ServicesExtVolume2",
-                                       "glueLGAD",
-                                       "BumpBonds",
-                                       "ModulePCB",
-                                       "connectorsGap",
-                                       "ReadoutBoard",
-                                       "LGAD"};
+  std::vector<std::string> volnames = {"FSide", "SupportPlate"};
   for (auto const& theVol : volnames) {
     filter.veto(theVol);
   }
@@ -106,6 +60,16 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   CmsMTDStringToEnum theCmsMTDStringToEnum;
   // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
   auto isBTLV2 = false;
+  // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
+  const bool prev8(fv.name().find("EModule") != std::string::npos);
+
+  // Specify ETL end component
+  GeometricTimingDet::GeometricTimingEnumType ETLEndComponent;
+  if (prev8) {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  } else {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  }
 
   auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv));
   if (check_root != GeometricTimingDet::MTD) {
@@ -164,7 +128,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
       } else {
         limit = num + 1;
       }
-    } else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
+    } else if ((thisNode == ETLEndComponent) && limit == 0) {
       limit = num;
     }
     if (num != limit && limit > 0) {
@@ -176,7 +140,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
 #endif
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
       limit = num;
-    } else if (thisNode == GeometricTimingDet::ETLModule) {
+    } else if (thisNode == ETLEndComponent) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
@@ -300,6 +264,16 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
   // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
   auto isBTLV2 = false;
+  // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
+  const bool prev8(fv.name().find("EModule") != std::string::npos);
+
+  // Specify ETL end component
+  GeometricTimingDet::GeometricTimingEnumType ETLEndComponent;
+  if (prev8) {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  } else {
+    ETLEndComponent = GeometricTimingDet::ETLSensor;
+  }
 
   std::vector<GeometricTimingDet*> subdet;
   std::vector<GeometricTimingDet*> layer;
@@ -337,7 +311,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
         }
       }
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
-    } else if (thisNode == GeometricTimingDet::ETLModule) {
+    } else if (thisNode == ETLEndComponent) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif

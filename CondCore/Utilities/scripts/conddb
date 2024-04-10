@@ -2544,6 +2544,10 @@ def dump(args):
     if args.format == 'xml':
         xmlProcessor = cond2xml.CondXmlProcessor(conddb)
 
+    if args.destfile != None: #The file for XML dump will be cleaned up and automatically closed after this
+        with open(args.destfile, 'w'):
+            pass 
+
     if args.type == 'payload':
         if args.format == 'xml':
             xmlProcessor.payload2xml(session, name, args.destfile)

@@ -72,7 +72,7 @@ hltL3MuonsPhase2L3OI = cms.EDProducer("L3MuonProducer",
             input = cms.InputTag("hltL2MuonsFromL1TkMuon","UpdatedAtVtx"),
             maxRegions = cms.int32(2),
             precise = cms.bool(True),
-            vertexCollection = cms.InputTag("pixelVertices")
+            vertexCollection = cms.InputTag("hltPhase2PixelVertices")
         ),
         PCut = cms.double(2.5),
         PtCut = cms.double(1.0),

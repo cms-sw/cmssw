@@ -44,14 +44,11 @@
 class ttHFGenFilter : public edm::stream::EDFilter<> {
 public:
   explicit ttHFGenFilter(const edm::ParameterSet&);
-  ~ttHFGenFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   virtual bool HasAdditionalBHadron(const std::vector<int>&,
                                     const std::vector<int>&,
@@ -98,11 +95,6 @@ ttHFGenFilter::ttHFGenFilter(const edm::ParameterSet& iConfig)
   taggingMode_ = iConfig.getParameter<bool>("taggingMode");
 
   produces<bool>();
-}
-
-ttHFGenFilter::~ttHFGenFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -259,44 +251,6 @@ void ttHFGenFilter::FindAllTopMothers(const reco::Candidate* particle,
     }
   }
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void ttHFGenFilter::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void ttHFGenFilter::endStream() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-ttHFGenFilter::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-ttHFGenFilter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-ttHFGenFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-ttHFGenFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void ttHFGenFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -9,17 +9,17 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun HIon PIon PRef 2023v12 Fake Fake1 Fake2 )
+  set tables = ( GRun HIon PIon PRef Special 2024v10 Fake Fake1 Fake2 )
 else if ( $2 == IB ) then
-  set tables = ( GRun HIon PIon PRef )
+  set tables = ( GRun HIon PIon PRef Special)
 else if ( $2 == DEV ) then
-  set tables = ( GRun HIon PIon PRef )
+  set tables = ( GRun HIon PIon PRef Special)
 else if ( $2 == FULL ) then
   set tables = ( FULL )
 else if ( $2 == FAKE ) then
   set tables = ( Fake Fake1 Fake2 )
 else if ( $2 == FROZEN ) then
-  set tables = ( 2023v12 )
+  set tables = ( 2024v10 )
 else
   set tables = ( $2 )
 endif

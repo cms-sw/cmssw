@@ -18,7 +18,7 @@
 <test name="TestFWCoreServicesDriver_zombiekiller"    command="test_zombiekiller.sh"/>
 <test name="TestFWCoreServicesDriver_cpu"             command="test_cpu.sh"/>
 
-<ifrelease name="!_ASAN_">
+<ifrelease name="!ASAN">
   <test name="TestFWCoreServicesDriver_resource"        command="test_resource.sh"/>
 </ifrelease>
 

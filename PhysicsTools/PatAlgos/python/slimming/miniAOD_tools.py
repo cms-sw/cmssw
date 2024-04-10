@@ -37,10 +37,12 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
     from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
     from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
+    from Configuration.Eras.Modifier_run3_muon_cff import run3_muon
     run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
-    
+    run3_muon.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
+
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -107,7 +109,7 @@ def miniAOD_customizeCommon(process):
 
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    
+
     process.phPFIsoDepositChargedPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositChargedAllPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositNeutralPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
@@ -117,13 +119,17 @@ def miniAOD_customizeCommon(process):
     process.patOOTPhotons.photonSource = cms.InputTag("reducedEgamma","reducedOOTPhotons")
     process.patOOTPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     #
-    process.selectedPatJets.cut = cms.string("pt > 10")
+    process.selectedPatJets.cut = cms.string("pt > 15")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))")
-    
+
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")
     from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
     pp_on_AA.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon) )")
+    from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+    run3_upc.toModify(process.selectedPatMuons, cut = "")
+    from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+    ppRef_2024.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || isTrackerMuon || (pt > 1.2 && (isGlobalMuon || isStandAloneMuon))")
 
     process.selectedPatElectrons.cut = cms.string("")
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
@@ -134,7 +140,7 @@ def miniAOD_customizeCommon(process):
 
     def _applySubstructure(process):
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-        
+
         from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
         applySubstructure( process )
     (~pp_on_AA).toModify(process, _applySubstructure)
@@ -180,20 +186,6 @@ def miniAOD_customizeCommon(process):
     task.add(process.slimmedMETs)
     (~pp_on_AA).toModify(process.slimmedMETs, addDeepMETs = True)
 
-    def _add_slimmedMETsNoHF(process):
-        addToProcessAndTask('slimmedMETsNoHF', process.slimmedMETs.clone(), process, task)
-        process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
-        process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
-        process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
-        process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
-        process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
-        process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
-        process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
-        del process.slimmedMETsNoHF.caloMET
-    (~pp_on_AA).toModify(process, _add_slimmedMETsNoHF)
     # ================== NoHF pfMET
 
     #  ==================  CHSMET 
@@ -228,20 +220,6 @@ def miniAOD_customizeCommon(process):
     process.patTrkMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  TrkMET 
-    
-
-    ## PU JetID
-    process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileUpJetIDTask)
-
-    process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
-    process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
-
-    ## Quark Gluon Likelihood
-    process.load('RecoJets.JetProducers.QGTagger_cfi')
-    task.add(process.QGTagger)
-
-    process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
     #HF jet shower shape
     process.load('RecoJets.JetProducers.hfJetShowerShape_cfi')
@@ -259,8 +237,6 @@ def miniAOD_customizeCommon(process):
             'pfDeepCSVDiscriminatorsJetTags:CvsB',
             'pfDeepCSVDiscriminatorsJetTags:CvsL',
         ])
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-    (~pp_on_AA_2018).toModify(process, _add_deepFlavour)
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
@@ -305,7 +281,8 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff'
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff'
                     ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -417,9 +394,10 @@ def miniAOD_customizeCommon(process):
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJets_cfi')
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppijets_task)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -475,7 +453,7 @@ def miniAOD_customizeCommon(process):
         process.load('RecoMET.METProducers.pfMetPuppi_cfi')
         _rerun_puppimet_task = task.copy()
         _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppimet_task)
+        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppimet_task)
     
         runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                             jetCollUnskimmed="slimmedJetsPuppi",

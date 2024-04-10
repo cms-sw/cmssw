@@ -1,19 +1,18 @@
 import FWCore.ParameterSet.Config as cms
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-trackTypeMonitor = DQMEDAnalyzer('TrackTypeMonitor',
-    trackInputTag   = cms.untracked.InputTag('selectedTracks'),
-    offlineBeamSpot = cms.untracked.InputTag('offlineBeamSpot'),
-    trackQuality    = cms.untracked.string('highPurity'),
-    vertexTag       = cms.untracked.InputTag('selectedPrimaryVertices'),
-    # isMC            = cms.untracked.bool(True),
-    # PUCorrection    = cms.untracked.bool(False),
-    TrackEtaPar    = cms.PSet(Xbins = cms.int32(60),Xmin = cms.double(-3.0),Xmax = cms.double(3.0)),
-    TrackPtPar     = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(0.0),Xmax = cms.double(100.0)),
-    TrackPPar      = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(0.0),Xmax = cms.double(100.0)),
-    TrackPhiPar    = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(-4.0),Xmax = cms.double(4.0)),
-    TrackPterrPar  = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(0.0),Xmax = cms.double(100.0)),
-    TrackqOverpPar = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(-10.0),Xmax = cms.double(10.0)),
-    TrackdzPar     = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(-100.0),Xmax = cms.double(100.0)),
-    TrackChi2bynDOFPar = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(0.0),Xmax = cms.double(10.0)),
-    nTracksPar     = cms.PSet(Xbins = cms.int32(100),Xmin = cms.double(-0.5),Xmax = cms.double(99.5))
+
+from DQM.TrackingMonitorSource.trackTypeMonitor_cfi import trackTypeMonitor
+TrackTypeMonitor = trackTypeMonitor.clone(
+    trackInputTag      = 'selectedTracks',
+    offlineBeamSpot    = 'offlineBeamSpot',
+    trackQuality       = 'highPurity',
+    vertexTag          = 'selectedPrimaryVertices',
+    TrackEtaPar        = dict(Xbins = 60,Xmin = -3.0,Xmax = 3.0),
+    TrackPtPar         = dict(Xbins = 100,Xmin = 0.0,Xmax = 100.0),
+    TrackPPar          = dict(Xbins = 100,Xmin = 0.0,Xmax = 100.0),
+    TrackPhiPar        = dict(Xbins = 100,Xmin = -4.0,Xmax = 4.0),
+    TrackPterrPar      = dict(Xbins = 100,Xmin = 0.0,Xmax = 100.0),
+    TrackqOverpPar     = dict(Xbins = 100,Xmin = -10.0,Xmax = 10.0),
+    TrackdzPar         = dict(Xbins = 100,Xmin = -100.0,Xmax = 100.0),
+    TrackChi2bynDOFPar = dict(Xbins = 100,Xmin = 0.0,Xmax = 10.0),
+    nTracksPar         = dict(Xbins = 100,Xmin = -0.5,Xmax = 99.5)
 )

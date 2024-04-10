@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
+
+from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX, dEdX_v16
+from . import l1tHGCalTriggerGeometryESProducer_cfi as geomparam
+
 AllLayer_weights = cms.vdouble(0.0,
                                0.0158115,
                                0.0286877,
@@ -110,16 +115,25 @@ TrgLayer_weights = cms.vdouble(0.0,
                                0.328053
                                )
 
-from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX
 
-EE_LAYERS = 28
-TrgLayer_dEdX_weights = cms.vdouble()
-for lid, lw in enumerate(dEdX.weights):
-    if lid > (EE_LAYERS+1):
-        TrgLayer_dEdX_weights.append(lw)
-    else:
-        # Only half the layers are read in the EE at L1T
-        if (lid % 2) == 1:
-            TrgLayer_dEdX_weights.append(lw+dEdX.weights[lid-1])
+
+def trigger_dedx_weights(ecal_layers, reco_weights):
+    weights = []
+    for lid, lw in enumerate(reco_weights):
+        if lid > (ecal_layers+1):
+            weights.append(lw)
         else:
-            TrgLayer_dEdX_weights.append(0)
+            # Only half the layers are read in the EE at L1T
+            if (lid % 2) == 1:
+                weights.append(lw+reco_weights[lid-1])
+            else:
+                weights.append(0)
+    return weights
+
+triggerWeights = cms.PSet(
+    weights = cms.vdouble(trigger_dedx_weights(geomparam.CEE_LAYERS, dEdX.weights))
+)
+
+phase2_hgcalV16.toModify(triggerWeights,
+                         weights = cms.vdouble(trigger_dedx_weights(geomparam.CEE_LAYERS_V16, dEdX_v16.weights))
+)

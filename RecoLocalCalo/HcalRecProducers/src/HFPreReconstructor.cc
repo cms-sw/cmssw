@@ -60,7 +60,6 @@ private:
   typedef std::pair<HcalDetId, int> PmtAnodeId;
   typedef std::pair<PmtAnodeId, const HFQIE10Info*> QIE10InfoWithId;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // Module configuration parameters
@@ -201,8 +200,6 @@ void HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& e
     }
   }
 }
-
-void HFPreReconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {}
 
 // ------------ method called to produce the data  ------------
 void HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {

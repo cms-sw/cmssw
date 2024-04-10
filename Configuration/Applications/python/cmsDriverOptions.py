@@ -2,7 +2,6 @@
 
 # A Pyrelval Wrapper
 
-from __future__ import print_function
 import optparse
 import sys
 import os
@@ -18,7 +17,7 @@ def checkModifier(era):
 
 def checkOptions():
     return
-    
+
 def adaptOptions():
     return
 
@@ -35,27 +34,22 @@ def OptionsFromCommand(command):
 def OptionsFromCommandLine():
     import sys
     options=OptionsFromItems(sys.argv[1:])
-    # memorize the command line arguments 
+    # memorize the command line arguments
     options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
     return options
 
 def OptionsFromItems(items):
     import sys
-    from Configuration.Applications.Options import parser,threeValued
-    #three valued options
-    for (index,item) in enumerate(items):
-        for (opt,value) in threeValued:
-            if (str(item) in opt) and (index==len(items)-1 or items[index+1].startswith('-')):
-                items.insert(index+1,value)
-                
-    (options,args) = parser.parse_args(items)
+    from Configuration.Applications.Options import parser
 
-    if not options.conditions or options.conditions=="help":
+    options = parser.parse_args(items)
+
+    if options.conditions=="help":
         from Configuration.AlCa import autoCond
         possible=""
         for k in autoCond.autoCond:
             possible+="\nauto:"+k+" -> "+str(autoCond.autoCond[k])
-        raise Exception("the --conditions option is mandatory. Possibilities are: "+possible)
+        parser.error("Possibilities for the --conditions option: "+possible)
 
 
     #################################
@@ -66,8 +60,8 @@ def OptionsFromItems(items):
     if options.triggerResultsProcess == None and "ALCAOUTPUT" in options.step:
         print("ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO")
         sys.exit(1)
-            
-    if not options.evt_type:            
+
+    if not options.evt_type:
         options.evt_type=sys.argv[1]
 
     #now adjust the given parameters before passing it to the ConfigBuilder
@@ -129,7 +123,7 @@ def OptionsFromItems(items):
 
     # add on the end of job sequence...
     addEndJob = True
-    if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
+    if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "":
         addEndJob = False
     if ("SKIM" in options.step and not "RECO" in options.step):
         addEndJob = False
@@ -137,7 +131,7 @@ def OptionsFromItems(items):
         addEndJob = False
     if ('DQMIO' in options.datatier):
         addEndJob = False
-    if addEndJob:    
+    if addEndJob:
         options.step=options.step+',ENDJOB'
 
 
@@ -186,7 +180,7 @@ def OptionsFromItems(items):
             options.name = 'RESIM'
         elif 'reDIGI' in options.trimmedStep:
             options.name = 'REDIGI'
-        elif 'HLT' in options.trimmedStep:    
+        elif 'HLT' in options.trimmedStep:
             options.name = 'HLT'
         elif 'RECO' in options.trimmedStep:
             options.name = 'RECO'
@@ -250,12 +244,16 @@ def OptionsFromItems(items):
             raise Exception("Not a valid profiler type %s. Alternatives are pp, mp, fp=<function>."%(profilerType))
 
         options.prefix = "igprof -t cmsRun -%s" % profilerType
-        
+
     if options.heap_profile:
-        if options.profile and options.prefix:
+        if options.prefix:
             raise Exception("--heap_profile and --prefix are incompatible")
-        profilerType = 'pp'
-        options.prefix = "MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out cmsRunJE "
+        options.prefix = "env MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out LD_PRELOAD=libjemalloc-prof.so "
+
+    if options.maxmem_profile:
+        if options.prefix:
+            raise Exception("--maxmem_profile and --prefix are incompatible")
+        options.prefix = "env LD_PRELOAD=libPerfToolsAllocMonitorPreload.so:libPerfToolsMaxMemoryPreload.so "
 
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
@@ -268,7 +266,7 @@ def OptionsFromItems(items):
                 validOptions="" # Create a stringified list of valid options to print to the user
                 for key in eras.__dict__ :
                     if checkModifier(eras.__dict__[key]):
-                        if validOptions!="" : validOptions+=", " 
+                        if validOptions!="" : validOptions+=", "
                         validOptions+="'"+key+"'"
                 raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (eraName, validOptions) )
     # If the "--fast" option was supplied automatically enable the fastSim era

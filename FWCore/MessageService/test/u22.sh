@@ -7,7 +7,7 @@ status=0
   
 rm -f  u22_warnings.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u22_cfg.py  || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u22_cfg.py  || exit $?
  
 for file in u22_warnings.log  
 do

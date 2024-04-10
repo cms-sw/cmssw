@@ -36,7 +36,7 @@ process.load("Configuration/StandardSequences/GeometryIdeal_cff")
 process.GlobalTag.globaltag = 'START311_V1::All'
 
 ###### Quality ESProducer --- copied from SiStripESProducer
-process.load("CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi")
+process.load("CalibTracker.SiPixelESProducers.siPixelQualityESProducer_cfi")
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
@@ -66,10 +66,3 @@ process.siPixelQualityESProducer.ListOfRecordToMerge = cms.VPSet(
     )
 
 process.p = cms.Path(process.BadModuleReader)
-
-
-
-
-
-
-

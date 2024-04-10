@@ -22,7 +22,14 @@
 #include <type_traits>
 
 namespace {
-  std::string replaceStringsToColumGets(const std::string &expr, const nanoaod::FlatTable &table) {
+  bool notANumber(std::string const &iValue) {
+    auto find = iValue.find_first_not_of("0123456789");
+    return find != std::string::npos;
+  }
+  bool notRowMethod(std::string const &iValue) { return iValue != "row" and iValue != "table"; }
+
+  bool notAFunction(std::string const &iSuffix) { return (iSuffix.empty() or iSuffix[0] != '('); }
+  std::string replaceStringsToColumGets(const std::string &expr) {
     std::regex token("\\w+");
     std::sregex_iterator tbegin(expr.begin(), expr.end(), token), tend;
     if (tbegin == tend)
@@ -32,7 +39,7 @@ namespace {
     for (std::sregex_iterator i = tbegin; i != tend; last = i, ++i) {
       const std::smatch &match = *i;
       out << match.prefix().str();
-      if (table.columnIndex(match.str()) != -1) {
+      if (notAFunction(i->suffix().str()) and notANumber(match.str()) and notRowMethod(match.str())) {
         out << "getAnyValue(\"" << match.str() << "\")";
       } else {
         out << match.str();
@@ -97,9 +104,6 @@ private:
       if (icol == -1)
         return;  // columns may be missing (e.g. mc-only)
       switch (table.columnType(icol)) {
-        case FlatTable::ColumnType::Int8:
-          vfill<int8_t>(table, icol, rowsel);
-          break;
         case FlatTable::ColumnType::UInt8:
           vfill<uint8_t>(table, icol, rowsel);
           break;
@@ -206,16 +210,17 @@ private:
     std::unique_ptr<StringCutObjectSelector<FlatTable::RowView>> cutptr;
     std::vector<std::unique_ptr<Plot>> plots;
     SelGroupConfig() : name(), cutstr(), cutptr(), plots() {}
-    SelGroupConfig(const std::string &nam, const std::string &cut) : name(nam), cutstr(cut), cutptr(), plots() {}
+    SelGroupConfig(const std::string &nam, const std::string &cut) : name(nam), cutstr(cut), cutptr(), plots() {
+      if (not nullCut()) {
+        cutptr = std::make_unique<Selector>(replaceStringsToColumGets(cutstr));
+      }
+    }
     bool nullCut() const { return cutstr.empty(); }
     void fillSel(const FlatTable &table, std::vector<bool> &out) {
       out.resize(table.size());
       if (nullCut()) {
         std::fill(out.begin(), out.end(), true);
       } else {
-        if (!cutptr) {
-          cutptr = std::make_unique<Selector>(replaceStringsToColumGets(cutstr, table));
-        }
         for (unsigned int i = 0, n = table.size(); i < n; ++i) {
           out[i] = (*cutptr)(table.row(i));
         }

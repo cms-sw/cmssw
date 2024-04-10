@@ -12,8 +12,8 @@ using namespace l1ct;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 l1ct::L2EgSorterEmulator::L2EgSorterEmulator(const edm::ParameterSet &pset)
-    : L2EgSorterEmulator(pset.getParameter<uint32_t>("nBOARDS"),
-                         pset.getParameter<uint32_t>("nEGPerBoard"),
+    : L2EgSorterEmulator(pset.getParameter<uint32_t>("nREGIONS"),
+                         pset.getParameter<uint32_t>("nEGPerRegion"),
                          pset.getParameter<uint32_t>("nEGOut"),
                          pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
 #endif
@@ -43,11 +43,11 @@ void L2EgSorterEmulator::run(const std::vector<l1ct::OutputBoard> &in,
                              std::vector<EGIsoObjEmu> &out_photons,
                              std::vector<EGIsoEleObjEmu> &out_eles) const {
   if (debug_) {
-    unsigned int board_n = 0;
-    for (const auto &board : in) {
-      dbgCout() << "BOARD " << board_n++ << std::endl;
-      print_objects(board.egphoton, "photon_in");
-      print_objects(board.egelectron, "electron_in");
+    unsigned int region_n = 0;
+    for (const auto &region : in) {
+      dbgCout() << "REGION " << region_n++ << std::endl;
+      print_objects(region.egphoton, "photon_in");
+      print_objects(region.egelectron, "electron_in");
     }
   }
 
@@ -56,9 +56,9 @@ void L2EgSorterEmulator::run(const std::vector<l1ct::OutputBoard> &in,
   std::vector<std::vector<EGIsoEleObjEmu>> eles_in;
   photons_in.reserve(in.size());
   eles_in.reserve(in.size());
-  for (const auto &board : in) {
-    std::vector<EGIsoObjEmu> photons = board.egphoton;
-    std::vector<EGIsoEleObjEmu> eles = board.egelectron;
+  for (const auto &region : in) {
+    std::vector<EGIsoObjEmu> photons = region.egphoton;
+    std::vector<EGIsoEleObjEmu> eles = region.egelectron;
     resize_input(photons);
     resize_input(eles);
 

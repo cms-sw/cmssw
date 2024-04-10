@@ -17,6 +17,8 @@
  * \new features: Bernhard Arnold, Elisa Fontanesi                                                          
  *                - extended for muon track finder index feature (used for Run 3 muon monitoring seeds)             
  *                - checkRangeEta function allows to use up to five eta cuts in L1 algorithms 
+ * \new features: Melissa Quinnan                                                          
+ *                - checkCut function compares cut to a score, no upper limit. added for AXOL1TL NN score comparison
  *
  */
 
@@ -94,6 +96,12 @@ namespace l1t {
                               const Type1& thresholdH,
                               const Type2& value,
                               bool condGEqValue) const;
+
+    /// check if a value is greater than a cut or
+    /// greater-or-equal depending on the value of the condGEqValue flag
+    /// no upper limit applied, added for AXOL1TL condition
+    template <class Type1, class Type2>
+    const bool checkCut(const Type1& cutL, const Type2& value, bool condGEqValue) const;
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
@@ -182,9 +190,6 @@ namespace l1t {
 
     if (condGEqValue) {
       if (value >= (Type2)thresholdL && (Type1)value < thresholdH) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
-        //    << std::endl;
-
         return true;
       }
 
@@ -192,9 +197,33 @@ namespace l1t {
 
     } else {
       if (value == (Type2)thresholdL) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
-        //    << std::endl;
+        return true;
+      }
 
+      return false;
+    }
+  }
+
+  // check if a value is greater than a cut or
+  // greater-or-equal depending on the value of the condGEqValue flag
+  // made for AXOL1TL condition to compare cut to score
+  template <class Type1, class Type2>
+  const bool ConditionEvaluation::checkCut(const Type1& cutL, const Type2& value, const bool condGEqValue) const {
+    if (value > 0) {
+      LogTrace("L1GlobalTrigger") << "  checkCut check for condGEqValue = " << condGEqValue << "\n    hex: " << std::hex
+                                  << "cut = " << cutL << " value = " << value << "\n    dec: " << std::dec
+                                  << "cut = " << cutL << " value = " << value << std::endl;
+    }
+
+    if (condGEqValue) {
+      if (value >= (Type2)cutL) {
+        return true;
+      }
+
+      return false;
+
+    } else {
+      if (value == (Type2)cutL) {
         return true;
       }
 

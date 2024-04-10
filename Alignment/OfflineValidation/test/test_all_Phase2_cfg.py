@@ -232,10 +232,12 @@ elif (theRefitter == RefitType.STANDARD):
      ####################################################################
      # Sequence
      ####################################################################
+     process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
      process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
                                              # in case NavigatioSchool is set !='' 
                                              #process.MeasurementTrackerEvent*
-                                             process.FinalTrackRefitter)     
+                                             process.FinalTrackRefitter,
+                                             cms.Task(process.SiPixelTemplateStoreESProducer))
 
 ####################################################################
 # Output file
@@ -256,7 +258,7 @@ FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
 )
 
 ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import DA_vectParameters
 DAClusterizationParams = DA_vectParameters.clone()
 
 GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),

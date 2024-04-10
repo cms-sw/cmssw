@@ -64,7 +64,7 @@ namespace reco {
 
       RecoTauVertexAssociator vertexAssociator_;
 
-      RecoTauQualityCuts* qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
       bool applyElecTrackQcuts_;
       double minGammaEtStripSeed_;
       double minGammaEtStripAdd_;
@@ -113,7 +113,7 @@ namespace reco {
       }
       //-------------------------------------------------------------------------------
       qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
-      qcuts_ = new RecoTauQualityCuts(qcuts_pset);
+      qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
       etaAssociationDistance_ = pset.getParameter<double>("stripEtaAssociationDistance");
@@ -131,7 +131,7 @@ namespace reco {
       verbosity_ = pset.getParameter<int>("verbosity");
     }
 
-    RecoTauPiZeroStripPlugin2::~RecoTauPiZeroStripPlugin2() { delete qcuts_; }
+    RecoTauPiZeroStripPlugin2::~RecoTauPiZeroStripPlugin2() {}
 
     // Update the primary vertex
     void RecoTauPiZeroStripPlugin2::beginEvent() { vertexAssociator_.setEvent(*evt()); }
@@ -254,7 +254,7 @@ namespace reco {
         seedCandIdsCurrentStrip.clear();
         addCandIdsCurrentStrip.clear();
 
-        std::unique_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
+        auto strip = std::make_unique<RecoTauPiZero>(*seedCands[idxSeed], RecoTauPiZero::kStrips);
         strip->addDaughter(seedCands[idxSeed]);
         seedCandIdsCurrentStrip.insert(idxSeed);
 

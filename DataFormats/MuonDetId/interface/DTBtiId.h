@@ -48,6 +48,9 @@ public:
   ///  Constructor
   DTBtiId(const DTBtiId& btiId) : _suplId(btiId._suplId), _bti(btiId._bti) {}
 
+  // Assignment Operator
+  DTBtiId& operator=(const DTBtiId& btiId) = default;
+
   /// Destructor
   virtual ~DTBtiId() {}
 

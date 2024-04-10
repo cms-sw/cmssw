@@ -26,16 +26,16 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiGetToken_;
-  edm::EDPutTokenT<SiPixelDigisSoA> digiPutToken_;
+  edm::EDPutTokenT<legacy::SiPixelDigisSoA> digiPutToken_;
 
-  cms::cuda::PortableHostCollection<SiPixelDigisSoALayout<>> digis_h_;
+  cms::cuda::PortableHostCollection<SiPixelDigisSoA> digis_h_;
 
   int nDigis_;
 };
 
 SiPixelDigisSoAFromCUDA::SiPixelDigisSoAFromCUDA(const edm::ParameterSet& iConfig)
     : digiGetToken_(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      digiPutToken_(produces<SiPixelDigisSoA>()) {}
+      digiPutToken_(produces<legacy::SiPixelDigisSoA>()) {}
 
 void SiPixelDigisSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -52,8 +52,7 @@ void SiPixelDigisSoAFromCUDA::acquire(const edm::Event& iEvent,
   const auto& digis_d = ctx.get(iEvent, digiGetToken_);
 
   nDigis_ = digis_d.nDigis();
-  nDigis_ = digis_d.nDigis();
-  digis_h_ = cms::cuda::PortableHostCollection<SiPixelDigisSoALayout<>>(digis_d.view().metadata().size(), ctx.stream());
+  digis_h_ = cms::cuda::PortableHostCollection<SiPixelDigisSoA>(digis_d.view().metadata().size(), ctx.stream());
   cudaCheck(cudaMemcpyAsync(digis_h_.buffer().get(),
                             digis_d.const_buffer().get(),
                             digis_d.bufferSize(),

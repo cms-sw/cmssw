@@ -40,6 +40,9 @@ namespace reco {
     /// constructor from values
     Photon(const LorentzVector& p4, const Point& caloPos, const PhotonCoreRef& core, const Point& vtx = Point(0, 0, 0));
 
+    /// assignment operator
+    Photon& operator=(const Photon&) = default;
+
     /// destructor
     ~Photon() override;
 

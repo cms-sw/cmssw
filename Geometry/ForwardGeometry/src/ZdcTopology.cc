@@ -1,13 +1,9 @@
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 #include <iostream>
 #include <algorithm>
-
-static const int ICH_EM_MAX = 5;
-static const int ICH_HAD_MAX = 4;
-static const int ICH_LUM_MAX = 2;
-static const int ICH_RPD_MAX = 16;
 
 ZdcTopology::ZdcTopology()
     : excludeEM_(false),
@@ -17,13 +13,13 @@ ZdcTopology::ZdcTopology()
       excludeZP_(false),
       excludeZN_(false),
       firstEMModule_(1),
-      lastEMModule_(5),
+      lastEMModule_(HcalZDCDetId::kDepEM),
       firstHADModule_(1),
-      lastHADModule_(4),
+      lastHADModule_(HcalZDCDetId::kDepHAD),
       firstLUMModule_(1),
-      lastLUMModule_(2),
+      lastLUMModule_(HcalZDCDetId::kDepLUM),
       firstRPDModule_(1),
-      lastRPDModule_(16) {}
+      lastRPDModule_(HcalZDCDetId::kDepRPD) {}
 
 bool ZdcTopology::valid(const HcalZDCDetId& id) const {
   // check the raw rules
@@ -167,16 +163,15 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
     ok = false;
   else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
              id.section() == HcalZDCDetId::LUM))
-    //	    id.section()== HcalZDCDetId::LUM ||
-    //	    id.section()== HcalZDCDetId::RPD))
+    //else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM || id.section()== HcalZDCDetId::RPD))
     ok = false;
-  else if (id.section() == HcalZDCDetId::EM && id.channel() > ICH_EM_MAX)
+  else if (id.section() == HcalZDCDetId::EM && id.channel() > HcalZDCDetId::kDepEM)
     ok = false;
-  else if (id.section() == HcalZDCDetId::HAD && id.channel() > ICH_HAD_MAX)
+  else if (id.section() == HcalZDCDetId::HAD && id.channel() > HcalZDCDetId::kDepHAD)
     ok = false;
-  else if (id.section() == HcalZDCDetId::LUM && id.channel() > ICH_LUM_MAX)
+  else if (id.section() == HcalZDCDetId::LUM && id.channel() > HcalZDCDetId::kDepLUM)
     ok = false;
-  else if (id.section() == HcalZDCDetId::RPD && id.channel() > ICH_RPD_MAX)
+  else if (id.section() == HcalZDCDetId::RPD && id.channel() > HcalZDCDetId::kDepRPD)
     ok = false;
   return ok;
 }
@@ -194,7 +189,7 @@ std::vector<DetId> ZdcTopology::transverse(const DetId& id) const {
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if (zdcId.channel() == ICH_EM_MAX) {
+    if (zdcId.channel() == HcalZDCDetId::kDepEM) {
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel() - 1);
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
@@ -220,7 +215,7 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const {
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if (zdcId.channel() == ICH_HAD_MAX) {
+    if (zdcId.channel() == HcalZDCDetId::kDepHAD) {
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel() - 1);
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
@@ -239,7 +234,7 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const {
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if (zdcId.channel() == ICH_LUM_MAX) {
+    if (zdcId.channel() == HcalZDCDetId::kDepLUM) {
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel() - 1);
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
@@ -254,7 +249,7 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const {
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if (zdcId.channel() == ICH_RPD_MAX) {
+    if (zdcId.channel() == HcalZDCDetId::kDepRPD) {
       zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel() - 1);
       vNeighborsDetId.emplace_back(zdcDetId.rawId());
       return vNeighborsDetId;
@@ -300,16 +295,16 @@ int ZdcTopology::ncells(HcalZDCDetId::Section section) const {
   int ncells = 0;
   switch (section) {
     case (HcalZDCDetId::EM):
-      ncells = ICH_EM_MAX;
+      ncells = HcalZDCDetId::kDepEM;
       break;
     case (HcalZDCDetId::HAD):
-      ncells = ICH_HAD_MAX;
+      ncells = HcalZDCDetId::kDepHAD;
       break;
     case (HcalZDCDetId::LUM):
-      ncells = ICH_LUM_MAX;
+      ncells = HcalZDCDetId::kDepLUM;
       break;
     case (HcalZDCDetId::RPD):
-      ncells = ICH_RPD_MAX;
+      ncells = HcalZDCDetId::kDepRPD;
       break;
     case (HcalZDCDetId::Unknown):
       ncells = 0;

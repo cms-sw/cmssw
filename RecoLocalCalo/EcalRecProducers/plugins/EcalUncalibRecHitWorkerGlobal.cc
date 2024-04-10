@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
@@ -136,8 +137,10 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
       testbeamEBShape(c),
       tokenSampleMask_(c.esConsumes<EcalSampleMask, EcalSampleMaskRcd>()),
       tokenTimeCorrBias_(c.esConsumes<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd>()),
-      tokenItime_(c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>()),
-      tokenOfftime_(c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>()) {
+      tokenItime_(c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>(
+          ps.getParameter<edm::ESInputTag>("timeCalibTag"))),
+      tokenOfftime_(c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>(
+          ps.getParameter<edm::ESInputTag>("timeOffsetTag"))) {
   // ratio method parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
   EEtimeFitParameters_ = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
@@ -577,6 +580,8 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerGlobal::getAlgoDescription()
       edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
       edm::ParameterDescription<double>("chi2ThreshEB_", 36.0, true) and
+      edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(), true) and
+      edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(), true) and
       edm::ParameterDescription<std::vector<double>>(
           "EEtimeFitParameters",
           {-2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277},

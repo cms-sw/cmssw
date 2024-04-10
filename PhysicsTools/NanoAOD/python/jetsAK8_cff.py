@@ -54,7 +54,7 @@ run2_jme_2016.toModify(
     tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI"
 )
 
-(run2_jme_2017 | run2_jme_2018).toModify(
+(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
     tightJetIdAK8.filterParams, version = "RUN2ULPUPPI"
 ).toModify(
     tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI"
@@ -103,11 +103,6 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
         n2b1 = Var("?hasUserFloat('nb1AK8PuppiSoftDrop:ecfN2')?userFloat('nb1AK8PuppiSoftDrop:ecfN2'):-99999.", float, doc="N2 with beta=1 (for jets with raw pT>250 GeV)", precision=10),
         n3b1 = Var("?hasUserFloat('nb1AK8PuppiSoftDrop:ecfN3')?userFloat('nb1AK8PuppiSoftDrop:ecfN3'):-99999.", float, doc="N3 with beta=1 (for jets with raw pT>250 GeV)", precision=10),
         msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Corrected soft drop mass with PUPPI",precision=10),
-        btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-        btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
-        btagDDBvLV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleBvLV2JetTags:probHbb')",float,doc="DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD",precision=10),
-        btagDDCvLV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleCvLV2JetTags:probHcc')",float,doc="DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD",precision=10),
-        btagDDCvBV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleCvBV2JetTags:probHcc')",float,doc="DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb",precision=10),
         particleNetWithMass_QCD = Var("bDiscriminator('pfParticleNetJetTags:probQCDbb')+bDiscriminator('pfParticleNetJetTags:probQCDcc')+bDiscriminator('pfParticleNetJetTags:probQCDb')+bDiscriminator('pfParticleNetJetTags:probQCDc')+bDiscriminator('pfParticleNetJetTags:probQCDothers')",float,doc="ParticleNet tagger (w/ mass) QCD(bb,cc,b,c,others) sum",precision=10),
         particleNetWithMass_TvsQCD = Var("bDiscriminator('pfParticleNetDiscriminatorsJetTags:TvsQCD')",float,doc="ParticleNet tagger (w/ mass) top vs QCD discriminator",precision=10),
         particleNetWithMass_WvsQCD = Var("bDiscriminator('pfParticleNetDiscriminatorsJetTags:WvsQCD')",float,doc="ParticleNet tagger (w/ mass) W vs QCD discriminator",precision=10),
@@ -127,11 +122,23 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
         particleNet_XttVsQCD = Var("bDiscriminator('pfParticleNetFromMiniAODAK8DiscriminatorsJetTags:HttvsQCD')",float,doc="ParticleNet X->tau_h tau_h vs. QCD score: Xtt/(Xtt+QCD)",precision=10),
         particleNet_XtmVsQCD = Var("bDiscriminator('pfParticleNetFromMiniAODAK8DiscriminatorsJetTags:HtmvsQCD')",float,doc="ParticleNet X->mu tau_h vs. QCD score: Xtm/(Xtm+QCD)",precision=10),
         particleNet_XteVsQCD = Var("bDiscriminator('pfParticleNetFromMiniAODAK8DiscriminatorsJetTags:HtevsQCD')",float,doc="ParticleNet X->e tau_h vs. QCD score: Xte/(Xte+QCD)",precision=10),
+        particleNetLegacy_mass = Var("bDiscriminator('pfParticleNetMassRegressionJetTags:mass')",float,doc="ParticleNet Legacy Run-2 mass regression",precision=10),
+        particleNetLegacy_Xbb = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXbb')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->bb score. For X->bb vs QCD tagging, use Xbb/(Xbb+QCD)",precision=10),
+        particleNetLegacy_Xcc = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXcc')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->cc score. For X->cc vs QCD tagging, use Xcc/(Xcc+QCD)",precision=10),
+        particleNetLegacy_Xqq = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXqq')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->qq (uds) score. For X->qq vs QCD tagging, use Xqq/(Xqq+QCD). For W vs QCD tagging, use (Xcc+Xqq)/(Xcc+Xqq+QCD)",precision=10),
+        particleNetLegacy_QCD = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDbb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDcc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDothers')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw QCD score",precision=10),
         subJetIdx1 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>0?subjets('SoftDropPuppi')[0].key():-1", "int16",
             doc="index of first subjet"),
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", "int16",
             doc="index of second subjet"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
+        chMultiplicity = Var("?isPFJet()?chargedMultiplicity():-1","int16",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("?isPFJet()?neutralMultiplicity():-1","int16",doc="(Puppi-weighted) Number of neutral particles in the jet"),
+        chHEF = Var("?isPFJet()?chargedHadronEnergyFraction():-1", float, doc="charged Hadron Energy Fraction", precision=6),
+        neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=6),
+        chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=6),
+        neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=6),
+        muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=6),
     ),
     externalVariables = cms.PSet(
         lsf3 = ExtVar(cms.InputTag("lepInAK8JetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
@@ -142,11 +149,19 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
 
 run2_nanoAOD_ANY.toModify(
     fatJetTable.variables,
-    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+    # Remove for V9
+    chMultiplicity = None,
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    muEF = None
 )
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     fatJetTable.variables,
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     particleNet_QCD = None,
     particleNet_QCD2HF = None,
     particleNet_QCD1HF = None,
@@ -159,12 +174,24 @@ run2_nanoAOD_ANY.toModify(
     particleNet_XttVsQCD = None,
     particleNet_XtmVsQCD = None,
     particleNet_XteVsQCD = None,
+    # Remove for V11 and earlier versions
+    chMultiplicity = None,
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    muEF = None
 )
 
 (run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
     fatJetTable.variables,
- 
     # Restore taggers that were decommisionned for Run-3
+    btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+    btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
+    btagDDBvLV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleBvLV2JetTags:probHbb')",float,doc="DeepDoubleX V2(mass-decorrelated) discriminator for H(Z)->bb vs QCD",precision=10),
+    btagDDCvLV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleCvLV2JetTags:probHcc')",float,doc="DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs QCD",precision=10),
+    btagDDCvBV2 = Var("bDiscriminator('pfMassIndependentDeepDoubleCvBV2JetTags:probHcc')",float,doc="DeepDoubleX V2 (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb",precision=10),
     deepTag_TvsQCD = Var("bDiscriminator('pfDeepBoostedDiscriminatorsJetTags:TvsQCD')",float,doc="DeepBoostedJet tagger top vs QCD discriminator",precision=10),
     deepTag_WvsQCD = Var("bDiscriminator('pfDeepBoostedDiscriminatorsJetTags:WvsQCD')",float,doc="DeepBoostedJet tagger W vs QCD discriminator",precision=10),
     deepTag_ZvsQCD = Var("bDiscriminator('pfDeepBoostedDiscriminatorsJetTags:ZvsQCD')",float,doc="DeepBoostedJet tagger Z vs QCD discriminator",precision=10),
@@ -181,13 +208,6 @@ run2_nanoAOD_ANY.toModify(
     deepTagMD_H4qvsQCD = Var("bDiscriminator('pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:H4qvsQCD')",float,doc="Mass-decorrelated DeepBoostedJet tagger H->4q vs QCD discriminator",precision=10),
     deepTagMD_bbvsLight = Var("bDiscriminator('pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight')",float,doc="Mass-decorrelated DeepBoostedJet tagger Z/H/gluon->bb vs light flavour discriminator",precision=10),
     deepTagMD_ccvsLight = Var("bDiscriminator('pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsLight')",float,doc="Mass-decorrelated DeepBoostedJet tagger Z/H/gluon->cc vs light flavour discriminator",precision=10),
-    particleNetLegacy_mass = Var("bDiscriminator('pfParticleNetMassRegressionJetTags:mass')",float,doc="ParticleNet Legacy Run-2 mass regression",precision=10),
-    particleNetLegacy_Xbb = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXbb')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->bb score. For X->bb vs QCD tagging, use Xbb/(Xbb+QCD)",precision=10),
-    particleNetLegacy_Xcc = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXcc')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->cc score. For X->cc vs QCD tagging, use Xcc/(Xcc+QCD)",precision=10),
-    particleNetLegacy_Xqq = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probXqq')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw X->qq (uds) score. For X->qq vs QCD tagging, use Xqq/(Xqq+QCD). For W vs QCD tagging, use (Xcc+Xqq)/(Xcc+Xqq+QCD)",precision=10),
-    particleNetLegacy_QCD = Var("bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDbb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDcc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDb')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDc')+bDiscriminator('pfMassDecorrelatedParticleNetJetTags:probQCDothers')",float,doc="Mass-decorrelated ParticleNet Legacy Run-2 tagger raw QCD score",precision=10),
-
-    
 )
 
 ##############################################################
@@ -195,7 +215,7 @@ run2_nanoAOD_ANY.toModify(
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNetMassLegacy, addParticleNet, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -208,9 +228,6 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
         print("Updating process to run ParticleNet joint classification and mass regression")
         from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK8JetTagsAll
-    if addParticleNetMassLegacy:
-        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
-        _btagDiscriminators += _pfParticleNetMassRegressionOutputs
     if addDeepDoubleX:
         print("Updating process to run DeepDoubleX on datasets before 104X")
         _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
@@ -247,17 +264,15 @@ nanoAOD_addDeepInfoAK8_switch = cms.PSet(
     nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
     nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
     nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
-    nanoAOD_addParticleNetMassLegacy_switch = cms.untracked.bool(False),
     jecPayload = cms.untracked.string('AK8PFPuppi')
 )
 
 
 # ParticleNet legacy jet tagger is already in 106Xv2 MINIAOD,
-# add PartlceNet legacy mass regression and new combined tagger + mass regression
+# add ParticleNet new combined tagger + mass regression
 run2_nanoAOD_106Xv2.toModify(
     nanoAOD_addDeepInfoAK8_switch,
     nanoAOD_addParticleNet_switch = True,
-    nanoAOD_addParticleNetMassLegacy_switch = True
 )
 
 ################################################
@@ -267,10 +282,11 @@ run2_nanoAOD_106Xv2.toModify(
 subJetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
     name = cms.string("SubJet"),
-    doc  = cms.string("slimmedJetsAK8, i.e. ak8 fat jets for boosted analysis"),
+    doc  = cms.string("slimmedJetsAK8PFPuppiSoftDropPacked::SubJets, i.e. soft-drop subjets for ak8 fat jets for boosted analysis"),
     variables = cms.PSet(P4Vars,
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
+        area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Subjets:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
         tau2 = Var("userFloat('NjettinessAK8Subjets:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
         tau3 = Var("userFloat('NjettinessAK8Subjets:tau3')",float, doc="Nsubjettiness (3 axis)",precision=10),
@@ -283,6 +299,11 @@ subJetTable = simpleCandidateFlatTableProducer.clone(
 run2_nanoAOD_ANY.toModify(
     subJetTable.variables,
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+)
+
+(run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    subJetTable.variables,
+    area = None,
 )
 
 #jets are not as precise as muons

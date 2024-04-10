@@ -31,10 +31,11 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
                     detectorEnum = cms.int32(4),
                     threshold = cms.vdouble(1.2, 1.8)
                 )),
-                name = cms.string('PFRecHitQTestHCALThresholdVsDepth')
+                name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
+                usePFThresholdsFromDB = cms.bool(False)
             )
         ),
-        src = cms.InputTag("hfreco"),
+        src = cms.InputTag("hltHfreco"),
         thresh_HF = cms.double(0.4)
     ))
 )

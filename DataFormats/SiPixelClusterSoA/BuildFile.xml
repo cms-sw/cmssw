@@ -1,0 +1,8 @@
+<use name="rootcore"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate" source_only="1"/>
+<flags ALPAKA_BACKENDS="!serial"/>
+<export>
+    <lib name="1"/>
+</export>

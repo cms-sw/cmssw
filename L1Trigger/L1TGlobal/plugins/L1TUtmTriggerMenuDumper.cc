@@ -34,10 +34,9 @@ using namespace edm;
 using namespace std;
 using namespace tmeventsetup;
 
-class L1TUtmTriggerMenuDumper : public one::EDAnalyzer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns> {
+class L1TUtmTriggerMenuDumper : public one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1TUtmTriggerMenuDumper(const ParameterSet&);
-  ~L1TUtmTriggerMenuDumper() override;
 
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -48,15 +47,11 @@ private:
 
   void beginRun(Run const&, EventSetup const&) override;
   void endRun(Run const&, EventSetup const&) override;
-  void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-  void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
 };
 
 L1TUtmTriggerMenuDumper::L1TUtmTriggerMenuDumper(const ParameterSet& iConfig)
     : m_l1TriggerMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>()) {}
-
-L1TUtmTriggerMenuDumper::~L1TUtmTriggerMenuDumper() {}
 
 void L1TUtmTriggerMenuDumper::analyze(Event const& iEvent, EventSetup const& iSetup) {}
 
@@ -186,10 +181,6 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
 }
 
 void L1TUtmTriggerMenuDumper::endRun(Run const&, EventSetup const&) {}
-
-void L1TUtmTriggerMenuDumper::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
-
-void L1TUtmTriggerMenuDumper::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
 
 void L1TUtmTriggerMenuDumper::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

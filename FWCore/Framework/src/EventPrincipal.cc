@@ -81,7 +81,7 @@ namespace edm {
     } else {
       provRetrieverPtr_->mergeParentProcessRetriever(provRetriever);
     }
-    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes) or branchListIndexes_.empty()) {
       if (branchIDListHelper_->hasProducedProducts()) {
         // Add index into BranchIDListRegistry for products produced this process
         branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());
@@ -99,7 +99,7 @@ namespace edm {
                                           DelayedReader* reader) {
     eventSelectionIDs_ = std::move(eventSelectionIDs);
 
-    if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
+    if (wasBranchListIndexesChangedFromInput(branchListIndexes) or branchListIndexes_.empty()) {
       if (branchIDListHelper_->hasProducedProducts()) {
         // Add index into BranchIDListRegistry for products produced this process
         branchListIndexes.push_back(branchIDListHelper_->producedBranchListIndex());

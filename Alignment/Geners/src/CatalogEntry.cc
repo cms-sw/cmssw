@@ -1,6 +1,6 @@
 #include "Alignment/Geners/interface/IOException.hh"
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/CatalogEntry.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
 
@@ -80,7 +80,7 @@ namespace gs {
 
     CatalogEntry *rec = nullptr;
     if (!in.fail()) {
-      CPP11_auto_ptr<ItemLocation> loc(ItemLocation::read(locId, in));
+      std::unique_ptr<ItemLocation> loc(ItemLocation::read(locId, in));
       if (loc.get())
         rec = new CatalogEntry(ItemDescriptor(itemClass, ioPrototype.c_str(), name.c_str(), category.c_str()),
                                itemId,

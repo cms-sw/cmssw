@@ -123,7 +123,11 @@ void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& trigger
 
 void TriggerOutputFields::makeUniqueFieldName(RNTupleModel& model, std::string& name) {
   // Could also use a cache of names in a higher-level object, don't ask the RNTupleModel each time
-  const auto* existing_field = model.Get<bool>(name);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
+  auto existing_field = model.Get<bool>(name);
+#else
+  auto existing_field = model.GetDefaultEntry().GetPtr<bool>(name);
+#endif
   if (!existing_field) {
     return;
   }

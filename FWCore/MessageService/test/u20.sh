@@ -7,7 +7,7 @@ status=0
 if [ "$UBSAN_OPTIONS" != "" ] ; then export UBSAN_OPTIONS="log_path=ubsan.log:${UBSAN_OPTIONS}"; fi
 rm -f u20_cerr.log FrameworkJobReport.xml
 
-cmsRun -e -p ${SCRAM_TEST_PATH}/u20_cfg.py 2> u20_cerr.log || exit $?
+cmsRun -e ${SCRAM_TEST_PATH}/u20_cfg.py 2> u20_cerr.log || exit $?
 sed -n '/Disabling gnu++: clang has no __float128 support on this target!/!p' u20_cerr.log > tmpf && mv tmpf u20_cerr.log # remove clang output
 
 for file in u20_cerr.log FrameworkJobReport.xml   

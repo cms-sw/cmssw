@@ -109,13 +109,13 @@ namespace edm {
       std::unique_ptr<DEC> decayer_;
       std::unique_ptr<HepMCFilterDriver> filter_;
       unsigned long long nInitializedWithLHERunInfo_{0};
-      unsigned long long nStreamEndLumis_{0};
       bool initialized_ = false;
     };
     template <typename HAD, typename DEC>
     struct LumiCache {
       gen::StreamCache<HAD, DEC>* useInLumi_{nullptr};
       unsigned long long nGlobalBeginRuns_{0};
+      unsigned long long nGlobalBeginLumis_{0};
     };
   }  // namespace gen
 
@@ -166,13 +166,17 @@ namespace edm {
     EDGetTokenT<LHEEventProduct> eventProductToken_;
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
+    // The following six variables depend on the fact that the Framework does
+    // not execute global begin lumi transitions and global begin run transitions
+    // concurrently. Within a transition, modules might execute concurrently,
+    // but only one such transition will be active at a time.
     mutable std::atomic<gen::StreamCache<HAD, DEC>*> useInLumi_{nullptr};
-    mutable std::atomic<unsigned long long> greatestNStreamEndLumis_{0};
+    mutable std::atomic<unsigned long long> nextNGlobalBeginLumis_{1};
     mutable std::atomic<bool> streamEndRunComplete_{true};
-    // The next two data members are thread safe and can be safely mutable because
-    // they are only modified/read in globalBeginRun and globalBeginLuminosityBlock.
     mutable unsigned long long nGlobalBeginRuns_{0};
     mutable unsigned long long nInitializedWithLHERunInfo_{0};
+    mutable unsigned long long nGlobalBeginLumis_{0};
+
     bool const hasFilter_;
   };
 
@@ -364,31 +368,33 @@ namespace edm {
     // cross-section into the generator run info
 
     const lhef::LHERunInfo* lheRunInfo = cache->hadronizer_.getLHERunInfo().get();
-    lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
+    if (lheRunInfo) {
+      lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
 
-    GenRunInfoProduct& genRunInfo = cache->hadronizer_.getGenRunInfo();
-    genRunInfo.setInternalXSec(GenRunInfoProduct::XSec(xsec.value(), xsec.error()));
+      GenRunInfoProduct& genRunInfo = cache->hadronizer_.getGenRunInfo();
+      genRunInfo.setInternalXSec(GenRunInfoProduct::XSec(xsec.value(), xsec.error()));
 
-    // If relevant, record the integrated luminosity for this run
-    // here.  To do so, we would need a standard function to invoke on
-    // the contained hadronizer that would report the integrated
-    // luminosity.
+      // If relevant, record the integrated luminosity for this run
+      // here.  To do so, we would need a standard function to invoke on
+      // the contained hadronizer that would report the integrated
+      // luminosity.
 
-    if (cache->initialized_) {
-      cache->hadronizer_.statistics();
-      if (cache->decayer_)
-        cache->decayer_->statistics();
-      if (cache->filter_)
-        cache->filter_->statistics();
-      lheRunInfo->statistics();
-    }
-    GenRunInfoProduct* expect = nullptr;
+      if (cache->initialized_) {
+        cache->hadronizer_.statistics();
+        if (cache->decayer_)
+          cache->decayer_->statistics();
+        if (cache->filter_)
+          cache->filter_->statistics();
+        lheRunInfo->statistics();
+      }
+      GenRunInfoProduct* expect = nullptr;
 
-    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
-    //All the GenRunInfoProducts for all streams shoule be identical, therefore we only
-    // need one
-    if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
-      griproduct.release();
+      std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
+      //All the GenRunInfoProducts for all streams shoule be identical, therefore we only
+      // need one
+      if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
+        griproduct.release();
+      }
     }
     if (cache == useInLumi_.load()) {
       streamEndRunComplete_ = true;
@@ -414,7 +420,10 @@ namespace edm {
 
   template <class HAD, class DEC>
   void ConcurrentHadronizerFilter<HAD, DEC>::globalEndRunProduce(Run& r, EventSetup const&) const {
-    r.put(this->runCache(r.index())->release());
+    auto c = this->runCache(r.index());
+    if (c) {
+      r.put(c->release());
+    }
   }
 
   template <class HAD, class DEC>
@@ -510,6 +519,8 @@ namespace edm {
     while (useInLumi_.load() == nullptr) {
     }
 
+    ++nGlobalBeginLumis_;
+
     // streamEndRun also uses the hadronizer in the stream cache
     // so we also need to wait for it to finish if there is a new run
     if (nInitializedWithLHERunInfo_ < nGlobalBeginRuns_) {
@@ -522,6 +533,7 @@ namespace edm {
     auto lumiCache = std::make_shared<gen::LumiCache<HAD, DEC>>();
     lumiCache->useInLumi_ = useInLumi_.load();
     lumiCache->nGlobalBeginRuns_ = nGlobalBeginRuns_;
+    lumiCache->nGlobalBeginLumis_ = nGlobalBeginLumis_;
     return lumiCache;
   }
 
@@ -536,7 +548,7 @@ namespace edm {
 
   template <class HAD, class DEC>
   void ConcurrentHadronizerFilter<HAD, DEC>::streamEndLuminosityBlockSummary(StreamID id,
-                                                                             LuminosityBlock const&,
+                                                                             LuminosityBlock const& lumi,
                                                                              EventSetup const&,
                                                                              gen::LumiSummary* iSummary) const {
     const lhef::LHERunInfo* lheRunInfo = this->streamCache(id)->hadronizer_.getLHERunInfo().get();
@@ -589,13 +601,12 @@ namespace edm {
       }
     }
 
-    // The next section of code depends on the Framework behavior that the stream
-    // lumi transitions are executed for all streams for every lumi even when
-    // there are no events for a stream to process.
     gen::StreamCache<HAD, DEC>* streamCachePtr = this->streamCache(id);
-    unsigned long long expected = streamCachePtr->nStreamEndLumis_;
-    ++streamCachePtr->nStreamEndLumis_;
-    if (greatestNStreamEndLumis_.compare_exchange_strong(expected, streamCachePtr->nStreamEndLumis_)) {
+    unsigned long long expected = this->luminosityBlockCache(lumi.index())->nGlobalBeginLumis_;
+    unsigned long long nextValue = expected + 1;
+    // This exchange should succeed and the conditional block should be executed only
+    // for the first stream to try for each lumi.
+    if (nextNGlobalBeginLumis_.compare_exchange_strong(expected, nextValue)) {
       streamEndRunComplete_ = false;
       useInLumi_ = streamCachePtr;
     }

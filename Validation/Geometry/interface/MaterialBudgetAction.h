@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
+#include <G4VTouchable.hh>
 
 class BeginOfTrack;
 class BeginOfRun;
@@ -28,7 +29,6 @@ class G4Step;
 class EndOfTrack;
 class EndOfRun;
 class G4StepPoint;
-class G4VTouchable;
 
 class MaterialBudgetAction : public SimWatcher,
                              public Observer<const BeginOfRun*>,

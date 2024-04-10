@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -21,59 +21,45 @@
 
 /// \class ME0PadDigiProducer
 
-class ME0PadDigiProducer : public edm::stream::EDProducer<> {
+class ME0PadDigiProducer : public edm::global::EDProducer<> {
 public:
   explicit ME0PadDigiProducer(const edm::ParameterSet& ps);
 
-  ~ME0PadDigiProducer() override;
-
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  void buildPads(const ME0DigiCollection& digis, ME0PadDigiCollection& out_pads) const;
+  ME0PadDigiCollection buildPads(const ME0DigiCollection& digis, const ME0Geometry& geometry) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<ME0DigiCollection> digi_token_;
   edm::InputTag digis_;
   edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
-
-  const ME0Geometry* geometry_;
+  edm::EDPutTokenT<ME0PadDigiCollection> put_token_;
 };
 
-ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
+ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<ME0DigiCollection>(digis_);
-  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
 
-  produces<ME0PadDigiCollection>();
+  put_token_ = produces<ME0PadDigiCollection>();
 }
 
-ME0PadDigiProducer::~ME0PadDigiProducer() {}
+void ME0PadDigiProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& eventSetup) const {
+  auto const& geometry = eventSetup.getData(geom_token_);
 
-void ME0PadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
-  geometry_ = &*hGeom;
-}
-
-void ME0PadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::Handle<ME0DigiCollection> hdigis;
   e.getByToken(digi_token_, hdigis);
 
-  // Create empty output
-  std::unique_ptr<ME0PadDigiCollection> pPads(new ME0PadDigiCollection());
-
-  // build the pads
-  buildPads(*(hdigis.product()), *pPads);
-
-  // store them in the event
-  e.put(std::move(pPads));
+  // build the pads and store them in the event
+  e.emplace(put_token_, buildPads(*(hdigis.product()), geometry));
 }
 
-void ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis, ME0PadDigiCollection& out_pads) const {
-  for (const auto& p : geometry_->etaPartitions()) {
+ME0PadDigiCollection ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis,
+                                                   const ME0Geometry& geometry) const {
+  ME0PadDigiCollection out_pads;
+  for (const auto& p : geometry.etaPartitions()) {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
 
@@ -91,6 +77,7 @@ void ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis, ME0PadDig
       out_pads.insertDigi(p->id(), pad_digi);
     }
   }
+  return out_pads;
 }
 
 DEFINE_FWK_MODULE(ME0PadDigiProducer);

@@ -32,8 +32,6 @@ private:
 
   TotemRPDigiSet strip_digi_set_;  ///< input digi set, strip by strip
 
-  const edm::ParameterSet &param_;
-
   int verbosity_;
 };
 

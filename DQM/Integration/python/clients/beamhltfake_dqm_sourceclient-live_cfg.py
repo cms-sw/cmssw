@@ -38,13 +38,6 @@ else:
   process.load("DQM.Integration.config.fileinputsource_cfi")
   from DQM.Integration.config.fileinputsource_cfi import options
 
-# new stream label
-#process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
-
-# for testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
-#from DQM.Integration.config.fileinputsource_cfi import options
-
 #--------------------------
 # HLT Filter
 # 0=random, 1=physics, 2=calibration, 3=technical
@@ -173,6 +166,4 @@ print("Configured frontierKey", options.runUniqueKey)
 # Final path
 print("Final Source settings:", process.source)
 
-process.p = cms.Path(process.dqmcommon
-                    * process.monitor )
-
+process.p = cms.Path( process.dqmcommon * process.monitor )

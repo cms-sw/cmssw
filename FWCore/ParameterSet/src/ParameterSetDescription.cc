@@ -85,7 +85,7 @@ namespace edm {
 
     std::vector<std::string> parameterNames = pset.getParameterNames();
     if (validatedLabels.size() != parameterNames.size()) {
-      // Three labels will be magically inserted into the top level
+      // These labels will be magically inserted into the top level
       // of a module ParameterSet even though they are not in the
       // python configuration files.  If these are present, then
       // assume they are OK and count them as validated.
@@ -110,6 +110,12 @@ namespace edm {
         validatedLabels.insert(service_type);
       }
 
+      {
+        std::string tryToContinue("@shouldTryToContinue");
+        if (pset.exists(tryToContinue)) {
+          validatedLabels.insert(tryToContinue);
+        }
+      }
       // Try again
       if (validatedLabels.size() != parameterNames.size()) {
         if (IllegalParameters::throwAnException() && !anythingAllowed()) {
@@ -123,13 +129,17 @@ namespace edm {
     using std::placeholders::_1;
     bool wroteSomething = false;
 
-    for_all(entries_,
-            std::bind(&ParameterSetDescription::writeNode,
-                      _1,
-                      std::ref(os),
-                      std::ref(startWithComma),
-                      indentation,
-                      std::ref(wroteSomething)));
+    bool seenWildcard = false;
+    for (auto const& entry : entries_) {
+      //only add the first seen wildcard to the cfi. This avoids possible ambiguities.
+      if (entry.node()->isWildcard()) {
+        if (seenWildcard == true) {
+          continue;
+        }
+        seenWildcard = true;
+      }
+      writeNode(entry, os, startWithComma, indentation, wroteSomething);
+    }
 
     if (wroteSomething) {
       char oldFill = os.fill();

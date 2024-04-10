@@ -4,29 +4,17 @@
  * Fedor Ratnikov (UMd) May 19, 2008
  */
 
-#include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
-
+#include <array>
 #include <cmath>
-
-#include <set>
+#include <utility>
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1F.h"
-#include "TH2F.h"
-
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 
 namespace {
   enum Partition { HBM = 0, HBP = 1, HEM = 2, HEP = 3 };
@@ -104,7 +92,7 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(m_theRecHitCollectionToken, hbhe);
 
   // collect energies
-  float hpdEnergy[4][73];
+  std::array<std::array<float, 73>, 4> hpdEnergy;
   for (auto& i : hpdEnergy)
     for (size_t j = 0; j < 73; ++j)
       i[j] = 0;

@@ -2,11 +2,12 @@
   <class name="Run3ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="3" checksum="1173827345"/>
   </class>
-  <class name="Run3ScoutingElectron" ClassVersion="6">
+  <class name="Run3ScoutingElectron" ClassVersion="7">
       <version ClassVersion="3" checksum="1086011373"/>
       <version ClassVersion="4" checksum="1250202632"/>
       <version ClassVersion="5" checksum="2230390721"/>
       <version ClassVersion="6" checksum="2815634332"/>
+      <version ClassVersion="7" checksum="3525740167"/>
   </class>
 
   <!-- Adding ioread rules for backwards compatibility -->
@@ -50,16 +51,18 @@
   <class name="Run3ScoutingPFJet" ClassVersion="3">
       <version ClassVersion="3" checksum="3819751468"/>
   </class>
-  <class name="Run3ScoutingPhoton" ClassVersion="5">
+  <class name="Run3ScoutingPhoton" ClassVersion="6">
       <version ClassVersion="3" checksum="1683146807"/>
       <version ClassVersion="4" checksum="1725280278"/>
       <version ClassVersion="5" checksum="1238010495"/>
+      <version ClassVersion="6" checksum="2966069208"/>
   </class>
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>
   </class>
-  <class name="Run3ScoutingVertex" ClassVersion="3">
+  <class name="Run3ScoutingVertex" ClassVersion="4">
       <version ClassVersion="3" checksum="316446070"/>
+      <version ClassVersion="4" checksum="1670865213"/>
   </class>
   <class name="ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="2" checksum="2705685116"/>

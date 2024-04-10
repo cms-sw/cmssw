@@ -11,10 +11,7 @@ parser.add_argument("--testAlias", help="Get data from an alias", action="store_
 parser.add_argument("--testView", help="Get data via a view", action="store_true")
 parser.add_argument("--aliasWithStar", help="when using testAlias use '*' as type", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("Test")
 

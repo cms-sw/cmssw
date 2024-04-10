@@ -53,18 +53,18 @@ namespace edm {
     eventPrincipal.fillEventPrincipal(eventAuxiliary, history);
   }
 
-  InputSource::ItemType RawInputSource::getNextItemType() {
-    if (state() == IsInvalid) {
-      return IsFile;
+  InputSource::ItemTypeInfo RawInputSource::getNextItemType() {
+    if (state() == ItemType::IsInvalid) {
+      return ItemType::IsFile;
     }
     if (newRun() && runAuxiliary()) {
-      return IsRun;
+      return ItemType::IsRun;
     }
     if (newLumi() && luminosityBlockAuxiliary()) {
-      return IsLumi;
+      return ItemType::IsLumi;
     }
     if (eventCached()) {
-      return IsEvent;
+      return ItemType::IsEvent;
     }
     if (inputFileTransitionsEachEvent_) {
       // The following two lines are here because after a source
@@ -76,22 +76,22 @@ namespace edm {
     }
     Next another = checkNext();
     if (another == Next::kStop) {
-      return IsStop;
+      return ItemType::IsStop;
     } else if (another == Next::kEvent and inputFileTransitionsEachEvent_) {
       fakeInputFileTransition_ = true;
-      return IsFile;
+      return ItemType::IsFile;
     } else if (another == Next::kFile) {
       setNewRun();
       setNewLumi();
       resetEventCached();
-      return IsFile;
+      return ItemType::IsFile;
     }
     if (newRun()) {
-      return IsRun;
+      return ItemType::IsRun;
     } else if (newLumi()) {
-      return IsLumi;
+      return ItemType::IsLumi;
     }
-    return IsEvent;
+    return ItemType::IsEvent;
   }
 
   void RawInputSource::reset_() {

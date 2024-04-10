@@ -74,5 +74,6 @@ particleFlowClusterHF = cms.EDProducer("PFClusterProducer",
                 seedingThresholdPt = cms.double(0.0)
             )
         )
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(False)
 )

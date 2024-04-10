@@ -12,6 +12,7 @@
 // to retreive hits
 #include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -23,7 +24,6 @@
 #include "G4TransportationManager.hh"
 #include "G4TouchableHistory.hh"
 #include "G4Track.hh"
-#include "DD4hep/Filter.h"
 
 #include <array>
 #include <cmath>
@@ -157,9 +157,9 @@ void HGCPassive::update(const G4Step *aStep) {
       if (((aStep->GetPostStepPoint() == nullptr) || (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) << " F|L Step "
-                                   << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume() << " Position"
-                                   << aStep->GetPreStepPoint()->GetPosition() << " Track "
+        edm::LogVerbatim("HGCSim") << DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName()))
+                                   << " F|L Step " << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume()
+                                   << " Position" << aStep->GetPreStepPoint()->GetPosition() << " Track "
                                    << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
                                    << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
                                    << ":" << aStep->GetTrack()->GetNextVolume() << " Status "
@@ -194,7 +194,7 @@ void HGCPassive::update(const G4Step *aStep) {
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " "
-                                   << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName()))
+                                   << DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName()))
                                    << " flag in the List " << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
@@ -239,7 +239,7 @@ G4VPhysicalVolume *HGCPassive::getTopPV() {
 HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume *plv) {
   auto itr = mapLV_.find(plv);
   if (itr == mapLV_.end()) {
-    std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName()));
+    std::string name = DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName()));
     for (unsigned int k = 0; k < LVNames_.size(); ++k) {
       if (name.find(LVNames_[k]) != std::string::npos) {
         mapLV_[plv] = std::pair<unsigned int, std::string>(k, name);
@@ -249,7 +249,7 @@ HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume *plv) {
     }
   }
   if (topLV_ == nullptr) {
-    if (static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) == motherName_)
+    if (DD4hep2DDDName::noNameSpace(static_cast<std::string>(plv->GetName())) == motherName_)
       topLV_ = plv;
   }
   return itr;

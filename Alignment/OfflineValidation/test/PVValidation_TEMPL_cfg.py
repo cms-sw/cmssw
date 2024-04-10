@@ -193,6 +193,11 @@ process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
+# Load .SiPixelTemplateStoreESProducer
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+
+####################################################################
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
@@ -211,7 +216,7 @@ FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
 )
 
 ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import DA_vectParameters
 DAClusterizationParams = DA_vectParameters.clone()
 
 GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
@@ -249,9 +254,15 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       )
 
 ####################################################################
+# Refitting Sequence
+####################################################################
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     process.seqTrackselRefit*
                      process.PVValidation)

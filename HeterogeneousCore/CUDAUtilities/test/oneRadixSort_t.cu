@@ -5,6 +5,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
 #include <algorithm>
+#include <random>
 
 using FLOAT = double;
 
@@ -140,6 +141,9 @@ namespace {
 int main() {
   cms::cudatest::requireDevices();
 
+  std::random_device rd;
+  std::mt19937 g(rd());
+
   FLOAT* gpu_input;
   int* gpu_product;
 
@@ -189,7 +193,7 @@ int main() {
   cudaCheck(cudaMemcpy(gpu_input, input, sizeof(FLOAT) * nmax, cudaMemcpyHostToDevice));
 
   for (int k = 2; k <= nmax; k++) {
-    std::random_shuffle(input, input + k);
+    std::shuffle(input, input + k, g);
     printf("Test with %d items\n", k);
     // sort  on the GPU
     testWrapper(gpu_input, gpu_product, k, false);

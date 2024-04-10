@@ -3,6 +3,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
+typedef SimpleTypedExternalFlatTableProducer<reco::Candidate, reco::Candidate>
+    SimpleCandidate2CandidateFlatTableProducer;
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
 
@@ -20,6 +23,9 @@ typedef SimpleFlatTableProducer<CTPPSLocalTrackLite> SimpleLocalTrackFlatTablePr
 
 #include "DataFormats/Math/interface/Point3D.h"
 typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFlatTableProducer;
+
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
+typedef EventSingletonSimpleFlatTableProducer<OnlineLuminosityRecord> SimpleOnlineLuminosityFlatTableProducer;
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlatTableProducer;
@@ -39,17 +45,48 @@ typedef BXVectorSimpleFlatTableProducer<l1t::Muon> SimpleTriggerL1MuonFlatTableP
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 typedef BXVectorSimpleFlatTableProducer<l1t::EtSum> SimpleTriggerL1EtSumFlatTableProducer;
 
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+typedef SimpleFlatTableProducer<Run3ScoutingVertex> SimpleRun3ScoutingVertexFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
+typedef SimpleFlatTableProducer<Run3ScoutingPhoton> SimpleRun3ScoutingPhotonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+typedef SimpleFlatTableProducer<Run3ScoutingMuon> SimpleRun3ScoutingMuonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+typedef SimpleFlatTableProducer<Run3ScoutingElectron> SimpleRun3ScoutingElectronFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
+typedef SimpleFlatTableProducer<Run3ScoutingTrack> SimpleRun3ScoutingTrackFlatTableProducer;
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+typedef SimpleFlatTableProducer<reco::Vertex> SimpleVertexFlatTableProducer;
+
+#include "DataFormats/VertexReco/interface/TrackTimeLifeInfo.h"
+typedef SimpleTypedExternalFlatTableProducer<reco::Candidate, TrackTimeLifeInfo>
+    SimpleCandidate2TrackTimeLifeInfoFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleCandidate2CandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenFilterFlatTableProducerLumi);
 DEFINE_FWK_MODULE(SimpleHTXSFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleOnlineLuminosityFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1EGFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1JetFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1MuonFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1TauFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1EtSumFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingVertexFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingPhotonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingMuonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingElectronFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleVertexFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleCandidate2TrackTimeLifeInfoFlatTableProducer);

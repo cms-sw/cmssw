@@ -18,7 +18,7 @@
 namespace ticl {
   class Trackster {
   public:
-    typedef math::XYZVector Vector;
+    typedef math::XYZVectorF Vector;
 
     enum IterationIndex { TRKEM = 0, EM, TRKHAD, HAD, MIP, SIM, SIM_CP };
 
@@ -37,21 +37,20 @@ namespace ticl {
     enum class PCAOrdering { ascending = 0, descending };
 
     Trackster()
-        : iterationIndex_(0),
-          seedIndex_(-1),
-          time_(0.f),
-          timeError_(-1.f),
+        : barycenter_({0.f, 0.f, 0.f}),
           regressed_energy_(0.f),
           raw_energy_(0.f),
+          time_(0.f),
+          timeError_(-1.f),
           raw_em_energy_(0.f),
+          id_probabilities_{},
           raw_pt_(0.f),
           raw_em_pt_(0.f),
-          barycenter_({0., 0., 0.}),
-          eigenvalues_{{0.f, 0.f, 0.f}},
-          sigmas_{{0.f, 0.f, 0.f}},
-          sigmasPCA_{{0.f, 0.f, 0.f}} {
-      zeroProbabilities();
-    }
+          seedIndex_(-1),
+          eigenvalues_{},
+          sigmas_{},
+          sigmasPCA_{},
+          iterationIndex_(0) {}
 
     inline void setIteration(const Trackster::IterationIndex i) { iterationIndex_ = i; }
     std::vector<unsigned int> &vertices() { return vertices_; }
@@ -73,6 +72,9 @@ namespace ticl {
     inline void setRawPt(float value) { raw_pt_ = value; }
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
     inline void setBarycenter(Vector value) { barycenter_ = value; }
+    inline void setTrackIdx(int index) { track_idx_ = index; }
+    int trackIdx() const { return track_idx_; }
+
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,
                                  Eigen::Vector3d &sigmas,
@@ -147,20 +149,23 @@ namespace ticl {
     }
 
   private:
-    // TICL iteration producing the trackster
-    uint8_t iterationIndex_;
+    Vector barycenter_;
+    float regressed_energy_;
+    float raw_energy_;
+    // -99, -1 if not available. ns units otherwise
+    float time_;
+    float timeError_;
+    float raw_em_energy_;
+
+    // trackster ID probabilities
+    std::array<float, 8> id_probabilities_;
 
     // The vertices of the DAG are the indices of the
     // 2d objects in the global collection
     std::vector<unsigned int> vertices_;
     std::vector<float> vertex_multiplicity_;
-
-    // The edges connect two vertices together in a directed doublet
-    // ATTENTION: order matters!
-    // A doublet generator should create edges in which:
-    // the first element is on the inner layer and
-    // the outer element is on the outer layer.
-    std::vector<std::array<unsigned int, 2> > edges_;
+    float raw_pt_;
+    float raw_em_pt_;
 
     // Product ID of the seeding collection used to create the Trackster.
     // For GlobalSeeding the ProductID is set to 0. For track-based seeding
@@ -173,31 +178,22 @@ namespace ticl {
     // created the trackster. For track-based seeding the pointer to the track
     // can be cooked using the previous ProductID and this index.
     int seedIndex_;
+    int track_idx_ = -1;
 
-    // We also need the pointer to the original seeding region ??
-    // something like:
-    // int seedingRegionIdx;
-
-    // -99, -1 if not available. ns units otherwise
-    float time_;
-    float timeError_;
-
-    // regressed energy
-    float regressed_energy_;
-    float raw_energy_;
-    float raw_em_energy_;
-    float raw_pt_;
-    float raw_em_pt_;
-
-    // PCA Variables
-    Vector barycenter_;
-    std::array<float, 3> eigenvalues_;
     std::array<Vector, 3> eigenvectors_;
+    std::array<float, 3> eigenvalues_;
     std::array<float, 3> sigmas_;
     std::array<float, 3> sigmasPCA_;
 
-    // trackster ID probabilities
-    std::array<float, 8> id_probabilities_;
+    // The edges connect two vertices together in a directed doublet
+    // ATTENTION: order matters!
+    // A doublet generator should create edges in which:
+    // the first element is on the inner layer and
+    // the outer element is on the outer layer.
+    std::vector<std::array<unsigned int, 2> > edges_;
+
+    // TICL iteration producing the trackster
+    uint8_t iterationIndex_;
   };
 
   typedef std::vector<Trackster> TracksterCollection;

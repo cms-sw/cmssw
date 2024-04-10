@@ -997,7 +997,7 @@ trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackVal
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracksStandalone)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
 
-seedingDeepCore.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(
+(seedingDeepCore & ~fastSim).toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(
             trackValidatorsTrackingOnly.copy()+
             trackValidatorJetCore+
             trackValidatorJetCoreSeedingTrackingOnly

@@ -200,77 +200,7 @@ namespace mkfit {
       return std::hypot(x_center - x_bs, y_center - y_bs) - abs_ooc_half;
     }
   }
-
-  const char* TrackBase::algoint_to_cstr(int algo) {
-    static const char* const names[] = {"undefAlgorithm",
-                                        "ctf",
-                                        "duplicateMerge",
-                                        "cosmics",
-                                        "initialStep",
-                                        "lowPtTripletStep",
-                                        "pixelPairStep",
-                                        "detachedTripletStep",
-                                        "mixedTripletStep",
-                                        "pixelLessStep",
-                                        "tobTecStep",
-                                        "jetCoreRegionalStep",
-                                        "conversionStep",
-                                        "muonSeededStepInOut",
-                                        "muonSeededStepOutIn",
-                                        "outInEcalSeededConv",
-                                        "inOutEcalSeededConv",
-                                        "nuclInter",
-                                        "standAloneMuon",
-                                        "globalMuon",
-                                        "cosmicStandAloneMuon",
-                                        "cosmicGlobalMuon",
-                                        "highPtTripletStep",
-                                        "lowPtQuadStep",
-                                        "detachedQuadStep",
-                                        "reservedForUpgrades1",
-                                        "reservedForUpgrades2",
-                                        "bTagGhostTracks",
-                                        "beamhalo",
-                                        "gsf",
-                                        "hltPixel",
-                                        "hltIter0",
-                                        "hltIter1",
-                                        "hltIter2",
-                                        "hltIter3",
-                                        "hltIter4",
-                                        "hltIterX",
-                                        "hiRegitMuInitialStep",
-                                        "hiRegitMuLowPtTripletStep",
-                                        "hiRegitMuPixelPairStep",
-                                        "hiRegitMuDetachedTripletStep",
-                                        "hiRegitMuMixedTripletStep",
-                                        "hiRegitMuPixelLessStep",
-                                        "hiRegitMuTobTecStep",
-                                        "hiRegitMuMuonSeededStepInOut",
-                                        "hiRegitMuMuonSeededStepOutIn",
-                                        "algoSize"};
-
-    if (algo < 0 || algo >= (int)TrackAlgorithm::algoSize)
-      return names[0];
-    return names[algo];
-  }
-
-  //==============================================================================
-  // Track
-  //==============================================================================
-
-  void Track::resizeHitsForInput() {
-    bzero(&hitsOnTrk_, sizeof(hitsOnTrk_));
-    hitsOnTrk_.resize(lastHitIdx_ + 1);
-  }
-
-  void Track::sortHitsByLayer() {
-    std::stable_sort(&hitsOnTrk_[0], &hitsOnTrk_[lastHitIdx_ + 1], [](const auto& h1, const auto& h2) {
-      return h1.layer < h2.layer;
-    });
-  }
-
-  float Track::swimPhiToR(const float x0, const float y0) const {
+  float TrackBase::swimPhiToR(const float x0, const float y0) const {
     const float dR = getHypot(x() - x0, y() - y0);
     // XXX-ASSUMPTION-ERROR can not always reach R, should see what callers expect.
     // For now return PI to signal apex on the ohter side of the helix.
@@ -280,13 +210,13 @@ namespace mkfit {
     return squashPhiGeneral(momPhi() - dPhi);
   }
 
-  bool Track::canReachRadius(float R) const {
+  bool TrackBase::canReachRadius(float R) const {
     const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
     const float ooc = 2.0f * k * pT();
     return std::abs(ooc) > R - std::hypot(x(), y());
   }
 
-  float Track::maxReachRadius() const {
+  float TrackBase::maxReachRadius() const {
     const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
     const float abs_ooc_half = std::abs(k * pT());
     // center of helix in x,y plane
@@ -295,7 +225,7 @@ namespace mkfit {
     return std::hypot(x_center, y_center) + abs_ooc_half;
   }
 
-  float Track::zAtR(float R, float* r_reached) const {
+  float TrackBase::zAtR(float R, float* r_reached) const {
     float xc = x();
     float yc = y();
     float pxc = px();
@@ -372,7 +302,7 @@ namespace mkfit {
     // ----------------------------------------------------------------
   }
 
-  float Track::rAtZ(float Z) const {
+  float TrackBase::rAtZ(float Z) const {
     float xc = x();
     float yc = y();
     float pxc = px();
@@ -396,6 +326,75 @@ namespace mkfit {
     // pyc = pyc * cosa  +  pxo * sina;
 
     return std::hypot(xc, yc);
+  }
+
+  const char* TrackBase::algoint_to_cstr(int algo) {
+    static const char* const names[] = {"undefAlgorithm",
+                                        "ctf",
+                                        "duplicateMerge",
+                                        "cosmics",
+                                        "initialStep",
+                                        "lowPtTripletStep",
+                                        "pixelPairStep",
+                                        "detachedTripletStep",
+                                        "mixedTripletStep",
+                                        "pixelLessStep",
+                                        "tobTecStep",
+                                        "jetCoreRegionalStep",
+                                        "conversionStep",
+                                        "muonSeededStepInOut",
+                                        "muonSeededStepOutIn",
+                                        "outInEcalSeededConv",
+                                        "inOutEcalSeededConv",
+                                        "nuclInter",
+                                        "standAloneMuon",
+                                        "globalMuon",
+                                        "cosmicStandAloneMuon",
+                                        "cosmicGlobalMuon",
+                                        "highPtTripletStep",
+                                        "lowPtQuadStep",
+                                        "detachedQuadStep",
+                                        "reservedForUpgrades1",
+                                        "reservedForUpgrades2",
+                                        "bTagGhostTracks",
+                                        "beamhalo",
+                                        "gsf",
+                                        "hltPixel",
+                                        "hltIter0",
+                                        "hltIter1",
+                                        "hltIter2",
+                                        "hltIter3",
+                                        "hltIter4",
+                                        "hltIterX",
+                                        "hiRegitMuInitialStep",
+                                        "hiRegitMuLowPtTripletStep",
+                                        "hiRegitMuPixelPairStep",
+                                        "hiRegitMuDetachedTripletStep",
+                                        "hiRegitMuMixedTripletStep",
+                                        "hiRegitMuPixelLessStep",
+                                        "hiRegitMuTobTecStep",
+                                        "hiRegitMuMuonSeededStepInOut",
+                                        "hiRegitMuMuonSeededStepOutIn",
+                                        "algoSize"};
+
+    if (algo < 0 || algo >= (int)TrackAlgorithm::algoSize)
+      return names[0];
+    return names[algo];
+  }
+
+  //==============================================================================
+  // Track
+  //==============================================================================
+
+  void Track::resizeHitsForInput() {
+    bzero(&hitsOnTrk_, sizeof(hitsOnTrk_));
+    hitsOnTrk_.resize(lastHitIdx_ + 1);
+  }
+
+  void Track::sortHitsByLayer() {
+    std::stable_sort(&hitsOnTrk_[0], &hitsOnTrk_[lastHitIdx_ + 1], [](const auto& h1, const auto& h2) {
+      return h1.layer < h2.layer;
+    });
   }
 
   //==============================================================================

@@ -31,6 +31,7 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
   energyLowEdges_ = iConfig.getParameter<std::vector<double> >("energyLowEdges");
   lessThan_ = iConfig.getParameter<bool>("lessThan");
   useEt_ = iConfig.getParameter<bool>("useEt");
+  useAbs_ = iConfig.getParameter<bool>("useAbs");
 
   etaBoundaryEB12_ = iConfig.getParameter<double>("etaBoundaryEB12");
   etaBoundaryEE12_ = iConfig.getParameter<double>("etaBoundaryEE12");
@@ -101,6 +102,7 @@ void HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double> >("energyLowEdges", {0.0});  // No energy-dependent cuts by default
   desc.add<bool>("lessThan", true);
   desc.add<bool>("useEt", true);
+  desc.add<bool>("useAbs", false);
   desc.add<double>("etaBoundaryEB12", 1.0);
   desc.add<double>("etaBoundaryEE12", 2.0);
   desc.add<std::vector<double> >("thrRegularEB1", {4.0});
@@ -175,7 +177,7 @@ bool HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent,
     ref = recoecalcands[i];
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find(ref);
 
-    float vali = mapi->val;
+    float vali = useAbs_ ? std::abs(mapi->val) : mapi->val;
     float EtaSC = ref->eta();
 
     // Pick the right EA and do rhoCorr

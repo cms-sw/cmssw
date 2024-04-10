@@ -12,8 +12,6 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

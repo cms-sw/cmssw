@@ -234,12 +234,7 @@ public:
   //! Print the setup
   void print() const;
 
-  /*   //! Return pointer to parameter set */
-  /*   const edm::ParameterSet* getParameterSet() { return m_ps; } */
-
 private:
-  //  const edm::ParameterSet* m_ps;
-
   int8_t m_debug;
   int8_t m_krad;
   int8_t m_btic;

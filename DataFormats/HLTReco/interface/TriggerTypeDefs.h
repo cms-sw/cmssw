@@ -74,6 +74,9 @@ namespace trigger {
     TriggerL1Vertex = -124,
     // Phase-1: MuonShower
     TriggerL1MuShower = -125,  // stage2 (introduced in Run 3)
+    // Phase-1: ZDC+ and ZDC-
+    TriggerL1ZDCP = -126,  // stage2 (introduced in 2023 during Run 3)
+    TriggerL1ZDCM = -127,  // stage2 (introduced in 2023 during Run 3)
 
     /// HLT
     TriggerPhoton = +81,

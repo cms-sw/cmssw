@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalTestDDD_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n
+#   Options for type V16, V17, V17n, V17ng, V18, V18n, V18ng
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,14 +16,24 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n")
+                  "type of operations: V16, V17, V17n, V17ng, V18, V18n, V18ng")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process("HGCalTest",Phase2C17I13M9)
+if (options.type === "V18"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalTest",Phase2C22I13M9)
+elif (options.type === "V18n"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalTest",Phase2C22I13M9)
+elif (options.type === "V18ng"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalTest",Phase2C22I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalTest",Phase2C17I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
 outFile = "file:step1" + options.type + "DDD.root"
@@ -69,10 +79,9 @@ process.Timing = cms.Service("Timing")
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),

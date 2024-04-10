@@ -35,7 +35,9 @@ public:
   typedef std::unordered_map<int32_t, tileInfo> tileInfo_map;
 
   static constexpr double k_ScaleFromDDD = 0.1;
+  static constexpr double k_ScaleFromDDD2 = 0.01;
   static constexpr double k_ScaleToDDD = 10.0;
+  static constexpr double k_ScaleToDDD2 = 100.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
   static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);

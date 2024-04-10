@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -266,8 +264,9 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
                                 convertMmToCm(refLocalPoints[iloop].y() / dd4hep::mm),
                                 convertMmToCm(refLocalPoints[iloop].z() / dd4hep::mm));
         Local3DPoint modLocal = topo.pixelToModuleLocalPoint(cmRefLocal, origRow, origCol);
-        const auto& thepixel = topo.pixel(modLocal);
-        uint8_t recoRow(thepixel.first), recoCol(thepixel.second);
+        const auto& thepixel = topo.pixelIndex(modLocal);
+        uint8_t recoRow = static_cast<uint8_t>(thepixel.first);
+        uint8_t recoCol = static_cast<uint8_t>(thepixel.second);
 
         if (origRow != recoRow || origCol != recoCol) {
           std::stringstream warnmsg;
@@ -337,7 +336,7 @@ void DD4hep_TestBTLPixelTopology::theBaseNumber(cms::DDFilteredView& fv) {
     size_t ipos = name.rfind('_');
     thisN_.addLevel(name.substr(0, ipos), fv.copyNos()[ii]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << name.substr(0, ipos) << " " << fv.copyNos()[ii];
+    edm::LogVerbatim("DD4hep_TestBTLPixelTopology") << ii << " " << name.substr(0, ipos) << " " << fv.copyNos()[ii];
 #endif
   }
 }

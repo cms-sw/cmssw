@@ -227,9 +227,6 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
               << " Emu Cos(Phi): " << cosLUT_[(phiQuadrants_[4] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]
               << " Emu Sin(Phi): -" << cosLUT_[(globalPhi - phiQuadrants_[3]) >> l1tmetemu::kCosLUTShift] << "\n";
         }
-      } else {
-        temppx = 0;
-        temppy = 0;
       }
 
       int link_number = (track->phiSector() * 2) + ((EtaSector) ? 0 : 1);

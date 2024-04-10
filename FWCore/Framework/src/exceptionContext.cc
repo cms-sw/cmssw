@@ -25,6 +25,8 @@ namespace edm {
       }
       imcc = imcc->esmoduleCallingContext();
     }
-    edm::exceptionContext(ex, *imcc->moduleCallingContext());
+    if (imcc->type() == ESParentContext::Type::kModule) {
+      edm::exceptionContext(ex, *imcc->moduleCallingContext());
+    }
   }
 }  // namespace edm

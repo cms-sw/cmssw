@@ -29,6 +29,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class ElectronSeedProducer : public edm::stream::EDProducer<> {
 public:
@@ -40,7 +43,8 @@ public:
 
 private:
   reco::SuperClusterRefVector filterClusters(math::XYZPoint const& beamSpotPosition,
-                                             const edm::Handle<reco::SuperClusterCollection>& superClusters) const;
+                                             const edm::Handle<reco::SuperClusterCollection>& superClusters,
+                                             HcalPFCuts const* hcalCuts) const;
 
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_;
@@ -56,6 +60,9 @@ private:
 
   bool allowHGCal_;
   std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
+
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB_;
 };
 
 using namespace reco;
@@ -102,6 +109,12 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     maxHOverEEndcaps_ = conf.getParameter<double>("maxHOverEEndcaps");
   }
 
+  //Retrieve HCAL PF thresholds - from config or from DB
+  cutsFromDB_ = conf.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB_) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
+  }
+
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
   esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
@@ -117,6 +130,11 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   LogDebug("ElectronSeedProducer") << "[ElectronSeedProducer::produce] entering ";
+
+  HcalPFCuts const* hcalCuts = nullptr;
+  if (cutsFromDB_) {
+    hcalCuts = &iSetup.getData(hcalCutsToken_);
+  }
 
   std::vector<TrajectorySeedCollection const*> initialSeedCollections;
   std::unique_ptr<TrajectorySeedCollection> initialSeedCollectionPtr = nullptr;  //created on the fly
@@ -138,11 +156,11 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   auto seeds = std::make_unique<ElectronSeedCollection>();
-  auto const& beamSportPosition = e.get(beamSpotTag_).position();
+  auto const& beamSpotPosition = e.get(beamSpotTag_).position();
 
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
-    auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
+    auto clusterRefs = filterClusters(beamSpotPosition, e.getHandle(superClusters_[i]), hcalCuts);
     matcher_->run(e, clusterRefs, initialSeedCollections, *seeds);
   }
 
@@ -165,7 +183,9 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 //===============================
 
 SuperClusterRefVector ElectronSeedProducer::filterClusters(
-    math::XYZPoint const& beamSpotPosition, const edm::Handle<reco::SuperClusterCollection>& superClusters) const {
+    math::XYZPoint const& beamSpotPosition,
+    const edm::Handle<reco::SuperClusterCollection>& superClusters,
+    HcalPFCuts const* hcalCuts) const {
   SuperClusterRefVector sclRefs;
 
   for (unsigned int i = 0; i < superClusters->size(); ++i) {
@@ -174,7 +194,7 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
     if (scl.energy() / cosh(sclEta) > SCEtCut_) {
       if (applyHOverECut_) {
         bool hoeVeto = false;
-        double had = hcalHelper_->hcalESum(scl, 0);
+        double had = hcalHelper_->hcalESum(scl, 0, hcalCuts);
         double scle = scl.energy();
         int det_group = scl.seed()->hitsAndFractions()[0].first.det();
         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId();
@@ -222,6 +242,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
   desc.add<int>("maxHcalRecHitSeverity", 999999);
+  desc.add<bool>("usePFThresholdsFromDB", false);
 
   // H/E equivalent for HGCal
   desc.add<bool>("allowHGCal", false);

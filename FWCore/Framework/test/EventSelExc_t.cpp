@@ -13,6 +13,7 @@
 //    11 - Exception demanded
 //    12 - Specific and wildcarded exceptions
 //    13 - Everything - also tests that it accepts all Ready
+#include "catch.hpp"
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -41,137 +42,131 @@ typedef std::vector<Bools> VBools;
 
 // Name all our paths. We have as many paths as there are trigger
 // bits.
+namespace {
 
-size_t const num_trig_paths = 8;
-std::array<char const*, num_trig_paths> cpaths = {{
-    "ap1",
-    "ap2",
-    "aq1",
-    "aq2",
-    "bp1",
-    "bp2",
-    "bq1",
-    "bq2",
-}};
-Strings trigger_path_names(cpaths.begin(), cpaths.end());
+  size_t const num_trig_paths = 8;
+  std::array<char const*, num_trig_paths> cpaths = {{
+      "ap1",
+      "ap2",
+      "aq1",
+      "aq2",
+      "bp1",
+      "bp2",
+      "bq1",
+      "bq2",
+  }};
+  Strings trigger_path_names(cpaths.begin(), cpaths.end());
 
-struct PathSpecifiers {
-  Strings path;
-  PathSpecifiers(std::string const& s0,
-                 std::string const& s1 = "",
-                 std::string const& s2 = "",
-                 std::string const& s3 = "",
-                 std::string const& s4 = "",
-                 std::string const& s5 = "",
-                 std::string const& s6 = "",
-                 std::string const& s7 = "",
-                 std::string const& s8 = "",
-                 std::string const& s9 = "")
-      : path() {
-    if (s0 != "")
-      path.push_back(s0);
-    if (s1 != "")
-      path.push_back(s1);
-    if (s2 != "")
-      path.push_back(s2);
-    if (s3 != "")
-      path.push_back(s3);
-    if (s4 != "")
-      path.push_back(s4);
-    if (s5 != "")
-      path.push_back(s5);
-    if (s6 != "")
-      path.push_back(s6);
-    if (s7 != "")
-      path.push_back(s7);
-    if (s8 != "")
-      path.push_back(s8);
-    if (s9 != "")
-      path.push_back(s9);
+  struct PathSpecifiers {
+    Strings path;
+    PathSpecifiers(std::string const& s0,
+                   std::string const& s1 = "",
+                   std::string const& s2 = "",
+                   std::string const& s3 = "",
+                   std::string const& s4 = "",
+                   std::string const& s5 = "",
+                   std::string const& s6 = "",
+                   std::string const& s7 = "",
+                   std::string const& s8 = "",
+                   std::string const& s9 = "")
+        : path() {
+      if (s0 != "")
+        path.push_back(s0);
+      if (s1 != "")
+        path.push_back(s1);
+      if (s2 != "")
+        path.push_back(s2);
+      if (s3 != "")
+        path.push_back(s3);
+      if (s4 != "")
+        path.push_back(s4);
+      if (s5 != "")
+        path.push_back(s5);
+      if (s6 != "")
+        path.push_back(s6);
+      if (s7 != "")
+        path.push_back(s7);
+      if (s8 != "")
+        path.push_back(s8);
+      if (s9 != "")
+        path.push_back(s9);
+    }
+  };
+
+  const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);
+  const HLTPathStatus fail = HLTPathStatus(edm::hlt::Fail);
+  const HLTPathStatus excp = HLTPathStatus(edm::hlt::Exception);
+  const HLTPathStatus redy = HLTPathStatus(edm::hlt::Ready);
+
+  struct TrigResults {
+    std::vector<HLTPathStatus> bit;
+    TrigResults(HLTPathStatus const& b0,
+                HLTPathStatus const& b1,
+                HLTPathStatus const& b2,
+                HLTPathStatus const& b3,
+                HLTPathStatus const& b4,
+                HLTPathStatus const& b5,
+                HLTPathStatus const& b6,
+                HLTPathStatus const& b7)
+        : bit(8) {
+      bit[0] = b0;
+      bit[1] = b1;
+      bit[2] = b2;
+      bit[3] = b3;
+      bit[4] = b4;
+      bit[5] = b5;
+      bit[6] = b6;
+      bit[7] = b7;
+      assert(bit.size() == num_trig_paths);
+    }
+    void set(HLTPathStatus const& b0,
+             HLTPathStatus const& b1,
+             HLTPathStatus const& b2,
+             HLTPathStatus const& b3,
+             HLTPathStatus const& b4,
+             HLTPathStatus const& b5,
+             HLTPathStatus const& b6,
+             HLTPathStatus const& b7) {
+      bit[0] = b0;
+      bit[1] = b1;
+      bit[2] = b2;
+      bit[3] = b3;
+      bit[4] = b4;
+      bit[5] = b5;
+      bit[6] = b6;
+      bit[7] = b7;
+    }
+  };
+
+  std::ostream& operator<<(std::ostream& ost, const Strings& s) {
+    for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
+      ost << *i << " ";
+    }
+    return ost;
   }
-};
 
-const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);
-const HLTPathStatus fail = HLTPathStatus(edm::hlt::Fail);
-const HLTPathStatus excp = HLTPathStatus(edm::hlt::Exception);
-const HLTPathStatus redy = HLTPathStatus(edm::hlt::Ready);
-
-struct TrigResults {
-  std::vector<HLTPathStatus> bit;
-  TrigResults(HLTPathStatus const& b0,
-              HLTPathStatus const& b1,
-              HLTPathStatus const& b2,
-              HLTPathStatus const& b3,
-              HLTPathStatus const& b4,
-              HLTPathStatus const& b5,
-              HLTPathStatus const& b6,
-              HLTPathStatus const& b7)
-      : bit(8) {
-    bit[0] = b0;
-    bit[1] = b1;
-    bit[2] = b2;
-    bit[3] = b3;
-    bit[4] = b4;
-    bit[5] = b5;
-    bit[6] = b6;
-    bit[7] = b7;
-    assert(bit.size() == num_trig_paths);
+  std::ostream& operator<<(std::ostream& ost, const TrigResults& tr) {
+    for (unsigned int i = 0; i < tr.bit.size(); ++i) {
+      HLTPathStatus b = tr.bit[i];
+      if (b.state() == edm::hlt::Ready)
+        ost << "ready ";
+      if (b.state() == edm::hlt::Pass)
+        ost << "pass  ";
+      if (b.state() == edm::hlt::Fail)
+        ost << "fail  ";
+      if (b.state() == edm::hlt::Exception)
+        ost << "excp  ";
+    }
+    return ost;
   }
-  void set(HLTPathStatus const& b0,
-           HLTPathStatus const& b1,
-           HLTPathStatus const& b2,
-           HLTPathStatus const& b3,
-           HLTPathStatus const& b4,
-           HLTPathStatus const& b5,
-           HLTPathStatus const& b6,
-           HLTPathStatus const& b7) {
-    bit[0] = b0;
-    bit[1] = b1;
-    bit[2] = b2;
-    bit[3] = b3;
-    bit[4] = b4;
-    bit[5] = b5;
-    bit[6] = b6;
-    bit[7] = b7;
+
+  template <size_t nb>
+  Bools toBools(std::array<bool, nb> const& t) {
+    Bools b;
+    b.insert(b.end(), t.begin(), t.end());
+    return b;
   }
-};
-
-std::ostream& operator<<(std::ostream& ost, const Strings& s) {
-  for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
-    ost << *i << " ";
-  }
-  return ost;
-}
-
-std::ostream& operator<<(std::ostream& ost, const Bools& b) {
-  for (unsigned int i = 0; i < b.size(); ++i) {
-    ost << b[i] << " ";
-  }
-  return ost;
-}
-
-std::ostream& operator<<(std::ostream& ost, const TrigResults& tr) {
-  for (unsigned int i = 0; i < tr.bit.size(); ++i) {
-    HLTPathStatus b = tr.bit[i];
-    if (b.state() == edm::hlt::Ready)
-      ost << "ready ";
-    if (b.state() == edm::hlt::Pass)
-      ost << "pass  ";
-    if (b.state() == edm::hlt::Fail)
-      ost << "fail  ";
-    if (b.state() == edm::hlt::Exception)
-      ost << "excp  ";
-  }
-  return ost;
-}
-
-template <size_t nb>
-Bools toBools(std::array<bool, nb> const& t) {
-  Bools b;
-  b.insert(b.end(), t.begin(), t.end());
-  return b;
-}
-
+}  // namespace
 void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
   // There are 2 different ways to build the EventSelector.
   // Both should give the same result.  We exercise both here.
@@ -205,14 +200,16 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
   //                                     number_of_trigger_paths);
   // is not a valid way to use acceptEvent.
 
+  std::ostringstream s;
   if (a != ans || b != ans || aa != ans) {
-    std::cerr << "failed to compare path specifiers with trigger results: "
-              << "correct=" << ans << " "
-              << "results=" << a << "  " << b << "  " << aa << "\n"
-              << "pathspecs = " << ps.path << "\n"
-              << "trigger results = " << tr << "\n";
-    abort();
+    s << "failed to compare path specifiers with trigger results: "
+      << "correct=" << ans << " "
+      << "results=" << a << "  " << b << "  " << aa << "\n"
+      << "pathspecs = " << ps.path << "\n"
+      << "trigger results = " << tr << "\n";
   }
+  REQUIRE_THAT(ans,
+               Catch::Predicate<bool>([a, b, aa](auto ans) { return a == ans and b == ans and aa == ans; }, s.str()));
 
   // Repeat putting the list of trigger names in the pset
   // registry
@@ -227,16 +224,16 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
   bool y = select_based_on_path_specifiers_only.acceptEvent(results_id);
 
   if (x != ans || y != ans) {
-    std::cerr << "failed to compare pathspecs with trigger results using pset ID: "
-              << "correct=" << ans << " "
-              << "results=" << x << "  " << y << "\n"
-              << "pathspecs =" << ps.path << "\n"
-              << "trigger results = " << tr << "\n";
-    abort();
+    s << "failed to compare pathspecs with trigger results using pset ID: "
+      << "correct=" << ans << " "
+      << "results=" << x << "  " << y << "\n"
+      << "pathspecs =" << ps.path << "\n"
+      << "trigger results = " << tr << "\n";
   }
+  REQUIRE_THAT(ans, Catch::Predicate<bool>([x, y](auto ans) { return x == ans and y == ans; }, s.str()));
 }
 
-int main() try {
+TEST_CASE("test EventSelector test", "[EventSelector]") {
   // We want to create the TriggerNamesService because it is used in
   // the tests.  We do that here, but first we need to build a minimal
   // parameter set to pass to its constructor.  Then we build the
@@ -448,12 +445,4 @@ int main() try {
   evSelTest(ps_n, tr_13, true);
 
   // Now test testSelectionOverlap
-
-  return 0;
-} catch (cms::Exception const& e) {
-  std::cerr << e.explainSelf() << std::endl;
-  return 1;
-} catch (std::exception const& e) {
-  std::cerr << e.what() << std::endl;
-  return 1;
 }

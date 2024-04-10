@@ -7,6 +7,7 @@
 
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
+#include "DataFormats/L1Trigger/interface/P2GTCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,15 +29,14 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   private:
-    edm::EDGetTokenT<std::vector<l1t::TkEm>> l1TkEmsToken_;
+    edm::EDGetTokenT<l1t::P2GTCandidateCollection> l1GTCandsToken_;
     int algoVerbosity_ = 0;
-    double minPt_;                        // minimum pT of L1 TkEm objects
-    double minAbsEta_;                    // minimum |eta| of L1 TkEm objects
-    double maxAbsEta_;                    // maximum |eta| of L1 TkEm objects
-    std::vector<double> endcapScalings_;  // pT scaling factors for endcap
-    int quality_;                         // hwQual
-
-    double tkEmOfflineEt(double et) const;
+    double minPt_;        // minimum pT of L1 TkEm objects
+    double minAbsEta_;    // minimum |eta| of L1 TkEm objects
+    double maxAbsEta_;    // maximum |eta| of L1 TkEm objects
+    int quality_;         // hwQual
+    bool qualityIsMask_;  // is hwQual to be applied as a mask
+    bool applyQuality_;   // whether to apply quality
   };
 }  // namespace ticl
 #endif

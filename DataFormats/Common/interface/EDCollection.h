@@ -36,6 +36,7 @@ namespace edm {
     T const& at(size_type i) const;
     const_iterator begin() const;
     const_iterator end() const;
+    std::vector<T> const& as_vector() const { return obj; }
 
   private:
     std::vector<T> obj;

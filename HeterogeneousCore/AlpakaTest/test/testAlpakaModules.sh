@@ -5,21 +5,26 @@ function die { echo Failed $1: status $2 ; exit $2 ; }
 TEST_DIR=${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test
 
 if [ "$#" != "1" ]; then
-    die "Need exactly 1 argument ('cpu', 'cuda'), got $#" 1
+    die "Need exactly 1 argument ('cpu', 'cuda', or 'rocm'), got $#" 1
 fi
-if [ "$1" = "cuda" ]; then
-    TARGET=cuda
-elif [ "$1" = "cpu" ]; then
-    # In non-_GPU_ IBs, if CUDA is enabled, run the GPU-targeted tests
-    cudaIsEnabled
-    CUDA_ENABLED=$?
-    if [ "${CUDA_ENABLED}" = "0" ]; then
-        TARGET=cuda
-    else
-        TARGET=cpu
-    fi
+if [[ "$1" =~ ^(cpu|cuda|rocm)$ ]]; then
+    TARGET=$1
 else
-    die "Argument needs to be 'cpu' or 'cuda', got $1" 1
+    die "Argument needs to be 'cpu', 'cuda', or 'rocm'; got '$1'" 1
+fi
+
+# Some of the CPU-only tests fail if run on machine with GPU
+if [ "$TARGET" == "cpu" ]; then
+    cudaIsEnabled
+    if [ "$?" == "0" ]; then
+        echo "Test target is 'cpu', but NVIDIA GPU is detected. Ignoring the CPU tests."
+        exit 0
+    fi
+    rocmIsEnabled
+    if [ "$?" == "0" ]; then
+        echo "Test target is 'cpu', but AMD GPU is detected. Ignoring the CPU tests."
+        exit 0
+    fi
 fi
 
 function runSuccess {
@@ -43,25 +48,50 @@ function runFailure {
     echo
 }
 
-runSuccess "-- --accelerators=cpu --expectBackend=serial_sync"
-runSuccess "-- --moduleBackend=serial_sync --expectBackend=serial_sync"
+function runForGPU {
+    ACCELERATOR=$1
+    BACKEND=$2
+
+    runSuccess "--expectBackend=$BACKEND"
+    runSuccess "--accelerators=$ACCELERATOR --expectBackend=$BACKEND"
+    runSuccess "--processAcceleratorBackend=$BACKEND --expectBackend=$BACKEND"
+    runSuccess "--moduleBackend=$BACKEND --expectBackend=$BACKEND"
+
+    runSuccess "--processAcceleratorBackend=$BACKEND --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runSuccess "--processAcceleratorBackend=serial_sync --moduleBackend=$BACKEND --expectBackend=$BACKEND"
+
+    runFailure "--accelerators=$ACCELERATOR --processAcceleratorBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--accelerators=$ACCELERATOR --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--accelerators=$ACCELERATOR --processAcceleratorBackend=$BACKEND --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--accelerators=$ACCELERATOR --processAcceleratorBackend=serial_sync --moduleBackend=$BACKEND --expectBackend=$BACKEND"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=$BACKEND --expectBackend=$BACKEND"
+    runFailure "--accelerators=cpu --moduleBackend=$BACKEND --expectBackend=$BACKEND"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=serial_sync --moduleBackend=$BACKEND --expectBackend=$BACKEND"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=$BACKEND --moduleBackend=serial_sync --expectBackend=serial_sync"
+
+    runSuccessHostAndDevice "--expectBackend=$BACKEND"
+}
+
+runSuccess "--accelerators=cpu --expectBackend=serial_sync"
+runSuccess "--processAcceleratorBackend=serial_sync --expectBackend=serial_sync"
+runSuccess "--moduleBackend=serial_sync --expectBackend=serial_sync"
 
 if [ "${TARGET}" == "cpu" ]; then
-    runSuccess "-- --expectBackend=serial_sync"
+    runSuccess "--expectBackend=serial_sync"
 
-    runFailure "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
-    runFailure "-- --moduleBackend=cuda_async --expectBackend=cuda_async"
+    runFailure "--accelerators=gpu-nvidia --expectBackend=cuda_async"
+    runFailure "--processAcceleratorBackend=cuda_async --expectBackend=cuda_async"
+    runFailure "--moduleBackend=cuda_async --expectBackend=cuda_async"
 
-    runSuccessHostAndDevice "-- --expectBackend=serial_sync"
+    runFailure "--processAcceleratorBackend=cuda_async --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--processAcceleratorBackend=serial_sync --moduleBackend=cuda_async --expectBackend=cuda_async"
+
+    runSuccessHostAndDevice "--expectBackend=serial_sync"
 
 elif [ "${TARGET}" == "cuda" ]; then
-    runSuccess "-- --expectBackend=cuda_async"
-    runSuccess "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
-    runSuccess "-- --moduleBackend=cuda_async --expectBackend=cuda_async"
+    runForGPU "gpu-nvidia" "cuda_async"
 
-    runFailure "-- --accelerators=gpu-nvidia --moduleBackend=serial_sync --expectBackend=serial_sync"
-    runFailure "-- --accelerators=cpu --moduleBackend=cuda_async --expectBackend=cuda_async"
-
-    runSuccessHostAndDevice "-- --expectBackend=cuda_async"
+elif [ "${TARGET}" == "rocm" ]; then
+    runForGPU "gpu-amd" "rocm_async"
 
 fi

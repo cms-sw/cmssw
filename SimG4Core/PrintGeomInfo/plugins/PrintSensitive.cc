@@ -1,6 +1,7 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "G4Run.hh"
@@ -9,8 +10,6 @@
 #include "G4NavigationHistory.hh"
 #include "G4TransportationManager.hh"
 
-#include <set>
-#include <map>
 #include <iostream>
 #include <string>
 
@@ -26,16 +25,18 @@ private:
 
 private:
   std::string name_;
+  bool dd4hep_;
   int nchar_;
   G4NavigationHistory fHistory;
 };
 
 PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
-  name_ = p.getUntrackedParameter<std::string>("Name", "*");
+  name_ = p.getParameter<std::string>("Name");
+  dd4hep_ = p.getParameter<bool>("DD4hep");
   nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   G4cout << "PrintSensitive:: Print position of all Sensitive Touchables: "
-         << " for names (0-" << nchar_ << ") = " << name_ << G4endl;
+         << " for names (0-" << nchar_ << ") = " << name_ << " dd4hep " << dd4hep_ << G4endl;
 }
 
 PrintSensitive::~PrintSensitive() {}
@@ -56,18 +57,24 @@ int PrintSensitive::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, boo
   G4ThreeVector globalpoint = fHistory.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
   G4LogicalVolume *lv = pv->GetLogicalVolume();
 
-  std::string mother = "World";
-  if (pv->GetMotherLogical())
-    mother = pv->GetMotherLogical()->GetName();
-  std::string lvname = lv->GetName();
-  lvname.assign(lvname, 0, nchar_);
-  if (lvname == name_)
+  std::string mother = (pv->GetMotherLogical())
+                           ? (DD4hep2DDDName::nameSolid(
+                                 static_cast<std::string>(pv->GetMotherLogical()->GetSolid()->GetName()), dd4hep_))
+                           : "World";
+  std::string lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetSolid()->GetName()), dd4hep_);
+  if (nchar_ > 0) {
+    lvname.assign(lvname, 0, nchar_);
+    if (lvname == name_)
+      printIt = true;
+  } else {
     printIt = true;
+  }
 
   if (lv->GetSensitiveDetector() && printIt) {
     ++nsens;
-    out << nsens << ":" << leafDepth << " ### VOLUME = " << lv->GetName() << " Copy No " << pv->GetCopyNo() << " in "
-        << mother << " global position of centre " << globalpoint << " (r=" << globalpoint.perp()
+    lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetName()), dd4hep_);
+    out << nsens << ":" << leafDepth << " ### VOLUME = " << lvname << " Copy No " << pv->GetCopyNo() << " in " << mother
+        << " global position of centre " << globalpoint << " (r=" << globalpoint.perp()
         << ", phi=" << globalpoint.phi() / CLHEP::deg << ")\n";
   }
 

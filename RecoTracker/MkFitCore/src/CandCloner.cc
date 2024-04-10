@@ -24,11 +24,13 @@ namespace mkfit {
 
   void CandCloner::begin_eta_bin(EventOfCombCandidates *e_o_ccs,
                                  std::vector<UpdateIndices> *update_list,
+                                 std::vector<UpdateIndices> *overlap_list,
                                  std::vector<std::vector<TrackCand>> *extra_cands,
                                  int start_seed,
                                  int n_seeds) {
     mp_event_of_comb_candidates = e_o_ccs;
     mp_kalman_update_list = update_list;
+    mp_kalman_overlap_list = overlap_list;
     mp_extra_cands = extra_cands;
     m_start_seed = start_seed;
     m_n_seeds = n_seeds;
@@ -50,6 +52,7 @@ namespace mkfit {
     m_idx_max_prev = 0;
 
     mp_kalman_update_list->clear();
+    mp_kalman_overlap_list->clear();
 
 #ifdef CC_TIME_LAYER
     t_lay = dtime();
@@ -193,14 +196,21 @@ namespace mkfit {
             break;
 
           if (h2a.hitIdx >= 0) {
-            mp_kalman_update_list->emplace_back(UpdateIndices(m_start_seed + is, n_pushed, h2a.hitIdx));
-
-            // set the overlap if we have it and and pT > pTCutOverlap
+            // set the overlap if we have it and pT > pTCutOverlap
             HitMatch *hm;
             if (tc.pT() > mp_iteration_params->pTCutOverlap &&
                 (hm = ccand[h2a.trkIdx].findOverlap(h2a.hitIdx, h2a.module))) {
-              tc.addHitIdx(hm->m_hit_idx, m_layer, 0);
-              tc.incOverlapCount();
+              if (mp_iteration_params->recheckOverlap) {
+                // Special overlap_list if the overlap hit needs to be re-checked after primary update.
+                mp_kalman_overlap_list->emplace_back(
+                    UpdateIndices(m_start_seed + is, n_pushed, h2a.hitIdx, hm->m_hit_idx));
+              } else {
+                tc.addHitIdx(hm->m_hit_idx, m_layer, 0);
+                tc.incOverlapCount();
+                mp_kalman_update_list->emplace_back(UpdateIndices(m_start_seed + is, n_pushed, h2a.hitIdx, -1));
+              }
+            } else {
+              mp_kalman_update_list->emplace_back(UpdateIndices(m_start_seed + is, n_pushed, h2a.hitIdx, -1));
             }
           }
 

@@ -53,11 +53,6 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void beginRun(const edm::Run&, edm::EventSetup const&) override;
-  void endRun(const edm::Run&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
-
   void openFile();
   void skipHeader();
   int convertToInt(std::string& bitstr) const;
@@ -296,18 +291,6 @@ void L1TMicroGMTInputProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   m_currEvt++;
 }
-
-// ------------ method called when starting to processes a run  ------------
-void L1TMicroGMTInputProducer::beginRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-void L1TMicroGMTInputProducer::endRun(const edm::Run&, edm::EventSetup const&) {}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void L1TMicroGMTInputProducer::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void L1TMicroGMTInputProducer::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TMicroGMTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -1,6 +1,7 @@
 #ifndef RecoTracker_PixelTrackFitting_BrokenLine_h
 #define RecoTracker_PixelTrackFitting_BrokenLine_h
 
+#include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
 #include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"

@@ -1,6 +1,6 @@
 // Test CSCDetId & CSCIndexer 13.11.2007 ptc
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-class CSCDetIdAnalyzer : public edm::EDAnalyzer {
+class CSCDetIdAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCDetIdAnalyzer(const edm::ParameterSet&);
   ~CSCDetIdAnalyzer() override = default;

@@ -193,8 +193,8 @@ class CondXmlProcessor(object):
             obj = xmlConverter()
             resultXML = obj.write( data )
             if destFile is None:
-                print(resultXML)    
+                print(resultXML)   
             else:
-                with open(destFile, 'w') as outFile:
+                with open(destFile, 'a') as outFile:
                     outFile.write(resultXML)
-                    outFile.close()
+                    

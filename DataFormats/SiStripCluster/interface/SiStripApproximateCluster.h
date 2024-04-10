@@ -8,14 +8,18 @@ class SiStripApproximateCluster {
 public:
   SiStripApproximateCluster() {}
 
-  explicit SiStripApproximateCluster(
-      cms_uint16_t barycenter, cms_uint8_t width, cms_uint8_t avgCharge, bool filter, bool isSaturated) {
-    barycenter_ = barycenter;
-    width_ = width;
-    avgCharge_ = avgCharge;
-    filter_ = filter;
-    isSaturated_ = isSaturated;
-  }
+  explicit SiStripApproximateCluster(cms_uint16_t barycenter,
+                                     cms_uint8_t width,
+                                     cms_uint8_t avgCharge,
+                                     bool filter,
+                                     bool isSaturated,
+                                     bool peakFilter = false)
+      : barycenter_(barycenter),
+        width_(width),
+        avgCharge_(avgCharge),
+        filter_(filter),
+        isSaturated_(isSaturated),
+        peakFilter_(peakFilter) {}
 
   explicit SiStripApproximateCluster(const SiStripCluster& cluster,
                                      unsigned int maxNSat,

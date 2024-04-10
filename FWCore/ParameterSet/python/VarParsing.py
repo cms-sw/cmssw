@@ -364,7 +364,7 @@ class VarParsing (object):
         print(self)
         print("""Options:
         help           : This screen
-        multipleAssign : Allows singletons to have multiple assigments
+        multipleAssign : Allows singletons to have multiple assignments
         print          : Prints out current values
         XXX_clear      : Clears list named 'XXX'
         """)    

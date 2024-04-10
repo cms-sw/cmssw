@@ -8,10 +8,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test ProcessAcce
 parser.add_argument("--enableTest2", help="Enable test2 accelerator", action="store_true")
 parser.add_argument("--accelerators", type=str, help="Comma-separated string for accelerators to enable")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 class ProcessAcceleratorTest(cms.ProcessAccelerator):
     def __init__(self):

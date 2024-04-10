@@ -87,8 +87,6 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
 
 process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
-process.caloStage1LegacyFormatDigis.bxMin = -2
-process.caloStage1LegacyFormatDigis.bxMax = 2
 
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
@@ -195,7 +193,7 @@ print("Running with run type = ", process.runType.getRunType())
 process.castorDigis.InputLabel = "rawDataCollector"
 process.csctfDigis.producer = "rawDataCollector"
 process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
-process.ecalDigis.cpu.InputLabel = "rawDataCollector"
+process.ecalDigisCPU.InputLabel = "rawDataCollector"
 process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
 process.gctDigis.inputLabel = "rawDataCollector"
 process.gtDigis.DaqGtInputTag = "rawDataCollector"
@@ -217,7 +215,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = "rawDataRepacker"
     process.csctfDigis.producer = "rawDataRepacker"
     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalDigisCPU.InputLabel = "rawDataRepacker"
     process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
     process.gctDigis.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"

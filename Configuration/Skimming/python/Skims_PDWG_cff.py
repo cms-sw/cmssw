@@ -348,7 +348,7 @@ SKIMStreamEXODisappTrk = cms.FilteredStream(
     paths = (EXODisappTrkPath),
     content = EXODisappTrkSkimContent.outputCommands, 
     selectEvents = cms.untracked.PSet(), 
-    dataTier = cms.untracked.string('AOD')
+    dataTier = cms.untracked.string('USER')
     )
 
 from Configuration.Skimming.PDWG_EXODisappMuon_cff import *
@@ -361,6 +361,17 @@ SKIMStreamEXODisappMuon = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
+
+from Configuration.Skimming.PDWG_EXOSoftDisplacedVertices_cff import *
+EXOSoftDisplacedVerticesPath = cms.Path(EXOSoftDisplacedVerticesSkimSequence)
+SKIMStreamEXOSoftDisplacedVertices = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOSoftDisplacedVertices',
+    paths = (EXOSoftDisplacedVerticesPath ),
+    content = EXOSoftDisplacedVerticesSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+)
 
 #####################
 # For the Data on Data Mixing in TSG
@@ -394,6 +405,28 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
     content = skimRecoContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
+    )
+
+from Configuration.Skimming.PDWG_EGMJME_SD_cff import *
+EGMJMEPath = cms.Path(EGMJME)
+SKIMStreamEGMJME = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EGMJME',
+    paths = (EGMJMEPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+from Configuration.Skimming.PDWG_MUOJME_SD_cff import *
+MUOJMEPath = cms.Path(MUOJME)
+SKIMStreamMUOJME = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MUOJME',
+    paths = (MUOJMEPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
     )
 
 ####################

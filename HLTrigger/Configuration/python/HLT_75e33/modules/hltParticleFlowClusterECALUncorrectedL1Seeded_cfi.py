@@ -130,5 +130,6 @@ hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer("PFClusterProduce
                 seedingThresholdPt = cms.double(0.0)
             )
         )
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(False)
 )

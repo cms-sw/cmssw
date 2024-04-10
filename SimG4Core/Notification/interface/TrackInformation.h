@@ -11,7 +11,7 @@ class TrackInformation : public G4VUserTrackInformation {
 public:
   TrackInformation(){};
   ~TrackInformation() override = default;
-  inline void *operator new(size_t);
+  inline void *operator new(std::size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
@@ -90,13 +90,12 @@ public:
   bool isFromTtoBTL() const { return (mtdStatus_ >> 0) & 1; }
   void setFromBTLtoT() { mtdStatus_ |= 1 << 1; }  // 2nd bit
   bool isFromBTLtoT() const { return (mtdStatus_ >> 1) & 1; }
-  void setBTLdaughter() { mtdStatus_ |= 1 << 2; }  // 3rd bit
-  bool isBTLdaughter() const { return (mtdStatus_ >> 2) & 1; }
-  void setBTLlooper() { mtdStatus_ |= 1 << 3; }  // 4th bit
-  bool isBTLlooper() const { return (mtdStatus_ >> 3) & 1; }
-
-  int idAtBTLentrance() const { return idAtBTLentrance_; }
-  void setIdAtBTLentrance(int id) { idAtBTLentrance_ = id; }
+  void setBTLlooper() { mtdStatus_ |= 1 << 2; }  // 3th bit
+  bool isBTLlooper() const { return (mtdStatus_ >> 2) & 1; }
+  void setInTrkFromBackscattering() { mtdStatus_ |= 1 << 3; }  // 4th bit
+  bool isInTrkFromBackscattering() const { return (mtdStatus_ >> 3) & 1; }
+  void setExtSecondary() { mtdStatus_ |= 1 << 4; }  //5th bit
+  bool isExtSecondary() const { return (mtdStatus_ >> 4) & 1; }
 
   void Print() const override;
 
@@ -119,7 +118,6 @@ private:
   int mcTruthID_{-1};
   int caloSurfaceParticlePID_{0};
   int castorHitPID_{0};
-  int idAtBTLentrance_{0};
   uint8_t mtdStatus_{0};
   double genParticleP_{0.};
   double caloSurfaceParticleP_{0.};
@@ -129,7 +127,7 @@ private:
 
 extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;
 
-inline void *TrackInformation::operator new(size_t) {
+inline void *TrackInformation::operator new(std::size_t) {
   if (!fpTrackInformationAllocator)
     fpTrackInformationAllocator = new G4Allocator<TrackInformation>;
   return (void *)fpTrackInformationAllocator->MallocSingle();

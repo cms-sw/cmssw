@@ -48,7 +48,6 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       m_masterCanProceed = false;
       edm::LogVerbatim("OscarMTMasterThread") << "Master thread: State loop, starting wait";
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
-      //m_notifyMasterCv.wait(lk2, [&] { return false; });
 
       // Act according to the state
       edm::LogVerbatim("OscarMTMasterThread")
@@ -62,8 +61,10 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
         // Stop Geant4
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Stopping Geant4";
         m_runManagerMaster->stopG4();
+        G4PhysicalVolumeStore::Clean();
         isG4Alive = false;
       } else if (m_masterThreadState == ThreadState::Destruct) {
+        // Stop master thread started
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
           throw cms::Exception("LogicError") << "OscarMTMasterThread: Geant4 is still alive, master thread "
@@ -81,7 +82,6 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
 
     // must be done in this thread, segfault otherwise
     m_runManagerMaster.reset();
-    G4PhysicalVolumeStore::Clean();
 
     edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: physics and geometry are cleaned";
     lk2.unlock();

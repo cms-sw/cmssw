@@ -46,6 +46,8 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaIDEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaRun3Estimator.h"
+#include "PhysicsTools/PatAlgos/interface/XGBooster.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -236,6 +238,7 @@ namespace pat {
     /// standard muon selectors
     bool computeMuonIDMVA_;
     bool computeSoftMuonMVA_;
+    std::unique_ptr<pat::XGBooster> softMuonMvaRun3Booster_;
     bool recomputeBasicSelectors_;
     bool useJec_;
     edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
@@ -472,6 +475,13 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
 
   // MC info
   simInfo_ = consumes<edm::ValueMap<reco::MuonSimInfo>>(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
+
+  if (computeSoftMuonMVA_) {
+    std::string softMvaRun3Model = iConfig.getParameter<string>("softMvaRun3Model");
+    softMuonMvaRun3Booster_ =
+        std::make_unique<pat::XGBooster>(edm::FileInPath(softMvaRun3Model + ".model").fullPath(),
+                                         edm::FileInPath(softMvaRun3Model + ".features").fullPath());
+  }
 
   addTriggerMatching_ = iConfig.getParameter<bool>("addTriggerMatching");
   if (addTriggerMatching_) {
@@ -1013,6 +1023,9 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon.setSoftMvaValue(mva);
       //preselection in SoftMuonMvaEstimator.cc
       muon.setSelector(reco::Muon::SoftMvaId, muon.softMvaValue() > 0.58);  //WP choose for bmm4
+
+      // run3 soft mva
+      muon.setSoftMvaRun3Value(computeSoftMvaRun3(*softMuonMvaRun3Booster_, muon));
     }
   }
 

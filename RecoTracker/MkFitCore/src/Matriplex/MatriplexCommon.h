@@ -16,6 +16,18 @@
 #include <cstdlib>
 #endif
 
+#ifndef MPLEX_ALIGN
+#if defined(__AVX512F__)
+#define MPLEX_ALIGN 64
+#elif defined(__AVX__) || defined(__AVX2__)
+#define MPLEX_ALIGN 32
+#elif defined(__SSE3__)
+#define MPLEX_ALIGN 16
+#else
+#define MPLEX_ALIGN 32
+#endif
+#endif
+
 #if defined(MPLEX_USE_INTRINSICS)
 // This seems unnecessary: __AVX__ is usually defined for all higher ISA extensions
 #if defined(__AVX__) || defined(__AVX512F__)

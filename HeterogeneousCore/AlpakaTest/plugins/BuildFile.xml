@@ -8,6 +8,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/AlpakaTest"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

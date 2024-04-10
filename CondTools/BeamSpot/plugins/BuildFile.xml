@@ -1,11 +1,16 @@
-<use name="CondTools/BeamSpot"/>
-<use name="CondCore/PopCon"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/BeamSpotObjects"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/CondDB"/>
+<use name="CondCore/PopCon"/>
+<use name="CondFormats/Alignment"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondTools/BeamSpot"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
 <library file="*.cc" name="CondToolsBeamSpotPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

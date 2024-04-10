@@ -38,6 +38,7 @@ namespace trklet {
   private:
     unsigned int layerdisk_;
     bool barrel_;
+    bool first_;
 
     unsigned int phiregion_;
 

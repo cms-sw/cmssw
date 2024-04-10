@@ -136,8 +136,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     throw cms::Exception("ConfigurationError")
         << "Number of input collection labels is different from number of types. "
         << "For each collection label there should be exactly one collection type specified.";
-  if (inputCollectionLabels_.size() > 7 || inputCollectionLabels_.empty())
-    throw cms::Exception("ConfigurationError") << "Number of input collections should be from 1 to 7.";
+  if (inputCollectionLabels_.size() > 8 || inputCollectionLabels_.empty())
+    throw cms::Exception("ConfigurationError") << "Number of input collections should be from 1 to 8.";
 
   debugWithTruthMatching_ = iConfig.getParameter<bool>("debugWithTruthMatching");
   if (debugWithTruthMatching_) {
@@ -180,8 +180,10 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 
     if (inputType == ICTypes::INNER_TRACKS) {
       innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputLabel);
-    } else if (inputType == ICTypes::OUTER_TRACKS) {
+    } else if (inputType == ICTypes::OUTER_TRACKS && outerTrackCollectionToken_.isUninitialized()) {
       outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputLabel);
+    } else if (inputType == ICTypes::OUTER_TRACKS) {
+      outerTrackSecondaryCollectionToken_ = consumes<reco::TrackCollection>(inputLabel);
     } else if (inputType == ICTypes::LINKS) {
       linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputLabel);
     } else if (inputType == ICTypes::MUONS) {
@@ -205,6 +207,7 @@ MuonIdProducer::~MuonIdProducer() {
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   innerTrackCollectionHandle_.clear();
   outerTrackCollectionHandle_.clear();
+  outerTrackSecondaryCollectionHandle_.clear();
   linkCollectionHandle_.clear();
   muonCollectionHandle_.clear();
 
@@ -225,11 +228,17 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if (!innerTrackCollectionHandle_.isValid())
         throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputLabel;
       LogTrace("MuonIdentification") << "Number of input inner tracks: " << innerTrackCollectionHandle_->size();
-    } else if (inputType == ICTypes::OUTER_TRACKS) {
+    } else if (inputType == ICTypes::OUTER_TRACKS && !outerTrackCollectionHandle_.isValid()) {
       iEvent.getByToken(outerTrackCollectionToken_, outerTrackCollectionHandle_);
       if (!outerTrackCollectionHandle_.isValid())
         throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputLabel;
       LogTrace("MuonIdentification") << "Number of input outer tracks: " << outerTrackCollectionHandle_->size();
+    } else if (inputType == ICTypes::OUTER_TRACKS) {
+      iEvent.getByToken(outerTrackSecondaryCollectionToken_, outerTrackSecondaryCollectionHandle_);
+      if (!outerTrackSecondaryCollectionHandle_.isValid())
+        throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputLabel;
+      LogTrace("MuonIdentification") << "Number of input outer secondary tracks: "
+                                     << outerTrackSecondaryCollectionHandle_->size();
     } else if (inputType == ICTypes::LINKS) {
       iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
       if (!linkCollectionHandle_.isValid())
@@ -629,8 +638,14 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // and at last the stand alone muons
   if (outerTrackCollectionHandle_.isValid()) {
     LogTrace("MuonIdentification") << "Looking for new muons among stand alone muon tracks";
-    for (unsigned int i = 0; i < outerTrackCollectionHandle_->size(); ++i) {
-      const auto& outerTrack = outerTrackCollectionHandle_->at(i);
+    const unsigned int nouter = outerTrackCollectionHandle_->size();
+    const unsigned int nsecond =
+        (outerTrackSecondaryCollectionHandle_.isValid()) ? outerTrackSecondaryCollectionHandle_->size() : 0;
+    for (unsigned int i = 0; i < nouter + nsecond; ++i) {
+      const auto& outerTrack =
+          (i < nouter) ? outerTrackCollectionHandle_->at(i) : outerTrackSecondaryCollectionHandle_->at(i - nouter);
+      reco::TrackRef refToTrack = (i < nouter) ? reco::TrackRef(outerTrackCollectionHandle_, i)
+                                               : reco::TrackRef(outerTrackSecondaryCollectionHandle_, i - nouter);
 
       // check if this muon is already in the list of global muons
       bool newMuon = true;
@@ -654,7 +669,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           if (overlap(muon, outerTrack) > 0) {
             LogTrace("MuonIdentification") << "Found associated tracker muon. Set a reference and move on";
             newMuon = false;
-            muon.setOuterTrack(reco::TrackRef(outerTrackCollectionHandle_, i));
+            muon.setOuterTrack(refToTrack);
             muon.setType(muon.type() | reco::Muon::StandAloneMuon);
             break;
           }
@@ -662,15 +677,16 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
       if (newMuon) {
         LogTrace("MuonIdentification") << "No associated stand alone track is found. Making a muon";
-        outputMuons->push_back(
-            makeMuon(iEvent, iSetup, reco::TrackRef(outerTrackCollectionHandle_, i), reco::Muon::OuterTrack));
+        outputMuons->push_back(makeMuon(iEvent, iSetup, refToTrack, reco::Muon::OuterTrack));
         outputMuons->back().setType(reco::Muon::StandAloneMuon);
       }
     }
   }
 
   if (arbitrateTrackerMuons_) {
-    fillArbitrationInfo(outputMuons.get());
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::TrackerMuon);
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::GEMMuon);
+    fillArbitrationInfo(outputMuons.get(), reco::Muon::ME0Muon);
     arbitrateMuons(outputMuons.get(), caloMuons.get());
   }
 
@@ -784,10 +800,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 bool MuonIdProducer::isGoodTrackerMuon(const reco::Muon& muon) {
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  if (addExtraSoftMuons_ && muon.pt() < 5 && std::abs(muon.eta()) < 1.5 &&
-      muon.numberOfMatches(reco::Muon::NoArbitration) >= 1)
+  // NoArbitration checks for CSC/DT segments only, also use ME0 segments
+  int numMatches = muon.numberOfMatches(reco::Muon::NoArbitration);
+  if (addExtraSoftMuons_ && muon.pt() < 5 && std::abs(muon.eta()) < 1.5 && numMatches >= 1)
     return true;
-  return (muon.numberOfMatches(reco::Muon::NoArbitration) >= minNumberOfMatches_);
+  return (numMatches >= minNumberOfMatches_);
 }
 
 bool MuonIdProducer::isGoodCaloMuon(const reco::CaloMuon& caloMuon) {
@@ -811,8 +828,14 @@ bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
     return false;
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) +
-          muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
+  //
+  int numMatches = 0;
+  for (auto& chamberMatch : muon.matches()) {
+    if (chamberMatch.gemMatches.empty())
+      continue;
+    numMatches += chamberMatch.gemMatches.size();
+  }
+  return (numMatches + muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
@@ -1125,7 +1148,9 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
   // if a muon was exclusively TrackerMuon check if it can be a calo muon
   for (reco::MuonCollection::iterator muon = muons->begin(); muon != muons->end();) {
     if (muon->isTrackerMuon()) {
-      if (muon->numberOfMatches(arbitration) < minNumberOfMatches_) {
+      int numMatches =
+          muon->numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) + muon->numberOfMatches(arbitration);
+      if (numMatches < minNumberOfMatches_) {
         // TrackerMuon failed arbitration
         // If not any other base type - erase the element
         // (PFMuon is not a base type)

@@ -208,7 +208,6 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 #DQMOfflineCommon
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
 from DQMOffline.RecoB.PixelVertexMonitor_cff import *
-from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
@@ -216,7 +215,6 @@ DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
                                         monitorpixelSoASource )
 
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
-                                OuterTrackerSource *
                                 DQMMessageLogger *
                                 DQMOfflinePhysics *
                                 DQMOfflineVertex

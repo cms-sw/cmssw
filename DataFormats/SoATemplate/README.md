@@ -135,7 +135,7 @@ The buffer of the proper size is allocated, and the layout is populated with:
 // Allocation of aligned
 size_t elements = 100;
 using AlignedBuffer = std::unique_ptr<std::byte, decltype(std::free) *>;
-AlignedBuffer h_buf (reinterpret_cast<std::byte*>(aligned_alloc(SoA1LayoutAligned::byteAlignment, SoA1LayoutAligned::computeDataSize(elements))), std::free);
+AlignedBuffer h_buf (reinterpret_cast<std::byte*>(aligned_alloc(SoA1LayoutAligned::alignment, SoA1LayoutAligned::computeDataSize(elements))), std::free);
 SoA1LayoutAligned soaLayout(h_buf.get(), elements);
 ```
 

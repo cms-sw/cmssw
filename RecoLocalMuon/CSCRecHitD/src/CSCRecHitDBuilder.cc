@@ -5,7 +5,6 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHitCollection.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRangeMapForRecHit.h>
 
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>

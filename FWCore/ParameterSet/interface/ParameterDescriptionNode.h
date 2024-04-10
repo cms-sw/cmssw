@@ -42,8 +42,10 @@ namespace edm {
     k_double = 'D',
     k_vdouble = 'd',
     k_bool = 'B',
-    k_string = 'S',
-    k_vstring = 's',
+    k_stringRaw = 'Z',
+    k_vstringRaw = 'z',
+    k_stringHex = 'S',
+    k_vstringHex = 's',
     k_EventID = 'E',
     k_VEventID = 'e',
     k_LuminosityBlockID = 'M',
@@ -210,6 +212,7 @@ namespace edm {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
     }
 
+    virtual bool isWildcard() const { return false; }
     static void printSpaces(std::ostream& os, int n);
 
   protected:

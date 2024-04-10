@@ -31,7 +31,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   std::vector<edm::InputTag> inactiveStripDetectorTags(
       iConfig.getParameter<std::vector<edm::InputTag>>("inactiveStripDetectorLabels"));
   for (auto& t : inactiveStripDetectorTags)
-    theInactiveStripDetectorLabels.push_back(consumes<DetIdCollection>(t));
+    theInactiveStripDetectorLabels.push_back(consumes<DetIdVector>(t));
 
   //the measurement tracking is set to skip clusters, the other option is set from outside
   edm::InputTag skip = iConfig.getParameter<edm::InputTag>("skipClusters");
@@ -90,7 +90,7 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
 
   desc.add<std::vector<edm::InputTag>>("inactiveStripDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siStripDigis")}})
-      ->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
+      ->setComment("One or more DetIdVectors of modules to mask on the fly for a given event");
 
   desc.add<bool>("switchOffPixelsIfEmpty", true)->setComment("let's keep it like this, for cosmics");
 
@@ -178,7 +178,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
 
     edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
     for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk : theBadPixelFEDChannelsLabels) {
-      if (!event.getByToken(tk, pixelFEDChannelCollectionHandle))
+      if (not event.getByToken(tk, pixelFEDChannelCollectionHandle))
         continue;
       int i = 0;
       for (const auto& disabledChannels : *pixelFEDChannelCollectionHandle) {
@@ -189,7 +189,8 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
           // PixelFEDChannelCollection addresses the ROCs by their 'idInDetUnit' (from 0 to 15), ROCs also know their on 'idInDetUnit',
           // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
           // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
-          for (path.roc = 1; path.roc <= (ch.roc_last - ch.roc_first) + 1; path.roc++) {
+          assert(ch.roc_last >= ch.roc_first);
+          for (path.roc = 1; path.roc <= (ch.roc_last - ch.roc_first) + 1; ++path.roc) {
             const sipixelobjects::PixelROC* roc = cablingMap.findItem(path);
             if (roc == nullptr)
               continue;
@@ -217,7 +218,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
           LocalPoint ur(std::max(lp1.x(), lp2.x()), std::max(lp1.y(), lp2.y()), std::max(lp1.z(), lp2.z()));
           positions.push_back(std::make_pair(ll, ur));
         }  // loop on channels
-        if (!positions.empty()) {
+        if (not positions.empty()) {
           i = thePxDets.find(disabledChannels.detId(), i);
           assert(i != thePxDets.size() && thePxDets.id(i) == disabledChannels.detId());
           thePxDets.addBadFEDChannelPositions(i, positions);
@@ -405,8 +406,8 @@ void MeasurementTrackerEventProducer::updatePhase2OT(const edm::Event& event,
 void MeasurementTrackerEventProducer::getInactiveStrips(const edm::Event& event,
                                                         std::vector<uint32_t>& rawInactiveDetIds) const {
   if (!theInactiveStripDetectorLabels.empty()) {
-    edm::Handle<DetIdCollection> detIds;
-    for (const edm::EDGetTokenT<DetIdCollection>& tk : theInactiveStripDetectorLabels) {
+    edm::Handle<DetIdVector> detIds;
+    for (const edm::EDGetTokenT<DetIdVector>& tk : theInactiveStripDetectorLabels) {
       if (event.getByToken(tk, detIds)) {
         rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
       }

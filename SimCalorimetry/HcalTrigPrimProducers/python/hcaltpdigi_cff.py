@@ -40,3 +40,6 @@ pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [15, 19])
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 19])
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_2023_cff import pp_on_PbPb_run3_2023
+pp_on_PbPb_run3_2023.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])

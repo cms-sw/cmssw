@@ -1,21 +1,36 @@
 <use name="ofast-flag"/>
-<use name="CUDADataFormats/Track"/>
-<use name="CUDADataFormats/TrackingRecHit"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
-<use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoTracker/PixelSeeding"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoTracker/TkSeedingLayers"/>
+
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
   <set name="cuda_src" value="*.cu"/>
 <else/>
   <set name="cuda_src" value=""/>
 </iftool>
-<library file="*.cc ${cuda_src}" name="RecoPixelVertexingPixelTripletsPlugins">
+<library file="*.cc ${cuda_src}" name="RecoTrackerPixelSeedingPlugins">
+ <use name="HeterogeneousCore/CUDACore"/>
+ <use name="CUDADataFormats/Track"/>
+ <use name="CUDADataFormats/TrackingRecHit"/>
+ <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="RecoTrackerPixelSeedingPortable">
+ <use name="alpaka"/>
+  <use name="DataFormats/Portable"/>
+  <use name="DataFormats/TrackSoA"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

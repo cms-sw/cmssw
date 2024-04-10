@@ -1,5 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="SimGeneral/GFlash"/>
+<use name="SimG4Core/Geometry"/>
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/Notification"/>
 <use name="DataFormats/EcalDetId"/>
@@ -14,6 +15,7 @@
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/EcalCommonData"/>
 <use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/HGCalTBCommonData"/>
 <use name="Geometry/Records"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
@@ -21,7 +23,6 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="boost"/>
 <use name="clhep"/>
-<use name="dd4hep"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
 <use name="root"/>

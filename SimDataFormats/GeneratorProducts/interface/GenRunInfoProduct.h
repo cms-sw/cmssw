@@ -12,7 +12,6 @@ public:
 
   // constructors, destructors
   GenRunInfoProduct();
-  GenRunInfoProduct(const GenRunInfoProduct &other);
 
   // getters
 
@@ -33,7 +32,6 @@ public:
   public:
     XSec() : value_(-1.), error_(-1.) {}
     XSec(double value, double error = -1.) : value_(value), error_(error) {}
-    XSec(const XSec &other) : value_(other.value_), error_(other.error_) {}
 
     double value() const { return value_; }
     double error() const { return error_; }

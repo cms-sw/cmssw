@@ -118,7 +118,7 @@ namespace edm {
     bool lumiStatus_ = false;
     LuminosityBlockNumber_t currentLumiNumber_ = 0;
     bool didGlobalBeginLumiSucceed_ = false;
-    InputSource::ItemType lastTransition_ = InputSource::IsInvalid;
+    InputSource::ItemType lastTransition_ = InputSource::ItemType::IsInvalid;
 
     bool currentRun_ = false;
     RunNumber_t currentRunNumber_ = 0;

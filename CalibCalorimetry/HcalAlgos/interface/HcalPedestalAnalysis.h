@@ -107,7 +107,7 @@ private:
   std::string m_outputFileROOT;
   std::string m_outputFileMean;
   std::string m_outputFileWidth;
-  std::ofstream m_logFile;
+
   int m_startTS;
   int m_endTS;
   int m_nevtsample;

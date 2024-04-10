@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
 from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
+from L1Trigger.L1TNtuples.l1CaloSummaryTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
+from L1Trigger.L1TNtuples.l1UpgradeTfMuonShowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
@@ -14,11 +16,17 @@ l1UpgradeTfMuonEmuTree.omtfMuonToken = cms.untracked.InputTag("simOmtfDigis","OM
 l1UpgradeTfMuonEmuTree.emtfMuonToken = cms.untracked.InputTag("simEmtfDigis","EMTF")
 l1UpgradeTfMuonEmuTree.isEMU = cms.bool(True)
 
+l1UpgradeEmuTree = l1UpgradeTree.clone()
+# We have only output of the ZDC emulator available, no info from unpacker: l1UpgradeEmuTree clones from the l1UpgradeTree
+l1UpgradeEmuTree.sumZDCToken = cms.untracked.InputTag("etSumZdcProducer")
+
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("simEcalTriggerPrimitiveDigis")
 l1CaloTowerEmuTree.hcalToken = cms.untracked.InputTag("simHcalTriggerPrimitiveDigis")
 l1CaloTowerEmuTree.l1TowerToken = cms.untracked.InputTag("simCaloStage2Layer1Digis")
 l1CaloTowerEmuTree.l1ClusterToken = cms.untracked.InputTag("simCaloStage2Digis", "MP")
+
+l1CaloSummaryEmuTree = l1CaloSummaryTree.clone()
 
 l1UpgradeEmuTree = l1UpgradeTree.clone(
     egToken = "simCaloStage1FinalDigis",
@@ -46,6 +54,7 @@ L1NtupleEMU = cms.Sequence(
   l1EventTree
   +l1UpgradeTfMuonEmuTree
   +l1CaloTowerEmuTree
+  +l1CaloSummaryEmuTree
   +l1UpgradeEmuTree
 #  +l1MuonEmuTree
   +l1uGTEmuTree

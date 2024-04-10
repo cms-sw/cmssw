@@ -285,7 +285,7 @@ FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
 )
 
 ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import DA_vectParameters
 DAClusterizationParams = DA_vectParameters.clone()
 
 GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),

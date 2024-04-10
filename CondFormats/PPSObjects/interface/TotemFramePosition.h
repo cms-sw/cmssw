@@ -9,6 +9,7 @@
 #ifndef CondFormats_PPSObjects_TotemFramePosition
 #define CondFormats_PPSObjects_TotemFramePosition
 
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include <iostream>
 #include <string>
 
@@ -130,6 +131,8 @@ public:
 
 protected:
   unsigned int rawPosition;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

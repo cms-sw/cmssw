@@ -21,7 +21,7 @@ class L1GctHtMissLut : public L1GctLut<16, 12>
 
 {
 public:
-  enum numberOfBits { kHxOrHyMissComponentNBits = 8, kHtMissMagnitudeNBits = 7, kHtMissAngleNBits = 5 };
+  static constexpr int kHxOrHyMissComponentNBits = 8, kHtMissMagnitudeNBits = 7, kHtMissAngleNBits = 5;
 
   // Definitions.
   static const int NAddress, NData;

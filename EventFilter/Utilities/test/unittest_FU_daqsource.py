@@ -36,7 +36,7 @@ options.register ('fffBaseDir',
                   "FFF base directory")
 
 options.register ('numThreads',
-                  2, # default value
+                  3, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW threads")
@@ -145,15 +145,15 @@ process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
 process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
 process.p2 = cms.Path(process.b*process.filter2)
 
-process.streamA = cms.OutputModule("EvFOutputModule",
+process.streamA = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1' ))
 )
 
-process.streamB = cms.OutputModule("EvFOutputModule",
+process.streamB = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.streamC = cms.OutputModule("EvFOutputModule",
+process.streamC = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 

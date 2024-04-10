@@ -3,9 +3,9 @@ import os
 import sys
 import FWCore.ParameterSet.Config as cms
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     raise RuntimeError('\nERROR: Need csv-filename as first argument.\n')
-csv_file = sys.argv[2]
+csv_file = sys.argv[1]
 db_file = csv_file.replace('.csv', '.db')
 tagger = os.path.basename(csv_file).split('.')[0]
 print("Using file:", csv_file)

@@ -5,16 +5,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-#ignore script name and anything before it
-argv = []
-foundpy = False
-for a in sys.argv:
-    if foundpy:
-        argv.append(a)
-    if ".py" in a:
-        foundpy = True
-
-
 process = cms.Process("TESTRECO")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
@@ -34,7 +24,7 @@ def findRunForLumi( lumi) :
 ids = cms.VEventID()
 numberOfEventsInLumi = 0
 numberOfEventsPerLumi = 5
-lumi = int(argv[1])
+lumi = int(sys.argv[2])
 event= numberOfEventsPerLumi*(lumi-1)
 oldRun = 2
 numberOfFiles = 1
@@ -56,9 +46,9 @@ process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(i
 
 
 process.source = cms.Source("PoolSource",
-                            lumisToProcess = cms.untracked.VLuminosityBlockRange('1:'+str(int(argv[1]))+'-1:'+str(runToLumi[-1][1])),
+                            lumisToProcess = cms.untracked.VLuminosityBlockRange('1:'+str(int(sys.argv[2]))+'-1:'+str(runToLumi[-1][1])),
     firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in runToLumi]),
-    fileNames = cms.untracked.vstring(argv[0].split(","))
+    fileNames = cms.untracked.vstring(sys.argv[1].split(","))
 )
 
 process.e = cms.EndPath(process.check)

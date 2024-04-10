@@ -4,15 +4,18 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/PixelSeeding/interface/LayerTriplets.h"
 #include "MultiHitGeneratorFromChi2.h"
+
+#include <memory>
+#include <vector>
 
 class MultiHitFromChi2EDProducer : public edm::stream::EDProducer<> {
 public:
@@ -25,6 +28,7 @@ public:
 
 private:
   edm::EDGetTokenT<IntermediateHitDoublets> doubletToken_;
+  edm::EDPutTokenT<std::vector<std::unique_ptr<BaseTrackerRecHit>>> hitsPutToken_;
 
   edm::RunningAverage localRA_;
 
@@ -33,9 +37,9 @@ private:
 
 MultiHitFromChi2EDProducer::MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig)
     : doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
+      hitsPutToken_{produces()},
       generator_(iConfig, consumesCollector()) {
   produces<RegionsSeedingHitSets>();
-  produces<edm::OwnVector<BaseTrackerRecHit> >();
 }
 
 void MultiHitFromChi2EDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -76,7 +80,7 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   OrderedMultiHits multihits;
   multihits.reserve(localRA_.upper());
-  std::vector<std::unique_ptr<BaseTrackerRecHit> > refittedHitStorage;
+  std::vector<std::unique_ptr<BaseTrackerRecHit>> refittedHitStorage;
   refittedHitStorage.reserve(localRA_.upper() * 2);
 
   LogDebug("MultiHitFromChi2EDProducer") << "Creating multihits for " << regionDoublets.regionSize() << " regions, and "
@@ -137,15 +141,10 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
   localRA_.update(seedingHitSets->size());
 
-  auto storage = std::make_unique<edm::OwnVector<BaseTrackerRecHit> >();
-  storage->reserve(refittedHitStorage.size());
-  for (auto& ptr : refittedHitStorage)
-    storage->push_back(ptr.release());
-
   seedingHitSets->shrink_to_fit();
-  storage->shrink_to_fit();
+  refittedHitStorage.shrink_to_fit();
   iEvent.put(std::move(seedingHitSets));
-  iEvent.put(std::move(storage));
+  iEvent.emplace(hitsPutToken_, std::move(refittedHitStorage));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -10,4 +10,4 @@
 REGISTER_PLUGIN(BeamSpotObjectsRcd, BeamSpotObjects);
 REGISTER_PLUGIN(SimBeamSpotObjectsRcd, SimBeamSpotObjects);
 REGISTER_PLUGIN(BeamSpotOnlineHLTObjectsRcd, BeamSpotOnlineObjects);
-REGISTER_PLUGIN(BeamSpotOnlineLegacyObjectsRcd, BeamSpotOnlineObjects);
+REGISTER_PLUGIN_NO_SERIAL(BeamSpotOnlineLegacyObjectsRcd, BeamSpotOnlineObjects);

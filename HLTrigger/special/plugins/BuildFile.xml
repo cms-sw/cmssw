@@ -7,6 +7,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/RunInfo"/>
+<use name="CondTools/RunInfo"/>
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/CTPPSDetId"/>
@@ -38,6 +39,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>

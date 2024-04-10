@@ -5,11 +5,7 @@ import sys
 parser = argparse.ArgumentParser(prog=sys.argv[0], description="Test PoolOutputModule")
 parser.add_argument("--firstLumi", type=int, default=None, help="Set first lumi to process ")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
-
+args = parser.parse_args()
 
 process = cms.Process("TESTOUTPUT")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")

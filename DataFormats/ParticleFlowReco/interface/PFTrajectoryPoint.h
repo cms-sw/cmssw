@@ -68,12 +68,6 @@ namespace reco {
     /// set detId to -1 if this point is not from a tracker layer
     PFTrajectoryPoint(int detId, int layer, const math::XYZPoint& posxyz, const math::XYZTLorentzVector& momentum);
 
-    /// copy
-    PFTrajectoryPoint(const PFTrajectoryPoint& other);
-
-    /// destructor
-    virtual ~PFTrajectoryPoint();
-
     /// measurement detId
     int detId() const { return detId_; }
 

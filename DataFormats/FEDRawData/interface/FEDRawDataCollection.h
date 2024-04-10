@@ -29,6 +29,8 @@ public:
 
   FEDRawDataCollection(const FEDRawDataCollection&);
 
+  FEDRawDataCollection& operator=(const FEDRawDataCollection&) = default;
+
   void swap(FEDRawDataCollection& other) { data_.swap(other.data_); }
 
 private:

@@ -46,19 +46,12 @@ using namespace l1t;
 class L1TCaloLayer1Validator : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TCaloLayer1Validator(const edm::ParameterSet&);
-  ~L1TCaloLayer1Validator() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
 
@@ -143,8 +136,6 @@ L1TCaloLayer1Validator::L1TCaloLayer1Validator(const edm::ParameterSet& iConfig)
   for (uint32_t c = 0; c < 18; c++)
     ngCard[c] = nbCard[c] = zgCard[c] = zbCard[c] = 0;
 }
-
-L1TCaloLayer1Validator::~L1TCaloLayer1Validator() {}
 
 //
 // member functions
@@ -390,9 +381,6 @@ void L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventS
   eventCount++;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void L1TCaloLayer1Validator::beginJob() {}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void L1TCaloLayer1Validator::endJob() {
   if (validateTowers)
@@ -419,38 +407,6 @@ void L1TCaloLayer1Validator::endJob() {
               << tLeTotET << " / " << tEeTotET << " / " << tGeTotET << std::endl;
   }
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-L1TCaloLayer1Validator::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-L1TCaloLayer1Validator::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-L1TCaloLayer1Validator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-L1TCaloLayer1Validator::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1Validator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

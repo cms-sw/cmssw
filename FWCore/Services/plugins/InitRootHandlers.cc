@@ -166,7 +166,7 @@ namespace {
   }
 
   //Contents of a message which should be reported as an INFO not a ERROR
-  constexpr std::array<const char* const, 9> in_message{
+  constexpr std::array<const char* const, 11> in_message{
       {"no dictionary for class",
        "already in TClassTable",
        "matrix not positive definite",
@@ -175,7 +175,9 @@ namespace {
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1",
-       "oneapi::tbb::global_control is limiting"}};
+       "oneapi::tbb::global_control is limiting",
+       "ufirst < fXmin, fXmin is used",
+       "ulast > fXmax, fXmax is used"}};
 
   //Location generating messages which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 7> in_location{{"Fit",
@@ -186,9 +188,11 @@ namespace {
                                                           "Inverter::Dinv",
                                                           "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 3> in_message_print_error{{"number of iterations was insufficient",
-                                                                     "bad integrand behavior",
-                                                                     "integral is divergent, or slowly convergent"}};
+  constexpr std::array<const char* const, 4> in_message_print_error{
+      {"number of iterations was insufficient",
+       "bad integrand behavior",
+       "integral is divergent, or slowly convergent",
+       "VariableMetricBuilder Initial matrix not pos.def."}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;

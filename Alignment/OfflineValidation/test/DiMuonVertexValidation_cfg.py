@@ -27,13 +27,13 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 options.register ('era',
-                  '2017', # default value
+                  '2022', # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "CMS running era")
 
 options.register ('GlobalTag',
-                  '113X_mc2017_realistic_v4', # default value
+                  'auto:phase1_2022_realistic', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "seed number")
@@ -96,6 +96,17 @@ elif options.era=='2017':
 elif options.era=='2018':
     print("===> running era 2018")
     process = cms.Process('Analysis',eras.Run2_2018)
+elif options.era=='2022':
+    print("===> running era 2022")
+    process = cms.Process('Analysis',eras.Run3)
+elif options.era=='2023':
+    print("===> running era 2023")
+    process = cms.Process('Analysis',eras.Run3_2023)
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

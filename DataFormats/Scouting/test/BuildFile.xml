@@ -10,5 +10,3 @@
 <test name="TestRun2ScoutingDataFormats" command="TestRun2ScoutingFormats.sh"/>
 <test name="TestRun3ScoutingDataFormats" command="TestRun3ScoutingFormats.sh"/>
 
-<test name="testDataFormatsScoutingRun2" command="testDataFormatsScoutingRun2.sh"/>
-<test name="testDataFormatsScoutingRun3" command="testDataFormatsScoutingRun3.sh"/>

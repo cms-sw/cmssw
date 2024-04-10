@@ -52,6 +52,8 @@
 #include <utility>
 #include "FWCore/Utilities/interface/Signal.h"
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";

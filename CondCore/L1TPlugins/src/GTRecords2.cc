@@ -6,6 +6,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
 
 REGISTER_PLUGIN(L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask);
-REGISTER_PLUGIN(L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask);
-REGISTER_PLUGIN(L1GtTriggerMaskVetoAlgoTrigRcd, L1GtTriggerMask);
-REGISTER_PLUGIN(L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN_NO_SERIAL(L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN_NO_SERIAL(L1GtTriggerMaskVetoAlgoTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN_NO_SERIAL(L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask);

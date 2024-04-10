@@ -1,10 +1,15 @@
-<!-- TODO: dependence on CUDA only to make GPU IBs to run these tests -->
-<use name="cuda"/>
+<test name="testHeterogeneousCoreAlpakaTestWriteRead" command="testHeterogeneousCoreAlpakaTestWriteRead.sh">
+  <!-- dependence and flag only to trigger the unit test for each Alpaka backend -->
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
 
-<test name="testHeterogeneousCoreAlpakaTestWriteRead" command="testHeterogeneousCoreAlpakaTestWriteRead.sh"/>
-
-<ifrelease name="_GPU_">
-  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cuda"/>
-<else/>
-  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cpu"/>
-</ifrelease>
+<test name="testHeterogeneousCoreAlpakaTestModulesCPU" command="testAlpakaModules.sh cpu"/>
+<test name="testHeterogeneousCoreAlpakaTestModulesCUDA" command="testAlpakaModules.sh cuda">
+  <!-- dependence only to trigger the unit test when NVIDIA GPU is (expected to be) present -->
+  <use name="cuda"/>
+</test>
+<test name="testHeterogeneousCoreAlpakaTestModulesROCm" command="testAlpakaModules.sh rocm">
+  <!-- dependence only to trigger the unit test when AMD GPU is (expected to be) present -->
+  <use name="rocm"/>
+</test>

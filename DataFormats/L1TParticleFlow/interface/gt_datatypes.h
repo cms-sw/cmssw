@@ -24,7 +24,8 @@ namespace l1gt {
   typedef ap_ufixed<16, 11, AP_RND_CONV, AP_SAT> pt_t;
   typedef ap_fixed<13, 13, AP_RND_CONV> phi_t;
   typedef ap_fixed<14, 14, AP_RND_CONV, AP_SAT> eta_t;
-  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;
+  // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
+  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
@@ -41,9 +42,11 @@ namespace l1gt {
     const float INTPT_LSB = 1.0 / (1 << (pt_t::width - pt_t::iwidth));
     const int INTPHI_TWOPI = 2 * INTPHI_PI;
     constexpr float ETAPHI_LSB = M_PI / INTPHI_PI;
+    constexpr float Z0_UNITS = 0.1;  // 1 L1 unit is 1 mm, while CMS standard units are cm
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
+    inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_UNITS; }
   }  // namespace Scales
 
   struct ThreeVector {
@@ -153,8 +156,8 @@ namespace l1gt {
     }
 
     static const int BITWIDTH = 64;
-    inline ap_uint<BITWIDTH> pack() const {
-      ap_uint<BITWIDTH> ret;
+    inline ap_uint<BITWIDTH> pack_ap() const {
+      ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, vector_pt);
@@ -163,11 +166,18 @@ namespace l1gt {
       return ret;
     }
 
+    inline uint64_t pack() const {
+      ap_uint<BITWIDTH> x = pack_ap();
+      return (uint64_t)x;
+    }
+
     inline static Sum unpack_ap(const ap_uint<BITWIDTH> &src) {
       Sum ret;
       ret.initFromBits(src);
       return ret;
     }
+
+    inline static Sum unpack(const uint64_t &src) { return unpack_ap(src); }
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
@@ -191,7 +201,7 @@ namespace l1gt {
 
     static const int BITWIDTH = 128;
     inline ap_uint<BITWIDTH> pack_ap() const {
-      ap_uint<BITWIDTH> ret;
+      ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
@@ -247,10 +257,10 @@ namespace l1gt {
   struct Electron {
     valid_t valid;
     ThreeVector v3;
-    egquality_t quality;
+    egquality_t qualityFlags;
     ap_uint<1> charge;
     z0_t z0;
-    iso_t isolation;
+    iso_t isolationPT;
 
     static const int BITWIDTH = 96;
     inline ap_uint<BITWIDTH> pack() const {
@@ -258,8 +268,8 @@ namespace l1gt {
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
-      pack_into_bits(ret, start, quality);
-      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, qualityFlags);
+      pack_into_bits(ret, start, isolationPT);
       pack_into_bits(ret, start, charge);
       pack_into_bits(ret, start, z0);
       return ret;
@@ -271,8 +281,8 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.pt);
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
-      unpack_from_bits(src, start, quality);
-      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, qualityFlags);
+      unpack_from_bits(src, start, isolationPT);
       unpack_from_bits(src, start, charge);
       unpack_from_bits(src, start, z0);
     }
@@ -299,8 +309,8 @@ namespace l1gt {
   struct Photon {
     valid_t valid;
     ThreeVector v3;
-    egquality_t quality;
-    iso_t isolation;
+    egquality_t qualityFlags;
+    iso_t isolationPT;
 
     static const int BITWIDTH = 96;
     inline ap_uint<BITWIDTH> pack() const {
@@ -308,8 +318,8 @@ namespace l1gt {
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
-      pack_into_bits(ret, start, quality);
-      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, qualityFlags);
+      pack_into_bits(ret, start, isolationPT);
       return ret;
     }
 
@@ -319,8 +329,8 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.pt);
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
-      unpack_from_bits(src, start, quality);
-      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, qualityFlags);
+      unpack_from_bits(src, start, isolationPT);
     }
 
     inline static Photon unpack_ap(const ap_uint<BITWIDTH> &src) {
@@ -330,7 +340,7 @@ namespace l1gt {
     }
 
     inline static Photon unpack(const std::array<uint64_t, 2> &src, int parity) {
-      ap_uint<BITWIDTH> bits;
+      ap_uint<BITWIDTH> bits(0);
       if (parity == 0) {
         bits(63, 0) = src[0];
         bits(95, 64) = src[1];

@@ -8,7 +8,7 @@
 class SensitiveTkDetector : public SensitiveDetector {
 public:
   explicit SensitiveTkDetector(const std::string& iname, const SensitiveDetectorCatalog& clg)
-      : SensitiveDetector(iname, clg, false) {}
+      : SensitiveDetector(iname, clg, false, "") {}
   virtual void fillHits(edm::PSimHitContainer&, const std::string& hname) = 0;
 };
 

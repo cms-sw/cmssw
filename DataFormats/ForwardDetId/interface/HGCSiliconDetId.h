@@ -4,6 +4,7 @@
 #include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /* \brief description of the bit assigment
    [0:4]   u-coordinate of the cell (measured from the lower left
@@ -16,113 +17,180 @@
    [25:25] z-side (0 for +z; 1 for -z)
    [26:27] Type (0 fine divisions of wafer with 120 mum thick silicon
                  1 coarse divisions of wafer with 200 mum thick silicon
-                 2 coarse divisions of wafer with 300 mum thick silicon)
+                 2 coarse divisions of wafer with 300 mum thick silicon
+                 3 fine divisions of wafer with 200 mum thick silicon)
    [28:31] Detector type (HGCalEE or HGCalHSi)
 */
 class HGCSiliconDetId : public DetId {
 public:
-  enum waferType { HGCalFine = 0, HGCalCoarseThin = 1, HGCalCoarseThick = 2 };
-  static const int HGCalFineN = 12;
-  static const int HGCalCoarseN = 8;
-  static const int HGCalFineTrigger = 3;
-  static const int HGCalCoarseTrigger = 2;
+  enum waferType { HGCalFine = 0, HGCalCoarseThin = 1, HGCalCoarseThick = 2, HGCalFineThick = 3 };
+  static constexpr int32_t HGCalHighDensityN = 12;
+  static constexpr int32_t HGCalLowDensityN = 8;
+  static constexpr int32_t HGCalFineTrigger = 3;
+  static constexpr int32_t HGCalCoarseTrigger = 2;
+  static constexpr int32_t HGCal0Depletion = 120;
+  static constexpr int32_t HGCal1Depletion = 200;
+  static constexpr int32_t HGCal2Depletion = 300;
 
   /** Create a null cellid*/
-  HGCSiliconDetId();
+  constexpr HGCSiliconDetId() : DetId() {}
   /** Create cellid from raw id (0=invalid tower id) */
-  HGCSiliconDetId(uint32_t rawid);
+  constexpr HGCSiliconDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  HGCSiliconDetId(DetId::Detector det, int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV);
+  constexpr HGCSiliconDetId(DetId::Detector det,
+                            int32_t zp,
+                            int32_t type,
+                            int32_t layer,
+                            int32_t waferU,
+                            int32_t waferV,
+                            int32_t cellU,
+                            int32_t cellV)
+      : DetId(det, ForwardEmpty) {
+    int32_t waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
+    int32_t waferUsign = (waferU >= 0) ? 0 : 1;
+    int32_t waferVsign = (waferV >= 0) ? 0 : 1;
+    int32_t zside = (zp < 0) ? 1 : 0;
+    id_ |= (((cellU & kHGCalCellUMask) << kHGCalCellUOffset) | ((cellV & kHGCalCellVMask) << kHGCalCellVOffset) |
+            ((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
+            ((waferUsign & kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
+            ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
+            ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
+            ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
+            ((type & kHGCalTypeMask) << kHGCalTypeOffset));
+  }
+
   /** Constructor from a generic cell id */
-  HGCSiliconDetId(const DetId& id);
+  constexpr HGCSiliconDetId(const DetId& gen) {
+    if (!gen.null()) {
+      if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
+        throw cms::Exception("Invalid DetId")
+            << "Cannot initialize HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+      }
+    }
+    id_ = gen.rawId();
+  }
+
   /** Assignment from a generic cell id */
-  HGCSiliconDetId& operator=(const DetId& id);
+  constexpr HGCSiliconDetId& operator=(const DetId& gen) {
+    if (!gen.null()) {
+      if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
+        throw cms::Exception("Invalid DetId")
+            << "Cannot assign HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+      }
+    }
+    id_ = gen.rawId();
+    return (*this);
+  }
 
   /** Converter for a geometry cell id */
-  HGCSiliconDetId geometryCell() const { return HGCSiliconDetId(det(), zside(), 0, layer(), waferU(), waferV(), 0, 0); }
-  HGCSiliconDetId moduleId() const {
+  constexpr HGCSiliconDetId geometryCell() const {
+    return HGCSiliconDetId(det(), zside(), 0, layer(), waferU(), waferV(), 0, 0);
+  }
+  constexpr HGCSiliconDetId moduleId() const {
     return HGCSiliconDetId(det(), zside(), type(), layer(), waferU(), waferV(), 0, 0);
   }
 
   /// get the subdetector
-  DetId::Detector subdet() const { return det(); }
+  constexpr DetId::Detector subdet() const { return det(); }
 
   /// get the type
-  int type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
+  constexpr int32_t type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
+  constexpr bool lowDensity() const { return ((type() == HGCalCoarseThin) || (type() == HGCalCoarseThick)); }
+  constexpr bool highDensity() const { return ((type() == HGCalFine) || (type() == HGCalFineThick)); }
+  constexpr int32_t depletion() const {
+    return ((type() == HGCalFine) ? HGCal0Depletion
+                                  : ((type() == HGCalCoarseThick) ? HGCal2Depletion : HGCal1Depletion));
+  }
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
+  constexpr int32_t zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
 
   /// get the layer #
-  int layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
+  constexpr int32_t layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
 
   /// get the cell #'s in u,v or in x,y
-  int cellU() const { return (id_ >> kHGCalCellUOffset) & kHGCalCellUMask; }
-  int cellV() const { return (id_ >> kHGCalCellVOffset) & kHGCalCellVMask; }
-  std::pair<int, int> cellUV() const { return std::pair<int, int>(cellU(), cellV()); }
-  int cellX() const {
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
+  constexpr int32_t cellU() const { return (id_ >> kHGCalCellUOffset) & kHGCalCellUMask; }
+  constexpr int32_t cellV() const { return (id_ >> kHGCalCellVOffset) & kHGCalCellVMask; }
+  constexpr std::pair<int32_t, int32_t> cellUV() const { return std::pair<int32_t, int32_t>(cellU(), cellV()); }
+  constexpr int32_t cellX() const {
+    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
     return (3 * (cellV() - N) + 2);
   }
-  int cellY() const {
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
+  constexpr int32_t cellY() const {
+    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
     return (2 * cellU() - (N + cellV()));
   }
-  std::pair<int, int> cellXY() const { return std::pair<int, int>(cellX(), cellY()); }
+  constexpr std::pair<int32_t, int32_t> cellXY() const { return std::pair<int32_t, int32_t>(cellX(), cellY()); }
 
   /// get the wafer #'s in u,v or in x,y
-  int waferUAbs() const { return (id_ >> kHGCalWaferUOffset) & kHGCalWaferUMask; }
-  int waferVAbs() const { return (id_ >> kHGCalWaferVOffset) & kHGCalWaferVMask; }
-  int waferU() const { return (((id_ >> kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -waferUAbs() : waferUAbs()); }
-  int waferV() const { return (((id_ >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
-  std::pair<int, int> waferUV() const { return std::pair<int, int>(waferU(), waferV()); }
-  int waferX() const { return (-2 * waferU() + waferV()); }
-  int waferY() const { return (2 * waferV()); }
-  std::pair<int, int> waferXY() const { return std::pair<int, int>(waferX(), waferY()); }
+  constexpr int32_t waferUAbs() const { return (id_ >> kHGCalWaferUOffset) & kHGCalWaferUMask; }
+  constexpr int32_t waferVAbs() const { return (id_ >> kHGCalWaferVOffset) & kHGCalWaferVMask; }
+  constexpr int32_t waferU() const {
+    return (((id_ >> kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -waferUAbs() : waferUAbs());
+  }
+  constexpr int32_t waferV() const {
+    return (((id_ >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -waferVAbs() : waferVAbs());
+  }
+  constexpr std::pair<int32_t, int32_t> waferUV() const { return std::pair<int32_t, int32_t>(waferU(), waferV()); }
+  constexpr int32_t waferX() const { return (-2 * waferU() + waferV()); }
+  constexpr int32_t waferY() const { return (2 * waferV()); }
+  constexpr std::pair<int32_t, int32_t> waferXY() const { return std::pair<int32_t, int32_t>(waferX(), waferY()); }
+  constexpr void unpack(
+      int32_t& ty, int32_t& zs, int32_t& ly, int32_t& wU, int32_t& wV, int32_t& cU, int32_t& cV) const {
+    ty = type();
+    zs = zside();
+    ly = layer();
+    wU = waferU();
+    wV = waferV();
+    cU = cellU();
+    cV = cellV();
+  }
 
   // get trigger cell u,v
-  int triggerCellU() const {
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
-    int NT = (type() == HGCalFine) ? HGCalFineTrigger : HGCalCoarseTrigger;
+  constexpr int32_t triggerCellU() const {
+    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t NT = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalFineTrigger : HGCalCoarseTrigger;
     return (cellU() >= N && cellV() >= N)
                ? cellU() / NT
                : ((cellU() < N && cellU() <= cellV()) ? cellU() / NT : (1 + (cellU() - (cellV() % NT + 1)) / NT));
   }
-  int triggerCellV() const {
-    int N = (type() == HGCalFine) ? HGCalFineN : HGCalCoarseN;
-    int NT = (type() == HGCalFine) ? HGCalFineTrigger : HGCalCoarseTrigger;
+  constexpr int32_t triggerCellV() const {
+    int32_t N = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalHighDensityN : HGCalLowDensityN;
+    int32_t NT = ((type() == HGCalFine) || (type() == HGCalFineThick)) ? HGCalFineTrigger : HGCalCoarseTrigger;
     return (cellU() >= N && cellV() >= N)
                ? cellV() / NT
                : ((cellU() < N && cellU() <= cellV()) ? ((cellV() - cellU()) / NT + cellU() / NT) : cellV() / NT);
   }
-  std::pair<int, int> triggerCellUV() const { return std::pair<int, int>(triggerCellU(), triggerCellV()); }
+  constexpr std::pair<int32_t, int32_t> triggerCellUV() const {
+    return std::pair<int32_t, int32_t>(triggerCellU(), triggerCellV());
+  }
 
   /// consistency check : no bits left => no overhead
-  bool isEE() const { return (det() == HGCalEE); }
-  bool isHE() const { return (det() == HGCalHSi); }
-  bool isForward() const { return true; }
+  constexpr bool isEE() const { return (det() == HGCalEE); }
+  constexpr bool isHE() const { return (det() == HGCalHSi); }
+  constexpr bool isForward() const { return true; }
 
   static const HGCSiliconDetId Undefined;
 
 public:
-  static const int kHGCalCellUOffset = 0;
-  static const int kHGCalCellUMask = 0x1F;
-  static const int kHGCalCellVOffset = 5;
-  static const int kHGCalCellVMask = 0x1F;
-  static const int kHGCalWaferUOffset = 10;
-  static const int kHGCalWaferUMask = 0xF;
-  static const int kHGCalWaferUSignOffset = 14;
-  static const int kHGCalWaferUSignMask = 0x1;
-  static const int kHGCalWaferVOffset = 15;
-  static const int kHGCalWaferVMask = 0xF;
-  static const int kHGCalWaferVSignOffset = 19;
-  static const int kHGCalWaferVSignMask = 0x1;
-  static const int kHGCalLayerOffset = 20;
-  static const int kHGCalLayerMask = 0x1F;
-  static const int kHGCalZsideOffset = 25;
-  static const int kHGCalZsideMask = 0x1;
-  static const int kHGCalTypeOffset = 26;
-  static const int kHGCalTypeMask = 0x3;
+  static constexpr uint32_t kHGCalCellUOffset = 0;
+  static constexpr uint32_t kHGCalCellUMask = 0x1F;
+  static constexpr uint32_t kHGCalCellVOffset = 5;
+  static constexpr uint32_t kHGCalCellVMask = 0x1F;
+  static constexpr uint32_t kHGCalWaferUOffset = 10;
+  static constexpr uint32_t kHGCalWaferUMask = 0xF;
+  static constexpr uint32_t kHGCalWaferUSignOffset = 14;
+  static constexpr uint32_t kHGCalWaferUSignMask = 0x1;
+  static constexpr uint32_t kHGCalWaferVOffset = 15;
+  static constexpr uint32_t kHGCalWaferVMask = 0xF;
+  static constexpr uint32_t kHGCalWaferVSignOffset = 19;
+  static constexpr uint32_t kHGCalWaferVSignMask = 0x1;
+  static constexpr uint32_t kHGCalLayerOffset = 20;
+  static constexpr uint32_t kHGCalLayerMask = 0x1F;
+  static constexpr uint32_t kHGCalZsideOffset = 25;
+  static constexpr uint32_t kHGCalZsideMask = 0x1;
+  static constexpr uint32_t kHGCalTypeOffset = 26;
+  static constexpr uint32_t kHGCalTypeMask = 0x3;
 };
 
 std::ostream& operator<<(std::ostream&, const HGCSiliconDetId& id);

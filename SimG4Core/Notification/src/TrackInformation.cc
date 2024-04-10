@@ -26,6 +26,7 @@ void TrackInformation::Print() const {
                                << "                    hasHits = " << hasHits_ << "\n"
                                << "                    isPrimary = " << isPrimary_ << "\n"
                                << "                    isGeneratedSecondary = " << isGeneratedSecondary_ << "\n"
+                               << "                    mcTruthID = " << mcTruthID_ << "\n"
                                << "                    isInHistory = " << isInHistory_ << "\n"
                                << "                    idOnCaloSurface = " << getIDonCaloSurface() << "\n"
                                << "                    caloIDChecked = " << caloIDChecked() << "\n"
@@ -33,7 +34,8 @@ void TrackInformation::Print() const {
                                << "                    idLastVolume = " << idLastVolume_ << "\n"
                                << "                    isFromTtoBTL = " << isFromTtoBTL() << "\n"
                                << "                    isFromBTLtoT = " << isFromBTLtoT() << "\n"
-                               << "                    isBTLdaughter = " << isBTLdaughter() << "\n"
                                << "                    isBTLlooper = " << isBTLlooper() << "\n"
-                               << "                    idAtBTLentrance = " << idAtBTLentrance_;
+                               << "                    isInTrkFromBackscattering = " << isInTrkFromBackscattering()
+                               << "\n"
+                               << "                    isExtSecondary = " << isExtSecondary();
 }

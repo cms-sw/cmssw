@@ -7,8 +7,10 @@ from PhysicsTools.PatAlgos.selectionLayer1.displacedMuonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.ootPhotonSelector_cff import *
-from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets as _selectedPatJets
 #from PhysicsTools.PatAlgos.producersLayer1.hemisphereProducer_cfi import *
+
+selectedPatJets = _selectedPatJets.clone()
 
 # One module to count objects
 selectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",

@@ -13,7 +13,7 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
                 cms.PSet(
                     depths = cms.vint32(1, 2, 3, 4),
                     detector = cms.string('HCAL_BARREL1'),
-                    logWeightDenominator = cms.vdouble(0.8, 1.2, 1.2, 1.2)
+                    logWeightDenominator = cms.vdouble(0.1, 0.2, 0.3, 0.3)
                 ),
                 cms.PSet(
                     depths = cms.vint32(
@@ -37,5 +37,6 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
     ),
     positionReCalc = cms.PSet(
 
-    )
+    ),
+    usePFThresholdsFromDB = cms.bool(True)
 )

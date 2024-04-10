@@ -18,7 +18,7 @@ _localMaxSeeds_PS = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.int32(4)
+    nNeighbours = cms.int32(4),
 )
 
 #topo clusters
@@ -71,6 +71,7 @@ _pfClusterizer_PS = cms.PSet(
 particleFlowClusterPS = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitPS"),
+    usePFThresholdsFromDB = cms.bool(False),
     recHitCleaners = cms.VPSet(),
     seedCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_PS,

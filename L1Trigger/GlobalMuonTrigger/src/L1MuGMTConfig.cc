@@ -77,24 +77,22 @@ using namespace std;
 //----------------
 
 L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
-  m_ps = &ps;
-
-  m_DTInputTag = m_ps->getParameter<edm::InputTag>("DTCandidates");
-  m_CSCInputTag = m_ps->getParameter<edm::InputTag>("CSCCandidates");
-  m_RPCbInputTag = m_ps->getParameter<edm::InputTag>("RPCbCandidates");
-  m_RPCfInputTag = m_ps->getParameter<edm::InputTag>("RPCfCandidates");
-  m_MipIsoInputTag = m_ps->getParameter<edm::InputTag>("MipIsoData");
+  m_DTInputTag = ps.getParameter<edm::InputTag>("DTCandidates");
+  m_CSCInputTag = ps.getParameter<edm::InputTag>("CSCCandidates");
+  m_RPCbInputTag = ps.getParameter<edm::InputTag>("RPCbCandidates");
+  m_RPCfInputTag = ps.getParameter<edm::InputTag>("RPCfCandidates");
+  m_MipIsoInputTag = ps.getParameter<edm::InputTag>("MipIsoData");
 
   m_debug = true;
-  m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug", 0);
+  m_dbgLevel = ps.getUntrackedParameter<int>("Debug", 0);
 
   // set min and max bunch crossing
-  m_BxMin = m_ps->getParameter<int>("BX_min");
-  m_BxMax = m_ps->getParameter<int>("BX_max");
+  m_BxMin = ps.getParameter<int>("BX_min");
+  m_BxMax = ps.getParameter<int>("BX_max");
 
   // set min and max bunch crossing for the readout
-  m_BxMinRo = m_ps->getParameter<int>("BX_min_readout");
-  m_BxMaxRo = m_ps->getParameter<int>("BX_max_readout");
+  m_BxMinRo = ps.getParameter<int>("BX_min_readout");
+  m_BxMaxRo = ps.getParameter<int>("BX_max_readout");
 }
 
 //--------------
@@ -309,8 +307,6 @@ void L1MuGMTConfig::dumpRegs(std::string dir) {
 }
 
 // static data members
-
-const edm::ParameterSet* L1MuGMTConfig::m_ps = nullptr;
 
 edm::InputTag L1MuGMTConfig::m_DTInputTag = edm::InputTag();
 edm::InputTag L1MuGMTConfig::m_CSCInputTag = edm::InputTag();

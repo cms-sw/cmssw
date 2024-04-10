@@ -1,15 +1,18 @@
-#include "HLTrigger/JetMET/interface/HLTJetCollForElePlusJets.h"
+#include <cmath>
+#include <vector>
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "TVector3.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "HLTrigger/JetMET/interface/HLTJetCollForElePlusJets.h"
+
+#include <TVector3.h>
 
 template <typename T>
 HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& iConfig)
@@ -18,7 +21,8 @@ HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& i
       minJetPt_(iConfig.getParameter<double>("MinJetPt")),
       maxAbsJetEta_(iConfig.getParameter<double>("MaxAbsJetEta")),
       minNJets_(iConfig.getParameter<unsigned int>("MinNJets")),
-      minDeltaR_(iConfig.getParameter<double>("minDeltaR")),
+      // minimum delta-R^2 threshold with sign
+      minDeltaR2_(iConfig.getParameter<double>("minDeltaR") * std::abs(iConfig.getParameter<double>("minDeltaR"))),
       //Only for VBF
       minSoftJetPt_(iConfig.getParameter<double>("MinSoftJetPt")),
       minDeltaEta_(iConfig.getParameter<double>("MinDeltaEta")) {
@@ -26,12 +30,6 @@ HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& i
   m_theElectronToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltElectronTag);
   m_theJetToken = consumes<TCollection>(sourceJetTag);
   produces<TCollection>();
-}
-
-template <typename T>
-HLTJetCollForElePlusJets<T>::~HLTJetCollForElePlusJets() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 template <typename T>
@@ -116,28 +114,37 @@ void HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSe
 
   bool foundSolution(false);
 
-  for (auto& EleP : ElePs) {
+  for (auto const& EleP : ElePs) {
     bool VBFJetPair = false;
     std::vector<int> store_jet;
     TRefVector refVector;
 
     for (unsigned int j = 0; j < theJetCollection.size(); j++) {
       TVector3 JetP(theJetCollection[j].px(), theJetCollection[j].py(), theJetCollection[j].pz());
-      double DR = EleP.DeltaR(JetP);
 
-      if (JetP.Pt() > minJetPt_ && std::abs(JetP.Eta()) < maxAbsJetEta_ && DR > minDeltaR_) {
+      double const Deta = EleP.Eta() - JetP.Eta();
+      double const Dphi = EleP.DeltaPhi(JetP);
+      double const DR2 = Deta * Deta + Dphi * Dphi;
+
+      if (JetP.Pt() > minJetPt_ && std::abs(JetP.Eta()) < maxAbsJetEta_ && DR2 > minDeltaR2_) {
         store_jet.push_back(j);
         // The VBF part of the filter
         if (minDeltaEta_ > 0) {
           for (unsigned int k = j + 1; k < theJetCollection.size(); k++) {
             TVector3 SoftJetP(theJetCollection[k].px(), theJetCollection[k].py(), theJetCollection[k].pz());
-            double softDR = EleP.DeltaR(SoftJetP);
 
-            if (SoftJetP.Pt() > minSoftJetPt_ && std::abs(SoftJetP.Eta()) < maxAbsJetEta_ && softDR > minDeltaR_)
-              if (std::abs(SoftJetP.Eta() - JetP.Eta()) > minDeltaEta_) {
-                store_jet.push_back(k);
-                VBFJetPair = true;
-              }
+            if (std::abs(SoftJetP.Eta() - JetP.Eta()) <= minDeltaEta_) {
+              continue;
+            }
+
+            double const softDeta = EleP.Eta() - SoftJetP.Eta();
+            double const softDphi = EleP.DeltaPhi(SoftJetP);
+            double const softDR2 = softDeta * softDeta + softDphi * softDphi;
+
+            if (SoftJetP.Pt() > minSoftJetPt_ && std::abs(SoftJetP.Eta()) < maxAbsJetEta_ && softDR2 > minDeltaR2_) {
+              store_jet.push_back(k);
+              VBFJetPair = true;
+            }
           }
         }
       }

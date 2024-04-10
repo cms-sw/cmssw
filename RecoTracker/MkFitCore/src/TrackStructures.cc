@@ -50,15 +50,12 @@ namespace mkfit {
   // CombCandidate
   //==============================================================================
 
-  void CombCandidate::importSeed(const Track &seed, const track_score_func &score_func, int region) {
+  void CombCandidate::importSeed(const Track &seed, int seed_idx, const track_score_func &score_func, int region) {
     m_trk_cands.emplace_back(TrackCand(seed, this));
 
     m_state = CombCandidate::Dormant;
     m_pickup_layer = seed.getLastHitLyr();
-#ifdef DUMPHITWINDOW
-    m_seed_algo = seed.algoint();
-    m_seed_label = seed.label();
-#endif
+    m_seed_origin_index = seed_idx;
 
     TrackCand &cand = m_trk_cands.back();
     cand.setNSeedHits(seed.nTotalHits());

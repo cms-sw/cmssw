@@ -12,7 +12,13 @@
 
 #include "TFile.h"
 #include <ROOT/RNTuple.hxx>
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
 using ROOT::Experimental::RCollectionNTupleWriter;
+#else
+#include <ROOT/RNTupleWriter.hxx>
+#include <ROOT/RNTupleCollectionWriter.hxx>
+using ROOT::Experimental::RNTupleCollectionWriter;
+#endif
 using ROOT::Experimental::RNTupleWriter;
 
 #include "EventStringOutputFields.h"
@@ -64,7 +70,11 @@ private:
   // https://github.com/root-project/root/issues/7861
   // RNTupleFieldPtr<edm::ParameterSetID> m_psetId;
   // RNTupleFieldPtr<edm::ParameterSetBlob> m_psetBlob;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
   std::shared_ptr<RCollectionNTupleWriter> m_collection;
+#else
+  std::shared_ptr<RNTupleCollectionWriter> m_collection;
+#endif
   RNTupleFieldPtr<std::string> m_psetId;
   RNTupleFieldPtr<std::string> m_psetBlob;
   std::unique_ptr<RNTupleWriter> m_ntuple;
@@ -78,7 +88,11 @@ public:
 
 private:
   void createFields(TFile& file);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
   std::shared_ptr<RCollectionNTupleWriter> m_procHist;
+#else
+  std::shared_ptr<RNTupleCollectionWriter> m_procHist;
+#endif
 
   RNTupleFieldPtr<std::string> m_phId;
   std::unique_ptr<RNTupleWriter> m_ntuple;

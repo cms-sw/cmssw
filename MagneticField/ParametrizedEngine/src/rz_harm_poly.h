@@ -17,7 +17,6 @@ namespace magfieldparam {
     double SinPhi;
 
     trig_pair() : CosPhi(1.), SinPhi(0.) {}
-    trig_pair(const trig_pair &tp) : CosPhi(tp.CosPhi), SinPhi(tp.SinPhi) {}
     trig_pair(const double C, const double S) : CosPhi(C), SinPhi(S) {}
     trig_pair(const double phi) : CosPhi(cos(phi)), SinPhi(sin(phi)) {}
 

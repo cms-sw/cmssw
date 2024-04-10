@@ -654,10 +654,10 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
             //loop over all trigger filters in event (i.e. filters passed)
             for (unsigned int ifilter = 0; ifilter < triggerEvent.sizeFilters(); ++ifilter) {
               std::vector<int> Keys;
-              std::string label = triggerEvent.filterTag(ifilter).label();
+              auto const label = triggerEvent.filterLabel(ifilter);
               //loop over keys to objects passing this filter
               for (unsigned int imodule = 0; imodule < moduleLabels.size(); imodule++) {
-                if (label.find(moduleLabels[imodule]) != std::string::npos) {
+                if (label.find(moduleLabels[imodule]) != label.npos) {
 #ifdef EDM_ML_DEBUG
                   if (debug_)
                     edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;

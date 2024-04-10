@@ -4,7 +4,11 @@
 MTDShapeBase::~MTDShapeBase() {}
 
 MTDShapeBase::MTDShapeBase()
-    : qNSecPerBin_(1. / kNBinsPerNSec), indexOfMax_(0), timeOfMax_(0.), shape_(DVec(k1NSecBinsTotal, 0.0)) {}
+    : qNSecPerBin_(1. / kNBinsPerNSec),
+      indexOfMax_(0),
+      timeOfMax_(0.),
+      fallTime_(0.),
+      shape_(DVec(k1NSecBinsTotal, 0.0)) {}
 
 std::array<float, 3> MTDShapeBase::timeAtThr(const float scale, const float threshold1, const float threshold2) const {
   std::array<float, 3> times_tmp = {{0., 0., 0.}};
@@ -70,6 +74,10 @@ unsigned int MTDShapeBase::indexOfMax() const { return indexOfMax_; }
 
 double MTDShapeBase::timeOfMax() const { return timeOfMax_; }
 
+float MTDShapeBase::maximum() const { return shape_[indexOfMax_]; }
+
+float MTDShapeBase::fallTime() const { return fallTime_; }
+
 void MTDShapeBase::buildMe() {
   // --- Fill the vector with the pulse shape
   fillShape(shape_);
@@ -78,6 +86,13 @@ void MTDShapeBase::buildMe() {
   for (unsigned int i = 0; i < shape_.size(); ++i) {
     if (shape_[indexOfMax_] < shape_[i])
       indexOfMax_ = i;
+  }
+
+  for (unsigned int i = indexOfMax_; i < shape_.size(); ++i) {
+    if (shape_[indexOfMax_] * 0.01 > shape_[i]) {
+      fallTime_ = i * qNSecPerBin_;
+      break;
+    }
   }
 
   if (indexOfMax_ != 0)

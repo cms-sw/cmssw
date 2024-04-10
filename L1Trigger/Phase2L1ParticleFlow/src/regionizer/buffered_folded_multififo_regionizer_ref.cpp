@@ -3,6 +3,44 @@
 #include <iostream>
 #include <memory>
 
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegionizerEmulator(
+    const edm::ParameterSet& iConfig)
+    : BufferedFoldedMultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nClocks"),
+                                                iConfig.getParameter<uint32_t>("nTrack"),
+                                                iConfig.getParameter<uint32_t>("nCalo"),
+                                                iConfig.getParameter<uint32_t>("nEmCalo"),
+                                                iConfig.getParameter<uint32_t>("nMu"),
+                                                /*streaming=*/true,
+                                                /*outii=*/6,
+                                                /*pauseii=*/3,
+                                                iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+  debug_ = iConfig.getUntrackedParameter<bool>("debug");
+  if (iConfig.existsAs<edm::ParameterSet>("egInterceptMode")) {
+    const auto& emSelCfg = iConfig.getParameter<edm::ParameterSet>("egInterceptMode");
+    setEgInterceptMode(emSelCfg.getParameter<bool>("afterFifo"), emSelCfg);
+  }
+}
+
+edm::ParameterSetDescription l1ct::BufferedFoldedMultififoRegionizerEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<uint32_t>("nClocks", 162);
+  description.add<uint32_t>("nTrack", 30);
+  description.add<uint32_t>("nCalo", 20);
+  description.add<uint32_t>("nEmCalo", 10);
+  description.add<uint32_t>("nMu", 4);
+  edm::ParameterSetDescription egIntercept = l1ct::EGInputSelectorEmuConfig::getParameterSetDescription();
+  egIntercept.add<bool>("afterFifo", true);
+  description.addOptional<edm::ParameterSetDescription>("egInterceptMode", egIntercept);
+  description.add<bool>("useAlsoVtxCoords", true);
+  description.addUntracked<bool>("debug", false);
+  return description;
+}
+#endif
+
 l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegionizerEmulator(unsigned int nclocks,
                                                                                            unsigned int ntk,
                                                                                            unsigned int ncalo,
@@ -50,16 +88,17 @@ void l1ct::BufferedFoldedMultififoRegionizerEmulator::initSectorsAndRegions(cons
     l1ct::glbeta_t etaMin, etaMax;
     findEtaBounds_(fold_[ie].sectors.track[0].region, fold_[ie].regions, etaMin, etaMax);
     for (unsigned int isec = 0; ntk_ > 0 && isec < NTK_SECTORS; ++isec) {
-      tkBuffers_[2 * isec + ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::TkObjEmu>(nclocks_ / 2, etaMin, etaMax);
+      tkBuffers_[2 * isec + ie] =
+          l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.hadcalo[0].region, fold_[ie].regions, etaMin, etaMax);
     for (unsigned int isec = 0; ncalo_ > 0 && isec < NCALO_SECTORS; ++isec) {
       caloBuffers_[2 * isec + ie] =
-          l1ct::multififo_regionizer::EtaBuffer<l1ct::HadCaloObjEmu>(nclocks_ / 2, etaMin, etaMax);
+          l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
     findEtaBounds_(fold_[ie].sectors.muon.region, fold_[ie].regions, etaMin, etaMax);
     if (nmu_ > 0) {
-      muBuffers_[ie] = l1ct::multififo_regionizer::EtaBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
+      muBuffers_[ie] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>(nclocks_ / 2, etaMin, etaMax);
     }
   }
 }

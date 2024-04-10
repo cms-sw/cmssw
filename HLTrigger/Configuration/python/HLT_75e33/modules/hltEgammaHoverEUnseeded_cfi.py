@@ -14,10 +14,11 @@ hltEgammaHoverEUnseeded = cms.EDProducer("EgammaHLTHcalVarProducerFromRecHit",
     rhoScale = cms.double(1.0),
     useSingleTower = cms.bool(False),
     hbheRecHitsTag = cms.InputTag( "hltHbhereco" ),
-    eThresHB = cms.vdouble( 0.8, 1.2, 1.2, 1.2 ),
+    eThresHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ), #Run3 thresholds. Will be overwritten with valid aging customisation
     etThresHB = cms.vdouble( 0.0, 0.0, 0.0, 0.0 ),
     eThresHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
     etThresHE = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+    usePFThresholdsFromDB = cms.bool(True),
     maxSeverityHB = cms.int32( 9 ),
     maxSeverityHE = cms.int32( 9 )
 )

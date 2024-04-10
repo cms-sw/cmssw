@@ -48,6 +48,10 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_I
     import mvaEleID_Summer18UL_ID_ISO_producer_config
 mvaConfigsForEleProducer.append( mvaEleID_Summer18UL_ID_ISO_producer_config )
 
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Winter22_HZZ_V1_cff \
+    import mvaEleID_Winter22_HZZ_V1_producer_config
+mvaConfigsForEleProducer.append( mvaEleID_Winter22_HZZ_V1_producer_config )
+
 electronMVAValueMapProducer = cms.EDProducer('ElectronMVAValueMapProducer',
                                              src = cms.InputTag('slimmedElectrons'),
                                              mvaConfigurations = mvaConfigsForEleProducer

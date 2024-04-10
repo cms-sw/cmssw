@@ -12,7 +12,7 @@ cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py >& finalpath.log || die "failed 
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_empty.log - || die "differences for test_finalpath_cfg.py" $?
 
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --schedule" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --schedule" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_empty.log - || die "differences for test_finalpath_cfg.py" $?
 
 
@@ -25,14 +25,14 @@ found thing 'endLumi' TEST
 found thing 'beginRun' TEST
 found thing 'endRun' TEST
 EOF
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --schedule --task >& finalpath.log || die "failed test_finalpath_cfg.py --schedule --task" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --schedule --task >& finalpath.log || die "failed test_finalpath_cfg.py --schedule --task" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_not_found.log - || die "differences for test_finalpath_cfg.py --schedule --task" $?
 
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --endpath >& finalpath.log || die "failed test_finalpath_cfg.py --endpath" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --endpath >& finalpath.log || die "failed test_finalpath_cfg.py --endpath" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_empty.log - || die "differences for test_finalpath_cfg.py --endpath" $?
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --schedule --endpath >& finalpath.log || die "failed test_finalpath_cfg.py --schedule --endpath" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --schedule --endpath >& finalpath.log || die "failed test_finalpath_cfg.py --schedule --endpath" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_empty.log - || die "differences for test_finalpath_cfg.py --schedule --endpath" $?
 
 
@@ -45,16 +45,16 @@ found thing 'endLumi' TEST
 found thing 'beginRun' TEST
 found thing 'endRun' TEST
 EOF
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --endpath --task >& finalpath.log || die "failed test_finalpath_cfg.py --endpath --task" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --endpath --task >& finalpath.log || die "failed test_finalpath_cfg.py --endpath --task" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_found.log - || die "differences for test_finalpath_cfg.py --endpath --task" $?
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --endpath --task --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --endpath --task --schedule" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --endpath --task --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --endpath --task --schedule" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_found.log - || die "differences for test_finalpath_cfg.py --endpath --task --schedule" $?
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --path --task >& finalpath.log || die "failed test_finalpath_cfg.py --path --task" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --path --task >& finalpath.log || die "failed test_finalpath_cfg.py --path --task" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_found.log - || die "differences for test_finalpath_cfg.py --path --task" $?
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --path --task --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --path --task --schedule" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --path --task --schedule >& finalpath.log || die "failed test_finalpath_cfg.py --path --task --schedule" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_found.log - || die "differences for test_finalpath_cfg.py --path --task --schedule" $?
 
 
@@ -68,9 +68,9 @@ found thing 'beginRun' TEST
 found thing 'endRun' TEST
 EOF
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --path --filter >& finalpath.log || die "failed test_finalpath_cfg.py --path --filter" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --path --filter >& finalpath.log || die "failed test_finalpath_cfg.py --path --filter" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_filter.log - || die "differences for test_finalpath_cfg.py --path --filter" $?
 
 
-cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py -- --path --filter --task >& finalpath.log || die "failed test_finalpath_cfg.py --path --filter --task" $?
+cmsRun  ${LOCAL_TEST_DIR}/test_finalpath_cfg.py --path --filter --task >& finalpath.log || die "failed test_finalpath_cfg.py --path --filter --task" $?
 grep "thing '.*' TEST" finalpath.log | diff finalpath_expected_filter.log - || die "differences for test_finalpath_cfg.py --path --filter --task" $?

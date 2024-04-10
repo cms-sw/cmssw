@@ -182,6 +182,7 @@ highlevelreco = cms.Sequence(highlevelrecoTask)
 # AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
@@ -189,8 +190,10 @@ _highlevelreco_HITask = highlevelrecoTask.copy()
 _highlevelreco_HITask.add(hiConformalPixelTracksTaskPhase1)
 _highlevelreco_HITask.add(hiCentrality)
 _highlevelreco_HITask.add(hiClusterCompatibility)
-(pp_on_XeXe_2017 | pp_on_AA ).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
+(pp_on_XeXe_2017 | pp_on_AA | run3_upc).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
 pp_on_AA.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
+from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
+ppRef_2024.toReplaceWith(highlevelrecoTask, cms.Task(highlevelrecoTask.copy(), hiClusterCompatibility))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([muoncosmichighlevelrecoTask])
@@ -242,7 +245,16 @@ reconstruction_hcalOnlyTask = cms.Task(
     pfClusteringHBHEHFOnlyTask
 )
 
+# define secondary validation task running only Legacy
+reconstruction_hcalOnlyLegacyTask = cms.Task(
+        bunchSpacingProducer,
+        offlineBeamSpot,
+        hcalOnlyLegacyLocalRecoTask,
+        hcalOnlyLegacyGlobalRecoTask,
+        pfClusteringHBHEHFOnlyLegacyTask)
+
 reconstruction_hcalOnly = cms.Sequence(reconstruction_hcalOnlyTask)
+reconstruction_hcalOnlyLegacy = cms.Sequence(reconstruction_hcalOnlyLegacyTask)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well

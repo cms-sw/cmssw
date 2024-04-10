@@ -6,7 +6,7 @@
 #include <iostream>
 #include <map>
 
-#include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
+#include <memory>
 #include "Alignment/Geners/interface/CStringStream.hh"
 #include "Alignment/Geners/interface/CatalogIO.hh"
 #include "Alignment/Geners/interface/ContiguousCatalog.hh"
@@ -81,9 +81,9 @@ int main(int argc, char const *argv[]) {
 
   unsigned compressionCode = 0, mergeLevel = 0;
   std::vector<std::string> annotations;
-  CPP11_auto_ptr<ContiguousCatalog> cat;
+  std::unique_ptr<ContiguousCatalog> cat;
   try {
-    cat = CPP11_auto_ptr<ContiguousCatalog>(
+    cat = std::unique_ptr<ContiguousCatalog>(
         readBinaryCatalog<ContiguousCatalog>(in, &compressionCode, &mergeLevel, &annotations, true));
   } catch (std::exception &e) {
     cerr << "Failed to read catalog from file \"" << inputfile << "\". " << e.what() << endl;

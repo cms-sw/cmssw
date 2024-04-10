@@ -103,6 +103,49 @@ IgProfService::IgProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
   iRegistry.watchPostCloseFile(this, &IgProfService::postCloseFile);
 }
 
+void IgProfService::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.setComment(
+      "All file parameters allow the following replaceable tokens:\n"
+      "  %I : record number\n"
+      "  %E : event number\n"
+      "  %R : run number\n"
+      "  %L : lumi number\n"
+      "  %F : file open count\n"
+      "  %C : file close count\n"
+      "  %M : module label");
+  desc.addUntracked<int>("reportEventInterval", 1)->setComment("write a new file every n events");
+  desc.addUntracked<int>("reportFirstEvent", 1)->setComment("first event count to start writing files");
+  ;
+
+  desc.addUntracked<std::string>("reportToFileAtPostBeginJob", "");
+  desc.addUntracked<std::string>("reportToFileAtPostBeginRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPostBeginLumi", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPreEvent", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEvent", "");
+
+  desc.addUntracked<std::vector<std::string>>("reportModules", {});
+  desc.addUntracked<std::vector<std::string>>("reportModuleTypes", {});
+
+  desc.addUntracked<std::string>("reportToFileAtPreModuleEvent", "");
+  desc.addUntracked<std::string>("reportToFileAtPostModuleEvent", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPostEndLumi", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndRun", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndProcessBlock", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndProcessBlock", "");
+  desc.addUntracked<std::string>("reportToFileAtPreEndJob", "");
+  desc.addUntracked<std::string>("reportToFileAtPostEndJob", "");
+
+  desc.addUntracked<std::string>("reportToFileAtPostOpenFile", "");
+  desc.addUntracked<std::string>("reportToFileAtPostCloseFile", "");
+
+  descriptions.addDefault(desc);
+}
+
 void IgProfService::postBeginJob() { makeDump(atPostBeginJob_); }
 
 void IgProfService::postBeginRun(GlobalContext const &gc) {

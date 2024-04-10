@@ -104,7 +104,6 @@ private:
   const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   edm::Service<TFileService> fs;
-  const edm::ParameterSet& iConfig;
 
   int m_opMode;
   int m_analyzeMode;
@@ -166,7 +165,6 @@ TrackerRemapper::TrackerRemapper(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       topoToken_(esConsumes()),
       tkDetMapToken_(esConsumes()),
-      iConfig(iConfig),
       m_opMode(iConfig.getParameter<int>("opMode")),
       m_analyzeMode(iConfig.getParameter<int>("analyzeMode")) {
   usesResource("TFileService");

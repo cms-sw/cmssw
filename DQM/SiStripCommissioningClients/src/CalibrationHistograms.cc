@@ -29,9 +29,9 @@ CalibrationHistograms::CalibrationHistograms(const edm::ParameterSet& pset, DQMS
                          << " Constructing object...";
 
   if (task == sistrip::CALIBRATION_SCAN or task == sistrip::CALIBRATION_SCAN_DECO)
-    factory_ = auto_ptr<CalibrationScanSummaryFactory>(new CalibrationScanSummaryFactory);
+    factory_ = make_unique<CalibrationScanSummaryFactory>();
   else
-    factory_ = auto_ptr<CalibrationSummaryFactory>(new CalibrationSummaryFactory);
+    factory_ = make_unique<CalibrationSummaryFactory>();
 
   targetRiseTime_ =
       this->pset().existsAs<double>("targetRiseTime") ? this->pset().getParameter<double>("targetRiseTime") : 50;

@@ -87,9 +87,9 @@ float PhotonDataCertification::invMassZtest(string path, TString name, DQMStore:
 
   BreitWigner.fitTo(test, RooFit::Range(80, 100), RooFit::PrintLevel(-1000));
 
-  if (std::abs(mRes.getValV() - ZMass) < ZWidth) {
+  if (std::abs(mRes.getVal() - ZMass) < ZWidth) {
     return 1.0;
-  } else if (std::abs(mRes.getValV() - ZMass) < gamma.getValV()) {
+  } else if (std::abs(mRes.getVal() - ZMass) < gamma.getVal()) {
     return 0.9;
   } else {
     return 0.0;

@@ -2,11 +2,12 @@
 # Way to use this:
 #   cmsRun runMaterialBudgetVolume2026DD4hep_cfg.py geometry=D92
 #
-#   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99
+#   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D97, D98,
+#                        D99, D100, D101, D102, D103
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +17,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D97, D98, D99, D100, D101, D102, D103")
 ### get and parse the command line arguments
 options.parseArguments()
 

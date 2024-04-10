@@ -25,7 +25,6 @@ Definition of a few DataFormats needed in Fast Simulation
 It defines FastSim specific quantities to be used by the L1 Calo Trigger emulator. It is regulated by the DoBitInfo logical variable set in the FastSimulation/L1CaloTriggerProducer/python/fastl1calosim_cfi.py configuration. <br>
 
 - FastTrackerCluster <br>
-- FastTrackerClusterCollection <br>
 
 Data Formats for Tracker Clusters, to be used in FastSim specific Tracker RecHits production. <br>
 

@@ -39,10 +39,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  int event_type_;
-  edm::EDGetTokenT<GEMDigiCollection> digi_token;
+  const int event_type_;
+  const int minBunch_;
+  const int maxBunch_;
+  const edm::EDGetTokenT<GEMDigiCollection> digiToken_;
   edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
-  bool useDBEMap_;
+  const bool useDBEMap_;
+  const bool simulatePulseStretching_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,8 +53,11 @@ DEFINE_FWK_MODULE(GEMDigiToRawModule);
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
-      digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
-      useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
+      minBunch_(pset.getParameter<int>("minBunch")),
+      maxBunch_(pset.getParameter<int>("maxBunch")),
+      digiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      useDBEMap_(pset.getParameter<bool>("useDBEMap")),
+      simulatePulseStretching_(pset.getParameter<bool>("simulatePulseStretching")) {
   produces<FEDRawDataCollection>();
   if (useDBEMap_) {
     gemChMapToken_ = esConsumes<GEMChMap, GEMChMapRcd, edm::Transition::BeginRun>();
@@ -62,7 +68,13 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
   desc.add<int>("eventType", 0);
+
+  // time window for pulse stretching simulation
+  desc.add<int>("minBunch", -3);
+  desc.add<int>("maxBunch", 4);
+
   desc.add<bool>("useDBEMap", false);
+  desc.add<bool>("simulatePulseStretching", false);
   descriptions.add("gemPackerDefault", desc);
 }
 
@@ -83,7 +95,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<GEMDigiCollection> gemDigis;
-  iEvent.getByToken(digi_token, gemDigis);
+  iEvent.getByToken(digiToken_, gemDigis);
   if (!gemDigis.isValid()) {
     iEvent.put(std::move(fedRawDataCol));
     return;
@@ -106,6 +118,12 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     const GEMDigiCollection::Range& digis = etaPart.second;
     for (auto digi = digis.first; digi != digis.second; ++digi) {
       int bx = digi->bx();
+      if (simulatePulseStretching_) {
+        if (bx < minBunch_ or bx > maxBunch_)
+          continue;
+        else
+          bx = 0;
+      }
       auto search = gemBxMap.find(bx);
       if (search != gemBxMap.end()) {
         search->second.insertDigi(gemId, *digi);

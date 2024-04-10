@@ -19,7 +19,6 @@
 // USER INCLUDES
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -635,9 +634,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // now matched hits
   if (rechitsmatched.product()->dataSize() > 0) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
-    //SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsmatched->begin();
-    //SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsmatched->end();
-    //SiStripMatchedRecHit2DCollectionOld::const_iterator iterRecHit;
     SiStripMatchedRecHit2DCollection::const_iterator recHitIdIterator = (rechitsmatched.product())->begin();
     SiStripMatchedRecHit2DCollection::const_iterator recHitIdIteratorEnd = (rechitsmatched.product())->end();
 

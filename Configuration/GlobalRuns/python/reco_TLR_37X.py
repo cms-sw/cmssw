@@ -10,10 +10,10 @@ def customiseCommon(process):
     ## TRACKING:
     ## Skip events with HV off
     process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
+    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfStripClusters=20000
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
-    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
+    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfStripClusters = 20000
+    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfStripClusters=20000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 

@@ -148,9 +148,9 @@ namespace {
     const std::ptrdiff_t len = std::distance(first, last);
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
     typedef typename std::iterator_traits<RandomAccessIterator>::pointer pointer;
-    std::pair<pointer, std::ptrdiff_t> p = std::get_temporary_buffer<value_type>(len);
-    pointer buf = p.first;
-    pointer buf_end = std::next(p.first, p.second);
+    std::unique_ptr<value_type[]> p{new value_type[len]};
+    pointer buf = p.get();
+    pointer buf_end = buf + len;
 
     RandomAccessIterator first1 = first;
     RandomAccessIterator last1 = middle;
@@ -171,9 +171,8 @@ namespace {
       *buf++ = *first2++;
     }
 
-    buf = p.first;
+    buf = p.get();
     std::copy(buf, buf_end, first);
-    std::return_temporary_buffer(p.first);
   }
 
   // See above
@@ -201,9 +200,9 @@ namespace {
     const std::ptrdiff_t len = std::distance(first, last);
     typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
     typedef typename std::iterator_traits<RandomAccessIterator>::pointer pointer;
-    std::pair<pointer, std::ptrdiff_t> p = std::get_temporary_buffer<value_type>(len);
-    pointer buf = p.first;
-    pointer buf_end = std::next(p.first, p.second);
+    std::unique_ptr<value_type[]> p{new value_type[len]};
+    pointer buf = p.get();
+    const pointer buf_end = buf + len;
 
     RandomAccessIterator first1 = first;
     RandomAccessIterator last1 = one_third;
@@ -249,9 +248,8 @@ namespace {
       *buf++ = *first2++;
     }
 
-    buf = p.first;
+    buf = p.get();
     std::copy(buf, buf_end, first);
-    std::return_temporary_buffer(p.first);
   }
 
   // See above

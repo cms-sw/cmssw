@@ -66,7 +66,7 @@ namespace edm {
     }
 
   private:
-    typename BASE::ItemType getNextItemType() final;
+    typename BASE::ItemTypeInfo getNextItemType() final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
     virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, EventAuxiliary::ExperimentType& etype) = 0;
     virtual bool noFiles() const;

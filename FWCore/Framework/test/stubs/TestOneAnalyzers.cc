@@ -36,7 +36,7 @@ namespace edmtest {
     class SharedResourcesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     public:
       explicit SharedResourcesAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
-        usesResource();
+        usesResource("foo");
         callWhenNewProductsRegistered([](edm::BranchDescription const& desc) {
           std::cout << "one::SharedResourcesAnalyzer " << desc.moduleLabel() << std::endl;
         });

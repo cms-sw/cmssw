@@ -21,12 +21,12 @@ while ( $i <= $bcrend )
 # execute Mixing Module
    /bin/rm /tmp/testsuite1_{$i}_cfg.py  >& /dev/null
    sed "s/12345/$i/" testsuite1_cfg.py >/tmp/testsuite1_{$i}_cfg.py
-   cmsRun --parameter-set /tmp/testsuite1_{$i}_cfg.py
+   cmsRun /tmp/testsuite1_{$i}_cfg.py
 # create histos
    echo "===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr $i"
     /bin/rm /tmp/testsuite2_{$i}_cfg.py  > &/dev/null
     sed "s/12345/$i/" testsuite2_cfg.py | sed "s/23456/$bcrstart/" | sed "s/34567/$bcrend/" >/tmp/testsuite2_{$i}_cfg.py
-    cmsRun --parameter-set /tmp/testsuite2_{$i}_cfg.py
+    cmsRun /tmp/testsuite2_{$i}_cfg.py
 ####    cp  histos.root ../data/MMValHistos_$i.root  # for test preparation only!
     echo "===================> Step2a: histogram comparison"
     root -b -p -q DoCompare.C\(\"histos\",\"../data/MMValHistos_$i\"\)

@@ -24,14 +24,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void makeAsync(device::Event const& iEvent, device::EventSetup const& iSetup);
 
     portabletest::TestHostCollection moveFrom() { return std::move(hostProduct_); }
+    portabletest::TestHostMultiCollection2 moveFromMulti2() { return std::move(hostProductMulti2_); }
+    portabletest::TestHostMultiCollection3 moveFromMulti3() { return std::move(hostProductMulti3_); }
 
   private:
     const device::EDGetToken<portabletest::TestDeviceCollection> getToken_;
+    const device::EDGetToken<portabletest::TestDeviceMultiCollection2> getTokenMulti2_;
+    const device::EDGetToken<portabletest::TestDeviceMultiCollection3> getTokenMulti3_;
     const edm::ESGetToken<cms::alpakatest::ESTestDataA, AlpakaESTestRecordA> esTokenHost_;
     const device::ESGetToken<AlpakaESTestDataCDevice, AlpakaESTestRecordC> esTokenDevice_;
 
     // hold the output product between acquire() and produce()
     portabletest::TestHostCollection hostProduct_;
+    portabletest::TestHostMultiCollection2 hostProductMulti2_;
+    portabletest::TestHostMultiCollection3 hostProductMulti3_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

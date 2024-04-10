@@ -209,8 +209,8 @@ void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("overwrite_sh_x", true);
   desc.add<std::string>("text_results_path", "./alignment_results.txt");
   desc.add<bool>("write_sqlite_results", false);
-  desc.add<bool>("x_ali_rel_final_slope_fixed", true);
-  desc.add<bool>("y_ali_final_slope_fixed", true);
+  desc.add<bool>("x_ali_rel_final_slope_fixed", false);
+  desc.add<bool>("y_ali_final_slope_fixed", false);
   desc.add<double>("x_corr_min", -1'000'000.);
   desc.add<double>("x_corr_max", 1'000'000.);
   desc.add<double>("y_corr_min", -1'000'000.);
@@ -739,6 +739,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
         << std::fixed << std::setprecision(3) << "    x_min = " << x_min << ", x_max = " << x_max << "\n"
         << "    sh_x_N = " << sh_x_N << ", slope (fix) = " << slope << ", slope (fitted) = " << a;
 
+    // relative shift: XF - XN -> XF - XN - b = (XF - b/2) - (XN + b/2)
     CTPPSRPAlignmentCorrectionData rpResult_N(+b / 2., b_unc / 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.);
     xAliRelResults_.setRPCorrection(sc.rp_N_.id_, rpResult_N);
     CTPPSRPAlignmentCorrectionData rpResult_F(-b / 2., b_unc / 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.);
@@ -753,6 +754,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
 
     const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);
 
+    // relative shift: XF - XN -> XF - XN - b_fs = (XF - b_fs/2) - (XN + b_fs/2)
     CTPPSRPAlignmentCorrectionData rpResult_sl_fix_N(+b_fs / 2., b_fs_unc / 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.);
     xAliRelResultsSlopeFixed_.setRPCorrection(sc.rp_N_.id_, rpResult_sl_fix_N);
     CTPPSRPAlignmentCorrectionData rpResult_sl_fix_F(-b_fs / 2., b_fs_unc / 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.);
@@ -950,15 +952,16 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff->SetLineColor(2);
       h_y_cen_vs_x->Fit(ff.get(), "Q", "", x_min, x_max);
 
-      const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);
-      const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);
+      const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);  // slope
+      const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);  // intercept
 
       edm::LogInfo("PPSAlignmentHarvester")
           << "[y_alignment] " << rpc.name_ << ":\n"
           << std::fixed << std::setprecision(3) << "    x_min = " << x_min << ", x_max = " << x_max << "\n"
           << "    sh_x = " << sh_x << ", slope (fix) = " << slope << ", slope (fitted) = " << a;
 
-      CTPPSRPAlignmentCorrectionData rpResult(0., 0., b, b_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
+      // vertical shift y -> y - b
+      CTPPSRPAlignmentCorrectionData rpResult(0., 0., -b, b_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
       yAliResults_.setRPCorrection(rpc.id_, rpResult);
 
       // calculate the results with slope fixed
@@ -968,9 +971,9 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff_sl_fix->SetLineColor(4);
       h_y_cen_vs_x->Fit(ff_sl_fix.get(), "Q+", "", x_min, x_max);
 
-      const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);
+      const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);  // intercept
 
-      CTPPSRPAlignmentCorrectionData rpResult_sl_fix(0., 0., b_fs, b_fs_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
+      CTPPSRPAlignmentCorrectionData rpResult_sl_fix(0., 0., -b_fs, b_fs_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
       yAliResultsSlopeFixed_.setRPCorrection(rpc.id_, rpResult_sl_fix);
 
       edm::LogInfo("PPSAlignmentHarvester")
@@ -987,8 +990,8 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
         auto g_results = std::make_unique<TGraph>();
         g_results->SetPoint(0, sh_x, 0.);
         g_results->SetPoint(1, a, a_unc);
-        g_results->SetPoint(2, b, b_unc);
-        g_results->SetPoint(3, b_fs, b_fs_unc);
+        g_results->SetPoint(2, -b, b_unc);
+        g_results->SetPoint(3, -b_fs, b_fs_unc);
         g_results->Write("g_results");
       }
     }

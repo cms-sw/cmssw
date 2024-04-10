@@ -79,7 +79,7 @@ def processingStepsFromStallMonitorOutput(f,moduleNames, esModuleNames):
         payload=payload.split()
 
         # Ignore these
-        if step == 'E' or step == 'e':
+        if step == 'E' or step == 'e' or step == 'F' or step == 'f':
             continue
 
         # Payload format is:
@@ -156,6 +156,7 @@ class StallMonitorParser(object):
         numStreamsFromSource = 0
         moduleNames = {}
         esModuleNames = {}
+        frameworkTransitions = False
         for rawl in f:
             l = rawl.strip()
             if l and l[0] == 'M':
@@ -176,6 +177,8 @@ class StallMonitorParser(object):
                 (id,name)=tuple(l[2:].split())
                 esModuleNames[id] = name
                 continue
+            if len(l) > 40 and l[0:24] == "# preFrameworkTransition":
+                frameworkTransitions = True
 
         self._f = f
         if numStreams == 0:
@@ -189,6 +192,8 @@ class StallMonitorParser(object):
         for n in esModuleNames.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
+        if frameworkTransitions:
+            self.maxNameSize = max(self.maxNameSize, len('streamBeginLumi'))
 
     def processingSteps(self):
         """Create a generator which can step through the file and return each processing step.

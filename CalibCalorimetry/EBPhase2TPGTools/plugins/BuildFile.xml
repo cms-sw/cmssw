@@ -1,0 +1,10 @@
+<use name="CondCore/DBOutputService"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/EcalMapping"/>
+<use name="OnlineDB/EcalCondDB"/>
+<use name="Geometry/CaloTopology"/>
+<use name="CalibCalorimetry/EBPhase2TPGTools"/>
+<use name="SimCalorimetry/EcalSimAlgos"/>
+<library file="*.cc" name="CalibCalorimetryEBPhase2TPGToolsPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

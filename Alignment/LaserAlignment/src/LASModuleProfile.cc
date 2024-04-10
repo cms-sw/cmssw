@@ -100,21 +100,6 @@ void LASModuleProfile::Init(void) {
   data.resize(512);
 }
 
-LASModuleProfile& LASModuleProfile::operator=(const LASModuleProfile& anotherProfile) {
-  ///
-  ///
-  ///
-
-  // check for self-assignment
-  if (this != &anotherProfile) {
-    for (unsigned int i = 0; i < 512; ++i) {
-      data.at(i) = anotherProfile.GetValue(i);
-    }
-  }
-
-  return *this;
-}
-
 LASModuleProfile LASModuleProfile::operator+(const LASModuleProfile& anotherProfile) {
   ///
   ///

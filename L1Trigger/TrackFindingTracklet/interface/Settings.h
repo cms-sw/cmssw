@@ -58,8 +58,10 @@ namespace trklet {
     Settings() {
       //Comment out to run tracklet-only algorithm
 #ifdef CMSSW_GIT_HASH
+#ifndef CMS_DICT_IMPL  // Don't print message if genreflex being run.
 #ifndef USEHYBRID
 #pragma message "USEHYBRID is undefined, so Hybrid L1 tracking disabled."
+#endif
 #endif
 #endif
     }
@@ -290,12 +292,16 @@ namespace trklet {
     void setStripLength_2S(double stripLength_2S) { stripLength_2S_ = stripLength_2S; }
 
     //Following functions are used for duplicate removal
-    //Function which gets the value corresponding to the overlap size for the overlap rinv bins in DR
-    double overlapSize() const { return overlapSize_; }
-    //Function which gets the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
+    //Function which returns the value corresponding to the overlap size for the overlap rinv bins in DR
+    double rinvOverlapSize() const { return rinvOverlapSize_; }
+    //Function which returns the value corresponding to the overlap size for the overlap phi bins in DR
+    double phiOverlapSize() const { return phiOverlapSize_; }
+    //Function which returns the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
     unsigned int numTracksComparedPerBin() const { return numTracksComparedPerBin_; }
-    //Grabs the bin edges you need for duplicate removal bins
-    const std::vector<double> varRInvBins() const { return varRInvBins_; }
+    //Returns the rinv bin edges you need for duplicate removal bins
+    const std::vector<double>& rinvBins() const { return rinvBins_; }
+    //Returns the phi bin edges you need for duplicate removal bins
+    const std::vector<double>& phiBins() const { return phiBins_; }
 
     std::string skimfile() const { return skimfile_; }
     void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
@@ -434,15 +440,15 @@ namespace trklet {
     //have the factor if 2
     double krprojshiftdisk() const { return 2 * kr(); }
 
-    double benddecode(int ibend, int layerdisk, bool isPSmodule) const {
+    double benddecode(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
-        layerdisk += (N_LAYER - 1);
+        layerdisk += N_DISK;
       double bend = benddecode_[layerdisk][ibend];
       assert(bend < 99.0);
       return bend;
     }
 
-    double bendcut(int ibend, int layerdisk, bool isPSmodule) const {
+    double bendcut(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
         layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
@@ -887,7 +893,9 @@ namespace trklet {
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
-    // If set to true this will generate debub printout in text files
+    // If set to true this creates txt files, which the ROOT macros in
+    // https://github.com/cms-L1TK/TrackPerf/tree/master/PatternReco
+    // can then use to study truncation of individual algo steps within tracklet chain.
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
                                                             {"TE", false},
                                                             {"CT", false},
@@ -1041,12 +1049,17 @@ namespace trklet {
     double stripLength_2S_{5.0250};
 
     //Following values are used for duplicate removal
-    //Variable bin edges for 6 bins.
-    std::vector<double> varRInvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Rinv bins were optimised to ensure a similar number of tracks in each bin prior to DR
+    //Rinv bin edges for 6 bins.
+    std::vector<double> rinvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Phi bin edges for 2 bins.
+    std::vector<double> phiBins_{0, dphisectorHG() / 2, dphisectorHG()};
     //Overlap size for the overlap rinv bins in DR
-    double overlapSize_{0.0004};
+    double rinvOverlapSize_{0.0004};
+    //Overlap size for the overlap phi bins in DR
+    double phiOverlapSize_{M_PI / 360};
     //The maximum number of tracks that are compared to all the other tracks per rinv bin
-    int numTracksComparedPerBin_{64};
+    int numTracksComparedPerBin_{32};
 
     double sensorSpacing_2S_{0.18};
   };

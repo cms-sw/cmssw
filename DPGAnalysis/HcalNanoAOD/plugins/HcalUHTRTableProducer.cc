@@ -56,11 +56,8 @@ public:
     */
 
 private:
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
 };
-
-void HcalUHTRTableProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
 void HcalUHTRTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<int> crate;

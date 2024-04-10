@@ -30,7 +30,7 @@ private:
   void getDipData(const cond::OMSService& service,
                   const boost::posix_time::ptime& beginFillTime,
                   const boost::posix_time::ptime& endFillTime);
-  bool getCTTPSData(cond::persistency::Session& session,
+  bool getCTPPSData(cond::persistency::Session& session,
                     const boost::posix_time::ptime& beginFillTime,
                     const boost::posix_time::ptime& endFillTime);
   bool getEcalData(cond::persistency::Session& session,

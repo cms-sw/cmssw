@@ -36,10 +36,10 @@ std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*>
 
     if (sd->isCaloSD()) {
       detList.second.push_back(static_cast<SensitiveCaloDetector*>(sd.release()));
-      ss << " + calo SD";
+      ss << " is calo SD";
     } else {
       detList.first.push_back(static_cast<SensitiveTkDetector*>(sd.release()));
-      ss << " + tracking SD";
+      ss << " is tracking SD";
     }
     edm::LogVerbatim("SimG4CoreSensitiveDetector") << ss.str();
   }

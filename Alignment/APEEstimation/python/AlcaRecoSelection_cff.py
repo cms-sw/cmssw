@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
 
 ##
@@ -7,26 +8,12 @@ import FWCore.ParameterSet.Config as cms
 ##
 
 ## First select goodId + isolated muons
-TkAlGoodIdMuonSelector = cms.EDFilter("MuonSelector",
-    src = cms.InputTag('muons'),
-    cut = cms.string('isGlobalMuon &'
-                     'isTrackerMuon &'
-                     'numberOfMatches > 1 &'
-                     'globalTrack.hitPattern.numberOfValidMuonHits > 0 &'
-                     'abs(eta) < 2.5 &'
-                     'globalTrack.normalizedChi2 < 20.'),
-    filter = cms.bool(True)
+ALCARECOTkAlMuonIsolatedGoodMuons = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.TkAlGoodIdMuonSelector.clone()
+ALCARECOTkAlMuonIsolatedRelCombIsoMuons = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.TkAlRelCombIsoMuonSelector.clone(
+    src = 'ALCARECOTkAlMuonIsolatedGoodMuons'
 )
-TkAlRelCombIsoMuonSelector = cms.EDFilter("MuonSelector",
-    src = cms.InputTag(''),
-    cut = cms.string('(isolationR03().sumPt + isolationR03().emEt + isolationR03().hadEt)/pt  < 0.15'),
-    filter = cms.bool(True)
-)
-ALCARECOTkAlMuonIsolatedGoodMuons = TkAlGoodIdMuonSelector.clone()
-ALCARECOTkAlMuonIsolatedRelCombIsoMuons = TkAlRelCombIsoMuonSelector.clone(src = 'ALCARECOTkAlMuonIsolatedGoodMuons')
 
 ## Then select their tracks with additional cuts
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     filter = True, ##do not store empty events
     applyBasicCuts = True,

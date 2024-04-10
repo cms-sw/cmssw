@@ -25,9 +25,9 @@ static void dumpArchiveMetadata(gs::StringArchive& ar, std::ostream& os) {
   }
 }
 
-CPP11_auto_ptr<npstat::StorableMultivariateFunctor> loadFFTJetInterpolationTable(const edm::ParameterSet& ps,
-                                                                                 gs::StringArchive& ar,
-                                                                                 const bool verbose) {
+std::unique_ptr<npstat::StorableMultivariateFunctor> loadFFTJetInterpolationTable(const edm::ParameterSet& ps,
+                                                                                  gs::StringArchive& ar,
+                                                                                  const bool verbose) {
   gs::SearchSpecifier nameSearch(ps.getParameter<std::string>("name"), ps.getParameter<bool>("nameIsRegex"));
   gs::SearchSpecifier categorySearch(ps.getParameter<std::string>("category"),
                                      ps.getParameter<bool>("categoryIsRegex"));
@@ -52,7 +52,7 @@ CPP11_auto_ptr<npstat::StorableMultivariateFunctor> loadFFTJetInterpolationTable
     throw cms::Exception("FFTJetBadConfig", os.str());
   }
 
-  CPP11_auto_ptr<npstat::StorableMultivariateFunctor> p = ref.get(0);
+  std::unique_ptr<npstat::StorableMultivariateFunctor> p = ref.get(0);
   if (verbose) {
     std::cout << "In loadFFTJetInterpolationTable: loaded table with metadata" << std::endl;
     std::shared_ptr<const gs::CatalogEntry> e = ref.indexedCatalogEntry(0);

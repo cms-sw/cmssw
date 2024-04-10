@@ -24,16 +24,14 @@ DTGeometryParserFromDDD::DTGeometryParserFromDDD(
   } catch (const cms::Exception& e) {
     std::cerr << "DTGeometryParserFromDDD::build() : DDD Exception: something went wrong during XML parsing!"
               << std::endl
-              << "  Message: " << e << std::endl
-              << "  Terminating execution ... " << std::endl;
+              << "  Message: " << e << std::endl;
     throw;
   } catch (const exception& e) {
     std::cerr << "DTGeometryParserFromDDD::build() : an unexpected exception occured: " << e.what() << std::endl;
     throw;
   } catch (...) {
-    std::cerr << "DTGeometryParserFromDDD::build() : An unexpected exception occured!" << std::endl
-              << "  Terminating execution ... " << std::endl;
-    std::unexpected();
+    std::cerr << "DTGeometryParserFromDDD::build() : An unexpected exception occured!" << std::endl;
+    throw;
   }
 }
 

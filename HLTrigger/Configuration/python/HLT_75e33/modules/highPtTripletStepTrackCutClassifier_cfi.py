@@ -30,5 +30,5 @@ highPtTripletStepTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
     ),
     qualityCuts = cms.vdouble(-0.7, 0.1, 0.7),
     src = cms.InputTag("highPtTripletStepTracks"),
-    vertices = cms.InputTag("pixelVertices")
+    vertices = cms.InputTag("hltPhase2PixelVertices")
 )

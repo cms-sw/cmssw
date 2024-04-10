@@ -21,4 +21,5 @@ REGISTER_PLUGIN(L1TUtmCutValueRcd, L1TUtmCutValue);
 
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/DataRecord/interface/L1TUtmObjectRcd.h"
-REGISTER_PLUGIN(L1TUtmObjectRcd, L1TUtmObject);
+// L1TUtmAlgorithm is same as L1TUtmObject
+REGISTER_PLUGIN_NO_SERIAL(L1TUtmObjectRcd, L1TUtmObject);

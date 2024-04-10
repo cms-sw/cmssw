@@ -109,14 +109,15 @@ int main(Int_t argc, Char_t* argv[]) {
     int nvxhi = (argc > 23) ? std::atoi(argv[23]) : 1000;
     bool exclude = (argc > 24) ? (std::atoi(argv[24]) > 0) : false;
     bool etamax = (argc > 25) ? (std::atoi(argv[25]) > 0) : false;
-    bool append = (argc > 26) ? (std::atoi(argv[26]) > 0) : true;
-    bool all = (argc > 27) ? (std::atoi(argv[27]) > 0) : true;
-    const char* corrfile = (argc > 28) ? argv[28] : "";
-    const char* rcorfile = (argc > 29) ? argv[29] : "";
-    const char* dupfile = (argc > 30) ? argv[30] : "";
-    const char* rbxfile = (argc > 31) ? argv[31] : "";
-    const char* comfile = (argc > 32) ? argv[32] : "";
-    const char* outfile = (argc > 33) ? argv[33] : "";
+    bool debug = (argc > 26) ? (std::atoi(argv[26]) > 0) : false;
+    bool append = (argc > 27) ? (std::atoi(argv[27]) > 0) : true;
+    bool all = (argc > 28) ? (std::atoi(argv[28]) > 0) : true;
+    const char* corrfile = (argc > 29) ? argv[29] : "";
+    const char* rcorfile = (argc > 30) ? argv[30] : "";
+    const char* dupfile = (argc > 31) ? argv[31] : "";
+    const char* rbxfile = (argc > 32) ? argv[32] : "";
+    const char* comfile = (argc > 33) ? argv[33] : "";
+    const char* outfile = (argc > 34) ? argv[34] : "";
     if (strcmp(corrfile, "junk.txt") == 0)
       corrfile = "";
     if (strcmp(rcorfile, "junk.txt") == 0)
@@ -165,7 +166,7 @@ int main(Int_t argc, Char_t* argv[]) {
                     rbxfile,
                     exclude,
                     etamax);
-    c1.Loop(nmax);
+    c1.Loop(nmax, debug);
     c1.savePlot(histfile, append, all);
   } else if (mode == 1) {
     // CalibPlotProperties

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 initialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
-    InputCollection = cms.InputTag("pixelTracks"),
+    InputCollection = cms.InputTag("hltPhase2PixelTracks"),
     InputVertexCollection = cms.InputTag(""),
     SeedCreatorPSet = cms.PSet(
         refToPSet_ = cms.string('seedFromProtoTracks')

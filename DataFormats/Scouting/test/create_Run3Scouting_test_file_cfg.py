@@ -23,10 +23,12 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
         60.0,   70.0,  80.0,  90.0, 100.0,
         110.0, 120.0, 130.0, 140.0, 150.0,
         160.0, 170.0, 180.0, 190.0, 200.0,
-        210.0, 220.0, 230.0, 240.0, 250.0
+        210.0, 220.0, 230.0, 240.0, 250.0,
+        260.0, 270.0, 280.0, 290.0, 300.0,
+        310.0, 320.0, 330.0
     ),
     electronsIntegralValues = cms.vint32(
-        10, 20, 30, 40, 50, 60
+        10, 20, 30, 40, 50, 60, 70, 80
     ),
     muonsFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
@@ -66,10 +68,11 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
     photonsFloatingPointValues = cms.vdouble(
         14.0,   23.0,  33.0,  43.0,  53.0,
         63.0,   73.0,  83.0,  93.0, 103.0,
-        113.0, 123.0, 133.0, 143.0
+        113.0, 123.0, 133.0, 143.0, 153.0,
+        163.0, 173.0
     ),
     photonsIntegralValues = cms.vint32(
-        14,   23,  33
+        14,   23,  33, 43, 53
     ),
     tracksFloatingPointValues = cms.vdouble(
         14.0,   24.0,  34.0,  44.0,  54.0,
@@ -84,7 +87,7 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
     ),
     vertexesFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
-        65.0,   75.0
+        65.0,   75.0,  85.0,  95.0,  105.0
     ),
     vertexesIntegralValues = cms.vint32(
         15,  25,  35

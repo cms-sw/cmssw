@@ -13,8 +13,8 @@
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPClusterProducerAlgorithm::TotemRPClusterProducerAlgorithm(const edm::ParameterSet &param) : param_(param) {
-  verbosity_ = param_.getParameter<int>("verbosity");
+TotemRPClusterProducerAlgorithm::TotemRPClusterProducerAlgorithm(const edm::ParameterSet &param) {
+  verbosity_ = param.getParameter<int>("verbosity");
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -3,10 +3,10 @@
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, comFileName, outFileName,
 //                  prefix, corrFileName, rcorFileName, puCorr, flag, numb,
-//                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbxFile,
-//                  exclude, etamax);
-//  c1.Loop(nmax);
+//                  isRealData, truncateFlag, useGen, scale, useScale, etalo,
+//                  etahi, runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi,
+//                  rbxFile, exclude, etamax);
+//  c1.Loop(nmax, debug);
 //  c1.savePlot(histFileName,append,all);
 //
 //        This will prepare a set of histograms which can be used for a
@@ -70,14 +70,19 @@
 //                               o = 0/1/2 for tight / loose / flexible
 //                               selection). Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
-//   dataMC (bool)             = true/false for data/MC (default true)
-//   truncateFlag    (int)     = Flag to treat different depths differently (0)
-//                               both depths of ieta 15, 16 of HB as depth 1 (1)
-//                               all depths as depth 1 (2), all depths in HE
-//                               with values > 1 as depth 2 (3), all depths in
-//                               HB with values > 1 as depth 2 (4), all depths
-//                               in HB and HE with values > 1 as depth 2 (5)
-//                               (default = 0)
+//   isRealData (bool)         = true/false for data/MC (default true)
+//   truncateFlag    (int)     = A two digit flag (dr) with the default value 0.
+//                               The digit *r* is used to treat depth values:
+//                               (0) treat each depth independently; (1) all
+//                               depths of ieta 15, 16 of HB as depth 1; (2)
+//                               all depths in HB and HE as depth 1; (3) all
+//                               depths in HE with values > 1 as depth 2; (4)
+//                               all depths in HB with values > 1 as depth 2;
+//                               (5) all depths in HB and HE with values > 1
+//                               as depth 2.
+//                               The digit *d* is used if zside is to be
+//                               ignored (1) or not (0)
+//                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum
 //                               (default = false)
@@ -116,6 +121,7 @@
 //                               in the table is taken (default = false)
 //   nmax            (Long64_t)= maximum number of entries to be processed,
 //                               if -1, all entries to be processed (-1)
+//   debug           (bool)    = Debug flag (false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
@@ -280,7 +286,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TChain *, const char *, const char *);
-  virtual void Loop(Long64_t nmax = -1);
+  virtual void Loop(Long64_t nmax = -1, bool debug = false);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
   bool goodTrack(double &eHcal, double &cut, const Long64_t &entry, bool debug);
@@ -292,14 +298,14 @@ public:
   void correctEnergy(double &ener, const Long64_t &entry);
 
 private:
-  static const unsigned int npbin = 6, kp50 = 3;
+  static const unsigned int npbin = 7, kp50 = 3;
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
   CalibDuplicate *cDuplicate_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_, numb_;
-  const bool dataMC_, useGen_;
+  const bool isRealData_, useGen_;
   const int truncateFlag_;
   const int etalo_, etahi_;
   int runlo_, runhi_;
@@ -318,6 +324,7 @@ private:
   std::vector<TProfile *> h_etaX[npbin];
   std::vector<TH1D *> h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::vector<TH1D *> h_pp[npbin];
+  std::vector<TH1D *> h_p;
 };
 
 CalibMonitor::CalibMonitor(const char *fname,
@@ -331,7 +338,7 @@ CalibMonitor::CalibMonitor(const char *fname,
                            int puCorr,
                            int flag,
                            int numb,
-                           bool dataMC,
+                           bool isRealData,
                            int truncate,
                            bool useGen,
                            double scale,
@@ -359,7 +366,7 @@ CalibMonitor::CalibMonitor(const char *fname,
       corrPU_(puCorr),
       flag_(flag),
       numb_(numb),
-      dataMC_(dataMC),
+      isRealData_(isRealData),
       useGen_(useGen),
       truncateFlag_(truncate),
       etalo_(etalo),
@@ -592,7 +599,7 @@ void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFi
       ++nbins;
     }
   }
-  int ipbin[npbin] = {10, 20, 30, 40, 60, 100};
+  int ipbin[npbin] = {10, 20, 30, 40, 60, 100, 500};
   for (unsigned int i = 0; i < npbin; ++i)
     ps_.push_back((double)(ipbin[i]));
   int npvtx[6] = {0, 7, 10, 13, 16, 100};
@@ -821,6 +828,12 @@ void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFi
       h_rbx[j - 1]->Sumw2();
     }
   }
+  for (unsigned int j = 1; j < npbin; ++j) {
+    sprintf(name, "%sp%d", prefix_.c_str(), j);
+    sprintf(title, "Momentum (GeV) of selected track (p = %d:%d GeV)", ipbin[j], ipbin[j + 1]);
+    h_p.push_back(new TH1D(name, title, 100, ipbin[j], ipbin[j + 1]));
+    h_p[j - 1]->Sumw2();
+  }
 }
 
 Bool_t CalibMonitor::Notify() {
@@ -848,7 +861,7 @@ Int_t CalibMonitor::Cut(Long64_t) {
   return 1;
 }
 
-void CalibMonitor::Loop(Long64_t nmax) {
+void CalibMonitor::Loop(Long64_t nmax, bool debug) {
   //   In a ROOT session, you can do:
   //      Root > .L CalibMonitor.C
   //      Root > CalibMonitor t
@@ -872,7 +885,6 @@ void CalibMonitor::Loop(Long64_t nmax) {
   // METHOD2: replace line
   //    fChain->GetEntry(jentry);       //read all branches
   //by  b_branchname->GetEntry(ientry); //read only this branch
-  const bool debug(false);
 
   if (fChain == 0)
     return;
@@ -1320,6 +1332,11 @@ void CalibMonitor::Loop(Long64_t nmax) {
         }
       }
       if (rat > rcut) {
+        if (debug)
+          std::cout << "kp " << kp << " " << h_p[kp - 1]->GetName() << " p " << pmom << " wt " << t_EventWeight
+                    << std::endl;
+        if (kp > 0)
+          h_p[kp - 1]->Fill(pmom, t_EventWeight);
         if (p4060)
           ++kount50[15];
         if (kp == 0) {
@@ -1369,7 +1386,7 @@ void CalibMonitor::Loop(Long64_t nmax) {
             runSum[t_Run] = knt;
           }
         }
-        if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
+        if ((!isRealData_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
           if (p4060)
             ++kount50[16];
           if (kp == 0) {
@@ -1693,6 +1710,12 @@ void CalibMonitor::savePlot(const std::string &theName, bool append, bool all) {
         TH1D *h1 = (TH1D *)h_rbx[k]->Clone();
         h1->Write();
       }
+    }
+  }
+  for (unsigned int k = 0; k < h_p.size(); ++k) {
+    if (h_p[k] != 0) {
+      TH1D *h1 = (TH1D *)h_p[k]->Clone();
+      h1->Write();
     }
   }
   std::cout << "All done" << std::endl;

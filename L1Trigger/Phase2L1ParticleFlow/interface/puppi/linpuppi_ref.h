@@ -2,12 +2,14 @@
 #define LINPUPPI_REF_H
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "linpuppi_bits.h"
 
 #include <vector>
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -138,6 +140,8 @@ namespace l1ct {
 
     LinPuppiEmulator(const edm::ParameterSet &iConfig);
 
+    static edm::ParameterSetDescription getParameterSetDescription();
+
     // charged
     void linpuppi_chs_ref(const PFRegionEmu &region,
                           const PVObjEmu &pv,
@@ -214,7 +218,8 @@ namespace l1ct {
     bool fakePuppi_;
     // utility
     unsigned int find_ieta(const PFRegionEmu &region, eta_t eta) const;
-    std::pair<pt_t, puppiWgt_t> sum2puppiPt_ref(uint64_t sum, pt_t pt, unsigned int ieta, bool isEM, int icand) const;
+    std::pair<pt_t, puppiWgt_t> sum2puppiPt_ref(
+        linpuppi::sumTerm_t sum, pt_t pt, unsigned int ieta, bool isEM, int icand) const;
     std::pair<float, float> sum2puppiPt_flt(float sum, float pt, unsigned int ieta, bool isEM, int icand) const;
   };
 

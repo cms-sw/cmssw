@@ -1,10 +1,12 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runPrintG4SolidsRun3_cfg.py dd4hep=False
+#   cmsRun runPrintG4SolidsRun3_cfg.py dd4hep=False geometry=2021
+#
+#   Options for geometry 2021, 2023, 2024
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -15,6 +17,11 @@ options.register('dd4hep',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Geometry source DD4hep or DDD: False, True")
+options.register('geometry',
+                 "2021",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: 2021, 2023, 2024")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,13 +33,16 @@ print(options)
 if (options.dd4hep):
     from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
     process = cms.Process('PrintG4Solids',Run3_dd4hep)
-    process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
+    process.load(geomFile)
 else:
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process('PrintG4Solids',Run3_DDD)
-    process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+    geomFile = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+    process.load(geomFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+print("Geometry file Name: ", geomFile)
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cerr=dict()

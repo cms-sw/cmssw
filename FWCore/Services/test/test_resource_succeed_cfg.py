@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-mem_limit = 1.0 if not '_UBSAN_X' in os.getenv('CMSSW_VERSION', '') else 1.5
+mem_limit = 1.0 if not 'UBSAN' in os.getenv('CMSSW_VERSION', '') else 1.5
 
 process = cms.Process("TEST")
 

@@ -22,7 +22,6 @@ vertexAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPos
     trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
 )
 
-
 hltPixelPVanalysis = hltMultiPVanalysis.clone(
     do_generic_sim_plots  = True,
     trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
@@ -33,6 +32,11 @@ hltPixelPVanalysis = hltMultiPVanalysis.clone(
     )
 )
 
+def _modifyPixelPVanalysisForPhase2(pvanalysis):
+    pvanalysis.vertexRecoCollections = ["hltPhase2PixelVertices"]
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(hltPixelPVanalysis, _modifyPixelPVanalysisForPhase2)
 
 hltPVanalysis = hltMultiPVanalysis.clone(
     trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
@@ -42,12 +46,29 @@ hltPVanalysis = hltMultiPVanalysis.clone(
     #"hltFastPVPixelVertices"
     )
 )
+
+tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
+    label_tr = "generalTracks::HLT"
+)
+vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositionAndTracks.clone(
+    trackAssociation = "tpToHLTphase2TrackAssociation"
+)
+
+def _modifyFullPVanalysisForPhase2(pvanalysis):
+    pvanalysis.vertexRecoCollections = ["offlinePrimaryVertices::HLT"]
+    pvanalysis.trackAssociatorMap = "tpToHLTphase2TrackAssociation"
+    pvanalysis.vertexAssociator   = "vertexAssociatorByPositionAndTracks4phase2HLTTracks"
+
+phase2_tracker.toModify(hltPVanalysis, _modifyFullPVanalysisForPhase2)
+
 hltMultiPVAssociations = cms.Task(
     hltTrackAssociatorByHits,
     tpToHLTpixelTrackAssociation,
     vertexAssociatorByPositionAndTracks4pixelTracks,
     tpToHLTpfMuonMergingTrackAssociation,
-    vertexAssociatorByPositionAndTracks4pfMuonMergingTracks
+    vertexAssociatorByPositionAndTracks4pfMuonMergingTracks,
+    tpToHLTphase2TrackAssociation,
+    vertexAssociatorByPositionAndTracks4phase2HLTTracks
 )
 
 hltMultiPVValidation = cms.Sequence( 

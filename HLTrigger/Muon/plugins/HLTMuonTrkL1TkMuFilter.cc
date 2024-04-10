@@ -28,8 +28,9 @@ HLTMuonTrkL1TkMuFilter::HLTMuonTrkL1TkMuFilter(const edm::ParameterSet& iConfig)
   m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
   m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
   m_candsToken = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
-  m_previousCandTag = iConfig.getParameter<edm::InputTag>("previousCandTag");
-  m_previousCandToken = consumes<trigger::TriggerFilterObjectWithRefs>(m_previousCandTag);
+  m_l1GTAlgoBlockTag = iConfig.getParameter<edm::InputTag>("l1GTAlgoBlockTag");
+  m_algoBlockToken = consumes<std::vector<l1t::P2GTAlgoBlock>>(m_l1GTAlgoBlockTag);
+  m_l1GTAlgoNames = iConfig.getParameter<std::vector<std::string>>("l1GTAlgoNames");
   m_minTrkHits = iConfig.getParameter<int>("minTrkHits");
   m_minMuonHits = iConfig.getParameter<int>("minMuonHits");
   m_minMuonStations = iConfig.getParameter<int>("minMuonStations");
@@ -44,7 +45,8 @@ void HLTMuonTrkL1TkMuFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMuonCollection", edm::InputTag(""));
   desc.add<edm::InputTag>("inputCandCollection", edm::InputTag(""));
-  desc.add<edm::InputTag>("previousCandTag", edm::InputTag(""));
+  desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag(""));
+  desc.add<std::vector<std::string>>("l1GTAlgoNames", {});
   desc.add<int>("minTrkHits", -1);
   desc.add<int>("minMuonHits", -1);
   desc.add<int>("minMuonStations", -1);
@@ -69,17 +71,28 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
     throw edm::Exception(edm::errors::Configuration)
         << "Both input collection must be aligned and represent same physical muon objects";
 
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
-  std::vector<l1t::TrackerMuonRef> vl1cands;
-
+  std::vector<l1t::P2GTCandidateRef> vl1cands;
   bool check_l1match = true;
-  if (m_previousCandTag == edm::InputTag(""))
+  if (m_l1GTAlgoBlockTag == edm::InputTag("") || m_l1GTAlgoNames.empty())
     check_l1match = false;
   if (check_l1match) {
-    iEvent.getByToken(m_previousCandToken, previousLevelCands);
-    previousLevelCands->getObjects(trigger::TriggerL1TkMu, vl1cands);
+    const std::vector<l1t::P2GTAlgoBlock>& algos = iEvent.get(m_algoBlockToken);
+    for (const l1t::P2GTAlgoBlock& algo : algos) {
+      for (auto& algoName : m_l1GTAlgoNames) {
+        if (algo.algoName() == algoName && algo.decisionBeforeBxMaskAndPrescale()) {
+          const l1t::P2GTCandidateVectorRef& objects = algo.trigObjects();
+          for (const l1t::P2GTCandidateRef& obj : objects) {
+            if (obj->objectType() == l1t::P2GTCandidate::ObjectType::GMTTkMuons) {
+              vl1cands.push_back(obj);
+              LogDebug("HLTMuonTrkL1TkMuFilter") << "Found P2GTCandidate ObjectType::GMTTkMuons" << std::endl;
+            }
+          }
+        }
+      }
+    }
   }
 
+  float dR2max = 0.3 * 0.3;
   std::vector<unsigned int> filteredMuons;
   for (unsigned int i = 0; i < muons->size(); ++i) {
     const reco::Muon& muon(muons->at(i));
@@ -87,8 +100,9 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
     if (check_l1match) {
       bool matchl1 = false;
       for (auto const& l1cand : vl1cands) {
-        if (deltaR2(muon, *l1cand) < 0.3 * 0.3) {
+        if (reco::deltaR2(muon.eta(), muon.phi(), l1cand->eta(), l1cand->phi()) < dR2max) {
           matchl1 = true;
+          LogDebug("HLTMuonTrkL1TkMuFilterP2GT") << "Matched to L1 muon" << std::endl;
           break;
         }
       }

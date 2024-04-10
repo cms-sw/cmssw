@@ -18,6 +18,10 @@ namespace l1ct {
     PFTkEGSorterBarrelEmulator(const edm::ParameterSet& iConfig)
         : PFTkEGSorterEmulator(iConfig.getParameter<uint32_t>("nObjToSort"),
                                iConfig.getParameter<uint32_t>("nObjSorted")) {}
+
+    static edm::ParameterSetDescription getParameterSetDescription() {
+      return PFTkEGSorterEmulator::getParameterSetDescription();
+    }
 #endif
 
     ~PFTkEGSorterBarrelEmulator() override {}
