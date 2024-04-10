@@ -137,7 +137,6 @@ addMixingScenario("2023_LHC_Simulation_14h_10h_hybrid2p05",{'file': 'SimGeneral.
 addMixingScenario("2023_LHC_Simulation_12p5h_9h_hybrid2p23",{'file': 'SimGeneral.MixingModule.Run3_2023_LHC_Simulation_12p5h_9h_hybrid2p23_cfi'})
 addMixingScenario("2023_LHC_Simulation_11h_8h_hybrid2p40",{'file': 'SimGeneral.MixingModule.Run3_2023_LHC_Simulation_11h_8h_hybrid2p40_cfi'})
 
-
 #scenarios for L1 tdr work
 addMixingScenario("AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 4})
 addMixingScenario("AVE_10_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 10})
