@@ -38,7 +38,24 @@ private:
   const bool usePFLeptonsAsChargedHadrons_;
 
   const std::map<std::string, int> tagToDM_;
-  enum class tauId_utag_idx : size_t { dm = 0, vsjet, vse, vsmu, ptcorr, qconf, pdm0, pdm1, pdm2, pdm10, pdm11, last };
+  enum class tauId_utag_idx : size_t {
+    dm = 0,
+    vsjet,
+    vse,
+    vsmu,
+    ptcorr,
+    qconf,
+    pdm0,
+    pdm1,
+    pdm2,
+    pdm10,
+    pdm11,
+    jetpt,
+    jeteta,
+    jetphi,
+    jetmass,
+    last
+  };
   enum class tauId_min_idx : size_t { hpsnew = 0, last };
 };
 PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
@@ -120,6 +137,10 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   tauIds_utag[(size_t)tauId_utag_idx::pdm2] = std::make_pair(tagPrefix_ + "Prob1h2pi0", -1);
   tauIds_utag[(size_t)tauId_utag_idx::pdm10] = std::make_pair(tagPrefix_ + "Prob3h0pi0", -1);
   tauIds_utag[(size_t)tauId_utag_idx::pdm11] = std::make_pair(tagPrefix_ + "Prob3h1pi0", -1);
+  tauIds_utag[(size_t)tauId_utag_idx::jetpt] = std::make_pair(tagPrefix_ + "JetPt", -1);
+  tauIds_utag[(size_t)tauId_utag_idx::jeteta] = std::make_pair(tagPrefix_ + "JetEta", -1);
+  tauIds_utag[(size_t)tauId_utag_idx::jetphi] = std::make_pair(tagPrefix_ + "JetPhi", -1);
+  tauIds_utag[(size_t)tauId_utag_idx::jetmass] = std::make_pair(tagPrefix_ + "JetMass", -1);
 
   std::set<unsigned int> matched_taus;
   size_t jet_idx = 0;
@@ -220,6 +241,12 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     tauIds_utag[(size_t)tauId_utag_idx::pdm2].second = tauPerDMScores[2] / sumOfUtagTauScores;
     tauIds_utag[(size_t)tauId_utag_idx::pdm10].second = tauPerDMScores[3] / sumOfUtagTauScores;
     tauIds_utag[(size_t)tauId_utag_idx::pdm11].second = tauPerDMScores[4] / sumOfUtagTauScores;
+
+    // Store the Jet four vector
+    tauIds_utag[(size_t)tauId_utag_idx::jetpt].second = jet.correctedP4("Uncorrected").pt();
+    tauIds_utag[(size_t)tauId_utag_idx::jeteta].second = jet.correctedP4("Uncorrected").eta();
+    tauIds_utag[(size_t)tauId_utag_idx::jetphi].second = jet.correctedP4("Uncorrected").phi();
+    tauIds_utag[(size_t)tauId_utag_idx::jetmass].second = jet.correctedP4("Uncorrected").M();
 
     // Search for matching tau
     for (const auto& inputTau : *inputTaus) {
