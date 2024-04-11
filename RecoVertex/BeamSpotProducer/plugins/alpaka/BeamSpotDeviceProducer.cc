@@ -15,7 +15,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class BeamSpotDeviceProducer : public global::EDProducer<> {
   public:
     BeamSpotDeviceProducer(edm::ParameterSet const& config)
-        : legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))}, deviceToken_{produces()} {}
+        : legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))}, deviceToken_{produces()} {
+      // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::BeamSpotDevice>");
+#endif
+    }
 
     void produce(edm::StreamID, device::Event& event, device::EventSetup const& setup) const override {
       reco::BeamSpot const& beamspot = event.get(legacyToken_);
