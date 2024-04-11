@@ -118,7 +118,7 @@ process.ShortenedTrackValidation = _shortenedTrackValidation.clone(folderName   
                                                                    minTracksPtInput     = 15.0,
                                                                    maxTracksPtInput     = 99999.9,
                                                                    maxDrInput           = 0.01,
-                                                                   tracksInputTag       = "SingleLongTrackProducer",
+                                                                   tracksInputTag       = "LongTracksRefit",  # input original track should be refit  
                                                                    tracksRerecoInputTag = ["RefittedShortTracks3",
                                                                                            "RefittedShortTracks4",
                                                                                            "RefittedShortTracks5",
