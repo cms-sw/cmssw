@@ -14,8 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
                              const float* __restrict__ in2,
                              float* __restrict__ out,
                              uint32_t size) {
-    alpaka::exec<Acc1D>(
-        queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), cms::alpakatest::KernelAddVectorsF{}, in1, in2, out, size);
+    alpaka::exec<Acc1D>(queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), KernelAddVectorsF{}, in1, in2, out, size);
   }
 
   void wrapper_add_vectors_d(Queue& queue,
@@ -23,8 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
                              const double* __restrict__ in2,
                              double* __restrict__ out,
                              uint32_t size) {
-    alpaka::exec<Acc1D>(
-        queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), cms::alpakatest::KernelAddVectorsD{}, in1, in2, out, size);
+    alpaka::exec<Acc1D>(queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), KernelAddVectorsD{}, in1, in2, out, size);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::test

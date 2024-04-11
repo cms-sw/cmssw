@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::HeterogeneousTestAlpakaKernelPlugins {
                              float* __restrict__ out,
                              uint32_t size) {
     alpaka::exec<Acc1D>(
-        queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), cms::alpakatest::KernelAddVectorsF{}, in1, in2, out, size);
+        queue, cms::alpakatools::make_workdiv<Acc1D>(32, 32), test::KernelAddVectorsF{}, in1, in2, out, size);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::HeterogeneousTestAlpakaKernelPlugins
