@@ -8,7 +8,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
 

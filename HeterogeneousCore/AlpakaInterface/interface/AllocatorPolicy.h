@@ -3,8 +3,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-
 namespace cms::alpakatools {
 
   // Which memory allocator to use

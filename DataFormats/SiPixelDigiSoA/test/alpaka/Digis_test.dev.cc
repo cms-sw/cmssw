@@ -4,7 +4,6 @@
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisHost.h"
 #include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "Digis_test.h"

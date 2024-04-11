@@ -5,7 +5,6 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/getDeviceCachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/getHostCachingAllocator.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
 
