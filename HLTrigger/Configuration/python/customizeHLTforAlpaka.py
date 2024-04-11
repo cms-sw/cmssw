@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+import re
+import itertools
 
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag
 from HeterogeneousCore.AlpakaCore.functions import *
 from HLTrigger.Configuration.common import *
 
@@ -1111,6 +1114,95 @@ def customizeHLTforAlpakaStatus(process):
     return process
 
 
+def _replace_object(process, target, obj):
+    for container in itertools.chain(
+        process.sequences_().values(),
+        process.paths_().values(),
+        process.endpaths_().values()
+    ):
+        if target.label() in [bar for foo,bar in container.directDependencies()]:
+            try:
+                position = container.index(target)
+                container.insert(position, obj)
+                container.remove(target)
+            except ValueError:
+                container.associate(obj)
+                container.remove(target)
+
+    for container in itertools.chain(
+        process.tasks_().values(),
+        process.conditionaltasks_().values(),
+    ):
+        if target.label() in [bar for foo,bar in container.directDependencies()]:
+            container.add(obj)
+            container.remove(target)
+
+    return process
+
+def _rename_edmodule(process, oldModuleLabel, newModuleLabel, typeBlackList):
+    if not hasattr(process, oldModuleLabel) or hasattr(process, newModuleLabel) or oldModuleLabel == newModuleLabel:
+        return process
+    oldObj = getattr(process, oldModuleLabel)
+    if oldObj.type_() in typeBlackList:
+        return process
+    setattr(process, newModuleLabel, oldObj.clone())
+    newObj = getattr(process, newModuleLabel)
+    process = _replace_object(process, oldObj, newObj)
+    process.__delattr__(oldModuleLabel)
+    process = massReplaceInputTag(process, oldModuleLabel, newModuleLabel, False, True, False)
+    for outputModuleLabel in process.outputModules_():
+        outputModule = getattr(process, outputModuleLabel)
+        if not hasattr(outputModule, 'outputCommands'):
+            continue
+        for outputCmdIdx, outputCmd in enumerate(outputModule.outputCommands):
+            outputModule.outputCommands[outputCmdIdx] = outputCmd.replace(f'_{oldModuleLabel}_', f'_{newModuleLabel}_')
+    return process
+
+def _rename_edmodules(process, matchExpr, oldStr, newStr, typeBlackList):
+    for moduleDict in [process.producers_(), process.filters_(), process.analyzers_()]:
+        moduleLabels = list(moduleDict.keys())
+        for moduleLabel in moduleLabels:
+            if bool(re.match(matchExpr, moduleLabel)):
+                moduleLabelNew = moduleLabel.replace(oldStr, '') + newStr
+                process = _rename_edmodule(process, moduleLabel, moduleLabelNew, typeBlackList)
+    return process
+
+def _rename_container(process, oldContainerLabel, newContainerLabel):
+    if not hasattr(process, oldContainerLabel) or hasattr(process, newContainerLabel) or oldContainerLabel == newContainerLabel:
+        return process
+    oldObj = getattr(process, oldContainerLabel)
+    setattr(process, newContainerLabel, oldObj.copy())
+    newObj = getattr(process, newContainerLabel)
+    process = _replace_object(process, oldObj, newObj)
+    process.__delattr__(oldContainerLabel)
+    return process
+
+def _rename_containers(process, matchExpr, oldStr, newStr):
+    for containerName in itertools.chain(
+        process.sequences_().keys(),
+        process.tasks_().keys(),
+        process.conditionaltasks_().keys()
+    ):
+        if bool(re.match(matchExpr, containerName)):
+            containerNameNew = containerName.replace(oldStr, '') + newStr
+            process = _rename_container(process, containerName, containerNameNew)
+    return process
+
+def customizeHLTforAlpakaRename(process):
+    # mass renaming of EDModules and Sequences:
+    # if the label matches matchRegex, remove oldStr and append newStr
+    for matchRegex, oldStr, newStr in [
+        [".*Portable.*", "Portable", ""],
+        [".*SerialSync.*", "SerialSync", "SerialSync"],
+        [".*CPUSerial.*", "CPUSerial", "SerialSync"],
+        [".*CPUOnly.*", "CPUOnly", "SerialSync"],
+    ]:
+        process = _rename_edmodules(process, matchRegex, oldStr, newStr, ['HLTPrescaler'])
+        process = _rename_containers(process, matchRegex, oldStr, newStr)
+
+    return process
+
+
 def customizeHLTforAlpaka(process):
     process.load('Configuration.StandardSequences.Accelerators_cff')
 
@@ -1118,5 +1210,6 @@ def customizeHLTforAlpaka(process):
     process = customizeHLTforAlpakaPixelReco(process)
     process = customizeHLTforAlpakaEcalLocalReco(process)
     process = customizeHLTforAlpakaParticleFlowClustering(process)
+    process = customizeHLTforAlpakaRename(process)
 
     return process
