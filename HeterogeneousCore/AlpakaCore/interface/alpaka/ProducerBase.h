@@ -58,12 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return ProducerBaseAdaptor<ProducerBase, Tr>(*this, std::move(instanceName));
     }
 
-    // For a workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-    void producesTemporarily(std::string const& iTypeName, std::string instanceName = std::string()) {
-      auto td = edm::TypeWithDict::byName(iTypeName);
-      Base::template produces<edm::Transition::Event>(edm::TypeID(td.typeInfo()), std::move(instanceName));
-    }
-
     static void prevalidate(edm::ConfigurationDescriptions& descriptions) {
       Base::prevalidate(descriptions);
       cms::alpakatools::module_backend_config(descriptions);

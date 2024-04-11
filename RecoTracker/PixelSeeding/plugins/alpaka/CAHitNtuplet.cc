@@ -58,14 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
         tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
-        deviceAlgo_(iConfig) {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    if constexpr (std::is_same_v<TrackerTraits, pixelTopology::Phase1>) {
-      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::pixelTrack::TracksSoACollectionPhase1>");
-    }
-#endif
-  }
+        deviceAlgo_(iConfig) {}
 
   template <typename TrackerTraits>
   void CAHitNtupletAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

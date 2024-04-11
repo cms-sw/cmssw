@@ -25,13 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           outputPFClusterSoA_Token_{produces()},
           outputPFRHFractionSoA_Token_{produces()},
           synchronise_(config.getParameter<bool>("synchronise")),
-          pfRecHitFractionAllocation_(config.getParameter<int>("pfRecHitFractionAllocation")) {
-      // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::reco::PFClusterDeviceCollection>");
-      producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::reco::PFRecHitFractionDeviceCollection>");
-#endif
-    }
+          pfRecHitFractionAllocation_(config.getParameter<int>("pfRecHitFractionAllocation")) {}
 
     void produce(device::Event& event, device::EventSetup const& setup) override {
       const reco::PFClusterParamsDeviceCollection& params = setup.getData(pfClusParamsToken);

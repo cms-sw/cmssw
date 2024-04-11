@@ -94,13 +94,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))} {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigisSoACollection>");
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigiErrorsSoACollection>");
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelClustersSoACollection>");
-#endif
-
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
       fmtErrorToken_ = produces();
