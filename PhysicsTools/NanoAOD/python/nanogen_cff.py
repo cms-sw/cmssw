@@ -98,6 +98,8 @@ def customizeNanoGEN(process):
     process.nanogenSequence.remove(process.genParticles2HepMCHiggsVtx)
     process.nanogenSequence.remove(process.genParticles2HepMC)
     process.nanogenSequence.remove(process.mergedGenParticles)
+    process.nanogenSequence.remove(process.genIso)
+    delattr(process.genParticleTable.externalVariables,"iso")
     nanoGenCommonCustomize(process)
     return process
 
