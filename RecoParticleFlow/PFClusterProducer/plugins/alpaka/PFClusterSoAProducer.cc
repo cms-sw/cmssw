@@ -29,16 +29,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const reco::PFClusterParamsDeviceCollection& params = setup.getData(pfClusParamsToken);
       const reco::PFRecHitHCALTopologyDeviceCollection& topology = setup.getData(topologyToken_);
       const reco::PFRecHitHostCollection& pfRecHits = event.get(inputPFRecHitSoA_Token_);
-      const int nRH = pfRecHits->size();
+      int nRH = 0;
+      if (pfRecHits->metadata().size() != 0)
+        nRH = pfRecHits->size();
 
       reco::PFClusteringVarsDeviceCollection pfClusteringVars{nRH, event.queue()};
       reco::PFClusteringEdgeVarsDeviceCollection pfClusteringEdgeVars{(nRH * 8), event.queue()};
       reco::PFClusterDeviceCollection pfClusters{nRH, event.queue()};
       reco::PFRecHitFractionDeviceCollection pfrhFractions{nRH * pfRecHitFractionAllocation_, event.queue()};
 
-      PFClusterProducerKernel kernel(event.queue(), pfRecHits);
-      kernel.execute(
-          event.queue(), params, topology, pfClusteringVars, pfClusteringEdgeVars, pfRecHits, pfClusters, pfrhFractions);
+      if (nRH != 0) {
+        PFClusterProducerKernel kernel(event.queue(), pfRecHits);
+        kernel.execute(event.queue(),
+                       params,
+                       topology,
+                       pfClusteringVars,
+                       pfClusteringEdgeVars,
+                       pfRecHits,
+                       pfClusters,
+                       pfrhFractions);
+      }
 
       if (synchronise_)
         alpaka::wait(event.queue());
