@@ -4,6 +4,7 @@
 #include <fmt/printf.h>
 
 // user include files
+#include "Alignment/OfflineValidation/interface/DiLeptonVertexHelpers.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -71,38 +72,51 @@ public:
     usesResource(TFileService::kSharedResource);
     theTrackCollectionToken_ = consumes<reco::TrackCollection>(TkTag_);
 
-    variables_min_[0] = variable_CosThetaCS_xmin_;
-    variables_min_[1] = variable_DeltaEta_xmin_;
-    variables_min_[2] = variable_EtaMinus_xmin_;
-    variables_min_[3] = variable_EtaPlus_xmin_;
-    variables_min_[4] = variable_PhiCS_xmin_;
-    variables_min_[5] = variable_PhiMinus_xmin_;
-    variables_min_[6] = variable_PhiPlus_xmin_;
-    variables_min_[7] = variable_PairPt_xmin_;
+    variables_min_[Variable::CosThetaCS] = variable_CosThetaCS_xmin_;
+    variables_min_[Variable::DeltaEta] = variable_DeltaEta_xmin_;
+    variables_min_[Variable::EtaMinus] = variable_EtaMinus_xmin_;
+    variables_min_[Variable::EtaPlus] = variable_EtaPlus_xmin_;
+    variables_min_[Variable::PhiCS] = variable_PhiCS_xmin_;
+    variables_min_[Variable::PhiMinus] = variable_PhiMinus_xmin_;
+    variables_min_[Variable::PhiPlus] = variable_PhiPlus_xmin_;
+    variables_min_[Variable::Pt] = variable_PairPt_xmin_;
 
-    variables_max_[0] = variable_CosThetaCS_xmax_;
-    variables_max_[1] = variable_DeltaEta_xmax_;
-    variables_max_[2] = variable_EtaMinus_xmax_;
-    variables_max_[3] = variable_EtaPlus_xmax_;
-    variables_max_[4] = variable_PhiCS_xmax_;
-    variables_max_[5] = variable_PhiMinus_xmax_;
-    variables_max_[6] = variable_PhiPlus_xmax_;
-    variables_max_[7] = variable_PairPt_xmax_;
+    variables_max_[Variable::CosThetaCS] = variable_CosThetaCS_xmax_;
+    variables_max_[Variable::DeltaEta] = variable_DeltaEta_xmax_;
+    variables_max_[Variable::EtaMinus] = variable_EtaMinus_xmax_;
+    variables_max_[Variable::EtaPlus] = variable_EtaPlus_xmax_;
+    variables_max_[Variable::PhiCS] = variable_PhiCS_xmax_;
+    variables_max_[Variable::PhiMinus] = variable_PhiMinus_xmax_;
+    variables_max_[Variable::PhiPlus] = variable_PhiPlus_xmax_;
+    variables_max_[Variable::Pt] = variable_PairPt_xmax_;
 
-    variables_bins_number_[0] = variable_CosThetaCS_nbins_;
-    variables_bins_number_[1] = variable_DeltaEta_nbins_;
-    variables_bins_number_[2] = variable_EtaMinus_nbins_;
-    variables_bins_number_[3] = variable_EtaPlus_nbins_;
-    variables_bins_number_[4] = variable_PhiCS_nbins_;
-    variables_bins_number_[5] = variable_PhiMinus_nbins_;
-    variables_bins_number_[6] = variable_PhiPlus_nbins_;
-    variables_bins_number_[7] = variable_PairPt_nbins_;
+    variables_bins_number_[Variable::CosThetaCS] = variable_CosThetaCS_nbins_;
+    variables_bins_number_[Variable::DeltaEta] = variable_DeltaEta_nbins_;
+    variables_bins_number_[Variable::EtaMinus] = variable_EtaMinus_nbins_;
+    variables_bins_number_[Variable::EtaPlus] = variable_EtaPlus_nbins_;
+    variables_bins_number_[Variable::PhiCS] = variable_PhiCS_nbins_;
+    variables_bins_number_[Variable::PhiMinus] = variable_PhiMinus_nbins_;
+    variables_bins_number_[Variable::PhiPlus] = variable_PhiPlus_nbins_;
+    variables_bins_number_[Variable::Pt] = variable_PairPt_nbins_;
   }
 
   ~DiMuonValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static constexpr int varNumber_ = 8;
+
+  // enumeration to contain the variables to plot
+  enum Variable {
+    CosThetaCS = 0,
+    DeltaEta = 1,
+    EtaMinus = 2,
+    EtaPlus = 3,
+    PhiCS = 4,
+    PhiMinus = 5,
+    PhiPlus = 6,
+    Pt = 7,
+    VarNumber = 8
+  };
+
   static constexpr double mu_mass2_ = 0.105658 * 0.105658;  //The invariant mass of muon 105.658MeV
 
 private:
@@ -157,13 +171,19 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
 
   TH1F* th1f_mass;
-  TH2D* th2d_mass_variables_[varNumber_];  // actual histograms
-  std::string variables_name_[varNumber_] = {
+  TH2D* th2d_mass_variables_[Variable::VarNumber];  // actual histograms
+
+  std::string variables_name_[Variable::VarNumber] = {
       "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
 
-  int variables_bins_number_[varNumber_];  // = {20, 20, 12, 12, 20, 16, 16, 100};
-  double variables_min_[varNumber_];       // = {-1, -4.8, -2.4, -2.4, -M_PI / 2, -M_PI, -M_PI, 0};
-  double variables_max_[varNumber_];       // = {+1, +4.8, +2.4, +2.4, +M_PI / 2, +M_PI, +M_PI, 100};
+  int variables_bins_number_[Variable::VarNumber];  // = {20, 20, 12, 12, 20, 16, 16, 100};
+  double variables_min_[Variable::VarNumber];       // = {-1, -4.8, -2.4, -2.4, -M_PI / 2, -M_PI, -M_PI, 0};
+  double variables_max_[Variable::VarNumber];       // = {+1, +4.8, +2.4, +2.4, +M_PI / 2, +M_PI, +M_PI, 100};
+
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassVsPhiPlusInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassVsPhiMinusInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassVsCosThetaCSInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
 };
 
 //
@@ -194,7 +214,6 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       LV_mother = LV_track1 + LV_track2;
       double mother_mass = LV_mother.M();
       th1f_mass->Fill(mother_mass);
-
       double mother_pt = LV_mother.Pt();
 
       int charge1 = track1->charge();
@@ -213,6 +232,16 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         std::swap(phiMu1, phiMu2);
         std::swap(ptMu1, ptMu2);
       }
+
+      const auto& tplus = track1->charge() > 0 ? track1 : track2;
+      const auto& tminus = track1->charge() < 0 ? track1 : track2;
+      TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mu_mass2_));
+      TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mu_mass2_));
+      std::pair<TLorentzVector, TLorentzVector> tktk_p4 = std::make_pair(p4_tplus, p4_tminus);
+      InvMassInEtaBins.fillTH1Plots(mother_mass, tktk_p4);
+      InvMassVsPhiPlusInEtaBins.fillTH2Plots(mother_mass, phiMu1, tktk_p4);
+      InvMassVsPhiMinusInEtaBins.fillTH2Plots(mother_mass, phiMu2, tktk_p4);
+
       //eta cut
       if (etaMu1 < pair_etaminpos_ || etaMu1 > pair_etamaxpos_ || etaMu2 < pair_etaminneg_ ||
           etaMu2 > pair_etamaxneg_) {
@@ -229,6 +258,8 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       double costhetaCS = 2.0 / LV_mother.mag() / sqrt(pow(LV_mother.mag(), 2) + pow(LV_mother.Pt(), 2)) *
                           (muplus * mubarminus - muminus * mubarplus);
 
+      InvMassVsCosThetaCSInEtaBins.fillTH2Plots(mother_mass, costhetaCS, tktk_p4);
+
       DiMuonValid::LV Pbeam(0., 0., eBeam_, eBeam_);
       auto R = Pbeam.Vect().Cross(LV_mother.Vect());
       auto Runit = R.Unit();
@@ -243,14 +274,14 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       double phiCS = atan(tanphi);
 
       if (mother_mass > pair_mass_min_ && mother_mass < pair_mass_max_) {
-        th2d_mass_variables_[0]->Fill(mother_mass, costhetaCS, 1);
-        th2d_mass_variables_[1]->Fill(mother_mass, delta_eta, 1);
-        th2d_mass_variables_[2]->Fill(mother_mass, etaMu2, 1);
-        th2d_mass_variables_[3]->Fill(mother_mass, etaMu1, 1);
-        th2d_mass_variables_[4]->Fill(mother_mass, phiCS, 1);
-        th2d_mass_variables_[5]->Fill(mother_mass, phiMu2, 1);
-        th2d_mass_variables_[6]->Fill(mother_mass, phiMu1, 1);
-        th2d_mass_variables_[7]->Fill(mother_mass, mother_pt, 1);
+        th2d_mass_variables_[Variable::CosThetaCS]->Fill(mother_mass, costhetaCS, 1);
+        th2d_mass_variables_[Variable::DeltaEta]->Fill(mother_mass, delta_eta, 1);
+        th2d_mass_variables_[Variable::EtaMinus]->Fill(mother_mass, etaMu2, 1);
+        th2d_mass_variables_[Variable::EtaPlus]->Fill(mother_mass, etaMu1, 1);
+        th2d_mass_variables_[Variable::PhiCS]->Fill(mother_mass, phiCS, 1);
+        th2d_mass_variables_[Variable::PhiMinus]->Fill(mother_mass, phiMu2, 1);
+        th2d_mass_variables_[Variable::PhiPlus]->Fill(mother_mass, phiMu1, 1);
+        th2d_mass_variables_[Variable::Pt]->Fill(mother_mass, mother_pt, 1);
       }
     }
   }
@@ -265,7 +296,7 @@ void DiMuonValidation::beginJob() {
 
   th1f_mass = fs->make<TH1F>("hMass", "mass;m_{#mu#mu} [GeV];events", 200, 0., 200.);
 
-  for (int i = 0; i < varNumber_; i++) {
+  for (int i = 0; i < Variable::VarNumber; i++) {
     std::string th2d_name = fmt::sprintf("th2d_mass_%s", variables_name_[i].c_str());
     th2d_mass_variables_[i] = fs->make<TH2D>(th2d_name.c_str(),
                                              th2d_name.c_str(),
@@ -276,6 +307,22 @@ void DiMuonValidation::beginJob() {
                                              variables_min_[i],
                                              variables_max_[i]);
   }
+
+  // Z-> mm mass in eta bins
+  TFileDirectory dirResMassEta = fs->mkdir("TkTkMassInEtaBins");
+  InvMassInEtaBins.bookSet(dirResMassEta, th1f_mass);
+
+  // Z->mm mass vs cos phi Collins-Soper in eta bins
+  TFileDirectory dirResMassVsCosThetaCSInEta = fs->mkdir("TkTkMassVsCosThetaCSInEtaBins");
+  InvMassVsCosThetaCSInEtaBins.bookSet(dirResMassVsCosThetaCSInEta, th2d_mass_variables_[Variable::CosThetaCS]);
+
+  // Z->mm mass vs phi minus in eta bins
+  TFileDirectory dirResMassVsPhiMinusInEta = fs->mkdir("TkTkMassVsPhiMinusInEtaBins");
+  InvMassVsPhiMinusInEtaBins.bookSet(dirResMassVsPhiMinusInEta, th2d_mass_variables_[Variable::PhiMinus]);
+
+  // Z->mm mass vs phi plus in eta bins
+  TFileDirectory dirResMassVsPhiPlusInEta = fs->mkdir("TkTkMassVsPhiPlusInEtaBins");
+  InvMassVsPhiPlusInEtaBins.bookSet(dirResMassVsPhiPlusInEta, th2d_mass_variables_[Variable::PhiPlus]);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
