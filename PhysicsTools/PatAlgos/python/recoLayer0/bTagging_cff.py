@@ -354,7 +354,6 @@ for disc in _pfParticleTransformerAK4JetTagsMetaDiscrs:
     supportedMetaDiscr[disc] = _pfParticleTransformerAK4JetTagsProbs
 # -----------------------------------
 
-
 # -----------------------------------
 # setup UnifiedParticleTransformer AK4
 from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsProbs, _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs
