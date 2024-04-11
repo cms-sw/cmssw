@@ -60,6 +60,7 @@ private:
 
   MonitorElement* meHitCharge_[4];
   MonitorElement* meHitTime_[4];
+  MonitorElement* meHitToT_[4];
 
   MonitorElement* meOccupancy_[4];
 
@@ -152,6 +153,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
     meHitCharge_[idet]->Fill(sample.data());
     meHitTime_[idet]->Fill(sample.toa());
+    meHitToT_[idet]->Fill(sample.tot());
     meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
 
     if (optionalPlots_) {
@@ -246,6 +248,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  256.);
   meHitCharge_[3] =
       ibook.book1D("EtlHitChargeZposD2", "ETL DIGI hits charge (+Z, Second disk);Q_{DIGI} [ADC counts]", 100, 0., 256.);
+
   meHitTime_[0] = ibook.book1D("EtlHitTimeZnegD1",
                                "ETL DIGI hits ToA (-Z, Single(topo1D)/First(topo2D) disk);ToA_{DIGI} [TDC counts]",
                                100,
@@ -260,6 +263,21 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                2000.);
   meHitTime_[3] =
       ibook.book1D("EtlHitTimeZposD2", "ETL DIGI hits ToA (+Z, Second disk);ToA_{DIGI} [TDC counts]", 100, 0., 2000.);
+
+  meHitToT_[0] = ibook.book1D("EtlHitToTZnegD1",
+                               "ETL DIGI hits ToT (-Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
+                               100,
+                               0.,
+                               2000.);
+  meHitToT_[1] =
+      ibook.book1D("EtlHitToTZnegD2", "ETL DIGI hits ToT (-Z, Second disk);ToT_{DIGI} [TDC counts]", 100, 0., 2000.);
+  meHitToT_[2] = ibook.book1D("EtlHitToTZposD1",
+                               "ETL DIGI hits ToT (+Z, Single(topo1D)/First(topo2D) disk);ToT_{DIGI} [TDC counts]",
+                               100,
+                               0.,
+                               2000.);
+  meHitToT_[3] =
+      ibook.book1D("EtlHitToTZposD2", "ETL DIGI hits ToT (+Z, Second disk);ToT_{DIGI} [TDC counts]", 100, 0., 2000.);
 
   meOccupancy_[0] =
       ibook.book2D("EtlOccupancyZnegD1",
