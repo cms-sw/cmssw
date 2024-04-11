@@ -587,9 +587,17 @@ template <typename T, typename U>
 void testStreamFilter::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
-  edm::WorkerT<edm::stream::EDFilterAdaptorBase> w{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::stream::EDFilterAdaptorBase> wOther{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::stream::EDFilterAdaptorBase> wGlobalLumi{iMod, m_desc, nullptr};
+  edm::WorkerT<edm::stream::EDFilterAdaptorBase> wStreamLumi{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
-    testTransition<T>(&w, keyVal.first, iExpect, keyVal.second);
+    edm::Worker* worker = &wOther;
+    if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {
+      worker = &wStreamLumi;
+    } else if (keyVal.first == Trans::kGlobalBeginLuminosityBlock || keyVal.first == Trans::kGlobalEndLuminosityBlock) {
+      worker = &wGlobalLumi;
+    }
+    testTransition<T>(worker, keyVal.first, iExpect, keyVal.second);
   }
 }
 template <typename T>

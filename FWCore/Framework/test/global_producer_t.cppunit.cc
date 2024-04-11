@@ -506,9 +506,18 @@ void testGlobalProducer::testTransitions(std::shared_ptr<T> iMod, Expectations c
     edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
     h.preallocate(edm::PreallocationConfiguration{});
 
-    edm::WorkerT<edm::global::EDProducerBase> w{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::global::EDProducerBase> wOther{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::global::EDProducerBase> wGlobalLumi{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::global::EDProducerBase> wStreamLumi{iMod, m_desc, nullptr};
     for (auto& keyVal : m_transToFunc) {
-      testTransition(iMod, &w, keyVal.first, iExpect, keyVal.second);
+      edm::Worker* worker = &wOther;
+      if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {
+        worker = &wStreamLumi;
+      } else if (keyVal.first == Trans::kGlobalBeginLuminosityBlock ||
+                 keyVal.first == Trans::kGlobalEndLuminosityBlock) {
+        worker = &wGlobalLumi;
+      }
+      testTransition(iMod, worker, keyVal.first, iExpect, keyVal.second);
     }
   });
 }
