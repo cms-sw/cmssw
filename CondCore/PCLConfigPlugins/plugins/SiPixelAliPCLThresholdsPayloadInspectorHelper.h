@@ -118,8 +118,8 @@ namespace AlignPCLThresholdPlotHelper {
       canvas.SetGrid();
 
       // needed for the internal loop
-      const auto& local_end_of_types = isHighGranularity_ ? END_OF_TYPES : FRACTION_CUT;
-      const int N_Y_BINS = AlignPCLThresholds::extra_DOF * local_end_of_types;
+      const int local_end_of_types = static_cast<int>(isHighGranularity_ ? END_OF_TYPES : FRACTION_CUT);
+      const int N_Y_BINS = static_cast<int>(AlignPCLThresholds::extra_DOF) * local_end_of_types;
 
       auto Thresholds =
           std::make_unique<TH2F>("Thresholds", "", alignables.size(), 0, alignables.size(), N_Y_BINS, 0, N_Y_BINS);
@@ -309,8 +309,8 @@ namespace AlignPCLThresholdPlotHelper {
       canvas.SetGrid();
 
       // needed for the internal loop
-      const auto& local_end_of_types = isHighGranularity_ ? END_OF_TYPES : FRACTION_CUT;
-      const int N_Y_BINS = AlignPCLThresholds::extra_DOF * local_end_of_types;
+      const int local_end_of_types = static_cast<int>(isHighGranularity_ ? END_OF_TYPES : FRACTION_CUT);
+      const int N_Y_BINS = static_cast<int>(AlignPCLThresholds::extra_DOF) * local_end_of_types;
 
       auto Thresholds = std::make_unique<TH2F>(
           "Thresholds", "", v_intersection.size(), 0, v_intersection.size(), N_Y_BINS, 0, N_Y_BINS);
