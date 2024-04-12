@@ -277,9 +277,9 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_tau_switch, runUTagCHSAK4 = True
     )
     
-    # Don't add Unified Tagger for PUPPI jets for Run 2 as different PUPPI tune
-    # and base jet algorithm
-    run2_nanoAOD_106Xv2.toModify(
+    # Don't add Unified Tagger for PUPPI jets for Run 2 (as different PUPPI tune
+    # and base jet algorithm) or early Run 3 eras
+    (run3_nanoAOD_122 | run3_nanoAOD_124 | run2_nanoAOD_106Xv2).toModify(
         nanoAOD_tau_switch, addUParTInfo = False
     )
     
