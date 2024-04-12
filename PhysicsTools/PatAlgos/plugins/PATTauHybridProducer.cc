@@ -50,10 +50,6 @@ private:
     pdm2,
     pdm10,
     pdm11,
-    jetpt,
-    jeteta,
-    jetphi,
-    jetmass,
     last
   };
   enum class tauId_min_idx : size_t { hpsnew = 0, last };
@@ -137,10 +133,6 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   tauIds_utag[(size_t)tauId_utag_idx::pdm2] = std::make_pair(tagPrefix_ + "Prob1h2pi0", -1);
   tauIds_utag[(size_t)tauId_utag_idx::pdm10] = std::make_pair(tagPrefix_ + "Prob3h0pi0", -1);
   tauIds_utag[(size_t)tauId_utag_idx::pdm11] = std::make_pair(tagPrefix_ + "Prob3h1pi0", -1);
-  tauIds_utag[(size_t)tauId_utag_idx::jetpt] = std::make_pair(tagPrefix_ + "JetPt", -1);
-  tauIds_utag[(size_t)tauId_utag_idx::jeteta] = std::make_pair(tagPrefix_ + "JetEta", -1);
-  tauIds_utag[(size_t)tauId_utag_idx::jetphi] = std::make_pair(tagPrefix_ + "JetPhi", -1);
-  tauIds_utag[(size_t)tauId_utag_idx::jetmass] = std::make_pair(tagPrefix_ + "JetMass", -1);
 
   std::set<unsigned int> matched_taus;
   size_t jet_idx = 0;
@@ -242,11 +234,6 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     tauIds_utag[(size_t)tauId_utag_idx::pdm10].second = tauPerDMScores[3] / sumOfUtagTauScores;
     tauIds_utag[(size_t)tauId_utag_idx::pdm11].second = tauPerDMScores[4] / sumOfUtagTauScores;
 
-    // Store the Jet four vector
-    tauIds_utag[(size_t)tauId_utag_idx::jetpt].second = jet.correctedP4("Uncorrected").pt();
-    tauIds_utag[(size_t)tauId_utag_idx::jeteta].second = jet.correctedP4("Uncorrected").eta();
-    tauIds_utag[(size_t)tauId_utag_idx::jetphi].second = jet.correctedP4("Uncorrected").phi();
-    tauIds_utag[(size_t)tauId_utag_idx::jetmass].second = jet.correctedP4("Uncorrected").M();
 
     // Search for matching tau
     for (const auto& inputTau : *inputTaus) {
@@ -262,8 +249,20 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         std::vector<pat::Tau::IdPair> tauIds(nTauIds + tauIds_utag.size());
         for (size_t i = 0; i < nTauIds; ++i)
           tauIds[i] = inputTau.tauIDs()[i];
-        for (size_t i = 0; i < tauIds_utag.size(); ++i)
-          tauIds[nTauIds + i] = tauIds_utag[i];
+        for (size_t i = 0; i < tauIds_utag.size(); ++i) {
+          if ((tauIds_utag[i].first.find("PtCorr") != std::string::npos) &&
+              (inputTau.tauID("decayModeFindingNewDMs") == -1)) {
+            // if jet is matched to a recovered tau (i.e. non-HPS) then the Pt Correction
+            // should be adjusted so that it can still be applied as PtCorr * TauPt
+            // (as the original PtCorr will be w.r.t the jet pT, but recovered tau
+            // pT is not necessarily set by same jet algorithm if adding both CHS
+            // and PUPPI based taggers)
+            tauIds[nTauIds + i].first = tauIds_utag[i].first;
+            tauIds[nTauIds + i].second = tauIds_utag[i].second * jet.correctedP4("Uncorrected").pt() / inputTau.pt();
+          } else {
+            tauIds[nTauIds + i] = tauIds_utag[i];
+          }
+        }
         outputTau.setTauIDs(tauIds);
         matched = true;
         outputTaus->push_back(outputTau);

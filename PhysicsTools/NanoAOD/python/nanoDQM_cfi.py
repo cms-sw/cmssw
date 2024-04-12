@@ -876,10 +876,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('probDM2UParT', 'probDM2UParT', 20, 0, 1, 'normalised probablity of decayMode 2, 1h+2pi0 (UParT 2024 - PUPPI Jets)'),
                 Plot1D('probDM10UParT', 'probDM10UParT', 20, 0, 1, 'normalised probablity of decayMode 10, 3h+0pi0 (UParT 2024 - PUPPI Jets)'),
                 Plot1D('probDM11UParT', 'probDM11UParT', 20, 0, 1, 'normalised probablity of decayMode 11, 3h+1pi0 (UParT 2024 - PUPPI Jets)'),
-                Plot1D('PUPPIjet_eta', 'PUPPIjet_eta', 20, -3, 3, 'PUPPI jet eta'),
-                Plot1D('PUPPIjet_phi', 'PUPPIjet_phi', 20, -3.14159, 3.14159, 'PUPPI jet phi'),
-                Plot1D('PUPPIjet_pt', 'PUPPIjet_pt', 20, 0, 200, 'PUPPI jet pt'),
-                Plot1D('PUPPIjet_mass', 'PUPPIjet_mass', 20, 0, 10, 'PUPPI jet mass'),
             )
         ),
         TauProd = cms.PSet(
