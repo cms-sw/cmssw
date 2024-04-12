@@ -24,6 +24,10 @@ ticlTrackstersFastJet = _trackstersProducer.clone(
     )
 )
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(ticlTrackstersFastJet.pluginPatternRecognitionByFastJet, computeLocalTime = cms.bool(True))
+
+
 ticlFastJetStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersFastJet
     ,ticlTrackstersFastJet)

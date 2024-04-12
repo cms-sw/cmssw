@@ -8,7 +8,7 @@ fCPerMIP_mean = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = HGCalUncalibRecHitProducer.clone(
-    
+
     HGCEEConfig = cms.PSet(
         isSiFE = cms.bool(True),
         # adc information
@@ -22,7 +22,7 @@ HGCalUncalibRecHit = HGCalUncalibRecHitProducer.clone(
         tofDelay      = hgceeDigitizer.tofDelay,
         fCPerMIP      = fCPerMIP_mpv
         ),
-    
+
     HGCHEFConfig = cms.PSet(
         isSiFE = cms.bool(True),
         # adc information
@@ -67,11 +67,11 @@ HGCalUncalibRecHit = HGCalUncalibRecHitProducer.clone(
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
-phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean ) 
+phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean )
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_mean )
 
 from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
-phase2_hgcalV16.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean ) 
+phase2_hgcalV16.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_mean )
 phase2_hgcalV16.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_mean )
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -79,3 +79,6 @@ phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig ,
           isSiFE = True ,
           fCPerMIP = fCPerMIP_mean
 )
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(HGCalUncalibRecHit, computeLocalTime = cms.bool(True))

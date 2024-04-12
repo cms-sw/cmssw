@@ -30,6 +30,9 @@ ticlTrackstersCLUE3DHAD = _trackstersProducer.clone(
 
 )
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(ticlTrackstersCLUE3DHAD.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
+
 ticlCLUE3DHADStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DHAD
     ,ticlTrackstersCLUE3DHAD)

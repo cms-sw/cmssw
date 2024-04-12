@@ -28,6 +28,9 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
 
 )
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
+
 ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DHigh
     ,ticlTrackstersCLUE3DHigh)
