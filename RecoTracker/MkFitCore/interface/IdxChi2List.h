@@ -17,9 +17,6 @@ namespace mkfit {
     float chi2_hit;       // chi2 of the added hit
     float score;          // score used for candidate ranking
 
-    IdxChi2List() = default;
-    IdxChi2List& operator=(const IdxChi2List&) = default;
-
     // Zero initialization
     void reset() {
       module = 0u;
