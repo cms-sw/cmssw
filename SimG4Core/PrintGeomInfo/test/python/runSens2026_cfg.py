@@ -3,7 +3,8 @@
 #   cmsRun runSens2026_cfg.py geometry=D92 type=DDD
 #
 #   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99,
-#                        D100, D101, D102, D103, D104, D105, D106
+#                        D100, D101, D102, D103, D104, D105, D106, D107,
+#                        D108, D109, D110
 #   Options for type DDD, DD4hep
 #
 ###############################################################################
@@ -18,7 +19,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
