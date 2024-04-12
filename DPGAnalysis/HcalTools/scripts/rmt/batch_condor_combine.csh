@@ -8,6 +8,9 @@ cmsenv
 set DAT=`date '+%Y-%m-%d_%H_%M_%S'`
 set ERA=${2}
 set RELEASE=${CMSSW_VERSION}
+set compiler=`ls ${CMSSW_BASE}/bin`
+echo ${compiler}
+
 
 ### Get list of done from RDM webpage ###
 set TYPE=${1}
@@ -55,7 +58,7 @@ rm ${WD}/BSUB/job_${TYPE}_${iold}_${jold}.sub
 
 cat >> ${WD}/BSUB/job_${TYPE}_${iold}_${jold}.sub << EOF
 executable            = ${SCRIPT}/HcalRemoteMonitoringNewNewCombine.csh
-arguments             = ${iold} ${DAT} ${iold} ${nevent} ${TYPE} ${ERA} ${RELEASE} ${SCRAM_ARCH} ${PYTHON} ${rundat} ${runtime}
+arguments             = ${iold} ${DAT} ${iold} ${nevent} ${TYPE} ${ERA} ${RELEASE} ${SCRAM_ARCH} ${PYTHON} ${rundat} ${runtime} ${compiler}
 output                = ${MYOUTJOB}
 error                 = ${MYERRJOB}
 log                   = ${MYCONDOR}
