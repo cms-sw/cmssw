@@ -1,8 +1,14 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="HeterogeneousCore/CUDACore"/>
-<use   name="CUDADataFormats/HGCal"/>
-<use   name="Geometry/HGCalCommonData"/>
+<use name="CondFormats/Serialization"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="boost_serialization"/>
+<use name="DataFormats/HGCalDigi"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

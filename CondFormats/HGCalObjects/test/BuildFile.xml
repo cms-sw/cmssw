@@ -1,0 +1,6 @@
+<bin file="testSerializationHGCalCondDataFormats.cc">
+  <use name="CondFormats/HGCalObjects"/>
+</bin>
+<bin file="testDenseIndexerBase.cc">
+  <use name="CondFormats/HGCalObjects"/>
+</bin>

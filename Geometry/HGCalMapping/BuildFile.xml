@@ -1,0 +1,5 @@
+<use name="DataFormats/HGCalDigi"/>
+<use name="DataFormats/ForwardDetId"/>
+<export>
+  <lib name="GeometryHGCalMappingTools"/>
+</export>
