@@ -56,10 +56,6 @@ HLT_HIDoubleEle10Gsf_v*
 HLT_HIDoubleEle10GsfMass50_v*
 HLT_HIDoubleEle15Gsf_v*
 HLT_HIDoubleEle15GsfMass50_v*
-HLT_HICsAK4PFJet60Eta1p5_v*
-HLT_HICsAK4PFJet80Eta1p5_v*
-HLT_HICsAK4PFJet100Eta1p5_v*
-HLT_HICsAK4PFJet120Eta1p5_v*
 
 HLT_HIL1NotBptxOR_v*
 HLT_HIL1UnpairedBunchBptxMinus_v*
@@ -139,11 +135,6 @@ HLT_HIPuAK4CaloJet60Fwd_v*            # CMSHLT-2882
 HLT_HIPuAK4CaloJet80Fwd_v*            # CMSHLT-2882
 HLT_HIPuAK4CaloJet100Fwd_v*           # CMSHLT-2882
 HLT_HIPuAK4CaloJet120Fwd_v*           # CMSHLT-2882
-HLT_HICsAK4PFJet60Eta2p1_v*           # CMSHLT-2882
-HLT_HICsAK4PFJet80Eta2p1_v*           # CMSHLT-2882
-HLT_HICsAK4PFJet100Eta2p1_v*          # CMSHLT-2882
-HLT_HICsAK4PFJet100Eta1p5_Beamspot_v* # CMSHLT-2882
-HLT_HICsAK4PFJet120Eta2p1_v*          # CMSHLT-2882
 HLT_HIDoubleGEDPhoton20_v*            # CMSHLT-2882
 HLT_HIUPC_NotMBHF2_v*                 # CMSHLT-2882
 HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
