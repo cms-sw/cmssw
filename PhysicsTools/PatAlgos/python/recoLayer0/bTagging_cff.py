@@ -371,6 +371,3 @@ from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticl
 # update supportedBtagDiscr
 for disc in _pfNegativeParticleTransformerAK4JetTagsProbs:
     supportedBtagDiscr[disc] = [["pfNegativeParticleTransformerAK4TagInfos"]]
-
-
-

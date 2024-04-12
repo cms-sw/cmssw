@@ -40,6 +40,7 @@ def update_jets_AK4(process):
         'pfNegativeDeepFlavourJetTags:probg',
     ]        + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll + pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
     # \ #+ pfParticleTransformerAK4JetTagsAll + pfNegativeParticleTransformerAK4JetTagsProbs \
+
     updateJetCollection(
         process,
         jetSource=cms.InputTag('slimmedJetsPuppi'),

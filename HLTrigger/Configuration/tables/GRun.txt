@@ -117,6 +117,7 @@ HLT_AK8DiPFJet290_290_SoftDropMass30_v* #       CMSHLT-3028
 HLT_PFHT350_v*	#	CMSHLT-1263, CMSHLT-1602
 HLT_ZeroBias_FirstCollisionAfterAbortGap_v*	#	CMSHLT-1264
 HLT_ZeroBias_IsolatedBunches_v*	#	CMSHLT-1264
+HLT_Ele14_eta2p5_IsoVVVL_Gsf_PFHT200_PNetBTag0p53_v*  #CMSHLT-3087
 HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*	#	CMSHLT-1265
 HLT_Ele35_WPTight_Gsf_v*	#	CMSHLT-1265
 HLT_Ele38_WPTight_Gsf_v*	#	CMSHLT-1265
@@ -230,6 +231,9 @@ HLT_TripleMu_10_5_5_DZ_v*	#	CMSHLT-1311
 HLT_TripleMu_12_10_5_v*	#	CMSHLT-1311
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*	#	CMSHLT-1311, CMSHLT-1436
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*	#	CMSHLT-1311, CMSHLT-1436
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_CaloJet30_v*     # CMSHLT-3120
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_AK8PFJet30_v*    # CMSHLT-3120
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_AK8CaloJet30_v*  # CMSHLT-3120
 DST_PFScouting_DoubleMuon_v*     # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-2836, CMSHLT-3066
 DST_PFScouting_DoubleEG_v*       # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-2836, CMSHLT-3066
 DST_PFScouting_JetHT_v*          # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-3066
@@ -359,6 +363,7 @@ HLT_DoubleMu4_3_Photon4_BsToMMG_v*           # CMSHLT-2317
 HLT_DoubleMu4_3_Displaced_Photon4_BsToMMG_v* # CMSHLT-2317
 HLT_Mu12eta2p3_v*                                              #       CMSHLT-2214
 HLT_Mu12eta2p3_PFJet40_v*                                      #       CMSHLT-2214
+HLT_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v*                        #       CMSHLT-3087
 HLT_Mu12_DoublePFJets40_PNetBTag_0p11_v*                       #       CMSHLT-3024
 HLT_Mu12_DoublePFJets100_PNetBTag_0p11_v*                      #       CMSHLT-3024
 HLT_Mu12_DoublePFJets200_PNetBTag_0p11_v*                      #       CMSHLT-3024
@@ -398,11 +403,17 @@ HLT_Photon50EB_v*                   # CMSHLT-3034
 HLT_Photon30EB_TightID_TightIso_v*  # CMSHLT-2314, CMSHLT-3034
 HLT_Photon50EB_TightID_TightIso_v*  # CMSHLT-2701, CMSHLT-3034
 HLT_Photon50EB_TightID_TightIso_PFJet30_v*  # CMSHLT-3042
+HLT_Photon50EB_TightID_TightIso_CaloJet30_v*    # CMSHLT-3120
+HLT_Photon50EB_TightID_TightIso_AK8CaloJet30_v* # CMSHLT-3120
+HLT_Photon50EB_TightID_TightIso_AK8PFJet30_v*   # CMSHLT-3120
 HLT_Photon55EB_TightID_TightIso_v*  # CMSHLT-3034, CMSHLT-3034
 HLT_Photon75EB_TightID_TightIso_v*  # CMSHLT-2701, CMSHLT-3034
 HLT_Photon90EB_TightID_TightIso_v*  # CMSHLT-2701, CMSHLT-3034
 HLT_Photon110EB_TightID_TightIso_v* # CMSHLT-1789, CMSHLT-2701, CMSHLT-3034
 HLT_Photon110EB_TightID_TightIso_PFJet30_v* # CMSHLT-3042
+HLT_Photon110EB_TightID_TightIso_CaloJet30_v*    # CMSHLT-3120
+HLT_Photon110EB_TightID_TightIso_AK8CaloJet30_v* # CMSHLT-3120
+HLT_Photon110EB_TightID_TightIso_AK8PFJet30_v*   # CMSHLT-3120
 HLT_Photon100EBHE10_v*	#	CMSHLT-1789
 HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v*	#	CMSHLT-1803
 HLT_TripleMu_5_3_3_Mass3p8_DZ_v*	#	CMSHLT-1803
@@ -456,12 +467,12 @@ HLT_PFHT280_QuadPFJet30_PNet2BTagMean0p55_v*                                    
 HLT_PFHT280_QuadPFJet30_PNet2BTagMean0p60_v*                                               # CMSHLT-2695, CMSHLT-2759
 HLT_PFHT280_QuadPFJet35_PNet2BTagMean0p60_v*                                               # CMSHLT-2695, CMSHLT-2759
 HLT_PFHT340_QuadPFJet70_50_40_40_PNet2BTagMean0p70_v* # CMSHLT-2695, CMSHLT-2704, CMSHLT-2759
-HLT_PFHT250_QuadPFJet25_v1                                     # CMSHLT-3038
-HLT_PFHT250_QuadPFJet25_PNet2BTagMean0p55_v1                   # CMSHLT-3038
-HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v1         # CMSHLT-3038
-HLT_PFHT250_QuadPFJet30_PNet2BTagMean0p55_v1                   # CMSHLT-3038
-HLT_PFHT250_QuadPFJet30_PNet1BTag0p20_PNet1Tauh0p50_v1         # CMSHLT-3038
-HLT_PFHT280_QuadPFJet30_PNet1BTag0p20_PNet1Tauh0p50_v1         # CMSHLT-3038
+HLT_PFHT250_QuadPFJet25_v*                                     # CMSHLT-3038
+HLT_PFHT250_QuadPFJet25_PNet2BTagMean0p55_v*                   # CMSHLT-3038
+HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v*         # CMSHLT-3038
+HLT_PFHT250_QuadPFJet30_PNet2BTagMean0p55_v*                   # CMSHLT-3038
+HLT_PFHT250_QuadPFJet30_PNet1BTag0p20_PNet1Tauh0p50_v*         # CMSHLT-3038
+HLT_PFHT280_QuadPFJet30_PNet1BTag0p20_PNet1Tauh0p50_v*         # CMSHLT-3038
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFHT280_v*                               # CMSHLT-2695
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFHT280_QuadPFJet30_v*                   # CMSHLT-2695
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFHT280_QuadPFJet30_PNet2BTagMean0p55_v* # CMSHLT-2695, CMSHLT-2759
@@ -525,6 +536,10 @@ HLT_L2Mu10NoVtx_2Cha_v*                          # CMSHLT-2321
 HLT_L2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_v*       # CMSHLT-2321
 HLT_L3Mu10NoVtx_v*                               # CMSHLT-2321
 HLT_L3Mu10NoVtx_DxyMin0p01cm_v*                  # CMSHLT-2321
+HLT_L2Mu50NoVtx_3Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_v*  # CMSHLT-3122
+HLT_L2Mu50NoVtx_3Cha_VetoL3Mu0DxyMax1cm_v*             # CMSHLT-3122
+HLT_L3Mu30NoVtx_DxyMin0p01cm_v*                        # CMSHLT-3122
+HLT_L3Mu50NoVtx_DxyMin0p01cm_v*                        # CMSHLT-3122
 HLT_DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_v*          # CMSHLT-2361
 HLT_DoubleL2Mu_L3Mu18NoVtx_VetoL3Mu0DxyMax0p1cm_v*          # CMSHLT-2382
 HLT_DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_v* # CMSHLT-2361
@@ -789,6 +804,8 @@ MC_CaloMHT_v*                                                 # CMSHLT-314
 MC_AK8PFJets_v*                                               # CMSHLT-315
 MC_AK8PFHT_v*                                                 # CMSHLT-315
 MC_AK8CaloHT_v*                                               # CMSHLT-315
+MC_AK4PFJetPNet_v*                                            # CMSHLT-3104
+MC_AK8PFJetPNet_v*                                            # CMSHLT-3104
 MC_DoubleEle5_CaloIdL_MW_v*                                   # CMSHLT-325
 MC_Egamma_Open_v*                                             # CMSHLT-2613, CMSHLT-2726
 MC_Egamma_Open_Unseeded_v*                                    # CMSHLT-2613, CMSHLT-2726

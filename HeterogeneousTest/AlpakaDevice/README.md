@@ -12,15 +12,13 @@ Alpaka-based libraries, and using them from multiple plugins.
 The package `HeterogeneousTest/AlpakaDevice` implements a library that defines and exports Alpaka
 device-side functions:
 ```c++
-namespace cms::alpakatest {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
 
-  template <typename TAcc>
-  ALPAKA_FN_ACC void add_vectors_f(TAcc const& acc, ...);
+  inline ALPAKA_FN_ACC void add_vectors_f(Acc1D const& acc, ...) { ... }
 
-  template <typename TAcc>
-  ALPAKA_FN_ACC void add_vectors_d(TAcc const& acc, ...);
+  inline ALPAKA_FN_ACC void add_vectors_d(Acc1D const& acc, ...) { ... }
 
-}  // namespace cms::alpakatest
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::test
 ```
 
 The `plugins` directory implements the `AlpakaTestDeviceAdditionModule` `EDAnalyzer` that launches
