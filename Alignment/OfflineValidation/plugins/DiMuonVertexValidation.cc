@@ -50,11 +50,14 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+// IP tools
+#include "TrackingTools/IPTools/interface/IPTools.h"
+
 // ROOT
 #include "TH1F.h"
 #include "TH2F.h"
 
-//#define LogDebug(X) std::cout << X <<
+//#define LogDebug(X) std::cout << X
 
 //
 // class declaration
@@ -76,8 +79,10 @@ private:
   // ----------member data ---------------------------
   DiLeptonHelp::Counts myCounts;
 
+  const std::string motherName_;
   const bool useReco_;
   const bool useClosestVertex_;
+  std::pair<float, float> massLimits_; /* for the mass plot x-range */
   std::vector<double> pTthresholds_;
   const float maxSVdist_;
 
@@ -92,22 +97,41 @@ private:
   const edm::ParameterSet DiMuMassConfiguration_;
 
   // control plots
-
   TH1F* hSVProb_;
+  TH1F* hSVChi2_;
+  TH1F* hSVNormChi2_;
+
   TH1F* hSVDist_;
+  TH1F* hSVDistErr_;
   TH1F* hSVDistSig_;
+  TH1F* hSVCompatibility_;
+
   TH1F* hSVDist3D_;
+  TH1F* hSVDist3DErr_;
   TH1F* hSVDist3DSig_;
+  TH1F* hSVCompatibility3D_;
 
   TH1F* hCosPhi_;
   TH1F* hCosPhi3D_;
   TH1F* hCosPhiInv_;
   TH1F* hCosPhiInv3D_;
+  TH1F* hCosPhiUnbalance_;
+  TH1F* hCosPhi3DUnbalance_;
 
   TH1F* hInvMass_;
   TH1F* hTrackInvMass_;
 
   TH1F* hCutFlow_;
+
+  // impact parameters information
+  TH1F* hdxy_;
+  TH1F* hdz_;
+  TH1F* hdxyErr_;
+  TH1F* hdzErr_;
+  TH1F* hIP2d_;
+  TH1F* hIP3d_;
+  TH1F* hIP2dsig_;
+  TH1F* hIP3dsig_;
 
   // 2D maps
 
@@ -151,7 +175,8 @@ static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (
 // constructors and destructor
 //
 DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
-    : useReco_(iConfig.getParameter<bool>("useReco")),
+    : motherName_(iConfig.getParameter<std::string>("decayMotherName")),
+      useReco_(iConfig.getParameter<bool>("useReco")),
       useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
       pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
@@ -182,6 +207,19 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
     edm::LogInfo("DiMuonVertexValidation") << " Threshold: " << thr << " ";
   }
   edm::LogInfo("DiMuonVertexValidation") << "Max SV distance: " << maxSVdist_ << " ";
+
+  // set the limits for the mass plots
+  if (motherName_.find('Z') != std::string::npos) {
+    massLimits_ = std::make_pair(50., 120);
+  } else if (motherName_.find("J/#psi") != std::string::npos) {
+    massLimits_ = std::make_pair(2.7, 3.4);
+  } else if (motherName_.find("#Upsilon") != std::string::npos) {
+    massLimits_ = std::make_pair(8.9, 9.9);
+  } else {
+    edm::LogError("DiMuonVertexValidation") << " unrecognized decay mother particle: " << motherName_
+                                            << " setting the default for the Z->mm (50.,120.)" << std::endl;
+    massLimits_ = std::make_pair(50., 120);
+  }
 }
 
 DiMuonVertexValidation::~DiMuonVertexValidation() = default;
@@ -341,6 +379,12 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   LogDebug("DiMuonVertexValidation") << " vertex prob: " << SVProb << std::endl;
 
   hSVProb_->Fill(SVProb);
+  hSVChi2_->Fill(aTransientVertex.totalChiSquared());
+  hSVNormChi2_->Fill(aTransientVertex.totalChiSquared() / (int)aTransientVertex.degreesOfFreedom());
+
+  LogDebug("DiMuonVertexValidation") << " vertex norm chi2: "
+                                     << (aTransientVertex.totalChiSquared() / (int)aTransientVertex.degreesOfFreedom())
+                                     << std::endl;
 
   if (!aTransientVertex.isValid())
     return;
@@ -386,13 +430,41 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 #endif
 
   if (theMainVertex.isValid()) {
-    // Z Vertex distance in the xy plane
+    // fill the impact parameter plots
+    for (const auto& track : myTracks) {
+      hdxy_->Fill(track->dxy(mainVtxPos) * cmToum);
+      hdz_->Fill(track->dz(mainVtxPos) * cmToum);
+      hdxyErr_->Fill(track->dxyError() * cmToum);
+      hdzErr_->Fill(track->dzError() * cmToum);
 
+      const auto& ttrk = theB->build(track);
+      Global3DVector dir(track->px(), track->py(), track->pz());
+      const auto& ip2d = IPTools::signedTransverseImpactParameter(ttrk, dir, theMainVertex);
+      const auto& ip3d = IPTools::signedImpactParameter3D(ttrk, dir, theMainVertex);
+
+      hIP2d_->Fill(ip2d.second.value() * cmToum);
+      hIP3d_->Fill(ip3d.second.value() * cmToum);
+      hIP2dsig_->Fill(ip2d.second.significance());
+      hIP3dsig_->Fill(ip3d.second.significance());
+    }
+
+    LogDebug("DiMuonVertexValidation") << " after filling the IP histograms " << std::endl;
+
+    // Z Vertex distance in the xy plane
     VertexDistanceXY vertTool;
     double distance = vertTool.distance(aTransientVertex, theMainVertex).value();
     double dist_err = vertTool.distance(aTransientVertex, theMainVertex).error();
+    float compatibility = 0.;
 
+    try {
+      compatibility = vertTool.compatibility(aTransientVertex, theMainVertex);
+    } catch (cms::Exception& er) {
+      LogTrace("DiMuonVertexValidation") << "caught std::exception " << er.what() << std::endl;
+    }
+
+    hSVCompatibility_->Fill(compatibility);
     hSVDist_->Fill(distance * cmToum);
+    hSVDistErr_->Fill(dist_err * cmToum);
     hSVDistSig_->Fill(distance / dist_err);
 
     // fill the VtxDist plots
@@ -406,8 +478,17 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     VertexDistance3D vertTool3D;
     double distance3D = vertTool3D.distance(aTransientVertex, theMainVertex).value();
     double dist3D_err = vertTool3D.distance(aTransientVertex, theMainVertex).error();
+    float compatibility3D = 0.;
 
+    try {
+      compatibility3D = vertTool3D.compatibility(aTransientVertex, theMainVertex);
+    } catch (cms::Exception& er) {
+      LogTrace("DiMuonVertexMonitor") << "caught std::exception " << er.what() << std::endl;
+    }
+
+    hSVCompatibility3D_->Fill(compatibility3D);
     hSVDist3D_->Fill(distance3D * cmToum);
+    hSVDist3DErr_->Fill(dist3D_err * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
 
     // fill the VtxDist3D plots
@@ -439,6 +520,12 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
           << "distance " << distance * cmToum << " cosphi3D:" << cosphi3D << std::endl;
 #endif
 
+      // unbalance
+      hCosPhiUnbalance_->Fill(cosphi, 1.);
+      hCosPhiUnbalance_->Fill(-cosphi, -1.);
+      hCosPhi3DUnbalance_->Fill(cosphi3D, 1.);
+      hCosPhi3DUnbalance_->Fill(-cosphi3D, -1.);
+
       // fill the cosphi plots
       CosPhiPlots.fillPlots(cosphi, tktk_p4);
 
@@ -465,9 +552,21 @@ void DiMuonVertexValidation::beginJob() {
     return {min, max};
   };
 
+  std::string ts = fmt::sprintf(";%s vertex probability;N(#mu#mu pairs)", motherName_);
+  std::string ps = "N(#mu#mu pairs)";
+  ts = fmt::sprintf("#chi^{2} of the %s vertex; #chi^{2} of the %s vertex; %s", motherName_, motherName_, ps);
+  hSVChi2_ = fs->make<TH1F>("VtxChi2", ts.c_str(), 200, 0., 200.);
+
+  ts = fmt::sprintf("#chi^{2}/ndf of the %s vertex; #chi^{2}/ndf of %s vertex; %s", motherName_, motherName_, ps);
+  hSVNormChi2_ = fs->make<TH1F>("VtxNormChi2", ts.c_str(), 100, 0., 20.);
+
   // take the range from the 2D histograms
   const auto& svDistRng = extractRangeValues(VtxDistConfiguration_);
   hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-#mu^{+}#mu^{-} vertex xy distance [#mum];N(#mu#mu pairs)", 100, svDistRng.first, svDistRng.second);
+
+  std::string histTit = motherName_ + " #rightarrow #mu^{+}#mu^{-}";
+  ts = fmt::sprintf("%s;PV-%sV xy distance error [#mum];%s", histTit, motherName_, ps);
+  hSVDistErr_ = fs->make<TH1F>("VtxDistErr", ts.c_str(), 100, 0., 1000.);
 
   // take the range from the 2D histograms
   const auto& svDistSigRng = extractRangeValues(VtxDistSigConfiguration_);
@@ -477,9 +576,18 @@ void DiMuonVertexValidation::beginJob() {
   const auto& svDist3DRng = extractRangeValues(VtxDist3DConfiguration_);
   hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-#mu^{+}#mu^{-} vertex 3D distance [#mum];N(#mu#mu pairs)", 100, svDist3DRng.first, svDist3DRng.second);
 
+  ts = fmt::sprintf("%s;PV-%sV 3D distance error [#mum];%s", histTit, motherName_, ps);
+  hSVDist3DErr_ = fs->make<TH1F>("VtxDist3DErr", ts.c_str(), 100, 0., 1000.);
+
   // take the range from the 2D histograms
   const auto& svDist3DSigRng = extractRangeValues(VtxDist3DSigConfiguration_);
   hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-#mu^{+}#mu^{-} vertex 3D distance signficance;N(#mu#mu pairs)", 100, svDist3DSigRng.first, svDist3DSigRng.second);
+
+  ts = fmt::sprintf("compatibility of %s vertex; compatibility of %s vertex; %s", motherName_, motherName_, ps);
+  hSVCompatibility_ = fs->make<TH1F>("VtxCompatibility", ts.c_str(), 100, 0., 100.);
+
+  ts = fmt::sprintf("3D compatibility of %s vertex;3D compatibility of %s vertex; %s", motherName_, motherName_, ps);
+  hSVCompatibility3D_ = fs->make<TH1F>("VtxCompatibility3D", ts.c_str(), 100, 0., 100.);
 
   // take the range from the 2D histograms
   const auto& massRng = extractRangeValues(DiMuMassConfiguration_);
@@ -491,6 +599,18 @@ void DiMuonVertexValidation::beginJob() {
 
   hCosPhiInv_ = fs->make<TH1F>("CosPhiInv", ";inverted cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhiInv3D_ = fs->make<TH1F>("CosPhiInv3D", ";inverted cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
+
+  hCosPhiUnbalance_ = fs->make<TH1F>("CosPhiUnbalance", fmt::sprintf("%s;cos(#phi_{xy}) unbalance;#Delta%s", histTit, ps).c_str(), 50, -1.,1.);
+  hCosPhi3DUnbalance_ = fs->make<TH1F>("CosPhi3DUnbalance", fmt::sprintf("%s;cos(#phi_{3D}) unbalance;#Delta%s", histTit, ps).c_str(), 50, -1., 1.);
+
+  hdxy_ = fs->make<TH1F>("dxy", fmt::sprintf("%s;muon track d_{xy}(PV) [#mum];muon tracks", histTit).c_str(), 150, -300, 300);
+  hdz_ = fs->make<TH1F>("dz", fmt::sprintf("%s;muon track d_{z}(PV) [#mum];muon tracks", histTit).c_str(), 150, -300, 300);
+  hdxyErr_ = fs->make<TH1F>("dxyErr", fmt::sprintf("%s;muon track err_{dxy} [#mum];muon tracks", histTit).c_str(), 250, 0., 500.);
+  hdzErr_ = fs->make<TH1F>("dzErr", fmt::sprintf("%s;muon track err_{dz} [#mum];muon tracks", histTit).c_str(), 250, 0., 500.);
+  hIP2d_ = fs->make<TH1F>("IP2d", fmt::sprintf("%s;muon track IP_{2D} [#mum];muon tracks", histTit).c_str(), 150, -300, 300);
+  hIP3d_ = fs->make<TH1F>("IP3d", fmt::sprintf("%s;muon track IP_{3D} [#mum];muon tracks", histTit).c_str(), 150, -300, 300);
+  hIP2dsig_ = fs->make<TH1F>("IP2Dsig", fmt::sprintf("%s;muon track IP_{2D} significance;muon tracks", histTit).c_str(), 100, 0., 5.);
+  hIP3dsig_ = fs->make<TH1F>("IP3Dsig", fmt::sprintf("%s;muon track IP_{3D} significance;muon tracks", histTit).c_str(), 100, 0., 5.);
   // clang-format on
 
   // 2D Maps
@@ -606,6 +726,7 @@ void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   //desc.add<bool>("useReco",true);
   //desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   //desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
+  desc.add<std::string>("decayMotherName", "Z");
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
