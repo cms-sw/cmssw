@@ -1,11 +1,7 @@
-#ifndef ECAL_TIMECALIB_HANDLER_H
-#define ECAL_TIMECALIB_HANDLER_H
+#ifndef CondTools_Ecal_EcalTimeCalibHandler_h
+#define CondTools_Ecal_EcalTimeCalibHandler_h
 
 #include <vector>
-#include <typeinfo>
-#include <string>
-#include <map>
-#include <iostream>
 #include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
@@ -37,12 +33,6 @@
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}  // namespace edm
-
 namespace popcon {
   class EcalTimeCalibHandler : public popcon::PopConSourceHandler<EcalTimeCalibConstants> {
   public:
@@ -63,5 +53,5 @@ namespace popcon {
     std::string m_file_name;
     std::string m_file_type;
   };
-}  // namespace popcon
+}
 #endif

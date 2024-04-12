@@ -1,9 +1,4 @@
 #include "CondTools/Ecal/interface/EcalTimeCalibHandler.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
-
-#include <iostream>
 
 const Int_t kEBChannels = 61200, kEEChannels = 14648;
 
@@ -18,11 +13,9 @@ popcon::EcalTimeCalibHandler::EcalTimeCalibHandler(const edm::ParameterSet& ps)
 popcon::EcalTimeCalibHandler::~EcalTimeCalibHandler() {}
 
 void popcon::EcalTimeCalibHandler::getNewObjects() {
-  //  std::cout << "------- Ecal - > getNewObjects\n";
   std::ostringstream ss;
   ss << "ECAL ";
 
-  unsigned long long irun;
   std::string file_ = m_file_name;
   edm::LogInfo("going to open file ") << file_;
 
@@ -32,8 +25,7 @@ void popcon::EcalTimeCalibHandler::getNewObjects() {
     readXML(file_, *payload);
   else
     readTXT(file_, *payload);
-  irun = m_firstRun;
-  Time_t snc = (Time_t)irun;
+  Time_t snc = (Time_t)m_firstRun;
 
   popcon::PopConSourceHandler<EcalTimeCalibConstants>::m_to_transfer.push_back(std::make_pair(payload, snc));
 }
@@ -43,8 +35,8 @@ void popcon::EcalTimeCalibHandler::readXML(const std::string& file_, EcalFloatCo
   std::ifstream fxml;
   fxml.open(file_);
   if (!fxml.is_open()) {
-    edm::LogInfo("ERROR : cannot open file ") << file_;
-    exit(1);
+    throw cms::Exception("ERROR : cannot open file ")
+      << file_;
   }
   // header
   for (int i = 0; i < 6; i++) {
@@ -57,8 +49,7 @@ void popcon::EcalTimeCalibHandler::readXML(const std::string& file_, EcalFloatCo
   int nEB;
   iEB >> nEB;
   if (nEB != kEBChannels) {
-    edm::LogInfo("strange number of EB channels ") << nEB;
-    exit(-1);
+    throw cms::Exception("Strange number of EB channels ") << nEB;
   }
   fxml >> bid;  // <item_version>0</item_version>
   for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
@@ -71,7 +62,6 @@ void popcon::EcalTimeCalibHandler::readXML(const std::string& file_, EcalFloatCo
   }
   for (int i = 0; i < 5; i++) {
     getline(fxml, dummyLine);  // skip first lines
-    //	std::cout << dummyLine << std::endl;
   }
   fxml >> bid;
   stt = bid.substr(7, 5);
@@ -79,8 +69,7 @@ void popcon::EcalTimeCalibHandler::readXML(const std::string& file_, EcalFloatCo
   int nEE;
   iEE >> nEE;
   if (nEE != kEEChannels) {
-    edm::LogInfo("strange number of EE channels ") << nEE;
-    exit(-1);
+    throw cms::Exception("Strange number of EE channels ") << nEE;
   }
   fxml >> bid;  // <item_version>0</item_version>
   // now endcaps
@@ -98,8 +87,8 @@ void popcon::EcalTimeCalibHandler::readTXT(const std::string& file_, EcalFloatCo
   std::ifstream ftxt;
   ftxt.open(file_);
   if (!ftxt.is_open()) {
-    edm::LogInfo("ERROR : cannot open file ") << file_;
-    exit(1);
+    throw cms::Exception("ERROR : cannot open file ")
+      << file_;
   }
   int number_of_lines = 0, eta, phi, x, y, z;
   float val;
@@ -119,5 +108,5 @@ void popcon::EcalTimeCalibHandler::readTXT(const std::string& file_, EcalFloatCo
   edm::LogInfo("Number of lines in text file: ") << number_of_lines;
   int kChannels = kEBChannels + kEEChannels;
   if (number_of_lines != kChannels)
-    edm::LogInfo("wrong number of channels!  Please check ");
+    throw cms::Exception("Wrong number of channels!  Please check ");
 }
