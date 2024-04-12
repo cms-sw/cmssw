@@ -7,7 +7,7 @@ clean_up(){
     echo -e "\nCleaning the local test area"
     rm -fr milleBinary00* 
     rm -fr pedeSteer* 
-    rm -fr millepede.*
+    #rm -fr millepede.*
     rm -fr *.root
     rm -fr *.log
     rm -fr *.dat
