@@ -257,6 +257,7 @@ def nanoAOD_customizeCommon(process):
 
     nanoAOD_tau_switch = cms.PSet(
         idsToAdd = cms.vstring(),
+        addUParTInfo = cms.bool(True),
         runUTagCHSAK4 = cms.bool(False),
         runUTagPUPPIAK4 = cms.bool(False),
         addPNet = cms.bool(True)
@@ -274,18 +275,25 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_tau_switch, runUTagCHSAK4 = True
     )
     
+    # Don't add Unified Tagger for PUPPI jets for Run 2 as different PUPPI tune
+    # and base jet algorithm
+    run2_nanoAOD_106Xv2.toModify(
+        nanoAOD_tau_switch, addUParTInfo = False
+    )
+    
     # Add Unified Tagger For CHS Jets (PNet 2023)
     nanoAOD_addUTagToTaus(process,
                           addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
                           runUTagAK4 = nanoAOD_tau_switch.runUTagCHSAK4.value(),
                           usePUPPIjets = False
     )
-    # Add Unified Tagger For PUPPI Jets (UParT 2024)
-    nanoAOD_addUTagToTaus(process,
-                          addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
-                          runUTagAK4 = nanoAOD_tau_switch.runUTagPUPPIAK4.value(),
-                          usePUPPIjets = True
-    )
+    if nanoAOD_tau_switch.addUParTInfo.value():
+        # Add Unified Tagger For PUPPI Jets (UParT 2024)
+        nanoAOD_addUTagToTaus(process,
+                            addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
+                            runUTagAK4 = nanoAOD_tau_switch.runUTagPUPPIAK4.value(),
+                            usePUPPIjets = True
+        )
     
     nanoAOD_boostedTau_switch = cms.PSet(
         idsToAdd = cms.vstring()
