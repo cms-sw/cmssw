@@ -1861,6 +1861,12 @@
       "EGM"
     ]
   },
+  "HLT_Ele14_eta2p5_IsoVVVL_Gsf_PFHT200_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
   "HLT_Ele15_IsoVVVL_PFHT450_PFMET50_v": {
     "online?": true,
     "owners": [
@@ -4505,6 +4511,18 @@
       "EXO"
     ]
   },
+  "HLT_L2Mu50NoVtx_3Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L2Mu50NoVtx_3Cha_VetoL3Mu0DxyMax1cm_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
   "HLT_L3Mu10NoVtx_DxyMin0p01cm_v": {
     "online?": true,
     "owners": [
@@ -4512,6 +4530,18 @@
     ]
   },
   "HLT_L3Mu10NoVtx_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L3Mu30NoVtx_DxyMin0p01cm_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_L3Mu50NoVtx_DxyMin0p01cm_v": {
     "online?": true,
     "owners": [
       "EXO"
@@ -4614,6 +4644,12 @@
       "SUS"
     ]
   },
+  "HLT_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
   "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v": {
     "online?": true,
     "owners": [
@@ -4686,6 +4722,24 @@
       "SMP",
       "SUS",
       "TOP"
+    ]
+  },
+  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_AK8CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_AK8PFJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
     ]
   },
   "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_PFJet30_v": {
@@ -6062,6 +6116,24 @@
       "JME"
     ]
   },
+  "HLT_Photon110EB_TightID_TightIso_AK8CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Photon110EB_TightID_TightIso_AK8PFJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Photon110EB_TightID_TightIso_CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
   "HLT_Photon110EB_TightID_TightIso_PFJet30_v": {
     "online?": true,
     "owners": [
@@ -6166,6 +6238,24 @@
     "online?": true,
     "owners": [
       "HIG"
+    ]
+  },
+  "HLT_Photon50EB_TightID_TightIso_AK8CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Photon50EB_TightID_TightIso_AK8PFJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
+    ]
+  },
+  "HLT_Photon50EB_TightID_TightIso_CaloJet30_v": {
+    "online?": true,
+    "owners": [
+      "JME"
     ]
   },
   "HLT_Photon50EB_TightID_TightIso_PFJet30_v": {
@@ -6821,6 +6911,12 @@
       "TSG (MC)"
     ]
   },
+  "MC_AK4PFJetPNet_v": {
+    "online?": false,
+    "owners": [
+      "BTV (MC)"
+    ]
+  },
   "MC_AK4PFJets_v": {
     "online?": false,
     "owners": [
@@ -6837,6 +6933,12 @@
     "online?": false,
     "owners": [
       "TSG (MC)"
+    ]
+  },
+  "MC_AK8PFJetPNet_v": {
+    "online?": false,
+    "owners": [
+      "BTV (MC)"
     ]
   },
   "MC_AK8PFJets_v": {
