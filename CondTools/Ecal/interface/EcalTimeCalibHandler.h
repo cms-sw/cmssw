@@ -53,5 +53,5 @@ namespace popcon {
     std::string m_file_name;
     std::string m_file_type;
   };
-}
+}  // namespace popcon
 #endif

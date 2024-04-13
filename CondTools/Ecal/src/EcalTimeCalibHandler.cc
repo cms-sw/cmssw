@@ -35,8 +35,7 @@ void popcon::EcalTimeCalibHandler::readXML(const std::string& file_, EcalFloatCo
   std::ifstream fxml;
   fxml.open(file_);
   if (!fxml.is_open()) {
-    throw cms::Exception("ERROR : cannot open file ")
-      << file_;
+    throw cms::Exception("ERROR : cannot open file ") << file_;
   }
   // header
   for (int i = 0; i < 6; i++) {
@@ -87,8 +86,7 @@ void popcon::EcalTimeCalibHandler::readTXT(const std::string& file_, EcalFloatCo
   std::ifstream ftxt;
   ftxt.open(file_);
   if (!ftxt.is_open()) {
-    throw cms::Exception("ERROR : cannot open file ")
-      << file_;
+    throw cms::Exception("ERROR : cannot open file ") << file_;
   }
   int number_of_lines = 0, eta, phi, x, y, z;
   float val;

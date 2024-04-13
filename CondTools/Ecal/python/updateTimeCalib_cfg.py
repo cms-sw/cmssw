@@ -22,7 +22,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTimeCalibConstants_test_minus_delays.db'
+process.CondDB.connect = 'sqlite_file:EcalTimeCalibConstants_minus_delays.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB, 
@@ -42,10 +42,10 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTimeCalibAnalyzer",
   SinceAppendMode=cms.bool(True),
   Source=cms.PSet(
     firstRun = cms.string('1'),
-#    type = cms.string('txt'),
-#    fileName = cms.string('dump_EcalTimeCalibConstants__new_minus_delays.dat'),
-    type = cms.string('xml'),
-    fileName = cms.string('EcalTimeCalibConstants_minus_delays.xml'),
+    type = cms.string('txt'),
+    fileName = cms.string('dump_EcalTimeCalibConstants__new_minus_delays.dat'),
+#    type = cms.string('xml'),
+#    fileName = cms.string('EcalTimeCalibConstants_minus_delays.xml'),
   )                            
 )
 
