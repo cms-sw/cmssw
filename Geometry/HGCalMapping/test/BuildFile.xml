@@ -1,4 +1,5 @@
 <bin file="testHGCalMapFileParser.cc">
+  <flags TEST_RUNNER_ARGS=" Geometry/HGCalMapping/data/ModuleMaps/modulelocator_CEminus_V15p5.txt"/>
   <use name="Geometry/HGCalMapping"/>
   <use name="FWCore/ParameterSet"/>
 </bin>
