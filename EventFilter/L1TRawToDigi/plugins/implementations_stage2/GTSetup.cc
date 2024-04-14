@@ -65,7 +65,7 @@ namespace l1t {
       prod.produces<EtSumBxCollection>("EtSumZDC");
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
-      prod.produces<float>("CICADAScore");
+      prod.produces<CICADABxCollection>("CICADAScore");
       prod.produces<GlobalAlgBlkBxCollection>();
       prod.produces<GlobalExtBlkBxCollection>();
       for (int i = 2; i < 7; ++i) {  // Collections from boards 2-6
