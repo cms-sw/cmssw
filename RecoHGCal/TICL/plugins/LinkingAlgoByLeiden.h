@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/HGCalReco/interface/TICLGraph.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
@@ -38,10 +39,12 @@ namespace ticl {
                         const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        const edm::Handle<TICLGraph> &,
                         const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
     static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
   private:
     void buildLayers();
 

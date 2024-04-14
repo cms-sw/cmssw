@@ -15,6 +15,7 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLGraph.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
@@ -288,6 +289,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                                trackTimeQual_h,
                                muons,
                                trackstersclue3d_h,
+                               ticlGraph_h,
                                useMTDTiming_,
                                *resultCandidates,
                                *resultFromTracks);

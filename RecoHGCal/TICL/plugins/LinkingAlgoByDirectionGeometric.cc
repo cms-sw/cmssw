@@ -237,6 +237,7 @@ void LinkingAlgoByDirectionGeometric::linkTracksters(const edm::Handle<std::vect
                                                      const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
                                                      const std::vector<reco::Muon> &muons,
                                                      const edm::Handle<std::vector<Trackster>> tsH,
+                                                     const edm::Handle<TICLGraph> &tgH,
                                                      const bool useMTDTiming,
                                                      std::vector<TICLCandidate> &resultLinked,
                                                      std::vector<TICLCandidate> &chargedHadronsFromTk) {

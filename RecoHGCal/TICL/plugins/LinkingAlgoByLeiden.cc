@@ -11,12 +11,10 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
-
 using namespace ticl;
 
 LinkingAlgoByLeiden::LinkingAlgoByLeiden(const edm::ParameterSet &conf)
-    : LinkingAlgoBase(conf),
-      cutTk_(conf.getParameter<std::string>("cutTk")) {}
+    : LinkingAlgoBase(conf), cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByLeiden::~LinkingAlgoByLeiden() {}
 
@@ -47,9 +45,9 @@ void LinkingAlgoByLeiden::buildLayers() {
 }
 
 void LinkingAlgoByLeiden::initialize(const HGCalDDDConstants *hgcons,
-                                                 const hgcal::RecHitTools rhtools,
-                                                 const edm::ESHandle<MagneticField> bfieldH,
-                                                 const edm::ESHandle<Propagator> propH) {
+                                     const hgcal::RecHitTools rhtools,
+                                     const edm::ESHandle<MagneticField> bfieldH,
+                                     const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
   rhtools_ = rhtools;
   buildLayers();
@@ -59,14 +57,15 @@ void LinkingAlgoByLeiden::initialize(const HGCalDDDConstants *hgcons,
 }
 
 void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Track>> tkH,
-                                                     const edm::Handle<edm::ValueMap<float>> tkTime_h,
-                                                     const edm::Handle<edm::ValueMap<float>> tkTimeErr_h,
-                                                     const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
-                                                     const std::vector<reco::Muon> &muons,
-                                                     const edm::Handle<std::vector<Trackster>> tsH,
-                                                     const bool useMTDTiming,
-                                                     std::vector<TICLCandidate> &resultLinked,
-                                                     std::vector<TICLCandidate> &chargedHadronsFromTk) {
+                                         const edm::Handle<edm::ValueMap<float>> tkTime_h,
+                                         const edm::Handle<edm::ValueMap<float>> tkTimeErr_h,
+                                         const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
+                                         const std::vector<reco::Muon> &muons,
+                                         const edm::Handle<std::vector<Trackster>> tsH,
+                                         const edm::Handle<TICLGraph> &tgH,
+                                         const bool useMTDTiming,
+                                         std::vector<TICLCandidate> &resultLinked,
+                                         std::vector<TICLCandidate> &chargedHadronsFromTk) {
   std::cout << "Il mio bellissimo algoritmo" << '\n';
 }
 
