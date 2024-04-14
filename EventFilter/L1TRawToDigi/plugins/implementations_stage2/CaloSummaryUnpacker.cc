@@ -35,18 +35,19 @@ bool l1t::stage2::CaloSummaryUnpacker::unpack(const Block& block, UnpackerCollec
   int nBX = int(ceil(block.header().getSize() / nFramesPerEvent));
   int firstBX = (nBX / 2) - nBX + 1;
   int lastBX = nBX / 2;
-  int processedBXs = 0; //This will just help us keep track of what words we are grabbing
-  
+  int processedBXs = 0;  //This will just help us keep track of what words we are grabbing
 
   auto res_ = static_cast<L1TObjectCollections*>(coll)->getCICADAScore();
-  res_ -> setBXRange(firstBX, lastBX);
+  res_->setBXRange(firstBX, lastBX);
 
-  for (int bx = firstBX; bx <= lastBX; ++bx){
+  for (int bx = firstBX; bx <= lastBX; ++bx) {
     //convert to float and then multiply by a factor based on the index?
     unsigned int cicadaBits[numCICADAWords] = {0, 0, 0, 0};
 
     for (unsigned int wordNum = 0; wordNum < numCICADAWords; ++wordNum) {
-      unsigned short wordLocation = processedBXs*nFramesPerEvent + wordNum; //Calculate the location of the needed CICADA word based on how many BXs we have already handled, and how many words of CICADA we have already grabbed.
+      unsigned short wordLocation =
+          processedBXs * nFramesPerEvent +
+          wordNum;  //Calculate the location of the needed CICADA word based on how many BXs we have already handled, and how many words of CICADA we have already grabbed.
       //Frame 0 of a bx are the most significant integer bits
       //Frame 1 of a bx are the least significant integer bits
       //Frame 2 of a bx are the most significant decimal bits
@@ -54,11 +55,14 @@ bool l1t::stage2::CaloSummaryUnpacker::unpack(const Block& block, UnpackerCollec
       //Frames 4&5 are unused (by CICADA), they are reserved.
       uint32_t raw_data = block.payload().at(wordLocation);
       cicadaBits[wordNum] =
-	(cicadaBitsPattern & raw_data) >>
-	28;  //The 28 shifts the extracted bits over to the start of the 32 bit result data for easier working with later
+          (cicadaBitsPattern & raw_data) >>
+          28;  //The 28 shifts the extracted bits over to the start of the 32 bit result data for easier working with later
     }
-    res_->push_back(bx, processBitsToScore(cicadaBits)); //Now we insert CICADA into the proper BX, after a quick utility constructs a number from the 4 sets of bits.
-    ++processedBXs; //index BXs
+    res_->push_back(
+        bx,
+        processBitsToScore(
+            cicadaBits));  //Now we insert CICADA into the proper BX, after a quick utility constructs a number from the 4 sets of bits.
+    ++processedBXs;  //index BXs
   }
 
   return true;
