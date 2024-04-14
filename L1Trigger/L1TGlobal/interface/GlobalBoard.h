@@ -69,7 +69,7 @@ namespace l1t {
                                const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
                                const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
                                const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
-                               const edm::EDGetTokenT<float>&,
+                               const edm::EDGetTokenT<BXVector<float>>&,
                                const bool receiveEG,
                                const int nrL1EG,
                                const bool receiveTau,

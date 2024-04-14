@@ -146,7 +146,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumZdcInputToken,
-                                             const edm::EDGetTokenT<float>& CICADAInputToken,
+                                             const edm::EDGetTokenT<BXVector<float>>& CICADAInputToken,
                                              const bool receiveEG,
                                              const int nrL1EG,
                                              const bool receiveTau,
@@ -347,7 +347,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
     }
   }
   if (receiveCICADA) {
-    edm::Handle<float> cicadaScoreHandle;
+    edm::Handle<BXVector<float>> cicadaScoreHandle;
     iEvent.getByToken(CICADAInputToken, cicadaScoreHandle);
     if (not cicadaScoreHandle.isValid()) {
       if (m_verbosity) {
@@ -357,7 +357,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
         setCICADAScore(0.0);
       }
     } else
-      setCICADAScore(*cicadaScoreHandle);
+      setCICADAScore(cicadaScoreHandle->at(0, 0)); //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
   }
 }
 

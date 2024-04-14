@@ -51,6 +51,7 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -166,7 +167,7 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
 
   //anomaly trigger loading
   model = loader.load_model();
-  produces<float>("CICADAScore");
+  produces<l1t::CICADABxCollection>("CICADAScore");
 }
 
 //
@@ -180,7 +181,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
 
-  std::unique_ptr<float> CICADAScore = std::make_unique<float>();
+  std::unique_ptr<l1t::CICADABxCollection> CICADAScore = std::make_unique<l1t::CICADABxCollection>();
+  CICADAScore->setBXRange(-2,2);
 
   UCTGeometry g;
 
@@ -254,10 +256,10 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   model->predict();
   model->read_result(modelResult);
 
-  *CICADAScore = modelResult[0].to_float();
+  CICADAScore->push_back(0, modelResult[0].to_float());
 
   if (overwriteWithTestPatterns)
-    edm::LogInfo("L1TCaloSummary") << "Test Pattern Output: " << *CICADAScore;
+    edm::LogInfo("L1TCaloSummary") << "Test Pattern Output: " << CICADAScore->at(0, 0);
 
   summaryCard.setRegionData(inputRegions);
 

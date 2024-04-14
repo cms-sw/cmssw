@@ -41,7 +41,7 @@ l1t::CICADACondition& l1t::CICADACondition::operator=(const l1t::CICADACondition
 
 const bool l1t::CICADACondition::evaluateCondition(const int bxEval) const {
   bool condResult = false;
-  const float cicadaScore = m_uGtB->getCICADAScore();  //needs to be implemented
+  const float cicadaScore = m_uGtB->getCICADAScore();
 
   // This gets rid of a GT emulator convention "iCondition".
   // This usually indexes the next line, which is somewhat concerning
