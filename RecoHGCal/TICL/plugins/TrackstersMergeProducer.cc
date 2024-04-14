@@ -259,6 +259,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   auto resultFromTracks = std::make_unique<std::vector<TICLCandidate>>();
   tfSession_ = es.getData(tfDnnToken_).getSession();
 
+  edm::Handle<TICLGraph> ticlGraph_h;
+  evt.getByToken(ticlGraph_token_, ticlGraph_h);
+
   edm::Handle<std::vector<Trackster>> trackstersclue3d_h;
   evt.getByToken(tracksters_clue3d_token_, trackstersclue3d_h);
 
