@@ -182,7 +182,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
 
   std::unique_ptr<l1t::CICADABxCollection> CICADAScore = std::make_unique<l1t::CICADABxCollection>();
-  CICADAScore->setBXRange(-2,2);
+  CICADAScore->setBXRange(-2, 2);
 
   UCTGeometry g;
 

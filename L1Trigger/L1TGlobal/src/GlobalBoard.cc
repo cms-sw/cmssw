@@ -357,7 +357,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
         setCICADAScore(0.0);
       }
     } else
-      setCICADAScore(cicadaScoreHandle->at(0, 0)); //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
+      setCICADAScore(cicadaScoreHandle->at(
+          0,
+          0));  //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
   }
 }
 
