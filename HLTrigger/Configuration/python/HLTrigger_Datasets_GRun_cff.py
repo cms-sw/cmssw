@@ -552,6 +552,8 @@ streamParkingHH_datasetParkingHH_selector.triggerConditions = cms.vstring(
     'HLT_PFHT280_QuadPFJet30_PNet2BTagMean0p60_v5',
     'HLT_PFHT280_QuadPFJet30_v5',
     'HLT_PFHT280_QuadPFJet35_PNet2BTagMean0p60_v5',
+    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_2p0_v1',
+    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_4p3_v1',
     'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v9',
     'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v17',
     'HLT_PFHT340_QuadPFJet70_50_40_40_PNet2BTagMean0p70_v6',
