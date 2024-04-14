@@ -133,7 +133,7 @@ private:
   edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumZdcInputToken;
-  edm::EDGetTokenT<float> m_CICADAInputToken;
+  edm::EDGetTokenT<BXVector<float>> m_CICADAInputToken;
 
   /// input tag for external conditions
   edm::InputTag m_extInputTag;

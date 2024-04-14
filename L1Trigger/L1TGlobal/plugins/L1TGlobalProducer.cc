@@ -139,7 +139,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_sumZdcInputToken = consumes<BXVector<EtSum>>(m_sumZdcInputTag);
-  m_CICADAInputToken = consumes<float>(m_CICADAInputTag);
+  m_CICADAInputToken = consumes<BXVector<float>>(m_CICADAInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   if (m_useMuonShowers)
     m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
