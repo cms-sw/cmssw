@@ -5,42 +5,48 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <unordered_set>
 
-class Node {
+// an elementary node is a single trackster
+
+class ElementaryNode {
 public:
-  Node() = default;
-  Node(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster), alreadyVisited_{false}{};
+  ElementaryNode() = default;
+  ElementaryNode(unsigned index, bool isTrackster = true)
+      : index_(index), isTrackster_(isTrackster), alreadyVisited_{false} {};
 
-  void addNeighbour(unsigned int trackster_id) {
-    neighboursId_.push_back(trackster_id);
-  }
+  //can i remove default dctor so i dont have to apply rule of 5???
+  ElementaryNode(ElementaryNode const&) = default;
+  ElementaryNode& operator=(ElementaryNode const&) = default;
+  ElementaryNode(ElementaryNode&&) = default;
+  ElementaryNode& operator=(ElementaryNode&&) = default;
+  ~ElementaryNode() = default;
 
+  void addNeighbour(unsigned int trackster_id) { neighboursId_.push_back(trackster_id); }
   const unsigned int getId() const { return index_; }
   std::vector<unsigned int> getNeighbours() const { return neighboursId_; }
-  void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs) {
+  /* void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs) {
     tabs += "\t";
     if (!alreadyVisited_) {
-//      std::cout << tabs << " Visiting node " << index_ << std::endl;
-      alreadyVisited_ = true;
-      subComponent.push_back(index_);
+//  std::cout << tabs << " Visiting node " << index_ << std::endl;
+    alreadyVisited_ = true;
+    subComponent.push_back(index_);
 
-      for (auto const& neighbour : neighboursId_) {
-        //std::cout << tabs << " Trying to visit " << neighbour << std::endl;
+    for (auto const& neighbour : neighboursId_) {
+       //std::cout << tabs << " Trying to visit " << neighbour << std::endl;
         graph[neighbour].findSubComponents(graph, subComponent, tabs);
       }
     }
-  }
-
-  ~Node() = default;
+  }*/
 
 private:
   unsigned index_;
   bool isTrackster_;
-
   std::vector<unsigned int> neighboursId_;
   bool alreadyVisited_;
-
   //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
+};
 
+class Node {
+public:
 };
 
 class TICLGraph {
@@ -50,24 +56,24 @@ public:
   TICLGraph() = default;
   TICLGraph(std::vector<Node>& n, std::vector<int> isRootNode) {
     nodes_ = n;
-//    isRootNode.resize(nodes_.size());
+    //    isRootNode.resize(nodes_.size());
     isRootNode_ = isRootNode;
   };
   const std::vector<Node>& getNodes() const { return nodes_; }
   const Node& getNode(int i) const { return nodes_[i]; }
 
-//  void setRootNodes() {
-//    for (auto const& node : nodes_) {
-//      bool isRootNode = condition ? true : false;
-//      rootNodeIds[node.getId()] = isRootNode;
-//    }
-//  }
+  //  void setRootNodes() {
+  //    for (auto const& node : nodes_) {
+  //      bool isRootNode = condition ? true : false;
+  //      rootNodeIds[node.getId()] = isRootNode;
+  //    }
+  //  }
 
   std::vector<std::vector<unsigned int>> findSubComponents() {
     std::vector<std::vector<unsigned int>> components;
-    for (auto const& node: nodes_) {
+    for (auto const& node : nodes_) {
       auto const id = node.getId();
-      if(isRootNode_[id]){
+      if (isRootNode_[id]) {
         //std::cout << "DFS Starting From " << id << std::endl;
         std::string tabs = "\t";
         std::vector<unsigned int> tmpSubComponents;
