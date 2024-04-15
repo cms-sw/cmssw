@@ -8,6 +8,12 @@
 // an elementary node is a single trackster
 
 class ElementaryNode {
+  unsigned index_;
+  bool isTrackster_;
+  std::vector<unsigned int> neighboursId_;
+  bool alreadyVisited_;
+  //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
+
 public:
   ElementaryNode() = default;
   ElementaryNode(unsigned index, bool isTrackster = true)
@@ -36,19 +42,24 @@ public:
       }
     }
   }*/
-
-private:
-  unsigned index_;
-  bool isTrackster_;
-  std::vector<unsigned int> neighboursId_;
-  bool alreadyVisited_;
-  //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
 };
 
+// a node can contain one or more elementary nodes (needed to implement the aggregate graph)
 class Node {
+  std::vector<ElementaryNode> elementaryNodes_;
+
 public:
+  Node(std::vector<ElementaryNode> elementaryNodes) : elementaryNodes_{elementaryNodes} {};
+
+  Node(unsigned index, bool isTrackster = true) {
+    ElementaryNode eN{index, isTrackster};
+    elementaryNodes_ = std::vector<ElementaryNode>{eN};
+  }
+
+  auto getElementaryNodes() const { return elementaryNodes_; }
 };
 
+/*
 class TICLGraph {
 public:
   // can i remove default constructor ?? edm::Wrapper problem
@@ -117,6 +128,6 @@ public:
 private:
   std::vector<Node> nodes_;
   std::vector<int> isRootNode_;
-};
+};*/
 
 #endif
