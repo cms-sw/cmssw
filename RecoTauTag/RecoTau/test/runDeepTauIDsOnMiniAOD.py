@@ -48,13 +48,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProc
 
 # Add new TauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
-toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
+toKeep = [ "mvaIso", "mvaIsoDR0p3", "mvaIsoNewDM",
            # "deepTau2017v1",
            "deepTau2017v2p1",
            "deepTau2018v2p5",
            # "DPFTau_2016_v0",
            # "DPFTau_2016_v1",
-           "againstEle2018",
+           "againstEle",
            ]
 if phase2:
     toKeep = [ "newDMPhase2v1",

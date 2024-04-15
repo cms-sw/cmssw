@@ -8,10 +8,6 @@ from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import ta
 
 from PhysicsTools.PatAlgos.patTauSignalCandidatesProducer_cfi import patTauSignalCandidatesProducer
 
-##################### Updated tau collection with MVA-based tau-Ids rerun #######
-# Used only in some eras
-from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
-
 ##################### User floats producers, selectors ##########################
 
 # Original DeepTau v2p5 in 12_4_X doesn't include WPs in MINIAOD
