@@ -26,19 +26,11 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()                             # to be overwritten after parsing the command line options
 )
 
-process.EvFDaqDirector = cms.Service( "EvFDaqDirector",
-    runNumber = cms.untracked.uint32( 0 ),                          # to be overwritten after parsing the command line options
-    baseDir = cms.untracked.string( "" ),                           # to be overwritten after parsing the command line options
-    buBaseDir = cms.untracked.string( "" ),                         # to be overwritten after parsing the command line options
-    useFileBroker = cms.untracked.bool( False ),
-    fileBrokerKeepAlive = cms.untracked.bool( True ),
-    fileBrokerPort = cms.untracked.string( "8080" ),
-    fileBrokerUseLocalLock = cms.untracked.bool( True ),
-    fuLockPollInterval = cms.untracked.uint32( 2000 ),
-    requireTransfersPSet = cms.untracked.bool( False ),
-    selectedTransferMode = cms.untracked.string( "" ),
-    mergingPset = cms.untracked.string( "" ),
-    outputAdler32Recheck = cms.untracked.bool( False ),
+from EventFilter.Utilities.EvFDaqDirector_cfi import EvFDaqDirector as _EvFDaqDirector
+process.EvFDaqDirector = _EvFDaqDirector.clone(
+    baseDir = "",                                                   # to be overwritten after parsing the command line options
+    buBaseDir = "",                                                 # to be overwritten after parsing the command line options
+    runNumber = 0                                                   # to be overwritten after parsing the command line options
 )
 
 process.writer = cms.OutputModule("RawStreamFileWriterForBU",
