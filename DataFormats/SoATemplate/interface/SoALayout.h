@@ -579,7 +579,6 @@
     /* ROOT read streamer */                                                                                           \
     template <typename T>                                                                                              \
     void ROOTReadStreamer(T & onfile) {                                                                                \
-      auto size = onfile.metadata().size();                                                                            \
       _ITERATE_ON_ALL(_STREAMER_READ_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
     }                                                                                                                  \
                                                                                                                        \
