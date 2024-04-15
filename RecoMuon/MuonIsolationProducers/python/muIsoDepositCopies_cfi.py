@@ -25,7 +25,17 @@ muIsoDepositCalByAssociatorTowers = cms.EDProducer("MuIsoDepositCopyProducer",
   depositNames = cms.vstring('ecal', 'hcal', 'ho')
 )
 
+muIsoDepositCalByAssociatorHits = cms.EDProducer("MuIsoDepositCopyProducer",
+  inputTags = cms.VInputTag(cms.InputTag("muons1stStep:ecal"), cms.InputTag("muons1stStep:hcal"), cms.InputTag("muons1stStep:ho")),
+  depositNames = cms.vstring('ecal', 'hcal', 'ho')
+)
+
 muIsoDepositCalByAssociatorTowersDisplaced = cms.EDProducer("MuIsoDepositCopyProducer",
+  inputTags = cms.VInputTag(cms.InputTag("displacedMuons1stStep:ecal"), cms.InputTag("displacedMuons1stStep:hcal"), cms.InputTag("displacedMuons1stStep:ho")),
+  depositNames = cms.vstring('ecal', 'hcal', 'ho')
+)
+
+muIsoDepositCalByAssociatorHitsDisplaced = cms.EDProducer("MuIsoDepositCopyProducer",
   inputTags = cms.VInputTag(cms.InputTag("displacedMuons1stStep:ecal"), cms.InputTag("displacedMuons1stStep:hcal"), cms.InputTag("displacedMuons1stStep:ho")),
   depositNames = cms.vstring('ecal', 'hcal', 'ho')
 )

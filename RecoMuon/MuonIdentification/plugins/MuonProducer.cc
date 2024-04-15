@@ -62,14 +62,17 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
 
   if (fillDetectorBasedIsolation_) {
     theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
+    std::cout << "*** theTrackDepositName: " << theTrackDepositName << std::endl;
     theTrackDepositToken_ = consumes<reco::IsoDepositMap>(theTrackDepositName);
     produces<reco::IsoDepositMap>(labelOrInstance(theTrackDepositName));
 
     theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
+    std::cout << "*** theJetDepositName: " << theJetDepositName << std::endl;
     theJetDepositToken_ = consumes<reco::IsoDepositMap>(theJetDepositName);
     produces<reco::IsoDepositMap>(labelOrInstance(theJetDepositName));
 
     theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
+    std::cout << "*** theEcalDepositName: " << theEcalDepositName << std::endl;
     theEcalDepositToken_ = consumes<reco::IsoDepositMap>(theEcalDepositName);
     produces<reco::IsoDepositMap>(theEcalDepositName.instance());
 

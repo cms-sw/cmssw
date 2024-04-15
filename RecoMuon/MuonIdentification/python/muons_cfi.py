@@ -13,9 +13,9 @@ muons = cms.EDProducer("MuonProducer",
                        FillTimingInfo = cms.bool(True),
                        
                        FillDetectorBasedIsolation = cms.bool(True),
-                       EcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
-                       HcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
-                       HoIsoDeposits    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
+                       EcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorHits","ecal"),
+                       HcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorHits","hcal"),
+                       HoIsoDeposits    = cms.InputTag("muIsoDepositCalByAssociatorHits","ho"),
                        TrackIsoDeposits = cms.InputTag("muIsoDepositTk"),
                        JetIsoDeposits   = cms.InputTag("muIsoDepositJets"),
 

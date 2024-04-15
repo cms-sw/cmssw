@@ -16,5 +16,13 @@ UnweightedInputTowHcalDeps = cms.PSet(
     DepositThreshold = cms.double(-1.0),
     DepositWeight = cms.double(1.0)
 )
-
-
+UnweightedInputHitEcalDeps = cms.PSet(
+    DepositTag = cms.InputTag("muIsoDepositCalByAssociatorHits","ecal"),
+    DepositThreshold = cms.double(-1.0),
+    DepositWeight = cms.double(1.0)
+)
+UnweightedInputTowHcalDeps = cms.PSet(
+    DepositTag = cms.InputTag("muIsoDepositCalByAssociatorHits","hcal"),
+    DepositThreshold = cms.double(-1.0),
+    DepositWeight = cms.double(1.0)
+)
