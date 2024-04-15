@@ -79,24 +79,30 @@ using namespace gen;
 //Insert class for use w/ PDFPtr for proton-photon flux
 //parameters hardcoded according to main70.cc in PYTHIA8 v3.10
 class Nucleus2gamma2 : public Pythia8::PDF {
+private:
+  double radius;
+  int z;
+
 public:
   // Constructor.
-  Nucleus2gamma2(int idBeamIn) : Pythia8::PDF(idBeamIn) {}
+  Nucleus2gamma2(int idBeamIn, double R = -1.0, int Z = -1) : Pythia8::PDF(idBeamIn), radius(R), z(Z) {}
 
-  // Update the photon flux.
   void xfUpdate(int, double x, double) override {
-    // lead
-    double radius = 0;  // radius in [fm]
-    double z = 0;
-    if (idBeam == 1000822080) {
-      radius = 6.636;
-      z = 82;
+    if (z == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        z = 82;
     }
-    // oxygen
-    else if (idBeam == 80160) {
-      radius = 3.02;
-      z = 8;
+    if (radius == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        radius = 6.636;
     }
+
+    if (z < 0 || radius < 0)
+      throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+          << " Invalid photon flux input parameters: beam ID= " << idBeam << " , radius= " << radius << " , z= " << z
+          << "\n";
 
     // Minimum impact parameter (~2*radius) [fm].
     double bmin = 2 * radius;
@@ -152,8 +158,7 @@ private:
 
   //PDFPtr for the photonFlux
   //Following main70.cc example in PYTHIA8 v3.10
-  bool doProtonPhotonFlux = false;
-  Pythia8::PDFPtr photonFlux = nullptr;
+  edm::ParameterSet photonFluxParams;
 
   //helper class to allow multiple user hooks simultaneously
   std::shared_ptr<UserHooksVector> fUserHooksVector;
@@ -224,7 +229,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       comEnergy(params.getParameter<double>("comEnergy")),
       LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName", "")),
       fInitialState(PP),
-      doProtonPhotonFlux(params.getUntrackedParameter<bool>("doProtonPhotonFlux", false)),
       UserHooksSet(false),
       nME(-1),
       nMEFiltered(-1),
@@ -259,6 +263,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
 
   // avoid filling weights twice (from v8.30x)
   toHepMC.set_store_weights(false);
+
+  if (params.exists("PhotonFlux")) {
+    photonFluxParams = params.getParameter<edm::ParameterSet>("PhotonFlux");
+  }
 
   // Reweight user hook
   //
@@ -412,9 +420,18 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
 
-  if (doProtonPhotonFlux) {
-    photonFlux = make_shared<Nucleus2gamma2>(1000822080);
-    fMasterGen->setPhotonFluxPtr(photonFlux, nullptr);
+  if (!photonFluxParams.empty()) {
+    const auto &beamTypeA = photonFluxParams.getParameter<int>("beamTypeA");
+    const auto &beamTypeB = photonFluxParams.getParameter<int>("beamTypeB");
+    const auto &radiusA = photonFluxParams.getUntrackedParameter<double>("radiusA", -1.0);
+    const auto &radiusB = photonFluxParams.getUntrackedParameter<double>("radiusB", -1.0);
+    const auto &zA = photonFluxParams.getUntrackedParameter<int>("zA", -1);
+    const auto &zB = photonFluxParams.getUntrackedParameter<int>("zB", -1);
+    Pythia8::PDFPtr photonFluxA =
+        fMasterGen->settings.flag("PDF:beamA2gamma") ? make_shared<Nucleus2gamma2>(beamTypeA, radiusA, zA) : nullptr;
+    Pythia8::PDFPtr photonFluxB =
+        fMasterGen->settings.flag("PDF:beamB2gamma") ? make_shared<Nucleus2gamma2>(beamTypeB, radiusB, zB) : nullptr;
+    fMasterGen->setPhotonFluxPtr(photonFluxA, photonFluxB);
   }
 
   if (!fUserHooksVector.get())
