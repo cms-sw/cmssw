@@ -198,7 +198,9 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
     }
   };
 
-  auto intersectLineWithSurface = [](float surfaceZ, const ticl::Trackster::Vector &origin, const ticl::Trackster::Vector &direction) -> ticl::Trackster::Vector {
+  auto intersectLineWithSurface = [](float surfaceZ,
+                                     const ticl::Trackster::Vector &origin,
+                                     const ticl::Trackster::Vector &direction) -> ticl::Trackster::Vector {
     auto const t = (surfaceZ - origin.Z()) / direction.Z();
     auto const iX = t * direction.X() + origin.X();
     auto const iY = t * direction.Y() + origin.Y();
@@ -224,20 +226,22 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
     auto const t0_p0 = intersectLineWithSurface(firstLayerZ, t0_p1, trackster.eigenvectors(0));
     auto const t0_p2 = intersectLineWithSurface(lastLayerZ, t0_p1, trackster.eigenvectors(0));
     std::array<ticl::Trackster::Vector, 3> skeleton{{t0_p0, t0_p1, t0_p2}};
-    std::sort(skeleton.begin(), skeleton.end(), [](ticl::Trackster::Vector &v1, ticl::Trackster::Vector &v2) { return v1.Z() < v2.Z(); });
+    std::sort(skeleton.begin(), skeleton.end(), [](ticl::Trackster::Vector &v1, ticl::Trackster::Vector &v2) {
+      return v1.Z() < v2.Z();
+    });
     return skeleton;
   };
 
-  std::vector<Node> allNodes;
-  std::vector<Node> allNodes2;
+  std::vector<ElementaryNode> allElemNodes;
+  std::vector<ElementaryNode> allElemNodes2;
   std::vector<int> isRootNodes(trackstersclue3d.size());
 
   for (size_t id_t = 0; id_t < trackstersclue3d.size(); ++id_t) {
-    allNodes.emplace_back(id_t);
+    allElemNodes.emplace_back(id_t);
   }
 
   for (size_t id_t = 0; id_t < trackstersclue3d.size(); ++id_t) {
-    allNodes2.emplace_back(id_t);
+    allElemNodes2.emplace_back(id_t);
   }
 
   const float halfAngle1 = angle_first_cone_;
@@ -266,8 +270,8 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
         for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
           auto &neighbours = tracksterTilePos[tracksterTilePos.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
           for (auto n : neighbours) {
-            allNodes[id_t].addNeighbour(n);
-            allNodes[n].addNeighbour(id_t);
+            allElemNodes[id_t].addNeighbour(n);
+            allElemNodes[n].addNeighbour(id_t);
             auto const &trackster2 = trackstersclue3d[n];
             auto const &skeleton2 = returnSkeletons(trackster2);
             // open first cone
@@ -277,12 +281,12 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
                               halfAngle1,
                               maxHeight,
                               skeleton2[0])) {  //first cone
-              allNodes2[id_t].addNeighbour(n);
-              allNodes2[n].addNeighbour(id_t);
+              allElemNodes2[id_t].addNeighbour(n);
+              allElemNodes2[n].addNeighbour(id_t);
             }
             if (isPointInCone(skeleton[2], t.eigenvectors(0), halfAngle2, maxHeightCone, skeleton2[0])) {  //second cone
-              allNodes2[id_t].addNeighbour(n);
-              allNodes2[n].addNeighbour(id_t);
+              allElemNodes2[id_t].addNeighbour(n);
+              allElemNodes2[n].addNeighbour(id_t);
             }
           }
         }
@@ -300,8 +304,8 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
         for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
           auto &neighbours = tracksterTileNeg[tracksterTileNeg.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
           for (auto n : neighbours) {
-            allNodes[id_t].addNeighbour(n);
-            allNodes[n].addNeighbour(id_t);
+            allElemNodes[id_t].addNeighbour(n);
+            allElemNodes[n].addNeighbour(id_t);
             auto const &trackster2 = trackstersclue3d[n];
             auto const &skeleton2 = returnSkeletons(trackster2);
             // open first cone
@@ -311,21 +315,29 @@ void TICLGraphProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
                               halfAngle1,
                               maxHeight,
                               skeleton2[0])) {  //first cone
-              allNodes2[id_t].addNeighbour(n);
-              allNodes2[n].addNeighbour(id_t);
+              allElemNodes2[id_t].addNeighbour(n);
+              allElemNodes2[n].addNeighbour(id_t);
             }
             if (isPointInCone(skeleton[2], t.eigenvectors(0), halfAngle2, maxHeightCone, skeleton2[0])) {  //second cone
-              allNodes2[id_t].addNeighbour(n);
-              allNodes2[n].addNeighbour(id_t);
+              allElemNodes2[id_t].addNeighbour(n);
+              allElemNodes2[n].addNeighbour(id_t);
             }
           }
         }
       }
     }
   }
+  std::vector<Node> finalNodes;
+  for (auto const &elementaryNode : allElemNodes) {
+    finalNodes.push_back(Node{elementaryNode});
+  }
 
-  auto resultGraph = std::make_unique<TICLGraph>(allNodes, isRootNodes);
-  auto resultGraphCone = std::make_unique<TICLGraph>(allNodes2, isRootNodes);
+  std::vector<Node> finalNodes2;
+  for (auto const &elementaryNode2 : allElemNodes2) {
+    finalNodes2.push_back(Node{elementaryNode2});
+  }
+  auto resultGraph = std::make_unique<TICLGraph>(finalNodes, isRootNodes);
+  auto resultGraphCone = std::make_unique<TICLGraph>(finalNodes2, isRootNodes);
 
   evt.put(std::move(resultGraph));
   evt.put(std::move(resultGraphCone), "cone");

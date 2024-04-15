@@ -5,19 +5,19 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <unordered_set>
 
-// an elementary node is a single trackster
+//NB NODE NEEDS AN ADDNEIGHBOUR METHOD BC TICLGRAPHPRODUCER NEEDS IT
 
+// an elementary node is a single trackster
 class ElementaryNode {
   unsigned index_;
   bool isTrackster_;
-  std::vector<unsigned int> neighboursId_;
-  bool alreadyVisited_;
+  std::vector<unsigned int> neighboursId_{};
+  bool alreadyVisited_{false};
   //bool areCompatible(const std::vector<Node>& graph, const unsigned int& outerNode) { return true; };
 
 public:
   ElementaryNode() = default;
-  ElementaryNode(unsigned index, bool isTrackster = true)
-      : index_(index), isTrackster_(isTrackster), alreadyVisited_{false} {};
+  ElementaryNode(unsigned index, bool isTrackster = true) : index_(index), isTrackster_(isTrackster){};
 
   //can i remove default dctor so i dont have to apply rule of 5???
   ElementaryNode(ElementaryNode const&) = default;
@@ -46,11 +46,12 @@ public:
 
 // a node can contain one or more elementary nodes (needed to implement the aggregate graph)
 class Node {
-  std::vector<ElementaryNode> elementaryNodes_;
+  std::vector<ElementaryNode> elementaryNodes_{};
 
 public:
-  Node(std::vector<ElementaryNode> elementaryNodes) : elementaryNodes_{elementaryNodes} {};
-
+  Node() = default;
+  Node(std::vector<ElementaryNode> const& elementaryNodes) : elementaryNodes_{elementaryNodes} {};
+  Node(ElementaryNode const& eN) : elementaryNodes_{std::vector<ElementaryNode>{eN}} {};
   Node(unsigned index, bool isTrackster = true) {
     ElementaryNode eN{index, isTrackster};
     elementaryNodes_ = std::vector<ElementaryNode>{eN};
@@ -59,12 +60,15 @@ public:
   auto getElementaryNodes() const { return elementaryNodes_; }
 };
 
-/*
 class TICLGraph {
+  std::vector<Node> nodes_{};
+  std::vector<int> isRootNode_;
+
 public:
   // can i remove default constructor ?? edm::Wrapper problem
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
+  TICLGraph(std::vector<Node> const& nodes) : nodes_{nodes} {};
   TICLGraph(std::vector<Node>& n, std::vector<int> isRootNode) {
     nodes_ = n;
     //    isRootNode.resize(nodes_.size());
@@ -80,7 +84,7 @@ public:
   //    }
   //  }
 
-  std::vector<std::vector<unsigned int>> findSubComponents() {
+  /*std::vector<std::vector<unsigned int>> findSubComponents() {
     std::vector<std::vector<unsigned int>> components;
     for (auto const& node : nodes_) {
       auto const id = node.getId();
@@ -93,11 +97,16 @@ public:
       }
     }
     return components;
-  }
+  }*/
 
+  //necessary???
+  TICLGraph(TICLGraph const&) = default;
+  TICLGraph& operator=(TICLGraph const&) = default;
+  TICLGraph(TICLGraph&&) = default;
+  TICLGraph& operator=(TICLGraph&&) = default;
   ~TICLGraph() = default;
 
-  void dfsForCC(unsigned int nodeIndex,
+  /*void dfsForCC(unsigned int nodeIndex,
                 std::unordered_set<unsigned int>& visited,
                 std::vector<unsigned int>& component) const {
     visited.insert(nodeIndex);
@@ -108,9 +117,9 @@ public:
         dfsForCC(neighbourIndex, visited, component);
       }
     }
-  }
+  }*/
 
-  std::vector<std::vector<unsigned int>> getConnectedComponents() const {
+  /*std::vector<std::vector<unsigned int>> getConnectedComponents() const {
     std::unordered_set<unsigned int> visited;
     std::vector<std::vector<unsigned int>> components;
 
@@ -123,11 +132,7 @@ public:
     }
 
     return components;
-  }
-
-private:
-  std::vector<Node> nodes_;
-  std::vector<int> isRootNode_;
-};*/
+  }*/
+};
 
 #endif
