@@ -448,7 +448,9 @@ HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1_v*               
 HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v*                     #       CMSHLT-2209
 HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1_v*                            #       CMSHLT-2209
 HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1_v*                                      #       CMSHLT-2209
-HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v*			# CMSHLT-2184
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v*                #       CMSHLT-2184
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_4p3_v*                          #       CMSHLT-3159, CMSHLT-3119
+HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_2p0_v*                          #       CMSHLT-3159, CMSHLT-3119
 HLT_PFHT400_FivePFJet_120_120_60_30_30_PNet2BTag_5p6_v*                                 # CMSHLT-3023
 HLT_PFHT400_FivePFJet_120_120_60_30_30_PNet2BTag_4p3_v*                                 # CMSHLT-3023
 HLT_PFHT400_SixPFJet32_v*                   # CMSHLT-1857, CMSHLT-2705
