@@ -31,7 +31,9 @@ public:
                          edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
                          edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
                          edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSToken,
-                         edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken);
+                         edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken,
+                         edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken,
+                         bool isTICLv5);
   ~TICLCandidateValidator();
 
   void bookCandidatesHistos(DQMStore::IBooker& ibook, std::string baseDir);
@@ -107,12 +109,26 @@ private:
   std::vector<dqm::reco::MonitorElement*> h_num_fake_neut_phi_candidate_pdgId;
   std::vector<dqm::reco::MonitorElement*> h_num_fake_neut_phi_candidate_energy;
 
+  std::vector<dqm::reco::MonitorElement*> h_chg_tracksters_in_candidate;
+  std::vector<dqm::reco::MonitorElement*> h_chg_candidate_regressed_energy;
+  std::vector<dqm::reco::MonitorElement*> h_chg_candidate_charge;
+  std::vector<dqm::reco::MonitorElement*> h_chg_candidate_pdgId;
+  std::vector<dqm::reco::MonitorElement*> h_chg_candidate_partType;
+
+  std::vector<dqm::reco::MonitorElement*> h_neut_tracksters_in_candidate;
+  std::vector<dqm::reco::MonitorElement*> h_neut_candidate_regressed_energy;
+  std::vector<dqm::reco::MonitorElement*> h_neut_candidate_charge;
+  std::vector<dqm::reco::MonitorElement*> h_neut_candidate_pdgId;
+  std::vector<dqm::reco::MonitorElement*> h_neut_candidate_partType;
+
   edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidatesToken_;
   edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken_;
   edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSToken_;
   edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken_;
+  edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken_;
+  bool isTICLv5_ = false;
 };
 
 #endif

@@ -79,6 +79,7 @@ protected:
   const bool doCandidatesPlots_;
   std::string label_candidates_;
   const edm::FileInPath cummatbudinxo_;
+  const bool isTICLv5_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;

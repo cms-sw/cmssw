@@ -18,10 +18,9 @@ public:
   const std::vector<unsigned int>& getInnerNeighbours() const { return innerNeighboursId_; }
   void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs);
 
-
-  inline bool isInnerNeighbour(const unsigned int tid){
-   auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);
-   return findInner != innerNeighboursId_.end();
+  inline bool isInnerNeighbour(const unsigned int tid) {
+    auto findInner = std::find(innerNeighboursId_.begin(), innerNeighboursId_.end(), tid);
+    return findInner != innerNeighboursId_.end();
   }
 
   ~Node() = default;

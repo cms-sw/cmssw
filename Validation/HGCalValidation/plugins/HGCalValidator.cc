@@ -32,7 +32,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       doCandidatesPlots_(pset.getUntrackedParameter<bool>("doCandidatesPlots")),
       label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
-      cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
+      cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
+      isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
@@ -66,18 +67,22 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
         consumes<std::vector<reco::Track>>(pset.getParameter<edm::InputTag>("recoTracks"));
     edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken =
         consumes<std::vector<ticl::Trackster>>(pset.getParameter<edm::InputTag>("ticlTrackstersMerge"));
-    //consumes<std::vector<ticl::Trackster>>(pset.getParameter<edm::InputTag>("trackstersclue3d"));
     edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSToken =
         consumes<hgcal::SimToRecoCollectionSimTracksters>(pset.getParameter<edm::InputTag>("mergeRecoToSimAssociator"));
     edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> associatorMapStRToken =
         consumes<hgcal::SimToRecoCollectionSimTracksters>(pset.getParameter<edm::InputTag>("mergeSimToRecoAssociator"));
+    edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken =
+        consumes<hgcal::SimToRecoCollectionSimTracksters>(
+            pset.getParameter<edm::InputTag>("mergeRecoToSimAssociatorPU"));
 
     candidateVal = TICLCandidateValidator(TICLCandidatesToken,
                                           simTICLCandidatesToken,
                                           recoTracksToken,
                                           trackstersToken,
                                           associatorMapRtSToken,
-                                          associatorMapStRToken);
+                                          associatorMapStRToken,
+                                          associatorMapRtSPUToken,
+                                          isTICLv5_);
   }
 
   for (auto& itag : label_tst) {
