@@ -267,12 +267,12 @@ def nanoAOD_customizeCommon(process):
                           addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
                           usePUPPIjets = False
     )
-    if nanoAOD_tau_switch.addUParTInfo.value():
-        # Add Unified Tagger For PUPPI Jets (UParT 2024)
-        nanoAOD_addUTagToTaus(process,
-                            addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
-                            usePUPPIjets = True
-        )
+
+    # Add Unified Tagger For PUPPI Jets (UParT 2024)
+    nanoAOD_addUTagToTaus(process,
+                        addUTagInfo = nanoAOD_tau_switch.addUParTInfo.value(),
+                        usePUPPIjets = True
+    )
     
     nanoAOD_boostedTau_switch = cms.PSet(
         idsToAdd = cms.vstring()
