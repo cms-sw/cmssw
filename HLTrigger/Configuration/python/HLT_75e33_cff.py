@@ -341,19 +341,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/MessageLogger_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
 
-fragment.load('L1Trigger.Configuration.GTemulator_cff')
-fragment.l1tGTProducer.GMTTkMuons = cms.InputTag("l1tTkMuonsGmt")
-#fragment.l1tGTProducer.CL2Jets = cms.InputTag("l1tSCPFL1PuppiCorrectedEmulator")
-#fragment.l1tGTProducer.CL2HtSum = cms.InputTag("l1tSCPFL1PuppiCorrectedEmulatorMHT")
-fragment.GTemulatorTask = cms.Task(fragment.l1tGTProducer, fragment.l1tGTAlgoBlockProducer)
-fragment.GTemulation_step = cms.Path(cms.Sequence(fragment.GTemulatorTask))
-fragment.load('L1Trigger.Phase2L1GT.l1tGTMenu_cff')
-from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import collectAlgorithmPaths
-
 fragment.schedule = cms.Schedule(*[
-
-    fragment.GTemulation_step,
-    *collectAlgorithmPaths(fragment),
 
     fragment.L1T_SinglePFPuppiJet230off,
     fragment.L1T_PFPuppiHT450off,
