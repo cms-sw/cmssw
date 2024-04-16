@@ -3,11 +3,7 @@
  *
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
- *
- *
- *
- *
- *
+ *  Clean Up from Christian Winter & Sebastian Brommer, KIT
  */
 #ifndef TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
 #define TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
@@ -65,7 +61,6 @@ private:
   std::map<std::string, std::vector<edm::EDGetTokenT<TrackCollectionemb>>> inputs_;
   std::map<std::string, std::vector<edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality>>>> inputs_qual_;
 
-  // typedef edm::ValueMap<reco::TrackRef> TrackToTrackMapnew;
   typedef edm::ValueMap<reco::TrackRefVector> TrackToTrackMapnew;
   typedef edm::ValueMap<reco::GsfTrackRefVector> GsfTrackToTrackMapnew;
 

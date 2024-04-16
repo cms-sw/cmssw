@@ -52,7 +52,6 @@ private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   void endStream() override;
   edm::InputTag vertexPositionLabel;
-  // edm::InputTag generalTracks;
 
   // ----------member data ---------------------------
 };
@@ -61,10 +60,6 @@ EmbeddingHltPixelVerticesProducer::EmbeddingHltPixelVerticesProducer(const edm::
   vertexPositionLabel = edm::InputTag("externalLHEProducer", "vertexPosition");
   consumes<math::XYZTLorentzVectorD>(vertexPositionLabel);
   produces<reco::VertexCollection>();
-
-  // generalTracks = iConfig.getParameter<edm::InputTag>("TrackLabel");
-  // consumes<reco::TrackBaseRefVector>(generalTracks);
-  // consumes<reco::TrackCollection>(generalTracks);
 }
 
 EmbeddingHltPixelVerticesProducer::~EmbeddingHltPixelVerticesProducer() {}
@@ -75,38 +70,13 @@ void EmbeddingHltPixelVerticesProducer::produce(edm::Event &iEvent, const edm::E
   std::unique_ptr<reco::VertexCollection> embeddingVertex(new reco::VertexCollection);
   Handle<math::XYZTLorentzVectorD> vertex_position;
   iEvent.getByLabel(vertexPositionLabel, vertex_position);
-  //  edm::LogPrint("") << "externalLHEProducer Vertex (" << vertex_position.product()->x() << ","  << vertex_position.product()->y() << "," <<  vertex_position.product()->z() << ")";
   math::XYZPoint genVertex =
       math::XYZPoint(vertex_position.product()->x(), vertex_position.product()->y(), vertex_position.product()->z());
   math::Error<3>::type Error;
-  // additionally, get the general Tracks:
-  // edm::Handle<reco::TrackCollection> tks;
-  // iEvent.getByLabel(generalTracks, tks);
-  // edm::LogPrint("") << "Loaded " << tks->size() << " tracks:";
-
-  // edm::Handle<reco::TrackRef> tks_ref;
-  // iEvent.getByLabel(generalTracks, tks_ref);
-  // std::vector<edm::RefToBase<reco::Track> > tks_base_;
-  // tks_base_.push_back(edm::RefToBase<reco::Track>(tks_ref));
-  // reco::Vertex saveVertex = reco::Vertex(genVertex, Error);
   // Try to produce an nonfake Vertex
-  // constructor for a valid vertex, with all data
-  // Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
   // Need at least 5 ndof so the vertex Quality is considered good
   reco::Vertex saveVertex = reco::Vertex(genVertex, Error, 1.0, 6.0, 6);
-
-  // for (auto track: *tks)
-  //{
-  // edm::LogPrint("") << track.vertex();
-  // saveVertex.add(track, 0.5);
-  //}
-  // if (saveVertex.isFake()) edm::LogPrint("") << " The produced Vertex is fake";
-  // else edm::LogPrint("") << " The produced Vertex is not fake";
-  // edm::LogPrint("") << "Vertex Properties: " << saveVertex.isFake() << " / " << saveVertex.ndof() << " / " << abs(saveVertex.z()) << " / " << abs(saveVertex.position().Rho());
-  // if (!saveVertex.isFake() && saveVertex.ndof() >= 4.0 && abs(saveVertex.z()) <= 24.0 && abs(saveVertex.position().Rho()) <= 2.0)
-  // edm::LogPrint("") << "The Vertex is a goodOfflineVertex";
   embeddingVertex->push_back(saveVertex);
-  // iEvent.put(std::move(embeddingVertex), "embeddingVertex");
   iEvent.put(std::move(embeddingVertex));
 }
 

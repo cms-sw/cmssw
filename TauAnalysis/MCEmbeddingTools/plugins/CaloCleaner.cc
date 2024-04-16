@@ -1,7 +1,6 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/CaloCleaner.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
@@ -11,7 +10,6 @@ typedef CaloCleaner<EcalRecHit> EcalRecHitColCleaner;
 typedef CaloCleaner<HBHERecHit> HBHERecHitColCleaner;
 typedef CaloCleaner<HFRecHit> HFRecHitColCleaner;
 typedef CaloCleaner<HORecHit> HORecHitColCleaner;
-typedef CaloCleaner<CastorRecHit> CastorRecHitColCleaner;
 typedef CaloCleaner<ZDCRecHit> ZDCRecHitColCleaner;
 
 template <typename T>
@@ -28,7 +26,6 @@ CaloCleaner<T>::CaloCleaner(const edm::ParameterSet &iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  // trackAssociator_.useDefaultPropagator();
 }
 
 template <typename T>
@@ -49,8 +46,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
   // Fill the correction map
   for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
-    // get the basic informaiton like fill reco mouon does
-    //     RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc
     const reco::Track *track = nullptr;
     if (iMuon->track().isNonnull())
       track = iMuon->track().get();
@@ -68,7 +63,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   for (auto input_ : inputs_) {
     std::unique_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
     edm::Handle<RecHitCollection> recHitCollection;
-    // iEvent.getByToken(input_.second[0], recHitCollection);
     iEvent.getByToken(input_.second, recHitCollection);
     for (typename RecHitCollection::const_iterator recHit = recHitCollection->begin();
          recHit != recHitCollection->end();
@@ -83,14 +77,6 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       } else {
         recHitCollection_output->push_back(*recHit);
       }
-      /* For the inveted collection
-           if (correction_map[recHit->detid().rawId()] > 0){
-          float new_energy =   correction_map[recHit->detid().rawId()];
-          if (new_energy < 0) new_energy =0;
-          T newRecHit(*recHit);
-          newRecHit.setEnergy(new_energy);
-          recHitCollection_output->push_back(newRecHit);
-            }*/
     }
     // Save the new collection
     recHitCollection_output->sort();
@@ -104,8 +90,7 @@ void CaloCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
 template <typename T>
 void CaloCleaner<T>::fill_correction_map(TrackDetMatchInfo *, std::map<uint32_t, float> *) {
-  assert(0);  // CV: make sure general function never gets called;
-              //     always use template specializations
+  assert(0);
 }
 
 template <>
@@ -120,7 +105,6 @@ void CaloCleaner<EcalRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::
     for (std::vector<const EcalRecHit *>::const_iterator hit = info->crossedEcalRecHits.begin();
          hit != info->crossedEcalRecHits.end();
          hit++) {
-      //    (*cor_map) [(*hit)->detid().rawId()] +=(*hit)->energy();
       (*cor_map)[(*hit)->detid().rawId()] = (*hit)->energy();
     }
   }
@@ -150,13 +134,8 @@ void CaloCleaner<HFRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::ma
 }
 
 template <>
-void CaloCleaner<CastorRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::map<uint32_t, float> *cor_map) {
-  return;  // No corrections for Castor
-}
-
-template <>
 void CaloCleaner<ZDCRecHit>::fill_correction_map(TrackDetMatchInfo *info, std::map<uint32_t, float> *cor_map) {
-  return;  // No corrections for Castor
+  return;  // No corrections for ZDC
 }
 
 DEFINE_FWK_MODULE(EcalRecHitColCleaner);
@@ -164,5 +143,4 @@ DEFINE_FWK_MODULE(HBHERecHitColCleaner);
 DEFINE_FWK_MODULE(HORecHitColCleaner);
 // no  need for cleaning outside of tracker, so just a copy of the old collection
 DEFINE_FWK_MODULE(HFRecHitColCleaner);
-DEFINE_FWK_MODULE(CastorRecHitColCleaner);
 DEFINE_FWK_MODULE(ZDCRecHitColCleaner);

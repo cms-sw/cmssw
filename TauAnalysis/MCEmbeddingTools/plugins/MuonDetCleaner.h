@@ -5,11 +5,8 @@
  *
  * \author Christian Veelken, LLR
  *
- *
- *
- *
- *
  * Clean Up from STefan Wayand, KIT
+ *  Clean Up from Christian Winter & Sebastian Brommer, KIT
  *
  */
 #ifndef TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H

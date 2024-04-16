@@ -59,7 +59,7 @@ private:
   edm::EDGetTokenT<edm::View<pat::MET>> theMETLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> thePuppiMETLabel_;
   bool use_zmass = false;
-  double ZMass = 91.0;
+  static constexpr double zmass = 91.1876;
 };
 
 //
@@ -109,7 +109,7 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   const reco::CompositeCandidate *chosenZCand = nullptr;
   const reco::CompositeCandidate *chosenZCand_zmass = nullptr;
   const reco::CompositeCandidate *chosenZCand_largest = nullptr;
-  double massDifference = -1.0;
+  double massDifference = 9999;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
   edm::Handle<reco::VertexCollection> vertex;
@@ -121,12 +121,10 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   // get primary vertex
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
-  std::vector<reco::Vertex>::const_iterator vertexIt = vertex->begin();
-  std::vector<reco::Vertex>::const_iterator vertexEnd = vertex->end();
-  for (; vertexIt != vertexEnd; ++vertexIt) {
-    if (vertexIt->isValid() && !vertexIt->isFake()) {
-      posVtx = vertexIt->position();
-      errVtx = vertexIt->error();
+  for (const auto &vtx : *vertex) {
+    if (vtx.isValid() && !vtx.isFake()) {
+      posVtx = vtx.position();
+      errVtx = vtx.error();
       break;
     }
   }
@@ -135,8 +133,8 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
-    if (std::abs(ZMass - iZCand->mass()) < massDifference || massDifference < 0) {
-      massDifference = std::abs(ZMass - iZCand->mass());
+    if (std::abs(zmass - iZCand->mass()) < massDifference) {
+      massDifference = std::abs(zmass - iZCand->mass());
       chosenZCand_zmass = &(*iZCand);
     }
   }
@@ -152,10 +150,8 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
     }
   }
   if (use_zmass) {
-    // edm::LogDebug("MuMuForEmbeddingSelector") << "Using Z mass candidate" << chosenZCand_zmass->mass();
     chosenZCand = chosenZCand_zmass;
   } else {
-    // edm::LogDebug("MuMuForEmbeddingSelector") << "Using largest mass candidate" << chosenZCand_largest->mass();
     chosenZCand = chosenZCand_largest;
   }
 
@@ -181,8 +177,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.put(std::make_unique<float>(met->at(0).phi()), "initialMETphi");
   iEvent.put(std::make_unique<float>(puppimet->at(0).et()), "initialPuppiMETEt");
   iEvent.put(std::make_unique<float>(puppimet->at(0).phi()), "initialPuppiMETphi");
-  // edm::LogDebug("MuMuForEmbeddingSelector") << "PuppiMet: " << puppimet->at(0).et() << " phi: " << puppimet->at(0).phi();
-  // edm::LogDebug("MuMuForEmbeddingSelector") << "MET: " << met->at(0).et() << " phi: " << met->at(0).phi();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

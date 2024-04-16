@@ -78,7 +78,6 @@ void TrackMergeremb<T1>::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   }  // end instance
 }
 
-// Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1>
 void TrackMergeremb<T1>::willproduce(std::string instance, std::string alias) {
   produces<TrackCollectionemb>(instance);
@@ -125,10 +124,8 @@ void TrackMergeremb<reco::TrackCollection>::merg_and_put(
   std::unique_ptr<TrackToTrackMapnew> outTracks_refs = std::make_unique<TrackToTrackMapnew>();
 
   auto rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
-  // auto rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
 
   std::vector<reco::TrackRefVector> trackRefColl;
-  // std::vector<reco::TrackRef> trackRefColl;
 
   for (auto akt_collection : to_merge) {
     edm::Handle<reco::TrackCollection> track_col_in;
@@ -206,12 +203,10 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
 
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
-    simple_track_to_track_map[trackRef] =
-        trackRef;  // catch the case, where a seed ctf track could already be updated, such that the update doesn't happen again
+    simple_track_to_track_map[trackRef] = trackRef;
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
   }
 
@@ -344,8 +339,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(edm::Event &iEvent,
 
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[trackRef] =
@@ -368,7 +362,6 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(edm::Event &iEvent,
       reco::MuonRef muRefnew(outputMuonsRefProd, new_idx);
 
       if (it->track().isNonnull()) {
-        // std::cout<<"pfmerge tr: "<<it->trackRef().id()<< " "<< it->trackRef().key()<< " " << simple_track_to_track_map[it->trackRef()].id() <<  " " << simple_track_to_track_map[it->trackRef()].key() <<std::endl;
         outTracks->back().setTrack(simple_track_to_track_map[it->track()]);
       }
     }
@@ -415,7 +408,6 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(edm::Event &iEvent,
 template <>
 void TrackMergeremb<reco::PFCandidateCollection>::willproduce(std::string instance, std::string alias) {
   produces<reco::PFCandidateCollection>(instance);
-  // std::cout<<"Produce PF Collection: "<<instance<<std::endl;
 }
 
 template <>
@@ -439,8 +431,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::TrackCollection> track_new_col;
   iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef, reco::TrackRef>
-      simple_track_to_track_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+  std::map<reco::TrackRef, reco::TrackRef> simple_track_to_track_map;
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
     simple_track_to_track_map[trackRef] =
@@ -453,8 +444,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::GsfTrackCollection> gsftrack_new_col;
   iEvent.getByToken(inputs_fixgsftrackcol_, gsftrack_new_col);
-  std::map<reco::GsfTrackRef, reco::GsfTrackRef>
-      simple_gsftrack_to_gsftrack_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+  std::map<reco::GsfTrackRef, reco::GsfTrackRef> simple_gsftrack_to_gsftrack_map;
   for (unsigned abc = 0; abc < gsftrack_new_col->size(); ++abc) {
     reco::GsfTrackRef gsfTrackRef(gsftrack_new_col, abc);
     simple_gsftrack_to_gsftrack_map[((*gsftrack_ref_map)[gsfTrackRef])[0]] = gsfTrackRef;
@@ -465,8 +455,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
 
   edm::Handle<reco::MuonCollection> muon_new_col;
   iEvent.getByToken(inputs_fixmucol_, muon_new_col);
-  std::map<reco::MuonRef, reco::MuonRef>
-      simple_mu_to_mu_map;  // I didn't find a more elegant way, so just build a good old fassion std::map
+  std::map<reco::MuonRef, reco::MuonRef> simple_mu_to_mu_map;
   for (unsigned abc = 0; abc < muon_new_col->size(); ++abc) {
     reco::MuonRef muRef(muon_new_col, abc);
     simple_mu_to_mu_map[(*muon_ref_map)[muRef]] = muRef;
@@ -483,9 +472,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
     iEvent.getByToken(akt_collection, track_col_in);
     for (reco::PFCandidateCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end(); ++it) {
       outTracks->push_back(reco::PFCandidate(*it));
-      // if (fabs(it->pdgId()) == 13){
       if (it->trackRef().isNonnull() && outTracks->back().charge()) {
-        // std::cout<<"pfmerge tr: "<<it->trackRef().id()<< " "<< it->trackRef().key()<< " " << simple_track_to_track_map[it->trackRef()].id() <<  " " << simple_track_to_track_map[it->trackRef()].key() <<std::endl;
         outTracks->back().setTrackRef(simple_track_to_track_map[it->trackRef()]);
       }
       if (it->gsfTrackRef().isNonnull()) {
@@ -495,7 +482,6 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
         const reco::SuperClusterRef &pfScRef(it->superClusterRef());
 
         float dx, dy, dz, dr;
-        // float drMin = std::numeric_limits<float>::infinity();
         float drMin = 10.0;  // also used as treshold for matching
         reco::SuperClusterRef ccrefMin;
         for (auto sc = bSc; sc != eSc; ++sc) {
@@ -511,7 +497,6 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
         }
       }
       if (it->muonRef().isNonnull()) {
-        // std::cout<<"pfmerge mu: "<<it->muonRef().id()<< " "<< it->muonRef().key()<< " " << simple_mu_to_mu_map[it->muonRef()].id() <<  " " << simple_mu_to_mu_map[it->muonRef()].key() <<std::endl;
         outTracks->back().setMuonRef(simple_mu_to_mu_map[it->muonRef()]);
       }
     }

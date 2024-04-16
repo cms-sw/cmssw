@@ -1,14 +1,12 @@
 /** \class CaloCleaner
  *
  * Clean collections of calorimeter recHits
- * (detectors supported at the moment: EB/EE, HB/HE and HO)
+ * (detectors supported: EB/EE, HB/HE and HO)
  *
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
- *
- *
- *
  *  Clean Up from STefan Wayand, KIT
+ *  Clean Up from Christian Winter & Sebastian Brommer, KIT
  */
 #ifndef TauAnalysis_MCEmbeddingTools_CaloCleaner_H
 #define TauAnalysis_MCEmbeddingTools_CaloCleaner_H

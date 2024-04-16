@@ -92,8 +92,8 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
     // inspired from Muon Identification algorithm: https://github.com/cms-sw/cmssw/blob/3b943c0dbbdf4494cd66064a5a147301f38af295/RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc#L911
     // and the MuonShowerDigiFiller: https://github.com/cms-sw/cmssw/blob/29909891e150c9781f4ade2a6f7b5beb0bd67a6e/RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h & https://github.com/cms-sw/cmssw/blob/29909891e150c9781f4ade2a6f7b5beb0bd67a6e/RecoMuon/MuonIdentification/src/MuonShowerDigiFiller.cc
     for (const auto &chamber : info.chambers) {
-      if (chamber.id.subdetId() == MuonSubdetId::RPC)  //&& rpcHitHandle_.isValid())
-        continue;                                      // Skip RPC chambers, they are taken care of below)
+      if (chamber.id.subdetId() == MuonSubdetId::RPC)
+        continue;
 
       reco::MuonChamberMatch matchedChamber;
 
@@ -193,7 +193,6 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
     iEvent.getByToken(input_.second, RecHitinput);
     for (typename RecHitCollection::const_iterator recHit = RecHitinput->begin(); recHit != RecHitinput->end();
          ++recHit) {  // loop over the basic rec hit collection (DT CSC or RPC)
-      // if (find(vetoHits.begin(),vetoHits.end(),getRawDetId(*recHit)) == vetoHits.end()) continue; // For the invertec selcetion
       if (find(vetoHits.begin(), vetoHits.end(), getRawDetId(*recHit)) != vetoHits.end())
         continue;  // If the hit is not in the
       T1 detId(getRawDetId(*recHit));
@@ -269,7 +268,6 @@ bool MuonDetCleaner<CSCDetId, CSCRecHit2D>::checkrecHit(const TrackingRecHit &re
   else if (hit_type == typeid(CSCRecHit2D)) {
     return true;
   }
-  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}
   return false;
 }
 
@@ -296,7 +294,6 @@ bool MuonDetCleaner<DTLayerId, DTRecHit1DPair>::checkrecHit(const TrackingRecHit
   } else if (hit_type == typeid(DTSLRecSegment2D)) {
     return true;
   }
-  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}
   return false;
 }
 
@@ -306,7 +303,6 @@ bool MuonDetCleaner<RPCDetId, RPCRecHit>::checkrecHit(const TrackingRecHit &recH
   if (hit_type == typeid(RPCRecHit)) {
     return true;
   }  // This should be the default one (which are included in the global (outer) muon track)
-  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}
   return false;
 }
 
@@ -316,7 +312,6 @@ bool MuonDetCleaner<CSCDetId, CSCSegment>::checkrecHit(const TrackingRecHit &rec
   if (hit_type == typeid(CSCSegment)) {
     return true;
   }  // This should be the default one (which are included in the global (outer) muon track)
-  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}
   return false;
 }
 
@@ -333,7 +328,6 @@ bool MuonDetCleaner<DTChamberId, DTRecSegment4D>::checkrecHit(const TrackingRecH
   } else if (hit_type == typeid(DTSLRecSegment2D)) {
     return true;
   }
-  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}
   return false;
 }
 

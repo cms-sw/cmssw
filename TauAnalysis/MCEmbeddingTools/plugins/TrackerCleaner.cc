@@ -48,7 +48,6 @@ void TrackerCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       if (!iMuon->isGlobalMuon())
         continue;
       const reco::Track *mutrack = iMuon->globalTrack().get();
-      //  reco::Track *mutrack = new reco::Track(*(iMuon->innerTrack() ));
       for (trackingRecHit_iterator hitIt = mutrack->recHitsBegin(); hitIt != mutrack->recHitsEnd(); ++hitIt) {
         const TrackingRecHit &murechit = **hitIt;
         if (!(murechit).isValid())
@@ -78,7 +77,6 @@ void TrackerCleaner<T>::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         idx++;
         if (vetodClusters[idx - 1])
           continue;
-        // if (!vetodClusters[idx-1]) continue; for inverted selction
         spc.push_back(*clustIt);
       }
     }

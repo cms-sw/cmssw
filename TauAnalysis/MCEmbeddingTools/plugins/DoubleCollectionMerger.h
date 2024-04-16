@@ -2,6 +2,7 @@
  *
  * \author Per Ahrens
  *
+ *  Clean Up from Christian Winter & Sebastian Brommer, KIT
  */
 #ifndef TauAnalysis_MCEmbeddingTools_DoubleCollectionMerger_H
 #define TauAnalysis_MCEmbeddingTools_DoubleCollectionMerger_H
@@ -15,7 +16,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 
-// #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 #include <iostream>
 #include <map>
 #include <string>

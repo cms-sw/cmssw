@@ -3,6 +3,7 @@
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
+ *  Clean Up from Christian Winter & Sebastian Brommer, KIT
  */
 #ifndef TauAnalysis_MCEmbeddingTools_CollectionMerger_H
 #define TauAnalysis_MCEmbeddingTools_CollectionMerger_H
@@ -35,7 +36,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
-// #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 #include <iostream>
 #include <map>
 #include <string>

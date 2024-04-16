@@ -206,9 +206,6 @@ to_bemanipulate.append(
 to_bemanipulate.append(
     module_manipulate(module_name="hfreco", manipulator_name="HFRecHit")
 )
-to_bemanipulate.append(
-    module_manipulate(module_name="castorreco", manipulator_name="CastorRecHit")
-)
 
 
 to_bemanipulate.append(
@@ -568,69 +565,6 @@ def keepSimulated(process, processname="SIMembedding"):
             ):
                 ret_vstring.append(entry)
     return ret_vstring
-
-
-def customiseGenerator(process, changeProcessname=True, reselect=False):
-    if reselect:
-        dataTier = "RESELECT"
-    else:
-        dataTier = "SELECT"
-    if changeProcessname:
-        process._Process__name = "SIMembedding"
-
-    ## here correct the vertex collection
-
-    process.load("TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi")
-    process.VtxSmeared = process.VtxCorrectedToInput.clone()
-    print(
-        "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
-    )
-    process.load("TauAnalysis.MCEmbeddingTools.EmbeddingBeamSpotOnline_cfi")
-    process.hltOnlineBeamSpot = process.onlineEmbeddingBeamSpotProducer.clone()
-    print(
-        "Setting online beam spot in HLTSchedule to the one from input data. Replaced 'hltOnlineBeamSpot' with the offline beam spot."
-    )
-
-    # Remove BeamSpot Production, use the one from selected data instead.
-    process.reconstruction.remove(process.offlineBeamSpot)
-
-    # Disable noise simulation
-    process.mix.digitizers.castor.doNoise = cms.bool(False)
-
-    process.mix.digitizers.ecal.doESNoise = cms.bool(False)
-    process.mix.digitizers.ecal.doENoise = cms.bool(False)
-
-    process.mix.digitizers.hcal.doNoise = cms.bool(False)
-    process.mix.digitizers.hcal.doThermalNoise = cms.bool(False)
-    process.mix.digitizers.hcal.doHPDNoise = cms.bool(False)
-
-    process.mix.digitizers.pixel.AddNoisyPixels = cms.bool(False)
-    process.mix.digitizers.pixel.AddNoise = cms.bool(False)
-
-    process.mix.digitizers.strip.Noise = cms.bool(False)
-
-    # Replace HLT vertexing with vertex taken from LHE step
-    process.load("TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi")
-    process.hltPixelVertices = process.embeddingHltPixelVertices.clone()
-    process.offlinePrimaryVertices = process.embeddingHltPixelVertices.clone()
-    process.firstStepPrimaryVerticesUnsorted = process.embeddingHltPixelVertices.clone()
-    process.firstStepPrimaryVerticesPreSplitting = (
-        process.embeddingHltPixelVertices.clone()
-    )
-
-    process = customisoptions(process)
-    ##process = fix_input_tags(process)
-
-    return modify_outputModules(
-        process,
-        [keepSelected(dataTier), keepCleaned(dataTier), keepSimulated(process)],
-        ["AODSIMoutput"],
-    )
-
-
-def customiseGenerator_Reselect(process):
-    return customiseGenerator(process, reselect=True)
-
 
 def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
     if reselect:
