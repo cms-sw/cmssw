@@ -281,7 +281,7 @@ class adaptToRunAtMiniAOD(object):
 		toKeep = ['deepTau2017v2p1']
 		#For boosted do not run deepTauIDs, but add still used Run-2 anti-e MVA
 		if self.runBoosted:
-			toKeep = ['againstEle2018']
+			toKeep = ['againstEle']
 		import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 		tauIdEmbedder = tauIdConfig.TauIDEmbedder(
 			self.process, debug = False,

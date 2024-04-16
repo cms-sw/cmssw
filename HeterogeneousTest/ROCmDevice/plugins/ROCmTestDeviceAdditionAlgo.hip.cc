@@ -7,7 +7,7 @@
 
 #include "ROCmTestDeviceAdditionAlgo.h"
 
-namespace HeterogeneousCoreROCmTestDevicePlugins {
+namespace HeterogeneousTestROCmDevicePlugins {
 
   __global__ void kernel_add_vectors_f(const float* __restrict__ in1,
                                        const float* __restrict__ in2,
@@ -24,4 +24,4 @@ namespace HeterogeneousCoreROCmTestDevicePlugins {
     hipCheck(hipGetLastError());
   }
 
-}  // namespace HeterogeneousCoreROCmTestDevicePlugins
+}  // namespace HeterogeneousTestROCmDevicePlugins

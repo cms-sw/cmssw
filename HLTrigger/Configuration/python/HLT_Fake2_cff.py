@@ -1,13 +1,13 @@
 # hltGetConfiguration /dev/CMSSW_14_0_0/Fake2 --cff --data --type Fake2
 
-# /dev/CMSSW_14_0_0/Fake2/V9 (CMSSW_14_0_1_HLT3)
+# /dev/CMSSW_14_0_0/Fake2/V14 (CMSSW_14_0_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/Fake2/V9")
+  tableName = cms.string("/dev/CMSSW_14_0_0/Fake2/V14")
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -107,7 +107,6 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
-    AXOL1TLModelVersion = cms.string( "GTADModel_v3" ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),

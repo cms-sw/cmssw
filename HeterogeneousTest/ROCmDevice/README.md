@@ -12,20 +12,20 @@ ROCm-based libraries, and using them from multiple plugins.
 The package `HeterogeneousTest/ROCmDevice` implements a library that defines and exports ROCm
 device-side functions:
 ```c++
-namespace cms::cudatest {
+namespace cms::rocmtest {
 
   __device__ void add_vectors_f(...);
   __device__ void add_vectors_d(...);
 
-}  // namespace cms::cudatest
+}  // namespace cms::rocmtest
 ```
 
 The `plugins` directory implements the `ROCmTestDeviceAdditionModule` `EDAnalyzer` that launches a
 ROCm kernel using the functions defined in ths library. As a byproduct this plugin also shows how
 to split an `EDAnalyzer` or other framework plugin into a host-only part (in a `.cc` file) and a
-device part (in a `.cu` file).
+device part (in a `.hip.cc` file).
 
-The `test` directory implements the `testCudaDeviceAddition` binary that launches a ROCm kernel
+The `test` directory implements the `testRocmDeviceAddition` binary that launches a ROCm kernel
 using these functions.
 It also contains the `testROCmTestDeviceAdditionModule.py` python configuration to exercise the
 `ROCmTestDeviceAdditionModule` plugin.

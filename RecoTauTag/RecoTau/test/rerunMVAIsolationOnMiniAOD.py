@@ -24,11 +24,7 @@ process.TFileService = cms.Service("TFileService",
   fileName = cms.string('rerunTauID_miniAOD.root')
 )
 
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '76X_mcRun2_asymptotic_RunIIFall15DR76_v1', '')
-
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
-process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronMVA6_cfi import *
 
@@ -36,11 +32,8 @@ process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolatio
     PATTauProducer = cms.InputTag('slimmedTaus'),
     Prediscriminants = noPrediscriminants,
     loadMVAfromDB = cms.bool(True),
-    ## run with old MVA training
-    #mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"),
-    ## run with new MVA training
-    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
-    mvaOpt = cms.string("DBoldDMwLT"),
+    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT"),
+    mvaOpt = cms.string("DBoldDMwLTwGJ"),
     verbosity = cms.int32(0)
 )
 
@@ -49,21 +42,22 @@ process.rerunDiscriminationByIsolationMVArun2v1 = patDiscriminationByIsolationMV
     Prediscriminants = noPrediscriminants,
     toMultiplex = cms.InputTag('rerunDiscriminationByIsolationMVArun2v1raw'),
     loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_mvaOutput_normalization"),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT_mvaOutput_normalization"),
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
-            cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"),
+            cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT"),
             variable = cms.string("pt"),
         )
     ),
     workingPoints = cms.vstring(
-        "_WPEff90",
-        "_WPEff80",
-        "_WPEff70",
-        "_WPEff60",
-        "_WPEff50",
-        "_WPEff40"
+        "_VVLoose",
+        "_VLoose",
+        "_Loose",
+        "_Medium",
+        "_Tight",
+        "_VTight",
+        "_VVTight"
     )
 )
 
@@ -76,14 +70,14 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     vetoEcalCracks = cms.bool(False),
     returnMVA = cms.bool(True),
     method = cms.string("BDTG"),
-    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL"),
-    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL"),
-    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL"),
-    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL"),
-    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC"),
-    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC"),
-    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC"),
-    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC"),
+    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_BL"),
+    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_BL"),
+    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA_woGwGSF_BL"),
+    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA_wGwGSF_BL"),
+    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA_NoEleMatch_wGwoGSF_EC"),
+    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA_woGwGSF_EC"),
+    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA_wGwGSF_EC"),
     minMVANoEleMatchWOgWOgsfBL = cms.double(0.0),
     minMVANoEleMatchWgWOgsfBL  = cms.double(0.0),
     minMVAWOgWgsfBL            = cms.double(0.0),
@@ -113,12 +107,13 @@ embedID = cms.EDProducer("PATTauIDEmbedder",
    src = cms.InputTag('slimmedTaus'),
    tauIDSources = cms.PSet(
       byIsolationMVArun2v1DBoldDMwLTrawNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "raw"),
-      byVLooseIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff90"),
-      byLooseIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff80"),
-      byMediumIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff70"),
-      byTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff60"),
-      byVTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff50"),
-      byVVTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_WPEff40"),
+      byVVLooseIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_VVLoose"),
+      byVLooseIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_VLoose"),
+      byLooseIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_Loose"),
+      byMediumIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_Medium"),
+      byTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_Tight"),
+      byVTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_VTight"),
+      byVVTightIsolationMVArun2v1DBoldDMwLTNew = tauIDMVAinputs("rerunDiscriminationByIsolationMVArun2v1", "_VVTight"),
       againstElectronMVA6RawNew = tauIDMVAinputs("rerunDiscriminationAgainstElectronMVA6", "raw")
    ),
 )
