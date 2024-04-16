@@ -285,7 +285,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker,
       LeadingOnlyCounter(0),
       TrailingOnlyCounter(0),
       CompleteCounter(0),
-      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 12, -2, 10) {
+      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 16, -8, 8) {
   std::string path, title;
   CTPPSDiamondDetId(id).rpName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -490,9 +490,9 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                  25,
                                  0,
                                  25,
-                                 12,
-                                 -2,
-                                 10) {
+                                 16,
+                                 -8,
+                                 8) {
   std::string path, title;
   CTPPSDiamondDetId(id).planeName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -513,11 +513,11 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                        25 * windowsNum,
                                        0,
                                        25 * windowsNum,
-                                       8,
-                                       0,
+                                       16,
+                                       -8,
                                        8);
   EfficiencyWRTPixelsInPlane =
-      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 12, -2, 10);
+      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 16, -8, 8);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   //                    75);
 
   pixelTomography_far = ibooker.book2D(
-      "tomography pixel", "tomography with pixel;x + 25 OOT (mm);y (mm)", 25 * windowsNum, 0, 25 * windowsNum, 8, 0, 8);
+      "tomography pixel", "tomography with pixel;x + 25 OOT (mm);y (mm)", 25 * windowsNum, 0, 25 * windowsNum, 16, -8, 8);
 
   hit_rate = ibooker.book1D("hit rate", title + "hit rate;rate (Hz)", 40, 0, 20);
 
