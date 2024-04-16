@@ -50,16 +50,6 @@ namespace hgcal {
   }  // namespace econd
 
   namespace backend {
-    enum ECONDPacketStatus {
-      Normal = 0x0,
-      PayloadCRCError = 0x1,
-      EventIDMismatch = 0x2,
-      EBTimeout = 0x4,
-      BCIDOrbitIDMismatch = 0x5,
-      MainBufferOverflow = 0x6,
-      InactiveECOND = 0x7
-    };
-
     /// builds the capture block header (see page 16 of "HGCAL BE DAQ firmware description")
     /// \return a vector of size 2 with the 2 32b words of the capture block header
     std::vector<uint32_t> buildCaptureBlockHeader(uint32_t bunch_crossing,

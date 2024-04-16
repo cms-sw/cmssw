@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRawDataDefinitions.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 
 namespace hgcal::econd {
 

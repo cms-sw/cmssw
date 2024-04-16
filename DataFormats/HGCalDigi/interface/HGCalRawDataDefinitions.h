@@ -4,7 +4,22 @@
 namespace hgcal {
   namespace econd {
     enum ToTStatus { ZeroSuppressed = 0x0, noZeroSuppressed_TOASuppressed = 0x1, invalid = 0x2, AutomaticFull = 0x3 };
-  }
+  }  // namespace econd
+
+  namespace backend {
+    enum ECONDPacketStatus {
+      Normal = 0x0,
+      PayloadTooLarge = 0x1,
+      PayloadCRCError = 0x2,
+      EventIDMismatch = 0x3,
+      EBTimeout = 0x4,
+      BCIDOrbitIDMismatch = 0x5,
+      MainBufferOverflow = 0x6,
+      InactiveECOND = 0x7
+    };
+
+  }  // namespace backend
+
   enum ECOND_FRAME {
     HEADER_POS = 23,
     HEADER_MASK = 0x1ff,

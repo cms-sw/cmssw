@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalECONDEmulator.h"
-#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRawDataDefinitions.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 
 using namespace hgcal::econd;
 

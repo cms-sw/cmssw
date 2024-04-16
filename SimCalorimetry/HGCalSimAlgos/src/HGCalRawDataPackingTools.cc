@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRawDataPackingTools.h"
-#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalRawDataDefinitions.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
