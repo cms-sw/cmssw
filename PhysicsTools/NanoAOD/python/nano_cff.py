@@ -146,23 +146,20 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
         
         if usePUPPIjets: # option to use PUPPI jets   
             jetCollection = "updatedJetsPuppi"
-            TagName = "pfUnifiedParticleTransformerAK4JetTag"
+            TagName = "pfUnifiedParticleTransformerAK4JetTags"
             tag_prefix = "byUTagPUPPI"
             updatedTauName = originalTauName+'WithUTagPUPPI'
             # Unified ParT Tagger used for PUPPI jets
             from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
-            process.pfUnifiedParticleTransformerAK4JetTags = pfUnifiedParticleTransformerAK4JetTags.clone()
+            Discriminators = [TagName+":"+tag for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value()]
         else: # use CHS jets by default
             jetCollection = "updatedJets"
-            TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTag"
+            TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTags"
             tag_prefix = "byUTagCHS"
             updatedTauName = originalTauName+'WithUTagCHS'
             # PNet tagger used for CHS jets
-            process.load('RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff')
-              
-        Discriminators = [];
-        for tag in getattr(process,TagName+"s").flav_names.value():
-            Discriminators.append(TagName+"s:"+tag)
+            from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralJetTags
+            Discriminators = [TagName+":"+tag for tag in pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names.value()]
 
         # Define "hybridTau" producer
         from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
@@ -172,7 +169,7 @@ def nanoAOD_addUTagToTaus(process, addUTagInfo=False, runUTagAK4=False,
             dRMax = 0.4,
             jetPtMin = 15,
             jetEtaMax = 2.5,
-            UTagLabel = TagName+"s",
+            UTagLabel = TagName,
             UTagScoreNames = Discriminators,
             tagPrefix = tag_prefix,
             tauScoreMin = -1,

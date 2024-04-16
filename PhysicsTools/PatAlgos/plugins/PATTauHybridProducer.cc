@@ -60,6 +60,9 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
   // Read the different Unified Tagger score names
   std::vector<std::string> UTagScoreNames = cfg.getParameter<std::vector<std::string>>("UTagScoreNames");
   for (const auto& scoreName : UTagScoreNames) {
+    // Check that discriminator matches tagger specified
+    if (scoreName.find(UTagLabel_) == std::string::npos)
+      continue;
     size_t labelLength = scoreName.find(':') == std::string::npos ? 0 : scoreName.find(':') + 1;
     std::string name = scoreName.substr(labelLength);
     if (name.find("prob") == std::string::npos)
