@@ -4,8 +4,8 @@
   <Vector name="vPars" type="numeric" nEntries="6">
     80, 52, 0, 0, 2, 8
   </Vector>
-  <Vector name="Subdetector1" type="numeric" nEntries="6">
-    20, 12, 2, 0xF, 0xFF, 0x3FF
+  <Vector name="Subdetector1" type="numeric" nEntries="8">
+    20, 12, 2, 0, 0xF, 0xFF, 0x3FF, 0x3
   </Vector>
   <Vector name="Subdetector2" type="numeric" nEntries="12">
     23, 19, 18, 12, 10, 2, 0x3, 0xF, 0x1, 0x3F, 0x3, 0xFF
@@ -24,22 +24,22 @@
   </Vector>
   <Vector name="detIdShifts" type="numeric" nEntries="36">
     -1, 23, -1,
-    23, -1, 18,
+    23, -1, -1,
     
-    20, 19, 14,
-    18, 20, 14,
+    20, 19, -1,
+    18, 20, -1,
     
-    12, 18,  4,
-    10, 10,  8,
+    12, 18,  -1,
+    10, 10,  -1,
     
-     2,  10,  2,
-     2,  2,  5,
+     2,  10,  -1,
+     2,  2,  -1,
     
-     0,  2,  0,
-     0,  0,  2,
+     0,  2,  -1,
+     0,  0,  -1,
     
     -1, 0, -1,
-    -1, -1,  0
+    -1, -1,  -1
   </Vector>
  </ConstantsSection>
 </DDDefinition>
