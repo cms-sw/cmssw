@@ -9,7 +9,7 @@ TSToSimTSHitLCAssociatorByEnergyScoreImpl::TSToSimTSHitLCAssociatorByEnergyScore
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
-    std::vector<HGCRecHit>& hits)
+    std::vector<const HGCRecHit*>& hits)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
@@ -137,7 +137,7 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
           }
         }
 
-        const HGCRecHit* hit = &(hits_[hitMap_->find(hitId)->second]);
+        const HGCRecHit* hit = hits_[hitMap_->find(hitId)->second];
         float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float simFractionSquared = simFraction * simFraction;
@@ -177,7 +177,7 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
         if (found != detIdToRecoTSId_Map[hitId].end())
           recoFraction = found->second;
 
-        const HGCRecHit* hit = &(hits_[hitMap_->find(hitId)->second]);
+        const HGCRecHit* hit = hits_[hitMap_->find(hitId)->second];
         float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float recoFractionSquared = recoFraction * recoFraction;

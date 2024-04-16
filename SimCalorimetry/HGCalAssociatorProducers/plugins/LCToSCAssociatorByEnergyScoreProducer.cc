@@ -29,18 +29,22 @@ void LCToSCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  std::vector<HIT> hits;
+  std::vector<const HIT *> hits;
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     for (auto &token : hgcal_hits_token_) {
       edm::Handle<HGCRecHitCollection> hits_handle;
       iEvent.getByToken(token, hits_handle);
-      hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
+      for (const auto &hit : *hits_handle) {
+        hits.push_back(&hit);
+      }
     }
   } else {
     for (auto &token : hits_token_) {
       edm::Handle<std::vector<HIT>> hits_handle;
       iEvent.getByToken(token, hits_handle);
-      hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
+      for (const auto &hit : *hits_handle) {
+        hits.push_back(&hit);
+      }
     }
   }
   const auto hitMap = &iEvent.get(hitMap_);

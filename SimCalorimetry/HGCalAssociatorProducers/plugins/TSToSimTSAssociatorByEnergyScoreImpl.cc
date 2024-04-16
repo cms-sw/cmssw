@@ -7,7 +7,7 @@ TSToSimTSAssociatorByEnergyScoreImpl::TSToSimTSAssociatorByEnergyScoreImpl(
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
-    std::vector<HGCRecHit>& hits)
+    std::vector<const HGCRecHit*>& hits)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
@@ -315,7 +315,7 @@ ticl::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-        const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+        const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
         invTracksterEnergyWeight += std::pow(lcFractionInTs * haf.second * hit->energy(), 2);
       }
     }

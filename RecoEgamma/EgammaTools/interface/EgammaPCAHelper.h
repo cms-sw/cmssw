@@ -43,8 +43,6 @@ namespace hgcal {
 
     const TPrincipal &pcaResult();
     /// to set once per event
-    //void setHitMap(const std::unordered_map<DetId, const HGCRecHit *> *hitMap);
-    //const std::unordered_map<DetId, const HGCRecHit *> *getHitMap() { return hitMap_; }
     void setHitMap(const std::unordered_map<DetId, const unsigned int> *hitMap);
     const std::unordered_map<DetId, const unsigned int> *getHitMap() { return hitMap_; }
 
@@ -90,7 +88,6 @@ namespace hgcal {
     std::vector<double> invThicknessCorrection_;
 
     const reco::CaloCluster *theCluster_;
-    //    const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
     const std::unordered_map<DetId, const unsigned int> *hitMap_;
     std::vector<Spot> theSpots_;
     int pcaIteration_;
@@ -108,7 +105,7 @@ namespace hgcal {
     const hgcal::RecHitTools *recHitTools_;
     ShowerDepth showerDepth_;
 
-    std::vector<HGCRecHit> hits_;
+    std::vector<const HGCRecHit *> hits_;
   };
 
 }  // namespace hgcal

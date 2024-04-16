@@ -68,7 +68,7 @@ public:
                                              bool,
                                              std::shared_ptr<hgcal::RecHitTools>,
                                              const std::unordered_map<DetId, const unsigned int> *,
-                                             std::vector<HIT> &hits);
+                                             std::vector<const HIT *> &hits);
 
   ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCH,
@@ -86,7 +86,7 @@ private:
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                     const edm::Handle<SimClusterCollection> &sCCH) const;
-  std::vector<HIT> hits_;
+  std::vector<const HIT *> hits_;
 };
 
 extern template class LCToSCAssociatorByEnergyScoreImpl<HGCRecHit>;

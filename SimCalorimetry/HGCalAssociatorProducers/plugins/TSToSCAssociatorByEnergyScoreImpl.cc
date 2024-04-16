@@ -8,7 +8,7 @@ TSToSCAssociatorByEnergyScoreImpl::TSToSCAssociatorByEnergyScoreImpl(
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
-    std::vector<HGCRecHit>& hits)
+    std::vector<const HGCRecHit*>& hits)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
@@ -68,7 +68,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
         }
         detIdToSimClusterId_Map[hitid].emplace_back(scId, it_haf.second);
 
-        const HGCRecHit* hit = &(hits_[itcheck->second]);
+        const HGCRecHit* hit = hits_[itcheck->second];
         tssInSimCluster[scId].energy += it_haf.second * hit->energy();
         tssInSimCluster[scId].hits_and_fractions.emplace_back(hitid, it_haf.second);
       }
@@ -86,7 +86,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
     LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\t# of clusters:\t" << layerClusters.size() << std::endl;
     double tot_energy = 0.;
     for (auto const& haf : tssInSimCluster[sc].hits_and_fractions) {
-      const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+      const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
       LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tHits/fraction/energy: " << (uint32_t)haf.first << "/"
                                                     << haf.second << "/" << haf.second * hit->energy() << std::endl;
       tot_energy += haf.second * hit->energy();
@@ -100,7 +100,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
 
   LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "detIdToSimClusterId_Map INFO" << std::endl;
   for (auto const& detId : detIdToSimClusterId_Map) {
-    const HGCRecHit* hit = &(hits_[hitMap_->at(detId.first)]);
+    const HGCRecHit* hit = hits_[hitMap_->at(detId.first)];
     LogDebug("TSToSCAssociatorByEnergyScoreImpl")
         << "For detId: " << (uint32_t)detId.first
         << " we have found the following connections with SimClusters:" << std::endl;
@@ -142,7 +142,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
 
         if (hit_find_in_SC != detIdToSimClusterId_Map.end()) {
           const auto itcheck = hitMap_->find(rh_detid);
-          const HGCRecHit* hit = &(hits_[itcheck->second]);
+          const HGCRecHit* hit = hits_[itcheck->second];
           //Loops through all the simclusters that have the layer cluster rechit under study
           //Here is time to update the tssInSimCluster and connect the SimCluster with all
           //the Tracksters that have the current rechit detid matched.
@@ -210,7 +210,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
           hitsToSimClusterId[hitId] -= 1;
         } else {
           const auto itcheck = hitMap_->find(rh_detid);
-          const HGCRecHit* hit = &(hits_[itcheck->second]);
+          const HGCRecHit* hit = hits_[itcheck->second];
           auto maxSCEnergyInLC = 0.f;
           auto maxSCId = -1;
           //Loop through all the linked SimClusters
@@ -285,7 +285,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
     LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tEnergy:\t" << tssInSimCluster[sc].energy << std::endl;
     double tot_energy = 0.;
     for (auto const& haf : tssInSimCluster[sc].hits_and_fractions) {
-      const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+      const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
       LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tHits/fraction/energy: " << (uint32_t)haf.first << "/"
                                                     << haf.second << "/" << haf.second * hit->energy() << std::endl;
       tot_energy += haf.second * hit->energy();
@@ -299,7 +299,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
 
   LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "Improved detIdToSimClusterId_Map INFO" << std::endl;
   for (auto const& sc : detIdToSimClusterId_Map) {
-    const HGCRecHit* hit = &(hits_[hitMap_->at(sc.first)]);
+    const HGCRecHit* hit = hits_[hitMap_->at(sc.first)];
     LogDebug("TSToSCAssociatorByEnergyScoreImpl")
         << "For detId: " << (uint32_t)sc.first
         << " we have found the following connections with SimClusters:" << std::endl;
@@ -339,7 +339,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-        const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+        const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
         invTracksterEnergyWeight +=
             (lcFractionInTs * haf.second * hit->energy()) * (lcFractionInTs * haf.second * hit->energy());
       }
@@ -359,7 +359,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
         const bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
         const auto itcheck = hitMap_->find(rh_detid);
-        const HGCRecHit* hit = &(hits_[itcheck->second]);
+        const HGCRecHit* hit = hits_[itcheck->second];
         float hitEnergyWeight = hit->energy() * hit->energy();
 
         for (auto& scPair : scsInTrackster[tsId]) {
@@ -427,7 +427,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
 #endif
     // Compute the correct normalization
     for (auto const& haf : tssInSimCluster[scId].hits_and_fractions) {
-      const HGCRecHit* hit = &(hits_[hitMap_->at(haf.first)]);
+      const HGCRecHit* hit = hits_[hitMap_->at(haf.first)];
       invSCEnergyWeight += std::pow(haf.second * hit->energy(), 2);
     }
     invSCEnergyWeight = 1.f / invSCEnergyWeight;
@@ -443,7 +443,7 @@ ticl::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
       if (hit_find_in_LC != detIdToLayerClusterId_Map.end())
         hitWithLC = true;
       const auto itcheck = hitMap_->find(sc_hitDetId);
-      const HGCRecHit* hit = &(hits_[itcheck->second]);
+      const HGCRecHit* hit = hits_[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
       for (auto& tsPair : tssInSimCluster[scId].tracksterIdToEnergyAndScore) {
         unsigned int tsId = tsPair.first;

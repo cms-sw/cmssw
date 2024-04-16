@@ -50,7 +50,7 @@ public:
                                                    bool,
                                                    std::shared_ptr<hgcal::RecHitTools>,
                                                    const std::unordered_map<DetId, const unsigned int> *&,
-                                                   std::vector<HGCRecHit> &hits);
+                                                   std::vector<const HGCRecHit *> &hits);
 
   hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(
       const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,
@@ -64,7 +64,7 @@ private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::unordered_map<DetId, const unsigned int> *hitMap_;
-  std::vector<HGCRecHit> hits_;
+  std::vector<const HGCRecHit *> hits_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   hgcal::association makeConnections(const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,

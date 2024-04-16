@@ -55,11 +55,13 @@ void TSToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  std::vector<HGCRecHit> hits;
+  std::vector<const HGCRecHit *> hits;
   for (auto &token : hits_token_) {
     edm::Handle<HGCRecHitCollection> hits_handle;
     iEvent.getByToken(token, hits_handle);
-    hits.insert(hits.end(), (*hits_handle).begin(), (*hits_handle).end());
+    for (const auto &hit : *hits_handle) {
+      hits.push_back(&hit);
+    }
   }
 
   const auto hitMap = &iEvent.get(hitMap_);
