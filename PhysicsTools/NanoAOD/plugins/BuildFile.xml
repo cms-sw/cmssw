@@ -17,6 +17,7 @@
 <use name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/ProtonReco"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
