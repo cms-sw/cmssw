@@ -41,7 +41,4 @@
   <class name="edm::Wrapper<std::unordered_map<DetId,const HGCRecHit*>>" persistent="false"/>
   <class name="std::pair<const DetId,const HGCRecHit*>" />
   
-  <class name="std::unordered_map<DetId,const unsigned int>" persistent="false"/>
-  <class name="edm::Wrapper<std::unordered_map<DetId, const unsigned int>>" persistent="false"/>
-  <class name="std::pair<const DetId, const unsigned int>" persistent="false"/>
 </lcgdict>
