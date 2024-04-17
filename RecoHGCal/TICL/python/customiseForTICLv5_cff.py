@@ -9,7 +9,7 @@ from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 
 from RecoHGCal.TICL.CLUE3DEM_cff import *
 from RecoHGCal.TICL.CLUE3DHAD_cff import *
-from RecoHGCal.TICL.pfTICLProducerV5_cfi import pfTICLProducerV5 as _pfTICLProducerV5
+from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
@@ -115,7 +115,10 @@ def customiseForTICLv5(process, enableDumper = False):
     process.tracksterSimTracksterAssociationLinkingPU.label_tst = cms.InputTag("ticlCandidate")
     process.tracksterSimTracksterAssociationPRPU.label_tst = cms.InputTag("ticlCandidate")
     process.mergeTICLTask = cms.Task()
-    process.pfTICL = _pfTICLProducerV5.clone()
+    process.pfTICL = _pfTICLProducer.clone(
+      ticlCandidateSrc = cms.InputTag('ticlCandidate'),
+      isTICLv5 = cms.bool(True)
+    )
     process.hgcalAssociators = cms.Task(process.mergedTrackstersProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,

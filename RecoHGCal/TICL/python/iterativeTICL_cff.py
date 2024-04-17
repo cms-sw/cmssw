@@ -31,14 +31,9 @@ ticlCandidate = _ticlCandidateProducer.clone()
 mtdSoA = _mtdSoAProducer.clone()
 
 pfTICL = _pfTICLProducer.clone()
+ticl_v5.toModify(pfTICL, ticlCandidateSrc = cms.InputTag('ticlCandidate'), isTICLv5 = cms.bool(True))
+
 ticlPFTask = cms.Task(pfTICL)
-
-#pfTICLv5 = _pfTICLProducerV5.clone()
-#ticl_v5.toReplaceWith(ticlPFTask, cms.Task(pfTICLv5))
-
-#ticl_v5.toReplaceWith(ticlPFTask, cms.Task(_pfTICLProducerV5.clone()))
-pfTICL = _pfTICLProducerV5.clone()
-ticl_v5.toReplaceWith(ticlPFTask, cms.Task(pfTICL))
 
 ticlIterationsTask = cms.Task(
     ticlCLUE3DHighStepTask,
