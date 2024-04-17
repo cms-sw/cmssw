@@ -174,13 +174,12 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
       int iEA = -1;
       auto cEta = std::abs(candRef->eta());
       for (int bIt = absEtaLowEdges_.size() - 1; bIt > -1; bIt--) {
-        if (cEta > absEtaLowEdges_.at(bIt)) {
+        if (cEta >= absEtaLowEdges_[bIt]) {
           iEA = bIt;
           break;
         }
       }
-
-      sum = sum - rho * effectiveAreas_.at(iEA);
+      sum = sum - rho * effectiveAreas_[iEA];
     }
 
     recoCandMap.insert(candRef, sum);
