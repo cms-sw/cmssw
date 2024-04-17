@@ -178,7 +178,7 @@ standaloneValidationK0sMC = cms.Sequence(
     * selectedPrimaryVertices
     * KShortEventSelector
     * KshortTracks
-    * standaloneTrackMonitorK0
+    * standaloneTrackMonitorK0MC
     * KshortMonitor)
 
 standaloneValidationLambdas = cms.Sequence(
