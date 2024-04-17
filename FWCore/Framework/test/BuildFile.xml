@@ -331,7 +331,28 @@
 <test name="testFWCoreFrameworkNonEventOrdering" command="test_non_event_ordering.sh"/>
 <test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>
 <test name="testFWCoreFrameworkModuleDeletion" command="run_module_delete_tests.sh"/>
+
 <test name="testFWCoreFrameworkExternalWorkOutputModule" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testExternalWorkGlobalOutputModule_cfg.py"/>
+
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathSameProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=sameProcess 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathSameProcessAnotherModuleBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=sameProcess --anotherModule=before 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathSameProcessAnotherModuleAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=sameProcess --anotherModule=after 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
+
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPathEarlier_cfg.py"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess 2>&amp;1 | grep 'to request a trigger name that does not exist'">
+  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
+</test>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=before 2>&amp;1 | grep 'to request a trigger name that does not exist'">
+  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
+</test>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=after 2>&amp;1 | grep 'to request a trigger name that does not exist'">
+  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
+</test>
+
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathMissingProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=missingProcess 2>&amp;1 | grep 'An exception of category .ProductNotFound'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathMissingProcessAnotherModuleBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=missingProcess --anotherModule=before 2>&amp;1 | grep 'An exception of category .ProductNotFound'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathMissingProcessAnotherModuleAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=missingProcess --anotherModule=after 2>&amp;1 | grep 'An exception of category .ProductNotFound'"/>
+
 <test name="testFWCoreFrameworkBadScheduleException0" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 0; grep -v 'Fatal Exception' test_bad_schedule_0.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_0.log -"/>
 <test name="testFWCoreFrameworkBadScheduleException1" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 1; grep -v 'Fatal Exception' test_bad_schedule_1.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_1.log -"/>
 <test name="testFWCoreFrameworkBadScheduleException2" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 2; grep -v 'Fatal Exception' test_bad_schedule_2.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_2.log -"/>

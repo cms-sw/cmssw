@@ -163,19 +163,31 @@ namespace edm {
     auto choiceTask =
         edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
           ServiceRegistry::Operate guard(weakToken.lock());
-          // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
-          CMS_SA_ALLOW try {
-            if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
-              timesRun_.fetch_add(1, std::memory_order_relaxed);
-              setPassed<true>();
-              waitingTasks_.doneWaiting(nullptr);
-              //TBB requires that destroyed tasks have count 0
-              if (0 == successTask->decrement_ref_count()) {
-                TaskSentry s(successTask);
+          try {
+            convertException::wrap([&]() {
+              if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
+                timesRun_.fetch_add(1, std::memory_order_relaxed);
+                setPassed<true>();
+                waitingTasks_.doneWaiting(nullptr);
+                //TBB requires that destroyed tasks have count 0
+                if (0 == successTask->decrement_ref_count()) {
+                  TaskSentry s(successTask);
+                }
+                return;
               }
-              return;
+            });
+
+          } catch (cms::Exception& e) {
+            e.addContext("Calling OutputModule prePrefetchSelection()");
+            if (moduleCallingContext_.type() == ModuleCallingContext::Type::kPlaceInPath) {
+              auto pathContext = moduleCallingContext_.placeInPathContext()->pathContext();
+              e.addContext("Running path '" + pathContext->pathName() + "'");
+              auto streamContext = moduleCallingContext_.getStreamContext();
+              std::ostringstream ost;
+              exceptionContext(ost, *streamContext);
+              e.addContext(ost.str());
             }
-          } catch (...) {
+            waitingTasks_.doneWaiting(std::current_exception());
           }
           if (0 == successTask->decrement_ref_count()) {
             group.run([successTask]() {
@@ -193,7 +205,8 @@ namespace edm {
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
-      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+      if (productResolverIndex != ProductResolverIndexAmbiguous and
+          productResolverIndex != ProductResolverIndexInvalid) {
         iPrincipal->prefetchAsync(
             choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
