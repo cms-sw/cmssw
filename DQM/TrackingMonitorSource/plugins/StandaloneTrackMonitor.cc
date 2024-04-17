@@ -1836,17 +1836,18 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
             theMainVtx = *theClosestVertex;
           }
           if (theMainVtx.isValid()) {
-            const math::XYZPoint theMainVtxPos(
-                theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
-            const math::XYZPoint myVertex(
-                mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
-            const math::XYZPoint deltaVtx(
-                theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
-            double cosphi3D =
-                (Zp.Px() * deltaVtx.x() + Zp.Py() * deltaVtx.y() + Zp.Pz() * deltaVtx.z()) /
-                (sqrt(Zp.Px() * Zp.Px() + Zp.Py() * Zp.Py() + Zp.Pz() * Zp.Pz()) *
-                 sqrt(deltaVtx.x() * deltaVtx.x() + deltaVtx.y() * deltaVtx.y() + deltaVtx.z() * deltaVtx.z()));
-            cosPhi3DdileptonH_->Fill(cosphi3D, wfac);
+            const auto& mainVertexPos = theMainVtx.position();
+            const auto& myVertexPos = mumuTransientVtx.position();
+
+            const double deltaX = myVertexPos.x() - mainVertexPos.x();
+            const double deltaY = myVertexPos.y() - mainVertexPos.y();
+            const double deltaZ = myVertexPos.z() - mainVertexPos.z();
+
+            const double deltaNorm = sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+            const double zpNorm = sqrt(Zp.Px() * Zp.Px() + Zp.Py() * Zp.Py() + Zp.Pz() * Zp.Pz());
+
+            const double cosPhi3D = (Zp.Px() * deltaX + Zp.Py() * deltaY + Zp.Pz() * deltaZ) / (zpNorm * deltaNorm);
+            cosPhi3DdileptonH_->Fill(cosPhi3D, wfac);
           }
         }
       }
