@@ -207,11 +207,6 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   else if (detid.subdetId() == SiStripSubdetector::TEC)
     doubleSide = trackerTopo_->tecIsDoubleSide(detid);
 
-  // Double-sided entries (join of two modules) are not used in mkFit and are
-  // also not needed for the material calculation.
-  if (doubleSide)
-    return;
-
   float xy[4][2];
   float half_length, dz;
   const Bounds *b = &((det->surface()).bounds());
@@ -294,6 +289,12 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   if (lgc_map) {
     (*lgc_map)[lay].add_current();
   }
+
+  // Double-sided module (join of two modules) information is not used in mkFit and
+  // also not needed for the material calculation.
+  if (doubleSide)
+    return;
+
   // Module information
   const auto &p = det->position();
   auto z = det->rotation().z();
