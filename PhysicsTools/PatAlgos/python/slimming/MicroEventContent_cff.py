@@ -22,7 +22,6 @@ MicroEventContent = cms.PSet(
         'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
         'keep *_slimmedJetsPuppi_*_*',
         'keep *_slimmedMETs_*_*',
-        'keep *_slimmedMETsNoHF_*_*',
         'keep *_slimmedMETsPuppi_*_*',
         'keep *_slimmedSecondaryVertices_*_*',
         'keep *_slimmedLambdaVertices_*_*',
