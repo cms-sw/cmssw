@@ -152,7 +152,7 @@ public:
   // eta coverage of one crystal (approximate)
   static const float crystalUnitToEta;
 
-  enum { kSizeForDenseIndexing = MAX_HASH + 1 };
+  static constexpr int kSizeForDenseIndexing = MAX_HASH + 1;
 
   // function modes for (int, int) constructor
   static const int ETAPHIMODE = 0;

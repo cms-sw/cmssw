@@ -31,6 +31,8 @@ Centrality::Centrality(double d, std::string label)
       zdcSumPlus_(0),
       zdcSumMinus_(0),
       etMidRapiditySum_(0),
+      etPFhfSumPlus_(0),
+      etPFhfSumMinus_(0),
       ntracksPtCut_(0),
       ntracksEtaCut_(0),
       ntracksEtaPtCut_(0),

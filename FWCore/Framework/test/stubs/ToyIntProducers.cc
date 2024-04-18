@@ -5,6 +5,10 @@ Toy EDProducers of Ints for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wc++20-extensions"
+#endif
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -610,7 +614,7 @@ namespace edmtest {
   public:
     explicit ManyIntWhenRegisteredProducer(edm::ParameterSet const& p)
         : sourceLabel_(p.getParameter<std::string>("src")) {
-      callWhenNewProductsRegistered([=](edm::BranchDescription const& iBranch) {
+      callWhenNewProductsRegistered([=, this](edm::BranchDescription const& iBranch) {
         if (iBranch.moduleLabel() == sourceLabel_) {
           if (iBranch.branchType() != edm::InEvent) {
             throw edm::Exception(edm::errors::UnimplementedFeature)

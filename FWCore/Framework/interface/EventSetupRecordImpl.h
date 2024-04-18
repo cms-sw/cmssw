@@ -167,7 +167,7 @@ namespace edm {
                              std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
         DataKey const* dataKey = nullptr;
         if (iResolverIndex.value() == std::numeric_limits<int>::max()) {
-          whyFailedFactory = makeESHandleExceptionFactory([=] {
+          whyFailedFactory = makeESHandleExceptionFactory([this] {
             NoProductResolverException<DataT> ex(this->key(), {});
             return std::make_exception_ptr(ex);
           });
@@ -178,7 +178,7 @@ namespace edm {
                iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForProxies_.size()));
         void const* pValue = this->getFromResolverAfterPrefetch(iResolverIndex, iTransientAccessOnly, oDesc, dataKey);
         if (nullptr == pValue) {
-          whyFailedFactory = makeESHandleExceptionFactory([=] {
+          whyFailedFactory = makeESHandleExceptionFactory([this, dataKey] {
             NoProductResolverException<DataT> ex(this->key(), *dataKey);
             return std::make_exception_ptr(ex);
           });

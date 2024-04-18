@@ -5,6 +5,9 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4UserTrackingAction.hh"
+#include "G4Region.hh"
+
+#include <vector>
 
 class SimTrackManager;
 class TrackWithHistory;
@@ -38,7 +41,9 @@ private:
   bool checkTrack_;
   bool doFineCalo_;
   bool saveCaloBoundaryInformation_;
-  double eMinFine_;
+  double ekinMin_;
+  std::vector<double> ekinMinRegion_;
+  std::vector<G4Region*> ptrRegion_;
 };
 
 #endif

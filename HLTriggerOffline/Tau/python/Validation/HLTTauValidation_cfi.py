@@ -66,6 +66,11 @@ hltTauValIdealMonitorPF = hltTauValIdealMonitorMC.clone(
     ),
 )
 
+hltTauValIdealMonitorPNet = hltTauValIdealMonitorMC.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/PNet"),
+    Paths = cms.untracked.string("PNetTau")
+)
+
 from DQMOffline.Trigger.HLTTauDQMOffline_cfi import hltTauOfflineMonitor_TagAndProbe
 hltTauValTagAndProbe = hltTauValIdealMonitorMC.clone(
     DQMBaseFolder = cms.untracked.string("HLT/TAU/RelVal/TagAndProbe"),
@@ -94,5 +99,5 @@ hltTauValTagAndProbe = hltTauValIdealMonitorMC.clone(
 )
 
 #hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF)
-hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF+hltTauValTagAndProbe)
+hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF+hltTauValIdealMonitorPNet+hltTauValTagAndProbe)
 

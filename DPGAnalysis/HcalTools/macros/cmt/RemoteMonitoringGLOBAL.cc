@@ -144,6 +144,8 @@ int main(int argc, char *argv[]) {
   TCanvas *cFour1 = new TCanvas("cFour1", "cFour1", 1200, 800);
   TCanvas *cNine = new TCanvas("cNine", "cNine", 1500, 1500);
 
+  TCanvas *cSix = new TCanvas("cSix", "cSix", 200, 10, 700, 900);
+
   // RBX:
   //  TCanvas *c4x6 = new TCanvas("c4x6","c4x6",1500,3000);
   TCanvas *c4x6 = new TCanvas("c4x6", "c4x6", 1200, 2400);
@@ -692,8 +694,8 @@ int main(int argc, char *argv[]) {
         MapNumBadChanDepth[test][sub][k]->Divide(
             MapNumBadChanDepth[test][sub][k], MapNumChanDepth[test][sub][k], 1, 1, "B");
 
-        for (int x = 1; x <= MapNumBadChanFull[test]->GetXaxis()->GetNbins(); x++) {
-          for (int y = 1; y <= MapNumBadChanFull[test]->GetYaxis()->GetNbins(); y++) {
+        for (int x = 1; x <= MapNumBadChanFull[test]->GetXaxis()->GetNbins(); ++x) {
+          for (int y = 1; y <= MapNumBadChanFull[test]->GetYaxis()->GetNbins(); ++y) {
             double ccc1 = MapNumBadChanDepth[test][sub][k]->GetBinContent(x, y);
             MapNumBadChanFull[test]->SetBinContent(x, y, MapNumBadChanFull[test]->GetBinContent(x, y) + ccc1);
           }  //end y
@@ -717,11 +719,11 @@ int main(int argc, char *argv[]) {
         MapNumBadChanDepth[test][sub][k]->SetYTitle("#phi \b");
         MapNumBadChanDepth[test][sub][k]->SetZTitle("Average estimator \b");
         ////	//	MapNumBadChanDepth[test]->GetZaxis()->SetLabelSize(0.008); // can not be used which is of non-class type TH2F
-        //	MapNumBadChanDepth[test][sub][k]->SetTitleOffset(0.75, "Z");
+        MapNumBadChanDepth[test][sub][k]->SetTitleOffset(0.75, "Z");
         MapNumBadChanDepth[test][sub][k]->Draw("COLZ");
         //        MapNumBadChanDepth[test][sub][k]->Draw("same");
         //        MapNumBadChanDepth[test][sub][k]->GetYaxis()->SetRangeUser(0, 72.);
-        //        MapNumBadChanDepth[test][sub][k]->GetZaxis()->SetRangeUser(0.0001, 1.);
+        MapNumBadChanDepth[test][sub][k]->GetZaxis()->SetRangeUser(0.000001, 1.);
       }
       if (test == 0) {
         if (sub == 1) {
@@ -6911,12 +6913,312 @@ HF: j = 0,1,2, 3            18,19,20,21
   }
 
   //////////
-  //////////
-  //////////
-  //////////
-  //////////
-  //////////
-  //////////
+  ///  Sticking ADC counts in neughbouring TS for HB:
+  //======================================================================
+  cSix->Clear();
+  cSix->Divide(2, 3);
+
+  cSix->cd(1);
+  TH1F *MiliEvHB8 = (TH1F *)dir->FindObjectAny("h_nadccounts8_HB");
+  int MaxMil0HB8 = MiliEvHB8->GetBinContent(MiliEvHB8->GetMaximumBin());
+  int MaxMilHB8 = 0;
+  for (int i = 1; i <= MiliEvHB8->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB8->GetBinContent(i)) {
+      MaxMilHB8 = i;
+    }
+  }
+  cout << "HB8-      MaxMil0HB8=     " << MaxMil0HB8 << " MaxMilHB8=     " << MaxMilHB8 << endl;
+  gPad->SetLogy();
+  MiliEvHB8->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB8->SetTitle("Number of events per nadccountsHB8");
+  MiliEvHB8->SetXTitle("nadccountsHB8");
+  MiliEvHB8->SetYTitle("Number of events HB8");
+  MiliEvHB8->SetMarkerStyle(20);
+  MiliEvHB8->SetMarkerSize(0.4);
+  MiliEvHB8->SetMarkerColor(4);
+  MiliEvHB8->SetLineColor(0);
+  MiliEvHB8->GetXaxis()->SetRangeUser(0, MaxMilHB8);
+  MiliEvHB8->Draw("Error");
+
+  cSix->cd(2);
+  TH1F *MiliEvHB6 = (TH1F *)dir->FindObjectAny("h_nadccounts6_HB");
+  int MaxMil0HB6 = MiliEvHB6->GetBinContent(MiliEvHB6->GetMaximumBin());
+  int MaxMilHB6 = 0;
+  for (int i = 1; i <= MiliEvHB6->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB6->GetBinContent(i)) {
+      MaxMilHB6 = i;
+    }
+  }
+  cout << "HB6-      MaxMil0HB6=     " << MaxMil0HB6 << " MaxMilHB6=     " << MaxMilHB6 << endl;
+  //    gPad->SetGridy();
+  //    gPad->SetGridx();
+  gPad->SetLogy();
+  //            gPad->SetLogx();
+  MiliEvHB6->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB6->SetTitle("Number of events per nadccountsHB6");
+  MiliEvHB6->SetXTitle("nadccountsHB6");
+  MiliEvHB6->SetYTitle("Number of events HB6");
+  MiliEvHB6->SetMarkerStyle(20);
+  MiliEvHB6->SetMarkerSize(0.4);
+  MiliEvHB6->SetMarkerColor(4);
+  MiliEvHB6->SetLineColor(0);
+  //      MiliEvHB6->SetMinimum(0.8);
+  MiliEvHB6->GetXaxis()->SetRangeUser(0, MaxMilHB6);
+  MiliEvHB6->Draw("Error");
+
+  cSix->cd(3);
+  TH1F *MiliEvHB4 = (TH1F *)dir->FindObjectAny("h_nadccounts4_HB");
+  int MaxMil0HB4 = MiliEvHB4->GetBinContent(MiliEvHB4->GetMaximumBin());
+  int MaxMilHB4 = 0;
+  for (int i = 1; i <= MiliEvHB4->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB4->GetBinContent(i)) {
+      MaxMilHB4 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHB4->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB4->SetTitle("Number of events per nadccountsHB4");
+  MiliEvHB4->SetXTitle("nadccountsHB4");
+  MiliEvHB4->SetYTitle("Number of events HB4");
+  MiliEvHB4->SetMarkerStyle(20);
+  MiliEvHB4->SetMarkerSize(0.4);
+  MiliEvHB4->SetMarkerColor(4);
+  MiliEvHB4->SetLineColor(0);
+  MiliEvHB4->GetXaxis()->SetRangeUser(0, MaxMilHB4);
+  MiliEvHB4->Draw("Error");
+
+  cSix->cd(4);
+  TH1F *MiliEvHB3 = (TH1F *)dir->FindObjectAny("h_nadccounts3_HB");
+  int MaxMil0HB3 = MiliEvHB3->GetBinContent(MiliEvHB3->GetMaximumBin());
+  int MaxMilHB3 = 0;
+  for (int i = 1; i <= MiliEvHB3->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB3->GetBinContent(i)) {
+      MaxMilHB3 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHB3->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB3->SetTitle("Number of events per nadccountsHB3");
+  MiliEvHB3->SetXTitle("nadccountsHB3");
+  MiliEvHB3->SetYTitle("Number of events HB3");
+  MiliEvHB3->SetMarkerStyle(20);
+  MiliEvHB3->SetMarkerSize(0.4);
+  MiliEvHB3->SetMarkerColor(4);
+  MiliEvHB3->SetLineColor(0);
+  MiliEvHB3->GetXaxis()->SetRangeUser(0, MaxMilHB3);
+  MiliEvHB3->Draw("Error");
+
+  cSix->cd(5);
+  TH1F *MiliEvHB2 = (TH1F *)dir->FindObjectAny("h_nadccounts2_HB");
+  int MaxMil0HB2 = MiliEvHB2->GetBinContent(MiliEvHB2->GetMaximumBin());
+  int MaxMilHB2 = 0;
+  for (int i = 1; i <= MiliEvHB2->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB2->GetBinContent(i)) {
+      MaxMilHB2 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHB2->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB2->SetTitle("Number of events per nadccountsHB2");
+  MiliEvHB2->SetXTitle("nadccountsHB2");
+  MiliEvHB2->SetYTitle("Number of events HB2");
+  MiliEvHB2->SetMarkerStyle(20);
+  MiliEvHB2->SetMarkerSize(0.4);
+  MiliEvHB2->SetMarkerColor(4);
+  MiliEvHB2->SetLineColor(0);
+  MiliEvHB2->GetXaxis()->SetRangeUser(0, MaxMilHB2);
+  MiliEvHB2->Draw("Error");
+
+  cSix->cd(6);
+  TH1F *MiliEvHB0 = (TH1F *)dir->FindObjectAny("h_nadccounts0_HB");
+  int MaxMil0HB0 = MiliEvHB0->GetBinContent(MiliEvHB0->GetMaximumBin());
+  int MaxMilHB0 = 0;
+  for (int i = 1; i <= MiliEvHB0->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHB0->GetBinContent(i)) {
+      MaxMilHB0 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHB0->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHB0->SetTitle("Number of events per nadccountsHB0");
+  MiliEvHB0->SetXTitle("nadccountsHB0");
+  MiliEvHB0->SetYTitle("Number of events HB0");
+  MiliEvHB0->SetMarkerStyle(20);
+  MiliEvHB0->SetMarkerSize(0.4);
+  MiliEvHB0->SetMarkerColor(4);
+  MiliEvHB0->SetLineColor(0);
+  MiliEvHB0->GetXaxis()->SetRangeUser(0, MaxMilHB0);
+  MiliEvHB0->Draw("Error");
+
+  cSix->Update();
+  cSix->Print("Sticking_cases86432HB.png");
+  cSix->Clear();
+  if (MiliEvHB8)
+    delete MiliEvHB8;
+  if (MiliEvHB6)
+    delete MiliEvHB6;
+  if (MiliEvHB4)
+    delete MiliEvHB4;
+  if (MiliEvHB3)
+    delete MiliEvHB3;
+  if (MiliEvHB2)
+    delete MiliEvHB2;
+  if (MiliEvHB0)
+    delete MiliEvHB0;
+
+  ///  Sticking ADC counts in neughbouring TS for HE:
+  //======================================================================
+  cSix->Clear();
+  cSix->Divide(2, 3);
+
+  cSix->cd(1);
+  TH1F *MiliEvHE8 = (TH1F *)dir->FindObjectAny("h_nadccounts8_HE");
+  int MaxMil0HE8 = MiliEvHE8->GetBinContent(MiliEvHE8->GetMaximumBin());
+  int MaxMilHE8 = 0;
+  for (int i = 1; i <= MiliEvHE8->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE8->GetBinContent(i)) {
+      MaxMilHE8 = i;
+    }
+  }
+  cout << "HE8-      MaxMil0HE8=     " << MaxMil0HE8 << " MaxMilHE8=     " << MaxMilHE8 << endl;
+  gPad->SetLogy();
+  MiliEvHE8->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE8->SetTitle("Number of events per nadccountsHE8");
+  MiliEvHE8->SetXTitle("nadccountsHE8");
+  MiliEvHE8->SetYTitle("Number of events HE8");
+  MiliEvHE8->SetMarkerStyle(20);
+  MiliEvHE8->SetMarkerSize(0.4);
+  MiliEvHE8->SetMarkerColor(4);
+  MiliEvHE8->SetLineColor(0);
+  MiliEvHE8->GetXaxis()->SetRangeUser(0, MaxMilHE8);
+  MiliEvHE8->Draw("Error");
+
+  cSix->cd(2);
+  TH1F *MiliEvHE6 = (TH1F *)dir->FindObjectAny("h_nadccounts6_HE");
+  int MaxMil0HE6 = MiliEvHE6->GetBinContent(MiliEvHE6->GetMaximumBin());
+  int MaxMilHE6 = 0;
+  for (int i = 1; i <= MiliEvHE6->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE6->GetBinContent(i)) {
+      MaxMilHE6 = i;
+    }
+  }
+  cout << "HE6-      MaxMil0HE6=     " << MaxMil0HE6 << " MaxMilHE6=     " << MaxMilHE6 << endl;
+  //    gPad->SetGridy();
+  //    gPad->SetGridx();
+  gPad->SetLogy();
+  //            gPad->SetLogx();
+  MiliEvHE6->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE6->SetTitle("Number of events per nadccountsHE6");
+  MiliEvHE6->SetXTitle("nadccountsHE6");
+  MiliEvHE6->SetYTitle("Number of events HE6");
+  MiliEvHE6->SetMarkerStyle(20);
+  MiliEvHE6->SetMarkerSize(0.4);
+  MiliEvHE6->SetMarkerColor(4);
+  MiliEvHE6->SetLineColor(0);
+  //      MiliEvHE6->SetMinimum(0.8);
+  MiliEvHE6->GetXaxis()->SetRangeUser(0, MaxMilHE6);
+  MiliEvHE6->Draw("Error");
+
+  cSix->cd(3);
+  TH1F *MiliEvHE4 = (TH1F *)dir->FindObjectAny("h_nadccounts4_HE");
+  int MaxMil0HE4 = MiliEvHE4->GetBinContent(MiliEvHE4->GetMaximumBin());
+  int MaxMilHE4 = 0;
+  for (int i = 1; i <= MiliEvHE4->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE4->GetBinContent(i)) {
+      MaxMilHE4 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHE4->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE4->SetTitle("Number of events per nadccountsHE4");
+  MiliEvHE4->SetXTitle("nadccountsHE4");
+  MiliEvHE4->SetYTitle("Number of events HE4");
+  MiliEvHE4->SetMarkerStyle(20);
+  MiliEvHE4->SetMarkerSize(0.4);
+  MiliEvHE4->SetMarkerColor(4);
+  MiliEvHE4->SetLineColor(0);
+  MiliEvHE4->GetXaxis()->SetRangeUser(0, MaxMilHE4);
+  MiliEvHE4->Draw("Error");
+
+  cSix->cd(4);
+  TH1F *MiliEvHE3 = (TH1F *)dir->FindObjectAny("h_nadccounts3_HE");
+  int MaxMil0HE3 = MiliEvHE3->GetBinContent(MiliEvHE3->GetMaximumBin());
+  int MaxMilHE3 = 0;
+  for (int i = 1; i <= MiliEvHE3->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE3->GetBinContent(i)) {
+      MaxMilHE3 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHE3->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE3->SetTitle("Number of events per nadccountsHE3");
+  MiliEvHE3->SetXTitle("nadccountsHE3");
+  MiliEvHE3->SetYTitle("Number of events HE3");
+  MiliEvHE3->SetMarkerStyle(20);
+  MiliEvHE3->SetMarkerSize(0.4);
+  MiliEvHE3->SetMarkerColor(4);
+  MiliEvHE3->SetLineColor(0);
+  MiliEvHE3->GetXaxis()->SetRangeUser(0, MaxMilHE3);
+  MiliEvHE3->Draw("Error");
+
+  cSix->cd(5);
+  TH1F *MiliEvHE2 = (TH1F *)dir->FindObjectAny("h_nadccounts2_HE");
+  int MaxMil0HE2 = MiliEvHE2->GetBinContent(MiliEvHE2->GetMaximumBin());
+  int MaxMilHE2 = 0;
+  for (int i = 1; i <= MiliEvHE2->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE2->GetBinContent(i)) {
+      MaxMilHE2 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHE2->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE2->SetTitle("Number of events per nadccountsHE2");
+  MiliEvHE2->SetXTitle("nadccountsHE2");
+  MiliEvHE2->SetYTitle("Number of events HE2");
+  MiliEvHE2->SetMarkerStyle(20);
+  MiliEvHE2->SetMarkerSize(0.4);
+  MiliEvHE2->SetMarkerColor(4);
+  MiliEvHE2->SetLineColor(0);
+  MiliEvHE2->GetXaxis()->SetRangeUser(0, MaxMilHE2);
+  MiliEvHE2->Draw("Error");
+
+  cSix->cd(6);
+  TH1F *MiliEvHE0 = (TH1F *)dir->FindObjectAny("h_nadccounts0_HE");
+  int MaxMil0HE0 = MiliEvHE0->GetBinContent(MiliEvHE0->GetMaximumBin());
+  int MaxMilHE0 = 0;
+  for (int i = 1; i <= MiliEvHE0->GetXaxis()->GetNbins(); i++) {
+    if (MiliEvHE0->GetBinContent(i)) {
+      MaxMilHE0 = i;
+    }
+  }
+  gPad->SetLogy();
+  MiliEvHE0->GetYaxis()->SetLabelSize(0.04);
+  MiliEvHE0->SetTitle("Number of events per nadccountsHE0");
+  MiliEvHE0->SetXTitle("nadccountsHE0");
+  MiliEvHE0->SetYTitle("Number of events HE0");
+  MiliEvHE0->SetMarkerStyle(20);
+  MiliEvHE0->SetMarkerSize(0.4);
+  MiliEvHE0->SetMarkerColor(4);
+  MiliEvHE0->SetLineColor(0);
+  MiliEvHE0->GetXaxis()->SetRangeUser(0, MaxMilHE0);
+  MiliEvHE0->Draw("Error");
+
+  cSix->Update();
+  cSix->Print("Sticking_cases86432HE.png");
+  cSix->Clear();
+  if (MiliEvHE8)
+    delete MiliEvHE8;
+  if (MiliEvHE6)
+    delete MiliEvHE6;
+  if (MiliEvHE4)
+    delete MiliEvHE4;
+  if (MiliEvHE3)
+    delete MiliEvHE3;
+  if (MiliEvHE2)
+    delete MiliEvHE2;
+  if (MiliEvHE0)
+    delete MiliEvHE0;
+
   //====================================================================================================================
   cout << ">>>>>>>>>>>>>>>>>>>>>>>> =====================================================================" << endl;
 
@@ -8462,8 +8764,49 @@ HF: j = 0,1,2, 3            18,19,20,21
     htmlFile.close();
   }  //test
   //======================================================================
-  //	cout<<"for summed Amplitudes of each sub-detector" <<     endl;
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // for sticking adc counts in neughbouring TS of each sub-detector
+  htmlFile.open("StickingADCcounts_GL.html");
+  htmlFile << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">" << std::endl;
+  htmlFile << "<head>" << std::endl;
+  htmlFile << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>" << std::endl;
+  htmlFile << "<title> for sticking adc counts in neughbouring TS of each sub-detector </title>" << std::endl;
+  htmlFile << "<style type=\"text/css\">" << std::endl;
+  htmlFile << " body,td{ background-color: #FFFFCC; font-family: arial, arial ce, helvetica; font-size: 12px; }"
+           << std::endl;
+  htmlFile << "   td.s0 { font-family: arial, arial ce, helvetica; }" << std::endl;
+  htmlFile << "   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; "
+              "text-align: center;}"
+           << std::endl;
+  htmlFile << "   td.s2 { font-family: arial, arial ce, helvetica; background-color: #eeeeee; }" << std::endl;
+  htmlFile << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: #d0d0d0; }" << std::endl;
+  htmlFile << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: #FFC169; }" << std::endl;
+  htmlFile << "   td.s5 { font-family: arial, arial ce, helvetica; background-color: #00FF00; }" << std::endl;
+  htmlFile << "   td.s6 { font-family: arial, arial ce, helvetica; background-color: #FF0000; }" << std::endl;
+
+  htmlFile << "</style>" << std::endl;
+  htmlFile << "<body>" << std::endl;
+  htmlFile << "<h1> Monitoring of sticking adc counts in neughbouring TS in Global Run = " << runnumber << " </h1>"
+           << std::endl;
+
+  htmlFile << "<h3> Sticking_cases HB8, HB6, HB4, HB3, HB2: </h3>" << std::endl;
+  htmlFile << " <img src=\"Sticking_cases86432HB.png\" />" << std::endl;
+  htmlFile << "<br>" << std::endl;
+  htmlFile << "<br>" << std::endl;
+  htmlFile << "<br>" << std::endl;
+
+  htmlFile << "<h3> Sticking_cases HE8, HE6, HE4, HE3, HE2: </h3>" << std::endl;
+  htmlFile << " <img src=\"Sticking_cases86432HE.png\" />" << std::endl;
+  htmlFile << "<br>" << std::endl;
+
+  htmlFile << "<br>" << std::endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
+  htmlFile.close();
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //	cout<<"for summed Amplitudes of each sub-detector" <<     endl;
   // for summed Amplitudes of each sub-detector
   htmlFile.open("SummedAmplitudes_GL.html");
   htmlFile << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">" << std::endl;
@@ -8834,6 +9177,9 @@ HF: j = 0,1,2, 3            18,19,20,21
 
   htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
            << "/SummedAmplitudes_GL.html\">SummedAmplitudes</a></td>" << std::endl;
+
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/GLOBAL_" << runnumber
+           << "/StickingADCcounts_GL.html\">StickingADCcounts</a></td>" << std::endl;
 
   htmlFile << "</tr>" << std::endl;
   htmlFile << "</table>" << std::endl;

@@ -73,6 +73,9 @@ private:
   MonitorElement* h_hiZDC;
   MonitorElement* h_hiZDCplus;
   MonitorElement* h_hiZDCminus;
+  MonitorElement* h_hiPF;
+  MonitorElement* h_hiPFplus;
+  MonitorElement* h_hiPFminus;
 
   MonitorElement* h_vertex_x;
   MonitorElement* h_vertex_y;

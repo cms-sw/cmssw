@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import os, os.path
 
-def pfnInPath(name):
+def pfnInPath(name:str):
   for path in os.environ['CMSSW_SEARCH_PATH'].split(':'):
     fn = os.path.join(path, name)
     if os.path.isfile(fn):

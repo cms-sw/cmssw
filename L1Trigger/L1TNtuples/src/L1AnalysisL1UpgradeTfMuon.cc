@@ -65,7 +65,7 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
         }
         l1upgradetfmuon_.tfMuonDecodedTrAdd.push_back(decoded_track_address);
         l1upgradetfmuon_.tfMuonHwTrAdd.push_back(
-            l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it, isRun3_));
+            l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it, isRun3_, isRun3_));
         l1upgradetfmuon_.nTfMuons++;
       }
     }

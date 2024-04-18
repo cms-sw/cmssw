@@ -384,7 +384,7 @@ namespace gctobj {
 
   inline jetInfo getJetValues(GCTsupertower_t tempX[nSTEta][nSTPhi], int seed_eta, int seed_phi) {
     float temp[nSTEta + 2][nSTPhi + 2];
-    float eta_slice[3];
+    float eta_slice[3] = {0.f, 0.f, 0.f};
     jetInfo jet_tmp;
 
     for (int i = 0; i < nSTEta + 2; i++) {

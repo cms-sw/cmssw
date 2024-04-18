@@ -7,7 +7,7 @@
 
 #include "ROCmTestKernelAdditionAlgo.h"
 
-namespace HeterogeneousCoreROCmTestKernelPlugins {
+namespace HeterogeneousTestROCmKernelPlugins {
 
   void wrapper_add_vectors_f(const float* __restrict__ in1,
                              const float* __restrict__ in2,
@@ -17,4 +17,4 @@ namespace HeterogeneousCoreROCmTestKernelPlugins {
     hipCheck(hipGetLastError());
   }
 
-}  // namespace HeterogeneousCoreROCmTestKernelPlugins
+}  // namespace HeterogeneousTestROCmKernelPlugins

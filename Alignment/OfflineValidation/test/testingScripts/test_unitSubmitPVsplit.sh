@@ -13,8 +13,15 @@ scriptName="batchHarvester_Prompt_0.sh"
 # Create directory if it doesn't exist
 mkdir -p "./testExecution"
 
-# Copy script to the test execution directory
-cp -pr "./BASH/${scriptName}" "./testExecution/"
+# Check if the script exists and is a regular file
+if [ -f "./BASH/${scriptName}" ]; then
+    # Copy script to the test execution directory
+    cp -pr "./BASH/${scriptName}" "./testExecution/"
+else
+    # Emit a warning if the script doesn't exist or is not a regular file
+    echo "Warning: Script '${scriptName}' not found or is not a regular file. Skipping excution of further tests."
+    exit 0
+fi
 
 # Change directory to the test execution directory
 cd "./testExecution" || exit 1

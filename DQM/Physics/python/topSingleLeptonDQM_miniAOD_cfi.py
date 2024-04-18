@@ -29,7 +29,7 @@ topSingleMuonMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
       muons = cms.InputTag("slimmedMuons"),
       elecs = cms.InputTag("slimmedElectrons"),
       jets  = cms.InputTag("slimmedJets"),
-      mets  = cms.VInputTag("slimmedMETs", "slimmedMETsNoHF", "slimmedMETsPuppi"),
+      mets  = cms.VInputTag("slimmedMETs", "slimmedMETsPuppi"),
       pvs   = cms.InputTag("offlineSlimmedPrimaryVertices")
 
     ),
@@ -126,7 +126,7 @@ topSingleElectronMediumDQM_miniAOD = DQMEDAnalyzer('TopSingleLeptonDQM_miniAOD',
       muons = cms.InputTag("slimmedMuons"),
       elecs = cms.InputTag("slimmedElectrons"),
       jets  = cms.InputTag("slimmedJets"),
-      mets  = cms.VInputTag("slimmedMETs", "slimmedMETsNoHF", "slimmedMETsPuppi"),
+      mets  = cms.VInputTag("slimmedMETs", "slimmedMETsPuppi"),
       pvs   = cms.InputTag("offlineSlimmedPrimaryVertices")
 
     ),

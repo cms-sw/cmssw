@@ -27,7 +27,6 @@ from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.fsrPhotons_cff import *
 from PhysicsTools.NanoAOD.softActivity_cff import *
-from PhysicsTools.NanoAOD.l1trig_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -119,7 +118,7 @@ def nanoAOD_addTauIds(process, idsToRun=[]):
         process.finalTaus.src = updatedTauName
         #remember to adjust the selection and tables with added IDs
 
-        process.tauTask.add( process.rerunMvaIsolationTaskForNano , process.patTauMVAIDsTask )
+        process.tauTask.add( process.rerunMvaIsolationTaskForNano, getattr(process, updatedTauName) )
 
     return process
 
@@ -207,13 +206,15 @@ def nanoAOD_customizeCommon(process):
 
     run2_nanoAOD_106Xv2.toModify(
         nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
-        nanoAOD_addRobustParTAK4Tag_switch=True,
+        nanoAOD_addRobustParTAK4Tag_switch=False,
+        nanoAOD_addUnifiedParTAK4Tag_switch=True,
     )
 
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
         addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
-        addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch
+        addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch,
+        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addUnifiedParTAK4Tag_switch
     )
 
     # This function is defined in jetsAK4_CHS_cff.py
@@ -221,7 +222,8 @@ def nanoAOD_customizeCommon(process):
         addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
         addDeepFlavour=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch,
         addParticleNet=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addParticleNet_switch,
-        addRobustParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addRobustParTAK4Tag_switch
+        addRobustParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addRobustParTAK4Tag_switch,
+        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addUnifiedParTAK4Tag_switch
     )
 
     # This function is defined in jetsAK8_cff.py
@@ -260,10 +262,14 @@ def nanoAOD_customizeCommon(process):
         idsToAdd = cms.vstring()
     )
     run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_boostedTau_switch, idsToAdd = ["2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018"]
+        nanoAOD_boostedTau_switch, idsToAdd = ["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle"]
     ).toModify(
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
     )
+
+    # Add lepton time-life info
+    from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
+    process = addTimeLifeInfoBase(process)
 
     return process
 
@@ -279,11 +285,3 @@ def nanoWmassGenCustomize(process):
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
     return process
 
-def nanoL1TrigObjCustomize(process):
-    process.nanoTableTaskCommon.add(process.l1TablesTask)
-    process = setL1NanoToReduced(process)
-    return process
-
-def nanoL1TrigObjCustomizeFull(process):
-    process.nanoTableTaskCommon.add(process.l1TablesTask)
-    return process

@@ -39,6 +39,9 @@ void AXOL1TLTemplate::setConditionParameter(const std::vector<ObjectParameter>& 
   m_objectParameter = objParameter;
 }
 
+//setModelVersion - set the model version of the condition
+void AXOL1TLTemplate::setModelVersion(const std::string& modelversion) { m_modelVersion = modelversion; }
+
 void AXOL1TLTemplate::print(std::ostream& myCout) const {
   myCout << "\n  AXOL1TLTemplate print..." << std::endl;
 
@@ -65,6 +68,7 @@ void AXOL1TLTemplate::copy(const AXOL1TLTemplate& cp) {
   m_condChipNr = cp.condChipNr();
   m_condRelativeBx = cp.condRelativeBx();
 
+  m_modelVersion = cp.modelVersion();  // new for utm 0.12.0
   m_objectParameter = *(cp.objectParameter());
 }
 

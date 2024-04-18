@@ -36,14 +36,6 @@ private:
   const std::vector<double> leadCutHighMass3_;
   const std::vector<double> subCutHighMass3_;
 
-  const double lowMassCut_;
-  const std::vector<double> leadCutLowMass1_;
-  const std::vector<double> subCutLowMass1_;
-  const std::vector<double> leadCutLowMass2_;
-  const std::vector<double> subCutLowMass2_;
-  const std::vector<double> leadCutLowMass3_;
-  const std::vector<double> subCutLowMass3_;
-
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candToken_;
   const edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> mvaToken_;
 };
@@ -57,15 +49,6 @@ HLTEgammaDoubleXGBoostCombFilter::HLTEgammaDoubleXGBoostCombFilter(edm::Paramete
       subCutHighMass2_(config.getParameter<std::vector<double>>("subCutHighMass2")),
       leadCutHighMass3_(config.getParameter<std::vector<double>>("leadCutHighMass3")),
       subCutHighMass3_(config.getParameter<std::vector<double>>("subCutHighMass3")),
-
-      lowMassCut_(config.getParameter<double>("lowMassCut")),
-      leadCutLowMass1_(config.getParameter<std::vector<double>>("leadCutLowMass1")),
-      subCutLowMass1_(config.getParameter<std::vector<double>>("subCutLowMass1")),
-      leadCutLowMass2_(config.getParameter<std::vector<double>>("leadCutLowMass2")),
-      subCutLowMass2_(config.getParameter<std::vector<double>>("subCutLowMass2")),
-      leadCutLowMass3_(config.getParameter<std::vector<double>>("leadCutLowMass3")),
-      subCutLowMass3_(config.getParameter<std::vector<double>>("subCutLowMass3")),
-
       candToken_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("candTag"))),
       mvaToken_(consumes<reco::RecoEcalCandidateIsolationMap>(config.getParameter<edm::InputTag>("mvaPhotonTag"))) {}
 
@@ -73,21 +56,13 @@ void HLTEgammaDoubleXGBoostCombFilter::fillDescriptions(edm::ConfigurationDescri
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
 
-  desc.add<double>("highMassCut", 95.0);
-  desc.add<std::vector<double>>("leadCutHighMass1", {0.98, 0.95});
-  desc.add<std::vector<double>>("subCutHighMass1", {0.0, 0.04});
+  desc.add<double>("highMassCut", 90.0);
+  desc.add<std::vector<double>>("leadCutHighMass1", {0.92, 0.95});
+  desc.add<std::vector<double>>("subCutHighMass1", {0.02, 0.04});
   desc.add<std::vector<double>>("leadCutHighMass2", {0.85, 0.85});
   desc.add<std::vector<double>>("subCutHighMass2", {0.04, 0.08});
   desc.add<std::vector<double>>("leadCutHighMass3", {0.30, 0.50});
-  desc.add<std::vector<double>>("subCutHighMass3", {0.15, 0.20});
-
-  desc.add<double>("lowMassCut", 60.0);
-  desc.add<std::vector<double>>("leadCutLowMass1", {0.98, 0.90});
-  desc.add<std::vector<double>>("subCutLowMass1", {0.04, 0.05});
-  desc.add<std::vector<double>>("leadCutLowMass2", {0.90, 0.80});
-  desc.add<std::vector<double>>("subCutLowMass2", {0.10, 0.10});
-  desc.add<std::vector<double>>("leadCutLowMass3", {0.60, 0.60});
-  desc.add<std::vector<double>>("subCutLowMass3", {0.30, 0.30});
+  desc.add<std::vector<double>>("subCutHighMass3", {0.14, 0.20});
 
   desc.add<edm::InputTag>("candTag", edm::InputTag("hltEgammaCandidatesUnseeded"));
   desc.add<edm::InputTag>("mvaPhotonTag", edm::InputTag("PhotonXGBoostProducer"));
@@ -136,18 +111,6 @@ bool HLTEgammaDoubleXGBoostCombFilter::hltFilter(edm::Event& event,
           accept = true;
         }  // if scoreJ > scoreI
       }    //If high mass
-      else if (mass > lowMassCut_ && mass < highMassCut_) {
-        if (mvaScorei >= mvaScorej && ((mvaScorei > leadCutLowMass1_[eta1] && mvaScorej > subCutLowMass1_[eta2]) ||
-                                       (mvaScorei > leadCutLowMass2_[eta1] && mvaScorej > subCutLowMass2_[eta2]) ||
-                                       (mvaScorei > leadCutLowMass3_[eta1] && mvaScorej > subCutLowMass3_[eta2]))) {
-          accept = true;
-        }  //if scoreI > scoreJ
-        else if (mvaScorej > mvaScorei && ((mvaScorej > leadCutLowMass1_[eta1] && mvaScorei > subCutLowMass1_[eta2]) ||
-                                           (mvaScorej > leadCutLowMass2_[eta1] && mvaScorei > subCutLowMass2_[eta2]) ||
-                                           (mvaScorej > leadCutLowMass3_[eta1] && mvaScorei > subCutLowMass3_[eta2]))) {
-          accept = true;
-        }  //if scoreJ > scoreI
-      }    //If low mass
     }      //j loop
   }        //i loop
   return accept;

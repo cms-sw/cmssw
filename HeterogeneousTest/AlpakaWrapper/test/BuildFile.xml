@@ -1,0 +1,9 @@
+<bin file="alpaka/testDeviceAdditionWrapper.cc" name="testAlpakaDeviceAdditionWrapper">
+  <use name="catch2"/>
+  <use name="alpaka"/>
+  <use name="HeterogeneousTest/AlpakaWrapper"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<test name="testAlpakaTestWrapperAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/AlpakaWrapper/test/testAlpakaTestWrapperAdditionModule.py"/>
