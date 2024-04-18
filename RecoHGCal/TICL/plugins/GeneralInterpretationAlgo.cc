@@ -234,7 +234,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   std::vector<unsigned> candidateTrackIds;
   candidateTrackIds.reserve(tracks.size());
   for (unsigned i = 0; i < tracks.size(); ++i) {
-    if (!maskTracks[i]))
+    if (!maskTracks[i])
       continue;
     candidateTrackIds.push_back(i);
   }
