@@ -326,7 +326,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                               std::end(result),
                               [&](auto const &v) {
                                 return static_cast<int>(v.vertices().size()) <
-                                       minNumLayerCluster_.at(tracksterSeedAlgoId_.at(tracksterIndex++));
+                                       minNumLayerCluster_[tracksterSeedAlgoId_[tracksterIndex++]];
                               }),
                result.end());
   if (doPidCut_) {
