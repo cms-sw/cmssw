@@ -31,7 +31,7 @@ namespace caStructures {
   template <typename TrackerTraits>
   using HitToTupleT =
       cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
-                                                   TrackerTraits::maxNumberOfHits,
+                                                   -1,
                                                    TrackerTraits::maxHitsForContainers>;  // 3.5 should be enough
 
   template <typename TrackerTraits>

@@ -253,6 +253,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // workspace
     cms::alpakatools::device_buffer<Device, HitToTuple> device_hitToTuple_;
+    cms::alpakatools::device_buffer<Device, uint32_t[]> device_hitToTupleStorage_;
+    typename HitToTuple::View device_hitToTupleView_;
     cms::alpakatools::device_buffer<Device, TupleMultiplicity> device_tupleMultiplicity_;
     cms::alpakatools::device_buffer<Device, CACell[]> device_theCells_;
     cms::alpakatools::device_buffer<Device, OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
