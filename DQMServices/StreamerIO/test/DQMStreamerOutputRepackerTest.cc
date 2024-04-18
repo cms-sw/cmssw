@@ -26,8 +26,9 @@
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace dqmservices {
+  using namespace edm::streamer;
 
-  class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
+  class DQMStreamerOutputRepackerTest : public StreamerOutputModuleBase {
   public:
     explicit DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps);
     ~DQMStreamerOutputRepackerTest() override;
@@ -64,7 +65,7 @@ namespace dqmservices {
   };  // end-of-class-def
 
   DQMStreamerOutputRepackerTest::DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps)
-      : edm::one::OutputModuleBase::OutputModuleBase(ps), edm::StreamerOutputModuleBase(ps) {
+      : edm::one::OutputModuleBase::OutputModuleBase(ps), StreamerOutputModuleBase(ps) {
     outputPath_ = ps.getUntrackedParameter<std::string>("outputPath");
     streamLabel_ = ps.getUntrackedParameter<std::string>("streamLabel");
 
@@ -168,7 +169,7 @@ namespace dqmservices {
 
   void DQMStreamerOutputRepackerTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    edm::StreamerOutputModuleBase::fillDescription(desc);
+    StreamerOutputModuleBase::fillDescription(desc);
 
     desc.addUntracked<std::string>("outputPath", "./output/")->setComment("File output path.");
 

@@ -30,6 +30,7 @@
 //#define DEBUG
 
 using namespace jsoncollector;
+using namespace edm::streamer;
 
 namespace evf {
 

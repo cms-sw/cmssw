@@ -30,7 +30,7 @@
 #include <iostream>
 #include <vector>
 
-namespace edm {
+namespace edm::streamer {
 
   /**
    * Creates a translator instance for the specified product registry.
@@ -426,4 +426,4 @@ namespace edm {
     return resultSize;
   }
 
-}  // namespace edm
+}  // namespace edm::streamer

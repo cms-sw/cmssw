@@ -31,8 +31,8 @@ public:
   void detectVersion(unsigned char* fileBuf, uint32_t fileHeaderOffset) override {
     detectedFRDversion_ = *((uint16_t*)(fileBuf + fileHeaderOffset));
   }
-  uint32_t headerSize() const override { return FRDHeaderVersionSize[detectedFRDversion_]; }
-  bool versionCheck() const override { return detectedFRDversion_ <= FRDHeaderMaxVersion; }
+  uint32_t headerSize() const override { return edm::streamer::FRDHeaderVersionSize[detectedFRDversion_]; }
+  bool versionCheck() const override { return detectedFRDversion_ <= edm::streamer::FRDHeaderMaxVersion; }
 
   uint64_t dataBlockSize() const override {
     // get event size from the first data source (main)
@@ -113,7 +113,7 @@ private:
   uint16_t detectedFRDversion_ = 0;
   size_t fileHeaderSize_ = 0;
   size_t headerSize_ = 0;
-  std::vector<std::unique_ptr<FRDEventMsgView>> events_;
+  std::vector<std::unique_ptr<edm::streamer::FRDEventMsgView>> events_;
   unsigned char* dataBlockAddr_ = nullptr;
   std::vector<unsigned char*> dataBlockAddrs_;
   std::vector<unsigned char*> dataBlockMaxAddrs_;

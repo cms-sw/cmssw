@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <iterator>
 
-namespace edm {
+namespace edm::streamer {
   template <typename Producer>
   class StreamerInputModule : public StreamerInputSource {
     /**
@@ -78,6 +78,6 @@ namespace edm {
     return Next::kEvent;
   }
 
-}  // namespace edm
+}  // namespace edm::streamer
 
 #endif

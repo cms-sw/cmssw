@@ -24,9 +24,9 @@ public:
   explicit RawEventFileWriterForBU(std::string const& fileName);
   ~RawEventFileWriterForBU();
 
-  void doOutputEvent(FRDEventMsgView const& msg);
+  void doOutputEvent(edm::streamer::FRDEventMsgView const& msg);
 
-  uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
+  edm::streamer::uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
   void start() {}
   void stop();
@@ -82,8 +82,8 @@ private:
   int microSleep_;
   unsigned int frdFileVersion_;
 
-  uint32 adlera_;
-  uint32 adlerb_;
+  edm::streamer::uint32 adlera_;
+  edm::streamer::uint32 adlerb_;
 
   unsigned int lumiOpen_ = 0;
   unsigned int lumiClosed_ = 0;

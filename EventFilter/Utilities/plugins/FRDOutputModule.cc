@@ -22,6 +22,8 @@
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
+using namespace edm::streamer;
+
 FRDOutputModule::FRDOutputModule(edm::ParameterSet const& ps)
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::one::OutputModule<edm::one::WatchLuminosityBlocks>(ps),

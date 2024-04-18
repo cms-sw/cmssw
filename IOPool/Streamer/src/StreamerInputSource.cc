@@ -37,7 +37,7 @@
 #include <iostream>
 #include <set>
 
-namespace edm {
+namespace edm::streamer {
   namespace {
     int const init_size = 1024 * 1024;
   }
@@ -511,4 +511,4 @@ namespace edm {
   void StreamerInputSource::EventPrincipalHolder::setEventPrincipal(EventPrincipal* ep) { eventPrincipal_ = ep; }
 
   void StreamerInputSource::fillDescription(ParameterSetDescription& desc) { RawInputSource::fillDescription(desc); }
-}  // namespace edm
+}  // namespace edm::streamer

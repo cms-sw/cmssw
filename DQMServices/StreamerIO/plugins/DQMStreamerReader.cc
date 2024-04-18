@@ -18,6 +18,7 @@
 #include <cctype>
 
 namespace dqmservices {
+  using namespace edm::streamer;
 
   DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
@@ -87,7 +88,7 @@ namespace dqmservices {
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
+    file_.streamFile_ = std::make_unique<StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {
@@ -179,11 +180,11 @@ namespace dqmservices {
 
   EventMsgView const* DQMStreamerReader::getEventMsg() {
     auto next = file_.streamFile_->next();
-    if (edm::StreamerInputFile::Next::kFile == next) {
+    if (StreamerInputFile::Next::kFile == next) {
       return nullptr;
     }
 
-    if (edm::StreamerInputFile::Next::kStop == next) {
+    if (StreamerInputFile::Next::kStop == next) {
       return nullptr;
     }
 
@@ -437,7 +438,7 @@ namespace dqmservices {
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
 
     DQMFileIterator::fillDescription(desc);
-    edm::StreamerInputSource::fillDescription(desc);
+    StreamerInputSource::fillDescription(desc);
     edm::EventSkipperByID::fillDescription(desc);
 
     descriptions.add("source", desc);
