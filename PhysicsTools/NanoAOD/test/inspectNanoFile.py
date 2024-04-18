@@ -414,15 +414,15 @@ def writeMarkdownDocReport(trees, stream):
         groups = list(treeData['branchgroups'].values())
         groups.sort(key = lambda s : s['name'])
         for s in groups:
-            stream.write("| [**%s**](#%s) | %s |\n" % (s['name'], s['name'].lower(), s['doc']))
+            stream.write("| [**%s**](#%s) | %s |\n" % (s['name'], s['name'].lower(), s['doc'].replace('|', '\|').replace('\'', '\"')))
         stream.write("\n# %s detail\n" % treename)
         for s in groups:
-            stream.write("\n## <a id='%s'></a>%s [<sup>[back to top]</sup>](#content)\n" % (s['name'].lower(), s['name']))
+            stream.write("\n### <a id='%s'></a>%s [<sup>[back to top]</sup>](#%s-content)\n" % (s['name'].lower(), s['name'],treename.lower()))
             stream.write("| Object property | Type | Description |\n")
             stream.write("| - | - | - |\n")
             subs = [treeData['branches'][b] for b in s['subs']]
             for b in sorted(subs, key = lambda s : s['name']):
-                stream.write("| **%s** | %s| %s |\n" % (b['name'], b['kind'], b['doc']))
+                stream.write("| **%s** | %s| %s |\n" % (b['name'], b['kind'], b['doc'].replace('|', '\|').replace('\'', '\"')))
         stream.write("\n")
 
 def _maybeOpen(filename):
