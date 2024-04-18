@@ -22,7 +22,7 @@
 #include <vector>
 #include <zlib.h>
 
-namespace edm {
+namespace edm::streamer {
   StreamerOutputModuleCommon::Parameters StreamerOutputModuleCommon::parameters(ParameterSet const& ps) {
     Parameters ret;
     ret.hltTriggerSelections = EventSelector::getEventSelectionVString(ps);
@@ -300,4 +300,4 @@ namespace edm {
     }
     return ptr;
   }
-}  // namespace edm
+}  // namespace edm::streamer

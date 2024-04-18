@@ -16,7 +16,7 @@
 
 namespace dqmservices {
 
-  class DQMStreamerReader : public edm::StreamerInputSource {
+  class DQMStreamerReader : public edm::streamer::StreamerInputSource {
   public:
     DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
     ~DQMStreamerReader() override;
@@ -41,14 +41,14 @@ namespace dqmservices {
 
     bool openNextFileImp_();
 
-    InitMsgView const* getHeaderMsg();
-    EventMsgView const* getEventMsg();
+    edm::streamer::InitMsgView const* getHeaderMsg();
+    edm::streamer::EventMsgView const* getEventMsg();
 
-    EventMsgView const* prepareNextEvent();
+    edm::streamer::EventMsgView const* prepareNextEvent();
 
     bool isFirstFile_ = true;
     bool prepareNextFile();
-    bool acceptEvent(const EventMsgView*);
+    bool acceptEvent(const edm::streamer::EventMsgView*);
 
     DQMFileIterator fiterator_;
     unsigned int processedEventPerLs_ = 0;
@@ -66,7 +66,7 @@ namespace dqmservices {
     bool setMatchTriggerSel(std::vector<std::string> const& tnames);
 
     struct OpenFile {
-      std::unique_ptr<edm::StreamerInputFile> streamFile_;
+      std::unique_ptr<edm::streamer::StreamerInputFile> streamFile_;
       DQMFileIterator::LumiEntry lumi_;
 
       bool open() { return (streamFile_.get() != nullptr); }
