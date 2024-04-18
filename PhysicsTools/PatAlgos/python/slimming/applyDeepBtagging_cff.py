@@ -76,13 +76,15 @@ def applyDeepBtagging(process, postfix=""):
     # delete module not used anymore (slimmedJetsPuppi substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedPuppiWithDeepTags' + postfix)
 
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
     addToProcessAndTask('slimmedJetsAK8NoDeepTags', slimmedJetsAK8.clone(), process, task)
-    _btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(pfParticleNetMassCorrelatedJetTagsAll+pfParticleNetFromMiniAODAK8JetTagsAll))
+    _btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(pfParticleNetMassCorrelatedJetTagsAll+pfParticleNetFromMiniAODAK8JetTagsAll+pfParticleNetJetTagsAll+pfParticleNetMassRegressionOutputs))
     updateJetCollection(
         process,
         jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
