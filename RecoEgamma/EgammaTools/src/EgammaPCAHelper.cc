@@ -32,7 +32,6 @@ void EGammaPCAHelper::setHitMap(const std::unordered_map<DetId, const unsigned i
 void EGammaPCAHelper::setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE,
                                  edm::Handle<HGCRecHitCollection> recHitHandleFH,
                                  edm::Handle<HGCRecHitCollection> recHitHandleBH) {
-
   unsigned int total_size = recHitHandleEE->size() + recHitHandleFH->size() + recHitHandleBH->size();
   hits_.resize(total_size);
   unsigned int firstIndex = 0;
@@ -40,7 +39,7 @@ void EGammaPCAHelper::setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE
   for (const auto& handle : {recHitHandleEE, recHitHandleFH, recHitHandleBH}) {
     unsigned int collection_size = handle->size();
     for (unsigned int i = 0; i < collection_size; ++i) {
-      hits_[firstIndex + i ] = &(*handle)[i];
+      hits_[firstIndex + i] = &(*handle)[i];
     }
     firstIndex += collection_size;
   }
@@ -94,7 +93,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
                                          << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
       continue;
     }
-    
+
     if (debug_) {
       const HGCRecHit* hit = hits_[itcheck->second];
       std::cout << "DetId " << rh_detid.rawId() << " " << layer << " " << hit->energy() << std::endl;
