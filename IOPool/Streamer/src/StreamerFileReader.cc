@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 
-namespace edm {
+namespace edm::streamer {
 
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
@@ -124,4 +124,4 @@ namespace edm {
     EventSkipperByID::fillDescription(desc);
     descriptions.add("source", desc);
   }
-}  // namespace edm
+}  // namespace edm::streamer

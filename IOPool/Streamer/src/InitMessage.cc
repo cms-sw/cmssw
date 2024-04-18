@@ -4,6 +4,8 @@
 #include <iterator>
 #include <cstring>
 
+using namespace edm::streamer;
+
 InitMsgView::InitMsgView(void* buf)
     : buf_((uint8*)buf),
       head_(buf),

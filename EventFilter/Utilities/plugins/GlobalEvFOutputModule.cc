@@ -38,6 +38,7 @@
 typedef edm::detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
 namespace evf {
+  using namespace edm::streamer;
 
   class FastMonitoringService;
 
@@ -155,7 +156,7 @@ namespace evf {
 
   typedef edm::global::OutputModule<edm::RunCache<GlobalEvFOutputJSONDef>,
                                     edm::LuminosityBlockCache<evf::GlobalEvFOutputEventWriter>,
-                                    edm::StreamCache<edm::StreamerOutputModuleCommon>,
+                                    edm::StreamCache<StreamerOutputModuleCommon>,
                                     edm::ExternalWork>
       GlobalEvFOutputModuleType;
 
@@ -166,7 +167,7 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::unique_ptr<edm::StreamerOutputModuleCommon> beginStream(edm::StreamID) const final;
+    std::unique_ptr<StreamerOutputModuleCommon> beginStream(edm::StreamID) const final;
 
     std::shared_ptr<GlobalEvFOutputJSONDef> globalBeginRun(edm::RunForOutput const& run) const final;
 
@@ -184,7 +185,7 @@ namespace evf {
 
     Trig getTriggerResults(edm::EDGetTokenT<edm::TriggerResults> const& token, edm::EventForOutput const& e) const;
 
-    edm::StreamerOutputModuleCommon::Parameters commonParameters_;
+    StreamerOutputModuleCommon::Parameters commonParameters_;
     std::string streamLabel_;
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
     edm::EDGetTokenT<edm::SendJobHeader::ParameterSetMap> psetToken_;
@@ -286,7 +287,7 @@ namespace evf {
   GlobalEvFOutputModule::GlobalEvFOutputModule(edm::ParameterSet const& ps)
       : edm::global::OutputModuleBase(ps),
         GlobalEvFOutputModuleType(ps),
-        commonParameters_(edm::StreamerOutputModuleCommon::parameters(ps)),
+        commonParameters_(StreamerOutputModuleCommon::parameters(ps)),
         streamLabel_(ps.getParameter<std::string>("@module_label")),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
         psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
@@ -333,15 +334,15 @@ namespace evf {
 
   void GlobalEvFOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    edm::StreamerOutputModuleCommon::fillDescription(desc);
+    StreamerOutputModuleCommon::fillDescription(desc);
     GlobalEvFOutputModuleType::fillDescription(desc);
     desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
     descriptions.add("globalEvfOutputModule", desc);
   }
 
-  std::unique_ptr<edm::StreamerOutputModuleCommon> GlobalEvFOutputModule::beginStream(edm::StreamID) const {
-    return std::make_unique<edm::StreamerOutputModuleCommon>(
+  std::unique_ptr<StreamerOutputModuleCommon> GlobalEvFOutputModule::beginStream(edm::StreamID) const {
+    return std::make_unique<StreamerOutputModuleCommon>(
         commonParameters_, &keptProducts()[edm::InEvent], description().moduleLabel());
   }
 
@@ -349,7 +350,7 @@ namespace evf {
     //create run Cache holding JSON file writer and variables
     auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_, false);
     jsonDef->updateDestination(streamLabel_);
-    edm::StreamerOutputModuleCommon streamerCommon(
+    StreamerOutputModuleCommon streamerCommon(
         commonParameters_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished

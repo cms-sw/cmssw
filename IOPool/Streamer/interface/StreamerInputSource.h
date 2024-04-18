@@ -20,13 +20,15 @@
 #include <memory>
 #include <vector>
 
-class InitMsgView;
-class EventMsgView;
-
 namespace edm {
   class BranchIDListHelper;
   class ParameterSetDescription;
   class ThinnedAssociationsHelper;
+}  // namespace edm
+
+namespace edm::streamer {
+  class InitMsgView;
+  class EventMsgView;
 
   class StreamerInputSource : public RawInputSource {
   public:
@@ -124,6 +126,6 @@ namespace edm {
     std::string processName_;
     unsigned int protocolVersion_;
   };  //end-of-class-def
-}  // namespace edm
+}  // namespace edm::streamer
 
 #endif

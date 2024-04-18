@@ -1,6 +1,8 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace edm::streamer;
+
 EventMsgView::EventMsgView(void* buf) : buf_((uint8*)buf), head_(buf), v2Detected_(false) {
   // 29-Jan-2008, KAB - adding an explicit version number.
   // We'll start with 5 to match the new version of the INIT message.

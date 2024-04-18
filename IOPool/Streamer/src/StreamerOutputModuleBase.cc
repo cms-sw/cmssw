@@ -12,7 +12,7 @@
 
 #include "zlib.h"
 
-namespace edm {
+namespace edm::streamer {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps)
       : one::OutputModuleBase::OutputModuleBase(ps),
         one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
@@ -71,4 +71,4 @@ namespace edm {
     desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
   }
-}  // namespace edm
+}  // namespace edm::streamer
