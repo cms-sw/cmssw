@@ -329,8 +329,8 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                                        minNumLayerCluster_.at(tracksterSeedAlgoId_.at(tracksterIndex++));
                               }),
                result.end());
-  energyRegressionAndID(input.layerClusters, input.tfSession, result);
   if (doPidCut_) {
+    energyRegressionAndID(input.layerClusters, input.tfSession, result);
     result.erase(std::remove_if(std::begin(result),
                                 std::end(result),
                                 [&](auto const &v) {
@@ -349,8 +349,6 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
                               computeLocalTime_);
 
-  // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, input.tfSession, result);
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     for (auto const &t : result) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Barycenter: " << t.barycenter();
