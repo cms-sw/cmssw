@@ -44,13 +44,14 @@ private:
 FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataFrame) const {
   constexpr int iSample = 2;  //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
-  const std::array<double, 1> amplitudeV = {{double(sample.data()) * adcLSB_}};
 
   double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
   double time_over_threshold = double(sample.tot()) * toaLSBToNS_;
+  const std::array<double, 1> time_over_threshold_V = {{time_over_threshold}};
+
   unsigned char flag = 0;
 
-  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << amplitudeV[0] << ' ' << sample.data() << ' ' << adcLSB_
+  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << time_over_threshold << ' ' << sample.tot() << ' ' << toaLSBToNS_
                                << ' ' << std::endl;
 
   if (time_over_threshold == 0) {
@@ -69,16 +70,16 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
                                  << " .Timewalk correction: " << timeWalkCorr << std::endl;
   }
 
-  LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitudeV[0] << std::endl;
+  LogDebug("ETLUncalibRecHit") << "Final uncalibrated time_over_threshold: " << time_over_threshold << std::endl;
 
   const std::array<double, 1> emptyV = {{0.}};
 
-  double timeError = timeError_.evaluate(amplitudeV, emptyV);
+  double timeError = timeError_.evaluate(time_over_threshold_V, emptyV);
 
   return FTLUncalibratedRecHit(dataFrame.id(),
                                dataFrame.row(),
                                dataFrame.column(),
-                               {amplitudeV[0], 0.f},
+                               {time_over_threshold_V[0], 0.f},
                                {time, 0.f},
                                timeError,
                                -1.f,
