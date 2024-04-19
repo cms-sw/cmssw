@@ -1,3 +1,5 @@
+
+
 <test name="TestSCRAM" command="run.sh"/>
 <test name="SCRAM_TestPass" command="true"/>
 <test name="SCRAM_TestFail" command="! false"/>
