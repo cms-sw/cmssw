@@ -546,6 +546,20 @@ namespace mkfit {
     MultHelixPropTransp(errorProp, temp, outErr);
     // can replace with: MultHelixPropFull(errorProp, outErr, temp); MultHelixPropTranspFull(errorProp, temp, outErr);
 
+#ifdef DEBUG
+    if (debug && g_debug) {
+      for (int kk = 0; kk < N_proc; ++kk) {
+        dprintf("outErr %d\n", kk);
+        for (int i = 0; i < 6; ++i) {
+          for (int j = 0; j < 6; ++j)
+            dprintf("%8f ", outErr.constAt(kk, i, j));
+          dprintf("\n");
+        }
+        dprintf("\n");
+      }
+    }
+#endif
+
     if (pflags.apply_material) {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
@@ -577,6 +591,29 @@ namespace mkfit {
         plNrm(n, 2, 0) = 0.f;
       }
       applyMaterialEffects(hitsRl, hitsXi, propSign, plNrm, outErr, outPar, N_proc);
+#ifdef DEBUG
+    if (debug && g_debug) {
+      for (int kk = 0; kk < N_proc; ++kk) {
+        dprintf("propSign %d\n", kk);
+        for (int i = 0; i < 1; ++i) {
+	  dprintf("%8f ", propSign.constAt(kk, i, 0));
+        }
+        dprintf("\n");
+        dprintf("plNrm %d\n", kk);
+        for (int i = 0; i < 3; ++i) {
+	  dprintf("%8f ", plNrm.constAt(kk, i, 0));
+        }
+        dprintf("\n");
+        dprintf("outErr(after material) %d\n", kk);
+        for (int i = 0; i < 6; ++i) {
+          for (int j = 0; j < 6; ++j)
+            dprintf("%8f ", outErr.constAt(kk, i, j));
+          dprintf("\n");
+        }
+        dprintf("\n");
+      }
+    }
+#endif
     }
 
     squashPhiMPlex(outPar, N_proc);  // ensure phi is between |pi|
@@ -1116,6 +1153,7 @@ namespace mkfit {
               << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
               << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
               << "   mom = " << outPar(n, 3, 0) << " " << outPar(n, 4, 0) << " " << outPar(n, 5, 0) << std::endl
+		          << " charge = " << inChg(n, 0, 0) << std::endl
               << " cart= " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
               << std::sin(outPar(n, 4, 0)) / outPar(n, 3, 0) << " " << 1. / (outPar(n, 3, 0) * tan(outPar(n, 5, 0)))
               << "\t\tpT=" << 1. / std::abs(outPar(n, 3, 0)) << std::endl);
@@ -1295,6 +1333,7 @@ namespace mkfit {
       }
       //std::cout << "beta=" << beta << " p=" << p << std::endl;
       //std::cout << "multiple scattering thetaMSC=" << thetaMSC << " thetaMSC2=" << thetaMSC2 << " radL=" << radL << std::endl;
+      //std::cout << "radL=" << hitsRl.constAt(n, 0, 0) << " beta=" << beta << " invCos=" << invCos << " radLCorr=" << radL << " thetaMSC=" << thetaMSC << " thetaMSC2=" << thetaMSC2 << std::endl;
       // energy loss
       // XXX-KMD beta2 = 1 => 1 / sqrt(0)
       // const float gamma = 1.f/std::sqrt(1.f - std::min(beta2, 0.999999f));

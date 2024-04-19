@@ -237,8 +237,8 @@ namespace mkfit {
     }
   }
 
-  void MkFinder::packModuleNormDir(
-      const LayerOfHits &layer_of_hits, int hit_cnt, MPlexHV &norm, MPlexHV &dir, int N_proc) const {
+  void MkFinder::packModuleNormDirPnt(
+      const LayerOfHits &layer_of_hits, int hit_cnt, MPlexHV &norm, MPlexHV &dir, MPlexHV &pnt, int N_proc) const {
     for (int itrack = 0; itrack < NN; ++itrack) {
       if (itrack < N_proc && hit_cnt < m_XHitSize[itrack]) {
         const auto &hit = layer_of_hits.refHit(m_XHitArr.constAt(itrack, hit_cnt, 0));
@@ -250,6 +250,10 @@ namespace mkfit {
         dir.At(itrack, 0, 0) = mi.xdir[0];
         dir.At(itrack, 1, 0) = mi.xdir[1];
         dir.At(itrack, 2, 0) = mi.xdir[2];
+        pnt.At(itrack, 0, 0) = mi.pos[0];
+        pnt.At(itrack, 1, 0) = mi.pos[1];
+        pnt.At(itrack, 2, 0) = mi.pos[2];
+	//std::cout << "packModuleNormDirPnt id=" << hit_cnt << " norm=(" << mi.zdir[0] << ", " << mi.zdir[1] << ", " << mi.zdir[2] << ") - dir=(" << mi.xdir[0] << ", " << mi.xdir[1] << ", " << mi.xdir[2] << ") -  pnt=(" << mi.pos[0] << ", " << mi.pos[1] << ", " << mi.pos[2] << ")" << std::endl;
       }
     }
   }
@@ -1386,21 +1390,22 @@ namespace mkfit {
 
       if constexpr (Config::usePropToPlane) {
         // Maybe could use 2 matriplex packers ... ModuleInfo has 3 * SVector3 and uint
-        MPlexHV norm, dir;
-        packModuleNormDir(layer_of_hits, hit_cnt, norm, dir, N_proc);
+	MPlexHV norm, dir, pnt;
+	packModuleNormDirPnt(layer_of_hits, hit_cnt, norm, dir, pnt, N_proc);
         kalmanPropagateAndComputeChi2Plane(m_Err[iP],
                                            m_Par[iP],
                                            m_Chg,
                                            m_msErr,
                                            m_msPar,
-                                           norm,
+      				                             norm,
                                            dir,
+                                           pnt,
                                            outChi2,
                                            propPar,
                                            m_FailFlag,
                                            N_proc,
                                            m_prop_config->finding_intra_layer_pflags,
-                                           m_prop_config->finding_requires_propagation_to_hit_pos);
+      				     m_prop_config->finding_requires_propagation_to_hit_pos);
       } else {
         (*fnd_foos.m_compute_chi2_foo)(m_Err[iP],
                                        m_Par[iP],
@@ -1657,21 +1662,20 @@ namespace mkfit {
 
       if constexpr (Config::usePropToPlane) {
         // Maybe could use 2 matriplex packers ... ModuleInfo has 3 * SVector3 and uint
-        MPlexHV norm, dir;
-        packModuleNormDir(layer_of_hits, hit_cnt, norm, dir, N_proc);
-        kalmanPropagateAndComputeChi2Plane(m_Err[iP],
-                                           m_Par[iP],
-                                           m_Chg,
-                                           m_msErr,
-                                           m_msPar,
-                                           norm,
-                                           dir,
-                                           outChi2,
-                                           propPar,
-                                           m_FailFlag,
-                                           N_proc,
-                                           m_prop_config->finding_intra_layer_pflags,
-                                           m_prop_config->finding_requires_propagation_to_hit_pos);
+        MPlexHV norm, dir, pnt;
+        packModuleNormDirPnt(layer_of_hits, hit_cnt, norm, dir, pnt, N_proc);
+        kalmanPropagateAndComputeChi2Plane(m_Err[iC],
+                                     m_Par[iC],
+                                     m_Chg,
+                                     m_msErr,
+                                     m_msPar,
+                                     norm, dir, pnt,
+                                     outChi2,
+                                     propPar,
+                                     m_FailFlag,
+                                     N_proc,
+                                     m_prop_config->finding_intra_layer_pflags,
+                                     m_prop_config->finding_requires_propagation_to_hit_pos);
       } else {
         (*fnd_foos.m_compute_chi2_foo)(m_Err[iP],
                                        m_Par[iP],
@@ -1839,21 +1843,20 @@ namespace mkfit {
     // for propagation to the hit.
     clearFailFlag();
     if constexpr (Config::usePropToPlane) {
-      MPlexHV norm, dir;
-      packModuleNormDir(layer_of_hits, 0, norm, dir, N_proc);
+      MPlexHV norm, dir, pnt;
+      packModuleNormDirPnt(layer_of_hits, 0, norm, dir, pnt, N_proc);
       kalmanPropagateAndUpdatePlane(m_Err[iP],
-                                    m_Par[iP],
-                                    m_Chg,
-                                    m_msErr,
-                                    m_msPar,
-                                    norm,
-                                    dir,
-                                    m_Err[iC],
-                                    m_Par[iC],
-                                    m_FailFlag,
-                                    N_proc,
-                                    m_prop_config->finding_inter_layer_pflags,
-                                    m_prop_config->finding_requires_propagation_to_hit_pos);
+                                   m_Par[iP],
+                                   m_Chg,
+                                   m_msErr,
+                                   m_msPar,
+                                   norm, dir, pnt,
+                                   m_Err[iC],
+                                   m_Par[iC],
+                                   m_FailFlag,
+                                   N_proc,
+                                   m_prop_config->finding_inter_layer_pflags,
+                                   m_prop_config->finding_requires_propagation_to_hit_pos);
     } else {
       (*fnd_foos.m_update_param_foo)(m_Err[iP],
                                      m_Par[iP],
