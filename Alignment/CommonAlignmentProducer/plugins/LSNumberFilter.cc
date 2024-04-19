@@ -55,6 +55,7 @@ void LSNumberFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
       edm::LogWarning("LSNumberFilter") << "Detected " << veto_HLT_Menu[i]
                                         << " in HLT Config tableName(): " << hltConfig_.tableName()
                                         << "; Events of this run will be ignored" << std::endl;
+      break;
     }
   }
 }
