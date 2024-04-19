@@ -22,13 +22,13 @@ private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   bool is_HLT_vetoed;
   unsigned int minLS;
-  const std::string veto_HLT_Menu;
+  const std::vector<std::string> veto_HLT_Menu;
   HLTConfigProvider hltConfig_;
 };
 
 LSNumberFilter::LSNumberFilter(const edm::ParameterSet& iConfig)
     : minLS(iConfig.getUntrackedParameter<unsigned>("minLS", 21)),
-      veto_HLT_Menu(iConfig.getUntrackedParameter<std::string>("veto_HLT_Menu", "LumiScan")) {}
+      veto_HLT_Menu(iConfig.getUntrackedParameter<std::vector<std::string>>("veto_HLT_Menu")) {}
 
 LSNumberFilter::~LSNumberFilter() {}
 
@@ -47,12 +47,15 @@ bool LSNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 void LSNumberFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   hltConfig_.init(iRun, iSetup, "HLT", changed);
-  std::size_t found = hltConfig_.tableName().find(veto_HLT_Menu);
-  is_HLT_vetoed = (found != std::string::npos);
-  if (is_HLT_vetoed) {
-    edm::LogWarning("LSNumberFilter") << "Detected " << veto_HLT_Menu
-                                      << " in HLT Config tableName(): " << hltConfig_.tableName()
-                                      << "; Events of this run will be ignored" << std::endl;
+  is_HLT_vetoed = false;
+  for (unsigned int i = 0; i < veto_HLT_Menu.size(); i++) {
+    std::size_t found = hltConfig_.tableName().find(veto_HLT_Menu[i]);
+    if (found != std::string::npos) {
+      is_HLT_vetoed = true;
+      edm::LogWarning("LSNumberFilter") << "Detected " << veto_HLT_Menu[i]
+                                        << " in HLT Config tableName(): " << hltConfig_.tableName()
+                                        << "; Events of this run will be ignored" << std::endl;
+    }
   }
 }
 //define this as a plug-in
