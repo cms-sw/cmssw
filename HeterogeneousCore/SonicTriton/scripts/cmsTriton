@@ -263,17 +263,6 @@ start_apptainer(){
 		fi
 	fi
 
-	# workaround for nvidia libs w/ singularity-in-singularity
-	# from https://github.com/hpcng/singularity/issues/5759#issuecomment-919523970
-	if [ -d /.singularity.d/libs ]; then
-		TMPD=`mktemp -d`
-		(echo '#!/bin/bash'; echo 'exec /usr/sbin/ldconfig -C '"$TMPD"'/ld.so.cache "$@"') > $TMPD/ldconfig
-		chmod +x $TMPD/ldconfig
-		PATH=$TMPD:$PATH
-		# this does not work with LD_LIBRARY_PATH from cmsenv
-		ldconfig /.singularity.d/libs
-	fi
-
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
 	$DRYRUN $APPTAINER instance start \
