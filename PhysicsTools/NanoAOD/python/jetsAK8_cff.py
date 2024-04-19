@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
@@ -87,7 +87,7 @@ lepInAK8JetVars = cms.EDProducer("LepInJetProducer",
     srcMu = cms.InputTag("finalMuons")
 )
 
-fatJetTable = simpleCandidateFlatTableProducer.clone(
+fatJetTable = simplePATJetFlatTableProducer.clone(
     src = cms.InputTag("finalJetsAK8"),
     cut = cms.string(" pt > 170"), #probably already applied in miniaod
     name = cms.string("FatJet"),
@@ -284,7 +284,7 @@ run2_nanoAOD_106Xv2.toModify(
 ## DeepInfoAK8:End
 #################################################
 
-subJetTable = simpleCandidateFlatTableProducer.clone(
+subJetTable = simplePATJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
     name = cms.string("SubJet"),
     doc  = cms.string("slimmedJetsAK8PFPuppiSoftDropPacked::SubJets, i.e. soft-drop subjets for ak8 fat jets for boosted analysis"),

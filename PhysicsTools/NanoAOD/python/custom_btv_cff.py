@@ -482,7 +482,7 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
         process = update_jets_AK4(process)
             
         process.customJetExtTable = cms.EDProducer(
-            "SimpleCandidateFlatTableProducer",
+            "SimplePATJetFlatTableProducer",
             src=jetPuppiTable.src,
             cut=jetPuppiTable.cut,
             name=jetPuppiTable.name,
@@ -522,7 +522,7 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
         process = update_jets_AK8(process)
         process = update_jets_AK8_subjet(process)
         process.customFatJetExtTable = cms.EDProducer(
-            "SimpleCandidateFlatTableProducer",
+            "SimplePATJetFlatTableProducer",
             src=fatJetTable.src,
             cut=fatJetTable.cut,
             name=fatJetTable.name,
@@ -538,7 +538,7 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
 
         # Subjets
         process.customSubJetExtTable = cms.EDProducer(
-            "SimpleCandidateFlatTableProducer",
+            "SimplePATJetFlatTableProducer",
             src=subJetTable.src,
             cut=subJetTable.cut,
             name=subJetTable.name,
@@ -587,7 +587,7 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
         process.finalJetsConstituentsTable = cms.EDProducer("PackedCandidatePtrMerger", src = candList, skipNulls = cms.bool(True), warnOnSkip = cms.bool(True))
         candInput = cms.InputTag("finalJetsConstituentsTable")
     
-    process.customConstituentsExtTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    process.customConstituentsExtTable = cms.EDProducer("SimplePATCandidateFlatTableProducer",
                                                         src = candInput,
                                                         cut = cms.string(""), #we should not filter after pruning
                                                         name = cms.string("PFCands"),

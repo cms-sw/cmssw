@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATGenericParticleFlatTableProducer_cfi import simplePATGenericParticleFlatTableProducer
 
 from CommonTools.RecoUtils.leptonFSRProducer_cfi import leptonFSRProducer
 leptonFSRphotons = leptonFSRProducer.clone(
@@ -10,7 +10,7 @@ leptonFSRphotons = leptonFSRProducer.clone(
   electrons = "linkedObjects:electrons",
 )
 
-fsrTable = simpleCandidateFlatTableProducer.clone(
+fsrTable = simplePATGenericParticleFlatTableProducer.clone(
     src = cms.InputTag("leptonFSRphotons"),
     name = cms.string("FsrPhoton"),
     doc  = cms.string("Final state radiation photons emitted by muons or electrons"),

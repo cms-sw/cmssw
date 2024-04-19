@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenParticleFlatTableProducer_cfi import simpleGenParticleFlatTableProducer
 
 
 ##################### User floats producers, selectors ##########################
@@ -29,7 +29,7 @@ finalGenParticles = cms.EDProducer("GenParticlePruner",
 
 
 ##################### Tables for final output and docs ##########################
-genParticleTable = simpleCandidateFlatTableProducer.clone(
+genParticleTable = simpleGenParticleFlatTableProducer.clone(
     src = cms.InputTag("finalGenParticles"),
     name= cms.string("GenPart"),
     doc = cms.string("interesting gen particles "),

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
@@ -570,7 +570,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
     jetTableDocDefault = jetTableDoc
 
   jetTableName = "jet{}Table".format(jetName)
-  setattr(proc,jetTableName, simpleCandidateFlatTableProducer.clone(
+  setattr(proc,jetTableName, simplePATJetFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
       cut = cms.string(jetTableCutDefault),
       name = cms.string(jetTablePrefix),
@@ -585,7 +585,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   # Save MC-only jet variables in table
   #
   jetMCTableName = "jet{}MCTable".format(jetName)
-  setattr(proc, jetMCTableName, simpleCandidateFlatTableProducer.clone(
+  setattr(proc, jetMCTableName, simplePATJetFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
       cut = getattr(proc,jetTableName).cut,
       name = cms.string(jetTablePrefix),

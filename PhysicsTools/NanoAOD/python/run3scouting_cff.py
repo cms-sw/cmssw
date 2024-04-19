@@ -306,7 +306,7 @@ ak4ScoutingJetParticleNetJetTags = cms.EDProducer("BoostedJetONNXJetTagsProducer
       debugMode = cms.untracked.bool(False),
 )
 
-ak4ScoutingJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+ak4ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak4ScoutingJets"),
       name = cms.string("ScoutingJet"),
       cut = cms.string(""),
@@ -443,7 +443,7 @@ ak8ScoutingJetParticleNetMassRegressionJetTags = cms.EDProducer("BoostedJetONNXJ
       debugMode = cms.untracked.bool(False),
   )
 
-ak8ScoutingJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+ak8ScoutingJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
       src = cms.InputTag("ak8ScoutingJets"),
       name = cms.string("ScoutingFatJet"),
       cut = cms.string(""),
