@@ -105,6 +105,7 @@ public:
 
       varBase.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
       varBase.add<std::string>("doc")->setComment("few words description of the branch content");
+      varBase.addUntracked<bool>("lazyEval")->setComment("if True, check object type during Event processing.");
 
       return varBase;
     };

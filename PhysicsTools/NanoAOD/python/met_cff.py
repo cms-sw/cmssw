@@ -1,14 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATMETFlatTableProducer_cfi import simplePATMETFlatTableProducer
+
+simpleSingletonPATMETFlatTableProducer = simplePATMETFlatTableProducer.clone(
+    singleton = cms.bool(True),
+    cut = None,
+    lazyEval = None
+)
 
 ##################### Tables for final output and docs ##########################
-pfmetTable = simpleSingletonCandidateFlatTableProducer.clone(
+pfmetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = cms.InputTag("slimmedMETs"),
     name = cms.string("PFMET"),
     doc = cms.string("slimmedMET, type-1 corrected PF MET"),
     variables = cms.PSet(PTVars,
-      
        covXX = Var("getSignificanceMatrix().At(0,0)",float,doc="xx element of met covariance matrix", precision=8),
        covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
        covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
@@ -19,12 +24,11 @@ pfmetTable = simpleSingletonCandidateFlatTableProducer.clone(
        ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
        phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
        phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
-
     ),
 )
 
 
-rawMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+rawMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
     name = cms.string("RawPFMET"),
     doc = cms.string("raw PF MET"),
@@ -36,7 +40,7 @@ rawMetTable = simpleSingletonCandidateFlatTableProducer.clone(
 )
 
 
-caloMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+caloMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
     name = cms.string("CaloMET"),
     doc = cms.string("Offline CaloMET (muon corrected)"),
@@ -47,7 +51,7 @@ caloMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     ),
 )
 
-puppiMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+puppiMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = cms.InputTag("slimmedMETsPuppi"),
     name = cms.string("PuppiMET"),
     doc = cms.string("PUPPI  MET"),
@@ -62,11 +66,10 @@ puppiMetTable = simpleSingletonCandidateFlatTableProducer.clone(
        ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
        phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
        phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
-
     ),
 )
 
-rawPuppiMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+rawPuppiMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = puppiMetTable.src,
     name = cms.string("RawPuppiMET"),
     doc = cms.string("raw Puppi MET"),
@@ -77,7 +80,7 @@ rawPuppiMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     ),)
 
 
-trkMetTable = simpleSingletonCandidateFlatTableProducer.clone(
+trkMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
     name = cms.string("TrkMET"),
     doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=4 ) "),
@@ -88,8 +91,7 @@ trkMetTable = simpleSingletonCandidateFlatTableProducer.clone(
     ),
 )
 
-
-deepMetResolutionTuneTable = simpleSingletonCandidateFlatTableProducer.clone(
+deepMetResolutionTuneTable = simpleSingletonPATMETFlatTableProducer.clone(
     # current deepMets are saved in slimmedMETs in MiniAOD,
     # in the same way as chsMet/TrkMET
     src = pfmetTable.src,
@@ -101,7 +103,7 @@ deepMetResolutionTuneTable = simpleSingletonCandidateFlatTableProducer.clone(
     ),
 )
 
-deepMetResponseTuneTable = simpleSingletonCandidateFlatTableProducer.clone(
+deepMetResponseTuneTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
     name = cms.string("DeepMETResponseTune"),
     doc = cms.string("Deep MET trained with extra response tune"),
@@ -111,7 +113,7 @@ deepMetResponseTuneTable = simpleSingletonCandidateFlatTableProducer.clone(
     ),
 )
 
-metMCTable = simpleSingletonCandidateFlatTableProducer.clone(
+metMCTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
     name = cms.string("GenMET"),
     doc = cms.string("Gen MET"),

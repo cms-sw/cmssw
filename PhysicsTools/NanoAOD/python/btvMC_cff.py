@@ -14,7 +14,7 @@ finalGenParticles.select +=[
     ]
 
 btvGenTable =  cms.EDProducer(
-        "SimpleCandidateFlatTableProducer",
+        "SimpleGenParticleFlatTableProducer",
         src=finalGenParticles.src,
         name= cms.string("GenPart"),
         doc = cms.string("interesting gen particles "),
@@ -31,7 +31,7 @@ genParticleTablesTask.replace(genParticleTable,btvGenTable)
 btvMCTable = cms.EDProducer("BTVMCFlavourTableProducer",name=jetPuppiTable.name,src=cms.InputTag("linkedObjects","jets"),genparticles=cms.InputTag("prunedGenParticles"))
 
 btvAK4JetExtTable = cms.EDProducer(
-        "SimpleCandidateFlatTableProducer",
+        "SimplePATJetFlatTableProducer",
         src=jetPuppiTable.src,
         cut=jetPuppiTable.cut,
         name=jetPuppiTable.name,
@@ -48,7 +48,7 @@ btvAK4JetExtTable = cms.EDProducer(
         ))
 
 btvSubJetMCExtTable = cms.EDProducer(
-    "SimpleCandidateFlatTableProducer",
+    "SimplePATJetFlatTableProducer",
     src = subJetTable.src,
     cut = subJetTable.cut,
         name = subJetTable.name,

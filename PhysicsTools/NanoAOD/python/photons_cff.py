@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simplePATPhotonFlatTableProducer_cfi import simplePATPhotonFlatTableProducer
 from math import ceil,log
 
 
@@ -184,7 +184,7 @@ finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     cut = cms.string("pt > 5 ")
 )
 
-photonTable = simpleCandidateFlatTableProducer.clone(
+photonTable = simplePATPhotonFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","photons"),
     name= cms.string("Photon"),
     doc = cms.string("slimmedPhotons after basic selection (" + finalPhotons.cut.value()+")"),
