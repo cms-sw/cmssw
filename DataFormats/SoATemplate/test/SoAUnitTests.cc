@@ -11,11 +11,27 @@ GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
   SOA_COLUMN(float, y),
   SOA_COLUMN(float, z),
   SOA_COLUMN(float, t))
+
+GENERATE_SOA_LAYOUT(SimpleLayoutTemplateWithScalar,
+  SOA_COLUMN(float, x),
+  SOA_SCALAR(unsigned int, s))
 // clang-format on
 
 using SimpleLayout = SimpleLayoutTemplate<>;
 
 TEST_CASE("SoATemplate") {
+  SECTION("Zero size") {
+    REQUIRE(SimpleLayoutTemplate<>::computeDataSize(0) == 0);
+    REQUIRE(SimpleLayoutTemplateWithScalar<>::computeDataSize(0) != 0);
+  }
+
+  SECTION("Default-constructed view") {
+    SimpleLayout sl;
+    REQUIRE(sl.metadata().size() == 0);
+    SimpleLayoutTemplateWithScalar<> sls;
+    REQUIRE(sls.metadata().size() == 0);
+  }
+
   const std::size_t slSize = 10;
   const std::size_t slBufferSize = SimpleLayout::computeDataSize(slSize);
   std::unique_ptr<std::byte, decltype(std::free) *> slBuffer{
