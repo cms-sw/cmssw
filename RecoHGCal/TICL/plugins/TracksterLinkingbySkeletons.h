@@ -50,15 +50,16 @@ namespace ticl {
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<double>("track_time_quality_threshold", 0.5);
-      iDesc.add<double>("wind", 1.5);
+      iDesc.add<double>("wind", 0.036);
       iDesc.add<unsigned int>("min_num_lcs", 7);
-      iDesc.add<double>("min_trackster_energy", 5.);
-      iDesc.add<double>("pca_quality_th", 0.9);
-      iDesc.add<double>("alignement_projective_th", 3);
+      iDesc.add<double>("min_trackster_energy", 10.);
+      iDesc.add<double>("pca_quality_th", 0.85);
+      iDesc.add<double>("max_distance_projective_sqr", 60.);
       iDesc.add<double>("dot_prod_th", 0.97);
-      iDesc.add<double>("min_distance_z", 10.);
-      iDesc.add<double>("max_distance_closest_points", 50);
-      iDesc.add<double>("max_z_distance_closest_ponts", 20.);
+      iDesc.add<double>("min_distance_z", 30.);
+      iDesc.add<double>("max_distance_projective_sqr_closest_points", 60);
+      iDesc.add<double>("max_z_distance_closest_points", 35.);
+      iDesc.add<double>("cylinder_radius_sqr", 9.);
       TracksterLinkingAlgoBase::fillPSetDescription(iDesc);
     }
 
@@ -74,11 +75,12 @@ namespace ticl {
     unsigned int min_num_lcs_;
     float min_trackster_energy_;
     float pca_quality_th_;
-    float alignement_projective_th_;
+    float max_distance_projective_sqr_;
     float dot_prod_th_;
     float min_distance_z_;
-    float max_distance_closest_points_;
-    float max_z_distance_closest_ponts_;
+    float max_distance_projective_sqr_closest_points_;
+    float max_z_distance_closest_points_;
+    float cylinder_radius_sqr_;
 
     const HGCalDDDConstants* hgcons_;
 

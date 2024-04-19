@@ -67,25 +67,39 @@ def customiseForTICLv5(process, enableDumper = False):
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
     process.ticlIterationsTask = cms.Task(
-        ticlCLUE3DEMStepTask,
-        ticlCLUE3DHADStepTask,
+         ticlCLUE3DHighStepTask
     )
 
     process.mtdSoA = _mtdSoAProducer.clone()
     process.mtdSoATask = cms.Task(process.mtdSoA)
 
-    process.ticlTracksterLinks = _tracksterLinksProducer.clone()
+    process.ticlTracksterLinks = _tracksterLinksProducer.clone(
+            tracksters_collections = cms.VInputTag(
+              'ticlTrackstersCLUE3DHigh'
+            ),
+    )
+
     process.ticlTracksterLinksTask = cms.Task(process.ticlTracksterLinks)
 
     process.ticlCandidate = _ticlCandidateProducer.clone()
     process.ticlCandidateTask = cms.Task(process.ticlCandidate)
 
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DHigh = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
+        label_tst = cms.InputTag("ticlTrackstersCLUE3DHigh")
+        )
+    process.tracksterSimTracksterAssociationPRbyCLUE3DHigh= _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
+        label_tst = cms.InputTag("ticlTrackstersCLUE3DHigh")
+        )
+    
+
+    ''' For future separate iterations
     process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
         label_tst = cms.InputTag("ticlTrackstersCLUE3DEM")
         )
     process.tracksterSimTracksterAssociationPRbyCLUE3DEM = _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
         label_tst = cms.InputTag("ticlTrackstersCLUE3DEM")
         )
+
     process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
         label_tst = cms.InputTag("ticlTrackstersCLUE3DHAD")
         )
@@ -101,6 +115,7 @@ def customiseForTICLv5(process, enableDumper = False):
     process.tracksterSimTracksterAssociationPRbyCLUE3D = _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
         label_tst = cms.InputTag("mergedTrackstersProducer")
         )
+   '''
     process.iterTICLTask = cms.Task(process.ticlLayerTileTask,
                                      process.mtdSoATask,
                                      process.ticlIterationsTask,
@@ -119,21 +134,25 @@ def customiseForTICLv5(process, enableDumper = False):
       ticlCandidateSrc = cms.InputTag('ticlCandidate'),
       isTICLv5 = cms.bool(True)
     )
-    process.hgcalAssociators = cms.Task(process.mergedTrackstersProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
+    process.hgcalAssociators = cms.Task(process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,
                             process.simTsAssocByEnergyScoreProducer,  process.simTracksterHitLCAssociatorByEnergyScoreProducer,
                             process.tracksterSimTracksterAssociationLinking, process.tracksterSimTracksterAssociationPR,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3D, process.tracksterSimTracksterAssociationPRbyCLUE3D,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM, process.tracksterSimTracksterAssociationPRbyCLUE3DEM,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, process.tracksterSimTracksterAssociationPRbyCLUE3DHAD,
+                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DHigh, process.tracksterSimTracksterAssociationPRbyCLUE3DHigh,
                             process.tracksterSimTracksterAssociationLinkingPU, process.tracksterSimTracksterAssociationPRPU
                             )
+    '''for future separate iterations
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM, process.tracksterSimTracksterAssociationPRbyCLUE3DEM,
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, process.tracksterSimTracksterAssociationPRbyCLUE3DHAD,
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3D, process.tracksterSimTracksterAssociationPRbyCLUE3D,
+    '''
 
-
-    labelTst = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"]
+    #   labelTst = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"] # for separate CLUE3D iterations
+    #   lcInputMask  = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"] # for separate CLUE3D iterations
+    labelTst = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks"]
     labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
-    lcInputMask  = ["ticlTrackstersCLUE3DEM", "ticlTrackstersCLUE3DHAD", "ticlTracksterLinks"]
+    lcInputMask  = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks"]
     lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
     process.hgcalValidator = hgcalValidator.clone(
         label_tst = cms.VInputTag(labelTst),
@@ -156,7 +175,7 @@ def customiseForTICLv5(process, enableDumper = False):
             saveSimTICLCandidate=True,
             saveTracks=True,
             saveAssociations=True,
-            trackstersclue3d = cms.InputTag('mergedTrackstersProducer'),
+            trackstersclue3d = cms.InputTag('ticlTrackstersCLUE3DHigh'),
             ticlcandidates = cms.InputTag("ticlCandidate"),
             trackstersmerged = cms.InputTag("ticlCandidate"),
             trackstersInCand = cms.InputTag("ticlCandidate")
@@ -186,25 +205,40 @@ def customiseTICLv5FromReco(process, enableDumper = False):
 
     process.ticlSimTracksters.computeLocalTime = cms.bool(True)
 
+    process.ticlTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
+
+    '''for future CLUE3D separate iterations
     process.ticlTrackstersCLUE3DHAD.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
     process.ticlTrackstersCLUE3DEM.pluginPatternRecognitionByCLUE3D.computeLocalTime = cms.bool(True)
+    '''
 
     process.ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
     process.ticlIterationsTask = cms.Task(
-        ticlCLUE3DEMStepTask,
-        ticlCLUE3DHADStepTask,
+        ticlCLUE3DEM,
     )
 
     process.mtdSoA = _mtdSoAProducer.clone()
     process.mtdSoATask = cms.Task(process.mtdSoA)
 
     process.ticlTracksterLinks = _tracksterLinksProducer.clone()
-    process.ticlTracksterLinksTask = cms.Task(process.ticlTracksterLinks)
+    process.ticlTracksterLinks = _tracksterLinksProducer.clone(
+            tracksters_collections = cms.VInputTag(
+              'ticlTrackstersCLUE3DHigh'
+            ),
+    )
 
     process.ticlCandidate = _ticlCandidateProducer.clone()
     process.ticlCandidateTask = cms.Task(process.ticlCandidate)
 
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DHigh = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
+        label_tst = cms.InputTag("ticlTrackstersCLUE3DHigh")
+        )
+    process.tracksterSimTracksterAssociationPRbyCLUE3DHigh = _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
+        label_tst = cms.InputTag("ticlTrackstersCLUE3DHigh")
+        )
+
+    '''for future CLUE3D separate iterations, merge collections and compute scores
     process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
         label_tst = cms.InputTag("ticlTrackstersCLUE3DEM")
         )
@@ -219,13 +253,14 @@ def customiseTICLv5FromReco(process, enableDumper = False):
         )
 
     process.mergedTrackstersProducer = _mergedTrackstersProducer.clone()
-
     process.tracksterSimTracksterAssociationLinkingbyCLUE3D = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
         label_tst = cms.InputTag("mergedTrackstersProducer")
         )
     process.tracksterSimTracksterAssociationPRbyCLUE3D = _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
         label_tst = cms.InputTag("mergedTrackstersProducer")
         )
+    '''
+    
 
     process.iterTICLTask = cms.Path(process.hgcalLayerClustersTask,
                             process.TFESSource,
@@ -245,16 +280,20 @@ def customiseTICLv5FromReco(process, enableDumper = False):
     process.tracksterSimTracksterAssociationPRPU.label_tst = cms.InputTag("ticlCandidate")
     process.mergeTICLTask = cms.Task()
     process.pfTICL = _pfTICLProducerV5.clone()
-    process.hgcalAssociators = cms.Task(process.hgcalRecHitMapProducer, process.mergedTrackstersProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
+    process.hgcalAssociators = cms.Task(process.hgcalRecHitMapProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,
                             process.simTsAssocByEnergyScoreProducer,  process.simTracksterHitLCAssociatorByEnergyScoreProducer,
                             process.tracksterSimTracksterAssociationLinking, process.tracksterSimTracksterAssociationPR,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3D, process.tracksterSimTracksterAssociationPRbyCLUE3D,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM, process.tracksterSimTracksterAssociationPRbyCLUE3DEM,
-                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, process.tracksterSimTracksterAssociationPRbyCLUE3DHAD,
+                            process.tracksterSimTracksterAssociationLinkingbyCLUE3DHigh, process.tracksterSimTracksterAssociationPRbyCLUE3DHigh,
                             process.tracksterSimTracksterAssociationLinkingPU, process.tracksterSimTracksterAssociationPRPU
                             )
+
+    '''for future CLUE3D separate iterations, merge collections and compute scores
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3D, process.tracksterSimTracksterAssociationPRbyCLUE3D,
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM, process.tracksterSimTracksterAssociationPRbyCLUE3DEM,
+    process.tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, process.tracksterSimTracksterAssociationPRbyCLUE3DHAD,
+    '''
 
     if(enableDumper):
         process.ticlDumper = ticlDumper.clone(
@@ -267,7 +306,7 @@ def customiseTICLv5FromReco(process, enableDumper = False):
             saveSimTICLCandidate=True,
             saveTracks=True,
             saveAssociations=True,
-            trackstersclue3d = cms.InputTag('mergedTrackstersProducer'),
+            trackstersclue3d = cms.InputTag('ticlTrackstersCLUE3DHigh'),
             ticlcandidates = cms.InputTag("ticlCandidate"),
             trackstersmerged = cms.InputTag("ticlCandidate"),
             trackstersInCand = cms.InputTag("ticlCandidate")
