@@ -53,5 +53,6 @@
 </library>
 
 <library file="LSNumberFilter.cc" name="AlignmentCommonAlignmentProducerFilter">
+  <use name="HLTrigger/HLTcore"/>
   <flags EDM_PLUGIN="1"/>
 </library>
