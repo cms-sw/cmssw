@@ -4,6 +4,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <unordered_set>
+#include <cassert>
 
 //NB NODE NEEDS AN ADDNEIGHBOUR METHOD BC TICLGRAPHPRODUCER NEEDS IT
 
@@ -29,6 +30,7 @@ public:
   void addNeighbour(unsigned int trackster_id) { neighboursId_.push_back(trackster_id); }
   const unsigned int getId() const { return index_; }
   std::vector<unsigned int> getNeighbours() const { return neighboursId_; }
+  int size() const { return 0; }
   /* void findSubComponents(std::vector<Node>& graph, std::vector<unsigned int>& subComponent, std::string tabs) {
     tabs += "\t";
     if (!alreadyVisited_) {
@@ -45,37 +47,34 @@ public:
 };
 
 // a node can contain one or more elementary nodes (needed to implement the aggregate graph)
+template <class T>
 class Node {
-  std::vector<ElementaryNode> elementaryNodes_{};
+  std::vector<T> internalStructure_{};
 
 public:
   Node() = default;
-  Node(std::vector<ElementaryNode> const& elementaryNodes) : elementaryNodes_{elementaryNodes} {};
-  Node(ElementaryNode const& eN) : elementaryNodes_{std::vector<ElementaryNode>{eN}} {};
-  Node(unsigned index, bool isTrackster = true) {
-    ElementaryNode eN{index, isTrackster};
-    elementaryNodes_ = std::vector<ElementaryNode>{eN};
-  }
+  Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {};
 
-  const std::vector<ElementaryNode>& getElementaryNodes() const { return elementaryNodes_; }
+  const std::vector<T>& getInternalStructure() const { return internalStructure_; }
 };
 
+template <class T>
 class TICLGraph {
-  std::vector<Node> nodes_{};
-  std::vector<int> isRootNode_;
+  std::vector<Node<T>> nodes_{};
+  std::vector<int> isRootNode_{};
 
 public:
   // can i remove default constructor ?? edm::Wrapper problem
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
-  TICLGraph(std::vector<Node> const& nodes) : nodes_{nodes} {};
-  TICLGraph(std::vector<Node>& n, std::vector<int> isRootNode) {
-    nodes_ = n;
+  TICLGraph(std::vector<Node<T>> const& nodes) : nodes_{nodes} {};
+  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) {
+    nodes_ = nodes;
     //    isRootNode.resize(nodes_.size());
     isRootNode_ = isRootNode;
   };
-  const std::vector<Node>& getNodes() const { return nodes_; }
-  const Node& getNode(int i) const { return nodes_[i]; }
+  const std::vector<Node<T>>& getNodes() const { return nodes_; }
+  const Node<T>& getNode(int i) const { return nodes_[i]; }
 
   //  void setRootNodes() {
   //    for (auto const& node : nodes_) {
@@ -99,7 +98,6 @@ public:
     return components;
   }*/
 
-  //necessary???
   TICLGraph(TICLGraph const&) = default;
   TICLGraph& operator=(TICLGraph const&) = default;
   TICLGraph(TICLGraph&&) = default;
@@ -134,16 +132,19 @@ public:
     return components;
   }*/
 };
+
+/*template <class T>
 class Partition {
-  std::vector<std::vector<Node>> communities_{};
+  std::vector<std::vector<Node<T>>> communities_{};
 
 public:
-  const std::vector<std::vector<Node>>& getPartition() const { return communities_; }
+  const std::vector<std::vector<Node<T>>>& getPartition() const { return communities_; }
   void flat() {
     for (auto& community : communities_) {
-      std::vector<Node> flattenedCommunity{};
+      std::vector<Node<T>> flattenedCommunity{};
       for (auto const& node : community) {
         {
+
           const std::vector<ElementaryNode>& elemNodes{node.getElementaryNodes()};
           for (auto const& elemNode : elemNodes) {
             flattenedCommunity.push_back(Node{elemNode});
@@ -154,6 +155,16 @@ public:
       }
     }
   }
-};
+};*/
 
+//THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
+template <class T>
+bool isNodeDegreeZero(Node<T> const& node) {
+  std::vector<T> internalStructure{node.getInternalStructure()};
+  assert(internalStructure.size() != 0);
+  return (internalStructure[0].size() == 0) ? true : false;
+}
+
+//decltype + size=1=>elementary?
+//std::optional (std::vector) .hasvalue()//
 #endif
