@@ -57,7 +57,7 @@ public:
     elementaryNodes_ = std::vector<ElementaryNode>{eN};
   }
 
-  auto getElementaryNodes() const { return elementaryNodes_; }
+  const std::vector<ElementaryNode>& getElementaryNodes() const { return elementaryNodes_; }
 };
 
 class TICLGraph {
@@ -133,6 +133,27 @@ public:
 
     return components;
   }*/
+};
+class Partition {
+  std::vector<std::vector<Node>> communities_{};
+
+public:
+  const std::vector<std::vector<Node>>& getPartition() const { return communities_; }
+  void flat() {
+    for (auto& community : communities_) {
+      std::vector<Node> flattenedCommunity{};
+      for (auto const& node : community) {
+        {
+          const std::vector<ElementaryNode>& elemNodes{node.getElementaryNodes()};
+          for (auto const& elemNode : elemNodes) {
+            flattenedCommunity.push_back(Node{elemNode});
+          }
+        }
+        community = flattenedCommunity;
+        flattenedCommunity.clear();
+      }
+    }
+  }
 };
 
 #endif
