@@ -4,7 +4,6 @@
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
 #include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "Clusters_test.h"
