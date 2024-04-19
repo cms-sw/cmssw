@@ -41,9 +41,9 @@ ticlTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     pluginPatternRecognitionByCLUE3D = cms.PSet(
     algo_verbosity = cms.int32(0),
     criticalDensity = cms.vdouble(
-      4,
-      4,
-      4
+      0.6,
+      0.6,
+      0.6
     ),
     criticalSelfDensity = cms.vdouble(
       0.15,
