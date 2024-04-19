@@ -1773,9 +1773,6 @@ namespace edm {
                                   streamQueues_[i].pause();
 
                                   auto& event = principalCache_.eventPrincipal(i);
-                                  //We need to be sure that 'status' and its internal shared_ptr<LuminosityBlockPrincipal> are only
-                                  // held by the container as this lambda may not finish executing before all the tasks it
-                                  // spawns have already started to run.
                                   auto eventSetupImpls = &status->eventSetupImpls();
                                   auto lp = status->lumiPrincipal().get();
                                   streamLumiStatus_[i] = std::move(status);

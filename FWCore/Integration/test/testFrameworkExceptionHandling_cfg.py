@@ -22,6 +22,14 @@ process = cms.Process("TEST")
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+process.TestServiceOne = cms.Service("TestServiceOne",
+    verbose = cms.untracked.bool(False)
+)
+
+process.TestServiceTwo = cms.Service("TestServiceTwo",
+    verbose = cms.untracked.bool(False)
+)
+
 options = VarParsing()
 
 options.register("testNumber", 0,
@@ -53,7 +61,7 @@ process.options = cms.untracked.PSet(
 process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
 
 process.throwException = cms.EDProducer("ExceptionThrowingProducer")
-
+process.doNotThrowException = cms.EDProducer("ExceptionThrowingProducer")
 
 print('testNumber', options.testNumber)
 
@@ -75,10 +83,16 @@ elif options.testNumber == 6:
     process.throwException.eventIDThrowOnStreamBeginRun = cms.untracked.EventID(4, 0, 0)
 elif options.testNumber == 7:
     process.throwException.eventIDThrowOnStreamBeginLumi = cms.untracked.EventID(4, 1, 0)
+    process.throwException.expectedStreamBeginLumi = cms.untracked.uint32(4)
+    process.throwException.expectedOffsetNoStreamEndLumi = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedStreamBeginLumi = cms.untracked.uint32(4)
+    process.doNotThrowException.expectedOffsetNoStreamEndLumi = cms.untracked.uint32(1)
 elif options.testNumber == 8:
     process.throwException.eventIDThrowOnStreamEndRun = cms.untracked.EventID(3, 0, 0)
 elif options.testNumber == 9:
     process.throwException.eventIDThrowOnStreamEndLumi = cms.untracked.EventID(3, 1, 0)
+    process.throwException.expectedStreamBeginLumi = cms.untracked.uint32(4)
+    process.doNotThrowException.expectedStreamBeginLumi = cms.untracked.uint32(4)
 else:
     print("The parameter named testNumber is out of range. An exception will not be thrown. Supported values range from 1 to 9.")
     print("The proper syntax for setting the parameter is:")
@@ -89,3 +103,4 @@ process.path1 = cms.Path(
     process.busy1 *
     process.throwException
 )
+process.path2 = cms.Path(process.doNotThrowException)
