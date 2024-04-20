@@ -271,9 +271,7 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook, std:
 
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) {
-  edm::Handle<std::vector<TICLCandidate>> TICLCandidates_h;
-  event.getByToken(TICLCandidatesToken_, TICLCandidates_h);
-  auto TICLCandidates = *TICLCandidates_h;
+  auto TICLCandidates = event.get(TICLCandidatesToken_);
 
   edm::Handle<std::vector<TICLCandidate>> simTICLCandidates_h;
   event.getByToken(simTICLCandidatesToken_, simTICLCandidates_h);
