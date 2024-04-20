@@ -229,8 +229,8 @@ namespace ticl {
           const auto firstPos = std::distance(std::begin(vertices_), firstEl);
           auto iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
           while (iDup != vertices_.end()) {
-            vertices_.erase(iDup);
             vertex_multiplicity_.erase(vertex_multiplicity_.begin() + std::distance(std::begin(vertices_), iDup));
+            vertices_.erase(iDup);
             vertex_multiplicity_[firstPos] -= 1;
             iDup = std::find(std::next(firstEl), vertices_.end(), lcIdx);
           };
