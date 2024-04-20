@@ -1352,7 +1352,7 @@ namespace mkfit {
       // dEdx = dEdx*2.;//xi in cmssw is defined with an extra factor 0.5 with respect to formula 27.1 in pdg
       //std::cout << "dEdx=" << dEdx << " delta=" << deltahalf << " wmax=" << wmax << " Xi=" << hitsXi.constAt(n,0,0) << std::endl;
       const float dP = propSign.constAt(n, 0, 0) * dEdx / beta;
-      outPar.At(n, 3, 0) = p / (std::max(p + dP, 0.001f) * pt);  //stay above 1MeV
+      outPar.At(n, 3, 0) = p / (std::max(p - dP, 0.001f) * pt);  //stay above 1MeV
       //assume 100% uncertainty
       outErr.At(n, 3, 3) += dP * dP / (p2 * pt * pt);
     }
