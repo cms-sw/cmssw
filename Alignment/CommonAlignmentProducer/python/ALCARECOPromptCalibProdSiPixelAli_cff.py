@@ -149,7 +149,7 @@ SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
 
 
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
-                                                    lsNumberFilter*
+                                                    LSNumberFilter*
                                                     offlineBeamSpot*
                                                     SiPixelAliHighPuritySelector*
                                                     SiPixelAliTrackRefitter0*
