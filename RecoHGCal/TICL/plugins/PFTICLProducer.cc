@@ -33,7 +33,7 @@ private:
   const bool isTICLv5_;
   // inputs
   const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
+  edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
   const edm::EDGetTokenT<reco::MuonCollection> muons_;
   // For PFMuonAlgo
   std::unique_ptr<PFMuonAlgo> pfmu_;
@@ -48,12 +48,14 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       energy_from_regression_(conf.getParameter<bool>("energyFromRegression")),
       isTICLv5_(conf.getParameter<bool>("isTICLv5")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
-      srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
-      srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
-      srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
       pfmu_(std::make_unique<PFMuonAlgo>(conf.getParameterSet("pfMuonAlgoParameters"),
                                          false)) {  // postMuonCleaning = false
+  if (not isTICLv5_) {
+    srcTrackTime_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"));
+    srcTrackTimeError_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"));
+    srcTrackTimeQuality_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"));
+  }
   produces<reco::PFCandidateCollection>();
 }
 
