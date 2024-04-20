@@ -65,8 +65,6 @@ private:
 
   std::vector<edm::EDGetTokenT<std::vector<float>>> original_masks_tokens_;
 
-  std::once_flag initializeGeometry_;
-
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const std::string detector_;
   const std::string propName_;
@@ -116,10 +114,6 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps)
 
   linkingAlgo_ = TracksterLinkingPluginFactory::get()->create(algoType, linkingPSet, consumesCollector());
 }
-
-void TracksterLinksProducer::beginJob() {}
-
-void TracksterLinksProducer::endJob(){};
 
 void TracksterLinksProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
@@ -213,29 +207,28 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
 }
 
 void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
-#ifdef EDM_ML_DEBUG
   int counter = 0;
-  for (auto const &t : tracksters) {
-    LogDebug("TracksterLinksProducer")
-        << counter++ << " TracksterLinksProducer (" << label << ") obj barycenter: " << t.barycenter()
-        << " eta,phi (baricenter): " << t.barycenter().eta() << ", " << t.barycenter().phi()
-        << " eta,phi (eigen): " << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi()
-        << " pt(eigen): " << std::sqrt(t.eigenvectors(0).Unit().perp2()) * t.raw_energy() << " seedID: " << t.seedID()
-        << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
-        << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
-            (float)t.vertex_multiplicity().size())
-        << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
-        << " probs(ga/e/mu/np/cp/nh/am/unk): ";
-    for (auto const &p : t.id_probabilities()) {
-      LogDebug("TracksterLinksProducer") << std::fixed << p << " ";
+  LogDebug("TracksterLinksProducer").log([&](auto& log) {
+    for (auto const &t : tracksters) {
+      log << counter++ << " TracksterLinksProducer (" << label << ") obj barycenter: " << t.barycenter()
+          << " eta,phi (baricenter): " << t.barycenter().eta() << ", " << t.barycenter().phi()
+          << " eta,phi (eigen): " << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi()
+          << " pt(eigen): " << std::sqrt(t.eigenvectors(0).Unit().perp2()) * t.raw_energy() << " seedID: " << t.seedID()
+          << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
+          << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
+              (float)t.vertex_multiplicity().size())
+          << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
+          << " probs(ga/e/mu/np/cp/nh/am/unk): ";
+      for (auto const &p : t.id_probabilities()) {
+        log << std::fixed << p << " ";
+      }
+      log << " sigmas: ";
+      for (auto const &s : t.sigmas()) {
+        log << s << " ";
+      }
+      log << std::endl;
     }
-    LogDebug("TracksterLinksProducer") << " sigmas: ";
-    for (auto const &s : t.sigmas()) {
-      LogDebug("TracksterLinksProducer") << s << " ";
-    }
-    LogDebug("TracksterLinksProducer") << std::endl;
-  }
-#endif
+  });
 }
 
 void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
