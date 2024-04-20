@@ -35,7 +35,8 @@ public:
   TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
       : LeafCandidate(), tracksters_{}, trackPtr_(trackPtr), time_(0.f), timeError_(-1.f) {
     if (trackPtr_.isNull() and tracksterPtr.isNull())
-      edm::LogError("TICLCandidate") << "At least one between track and trackster must be valid\n";
+      throw cms::Exception("NullPointerError")
+          << "TICLCandidate constructor: at least one between track and trackster must be valid";
 
     if (tracksterPtr.isNonnull()) {
       tracksters_.push_back(tracksterPtr);
