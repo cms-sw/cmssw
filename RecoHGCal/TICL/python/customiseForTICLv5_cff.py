@@ -90,7 +90,7 @@ def customiseForTICLv5(process, enableDumper = False):
     process.tracksterSimTracksterAssociationPRbyCLUE3DHigh= _tracksterSimTracksterAssociationPRbyCLUE3D.clone(
         label_tst = cms.InputTag("ticlTrackstersCLUE3DHigh")
         )
-    
+
 
     ''' For future separate iterations
     process.tracksterSimTracksterAssociationLinkingbyCLUE3DEM = _tracksterSimTracksterAssociationLinkingbyCLUE3D.clone(
@@ -260,7 +260,7 @@ def customiseTICLv5FromReco(process, enableDumper = False):
         label_tst = cms.InputTag("mergedTrackstersProducer")
         )
     '''
-    
+
 
     process.iterTICLTask = cms.Path(process.hgcalLayerClustersTask,
                             process.TFESSource,
@@ -279,7 +279,10 @@ def customiseTICLv5FromReco(process, enableDumper = False):
     process.tracksterSimTracksterAssociationLinkingPU.label_tst = cms.InputTag("ticlCandidate")
     process.tracksterSimTracksterAssociationPRPU.label_tst = cms.InputTag("ticlCandidate")
     process.mergeTICLTask = cms.Task()
-    process.pfTICL = _pfTICLProducerV5.clone()
+    process.pfTICL = _pfTICLProducer.clone(
+      ticlCandidateSrc = cms.InputTag('ticlCandidate'),
+      isTICLv5 = cms.bool(True)
+    )
     process.hgcalAssociators = cms.Task(process.hgcalRecHitMapProducer, process.lcAssocByEnergyScoreProducer, process.layerClusterCaloParticleAssociationProducer,
                             process.scAssocByEnergyScoreProducer, process.layerClusterSimClusterAssociationProducer,
                             process.lcSimTSAssocByEnergyScoreProducer, process.layerClusterSimTracksterAssociationProducer,
