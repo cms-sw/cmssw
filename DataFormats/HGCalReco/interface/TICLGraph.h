@@ -52,8 +52,9 @@ class Node {
   std::vector<T> internalStructure_{};
 
 public:
-  Node() = default;
-  Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {};
+  Node(std::vector<T> const& internalStructure) : internalStructure_{internalStructure} {
+    assert(internalStructure.size() != 0);
+  };
 
   const std::vector<T>& getInternalStructure() const { return internalStructure_; }
 };
@@ -68,13 +69,9 @@ public:
   // without default constructor i could initialize connectedComponents when building the Graph
   TICLGraph() = default;
   TICLGraph(std::vector<Node<T>> const& nodes) : nodes_{nodes} {};
-  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) {
-    nodes_ = nodes;
-    //    isRootNode.resize(nodes_.size());
-    isRootNode_ = isRootNode;
-  };
-  const std::vector<Node<T>>& getNodes() const { return nodes_; }
-  const Node<T>& getNode(int i) const { return nodes_[i]; }
+  TICLGraph(std::vector<Node<T>> const& nodes, std::vector<int> isRootNode) : nodes_{nodes}, isRootNode_{isRootNode} {};
+  std::vector<Node<T>> const& getNodes() const { return nodes_; }
+  Node<T> const& getNode(int i) const { return nodes_[i]; }
 
   //  void setRootNodes() {
   //    for (auto const& node : nodes_) {
@@ -159,8 +156,11 @@ public:
 
 //THIS implies that NO node can be a vector of size zero. Therefore, before creating the aggregate graph, one should remove empty communities.
 template <class T>
+
+//a node is of degree zero if it consists in a vector of ElementaryNodes
+//NB this method requires assumption that a Node NEVER contains an empty vector!!!!
 bool isNodeDegreeZero(Node<T> const& node) {
-  std::vector<T> internalStructure{node.getInternalStructure()};
+  std::vector<T> const& internalStructure{node.getInternalStructure()};
   assert(internalStructure.size() != 0);
   return (internalStructure[0].size() == 0) ? true : false;
 }
