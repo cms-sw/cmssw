@@ -226,7 +226,7 @@ void TracksterLinksProducer::printTrackstersDebug(const std::vector<Trackster> &
       for (auto const &s : t.sigmas()) {
         log << s << " ";
       }
-      log << std::endl;
+      log << "\n";
     }
   });
 }

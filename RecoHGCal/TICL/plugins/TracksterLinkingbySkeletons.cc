@@ -126,7 +126,6 @@ std::array<ticl::Vector, 3> TracksterLinkingbySkeletons::findSkeletonNodes(
   float innerLayerZ = layerClusters[sortedVertices[0]].z();
   int outerLayerId = rhtools.getLayerWithOffset(layerClusters[sortedVertices.back()].hitsAndFractions()[0].first);
   float outerLayerZ = layerClusters[sortedVertices.back()].z();
-  float barycenterZ = trackster.barycenter().Z();
   bool foundInnerLayer = false;
   bool foundOuterLayer = false;
   for (auto const &v : sortedVertices) {
